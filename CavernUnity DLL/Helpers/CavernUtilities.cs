@@ -1,0 +1,230 @@
+﻿using UnityEngine;
+using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
+namespace Cavern {
+    public enum Jack { Front = 0, CenterLFE = 2, Rear = 4, Side = 6 }
+    public enum QualityModes { Low = 0, Medium, High, Perfect }
+    public enum Rolloffs { Logarithmic, Linear, Real, Disabled };
+
+    /// <summary>Environment type. Rendering method will be chosen by this and <see cref="AudioListener3D.IsSymmetric"/>.</summary>
+    public enum Environments {
+        /// <summary>
+        /// For a single listener on the center with speakers placed around in a sphere.<br />
+        /// <b>Symmetric engine</b>: balance-based.<br />
+        /// <b>Asymmetric engine</b>: hybrid directional.
+        /// </summary>
+        Studio = 0,
+
+        /// <summary>
+        /// For a single listener or a few listeners close to each other on the center with
+        /// speakers placed around in a cuboid.<br />
+        /// <b>Symmetric engine</b>: balance-based.<br />
+        /// <b>Asymmetric engine</b>: hybrid distance-based.
+        /// </summary>
+        Home = 1,
+
+        /// <summary>
+        /// For many listeners. Viewers at the sides or the back of the room will also
+        /// experience 3D audio, unlike in Studio or Home environments, but this will reduce
+        /// the overall effect quality, even on the center.<br />
+        /// <b>Symmetric engine</b>: balance-based.<br />
+        /// <b>Asymmetric engine</b>: directional.
+        /// </summary>
+        Theatre = 2
+    }
+
+    public static class CavernUtilities {
+        /// <summary>Cached version name.</summary>
+        static string _Info;
+        /// <summary>Version and creator information.</summary>
+        public static string Info {
+            get {
+                if (_Info == null)
+                    _Info = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
+                return "Cavern v" + _Info + " by VoidX (www.voidx.tk)";
+            }
+        }
+
+        /// <summary>sqrt(2) / 2</summary>
+        internal const float sqrt2p2 = .7071067811f;
+        /// <summary>sqrt(2) / -2</summary>
+        internal const float sqrt2pm2 = -.7071067811f;
+
+        /// <summary>For given angles (in radian) it returns a vector for that position on a sphere with the radius of 1.</summary>
+        public static Vector3 PlaceInSphere(Vector3 Angles) {
+            float XRad = Angles.x * Mathf.Deg2Rad, YRad = Angles.y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
+                SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
+            return new Vector3(SinY * CosX, -SinX, CosY * CosX);
+        }
+
+        /// <summary>For given angles (in radian) it returns a vector for that position on a cube with the side length of 2.</summary>
+        public static Vector3 PlaceInCube(Vector3 Angles) {
+            float XRad = Angles.x * Mathf.Deg2Rad, YRad = Angles.y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
+                SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
+            if (Abs(SinY) > Abs(CosY)) {
+                SinY = SinY > 0 ? sqrt2p2 : sqrt2pm2;
+            } else
+                CosY = CosY > 0 ? sqrt2p2 : sqrt2pm2;
+            SinY /= sqrt2p2;
+            CosY /= sqrt2p2;
+            if (Abs(SinX) >= sqrt2p2) {
+                SinX = SinX > 0 ? sqrt2p2 : sqrt2pm2;
+                CosX /= sqrt2p2;
+                SinY *= CosX;
+                CosY *= CosX;
+            }
+            SinX /= sqrt2p2;
+            return new Vector3(SinY, -SinX, CosY);
+        }
+
+        /// <summary>Quickly checks if a value is in an array.</summary>
+        /// <param name="Target">Array reference</param>
+        /// <param name="Count">Array length</param>
+        /// <param name="Value">Value to check</param>
+        /// <returns>If an array contains the value</returns>
+        internal static unsafe bool ArrayContains(ref float[] Target, int Count, float Value) {
+            fixed (float* First = Target) {
+                float* ArrPtr = First;
+                do
+                    if (*ArrPtr++ == Value)
+                        return true;
+                while (--Count != 0);
+            }
+            return false;
+        }
+
+        /// <summary>Multiplies all values in an array.</summary>
+        /// <param name="Target">Array reference</param>
+        /// <param name="Count">Array length</param>
+        /// <param name="Value">Multiplier</param>
+        internal static unsafe void ArrayMultiplier(ref float[] Target, int Count, float Value) {
+            fixed (float* ArrPtr = Target) {
+                float* Entry = ArrPtr;
+                do
+                    *Entry++ *= Value;
+                while (--Count != 0);
+            }
+        }
+
+        /// <summary>Keeps a value in the given array, if it's smaller than any of its contents.</summary>
+        /// <param name="in0">Array reference</param>
+        /// <param name="in1">Array length</param>
+        /// <param name="in2">Value to insert</param>
+        internal static void BottomlistHandler(ref float[] in0, int in1, float in2) {
+            int Replace = -1;
+            for (int Record = 0; Record < in1; Record++)
+                if (in0[Record] > in2)
+                    Replace = Replace == -1 ? Record : (in0[Record] > in0[Replace] ? Record : Replace);
+            if (Replace != -1)
+                in0[Replace] = in2;
+        }
+
+        /// <summary>Unclamped linear interpolation.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static float FastLerp(float a, float b, float t) {
+            return (b - a) * t + a;
+        }
+
+        /// <summary>Clamped linear vector interpolation</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector3 FastLerp(Vector3 in0, Vector3 in1, float in2) {
+            if (in2 >= 1)
+                return in1;
+            if (in2 <= 0)
+                return in0;
+            return new Vector3((in1.x - in0.x) * in2 + in0.x, (in1.y - in0.y) * in2 + in0.y, (in1.z - in0.z) * in2 + in0.z);
+        }
+
+        /// <summary>Get the peak amplitude of a given channel in a multichannel array.</summary>
+        /// <param name="Target">Array reference</param>
+        /// <param name="Samples">Samples per channel</param>
+        /// <param name="Channel">Target channel</param>
+        /// <param name="Channels">Channel count</param>
+        /// <returns>Maximum absolute value in the array</returns>
+        internal static unsafe float GetPeak(ref float[] Target, int Samples, int Channel, int Channels) {
+            float Max = 0, AbsSample;
+            int Absolute;
+            fixed (float* ArrPtr = Target) {
+                float* Sample = ArrPtr + Channel;
+                do {
+                    Absolute = (*(int*)Sample) & 0x7fffffff;
+                    AbsSample = (*(float*)&Absolute);
+                    if (Max < AbsSample)
+                        Max = AbsSample;
+                    Sample += Channels;
+                } while (--Samples != 0);
+            }
+            return Max;
+        }
+
+        /// <summary>Vector scaling by each axis.</summary>
+        /// <param name="Target">Input vector</param>
+        /// <param name="Scale">Scale</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector3 VectorScale(Vector3 Target, Vector3 Scale) {
+            Target.x *= Scale.x;
+            Target.y *= Scale.y;
+            Target.z *= Scale.z;
+            return Target;
+        }
+
+        /// <summary>Low-pass filter for a single channel in a multichannel array.</summary>
+        /// <param name="Target">Sample array reference</param>
+        /// <param name="Last">Last sample</param>
+        /// <param name="Samples">Sample count per channel</param>
+        /// <param name="Channel">Channel</param>
+        /// <param name="Channels">Channels</param>
+        public static unsafe void Lowpass(ref float[] Target, ref float Last, int Samples, ref int Channel, ref int Channels) {
+            fixed (float* SampleArr = Target) {
+                float* Sample = SampleArr + Channel;
+                do {
+                    Last = *Sample = .9995f * Last + .0005f * *Sample;
+                    *Sample *= 6;
+                    Sample += Channels;
+                } while (--Samples != 0);
+            }
+        }
+
+        /// <summary>Low-pass with configurable effect strength and no volume correction.</summary>
+        /// <param name="Target">Sample array reference</param>
+        /// <param name="Last">Last sample</param>
+        /// <param name="Samples">Array length</param>
+        /// <param name="Strength">Effect strength</param>
+        public static unsafe void Lowpass(ref float[] Target, ref float Last, int Samples, float Strength) {
+            float Retain = 1f - Strength;
+            fixed (float* SampleArr = Target) {
+                float* Sample = SampleArr;
+                do
+                    Last = *Sample = Strength * Last + Retain * *Sample++;
+                while (--Samples != 0);
+            }
+        }
+
+        /// <summary>Set gain for a channel in a multichannel array.</summary>
+        /// <param name="Target">Sample reference</param>
+        /// <param name="Samples">Sample count per channel</param>
+        /// <param name="Gain">Gain</param>
+        /// <param name="Channel">Target channel</param>
+        /// <param name="Channels">Channel count</param>
+        internal static unsafe void Gain(ref float[] Target, int Samples, float Gain, ref int Channel, ref int Channels) {
+            fixed (float* ArrPtr = Target) {
+                float* Entry = ArrPtr + Channel;
+                do {
+                    *Entry *= Gain;
+                    Entry += Channels;
+                } while (--Samples != 0);
+            }
+        }
+
+        /// <summary>Fast absolute value of a float.</summary>
+        /// <param name="x">Input</param>
+        /// <returns>Math.Abs(x), just faster</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe float Abs(float x) {
+            int Absolute = (*(int*)&x) & 0x7fffffff;
+            return (*(float*)&Absolute);
+        }
+    }
+}
