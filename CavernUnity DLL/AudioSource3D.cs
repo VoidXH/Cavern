@@ -227,7 +227,7 @@ namespace Cavern {
             return AngleMatches;
         }
 
-        /// <summary>Linearized <see cref="CalculateAngleMatches(int, Vector3, float, Func{float, float})"/>:
+        /// <summary>Linearized <see cref="CalculateAngleMatches(int, Vector3, Func{float, float})"/>:
         /// pi / 2 - pi / 2 * x, angle match: pi - (lin acos) = pi / 2 + pi / 2 * x.</summary>
         /// <param name="Channels">Output layout channel count</param>
         /// <param name="Direction">The source's direction from the <see cref="AudioListener3D"/></param>

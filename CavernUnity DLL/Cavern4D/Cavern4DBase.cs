@@ -2,19 +2,38 @@
 using System;
 
 namespace Cavern.Cavern4D {
+    /// <summary>Seat movement generation for <see cref="Cavernize"/>.</summary>
     [AddComponentMenu("Audio/4D Processor")]
     public class Cavern4DBase : MonoBehaviour {
+        /// <summary>The Cavernized audio object to be converted.</summary>
+        [Tooltip("The Cavernized audio object to be converted.")]
         public Cavernize CavernSource;
+        /// <summary>Rotation aggressiveness.</summary>
+        [Tooltip("Rotation aggressiveness.")]
         public float RotationConstant = 90;
-        [Range(0, 45)] public float MaxRotationSide = 10;
+        /// <summary>Maximum forward and backward seat rotation.</summary>
+        [Tooltip("Maximum forward and backward seat rotation.")]
         [Range(0, 45)] public float MaxRotationFace = 20;
-        public int Rows, Columns;
+        /// <summary>Maximum sideways seat rotation.</summary>
+        [Tooltip("Maximum sideways seat rotation.")]
+        [Range(0, 45)] public float MaxRotationSide = 10;
+        /// <summary>Number of seat rows.</summary>
+        [Tooltip("Number of seat rows.")]
+        public int Rows;
+        /// <summary>Number of seats in a row.</summary>
+        [Tooltip("Number of seats in a row.")]
+        public int Columns;
 
+        /// <summary>Seat movement description.</summary>
         public struct SeatData {
+            /// <summary>Seat elevation in the range of <see cref="Cavernize.ChannelHeights"/>.</summary>
+            [Tooltip("Seat elevation in Cavernize's bounds.")]
             public float Height;
+            /// <summary>Seat rotation Euler angles.</summary>
             public Vector3 Rotation;
         }
 
+        /// <summary>Seat movement descriptions. The first dimension is the row, the second is the column.</summary>
         public SeatData[][] SeatMovements;
 
         void Start() {
@@ -97,17 +116,17 @@ namespace Cavern.Cavern4D {
             }
             // Seat rotation interpolation
             for (int Row = 0; Row < Rows; ++Row) {
-                SeatMovements[Row][0].Rotation.z = Mathf.Clamp((SeatMovements[Row][0].Height - SeatMovements[Row][1].Height) * RotationConstant * 2, -MaxRotationSide, MaxRotationSide);
+                SeatMovements[Row][0].Rotation.z = Mathf.Clamp((SeatMovements[Row][1].Height - SeatMovements[Row][0].Height) * RotationConstant * 2, -MaxRotationSide, MaxRotationSide);
                 for (int Column = 1; Column < LastColumn; Column++)
-                    SeatMovements[Row][Column].Rotation.z = Mathf.Clamp((SeatMovements[Row][Column - 1].Height - SeatMovements[Row][Column + 1].Height) * RotationConstant, -MaxRotationSide, MaxRotationSide);
-                SeatMovements[Row][LastColumn].Rotation.z = Mathf.Clamp((SeatMovements[Row][LastColumn - 1].Height - SeatMovements[Row][LastColumn].Height) * RotationConstant * 2,
+                    SeatMovements[Row][Column].Rotation.z = Mathf.Clamp((SeatMovements[Row][Column + 1].Height - SeatMovements[Row][Column - 1].Height) * RotationConstant, -MaxRotationSide, MaxRotationSide);
+                SeatMovements[Row][LastColumn].Rotation.z = Mathf.Clamp((SeatMovements[Row][LastColumn].Height - SeatMovements[Row][LastColumn - 1].Height) * RotationConstant * 2,
                     -MaxRotationSide, MaxRotationSide);
             }
             for (int Column = 0; Column < Columns; ++Column) {
-                SeatMovements[0][Column].Rotation.x = Mathf.Clamp((SeatMovements[0][Column].Height - SeatMovements[1][Column].Height) * RotationConstant * 2, -20, 20);
+                SeatMovements[0][Column].Rotation.x = Mathf.Clamp((SeatMovements[1][Column].Height - SeatMovements[0][Column].Height) * RotationConstant * 2, -20, 20);
                 for (int Row = 1; Row < LastRow; Row++)
-                    SeatMovements[Row][Column].Rotation.x = Mathf.Clamp((SeatMovements[Row - 1][Column].Height - SeatMovements[Row + 1][Column].Height) * RotationConstant, -MaxRotationFace, MaxRotationFace);
-                SeatMovements[LastRow][Column].Rotation.x = Mathf.Clamp((SeatMovements[LastRow - 1][Column].Height - SeatMovements[LastRow][Column].Height) * RotationConstant * 2,
+                    SeatMovements[Row][Column].Rotation.x = Mathf.Clamp((SeatMovements[Row + 1][Column].Height - SeatMovements[Row - 1][Column].Height) * RotationConstant, -MaxRotationFace, MaxRotationFace);
+                SeatMovements[LastRow][Column].Rotation.x = Mathf.Clamp((SeatMovements[LastRow][Column].Height - SeatMovements[LastRow - 1][Column].Height) * RotationConstant * 2,
                     -MaxRotationFace, MaxRotationFace);
             }
         }
