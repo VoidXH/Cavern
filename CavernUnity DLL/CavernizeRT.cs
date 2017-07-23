@@ -3,24 +3,44 @@ using UnityEngine;
 
 namespace Cavern {
     /// <summary><see cref="Cavernize"/> on a single source with diverted direct audio output.</summary>
+    [AddComponentMenu("Audio/Single-channel height processor")]
     public class CavernizeRealtime : MonoBehaviour {
+        /// <summary>The channel of the source to convert.</summary>
+        [Tooltip("The channel of the source to convert.")]
         public int ChannelUsed = 0;
+        /// <summary>Indicates a balanced input line.</summary>
+        [Tooltip("Indicates a balanced input line.")]
         public bool Balanced = false;
 
+        /// <summary>Target output for the base channel (L).</summary>
+        [Tooltip("Target output for the base channel (L).")]
         public Jack Divert = Jack.Front;
+        /// <summary>Target output for the height channel (R).</summary>
+        [Tooltip("Target output for the height channel (R).")]
         public Jack HeightDivert = Jack.Front;
 
+        /// <summary>Height effect strength.</summary>
+        [Tooltip("Height effect strength.")]
         [Range(0, 1)] public float Effect = .75f;
+        /// <summary>Output smoothing strength.</summary>
+        [Tooltip("Output smoothing strength.")]
         [Range(0, 1)] public float Smoothness = .8f;
 
+        /// <summary>Base speaker's position on the Y axis.</summary>
+        [Tooltip("Base speaker's position on the Y axis.")]
         [Range(-1, 1)] public float BottomSpeakerHeight = 0;
+        /// <summary>Height speaker's position on the Y axis.</summary>
+        [Tooltip("Height speaker's position on the Y axis.")]
         [Range(-1, 1)] public float TopSpeakerHeight = 1;
 
+        /// <summary>Peak decay rate multiplier.</summary>
         [Header("Metering")]
         [Tooltip("Peak decay rate multiplier.")]
         public float PeakDecay = .5f;
 
+        /// <summary>Channel amplitude at the last update.</summary>
         public float LastPeak { get; private set; }
+        /// <summary>Channel height at the last update.</summary>
         public float Height { get; private set; }
 
         float LastSample = 0, LowSample = 0, HighSample = 0;

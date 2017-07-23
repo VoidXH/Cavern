@@ -1,9 +1,19 @@
 ﻿using UnityEngine;
 
 namespace Cavern.Helpers {
-    /// <summary>Cavern window basics.</summary>
+    /// <summary>Cavern window handling basics.</summary>
     public abstract class WindowBase : MonoBehaviour {
-        public enum Corners { TopLeft, TopRight, BottomLeft, BottomRight };
+        /// <summary>Possible corners to open a window at.</summary>
+        public enum Corners {
+            /// <summary>Top left corner.</summary>
+            TopLeft,
+            /// <summary>Top right corner.</summary>
+            TopRight,
+            /// <summary>Bottom left corner.</summary>
+            BottomLeft,
+            /// <summary>Borrom right corner.</summary>
+            BottomRight
+        };
 
         /// <summary>The corner to open the window at.</summary>
         public Corners Corner = Corners.TopLeft;

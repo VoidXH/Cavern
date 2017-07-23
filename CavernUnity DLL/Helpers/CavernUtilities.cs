@@ -4,37 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Cavern {
-    public enum Jack { Front = 0, CenterLFE = 2, Rear = 4, Side = 6 }
-    public enum QualityModes { Low = 0, Medium, High, Perfect }
-    public enum Rolloffs { Logarithmic, Linear, Real, Disabled };
-
-    /// <summary>Environment type. Rendering method will be chosen by this and <see cref="AudioListener3D.IsSymmetric"/>.</summary>
-    public enum Environments {
-        /// <summary>
-        /// For a single listener on the center with speakers placed around in a sphere.<br />
-        /// <b>Symmetric engine</b>: balance-based.<br />
-        /// <b>Asymmetric engine</b>: hybrid directional.
-        /// </summary>
-        Studio = 0,
-
-        /// <summary>
-        /// For a single listener or a few listeners close to each other on the center with
-        /// speakers placed around in a cuboid.<br />
-        /// <b>Symmetric engine</b>: balance-based.<br />
-        /// <b>Asymmetric engine</b>: hybrid distance-based.
-        /// </summary>
-        Home = 1,
-
-        /// <summary>
-        /// For many listeners. Viewers at the sides or the back of the room will also
-        /// experience 3D audio, unlike in Studio or Home environments, but this will reduce
-        /// the overall effect quality, even on the center.<br />
-        /// <b>Symmetric engine</b>: balance-based.<br />
-        /// <b>Asymmetric engine</b>: directional.
-        /// </summary>
-        Theatre = 2
-    }
-
+    /// <summary>Useful functions used in multiple classes.</summary>
     public static class CavernUtilities {
         /// <summary>Cached version name.</summary>
         static string _Info;

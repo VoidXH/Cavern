@@ -38,8 +38,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Release\CavernUnity.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -66,6 +65,7 @@
     <Compile Include="Cavernize.cs" />
     <Compile Include="CavernizeRT.cs" />
     <Compile Include="Channel.cs" />
+    <Compile Include="Enumerations.cs" />
     <Compile Include="Helpers\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
     <Compile Include="Helpers\OneShotDestructor.cs" />

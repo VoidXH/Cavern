@@ -2,8 +2,10 @@
 using Cavern.Helpers;
 
 namespace Cavern.Debug {
+    /// <summary>Current channel volume display window.</summary>
     [AddComponentMenu("Audio/Debug/Levels")]
     public class Levels : WindowBase {
+        /// <summary>The lowest volume to show (in decibels).</summary>
         [Tooltip("The lowest volume to show (in decibels).")]
         [Range(-300, -6)] public int DynamicRange = -60;
 
@@ -19,6 +21,7 @@ namespace Cavern.Debug {
             return 20 * Mathf.Log10(Amplitude);
         }
 
+        /// <summary>Window dimension, name, and custom variable setup.</summary>
         protected override void Setup() {
             Width = 0;
             Height = 170;
@@ -43,7 +46,9 @@ namespace Cavern.Debug {
             White.Apply();
         }
 
-        protected override void Draw(int num0) {
+        /// <summary>Draw window contents.</summary>
+        /// <param name="wID">Window ID</param>
+        protected override void Draw(int wID) {
             Position.width = this.Width = AudioListener3D.ChannelCount * 30 + 30;
             TextAnchor OldAlign = GUI.skin.label.alignment;
             GUI.skin.label.alignment = TextAnchor.MiddleCenter;
