@@ -139,7 +139,7 @@ namespace Cavern {
         /// <param name="max">Maximum</param>
         /// <returns>X between Minimum and Maximum</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float internal5(float x, float min, float max) { return x < min ? min : (x > max ? max : x); }
+        static float Clamp(float x, float min, float max) { return x < min ? min : (x > max ? max : x); }
 
         /// <summary>Output samples to a multichannel array.</summary>
         /// <param name="Samples">Samples</param>
@@ -259,7 +259,7 @@ namespace Cavern {
             bool NeedsResampling = AudioListener3D.Current.SampleRate != Clip.frequency;
             // Doppler calculation
             float DopplerPitch = AudioListener3D.Current.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
-                (DopplerLevel == 0 ? Pitch : internal5(Pitch * (1f + DopplerLevel * (LastDistance - Distance) *
+                (DopplerLevel == 0 ? Pitch : Clamp(Pitch * (1f + DopplerLevel * (LastDistance - Distance) *
                 0.00294117647058823529411764705882f /* 1 / 340 m/s (speed of sound) */), .5f, 3f));
             if (UpdatePulse) {
                 LastDistance = Distance;

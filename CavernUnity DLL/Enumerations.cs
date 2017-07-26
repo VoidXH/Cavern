@@ -65,7 +65,7 @@
         Real,
         /// <summary>No rolloff.</summary>
         Disabled
-    };
+    }
 
     /// <summary>Environment type. Rendering method will be chosen by this and <see cref="AudioListener3D.IsSymmetric"/>.</summary>
     public enum Environments {
