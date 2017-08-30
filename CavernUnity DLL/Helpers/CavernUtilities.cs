@@ -196,5 +196,21 @@ namespace Cavern {
             int Absolute = (*(int*)&x) & 0x7fffffff;
             return (*(float*)&Absolute);
         }
+
+        /// <summary>
+        /// Converts a signal strength (ref = 1) to dB.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static float SignalToDb(float Amplitude) {
+            return 20 * Mathf.Log10(Amplitude);
+        }
+
+        /// <summary>
+        /// Converts a dB value (ref = 0) to signal strength.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static float DbToSignal(float Amplitude) {
+            return Mathf.Pow(10, Amplitude * 0.05f);
+        }
     }
 }

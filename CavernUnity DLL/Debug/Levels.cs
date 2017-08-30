@@ -17,10 +17,6 @@ namespace Cavern.Debug {
         Texture2D Blue;
         Texture2D White;
 
-        static float SignalToDb(float Amplitude) {
-            return 20 * Mathf.Log10(Amplitude);
-        }
-
         /// <summary>Window dimension, name, and custom variable setup.</summary>
         protected override void Setup() {
             Width = 0;
@@ -70,7 +66,7 @@ namespace Cavern.Debug {
                 for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += AudioListener3D.ChannelCount)
                     if (Max < AudioListener3D.Output[Sample])
                         Max = AudioListener3D.Output[Sample];
-                float CurrentBarHeight = SignalToDb(Max) / -DynamicRange + 1, CurrentPeak = Peaks[Channel] - Time.deltaTime;
+                float CurrentBarHeight = CavernUtilities.SignalToDb(Max) / -DynamicRange + 1, CurrentPeak = Peaks[Channel] - Time.deltaTime;
                 if (CurrentPeak < CurrentBarHeight)
                     CurrentPeak = CurrentBarHeight;
                 if (CurrentPeak < 0)

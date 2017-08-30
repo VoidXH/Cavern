@@ -43,6 +43,20 @@ namespace Cavern {
         /// <summary>Channel height at the last update.</summary>
         public float Height { get; private set; }
 
+        /// <summary>Gain modifier calculated from fader level.</summary>
+        static float FaderGain = 1f;
+
+        /// <summary>The cinema processor's fader level. Required for height calculation as it is partially based on content volume.</summary>
+        public static float Fader {
+            get {
+                float dB = CavernUtilities.SignalToDb(1f / FaderGain);
+                return dB > -10 ? dB / 3.3333333333333f + 7 : (dB / 20 + 4.5f);
+            }
+            set {
+                FaderGain = 1f / CavernUtilities.DbToSignal(value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20));
+            }
+        }
+
         float LastSample = 0, LowSample = 0, HighSample = 0;
         int SampleRate;
 
@@ -68,7 +82,8 @@ namespace Cavern {
             float SmoothFactor = 1f - Mathf.LerpUnclamped(UpdateRate, SampleRate, Mathf.Pow(Smoothness, .1f)) / SampleRate * .999f;
             float MaxDepth = .0001f, MaxHeight = .0001f;
             for (int Sample = 0; Sample < UpdateRate; ++Sample) {
-                HighSample = .9f * (HighSample + MonoMix[Sample] - LastSample);
+                float CurrentSample = MonoMix[Sample] * FaderGain;
+                HighSample = .9f * (HighSample + CurrentSample - LastSample);
                 float AbsHigh = Mathf.Abs(HighSample);
                 if (MaxHeight < AbsHigh)
                     MaxHeight = AbsHigh;
@@ -76,7 +91,7 @@ namespace Cavern {
                 float AbsLow = Mathf.Abs(LowSample);
                 if (MaxDepth < AbsLow)
                     MaxDepth = AbsLow;
-                LastSample = MonoMix[Sample];
+                LastSample = CurrentSample;
             }
             MaxHeight = Mathf.Clamp((MaxHeight - MaxDepth * 1.2f) * Effect * 15, BottomSpeakerHeight, TopSpeakerHeight);
             Height = Mathf.LerpUnclamped(Height, MaxHeight, SmoothFactor);

@@ -38,7 +38,8 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <DocumentationFile>bin\Release\CavernUnity.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
