@@ -162,7 +162,7 @@ namespace Cavern {
                 WriteOutput(ref Samples, ref Target, ChannelLength, Gain * -2, Channel, Channels);
         }
 
-		/// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
+        /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Precalculate() {
             if (!Clip || !IsPlaying)
