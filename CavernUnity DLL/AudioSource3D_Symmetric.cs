@@ -43,6 +43,34 @@ namespace Cavern {
             } else if (Right == -1 || AudioListener3D.Channels[Right].CubicalPos.x > ChannelPos.x) Right = Channel; // Right
         }
 
+        /// <summary>Get the closest channels to a source in each direction.</summary>
+        /// <param name="Channel">Checked channel ID</param>
+        /// <param name="FL">Closest front left channel ID</param>
+        /// <param name="FR">Closest front right channel ID</param>
+        /// <param name="RL">Closest rear left channel ID</param>
+        /// <param name="RR">Closest rear right channel ID</param>
+        /// <param name="ClosestFront">Closest front layer z position</param>
+        /// <param name="ClosestRear">Closest rear layer z position</param>
+        /// <param name="Position">Reference position</param>
+        /// <param name="ChannelPos">Currently checked channel position</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void AssignHorizontalLayer(int Channel, ref int FL, ref int FR, ref int RL, ref int RR, ref float ClosestFront, ref float ClosestRear,
+            Vector3 Position, Vector3 ChannelPos) {
+            if (ChannelPos.z > Position.z) { // Front
+                if (ChannelPos.z < ClosestFront) { // Front layer selection
+                    ClosestFront = ChannelPos.z; FL = -1; FR = -1;
+                }
+                if (ChannelPos.z == ClosestFront)
+                    AssignLR(Channel, ref FL, ref FR, Position, ChannelPos);
+            } else { // Rear
+                if (ChannelPos.z > ClosestRear) { // Rear layer selection
+                    ClosestRear = ChannelPos.z; RL = -1; RR = -1;
+                }
+                if (ChannelPos.z == ClosestRear)
+                    AssignLR(Channel, ref RL, ref RR, Position, ChannelPos);
+            }
+        }
+
         /// <summary>For a given horizontal layer, if it's over a side of the room, fill blank speakers.</summary>
         /// <param name="FL">Front left ID</param>
         /// <param name="FR">Front right ID</param>

@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System.Text;
+﻿using System.Text;
+using UnityEngine;
 
 namespace Cavern {
     /// <summary>The center of the listening space. <see cref="AudioSource3D"/>s will be rendered relative to this GameObject's position.</summary>

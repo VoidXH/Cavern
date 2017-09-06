@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Cavern {
     [AddComponentMenu("Audio/3D Audio Source")]
@@ -367,8 +367,8 @@ namespace Cavern {
                     Vector3 Forward = ListenerTransform.rotation * ListenerTransform.forward, Upward = ListenerTransform.rotation * ListenerTransform.up;
                     float ForwardScalar = Direction.x * Forward.x + Direction.y * Forward.y + Direction.z * Forward.z,
                         UpwardScalar = Direction.x * Upward.x + Direction.y * Upward.y + Direction.z * Upward.z;
-                    EchoVolume = (float)Math.Acos(ForwardScalar / (Forward.magnitude + .0001f) * DirectionMagnitudeRecip) * 0.31830988618379067154f; // Set volume by angle difference
-                    float UpwardMatch = (float)Math.Acos(UpwardScalar / (Upward.magnitude + .0001f) * DirectionMagnitudeRecip) * 0.31830988618379067154f; // 0.318... = 1 / pi
+                    EchoVolume = (float)Math.Acos(ForwardScalar / (Forward.magnitude + .0001f) * DirectionMagnitudeRecip) * 0.3183098861837906f; // Set volume by angle difference
+                    float UpwardMatch = (float)Math.Acos(UpwardScalar / (Upward.magnitude + .0001f) * DirectionMagnitudeRecip) * 0.3183098861837906f; // 0.318... = 1 / pi
                     EchoDelay = (48f - 43.2f * UpwardMatch) / AudioListener3D.Current.SampleRate; // Delay simulates height difference
                 } else if (CachedEcho) {
                     EchoVolume = OldEchoVolume;
@@ -381,49 +381,32 @@ namespace Cavern {
                 if (Symmetric) {
                     // Find closest channels by cubical pos
                     int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1; // Each direction (bottom/top, front/rear, left/right)
-                    float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f, ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers in height/lenth axes
+                    float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f, ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers in y/z axes
                     Vector3 Position = Quaternion.Inverse(AudioListener3D.Current.transform.rotation) * (transform.position - AudioListener3D.Current.transform.position);
                     Position.x /= AudioListener3D.EnvironmentSize.x;
                     Position.y /= AudioListener3D.EnvironmentSize.y;
                     Position.z /= AudioListener3D.EnvironmentSize.z;
+                    for (int Channel = 0; Channel < Channels; ++Channel) { // Find closest horizontal layers
+                        float ChannelY = AudioListener3D.Channels[Channel].CubicalPos.y;
+                        if (ChannelY < Position.y) {
+                            if (ChannelY > ClosestBottom)
+                                ClosestBottom = ChannelY;
+                        } else if (ChannelY < ClosestTop)
+                            ClosestTop = ChannelY;
+                    }
                     for (int Channel = 0; Channel < Channels; ++Channel) {
                         Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
-                        if (ChannelPos.y < Position.y) { // Bottom layer
-                            if (ChannelPos.y > ClosestBottom) { // Bottom layer selection
-                                ClosestBottom = ChannelPos.y; BFL = -1; BFR = -1; BRL = -1; BRR = -1; }
-                            if (ChannelPos.y == ClosestBottom) { // Only use the selected bottom layer
-                                if (ChannelPos.z > Position.z) { // Bottom front
-                                    if (ChannelPos.z < ClosestBF) { // Front layer selection
-                                        ClosestBF = ChannelPos.z; BFL = -1; BFR = -1; }
-                                    if (ChannelPos.z == ClosestBF)
-										AssignLR(Channel, ref BFL, ref BFR, Position, ChannelPos);
-                                } else { // Bottom rear
-                                    if (ChannelPos.z > ClosestBR) { // Rear layer selection
-                                        ClosestBR = ChannelPos.z; BRL = -1; BRR = -1; }
-                                    if (ChannelPos.z == ClosestBR)
-										AssignLR(Channel, ref BRL, ref BRR, Position, ChannelPos);
-                                }
-                            }
-                        } else { // Top layer
-                            if (ChannelPos.y < ClosestTop) { // Top layer selection
-                                ClosestTop = ChannelPos.y; TFL = -1; TFR = -1; TRL = -1; TRR = -1; }
-                            if (ChannelPos.y == ClosestTop) { // Only use the selected top layer
-                                if (ChannelPos.z > Position.z) { // Top front
-                                    if (ChannelPos.z < ClosestTF) { // Front layer selection
-                                        ClosestTF = ChannelPos.z; TFL = -1; TFR = -1; }
-                                    if (ChannelPos.z == ClosestTF)
-										AssignLR(Channel, ref TFL, ref TFR, Position, ChannelPos);
-                                } else { // Top rear
-                                    if (ChannelPos.z > ClosestTR) { // Rear layer selection
-                                        ClosestTR = ChannelPos.z; TRL = -1; TRR = -1; }
-                                    if (ChannelPos.z == ClosestTR)
-										AssignLR(Channel, ref TRL, ref TRR, Position, ChannelPos);
-                                }
-                            }
-                        }
+                        if (ChannelPos.y == ClosestBottom) // Bottom layer
+                            AssignHorizontalLayer(Channel, ref BFL, ref BFR, ref BRL, ref BRR, ref ClosestBF, ref ClosestBR, Position, ChannelPos);
+                        if (ChannelPos.y == ClosestTop) // Top layer
+                            AssignHorizontalLayer(Channel, ref TFL, ref TFR, ref TRL, ref TRR, ref ClosestTF, ref ClosestTR, Position, ChannelPos);
+                    }
+                    for (int Channel = Channels - 1; Channel > 0; --Channel) {
+                        Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
+                            
                     }
                     FixIncompleteLayer(ref TFL, ref TFR, ref TRL, ref TRR); // Fix incomplete top layer
-                    if (BFL == -1 && BFR == -1 && BRL == -1 && BRR == -1) { // Fully incomplete bottom layer = use top
+                    if (BFL == -1 && BFR == -1 && BRL == -1 && BRR == -1) { // Fully incomplete bottom layer, use top
                         BFL = TFL; BFR = TFR; BRL = TRL; BRR = TRR;
                     } else
                         FixIncompleteLayer(ref BFL, ref BFR, ref BRL, ref BRR); // Fix incomplete bottom layer
@@ -512,7 +495,9 @@ namespace Cavern {
                         for (int Channel = 0; Channel < Channels; ++Channel) {
                             if (!AudioListener3D.Channels[Channel].LFE) {
                                 float Match = AngleMatches[Channel];
-                                if (Top0 < Match) { Top2 = Top1; Top1 = Top0; Top0 = Match; } else if (Top1 < Match) { Top2 = Top1; Top1 = Match; } else if (Top2 < Match) { Top2 = Match; }
+                                if (Top0 < Match) { Top2 = Top1; Top1 = Top0; Top0 = Match; }
+                                else if (Top1 < Match) { Top2 = Top1; Top1 = Match; }
+                                else if (Top2 < Match) Top2 = Match;
                             }
                         }
                         for (int Channel = 0; Channel < Channels; ++Channel) {

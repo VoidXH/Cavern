@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using UnityEngine;
 
 namespace Cavern.Cavern4D {
     /// <summary>Seat movement generation for <see cref="Cavernize"/>.</summary>
