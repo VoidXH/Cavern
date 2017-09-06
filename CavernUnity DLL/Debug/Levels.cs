@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using Cavern.Helpers;
 
 namespace Cavern.Debug {
@@ -10,8 +11,10 @@ namespace Cavern.Debug {
         public bool JackColoring = true;
         /// <summary>The lowest volume to show (in decibels).</summary>
         [Tooltip("The lowest volume to show (in decibels).")]
-        [Range(-300, -6)]
-        public int DynamicRange = -60;
+        [Range(-300, -6)] public int DynamicRange = -60;
+        /// <summary>Maximum width of the Levels window. 0 means the screen's width.</summary>
+        [Tooltip("Maximum width of the Levels window. Non-positive numbers mean the screen's width.")]
+        public int MaxWidth = 0;
 
         struct ChannelLevelData {
             public float Peak;
@@ -76,10 +79,11 @@ namespace Cavern.Debug {
         /// <summary>Draw window contents.</summary>
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
-            Position.width = this.Width = AudioListener3D.ChannelCount * 30 + 30;
+            int MaximumWidth = (MaxWidth <= 0 ? Screen.width : MaxWidth) - 30, Channels = AudioListener3D.ChannelCount, BlockWidth = Math.Min(MaximumWidth / Channels, 30),
+                GapWidth = BlockWidth / 6, BarPlusGap = BlockWidth - GapWidth, BarWidth = BarPlusGap - GapWidth, TargetWidth = Channels * BlockWidth;
+            Position.width = this.Width = TargetWidth + 30;
             TextAnchor OldAlign = GUI.skin.label.alignment;
             GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-            int Channels = AudioListener3D.ChannelCount;
             if (ChannelData.Length != Channels || JackColoring != OldJackColoring)
                 RepaintChannels();
             int Left = 25, Top = 25, Width = (int)Position.width - 4;
@@ -91,9 +95,9 @@ namespace Cavern.Debug {
                 GUI.DrawTexture(new Rect(2, Top, Width, 1), White);
             }
             GUI.skin.label.fontSize = OldSize;
-            for (int Channel = 0; Channel < Channels; Channel++) {
+            int MultichannelUpdateRate = AudioListener3D.Output.Length;
+            for (int Channel = 0; Channel < Channels; ++Channel) {
                 float Max = 0;
-                int MultichannelUpdateRate = AudioListener3D.Output.Length;
                 for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels)
                     if (Max < AudioListener3D.Output[Sample])
                         Max = AudioListener3D.Output[Sample];
@@ -103,8 +107,8 @@ namespace Cavern.Debug {
                 if (CurrentPeak < 0)
                     CurrentPeak = 0;
                 int Height = (int)((ChannelData[Channel].Peak = CurrentPeak) * 140);
-                GUI.DrawTexture(new Rect(Left += 5, 165 - Height, 20, Height), ChannelData[Channel].Color);
-                Left += 25;
+                GUI.DrawTexture(new Rect(Left += GapWidth, 165 - Height, BarWidth, Height), ChannelData[Channel].Color);
+                Left += BarPlusGap;
             }
             GUI.skin.label.alignment = OldAlign;
             GUI.DragWindow();
