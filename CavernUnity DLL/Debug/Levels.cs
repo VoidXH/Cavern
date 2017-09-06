@@ -20,6 +20,7 @@ namespace Cavern.Debug {
         struct ChannelLevelData {
             public float Peak;
             public Texture2D Color;
+            public Vector3 LastPos;
         }
 
         ChannelLevelData[] ChannelData = new ChannelLevelData[0];
@@ -54,11 +55,15 @@ namespace Cavern.Debug {
         /// <summary>Create a new <see cref="ChannelLevelData"/> for each existing channels, and use the user-set color scheme.</summary>
         void RepaintChannels() {
             int Channels = AudioListener3D.ChannelCount;
-            ChannelData = new ChannelLevelData[Channels];
-            for (int Channel = 0; Channel < Channels; ++Channel) {
-                if (ChannelData[Channel].Color)
+            if (ChannelData.Length != Channels) {
+                ChannelData = new ChannelLevelData[Channels];
+                for (int Channel = 0; Channel < Channels; ++Channel)
                     Destroy(ChannelData[Channel].Color);
-                ChannelData[Channel].Color = new Texture2D(1, 1);
+            }
+            for (int Channel = 0; Channel < Channels; ++Channel) {
+                if (ChannelData[Channel].Color == null)
+                    ChannelData[Channel].Color = new Texture2D(1, 1);
+                ChannelData[Channel].LastPos = AudioListener3D.Channels[Channel].CubicalPos;
                 if (JackColoring) {
                     ChannelData[Channel].Color.SetPixel(0, 0, Channel < 2 ? new Color(.596078431f, .984313725f, .596078431f, 1) :
                         Channel < 4 ? (Channels <= 4 ? Color.black : new Color(1, .647058824f, 0, 1)) :
@@ -66,7 +71,7 @@ namespace Cavern.Debug {
                         Channel < 8 ? new Color(.75294117647f, .75294117647f, .75294117647f, 1) :
                         new Color(0, .578125f, .75f, 1));
                 } else {
-                    Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
+                    Vector3 ChannelPos = ChannelData[Channel].LastPos;
                     Color TargetColor = AudioListener3D.Channels[Channel].LFE ? Color.black :
                         GetHueColor(ChannelPos.z % 1 == 0 ? (ChannelPos.y + 1f) * ChannelPos.z * 45f + 180f : (ChannelPos.x * (ChannelPos.y + 1f) * 22.5f + 45f));
                     TargetColor = new Color(TargetColor.r * .75f + .25f, TargetColor.g * .75f + .25f, TargetColor.b * .75f + .25f);
@@ -81,13 +86,13 @@ namespace Cavern.Debug {
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
             int MaximumWidth = (MaxWidth <= 0 ? Screen.width : MaxWidth) - 30, Channels = AudioListener3D.ChannelCount, BlockWidth = Math.Min(MaximumWidth / Channels, 30),
-                GapWidth = BlockWidth / 6, BarPlusGap = BlockWidth - GapWidth, BarWidth = BarPlusGap - GapWidth, TargetWidth = Channels * BlockWidth;
+                GapWidth = BlockWidth / 6, BarWidth = BlockWidth - GapWidth * 2, TargetWidth = Channels * BlockWidth;
             Position.width = this.Width = TargetWidth + 30;
             TextAnchor OldAlign = GUI.skin.label.alignment;
             GUI.skin.label.alignment = TextAnchor.MiddleCenter;
             if (ChannelData.Length != Channels || JackColoring != OldJackColoring)
                 RepaintChannels();
-            int Left = 25, Top = 25, Width = (int)Position.width - 4;
+            int Left = 25 + GapWidth, Top = 25, Width = (int)Position.width - 4;
             int OldSize = GUI.skin.label.fontSize;
             GUI.skin.label.fontSize = 12;
             GUI.Label(new Rect(0, Top, 30, 14), (DynamicRange / 10).ToString());
@@ -105,11 +110,14 @@ namespace Cavern.Debug {
                 float CurrentBarHeight = CavernUtilities.SignalToDb(Max) / -DynamicRange + 1, CurrentPeak = ChannelData[Channel].Peak - Time.deltaTime;
                 if (CurrentPeak < CurrentBarHeight)
                     CurrentPeak = CurrentBarHeight;
-                if (CurrentPeak < 0)
-                    CurrentPeak = 0;
-                int Height = (int)((ChannelData[Channel].Peak = CurrentPeak) * 140);
-                GUI.DrawTexture(new Rect(Left += GapWidth, 165 - Height, BarWidth, Height), ChannelData[Channel].Color);
-                Left += BarPlusGap;
+                ChannelData[Channel].Peak = CurrentPeak;
+                if (ChannelData[Channel].LastPos != AudioListener3D.Channels[Channel].CubicalPos)
+                    RepaintChannels();
+                if (CurrentPeak > 0) {
+                    int Height = (int)(CurrentPeak * 140);
+                    GUI.DrawTexture(new Rect(Left, 165 - Height, BarWidth, Height), ChannelData[Channel].Color);
+                }
+                Left += BlockWidth;
             }
             GUI.skin.label.alignment = OldAlign;
             GUI.DragWindow();
