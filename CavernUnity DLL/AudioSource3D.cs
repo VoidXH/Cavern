@@ -129,39 +129,6 @@ namespace Cavern {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float Clamp(float x, float min, float max) { return x < min ? min : (x > max ? max : x); }
 
-        /// <summary>Output samples to a multichannel array.</summary>
-        /// <param name="Samples">Samples</param>
-        /// <param name="Target">Multichannel array (destination)</param>
-        /// <param name="ChannelLength">Sample count for a single channel</param>
-        /// <param name="Gain">Gain</param>
-        /// <param name="Channel">Channel</param>
-        /// <param name="Channels">Channel count</param>
-        static unsafe void WriteOutput(ref float[] Samples, ref float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
-            fixed (float* FromPtr = Samples, ToPtr = Target) {
-                float* FromArr = FromPtr, ToArr = ToPtr + Channel;
-                do {
-                    *ToArr += *FromArr++ * Gain;
-                    ToArr += Channels;
-                } while (--ChannelLength != 0);
-            }
-        }
-
-        /// <summary>Output samples to a multichannel array, while trying to fix standing waves.</summary>
-        /// <param name="Samples">Samples</param>
-        /// <param name="Target">Multichannel array (destination)</param>
-        /// <param name="ChannelLength">Sample count for a single channel</param>
-        /// <param name="Gain">Gain</param>
-        /// <param name="Channel">Target channel</param>
-        /// <param name="Channels">Channel count</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void WriteFixedOutput(ref float[] Samples, ref float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
-            float OldMax = CavernUtilities.GetPeak(ref Target, ChannelLength, Channel, Channels);
-            WriteOutput(ref Samples, ref Target, ChannelLength, Gain, Channel, Channels);
-            float NewMax = CavernUtilities.GetPeak(ref Target, ChannelLength, Channel, Channels);
-            if (NewMax < OldMax)
-                WriteOutput(ref Samples, ref Target, ChannelLength, Gain * -2, Channel, Channels);
-        }
-
         /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Precalculate() {
@@ -424,36 +391,19 @@ namespace Cavern {
                     float BFVol = LengthRatio(BRL, BFL, Position.z), BRVol = 1f - BFVol, TFVol = LengthRatio(TRL, TFL, Position.z), TRVol = 1f - TFVol, // Length ratios
                         BFRVol = WidthRatio(BFL, BFR, Position.x), BRRVol = WidthRatio(BRL, BRR, Position.x), // Width ratios
                         TFRVol = WidthRatio(TFL, TFR, Position.x), TRRVol = WidthRatio(TRL, TRR, Position.x);
-                    if (!AudioListener3D.Current.StandingWaveFix) {
-                        WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * (1f - BFRVol), BFL, Channels);
-                        WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * BFRVol, BFR, Channels);
-                        WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * (1f - BRRVol), BRL, Channels);
-                        WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * BRRVol, BRR, Channels);
-                        WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * (1f - TFRVol), TFL, Channels);
-                        WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * TFRVol, TFR, Channels);
-                        WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * (1f - TRRVol), TRL, Channels);
-                        WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * TRRVol, TRR, Channels);
-                    } else {
-                        WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * (1f - BFRVol), BFL, Channels);
-                        WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * BFRVol, BFR, Channels);
-                        WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * (1f - BRRVol), BRL, Channels);
-                        WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * BRRVol, BRR, Channels);
-                        WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * (1f - TFRVol), TFL, Channels);
-                        WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * TFRVol, TFR, Channels);
-                        WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * (1f - TRRVol), TRL, Channels);
-                        WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * TRRVol, TRR, Channels);
-                    }
+                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * (1f - BFRVol), BFL, Channels);
+                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * BFRVol, BFR, Channels);
+                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * (1f - BRRVol), BRL, Channels);
+                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * BRRVol, BRR, Channels);
+                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * (1f - TFRVol), TFL, Channels);
+                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * TFRVol, TFR, Channels);
+                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * (1f - TRRVol), TRL, Channels);
+                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * TRRVol, TRR, Channels);
                     // LFE mix
                     if (OutputRawLFE) {
-                        if (!AudioListener3D.Current.StandingWaveFix) {
-                            for (int Channel = 0; Channel < Channels; ++Channel)
-                                if (AudioListener3D.Channels[Channel].LFE)
-                                    WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D, Channel, Channels);
-                        } else {
-                            for (int Channel = 0; Channel < Channels; ++Channel)
-                                if (AudioListener3D.Channels[Channel].LFE)
-                                    WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D, Channel, Channels);
-                        }
+                        for (int Channel = 0; Channel < Channels; ++Channel)
+                            if (AudioListener3D.Channels[Channel].LFE)
+                                UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D, Channel, Channels);
                     }
                     // Echo
                     if (!SkipEcho && EchoVolume != 0 && !LFE) {
@@ -478,17 +428,10 @@ namespace Cavern {
                     bool TheatreMode = AudioListener3D.EnvironmentType == Environments.Theatre;
                     float[] AngleMatches;
                     float TotalAngleMatch = 0;
-                    if (HighQuality) { // Only calculate accurate arc cosine above high quality
-                        if (TheatreMode)
-                            AngleMatches = CalculateAngleMatches(Channels, Direction, PowTo16);
-                        else
-                            AngleMatches = CalculateAngleMatches(Channels, Direction, PowTo8);
-                    } else {
-                        if (TheatreMode)
-                            AngleMatches = LinearizeAngleMatches(Channels, Direction, PowTo16);
-                        else
-                            AngleMatches = LinearizeAngleMatches(Channels, Direction, PowTo8);
-                    }
+                    if (HighQuality) // Only calculate accurate arc cosine above high quality
+                        AngleMatches = CalculateAngleMatches(Channels, Direction, TheatreMode ? (Func<float, float>)PowTo16 : PowTo8);
+                    else
+                        AngleMatches = LinearizeAngleMatches(Channels, Direction, TheatreMode ? (Func<float, float>)PowTo16 : PowTo8);
                     // Only use the closest 3 speakers on non-Perfect qualities or in Theatre mode
                     if (AudioListener3D.Current.AudioQuality != QualityModes.Perfect || TheatreMode) {
                         float Top0 = 0, Top1 = 0, Top2 = 0;
@@ -510,22 +453,12 @@ namespace Cavern {
                     for (int Channel = 0; Channel < Channels; ++Channel)
                         TotalAngleMatch += AngleMatches[Channel];
                     float Volume3D = Volume * RolloffDistance * SpatialBlend / TotalAngleMatch;
-                    if (!AudioListener3D.Current.StandingWaveFix) {
-                        for (int Channel = 0; Channel < Channels; ++Channel) {
-                            if (AudioListener3D.Channels[Channel].LFE) {
-                                if (OutputRawLFE)
-                                    WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TotalAngleMatch, Channel, Channels);
-                            } else if (!LFE && AngleMatches[Channel] != 0)
-                                WriteOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * AngleMatches[Channel], Channel, Channels);
-                        }
-                    } else {
-                        for (int Channel = 0; Channel < Channels; ++Channel) {
-                            if (AudioListener3D.Channels[Channel].LFE) {
-                                if (OutputRawLFE)
-                                    WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TotalAngleMatch, Channel, Channels);
-                            } else if (!LFE && AngleMatches[Channel] != 0)
-                                WriteFixedOutput(ref Samples, ref AudioListener3D.Output, UpdateRate, AngleMatches[Channel] * Volume3D, Channel, Channels);
-                        }
+                    for (int Channel = 0; Channel < Channels; ++Channel) {
+                        if (AudioListener3D.Channels[Channel].LFE) {
+                            if (OutputRawLFE)
+                                UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TotalAngleMatch, Channel, Channels);
+                        } else if (!LFE && AngleMatches[Channel] != 0)
+                            UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * AngleMatches[Channel], Channel, Channels);
                     }
                     // Add echo from every other direction, if enabled
                     if (!SkipEcho && EchoVolume != 0 && !LFE) {

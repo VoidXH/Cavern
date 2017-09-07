@@ -61,6 +61,7 @@
     <Compile Include="AudioListener3D_Public.cs" />
     <Compile Include="AudioSource3D.cs" />
     <Compile Include="AudioSource3D_Asymmetric.cs" />
+    <Compile Include="AudioSource3D_Output.cs" />
     <Compile Include="AudioSource3D_Public.cs" />
     <Compile Include="AudioSource3D_Symmetric.cs" />
     <Compile Include="Cavern4D\Cavern4DBase.cs" />

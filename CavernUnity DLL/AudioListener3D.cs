@@ -243,6 +243,7 @@ namespace Cavern {
                         Array.Clear(Output, 0, OutputLength); // Reset output buffer
                         foreach (AudioSource3D Source in ActiveSources)
                             Source.Precalculate();
+                        AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ? (AudioSource3D.OutputFunc)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
                         foreach (AudioSource3D Source in ActiveSources)
                             Source.Collect(UpdatePulse);
                         // Volume, distance compensation, and subwoofers' lowpass
