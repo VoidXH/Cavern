@@ -28,10 +28,22 @@ namespace Cavern {
         /// <param name="Channel">Target channel</param>
         /// <param name="Channels">Channel count</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void WriteFixedOutput(ref float[] Samples, ref float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
-            float OldMax = CavernUtilities.GetPeak(ref Target, ChannelLength, Channel, Channels);
-            WriteOutput(ref Samples, ref Target, ChannelLength, Gain, Channel, Channels);
-            float NewMax = CavernUtilities.GetPeak(ref Target, ChannelLength, Channel, Channels);
+        internal static unsafe void WriteFixedOutput(ref float[] Samples, ref float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+            int FirstPassLength = ChannelLength;
+            float OldMax = 0, NewMax = 0, AbsSample;
+            fixed (float* FromPtr = Samples, ToPtr = Target) {
+                float* FromArr = FromPtr, ToArr = ToPtr + Channel;
+                do {
+                    AbsSample = CavernUtilities.Abs(*ToArr);
+                    if (OldMax < AbsSample)
+                        OldMax = AbsSample;
+                    *ToArr += *FromArr++ * Gain;
+                    AbsSample = CavernUtilities.Abs(*ToArr);
+                    if (NewMax < AbsSample)
+                        NewMax = AbsSample;
+                    ToArr += Channels;
+                } while (--FirstPassLength != 0);
+            }
             if (NewMax < OldMax)
                 WriteOutput(ref Samples, ref Target, ChannelLength, Gain * -2, Channel, Channels);
         }
