@@ -23,13 +23,15 @@ namespace Cavern {
         [Tooltip("Atmosphere volume.")]
         [Range(0, 1)] public float Volume = .25f;
 
-        // TODO: struct
-        GameObject[] CreatedObjects;
-        AudioSource3D[] CreatedSources;
+        struct AtmosphereObject {
+            public GameObject Object;
+            public AudioSource3D Source;
+        }
+
+        AtmosphereObject[] Objects;
 
         void Start() {
-            CreatedObjects = new GameObject[Sources];
-            CreatedSources = new AudioSource3D[Sources];
+            Objects = new AtmosphereObject[Sources];
         }
 
         void OnDrawGizmosSelected() {
@@ -51,20 +53,20 @@ namespace Cavern {
 
         void Update() {
             for (int Source = 0; Source < Sources; ++Source) {
-                if (!CreatedObjects[Source]) {
-                    CreatedObjects[Source] = new GameObject();
+                if (!Objects[Source].Object) {
+                    Objects[Source].Object = new GameObject();
                     Vector3 Angles = new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
                     Vector3 Direction = Spherical ? CavernUtilities.PlaceInSphere(Angles) : CavernUtilities.PlaceInCube(Angles);
                     float Distance = (MaxDistance - MinDistance) * Random.value + MinDistance;
                     if (Spherical)
                         Distance /= (Direction.magnitude + .0001f);
-                    CreatedObjects[Source].transform.position = transform.position + Direction * Distance;
-                    CreatedSources[Source] = CreatedObjects[Source].AddComponent<AudioSource3D>();
-                    CreatedSources[Source].Clip = Clips[Random.Range(0, Clips.Length)];
-                    CreatedSources[Source].RandomPosition = true;
-                    CreatedSources[Source].Volume = Volume / Sources;
-                } else if (!CreatedSources[Source].IsPlaying)
-                    Destroy(CreatedObjects[Source]);
+                    Objects[Source].Object.transform.position = transform.position + Direction * Distance;
+                    Objects[Source].Source = Objects[Source].Object.AddComponent<AudioSource3D>();
+                    Objects[Source].Source.Clip = Clips[Random.Range(0, Clips.Length)];
+                    Objects[Source].Source.RandomPosition = true;
+                    Objects[Source].Source.Volume = Volume / Sources;
+                } else if (!Objects[Source].Source.IsPlaying)
+                    Destroy(Objects[Source].Object);
             }
         }
     }
