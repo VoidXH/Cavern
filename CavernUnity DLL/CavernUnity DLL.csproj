@@ -73,6 +73,7 @@
     <Compile Include="Helpers\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
     <Compile Include="Helpers\OneShotDestructor.cs" />
+    <Compile Include="Helpers\ScaleByGain.cs" />
     <Compile Include="Helpers\WindowBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Debug\Levels.cs" />

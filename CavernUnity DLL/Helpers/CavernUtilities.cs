@@ -107,6 +107,26 @@ namespace Cavern {
             return new Vector3((in1.x - in0.x) * in2 + in0.x, (in1.y - in0.y) * in2 + in0.y, (in1.z - in0.z) * in2 + in0.z);
         }
 
+        /// <summary>Get the peak amplitude of a single-channel array.</summary>
+        /// <param name="Target">Array reference</param>
+        /// <param name="Samples">Sample count</param>
+        /// <returns>Maximum absolute value in the array</returns>
+        public static unsafe float GetPeak(ref float[] Target, int Samples) {
+            float Max = 0, AbsSample;
+            int Absolute;
+            fixed (float* ArrPtr = Target) {
+                float* Sample = ArrPtr;
+                do {
+                    Absolute = (*(int*)Sample) & 0x7fffffff;
+                    AbsSample = (*(float*)&Absolute);
+                    if (Max < AbsSample)
+                        Max = AbsSample;
+                    ++Sample;
+                } while (--Samples != 0);
+            }
+            return Max != 0 ? (20 * Mathf.Log10(Max)) : -300;
+        }
+
         /// <summary>Get the peak amplitude of a given channel in a multichannel array.</summary>
         /// <param name="Target">Array reference</param>
         /// <param name="Samples">Samples per channel</param>

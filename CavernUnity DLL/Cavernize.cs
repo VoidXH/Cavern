@@ -1,6 +1,8 @@
 ﻿using System;
 using UnityEngine;
 
+using Cavern.Helpers;
+
 namespace Cavern {
     /// <summary>Adds height to each channel of a regular surround mix.</summary>
     [AddComponentMenu("Audio/3D Conversion")]
@@ -43,7 +45,7 @@ namespace Cavern {
         [Tooltip("Manually ask for one update period.")]
         public bool Manual = false;
         /// <summary>Show converted object positions.</summary>
-        [Tooltip("Show converted object positions.")]
+        [Tooltip("Show converted objects.")]
         public bool Visualize = false;
 
         /// <summary>Playback position in seconds.</summary>
@@ -220,6 +222,7 @@ namespace Cavern {
                     NewSource.Loop = true;
                     NewSource.VolumeRolloff = Rolloffs.Disabled;
                     NewSource.LFE = StandardChannels[Source].LFE;
+                    SphericalObjects[Source].AddComponent<ScaleByGain>().Source = NewSource;
                     if (StandardChannels[Source].Muted)
                         NewSource.Volume = 0;
                     SphericalObjects[Source].transform.position =
