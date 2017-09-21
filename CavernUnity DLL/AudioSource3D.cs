@@ -346,59 +346,62 @@ namespace Cavern {
                 // Balance-based engine for symmetrical layouts
                 // ------------------------------------------------------------------
                 if (Symmetric) {
-                    // Find closest channels by cubical pos
-                    int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1; // Each direction (bottom/top, front/rear, left/right)
-                    float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f, ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers in y/z axes
-                    Vector3 Position = Quaternion.Inverse(AudioListener3D.Current.transform.rotation) * (transform.position - AudioListener3D.Current.transform.position);
-                    Position.x /= AudioListener3D.EnvironmentSize.x;
-                    Position.y /= AudioListener3D.EnvironmentSize.y;
-                    Position.z /= AudioListener3D.EnvironmentSize.z;
-                    for (int Channel = 0; Channel < Channels; ++Channel) { // Find closest horizontal layers
-                        float ChannelY = AudioListener3D.Channels[Channel].CubicalPos.y;
-                        if (ChannelY < Position.y) {
-                            if (ChannelY > ClosestBottom)
-                                ClosestBottom = ChannelY;
-                        } else if (ChannelY < ClosestTop)
-                            ClosestTop = ChannelY;
+                    float Volume3D = Volume * RolloffDistance * SpatialBlend;
+                    if (!LFE) {
+                        // Find closest channels by cubical pos
+                        int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1; // Each direction (bottom/top, front/rear, left/right)
+                        float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f, ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers in y/z axes
+                        Vector3 Position = Quaternion.Inverse(AudioListener3D.Current.transform.rotation) * (transform.position - AudioListener3D.Current.transform.position);
+                        Position.x /= AudioListener3D.EnvironmentSize.x;
+                        Position.y /= AudioListener3D.EnvironmentSize.y;
+                        Position.z /= AudioListener3D.EnvironmentSize.z;
+                        for (int Channel = 0; Channel < Channels; ++Channel) { // Find closest horizontal layers
+                            float ChannelY = AudioListener3D.Channels[Channel].CubicalPos.y;
+                            if (ChannelY < Position.y) {
+                                if (ChannelY > ClosestBottom)
+                                    ClosestBottom = ChannelY;
+                            } else if (ChannelY < ClosestTop)
+                                ClosestTop = ChannelY;
+                        }
+                        for (int Channel = 0; Channel < Channels; ++Channel) {
+                            Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
+                            if (ChannelPos.y == ClosestBottom) // Bottom layer
+                                AssignHorizontalLayer(Channel, ref BFL, ref BFR, ref BRL, ref BRR, ref ClosestBF, ref ClosestBR, Position, ChannelPos);
+                            if (ChannelPos.y == ClosestTop) // Top layer
+                                AssignHorizontalLayer(Channel, ref TFL, ref TFR, ref TRL, ref TRR, ref ClosestTF, ref ClosestTR, Position, ChannelPos);
+                        }
+                        for (int Channel = Channels - 1; Channel > 0; --Channel) {
+                            Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
+
+                        }
+                        FixIncompleteLayer(ref TFL, ref TFR, ref TRL, ref TRR); // Fix incomplete top layer
+                        if (BFL == -1 && BFR == -1 && BRL == -1 && BRR == -1) { // Fully incomplete bottom layer, use top
+                            BFL = TFL; BFR = TFR; BRL = TRL; BRR = TRR;
+                        } else
+                            FixIncompleteLayer(ref BFL, ref BFR, ref BRL, ref BRR); // Fix incomplete bottom layer
+                        if (TFL == -1 || TFR == -1 || TRL == -1 || TRR == -1) { // Fully incomplete top layer, use bottom
+                            TFL = BFL; TFR = BFR; TRL = BRL; TRR = BRR;
+                        }
+                        // Spatial mix
+                        float TopVol, BottomVol;
+                        if (TFL != BFL) { // Height ratio calculation
+                            float BottomY = AudioListener3D.Channels[BFL].CubicalPos.y;
+                            TopVol = (Position.y - BottomY) / (AudioListener3D.Channels[TFL].CubicalPos.y - BottomY);
+                            BottomVol = 1f - TopVol;
+                        } else
+                            TopVol = BottomVol = .5f;
+                        float BFVol = LengthRatio(BRL, BFL, Position.z), BRVol = 1f - BFVol, TFVol = LengthRatio(TRL, TFL, Position.z), TRVol = 1f - TFVol, // Length ratios
+                            BFRVol = WidthRatio(BFL, BFR, Position.x), BRRVol = WidthRatio(BRL, BRR, Position.x), // Width ratios
+                            TFRVol = WidthRatio(TFL, TFR, Position.x), TRRVol = WidthRatio(TRL, TRR, Position.x);
+                        UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * (1f - BFRVol), BFL, Channels);
+                        UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * BFRVol, BFR, Channels);
+                        UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * (1f - BRRVol), BRL, Channels);
+                        UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * BRRVol, BRR, Channels);
+                        UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * (1f - TFRVol), TFL, Channels);
+                        UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * TFRVol, TFR, Channels);
+                        UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * (1f - TRRVol), TRL, Channels);
+                        UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * TRRVol, TRR, Channels);
                     }
-                    for (int Channel = 0; Channel < Channels; ++Channel) {
-                        Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
-                        if (ChannelPos.y == ClosestBottom) // Bottom layer
-                            AssignHorizontalLayer(Channel, ref BFL, ref BFR, ref BRL, ref BRR, ref ClosestBF, ref ClosestBR, Position, ChannelPos);
-                        if (ChannelPos.y == ClosestTop) // Top layer
-                            AssignHorizontalLayer(Channel, ref TFL, ref TFR, ref TRL, ref TRR, ref ClosestTF, ref ClosestTR, Position, ChannelPos);
-                    }
-                    for (int Channel = Channels - 1; Channel > 0; --Channel) {
-                        Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
-                            
-                    }
-                    FixIncompleteLayer(ref TFL, ref TFR, ref TRL, ref TRR); // Fix incomplete top layer
-                    if (BFL == -1 && BFR == -1 && BRL == -1 && BRR == -1) { // Fully incomplete bottom layer, use top
-                        BFL = TFL; BFR = TFR; BRL = TRL; BRR = TRR;
-                    } else
-                        FixIncompleteLayer(ref BFL, ref BFR, ref BRL, ref BRR); // Fix incomplete bottom layer
-                    if (TFL == -1 || TFR == -1 || TRL == -1 || TRR == -1) { // Fully incomplete top layer, use bottom
-                        TFL = BFL; TFR = BFR; TRL = BRL; TRR = BRR;
-                    }
-                    // Spatial mix
-                    float TopVol, BottomVol, Volume3D = Volume * RolloffDistance * SpatialBlend;
-                    if (TFL != BFL) { // Height ratio calculation
-                        float BottomY = AudioListener3D.Channels[BFL].CubicalPos.y;
-                        TopVol = (Position.y - BottomY) / (AudioListener3D.Channels[TFL].CubicalPos.y - BottomY);
-                        BottomVol = 1f - TopVol;
-                    } else
-                        TopVol = BottomVol = .5f;
-                    float BFVol = LengthRatio(BRL, BFL, Position.z), BRVol = 1f - BFVol, TFVol = LengthRatio(TRL, TFL, Position.z), TRVol = 1f - TFVol, // Length ratios
-                        BFRVol = WidthRatio(BFL, BFR, Position.x), BRRVol = WidthRatio(BRL, BRR, Position.x), // Width ratios
-                        TFRVol = WidthRatio(TFL, TFR, Position.x), TRRVol = WidthRatio(TRL, TRR, Position.x);
-                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * (1f - BFRVol), BFL, Channels);
-                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BFVol * BFRVol, BFR, Channels);
-                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * (1f - BRRVol), BRL, Channels);
-                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * BottomVol * BRVol * BRRVol, BRR, Channels);
-                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * (1f - TFRVol), TFL, Channels);
-                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TFVol * TFRVol, TFR, Channels);
-                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * (1f - TRRVol), TRL, Channels);
-                    UsedOutputFunc(ref Samples, ref AudioListener3D.Output, UpdateRate, Volume3D * TopVol * TRVol * TRRVol, TRR, Channels);
                     // LFE mix
                     if (OutputRawLFE) {
                         for (int Channel = 0; Channel < Channels; ++Channel)
