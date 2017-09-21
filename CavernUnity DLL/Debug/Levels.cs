@@ -90,7 +90,7 @@ namespace Cavern.Debug {
             Position.width = this.Width = TargetWidth + 30;
             TextAnchor OldAlign = GUI.skin.label.alignment;
             GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-            if (ChannelData.Length != Channels || JackColoring != OldJackColoring)
+            if (ChannelData.Length != Channels)
                 RepaintChannels();
             int Left = 25 + GapWidth, Top = 25, Width = (int)Position.width - 4;
             int OldSize = GUI.skin.label.fontSize;
@@ -100,27 +100,41 @@ namespace Cavern.Debug {
                 GUI.Label(new Rect(0, Top += 14, 30, 14), (DynamicRange * i / 10).ToString());
                 GUI.DrawTexture(new Rect(2, Top, Width, 1), White);
             }
+            for (int Channel = 0; Channel < Channels; ++Channel) {
+                float Peak = ChannelData[Channel].Peak;
+                if (Peak > 0) {
+                    int Height = (int)(Peak * 140);
+                    GUI.DrawTexture(new Rect(Left, 165 - Height, BarWidth, Height), ChannelData[Channel].Color);
+                }
+                GUI.Label(new Rect(Left, 150, BarWidth, 15), (Channel + 1).ToString());
+                Left += BlockWidth;
+            }
             GUI.skin.label.fontSize = OldSize;
-            int MultichannelUpdateRate = AudioListener3D.Output.Length;
+            GUI.skin.label.alignment = OldAlign;
+            GUI.DragWindow();
+        }
+
+        void Update() {
+            int Channels = AudioListener3D.ChannelCount, MultichannelUpdateRate = AudioListener3D.Output.Length;
+            if (ChannelData.Length != Channels || JackColoring != OldJackColoring)
+                RepaintChannels();
+            bool DoRepaint = false;
             for (int Channel = 0; Channel < Channels; ++Channel) {
                 float Max = 0;
-                for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels)
-                    if (Max < AudioListener3D.Output[Sample])
-                        Max = AudioListener3D.Output[Sample];
+                for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels) {
+                    float AbsSample = CavernUtilities.Abs(AudioListener3D.Output[Sample]);
+                    if (Max < AbsSample)
+                        Max = AbsSample;
+                }
                 float CurrentBarHeight = CavernUtilities.SignalToDb(Max) / -DynamicRange + 1, CurrentPeak = ChannelData[Channel].Peak - Time.deltaTime;
                 if (CurrentPeak < CurrentBarHeight)
                     CurrentPeak = CurrentBarHeight;
                 ChannelData[Channel].Peak = CurrentPeak;
                 if (ChannelData[Channel].LastPos != AudioListener3D.Channels[Channel].CubicalPos)
-                    RepaintChannels();
-                if (CurrentPeak > 0) {
-                    int Height = (int)(CurrentPeak * 140);
-                    GUI.DrawTexture(new Rect(Left, 165 - Height, BarWidth, Height), ChannelData[Channel].Color);
-                }
-                Left += BlockWidth;
+                    DoRepaint = true;
             }
-            GUI.skin.label.alignment = OldAlign;
-            GUI.DragWindow();
+            if (DoRepaint)
+                RepaintChannels();
         }
 
         void OnDestroy() {
