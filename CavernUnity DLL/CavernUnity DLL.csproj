@@ -69,6 +69,7 @@
     <Compile Include="Cavernize.cs" />
     <Compile Include="CavernizeRT.cs" />
     <Compile Include="Channel.cs" />
+    <Compile Include="Debug\ArrayLevels.cs" />
     <Compile Include="Enumerations.cs" />
     <Compile Include="Helpers\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
