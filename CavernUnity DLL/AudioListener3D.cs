@@ -51,6 +51,8 @@ namespace Cavern {
         static int CachedUpdateRate = 0;
         /// <summary>Current time in ticks in the last frame.</summary>
         static long LastTicks = 0;
+        /// <summary>Ticks missed by integer division in the last frame. Required for perfect timing.</summary>
+        static long AdditionMiss = 0;
 
         /// <summary>Cached <see cref="Channels"/> for change detection.</summary>
         static Channel[] ChannelCache;
@@ -173,8 +175,12 @@ namespace Cavern {
             if (ChannelCount != Channels.Length || CachedSampleRate != SampleRate || CachedUpdateRate != UpdateRate)
                 ResetFunc();
             // Timing
-            Now += (int)((DateTime.Now.Ticks - LastTicks) * SampleRate / TimeSpan.TicksPerSecond);
-            LastTicks = DateTime.Now.Ticks;
+            long TicksNow = DateTime.Now.Ticks;
+            long TimePassed = (TicksNow - LastTicks) * SampleRate + AdditionMiss;
+            long Addition = TimePassed / TimeSpan.TicksPerSecond;
+            AdditionMiss = TimePassed % TimeSpan.TicksPerSecond;
+            Now += (int)Addition;
+            LastTicks = TicksNow;
             // Don't work with wrong settings
             if (SampleRate < 44100 || UpdateRate < 16)
                 return;
