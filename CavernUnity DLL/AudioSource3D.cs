@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -14,24 +15,19 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Lifecycle helpers
         // ------------------------------------------------------------------
-        void OnEnable() {
-            if (AudioListener3D.Current)
-                AudioListener3D.Current.RegisterSource(this);
-            else
-                ReRegister = true;
-        }
-
         void Start() {
-            if (ReRegister)
-                AudioListener3D.Current.RegisterSource(this);
             if (RandomPosition)
                 timeSamples = UnityEngine.Random.Range(0, Clip.samples);
             LastDistance = GetDistance(transform.position);
             LastPosition = transform.position;
         }
 
+        void OnEnable() {
+            Node = AudioListener3D.ActiveSources.AddLast(this);
+        }
+
         void OnDisable() {
-            AudioListener3D.Current.UnregisterSource(this);
+            Node.List.Remove(Node);
         }
 
         // ------------------------------------------------------------------
@@ -39,8 +35,6 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Indicator of cached echo settings.</summary>
         bool CachedEcho = false;
-        /// <summary>Retry registering the source in <see cref="Start"/>, when the source is created before the listener.</summary>
-        bool ReRegister = false;
 
         /// <summary>Distance from the listener.</summary>
         float Distance;
@@ -58,6 +52,9 @@ namespace Cavern {
 
         /// <summary>Remaining delay until starting playback.</summary>
         ulong Delay = 0;
+
+        /// <summary>Linked list access for the sources' list.</summary>
+        LinkedListNode<AudioSource3D> Node;
 
         /// <summary>Last source position required for smoothing movement.</summary>
         Vector3 LastPosition;
@@ -147,7 +144,6 @@ namespace Cavern {
                 Delay -= (ulong)AudioListener3D.Current.UpdateRate;
                 return;
             }
-            bool NeedsResampling = AudioListener3D.Current.SampleRate != Clip.frequency;
             // Doppler calculation
             float DopplerPitch = AudioListener3D.Current.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
                 (DopplerLevel == 0 ? Pitch : Clamp(Pitch * (1f + DopplerLevel * (LastDistance - Distance) *
@@ -161,6 +157,7 @@ namespace Cavern {
             bool OutputRawLFE = !AudioListener3D.Current.LFESeparation || LFE;
             // Timing
             int PitchedUpdateRate = (int)(AudioListener3D.Current.UpdateRate * DopplerPitch), BaseUpdateRate = PitchedUpdateRate, ResampledNow = timeSamples;
+            bool NeedsResampling = AudioListener3D.Current.SampleRate != Clip.frequency;
             if (NeedsResampling) {
                 float Mult = (float)Clip.frequency / AudioListener3D.Current.SampleRate;
                 PitchedUpdateRate = (int)(PitchedUpdateRate * Mult);

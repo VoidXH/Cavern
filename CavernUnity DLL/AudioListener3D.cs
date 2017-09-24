@@ -26,7 +26,7 @@ namespace Cavern {
         // Private vars
         // ------------------------------------------------------------------
         /// <summary>List of enabled <see cref="AudioSource3D"/>'s.</summary>
-        List<AudioSource3D> ActiveSources = new List<AudioSource3D>();
+        internal static LinkedList<AudioSource3D> ActiveSources = new LinkedList<AudioSource3D>();
 
         /// <summary>Cached <see cref="EnvironmentCompensation"/>.</summary>
         static bool CompensationCache;
@@ -77,18 +77,6 @@ namespace Cavern {
                 ChannelCache[i] = Channels[i].Copy;
             ChannelDistRecips = new float[ChannelCount];
             ChannelDirections = new Vector3[ChannelCount];
-        }
-
-        /// <summary>Registers an <see cref="AudioSource3D"/> for handling.</summary>
-        /// <param name="Target">Target source</param>
-        internal void RegisterSource(AudioSource3D Target) {
-            ActiveSources.Add(Target);
-        }
-
-        /// <summary>Unregisters an <see cref="AudioSource3D"/> from handling.</summary>
-        /// <param name="Target">Target source</param>
-        internal void UnregisterSource(AudioSource3D Target) {
-            ActiveSources.Remove(Target);
         }
 
         /// <summary>Normalize an array of samples.</summary>
@@ -241,11 +229,17 @@ namespace Cavern {
                     if (!Paused || Manual) {
                         // Collect sound
                         Array.Clear(Output, 0, OutputLength); // Reset output buffer
-                        foreach (AudioSource3D Source in ActiveSources)
-                            Source.Precalculate();
+                        LinkedListNode<AudioSource3D> Node = ActiveSources.First;
+                        while (Node != null) {
+                            Node.Value.Precalculate();
+                            Node = Node.Next;
+                        }
                         AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ? (AudioSource3D.OutputFunc)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
-                        foreach (AudioSource3D Source in ActiveSources)
-                            Source.Collect(UpdatePulse);
+                        Node = ActiveSources.First;
+                        while (Node != null) {
+                            Node.Value.Collect(UpdatePulse);
+                            Node = Node.Next;
+                        }
                         // Volume, distance compensation, and subwoofers' lowpass
                         for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                             if (Channels[Channel].LFE) {
