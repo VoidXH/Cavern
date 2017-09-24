@@ -64,7 +64,7 @@ namespace Cavern {
         /// <returns>Distance of the listener and the given point</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float GetDistance(Vector3 From) {
-            Vector3 ListenerPos = AudioListener3D.Current.transform.position;
+            Vector3 ListenerPos = AudioListener3D.LastPosition;
             float xDist = From.x - ListenerPos.x, yDist = From.y - ListenerPos.y, zDist = From.z - ListenerPos.z;
             return Mathf.Sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
         }
@@ -140,12 +140,13 @@ namespace Cavern {
         internal unsafe void Collect(bool UpdatePulse) {
             if (!Clip)
                 return;
+            AudioListener3D Listener = AudioListener3D.Current;
             if (Delay > 0) {
-                Delay -= (ulong)AudioListener3D.Current.UpdateRate;
+                Delay -= (ulong)Listener.UpdateRate;
                 return;
             }
             // Doppler calculation
-            float DopplerPitch = AudioListener3D.Current.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
+            float DopplerPitch = Listener.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
                 (DopplerLevel == 0 ? Pitch : Clamp(Pitch * (1f + DopplerLevel * (LastDistance - Distance) *
                 0.00294117647058823529411764705882f /* 1 / 340 m/s (speed of sound) */), .5f, 3f));
             if (UpdatePulse) {
@@ -154,12 +155,13 @@ namespace Cavern {
             }
             if (!Clip || !IsPlaying || !CavernUtilities.ArrayContains(ref AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance))
                 return;
-            bool OutputRawLFE = !AudioListener3D.Current.LFESeparation || LFE;
+            bool OutputRawLFE = !Listener.LFESeparation || LFE;
             // Timing
-            int PitchedUpdateRate = (int)(AudioListener3D.Current.UpdateRate * DopplerPitch), BaseUpdateRate = PitchedUpdateRate, ResampledNow = timeSamples;
-            bool NeedsResampling = AudioListener3D.Current.SampleRate != Clip.frequency;
+            int UpdateRate = Listener.UpdateRate;
+            int PitchedUpdateRate = (int)(UpdateRate * DopplerPitch), BaseUpdateRate = PitchedUpdateRate, ResampledNow = timeSamples;
+            bool NeedsResampling = Listener.SampleRate != Clip.frequency;
             if (NeedsResampling) {
-                float Mult = (float)Clip.frequency / AudioListener3D.Current.SampleRate;
+                float Mult = (float)Clip.frequency / Listener.SampleRate;
                 PitchedUpdateRate = (int)(PitchedUpdateRate * Mult);
                 ResampledNow = (int)(timeSamples / Mult);
             }
@@ -177,10 +179,9 @@ namespace Cavern {
             if (Mute)
                 return;
             bool Blend2D = SpatialBlend != 1, Blend3D = SpatialBlend != 0;
-            bool HighQuality = AudioListener3D.Current.AudioQuality >= QualityModes.High;
+            bool HighQuality = Listener.AudioQuality >= QualityModes.High;
             bool StereoClip = Clip.channels == 2;
             int Channels = AudioListener3D.ChannelCount;
-            int UpdateRate = AudioListener3D.Current.UpdateRate;
             // Mono mix
             float[] Samples = new float[PitchedUpdateRate];
             if (Blend3D || !StereoClip) {
@@ -271,14 +272,14 @@ namespace Cavern {
                     }
                 }
             }
-            if (Blend3D && Distance < AudioListener3D.Current.Range) { // 3D mix, if the source is in range
+            if (Blend3D && Distance < Listener.Range) { // 3D mix, if the source is in range
                 float RolloffDistance;
                 switch (VolumeRolloff) {
                     case Rolloffs.Logarithmic:
                         RolloffDistance = Distance < 1 ? 1 : 1 / (1 + Mathf.Log(Distance));
                         break;
                     case Rolloffs.Linear:
-                        RolloffDistance = (AudioListener3D.Current.Range - Distance) / AudioListener3D.Current.Range;
+                        RolloffDistance = (Listener.Range - Distance) / Listener.Range;
                         break;
                     case Rolloffs.Real:
                         RolloffDistance = Distance < 1 ? 1 : 1 / Distance;
@@ -301,7 +302,7 @@ namespace Cavern {
                 }
                 // Buffer for echo, if enabled
                 if (EchoVolume != 0) {
-                    int SampleRate = AudioListener3D.Current.SampleRate;
+                    int SampleRate = Listener.SampleRate;
                     if (EchoBuffer.Length != SampleRate)
                         EchoBuffer = new float[SampleRate];
                     int EchoBufferPosition = ResampledNow % SampleRate;
@@ -317,9 +318,9 @@ namespace Cavern {
                 }
                 // Echo preparations
                 bool SkipEcho = false;
-                if (AudioListener3D.Current.HeadphoneVirtualizer) {
+                if (Listener.HeadphoneVirtualizer) {
                     Vector3 LerpedPosition = CavernUtilities.FastLerp(LastPosition, transform.position, AudioListener3D.DeltaTime);
-                    Vector3 Direction = Quaternion.Inverse(AudioListener3D.Current.transform.rotation) * (LerpedPosition - AudioListener3D.Current.transform.position);
+                    Vector3 Direction = Quaternion.Inverse(Listener.transform.rotation) * (LerpedPosition - AudioListener3D.LastPosition);
                     float DirectionMagnitudeRecip = 1f / (Direction.magnitude + .0001f);
                     if (!CachedEcho) {
                         OldEchoVolume = EchoVolume;
@@ -327,13 +328,13 @@ namespace Cavern {
                         CachedEcho = true;
                     }
                     SkipEcho = EchoVolume == 0;
-                    Transform ListenerTransform = AudioListener3D.Current.gameObject.transform;
+                    Transform ListenerTransform = Listener.gameObject.transform;
                     Vector3 Forward = ListenerTransform.rotation * ListenerTransform.forward, Upward = ListenerTransform.rotation * ListenerTransform.up;
                     float ForwardScalar = Direction.x * Forward.x + Direction.y * Forward.y + Direction.z * Forward.z,
                         UpwardScalar = Direction.x * Upward.x + Direction.y * Upward.y + Direction.z * Upward.z;
                     EchoVolume = (float)Math.Acos(ForwardScalar / (Forward.magnitude + .0001f) * DirectionMagnitudeRecip) * 0.3183098861837906f; // Set volume by angle difference
                     float UpwardMatch = (float)Math.Acos(UpwardScalar / (Upward.magnitude + .0001f) * DirectionMagnitudeRecip) * 0.3183098861837906f; // 0.318... = 1 / pi
-                    EchoDelay = (48f - 43.2f * UpwardMatch) / AudioListener3D.Current.SampleRate; // Delay simulates height difference
+                    EchoDelay = (48f - 43.2f * UpwardMatch) / Listener.SampleRate; // Delay simulates height difference
                 } else if (CachedEcho) {
                     EchoVolume = OldEchoVolume;
                     EchoDelay = OldEchoDelay;
@@ -348,7 +349,7 @@ namespace Cavern {
                         // Find closest channels by cubical pos
                         int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1; // Each direction (bottom/top, front/rear, left/right)
                         float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f, ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers in y/z axes
-                        Vector3 Position = Quaternion.Inverse(AudioListener3D.Current.transform.rotation) * (transform.position - AudioListener3D.Current.transform.position);
+                        Vector3 Position = Quaternion.Inverse(Listener.transform.rotation) * (transform.position - AudioListener3D.LastPosition);
                         Position.x /= AudioListener3D.EnvironmentSize.x;
                         Position.y /= AudioListener3D.EnvironmentSize.y;
                         Position.z /= AudioListener3D.EnvironmentSize.z;
@@ -366,10 +367,6 @@ namespace Cavern {
                                 AssignHorizontalLayer(Channel, ref BFL, ref BFR, ref BRL, ref BRR, ref ClosestBF, ref ClosestBR, Position, ChannelPos);
                             if (ChannelPos.y == ClosestTop) // Top layer
                                 AssignHorizontalLayer(Channel, ref TFL, ref TFR, ref TRL, ref TRR, ref ClosestTF, ref ClosestTR, Position, ChannelPos);
-                        }
-                        for (int Channel = Channels - 1; Channel > 0; --Channel) {
-                            Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
-
                         }
                         FixIncompleteLayer(ref TFL, ref TFR, ref TRL, ref TRR); // Fix incomplete top layer
                         if (BFL == -1 && BFR == -1 && BRL == -1 && BRR == -1) { // Fully incomplete bottom layer, use top
@@ -408,13 +405,13 @@ namespace Cavern {
                     // Echo
                     if (!SkipEcho && EchoVolume != 0 && !LFE) {
                         Volume3D *= EchoVolume;
-                        int EchoStart = (int)((1f - EchoDelay) * AudioListener3D.Current.SampleRate) + ResampledNow;
+                        int EchoStart = (int)((1f - EchoDelay) * Listener.SampleRate) + ResampledNow;
                         int MultichannelUpdateRate = BaseUpdateRate * Channels;
                         for (int Channel = 0; Channel < Channels; ++Channel) {
                             if (!AudioListener3D.Channels[Channel].LFE) {
                                 int EchoPos = EchoStart - 1;
                                 for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels)
-                                    AudioListener3D.Output[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % AudioListener3D.Current.SampleRate] * Volume3D;
+                                    AudioListener3D.Output[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % Listener.SampleRate] * Volume3D;
                             }
                         }
                     }
@@ -424,7 +421,7 @@ namespace Cavern {
                 } else {
                     // Angle match calculations
                     Vector3 LerpedPosition = CavernUtilities.FastLerp(LastPosition, transform.position, AudioListener3D.DeltaTime);
-                    Vector3 Direction = Quaternion.Inverse(AudioListener3D.Current.transform.rotation) * (LerpedPosition - AudioListener3D.Current.transform.position);
+                    Vector3 Direction = Quaternion.Inverse(Listener.transform.rotation) * (LerpedPosition - AudioListener3D.LastPosition);
                     bool TheatreMode = AudioListener3D.EnvironmentType == Environments.Theatre;
                     float[] AngleMatches;
                     float TotalAngleMatch = 0;
@@ -433,7 +430,7 @@ namespace Cavern {
                     else
                         AngleMatches = LinearizeAngleMatches(Channels, Direction, TheatreMode ? (Func<float, float>)PowTo16 : PowTo8);
                     // Only use the closest 3 speakers on non-Perfect qualities or in Theatre mode
-                    if (AudioListener3D.Current.AudioQuality != QualityModes.Perfect || TheatreMode) {
+                    if (Listener.AudioQuality != QualityModes.Perfect || TheatreMode) {
                         float Top0 = 0, Top1 = 0, Top2 = 0;
                         for (int Channel = 0; Channel < Channels; ++Channel) {
                             if (!AudioListener3D.Channels[Channel].LFE) {
@@ -468,14 +465,14 @@ namespace Cavern {
                             NewAngleMatch += AngleMatches[Channel];
                         }
                         Volume3D *= EchoVolume * TotalAngleMatch / NewAngleMatch;
-                        int EchoStart = (int)((1f - EchoDelay) * AudioListener3D.Current.SampleRate) + ResampledNow;
+                        int EchoStart = (int)((1f - EchoDelay) * Listener.SampleRate) + ResampledNow;
                         int MultichannelUpdateRate = BaseUpdateRate * Channels;
                         for (int Channel = 0; Channel < Channels; ++Channel) {
                             if (!AudioListener3D.Channels[Channel].LFE) {
                                 float Gain = RolloffDistance * AngleMatches[Channel] * Volume3D;
                                 int EchoPos = EchoStart - 1;
                                 for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels)
-                                    AudioListener3D.Output[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % AudioListener3D.Current.SampleRate] * Gain;
+                                    AudioListener3D.Output[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % Listener.SampleRate] * Gain;
                             }
                         }
                     }

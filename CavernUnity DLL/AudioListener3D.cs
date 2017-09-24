@@ -21,6 +21,8 @@ namespace Cavern {
         internal static Vector3[] ChannelDirections;
         /// <summary>Cached number of output channels.</summary>
         internal static int ChannelCount;
+        /// <summary>Last position of the active listener.</summary>
+        internal static Vector3 LastPosition;
 
         // ------------------------------------------------------------------
         // Private vars
@@ -174,6 +176,7 @@ namespace Cavern {
             // Change checks
             if (ChannelCount != Channels.Length || CachedSampleRate != SampleRate || CachedUpdateRate != UpdateRate)
                 ResetFunc();
+            LastPosition = transform.position;
             // Timing
             long TicksNow = DateTime.Now.Ticks;
             long TimePassed = (TicksNow - LastTicks) * SampleRate + AdditionMiss;
