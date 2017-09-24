@@ -169,7 +169,7 @@ namespace Cavern {
                 int SavePos = 1;
                 int ChannelLength = Convert.ToInt32(Save[0]);
                 Channels = new Channel[ChannelLength];
-                for (int i = 0; i < ChannelLength; i++)
+                for (int i = 0; i < ChannelLength; ++i)
                     Channels[i] = new Channel(Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]), Convert.ToBoolean(Save[SavePos++]));
                 EnvironmentType = (Environments)Convert.ToInt32(Save[SavePos++]);
                 EnvironmentSize = new Vector3(Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]));
@@ -236,8 +236,8 @@ namespace Cavern {
                     DeltaTime = (float)(LastTime - StartTime) / (Now - StartTime);
                     // Set up sound collection environment
                     int TotalSources = MaximumSources;
-                    for (int i = 0; i < TotalSources; i++)
-                        SourceDistances[i] = Range;
+                    for (int Source = 0; Source < TotalSources; ++Source)
+                        SourceDistances[Source] = Range;
                     if (!Paused || Manual) {
                         // Collect sound
                         Array.Clear(Output, 0, OutputLength); // Reset output buffer
@@ -247,7 +247,7 @@ namespace Cavern {
                         foreach (AudioSource3D Source in ActiveSources)
                             Source.Collect(UpdatePulse);
                         // Volume, distance compensation, and subwoofers' lowpass
-                        for (int Channel = 0; Channel < ChannelCount; Channel++) {
+                        for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                             if (Channels[Channel].LFE) {
                                 if (!DirectLFE)
                                     CavernUtilities.Lowpass(ref Output, ref LastSamples[Channel], UpdateRate, ref Channel, ref ChannelCount);
@@ -317,7 +317,7 @@ namespace Cavern {
             // Remove used samples
             DataPos = 0;
             lock (BufferLock) {
-                for (; BufferPos < BufferPosition; BufferPos++)
+                for (; BufferPos < BufferPosition; ++BufferPos)
                     FilterOutput[DataPos++] = FilterOutput[BufferPos];
                 int MaxLatency = ChannelCount * CachedSampleRate / 6;
                 if (BufferPosition < MaxLatency)

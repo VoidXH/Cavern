@@ -38,13 +38,13 @@ namespace Cavern.Cavern4D {
 
         void Start() {
             SeatMovements = new SeatData[Rows][];
-            for (int i = 0; i < Rows; ++i)
-                SeatMovements[i] = new SeatData[Columns];
+            for (int Row = 0; Row < Rows; ++Row)
+                SeatMovements[Row] = new SeatData[Columns];
         }
 
         void OnDisable() {
-            for (int i = 0; i < Rows; i++)
-                Array.Clear(SeatMovements[i], 0, Columns);
+            for (int Row = 0; Row < Rows; ++Row)
+                Array.Clear(SeatMovements[Row], 0, Columns);
         }
 
         void Update() {
@@ -52,9 +52,9 @@ namespace Cavern.Cavern4D {
                 OnDisable();
                 return;
             }
-            for (int i = 0; i < Rows; i++)
-                for (int j = 0; j < Columns; j++)
-                    SeatMovements[i][j].Height = 200;
+            for (int Row = 0; Row < Rows; ++Row)
+                for (int Column = 0; Column < Columns; ++Column)
+                    SeatMovements[Row][Column].Height = 200;
             int LastRow = Rows - 1, LastColumn = Columns - 1;
             if (CavernSource.WrittenOutput[0]) // Front left
                 SeatMovements[0][0].Height = CavernSource.ChannelHeights[0];
@@ -79,7 +79,7 @@ namespace Cavern.Cavern4D {
             if (SeatMovements[LastRow][LastColumn].Height == 200)
                 SeatMovements[LastRow][LastColumn].Height = CavernSource.ChannelHeights[1];
             // Seat position interpolation
-            for (int Row = 0; Row < Rows; Row++) {
+            for (int Row = 0; Row < Rows; ++Row) {
                 int Prev = 0;
                 for (int Column = 0; Column < Columns; ++Column) {
                     if (SeatMovements[Row][Column].Height != 200) {
@@ -99,7 +99,7 @@ namespace Cavern.Cavern4D {
             }
             for (int Column = 0; Column < Columns; ++Column) {
                 int Prev = 0;
-                for (int Row = 0; Row < Rows; Row++) {
+                for (int Row = 0; Row < Rows; ++Row) {
                     if (SeatMovements[Row][Column].Height != 200) {
                         float LerpDiv = Row - Prev;
                         for (int OldRow = Prev; OldRow < Row; ++OldRow)
@@ -117,14 +117,14 @@ namespace Cavern.Cavern4D {
             // Seat rotation interpolation
             for (int Row = 0; Row < Rows; ++Row) {
                 SeatMovements[Row][0].Rotation.z = Mathf.Clamp((SeatMovements[Row][1].Height - SeatMovements[Row][0].Height) * RotationConstant * 2, -MaxRotationSide, MaxRotationSide);
-                for (int Column = 1; Column < LastColumn; Column++)
+                for (int Column = 1; Column < LastColumn; ++Column)
                     SeatMovements[Row][Column].Rotation.z = Mathf.Clamp((SeatMovements[Row][Column + 1].Height - SeatMovements[Row][Column - 1].Height) * RotationConstant, -MaxRotationSide, MaxRotationSide);
                 SeatMovements[Row][LastColumn].Rotation.z = Mathf.Clamp((SeatMovements[Row][LastColumn].Height - SeatMovements[Row][LastColumn - 1].Height) * RotationConstant * 2,
                     -MaxRotationSide, MaxRotationSide);
             }
             for (int Column = 0; Column < Columns; ++Column) {
                 SeatMovements[0][Column].Rotation.x = Mathf.Clamp((SeatMovements[1][Column].Height - SeatMovements[0][Column].Height) * RotationConstant * 2, -20, 20);
-                for (int Row = 1; Row < LastRow; Row++)
+                for (int Row = 1; Row < LastRow; ++Row)
                     SeatMovements[Row][Column].Rotation.x = Mathf.Clamp((SeatMovements[Row + 1][Column].Height - SeatMovements[Row - 1][Column].Height) * RotationConstant, -MaxRotationFace, MaxRotationFace);
                 SeatMovements[LastRow][Column].Rotation.x = Mathf.Clamp((SeatMovements[LastRow][Column].Height - SeatMovements[LastRow - 1][Column].Height) * RotationConstant * 2,
                     -MaxRotationFace, MaxRotationFace);

@@ -96,7 +96,7 @@ namespace Cavern.Debug {
             int OldSize = GUI.skin.label.fontSize;
             GUI.skin.label.fontSize = 12;
             GUI.Label(new Rect(0, Top, 30, 14), (DynamicRange / 10).ToString());
-            for (int i = 2; i <= 10; i++) {
+            for (int i = 2; i <= 10; ++i) {
                 GUI.Label(new Rect(0, Top += 14, 30, 14), (DynamicRange * i / 10).ToString());
                 GUI.DrawTexture(new Rect(2, Top, Width, 1), White);
             }

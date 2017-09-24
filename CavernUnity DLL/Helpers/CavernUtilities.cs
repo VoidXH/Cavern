@@ -84,7 +84,7 @@ namespace Cavern {
         /// <param name="in2">Value to insert</param>
         internal static void BottomlistHandler(ref float[] in0, int in1, float in2) {
             int Replace = -1;
-            for (int Record = 0; Record < in1; Record++)
+            for (int Record = 0; Record < in1; ++Record)
                 if (in0[Record] > in2)
                     Replace = Replace == -1 ? Record : (in0[Record] > in0[Replace] ? Record : Replace);
             if (Replace != -1)

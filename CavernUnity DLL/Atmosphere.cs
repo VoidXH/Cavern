@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+
+using Random = UnityEngine.Random;
 
 namespace Cavern {
     /// <summary>Creates an atmosphere of the given <see cref="Clips"/>.</summary>
@@ -10,9 +14,9 @@ namespace Cavern {
         /// <summary>The amount of audio sources in the atmosphere.</summary>
         [Tooltip("The amount of audio sources in the atmosphere.")]
         public int Sources;
-        /// <summary>The shape of the atmosphere. Cubic if disabled.</summary>
-        [Tooltip("The shape of the atmosphere. Cubic if disabled.")]
-        public bool Spherical = true;
+        /// <summary>Create a spherical environment instead of cubic.</summary>
+        [Tooltip("Create a spherical environment instead of cubic.")]
+        public bool Spherical = false;
         /// <summary>Minimal distance to spawn sources from the object's position.</summary>
         [Tooltip("Minimal distance to spawn sources from the object's position.")]
         public float MinDistance = 5;
@@ -22,6 +26,9 @@ namespace Cavern {
         /// <summary>Atmosphere volume.</summary>
         [Tooltip("Atmosphere volume.")]
         [Range(0, 1)] public float Volume = .25f;
+        /// <summary>Show created objects.</summary>
+        [Tooltip("Show created objects.")]
+        public bool Visualize = false;
 
         struct AtmosphereObject {
             public GameObject Object;
@@ -51,20 +58,32 @@ namespace Cavern {
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        GameObject CreateVisualization() {
+            return GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        GameObject CreateEmpty() {
+            return new GameObject();
+        }
+
         void Update() {
+            Func<GameObject> Creator = Visualize ? (Func<GameObject>)CreateVisualization : CreateEmpty;
+            Func<Vector3, Vector3> DirectionFunc = Spherical ? (Func<Vector3, Vector3>)CavernUtilities.PlaceInSphere : CavernUtilities.PlaceInCube;
+            int ClipCount = Clips.Length;
+            float TargetVolume = Volume / Sources;
             for (int Source = 0; Source < Sources; ++Source) {
                 if (!Objects[Source].Object) {
-                    Objects[Source].Object = new GameObject();
-                    Vector3 Angles = new Vector3(Random.Range(0f, 360f), Random.Range(0f, 360f), Random.Range(0f, 360f));
-                    Vector3 Direction = Spherical ? CavernUtilities.PlaceInSphere(Angles) : CavernUtilities.PlaceInCube(Angles);
+                    GameObject Creation = Objects[Source].Object = Creator();
+                    // Position source
+                    Vector3 Direction = DirectionFunc(new Vector3(Random.value * 360, Random.value * 360));
                     float Distance = (MaxDistance - MinDistance) * Random.value + MinDistance;
-                    if (Spherical)
-                        Distance /= (Direction.magnitude + .0001f);
-                    Objects[Source].Object.transform.position = transform.position + Direction * Distance;
-                    Objects[Source].Source = Objects[Source].Object.AddComponent<AudioSource3D>();
-                    Objects[Source].Source.Clip = Clips[Random.Range(0, Clips.Length)];
-                    Objects[Source].Source.RandomPosition = true;
-                    Objects[Source].Source.Volume = Volume / Sources;
+                    Creation.transform.position = transform.position + Direction * Distance;
+                    // Add audio
+                    AudioSource3D NewSource = Objects[Source].Source = Creation.AddComponent<AudioSource3D>();
+                    NewSource.Clip = Clips[(int)(ClipCount * Random.value)];
+                    NewSource.Volume = TargetVolume;
                 } else if (!Objects[Source].Source.IsPlaying)
                     Destroy(Objects[Source].Object);
             }
