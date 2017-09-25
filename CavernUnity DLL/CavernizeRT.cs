@@ -50,7 +50,7 @@ namespace Cavern {
         public static float Fader {
             get {
                 float dB = CavernUtilities.SignalToDb(1f / FaderGain);
-                return dB > -10 ? dB / 3.3333333333333f + 7 : (dB / 20 + 4.5f);
+                return dB > -10 ? dB * .3f + 7 : (dB * .05f + 4.5f);
             }
             set {
                 FaderGain = 1f / CavernUtilities.DbToSignal(value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20));

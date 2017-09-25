@@ -11,14 +11,10 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Position between the last and current frame's playback position.</summary>
         internal static float DeltaTime;
-        /// <summary>Reciprocals of channel distances for volume calculation optimization.</summary>
-        internal static float[] ChannelDistRecips;
         /// <summary>The cached length of the <see cref="SourceDistances"/> array.</summary>
         internal static int SourceLimit = 128;
         /// <summary>Distances of sources from the listener.</summary>
         internal static float[] SourceDistances = new float[128];
-        /// <summary>Channel direction vectors.</summary>
-        internal static Vector3[] ChannelDirections;
         /// <summary>Cached number of output channels.</summary>
         internal static int ChannelCount;
         /// <summary>Last position of the active listener.</summary>
@@ -79,8 +75,6 @@ namespace Cavern {
             ChannelCache = new Channel[ChannelCount];
             for (int i = 0; i < ChannelCount; ++i)
                 ChannelCache[i] = Channels[i].Copy;
-            ChannelDistRecips = new float[ChannelCount];
-            ChannelDirections = new Vector3[ChannelCount];
         }
 
         /// <summary>Normalize an array of samples.</summary>
@@ -200,8 +194,6 @@ namespace Cavern {
                 MaxGain = 0;
                 for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                     if (!Channels[Channel].LFE) {
-                        ChannelDirections[Channel] = Channels[Channel].Rotation * Vector3.forward;
-                        ChannelDistRecips[Channel] = 1f / (ChannelDirections[Channel].magnitude + .0001f);
                         float ThisVolume = ChannelGains[Channel] =
                             !EnvironmentCompensation ? 1 : // Disable this feature when not needed
                             (CavernUtilities.VectorScale((EnvironmentType != Environments.Studio ?

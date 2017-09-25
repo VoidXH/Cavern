@@ -27,6 +27,8 @@ namespace Cavern {
         public Vector3 CubicalPos { get; private set; }
         /// <summary>Rotation direction of the channel.</summary>
         public Quaternion Rotation { get; private set; }
+        /// <summary>The channel's forward direction.</summary>
+        public Vector3 Direction { get; private set; }
 
         /// <summary>An identical channel.</summary>
         internal Channel Copy { get { return new Channel(X, Y, LFE); } }
@@ -56,6 +58,7 @@ namespace Cavern {
         void Recalculate() {
             // Helper calculation
             Rotation = Quaternion.Euler(x, y, 0);
+            Direction = Rotation * Vector3.forward;
             float XRad = X * Mathf.Deg2Rad, YRad = Y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
             SphericalPos = new Vector3(SinY * CosX, -SinX, CosY * CosX);
