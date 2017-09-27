@@ -74,6 +74,8 @@ namespace Cavern {
         float[] LastNormal = new float[CavernChannels];
         /// <summary>Last high-passed sample of each channel.</summary>
         float[] LastHigh = new float[CavernChannels];
+        /// <summary>Last output for each channel.</summary>
+        float[][] Output = new float[CavernChannels][];
 
         /// <summary>Objects representing imported or created channels.</summary>
         GameObject[] SphericalObjects = new GameObject[CavernChannels];
@@ -86,6 +88,8 @@ namespace Cavern {
         int ClipLastTime;
         /// <summary>Output timing of Unity.</summary>
         int LastOutputPos = 0;
+        /// <summary><see cref="AudioListener3D.UpdateRate"/> for conversion.</summary>
+        int UpdateRate;
         /// <summary>Cached <see cref="AudioListener3D.SampleRate"/> as the listener is reconfigured for the Cavernize process.</summary>
         int OldSampleRate;
         /// <summary>Cached <see cref="AudioListener3D.UpdateRate"/> as the listener is reconfigured for the Cavernize process.</summary>
@@ -198,17 +202,18 @@ namespace Cavern {
         };
 
         void Start() {
-            OldSampleRate = AudioListener3D.Current.SampleRate;
-            OldUpdateRate = AudioListener3D.Current.UpdateRate;
-            AudioListener3D.Current.SampleRate = Clip.frequency;
-            AudioListener3D.Current.UpdateRate = Clip.frequency / UpdatesPerSecond;
+            AudioListener3D Listener = AudioListener3D.Current;
+            OldSampleRate = Listener.SampleRate;
+            OldUpdateRate = Listener.UpdateRate;
+            Listener.SampleRate = Clip.frequency;
+            UpdateRate = Listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
             ClipLastTime = InitialDelay;
             LastTime = Now;
             OldMaxSources = AudioListener3D.MaximumSources;
             if (AudioListener3D.MaximumSources < CavernChannels)
                 AudioListener3D.MaximumSources = CavernChannels;
             int ClipChannels = Clip.channels;
-            ClipSamples = new float[ClipChannels * AudioListener3D.Current.UpdateRate];
+            ClipSamples = new float[ClipChannels * UpdateRate];
             for (int Source = 0; Source < CavernChannels; ++Source) {
                 bool Spawn = StandardChannels[Source].UpmixTarget; // Only spawn the channel if it is used or could be used
                 for (int Channel = 0; Channel < ClipChannels; ++Channel)
@@ -218,7 +223,7 @@ namespace Cavern {
                     SphericalRenderers[Source] = SphericalObjects[Source].GetComponent<Renderer>();
                     SphericalObjects[Source].name = StandardChannels[Source].Name;
                     AudioSource3D NewSource = SphericalPoints[Source] = SphericalObjects[Source].AddComponent<AudioSource3D>();
-                    NewSource.Clip = AudioClip.Create(string.Empty, AudioListener3D.Current.SampleRate, 1, AudioListener3D.Current.SampleRate, false);
+                    NewSource.Clip = AudioClip.Create(string.Empty, Listener.SampleRate, 1, Listener.SampleRate, false);
                     NewSource.Loop = true;
                     NewSource.VolumeRolloff = Rolloffs.Disabled;
                     NewSource.LFE = StandardChannels[Source].LFE;
@@ -229,6 +234,8 @@ namespace Cavern {
                         CavernUtilities.VectorScale(CavernUtilities.PlaceInCube(new Vector3(0, StandardChannels[Source].Y)), AudioListener3D.EnvironmentSize);
                 }
             }
+            for (int Channel = 0; Channel < CavernChannels; ++Channel)
+                Output[Channel] = new float[UpdateRate];
         }
 
         /// <summary>Runs the frame update function.</summary>
@@ -238,30 +245,34 @@ namespace Cavern {
 
         void Update() {
             // Reset
-            float[][] Output = new float[CavernChannels][];
             for (int Channel = 0; Channel < CavernChannels; ++Channel)
-                Output[Channel] = new float[AudioListener3D.Current.UpdateRate];
+                Array.Clear(Output[Channel], 0, UpdateRate);
             // Precalculations
-            float SmoothFactor = 1f - CavernUtilities.FastLerp(AudioListener3D.Current.UpdateRate, AudioListener3D.Current.SampleRate,
-                (float)Math.Pow(Smoothness, .1f)) / AudioListener3D.Current.SampleRate * .999f;
+            AudioListener3D Listener = AudioListener3D.Current;
+            float SmoothFactor = 1f - CavernUtilities.FastLerp(UpdateRate, Listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / Listener.SampleRate * .999f;
             // Timing
-            int Increase = SphericalPoints[2].timeSamples < LastOutputPos ? SphericalPoints[2].timeSamples + AudioListener3D.Current.SampleRate - LastOutputPos :
+            int Increase = SphericalPoints[2].timeSamples < LastOutputPos ? SphericalPoints[2].timeSamples + Listener.SampleRate - LastOutputPos :
                 SphericalPoints[2].timeSamples - LastOutputPos;
             Now += Increase;
             LastOutputPos = SphericalPoints[2].timeSamples;
             if (Manual)
-                Now = LastTime + AudioListener3D.Current.UpdateRate;
-            else if(!IsPlaying) {
+                Now = LastTime + UpdateRate;
+            else if (!IsPlaying) {
                 Now = LastTime;
                 if (!PrevManual)
                     ClipLastTime += Increase;
+                for (int Channel = 0; Channel < CavernChannels; ++Channel) {
+                    if (SphericalObjects[Channel]) {
+                        SphericalPoints[Channel].Mute = true;
+                        SphericalPoints[Channel].Clip.SetData(Output[Channel], ClipLastTime % Listener.SampleRate);
+                    }
+                }
             }
             bool Mute = !(IsPlaying || PrevManual || Manual);
             PrevManual = Manual;
             while (LastTime < Now) {
                 // Reset
                 int From = LastTime;
-                int ClipFrom = ClipLastTime;
                 int MaxLength = Clip.samples;
                 if (From >= MaxLength) {
                     if (Loop) {
@@ -277,8 +288,8 @@ namespace Cavern {
                 }
                 WrittenOutput = new bool[CavernChannels];
                 int Channels = Clip.channels;
-                int UpdateRate = AudioListener3D.Current.UpdateRate;
                 LastTime += UpdateRate;
+                int ClipFrom = ClipLastTime;
                 ClipLastTime += UpdateRate;
                 if (IsPlaying || Manual) {
                     // Load input channels
@@ -330,7 +341,7 @@ namespace Cavern {
                 for (int Channel = 0; Channel < CavernChannels; ++Channel) {
                     if (SphericalObjects[Channel]) {
                         SphericalPoints[Channel].Mute = Mute;
-                        SphericalPoints[Channel].Clip.SetData(Output[Channel], ClipFrom % AudioListener3D.Current.SampleRate); // Overwrite channel data with new output, even if it's empty
+                        SphericalPoints[Channel].Clip.SetData(Output[Channel], ClipFrom % Listener.SampleRate); // Overwrite channel data with new output, even if it's empty
                         SphericalRenderers[Channel].enabled = Visualize && WrittenOutput[Channel];
                         if (WrittenOutput[Channel]) { // Create height for channels with new audio data
                             float MaxDepth = .0001f, MaxHeight = .0001f;
@@ -379,8 +390,9 @@ namespace Cavern {
                     Destroy(SphericalObjects[Source]);
                 }
             }
-            AudioListener3D.Current.SampleRate = OldSampleRate;
-            AudioListener3D.Current.UpdateRate = OldUpdateRate;
+            AudioListener3D Listener = AudioListener3D.Current;
+            Listener.SampleRate = OldSampleRate;
+            Listener.UpdateRate = OldUpdateRate;
             AudioListener3D.MaximumSources = OldMaxSources;
         }
     }
