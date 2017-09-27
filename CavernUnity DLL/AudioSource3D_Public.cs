@@ -129,14 +129,21 @@ namespace Cavern {
         /// <summary>Play a clip once.</summary>
         /// <param name="Clip">Target clip</param>
         /// <param name="Volume">Playback volume</param>
-        public void PlayOneShot(AudioClip Clip, float Volume = 1) {
-            AudioSource3D Source = gameObject.AddComponent<AudioSource3D>();
+        /// <param name="Static">Do not play on the source's game object, play at the source's current position instead.</param>
+        public void PlayOneShot(AudioClip Clip, float Volume = 1, bool Static = false) {
+            GameObject Obj;
+            if (Static) {
+                Obj = new GameObject("Temporary Static Audio Source");
+                Obj.transform.position = transform.position;
+            } else
+                Obj = gameObject;
+            AudioSource3D Source = Obj.AddComponent<AudioSource3D>();
             Source.CopySettings(this);
             Source.Clip = Clip;
             Source.IsPlaying = true;
             Source.Loop = Source.Mute = Source.RandomPosition = false;
             Source.Volume = Volume;
-            OneShotDestructor.Constructor(gameObject, Source);
+            OneShotDestructor.Constructor(Obj, Source, Static);
         }
 
         /// <summary>Copy the settings of another <see cref="AudioSource3D"/>.</summary>
