@@ -21,6 +21,9 @@ namespace Cavern.Helpers {
         /// <summary>Current window position.</summary>
         [System.NonSerialized] public Rect Position;
 
+        /// <summary>GUI draw matrix override.</summary>
+        [System.NonSerialized] public Matrix4x4 Matrix = Matrix4x4.identity;
+
         /// <summary>Window width.</summary>
         protected int Width;
         /// <summary>Window height.</summary>
@@ -44,6 +47,7 @@ namespace Cavern.Helpers {
         }
 
         void OnGUI() {
+            GUI.matrix = Matrix;
             Position = GUI.Window(ID, Position, Draw, Title);
             if (Position.x < 0)
                 Position.x = 0;
