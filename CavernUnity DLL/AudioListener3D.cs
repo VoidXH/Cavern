@@ -9,8 +9,10 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Internal vars
         // ------------------------------------------------------------------
-        /// <summary>Position between the last and current frame's playback position.</summary>
+        /// <summary>Position between the last and current update frame's playback position.</summary>
         internal static float DeltaTime;
+        /// <summary>Position between the last and current game frame's playback position.</summary>
+        internal static float PulseDelta;
         /// <summary>The cached length of the <see cref="SourceDistances"/> array.</summary>
         internal static int SourceLimit = 128;
         /// <summary>Distances of sources from the listener.</summary>
@@ -108,7 +110,7 @@ namespace Cavern {
             if (!Paused) {
                 float[] SourceBuffer = Output;
                 int SourceBufferSize = Output.Length;
-                if (SystemUpdateRate != CachedSampleRate) { // Resample output for system sample rate
+                if (SystemSampleRate != CachedSampleRate) { // Resample output for system sample rate
                     float[][] ChannelSplit = new float[ChannelCount][];
                     int Channel;
                     for (Channel = 0; Channel < ChannelCount; ++Channel)
@@ -118,7 +120,7 @@ namespace Cavern {
                         for (Channel = 0; Channel < ChannelCount; ++Channel)
                             ChannelSplit[Channel][Sample] = Output[OutputSample++];
                     for (Channel = 0; Channel < ChannelCount; ++Channel)
-                        ChannelSplit[Channel] = AudioSource3D.Resample(ChannelSplit[Channel], UpdateRate, (int)(UpdateRate * SystemUpdateRate / (float)CachedSampleRate));
+                        ChannelSplit[Channel] = AudioSource3D.Resample(ChannelSplit[Channel], UpdateRate, (int)(UpdateRate * SystemSampleRate / (float)CachedSampleRate));
                     int NewUpdateRate = ChannelSplit[0].Length;
                     SourceBuffer = new float[SourceBufferSize = ChannelCount * NewUpdateRate];
                     OutputSample = 0;
@@ -142,7 +144,7 @@ namespace Cavern {
 
         void Awake() {
             OnOutputAvailable = Finalization; // Call finalization when samples are available
-            SystemUpdateRate = AudioSettings.GetConfiguration().sampleRate;
+            SystemSampleRate = AudioSettings.GetConfiguration().sampleRate;
             if (Current) {
                 UnityEngine.Debug.LogError("There can be only one 3D audio listener per scene.");
                 Destroy(Current);
@@ -219,26 +221,25 @@ namespace Cavern {
                 LastTime = Now - UpdateRate;
             if (Manual)
                 Now = LastTime + UpdateRate;
+            AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ? (AudioSource3D.OutputFunc)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
             if (LastTime < Now) {
-                bool UpdatePulse = true;
+                // Set up sound collection environment
+                for (int Source = 0; Source < MaximumSources; ++Source)
+                    SourceDistances[Source] = Range;
+                PulseDelta = (Now - LastTime) /(float)SampleRate;
+                LinkedListNode<AudioSource3D> Node = ActiveSources.First;
+                while (Node != null) {
+                    Node.Value.Precalculate();
+                    Node = Node.Next;
+                }
                 while (LastTime < Now) {
                     DeltaTime = (float)(LastTime - StartTime) / (Now - StartTime);
-                    // Set up sound collection environment
-                    int TotalSources = MaximumSources;
-                    for (int Source = 0; Source < TotalSources; ++Source)
-                        SourceDistances[Source] = Range;
                     if (!Paused || Manual) {
                         // Collect sound
                         Array.Clear(Output, 0, OutputLength); // Reset output buffer
-                        LinkedListNode<AudioSource3D> Node = ActiveSources.First;
-                        while (Node != null) {
-                            Node.Value.Precalculate();
-                            Node = Node.Next;
-                        }
-                        AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ? (AudioSource3D.OutputFunc)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
                         Node = ActiveSources.First;
                         while (Node != null) {
-                            Node.Value.Collect(UpdatePulse);
+                            Node.Value.Collect();
                             Node = Node.Next;
                         }
                         // Volume, distance compensation, and subwoofers' lowpass
@@ -256,7 +257,6 @@ namespace Cavern {
                     // Finalize
                     OnOutputAvailable();
                     LastTime += UpdateRate;
-                    UpdatePulse = false;
                 }
                 Manual = false;
             }
@@ -274,7 +274,7 @@ namespace Cavern {
         /// <summary>Filter normalizer gain.</summary>
         static float FilterNormalizer = 1;
         /// <summary>Cached system sample rate.</summary>
-        static int SystemUpdateRate;
+        static int SystemSampleRate;
 
         /// <summary>Output Cavern's generated audio as a filter.</summary>
         /// <param name="UnityBuffer">Output buffer</param>
