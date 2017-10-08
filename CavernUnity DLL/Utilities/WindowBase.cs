@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Cavern.Helpers {
+namespace Cavern.Utilities {
     /// <summary>Cavern window handling basics.</summary>
     public abstract class WindowBase : MonoBehaviour {
         /// <summary>Possible corners to open a window at.</summary>

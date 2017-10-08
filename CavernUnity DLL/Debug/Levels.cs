@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-using Cavern.Helpers;
+using Cavern.Utilities;
 
 namespace Cavern.Debug {
     /// <summary>Current channel volume display window.</summary>

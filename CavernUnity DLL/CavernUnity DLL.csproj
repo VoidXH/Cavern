@@ -72,11 +72,11 @@
     <Compile Include="Debug\ArrayLevels.cs" />
     <Compile Include="Debug\Monitor.cs" />
     <Compile Include="Enumerations.cs" />
-    <Compile Include="Helpers\CavernUtilities.cs" />
+    <Compile Include="Utilities\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
-    <Compile Include="Helpers\OneShotDestructor.cs" />
+    <Compile Include="Utilities\OneShotDestructor.cs" />
     <Compile Include="Helpers\ScaleByGain.cs" />
-    <Compile Include="Helpers\WindowBase.cs" />
+    <Compile Include="Utilities\WindowBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Debug\Levels.cs" />
     <Compile Include="SeatAdaptation.cs" />

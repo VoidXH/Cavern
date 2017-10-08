@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Cavern.Helpers {
+namespace Cavern.Utilities {
     /// <summary>Destructs a one-shot <see cref="AudioSource3D"/> after it finishes playback.</summary>
     internal class OneShotDestructor : MonoBehaviour {
         /// <summary>Source to destruct</summary>

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-using Cavern.Helpers;
+using Cavern.Utilities;
 
 namespace Cavern.Debug {
     /// <summary>Cinema channel array volume meters (7.1 + overhead sides).</summary>

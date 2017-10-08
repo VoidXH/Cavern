@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-using Cavern.Helpers;
+using Cavern.Utilities;
 
 namespace Cavern.Debug {
     /// <summary>Setup window for <see cref="SeatAdaptation"/>.</summary>
