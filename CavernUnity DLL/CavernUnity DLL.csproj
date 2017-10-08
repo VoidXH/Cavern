@@ -71,7 +71,9 @@
     <Compile Include="Channel.cs" />
     <Compile Include="Debug\ArrayLevels.cs" />
     <Compile Include="Debug\Monitor.cs" />
+    <Compile Include="Editor\Helpers\ExternalSource.cs" />
     <Compile Include="Enumerations.cs" />
+    <Compile Include="Helpers\ExternalSource.cs" />
     <Compile Include="Utilities\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
     <Compile Include="Utilities\OneShotDestructor.cs" />
