@@ -20,22 +20,25 @@ namespace Cavern {
         /// <summary>Disables any audio. Use this instead of enabling/disabling the script.</summary>
         [Tooltip("Disables any audio. Use this instead of enabling/disabling the script.")]
         public bool Paused = false;
-        /// <summary>Adaption speed of the normalizer. 0 means disabled.</summary>
 
+        /// <summary>Adaption speed of the normalizer. 0 means disabled.</summary>
         [Header("Normalizer")]
         [Tooltip("Adaption speed of the normalizer. 0 means disabled.")]
         [Range(0, 1)] public float Normalizer = 1;
         /// <summary>If active, the normalizer won't increase the volume above 100%.</summary>
         [Tooltip("If active, the normalizer won't increase the volume above 100%.")]
         public bool LimiterOnly = true;
-        /// <summary>Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.</summary>
 
+        /// <summary>Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.</summary>
         [Header("Advanced")]
         [Tooltip("Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.")]
         public int SampleRate = 44100;
         /// <summary>Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.</summary>
         [Tooltip("Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.")]
         public int UpdateRate = 240;
+        /// <summary>Maximum audio delay, defined in this FPS value. This is the minimum frame rate required to render continuous audio.</summary>
+        [Tooltip("Maximum audio delay in 1/s. This is half the minimum frame rate required to render continuous audio.")]
+        public int DelayTarget = 12;
         /// <summary>Lower qualities increase performance for many sources.</summary>
         [Tooltip("Lower qualities increase performance for many sources.")]
         public QualityModes AudioQuality = QualityModes.High;

@@ -265,12 +265,12 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Filter output
         // ------------------------------------------------------------------
+        /// <summary>Filter buffer position.</summary>
+        internal static int BufferPosition = 0;
         /// <summary>Samples to play with the filter.</summary>
         static float[] FilterOutput;
         /// <summary>Lock for the <see cref="BufferPosition"/>, which is set in multiple threads.</summary>
         static object BufferLock = new object();
-        /// <summary>Filter buffer position.</summary>
-        static int BufferPosition = 0;
         /// <summary>Filter normalizer gain.</summary>
         static float FilterNormalizer = 1;
         /// <summary>Cached system sample rate.</summary>
@@ -314,7 +314,7 @@ namespace Cavern {
             lock (BufferLock) {
                 for (; BufferPos < BufferPosition; ++BufferPos)
                     FilterOutput[DataPos++] = FilterOutput[BufferPos];
-                int MaxLatency = ChannelCount * CachedSampleRate / 6;
+                int MaxLatency = ChannelCount * CachedSampleRate / DelayTarget;
                 if (BufferPosition < MaxLatency)
                     BufferPosition -= End;
                 else
