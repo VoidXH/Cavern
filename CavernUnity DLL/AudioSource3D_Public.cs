@@ -75,6 +75,11 @@ namespace Cavern {
             set { Clip = value; }
         }
 
+        public bool loop {
+            get { return Loop; }
+            set { Loop = value; }
+        }
+
         /// <summary>Alias for <see cref="Volume"/>.</summary>
         public float volume {
             get { return Volume; }
