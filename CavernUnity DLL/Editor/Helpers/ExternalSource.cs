@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
 namespace Cavern.Helpers {
@@ -15,3 +16,4 @@ namespace Cavern.Helpers {
         }
     }
 }
+#endif

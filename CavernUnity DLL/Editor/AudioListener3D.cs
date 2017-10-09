@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
 namespace Cavern {
@@ -24,3 +25,4 @@ namespace Cavern {
         }
     }
 }
+#endif
