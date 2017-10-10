@@ -44,6 +44,9 @@ namespace Cavern {
         [Header("3D processing")]
         [Tooltip("Stereo mix <-> 3D mix")]
         [Range(0, 1)] public float SpatialBlend = 1;
+        /// <summary>Audio source size relative to the <see cref="AudioListener3D.EnvironmentSize"/>. 0 is a point, 1 is the entire room.</summary>
+        [Tooltip("Audio source size relative to the environment. 0 is a point, 1 is the entire room.")]
+        [Range(0, 1)] public float Size = 0;
         /// <summary>Doppler effect scale, 1 is real.</summary>
         [Tooltip("Doppler effect scale, 1 is real.")]
         [Range(0, 5)] public float DopplerLevel = 0;

@@ -372,9 +372,18 @@ namespace Cavern {
                                 BottomVol = 1f - TopVol;
                             } else
                                 TopVol = BottomVol = .5f;
-                            float BFVol = LengthRatio(BRL, BFL, Position.z), BRVol = 1f - BFVol, TFVol = LengthRatio(TRL, TFL, Position.z), TRVol = 1f - TFVol, // Length ratios
+                            float BFVol = LengthRatio(BRL, BFL, Position.z), TFVol = LengthRatio(TRL, TFL, Position.z), // Length ratios
                                 BFRVol = WidthRatio(BFL, BFR, Position.x), BRRVol = WidthRatio(BRL, BRR, Position.x), // Width ratios
                                 TFRVol = WidthRatio(TFL, TFR, Position.x), TRRVol = WidthRatio(TRL, TRR, Position.x);
+                            if (Size != 0) {
+                                BFVol = CavernUtilities.FastLerp(BFVol, .5f, Size);
+                                TFVol = CavernUtilities.FastLerp(TFVol, .5f, Size);
+                                BFRVol = CavernUtilities.FastLerp(BFRVol, .5f, Size);
+                                BRRVol = CavernUtilities.FastLerp(BRRVol, .5f, Size);
+                                TFRVol = CavernUtilities.FastLerp(TFRVol, .5f, Size);
+                                TRRVol = CavernUtilities.FastLerp(TRRVol, .5f, Size);
+                            }
+                            float BRVol = 1f - BFVol, TRVol = 1f - TFVol; // Remaining length ratios
                             BottomVol *= Volume3D; TopVol *= Volume3D; BFVol *= BottomVol; BRVol *= BottomVol; TFVol *= TopVol; TRVol *= TopVol;
                             UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BFVol * (1f - BFRVol), BFL, Channels);
                             UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BFVol * BFRVol, BFR, Channels);
@@ -412,9 +421,22 @@ namespace Cavern {
                         Vector3 LerpedPosition = CavernUtilities.FastLerp(LastPosition, transform.position, AudioListener3D.DeltaTime);
                         Vector3 Direction = Quaternion.Inverse(Listener.transform.rotation) * (LerpedPosition - AudioListener3D.LastPosition);
                         bool TheatreMode = AudioListener3D.EnvironmentType == Environments.Theatre;
-                        float[] AngleMatches;
-                        float TotalAngleMatch = 0;
-                        AngleMatches = UsedAngleMatchFunc(Channels, Direction, TheatreMode ? (Func<float, float>)PowTo16 : PowTo8);
+                        float[] AngleMatches = UsedAngleMatchFunc(Channels, Direction, TheatreMode ? (Func<float, float>)PowTo16 : PowTo8);
+                        // Object size extension
+                        if (Size != 0) {
+                            float MaxAngleMatch = 0;
+                            int ChannelCount = Channels;
+                            fixed (float* Matches = AngleMatches) {
+                                float* AngleMatchArr = Matches;
+                                while (ChannelCount-- != 0) {
+                                    if (MaxAngleMatch < *AngleMatchArr)
+                                        MaxAngleMatch = *AngleMatchArr;
+                                    ++AngleMatchArr;
+                                }
+                            }
+                            for (int Channel = 0; Channel < Channels; ++Channel)
+                                AngleMatches[Channel] = CavernUtilities.FastLerp(AngleMatches[Channel], MaxAngleMatch, Size);
+                        }
                         // Only use the closest 3 speakers on non-Perfect qualities or in Theatre mode
                         if (Listener.AudioQuality != QualityModes.Perfect || TheatreMode) {
                             float Top0 = 0, Top1 = 0, Top2 = 0;
@@ -433,6 +455,7 @@ namespace Cavern {
                             }
                         }
                         // Place in sphere, write data to output channels
+                        float TotalAngleMatch = 0;
                         for (int Channel = 0; Channel < Channels; ++Channel)
                             TotalAngleMatch += AngleMatches[Channel];
                         float Volume3D = Volume * RolloffDistance * SpatialBlend / TotalAngleMatch;
