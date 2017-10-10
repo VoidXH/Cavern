@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Cavern {
@@ -10,7 +11,7 @@ namespace Cavern {
         /// <param name="Gain">Gain</param>
         /// <param name="Channel">Channel</param>
         /// <param name="Channels">Channel count</param>
-        internal static unsafe void WriteOutput(ref float[] Samples, ref float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+        internal static unsafe void WriteOutput(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
             fixed (float* FromPtr = Samples, ToPtr = Target) {
                 float* FromArr = FromPtr, ToArr = ToPtr + Channel;
                 do {
@@ -28,7 +29,7 @@ namespace Cavern {
         /// <param name="Channel">Target channel</param>
         /// <param name="Channels">Channel count</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void WriteFixedOutput(ref float[] Samples, ref float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+        internal static unsafe void WriteFixedOutput(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
             int FirstPassLength = ChannelLength;
             float OldMax = 0, NewMax = 0, AbsSample;
             fixed (float* FromPtr = Samples, ToPtr = Target) {
@@ -45,19 +46,10 @@ namespace Cavern {
                 } while (--FirstPassLength != 0);
             }
             if (NewMax < OldMax)
-                WriteOutput(ref Samples, ref Target, ChannelLength, Gain * -2, Channel, Channels);
+                WriteOutput(Samples, Target, ChannelLength, Gain * -2, Channel, Channels);
         }
 
-        /// <summary>Method for outputting audio to a single channel.</summary>
-        /// <param name="Samples">Samples</param>
-        /// <param name="Target">Multichannel array (destination)</param>
-        /// <param name="ChannelLength">Sample count for a single channel</param>
-        /// <param name="Gain">Gain</param>
-        /// <param name="Channel">Channel</param>
-        /// <param name="Channels">Channel count</param>
-        internal delegate void OutputFunc(ref float[] Samples, ref float[] Target, int ChannelLength, float Gain, int Channel, int Channels);
-
         /// <summary>The audio output function to be used.</summary>
-        internal static OutputFunc UsedOutputFunc;
+        internal static Action<float[], float[], int, float, int, int> UsedOutputFunc;
     }
 }

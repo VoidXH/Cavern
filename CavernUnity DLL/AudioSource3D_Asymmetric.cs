@@ -25,7 +25,7 @@ namespace Cavern {
         /// <param name="MatchModifier">Modifier function of angle match values</param>
         /// <returns>Angle matches for each channel</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float[] CalculateAngleMatches(int Channels, Vector3 Direction, Func<float, float> MatchModifier) {
+        internal static float[] CalculateAngleMatches(int Channels, Vector3 Direction, Func<float, float> MatchModifier) {
             float[] AngleMatches = new float[Channels];
             float DirMagnitudeRecip = 1f / (Direction.magnitude + .0001f);
             for (int Channel = 0; Channel < Channels; ++Channel) {
@@ -45,7 +45,7 @@ namespace Cavern {
         /// <param name="MatchModifier">Modifier function of angle match values</param>
         /// <returns>Angle matches for each channel</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float[] LinearizeAngleMatches(int Channels, Vector3 Direction, Func<float, float> MatchModifier) {
+        internal static float[] LinearizeAngleMatches(int Channels, Vector3 Direction, Func<float, float> MatchModifier) {
             float[] AngleMatches = new float[Channels];
             float DirMagnitudeRecip = 1f / (Direction.magnitude + .0001f);
             for (int Channel = 0; Channel < Channels; ++Channel) {
@@ -57,5 +57,8 @@ namespace Cavern {
             }
             return AngleMatches;
         }
+
+        /// <summary>The angle match calculator function to be used.</summary>
+        internal static Func<int, Vector3, Func<float, float>, float[]> UsedAngleMatchFunc;
     }
 }
