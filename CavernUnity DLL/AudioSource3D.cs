@@ -374,7 +374,8 @@ namespace Cavern {
                                 TopVol = BottomVol = .5f;
                             float BFVol = LengthRatio(BRL, BFL, Position.z), TFVol = LengthRatio(TRL, TFL, Position.z), // Length ratios
                                 BFRVol = WidthRatio(BFL, BFR, Position.x), BRRVol = WidthRatio(BRL, BRR, Position.x), // Width ratios
-                                TFRVol = WidthRatio(TFL, TFR, Position.x), TRRVol = WidthRatio(TRL, TRR, Position.x);
+                                TFRVol = WidthRatio(TFL, TFR, Position.x), TRRVol = WidthRatio(TRL, TRR, Position.x),
+                                InnerVolume3D = Volume3D;
                             if (Size != 0) {
                                 BFVol = CavernUtilities.FastLerp(BFVol, .5f, Size);
                                 TFVol = CavernUtilities.FastLerp(TFVol, .5f, Size);
@@ -382,9 +383,13 @@ namespace Cavern {
                                 BRRVol = CavernUtilities.FastLerp(BRRVol, .5f, Size);
                                 TFRVol = CavernUtilities.FastLerp(TFRVol, .5f, Size);
                                 TRRVol = CavernUtilities.FastLerp(TRRVol, .5f, Size);
+                                InnerVolume3D *= 1f - Size;
+                                float ExtraChannelVolume = Volume3D * Size / Channels;
+                                for (int Channel = 0; Channel < Channels; ++Channel)
+                                    UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, ExtraChannelVolume, Channel, Channels);
                             }
                             float BRVol = 1f - BFVol, TRVol = 1f - TFVol; // Remaining length ratios
-                            BottomVol *= Volume3D; TopVol *= Volume3D; BFVol *= BottomVol; BRVol *= BottomVol; TFVol *= TopVol; TRVol *= TopVol;
+                            BottomVol *= InnerVolume3D; TopVol *= InnerVolume3D; BFVol *= BottomVol; BRVol *= BottomVol; TFVol *= TopVol; TRVol *= TopVol;
                             UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BFVol * (1f - BFRVol), BFL, Channels);
                             UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BFVol * BFRVol, BFR, Channels);
                             UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BRVol * (1f - BRRVol), BRL, Channels);
