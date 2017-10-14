@@ -148,26 +148,28 @@ namespace Cavern {
 
         /// <summary>Possible channels to use in layouts</summary>
         static readonly CavernizeChannel[] StandardChannels = new CavernizeChannel[] {
-            new CavernizeChannel(-30, "Front left"),                     // 00 - FL
-            new CavernizeChannel(30, "Front right"),                     // 01 - FR
-            new CavernizeChannel(0, "Front center", false, false, true), // 02 - FC
+            new CavernizeChannel(-30, "Front left"),                     // 00 - L
+            new CavernizeChannel(30, "Front right"),                     // 01 - R
+            new CavernizeChannel(0, "Front center", false, false, true), // 02 - C
             new CavernizeChannel(0, "LFE", true),                        // 03 - LFE
             new CavernizeChannel(-110, "Side left", false, false, true), // 04 - SL
             new CavernizeChannel(110, "Side right", false, false, true), // 05 - SR
             new CavernizeChannel(-150, "Rear left"),                     // 06 - RL
             new CavernizeChannel(150, "Rear right"),                     // 07 - RR
             new CavernizeChannel(180, "Rear center"),                    // 08 - RC
-            //new struct0(-15, "Front left center"),              // 09 - FLC
-            //new struct0(15, "Front right center"),              // 10 - FRC
-            //new struct0(0, "Hearing impaired", false, true),    // 11 - HI (muted by default)
-            //new struct0(0, "Visually impaired narrative", false, true), // 12 - VI (muted by default)
-            //new struct0(0, "Unused", false, true),              // 13 - UU (muted by default)
-            //new struct0(0, "Motion data", false, true),         // 14 - MD (muted by default)
-            //new struct0(0, "Sync signal", false, true),         // 15 - SS (muted by default)
-            //new struct0(-70, -45, "Top front left"),            // 16 - TFL
-            //new struct0(70, -45, "Top front right"),            // 17 - TFR
-            //new struct0(-130, -45, "Top side left"),            // 18 - TSL
-            //new struct0(130, -45, "Top side right"),            // 19 - TSR
+            //new CavernizeChannel(-15, "Front left center"),              // 09 - LC
+            //new CavernizeChannel(15, "Front right center"),              // 10 - RC
+            //new CavernizeChannel(0, "Hearing impaired", false, true),    // 11 - HI (muted by default)
+            //new CavernizeChannel(0, "Visually impaired narrative", false, true), // 12 - VI (muted by default)
+            //new CavernizeChannel(0, "Unused", false, true),              // 13 - UU (muted by default)
+            //new CavernizeChannel(0, "Motion data sync", false, true),    // 14 - MD (muted by default)
+            //new CavernizeChannel(0, "External sync signal", false, true), // 15 - ES (muted by default)
+            //new CavernizeChannel(-70, -45, "Top front left"),            // 16 - TFL
+            //new CavernizeChannel(70, -45, "Top front right"),            // 17 - TFR
+            //new CavernizeChannel(-130, -45, "Top side left"),            // 18 - TSL
+            //new CavernizeChannel(130, -45, "Top side right"),            // 19 - TSR
+            //new CavernizeChannel(0, "Sign language video", false, true), // 20 - SL (muted by default)
+            //new CavernizeChannel(0, 90, "Bottom surround"),              // 21 - BS
         };
 
         /// <summary>Maximum possible generated channel count.</summary>
@@ -182,23 +184,23 @@ namespace Cavern {
         /// <summary>Default channel orders for each input channel count.</summary>
         static int[][] ChannelMatrix = {
             new int[0],
-            new int[]{2}, // 1CH: 1.0 (FC)
-            new int[]{0, 1}, // 2CH: 2.0 (FL, FR)
-            new int[]{0, 1, 2}, // 3CH: 3.0 (FL, FR, FC) - non-standard
-            new int[]{0, 1, 4, 5}, // 4CH: 4.0 (FL, FR, SL, SR)
-            new int[]{0, 1, 2, 4, 5}, // 5CH: 5.0 (FL, FR, FC, SL, SR)
-            new int[]{0, 1, 2, 3, 4, 5}, // 6CH: 5.1 (FL, FR, FC, LFE, SL, SR)
-            new int[]{0, 1, 2, 3, 4, 5, 8}, // 7CH: 6.1 (FL, FR, FC, LFE, SL, SR, RC)
-            new int[]{0, 1, 2, 3, 6, 7, 4, 5}, // 8CH: 7.1 (FL, FR, FC, LFE, RL, RR, SL, SR)
+            new int[]{2}, // 1CH: 1.0 (C)
+            new int[]{0, 1}, // 2CH: 2.0 (L, R)
+            new int[]{0, 1, 2}, // 3CH: 3.0 (L, R, C) - non-standard
+            new int[]{0, 1, 4, 5}, // 4CH: 4.0 (L, R, SL, SR)
+            new int[]{0, 1, 2, 4, 5}, // 5CH: 5.0 (L, R, C, SL, SR)
+            new int[]{0, 1, 2, 3, 4, 5}, // 6CH: 5.1 (L, R, C, LFE, SL, SR)
+            new int[]{0, 1, 2, 3, 4, 5, 8}, // 7CH: 6.1 (L, R, C, LFE, SL, SR, RC)
+            new int[]{0, 1, 2, 3, 6, 7, 4, 5}, // 8CH: 7.1 (L, R, C, LFE, RL, RR, SL, SR)
             // These are DCP orders, with messy standardization, and are unused in commercial applications. Revision is recommended for Cavernizing non-5.1 DCPs.
-            //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 8}, // 9CH: 8.1 (FL, FR, FC, LFE, RL, RR, SL, SR, RC) - non-standard
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10}, // 10CH: Cinema 7.1 front (FL, FR, FC, LFE, SL, SR, HI, VI, FLC, FRC)
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 13}, // 11CH: Cinema 7.1 front (FL, FR, FC, LFE, SL, SR, HI, VI, FLC, FRC, UU)
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7}, // 12CH: Cinema 7.1 side/9.1 (FL, FR, FC, LFE, SL, SR, HI, VI, UU, UU, RL, RR)
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14}, // 13CH: Cinema 7.1 side/9.1 + MD (FL, FR, FC, LFE, SL, SR, HI, VI, UU, UU, RL, RR, MD)
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14, 15}, // 14CH: Cinema 7.1 side/9.1 + MD + SS (FL, FR, FC, LFE, SL, SR, HI, VI, UU, UU, RL, RR, MD, SS)
-            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 13}, // 15CH: Cavern Cinema 11.1 (FL, FR, FC, LFE, SL, SR, TFL, TFR, UU, UU, RL, RR, MD, SS, UU) - non-standard
-            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 18, 19}, // 16CH: Cavern Cinema 13.1 (FL, FR, FC, LFE, SL, SR, TFL, TFR, UU, UU, RL, RR, MD, SS, TSL, TSR) - non-st
+            //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 8}, // 9CH: 8.1 (L, R, C, LFE, RL, RR, SL, SR, RC) - non-standard
+            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10}, // 10CH: Cinema 7.1 front (L, R, C, LFE, SL, SR, HI, VI, LC, RC)
+            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 13}, // 11CH: Cinema 7.1 front (L, R, C, LFE, SL, SR, HI, VI, LC, RC, UU)
+            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7}, // 12CH: Cinema 7.1 side/9.1 (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR)
+            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14}, // 13CH: Cinema 7.1 side/9.1 + MD (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR, MD)
+            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14, 15}, // 14CH: Cinema 7.1 side/9.1 + MD + ES (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR, MD, ES)
+            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20}, // 15CH: Cavern (L, R, C, LFE, SL, SR, HI, VI, TL, TR, MD, RR, ES, SL) - non-standard
+            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20, 21}, // 16CH: Cavern XL (L, R, C, LFE, SL, SR, TL, TR, UU, UU, RL, RR, MD, ES, SL, BS) - non-st
         };
 
         void Start() {
