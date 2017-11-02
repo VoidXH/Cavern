@@ -21,6 +21,18 @@ namespace Cavern {
             }
         }
 
+        /// <summary>Output samples to a multichannel array with constant power.</summary>
+        /// <param name="Samples">Samples</param>
+        /// <param name="Target">Multichannel array (destination)</param>
+        /// <param name="ChannelLength">Sample count for a single channel</param>
+        /// <param name="Gain">Gain</param>
+        /// <param name="Channel">Channel</param>
+        /// <param name="Channels">Channel count</param>
+        internal static unsafe void WriteOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+            Gain = Mathf.Sqrt(Gain);
+            WriteOutput(Samples, Target, ChannelLength, Gain, Channel, Channels);
+        }
+
         /// <summary>Output samples to a multichannel array, while trying to fix standing waves.</summary>
         /// <param name="Samples">Samples</param>
         /// <param name="Target">Multichannel array (destination)</param>
@@ -47,6 +59,19 @@ namespace Cavern {
             }
             if (NewMax < OldMax)
                 WriteOutput(Samples, Target, ChannelLength, Gain * -2, Channel, Channels);
+        }
+
+        /// <summary>Output samples to a multichannel array with constant power, while trying to fix standing waves.</summary>
+        /// <param name="Samples">Samples</param>
+        /// <param name="Target">Multichannel array (destination)</param>
+        /// <param name="ChannelLength">Sample count for a single channel</param>
+        /// <param name="Gain">Gain</param>
+        /// <param name="Channel">Target channel</param>
+        /// <param name="Channels">Channel count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void WriteFixedOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+            Gain = Mathf.Sqrt(Gain);
+            WriteFixedOutput(Samples, Target, ChannelLength, Gain, Channel, Channels);
         }
 
         /// <summary>The audio output function to be used.</summary>

@@ -221,8 +221,13 @@ namespace Cavern {
                 LastTime = Now - UpdateRate;
             if (Manual)
                 Now = LastTime + UpdateRate;
-            AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ?
-                (Action<float[], float[], int, float, int, int>)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
+            // Choose processing functions
+            if (AudioQuality >= QualityModes.High)
+                AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ?
+                    (Action<float[], float[], int, float, int, int>)AudioSource3D.WriteOutputCP : AudioSource3D.WriteFixedOutputCP;
+            else
+                AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ?
+                    (Action<float[], float[], int, float, int, int>)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
             AudioSource3D.UsedAngleMatchFunc = AudioQuality >= QualityModes.High ? // Only calculate accurate arc cosine above high quality
                 (Func <int, Vector3, Func<float, float>, float[]>)AudioSource3D.CalculateAngleMatches : AudioSource3D.LinearizeAngleMatches;
             if (LastTime < Now) {
