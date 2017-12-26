@@ -11,6 +11,7 @@ namespace Cavern {
         /// <param name="Gain">Gain</param>
         /// <param name="Channel">Channel</param>
         /// <param name="Channels">Channel count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe void WriteOutput(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
             fixed (float* FromPtr = Samples, ToPtr = Target) {
                 float* FromArr = FromPtr, ToArr = ToPtr + Channel;
@@ -28,6 +29,7 @@ namespace Cavern {
         /// <param name="Gain">Gain</param>
         /// <param name="Channel">Channel</param>
         /// <param name="Channels">Channel count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe void WriteOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
             Gain = Mathf.Sqrt(Gain);
             WriteOutput(Samples, Target, ChannelLength, Gain, Channel, Channels);
