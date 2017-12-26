@@ -350,11 +350,13 @@ namespace Cavern {
                                     ClosestTop = ChannelY;
                             }
                             for (int Channel = 0; Channel < Channels; ++Channel) {
-                                Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
-                                if (ChannelPos.y == ClosestBottom) // Bottom layer
-                                    AssignHorizontalLayer(Channel, ref BFL, ref BFR, ref BRL, ref BRR, ref ClosestBF, ref ClosestBR, Position, ChannelPos);
-                                if (ChannelPos.y == ClosestTop) // Top layer
-                                    AssignHorizontalLayer(Channel, ref TFL, ref TFR, ref TRL, ref TRR, ref ClosestTF, ref ClosestTR, Position, ChannelPos);
+                                if (!AudioListener3D.Channels[Channel].LFE) {
+                                    Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
+                                    if (ChannelPos.y == ClosestBottom) // Bottom layer
+                                        AssignHorizontalLayer(Channel, ref BFL, ref BFR, ref BRL, ref BRR, ref ClosestBF, ref ClosestBR, Position, ChannelPos);
+                                    if (ChannelPos.y == ClosestTop) // Top layer
+                                        AssignHorizontalLayer(Channel, ref TFL, ref TFR, ref TRL, ref TRR, ref ClosestTF, ref ClosestTR, Position, ChannelPos);
+                                }
                             }
                             FixIncompleteLayer(ref TFL, ref TFR, ref TRL, ref TRR); // Fix incomplete top layer
                             if (BFL == -1 && BFR == -1 && BRL == -1 && BRR == -1) { // Fully incomplete bottom layer, use top

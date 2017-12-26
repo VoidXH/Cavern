@@ -38,7 +38,10 @@ namespace Cavern {
         /// <param name="ChannelPos">Currently checked channel position</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void AssignLR(int Channel, ref int Left, ref int Right, Vector3 Position, Vector3 ChannelPos) {
-            if (ChannelPos.x < Position.x) { // Left
+            if (ChannelPos.x == Position.x) { // Exact match
+                Left = Channel;
+                Right = Channel;
+            } else if (ChannelPos.x < Position.x) { // Left
                 if (Left == -1 || AudioListener3D.Channels[Left].CubicalPos.x < ChannelPos.x) Left = Channel;
             } else if (Right == -1 || AudioListener3D.Channels[Right].CubicalPos.x > ChannelPos.x) Right = Channel; // Right
         }
