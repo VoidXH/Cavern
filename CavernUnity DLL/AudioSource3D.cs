@@ -9,6 +9,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Constants
         // ------------------------------------------------------------------
+        const float PiRecip = .3183098861837906f;
         const float SpeedOfSound = 340.29f;
 
         // ------------------------------------------------------------------
@@ -320,8 +321,8 @@ namespace Cavern {
                         Vector3 Forward = ListenerTransform.rotation * ListenerTransform.forward, Upward = ListenerTransform.rotation * ListenerTransform.up;
                         float ForwardScalar = Direction.x * Forward.x + Direction.y * Forward.y + Direction.z * Forward.z,
                             UpwardScalar = Direction.x * Upward.x + Direction.y * Upward.y + Direction.z * Upward.z;
-                        EchoVolume = (float)Math.Acos(ForwardScalar / (Forward.magnitude + .0001f) * DirectionMagnitudeRecip) * 0.3183098861837906f; // Set volume by angle diff
-                        float UpwardMatch = (float)Math.Acos(UpwardScalar / (Upward.magnitude + .0001f) * DirectionMagnitudeRecip) * 0.3183098861837906f; // 0.318... = 1 / pi
+                        EchoVolume = (float)Math.Acos(ForwardScalar / (Forward.magnitude + .0001f) * DirectionMagnitudeRecip) * PiRecip; // Set volume by angle diff
+                        float UpwardMatch = (float)Math.Acos(UpwardScalar / (Upward.magnitude + .0001f) * DirectionMagnitudeRecip) * PiRecip;
                         EchoDelay = (48f - 43.2f * UpwardMatch) / Listener.SampleRate; // Delay simulates height difference
                     } else if (CachedEcho) {
                         EchoVolume = OldEchoVolume;
@@ -342,12 +343,14 @@ namespace Cavern {
                             Position.y /= AudioListener3D.EnvironmentSize.y;
                             Position.z /= AudioListener3D.EnvironmentSize.z;
                             for (int Channel = 0; Channel < Channels; ++Channel) { // Find closest horizontal layers
-                                float ChannelY = AudioListener3D.Channels[Channel].CubicalPos.y;
-                                if (ChannelY < Position.y) {
-                                    if (ChannelY > ClosestBottom)
-                                        ClosestBottom = ChannelY;
-                                } else if (ChannelY < ClosestTop)
-                                    ClosestTop = ChannelY;
+                                if (!AudioListener3D.Channels[Channel].LFE) {
+                                    float ChannelY = AudioListener3D.Channels[Channel].CubicalPos.y;
+                                    if (ChannelY < Position.y) {
+                                        if (ChannelY > ClosestBottom)
+                                            ClosestBottom = ChannelY;
+                                    } else if (ChannelY < ClosestTop)
+                                        ClosestTop = ChannelY;
+                                }
                             }
                             for (int Channel = 0; Channel < Channels; ++Channel) {
                                 if (!AudioListener3D.Channels[Channel].LFE) {
