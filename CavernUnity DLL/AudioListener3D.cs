@@ -273,8 +273,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Filter output
         // ------------------------------------------------------------------
-        /// <summary>Filter buffer position.</summary>
-        internal static int BufferPosition = 0;
+        /// <summary>Filter buffer position, samples currently cached for output.</summary>
+        static int BufferPosition = 0;
         /// <summary>Samples to play with the filter.</summary>
         static float[] FilterOutput;
         /// <summary>Lock for the <see cref="BufferPosition"/>, which is set in multiple threads.</summary>

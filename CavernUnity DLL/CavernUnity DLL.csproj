@@ -71,8 +71,7 @@
     <Compile Include="Channel.cs" />
     <Compile Include="Debug\ArrayLevels.cs" />
     <Compile Include="Debug\Monitor.cs" />
-    <Compile Include="Editor\AudioListener3D.cs" />
-    <Compile Include="Editor\Helpers\ExternalSource.cs" />
+    <Compile Include="Echo3D.cs" />
     <Compile Include="Enumerations.cs" />
     <Compile Include="Format\AudioFormat.cs" />
     <Compile Include="Format\AudioWriter.cs" />

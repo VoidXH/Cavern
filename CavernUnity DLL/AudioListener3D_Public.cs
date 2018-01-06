@@ -108,9 +108,17 @@ namespace Cavern {
             set { SourceLimit = value; SourceDistances = new float[value]; }
         }
 
+        // ------------------------------------------------------------------
+        // Read-only properties
+        // ------------------------------------------------------------------
         /// <summary>True if the layout is symmetric.</summary>
         public static bool IsSymmetric {
             get { return AudioSource3D.Symmetric; }
+        }
+
+        /// <summary>Samples currently cached for output.</summary>
+        public static int FilterBufferPosition {
+            get { return BufferPosition; }
         }
 
         // ------------------------------------------------------------------
