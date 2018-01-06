@@ -15,7 +15,7 @@ namespace Cavern.Helpers {
         [Range(.02f, .5f)] public float MaxLatency = .05f;
 
         /// <summary>Actual latency.</summary>
-        internal float Latency { get; private set; }
+        public float Latency { get; private set; }
 
         void OnEnable() {
             int MinFreq, MaxFreq;

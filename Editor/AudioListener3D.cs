@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Cavern {
@@ -13,11 +12,11 @@ namespace Cavern {
                 AudioListener3D Instance = AudioListener3D.Current;
                 GUILayout.Space(16);
                 EditorGUILayout.LabelField("Performance stats", EditorStyles.boldLabel);
-                GUILayout.Label("Buffer position: " + AudioListener3D.BufferPosition);
+                GUILayout.Label("Buffer position: " + AudioListener3D.FilterBufferPosition);
                 GUILayout.Label("Delay: " +
-                    (LastDelay = CavernUtilities.FastLerp(LastDelay, (float)AudioListener3D.BufferPosition /
-                    (AudioListener3D.ChannelCount * Instance.SampleRate), 20 * Time.deltaTime)) + " s");
-                GUILayout.Label("Required FPS: " + (AudioListener3D.BufferPosition != 0 ? 2 / LastDelay : 1).ToString("0"));
+                    (LastDelay = Mathf.LerpUnclamped(LastDelay, (float)AudioListener3D.FilterBufferPosition /
+                    (AudioListener3D.Channels.Length * Instance.SampleRate), 20 * Time.deltaTime)) + " s");
+                GUILayout.Label("Required FPS: " + (AudioListener3D.FilterBufferPosition != 0 ? 2 / LastDelay : 1).ToString("0"));
             }
         }
 
@@ -26,4 +25,3 @@ namespace Cavern {
         }
     }
 }
-#endif

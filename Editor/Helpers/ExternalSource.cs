@@ -1,5 +1,4 @@
-﻿#if UNITY_EDITOR
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Cavern.Helpers {
@@ -14,10 +13,10 @@ namespace Cavern.Helpers {
             if (Application.isPlaying) {
                 GUILayout.Space(16);
                 GUILayout.Label("Listener delay: " +
-                    (LastDelay = CavernUtilities.FastLerp(LastDelay, (float)AudioListener3D.BufferPosition /
-                    (AudioListener3D.ChannelCount * AudioListener3D.Current.SampleRate), LerpValue)) + " s");
+                    (LastDelay = Mathf.LerpUnclamped(LastDelay, (float)AudioListener3D.FilterBufferPosition /
+                    (AudioListener3D.Channels.Length * AudioListener3D.Current.SampleRate), LerpValue)) + " s");
                 GUILayout.Label("Input latency: " +
-                    (LastLatency = CavernUtilities.FastLerp(LastLatency, ((ExternalSource)target).Latency, LerpValue)) + " s");
+                    (LastLatency = Mathf.LerpUnclamped(LastLatency, ((ExternalSource)target).Latency, LerpValue)) + " s");
                 GUILayout.Label("Actual latency: " + (LastDelay + LastLatency) + " s");
             }
         }
@@ -27,4 +26,3 @@ namespace Cavern.Helpers {
         }
     }
 }
-#endif
