@@ -96,8 +96,9 @@ namespace Cavern {
             MaxHeight = Mathf.Clamp((MaxHeight - MaxDepth * 1.2f) * Effect * 15, BottomSpeakerHeight, TopSpeakerHeight);
             Height = Mathf.LerpUnclamped(Height, MaxHeight, SmoothFactor);
             // Output
-            float UpperMix = (MaxHeight - BottomSpeakerHeight) / (TopSpeakerHeight - BottomSpeakerHeight), LowerMix = Mathf.Sqrt(1f - UpperMix);
-            UpperMix = Mathf.Sqrt(UpperMix);
+            float UpperMix = (MaxHeight - BottomSpeakerHeight) / (TopSpeakerHeight - BottomSpeakerHeight),
+                LowerMix = Mathf.Sin((1f - UpperMix) * CavernUtilities.halfPi);
+            UpperMix = Mathf.Sin(UpperMix * CavernUtilities.halfPi);
             int OutputPos = (int)Divert % channels - channels;
             Array.Clear(data, 0, Samples);
             for (int Sample = 0; Sample < UpdateRate; ++Sample) // Base channel
