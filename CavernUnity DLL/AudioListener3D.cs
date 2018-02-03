@@ -120,7 +120,8 @@ namespace Cavern {
                         for (Channel = 0; Channel < ChannelCount; ++Channel)
                             ChannelSplit[Channel][Sample] = Output[OutputSample++];
                     for (Channel = 0; Channel < ChannelCount; ++Channel)
-                        ChannelSplit[Channel] = AudioSource3D.Resample(ChannelSplit[Channel], UpdateRate, (int)(UpdateRate * SystemSampleRate / (float)CachedSampleRate));
+                        ChannelSplit[Channel] = AudioSource3D.Resample(ChannelSplit[Channel], UpdateRate,
+                            (int)(UpdateRate * SystemSampleRate / (float)CachedSampleRate));
                     int NewUpdateRate = ChannelSplit[0].Length;
                     SourceBuffer = new float[SourceBufferSize = ChannelCount * NewUpdateRate];
                     OutputSample = 0;
@@ -222,10 +223,14 @@ namespace Cavern {
             if (Manual)
                 Now = LastTime + UpdateRate;
             // Choose processing functions
-            if (AudioQuality >= QualityModes.High)
-                AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ?
-                    (Action<float[], float[], int, float, int, int>)AudioSource3D.WriteOutputCP : AudioSource3D.WriteFixedOutputCP;
-            else
+            if (AudioQuality >= QualityModes.High) {
+                if (AudioQuality != QualityModes.Perfect)
+                    AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ?
+                        (Action<float[], float[], int, float, int, int>)AudioSource3D.WriteOutputApproxCP : AudioSource3D.WriteFixedOutputApproxCP;
+                else
+                    AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ?
+                        (Action<float[], float[], int, float, int, int>)AudioSource3D.WriteOutputCP : AudioSource3D.WriteFixedOutputCP;
+            } else
                 AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ?
                     (Action<float[], float[], int, float, int, int>)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
             AudioSource3D.UsedAngleMatchFunc = AudioQuality >= QualityModes.High ? // Only calculate accurate arc cosine above high quality
