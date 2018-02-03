@@ -11,6 +11,7 @@ namespace Cavern.Utilities {
         /// <summary>Constructs a new destructor.</summary>
         /// <param name="AttachTo">Object containing a source to destruct</param>
         /// <param name="TargetSource">Source to destruct</param>
+        /// <param name="DestroyAfter">Destroy the parent after playback</param>
         internal static OneShotDestructor Constructor(GameObject AttachTo, AudioSource3D TargetSource, bool DestroyAfter) {
             OneShotDestructor Destructor = AttachTo.AddComponent<OneShotDestructor>();
             Destructor.Source = TargetSource;
