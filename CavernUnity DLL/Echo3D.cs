@@ -31,6 +31,7 @@ namespace Cavern {
         int CachedBounces = 0;
 
         void OnDrawGizmosSelected() {
+            float MaxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity;
             float Step = 360f / Detail, ColorStep = 1f / Bounces, AlphaStep = ColorStep * .25f;
             Vector3 Direction = Vector3.zero;
             for (int Horizontal = 0; Horizontal < Detail; ++Horizontal) {
@@ -39,9 +40,7 @@ namespace Cavern {
                     Vector3 LastDir = Quaternion.Euler(Direction) * Vector3.forward;
                     Color LastColor = new Color(0, 1, 0, .5f);
                     for (int BounceCount = 0; BounceCount < Bounces; ++BounceCount) {
-                        float MaxDist = AudioListener3D.Current.Range;
-                        RaycastHit hit;
-                        if (Physics.Raycast(LastPos, LastDir, out hit, MaxDist, Layers.value)) {
+                        if (Physics.Raycast(LastPos, LastDir, out RaycastHit hit, MaxDist, Layers.value)) {
                             Gizmos.color = LastColor;
                             Gizmos.DrawLine(LastPos, hit.point);
                             LastPos = hit.point;
@@ -75,6 +74,7 @@ namespace Cavern {
                     (BouncePoints[i] = new GameObject().AddComponent<AudioSource3D>()).Mute = true;
             }
 
+            float MaxDist = AudioListener3D.Current.Range;
             float Step = 360f / Detail, ColorStep = 1f / Bounces, MaxError = SpeedOfSound / 1000f;
             Vector3 Direction = Vector3.zero;
             for (int Horizontal = 0; Horizontal < Detail; ++Horizontal) {
@@ -83,9 +83,7 @@ namespace Cavern {
                     Vector3 LastDir = Quaternion.Euler(Direction) * Vector3.forward;
                     Color LastColor = new Color(0, 1, 0, .5f);
                     for (int HitCount = 0; HitCount < Bounces; ++HitCount) {
-                        float MaxDist = AudioListener3D.Current.Range;
-                        RaycastHit hit;
-                        if (Physics.Raycast(LastPos, LastDir, out hit, MaxDist, Layers.value)) {
+                        if (Physics.Raycast(LastPos, LastDir, out RaycastHit hit, MaxDist, Layers.value)) {
                             AudioSource3D Target = BouncePoints[CurrentBounce++];
                             if (Target.Mute)
                                 Target.CopySettings(Source);
