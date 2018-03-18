@@ -115,11 +115,11 @@ namespace Cavern.Debug {
         }
 
         void Update() {
-            int Channels = AudioListener3D.ChannelCount, MultichannelUpdateRate = AudioListener3D.Output.Length;
+            int Channels = AudioListener3D.ChannelCount;
             if (ChannelData.Length != Channels || JackColoring != OldJackColoring)
                 RepaintChannels();
             bool DoRepaint = false;
-            for (int Channel = 0; Channel < Channels; ++Channel) {
+            for (int Channel = 0, MultichannelUpdateRate = AudioListener3D.Output.Length; Channel < Channels; ++Channel) {
                 float Max = 0;
                 for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels) {
                     float AbsSample = CavernUtilities.Abs(AudioListener3D.Output[Sample]);
@@ -139,8 +139,7 @@ namespace Cavern.Debug {
 
         void OnDestroy() {
             Destroy(White);
-            int Channels = ChannelData.Length;
-            for (int Channel = 0; Channel < Channels; ++Channel)
+            for (int Channel = 0, Channels = ChannelData.Length; Channel < Channels; ++Channel)
                 Destroy(ChannelData[Channel].Color);
         }
     }

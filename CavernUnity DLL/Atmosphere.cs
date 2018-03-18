@@ -71,9 +71,8 @@ namespace Cavern {
         void Update() {
             Func<GameObject> Creator = Visualize ? (Func<GameObject>)CreateVisualization : CreateEmpty;
             Func<Vector3, Vector3> DirectionFunc = Spherical ? (Func<Vector3, Vector3>)CavernUtilities.PlaceInSphere : CavernUtilities.PlaceInCube;
-            int ClipCount = Clips.Length;
             float TargetVolume = Volume / Sources;
-            for (int Source = 0; Source < Sources; ++Source) {
+            for (int Source = 0, ClipCount = Clips.Length; Source < Sources; ++Source) {
                 if (!Objects[Source].Object) {
                     GameObject Creation = Objects[Source].Object = Creator();
                     // Position source

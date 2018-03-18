@@ -147,8 +147,8 @@ namespace Cavern {
             if (Current.HeadphoneVirtualizer)
                 return "Virtualization";
             else {
-                int Regular = 0, LFE = 0, Ceiling = 0, Floor = 0, ChannelCount = Channels.Length;
-                for (int i = 0; i < ChannelCount; ++i)
+                int Regular = 0, LFE = 0, Ceiling = 0, Floor = 0;
+                for (int i = 0, ChannelCount = Channels.Length; i < ChannelCount; ++i)
                     if (Channels[i].LFE) ++LFE;
                     else if (Channels[i].x == 0) ++Regular;
                     else if (Channels[i].x < 0) ++Ceiling;
