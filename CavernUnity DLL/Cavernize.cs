@@ -154,8 +154,8 @@ namespace Cavern {
             new CavernizeChannel(0, "LFE", true),                        // 03 - LFE
             new CavernizeChannel(-110, "Side left", false, false, true), // 04 - SL
             new CavernizeChannel(110, "Side right", false, false, true), // 05 - SR
-            new CavernizeChannel(-150, "Rear left"),                     // 06 - RL
-            new CavernizeChannel(150, "Rear right"),                     // 07 - RR
+            new CavernizeChannel(-150, "Rear left", false, false, true), // 06 - RL
+            new CavernizeChannel(150, "Rear right", false, false, true), // 07 - RR
             new CavernizeChannel(180, "Rear center"),                    // 08 - RC
             //new CavernizeChannel(-15, "Front left center"),              // 09 - LC
             //new CavernizeChannel(15, "Front right center"),              // 10 - RC
@@ -334,6 +334,29 @@ namespace Cavern {
                                     }
                                 }
                                 WrittenOutput[4] = WrittenOutput[5] = true;
+                            }
+                            if (!WrittenOutput[6]) { // Extend sides to rears
+                                bool RearsAvailable = false; // ...but only if there are rears
+                                for (int Channel = 0; Channel < AudioListener3D.ChannelCount; ++Channel) {
+                                    float CurrentY = AudioListener3D.Channels[Channel].y;
+                                    if (CurrentY < -135 || CurrentY > 135) {
+                                        RearsAvailable = true;
+                                        break;
+                                    }
+                                }
+                                if (RearsAvailable) {
+                                    unsafe {
+                                        fixed (float* LS = Output[4], RS = Output[5], LR = Output[6], RR = Output[7]) {
+                                            float* LeftSide = LS, RightSide = RS, LeftRear = LR, RightRear = RR;
+                                            int SamplesToCopy = UpdateRate;
+                                            while (SamplesToCopy-- != 0) {
+                                                *LeftRear++ = (*LeftSide++ *= .5f);
+                                                *RightRear++ = (*RightSide++ *= .5f);
+                                            }
+                                        }
+                                    }
+                                    WrittenOutput[6] = WrittenOutput[7] = true;
+                                }
                             }
                         }
                     }
