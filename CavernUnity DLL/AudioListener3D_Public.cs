@@ -74,7 +74,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Output channel data. Set by the user and applied when an <see cref="AudioListener3D"/> is created. The default setup is the standard 5.1 layout.</summary>
         public static Channel[] Channels = { new Channel(0, -45), new Channel(0, 45),
-                                             new Channel(0, 0), new Channel(0, 0, true),
+                                             new Channel(0, 0), new Channel(15, 15, true),
                                              new Channel(0, -110), new Channel(0, 110) };
 
         /// <summary>3D environment type. Set by the user and applied when an <see cref="AudioListener3D"/> is created.</summary>
