@@ -199,7 +199,7 @@ namespace Cavern {
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10}, // 10CH: Cinema 7.1 front (L, R, C, LFE, SL, SR, HI, VI, LC, RC)
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 13}, // 11CH: Cinema 7.1 front (L, R, C, LFE, SL, SR, HI, VI, LC, RC, UU)
             //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 22, 23, 18, 19}, // 12CH: Barco Auro 11.1 (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14}, // 13CH: Cinema 7.1 side/9.1 + MD (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR, MD)
+            //new int[]{0, 1, 2, 22, 6, 7, 4, 5, 16, 17, 18, 19, 4}, // 13CH: 12-Track (L, R, C, TFC, RL, RR, SL, SR, TFL, TFR, TSL, TSR, LFE)
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14, 15}, // 14CH: Cinema 7.1 side/9.1 + MD + ES (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR, MD, ES)
             //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20}, // 15CH: Cavern (L, R, C, LFE, SL, SR, HI, VI, TL, TR, MD, RR, ES, SL) - non-standard
             //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20, 21}, // 16CH: Cavern XL (L, R, C, LFE, SL, SR, TL, TR, UU, UU, RL, RR, MD, ES, SL, BS) - non-st
