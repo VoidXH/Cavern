@@ -170,6 +170,8 @@ namespace Cavern {
             //new CavernizeChannel(130, -45, "Top side right"),            // 19 - TSR
             //new CavernizeChannel(0, "Sign language video", false, true), // 20 - SL (muted by default)
             //new CavernizeChannel(0, 90, "Bottom surround"),              // 21 - BS
+            //new CavernizeChannel(0, -45, "Top front center"),            // 22 - TFC
+            //new CavernizeChannel(0, -90, "God's voice"),                 // 23 - GV
         };
 
         /// <summary>Maximum possible generated channel count.</summary>
@@ -196,7 +198,7 @@ namespace Cavern {
             //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 8}, // 9CH: 8.1 (L, R, C, LFE, RL, RR, SL, SR, RC) - non-standard
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10}, // 10CH: Cinema 7.1 front (L, R, C, LFE, SL, SR, HI, VI, LC, RC)
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 13}, // 11CH: Cinema 7.1 front (L, R, C, LFE, SL, SR, HI, VI, LC, RC, UU)
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7}, // 12CH: Cinema 7.1 side/9.1 (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR)
+            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 22, 23, 18, 19}, // 12CH: Barco Auro 11.1 (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14}, // 13CH: Cinema 7.1 side/9.1 + MD (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR, MD)
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14, 15}, // 14CH: Cinema 7.1 side/9.1 + MD + ES (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR, MD, ES)
             //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20}, // 15CH: Cavern (L, R, C, LFE, SL, SR, HI, VI, TL, TR, MD, RR, ES, SL) - non-standard
