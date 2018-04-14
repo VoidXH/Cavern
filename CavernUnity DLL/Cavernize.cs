@@ -196,8 +196,8 @@ namespace Cavern {
             new int[]{0, 1, 2, 3, 6, 7, 4, 5}, // 8CH: 7.1 (L, R, C, LFE, RL, RR, SL, SR)
             // These are DCP orders, with messy standardization, and are unused in commercial applications. Revision is recommended for Cavernizing non-5.1 DCPs.
             //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 8}, // 9CH: 8.1 (L, R, C, LFE, RL, RR, SL, SR, RC) - non-standard
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10}, // 10CH: Cinema 7.1 front (L, R, C, LFE, SL, SR, HI, VI, LC, RC)
-            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 13}, // 11CH: Cinema 7.1 front (L, R, C, LFE, SL, SR, HI, VI, LC, RC, UU)
+            //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 16, 17}, // 10CH: 7.1.2 (out-of-order Cavern DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR)
+            //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 16, 17. 21}, // 11CH: 7.1.2.1 (out-of-order Cavern XL DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, BS)
             //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 22, 23, 18, 19}, // 12CH: Barco Auro 11.1 (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
             //new int[]{0, 1, 2, 22, 6, 7, 4, 5, 16, 17, 18, 19, 4}, // 13CH: 12-Track (L, R, C, TFC, RL, RR, SL, SR, TFL, TFR, TSL, TSR, LFE)
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 9, 10, 6, 7, 14, 15}, // 14CH: Cinema 7.1 side/9.1 + MD + ES (L, R, C, LFE, SL, SR, HI, VI, LC, RC, RL, RR, MD, ES)
