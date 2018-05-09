@@ -43,25 +43,16 @@ namespace Cavern.Format {
         public override unsafe void WriteBlock(float[] Samples, long From, long To) {
             switch (Bits) {
                 case BitDepth.Int8:
-                    fixed (float* SamplePtr = Samples) {
-                        float* Sample = SamplePtr + From;
-                        while (--To >= From)
-                            Writer.Write((byte)((*Sample++ + 1f) * 127f));
-                    }
+                    while (From < To)
+                        Writer.Write((byte)((Samples[From++] + 1f) * 127f));
                     break;
                 case BitDepth.Int16:
-                    fixed (float* SamplePtr = Samples) {
-                        float* Sample = SamplePtr + From;
-                        while (--To >= From)
-                            Writer.Write((short)(*Sample++ * 32767f));
-                    }
+                    while (From < To)
+                        Writer.Write((short)(Samples[From++] * 32767f));
                     break;
                 case BitDepth.Float32:
-                    fixed (float* SamplePtr = Samples) {
-                        float* Sample = SamplePtr + From;
-                        while (--To >= From)
-                            Writer.Write(*Sample++);
-                    }
+                    while (From < To)
+                        Writer.Write(Samples[From++]);
                     break;
             }
         }

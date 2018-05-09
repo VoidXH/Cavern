@@ -85,20 +85,18 @@ namespace Cavern {
         /// <param name="LastGain">Last normalizer gain (a reserved float with a default of 1 to always pass to this function)</param>
         unsafe void Normalize(ref float[] Target, int TargetLength, ref float LastGain) {
             float Max = 1f, AbsSample;
-            fixed (float* SamplePtr = Target) {
-                float* Sample = SamplePtr;
-                int SamplesToProcess = TargetLength, Absolute;
-                while (SamplesToProcess-- != 0) {
-                    Absolute = (*(int*)Sample) & 0x7fffffff;
+            fixed (float* Pointer = Target) {
+                int Absolute;
+                for (int Sample = 0; Sample < TargetLength; ++Sample) {
+                    Absolute = (*(int*)Pointer + Sample) & 0x7fffffff;
                     AbsSample = *(float*)&Absolute;
                     if (Max < AbsSample)
                         Max = AbsSample;
-                    ++Sample;
                 }
             }
             if (Max * LastGain > 1) // Kick in
                 LastGain = .9f / Max;
-            CavernUtilities.ArrayMultiplier(ref Target, TargetLength, LastGain); // Normalize last samples
+            CavernUtilities.Gain(ref Target, TargetLength, LastGain); // Normalize last samples
             // Release
             LastGain += Normalizer * UpdateRate / SampleRate;
             if (LimiterOnly && LastGain > 1)
@@ -208,7 +206,7 @@ namespace Cavern {
                 }
                 if (MaxGain != 0) {
                     float VolRecip = 1 / MaxGain;
-                    CavernUtilities.ArrayMultiplier(ref ChannelGains, ChannelCount, VolRecip);
+                    CavernUtilities.Gain(ref ChannelGains, ChannelCount, VolRecip);
                 }
             }
             // Output buffer creation

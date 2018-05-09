@@ -12,8 +12,9 @@ namespace Cavern {
         public static string Info {
             get {
                 if (_Info == null)
-                    _Info = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion;
-                return "Cavern v" + _Info + " by VoidX (www.voidx.tk)";
+                    _Info = "Cavern v" + FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion +
+                        " by VoidX (www.voidx.tk)";
+                return _Info;
             }
         }
 
@@ -57,27 +58,25 @@ namespace Cavern {
         /// <param name="Value">Value to check</param>
         /// <returns>If an array contains the value</returns>
         internal static unsafe bool ArrayContains(ref float[] Target, int Count, float Value) {
-            fixed (float* First = Target) {
-                float* ArrPtr = First;
-                do
-                    if (*ArrPtr++ == Value)
-                        return true;
-                while (--Count != 0);
-            }
+            for (int Entry = 0; Entry < Count; ++Entry)
+                if (Target[Entry] == Value)
+                    return true;
             return false;
         }
 
-        /// <summary>Multiplies all values in an array.</summary>
+        /// <summary>Quickly gets the maximum value from an array.</summary>
         /// <param name="Target">Array reference</param>
         /// <param name="Count">Array length</param>
-        /// <param name="Value">Multiplier</param>
-        internal static unsafe void ArrayMultiplier(ref float[] Target, int Count, float Value) {
-            fixed (float* ArrPtr = Target) {
-                float* Entry = ArrPtr;
-                do
-                    *Entry++ *= Value;
-                while (--Count != 0);
+        internal static unsafe float ArrayMaximum(float[] Target, int Count) {
+            float Max = float.NegativeInfinity;
+            fixed (float* Pointer = Target) {
+                for (int Entry = 0; Entry < Count; ++Entry) {
+                    float* Pos = Pointer + Entry;
+                    if (Max < *Pos)
+                        Max = *Pos;
+                }
             }
+            return Max;
         }
 
         /// <summary>Keeps a value in the given array, if it's smaller than any of its contents.</summary>
@@ -116,15 +115,13 @@ namespace Cavern {
         public static unsafe float GetPeak(ref float[] Target, int Samples) {
             float Max = 0, AbsSample;
             int Absolute;
-            fixed (float* ArrPtr = Target) {
-                float* Sample = ArrPtr;
-                do {
-                    Absolute = (*(int*)Sample) & 0x7fffffff;
+            fixed (float* Pointer = Target) {
+                for (int Sample = 0; Sample < Samples; ++Sample) {
+                    Absolute = (*(int*)(Pointer + Sample)) & 0x7fffffff;
                     AbsSample = (*(float*)&Absolute);
                     if (Max < AbsSample)
                         Max = AbsSample;
-                    ++Sample;
-                } while (--Samples != 0);
+                }
             }
             return Max != 0 ? (20 * Mathf.Log10(Max)) : -300;
         }
@@ -138,15 +135,13 @@ namespace Cavern {
         internal static unsafe float GetPeak(ref float[] Target, int Samples, int Channel, int Channels) {
             float Max = 0, AbsSample;
             int Absolute;
-            fixed (float* ArrPtr = Target) {
-                float* Sample = ArrPtr + Channel;
-                do {
-                    Absolute = (*(int*)Sample) & 0x7fffffff;
+            fixed (float* Pointer = Target) {
+                for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels) {
+                    Absolute = (*(int*)(Pointer + Sample)) & 0x7fffffff;
                     AbsSample = (*(float*)&Absolute);
                     if (Max < AbsSample)
                         Max = AbsSample;
-                    Sample += Channels;
-                } while (--Samples != 0);
+                }
             }
             return Max;
         }
@@ -169,13 +164,13 @@ namespace Cavern {
         /// <param name="Channel">Channel</param>
         /// <param name="Channels">Channels</param>
         public static unsafe void Lowpass(ref float[] Target, ref float Last, int Samples, ref int Channel, ref int Channels) {
-            fixed (float* SampleArr = Target) {
-                float* Sample = SampleArr + Channel;
-                do {
-                    Last = *Sample = .9995f * Last + .0005f * *Sample;
-                    *Sample *= 6;
+            fixed (float* Pointer = Target) {
+                for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels) {
+                    float* TargetSample = Pointer + Sample;
+                    Last = *TargetSample = .9995f * Last + .0005f * *TargetSample;
+                    *TargetSample *= 6;
                     Sample += Channels;
-                } while (--Samples != 0);
+                }
             }
         }
 
@@ -186,12 +181,21 @@ namespace Cavern {
         /// <param name="Strength">Effect strength</param>
         public static unsafe void Lowpass(ref float[] Target, ref float Last, int Samples, float Strength) {
             float Retain = 1f - Strength;
-            fixed (float* SampleArr = Target) {
-                float* Sample = SampleArr;
-                do
-                    Last = *Sample = Strength * Last + Retain * *Sample++;
-                while (--Samples != 0);
+            fixed (float* Pointer = Target) {
+                for (int Sample = 0; Sample < Samples; ++Sample) {
+                    float* TargetSample = Pointer + Sample;
+                    Last = *TargetSample = Strength * Last + Retain * *TargetSample++;
+                }
             }
+        }
+
+        /// <summary>Multiplies all values in an array.</summary>
+        /// <param name="Target">Array reference</param>
+        /// <param name="Count">Array length</param>
+        /// <param name="Value">Multiplier</param>
+        internal static unsafe void Gain(ref float[] Target, int Count, float Value) {
+            for (int Entry = 0; Entry < Count; ++Entry)
+                Target[Entry] *= Value;
         }
 
         /// <summary>Set gain for a channel in a multichannel array.</summary>
@@ -201,13 +205,8 @@ namespace Cavern {
         /// <param name="Channel">Target channel</param>
         /// <param name="Channels">Channel count</param>
         internal static unsafe void Gain(ref float[] Target, int Samples, float Gain, ref int Channel, ref int Channels) {
-            fixed (float* ArrPtr = Target) {
-                float* Entry = ArrPtr + Channel;
-                do {
-                    *Entry *= Gain;
-                    Entry += Channels;
-                } while (--Samples != 0);
-            }
+            for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels)
+                Target[Sample] *= Gain;
         }
 
         /// <summary>Fast absolute value of a float.</summary>

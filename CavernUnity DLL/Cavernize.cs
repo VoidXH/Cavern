@@ -247,7 +247,7 @@ namespace Cavern {
             Update();
         }
 
-        void Update() {
+        unsafe void Update() {
             // Reset
             for (int Channel = 0; Channel < CavernChannels; ++Channel)
                 Array.Clear(Output[Channel], 0, UpdateRate);
@@ -300,39 +300,24 @@ namespace Cavern {
                     Clip.GetData(ClipSamples, From);
                     for (int Channel = 0; Channel < Channels; ++Channel) {
                         int OutputChannel = ChannelMatrix[Channels][Channel];
-                        unsafe {
-                            fixed (float* OutCopy = Output[OutputChannel], ChannelCopy = ClipSamples) {
-                                float* Target = OutCopy;
-                                float* Source = ChannelCopy + Channel - Channels;
-                                int SamplesToCopy = UpdateRate;
-                                while (SamplesToCopy-- != 0)
-                                    *Target++ = *(Source += Channels) * Volume;
-                            }
-                        }
+                        fixed (float* Target = Output[OutputChannel], Source = ClipSamples)
+                            for (int Offset = 0, SrcOffset = Channel; Offset < UpdateRate; ++Offset, SrcOffset += Channels)
+                                Target[Offset] = Source[SrcOffset] * Volume;
                         WrittenOutput[OutputChannel] = true;
                     }
                     if (MatrixUpmix) { // Create missing channels via matrix
                         if (WrittenOutput[0] && WrittenOutput[1]) { // Left and right channels available
                             if (!WrittenOutput[2]) { // Create discrete middle channel
-                                unsafe {
-                                    fixed (float* L = Output[0], R = Output[1], C = Output[2]) {
-                                        float* CenterOut = C, LeftIn = L, RightIn = R;
-                                        int SamplesToCopy = UpdateRate;
-                                        while (SamplesToCopy-- != 0)
-                                            *CenterOut++ = (*LeftIn++ + *RightIn++) * .5f;
-                                    }
-                                }
+                                fixed (float* Left = Output[0], Right = Output[1], Center = Output[2])
+                                    for (int Offset = 0; Offset < UpdateRate; ++Offset)
+                                        Center[Offset] = (Left[Offset] + Right[Offset]) * .5f;
                                 WrittenOutput[2] = true;
                             }
                             if (!WrittenOutput[4]) { // Matrix mix for sides
-                                unsafe {
-                                    fixed (float* L = Output[0], R = Output[1], LS = Output[4], RS = Output[5]) {
-                                        float* LeftFront = L, RightFront = R, LeftSide = LS, RightSide = RS;
-                                        int SamplesToCopy = UpdateRate;
-                                        while (SamplesToCopy-- != 0) {
-                                            *LeftSide = (*LeftFront++ - *RightFront++) * .5f;
-                                            *RightSide++ = -*LeftSide++;
-                                        }
+                                fixed (float* LeftFront = Output[0], RightFront = Output[1], LeftSide = Output[4], RightSide = Output[5]) {
+                                    for (int Offset = 0; Offset < UpdateRate; ++Offset) {
+                                        LeftSide[Offset] = (LeftFront[Offset] - RightFront[Offset]) * .5f;
+                                        RightSide[Offset] = -LeftSide[Offset];
                                     }
                                 }
                                 WrittenOutput[4] = WrittenOutput[5] = true;
@@ -347,14 +332,10 @@ namespace Cavern {
                                     }
                                 }
                                 if (RearsAvailable) {
-                                    unsafe {
-                                        fixed (float* LS = Output[4], RS = Output[5], LR = Output[6], RR = Output[7]) {
-                                            float* LeftSide = LS, RightSide = RS, LeftRear = LR, RightRear = RR;
-                                            int SamplesToCopy = UpdateRate;
-                                            while (SamplesToCopy-- != 0) {
-                                                *LeftRear++ = (*LeftSide++ *= .5f);
-                                                *RightRear++ = (*RightSide++ *= .5f);
-                                            }
+                                    fixed (float* LeftSide = Output[4], RightSide = Output[5], LeftRear = Output[6], RightRear = Output[7]) {
+                                        for (int Offset = 0; Offset < UpdateRate; ++Offset) {
+                                            LeftRear[Offset] = (LeftSide[Offset] *= .5f);
+                                            RightRear[Offset] = (RightSide[Offset] *= .5f);
                                         }
                                     }
                                     WrittenOutput[6] = WrittenOutput[7] = true;
@@ -372,22 +353,19 @@ namespace Cavern {
                         SphericalRenderers[Channel].enabled = Visualize && WrittenOutput[Channel];
                         if (WrittenOutput[Channel]) { // Create height for channels with new audio data
                             float MaxDepth = .0001f, MaxHeight = .0001f;
-                            unsafe {
-                                int SamplesToProcess = UpdateRate;
-                                fixed (float* Sample = Output[Channel]) {
-                                    float* ThisSample = Sample;
-                                    while (SamplesToProcess-- != 0) {
-                                        // Height is generated by a simplified measurement of volume and pitch
-                                        LastHigh[Channel] = .9f * (LastHigh[Channel] + *ThisSample - LastNormal[Channel]);
-                                        float AbsHigh = CavernUtilities.Abs(LastHigh[Channel]);
-                                        if (MaxHeight < AbsHigh)
-                                            MaxHeight = AbsHigh;
-                                        LastLow[Channel] = LastLow[Channel] * .99f + LastHigh[Channel] * .01f;
-                                        float AbsLow = CavernUtilities.Abs(LastLow[Channel]);
-                                        if (MaxDepth < AbsLow)
-                                            MaxDepth = AbsLow;
-                                        LastNormal[Channel] = *ThisSample++;
-                                    }
+                            int SamplesToProcess = UpdateRate;
+                            fixed (float* Sample = Output[Channel]) {
+                                for (int Offset = 0; Offset < SamplesToProcess; ++Offset) {
+                                    // Height is generated by a simplified measurement of volume and pitch
+                                    LastHigh[Channel] = .9f * (LastHigh[Channel] + Sample[Offset] - LastNormal[Channel]);
+                                    float AbsHigh = CavernUtilities.Abs(LastHigh[Channel]);
+                                    if (MaxHeight < AbsHigh)
+                                        MaxHeight = AbsHigh;
+                                    LastLow[Channel] = LastLow[Channel] * .99f + LastHigh[Channel] * .01f;
+                                    float AbsLow = CavernUtilities.Abs(LastLow[Channel]);
+                                    if (MaxDepth < AbsLow)
+                                        MaxDepth = AbsLow;
+                                    LastNormal[Channel] = Sample[Offset];
                                 }
                             }
                             MaxHeight = (MaxHeight - MaxDepth * 1.2f) * EffectMult;
