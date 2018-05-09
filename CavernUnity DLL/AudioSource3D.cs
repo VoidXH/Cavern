@@ -258,7 +258,7 @@ namespace Cavern {
                     }
                 }
                 if (Blend3D && Distance < Listener.Range) { // 3D mix, if the source is in range
-                    Vector3 Direction = Quaternion.Inverse(AudioListener3D.LastRotation) * (LastPosition - AudioListener3D.LastPosition);
+                    Vector3 Direction = AudioListener3D.LastRotationInverse * (LastPosition - AudioListener3D.LastPosition);
                     float RolloffDistance;
                     switch (VolumeRolloff) {
                         case Rolloffs.Logarithmic:

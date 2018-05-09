@@ -23,6 +23,8 @@ namespace Cavern {
         internal static Vector3 LastPosition { get; private set; }
         /// <summary>Last rotation of the active listener.</summary>
         internal static Quaternion LastRotation { get; private set; }
+        /// <summary>Inverse of the rotation of the active listener.</summary>
+        internal static Quaternion LastRotationInverse { get; private set; }
 
         // ------------------------------------------------------------------
         // Private vars
@@ -174,7 +176,7 @@ namespace Cavern {
             if (ChannelCount != Channels.Length || CachedSampleRate != SampleRate || CachedUpdateRate != UpdateRate)
                 ResetFunc();
             LastPosition = transform.position;
-            LastRotation = transform.rotation;
+            LastRotationInverse = Quaternion.Inverse(LastRotation = transform.rotation);
             // Timing
             long TicksNow = DateTime.Now.Ticks;
             long TimePassed = (TicksNow - LastTicks) * SampleRate + AdditionMiss;
