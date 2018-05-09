@@ -265,7 +265,8 @@ namespace Cavern {
                         }
                         Task.WaitAll(Tasks);
                         for (int TaskPos = 0; TaskPos < TaskCount; ++TaskPos)
-                            CavernUtilities.Mix(Tasks[TaskPos].Result, Output, OutputLength);
+                            if (Tasks[TaskPos].Result != null)
+                                CavernUtilities.Mix(Tasks[TaskPos].Result, Output, OutputLength);
                         // Volume, distance compensation, and subwoofers' lowpass
                         for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                             if (Channels[Channel].LFE) {
