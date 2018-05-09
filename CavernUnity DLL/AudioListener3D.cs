@@ -323,7 +323,7 @@ namespace Cavern {
                         MaxMonoChannel = 4;
                     for (int Channel = 2; Channel < MaxMonoChannel; ++Channel) {
                         float Sample = FilterOutput[BufferPos++];
-                        UnityBuffer[DataPos + 0] += Sample;
+                        UnityBuffer[DataPos] += Sample;
                         UnityBuffer[DataPos + 1] += Sample;
                     }
                     for (int Channel = 4; Channel < ChannelCount; ++Channel)
