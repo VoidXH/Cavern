@@ -32,7 +32,7 @@ namespace Cavern.Helpers {
         void Update() {
             float[] Samples = new float[SampleCount];
             Source.Clip.GetData(Samples, Source.timeSamples);
-            float Size = Mathf.Clamp(CavernUtilities.GetPeak(ref Samples, SampleCount) / -DynamicRange + 1, 0, 1);
+            float Size = Mathf.Clamp(CavernUtilities.GetPeak(Samples, SampleCount) / -DynamicRange + 1, 0, 1);
             Scale = CavernUtilities.FastLerp(Scale, (MaxSize - MinSize) * Size + MinSize, 1 - Smoothing);
             transform.localScale = new Vector3(Scale, Scale, Scale);
         }

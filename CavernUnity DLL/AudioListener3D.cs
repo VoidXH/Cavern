@@ -10,17 +10,19 @@ namespace Cavern {
         // Internal vars
         // ------------------------------------------------------------------
         /// <summary>Position between the last and current update frame's playback position.</summary>
-        internal static float DeltaTime;
+        internal static float DeltaTime { get; private set; }
         /// <summary>Position between the last and current game frame's playback position.</summary>
-        internal static float PulseDelta;
+        internal static float PulseDelta { get; private set; }
         /// <summary>The cached length of the <see cref="SourceDistances"/> array.</summary>
         internal static int SourceLimit = 128;
         /// <summary>Distances of sources from the listener.</summary>
         internal static float[] SourceDistances = new float[128];
         /// <summary>Cached number of output channels.</summary>
-        internal static int ChannelCount;
+        internal static int ChannelCount { get; private set; }
         /// <summary>Last position of the active listener.</summary>
-        internal static Vector3 LastPosition;
+        internal static Vector3 LastPosition { get; private set; }
+        /// <summary>Last rotation of the active listener.</summary>
+        internal static Quaternion LastRotation { get; private set; }
 
         // ------------------------------------------------------------------
         // Private vars
@@ -96,7 +98,7 @@ namespace Cavern {
             }
             if (Max * LastGain > 1) // Kick in
                 LastGain = .9f / Max;
-            CavernUtilities.Gain(ref Target, TargetLength, LastGain); // Normalize last samples
+            CavernUtilities.Gain(Target, TargetLength, LastGain); // Normalize last samples
             // Release
             LastGain += Normalizer * UpdateRate / SampleRate;
             if (LimiterOnly && LastGain > 1)
@@ -172,6 +174,7 @@ namespace Cavern {
             if (ChannelCount != Channels.Length || CachedSampleRate != SampleRate || CachedUpdateRate != UpdateRate)
                 ResetFunc();
             LastPosition = transform.position;
+            LastRotation = transform.rotation;
             // Timing
             long TicksNow = DateTime.Now.Ticks;
             long TimePassed = (TicksNow - LastTicks) * SampleRate + AdditionMiss;
@@ -206,7 +209,7 @@ namespace Cavern {
                 }
                 if (MaxGain != 0) {
                     float VolRecip = 1 / MaxGain;
-                    CavernUtilities.Gain(ref ChannelGains, ChannelCount, VolRecip);
+                    CavernUtilities.Gain(ChannelGains, ChannelCount, VolRecip);
                 }
             }
             // Output buffer creation
@@ -257,10 +260,10 @@ namespace Cavern {
                         for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                             if (Channels[Channel].LFE) {
                                 if (!DirectLFE)
-                                    CavernUtilities.Lowpass(ref Output, ref LastSamples[Channel], UpdateRate, ref Channel, ref ChannelCount);
-                                CavernUtilities.Gain(ref Output, UpdateRate, LFEVolume * Volume, ref Channel, ref ChannelCount); // LFE Volume
+                                    CavernUtilities.Lowpass(Output, ref LastSamples[Channel], UpdateRate, Channel, ChannelCount);
+                                CavernUtilities.Gain(Output, UpdateRate, LFEVolume * Volume, Channel, ChannelCount); // LFE Volume
                             } else
-                                CavernUtilities.Gain(ref Output, UpdateRate, ChannelGains[Channel] * Volume, ref Channel, ref ChannelCount);
+                                CavernUtilities.Gain(Output, UpdateRate, ChannelGains[Channel] * Volume, Channel, ChannelCount);
                         }
                         if (Normalizer != 0) // Normalize
                             Normalize(ref Output, OutputLength, ref Normalization);

@@ -57,7 +57,7 @@ namespace Cavern {
         /// <param name="Count">Array length</param>
         /// <param name="Value">Value to check</param>
         /// <returns>If an array contains the value</returns>
-        internal static unsafe bool ArrayContains(ref float[] Target, int Count, float Value) {
+        internal static unsafe bool ArrayContains(float[] Target, int Count, float Value) {
             for (int Entry = 0; Entry < Count; ++Entry)
                 if (Target[Entry] == Value)
                     return true;
@@ -83,7 +83,7 @@ namespace Cavern {
         /// <param name="in0">Array reference</param>
         /// <param name="in1">Array length</param>
         /// <param name="in2">Value to insert</param>
-        internal static void BottomlistHandler(ref float[] in0, int in1, float in2) {
+        internal static void BottomlistHandler(float[] in0, int in1, float in2) {
             int Replace = -1;
             for (int Record = 0; Record < in1; ++Record)
                 if (in0[Record] > in2)
@@ -112,7 +112,7 @@ namespace Cavern {
         /// <param name="Target">Array reference</param>
         /// <param name="Samples">Sample count</param>
         /// <returns>Maximum absolute value in the array</returns>
-        public static unsafe float GetPeak(ref float[] Target, int Samples) {
+        public static unsafe float GetPeak(float[] Target, int Samples) {
             float Max = 0, AbsSample;
             int Absolute;
             fixed (float* Pointer = Target) {
@@ -132,7 +132,7 @@ namespace Cavern {
         /// <param name="Channel">Target channel</param>
         /// <param name="Channels">Channel count</param>
         /// <returns>Maximum absolute value in the array</returns>
-        internal static unsafe float GetPeak(ref float[] Target, int Samples, int Channel, int Channels) {
+        internal static unsafe float GetPeak(float[] Target, int Samples, int Channel, int Channels) {
             float Max = 0, AbsSample;
             int Absolute;
             fixed (float* Pointer = Target) {
@@ -163,7 +163,7 @@ namespace Cavern {
         /// <param name="Samples">Sample count per channel</param>
         /// <param name="Channel">Channel</param>
         /// <param name="Channels">Channels</param>
-        public static unsafe void Lowpass(ref float[] Target, ref float Last, int Samples, ref int Channel, ref int Channels) {
+        public static unsafe void Lowpass(float[] Target, ref float Last, int Samples, int Channel, int Channels) {
             fixed (float* Pointer = Target) {
                 for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels) {
                     float* TargetSample = Pointer + Sample;
@@ -179,7 +179,7 @@ namespace Cavern {
         /// <param name="Last">Last sample</param>
         /// <param name="Samples">Array length</param>
         /// <param name="Strength">Effect strength</param>
-        public static unsafe void Lowpass(ref float[] Target, ref float Last, int Samples, float Strength) {
+        public static unsafe void Lowpass(float[] Target, ref float Last, int Samples, float Strength) {
             float Retain = 1f - Strength;
             fixed (float* Pointer = Target) {
                 for (int Sample = 0; Sample < Samples; ++Sample) {
@@ -193,7 +193,7 @@ namespace Cavern {
         /// <param name="Target">Array reference</param>
         /// <param name="Count">Array length</param>
         /// <param name="Value">Multiplier</param>
-        internal static unsafe void Gain(ref float[] Target, int Count, float Value) {
+        internal static unsafe void Gain(float[] Target, int Count, float Value) {
             for (int Entry = 0; Entry < Count; ++Entry)
                 Target[Entry] *= Value;
         }
@@ -204,7 +204,7 @@ namespace Cavern {
         /// <param name="Gain">Gain</param>
         /// <param name="Channel">Target channel</param>
         /// <param name="Channels">Channel count</param>
-        internal static unsafe void Gain(ref float[] Target, int Samples, float Gain, ref int Channel, ref int Channels) {
+        internal static unsafe void Gain(float[] Target, int Samples, float Gain, int Channel, int Channels) {
             for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels)
                 Target[Sample] *= Gain;
         }
