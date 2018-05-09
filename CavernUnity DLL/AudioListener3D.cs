@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Cavern {
@@ -251,13 +252,20 @@ namespace Cavern {
                 while (LastTime < Now) {
                     DeltaTime = (float)(LastTime - StartTime) / (Now - StartTime);
                     if (!Paused || Manual) {
-                        // Collect sound
-                        Array.Clear(Output, 0, OutputLength); // Reset output buffer
+                        // Collect audio data from sources
+                        Array.Clear(Output, 0, OutputLength); // TODO: biztos kell ide is?
+                        Task<float[]>[] Tasks = new Task<float[]>[ActiveSources.Count];
+                        int TaskCount = 0;
                         Node = ActiveSources.First;
                         while (Node != null) {
-                            Node.Value.Collect();
+                            Node.Value.Precollect();
+                            LinkedListNode<AudioSource3D> SourceNode = Node;
+                            Tasks[TaskCount++] = Task.Run(() => SourceNode.Value.Collect());
                             Node = Node.Next;
                         }
+                        Task.WaitAll(Tasks);
+                        for (int TaskPos = 0; TaskPos < TaskCount; ++TaskPos)
+                            CavernUtilities.Mix(Tasks[TaskPos].Result, Output, OutputLength);
                         // Volume, distance compensation, and subwoofers' lowpass
                         for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                             if (Channels[Channel].LFE) {

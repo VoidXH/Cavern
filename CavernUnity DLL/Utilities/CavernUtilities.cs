@@ -193,7 +193,7 @@ namespace Cavern {
         /// <param name="Target">Array reference</param>
         /// <param name="Count">Array length</param>
         /// <param name="Value">Multiplier</param>
-        internal static unsafe void Gain(float[] Target, int Count, float Value) {
+        internal static void Gain(float[] Target, int Count, float Value) {
             for (int Entry = 0; Entry < Count; ++Entry)
                 Target[Entry] *= Value;
         }
@@ -204,9 +204,18 @@ namespace Cavern {
         /// <param name="Gain">Gain</param>
         /// <param name="Channel">Target channel</param>
         /// <param name="Channels">Channel count</param>
-        internal static unsafe void Gain(float[] Target, int Samples, float Gain, int Channel, int Channels) {
+        internal static void Gain(float[] Target, int Samples, float Gain, int Channel, int Channels) {
             for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels)
                 Target[Sample] *= Gain;
+        }
+
+        /// <summary>Mix a track to a stream.</summary>
+        /// <param name="From">Track</param>
+        /// <param name="To">Stream</param>
+        /// <param name="Length">Sample count</param>
+        internal static void Mix (float[] From, float[] To, int Length) {
+            for (int Sample = 0; Sample < Length; ++Sample)
+                To[Sample] += From[Sample];
         }
 
         /// <summary>Fast absolute value of a float.</summary>

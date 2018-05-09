@@ -40,6 +40,17 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Indicator of cached echo settings.</summary>
         bool CachedEcho = false;
+        /// <summary>The collection should be performed, as all requirements are met.</summary>
+        bool Collectible;
+
+        /// <summary>Cached channel count of <see cref="Clip"/>.</summary>
+        int ClipChannels;
+        /// <summary>Cached sample rate of <see cref="Clip"/>.</summary>
+        int ClipFrequency;
+        /// <summary>Cached length of <see cref="Clip"/>.</summary>
+        int ClipSamples;
+        /// <summary>Samples required to match the listener's update rate after pitch changes.</summary>
+        int PitchedUpdateRate;
 
         /// <summary>Actually used pitch multiplier including the Doppler effect.</summary>
         float CalculatedPitch;
@@ -56,6 +67,8 @@ namespace Cavern {
 
         /// <summary>Past output samples for echo effect.</summary>
         float[] EchoBuffer = new float[0];
+        /// <summary>Sample buffer from the clip.</summary>
+        float[] OriginalSamples;
 
         /// <summary>Remaining delay until starting playback.</summary>
         ulong Delay = 0;
@@ -134,7 +147,6 @@ namespace Cavern {
         static float Clamp(float x, float min, float max) { return x < min ? min : (x > max ? max : x); }
 
         /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Precalculate() {
             if (!Clip || !IsPlaying)
                 return;
@@ -146,41 +158,51 @@ namespace Cavern {
                 (DopplerLevel == 0 ? Pitch : Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound - (LastDistance - Distance) / AudioListener3D.PulseDelta), .5f, 3f));
         }
 
-        /// <summary>Process the source and write to the <see cref="AudioListener3D"/>'s output buffer.</summary>
-        internal unsafe void Collect() {
+        /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
+        internal void Precollect() {
+            if (Collectible = CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
+                ClipChannels = Clip.channels;
+                ClipFrequency = Clip.frequency;
+                ClipSamples = Clip.samples;
+                PitchedUpdateRate = (int)(AudioListener3D.Current.UpdateRate * CalculatedPitch);
+                OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
+                Clip.GetData(OriginalSamples, timeSamples);
+            }
+        }
+
+        /// <summary>Process the source and returns a mix to be added to the output.</summary>
+        internal unsafe float[] Collect() {
             if (!Clip)
-                return;
+                return null;
             AudioListener3D Listener = AudioListener3D.Current;
             if (Delay > 0) {
                 Delay -= (ulong)Listener.UpdateRate;
-                return;
+                return null;
             }
-            if (!IsPlaying || !CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance))
-                return;
+            if (!IsPlaying || !Collectible)
+                return null;
+            int Channels = AudioListener3D.ChannelCount;
+            float[] Rendered = new float[Listener.UpdateRate * Channels];
             bool OutputRawLFE = !Listener.LFESeparation || LFE;
             // Update rate calculation
             int UpdateRate = Listener.UpdateRate;
-            int PitchedUpdateRate = (int)(UpdateRate * CalculatedPitch), BaseUpdateRate = PitchedUpdateRate, ResampledNow = timeSamples;
-            bool NeedsResampling = Listener.SampleRate != Clip.frequency;
+            int BaseUpdateRate = PitchedUpdateRate, ResampledNow = timeSamples;
+            bool NeedsResampling = Listener.SampleRate != ClipFrequency;
             if (NeedsResampling) {
-                float Mult = (float)Clip.frequency / Listener.SampleRate;
+                float Mult = (float)ClipFrequency / Listener.SampleRate;
                 PitchedUpdateRate = (int)(PitchedUpdateRate * Mult);
                 ResampledNow = (int)(timeSamples / Mult);
             }
             if (!Mute) {
                 bool Blend2D = SpatialBlend != 1, Blend3D = SpatialBlend != 0;
                 bool HighQuality = Listener.AudioQuality >= QualityModes.High;
-                bool StereoClip = Clip.channels == 2;
-                int Channels = AudioListener3D.ChannelCount;
+                bool StereoClip = ClipChannels == 2;
                 // Mono mix
                 float[] Samples = new float[PitchedUpdateRate];
                 if (Blend3D || !StereoClip) {
-                    int ClipChannels = Clip.channels;
                     if (ClipChannels == 1)
-                        Clip.GetData(Samples, timeSamples);
+                        Array.Copy(OriginalSamples, Samples, PitchedUpdateRate);
                     else {
-                        float[] OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
-                        Clip.GetData(OriginalSamples, timeSamples);
                         if (HighQuality) { // Mono downmix above medium quality
                             fixed (float* SampleArr = Samples, OriginalArr = OriginalSamples) {
                                 float* Sample = SampleArr, OrigSamples = OriginalArr;
@@ -213,15 +235,14 @@ namespace Cavern {
                         for (int Sample = 0; Sample < UpdateRate; ++Sample) {
                             float GainedSample = Samples[Sample] * Volume2D;
                             for (int Channel = 0; Channel < Channels; ++Channel)
-                                AudioListener3D.Output[ActualSample++] += GainedSample;
+                                Rendered[ActualSample++] += GainedSample;
                         }
                     } else {
-                        float[] StereoSamples = new float[PitchedUpdateRate * 2], LeftSamples = new float[PitchedUpdateRate], RightSamples = new float[PitchedUpdateRate];
-                        Clip.GetData(StereoSamples, timeSamples);
+                        float[] LeftSamples = new float[PitchedUpdateRate], RightSamples = new float[PitchedUpdateRate];
                         int ActualSample = 0;
                         for (int Sample = 0; Sample < PitchedUpdateRate; ++Sample) {
-                            LeftSamples[Sample] = StereoSamples[ActualSample++];
-                            RightSamples[Sample] = StereoSamples[ActualSample++];
+                            LeftSamples[Sample] = OriginalSamples[ActualSample++];
+                            RightSamples[Sample] = OriginalSamples[ActualSample++];
                         }
                         if (NeedsResampling) {
                             LeftSamples = Resample(LeftSamples, PitchedUpdateRate, BaseUpdateRate);
@@ -248,9 +269,9 @@ namespace Cavern {
                             for (int Channel = 0; Channel < Channels; ++Channel) {
                                 if (AudioListener3D.Channels[Channel].LFE) {
                                     if (OutputRawLFE)
-                                        AudioListener3D.Output[ActualSample] += (LeftSample + RightSample) * HalfVolume2D;
+                                        Rendered[ActualSample] += (LeftSample + RightSample) * HalfVolume2D;
                                 } else if (!LFE)
-                                    AudioListener3D.Output[ActualSample] +=
+                                    Rendered[ActualSample] +=
                                         (AudioListener3D.Channels[Channel].y < 0 ? 1 : 0) * LeftGained + (AudioListener3D.Channels[Channel].y > 0 ? 1 : 0) * RightGained;
                                 ++ActualSample;
                             }
@@ -383,24 +404,24 @@ namespace Cavern {
                                 InnerVolume3D *= 1f - Size;
                                 float ExtraChannelVolume = Volume3D * Size / Channels;
                                 for (int Channel = 0; Channel < Channels; ++Channel)
-                                    UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, ExtraChannelVolume, Channel, Channels);
+                                    UsedOutputFunc(Samples, Rendered, UpdateRate, ExtraChannelVolume, Channel, Channels);
                             }
                             float BRVol = 1f - BFVol, TRVol = 1f - TFVol; // Remaining length ratios
                             BottomVol *= InnerVolume3D; TopVol *= InnerVolume3D; BFVol *= BottomVol; BRVol *= BottomVol; TFVol *= TopVol; TRVol *= TopVol;
-                            UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BFVol * (1f - BFRVol), BFL, Channels);
-                            UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BFVol * BFRVol, BFR, Channels);
-                            UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BRVol * (1f - BRRVol), BRL, Channels);
-                            UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, BRVol * BRRVol, BRR, Channels);
-                            UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, TFVol * (1f - TFRVol), TFL, Channels);
-                            UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, TFVol * TFRVol, TFR, Channels);
-                            UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, TRVol * (1f - TRRVol), TRL, Channels);
-                            UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, TRVol * TRRVol, TRR, Channels);
+                            UsedOutputFunc(Samples, Rendered, UpdateRate, BFVol * (1f - BFRVol), BFL, Channels);
+                            UsedOutputFunc(Samples, Rendered, UpdateRate, BFVol * BFRVol, BFR, Channels);
+                            UsedOutputFunc(Samples, Rendered, UpdateRate, BRVol * (1f - BRRVol), BRL, Channels);
+                            UsedOutputFunc(Samples, Rendered, UpdateRate, BRVol * BRRVol, BRR, Channels);
+                            UsedOutputFunc(Samples, Rendered, UpdateRate, TFVol * (1f - TFRVol), TFL, Channels);
+                            UsedOutputFunc(Samples, Rendered, UpdateRate, TFVol * TFRVol, TFR, Channels);
+                            UsedOutputFunc(Samples, Rendered, UpdateRate, TRVol * (1f - TRRVol), TRL, Channels);
+                            UsedOutputFunc(Samples, Rendered, UpdateRate, TRVol * TRRVol, TRR, Channels);
                         }
                         // LFE mix
                         if (OutputRawLFE) {
                             for (int Channel = 0; Channel < Channels; ++Channel)
                                 if (AudioListener3D.Channels[Channel].LFE)
-                                    UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, Volume3D, Channel, Channels);
+                                    UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D, Channel, Channels);
                         }
                         // Echo
                         if (!SkipEcho && EchoVolume != 0 && !LFE) {
@@ -411,7 +432,7 @@ namespace Cavern {
                                 if (!AudioListener3D.Channels[Channel].LFE) {
                                     int EchoPos = EchoStart - 1;
                                     for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels)
-                                        AudioListener3D.Output[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % Listener.SampleRate] * Volume3D;
+                                        Rendered[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % Listener.SampleRate] * Volume3D;
                                 }
                             }
                         }
@@ -453,9 +474,9 @@ namespace Cavern {
                         for (int Channel = 0; Channel < Channels; ++Channel) {
                             if (AudioListener3D.Channels[Channel].LFE) {
                                 if (OutputRawLFE)
-                                    UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, Volume3D * TotalAngleMatch, Channel, Channels);
+                                    UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D * TotalAngleMatch, Channel, Channels);
                             } else if (!LFE && AngleMatches[Channel] != 0)
-                                UsedOutputFunc(Samples, AudioListener3D.Output, UpdateRate, Volume3D * AngleMatches[Channel], Channel, Channels);
+                                UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D * AngleMatches[Channel], Channel, Channels);
                         }
                         // Add echo from every other direction, if enabled
                         if (!SkipEcho && EchoVolume != 0 && !LFE) {
@@ -472,7 +493,7 @@ namespace Cavern {
                                     float Gain = RolloffDistance * AngleMatches[Channel] * Volume3D;
                                     int EchoPos = EchoStart - 1;
                                     for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels)
-                                        AudioListener3D.Output[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % Listener.SampleRate] * Gain;
+                                        Rendered[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % Listener.SampleRate] * Gain;
                                 }
                             }
                         }
@@ -481,16 +502,16 @@ namespace Cavern {
             }
             // Timing
             timeSamples += PitchedUpdateRate;
-            int MaxLength = Clip.samples;
+            int MaxLength = ClipSamples;
             if (timeSamples >= MaxLength) {
                 if (Loop)
                     timeSamples %= MaxLength;
                 else {
                     timeSamples = 0;
                     IsPlaying = false;
-                    return;
                 }
             }
+            return Rendered;
         }
     }
 }
