@@ -148,14 +148,12 @@ namespace Cavern {
 
         /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
         internal void Precalculate() {
-            if (!Clip || !IsPlaying)
-                return;
-            LastPosition = transform.position;
-            LastDistance = Distance;
-            Distance = GetDistance(LastPosition);
-            CavernUtilities.BottomlistHandler(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance);
-            CalculatedPitch = AudioListener3D.Current.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
-                (DopplerLevel == 0 ? Pitch : Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound - (LastDistance - Distance) / AudioListener3D.PulseDelta), .5f, 3f));
+            if (Clip && IsPlaying) {
+                LastPosition = transform.position;
+                LastDistance = Distance;
+                Distance = GetDistance(LastPosition);
+                CavernUtilities.BottomlistHandler(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance);
+            }
         }
 
         /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
@@ -164,6 +162,9 @@ namespace Cavern {
                 ClipChannels = Clip.channels;
                 ClipFrequency = Clip.frequency;
                 ClipSamples = Clip.samples;
+                CalculatedPitch = AudioListener3D.Current.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
+                    (DopplerLevel == 0 ? Pitch :
+                    Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound - (LastDistance - Distance) / AudioListener3D.PulseDelta), .5f, 3f));
                 PitchedUpdateRate = (int)(AudioListener3D.Current.UpdateRate * CalculatedPitch);
                 OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
                 Clip.GetData(OriginalSamples, timeSamples);
@@ -350,7 +351,8 @@ namespace Cavern {
                         if (!LFE) {
                             // Find closest channels by cubical pos
                             int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1; // Each direction (bottom/top, front/rear, left/right)
-                            float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f, ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers on y/z
+                            float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f,
+                                ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers on y/z
                             Vector3 Position = Direction;
                             Position.x /= AudioListener3D.EnvironmentSize.x;
                             Position.y /= AudioListener3D.EnvironmentSize.y;
