@@ -21,13 +21,11 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Lifecycle helpers
         // ------------------------------------------------------------------
-        void Start() {
+        void OnEnable() {
             if (RandomPosition)
                 timeSamples = UnityEngine.Random.Range(0, Clip.samples);
             Distance = GetDistance(transform.position);
-        }
-
-        void OnEnable() {
+            SetRolloff();
             Node = AudioListener3D.ActiveSources.AddLast(this);
         }
 
@@ -43,10 +41,10 @@ namespace Cavern {
         /// <summary>The collection should be performed, as all requirements are met.</summary>
         bool Collectible;
 
+        /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
+        int BaseUpdateRate;
         /// <summary>Cached channel count of <see cref="Clip"/>.</summary>
         int ClipChannels;
-        /// <summary>Cached sample rate of <see cref="Clip"/>.</summary>
-        int ClipFrequency;
         /// <summary>Cached length of <see cref="Clip"/>.</summary>
         int ClipSamples;
         /// <summary>Samples required to match the listener's update rate after pitch changes.</summary>
@@ -56,14 +54,16 @@ namespace Cavern {
         float CalculatedPitch;
         /// <summary>Distance from the listener.</summary>
         float Distance;
-        /// <summary>Cached <see cref="EchoVolume"/> after <see cref="AudioListener3D.HeadphoneVirtualizer"/> was set.</summary>
-        float OldEchoVolume;
-        /// <summary>Cached <see cref="EchoDelay"/> after <see cref="AudioListener3D.HeadphoneVirtualizer"/> was set.</summary>
-        float OldEchoDelay;
         /// <summary><see cref="Distance"/> in the previous frame, required for Doppler effect calculation.</summary>
         float LastDistance;
         /// <summary>The last sample past the filter is required for lowpass effects.</summary>
         float LastLowpassedSample = 0;
+        /// <summary>Cached <see cref="EchoVolume"/> after <see cref="AudioListener3D.HeadphoneVirtualizer"/> was set.</summary>
+        float OldEchoVolume;
+        /// <summary>Cached <see cref="EchoDelay"/> after <see cref="AudioListener3D.HeadphoneVirtualizer"/> was set.</summary>
+        float OldEchoDelay;
+        /// <summary>Sample rate multiplier to match the system sample rate.</summary>
+        float ResampleMult;
 
         /// <summary>Past output samples for echo effect.</summary>
         float[] EchoBuffer = new float[0];
@@ -159,21 +159,25 @@ namespace Cavern {
         /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
         internal void Precollect() {
             if (Collectible = CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
+                AudioListener3D Listener = AudioListener3D.Current;
                 ClipChannels = Clip.channels;
-                ClipFrequency = Clip.frequency;
                 ClipSamples = Clip.samples;
-                CalculatedPitch = AudioListener3D.Current.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
+                CalculatedPitch = Listener.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
                     (DopplerLevel == 0 ? Pitch :
                     Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound - (LastDistance - Distance) / AudioListener3D.PulseDelta), .5f, 3f));
-                PitchedUpdateRate = (int)(AudioListener3D.Current.UpdateRate * CalculatedPitch);
+                bool NeedsResampling = Listener.SampleRate != Clip.frequency;
+                ResampleMult = NeedsResampling ? (float)Clip.frequency / Listener.SampleRate : 1;
+                BaseUpdateRate = (int)(Listener.UpdateRate * CalculatedPitch);
+                PitchedUpdateRate = (int)(BaseUpdateRate * ResampleMult);
                 OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
                 Clip.GetData(OriginalSamples, timeSamples);
-            }
+            } else
+                OriginalSamples = null;
         }
 
         /// <summary>Process the source and returns a mix to be added to the output.</summary>
         internal unsafe float[] Collect() {
-            if (!Clip)
+            if (OriginalSamples == null)
                 return null;
             AudioListener3D Listener = AudioListener3D.Current;
             if (Delay > 0) {
@@ -187,13 +191,7 @@ namespace Cavern {
             bool OutputRawLFE = !Listener.LFESeparation || LFE;
             // Update rate calculation
             int UpdateRate = Listener.UpdateRate;
-            int BaseUpdateRate = PitchedUpdateRate, ResampledNow = timeSamples;
-            bool NeedsResampling = Listener.SampleRate != ClipFrequency;
-            if (NeedsResampling) {
-                float Mult = (float)ClipFrequency / Listener.SampleRate;
-                PitchedUpdateRate = (int)(PitchedUpdateRate * Mult);
-                ResampledNow = (int)(timeSamples / Mult);
-            }
+            int ResampledNow = (int)(timeSamples / ResampleMult);
             if (!Mute) {
                 bool Blend2D = SpatialBlend != 1, Blend3D = SpatialBlend != 0;
                 bool HighQuality = Listener.AudioQuality >= QualityModes.High;
@@ -229,7 +227,7 @@ namespace Cavern {
                             if (!AudioListener3D.Channels[Channel].LFE)
                                 Divisor++;
                         Volume2D = Divisor == 0 ? 0 : Volume2D / Divisor;
-                        if (NeedsResampling)
+                        if (ResampleMult != 1)
                             Samples = Resample(Samples, PitchedUpdateRate, BaseUpdateRate);
                         Samples = MonoPitchShift(Samples, CalculatedPitch);
                         int ActualSample = 0;
@@ -245,18 +243,20 @@ namespace Cavern {
                             LeftSamples[Sample] = OriginalSamples[ActualSample++];
                             RightSamples[Sample] = OriginalSamples[ActualSample++];
                         }
-                        if (NeedsResampling) {
+                        if (ResampleMult != 1) {
                             LeftSamples = Resample(LeftSamples, PitchedUpdateRate, BaseUpdateRate);
                             RightSamples = Resample(RightSamples, PitchedUpdateRate, BaseUpdateRate);
                         }
                         LeftSamples = MonoPitchShift(LeftSamples, CalculatedPitch);
                         RightSamples = MonoPitchShift(RightSamples, CalculatedPitch);
                         int LeftDivisor = 0, RightDivisor = 0;
-                        for (int Channel = 0; Channel < Channels; ++Channel)
-                            if (!AudioListener3D.Channels[Channel].LFE) {
-                                LeftDivisor += AudioListener3D.Channels[Channel].y < 0 ? 1 : 0;
-                                RightDivisor += AudioListener3D.Channels[Channel].y > 0 ? 1 : 0;
+                        for (int Channel = 0; Channel < Channels; ++Channel) {
+                            Channel CurrentChannel = AudioListener3D.Channels[Channel];
+                            if (!CurrentChannel.LFE) {
+                                LeftDivisor += CurrentChannel.y < 0 ? 1 : 0;
+                                RightDivisor += CurrentChannel.y > 0 ? 1 : 0;
                             }
+                        }
                         float LeftVolume = LeftDivisor == 0 ? 0 : Volume2D / LeftDivisor, RightVolume = RightDivisor == 0 ? 0 : Volume2D / RightDivisor;
                         if (StereoPan < 0)
                             RightVolume *= -StereoPan * StereoPan + 1;
@@ -281,22 +281,8 @@ namespace Cavern {
                 }
                 if (Blend3D && Distance < Listener.Range) { // 3D mix, if the source is in range
                     Vector3 Direction = AudioListener3D.LastRotationInverse * (LastPosition - AudioListener3D.LastPosition);
-                    float RolloffDistance;
-                    switch (VolumeRolloff) {
-                        case Rolloffs.Logarithmic:
-                            RolloffDistance = Distance < 1 ? 1 : 1 / (1 + Mathf.Log(Distance));
-                            break;
-                        case Rolloffs.Linear:
-                            RolloffDistance = (Listener.Range - Distance) / Listener.Range;
-                            break;
-                        case Rolloffs.Real:
-                            RolloffDistance = Distance < 1 ? 1 : 1 / Distance;
-                            break;
-                        default:
-                            RolloffDistance = 1;
-                            break;
-                    }
-                    if (NeedsResampling && (!Blend2D || StereoClip))
+                    float RolloffDistance = GetRolloff();
+                    if (ResampleMult != 1 && (!Blend2D || StereoClip))
                         Samples = Resample(Samples, PitchedUpdateRate, BaseUpdateRate);
                     Samples = MonoPitchShift(Samples, CalculatedPitch);
                     BaseUpdateRate = Samples.Length;

@@ -147,13 +147,13 @@ namespace Cavern {
         }
 
         void Awake() {
-            OnOutputAvailable = Finalization; // Call finalization when samples are available
-            SystemSampleRate = AudioSettings.GetConfiguration().sampleRate;
             if (Current) {
                 UnityEngine.Debug.LogError("There can be only one 3D audio listener per scene.");
                 Destroy(Current);
             }
             Current = this;
+            OnOutputAvailable = Finalization; // Call finalization when samples are available
+            SystemSampleRate = AudioSettings.GetConfiguration().sampleRate;
             ChannelCount = 0;
             string FileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
             if (File.Exists(FileName)) {
