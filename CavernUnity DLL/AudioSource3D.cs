@@ -340,9 +340,12 @@ namespace Cavern {
                             float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f,
                                 ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers on y/z
                             Vector3 Position = Direction;
-                            Position.x /= AudioListener3D.EnvironmentSize.x;
-                            Position.y /= AudioListener3D.EnvironmentSize.y;
-                            Position.z /= AudioListener3D.EnvironmentSize.z;
+                            if (CavernUtilities.Abs(Position.x) > AudioListener3D.EnvironmentSize.x)
+                                Position /= AudioListener3D.EnvironmentSize.x;
+                            if (CavernUtilities.Abs(Position.y) > AudioListener3D.EnvironmentSize.y)
+                                Position /= AudioListener3D.EnvironmentSize.y;
+                            if (CavernUtilities.Abs(Position.z) > AudioListener3D.EnvironmentSize.z)
+                                Position /= AudioListener3D.EnvironmentSize.z;
                             for (int Channel = 0; Channel < Channels; ++Channel) { // Find closest horizontal layers
                                 if (!AudioListener3D.Channels[Channel].LFE) {
                                     float ChannelY = AudioListener3D.Channels[Channel].CubicalPos.y;
