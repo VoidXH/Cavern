@@ -70,7 +70,7 @@ namespace Cavern {
         [NonSerialized] public int timeSamples = 0;
 
         // ------------------------------------------------------------------
-        // Compatibility
+        // Unity variable name aliases
         // ------------------------------------------------------------------
         /// <summary>Alias for <see cref="Clip"/>.</summary>
         public AudioClip clip {
@@ -78,10 +78,46 @@ namespace Cavern {
             set { Clip = value; }
         }
 
+        /// <summary>Alias for <see cref="DopplerLevel"/>.</summary>
+        public float dopplerLevel {
+            get { return DopplerLevel; }
+            set { DopplerLevel = value; }
+        }
+
+        /// <summary>Alias for <see cref="IsPlaying"/>.</summary>
+        public bool isPlaying {
+            get { return IsPlaying; }
+            set { IsPlaying = value; }
+        }
+
         /// <summary>Alias for <see cref="Loop"/>.</summary>
         public bool loop {
             get { return Loop; }
             set { Loop = value; }
+        }
+
+        /// <summary>Alias for <see cref="Mute"/>.</summary>
+        public bool mute {
+            get { return Mute; }
+            set { Mute = value; }
+        }
+
+        /// <summary>Alias for <see cref="StereoPan"/>.</summary>
+        public float panStereo {
+            get { return StereoPan; }
+            set { StereoPan = value; }
+        }
+
+        /// <summary>Alias for <see cref="Pitch"/>.</summary>
+        public float pitch {
+            get { return Pitch; }
+            set { Pitch = value; }
+        }
+
+        /// <summary>Alias for <see cref="SpatialBlend"/>.</summary>
+        public float spatialBlend {
+            get { return SpatialBlend; }
+            set { SpatialBlend = value; }
         }
 
         /// <summary>Alias for <see cref="Volume"/>.</summary>
