@@ -433,7 +433,7 @@ namespace Cavern {
                     } else {
                         // Angle match calculations
                         bool TheatreMode = AudioListener3D.EnvironmentType == Environments.Theatre;
-                        float[] AngleMatches = UsedAngleMatchFunc(Channels, Direction, TheatreMode ? (Func<float, float>)PowTo16 : PowTo8);
+                        float[] AngleMatches = UsedAngleMatchFunc(Channels, Direction, TheatreMode ? (MatchModifierFunc)PowTo16 : PowTo8);
                         // Object size extension
                         if (Size != 0) {
                             float MaxAngleMatch = CavernUtilities.ArrayMaximum(AngleMatches, Channels);

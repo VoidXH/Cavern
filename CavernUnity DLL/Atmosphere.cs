@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using UnityEngine;
 
 using Random = UnityEngine.Random;
@@ -58,6 +57,9 @@ namespace Cavern {
             }
         }
 
+        delegate GameObject CreatorFunc();
+        delegate Vector3 PlacerFunc(Vector3 Angles);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         GameObject CreateVisualization() {
             return GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -69,8 +71,8 @@ namespace Cavern {
         }
 
         void Update() {
-            Func<GameObject> Creator = Visualize ? (Func<GameObject>)CreateVisualization : CreateEmpty;
-            Func<Vector3, Vector3> DirectionFunc = Spherical ? (Func<Vector3, Vector3>)CavernUtilities.PlaceInSphere : CavernUtilities.PlaceInCube;
+            CreatorFunc Creator = Visualize ? (CreatorFunc)CreateVisualization: CreateEmpty;
+            PlacerFunc DirectionFunc = Spherical ? (PlacerFunc)CavernUtilities.PlaceInSphere : CavernUtilities.PlaceInCube;
             float TargetVolume = Volume / Sources;
             for (int Source = 0, ClipCount = Clips.Length; Source < Sources; ++Source) {
                 if (!Objects[Source].Object) {

@@ -29,8 +29,11 @@ namespace Cavern {
             return 1;
         }
 
+        /// <summary>Rolloff calculator function.</summary>
+        delegate float RolloffFunc();
+
         /// <summary>The rolloff function to be used.</summary>
-        Func<float> UsedRolloffFunc;
+        RolloffFunc UsedRolloffFunc;
 
         /// <summary>Last value of <see cref="VolumeRolloff"/>.</summary>
         Rolloffs LastRolloff;

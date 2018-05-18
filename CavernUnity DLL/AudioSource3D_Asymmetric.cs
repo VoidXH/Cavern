@@ -7,6 +7,10 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Helpers for the asymmetric renderer
         // ------------------------------------------------------------------
+        /// <summary>Angle match value modifier.</summary>
+        /// <param name="Matching">Old angle match</param>
+        internal delegate float MatchModifierFunc(float Matching);
+
         /// <summary>x to the power of 8.</summary>
         /// <param name="x">Input number</param>
         /// <returns>x^8 the fastest way possible</returns>
@@ -19,13 +23,19 @@ namespace Cavern {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float PowTo16(float x) { x = x * x; x = x * x; x = x * x; return x * x; }
 
-        /// <summary>Angle match calculations.</summary>
+        /// <summary>Angle match calculator delegate.</summary>
         /// <param name="Channels">Output layout channel count</param>
         /// <param name="Direction">The source's direction from the <see cref="AudioListener3D"/></param>
         /// <param name="MatchModifier">Modifier function of angle match values</param>
         /// <returns>Angle matches for each channel</returns>
+        internal delegate float[] AngleMatchFunc(int Channels, Vector3 Direction, MatchModifierFunc MatchModifier);
+
+        /// <summary>The angle match calculator function to be used.</summary>
+        internal static AngleMatchFunc UsedAngleMatchFunc;
+
+        /// <summary>Angle match calculations.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float[] CalculateAngleMatches(int Channels, Vector3 Direction, Func<float, float> MatchModifier) {
+        internal static float[] CalculateAngleMatches(int Channels, Vector3 Direction, MatchModifierFunc MatchModifier) {
             float[] AngleMatches = new float[Channels];
             float DirMagnitudeRecip = 1f / (Direction.magnitude + .0001f);
             for (int Channel = 0; Channel < Channels; ++Channel) {
@@ -38,14 +48,10 @@ namespace Cavern {
             return AngleMatches;
         }
 
-        /// <summary>Linearized <see cref="CalculateAngleMatches(int, Vector3, Func{float, float})"/>:
+        /// <summary>Linearized <see cref="CalculateAngleMatches(int, Vector3, MatchModifierFunc)"/>:
         /// pi / 2 - pi / 2 * x, angle match: pi - (lin acos) = pi / 2 + pi / 2 * x.</summary>
-        /// <param name="Channels">Output layout channel count</param>
-        /// <param name="Direction">The source's direction from the <see cref="AudioListener3D"/></param>
-        /// <param name="MatchModifier">Modifier function of angle match values</param>
-        /// <returns>Angle matches for each channel</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float[] LinearizeAngleMatches(int Channels, Vector3 Direction, Func<float, float> MatchModifier) {
+        internal static float[] LinearizeAngleMatches(int Channels, Vector3 Direction, MatchModifierFunc MatchModifier) {
             float[] AngleMatches = new float[Channels];
             float DirMagnitudeRecip = 1f / (Direction.magnitude + .0001f);
             for (int Channel = 0; Channel < Channels; ++Channel) {
@@ -57,8 +63,5 @@ namespace Cavern {
             }
             return AngleMatches;
         }
-
-        /// <summary>The angle match calculator function to be used.</summary>
-        internal static Func<int, Vector3, Func<float, float>, float[]> UsedAngleMatchFunc;
     }
 }
