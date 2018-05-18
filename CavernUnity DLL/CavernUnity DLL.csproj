@@ -70,6 +70,7 @@
     <Compile Include="CavernizeRT.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Debug\ArrayLevels.cs" />
+    <Compile Include="Debug\LogDisplay.cs" />
     <Compile Include="Debug\Monitor.cs" />
     <Compile Include="Echo3D.cs" />
     <Compile Include="Enumerations.cs" />
