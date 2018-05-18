@@ -1,6 +1,6 @@
-﻿using Cavern.Utilities;
-using System;
-using UnityEngine;
+﻿using UnityEngine;
+
+using Cavern.Utilities;
 
 namespace Cavern.Debug {
     /// <summary>Displays the last logged message.</summary>
@@ -51,6 +51,7 @@ namespace Cavern.Debug {
             GUI.skin.label.alignment = OldAlign;
             GUI.skin.label.fontSize = OldSize;
             GUI.skin.label.wordWrap = OldWrap;
+            GUI.DragWindow();
         }
     }
 }
