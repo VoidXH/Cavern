@@ -78,6 +78,8 @@
     <Compile Include="Format\LimitlessAudioFormatWriter.cs" />
     <Compile Include="Format\RIFFWaveWriter.cs" />
     <Compile Include="Helpers\ExternalSource.cs" />
+    <Compile Include="Spoofer\AudioListenerSpoofer.cs" />
+    <Compile Include="Spoofer\AudioSourceSpoofer.cs" />
     <Compile Include="Utilities\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
     <Compile Include="Utilities\OneShotDestructor.cs" />
