@@ -158,7 +158,7 @@ namespace Cavern {
 
         /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
         internal void Precollect() {
-            if (Collectible = CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
+            if (Clip && (Collectible = CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance))) {
                 AudioListener3D Listener = AudioListener3D.Current;
                 ClipChannels = Clip.channels;
                 ClipSamples = Clip.samples;

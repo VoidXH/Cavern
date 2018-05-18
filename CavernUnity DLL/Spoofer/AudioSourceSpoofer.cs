@@ -3,13 +3,17 @@ using UnityEngine;
 
 namespace Cavern.Spoofer {
     /// <summary>Converts a regular <see cref="AudioSource"/> to Cavern's <see cref="AudioSource3D"/>.</summary>
-    [AddComponentMenu("Audio/Spoofer/Audio Source"), RequireComponent(typeof(AudioSource))]
+    [AddComponentMenu("Audio/Spoofer/Audio Source")]
     public sealed class AudioSourceSpoofer : MonoBehaviour {
-        AudioSource Source;
+        /// <summary>Source to spoof.</summary>
+        public AudioSource Source;
+
         AudioSource3D Target;
 
-        void Update() {
+        void LateUpdate() {
             if (Source) {
+                if (!Target)
+                    Target = Source.gameObject.AddComponent<AudioSource3D>();
                 Target.enabled = Source.enabled;
                 Target.Clip = Source.clip;
                 Target.DopplerLevel = Source.dopplerLevel;
@@ -31,12 +35,13 @@ namespace Cavern.Spoofer {
                         Target.VolumeRolloff = Rolloffs.Disabled;
                         break;
                 }
-                if (Math.Abs(Target.timeSamples - Source.timeSamples) > Target.Clip.frequency / 60)
+                if (Target.Clip && Math.Abs(Target.timeSamples - Source.timeSamples) > Target.Clip.frequency / 60)
                     Target.timeSamples = Source.timeSamples;
-            } else if (Source = GetComponent<AudioSource>())
-                Target = gameObject.AddComponent<AudioSource3D>();
-            else
-                Destroy(Target);
+            } else {
+                if (Target)
+                    Destroy(Target);
+                Destroy(this);
+            }
         }
     }
 }
