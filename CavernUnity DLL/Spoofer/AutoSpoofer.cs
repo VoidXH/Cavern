@@ -5,6 +5,10 @@ namespace Cavern.Spoofer {
     /// <summary>Automatically replaces Unity Audio with Cavern on the fly.</summary>
     [AddComponentMenu("Audio/Spoofer/Auto Audio Engine Spoofer")]
     public sealed class AutoSpoofer : MonoBehaviour {
+        /// <summary>Use Unity's audio engine for clips that are not transferrable to Cavern (anything that is not decompressed on load).</summary>
+        [Tooltip("Use Unity's audio engine for clips that are not transferrable to Cavern (anything that is not decompressed on load).")]
+        public bool Duality = true;
+
         static AutoSpoofer Instance;
 
         AudioListener ListenerInstance;
@@ -27,14 +31,19 @@ namespace Cavern.Spoofer {
         }
 
         void Update() {
-            if (!ListenerInstance && (ListenerInstance = FindObjectOfType<AudioListener>()))
-                ListenerInstance.gameObject.AddComponent<AudioListenerSpoofer>().Source = ListenerInstance;
+            if (!ListenerInstance && (ListenerInstance = FindObjectOfType<AudioListener>())) {
+                AudioListenerSpoofer Spoofer = ListenerInstance.gameObject.AddComponent<AudioListenerSpoofer>();
+                Spoofer.Source = ListenerInstance;
+                Spoofer.Duality = Duality;
+            }
             Sources.RemoveAll(x => !x);
             AudioSource[] All = FindObjectsOfType<AudioSource>();
             for (int i = 0, Count = All.Length; i < Count; ++i) {
                 if (!Sources.Contains(All[i])) {
                     Sources.Add(All[i]);
-                    All[i].gameObject.AddComponent<AudioSourceSpoofer>().Source = All[i];
+                    AudioSourceSpoofer Spoofer = All[i].gameObject.AddComponent<AudioSourceSpoofer>();
+                    Spoofer.Source = All[i];
+                    Spoofer.Duality = Duality;
                 }
             }
         }
