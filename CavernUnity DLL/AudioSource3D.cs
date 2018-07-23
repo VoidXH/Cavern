@@ -340,17 +340,13 @@ namespace Cavern {
                             int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1; // Each direction (bottom/top, front/rear, left/right)
                             float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f,
                                 ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers on y/z
-                            Vector3 Position = Direction;
-                            if (CavernUtilities.Abs(Position.x) > AudioListener3D.EnvironmentSize.x)
-                                Position /= AudioListener3D.EnvironmentSize.x;
-                            if (CavernUtilities.Abs(Position.y) > AudioListener3D.EnvironmentSize.y)
-                                Position /= AudioListener3D.EnvironmentSize.y;
-                            if (CavernUtilities.Abs(Position.z) > AudioListener3D.EnvironmentSize.z)
-                                Position /= AudioListener3D.EnvironmentSize.z;
+                            Direction.x /= AudioListener3D.EnvironmentSize.x;
+                            Direction.y /= AudioListener3D.EnvironmentSize.y;
+                            Direction.z /= AudioListener3D.EnvironmentSize.z;
                             for (int Channel = 0; Channel < Channels; ++Channel) { // Find closest horizontal layers
                                 if (!AudioListener3D.Channels[Channel].LFE) {
                                     float ChannelY = AudioListener3D.Channels[Channel].CubicalPos.y;
-                                    if (ChannelY < Position.y) {
+                                    if (ChannelY < Direction.y) {
                                         if (ChannelY > ClosestBottom)
                                             ClosestBottom = ChannelY;
                                     } else if (ChannelY < ClosestTop)
@@ -361,9 +357,9 @@ namespace Cavern {
                                 if (!AudioListener3D.Channels[Channel].LFE) {
                                     Vector3 ChannelPos = AudioListener3D.Channels[Channel].CubicalPos;
                                     if (ChannelPos.y == ClosestBottom) // Bottom layer
-                                        AssignHorizontalLayer(Channel, ref BFL, ref BFR, ref BRL, ref BRR, ref ClosestBF, ref ClosestBR, Position, ChannelPos);
+                                        AssignHorizontalLayer(Channel, ref BFL, ref BFR, ref BRL, ref BRR, ref ClosestBF, ref ClosestBR, Direction, ChannelPos);
                                     if (ChannelPos.y == ClosestTop) // Top layer
-                                        AssignHorizontalLayer(Channel, ref TFL, ref TFR, ref TRL, ref TRR, ref ClosestTF, ref ClosestTR, Position, ChannelPos);
+                                        AssignHorizontalLayer(Channel, ref TFL, ref TFR, ref TRL, ref TRR, ref ClosestTF, ref ClosestTR, Direction, ChannelPos);
                                 }
                             }
                             FixIncompleteLayer(ref TFL, ref TFR, ref TRL, ref TRR); // Fix incomplete top layer
@@ -378,13 +374,13 @@ namespace Cavern {
                             float TopVol, BottomVol;
                             if (TFL != BFL) { // Height ratio calculation
                                 float BottomY = AudioListener3D.Channels[BFL].CubicalPos.y;
-                                TopVol = (Position.y - BottomY) / (AudioListener3D.Channels[TFL].CubicalPos.y - BottomY);
+                                TopVol = (Direction.y - BottomY) / (AudioListener3D.Channels[TFL].CubicalPos.y - BottomY);
                                 BottomVol = 1f - TopVol;
                             } else
                                 TopVol = BottomVol = .5f;
-                            float BFVol = LengthRatio(BRL, BFL, Position.z), TFVol = LengthRatio(TRL, TFL, Position.z), // Length ratios
-                                BFRVol = WidthRatio(BFL, BFR, Position.x), BRRVol = WidthRatio(BRL, BRR, Position.x), // Width ratios
-                                TFRVol = WidthRatio(TFL, TFR, Position.x), TRRVol = WidthRatio(TRL, TRR, Position.x),
+                            float BFVol = LengthRatio(BRL, BFL, Direction.z), TFVol = LengthRatio(TRL, TFL, Direction.z), // Length ratios
+                                BFRVol = WidthRatio(BFL, BFR, Direction.x), BRRVol = WidthRatio(BRL, BRR, Direction.x), // Width ratios
+                                TFRVol = WidthRatio(TFL, TFR, Direction.x), TRRVol = WidthRatio(TRL, TRR, Direction.x),
                                 InnerVolume3D = Volume3D;
                             if (Size != 0) {
                                 BFVol = CavernUtilities.FastLerp(BFVol, .5f, Size);
