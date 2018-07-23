@@ -9,7 +9,7 @@ Cavern is a fully adaptive object-based audio engine and upmixer without limitat
 * Full cinema and stage support with realtime conversion
 * Seat movement generation
 * Unity-like listener and source functionality
-* Ultra low latency, even the upconverter can work from as low as one sample
+* Ultra low latency, even the upconverter can work from as low as one sample per frame
 
 ## Driver disclaimer
 While Cavern itself is open-source, the setup utility and converter interfaces are not and will not be. However, their functionality is almost entirely using this plugin. The driver and converters can be downloaded from the [Cavern website](http://cavern.cf). This is an API for the Cavern ecosystem.

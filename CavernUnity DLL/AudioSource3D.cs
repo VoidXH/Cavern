@@ -91,7 +91,7 @@ namespace Cavern {
 
         /// <summary>Pitch-shifts a single channel.</summary>
         /// <param name="Samples">Samples of the source channel</param>
-        /// <param name="PitchRatio">Pitch ratio</param>
+        /// <param name="PitchRatio">Ratio of the original length to the resampled length</param>
         /// <returns>A pitch-shifted version of the given array with the given pitch ratio</returns>
         static float[] MonoPitchShift(float[] Samples, float PitchRatio) {
             if (PitchRatio == 1)
@@ -100,17 +100,32 @@ namespace Cavern {
             if (ProcessEnd > AudioListener3D.Current.UpdateRate)
                 ProcessEnd = AudioListener3D.Current.UpdateRate;
             float[] Output = new float[ProcessEnd];
-            if (AudioListener3D.Current.AudioQuality < QualityModes.High) { // No interpolation on qualities below High
+            if (AudioListener3D.Current.AudioQuality < QualityModes.High) { // Nearest neighbour below High
                 for (int i = 0; i < ProcessEnd; ++i)
                     Output[i] = Samples[(int)(i * PitchRatio)];
-            } else {
+            } else if (AudioListener3D.Current.AudioQuality < QualityModes.Perfect) { // Lerp below Perfect
                 int End = Samples.Length - 1;
                 for (int i = 0; i < ProcessEnd; ++i) {
                     float FromPos = i * PitchRatio;
                     int Sample = (int)FromPos;
                     Output[i] = Sample >= End ? Samples[Sample] : CavernUtilities.FastLerp(Samples[Sample], Samples[++Sample], FromPos % 1);
                 }
-            } // TODO: Catmull-Rom on Perfect quality
+            } else { // Catmull-Rom on Perfect
+                int Start = Mathf.CeilToInt(1 / PitchRatio), End = Samples.Length - 3;
+                for (int i = 0; i < Start; ++i)
+                    Output[i] = Samples[i];
+                for (int i = Start; i < ProcessEnd; ++i) {
+                    float FromPos = i * PitchRatio;
+                    int Sample = (int)FromPos;
+                    if (Sample < End) {
+                        float CatRomT = FromPos % 1, CatRomT2 = CatRomT * CatRomT;
+                        float P0 = Samples[Sample - 1], P1 = Samples[Sample], P2 = Samples[Sample + 1], P3 = Samples[Sample + 2];
+                        Output[i] = ((P1 * 2) + (P2 - P0) * CatRomT + (P0 * 2 - P1 * 5 + P2 * 4 - P3) * CatRomT2 +
+                            (3 * P1 - P0 - 3 * P2 + P3) * CatRomT2 * CatRomT) * .5f;
+                    } else
+                        Output[i] = Samples[Sample];
+                }
+            }
             return Output;
         }
 
@@ -120,22 +135,7 @@ namespace Cavern {
         /// <param name="To">New sample rate</param>
         /// <returns>Returns a resampled version of the given array</returns>
         internal static float[] Resample(float[] Samples, int From, int To) {
-            if (From == To)
-                return Samples;
-            float[] NewSamples = new float[To];
-            float Ratio = From / (float)To;
-            if (AudioListener3D.Current.AudioQuality < QualityModes.High) { // No interpolation on qualities below High
-                for (int i = 0; i < To; ++i)
-                    NewSamples[i] = Samples[(int)(i * Ratio)];
-            } else { // Catmull-Rom would be nice if it wouldn't kill the CPU
-                int End = From - 1;
-                for (int i = 0; i < To; ++i) {
-                    float FromPos = i * Ratio;
-                    int Sample = (int)FromPos;
-                    NewSamples[i] = Sample >= End ? Samples[Sample] : CavernUtilities.FastLerp(Samples[Sample], Samples[++Sample], FromPos % 1);
-                }
-            }
-            return NewSamples;
+            return MonoPitchShift(Samples, From / (float)To);
         }
 
         /// <summary>Clamp a number between two values.</summary>
@@ -244,8 +244,9 @@ namespace Cavern {
                             RightSamples[Sample] = OriginalSamples[ActualSample++];
                         }
                         if (ResampleMult != 1) {
-                            LeftSamples = Resample(LeftSamples, PitchedUpdateRate, BaseUpdateRate);
-                            RightSamples = Resample(RightSamples, PitchedUpdateRate, BaseUpdateRate);
+                            float PitchRatio = PitchedUpdateRate / (float)BaseUpdateRate;
+                            LeftSamples = MonoPitchShift(LeftSamples, PitchRatio);
+                            RightSamples = MonoPitchShift(RightSamples, PitchRatio);
                         }
                         LeftSamples = MonoPitchShift(LeftSamples, CalculatedPitch);
                         RightSamples = MonoPitchShift(RightSamples, CalculatedPitch);

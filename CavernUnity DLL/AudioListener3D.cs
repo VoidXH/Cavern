@@ -253,7 +253,6 @@ namespace Cavern {
                     DeltaTime = (float)(LastTime - StartTime) / (Now - StartTime);
                     if (!Paused || Manual) {
                         // Collect audio data from sources
-                        Array.Clear(Output, 0, OutputLength); // TODO: biztos kell ide is?
                         Task<float[]>[] Tasks = new Task<float[]>[ActiveSources.Count];
                         int TaskCount = 0;
                         Node = ActiveSources.First;
@@ -264,6 +263,8 @@ namespace Cavern {
                             Node = Node.Next;
                         }
                         Task.WaitAll(Tasks);
+                        // Mix sources to output
+                        Array.Clear(Output, 0, OutputLength);
                         for (int TaskPos = 0; TaskPos < TaskCount; ++TaskPos)
                             if (Tasks[TaskPos].Result != null)
                                 CavernUtilities.Mix(Tasks[TaskPos].Result, Output, OutputLength);

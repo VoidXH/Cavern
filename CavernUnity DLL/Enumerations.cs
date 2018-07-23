@@ -17,7 +17,7 @@
         /// Lowest quality: forced maximum performance by disabling some features.
         ///
         /// Doppler effect and pitch shifting: No.
-        /// Resampling quality: Low.
+        /// Resampling quality: Low (nearest neighbour).
         /// Channels mixed to 3D space: First.
         /// Panning: Constant gain.
         /// Accurate angle calculation in asymmetric mode: No.
@@ -28,7 +28,7 @@
         /// Medium quality: maximum performance with all features enabled.
         ///
         /// Doppler effect and pitch shifting: Low quality.
-        /// Resampling quality: Low.
+        /// Resampling quality: Low (nearest neighbour).
         /// Channels mixed to 3D space: First.
         /// Panning: Constant gain.
         /// Accurate angle calculation in asymmetric mode: No.
@@ -39,7 +39,7 @@
         /// High quality: maximum quality except for heavy features.
         ///
         /// Doppler effect and pitch shifting: High quality.
-        /// Resampling quality: High.
+        /// Resampling quality: Medium (linear interpolation).
         /// Channels mixed to 3D space: All.
         /// Panning: Approximated constant power.
         /// Accurate angle calculation in asymmetric mode: Yes.
@@ -50,7 +50,7 @@
         /// Perfect quality: maximum quality for all features.
         ///
         /// Doppler effect and pitch shifting: High quality.
-        /// Resampling quality: High.
+        /// Resampling quality: High (Catmull-Rom).
         /// Channels mixed to 3D space: All.
         /// Panning: Constant power.
         /// Accurate angle calculation in asymmetric mode: Yes.
