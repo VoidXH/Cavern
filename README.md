@@ -5,8 +5,9 @@ Cavern is a fully adaptive object-based audio engine and upmixer without limitat
 * Unlimited objects and output channels without position restrictions
 * Custom audio format for storing spatial mixes
 * Upconverter for regular surround mixes
-* Mix repositioning based on occupied seats
 * Full cinema and stage support with realtime conversion
+* Cavern QuickEQ corrects the room's frequency response in seconds
+* Mix repositioning based on occupied seats
 * Seat movement generation
 * Unity-like listener and source functionality
 * Ultra low latency, even the upconverter can work from as low as one sample per frame

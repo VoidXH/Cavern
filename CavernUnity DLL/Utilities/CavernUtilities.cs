@@ -19,11 +19,11 @@ namespace Cavern {
         }
 
         /// <summary>pi / 2</summary>
-        internal const float halfPi = Mathf.PI * .5f;
+        internal const float HalfPi = Mathf.PI * .5f;
         /// <summary>sqrt(2) / 2</summary>
-        internal const float sqrt2p2 = .7071067811f;
+        internal const float Sqrt2p2 = .7071067811f;
         /// <summary>sqrt(2) / -2</summary>
-        internal const float sqrt2pm2 = -.7071067811f;
+        internal const float Sqrt2pm2 = -.7071067811f;
 
         /// <summary>For given angles (in radian) it returns a vector for that position on a sphere with the radius of 1.</summary>
         public static Vector3 PlaceInSphere(Vector3 Angles) {
@@ -37,18 +37,18 @@ namespace Cavern {
             float XRad = Angles.x * Mathf.Deg2Rad, YRad = Angles.y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
             if (Abs(SinY) > Abs(CosY)) {
-                SinY = SinY > 0 ? sqrt2p2 : sqrt2pm2;
+                SinY = SinY > 0 ? Sqrt2p2 : Sqrt2pm2;
             } else
-                CosY = CosY > 0 ? sqrt2p2 : sqrt2pm2;
-            SinY /= sqrt2p2;
-            CosY /= sqrt2p2;
-            if (Abs(SinX) >= sqrt2p2) {
-                SinX = SinX > 0 ? sqrt2p2 : sqrt2pm2;
-                CosX /= sqrt2p2;
+                CosY = CosY > 0 ? Sqrt2p2 : Sqrt2pm2;
+            SinY /= Sqrt2p2;
+            CosY /= Sqrt2p2;
+            if (Abs(SinX) >= Sqrt2p2) {
+                SinX = SinX > 0 ? Sqrt2p2 : Sqrt2pm2;
+                CosX /= Sqrt2p2;
                 SinY *= CosX;
                 CosY *= CosX;
             }
-            SinX /= sqrt2p2;
+            SinX /= Sqrt2p2;
             return new Vector3(SinY, -SinX, CosY);
         }
 

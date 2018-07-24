@@ -31,7 +31,7 @@ namespace Cavern {
         /// <summary>Output samples to a multichannel array with constant power.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void WriteOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
-            WriteOutput(Samples, Target, ChannelLength, Mathf.Sin(Gain * CavernUtilities.halfPi), Channel, Channels);
+            WriteOutput(Samples, Target, ChannelLength, Mathf.Sin(Gain * CavernUtilities.HalfPi), Channel, Channels);
         }
 
         /// <summary>Output samples to a multichannel array, while trying to fix standing waves.</summary>
@@ -64,7 +64,7 @@ namespace Cavern {
         /// <summary>Output samples to a multichannel array with constant power, while trying to fix standing waves.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void WriteFixedOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
-            WriteFixedOutput(Samples, Target, ChannelLength, Mathf.Sin(Gain * CavernUtilities.halfPi), Channel, Channels);
+            WriteFixedOutput(Samples, Target, ChannelLength, Mathf.Sin(Gain * CavernUtilities.HalfPi), Channel, Channels);
         }
     }
 }

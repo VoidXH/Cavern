@@ -66,6 +66,11 @@
     <Compile Include="AudioSource3D_Symmetric.cs" />
     <Compile Include="Cavern4D\Cavern4DBase.cs" />
     <Compile Include="Cavern4D\Seat4D.cs" />
+    <Compile Include="QuickEQ\Utils\Complex.cs" />
+    <Compile Include="QuickEQ\Measurements.cs" />
+    <Compile Include="QuickEQ\SpeakerSweeper.cs" />
+    <Compile Include="QuickEQ\Utils\Equalizer.cs" />
+    <Compile Include="QuickEQ\Utils\Windowing.cs" />
     <Compile Include="Cavernize.cs" />
     <Compile Include="CavernizeRT.cs" />
     <Compile Include="Channel.cs" />

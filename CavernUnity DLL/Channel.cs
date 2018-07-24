@@ -63,18 +63,18 @@ namespace Cavern {
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
             SphericalPos = new Vector3(SinY * CosX, -SinX, CosY * CosX);
             if (CavernUtilities.Abs(SinY) > CavernUtilities.Abs(CosY)) {
-                SinY = SinY > 0 ? CavernUtilities.sqrt2p2 : CavernUtilities.sqrt2pm2;
+                SinY = SinY > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
             } else
-                CosY = CosY > 0 ? CavernUtilities.sqrt2p2 : CavernUtilities.sqrt2pm2;
-            SinY /= CavernUtilities.sqrt2p2;
-            CosY /= CavernUtilities.sqrt2p2;
-            if (CavernUtilities.Abs(SinX) >= CavernUtilities.sqrt2p2) {
-                SinX = SinX > 0 ? CavernUtilities.sqrt2p2 : CavernUtilities.sqrt2pm2;
-                CosX /= CavernUtilities.sqrt2p2;
+                CosY = CosY > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
+            SinY /= CavernUtilities.Sqrt2p2;
+            CosY /= CavernUtilities.Sqrt2p2;
+            if (CavernUtilities.Abs(SinX) >= CavernUtilities.Sqrt2p2) {
+                SinX = SinX > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
+                CosX /= CavernUtilities.Sqrt2p2;
                 SinY *= CosX;
                 CosY *= CosX;
             }
-            SinX /= CavernUtilities.sqrt2p2;
+            SinX /= CavernUtilities.Sqrt2p2;
             CubicalPos = new Vector3(SinY, -SinX, CosY);
             // Symmetry check
             if (AudioListener3D.Channels != null) {
