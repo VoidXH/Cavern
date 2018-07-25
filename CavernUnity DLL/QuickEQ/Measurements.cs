@@ -38,12 +38,24 @@ namespace Cavern.QuickEQ {
             return Output;
         }
 
+        /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
+        public static Complex[] IFFT(Complex[] Input) {
+            int N = Input.Length;
+            Complex[] Result = new Complex[Input.Length];
+            for (int i = 0; i < N; ++i)
+                Result[i] = new Complex(Input[i].Imaginary, Input[i].Real);
+            Result = FFT(Result);
+            for (int i = 0; i < N; ++i)
+                Result[i] = new Complex(Result[i].Imaginary, Result[i].Real);
+            return Result;
+        }
+
         /// <summary>Get the gains of frequencies in a signal after FFT.</summary>
         public static float[] GetSpectrum(Complex[] Samples) {
             int End = Samples.Length / 2;
             float[] Output = new float[End];
             for (int Sample = 0; Sample < End; ++Sample)
-                Output[Sample] = (float)Samples[Sample].Magnitude;
+                Output[Sample] = Samples[Sample].Magnitude;
             return Output;
         }
 
@@ -52,7 +64,7 @@ namespace Cavern.QuickEQ {
             int End = Samples.Length / 2;
             float[] Output = new float[End];
             for (int Sample = 0; Sample < End; ++Sample)
-                Output[Sample] = (float)Samples[Sample].Phase;
+                Output[Sample] = Samples[Sample].Phase;
             return Output;
         }
 
@@ -96,16 +108,40 @@ namespace Cavern.QuickEQ {
             return Freqs;
         }
 
-        /// <summary>Get the actual frequency response using the original sweep signal as reference.</summary>
-        public static float[] GetFrequencyResponse(float[] Reference, float[] Response, float FreqStart, float FreqEnd, int SampleRate) {
+        /// <summary>Add silence to the beginning and the end of a sweep for a larger response window.</summary>
+        public static float[] SweepFraming(float[] Sweep) {
+            int Length = Sweep.Length, InitialSilence = Length / 2;
+            float[] Result = new float[Length * 2];
+            for (int Sample = InitialSilence, End = Length + InitialSilence; Sample < End; ++Sample)
+                Result[Sample] = Sweep[Sample - InitialSilence];
+            return Result;
+        }
+
+        /// <summary>Get the complex frequency response using the original sweep signal as reference.</summary>
+        public static Complex[] GetFrequencyResponse(float[] Reference, float[] Response) {
+            Complex[] ReferenceFFT = FFT(Reference), ResponseFFT = FFT(Response);
+            for (int Sample = 0, Length = ResponseFFT.Length; Sample < Length; ++Sample)
+                ResponseFFT[Sample] = ResponseFFT[Sample] / ReferenceFFT[Sample];
+            return ResponseFFT;
+        }
+
+        /// <summary>Get the absolute frequency response using the original sweep signal as reference.</summary>
+        public static float[] GetFrequencyResponseAbs(float[] Reference, float[] Response) {
             float[] SourceResponse = GetSpectrum(FFT(Reference));
             float[] ResultResponse = GetSpectrum(FFT(Response));
-            float PosMult = SourceResponse.Length / (SampleRate * .5f);
-            int Start = (int)(FreqStart * PosMult), End = (int)(FreqEnd * PosMult), ResultSize = End - Start;
-            float[] Result = new float[ResultSize];
-            for (int Sample = Start; Sample < End; ++Sample)
-                Result[Sample - Start] = SourceResponse[Sample] != 0 ? ResultResponse[Sample] / SourceResponse[Sample] : 0;
-            return Result;
+            for (int Sample = 0, Length = SourceResponse.Length; Sample < Length; ++Sample)
+                ResultResponse[Sample] = SourceResponse[Sample] != 0 ? ResultResponse[Sample] / SourceResponse[Sample] : 1;
+            return ResultResponse;
+        }
+
+        /// <summary>Get the complex impulse response using a precalculated frequency response.</summary>
+        public static Complex[] GetImpulseResponse(Complex[] FrequencyResponse) {
+            return IFFT(FrequencyResponse);
+        }
+
+        /// <summary>Get the complex impulse response using the original sweep signal as a reference.</summary>
+        public static Complex[] GetImpulseResponse(float[] Reference, float[] Response) {
+            return IFFT(GetFrequencyResponse(Reference, Response));
         }
 
         /// <summary>Convert a response curve to decibel scale.</summary>
@@ -116,7 +152,7 @@ namespace Cavern.QuickEQ {
             return Curve;
         }
 
-        /// <summary>Apply smoothing (in octaves) on a frequency response curve.</summary>
+        /// <summary>Apply smoothing (in octaves) on a frequency response curve. The frequency range is 0 - sample rate / 2 if the response is not cut.</summary>
         public static float[] SmoothResponse(float[] Samples, float FreqStart, float FreqEnd, float Octave = 1 / 3f) {
             if (Octave == 0)
                 return (float[])Samples.Clone();
@@ -126,14 +162,23 @@ namespace Cavern.QuickEQ {
             for (int Sample = 0; Sample < Length; ++Sample) {
                 float Freq = FreqStart + Span * Sample / Length, Offset = Mathf.Pow(2, Octave),
                     WindowStart = Freq / Offset, WindowEnd = Freq * Offset, Positioner = Length / Span;
-                int Start = Math.Max((int)((WindowStart - FreqStart) * Positioner), 0),
-                    End = Math.Min((int)((WindowEnd - FreqStart) * Positioner), Length - 1);
+                int Start = (int)((WindowStart - FreqStart) * Positioner), End = Math.Min((int)((WindowEnd - FreqStart) * Positioner), Length - 1);
                 float Average = 0;
                 for (int WindowSample = Start; WindowSample < End; ++WindowSample)
                     Average += Samples[WindowSample];
                 Smoothed[Sample] = Average / (End - Start);
             }
             return Smoothed;
+        }
+
+        /// <summary>Cut the frequency response curve to the needed range.</summary>
+        public static float[] CutResponse(float[] Response, float FreqStart, float FreqEnd, int SampleRate) {
+            float PosMult = Response.Length / (SampleRate * .5f);
+            int Start = (int)(FreqStart * PosMult), End = (int)(FreqEnd * PosMult), ResultSize = End - Start;
+            float[] Result = new float[ResultSize];
+            for (int Sample = Start; Sample < End; ++Sample)
+                Result[Sample - Start] = Response[Sample];
+            return Result;
         }
     }
 }

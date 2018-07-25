@@ -38,5 +38,13 @@ namespace Cavern.QuickEQ {
         public static Complex operator *(Complex a, Complex b) {
             return new Complex(a.Real * b.Real - a.Imaginary * b.Imaginary, a.Real * b.Imaginary + a.Imaginary * b.Real);
         }
+
+        /// <summary>Complex division.</summary>
+        public static Complex operator /(Complex a, Complex b) {
+            float Divisor = b.Real * b.Real + b.Imaginary * b.Imaginary;
+            return Divisor != 0 ?
+                new Complex((a.Real * b.Real + a.Imaginary * b.Imaginary) / Divisor, (a.Imaginary * b.Real - a.Real * b.Imaginary) / Divisor) :
+                new Complex();
+        }
     }
 }

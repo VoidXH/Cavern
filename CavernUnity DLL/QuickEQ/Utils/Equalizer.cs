@@ -28,9 +28,8 @@ namespace Cavern.QuickEQ {
         // TODO: export as configuration file for some EQ applications
 
         /// <summary>Generate an equalizer setting to flatten the received response.</summary>
-        public static Equalizer CorrectResponse(float[] Reference, float[] Response, float FreqStart, float FreqEnd, int SampleRate) {
-            float[] Curve = Measurements.GetFrequencyResponse(Reference, Response, FreqStart, FreqEnd, SampleRate);
-            Curve = Measurements.SmoothResponse(Curve, FreqStart, FreqEnd);
+        public static Equalizer CorrectResponse(float[] FreqResponse, float FreqStart, float FreqEnd, int SampleRate) {
+            float[] Curve = Measurements.SmoothResponse(Measurements.ConvertToDecibels(FreqResponse), 0, SampleRate / 2);
             Equalizer Result = new Equalizer();
             // TODO: add bands
             return Result;
