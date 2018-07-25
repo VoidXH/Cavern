@@ -21,8 +21,6 @@ namespace Cavern.QuickEQ {
         float[] SweepReference;
         /// <summary>The response of each channel to the sweep signal.</summary>
         float[][] Results;
-        /// <summary>Channel under measurement.</summary>
-        int Channel;
 
         /// <summary>Length of the measurement signal. Must be a power of 2.</summary>
         public int SweepLength = 32768;
@@ -33,6 +31,20 @@ namespace Cavern.QuickEQ {
         [NonSerialized] public float[][] Responses;
         /// <summary>Room correction, equalizer for each channel.</summary>
         [NonSerialized] public Equalizer[] Equalizers;
+
+        /// <summary>Channel under measurement.</summary>
+        public int Channel { get; private set; }
+
+        /// <summary>Progress of the measurement process from 0 to 1.</summary>
+        public float Progress {
+            get {
+                if (ResultAvailable)
+                    return 1;
+                else if (!enabled)
+                    return 0;
+                return Channel / (float)AudioListener3D.ChannelCount + (Sweeper.time / Sweep.length) / AudioListener3D.ChannelCount;
+            }
+        }
 
         void OnEnable() {
             ResultAvailable = false;
