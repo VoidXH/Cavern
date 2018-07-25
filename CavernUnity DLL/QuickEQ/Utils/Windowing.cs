@@ -31,6 +31,39 @@ namespace Cavern.QuickEQ {
                 Samples[Sample] *= Function(Measurements.Pix2 * Sample / c);
         }
 
+        /// <summary>Apply a custom window function on a complex signal.</summary>
+        /// <param name="Samples">Measurement to window</param>
+        /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
+        /// and its return value is the multiplier for the sample at that point</param>
+        public static void ApplyWindow(Complex[] Samples, Func<float, float> Function) {
+            for (int Sample = 0, c = Samples.Length; Sample < c; ++Sample)
+                Samples[Sample] *= Function(Measurements.Pix2 * Sample / c);
+        }
+
+        /// <summary>Apply a custom window function on part of a signal.</summary>
+        /// <param name="Samples">Measurement to window</param>
+        /// <param name="Start">Beginning of the window in samples</param>
+        /// <param name="End">End of the window in samples</param>
+        /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
+        /// and its return value is the multiplier for the sample at that point</param>
+        public static void ApplyWindow(float[] Samples, int Start, int End, Func<float, float> Function) {
+            int Span = End - Start;
+            for (int Sample = Start; Sample < End; ++Sample)
+                Samples[Sample] *= Function(Measurements.Pix2 * (Sample - Start) / End);
+        }
+
+        /// <summary>Apply a custom window function on part of a complex signal.</summary>
+        /// <param name="Samples">Measurement to window</param>
+        /// <param name="Start">Beginning of the window in samples</param>
+        /// <param name="End">End of the window in samples</param>
+        /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
+        /// and its return value is the multiplier for the sample at that point</param>
+        public static void ApplyWindow(Complex[] Samples, int Start, int End, Func<float, float> Function) {
+            int Span = End - Start;
+            for (int Sample = Start; Sample < End; ++Sample)
+                Samples[Sample] *= Function(Measurements.Pix2 * (Sample - Start) / End);
+        }
+
         /// <summary>Apply a predefined window function.</summary>
         /// <param name="Samples">Measurement to window</param>
         /// <param name="Function">Window function</param>
