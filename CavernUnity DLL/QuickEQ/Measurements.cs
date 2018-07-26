@@ -38,16 +38,37 @@ namespace Cavern.QuickEQ {
             return Output;
         }
 
+        /// <summary>Outputs IFFT(X) * N.</summary>
+        static Complex[] ProcessIFFT(Complex[] Samples) {
+            int Length = Samples.Length, HalfLength = Length / 2;
+            if (Length == 1)
+                return Samples;
+            Complex[] Output = new Complex[Length], Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
+            for (int Sample = 0; Sample < HalfLength; ++Sample) {
+                int Pair = Sample + Sample;
+                Even[Sample] = Samples[Pair];
+                Odd[Sample] = Samples[Pair + 1];
+            }
+            Complex[] EvenFFT = ProcessIFFT(Even), OddFFT = ProcessIFFT(Odd);
+            for (int i = 0; i < HalfLength; ++i) {
+                float Angle = Pix2 * i / Length;
+                OddFFT[i] *= new Complex(Mathf.Cos(Angle), Mathf.Sin(Angle));
+            }
+            for (int i = 0; i < Length / 2; ++i) {
+                Output[i] = EvenFFT[i] + OddFFT[i];
+                Output[i + HalfLength] = EvenFFT[i] - OddFFT[i];
+            }
+            return Output;
+        }
+
         /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
-        public static Complex[] IFFT(Complex[] Input) {
-            int N = Input.Length;
-            Complex[] Result = new Complex[Input.Length];
+        public static Complex[] IFFT(Complex[] Samples) {
+            Samples = ProcessIFFT(Samples);
+            int N = Samples.Length;
+            float Multiplier = 1f / N;
             for (int i = 0; i < N; ++i)
-                Result[i] = new Complex(Input[i].Imaginary, Input[i].Real);
-            Result = FFT(Result);
-            for (int i = 0; i < N; ++i)
-                Result[i] = new Complex(Result[i].Imaginary, Result[i].Real);
-            return Result;
+                Samples[i] *= Multiplier;
+            return Samples;
         }
 
         /// <summary>Get the gains of frequencies in a signal after FFT.</summary>
