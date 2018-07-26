@@ -93,7 +93,7 @@ namespace Cavern {
             fixed (float* Pointer = Target) {
                 int Absolute;
                 for (int Sample = 0; Sample < TargetLength; ++Sample) {
-                    Absolute = (*(int*)Pointer + Sample) & 0x7fffffff;
+                    Absolute = *((int*)Pointer + Sample) & 0x7fffffff;
                     AbsSample = *(float*)&Absolute;
                     if (Max < AbsSample)
                         Max = AbsSample;
