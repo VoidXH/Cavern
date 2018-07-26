@@ -23,6 +23,8 @@ namespace Cavern.QuickEQ {
         /// <summary>Response evaluator tasks.</summary>
         Task<float[]>[] Workers;
 
+        /// <summary>Measurement signal gain relative to full scale.</summary>
+        [Range(-50, 0)] public float SweepGain = -20;
         /// <summary>Length of the measurement signal. Must be a power of 2.</summary>
         public int SweepLength = 32768;
 
@@ -33,7 +35,8 @@ namespace Cavern.QuickEQ {
         /// <summary>Room correction, equalizer for each channel.</summary>
         [NonSerialized] public Equalizer[] Equalizers;
 
-        /// <summary>Channel under measurement. If results are not available, but this equals the channel count, some tasks are not yet finished.</summary>
+        /// <summary>Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
+        /// <see cref="Responses"/> are still being processed.</summary>
         public int Channel { get; private set; }
 
         /// <summary>Progress of the measurement process from 0 to 1.</summary>
@@ -52,7 +55,11 @@ namespace Cavern.QuickEQ {
             Listener = AudioListener3D.Current;
             int SampleRate = Listener.SampleRate;
             SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(FreqStart, FreqEnd, SweepLength, SampleRate));
-            Sweep = AudioClip.Create("Sweep", SweepReference.Length, 1, SampleRate, false);
+            float GainMult = Mathf.Pow(10, SweepGain / 20);
+            int SweepSignalLength = SweepReference.Length;
+            for (int Sample = 0; Sample < SweepSignalLength; ++Sample)
+                SweepReference[Sample] *= GainMult;
+            Sweep = AudioClip.Create("Sweep", SweepSignalLength, 1, SampleRate, false);
             Sweep.SetData(SweepReference, 0);
             Channel = 0;
             Responses = new float[AudioListener3D.ChannelCount][];
@@ -69,10 +76,11 @@ namespace Cavern.QuickEQ {
             GameObject SweeperObj = new GameObject();
             SweeperObj.transform.position = CavernUtilities.VectorScale(AudioListener3D.Channels[Channel].SphericalPos, AudioListener3D.EnvironmentSize * 2);
             Sweeper = SweeperObj.AddComponent<AudioSource3D>();
-            Sweeper.IsPlaying = true;
-            Sweeper.Loop = false;
             Sweeper.Clip = Sweep;
+            Sweeper.IsPlaying = true;
             Sweeper.LFE = AudioListener3D.Channels[Channel].LFE;
+            Sweeper.Loop = false;
+            Sweeper.VolumeRolloff = Rolloffs.Disabled;
             // TODO: ability to choose input device and adapt to its sample rate on perfect quality
             SweepResponse = Microphone.Start(string.Empty, false, Mathf.CeilToInt(SweepLength * 2 / Listener.SampleRate) + 1, Listener.SampleRate);
         }
