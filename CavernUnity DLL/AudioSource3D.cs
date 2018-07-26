@@ -89,33 +89,32 @@ namespace Cavern {
             return Mathf.Sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
         }
 
-        /// <summary>Pitch-shifts a single channel.</summary>
+        /// <summary>Resamples a single channel.</summary>
         /// <param name="Samples">Samples of the source channel</param>
-        /// <param name="PitchRatio">Ratio of the original length to the resampled length</param>
-        /// <returns>A pitch-shifted version of the given array with the given pitch ratio</returns>
-        static float[] MonoPitchShift(float[] Samples, float PitchRatio) {
-            if (PitchRatio == 1)
+        /// <param name="From">Old sample rate</param>
+        /// <param name="To">New sample rate</param>
+        /// <returns>Returns a resampled version of the given array</returns>
+        internal static float[] Resample(float[] Samples, int From, int To) {
+            if (From == To)
                 return Samples;
-            int ProcessEnd = (int)(Samples.Length / PitchRatio) + 1;
-            if (ProcessEnd > AudioListener3D.Current.UpdateRate)
-                ProcessEnd = AudioListener3D.Current.UpdateRate;
-            float[] Output = new float[ProcessEnd];
+            float[] Output = new float[To];
+            float Ratio = From / (float)To;
             if (AudioListener3D.Current.AudioQuality < QualityModes.High) { // Nearest neighbour below High
-                for (int i = 0; i < ProcessEnd; ++i)
-                    Output[i] = Samples[(int)(i * PitchRatio)];
+                for (int i = 0; i < To; ++i)
+                    Output[i] = Samples[(int)(i * Ratio)];
             } else if (AudioListener3D.Current.AudioQuality < QualityModes.Perfect) { // Lerp below Perfect
                 int End = Samples.Length - 1;
-                for (int i = 0; i < ProcessEnd; ++i) {
-                    float FromPos = i * PitchRatio;
+                for (int i = 0; i < To; ++i) {
+                    float FromPos = i * Ratio;
                     int Sample = (int)FromPos;
                     Output[i] = Sample >= End ? Samples[Sample] : CavernUtilities.FastLerp(Samples[Sample], Samples[++Sample], FromPos % 1);
                 }
             } else { // Catmull-Rom on Perfect
-                int Start = Mathf.CeilToInt(1 / PitchRatio), End = Samples.Length - 3;
+                int Start = Mathf.CeilToInt(1 / Ratio), End = Samples.Length - 3;
                 for (int i = 0; i < Start; ++i)
                     Output[i] = Samples[i];
-                for (int i = Start; i < ProcessEnd; ++i) {
-                    float FromPos = i * PitchRatio;
+                for (int i = Start; i < To; ++i) {
+                    float FromPos = i * Ratio;
                     int Sample = (int)FromPos;
                     if (Sample < End) {
                         float CatRomT = FromPos % 1, CatRomT2 = CatRomT * CatRomT;
@@ -127,15 +126,6 @@ namespace Cavern {
                 }
             }
             return Output;
-        }
-
-        /// <summary>Resamples a single channel.</summary>
-        /// <param name="Samples">Samples of the source channel</param>
-        /// <param name="From">Old sample rate</param>
-        /// <param name="To">New sample rate</param>
-        /// <returns>Returns a resampled version of the given array</returns>
-        internal static float[] Resample(float[] Samples, int From, int To) {
-            return MonoPitchShift(Samples, From / (float)To);
         }
 
         /// <summary>Clamp a number between two values.</summary>
@@ -227,9 +217,7 @@ namespace Cavern {
                             if (!AudioListener3D.Channels[Channel].LFE)
                                 Divisor++;
                         Volume2D = Divisor == 0 ? 0 : Volume2D / Divisor;
-                        if (ResampleMult != 1)
-                            Samples = Resample(Samples, PitchedUpdateRate, BaseUpdateRate);
-                        Samples = MonoPitchShift(Samples, CalculatedPitch);
+                        Samples = Resample(Samples, Samples.Length, UpdateRate);
                         int ActualSample = 0;
                         for (int Sample = 0; Sample < UpdateRate; ++Sample) {
                             float GainedSample = Samples[Sample] * Volume2D;
@@ -243,13 +231,8 @@ namespace Cavern {
                             LeftSamples[Sample] = OriginalSamples[ActualSample++];
                             RightSamples[Sample] = OriginalSamples[ActualSample++];
                         }
-                        if (ResampleMult != 1) {
-                            float PitchRatio = PitchedUpdateRate / (float)BaseUpdateRate;
-                            LeftSamples = MonoPitchShift(LeftSamples, PitchRatio);
-                            RightSamples = MonoPitchShift(RightSamples, PitchRatio);
-                        }
-                        LeftSamples = MonoPitchShift(LeftSamples, CalculatedPitch);
-                        RightSamples = MonoPitchShift(RightSamples, CalculatedPitch);
+                        LeftSamples = Resample(LeftSamples, LeftSamples.Length, UpdateRate);
+                        RightSamples = Resample(RightSamples, RightSamples.Length, UpdateRate);
                         int LeftDivisor = 0, RightDivisor = 0;
                         for (int Channel = 0; Channel < Channels; ++Channel) {
                             Channel CurrentChannel = AudioListener3D.Channels[Channel];
@@ -283,9 +266,7 @@ namespace Cavern {
                 if (Blend3D && Distance < Listener.Range) { // 3D mix, if the source is in range
                     Vector3 Direction = AudioListener3D.LastRotationInverse * (LastPosition - AudioListener3D.LastPosition);
                     float RolloffDistance = GetRolloff();
-                    if (ResampleMult != 1 && (!Blend2D || StereoClip))
-                        Samples = Resample(Samples, PitchedUpdateRate, BaseUpdateRate);
-                    Samples = MonoPitchShift(Samples, CalculatedPitch);
+                    Samples = Resample(Samples, Samples.Length, UpdateRate);
                     BaseUpdateRate = Samples.Length;
                     // Distance lowpass, if enabled
                     if (DistanceLowpass != 0) {
