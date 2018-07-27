@@ -142,7 +142,7 @@ namespace Cavern.QuickEQ {
         public static Complex[] GetFrequencyResponse(float[] Reference, float[] Response) {
             Complex[] ReferenceFFT = FFT(Reference), ResponseFFT = FFT(Response);
             for (int Sample = 0, Length = ResponseFFT.Length; Sample < Length; ++Sample)
-                ResponseFFT[Sample] = ResponseFFT[Sample] / ReferenceFFT[Sample];
+                ResponseFFT[Sample] /= ReferenceFFT[Sample];
             return ResponseFFT;
         }
 
@@ -151,7 +151,10 @@ namespace Cavern.QuickEQ {
             float[] SourceResponse = GetSpectrum(FFT(Reference));
             float[] ResultResponse = GetSpectrum(FFT(Response));
             for (int Sample = 0, Length = SourceResponse.Length; Sample < Length; ++Sample)
-                ResultResponse[Sample] = SourceResponse[Sample] != 0 ? ResultResponse[Sample] / SourceResponse[Sample] : 1;
+                if (SourceResponse[Sample] != 0)
+                    ResultResponse[Sample] /= SourceResponse[Sample];
+                else
+                    ResultResponse[Sample] = 1;
             return ResultResponse;
         }
 
@@ -178,14 +181,13 @@ namespace Cavern.QuickEQ {
             if (Octave == 0)
                 return (float[])Samples.Clone();
             int Length = Samples.Length;
-            float[] Smoothed = new float[Length];
-            float Span = FreqEnd - FreqStart;
+            float[] Smoothed = new float[Length--];
+            float Span = FreqEnd - FreqStart, Offset = Mathf.Pow(2, Octave), Positioner = Length / Span;
             for (int Sample = 0; Sample < Length; ++Sample) {
-                float Freq = FreqStart + Span * Sample / Length, Offset = Mathf.Pow(2, Octave),
-                    WindowStart = Freq / Offset, WindowEnd = Freq * Offset, Positioner = Length / Span;
-                int Start = (int)((WindowStart - FreqStart) * Positioner), End = Math.Min((int)((WindowEnd - FreqStart) * Positioner), Length - 1);
+                float Freq = FreqStart + Span * Sample / Length, WindowStart = Freq / Offset, WindowEnd = Freq * Offset;
+                int Start = (int)((WindowStart - FreqStart) * Positioner), End = Math.Min((int)((WindowEnd - FreqStart) * Positioner), Length);
                 float Average = 0;
-                for (int WindowSample = Start; WindowSample < End; ++WindowSample)
+                for (int WindowSample = Start; WindowSample <= End; ++WindowSample)
                     Average += Samples[WindowSample];
                 Smoothed[Sample] = Average / (End - Start);
             }

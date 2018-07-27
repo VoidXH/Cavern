@@ -7,7 +7,9 @@ namespace Cavern {
         /// <summary>Logarithmic rolloff by distance.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         float RolloffLogarithmic() {
-            return Distance < 1 ? 1 : 1 / (1 + Mathf.Log(Distance));
+            if (Distance > 1)
+                return 1 / (1 + Mathf.Log(Distance));
+            return 1;
         }
 
         /// <summary>Linear rolloff in range.</summary>
@@ -20,7 +22,9 @@ namespace Cavern {
         /// <summary>Physically correct rolloff by distance.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         float RolloffReal() {
-            return Distance < 1 ? 1 : 1 / Distance;
+            if (Distance > 1)
+                return 1 / Distance;
+            return 1;
         }
 
         /// <summary>No rolloff.</summary>

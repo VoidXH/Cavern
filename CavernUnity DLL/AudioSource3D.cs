@@ -107,7 +107,10 @@ namespace Cavern {
                 for (int i = 0; i < To; ++i) {
                     float FromPos = i * Ratio;
                     int Sample = (int)FromPos;
-                    Output[i] = Sample >= End ? Samples[Sample] : CavernUtilities.FastLerp(Samples[Sample], Samples[++Sample], FromPos % 1);
+                    if (Sample < End)
+                        Output[i] = CavernUtilities.FastLerp(Samples[Sample], Samples[++Sample], FromPos % 1);
+                    else
+                        Output[i] = Samples[Sample];
                 }
             } else { // Catmull-Rom on Perfect
                 int Start = Mathf.CeilToInt(1 / Ratio), End = Samples.Length - 3;
@@ -134,7 +137,13 @@ namespace Cavern {
         /// <param name="max">Maximum</param>
         /// <returns>X between Minimum and Maximum</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float Clamp(float x, float min, float max) { return x < min ? min : (x > max ? max : x); }
+        static float Clamp(float x, float min, float max) {
+            if (x < min)
+                return min;
+            if (x > max)
+                return max;
+            return x;
+        }
 
         /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
         internal void Precalculate() {
@@ -152,11 +161,20 @@ namespace Cavern {
                 AudioListener3D Listener = AudioListener3D.Current;
                 ClipChannels = Clip.channels;
                 ClipSamples = Clip.samples;
-                CalculatedPitch = Listener.AudioQuality == QualityModes.Low ? 1 : // Disable any pitch change on low quality
-                    (DopplerLevel == 0 ? Pitch :
-                    Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound - (LastDistance - Distance) / AudioListener3D.PulseDelta), .5f, 3f));
+                if (Listener.AudioQuality != QualityModes.Low) {
+                    if (DopplerLevel == 0)
+                        CalculatedPitch = Pitch;
+                    else
+                        CalculatedPitch = Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound - (LastDistance - Distance) /
+                            AudioListener3D.PulseDelta), .5f, 3f);
+                } else
+                    CalculatedPitch = 1; // Disable any pitch change on low quality
+                    
                 bool NeedsResampling = Listener.SampleRate != Clip.frequency;
-                ResampleMult = NeedsResampling ? (float)Clip.frequency / Listener.SampleRate : 1;
+                if (NeedsResampling)
+                    ResampleMult = (float)Clip.frequency / Listener.SampleRate;
+                else
+                    ResampleMult = 1;
                 BaseUpdateRate = (int)(Listener.UpdateRate * CalculatedPitch);
                 PitchedUpdateRate = (int)(BaseUpdateRate * ResampleMult);
                 OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
@@ -237,8 +255,10 @@ namespace Cavern {
                         for (int Channel = 0; Channel < Channels; ++Channel) {
                             Channel CurrentChannel = AudioListener3D.Channels[Channel];
                             if (!CurrentChannel.LFE) {
-                                LeftDivisor += CurrentChannel.y < 0 ? 1 : 0;
-                                RightDivisor += CurrentChannel.y > 0 ? 1 : 0;
+                                if (CurrentChannel.y < 0)
+                                    LeftDivisor += 1;
+                                else if (CurrentChannel.y > 0)
+                                    RightDivisor += 1;
                             }
                         }
                         float LeftVolume = LeftDivisor == 0 ? 0 : Volume2D / LeftDivisor, RightVolume = RightDivisor == 0 ? 0 : Volume2D / RightDivisor;
@@ -410,7 +430,7 @@ namespace Cavern {
                         // ------------------------------------------------------------------
                     } else {
                         // Angle match calculations
-                        bool TheatreMode = AudioListener3D.EnvironmentType == Environments.Theatre;
+                        bool TheatreMode = AudioListener3D._EnvironmentType == Environments.Theatre;
                         float[] AngleMatches = UsedAngleMatchFunc(Channels, Direction, TheatreMode ? (MatchModifierFunc)PowTo16 : PowTo8);
                         // Object size extension
                         if (Size != 0) {

@@ -78,7 +78,15 @@ namespace Cavern {
                                              new Channel(0, -110), new Channel(0, 110) };
 
         /// <summary>3D environment type. Set by the user and applied when an <see cref="AudioListener3D"/> is created.</summary>
-        public static Environments EnvironmentType = Environments.Home;
+        public static Environments EnvironmentType {
+            get { return _EnvironmentType; }
+            set {
+                _EnvironmentType = value;
+                for (int Channel = 0; Channel < ChannelCount; ++Channel)
+                    Channels[Channel].Recalculate();
+            }
+        }
+        internal static Environments _EnvironmentType = Environments.Home;
 
         /// <summary>
         /// The single most important variable defining sound space in

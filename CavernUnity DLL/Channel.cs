@@ -25,6 +25,8 @@ namespace Cavern {
         public Vector3 SphericalPos { get; private set; }
         /// <summary>Position on a cube with a side length of 2.</summary>
         public Vector3 CubicalPos { get; private set; }
+        /// <summary>Position in space. <see cref="SphericalPos"/> in Studio environments, <see cref="CubicalPos"/> otherwise.</summary>
+        public Vector3 SpatialPos { get; private set; }
         /// <summary>Rotation direction of the channel.</summary>
         public Quaternion Rotation { get; private set; }
         /// <summary>The channel's forward direction.</summary>
@@ -55,16 +57,16 @@ namespace Cavern {
         }
 
         /// <summary>Recalculates properties and symmetry when a channel's position is changed.</summary>
-        void Recalculate() {
+        internal void Recalculate() {
             // Helper calculation
             Rotation = Quaternion.Euler(x, y, 0);
             Direction = Rotation * Vector3.forward;
             float XRad = X * Mathf.Deg2Rad, YRad = Y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
             SphericalPos = new Vector3(SinY * CosX, -SinX, CosY * CosX);
-            if (CavernUtilities.Abs(SinY) > CavernUtilities.Abs(CosY)) {
+            if (CavernUtilities.Abs(SinY) > CavernUtilities.Abs(CosY))
                 SinY = SinY > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
-            } else
+            else
                 CosY = CosY > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
             SinY /= CavernUtilities.Sqrt2p2;
             CosY /= CavernUtilities.Sqrt2p2;
@@ -76,6 +78,10 @@ namespace Cavern {
             }
             SinX /= CavernUtilities.Sqrt2p2;
             CubicalPos = new Vector3(SinY, -SinX, CosY);
+            if (AudioListener3D._EnvironmentType != Environments.Studio)
+                SpatialPos = CubicalPos;
+            else
+                SpatialPos = SphericalPos;
             // Symmetry check
             if (AudioListener3D.Channels != null) {
                 AudioSource3D.Symmetric = true;

@@ -163,7 +163,7 @@ namespace Cavern {
                 Channels = new Channel[ChannelLength];
                 for (int i = 0; i < ChannelLength; ++i)
                     Channels[i] = new Channel(Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]), Convert.ToBoolean(Save[SavePos++]));
-                EnvironmentType = (Environments)Convert.ToInt32(Save[SavePos++]);
+                _EnvironmentType = (Environments)Convert.ToInt32(Save[SavePos++]);
                 EnvironmentSize = new Vector3(Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]));
                 HeadphoneVirtualizer = Save.Length > SavePos ? Convert.ToBoolean(Save[SavePos++]) : false; // Added: 2016.04.24.
                 EnvironmentCompensation = Save.Length > SavePos ? Convert.ToBoolean(Save[SavePos++]) : false; // Added: 2017.06.18.
@@ -201,13 +201,13 @@ namespace Cavern {
                 MaxGain = 0;
                 for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                     if (!Channels[Channel].LFE) {
-                        float ThisVolume = ChannelGains[Channel] =
-                            !EnvironmentCompensation ? 1 : // Disable this feature when not needed
-                            (CavernUtilities.VectorScale((EnvironmentType != Environments.Studio ?
-                            Channels[Channel].CubicalPos : Channels[Channel].SphericalPos), EnvironmentSize).magnitude *
-                            Volume * 0.07071067811865475244008443621048f /* 1 / (sqrt(2) * 10) */);
-                        if (MaxGain < ThisVolume)
-                            MaxGain = ThisVolume;
+                        if (!EnvironmentCompensation)
+                            ChannelGains[Channel] = 1;  // Disable this feature when not needed
+                        else
+                            ChannelGains[Channel] = CavernUtilities.VectorScale(Channels[Channel].SpatialPos, EnvironmentSize).magnitude *
+                                Volume * 0.07071067811865475244008443621048f; // 1 / (sqrt(2) * 10)
+                        if (MaxGain < ChannelGains[Channel])
+                            MaxGain = ChannelGains[Channel];
                     }
                 }
                 if (MaxGain != 0) {
