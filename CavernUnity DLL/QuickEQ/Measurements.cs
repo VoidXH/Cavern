@@ -131,7 +131,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Add silence to the beginning and the end of a sweep for a larger response window.</summary>
         public static float[] SweepFraming(float[] Sweep) {
-            int Length = Sweep.Length, InitialSilence = Length / 2;
+            int Length = Sweep.Length, InitialSilence = Length / 4;
             float[] Result = new float[Length * 2];
             for (int Sample = InitialSilence, End = Length + InitialSilence; Sample < End; ++Sample)
                 Result[Sample] = Sweep[Sample - InitialSilence];
@@ -182,14 +182,21 @@ namespace Cavern.QuickEQ {
                 return (float[])Samples.Clone();
             int Length = Samples.Length;
             float[] Smoothed = new float[Length--];
-            float Span = FreqEnd - FreqStart, Offset = Mathf.Pow(2, Octave), Positioner = Length / Span;
-            for (int Sample = 0; Sample < Length; ++Sample) {
-                float Freq = FreqStart + Span * Sample / Length, WindowStart = Freq / Offset, WindowEnd = Freq * Offset;
-                int Start = (int)((WindowStart - FreqStart) * Positioner), End = Math.Min((int)((WindowEnd - FreqStart) * Positioner), Length);
+            float Span = FreqEnd - FreqStart, Offset = Mathf.Pow(2, Octave), Positioner = Length / Span, FreqAtSample = Span / Length;
+            for (int Sample = 0; Sample <= Length; ++Sample) {
+                float Freq = FreqStart + Sample * FreqAtSample, WindowStart = Freq / Offset, WindowEnd = Freq * Offset;
+                int Start = (int)((WindowStart - FreqStart) * Positioner), End = (int)((WindowEnd - FreqStart) * Positioner);
+                if (Start < 0)
+                    Start = 0;
+                if (End > Length)
+                    End = Length;
                 float Average = 0;
                 for (int WindowSample = Start; WindowSample <= End; ++WindowSample)
                     Average += Samples[WindowSample];
-                Smoothed[Sample] = Average / (End - Start);
+                if (End != Start)
+                    Smoothed[Sample] = Average / (End - Start);
+                else
+                    Smoothed[Sample] = Average;
             }
             return Smoothed;
         }

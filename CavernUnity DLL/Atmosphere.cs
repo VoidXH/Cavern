@@ -57,26 +57,18 @@ namespace Cavern {
             }
         }
 
-        delegate GameObject CreatorFunc();
         delegate Vector3 PlacerFunc(Vector3 Angles);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        GameObject CreateVisualization() {
-            return GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        GameObject CreateEmpty() {
-            return new GameObject();
-        }
-
         void Update() {
-            CreatorFunc Creator = Visualize ? (CreatorFunc)CreateVisualization: CreateEmpty;
             PlacerFunc DirectionFunc = Spherical ? (PlacerFunc)CavernUtilities.PlaceInSphere : CavernUtilities.PlaceInCube;
             float TargetVolume = Volume / Sources;
             for (int Source = 0, ClipCount = Clips.Length; Source < Sources; ++Source) {
                 if (!Objects[Source].Object) {
-                    GameObject Creation = Objects[Source].Object = Creator();
+                    if (Visualize)
+                        Objects[Source].Object = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    else
+                        Objects[Source].Object = new GameObject();
+                    GameObject Creation = Objects[Source].Object;
                     // Position source
                     Vector3 Direction = DirectionFunc(new Vector3(Random.value * 360, Random.value * 360));
                     float Distance = (MaxDistance - MinDistance) * Random.value + MinDistance;

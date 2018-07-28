@@ -223,7 +223,10 @@ namespace Cavern {
                 for (int Channel = 0; Channel < ClipChannels; ++Channel)
                     Spawn |= ChannelMatrix[ClipChannels][Channel] == Source;
                 if (Spawn) {
-                    SphericalObjects[Source] = GameObject.CreatePrimitive(Source != 3 ? PrimitiveType.Sphere : PrimitiveType.Cube);
+                    if (Source != 3)
+                        SphericalObjects[Source] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    else
+                        SphericalObjects[Source] = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     SphericalRenderers[Source] = SphericalObjects[Source].GetComponent<Renderer>();
                     SphericalObjects[Source].name = StandardChannels[Source].Name;
                     AudioSource3D NewSource = SphericalPoints[Source] = SphericalObjects[Source].AddComponent<AudioSource3D>();

@@ -234,13 +234,15 @@ namespace Cavern {
                         for (int Channel = 0; Channel < Channels; ++Channel)
                             if (!AudioListener3D.Channels[Channel].LFE)
                                 Divisor++;
-                        Volume2D = Divisor == 0 ? 0 : Volume2D / Divisor;
-                        Samples = Resample(Samples, Samples.Length, UpdateRate);
-                        int ActualSample = 0;
-                        for (int Sample = 0; Sample < UpdateRate; ++Sample) {
-                            float GainedSample = Samples[Sample] * Volume2D;
-                            for (int Channel = 0; Channel < Channels; ++Channel)
-                                Rendered[ActualSample++] += GainedSample;
+                        if (Divisor != 0) {
+                            Volume2D /= Divisor;
+                            Samples = Resample(Samples, Samples.Length, UpdateRate);
+                            int ActualSample = 0;
+                            for (int Sample = 0; Sample < UpdateRate; ++Sample) {
+                                float GainedSample = Samples[Sample] * Volume2D;
+                                for (int Channel = 0; Channel < Channels; ++Channel)
+                                    Rendered[ActualSample++] += GainedSample;
+                            }
                         }
                     } else {
                         float[] LeftSamples = new float[PitchedUpdateRate], RightSamples = new float[PitchedUpdateRate];
@@ -275,9 +277,12 @@ namespace Cavern {
                                 if (AudioListener3D.Channels[Channel].LFE) {
                                     if (OutputRawLFE)
                                         Rendered[ActualSample] += (LeftSample + RightSample) * HalfVolume2D;
-                                } else if (!LFE)
-                                    Rendered[ActualSample] +=
-                                        (AudioListener3D.Channels[Channel].y < 0 ? 1 : 0) * LeftGained + (AudioListener3D.Channels[Channel].y > 0 ? 1 : 0) * RightGained;
+                                } else if (!LFE) {
+                                    if (AudioListener3D.Channels[Channel].y < 0)
+                                        Rendered[ActualSample] += LeftGained;
+                                    else if (AudioListener3D.Channels[Channel].y > 0)
+                                        Rendered[ActualSample] += RightGained;
+                                }
                                 ++ActualSample;
                             }
                         }
