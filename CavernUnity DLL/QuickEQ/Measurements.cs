@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Cavern.QuickEQ {
     /// <summary>Tools for measuring frequency response.</summary>
@@ -166,6 +165,17 @@ namespace Cavern.QuickEQ {
         /// <summary>Get the complex impulse response using the original sweep signal as a reference.</summary>
         public static Complex[] GetImpulseResponse(float[] Reference, float[] Response) {
             return IFFT(GetFrequencyResponse(Reference, Response));
+        }
+
+        /// <summary>Get the complex impulse response faster using the original sweep signal as a reference.</summary>
+        public static Complex[] GetImpulseResponse(float[] Reference, float[] Response, int SpeedMultiplier) {
+            int OldSize = Reference.Length, NewSize = OldSize >> SpeedMultiplier, Step = OldSize / NewSize;
+            float[] NewReference = new float[NewSize], NewResponse = new float[NewSize];
+            for (int OldSample = 0, NewSample = 0; OldSample < OldSize; OldSample += Step, ++NewSample) {
+                NewReference[NewSample] = Reference[OldSample];
+                NewResponse[NewSample] = Response[OldSample];
+            }
+            return IFFT(GetFrequencyResponse(NewReference, NewResponse));
         }
 
         /// <summary>Convert a response curve to decibel scale.</summary>
