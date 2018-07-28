@@ -18,8 +18,6 @@ namespace Cavern.QuickEQ {
         bool OldLFESeparation;
         /// <summary>Virtualizer before the measurement. Virtualizer is off while measuring.</summary>
         bool OldVirtualizer;
-        /// <summary>Measurement signal samples.</summary>
-        float[] SweepReference;
         /// <summary>Response evaluator tasks.</summary>
         Task<float[]>[] Workers;
 
@@ -30,13 +28,17 @@ namespace Cavern.QuickEQ {
 
         /// <summary>The measurement is done and responses are available.</summary>
         [NonSerialized] public bool ResultAvailable;
+        /// <summary>Raw recorded signals of output channels.</summary>
+        [NonSerialized] public float[][] ExcitementResponses;
         /// <summary>Frequency responses of output channels.</summary>
-        [NonSerialized] public float[][] Responses;
+        [NonSerialized] public float[][] FreqResponses;
         /// <summary>Room correction, equalizer for each channel.</summary>
         [NonSerialized] public Equalizer[] Equalizers;
 
+        /// <summary>Measurement signal samples.</summary>
+        public float[] SweepReference { get; private set; }
         /// <summary>Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
-        /// <see cref="Responses"/> are still being processed.</summary>
+        /// <see cref="FreqResponses"/> are still being processed.</summary>
         public int Channel { get; private set; }
 
         /// <summary>Progress of the measurement process from 0 to 1.</summary>
@@ -62,7 +64,8 @@ namespace Cavern.QuickEQ {
             Sweep = AudioClip.Create("Sweep", SweepSignalLength, 1, SampleRate, false);
             Sweep.SetData(SweepReference, 0);
             Channel = 0;
-            Responses = new float[AudioListener3D.ChannelCount][];
+            FreqResponses = new float[AudioListener3D.ChannelCount][];
+            ExcitementResponses = new float[AudioListener3D.ChannelCount][];
             Equalizers = new Equalizer[AudioListener3D.ChannelCount];
             Workers = new Task<float[]>[AudioListener3D.ChannelCount];
             OldLFESeparation = Listener.LFESeparation;
@@ -91,12 +94,13 @@ namespace Cavern.QuickEQ {
             float[] Result = new float[SweepReference.Length];
             SweepResponse.GetData(Result, 0);
             Destroy(SweepResponse);
+            ExcitementResponses[Channel] = Result;
             (Workers[Channel] = new Task<float[]>(() => Measurements.GetFrequencyResponseAbs(SweepReference, Result))).Start();
         }
 
         /// <summary>Generate the required equalizer preset to flatten the frequency response of this channel.</summary>
         public void EqualizeChannel(int Channel) {
-            Equalizers[Channel] = Equalizer.CorrectResponse(Responses[Channel], FreqStart, FreqEnd, Listener.SampleRate);
+            Equalizers[Channel] = Equalizer.CorrectResponse(FreqResponses[Channel], FreqStart, FreqEnd, Listener.SampleRate);
         }
 
         void Update() {
@@ -107,7 +111,7 @@ namespace Cavern.QuickEQ {
                     if (Workers[i].Result == null)
                         return;
                 for (int i = 0, c = Workers.Length; i < c; ++i)
-                    Responses[i] = Workers[i].Result;
+                    FreqResponses[i] = Workers[i].Result;
                 ResultAvailable = true;
                 return;
             }
