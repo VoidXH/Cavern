@@ -186,7 +186,47 @@ namespace Cavern.QuickEQ {
             return Curve;
         }
 
-        /// <summary>Apply smoothing (in octaves) on a frequency response curve. The frequency range is 0 - sample rate / 2 if the response is not cut.</summary>
+        /// <summary>Convert a response to logarithmically scaled cut frequency range.</summary>
+        /// <param name="Samples">Source response</param>
+        /// <param name="FreqStart">Frequency at the first position of the output</param>
+        /// <param name="FreqEnd">Frequency at the last position of the output</param>
+        /// <param name="SampleRate">Sample rate of the measurement that generated the curve</param>
+        /// <param name="ResultSize">Length of the resulting array</param>
+        public static float[] ConvertToGraph(float[] Samples, float FreqStart, float FreqEnd, int SampleRate, int ResultSize) {
+            Samples = (float[])Samples.Clone();
+            float SourceSize = Samples.Length - 1, Positioner = SourceSize * 2 / SampleRate, PowerMin = Mathf.Log10(FreqStart), PowerMax = Mathf.Log10(FreqEnd),
+                PowerRange = (PowerMax - PowerMin) / ResultSize; // Divide 'i' here, not ResultScale times
+            float[] Graph = new float[ResultSize];
+            for (int i = 0; i < ResultSize; ++i) {
+                float FreqHere = Mathf.Pow(10, PowerMin + PowerRange * i);
+                Graph[i] = Samples[(int)(FreqHere * Positioner)];
+            }
+            return Graph;
+        }
+
+        /// <summary>Apply smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], float, float, int, int)"/>.</summary>
+        public static float[] SmoothGraph(float[] Samples, float FreqStart, float FreqEnd, float Octave = 1 / 3f) {
+            if (Octave == 0)
+                return (float[])Samples.Clone();
+            float OctaveRange = Mathf.Log(FreqEnd, 2) - Mathf.Log(FreqStart, 2);
+            int Length = Samples.Length;
+            int WindowSize = (int)(Length * Octave / OctaveRange * .5f);
+            float[] Smoothed = new float[Length--];
+            for (int Sample = 0; Sample <= Length; ++Sample) {
+                int Start = Sample - WindowSize, End = Sample + WindowSize;
+                if (Start < 0)
+                    Start = 0;
+                if (End > Length)
+                    End = Length;
+                float Average = 0;
+                for (int WindowSample = Start; WindowSample <= End; ++WindowSample)
+                    Average += Samples[WindowSample];
+                Smoothed[Sample] = Average / (End - Start);
+            }
+            return Smoothed;
+        }
+
+        /// <summary>Apply smoothing (in octaves) on a linear frequency response.</summary>
         public static float[] SmoothResponse(float[] Samples, float FreqStart, float FreqEnd, float Octave = 1 / 3f) {
             if (Octave == 0)
                 return (float[])Samples.Clone();
@@ -209,16 +249,6 @@ namespace Cavern.QuickEQ {
                     Smoothed[Sample] = Average;
             }
             return Smoothed;
-        }
-
-        /// <summary>Cut the frequency response curve to the needed range.</summary>
-        public static float[] CutResponse(float[] Response, float FreqStart, float FreqEnd, int SampleRate) {
-            float PosMult = Response.Length / (SampleRate * .5f);
-            int Start = (int)(FreqStart * PosMult), End = (int)(FreqEnd * PosMult), ResultSize = End - Start;
-            float[] Result = new float[ResultSize];
-            for (int Sample = Start; Sample < End; ++Sample)
-                Result[Sample - Start] = Response[Sample];
-            return Result;
         }
     }
 }
