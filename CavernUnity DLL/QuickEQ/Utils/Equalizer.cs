@@ -84,11 +84,10 @@ namespace Cavern.QuickEQ {
             return Filter;
         }
 
-        // TODO: export as configuration file for some EQ applications
-
         /// <summary>Generate an equalizer setting to flatten the received response.</summary>
         /// <param name="FreqResponse">Frequency response to equalize, must be in decibels (use <see cref="Measurements.ConvertToDecibels(float[])"/>),
-        /// and smoothing (<see cref="Measurements.SmoothResponse(float[], float, float, float)"/>) is strongly recommended</param>
+        /// and smoothing (<see cref="Measurements.SmoothResponse(float[], float, float, float)"/>) is strongly recommended, but the only allowed range is 0 to
+        /// sample rate / 2</param>
         /// <param name="SampleRate">Measurement sampling rate</param>
         /// <param name="ReferenceLevel">Flatten the frequency response to this level</param>
         /// <param name="Resolution">Band diversity in octaves</param>
@@ -96,10 +95,25 @@ namespace Cavern.QuickEQ {
         public static Equalizer CorrectResponse(float[] FreqResponse, int SampleRate, float ReferenceLevel, float Resolution = 1 / 3f, float MaxGain = 6) {
             Equalizer Result = new Equalizer();
             int Length = FreqResponse.Length;
-            float Nyquist = Length * .5f, FreqPositioner = Nyquist / Length;
-            for (int i = 0; i < Length; ++i) {
-                float FreqHere = i * FreqPositioner;
-                // TODO
+            float Nyquist = Length * .5f, Positioner = Nyquist / Length, Offset = Mathf.Pow(2, Resolution), MinChecked = ReferenceLevel - MaxGain;
+            int Steps = (int)(Mathf.Log(Nyquist, 2) / Resolution);
+            --Length;
+            for (int Octave = 0; Octave <= Steps; ++Octave) {
+                float Freq = Mathf.Pow(2, Octave * Resolution), WindowStart = Freq / Offset, WindowEnd = Freq * Offset, Average = 0;
+                int Start = (int)(WindowStart * Positioner), End = (int)(WindowEnd * Positioner);
+                if (Start < 0)
+                    Start = 0;
+                if (End > Length)
+                    End = Length;
+                int AverageCount = 0;
+                for (int Sample = Start; Sample <= End; ++Sample) {
+                    if (FreqResponse[Sample] > MinChecked) {
+                        Average += FreqResponse[Sample];
+                        ++AverageCount;
+                    }
+                }
+                if (AverageCount != 0)
+                    Result.AddBand(new Band(Freq, ReferenceLevel - Average / AverageCount));
             }
             return Result;
         }
