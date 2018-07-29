@@ -170,10 +170,16 @@ namespace Cavern.QuickEQ {
         /// <summary>Get the complex impulse response faster using the original sweep signal as a reference.</summary>
         public static Complex[] GetImpulseResponse(float[] Reference, float[] Response, int SpeedMultiplier) {
             int OldSize = Reference.Length, NewSize = OldSize >> SpeedMultiplier, Step = OldSize / NewSize;
+            float AvgDiv = NewSize / (float)OldSize;
             float[] NewReference = new float[NewSize], NewResponse = new float[NewSize];
-            for (int OldSample = 0, NewSample = 0; OldSample < OldSize; OldSample += Step, ++NewSample) {
-                NewReference[NewSample] = Reference[OldSample];
-                NewResponse[NewSample] = Response[OldSample];
+            for (int OldSample = 0, NewSample = 0; OldSample < OldSize; ++NewSample) {
+                float AverageRef = 0, AverageResp = 0;
+                for (int NextStep = OldSample + Step; OldSample < NextStep; ++OldSample) {
+                    AverageRef += Reference[OldSample];
+                    AverageResp += Response[OldSample];
+                }
+                NewReference[NewSample] = AverageRef * AvgDiv;
+                NewResponse[NewSample] = AverageResp * AvgDiv;
             }
             return IFFT(GetFrequencyResponse(NewReference, NewResponse));
         }
