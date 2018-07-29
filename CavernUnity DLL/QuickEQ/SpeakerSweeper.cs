@@ -98,11 +98,6 @@ namespace Cavern.QuickEQ {
             (Workers[Channel] = new Task<float[]>(() => Measurements.GetFrequencyResponseAbs(SweepReference, Result))).Start();
         }
 
-        /// <summary>Generate the required equalizer preset to flatten the frequency response of this channel.</summary>
-        public void EqualizeChannel(int Channel) {
-            Equalizers[Channel] = Equalizer.CorrectResponse(FreqResponses[Channel], FreqStart, FreqEnd, Listener.SampleRate);
-        }
-
         void Update() {
             if (ResultAvailable)
                 return;
