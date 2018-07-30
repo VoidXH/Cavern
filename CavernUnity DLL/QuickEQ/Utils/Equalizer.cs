@@ -157,5 +157,26 @@ namespace Cavern.QuickEQ {
             }
             return Result;
         }
+
+        /// <summary>Generate a cinema standard reference curve (X-curve) for the correction generators.</summary>
+        /// <param name="Length">Curve length</param>
+        /// <param name="StartFreq">Frequency at the beginning of the curve</param>
+        /// <param name="EndFreq">Frequency at the end of the curve</param>
+        /// <param name="Gain">Level of the flat part of the curve</param>
+        public static float[] GenerateXCurve(int Length, float StartFreq, float EndFreq, float Gain) { // TODO: split to lin/log
+            float[] Curve = new float[Length];
+            float PowerMin = Mathf.Log10(StartFreq), PowerRange = (Mathf.Log10(EndFreq) - PowerMin) / Length, EndGain = Gain - 6;
+            for (int Pos = 0; Pos < Length; ++Pos) {
+                float FreqHere = Mathf.Pow(10, PowerMin + PowerRange * Pos);
+                if (FreqHere < 2000)
+                    Curve[Pos] = Gain;
+                else if (FreqHere < 10000)
+                    Curve[Pos] = Gain - MidMul * (FreqHere - 2000);
+                else
+                    Curve[Pos] = EndGain - EndMul * (FreqHere - 10000);
+            }
+            return Curve;
+        }
+        const float MidMul = 6 / 8000f, EndMul = 6 / 10000f; // Optimizer variables for the previous function
     }
 }
