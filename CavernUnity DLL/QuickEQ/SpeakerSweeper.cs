@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Cavern.QuickEQ {
     /// <summary>Measures the frequency response of all output channels.</summary>
     public class SpeakerSweeper : MonoBehaviour {
-        const float FreqStart = 20, FreqEnd = 20000;
+        const float StartFreq = 20, EndFreq = 20000;
         /// <summary>Playable measurement signal.</summary>
         AudioClip Sweep;
         /// <summary>Microphone input.</summary>
@@ -56,7 +56,7 @@ namespace Cavern.QuickEQ {
             ResultAvailable = false;
             Listener = AudioListener3D.Current;
             int SampleRate = Listener.SampleRate;
-            SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(FreqStart, FreqEnd, SweepLength, SampleRate));
+            SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreq, SweepLength, SampleRate));
             float GainMult = Mathf.Pow(10, SweepGain / 20);
             int SweepSignalLength = SweepReference.Length;
             for (int Sample = 0; Sample < SweepSignalLength; ++Sample)

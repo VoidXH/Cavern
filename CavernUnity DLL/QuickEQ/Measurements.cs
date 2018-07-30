@@ -89,30 +89,30 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Generate a linear frequency sweep with a flat frequency response.</summary>
-        public static float[] LinearSweep(float FreqStart, float FreqEnd, int Samples, int SampleRate) {
+        public static float[] LinearSweep(float StartFreq, float EndFreq, int Samples, int SampleRate) {
             float[] Output = new float[Samples];
-            float Chirpyness = (FreqEnd - FreqStart) / (2 * Samples / (float)SampleRate);
+            float Chirpyness = (EndFreq - StartFreq) / (2 * Samples / (float)SampleRate);
             for (int Sample = 0; Sample < Samples; ++Sample) {
                 float Position = Sample / (float)SampleRate;
-                Output[Sample] = Mathf.Sin(Pix2 * (FreqStart * Position + Chirpyness * Position * Position));
+                Output[Sample] = Mathf.Sin(Pix2 * (StartFreq * Position + Chirpyness * Position * Position));
             }
             return Output;
         }
 
         /// <summary>Generate the frequencies at each sample's position in a linear frequency sweep.</summary>
-        public static float[] LinearSweepFreqs(float FreqStart, float FreqEnd, int Samples, int SampleRate) {
+        public static float[] LinearSweepFreqs(float StartFreq, float EndFreq, int Samples, int SampleRate) {
             float[] Freqs = new float[Samples];
-            float Chirpyness = FreqEnd - FreqStart / (Samples / (float)SampleRate);
+            float Chirpyness = EndFreq - StartFreq / (Samples / (float)SampleRate);
             for (int Sample = 0; Sample < Samples; ++Sample)
-                Freqs[Sample] = FreqStart + Chirpyness * Sample / SampleRate;
+                Freqs[Sample] = StartFreq + Chirpyness * Sample / SampleRate;
             return Freqs;
         }
 
         /// <summary>Generate an exponential frequency sweep.</summary>
-        public static float[] ExponentialSweep(float FreqStart, float FreqEnd, int Samples, int SampleRate) {
+        public static float[] ExponentialSweep(float StartFreq, float EndFreq, int Samples, int SampleRate) {
             float[] Output = new float[Samples];
-            float Chirpyness = Mathf.Pow(FreqEnd / FreqStart, SampleRate / (float)Samples),
-                LogChirpyness = Mathf.Log(Chirpyness), SinConst = Pix2 * FreqStart;
+            float Chirpyness = Mathf.Pow(EndFreq / StartFreq, SampleRate / (float)Samples),
+                LogChirpyness = Mathf.Log(Chirpyness), SinConst = Pix2 * StartFreq;
             for (int Sample = 0; Sample < Samples; ++Sample)
                 Output[Sample] =
                     Mathf.Sin(SinConst * (Mathf.Pow(Chirpyness, Sample / (float)SampleRate) - 1) / LogChirpyness);
@@ -120,11 +120,11 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Generate the frequencies at each sample's position in an exponential frequency sweep.</summary>
-        public static float[] ExponentialSweepFreqs(float FreqStart, float FreqEnd, int Samples, int SampleRate) {
+        public static float[] ExponentialSweepFreqs(float StartFreq, float EndFreq, int Samples, int SampleRate) {
             float[] Freqs = new float[Samples];
-            float Chirpyness = Mathf.Pow(FreqEnd / FreqStart, SampleRate / (float)Samples);
+            float Chirpyness = Mathf.Pow(EndFreq / StartFreq, SampleRate / (float)Samples);
             for (int Sample = 0; Sample < Samples; ++Sample)
-                Freqs[Sample] = FreqStart + Mathf.Pow(Chirpyness, Sample / (float)SampleRate);
+                Freqs[Sample] = StartFreq + Mathf.Pow(Chirpyness, Sample / (float)SampleRate);
             return Freqs;
         }
 
@@ -194,14 +194,14 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Convert a response to logarithmically scaled cut frequency range.</summary>
         /// <param name="Samples">Source response</param>
-        /// <param name="FreqStart">Frequency at the first position of the output</param>
-        /// <param name="FreqEnd">Frequency at the last position of the output</param>
+        /// <param name="StartFreq">Frequency at the first position of the output</param>
+        /// <param name="EndFreq">Frequency at the last position of the output</param>
         /// <param name="SampleRate">Sample rate of the measurement that generated the curve</param>
         /// <param name="ResultSize">Length of the resulting array</param>
-        public static float[] ConvertToGraph(float[] Samples, float FreqStart, float FreqEnd, int SampleRate, int ResultSize) {
+        public static float[] ConvertToGraph(float[] Samples, float StartFreq, float EndFreq, int SampleRate, int ResultSize) {
             Samples = (float[])Samples.Clone();
-            float SourceSize = Samples.Length - 1, Positioner = SourceSize * 2 / SampleRate, PowerMin = Mathf.Log10(FreqStart), PowerMax = Mathf.Log10(FreqEnd),
-                PowerRange = (PowerMax - PowerMin) / ResultSize; // Divide 'i' here, not ResultScale times
+            float SourceSize = Samples.Length - 1, Positioner = SourceSize * 2 / SampleRate, PowerMin = Mathf.Log10(StartFreq),
+                PowerRange = (Mathf.Log10(EndFreq) - PowerMin) / ResultSize; // Divide 'i' here, not ResultScale times
             float[] Graph = new float[ResultSize];
             for (int i = 0; i < ResultSize; ++i) {
                 float FreqHere = Mathf.Pow(10, PowerMin + PowerRange * i);
@@ -211,10 +211,10 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Apply smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], float, float, int, int)"/>.</summary>
-        public static float[] SmoothGraph(float[] Samples, float FreqStart, float FreqEnd, float Octave = 1 / 3f) {
+        public static float[] SmoothGraph(float[] Samples, float StartFreq, float EndFreq, float Octave = 1 / 3f) {
             if (Octave == 0)
                 return (float[])Samples.Clone();
-            float OctaveRange = Mathf.Log(FreqEnd, 2) - Mathf.Log(FreqStart, 2);
+            float OctaveRange = Mathf.Log(EndFreq, 2) - Mathf.Log(StartFreq, 2);
             int Length = Samples.Length;
             int WindowSize = (int)(Length * Octave / OctaveRange * .5f);
             float[] Smoothed = new float[Length--];
@@ -233,15 +233,15 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Apply smoothing (in octaves) on a linear frequency response.</summary>
-        public static float[] SmoothResponse(float[] Samples, float FreqStart, float FreqEnd, float Octave = 1 / 3f) {
+        public static float[] SmoothResponse(float[] Samples, float StartFreq, float EndFreq, float Octave = 1 / 3f) {
             if (Octave == 0)
                 return (float[])Samples.Clone();
             int Length = Samples.Length;
             float[] Smoothed = new float[Length--];
-            float Span = FreqEnd - FreqStart, Offset = Mathf.Pow(2, Octave), Positioner = Length / Span, FreqAtSample = Span / Length;
+            float Span = EndFreq - StartFreq, Offset = Mathf.Pow(2, Octave), Positioner = Length / Span, FreqAtSample = Span / Length;
             for (int Sample = 0; Sample <= Length; ++Sample) {
-                float Freq = FreqStart + Sample * FreqAtSample, WindowStart = Freq / Offset, WindowEnd = Freq * Offset;
-                int Start = (int)((WindowStart - FreqStart) * Positioner), End = (int)((WindowEnd - FreqStart) * Positioner);
+                float Freq = StartFreq + Sample * FreqAtSample, WindowStart = Freq / Offset, WindowEnd = Freq * Offset;
+                int Start = (int)((WindowStart - StartFreq) * Positioner), End = (int)((WindowEnd - StartFreq) * Positioner);
                 if (Start < 0)
                     Start = 0;
                 if (End > Length)
