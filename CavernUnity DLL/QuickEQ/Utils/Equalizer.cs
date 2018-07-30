@@ -28,6 +28,16 @@ namespace Cavern.QuickEQ {
             _Bands.Add(NewBand);
         }
 
+        /// <summary>Remove a band from the EQ.</summary>
+        public void RemoveBand(Band Removable) {
+            _Bands.Remove(Removable);
+        }
+
+        /// <summary>Reset this EQ.</summary>
+        public void ClearBands() {
+            _Bands.Clear();
+        }
+
         /// <summary>Shows the EQ curve in a logarithmically scaled frequency axis.</summary>
         /// <param name="StartFreq">Frequency at the beginning of the curve</param>
         /// <param name="EndFreq">Frequency at the end of the curve</param>
