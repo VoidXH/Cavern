@@ -99,17 +99,20 @@ namespace Cavern.QuickEQ {
         /// and smoothing (<see cref="Measurements.SmoothResponse(float[], float, float, float)"/>) is strongly recommended, but the only allowed range is 0 to
         /// sample rate / 2</param>
         /// <param name="SampleRate">Measurement sampling rate</param>
-        /// <param name="ReferenceLevel">Flatten the frequency response to this level</param>
+        /// <param name="ReferenceCurve">Match the frequency response to this linear curve of any length, one value means a flat response</param>
         /// <param name="Resolution">Band diversity in octaves</param>
         /// <param name="MaxGain">Maximum gain of any generated band</param>
-        public static Equalizer CorrectResponse(float[] FreqResponse, int SampleRate, float ReferenceLevel, float Resolution = 1 / 3f, float MaxGain = 6) {
+        public static Equalizer CorrectResponse(float[] FreqResponse, int SampleRate, float[] ReferenceCurve, float Resolution = 1 / 3f, float MaxGain = 6) {
             Equalizer Result = new Equalizer();
             int Length = FreqResponse.Length;
-            float Nyquist = Length * .5f, Positioner = Nyquist / Length, Offset = Mathf.Pow(2, Resolution), MinChecked = ReferenceLevel - MaxGain;
+            float Nyquist = Length * .5f, Positioner = Nyquist / Length, Offset = Mathf.Pow(2, Resolution), RefPositioner = ReferenceCurve.Length / (float)Length;
             int Steps = (int)(Mathf.Log(Nyquist, 2) / Resolution);
             --Length;
             for (int Octave = 0; Octave <= Steps; ++Octave) {
-                float Freq = Mathf.Pow(2, Octave * Resolution), WindowStart = Freq / Offset, WindowEnd = Freq * Offset, Average = 0;
+                float Freq = Mathf.Pow(2, Octave * Resolution);
+                int RefPos = RefPos = (int)(Freq * Positioner * RefPositioner);
+                float WindowStart = Freq / Offset, WindowEnd = Freq * Offset, Average = 0,
+                    MinChecked = ReferenceCurve[RefPos] - MaxGain;
                 int Start = (int)(WindowStart * Positioner), End = (int)(WindowEnd * Positioner);
                 if (Start < 0)
                     Start = 0;
@@ -123,7 +126,7 @@ namespace Cavern.QuickEQ {
                     }
                 }
                 if (AverageCount != 0)
-                    Result.AddBand(new Band(Freq, ReferenceLevel - Average / AverageCount));
+                    Result.AddBand(new Band(Freq, ReferenceCurve[RefPos] - Average / AverageCount));
             }
             return Result;
         }
@@ -134,18 +137,19 @@ namespace Cavern.QuickEQ {
         /// strongly recommended</param>
         /// <param name="StartFreq">Frequency at the beginning of the graph</param>
         /// <param name="EndFreq">Frequency at the end of the graph</param>
-        /// <param name="ReferenceLevel">Flatten the frequency response to this level</param>
+        /// <param name="ReferenceCurve">Match the frequency response to this logarithmic curve of any length, one value means a flat response</param>
         /// <param name="Resolution">Band diversity in octaves</param>
         /// <param name="MaxGain">Maximum gain of any generated band</param>
-        public static Equalizer CorrectGraph(float[] Graph, float StartFreq, float EndFreq, float ReferenceLevel, float Resolution = 1 / 3f, float MaxGain = 6) {
+        public static Equalizer CorrectGraph(float[] Graph, float StartFreq, float EndFreq, float[] ReferenceCurve, float Resolution = 1 / 3f, float MaxGain = 6) {
             Equalizer Result = new Equalizer();
             int Length = Graph.Length;
             float StartPow = Mathf.Log10(StartFreq), EndPow = Mathf.Log10(EndFreq), PowRange = (EndPow - StartPow) / Length,
-                OctaveRange = Mathf.Log(EndFreq, 2) - Mathf.Log(StartFreq, 2), Octaves = OctaveRange / Resolution, MinChecked = ReferenceLevel - MaxGain;
+                OctaveRange = Mathf.Log(EndFreq, 2) - Mathf.Log(StartFreq, 2), Octaves = OctaveRange / Resolution,
+                RefPositioner = ReferenceCurve.Length / (float)Length;
             int WindowSize = Length / (int)Octaves, WindowEdge = WindowSize / 2;
             for (int Pos = 0; Pos < Length; Pos += WindowSize) {
-                float CenterFreq = Mathf.Pow(10, StartPow + PowRange * Pos), Average = 0;
-                int AverageCount = 0;
+                int AverageCount = 0, RefPos = (int)(Pos * RefPositioner);
+                float CenterFreq = Mathf.Pow(10, StartPow + PowRange * Pos), Average = 0, MinChecked = ReferenceCurve[RefPos] - MaxGain;
                 for (int Sample = Math.Max(Pos - WindowEdge, 0), End = Math.Min(Sample + WindowSize, Length); Sample < End; ++Sample) {
                     if (Graph[Sample] > MinChecked) {
                         Average += Graph[Sample];
@@ -153,7 +157,7 @@ namespace Cavern.QuickEQ {
                     }
                 }
                 if (AverageCount != 0)
-                    Result.AddBand(new Band(CenterFreq, ReferenceLevel - Average / AverageCount));
+                    Result.AddBand(new Band(CenterFreq, ReferenceCurve[RefPos] - Average / AverageCount));
             }
             return Result;
         }
