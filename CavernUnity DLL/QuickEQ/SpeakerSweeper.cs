@@ -14,6 +14,8 @@ namespace Cavern.QuickEQ {
         AudioListener3D Listener;
         /// <summary>The sweep playback object.</summary>
         AudioSource3D Sweeper;
+        /// <summary>LFE pass-through before the measurement. LFE pass-through is on while measuring.</summary>
+        bool OldDirectLFE;
         /// <summary>LFE separation before the measurement. LFE separation is on while measuring.</summary>
         bool OldLFESeparation;
         /// <summary>Virtualizer before the measurement. Virtualizer is off while measuring.</summary>
@@ -22,8 +24,10 @@ namespace Cavern.QuickEQ {
         Task<float[]>[] Workers;
 
         /// <summary>Measurement signal gain relative to full scale.</summary>
+        [Tooltip("Measurement signal gain relative to full scale.")]
         [Range(-50, 0)] public float SweepGain = -20;
         /// <summary>Length of the measurement signal. Must be a power of 2.</summary>
+        [Tooltip("Length of the measurement signal. Must be a power of 2.")]
         public int SweepLength = 32768;
 
         /// <summary>The measurement is done and responses are available.</summary>
@@ -68,6 +72,7 @@ namespace Cavern.QuickEQ {
             ExcitementResponses = new float[AudioListener3D.ChannelCount][];
             Equalizers = new Equalizer[AudioListener3D.ChannelCount];
             Workers = new Task<float[]>[AudioListener3D.ChannelCount];
+            OldDirectLFE = Listener.DirectLFE;
             OldLFESeparation = Listener.LFESeparation;
             OldVirtualizer = Listener.HeadphoneVirtualizer;
             Listener.LFESeparation = true;
@@ -123,6 +128,7 @@ namespace Cavern.QuickEQ {
                 Destroy(Sweeper.gameObject);
             if (SweepResponse)
                 Destroy(SweepResponse);
+            Listener.DirectLFE = OldDirectLFE;
             Listener.LFESeparation = OldLFESeparation;
             Listener.HeadphoneVirtualizer = OldVirtualizer;
         }
