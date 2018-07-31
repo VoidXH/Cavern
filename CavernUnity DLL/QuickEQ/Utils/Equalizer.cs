@@ -170,7 +170,7 @@ namespace Cavern.QuickEQ {
             float[] Curve = new float[Length];
             float Positioner = SampleRate * .5f / Length, EndGain = Gain - 6;
             for (int Pos = 0; Pos < Length; ++Pos)
-                Curve[Pos] = XGain(Pos * Positioner);
+                Curve[Pos] = Gain + XGain(Pos * Positioner);
             return Curve;
         }
 
@@ -183,7 +183,7 @@ namespace Cavern.QuickEQ {
             float[] Curve = new float[Length];
             float PowerMin = Mathf.Log10(StartFreq), PowerRange = (Mathf.Log10(EndFreq) - PowerMin) / Length, EndGain = Gain - 6;
             for (int Pos = 0; Pos < Length; ++Pos)
-                Curve[Pos] = XGain(Mathf.Pow(10, PowerMin + PowerRange * Pos));
+                Curve[Pos] = Gain + XGain(Mathf.Pow(10, PowerMin + PowerRange * Pos));
             return Curve;
         }
 
