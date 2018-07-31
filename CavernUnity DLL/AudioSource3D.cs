@@ -214,11 +214,12 @@ namespace Cavern {
                             fixed (float* SampleArr = Samples, OriginalArr = OriginalSamples) {
                                 float* Sample = SampleArr, OrigSamples = OriginalArr;
                                 int SamplesToGet = PitchedUpdateRate;
+                                float ClipChDiv = 1f / ClipChannels;
                                 while (SamplesToGet-- != 0) {
                                     for (int ChannelPos = 0; ChannelPos < ClipChannels; ++ChannelPos)
                                         *Sample += OrigSamples[ChannelPos];
                                     OrigSamples += ClipChannels;
-                                    *Sample++ /= ClipChannels;
+                                    *Sample++ *= ClipChDiv;
                                 }
                             }
                         } else { // First channel only otherwise
@@ -439,7 +440,10 @@ namespace Cavern {
                         float[] AngleMatches = UsedAngleMatchFunc(Channels, Direction, TheatreMode ? (MatchModifierFunc)PowTo16 : PowTo8);
                         // Object size extension
                         if (Size != 0) {
-                            float MaxAngleMatch = CavernUtilities.ArrayMaximum(AngleMatches, Channels);
+                            float MaxAngleMatch = AngleMatches[0];
+                            for (int Channel = 1; Channel < Channels; ++Channel)
+                                if (MaxAngleMatch < AngleMatches[Channel])
+                                    MaxAngleMatch = AngleMatches[Channel];
                             for (int Channel = 0; Channel < Channels; ++Channel)
                                 AngleMatches[Channel] = CavernUtilities.FastLerp(AngleMatches[Channel], MaxAngleMatch, Size);
                         }

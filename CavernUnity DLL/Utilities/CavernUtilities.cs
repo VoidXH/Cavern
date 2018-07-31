@@ -57,26 +57,12 @@ namespace Cavern {
         /// <param name="Count">Array length</param>
         /// <param name="Value">Value to check</param>
         /// <returns>If an array contains the value</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe bool ArrayContains(float[] Target, int Count, float Value) {
             for (int Entry = 0; Entry < Count; ++Entry)
                 if (Target[Entry] == Value)
                     return true;
             return false;
-        }
-
-        /// <summary>Quickly gets the maximum value from an array.</summary>
-        /// <param name="Target">Array reference</param>
-        /// <param name="Count">Array length</param>
-        internal static unsafe float ArrayMaximum(float[] Target, int Count) {
-            float Max = float.NegativeInfinity;
-            fixed (float* Pointer = Target) {
-                for (int Entry = 0; Entry < Count; ++Entry) {
-                    float* Pos = Pointer + Entry;
-                    if (Max < *Pos)
-                        Max = *Pos;
-                }
-            }
-            return Max;
         }
 
         /// <summary>Keeps a value in the given array, if it's smaller than any of its contents.</summary>
@@ -113,10 +99,10 @@ namespace Cavern {
         /// <param name="Samples">Sample count</param>
         /// <returns>Maximum absolute value in the array</returns>
         public static unsafe float GetPeak(float[] Target, int Samples) {
-            float Max = 0, AbsSample;
+            float Max = Abs(Target[0]), AbsSample;
             int Absolute;
             fixed (float* Pointer = Target) {
-                for (int Sample = 0; Sample < Samples; ++Sample) {
+                for (int Sample = 1; Sample < Samples; ++Sample) {
                     Absolute = (*(int*)(Pointer + Sample)) & 0x7fffffff;
                     AbsSample = (*(float*)&Absolute);
                     if (Max < AbsSample)
@@ -193,6 +179,7 @@ namespace Cavern {
         /// <param name="Target">Array reference</param>
         /// <param name="Count">Array length</param>
         /// <param name="Value">Multiplier</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Gain(float[] Target, int Count, float Value) {
             for (int Entry = 0; Entry < Count; ++Entry)
                 Target[Entry] *= Value;
@@ -204,6 +191,7 @@ namespace Cavern {
         /// <param name="Gain">Gain</param>
         /// <param name="Channel">Target channel</param>
         /// <param name="Channels">Channel count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Gain(float[] Target, int Samples, float Gain, int Channel, int Channels) {
             for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels)
                 Target[Sample] *= Gain;
@@ -213,6 +201,7 @@ namespace Cavern {
         /// <param name="From">Track</param>
         /// <param name="To">Stream</param>
         /// <param name="Length">Sample count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Mix (float[] From, float[] To, int Length) {
             for (int Sample = 0; Sample < Length; ++Sample)
                 To[Sample] += From[Sample];
