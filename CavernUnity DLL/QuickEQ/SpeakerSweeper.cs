@@ -13,6 +13,8 @@ namespace Cavern.QuickEQ {
         AudioListener3D Listener;
         /// <summary>The sweep playback object.</summary>
         AudioSource3D Sweeper;
+        /// <summary>Environment compensation before the measurement. Environment compensation is off while measuring.</summary>
+        bool OldCompensation;
         /// <summary>LFE pass-through before the measurement. LFE pass-through is on while measuring.</summary>
         bool OldDirectLFE;
         /// <summary>LFE separation before the measurement. LFE separation is on while measuring.</summary>
@@ -77,9 +79,11 @@ namespace Cavern.QuickEQ {
             ExcitementResponses = new float[AudioListener3D.ChannelCount][];
             Equalizers = new Equalizer[AudioListener3D.ChannelCount];
             Workers = new Task<float[]>[AudioListener3D.ChannelCount];
+            OldCompensation = AudioListener3D.EnvironmentCompensation;
             OldDirectLFE = Listener.DirectLFE;
             OldLFESeparation = Listener.LFESeparation;
             OldVirtualizer = Listener.HeadphoneVirtualizer;
+            AudioListener3D.EnvironmentCompensation = false;
             Listener.DirectLFE = true;
             Listener.LFESeparation = true;
             Listener.HeadphoneVirtualizer = false;
@@ -137,6 +141,7 @@ namespace Cavern.QuickEQ {
                 Destroy(Sweeper.gameObject);
             if (SweepResponse)
                 Destroy(SweepResponse);
+            AudioListener3D.EnvironmentCompensation = OldCompensation;
             Listener.DirectLFE = OldDirectLFE;
             Listener.LFESeparation = OldLFESeparation;
             Listener.HeadphoneVirtualizer = OldVirtualizer;

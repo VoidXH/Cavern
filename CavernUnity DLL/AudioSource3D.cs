@@ -431,9 +431,9 @@ namespace Cavern {
                                 }
                             }
                         }
-                        // ------------------------------------------------------------------
-                        // Directional/distance-based engine for asymmetrical layouts
-                        // ------------------------------------------------------------------
+                    // ------------------------------------------------------------------
+                    // Directional/distance-based engine for asymmetrical layouts
+                    // ------------------------------------------------------------------
                     } else {
                         // Angle match calculations
                         bool TheatreMode = AudioListener3D._EnvironmentType == Environments.Theatre;

@@ -4,12 +4,12 @@ using UnityEngine;
 namespace Cavern {
     public partial class AudioSource3D : MonoBehaviour {
         /// <summary>Audio output writer delegate.</summary>
-        /// <param name="Samples"></param>
-        /// <param name="Target"></param>
-        /// <param name="ChannelLength"></param>
-        /// <param name="Gain"></param>
-        /// <param name="Channel"></param>
-        /// <param name="Channels"></param>
+        /// <param name="Samples">Samples to write</param>
+        /// <param name="Target">Channel array to write to</param>
+        /// <param name="ChannelLength">Size of the source and destination arrays</param>
+        /// <param name="Gain">Source gain</param>
+        /// <param name="Channel">Channel ID</param>
+        /// <param name="Channels">Total channels</param>
         internal delegate void OutputFunc(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels);
 
         /// <summary>The audio output function to be used.</summary>
