@@ -21,6 +21,8 @@ namespace Cavern.QuickEQ {
         bool OldLFESeparation;
         /// <summary>Virtualizer before the measurement. Virtualizer is off while measuring.</summary>
         bool OldVirtualizer;
+        /// <summary>Quality mode before the measurement. Quality is set to Low while measuring for constant gain panning.</summary>
+        QualityModes OldQuality;
         /// <summary>Response evaluator tasks.</summary>
         Task<float[]>[] Workers;
 
@@ -83,10 +85,12 @@ namespace Cavern.QuickEQ {
             OldDirectLFE = Listener.DirectLFE;
             OldLFESeparation = Listener.LFESeparation;
             OldVirtualizer = Listener.HeadphoneVirtualizer;
+            OldQuality = Listener.AudioQuality;
             AudioListener3D.EnvironmentCompensation = false;
             Listener.DirectLFE = true;
             Listener.LFESeparation = true;
             Listener.HeadphoneVirtualizer = false;
+            Listener.AudioQuality = QualityModes.Low;
             MeasurementStart();
         }
 
@@ -145,6 +149,7 @@ namespace Cavern.QuickEQ {
             Listener.DirectLFE = OldDirectLFE;
             Listener.LFESeparation = OldLFESeparation;
             Listener.HeadphoneVirtualizer = OldVirtualizer;
+            Listener.AudioQuality = OldQuality;
         }
     }
 }
