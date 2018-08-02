@@ -56,6 +56,11 @@ namespace Cavern {
             Recalculate();
         }
 
+        /// <summary>Returns if this channel is part of the screen channels.</summary>
+        public bool IsScreenChannel() {
+            return CavernUtilities.Abs(X) < 25 && CavernUtilities.Abs(Y) <= 45;
+        }
+
         /// <summary>Recalculates properties and symmetry when a channel's position is changed.</summary>
         internal void Recalculate() {
             // Helper calculation
