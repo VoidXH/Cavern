@@ -80,6 +80,7 @@ namespace Cavern.QuickEQ {
             OldDirectLFE = Listener.DirectLFE;
             OldLFESeparation = Listener.LFESeparation;
             OldVirtualizer = Listener.HeadphoneVirtualizer;
+            Listener.DirectLFE = true;
             Listener.LFESeparation = true;
             Listener.HeadphoneVirtualizer = false;
             MeasurementStart();
