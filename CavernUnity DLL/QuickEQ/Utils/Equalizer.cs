@@ -26,6 +26,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Add a new band to the EQ.</summary>
         public void AddBand(Band NewBand) {
             _Bands.Add(NewBand);
+            _Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
         }
 
         /// <summary>Remove a band from the EQ.</summary>
@@ -108,8 +109,8 @@ namespace Cavern.QuickEQ {
             float Nyquist = Length * .5f, Positioner = Nyquist / Length, Offset = Mathf.Pow(2, Resolution), RefPositioner = ReferenceCurve.Length / (float)Length;
             int Steps = (int)(Mathf.Log(Nyquist, 2) / Resolution);
             --Length;
-            for (int Octave = 0; Octave <= Steps; ++Octave) {
-                float Freq = Mathf.Pow(2, Octave * Resolution);
+            for (int Band = Steps; Band >= Steps; --Band) {
+                float Freq = Mathf.Pow(2, Band * Resolution);
                 int RefPos = RefPos = (int)(Freq * Positioner * RefPositioner);
                 float WindowStart = Freq / Offset, WindowEnd = Freq * Offset, Average = 0, MinChecked = ReferenceCurve[RefPos] - MaxGain;
                 int Start = (int)(WindowStart * Positioner), End = (int)(WindowEnd * Positioner);
@@ -141,10 +142,10 @@ namespace Cavern.QuickEQ {
             Equalizer Result = new Equalizer();
             int Length = Graph.Length;
             float StartPow = Mathf.Log10(StartFreq), EndPow = Mathf.Log10(EndFreq), PowRange = (EndPow - StartPow) / Length,
-                OctaveRange = Mathf.Log(EndFreq, 2) - Mathf.Log(StartFreq, 2), Octaves = OctaveRange / Resolution,
+                OctaveRange = Mathf.Log(EndFreq, 2) - Mathf.Log(StartFreq, 2), Bands = OctaveRange / Resolution + 1,
                 RefPositioner = ReferenceCurve.Length / (float)Length;
-            int WindowSize = Length / (int)Octaves, WindowEdge = WindowSize / 2;
-            for (int Pos = 0; Pos < Length; Pos += WindowSize) {
+            int WindowSize = Length / (int)Bands, WindowEdge = WindowSize / 2;
+            for (int Pos = Length - 1; Pos >= 0; Pos -= WindowSize) {
                 int AverageCount = 0, RefPos = (int)(Pos * RefPositioner);
                 float CenterFreq = Mathf.Pow(10, StartPow + PowRange * Pos), Average = 0, MinChecked = ReferenceCurve[RefPos] - MaxGain;
                 int Sample = Pos - WindowEdge, End = Sample + WindowSize;
