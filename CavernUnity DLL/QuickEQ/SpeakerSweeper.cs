@@ -5,7 +5,6 @@ using UnityEngine;
 namespace Cavern.QuickEQ {
     /// <summary>Measures the frequency response of all output channels.</summary>
     public class SpeakerSweeper : MonoBehaviour {
-        const float StartFreq = 20, EndFreq = 20000;
         /// <summary>Playable measurement signal.</summary>
         AudioClip Sweep;
         /// <summary>Microphone input.</summary>
@@ -23,6 +22,12 @@ namespace Cavern.QuickEQ {
         /// <summary>Response evaluator tasks.</summary>
         Task<float[]>[] Workers;
 
+        /// <summary>Frequency at the beginning of the sweep.</summary>
+        [Tooltip("Frequency at the beginning of the sweep.")]
+        [Range(1, 24000)] public float StartFreq = 20;
+        /// <summary>Frequency at the end of the sweep.</summary>
+        [Tooltip("Frequency at the end of the sweep.")]
+        [Range(1, 24000)] public float EndFreq = 20000;
         /// <summary>Measurement signal gain relative to full scale.</summary>
         [Tooltip("Measurement signal gain relative to full scale.")]
         [Range(-50, 0)] public float SweepGain = -20;
