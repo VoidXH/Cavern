@@ -26,6 +26,9 @@ namespace Cavern.QuickEQ {
         /// <summary>Response evaluator tasks.</summary>
         Task<float[]>[] Workers;
 
+        /// <summary>Name of the recording device. If empty, de system default will be used.</summary>
+        [Tooltip("Name of the recording device. If empty, de system default will be used.")]
+        public string InputDevice = string.Empty;
         /// <summary>Frequency at the beginning of the sweep.</summary>
         [Tooltip("Frequency at the beginning of the sweep.")]
         [Range(1, 24000)] public float StartFreq = 20;
@@ -107,12 +110,12 @@ namespace Cavern.QuickEQ {
             Sweeper.Loop = false;
             Sweeper.VolumeRolloff = Rolloffs.Disabled;
             // TODO: ability to choose input device and adapt to its sample rate on perfect quality
-            SweepResponse = Microphone.Start(string.Empty, false, Mathf.CeilToInt(SweepLength * 2 / Listener.SampleRate) + 1, Listener.SampleRate);
+            SweepResponse = Microphone.Start(InputDevice, false, Mathf.CeilToInt(SweepLength * 2 / Listener.SampleRate) + 1, Listener.SampleRate);
         }
 
         void MeasurementEnd() {
             Destroy(Sweeper.gameObject);
-            Microphone.End(string.Empty);
+            Microphone.End(InputDevice);
             float[] Result = new float[SweepReference.Length];
             SweepResponse.GetData(Result, 0);
             Destroy(SweepResponse);
