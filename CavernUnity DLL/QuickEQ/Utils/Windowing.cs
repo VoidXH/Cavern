@@ -48,8 +48,9 @@ namespace Cavern.QuickEQ {
         /// and its return value is the multiplier for the sample at that point</param>
         public static void ApplyWindow(float[] Samples, int Start, int End, Func<float, float> Function) {
             int Span = End - Start;
+            float SpanDiv = Measurements.Pix2 / Span;
             for (int Sample = Start; Sample < End; ++Sample)
-                Samples[Sample] *= Function(Measurements.Pix2 * (Sample - Start) / End);
+                Samples[Sample] *= Function((Sample - Start) * SpanDiv);
         }
 
         /// <summary>Apply a custom window function on part of a complex signal.</summary>
@@ -60,8 +61,9 @@ namespace Cavern.QuickEQ {
         /// and its return value is the multiplier for the sample at that point</param>
         public static void ApplyWindow(Complex[] Samples, int Start, int End, Func<float, float> Function) {
             int Span = End - Start;
+            float SpanDiv = Measurements.Pix2 / Span;
             for (int Sample = Start; Sample < End; ++Sample)
-                Samples[Sample] *= Function(Measurements.Pix2 * (Sample - Start) / End);
+                Samples[Sample] *= Function((Sample - Start) * SpanDiv);
         }
 
         /// <summary>Apply a predefined window function.</summary>
