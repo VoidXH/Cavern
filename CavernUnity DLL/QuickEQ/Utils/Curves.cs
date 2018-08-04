@@ -9,7 +9,7 @@ namespace Cavern.QuickEQ {
         /// <param name="Gain">Level of the flat part of the curve</param>
         public static float[] GenerateLinearXCurve(int Length, int SampleRate, float Gain) {
             float[] Curve = new float[Length];
-            float Positioner = SampleRate * .5f / Length, EndGain = Gain - 6;
+            float Positioner = SampleRate * .5f / Length;
             for (int Pos = 0; Pos < Length; ++Pos)
                 Curve[Pos] = Gain + XGain(Pos * Positioner);
             return Curve;
@@ -22,7 +22,7 @@ namespace Cavern.QuickEQ {
         /// <param name="Gain">Level of the flat part of the curve</param>
         public static float[] GenerateLogXCurve(int Length, float StartFreq, float EndFreq, float Gain) {
             float[] Curve = new float[Length];
-            float PowerMin = Mathf.Log10(StartFreq), PowerRange = (Mathf.Log10(EndFreq) - PowerMin) / Length, EndGain = Gain - 6;
+            float PowerMin = Mathf.Log10(StartFreq), PowerRange = (Mathf.Log10(EndFreq) - PowerMin) / Length;
             for (int Pos = 0; Pos < Length; ++Pos)
                 Curve[Pos] = Gain + XGain(Mathf.Pow(10, PowerMin + PowerRange * Pos));
             return Curve;
