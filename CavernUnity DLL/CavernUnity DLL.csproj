@@ -69,6 +69,7 @@
     <Compile Include="QuickEQ\Utils\Complex.cs" />
     <Compile Include="QuickEQ\Measurements.cs" />
     <Compile Include="QuickEQ\SpeakerSweeper.cs" />
+    <Compile Include="QuickEQ\Utils\Curves.cs" />
     <Compile Include="QuickEQ\Utils\Equalizer.cs" />
     <Compile Include="QuickEQ\Utils\Windowing.cs" />
     <Compile Include="Cavernize.cs" />
