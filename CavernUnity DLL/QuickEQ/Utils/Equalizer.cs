@@ -95,36 +95,33 @@ namespace Cavern.QuickEQ {
             return Filter;
         }
 
-        /// <summary>Generate an equalizer setting to flatten the received response.</summary>
-        /// <param name="FreqResponse">Frequency response to equalize, must be in decibels (use <see cref="Measurements.ConvertToDecibels(float[])"/>),
-        /// and smoothing (<see cref="Measurements.SmoothResponse(float[], float, float, float)"/>) is strongly recommended, but the only allowed range is 0 to
+        /// <summary>Generate an equalizer setting to flatten the received response with bands separated in given octavess.</summary>
+        /// <param name="Response">Frequency response to equalize, must be in decibels (use <see cref="Measurements.ConvertToDecibels(float[])"/>),
+        /// and smoothing (<see cref="Measurements.SmoothResponse(float[], int, float)"/>) is strongly recommended, but the only allowed range is 0 to
         /// sample rate / 2</param>
         /// <param name="SampleRate">Measurement sampling rate</param>
         /// <param name="ReferenceCurve">Match the frequency response to this linear curve of any length, one value means a flat response</param>
         /// <param name="Resolution">Band diversity in octaves</param>
         /// <param name="MaxGain">Maximum gain of any generated band</param>
-        public static Equalizer CorrectResponse(float[] FreqResponse, int SampleRate, float[] ReferenceCurve, float Resolution = 1 / 3f, float MaxGain = 6) {
+        public static Equalizer CorrectResponse(float[] Response, int SampleRate, float[] ReferenceCurve, float Resolution, float MaxGain = 6) {
             Equalizer Result = new Equalizer();
-            int Length = FreqResponse.Length;
-            float Nyquist = Length * .5f, Positioner = Nyquist / Length, Offset = Mathf.Pow(2, Resolution), RefPositioner = ReferenceCurve.Length / (float)Length;
-            int Steps = (int)(Mathf.Log(Nyquist, 2) / Resolution);
-            --Length;
-            for (int Band = Steps; Band >= Steps; --Band) {
-                float Freq = Mathf.Pow(2, Band * Resolution);
-                int RefPos = RefPos = (int)(Freq * Positioner * RefPositioner);
-                float WindowStart = Freq / Offset, WindowEnd = Freq * Offset, Average = 0, MinChecked = ReferenceCurve[RefPos] - MaxGain;
-                int Start = (int)(WindowStart * Positioner), End = (int)(WindowEnd * Positioner);
-                if (Start < 0) Start = 0;
-                if (End > Length) End = Length;
-                int AverageCount = 0;
-                for (int Sample = Start; Sample <= End; ++Sample) {
-                    if (FreqResponse[Sample] > MinChecked) {
-                        Average += FreqResponse[Sample];
+            float Jumper = Mathf.Pow(2, Resolution), Nyquist = SampleRate * .5f, Sample = Response.Length / Nyquist, LastSample = Sample / Jumper,
+                Length = Response.Length - 1, FreqFromSample = Nyquist / Response.Length, RefFromSample = ReferenceCurve.Length / (float)Response.Length;
+            while (Sample <= Length) {
+                float NextSample = Sample * Jumper, Average = 0;
+                int WindowEnd = (int)NextSample, RefPos = (int)(Sample * RefFromSample), AverageCount = 0;
+                float MinChecked = ReferenceCurve[RefPos] - MaxGain;
+                if (WindowEnd > Length) WindowEnd = (int)Length;
+                for (int WindowPos = (int)LastSample; WindowPos < WindowEnd; ++WindowPos) {
+                    if (Response[WindowPos] > MinChecked) {
+                        Average += Response[WindowPos];
                         ++AverageCount;
                     }
                 }
                 if (AverageCount != 0)
-                    Result.AddBand(new Band(Freq, ReferenceCurve[RefPos] - Average / AverageCount));
+                    Result.AddBand(new Band(Sample * FreqFromSample, ReferenceCurve[RefPos] - Average / AverageCount));
+                LastSample = Sample;
+                Sample = NextSample;
             }
             return Result;
         }

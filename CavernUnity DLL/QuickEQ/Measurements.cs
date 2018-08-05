@@ -233,15 +233,15 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Apply smoothing (in octaves) on a linear frequency response.</summary>
-        public static float[] SmoothResponse(float[] Samples, float StartFreq, float EndFreq, float Octave = 1 / 3f) {
+        public static float[] SmoothResponse(float[] Samples, int SampleRate, float Octave = 1 / 3f) {
             if (Octave == 0)
                 return (float[])Samples.Clone();
             int Length = Samples.Length;
             float[] Smoothed = new float[Length--];
-            float Span = EndFreq - StartFreq, Offset = Mathf.Pow(2, Octave), Positioner = Length / Span, FreqAtSample = Span / Length;
+            float Nyquist = SampleRate * .5f, Offset = Mathf.Pow(2, Octave), Positioner = Length / Nyquist, FreqAtSample = Nyquist / Length;
             for (int Sample = 0; Sample <= Length; ++Sample) {
-                float Freq = StartFreq + Sample * FreqAtSample, WindowStart = Freq / Offset, WindowEnd = Freq * Offset;
-                int Start = (int)((WindowStart - StartFreq) * Positioner), End = (int)((WindowEnd - StartFreq) * Positioner);
+                float Freq = Sample * FreqAtSample, WindowStart = Freq / Offset, WindowEnd = Freq * Offset;
+                int Start = (int)(WindowStart * Positioner), End = (int)(WindowEnd * Positioner);
                 if (Start < 0)
                     Start = 0;
                 if (End > Length)
