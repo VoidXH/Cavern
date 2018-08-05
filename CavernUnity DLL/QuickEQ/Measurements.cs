@@ -216,7 +216,7 @@ namespace Cavern.QuickEQ {
                 return (float[])Samples.Clone();
             float OctaveRange = Mathf.Log(EndFreq, 2) - Mathf.Log(StartFreq, 2);
             int Length = Samples.Length;
-            int WindowSize = (int)(Length * Octave / OctaveRange * .5f);
+            int WindowSize = (int)(Length * Octave / OctaveRange);
             float[] Smoothed = new float[Length--];
             for (int Sample = 0; Sample <= Length; ++Sample) {
                 int Start = Sample - WindowSize, End = Sample + WindowSize;
