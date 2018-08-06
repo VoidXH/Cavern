@@ -159,5 +159,41 @@ namespace Cavern.QuickEQ {
             }
             return Result;
         }
+
+        /// <summary>Generate a precise equalizer setting to flatten the processed response of
+        /// <see cref="Measurements.SmoothGraph(float[], float, float, float)"/>.</summary>
+        /// <param name="Graph">Graph to equalize, a pre-applied smoothing (<see cref="Measurements.SmoothGraph(float[], float, float, float)"/> is
+        /// strongly recommended</param>
+        /// <param name="StartFreq">Frequency at the beginning of the graph</param>
+        /// <param name="EndFreq">Frequency at the end of the graph</param>
+        /// <param name="ReferenceCurve">Match the frequency response to this logarithmic curve of any length, one value means a flat response</param>
+        /// <param name="MaxGain">Maximum gain of any generated band</param>
+        public static Equalizer AutoCorrectGraph(float[] Graph, float StartFreq, float EndFreq, float[] ReferenceCurve, float MaxGain = 6) {
+            Equalizer Result = new Equalizer();
+            int Length = Graph.Length;
+            float StartPow = Mathf.Log10(StartFreq), EndPow = Mathf.Log10(EndFreq), PowRange = (EndPow - StartPow) / Length;
+            float RefPositioner = ReferenceCurve.Length / (float)Length;
+            List<int> WindowEdges = new List<int>(new int[] { 0 });
+            for (int Sample = 1, End = Length - 1; Sample < End; ++Sample) {
+                float Lower = Graph[Sample - 1], Upper = Graph[Sample + 1];
+                if ((Lower < Graph[Sample] && Upper > Graph[Sample]) || (Lower > Graph[Sample] && Upper < Graph[Sample]))
+                    WindowEdges.Add(Sample);
+            }
+            for (int Sample = 0, End = WindowEdges.Count - 1; Sample < End; ++Sample) {
+                int WindowPos = WindowEdges[Sample], WindowEnd = WindowEdges[Sample + 1], AverageCount = 0;
+                float CenterFreq = Mathf.Pow(10, StartPow + PowRange * (WindowPos + WindowEnd) * .5f), Average = 0,
+                    RefGain = (ReferenceCurve[(int)(WindowPos * RefPositioner)] + ReferenceCurve[(int)(WindowEnd * RefPositioner)]) * .5f,
+                    MinChecked = RefGain - MaxGain;
+                for (; WindowPos <= WindowEnd; ++WindowPos) {
+                    if (Graph[WindowPos] > MinChecked) {
+                        Average += Graph[WindowPos];
+                        ++AverageCount;
+                    }
+                }
+                if (AverageCount != 0)
+                    Result.AddBand(new Band(CenterFreq, RefGain - Average / AverageCount));
+            }
+            return Result;
+        }
     }
 }
