@@ -70,6 +70,24 @@ namespace Cavern.QuickEQ {
             return Samples;
         }
 
+        /// <summary>Get the real part of a signal's FFT.</summary>
+        public static float[] GetRealPart(Complex[] Samples) {
+            int End = Samples.Length / 2;
+            float[] Output = new float[End];
+            for (int Sample = 0; Sample < End; ++Sample)
+                Output[Sample] = Samples[Sample].Real;
+            return Output;
+        }
+
+        /// <summary>Get the imaginary part of a signal's FFT.</summary>
+        public static float[] GetImaginaryPart(Complex[] Samples) {
+            int End = Samples.Length / 2;
+            float[] Output = new float[End];
+            for (int Sample = 0; Sample < End; ++Sample)
+                Output[Sample] = Samples[Sample].Imaginary;
+            return Output;
+        }
+
         /// <summary>Get the gains of frequencies in a signal after FFT.</summary>
         public static float[] GetSpectrum(Complex[] Samples) {
             int End = Samples.Length / 2;

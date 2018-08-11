@@ -24,7 +24,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Quality mode before the measurement. Quality is set to Low while measuring for constant gain panning.</summary>
         QualityModes OldQuality;
         /// <summary>Response evaluator tasks.</summary>
-        Task<float[]>[] Workers;
+        Task<WorkerResult>[] Workers;
 
         /// <summary>Name of the recording device. If empty, de system default will be used.</summary>
         [Tooltip("Name of the recording device. If empty, de system default will be used.")]
@@ -48,6 +48,8 @@ namespace Cavern.QuickEQ {
         [NonSerialized] public float[][] ExcitementResponses;
         /// <summary>Frequency responses of output channels.</summary>
         [NonSerialized] public float[][] FreqResponses;
+        /// <summary>Impulse responses of output channels.</summary>
+        [NonSerialized] public VerboseImpulseResponse[] ImpResponses;
         /// <summary>Room correction, equalizer for each channel.</summary>
         [NonSerialized] public Equalizer[] Equalizers;
 
@@ -81,9 +83,10 @@ namespace Cavern.QuickEQ {
             Sweep.SetData(SweepReference, 0);
             Channel = 0;
             FreqResponses = new float[AudioListener3D.ChannelCount][];
+            ImpResponses = new VerboseImpulseResponse[AudioListener3D.ChannelCount];
             ExcitementResponses = new float[AudioListener3D.ChannelCount][];
             Equalizers = new Equalizer[AudioListener3D.ChannelCount];
-            Workers = new Task<float[]>[AudioListener3D.ChannelCount];
+            Workers = new Task<WorkerResult>[AudioListener3D.ChannelCount];
             OldCompensation = AudioListener3D.EnvironmentCompensation;
             OldDirectLFE = Listener.DirectLFE;
             OldLFESeparation = Listener.LFESeparation;
@@ -120,7 +123,7 @@ namespace Cavern.QuickEQ {
             SweepResponse.GetData(Result, 0);
             Destroy(SweepResponse);
             ExcitementResponses[Channel] = Result;
-            (Workers[Channel] = new Task<float[]>(() => Measurements.GetFrequencyResponseAbs(SweepReference, Result))).Start();
+            (Workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(SweepReference, Result))).Start();
         }
 
         void Update() {
@@ -128,10 +131,12 @@ namespace Cavern.QuickEQ {
                 return;
             if (Channel == AudioListener3D.ChannelCount) {
                 for (int i = 0, c = Workers.Length; i < c; ++i)
-                    if (Workers[i].Result == null)
+                    if (Workers[i].Result.IsNull())
                         return;
-                for (int i = 0, c = Workers.Length; i < c; ++i)
-                    FreqResponses[i] = Workers[i].Result;
+                for (int i = 0, c = Workers.Length; i < c; ++i) {
+                    FreqResponses[i] = Workers[i].Result.FreqResponse;
+                    ImpResponses[i] = Workers[i].Result.ImpResponse;
+                }
                 ResultAvailable = true;
                 return;
             }
@@ -153,6 +158,21 @@ namespace Cavern.QuickEQ {
             Listener.LFESeparation = OldLFESeparation;
             Listener.HeadphoneVirtualizer = OldVirtualizer;
             Listener.AudioQuality = OldQuality;
+        }
+
+        struct WorkerResult {
+            public float[] FreqResponse;
+            public VerboseImpulseResponse ImpResponse;
+
+            public WorkerResult(float[] Excitement, float[] Response) {
+                Complex[] RawResponse = Measurements.GetFrequencyResponse(Excitement, Response);
+                FreqResponse = Measurements.GetSpectrum(RawResponse);
+                ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(RawResponse));
+            }
+
+            public bool IsNull() {
+                return FreqResponse == null || ImpResponse == null;
+            }
         }
     }
 }

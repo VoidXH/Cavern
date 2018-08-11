@@ -71,6 +71,7 @@
     <Compile Include="QuickEQ\SpeakerSweeper.cs" />
     <Compile Include="QuickEQ\Utils\Curves.cs" />
     <Compile Include="QuickEQ\Utils\Equalizer.cs" />
+    <Compile Include="QuickEQ\Utils\VerboseImpulseResponse.cs" />
     <Compile Include="QuickEQ\Utils\Windowing.cs" />
     <Compile Include="Cavernize.cs" />
     <Compile Include="CavernizeRT.cs" />
