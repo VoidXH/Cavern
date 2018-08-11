@@ -41,29 +41,45 @@ namespace Cavern.QuickEQ {
         public bool SubsonicFilter {
             get { return _SubsonicFilter; }
             set {
-                if (_SubsonicFilter && !value)
-                    _Bands.RemoveAt(0);
-                else if (!_SubsonicFilter && value)
+                if (_SubsonicFilter && !value) {
+                    if (_Bands.Count > 0)
+                        _Bands.RemoveAt(0);
+                } else if (!_SubsonicFilter && value && _Bands.Count > 0)
                     AddBand(new Band(_Bands[0].Frequency * .5f, _Bands[0].Gain - _SubsonicRolloff));
                 _SubsonicFilter = value;
             }
         }
-        bool _SubsonicFilter = false; // TODO: case of 0 bands, add/remove/clear
+        bool _SubsonicFilter = false;
 
         /// <summary>Add a new band to the EQ.</summary>
         public void AddBand(Band NewBand) {
+            bool SubFiltered = _SubsonicFilter;
+            if (SubFiltered)
+                SubsonicFilter = false;
             _Bands.Add(NewBand);
             _Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
+            if (SubFiltered)
+                SubsonicFilter = true;
         }
 
         /// <summary>Remove a band from the EQ.</summary>
         public void RemoveBand(Band Removable) {
+            bool SubFiltered = _SubsonicFilter;
+            if (SubFiltered)
+                SubsonicFilter = false;
             _Bands.Remove(Removable);
+            if (SubFiltered)
+                SubsonicFilter = true;
         }
 
         /// <summary>Reset this EQ.</summary>
         public void ClearBands() {
+            bool SubFiltered = _SubsonicFilter;
+            if (SubFiltered)
+                SubsonicFilter = false;
             _Bands.Clear();
+            if (SubFiltered)
+                SubsonicFilter = true;
         }
 
         /// <summary>Shows the EQ curve in a logarithmically scaled frequency axis.</summary>

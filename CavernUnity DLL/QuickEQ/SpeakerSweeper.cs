@@ -112,7 +112,6 @@ namespace Cavern.QuickEQ {
             Sweeper.LFE = AudioListener3D.Channels[Channel].LFE;
             Sweeper.Loop = false;
             Sweeper.VolumeRolloff = Rolloffs.Disabled;
-            // TODO: ability to choose input device and adapt to its sample rate on perfect quality
             SweepResponse = Microphone.Start(InputDevice, false, Mathf.CeilToInt(SweepLength * 2 / Listener.SampleRate) + 1, Listener.SampleRate);
         }
 
