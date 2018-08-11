@@ -180,18 +180,10 @@ namespace Cavern.QuickEQ {
                     WindowEdges.Add(Sample);
             }
             for (int Sample = 0, End = WindowEdges.Count - 1; Sample < End; ++Sample) {
-                int WindowPos = WindowEdges[Sample], WindowEnd = WindowEdges[Sample + 1], AverageCount = 0;
-                float CenterFreq = Mathf.Pow(10, StartPow + PowRange * (WindowPos + WindowEnd) * .5f), Average = 0,
-                    RefGain = (ReferenceCurve[(int)(WindowPos * RefPositioner)] + ReferenceCurve[(int)(WindowEnd * RefPositioner)]) * .5f,
-                    MinChecked = RefGain - MaxGain;
-                for (; WindowPos <= WindowEnd; ++WindowPos) {
-                    if (Graph[WindowPos] > MinChecked) {
-                        Average += Graph[WindowPos];
-                        ++AverageCount;
-                    }
-                }
-                if (AverageCount != 0)
-                    Result.AddBand(new Band(CenterFreq, RefGain - Average / AverageCount));
+                int WindowPos = WindowEdges[Sample];
+                float RefGain = ReferenceCurve[(int)(WindowPos * RefPositioner)];
+                if (Graph[WindowPos] > RefGain - MaxGain)
+                    Result.AddBand(new Band(Mathf.Pow(10, StartPow + PowRange * WindowPos), RefGain - Graph[WindowPos]));
             }
             return Result;
         }
