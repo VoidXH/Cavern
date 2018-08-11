@@ -23,6 +23,33 @@ namespace Cavern.QuickEQ {
         public IReadOnlyList<Band> Bands { get { return _Bands; } }
         List<Band> _Bands = new List<Band>();
 
+        /// <summary>Subsonic filter rolloff in dB / octave.</summary>
+        public float SubsonicRolloff {
+            get { return _SubsonicRolloff; }
+            set {
+                bool WasFiltered = SubsonicFilter;
+                if (WasFiltered)
+                    SubsonicFilter = false;
+                _SubsonicRolloff = value;
+                if (WasFiltered)
+                    SubsonicFilter = true;
+            }
+        }
+        float _SubsonicRolloff = 24;
+
+        /// <summary>Cut off low frequencies that are out of the channel's frequency range.</summary>
+        public bool SubsonicFilter {
+            get { return _SubsonicFilter; }
+            set {
+                if (_SubsonicFilter && !value)
+                    _Bands.RemoveAt(0);
+                else if (!_SubsonicFilter && value)
+                    AddBand(new Band(_Bands[0].Frequency * .5f, _Bands[0].Gain - _SubsonicRolloff));
+                _SubsonicFilter = value;
+            }
+        }
+        bool _SubsonicFilter = false; // TODO: case of 0 bands, add/remove/clear
+
         /// <summary>Add a new band to the EQ.</summary>
         public void AddBand(Band NewBand) {
             _Bands.Add(NewBand);
@@ -119,10 +146,11 @@ namespace Cavern.QuickEQ {
                     }
                 }
                 if (AverageCount != 0)
-                    Result.AddBand(new Band(Sample * FreqFromSample, ReferenceCurve[RefPos] - Average / AverageCount));
+                    Result._Bands.Add(new Band(Sample * FreqFromSample, ReferenceCurve[RefPos] - Average / AverageCount));
                 LastSample = Sample;
                 Sample = NextSample;
             }
+            Result._Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
             return Result;
         }
 
@@ -155,8 +183,9 @@ namespace Cavern.QuickEQ {
                     }
                 }
                 if (AverageCount != 0)
-                    Result.AddBand(new Band(CenterFreq, ReferenceCurve[RefPos] - Average / AverageCount));
+                    Result._Bands.Add(new Band(CenterFreq, ReferenceCurve[RefPos] - Average / AverageCount));
             }
+            Result._Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
             return Result;
         }
 
@@ -183,8 +212,9 @@ namespace Cavern.QuickEQ {
                 int WindowPos = WindowEdges[Sample];
                 float RefGain = ReferenceCurve[(int)(WindowPos * RefPositioner)];
                 if (Graph[WindowPos] > RefGain - MaxGain)
-                    Result.AddBand(new Band(Mathf.Pow(10, StartPow + PowRange * WindowPos), RefGain - Graph[WindowPos]));
+                    Result._Bands.Add(new Band(Mathf.Pow(10, StartPow + PowRange * WindowPos), RefGain - Graph[WindowPos]));
             }
+            Result._Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
             return Result;
         }
     }
