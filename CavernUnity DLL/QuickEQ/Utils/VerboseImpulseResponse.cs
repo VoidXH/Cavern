@@ -19,7 +19,7 @@
                     Delay = Pos;
                 }
             }
-            Polarity = AbsPeak >= 0;
+            Polarity = Response[Delay] >= 0;
         }
 
         /// <summary>Create a verbose impulse response from a reference signal and a recorded response.</summary>
