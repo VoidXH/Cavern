@@ -5,7 +5,7 @@
         public float[] Response;
         /// <summary>Impulse polarity, true if positive.</summary>
         public bool Polarity;
-        /// <summary>Response delay relative to the reference it was calculated from.</summary>
+        /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
         public int Delay;
 
         /// <summary>Create a verbose impulse response from a precalculated impulse response.</summary>
