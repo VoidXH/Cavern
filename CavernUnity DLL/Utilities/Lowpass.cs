@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 namespace Cavern.Utilities {
+    /// <summary>Simple first-order lowpass filter.</summary>
     internal class Lowpass {
         /// <summary>Cached sample rate.</summary>
         int SampleRate;
@@ -15,6 +16,9 @@ namespace Cavern.Utilities {
             Reset(CenterFreq, Q);
         }
 
+        /// <summary>Regenerate the transfer function.</summary>
+        /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="Q">Q-factor of the filter</param>
         public void Reset(float CenterFreq, float Q) {
             SampleRate = AudioListener3D.Current.SampleRate;
             this.CenterFreq = CenterFreq;
@@ -25,6 +29,10 @@ namespace Cavern.Utilities {
             b2 = (b1 = (1 - Cos) * Divisor) * .5f;
         }
 
+        /// <summary>Apply this filter to an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <param name="Samples">Input samples</param>
+        /// <param name="Channel">Channel to filter</param>
+        /// <param name="Channels">Total channels</param>
         public void Process(float[] Samples, int Channel = 0, int Channels = 1) {
             if (SampleRate != AudioListener3D.Current.SampleRate)
                 Reset(CenterFreq, Q);
