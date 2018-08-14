@@ -4,6 +4,8 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
+using Cavern.Utilities;
+
 namespace Cavern {
     [AddComponentMenu("Audio/3D Audio Listener"), RequireComponent(typeof(AudioListener))]
     public partial class AudioListener3D : MonoBehaviour {
@@ -41,8 +43,6 @@ namespace Cavern {
         /// <summary>Maximal gain across all channels.</summary>
         static float MaxGain = 0;
 
-        /// <summary>Last samples for each channel, required for low-pass filtering LFE channels.</summary>
-        static float[] LastSamples;
         /// <summary>Distance-based gain for each channel.</summary>
         static float[] ChannelGains;
 
@@ -61,6 +61,8 @@ namespace Cavern {
 
         /// <summary>Cached <see cref="Channels"/> for change detection.</summary>
         static Channel[] ChannelCache;
+        /// <summary>Lowpass filters for each channel.</summary>
+        static Lowpass[] Lowpasses;
 
         // ------------------------------------------------------------------
         // Internal functions
@@ -75,13 +77,15 @@ namespace Cavern {
             CachedUpdateRate = UpdateRate;
             BufferPosition = 0;
             LastTicks = DateTime.Now.Ticks;
-            LastSamples = new float[ChannelCount];
+            Lowpasses = new Lowpass[ChannelCount];
             FilterOutput = new float[ChannelCount * SampleRate];
             // Optimization arrays
             ChannelGains = new float[ChannelCount];
             ChannelCache = new Channel[ChannelCount];
-            for (int i = 0; i < ChannelCount; ++i)
+            for (int i = 0; i < ChannelCount; ++i) {
                 ChannelCache[i] = Channels[i].Copy;
+                Lowpasses[i] = new Lowpass(120, 1);
+            }
         }
 
         /// <summary>Normalize an array of samples.</summary>
@@ -272,7 +276,7 @@ namespace Cavern {
                         for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                             if (Channels[Channel].LFE) {
                                 if (!DirectLFE)
-                                    CavernUtilities.Lowpass(Output, ref LastSamples[Channel], UpdateRate, Channel, ChannelCount);
+                                    Lowpasses[Channel].Process(Output, Channel, ChannelCount);
                                 CavernUtilities.Gain(Output, UpdateRate, LFEVolume * Volume, Channel, ChannelCount); // LFE Volume
                             } else
                                 CavernUtilities.Gain(Output, UpdateRate, ChannelGains[Channel] * Volume, Channel, ChannelCount);

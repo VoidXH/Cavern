@@ -143,38 +143,6 @@ namespace Cavern {
             return Target;
         }
 
-        /// <summary>Low-pass filter for a single channel in a multichannel array.</summary>
-        /// <param name="Target">Sample array reference</param>
-        /// <param name="Last">Last sample</param>
-        /// <param name="Samples">Sample count per channel</param>
-        /// <param name="Channel">Channel</param>
-        /// <param name="Channels">Channels</param>
-        public static unsafe void Lowpass(float[] Target, ref float Last, int Samples, int Channel, int Channels) {
-            fixed (float* Pointer = Target) {
-                for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels) {
-                    float* TargetSample = Pointer + Sample;
-                    Last = *TargetSample = .9995f * Last + .0005f * *TargetSample;
-                    *TargetSample *= 6;
-                    Sample += Channels;
-                }
-            }
-        }
-
-        /// <summary>Low-pass with configurable effect strength and no volume correction.</summary>
-        /// <param name="Target">Sample array reference</param>
-        /// <param name="Last">Last sample</param>
-        /// <param name="Samples">Array length</param>
-        /// <param name="Strength">Effect strength</param>
-        public static unsafe void Lowpass(float[] Target, ref float Last, int Samples, float Strength) {
-            float Retain = 1f - Strength;
-            fixed (float* Pointer = Target) {
-                for (int Sample = 0; Sample < Samples; ++Sample) {
-                    float* TargetSample = Pointer + Sample;
-                    Last = *TargetSample = Strength * Last + Retain * *TargetSample++;
-                }
-            }
-        }
-
         /// <summary>Multiplies all values in an array.</summary>
         /// <param name="Target">Array reference</param>
         /// <param name="Count">Array length</param>

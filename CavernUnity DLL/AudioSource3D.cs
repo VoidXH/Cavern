@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
+using Cavern.Utilities;
+
 namespace Cavern {
     [AddComponentMenu("Audio/3D Audio Source")]
     public partial class AudioSource3D : MonoBehaviour {
@@ -56,8 +58,6 @@ namespace Cavern {
         float Distance;
         /// <summary><see cref="Distance"/> in the previous frame, required for Doppler effect calculation.</summary>
         float LastDistance;
-        /// <summary>The last sample past the filter is required for lowpass effects.</summary>
-        float LastLowpassedSample = 0;
         /// <summary>Cached <see cref="EchoVolume"/> after <see cref="AudioListener3D.HeadphoneVirtualizer"/> was set.</summary>
         float OldEchoVolume;
         /// <summary>Cached <see cref="EchoDelay"/> after <see cref="AudioListener3D.HeadphoneVirtualizer"/> was set.</summary>
@@ -81,6 +81,9 @@ namespace Cavern {
 
         /// <summary>Linked list access for the sources' list.</summary>
         LinkedListNode<AudioSource3D> Node;
+
+        /// <summary>Lowpass filter for <see cref="DistanceLowpass"/>.</summary>
+        Lowpass LPF = new Lowpass(120, 1);
 
         /// <summary>Last source position required for smoothing movement.</summary>
         Vector3 LastPosition;
@@ -311,8 +314,10 @@ namespace Cavern {
                     // Distance lowpass, if enabled
                     if (DistanceLowpass != 0) {
                         float DistanceScale = Distance * DistanceLowpass;
-                        if (DistanceScale > 1)
-                            CavernUtilities.Lowpass(Samples, ref LastLowpassedSample, BaseUpdateRate, 1f - 1f / DistanceScale);
+                        if (DistanceScale > 1) {
+                            LPF.Reset(120 + 20000 / DistanceScale, 1);
+                            LPF.Process(Samples);
+                        }
                     }
                     // Buffer for echo, if enabled
                     if (EchoVolume != 0) {
