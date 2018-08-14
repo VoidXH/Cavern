@@ -52,7 +52,7 @@ namespace Cavern {
         [Range(0, 5)] public float DopplerLevel = 0;
         /// <summary>The further the source, the deeper this effect will make its sound.</summary>
         [Tooltip("The further the source, the deeper this effect will make its sound.")]
-        [Range(0, 2)] public float DistanceLowpass = 0;
+        [Range(0, 1)] public float DistanceLowpass = 0;
         /// <summary>Volume decreasing function by distance.</summary>
         [Tooltip("Volume decreasing function by distance.")]
         public Rolloffs VolumeRolloff = Rolloffs.Logarithmic;
