@@ -74,7 +74,7 @@
     /// <summary>Environment type. Rendering method will be chosen by this and <see cref="AudioListener3D.IsSymmetric"/>.</summary>
     public enum Environments {
         /// <summary>
-        /// For a single listener on the center with speakers placed around in a sphere.<br />
+        /// For a single listener in the center with speakers placed around in a sphere.<br />
         /// <b>Symmetric engine</b>: balance-based.<br />
         /// <b>Asymmetric engine</b>: hybrid directional.
         /// </summary>

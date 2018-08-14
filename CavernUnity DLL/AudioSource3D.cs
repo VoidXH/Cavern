@@ -67,6 +67,12 @@ namespace Cavern {
 
         /// <summary>Past output samples for echo effect.</summary>
         float[] EchoBuffer = new float[0];
+        /// <summary>Stereo mix cache to save allocation times.</summary>
+        float[] LeftSamples = new float[0], RightSamples = new float[0];
+        /// <summary>Rendered output array kept to save allocation time.</summary>
+        float[] Rendered = new float[0];
+        /// <summary>Mono mix cache to save allocation times.</summary>
+        float[] Samples = new float[0];
         /// <summary>Sample buffer from the clip.</summary>
         float[] OriginalSamples;
 
@@ -177,7 +183,16 @@ namespace Cavern {
                     ResampleMult = 1;
                 BaseUpdateRate = (int)(Listener.UpdateRate * CalculatedPitch);
                 PitchedUpdateRate = (int)(BaseUpdateRate * ResampleMult);
+                if (Samples.Length != PitchedUpdateRate)
+                    Samples = new float[PitchedUpdateRate];
+                if (ClipChannels == 2 && LeftSamples.Length != PitchedUpdateRate) {
+                    LeftSamples = new float[PitchedUpdateRate];
+                    RightSamples = new float[PitchedUpdateRate];
+                }
                 OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
+                int RenderBufSize = Listener.UpdateRate * AudioListener3D.ChannelCount;
+                if (Rendered.Length != RenderBufSize)
+                    Rendered = new float[RenderBufSize];
                 Clip.GetData(OriginalSamples, timeSamples);
             } else
                 OriginalSamples = null;
@@ -195,7 +210,7 @@ namespace Cavern {
             if (!IsPlaying || !Collectible)
                 return null;
             int Channels = AudioListener3D.ChannelCount;
-            float[] Rendered = new float[Listener.UpdateRate * Channels];
+            Array.Clear(Rendered, 0, Rendered.Length);
             bool OutputRawLFE = !Listener.LFESeparation || LFE;
             // Update rate calculation
             int UpdateRate = Listener.UpdateRate;
@@ -205,12 +220,12 @@ namespace Cavern {
                 bool HighQuality = Listener.AudioQuality >= QualityModes.High;
                 bool StereoClip = ClipChannels == 2;
                 // Mono mix
-                float[] Samples = new float[PitchedUpdateRate];
                 if (Blend3D || !StereoClip) {
                     if (ClipChannels == 1)
                         Array.Copy(OriginalSamples, Samples, PitchedUpdateRate);
                     else {
                         if (HighQuality) { // Mono downmix above medium quality
+                            Array.Clear(Samples, 0, PitchedUpdateRate);
                             fixed (float* SampleArr = Samples, OriginalArr = OriginalSamples) {
                                 float* Sample = SampleArr, OrigSamples = OriginalArr;
                                 int SamplesToGet = PitchedUpdateRate;
@@ -246,7 +261,6 @@ namespace Cavern {
                             }
                         }
                     } else {
-                        float[] LeftSamples = new float[PitchedUpdateRate], RightSamples = new float[PitchedUpdateRate];
                         int ActualSample = 0;
                         for (int Sample = 0; Sample < PitchedUpdateRate; ++Sample) {
                             LeftSamples[Sample] = OriginalSamples[ActualSample++];

@@ -17,7 +17,7 @@ namespace Cavern.QuickEQ {
         /// <summary>0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)</summary>
         BlackmanHarris,
         /// <summary>A window designed to flatten sweep responses.</summary>
-        Void
+        Tukey
     }
 
     /// <summary>FFT windowing functions.</summary>
@@ -27,8 +27,9 @@ namespace Cavern.QuickEQ {
         /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
         /// and its return value is the multiplier for the sample at that point</param>
         public static void ApplyWindow(float[] Samples, Func<float, float> Function) {
+            float Positioner = Measurements.Pix2 / Samples.Length;
             for (int Sample = 0, c = Samples.Length; Sample < c; ++Sample)
-                Samples[Sample] *= Function(Measurements.Pix2 * Sample / c);
+                Samples[Sample] *= Function(Sample * Positioner);
         }
 
         /// <summary>Apply a custom window function on a complex signal.</summary>
@@ -36,8 +37,9 @@ namespace Cavern.QuickEQ {
         /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
         /// and its return value is the multiplier for the sample at that point</param>
         public static void ApplyWindow(Complex[] Samples, Func<float, float> Function) {
+            float Positioner = Measurements.Pix2 / Samples.Length;
             for (int Sample = 0, c = Samples.Length; Sample < c; ++Sample)
-                Samples[Sample] *= Function(Measurements.Pix2 * Sample / c);
+                Samples[Sample] *= Function(Sample * Positioner);
         }
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
@@ -76,7 +78,7 @@ namespace Cavern.QuickEQ {
                 case Window.Hann: ApplyWindow(Samples, HannWindow); return;
                 case Window.Blackman: ApplyWindow(Samples, BlackmanWindow); return;
                 case Window.BlackmanHarris: ApplyWindow(Samples, BlackmanHarrisWindow); return;
-                case Window.Void: ApplyWindow(Samples, VoidWindow); return;
+                case Window.Tukey: ApplyWindow(Samples, TukeyWindow); return;
                 default: break;
             }
         }
@@ -94,11 +96,15 @@ namespace Cavern.QuickEQ {
             float x2 = x + x;
             return .35875f - .48829f * Mathf.Cos(x) + .14128f * Mathf.Cos(x2) - .01168f * Mathf.Cos(x2 + x);
         }
-        /// <summary>A window designed to flatten sweep responses.</summary>
-        public static float VoidWindow(float x) {
-            const float Flatness = .9f, SinMod = 2f / Flatness;
-            return x < Measurements.Pix2 * Flatness ? x > Measurements.Pix2 * (1 - Flatness) ? 1 :
-                Mathf.Sin(x * SinMod) : Mathf.Sin((Measurements.Pix2 - x) * SinMod);
+        /// <summary>Tukey window with a precompiled alpha.</summary>
+        public static float TukeyWindow(float x) {
+            const float Alpha = .8f, Flatness = Alpha / 2, Positioner = .5f / Flatness;
+            if (x < Math.PI * 2 * Flatness)
+                return (Mathf.Cos(x * Positioner - Mathf.PI) + 1) * .5f;
+            else if (x > Math.PI * 2 * (1 - Flatness))
+                return (Mathf.Cos((Measurements.Pix2 - x) * Positioner - Mathf.PI) + 1) * .5f;
+            else
+                return 1;
         }
     }
 }
