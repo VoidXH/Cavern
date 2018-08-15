@@ -83,7 +83,7 @@ namespace Cavern {
         LinkedListNode<AudioSource3D> Node;
 
         /// <summary>Lowpass filter for <see cref="DistanceLowpass"/>.</summary>
-        Lowpass LPF = new Lowpass(120, 1);
+        Lowpass LPF = new Lowpass(120);
 
         /// <summary>Last source position required for smoothing movement.</summary>
         Vector3 LastPosition;
@@ -315,7 +315,7 @@ namespace Cavern {
                     if (DistanceLowpass != 0) {
                         float DistanceScale = Distance * DistanceLowpass;
                         if (DistanceScale > 1) {
-                            LPF.Reset(120 + 20000 / DistanceScale, 1);
+                            LPF.Reset(120 + 20000 / DistanceScale);
                             LPF.Process(Samples);
                         }
                     }

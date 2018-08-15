@@ -84,7 +84,7 @@ namespace Cavern {
             ChannelCache = new Channel[ChannelCount];
             for (int i = 0; i < ChannelCount; ++i) {
                 ChannelCache[i] = Channels[i].Copy;
-                Lowpasses[i] = new Lowpass(120, 1);
+                Lowpasses[i] = new Lowpass(120);
             }
         }
 

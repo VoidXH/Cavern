@@ -12,14 +12,14 @@ namespace Cavern.Utilities {
         float a1, a2, b1, b2; // Transfer function
         float x1, x2, y1, y2; // History
 
-        public Lowpass(float CenterFreq, float Q) {
+        public Lowpass(float CenterFreq, float Q = .7071067811865475f) {
             Reset(CenterFreq, Q);
         }
 
         /// <summary>Regenerate the transfer function.</summary>
         /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="Q">Q-factor of the filter</param>
-        public void Reset(float CenterFreq, float Q) {
+        public void Reset(float CenterFreq, float Q = .7071067811865475f) {
             SampleRate = AudioListener3D.Current.SampleRate;
             this.CenterFreq = CenterFreq;
             this.Q = Q;
