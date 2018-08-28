@@ -202,7 +202,7 @@ namespace Cavern {
         }
 
         /// <summary>Process the source and returns a mix to be added to the output.</summary>
-        internal unsafe float[] Collect() {
+        internal float[] Collect() {
             if (OriginalSamples == null)
                 return null;
             AudioListener3D Listener = AudioListener3D.Current;
@@ -229,16 +229,10 @@ namespace Cavern {
                     else {
                         if (HighQuality) { // Mono downmix above medium quality
                             Array.Clear(Samples, 0, PitchedUpdateRate);
-                            fixed (float* SampleArr = Samples, OriginalArr = OriginalSamples) {
-                                float* Sample = SampleArr, OrigSamples = OriginalArr;
-                                int SamplesToGet = PitchedUpdateRate;
-                                float ClipChDiv = 1f / ClipChannels;
-                                while (SamplesToGet-- != 0) {
-                                    for (int ChannelPos = 0; ChannelPos < ClipChannels; ++ChannelPos)
-                                        *Sample += OrigSamples[ChannelPos];
-                                    OrigSamples += ClipChannels;
-                                    *Sample++ *= ClipChDiv;
-                                }
+                            float ClipChDiv = 1f / ClipChannels;
+                            for (int Sample = 0; Sample < PitchedUpdateRate; ++Sample) {
+                                for (int OrigPos = Sample * ClipChannels, End = OrigPos + ClipChannels; OrigPos < End; ++OrigPos)
+                                    Samples[Sample] = OriginalSamples[OrigPos];
                             }
                         } else { // First channel only otherwise
                             for (int Sample = 0, OrigSample = 0; Sample < PitchedUpdateRate; ++Sample, OrigSample += ClipChannels)

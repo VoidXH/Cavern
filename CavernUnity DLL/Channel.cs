@@ -58,7 +58,7 @@ namespace Cavern {
 
         /// <summary>Returns if this channel is part of the screen channels.</summary>
         public bool IsScreenChannel() {
-            return CavernUtilities.Abs(X) < 25 && CavernUtilities.Abs(Y) <= 45;
+            return Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
         }
 
         /// <summary>Recalculates properties and symmetry when a channel's position is changed.</summary>
@@ -69,13 +69,13 @@ namespace Cavern {
             float XRad = X * Mathf.Deg2Rad, YRad = Y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
             SphericalPos = new Vector3(SinY * CosX, -SinX, CosY * CosX);
-            if (CavernUtilities.Abs(SinY) > CavernUtilities.Abs(CosY))
+            if (Math.Abs(SinY) > Math.Abs(CosY))
                 SinY = SinY > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
             else
                 CosY = CosY > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
             SinY /= CavernUtilities.Sqrt2p2;
             CosY /= CavernUtilities.Sqrt2p2;
-            if (CavernUtilities.Abs(SinX) >= CavernUtilities.Sqrt2p2) {
+            if (Math.Abs(SinX) >= CavernUtilities.Sqrt2p2) {
                 SinX = SinX > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
                 CosX /= CavernUtilities.Sqrt2p2;
                 SinY *= CosX;

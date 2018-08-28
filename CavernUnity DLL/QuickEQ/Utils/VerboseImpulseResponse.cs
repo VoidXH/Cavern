@@ -1,4 +1,6 @@
-﻿namespace Cavern.QuickEQ {
+﻿using System;
+
+namespace Cavern.QuickEQ {
     /// <summary>Contains an impulse response and data that can be calculated from it.</summary>
     public class VerboseImpulseResponse {
         /// <summary>Raw impulse response samples.</summary>
@@ -13,7 +15,7 @@
             Response = Measurements.GetRealPart(ImpulseResponse);
             float AbsPeak = float.NegativeInfinity;
             for (int Pos = 0, Length = Response.Length; Pos < Length; ++Pos) {
-                float AbsHere = CavernUtilities.Abs(Response[Pos]);
+                float AbsHere = Math.Abs(Response[Pos]);
                 if (AbsPeak < AbsHere) {
                     AbsPeak = AbsHere;
                     Delay = Pos;

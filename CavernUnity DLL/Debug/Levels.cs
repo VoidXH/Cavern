@@ -122,7 +122,7 @@ namespace Cavern.Debug {
             for (int Channel = 0, MultichannelUpdateRate = AudioListener3D.Output.Length; Channel < Channels; ++Channel) {
                 float Max = 0;
                 for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels) {
-                    float AbsSample = CavernUtilities.Abs(AudioListener3D.Output[Sample]);
+                    float AbsSample = Math.Abs(AudioListener3D.Output[Sample]);
                     if (Max < AbsSample)
                         Max = AbsSample;
                 }

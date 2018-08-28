@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 using Cavern.Utilities;
 
@@ -98,7 +99,7 @@ namespace Cavern.Debug {
                 ActChannel < CavernChannels; ++ActChannel) {
                 float Max = 0;
                 for (int Sample = ActChannel; Sample < MultichannelUpdateRate; Sample += CavernChannels) {
-                    float AbsSample = CavernUtilities.Abs(AudioListener3D.Output[Sample]);
+                    float AbsSample = Math.Abs(AudioListener3D.Output[Sample]);
                     if (Max < AbsSample)
                         Max = AbsSample;
                 }

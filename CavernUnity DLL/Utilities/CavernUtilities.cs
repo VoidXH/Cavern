@@ -36,13 +36,13 @@ namespace Cavern {
         public static Vector3 PlaceInCube(Vector3 Angles) {
             float XRad = Angles.x * Mathf.Deg2Rad, YRad = Angles.y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
-            if (Abs(SinY) > Abs(CosY)) {
+            if (Math.Abs(SinY) > Math.Abs(CosY)) {
                 SinY = SinY > 0 ? Sqrt2p2 : Sqrt2pm2;
             } else
                 CosY = CosY > 0 ? Sqrt2p2 : Sqrt2pm2;
             SinY /= Sqrt2p2;
             CosY /= Sqrt2p2;
-            if (Abs(SinX) >= Sqrt2p2) {
+            if (Math.Abs(SinX) >= Sqrt2p2) {
                 SinX = SinX > 0 ? Sqrt2p2 : Sqrt2pm2;
                 CosX /= Sqrt2p2;
                 SinY *= CosX;
@@ -58,7 +58,7 @@ namespace Cavern {
         /// <param name="Value">Value to check</param>
         /// <returns>If an array contains the value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe bool ArrayContains(float[] Target, int Count, float Value) {
+        internal static bool ArrayContains(float[] Target, int Count, float Value) {
             for (int Entry = 0; Entry < Count; ++Entry)
                 if (Target[Entry] == Value)
                     return true;
@@ -97,17 +97,13 @@ namespace Cavern {
         /// <summary>Get the peak amplitude of a single-channel array.</summary>
         /// <param name="Target">Array reference</param>
         /// <param name="Samples">Sample count</param>
-        /// <returns>Maximum absolute value in the array</returns>
-        public static unsafe float GetPeak(float[] Target, int Samples) {
-            float Max = Abs(Target[0]), AbsSample;
-            int Absolute;
-            fixed (float* Pointer = Target) {
-                for (int Sample = 1; Sample < Samples; ++Sample) {
-                    Absolute = (*(int*)(Pointer + Sample)) & 0x7fffffff;
-                    AbsSample = (*(float*)&Absolute);
-                    if (Max < AbsSample)
-                        Max = AbsSample;
-                }
+        /// <returns>Peak amplitude in the array in decibels</returns>
+        public static float GetPeak(float[] Target, int Samples) {
+            float Max = Math.Abs(Target[0]), AbsSample;
+            for (int Sample = 1; Sample < Samples; ++Sample) {
+                AbsSample = Math.Abs(Target[Sample]);
+                if (Max < AbsSample)
+                    Max = AbsSample;
             }
             return Max != 0 ? (20 * Mathf.Log10(Max)) : -300;
         }
@@ -118,16 +114,12 @@ namespace Cavern {
         /// <param name="Channel">Target channel</param>
         /// <param name="Channels">Channel count</param>
         /// <returns>Maximum absolute value in the array</returns>
-        internal static unsafe float GetPeak(float[] Target, int Samples, int Channel, int Channels) {
+        internal static float GetPeak(float[] Target, int Samples, int Channel, int Channels) {
             float Max = 0, AbsSample;
-            int Absolute;
-            fixed (float* Pointer = Target) {
-                for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels) {
-                    Absolute = (*(int*)(Pointer + Sample)) & 0x7fffffff;
-                    AbsSample = (*(float*)&Absolute);
-                    if (Max < AbsSample)
-                        Max = AbsSample;
-                }
+            for (int Sample = Channel, End = Samples * Channels; Sample < End; Sample += Channels) {
+                AbsSample = Math.Abs(Target[Sample]);
+                if (Max < AbsSample)
+                    Max = AbsSample;
             }
             return Max;
         }
@@ -173,15 +165,6 @@ namespace Cavern {
         internal static void Mix (float[] From, float[] To, int Length) {
             for (int Sample = 0; Sample < Length; ++Sample)
                 To[Sample] += From[Sample];
-        }
-
-        /// <summary>Fast absolute value of a float.</summary>
-        /// <param name="x">Input</param>
-        /// <returns>Math.Abs(x), just faster</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe float Abs(float x) {
-            int Absolute = (*(int*)&x) & 0x7fffffff;
-            return (*(float*)&Absolute);
         }
 
         /// <summary>

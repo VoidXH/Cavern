@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Cavern {
@@ -36,20 +37,17 @@ namespace Cavern {
 
         /// <summary>Output samples to a multichannel array, while trying to fix standing waves.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static unsafe void WriteFixedOutput(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+        internal static void WriteFixedOutput(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
             int FirstPassLength = ChannelLength;
             float OldMax = 0, NewMax = 0, AbsSample;
-            fixed (float* From = Samples, To = Target) {
-                for (int FromSample = 0, ToSample = Channel; FromSample < ChannelLength; ++FromSample, ToSample += Channels) {
-                    float* TargetSample = To + ToSample;
-                    AbsSample = CavernUtilities.Abs(*TargetSample);
-                    if (OldMax < AbsSample)
-                        OldMax = AbsSample;
-                    *TargetSample += From[FromSample] * Gain;
-                    AbsSample = CavernUtilities.Abs(*TargetSample);
-                    if (NewMax < AbsSample)
-                        NewMax = AbsSample;
-                }
+            for (int FromSample = 0, ToSample = Channel; FromSample < ChannelLength; ++FromSample, ToSample += Channels) {
+                AbsSample = Math.Abs(Target[ToSample]);
+                if (OldMax < AbsSample)
+                    OldMax = AbsSample;
+                Target[ToSample] += Samples[FromSample] * Gain;
+                AbsSample = Math.Abs(Target[ToSample]);
+                if (NewMax < AbsSample)
+                    NewMax = AbsSample;
             }
             if (NewMax < OldMax)
                 WriteOutput(Samples, Target, ChannelLength, Gain * -2, Channel, Channels);

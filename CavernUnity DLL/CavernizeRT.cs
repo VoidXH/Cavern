@@ -86,11 +86,11 @@ namespace Cavern {
             for (int Sample = 0; Sample < UpdateRate; ++Sample) {
                 float CurrentSample = MonoMix[Sample] * FaderGain;
                 HighSample = .9f * (HighSample + CurrentSample - LastSample);
-                float AbsHigh = CavernUtilities.Abs(HighSample);
+                float AbsHigh = Math.Abs(HighSample);
                 if (MaxHeight < AbsHigh)
                     MaxHeight = AbsHigh;
                 LowSample = LowSample * .99f + HighSample * .01f;
-                float AbsLow = CavernUtilities.Abs(LowSample);
+                float AbsLow = Math.Abs(LowSample);
                 if (MaxDepth < AbsLow)
                     MaxDepth = AbsLow;
                 LastSample = CurrentSample;
@@ -111,7 +111,7 @@ namespace Cavern {
             // Metering
             float CurrentPeak = 0;
             for (int Sample = 0; Sample < UpdateRate; ++Sample) {
-                float Abs = CavernUtilities.Abs(data[Sample]);
+                float Abs = Math.Abs(data[Sample]);
                 if (CurrentPeak < Abs)
                     CurrentPeak = Abs;
             }

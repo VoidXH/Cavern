@@ -92,16 +92,12 @@ namespace Cavern {
         /// <param name="Target">Samples to normalize</param>
         /// <param name="TargetLength">Target array size</param>
         /// <param name="LastGain">Last normalizer gain (a reserved float with a default of 1 to always pass to this function)</param>
-        unsafe void Normalize(ref float[] Target, int TargetLength, ref float LastGain) {
-            float Max = 1f, AbsSample;
-            fixed (float* Pointer = Target) {
-                int Absolute;
-                for (int Sample = 0; Sample < TargetLength; ++Sample) {
-                    Absolute = *((int*)Pointer + Sample) & 0x7fffffff;
-                    AbsSample = *(float*)&Absolute;
-                    if (Max < AbsSample)
-                        Max = AbsSample;
-                }
+        void Normalize(ref float[] Target, int TargetLength, ref float LastGain) {
+            float Max = Math.Abs(Target[0]), AbsSample;
+            for (int Sample = 1; Sample < TargetLength; ++Sample) {
+                AbsSample = Math.Abs(Target[Sample]);
+                if (Max < AbsSample)
+                    Max = AbsSample;
             }
             if (Max * LastGain > 1) // Kick in
                 LastGain = .9f / Max;

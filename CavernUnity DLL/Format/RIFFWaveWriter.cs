@@ -40,7 +40,7 @@ namespace Cavern.Format {
         /// <param name="Samples">Samples to write</param>
         /// <param name="From">Start position in the input array (inclusive)</param>
         /// <param name="To">End position in the input array (exclusive)</param>
-        public override unsafe void WriteBlock(float[] Samples, long From, long To) {
+        public override void WriteBlock(float[] Samples, long From, long To) {
             switch (Bits) {
                 case BitDepth.Int8:
                     while (From < To)
