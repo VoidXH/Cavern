@@ -20,17 +20,15 @@ namespace Cavern.QuickEQ {
             if (Length == 1)
                 return Samples;
             Complex[] Output = new Complex[Length], Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
-            for (int Sample = 0; Sample < HalfLength; ++Sample) {
-                int Pair = Sample + Sample;
-                Even[Sample] = Samples[Pair];
-                Odd[Sample] = Samples[Pair + 1];
+            for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample) {
+                Even[Sample] = Samples[Pair++];
+                Odd[Sample] = Samples[Pair++];
             }
             Complex[] EvenFFT = FFT(Even), OddFFT = FFT(Odd);
+            float Step = NegPix2 / Length;
+            for (int i = 0; i < HalfLength; ++i)
+                OddFFT[i].Rotate(Step * i);
             for (int i = 0; i < HalfLength; ++i) {
-                float Angle = NegPix2 * i / Length;
-                OddFFT[i] *= new Complex(Mathf.Cos(Angle), Mathf.Sin(Angle));
-            }
-            for (int i = 0; i < Length / 2; ++i) {
                 Output[i] = EvenFFT[i] + OddFFT[i];
                 Output[i + HalfLength] = EvenFFT[i] - OddFFT[i];
             }
@@ -43,17 +41,15 @@ namespace Cavern.QuickEQ {
             if (Length == 1)
                 return Samples;
             Complex[] Output = new Complex[Length], Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
-            for (int Sample = 0; Sample < HalfLength; ++Sample) {
-                int Pair = Sample + Sample;
-                Even[Sample] = Samples[Pair];
-                Odd[Sample] = Samples[Pair + 1];
+            for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample) {
+                Even[Sample] = Samples[Pair++];
+                Odd[Sample] = Samples[Pair++];
             }
             Complex[] EvenFFT = ProcessIFFT(Even), OddFFT = ProcessIFFT(Odd);
+            float Step = Pix2 / Length;
+            for (int i = 0; i < HalfLength; ++i)
+                OddFFT[i].Rotate(Step * i);
             for (int i = 0; i < HalfLength; ++i) {
-                float Angle = Pix2 * i / Length;
-                OddFFT[i] *= new Complex(Mathf.Cos(Angle), Mathf.Sin(Angle));
-            }
-            for (int i = 0; i < Length / 2; ++i) {
                 Output[i] = EvenFFT[i] + OddFFT[i];
                 Output[i + HalfLength] = EvenFFT[i] - OddFFT[i];
             }

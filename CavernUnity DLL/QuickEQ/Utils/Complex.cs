@@ -2,7 +2,7 @@
 
 namespace Cavern.QuickEQ {
     /// <summary>A complex number.</summary>
-    public class Complex {
+    public struct Complex {
         /// <summary>Real part of the complex number.</summary>
         public float Real;
         /// <summary>Imaginary part of the complex number.</summary>
@@ -24,31 +24,38 @@ namespace Cavern.QuickEQ {
             get { return Mathf.Atan(Imaginary / Real); }
         }
 
+        /// <summary>Multiply by (cos(x), sin(x)).</summary>
+        public void Rotate(float Angle) {
+            float Cos = Mathf.Cos(Angle), Sin = Mathf.Sin(Angle), OldReal = Real;
+            Real = Real * Cos - Imaginary * Sin;
+            Imaginary = OldReal * Sin + Imaginary * Cos;
+        }
+
         /// <summary>Complex addition.</summary>
-        public static Complex operator +(Complex a, Complex b) {
-            return new Complex(a.Real + b.Real, a.Imaginary + b.Imaginary);
+        public static Complex operator +(Complex lhs, Complex rhs) {
+            return new Complex(lhs.Real + rhs.Real, lhs.Imaginary + rhs.Imaginary);
         }
 
         /// <summary>Complex substraction.</summary>
-        public static Complex operator -(Complex a, Complex b) {
-            return new Complex(a.Real - b.Real, a.Imaginary - b.Imaginary);
+        public static Complex operator -(Complex lhs, Complex rhs) {
+            return new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);
         }
 
         /// <summary>Complex multiplication.</summary>
-        public static Complex operator *(Complex a, Complex b) {
-            return new Complex(a.Real * b.Real - a.Imaginary * b.Imaginary, a.Real * b.Imaginary + a.Imaginary * b.Real);
+        public static Complex operator *(Complex lhs, Complex rhs) {
+            return new Complex(lhs.Real * rhs.Real - lhs.Imaginary * rhs.Imaginary, lhs.Real * rhs.Imaginary + lhs.Imaginary * rhs.Real);
         }
 
         /// <summary>Scalar complex multiplication.</summary>
-        public static Complex operator *(Complex a, float b) {
-            return new Complex(a.Real * b, a.Imaginary * b);
+        public static Complex operator *(Complex lhs, float rhs) {
+            return new Complex(lhs.Real * rhs, lhs.Imaginary * rhs);
         }
 
         /// <summary>Complex division.</summary>
-        public static Complex operator /(Complex a, Complex b) {
-            float Divisor = b.Real * b.Real + b.Imaginary * b.Imaginary;
+        public static Complex operator /(Complex lhs, Complex rhs) {
+            float Divisor = rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary;
             return Divisor != 0 ?
-                new Complex((a.Real * b.Real + a.Imaginary * b.Imaginary) / Divisor, (a.Imaginary * b.Real - a.Real * b.Imaginary) / Divisor) :
+                new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) / Divisor, (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) / Divisor) :
                 new Complex();
         }
     }
