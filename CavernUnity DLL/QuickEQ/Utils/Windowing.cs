@@ -45,10 +45,14 @@ namespace Cavern.QuickEQ {
         static void ApplyWindow(float[] Samples, WindowFunction Left, WindowFunction Right, int Start, int Splitter, int End) {
             int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter);
             float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
+            for (int Sample = 0; Sample < Start; ++Sample)
+                Samples[Sample] = 0;
             for (int Sample = Math.Max(Start, 0); Sample < Splitter; ++Sample)
                 Samples[Sample] *= Left((Sample - Start) * LeftSpanDiv);
             for (int Sample = Splitter, ActEnd = Math.Min(End, Samples.Length); Sample < ActEnd; ++Sample)
                 Samples[Sample] *= Right((Sample - EndMirror) * RightSpanDiv);
+            for (int Sample = End, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
+                Samples[Sample] = 0;
         }
 
         /// <summary>Apply a predefined window function on a signal.</summary>
@@ -74,10 +78,14 @@ namespace Cavern.QuickEQ {
         static void ApplyWindow(Complex[] Samples, WindowFunction Left, WindowFunction Right, int Start, int Splitter, int End) {
             int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter);
             float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
+            for (int Sample = 0; Sample < Start; ++Sample)
+                Samples[Sample] = new Complex();
             for (int Sample = Math.Max(Start, 0); Sample < Splitter; ++Sample)
                 Samples[Sample] *= Left((Sample - Start) * LeftSpanDiv);
             for (int Sample = Splitter, ActEnd = Math.Min(End, Samples.Length); Sample < ActEnd; ++Sample)
                 Samples[Sample] *= Right((Sample - EndMirror) * RightSpanDiv);
+            for (int Sample = End, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
+                Samples[Sample] = new Complex();
         }
 
         /// <summary>Window function format.</summary>
