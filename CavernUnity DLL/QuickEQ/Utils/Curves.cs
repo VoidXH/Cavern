@@ -48,7 +48,7 @@ namespace Cavern.QuickEQ {
             int BellEnd = 120 * Length / (SampleRate / 2);
             float EndDiv = Measurements.Pix2 / BellEnd;
             for (int Pos = 0; Pos < BellEnd; ++Pos)
-                Curve[Pos] = Windowing.HannWindow(Pos * EndDiv) * 10 + Gain;
+                Curve[Pos] = (1 - Mathf.Cos(Pos * EndDiv)) * 5 + Gain;
             for (int Pos = BellEnd; Pos < Length; ++Pos)
                 Curve[Pos] = Gain;
             return Curve;
@@ -65,7 +65,7 @@ namespace Cavern.QuickEQ {
             int BellStart = Mathf.RoundToInt((1 - PowerMin) / PowerRange), BellEnd = Mathf.RoundToInt((Log120 - PowerMin) / PowerRange);
             float EndDiv = Measurements.Pix2 / (BellEnd - BellStart);
             for (int Pos = 0; Pos < BellEnd; ++Pos)
-                Curve[Pos] = Windowing.HannWindow((Pos - BellStart) * EndDiv) * 10 + Gain;
+                Curve[Pos] = (1 - Mathf.Cos((Pos - BellStart) * EndDiv)) * 5 + Gain;
             for (int Pos = BellEnd; Pos < Length; ++Pos)
                 Curve[Pos] = Gain;
             return Curve;

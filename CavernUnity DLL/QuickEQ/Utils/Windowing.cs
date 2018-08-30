@@ -16,92 +16,107 @@ namespace Cavern.QuickEQ {
         Blackman,
         /// <summary>0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)</summary>
         BlackmanHarris,
-        /// <summary>A window designed to flatten sweep responses.</summary>
+        /// <summary>A window for impulse response trimming, with a precompiled alpha.</summary>
         Tukey
     }
 
     /// <summary>FFT windowing functions.</summary>
     public static class Windowing {
-        /// <summary>Apply a custom window function.</summary>
+        /// <summary>Apply a predefined window function on a signal.</summary>
         /// <param name="Samples">Measurement to window</param>
-        /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
-        /// and its return value is the multiplier for the sample at that point</param>
-        public static void ApplyWindow(float[] Samples, Func<float, float> Function) {
-            float Positioner = Measurements.Pix2 / Samples.Length;
-            for (int Sample = 0, c = Samples.Length; Sample < c; ++Sample)
-                Samples[Sample] *= Function(Sample * Positioner);
-        }
-
-        /// <summary>Apply a custom window function on a complex signal.</summary>
-        /// <param name="Samples">Measurement to window</param>
-        /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
-        /// and its return value is the multiplier for the sample at that point</param>
-        public static void ApplyWindow(Complex[] Samples, Func<float, float> Function) {
-            float Positioner = Measurements.Pix2 / Samples.Length;
-            for (int Sample = 0, c = Samples.Length; Sample < c; ++Sample)
-                Samples[Sample] *= Function(Sample * Positioner);
+        /// <param name="Function">Windowing function applied</param>
+        public static void ApplyWindow(float[] Samples, Window Function) {
+            WindowFunction Windowing = GetWindowFunction(Function);
+            ApplyWindow(Samples, Windowing, Windowing, 0, Samples.Length / 2, Samples.Length);
         }
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
         /// <param name="Samples">Measurement to window</param>
+        /// <param name="Left">Window function left from the marker</param>
+        /// <param name="Right">Window function right from the marker</param>
         /// <param name="Start">Beginning of the window in samples</param>
+        /// <param name="Splitter">The point where the two window functions change</param>
         /// <param name="End">End of the window in samples</param>
-        /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
-        /// and its return value is the multiplier for the sample at that point</param>
-        public static void ApplyWindow(float[] Samples, int Start, int End, Func<float, float> Function) {
-            int Span = End - Start;
-            float SpanDiv = Measurements.Pix2 / Span;
-            for (int Sample = Start; Sample < End; ++Sample)
-                Samples[Sample] *= Function((Sample - Start) * SpanDiv);
+        public static void ApplyWindow(float[] Samples, Window Left, Window Right, int Start, int Splitter, int End) {
+            ApplyWindow(Samples, GetWindowFunction(Left), GetWindowFunction(Right), Start, Splitter, End);
         }
 
-        /// <summary>Apply a custom window function on part of a complex signal.</summary>
-        /// <param name="Samples">Measurement to window</param>
-        /// <param name="Start">Beginning of the window in samples</param>
-        /// <param name="End">End of the window in samples</param>
-        /// <param name="Function">The custom window function, of which the parameter is the position in the signal from 0 to 2 * pi,
-        /// and its return value is the multiplier for the sample at that point</param>
-        public static void ApplyWindow(Complex[] Samples, int Start, int End, Func<float, float> Function) {
-            int Span = End - Start;
-            float SpanDiv = Measurements.Pix2 / Span;
-            for (int Sample = Start; Sample < End; ++Sample)
-                Samples[Sample] *= Function((Sample - Start) * SpanDiv);
+        /// <summary>Implementation of <see cref="ApplyWindow(float[], Window, Window, int, int, int)"/>.</summary>
+        static void ApplyWindow(float[] Samples, WindowFunction Left, WindowFunction Right, int Start, int Splitter, int End) {
+            int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter);
+            float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
+            for (int Sample = Start; Sample < Splitter; ++Sample)
+                Samples[Sample] *= Left((Sample - Start) * LeftSpanDiv);
+            for (int Sample = Splitter; Sample < End; ++Sample)
+                Samples[Sample] *= Right((Sample - EndMirror) * RightSpanDiv);
         }
 
-        /// <summary>Apply a predefined window function.</summary>
+        /// <summary>Apply a predefined window function on a signal.</summary>
         /// <param name="Samples">Measurement to window</param>
-        /// <param name="Function">Window function</param>
-        public static void ApplyWindow(float[] Samples, Window Function) {
+        /// <param name="Function">Windowing function applied</param>
+        public static void ApplyWindow(Complex[] Samples, Window Function) {
+            WindowFunction Windowing = GetWindowFunction(Function);
+            ApplyWindow(Samples, Windowing, Windowing, 0, Samples.Length / 2, Samples.Length);
+        }
+
+        /// <summary>Apply a custom window function on part of a signal.</summary>
+        /// <param name="Samples">Measurement to window</param>
+        /// <param name="Left">Window function left from the marker</param>
+        /// <param name="Right">Window function right from the marker</param>
+        /// <param name="Start">Beginning of the window in samples</param>
+        /// <param name="Splitter">The point where the two window functions change</param>
+        /// <param name="End">End of the window in samples</param>
+        public static void ApplyWindow(Complex[] Samples, Window Left, Window Right, int Start, int Splitter, int End) {
+            ApplyWindow(Samples, GetWindowFunction(Left), GetWindowFunction(Right), Start, Splitter, End);
+        }
+
+        /// <summary>Implementation of <see cref="ApplyWindow(Complex[], Window, Window, int, int, int)"/>.</summary>
+        static void ApplyWindow(Complex[] Samples, WindowFunction Left, WindowFunction Right, int Start, int Splitter, int End) {
+            int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter);
+            float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
+            for (int Sample = Start; Sample < Splitter; ++Sample)
+                Samples[Sample] *= Left((Sample - Start) * LeftSpanDiv);
+            for (int Sample = Splitter; Sample < End; ++Sample)
+                Samples[Sample] *= Right((Sample - EndMirror) * RightSpanDiv);
+        }
+
+        /// <summary>Window function format.</summary>
+        /// <param name="x">The position in the signal from 0 to 2 * pi</param>
+        /// <returns>The multiplier for the sample at x</returns>
+        delegate float WindowFunction(float x);
+
+        /// <summary>Get the corresponding window function for each <see cref="Window"/> value.</summary>
+        static WindowFunction GetWindowFunction(Window Function) {
             switch (Function) {
-                case Window.Sine: ApplyWindow(Samples, SineWindow); return;
-                case Window.Hamming: ApplyWindow(Samples, HammingWindow); return;
-                case Window.Hann: ApplyWindow(Samples, HannWindow); return;
-                case Window.Blackman: ApplyWindow(Samples, BlackmanWindow); return;
-                case Window.BlackmanHarris: ApplyWindow(Samples, BlackmanHarrisWindow); return;
-                case Window.Tukey: ApplyWindow(Samples, TukeyWindow); return;
-                default: break;
+                case Window.Sine: return SineWindow;
+                case Window.Hamming: return HammingWindow;
+                case Window.Hann: return HannWindow;
+                case Window.Blackman: return BlackmanWindow;
+                case Window.BlackmanHarris: return BlackmanHarrisWindow;
+                case Window.Tukey: return TukeyWindow;
+                default: return x => 1;
             }
         }
 
         /// <summary>sin(x)</summary>
-        public static float SineWindow(float x) { return Mathf.Sin(x * .5f); }
+        static float SineWindow(float x) { return Mathf.Sin(x * .5f); }
         /// <summary>0.54 - 0.46 * cos(x)</summary>
-        public static float HammingWindow(float x) { return .54f - .46f * Mathf.Cos(x); }
+        static float HammingWindow(float x) { return .54f - .46f * Mathf.Cos(x); }
         /// <summary>0.5 * (1 - cos(x))</summary>
-        public static float HannWindow(float x) { return .5f * (1 - Mathf.Cos(x)); }
+        static float HannWindow(float x) { return .5f * (1 - Mathf.Cos(x)); }
         /// <summary>0.42 - 0.5 * cos(x) + 0.08 * cos(2 * x)</summary>
-        public static float BlackmanWindow(float x) { return .42f - .5f * Mathf.Cos(x) + .08f * Mathf.Cos(x + x); }
+        static float BlackmanWindow(float x) { return .42f - .5f * Mathf.Cos(x) + .08f * Mathf.Cos(x + x); }
         /// <summary>0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)</summary>
-        public static float BlackmanHarrisWindow(float x) {
+        static float BlackmanHarrisWindow(float x) {
             float x2 = x + x;
             return .35875f - .48829f * Mathf.Cos(x) + .14128f * Mathf.Cos(x2) - .01168f * Mathf.Cos(x2 + x);
         }
-        /// <summary>Tukey window with a precompiled alpha.</summary>
-        public static float TukeyWindow(float x) {
-            const float Alpha = .8f, Flatness = Alpha / 2, Positioner = .5f / Flatness;
-            if (x < Math.PI * 2 * Flatness)
+        /// <summary>A window for impulse response trimming, with a precompiled alpha.</summary>
+        static float TukeyWindow(float x) {
+            const float Alpha = .25f, Positioner = 1 / Alpha, FlatLeft = Mathf.PI * Alpha, FlatRight = Mathf.PI * (2 - Alpha);
+            if (x < FlatLeft)
                 return (Mathf.Cos(x * Positioner - Mathf.PI) + 1) * .5f;
-            else if (x > Math.PI * 2 * (1 - Flatness))
+            else if (x > FlatRight)
                 return (Mathf.Cos((Measurements.Pix2 - x) * Positioner - Mathf.PI) + 1) * .5f;
             else
                 return 1;
