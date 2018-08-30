@@ -45,9 +45,9 @@ namespace Cavern.QuickEQ {
         static void ApplyWindow(float[] Samples, WindowFunction Left, WindowFunction Right, int Start, int Splitter, int End) {
             int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter);
             float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
-            for (int Sample = Start; Sample < Splitter; ++Sample)
+            for (int Sample = Math.Max(Start, 0); Sample < Splitter; ++Sample)
                 Samples[Sample] *= Left((Sample - Start) * LeftSpanDiv);
-            for (int Sample = Splitter; Sample < End; ++Sample)
+            for (int Sample = Splitter, ActEnd = Math.Min(End, Samples.Length); Sample < ActEnd; ++Sample)
                 Samples[Sample] *= Right((Sample - EndMirror) * RightSpanDiv);
         }
 
@@ -74,9 +74,9 @@ namespace Cavern.QuickEQ {
         static void ApplyWindow(Complex[] Samples, WindowFunction Left, WindowFunction Right, int Start, int Splitter, int End) {
             int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter);
             float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
-            for (int Sample = Start; Sample < Splitter; ++Sample)
+            for (int Sample = Math.Max(Start, 0); Sample < Splitter; ++Sample)
                 Samples[Sample] *= Left((Sample - Start) * LeftSpanDiv);
-            for (int Sample = Splitter; Sample < End; ++Sample)
+            for (int Sample = Splitter, ActEnd = Math.Min(End, Samples.Length); Sample < ActEnd; ++Sample)
                 Samples[Sample] *= Right((Sample - EndMirror) * RightSpanDiv);
         }
 
