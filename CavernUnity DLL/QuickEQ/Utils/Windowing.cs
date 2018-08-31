@@ -4,6 +4,8 @@ using UnityEngine;
 namespace Cavern.QuickEQ {
     /// <summary>Available FFT windows.</summary>
     public enum Window {
+        /// <summary>No windowing.</summary>
+        Disabled,
         /// <summary>1</summary>
         Rectangular,
         /// <summary>sin(x)</summary>
@@ -26,8 +28,7 @@ namespace Cavern.QuickEQ {
         /// <param name="Samples">Measurement to window</param>
         /// <param name="Function">Windowing function applied</param>
         public static void ApplyWindow(float[] Samples, Window Function) {
-            WindowFunction Windowing = GetWindowFunction(Function);
-            ApplyWindow(Samples, Windowing, Windowing, 0, Samples.Length / 2, Samples.Length);
+            ApplyWindow(Samples, Function, Function, 0, Samples.Length / 2, Samples.Length);
         }
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
@@ -38,29 +39,29 @@ namespace Cavern.QuickEQ {
         /// <param name="Splitter">The point where the two window functions change</param>
         /// <param name="End">End of the window in samples</param>
         public static void ApplyWindow(float[] Samples, Window Left, Window Right, int Start, int Splitter, int End) {
-            ApplyWindow(Samples, GetWindowFunction(Left), GetWindowFunction(Right), Start, Splitter, End);
-        }
-
-        /// <summary>Implementation of <see cref="ApplyWindow(float[], Window, Window, int, int, int)"/>.</summary>
-        static void ApplyWindow(float[] Samples, WindowFunction Left, WindowFunction Right, int Start, int Splitter, int End) {
             int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter);
             float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
-            for (int Sample = 0; Sample < Start; ++Sample)
-                Samples[Sample] = 0;
-            for (int Sample = Math.Max(Start, 0); Sample < Splitter; ++Sample)
-                Samples[Sample] *= Left((Sample - Start) * LeftSpanDiv);
-            for (int Sample = Splitter, ActEnd = Math.Min(End, Samples.Length); Sample < ActEnd; ++Sample)
-                Samples[Sample] *= Right((Sample - EndMirror) * RightSpanDiv);
-            for (int Sample = End, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
-                Samples[Sample] = 0;
+            if (Left != Window.Disabled) {
+                WindowFunction LeftFunc = GetWindowFunction(Left);
+                for (int Sample = 0; Sample < Start; ++Sample)
+                    Samples[Sample] = 0;
+                for (int Sample = Math.Max(Start, 0); Sample < Splitter; ++Sample)
+                    Samples[Sample] *= LeftFunc((Sample - Start) * LeftSpanDiv);
+            }
+            if (Right != Window.Disabled) {
+                WindowFunction RightFunc = GetWindowFunction(Right);
+                for (int Sample = Splitter, ActEnd = Math.Min(End, Samples.Length); Sample < ActEnd; ++Sample)
+                    Samples[Sample] *= RightFunc((Sample - EndMirror) * RightSpanDiv);
+                for (int Sample = End, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
+                    Samples[Sample] = 0;
+            }
         }
 
         /// <summary>Apply a predefined window function on a signal.</summary>
         /// <param name="Samples">Measurement to window</param>
         /// <param name="Function">Windowing function applied</param>
         public static void ApplyWindow(Complex[] Samples, Window Function) {
-            WindowFunction Windowing = GetWindowFunction(Function);
-            ApplyWindow(Samples, Windowing, Windowing, 0, Samples.Length / 2, Samples.Length);
+            ApplyWindow(Samples, Function, Function, 0, Samples.Length / 2, Samples.Length);
         }
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
@@ -71,21 +72,22 @@ namespace Cavern.QuickEQ {
         /// <param name="Splitter">The point where the two window functions change</param>
         /// <param name="End">End of the window in samples</param>
         public static void ApplyWindow(Complex[] Samples, Window Left, Window Right, int Start, int Splitter, int End) {
-            ApplyWindow(Samples, GetWindowFunction(Left), GetWindowFunction(Right), Start, Splitter, End);
-        }
-
-        /// <summary>Implementation of <see cref="ApplyWindow(Complex[], Window, Window, int, int, int)"/>.</summary>
-        static void ApplyWindow(Complex[] Samples, WindowFunction Left, WindowFunction Right, int Start, int Splitter, int End) {
             int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter);
             float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
-            for (int Sample = 0; Sample < Start; ++Sample)
-                Samples[Sample] = new Complex();
-            for (int Sample = Math.Max(Start, 0); Sample < Splitter; ++Sample)
-                Samples[Sample] *= Left((Sample - Start) * LeftSpanDiv);
-            for (int Sample = Splitter, ActEnd = Math.Min(End, Samples.Length); Sample < ActEnd; ++Sample)
-                Samples[Sample] *= Right((Sample - EndMirror) * RightSpanDiv);
-            for (int Sample = End, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
-                Samples[Sample] = new Complex();
+            if (Left != Window.Disabled) {
+                WindowFunction LeftFunc = GetWindowFunction(Left);
+                for (int Sample = 0; Sample < Start; ++Sample)
+                    Samples[Sample] = new Complex();
+                for (int Sample = Math.Max(Start, 0); Sample < Splitter; ++Sample)
+                    Samples[Sample] *= LeftFunc((Sample - Start) * LeftSpanDiv);
+            }
+            if (Right != Window.Disabled) {
+                WindowFunction RightFunc = GetWindowFunction(Right);
+                for (int Sample = Splitter, ActEnd = Math.Min(End, Samples.Length); Sample < ActEnd; ++Sample)
+                    Samples[Sample] *= RightFunc((Sample - EndMirror) * RightSpanDiv);
+                for (int Sample = End, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
+                    Samples[Sample] = new Complex();
+            }
         }
 
         /// <summary>Window function format.</summary>
