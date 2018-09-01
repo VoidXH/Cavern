@@ -152,19 +152,16 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Get the frequency response using the original sweep signal's FFT as reference.</summary>
-        public static Complex[] GetFrequencyResponse(Complex[] Reference, float[] Response) {
+        public static Complex[] GetFrequencyResponse(Complex[] ReferenceFFT, float[] Response) {
             Complex[] ResponseFFT = FFT(Response);
             for (int Sample = 0, Length = ResponseFFT.Length; Sample < Length; ++Sample)
-                ResponseFFT[Sample] /= Reference[Sample];
+                ResponseFFT[Sample] /= ReferenceFFT[Sample];
             return ResponseFFT;
         }
 
         /// <summary>Get the frequency response using the original sweep signal as reference.</summary>
         public static Complex[] GetFrequencyResponse(float[] Reference, float[] Response) {
-            Complex[] ReferenceFFT = FFT(Reference), ResponseFFT = FFT(Response);
-            for (int Sample = 0, Length = ResponseFFT.Length; Sample < Length; ++Sample)
-                ResponseFFT[Sample] /= ReferenceFFT[Sample];
-            return ResponseFFT;
+            return GetFrequencyResponse(FFT(Reference), Response);
         }
 
         /// <summary>Get the complex impulse response using a precalculated frequency response.</summary>
