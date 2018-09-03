@@ -58,7 +58,7 @@ namespace Cavern {
 
         /// <summary>Returns if this channel is part of the screen channels.</summary>
         public bool IsScreenChannel() {
-            return Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
+            return !LFE && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
         }
 
         /// <summary>Recalculates properties and symmetry when a channel's position is changed.</summary>
