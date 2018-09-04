@@ -20,7 +20,7 @@ namespace Cavern.Utilities {
         /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="Q">Q-factor of the filter</param>
         public void Reset(float CenterFreq, float Q = .7071067811865475f) {
-            SampleRate = AudioListener3D.Current.SampleRate;
+            SampleRate = AudioListener3D.Current != null ? AudioListener3D.Current.SampleRate : 48000;
             this.CenterFreq = CenterFreq;
             this.Q = Q;
             float w0 = Mathf.PI * 2 * CenterFreq / SampleRate, Cos = Mathf.Cos(w0), Alpha = Mathf.Sin(w0) / (Q + Q), Divisor = 1 / (1 + Alpha);
@@ -34,7 +34,7 @@ namespace Cavern.Utilities {
         /// <param name="Channel">Channel to filter</param>
         /// <param name="Channels">Total channels</param>
         public void Process(float[] Samples, int Channel = 0, int Channels = 1) {
-            if (SampleRate != AudioListener3D.Current.SampleRate)
+            if (SampleRate != (AudioListener3D.Current != null ? AudioListener3D.Current.SampleRate : 48000))
                 Reset(CenterFreq, Q);
             for (int Sample = Channel, End = Samples.Length; Sample < End; Sample += Channels) {
                 float ThisSample = Samples[Sample];
