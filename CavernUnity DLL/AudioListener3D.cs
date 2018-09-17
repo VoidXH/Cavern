@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -161,10 +162,15 @@ namespace Cavern {
                 int SavePos = 1;
                 int ChannelLength = Convert.ToInt32(Save[0]);
                 Channels = new Channel[ChannelLength];
+                NumberFormatInfo Format = new NumberFormatInfo {
+                    NumberDecimalSeparator = ","
+                };
                 for (int i = 0; i < ChannelLength; ++i)
-                    Channels[i] = new Channel(Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]), Convert.ToBoolean(Save[SavePos++]));
-                _EnvironmentType = (Environments)Convert.ToInt32(Save[SavePos++]);
-                EnvironmentSize = new Vector3(Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]), Convert.ToSingle(Save[SavePos++]));
+                    Channels[i] = new Channel(Convert.ToSingle(Save[SavePos++], Format), Convert.ToSingle(Save[SavePos++], Format),
+                        Convert.ToBoolean(Save[SavePos++]));
+                _EnvironmentType = (Environments)Convert.ToInt32(Save[SavePos++], Format);
+                EnvironmentSize = new Vector3(Convert.ToSingle(Save[SavePos++], Format), Convert.ToSingle(Save[SavePos++], Format),
+                    Convert.ToSingle(Save[SavePos++], Format));
                 HeadphoneVirtualizer = Save.Length > SavePos ? Convert.ToBoolean(Save[SavePos++]) : false; // Added: 2016.04.24.
                 EnvironmentCompensation = Save.Length > SavePos ? Convert.ToBoolean(Save[SavePos++]) : false; // Added: 2017.06.18.
             }
