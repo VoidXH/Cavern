@@ -18,8 +18,6 @@ namespace Cavern {
             }
         }
 
-        /// <summary>pi / 2</summary>
-        internal const float HalfPi = Mathf.PI * .5f;
         /// <summary>sqrt(2) / 2</summary>
         internal const float Sqrt2p2 = .7071067811f;
         /// <summary>sqrt(2) / -2</summary>

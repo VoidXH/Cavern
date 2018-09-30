@@ -40,7 +40,7 @@ namespace Cavern.QuickEQ {
         /// <param name="End">End of the window in samples</param>
         public static void ApplyWindow(float[] Samples, Window Left, Window Right, int Start, int Splitter, int End) {
             int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter), PosSplitter = Math.Max(Splitter, 0);
-            float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
+            float LeftSpanDiv = 2 * Mathf.PI / (LeftSpan * 2), RightSpanDiv = 2 * Mathf.PI / (RightSpan * 2);
             if (Left != Window.Disabled) {
                 WindowFunction LeftFunc = GetWindowFunction(Left);
                 for (int Sample = 0; Sample < Start; ++Sample)
@@ -74,7 +74,7 @@ namespace Cavern.QuickEQ {
         /// <param name="End">End of the window in samples</param>
         public static void ApplyWindow(Complex[] Samples, Window Left, Window Right, int Start, int Splitter, int End) {
             int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter), PosSplitter = Math.Max(Splitter, 0);
-            float LeftSpanDiv = Measurements.Pix2 / (LeftSpan * 2), RightSpanDiv = Measurements.Pix2 / (RightSpan * 2);
+            float LeftSpanDiv = 2 * Mathf.PI / (LeftSpan * 2), RightSpanDiv = 2 * Mathf.PI / (RightSpan * 2);
             if (Left != Window.Disabled) {
                 WindowFunction LeftFunc = GetWindowFunction(Left);
                 for (int Sample = 0; Sample < Start; ++Sample)
@@ -129,7 +129,7 @@ namespace Cavern.QuickEQ {
             if (x < FlatLeft)
                 return (Mathf.Cos(x * Positioner - Mathf.PI) + 1) * .5f;
             else if (x > FlatRight)
-                return (Mathf.Cos((Measurements.Pix2 - x) * Positioner - Mathf.PI) + 1) * .5f;
+                return (Mathf.Cos((2 * Mathf.PI - x) * Positioner - Mathf.PI) + 1) * .5f;
             else
                 return 1;
         }

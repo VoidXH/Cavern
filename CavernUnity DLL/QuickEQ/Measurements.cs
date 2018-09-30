@@ -3,8 +3,6 @@
 namespace Cavern.QuickEQ {
     /// <summary>Tools for measuring frequency response.</summary>
     public static class Measurements {
-        internal const float Pix2 = Mathf.PI * 2f, NegPix2 = -Pix2;
-
         /// <summary>Fast Fourier transform a real signal.</summary>
         public static Complex[] FFT(float[] Samples) {
             int Length = Samples.Length;
@@ -25,7 +23,7 @@ namespace Cavern.QuickEQ {
                 Odd[Sample] = Samples[Pair++];
             }
             Complex[] EvenFFT = FFT(Even), OddFFT = FFT(Odd);
-            float Step = NegPix2 / Length;
+            float Step = -2 * Mathf.PI / Length;
             for (int i = 0; i < HalfLength; ++i)
                 OddFFT[i].Rotate(Step * i);
             for (int i = 0; i < HalfLength; ++i) {
@@ -46,7 +44,7 @@ namespace Cavern.QuickEQ {
                 Odd[Sample] = Samples[Pair++];
             }
             Complex[] EvenFFT = ProcessIFFT(Even), OddFFT = ProcessIFFT(Odd);
-            float Step = Pix2 / Length;
+            float Step = 2 * Mathf.PI / Length;
             for (int i = 0; i < HalfLength; ++i)
                 OddFFT[i].Rotate(Step * i);
             for (int i = 0; i < HalfLength; ++i) {
@@ -108,7 +106,7 @@ namespace Cavern.QuickEQ {
             float Chirpyness = (EndFreq - StartFreq) / (2 * Samples / (float)SampleRate);
             for (int Sample = 0; Sample < Samples; ++Sample) {
                 float Position = Sample / (float)SampleRate;
-                Output[Sample] = Mathf.Sin(Pix2 * (StartFreq * Position + Chirpyness * Position * Position));
+                Output[Sample] = Mathf.Sin(2 * Mathf.PI * (StartFreq * Position + Chirpyness * Position * Position));
             }
             return Output;
         }
@@ -126,7 +124,7 @@ namespace Cavern.QuickEQ {
         public static float[] ExponentialSweep(float StartFreq, float EndFreq, int Samples, int SampleRate) {
             float[] Output = new float[Samples];
             float Chirpyness = Mathf.Pow(EndFreq / StartFreq, SampleRate / (float)Samples),
-                LogChirpyness = Mathf.Log(Chirpyness), SinConst = Pix2 * StartFreq;
+                LogChirpyness = Mathf.Log(Chirpyness), SinConst = 2 * Mathf.PI * StartFreq;
             for (int Sample = 0; Sample < Samples; ++Sample)
                 Output[Sample] =
                     Mathf.Sin(SinConst * (Mathf.Pow(Chirpyness, Sample / (float)SampleRate) - 1) / LogChirpyness);
