@@ -74,62 +74,62 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Alias for <see cref="Clip"/>.</summary>
         public AudioClip clip {
-            get { return Clip; }
-            set { Clip = value; }
+            get => Clip;
+            set => Clip = value;
         }
 
         /// <summary>Alias for <see cref="DopplerLevel"/>.</summary>
         public float dopplerLevel {
-            get { return DopplerLevel; }
-            set { DopplerLevel = value; }
+            get => DopplerLevel;
+            set => DopplerLevel = value;
         }
 
         /// <summary>Alias for <see cref="IsPlaying"/>.</summary>
         public bool isPlaying {
-            get { return IsPlaying; }
-            set { IsPlaying = value; }
+            get => IsPlaying;
+            set => IsPlaying = value;
         }
 
         /// <summary>Alias for <see cref="Loop"/>.</summary>
         public bool loop {
-            get { return Loop; }
-            set { Loop = value; }
+            get => Loop;
+            set => Loop = value;
         }
 
         /// <summary>Alias for <see cref="Mute"/>.</summary>
         public bool mute {
-            get { return Mute; }
-            set { Mute = value; }
+            get => Mute;
+            set => Mute = value;
         }
 
         /// <summary>Alias for <see cref="StereoPan"/>.</summary>
         public float panStereo {
-            get { return StereoPan; }
-            set { StereoPan = value; }
+            get => StereoPan;
+            set => StereoPan = value;
         }
 
         /// <summary>Alias for <see cref="Pitch"/>.</summary>
         public float pitch {
-            get { return Pitch; }
-            set { Pitch = value; }
+            get => Pitch;
+            set => Pitch = value;
         }
 
         /// <summary>Alias for <see cref="SpatialBlend"/>.</summary>
         public float spatialBlend {
-            get { return SpatialBlend; }
-            set { SpatialBlend = value; }
+            get => SpatialBlend;
+            set => SpatialBlend = value;
         }
 
         /// <summary>Alias for <see cref="Volume"/>.</summary>
         public float volume {
-            get { return Volume; }
-            set { Volume = value; }
+            get => Volume;
+            set => Volume = value;
         }
 
         /// <summary>Clip playback position in seconds.</summary>
         public float time {
-            get { return timeSamples / (float)AudioListener3D.Current.SampleRate; }
-            set { timeSamples = (int)(value * AudioListener3D.Current.SampleRate); }
+            get => timeSamples / (float)AudioListener3D.Current.SampleRate;
+            set => timeSamples = (int)(value * AudioListener3D.Current.SampleRate);
         }
 
         // ------------------------------------------------------------------
@@ -151,19 +151,13 @@ namespace Cavern {
         }
 
         /// <summary>Pause playback if it's not paused.</summary>
-        public void Pause() {
-            IsPlaying = false;
-        }
+        public void Pause() => IsPlaying = false;
 
         /// <summary>Continue playback if it's paused.</summary>
-        public void UnPause() {
-            IsPlaying = true;
-        }
+        public void UnPause() => IsPlaying = true;
 
         /// <summary>Toggle between playback and pause.</summary>
-        public void TogglePlay() {
-            IsPlaying = !IsPlaying;
-        }
+        public void TogglePlay() => IsPlaying = !IsPlaying;
 
         /// <summary>Pause playback and reset position. The next <see cref="UnPause"/> will start playback from the beginning.</summary>
         public void Stop() {

@@ -27,9 +27,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Apply a predefined window function on a signal.</summary>
         /// <param name="Samples">Measurement to window</param>
         /// <param name="Function">Windowing function applied</param>
-        public static void ApplyWindow(float[] Samples, Window Function) {
-            ApplyWindow(Samples, Function, Function, 0, Samples.Length / 2, Samples.Length);
-        }
+        public static void ApplyWindow(float[] Samples, Window Function) => ApplyWindow(Samples, Function, Function, 0, Samples.Length / 2, Samples.Length);
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
         /// <param name="Samples">Measurement to window</param>
@@ -61,9 +59,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Apply a predefined window function on a signal.</summary>
         /// <param name="Samples">Measurement to window</param>
         /// <param name="Function">Windowing function applied</param>
-        public static void ApplyWindow(Complex[] Samples, Window Function) {
-            ApplyWindow(Samples, Function, Function, 0, Samples.Length / 2, Samples.Length);
-        }
+        public static void ApplyWindow(Complex[] Samples, Window Function) => ApplyWindow(Samples, Function, Function, 0, Samples.Length / 2, Samples.Length);
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
         /// <param name="Samples">Measurement to window</param>
@@ -111,13 +107,13 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>sin(x)</summary>
-        static float SineWindow(float x) { return Mathf.Sin(x * .5f); }
+        static float SineWindow(float x) => Mathf.Sin(x * .5f);
         /// <summary>0.54 - 0.46 * cos(x)</summary>
-        static float HammingWindow(float x) { return .54f - .46f * Mathf.Cos(x); }
+        static float HammingWindow(float x) => .54f - .46f * Mathf.Cos(x);
         /// <summary>0.5 * (1 - cos(x))</summary>
-        static float HannWindow(float x) { return .5f * (1 - Mathf.Cos(x)); }
+        static float HannWindow(float x) => .5f * (1 - Mathf.Cos(x));
         /// <summary>0.42 - 0.5 * cos(x) + 0.08 * cos(2 * x)</summary>
-        static float BlackmanWindow(float x) { return .42f - .5f * Mathf.Cos(x) + .08f * Mathf.Cos(x + x); }
+        static float BlackmanWindow(float x) => .42f - .5f * Mathf.Cos(x) + .08f * Mathf.Cos(x + x);
         /// <summary>0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)</summary>
         static float BlackmanHarrisWindow(float x) {
             float x2 = x + x;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Cavern.QuickEQ {
@@ -25,7 +24,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Subsonic filter rolloff in dB / octave.</summary>
         public float SubsonicRolloff {
-            get { return _SubsonicRolloff; }
+            get => _SubsonicRolloff;
             set {
                 bool WasFiltered = SubsonicFilter;
                 if (WasFiltered)
@@ -39,7 +38,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Cut off low frequencies that are out of the channel's frequency range.</summary>
         public bool SubsonicFilter {
-            get { return _SubsonicFilter; }
+            get => _SubsonicFilter;
             set {
                 if (_SubsonicFilter && !value) {
                     if (_Bands.Count > 0)

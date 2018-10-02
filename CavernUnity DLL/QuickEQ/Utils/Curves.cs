@@ -60,9 +60,7 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Uniform gain on all frequencies.</summary>
-        static float Flat(float Frequency) {
-            return 0;
-        }
+        static float Flat(float Frequency) => 0;
 
         /// <summary>Cinema standard curve.</summary>
         static float XCurve(float Frequency) {

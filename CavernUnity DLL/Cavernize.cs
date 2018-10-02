@@ -50,14 +50,14 @@ namespace Cavern {
 
         /// <summary>Playback position in seconds.</summary>
         public float time {
-            get { return Now / (float)AudioListener3D.Current.SampleRate; }
-            set { Now = LastTime = (int)(value * AudioListener3D.Current.SampleRate); }
+            get => Now / (float)AudioListener3D.Current.SampleRate;
+            set => Now = LastTime = (int)(value * AudioListener3D.Current.SampleRate);
         }
 
         /// <summary>Playback position in samples.</summary>
         public int timeSamples {
-            get { return Now; }
-            set { Now = LastTime = value; }
+            get => Now;
+            set => Now = LastTime = value;
         }
 
         /// <summary>Sources representing imported or created channels.</summary>
@@ -246,9 +246,7 @@ namespace Cavern {
         }
 
         /// <summary>Runs the frame update function.</summary>
-        public void ForcedUpdate() {
-            Update();
-        }
+        public void ForcedUpdate() => Update();
 
         void Update() {
             // Reset

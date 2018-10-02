@@ -14,9 +14,7 @@ namespace Cavern {
         /// <summary>A [Rows, Columns] sized array containing if a seat is occupied.</summary>
         public bool[,] SeatsOccupied;
 
-        void Start() {
-            SeatsOccupied = new bool[Rows, Columns];
-        }
+        void Start() => SeatsOccupied = new bool[Rows, Columns];
 
         void Update() {
             float RRows = Rows - 1, RColumns = Columns - 1;

@@ -26,13 +26,9 @@ namespace Cavern.Debug {
             }
         }
 
-        void OnEnable() {
-            Application.logMessageReceived += LogHandler;
-        }
+        void OnEnable() => Application.logMessageReceived += LogHandler;
 
-        void OnDisable() {
-            Application.logMessageReceived -= LogHandler;
-        }
+        void OnDisable() => Application.logMessageReceived -= LogHandler;
 
         /// <summary>Draw window contents.</summary>
         /// <param name="wID">Window ID</param>

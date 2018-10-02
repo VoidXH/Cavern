@@ -36,9 +36,7 @@ namespace Cavern {
 
         AtmosphereObject[] Objects;
 
-        void Start() {
-            Objects = new AtmosphereObject[Sources];
-        }
+        void Start() => Objects = new AtmosphereObject[Sources];
 
         void OnDrawGizmosSelected() {
             if (!gameObject.activeInHierarchy)

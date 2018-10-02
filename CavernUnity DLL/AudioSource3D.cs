@@ -31,9 +31,7 @@ namespace Cavern {
             Node = AudioListener3D.ActiveSources.AddLast(this);
         }
 
-        void OnDisable() {
-            Node.List.Remove(Node);
-        }
+        void OnDisable() => Node.List.Remove(Node);
 
         // ------------------------------------------------------------------
         // Private vars
@@ -342,7 +340,8 @@ namespace Cavern {
                         Vector3 Forward = AudioListener3D.LastRotation * Vector3.forward, Upward = AudioListener3D.LastRotation * Vector3.up;
                         float ForwardScalar = Direction.x * Forward.x + Direction.y * Forward.y + Direction.z * Forward.z,
                             UpwardScalar = Direction.x * Upward.x + Direction.y * Upward.y + Direction.z * Upward.z;
-                        EchoVolume = (float)Math.Acos(ForwardScalar / (Forward.magnitude + .0001f) * DirectionMagnitudeRecip) * PiRecip; // Set volume by angle diff
+                        // Set volume by angle diff
+                        EchoVolume = (float)Math.Acos(ForwardScalar / (Forward.magnitude + .0001f) * DirectionMagnitudeRecip) * PiRecip;
                         float UpwardMatch = (float)Math.Acos(UpwardScalar / (Upward.magnitude + .0001f) * DirectionMagnitudeRecip) * PiRecip;
                         EchoDelay = (48f - 43.2f * UpwardMatch) / Listener.SampleRate; // Delay simulates height difference
                     } else if (CachedEcho) {
@@ -356,8 +355,8 @@ namespace Cavern {
                     if (Symmetric) {
                         float Volume3D = Volume * RolloffDistance * SpatialBlend;
                         if (!LFE) {
-                            // Find closest channels by cubical pos
-                            int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1; // Each direction (bottom/top, front/rear, left/right)
+                            // Find closest channels by cubical position in each direction (bottom/top, front/rear, left/right)
+                            int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1;
                             float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f,
                                 ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers on y/z
                             Direction.x /= AudioListener3D.EnvironmentSize.x;

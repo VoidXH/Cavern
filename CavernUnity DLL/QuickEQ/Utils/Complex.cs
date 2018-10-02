@@ -16,12 +16,12 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Magnitude of the complex number (spectrum for FFT).</summary>
         public float Magnitude {
-            get { return Mathf.Sqrt(Real * Real + Imaginary * Imaginary); }
+            get => Mathf.Sqrt(Real * Real + Imaginary * Imaginary);
         }
 
         /// <summary>Direction of the complex number (phase for FFT).</summary>
         public float Phase {
-            get { return Mathf.Atan(Imaginary / Real); }
+            get => Mathf.Atan(Imaginary / Real);
         }
 
         /// <summary>Multiply by (cos(x), sin(x)).</summary>
@@ -32,24 +32,17 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Complex addition.</summary>
-        public static Complex operator +(Complex lhs, Complex rhs) {
-            return new Complex(lhs.Real + rhs.Real, lhs.Imaginary + rhs.Imaginary);
-        }
+        public static Complex operator +(Complex lhs, Complex rhs) => new Complex(lhs.Real + rhs.Real, lhs.Imaginary + rhs.Imaginary);
 
         /// <summary>Complex substraction.</summary>
-        public static Complex operator -(Complex lhs, Complex rhs) {
-            return new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);
-        }
+        public static Complex operator -(Complex lhs, Complex rhs) => new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);
 
         /// <summary>Complex multiplication.</summary>
-        public static Complex operator *(Complex lhs, Complex rhs) {
-            return new Complex(lhs.Real * rhs.Real - lhs.Imaginary * rhs.Imaginary, lhs.Real * rhs.Imaginary + lhs.Imaginary * rhs.Real);
-        }
+        public static Complex operator *(Complex lhs, Complex rhs) =>
+            new Complex(lhs.Real * rhs.Real - lhs.Imaginary * rhs.Imaginary, lhs.Real * rhs.Imaginary + lhs.Imaginary * rhs.Real);
 
         /// <summary>Scalar complex multiplication.</summary>
-        public static Complex operator *(Complex lhs, float rhs) {
-            return new Complex(lhs.Real * rhs, lhs.Imaginary * rhs);
-        }
+        public static Complex operator *(Complex lhs, float rhs) => new Complex(lhs.Real * rhs, lhs.Imaginary * rhs);
 
         /// <summary>Complex division.</summary>
         public static Complex operator /(Complex lhs, Complex rhs) {

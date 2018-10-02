@@ -26,9 +26,7 @@ namespace Cavern.Spoofer {
                 Destroy(LevelsWindow);
         }
 
-        void Awake() {
-            Instance = this;
-        }
+        void Awake() => Instance = this;
 
         void Update() {
             if (!ListenerInstance && (ListenerInstance = FindObjectOfType<AudioListener>())) {

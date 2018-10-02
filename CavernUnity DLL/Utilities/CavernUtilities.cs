@@ -78,9 +78,7 @@ namespace Cavern {
 
         /// <summary>Unclamped linear interpolation.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float FastLerp(float a, float b, float t) {
-            return (b - a) * t + a;
-        }
+        internal static float FastLerp(float a, float b, float t) => (b - a) * t + a;
 
         /// <summary>Clamped linear vector interpolation</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -169,16 +167,12 @@ namespace Cavern {
         /// Converts a signal strength (ref = 1) to dB.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float SignalToDb(float Amplitude) {
-            return 20 * Mathf.Log10(Amplitude);
-        }
+        internal static float SignalToDb(float Amplitude) => 20 * Mathf.Log10(Amplitude);
 
         /// <summary>
         /// Converts a dB value (ref = 0) to signal strength.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float DbToSignal(float Amplitude) {
-            return Mathf.Pow(10, Amplitude * 0.05f);
-        }
+        internal static float DbToSignal(float Amplitude) => Mathf.Pow(10, 1/20f * Amplitude);
     }
 }

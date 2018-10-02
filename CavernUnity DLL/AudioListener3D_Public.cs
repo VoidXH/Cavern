@@ -65,8 +65,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Alias for <see cref="Volume"/>.</summary>
         public float volume {
-            get { return Volume; }
-            set { Volume = value; }
+            get => Volume;
+            set => Volume = value;
         }
 
         // ------------------------------------------------------------------
@@ -79,7 +79,7 @@ namespace Cavern {
 
         /// <summary>3D environment type. Set by the user and applied when an <see cref="AudioListener3D"/> is created.</summary>
         public static Environments EnvironmentType {
-            get { return _EnvironmentType; }
+            get => _EnvironmentType;
             set {
                 _EnvironmentType = value;
                 for (int Channel = 0; Channel < ChannelCount; ++Channel)
@@ -112,8 +112,8 @@ namespace Cavern {
 
         /// <summary>How many sources can be played at the same time.</summary>
         public static int MaximumSources {
-            get { return SourceLimit; }
-            set { SourceLimit = value; SourceDistances = new float[value]; }
+            get => SourceLimit;
+            set => SourceDistances = new float[SourceLimit = value];
         }
 
         // ------------------------------------------------------------------
@@ -121,12 +121,12 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>True if the layout is symmetric.</summary>
         public static bool IsSymmetric {
-            get { return AudioSource3D.Symmetric; }
+            get => AudioSource3D.Symmetric;
         }
 
         /// <summary>Samples currently cached for output.</summary>
         public static int FilterBufferPosition {
-            get { return BufferPosition; }
+            get => BufferPosition;
         }
 
         // ------------------------------------------------------------------
@@ -178,8 +178,6 @@ namespace Cavern {
         }
 
         /// <summary>Runs the frame update function.</summary>
-        public void ForcedUpdate() {
-            Update();
-        }
+        public void ForcedUpdate() => Update();
     }
 }

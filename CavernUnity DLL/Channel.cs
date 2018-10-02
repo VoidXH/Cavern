@@ -11,13 +11,13 @@ namespace Cavern {
 
         /// <summary>Rotation around the X axis: height.</summary>
         public float x {
-            get { return X; }
+            get => X;
             set { X = value; Recalculate(); }
         }
 
         /// <summary>Rotation around the Y axis.</summary>
         public float y {
-            get { return Y; }
+            get => Y;
             set { Y = value; Recalculate(); }
         }
 
@@ -33,7 +33,7 @@ namespace Cavern {
         public Vector3 Direction { get; private set; }
 
         /// <summary>An identical channel.</summary>
-        internal Channel Copy { get { return new Channel(X, Y, LFE); } }
+        internal Channel Copy { get => new Channel(X, Y, LFE); }
 
         /// <summary>Constructor for a channel with given rotation values.</summary>
         /// <param name="X">Rotation around the X axis: height</param>
@@ -57,9 +57,7 @@ namespace Cavern {
         }
 
         /// <summary>Returns if this channel is part of the screen channels.</summary>
-        public bool IsScreenChannel() {
-            return !LFE && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
-        }
+        public bool IsScreenChannel() => !LFE && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
 
         /// <summary>Recalculates properties and symmetry when a channel's position is changed.</summary>
         internal void Recalculate() {

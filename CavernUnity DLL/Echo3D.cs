@@ -60,9 +60,7 @@ namespace Cavern {
             }
         }
 
-        void Start() {
-            Source = GetComponent<AudioSource3D>();
-        }
+        void Start() => Source = GetComponent<AudioSource3D>();
 
         void Update() {
             int CurrentBounce = 0, BounceCount = Detail * Detail * Bounces;

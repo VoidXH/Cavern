@@ -36,8 +36,6 @@ namespace Cavern.Helpers {
                 Source.timeSamples = MicPos - AudioSettings.GetConfiguration().dspBufferSize;
         }
 
-        void OnDisable() {
-            Destroy(Source.clip);
-        }
+        void OnDisable() => Destroy(Source.clip);
     }
 }

@@ -29,9 +29,7 @@ namespace Cavern {
 
         /// <summary>No rolloff.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float RolloffDisabled() {
-            return 1;
-        }
+        float RolloffDisabled() => 1;
 
         /// <summary>Rolloff calculator function.</summary>
         delegate float RolloffFunc();

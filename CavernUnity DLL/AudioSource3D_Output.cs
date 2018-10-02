@@ -25,15 +25,13 @@ namespace Cavern {
 
         /// <summary>Output samples to a multichannel array with approximated constant power. The error margin is 15%.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void WriteOutputApproxCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+        internal static void WriteOutputApproxCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) =>
             WriteOutput(Samples, Target, ChannelLength, Mathf.Sqrt(Gain), Channel, Channels);
-        }
 
         /// <summary>Output samples to a multichannel array with constant power.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void WriteOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+        internal static void WriteOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) =>
             WriteOutput(Samples, Target, ChannelLength, Mathf.Sin(Mathf.PI / 2 * Gain), Channel, Channels);
-        }
 
         /// <summary>Output samples to a multichannel array, while trying to fix standing waves.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,14 +53,12 @@ namespace Cavern {
 
         /// <summary>Output samples to a multichannel array with approximated constant power, while trying to fix standing waves.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void WriteFixedOutputApproxCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+        internal static void WriteFixedOutputApproxCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) =>
             WriteFixedOutput(Samples, Target, ChannelLength, Mathf.Sqrt(Gain), Channel, Channels);
-        }
 
         /// <summary>Output samples to a multichannel array with constant power, while trying to fix standing waves.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void WriteFixedOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+        internal static void WriteFixedOutputCP(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) =>
             WriteFixedOutput(Samples, Target, ChannelLength, Mathf.Sin(Mathf.PI / 2 * Gain), Channel, Channels);
-        }
     }
 }

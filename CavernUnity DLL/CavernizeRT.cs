@@ -54,17 +54,13 @@ namespace Cavern {
                     return dB * .3f + 7;
                 return dB * .05f + 4.5f;
             }
-            set {
-                FaderGain = 1f / CavernUtilities.DbToSignal(value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20));
-            }
+            set => FaderGain = 1f / CavernUtilities.DbToSignal(value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20));
         }
 
         float LastSample = 0, LowSample = 0, HighSample = 0;
         int SampleRate;
 
-        void Start() {
-            SampleRate = GetComponent<AudioSource>().clip.frequency;
-        }
+        void Start() => SampleRate = GetComponent<AudioSource>().clip.frequency;
 
         void OnAudioFilterRead(float[] data, int channels) {
             // Mono downmix

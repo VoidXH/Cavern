@@ -181,9 +181,7 @@ namespace Cavern.QuickEQ {
                 ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(RawResponse));
             }
 
-            public bool IsNull() {
-                return FreqResponse == null || ImpResponse == null;
-            }
+            public bool IsNull() => FreqResponse == null || ImpResponse == null;
         }
     }
 }
