@@ -230,7 +230,7 @@ namespace Cavern {
                             float ClipChDiv = 1f / ClipChannels;
                             for (int Sample = 0; Sample < PitchedUpdateRate; ++Sample) {
                                 for (int OrigPos = Sample * ClipChannels, End = OrigPos + ClipChannels; OrigPos < End; ++OrigPos)
-                                    Samples[Sample] = OriginalSamples[OrigPos];
+                                    Samples[Sample] += OriginalSamples[OrigPos];
                             }
                         } else { // First channel only otherwise
                             for (int Sample = 0, OrigSample = 0; Sample < PitchedUpdateRate; ++Sample, OrigSample += ClipChannels)
