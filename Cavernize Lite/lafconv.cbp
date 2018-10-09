@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="lafconv" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="Formats\;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/lafconv" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="-i source.wav -cav 404 -br 16 target.wav" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/lafconv" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="-i source.laf target.wav" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="AudioChannel.cpp" />
+		<Unit filename="AudioChannel.h" />
+		<Unit filename="CavernizeLite.cpp" />
+		<Unit filename="CavernizeLite.h" />
+		<Unit filename="Enums.h" />
+		<Unit filename="Format.cpp">
+			<Option virtualFolder="Formats/" />
+		</Unit>
+		<Unit filename="Format.h">
+			<Option virtualFolder="Formats/" />
+		</Unit>
+		<Unit filename="Limitless.cpp">
+			<Option virtualFolder="Formats/" />
+		</Unit>
+		<Unit filename="Limitless.h">
+			<Option virtualFolder="Formats/" />
+		</Unit>
+		<Unit filename="Main.cpp" />
+		<Unit filename="Utils.cpp" />
+		<Unit filename="Utils.h" />
+		<Unit filename="Vector3.cpp" />
+		<Unit filename="Vector3.h" />
+		<Unit filename="Waveform.cpp">
+			<Option virtualFolder="Formats/" />
+		</Unit>
+		<Unit filename="Waveform.h">
+			<Option virtualFolder="Formats/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

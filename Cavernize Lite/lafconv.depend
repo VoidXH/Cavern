@@ -1,0 +1,329 @@
+# depslib dependency file v1.0
+1487351526 source:b:\letöltések\lafconv\lafconv\format.cpp
+	"Format.h"
+
+1477261836 b:\letöltések\lafconv\lafconv\format.h
+	<fstream>
+	"Enums.h"
+
+1477173970 b:\letöltések\lafconv\lafconv\enums.h
+
+1487631248 source:b:\letöltések\lafconv\lafconv\limitless.cpp
+	"Limitless.h"
+	<iostream>
+	<algorithm>
+
+1487630108 b:\letöltések\lafconv\lafconv\limitless.h
+	"Format.h"
+
+1487352608 source:b:\letöltések\lafconv\lafconv\main.cpp
+	<iostream>
+	<list>
+	<string>
+	<cstring>
+	<cstdlib>
+	"Waveform.h"
+	"Limitless.h"
+
+1477262090 b:\letöltések\lafconv\lafconv\waveform.h
+	"Format.h"
+
+1487353099 source:b:\letöltések\lafconv\lafconv\utils.cpp
+	<iostream>
+	"Enums.h"
+
+1487627780 source:b:\letöltések\lafconv\lafconv\waveform.cpp
+	"Waveform.h"
+	"Utils.h"
+	<iostream>
+
+1477176587 b:\letöltések\lafconv\lafconv\utils.h
+	"Enums.h"
+
+1487355126 source:b:\code\lafconv\lafconv\format.cpp
+	"Format.h"
+
+1477265436 b:\code\lafconv\lafconv\format.h
+	<fstream>
+	"Enums.h"
+
+1477177570 b:\code\lafconv\lafconv\enums.h
+
+1495828043 source:b:\code\lafconv\lafconv\limitless.cpp
+	"Limitless.h"
+	<iostream>
+	<algorithm>
+
+1487633708 b:\code\lafconv\lafconv\limitless.h
+	"Format.h"
+
+1495841935 source:b:\code\lafconv\lafconv\main.cpp
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<iostream>
+	<list>
+	<string>
+	"CavernizeLite.h"
+	"Waveform.h"
+	"Limitless.h"
+
+1477265690 b:\code\lafconv\lafconv\waveform.h
+	"Format.h"
+
+1495826468 source:b:\code\lafconv\lafconv\utils.cpp
+	<iostream>
+	"Enums.h"
+
+1495829553 source:b:\code\lafconv\lafconv\waveform.cpp
+	"Waveform.h"
+	"Utils.h"
+	<iostream>
+
+1477180187 b:\code\lafconv\lafconv\utils.h
+	"Enums.h"
+
+1495841791 source:b:\code\lafconv\lafconv\cavernizelite.cpp
+	<cstring>
+	<math.h>
+	"CavernizeLite.h"
+	"Utils.h"
+
+1495839957 b:\code\lafconv\lafconv\cavernizelite.h
+	<iostream>
+	"Format.h"
+
+1519695853 source:b:\code\cavernize lite\cavernizelite.cpp
+	<cstring>
+	<fstream>
+	<iostream>
+	<math.h>
+	<stdlib.h>
+	"CavernizeLite.h"
+	"Utils.h"
+
+1515087531 b:\code\cavernize lite\cavernizelite.h
+	<iostream>
+	"Format.h"
+
+1519694678 b:\code\cavernize lite\format.h
+	<fstream>
+	"AudioChannel.h"
+	"Enums.h"
+
+1513273680 b:\code\cavernize lite\audiochannel.hpp
+	<cstdint>
+	<vector>
+	<math.h>
+	"vec3.hpp"
+
+1513271424 b:\code\cavernize lite\vec3.hpp
+	<math.h>
+
+1513271964 b:\code\cavernize lite\enums.h
+
+1513273072 b:\code\cavernize lite\utils.h
+	"Enums.h"
+
+1513274164 source:b:\code\cavernize lite\format.cpp
+	"Format.h"
+
+1519696175 source:b:\code\cavernize lite\audiochannel.cpp
+	"AudioChannel.h"
+
+1519694661 b:\code\cavernize lite\audiochannel.h
+	<iostream>
+	<vector>
+	<math.h>
+	"Vector3.h"
+
+1519694702 b:\code\cavernize lite\vector3.h
+	<math.h>
+
+1520211902 source:b:\code\cavernize lite\limitless.cpp
+	"AudioChannel.h"
+	"Limitless.h"
+	<iostream>
+	<algorithm>
+
+1519694773 b:\code\cavernize lite\limitless.h
+	"Format.h"
+
+1519695872 source:b:\code\cavernize lite\main.cpp
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<iostream>
+	<list>
+	<string>
+	"AudioChannel.h"
+	"CavernizeLite.h"
+	"Waveform.h"
+	"Limitless.h"
+
+1519694712 b:\code\cavernize lite\waveform.h
+	"Format.h"
+
+1513274426 source:b:\code\cavernize lite\utils.cpp
+	<iostream>
+	"AudioChannel.h"
+	"Enums.h"
+
+1513274537 source:b:\code\cavernize lite\vector3.cpp
+	"Vector3.h"
+
+1495825953 source:b:\code\cavernize lite\waveform.cpp
+	"Waveform.h"
+	"Utils.h"
+	<iostream>
+
+1519699775 source:b:\code\cavernize lite 1.1.4\audiochannel.cpp
+	"AudioChannel.h"
+
+1519698261 b:\code\cavernize lite 1.1.4\audiochannel.h
+	<iostream>
+	<vector>
+	<math.h>
+	"Vector3.h"
+
+1519698302 b:\code\cavernize lite 1.1.4\vector3.h
+	<math.h>
+
+1519699453 source:b:\code\cavernize lite 1.1.4\cavernizelite.cpp
+	<cstring>
+	<fstream>
+	<iostream>
+	<math.h>
+	<stdlib.h>
+	"CavernizeLite.h"
+	"Utils.h"
+
+1515091131 b:\code\cavernize lite 1.1.4\cavernizelite.h
+	<iostream>
+	"Format.h"
+
+1519698278 b:\code\cavernize lite 1.1.4\format.h
+	<fstream>
+	"AudioChannel.h"
+	"Enums.h"
+
+1513275564 b:\code\cavernize lite 1.1.4\enums.h
+
+1513276672 b:\code\cavernize lite 1.1.4\utils.h
+	"Enums.h"
+
+1513277764 source:b:\code\cavernize lite 1.1.4\format.cpp
+	"Format.h"
+
+1520215601 source:b:\code\cavernize lite 1.1.4\limitless.cpp
+	"AudioChannel.h"
+	"Limitless.h"
+	<iostream>
+	<algorithm>
+
+1519698373 b:\code\cavernize lite 1.1.4\limitless.h
+	"Format.h"
+
+1523819177 source:b:\code\cavernize lite 1.1.4\main.cpp
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<iostream>
+	<list>
+	<string>
+	"AudioChannel.h"
+	"CavernizeLite.h"
+	"Waveform.h"
+	"Limitless.h"
+
+1519698312 b:\code\cavernize lite 1.1.4\waveform.h
+	"Format.h"
+
+1523746759 source:b:\code\cavernize lite 1.1.4\utils.cpp
+	<iostream>
+	"AudioChannel.h"
+	"Enums.h"
+
+1513278137 source:b:\code\cavernize lite 1.1.4\vector3.cpp
+	"Vector3.h"
+
+1495829553 source:b:\code\cavernize lite 1.1.4\waveform.cpp
+	"Waveform.h"
+	"Utils.h"
+	<iostream>
+
+1519699775 source:b:\unity\cavern\cavernize lite\audiochannel.cpp
+	"AudioChannel.h"
+
+1519698261 b:\unity\cavern\cavernize lite\audiochannel.h
+	<iostream>
+	<vector>
+	<math.h>
+	"Vector3.h"
+
+1539122018 b:\unity\cavern\cavernize lite\vector3.h
+	<math.h>
+
+1526176572 source:b:\unity\cavern\cavernize lite\cavernizelite.cpp
+	<cstring>
+	<fstream>
+	<iostream>
+	<math.h>
+	<stdlib.h>
+	"CavernizeLite.h"
+	"Utils.h"
+
+1515091131 b:\unity\cavern\cavernize lite\cavernizelite.h
+	<iostream>
+	"Format.h"
+
+1519698278 b:\unity\cavern\cavernize lite\format.h
+	<fstream>
+	"AudioChannel.h"
+	"Enums.h"
+
+1513275564 b:\unity\cavern\cavernize lite\enums.h
+
+1513276672 b:\unity\cavern\cavernize lite\utils.h
+	"Enums.h"
+
+1513277764 source:b:\unity\cavern\cavernize lite\format.cpp
+	"Format.h"
+
+1520215601 source:b:\unity\cavern\cavernize lite\limitless.cpp
+	"AudioChannel.h"
+	"Limitless.h"
+	<iostream>
+	<algorithm>
+
+1519698373 b:\unity\cavern\cavernize lite\limitless.h
+	"Format.h"
+
+1523819286 source:b:\unity\cavern\cavernize lite\main.cpp
+	<cstdlib>
+	<cstring>
+	<ctime>
+	<iostream>
+	<list>
+	<string>
+	"AudioChannel.h"
+	"CavernizeLite.h"
+	"Waveform.h"
+	"Limitless.h"
+
+1519698312 b:\unity\cavern\cavernize lite\waveform.h
+	"Format.h"
+
+1523746759 source:b:\unity\cavern\cavernize lite\utils.cpp
+	<iostream>
+	"AudioChannel.h"
+	"Enums.h"
+
+1539122015 source:b:\unity\cavern\cavernize lite\vector3.cpp
+	"Vector3.h"
+
+1495829553 source:b:\unity\cavern\cavernize lite\waveform.cpp
+	"Waveform.h"
+	"Utils.h"
+	<iostream>
+
