@@ -22,10 +22,11 @@ the standard levels.
 
 ## Cavern theatres and studios
 For Cavern-only content creation and playback, the channels can only be
-calibrated by peaking filters, based off a frequency sweep reading with at least
-7 microphones positioned around the reference listening position, to a flat
-response with the error margin of 0.2 dB between 100 Hz and 16 kHz (25 to 120 Hz
-for LFE channels).
+calibrated by an at least 1/12 octave EQ or peaking filters, based off a
+frequency sweep reading with at least 7 microphones positioned around the
+reference listening position, to a flat response with the error margin of 0.2 dB
+between 100 Hz and 16 kHz (25 to 120 Hz for LFE channels). The use of Cavern
+QuickEQ for measurement and configuration file generation is hardly recommended.
 
 ### Peak channel sound pressure levels (-20 dB FS)
 For a Cavern theatre, each individual channel must be capable of outputting 105

@@ -12,6 +12,11 @@ Cavern is a fully adaptive object-based audio engine and upmixer without limitat
 * Unity-like listener and source functionality
 * Ultra low latency, even the upconverter can work from as low as one sample per frame
 
+## Helpful documents
+[Calibration process](docs/Calibration process.md) for traditional or Cavern-only rooms
+[Cavern DCP channel order](docs/Cavern DCP channel order.md) compared to DCP standards
+[Limitless Audio Format](docs/Limitless Audio Format.md) for storing Cavern mixes in a CPU-effective spatial format
+
 ## Driver disclaimer
 While Cavern itself is open-source, the setup utility and most converter interfaces are not, because they are built on licences not allowing it. However, their functionality is almost entirely using this plugin. Builds can be downloaded from the [Cavern website](http://cavern.cf).
 
