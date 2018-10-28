@@ -128,8 +128,16 @@ namespace Cavern {
 
         /// <summary>Clip playback position in seconds.</summary>
         public float time {
-            get => timeSamples / (float)AudioListener3D.Current.SampleRate;
-            set => timeSamples = (int)(value * AudioListener3D.Current.SampleRate);
+            get {
+                if (Clip)
+                    return timeSamples / (float)Clip.frequency;
+                else
+                    return 0;
+            }
+            set {
+                if (Clip)
+                    timeSamples = (int)(value * Clip.frequency);
+            }
         }
 
         // ------------------------------------------------------------------
@@ -147,7 +155,8 @@ namespace Cavern {
         /// <param name="Seconds">Delay in seconds</param>
         public void PlayDelayed(float Seconds) {
             Play();
-            Delay = (ulong)Seconds * (ulong)AudioListener3D.Current.SampleRate;
+            if (Clip)
+                Delay = (ulong)Seconds * (ulong)Clip.frequency;
         }
 
         /// <summary>Pause playback if it's not paused.</summary>
