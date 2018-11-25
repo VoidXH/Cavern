@@ -8,7 +8,7 @@ namespace Cavern.QuickEQ {
             int Length = Samples.Length;
             Complex[] ComplexSignal = new Complex[Length];
             for (int i = 0; i < Length; ++i)
-                ComplexSignal[i] = new Complex(Samples[i]);
+                ComplexSignal[i].Real = Samples[i];
             return FFT(ComplexSignal);
         }
 
@@ -198,7 +198,6 @@ namespace Cavern.QuickEQ {
         /// <param name="SampleRate">Sample rate of the measurement that generated the curve</param>
         /// <param name="ResultSize">Length of the resulting array</param>
         public static float[] ConvertToGraph(float[] Samples, float StartFreq, float EndFreq, int SampleRate, int ResultSize) {
-            Samples = (float[])Samples.Clone();
             float SourceSize = Samples.Length - 1, Positioner = SourceSize * 2 / SampleRate, PowerMin = Mathf.Log10(StartFreq),
                 PowerRange = (Mathf.Log10(EndFreq) - PowerMin) / ResultSize; // Divide 'i' here, not ResultScale times
             float[] Graph = new float[ResultSize];
