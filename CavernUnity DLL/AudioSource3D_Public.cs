@@ -203,5 +203,19 @@ namespace Cavern {
             SpatialBlend = From.SpatialBlend; DopplerLevel = From.DopplerLevel; DistanceLowpass = From.DistanceLowpass;
             VolumeRolloff = From.VolumeRolloff; EchoVolume = From.EchoVolume; EchoDelay = From.EchoDelay;
         }
+
+        /// <summary>Play a clip once at the given world position.</summary>
+        /// <param name="Clip">Target clip</param>
+        /// <param name="Position">World position of the clip</param>
+        /// <param name="Volume">Playback volume</param>
+        public static void PlayClipAtPoint(AudioClip Clip, Vector3 Position, float Volume = 1) {
+            GameObject Obj = new GameObject("Temporary Static Audio Source");
+            Obj.transform.position = Position;
+            AudioSource3D Source = Obj.AddComponent<AudioSource3D>();
+            Source.Clip = Clip;
+            Source.IsPlaying = true;
+            Source.Volume = Volume;
+            OneShotDestructor.Constructor(Obj, Source, true);
+        }
     }
 }
