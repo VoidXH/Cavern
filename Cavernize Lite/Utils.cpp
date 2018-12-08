@@ -142,6 +142,24 @@ AudioChannel** DefaultChannelSet(int32_t channelCount) {
         channels[12] = CreateChannel(-45, -110, false);
         channels[13] = CreateChannel(-45, 110, false);
         break;
+    case 16: // Full DCP
+        channels[0] = CreateChannel(0, -30, false);
+        channels[1] = CreateChannel(0, 30, false);
+        channels[2] = CreateChannel(0, 0, false);
+        channels[3] = CreateChannel(0, 0, true);
+        channels[4] = CreateChannel(0, -110, false);
+        channels[5] = CreateChannel(0, 110, false);
+        channels[6] = new AudioChannel(true);
+        channels[7] = new AudioChannel(true);
+        channels[8] = CreateChannel(0, -15, false);
+        channels[9] = CreateChannel(0, 15, false);
+        channels[10] = CreateChannel(0, -150, false);
+        channels[11] = CreateChannel(0, 150, false);
+        channels[12] = new AudioChannel(true);
+        channels[13] = new AudioChannel(true);
+        channels[14] = new AudioChannel(true);
+        channels[15] = new AudioChannel(true);
+        break;
     default:
         for (int c = 0; c < channelCount; ++c)
             channels[c] = CreateChannel(0, 0, false);

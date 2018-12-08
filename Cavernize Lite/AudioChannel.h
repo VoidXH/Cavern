@@ -23,6 +23,7 @@ class AudioChannel {
 public:
 	static std::vector<AudioChannel> channels;
 	bool LFE;
+    bool Mute;
 
 	float getX() { return X; }
 	void setX(float val) { X = val; Recalculate(); }
@@ -33,6 +34,7 @@ public:
 
 	AudioChannel(float iX, float iY);
 	AudioChannel(float iX, float iY, bool iLFE);
+	AudioChannel(bool iMute);
 	static void copy(float* samples, float* output, int64_t sampleCount, int64_t inStep, int64_t outStep, float gain);
 	static void render(float* Samples, int32_t sourceChannels, int64_t sampleCount, Vector3 Position, float* output);
 	static void renderLFE(float* samples, float lfeGain, int32_t sourceChannels, int64_t sampleCount, float* output);

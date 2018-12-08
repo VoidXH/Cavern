@@ -75,19 +75,23 @@ void CavernizeLite::Upconvert(float* source, Format* sourceFormat, float* target
     for (int64_t i = 0; i < targetLength; ++i)
         target[i] = 0;
     for (int32_t c = 0; c < channelCount; ++c) {
-        if (!sourceFormat->channels[c]->LFE)
-            AudioChannel::render(source + c, channelCount, samplesPerChannel, Vector3(sourceFormat->channels[c]->getCubicalPos().x, heights[c], sourceFormat->channels[c]->getCubicalPos().z), target);
-        else
-            AudioChannel::renderLFE(source + c, lfeVolume, channelCount, samplesPerChannel, target);
+        if (!sourceFormat->channels[c]->Mute) {
+            if (!sourceFormat->channels[c]->LFE)
+                AudioChannel::render(source + c, channelCount, samplesPerChannel, Vector3(sourceFormat->channels[c]->getCubicalPos().x, heights[c], sourceFormat->channels[c]->getCubicalPos().z), target);
+            else
+                AudioChannel::renderLFE(source + c, lfeVolume, channelCount, samplesPerChannel, target);
+        }
     }
     if (!lfeSeparation) {
         float* monoMix = new float[samplesPerChannel];
         for (int64_t sample = 0; sample < samplesPerChannel; ++sample)
             monoMix[sample] = 0;
         for (int32_t channel = 0; channel < channelCount; ++channel) {
-            int64_t sample = 0;
-            for (int64_t s = channel; s < samplesPerChannel * channelCount; s += channelCount)
-                monoMix[sample++] += source[s];
+            if (!sourceFormat->channels[channel]->Mute) {
+                int64_t sample = 0;
+                for (int64_t s = channel; s < samplesPerChannel * channelCount; s += channelCount)
+                    monoMix[sample++] += source[s];
+            }
         }
         int32_t cachePos = samplesPerChannel + EXTRA_CACHE;
         for (int64_t sample = 0; sample < samplesPerChannel; ++sample) {

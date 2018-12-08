@@ -89,6 +89,7 @@ AudioChannel::AudioChannel(float iX, float iY) {
     X = iX;
     Y = iY;
     LFE = false;
+    Mute = false;
     Recalculate();
 }
 
@@ -96,6 +97,12 @@ AudioChannel::AudioChannel(float iX, float iY, bool iLFE) {
     X = iX;
     Y = iY;
     LFE = iLFE;
+    Mute = false;
+    Recalculate();
+}
+
+AudioChannel::AudioChannel(bool iMute) {
+    Mute = iMute;
     Recalculate();
 }
 
