@@ -55,6 +55,12 @@
 			<Option virtualFolder="Formats/" />
 		</Unit>
 		<Unit filename="Main.cpp" />
+		<Unit filename="OBAE.cpp">
+			<Option virtualFolder="Formats/" />
+		</Unit>
+		<Unit filename="OBAE.h">
+			<Option virtualFolder="Formats/" />
+		</Unit>
 		<Unit filename="Utils.cpp" />
 		<Unit filename="Utils.h" />
 		<Unit filename="Vector3.cpp" />

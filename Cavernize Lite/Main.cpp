@@ -6,8 +6,9 @@
 #include <string>
 #include "AudioChannel.h"
 #include "CavernizeLite.h"
-#include "Waveform.h"
 #include "Limitless.h"
+#include "OBAE.h"
+#include "Waveform.h"
 using namespace std;
 
 #define UPDATE_RATE 240
@@ -73,6 +74,8 @@ int main(int argc, char* argv[]) {
                 sources.push_back(new Waveform(string(argv[i + 1])));
             else if (ft.c_str() == string("laf"))
                 sources.push_back(new Limitless(string(argv[i + 1])));
+            else if (ft.c_str() == string("mxf"))
+                sources.push_back(new OBAE(string(argv[i + 1])));
             else
                 ERROR("Unknown input format: \"" << ft << "\".")
             sources.back()->ReadHeader(); // Read header to be able to override channel order in the next arguments
