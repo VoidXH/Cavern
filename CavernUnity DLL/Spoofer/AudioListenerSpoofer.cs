@@ -25,9 +25,9 @@ namespace Cavern.Spoofer {
                 Target.Paused = AudioListener.pause;
                 if (Duality)
                     Target.volume = AudioListener.volume;
-                else if (AudioListener.volume != 0.00001f) {
+                else if (AudioListener.volume != AudioSourceSpoofer.Mute) {
                     Target.Volume = AudioListener.volume;
-                    AudioListener.volume = 0.00001f; // Not zero, but unlikely to be heard.
+                    AudioListener.volume = AudioSourceSpoofer.Mute;
                 }
             } else {
                 if (Target)

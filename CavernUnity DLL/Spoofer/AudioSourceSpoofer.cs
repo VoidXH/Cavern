@@ -5,7 +5,11 @@ namespace Cavern.Spoofer {
     /// <summary>Converts a regular <see cref="AudioSource"/> to Cavern's <see cref="AudioSource3D"/>.</summary>
     [AddComponentMenu("Audio/Spoofer/Audio Source")]
     public sealed class AudioSourceSpoofer : MonoBehaviour {
+        /// <summary>-60 dB signal level. Not zero, but unlikely to be heard. In case a newly set 0 should be detected.</summary>
+        internal const float Mute = 0.000001f;
+
         /// <summary>Source to spoof.</summary>
+        [Tooltip("Source to spoof.")]
         public AudioSource Source;
 
         /// <summary>Use Unity's audio engine for clips that are not transferrable to Cavern (transferred from <see cref="AutoSpoofer"/>).</summary>
@@ -29,11 +33,12 @@ namespace Cavern.Spoofer {
                     bool Decompressed = Target.Clip.loadType == AudioClipLoadType.DecompressOnLoad;
                     if (!Duality)
                         Target.Volume = Source.volume;
-                    else if (Decompressed && Source.volume != 0.00001f) {
+                    else if (Decompressed && Source.volume != Mute) {
                         Target.Volume = Source.volume;
-                        Source.volume = 0.00001f; // Not zero, but unlikely to be heard.
+                        Source.volume = Mute;
                     }
-                    if (Target.Clip && Math.Abs(Target.timeSamples - Source.timeSamples) > Target.Clip.frequency / 60)
+                    AudioSettings.GetDSPBufferSize(out int BufferSize, out int Buffers);
+                    if (Target.Clip && Math.Abs(Target.timeSamples - Source.timeSamples) > BufferSize)
                         Target.timeSamples = Source.timeSamples;
                     if (!Decompressed)
                         Target.Clip = null;
