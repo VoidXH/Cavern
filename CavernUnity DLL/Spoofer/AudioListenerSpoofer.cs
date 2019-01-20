@@ -15,8 +15,12 @@ namespace Cavern.Spoofer {
 
         void LateUpdate() {
             if (Source) {
-                if (!Target)
-                    Target = Source.gameObject.AddComponent<AudioListener3D>();
+                if (!Target) {
+                    if (AudioListener3D.Current)
+                        Target = AudioListener3D.Current;
+                    else
+                        Target = Source.gameObject.AddComponent<AudioListener3D>();
+                }
                 Target.enabled = Source.enabled;
                 Target.Paused = AudioListener.pause;
                 if (Duality)
