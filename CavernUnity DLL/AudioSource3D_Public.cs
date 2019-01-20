@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-using Cavern.Utilities;
+using Cavern.Helpers;
 
 namespace Cavern {
     /// <summary>An audio object in 3D space, in stereo, or both.</summary>

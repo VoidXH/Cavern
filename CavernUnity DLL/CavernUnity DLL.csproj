@@ -92,7 +92,7 @@
     <Compile Include="Utilities\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
     <Compile Include="Utilities\Lowpass.cs" />
-    <Compile Include="Utilities\OneShotDestructor.cs" />
+    <Compile Include="Helpers\OneShotDestructor.cs" />
     <Compile Include="Helpers\ScaleByGain.cs" />
     <Compile Include="Utilities\WindowBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

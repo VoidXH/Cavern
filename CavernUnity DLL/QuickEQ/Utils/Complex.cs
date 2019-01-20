@@ -15,14 +15,10 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Magnitude of the complex number (spectrum for FFT).</summary>
-        public float Magnitude {
-            get => Mathf.Sqrt(Real * Real + Imaginary * Imaginary);
-        }
+        public float Magnitude => Mathf.Sqrt(Real * Real + Imaginary * Imaginary);
 
         /// <summary>Direction of the complex number (phase for FFT).</summary>
-        public float Phase {
-            get => Mathf.Atan(Imaginary / Real);
-        }
+        public float Phase => Mathf.Atan(Imaginary / Real);
 
         /// <summary>Multiply by (cos(x), sin(x)).</summary>
         public void Rotate(float Angle) {
@@ -47,9 +43,9 @@ namespace Cavern.QuickEQ {
         /// <summary>Complex division.</summary>
         public static Complex operator /(Complex lhs, Complex rhs) {
             float Divisor = rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary;
-            return Divisor != 0 ?
-                new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) / Divisor, (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) / Divisor) :
-                new Complex();
+            if (Divisor != 0)
+                return new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) / Divisor, (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) / Divisor);
+            return new Complex();
         }
     }
 }
