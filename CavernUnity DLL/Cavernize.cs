@@ -61,7 +61,7 @@ namespace Cavern {
         }
 
         /// <summary>Sources representing imported or created channels.</summary>
-        AudioSource3D[] SphericalPoints = new AudioSource3D[CavernChannels];
+        readonly AudioSource3D[] SphericalPoints = new AudioSource3D[CavernChannels];
 
         /// <summary>Indicates if the previous update was initiated manually.</summary>
         bool PrevManual = false;
@@ -69,16 +69,16 @@ namespace Cavern {
         /// <summary>Imported audio data.</summary>
         float[] ClipSamples;
         /// <summary>Last low-passed sample of each channel.</summary>
-        float[] LastLow = new float[CavernChannels];
+        readonly float[] LastLow = new float[CavernChannels];
         /// <summary>Last sample of each channel.</summary>
-        float[] LastNormal = new float[CavernChannels];
+        readonly float[] LastNormal = new float[CavernChannels];
         /// <summary>Last high-passed sample of each channel.</summary>
-        float[] LastHigh = new float[CavernChannels];
+        readonly float[] LastHigh = new float[CavernChannels];
         /// <summary>Last output for each channel.</summary>
-        float[][] Output = new float[CavernChannels][];
+        readonly float[][] Output = new float[CavernChannels][];
 
         /// <summary>Objects representing imported or created channels.</summary>
-        GameObject[] SphericalObjects = new GameObject[CavernChannels];
+        readonly GameObject[] SphericalObjects = new GameObject[CavernChannels];
 
         /// <summary>Output timer.</summary>
         int Now = 0;
@@ -98,7 +98,7 @@ namespace Cavern {
         int OldMaxSources;
 
         /// <summary>Visualization renderer for each imported or created channel.</summary>
-        Renderer[] SphericalRenderers = new Renderer[CavernChannels];
+        readonly Renderer[] SphericalRenderers = new Renderer[CavernChannels];
 
         /// <summary>Named channel structure.</summary>
         struct CavernizeChannel {
@@ -184,7 +184,7 @@ namespace Cavern {
         public float[] ChannelHeights = new float[CavernChannels];
 
         /// <summary>Default channel orders for each input channel count.</summary>
-        static int[][] ChannelMatrix = {
+        static readonly int[][] ChannelMatrix = {
             new int[0],
             new int[]{2}, // 1CH: 1.0 (C)
             new int[]{0, 1}, // 2CH: 2.0 (L, R)
@@ -195,14 +195,14 @@ namespace Cavern {
             new int[]{0, 1, 2, 3, 4, 5, 8}, // 7CH: 6.1 (L, R, C, LFE, SL, SR, RC)
             new int[]{0, 1, 2, 3, 6, 7, 4, 5}, // 8CH: 7.1 (L, R, C, LFE, RL, RR, SL, SR)
             // These are DCP orders, with messy standardization, and are unused in commercial applications. Revision is recommended for Cavernizing non-5.1 DCPs.
-            //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 8}, // 9CH: 8.1 (L, R, C, LFE, RL, RR, SL, SR, RC) - non-standard
+            //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 8}, // 9CH: 8.1 (not used) (L, R, C, LFE, RL, RR, SL, SR, RC)
             //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 16, 17}, // 10CH: 7.1.2 (out-of-order Cavern DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR)
             //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 16, 17. 21}, // 11CH: 7.1.2.1 (out-of-order Cavern XL DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, BS)
             //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 22, 23, 18, 19}, // 12CH: Barco Auro 11.1 (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
-            //new int[]{0, 1, 2, 22, 6, 7, 4, 5, 16, 17, 18, 19, 4}, // 13CH: 12-Track (L, R, C, TFC, RL, RR, SL, SR, TFL, TFR, TSL, TSR, LFE)
+            //new int[]{0, 1, 2, 3, 6, 7, 22, 4, 5, 16, 17, 18, 19}, // 13CH: 12-Track (L, R, C, LFE, RL, RR, TFC, SL, SR, TFL, TFR, TSL, TSR)
             //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 16, 17, 22, 23, 18, 19}, // 14CH: Barco Auro 13.1 (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
-            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20}, // 15CH: Cavern (L, R, C, LFE, SL, SR, HI, VI, TL, TR, MD, RR, ES, SL) - non-standard
-            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20, 21}, // 16CH: Cavern XL (L, R, C, LFE, SL, SR, TL, TR, UU, UU, RL, RR, MD, ES, SL, BS) - non-st
+            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20}, // 15CH: Cavern (L, R, C, LFE, SL, SR, HI, VI, TL, TR, MD, RR, ES, SL)
+            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20, 21}, // 16CH: Cavern XL (L, R, C, LFE, SL, SR, TL, TR, UU, UU, RL, RR, MD, ES, SL, BS)
         };
 
         void Start() {
