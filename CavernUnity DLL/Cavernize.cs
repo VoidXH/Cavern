@@ -201,8 +201,8 @@ namespace Cavern {
             //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 22, 23, 18, 19}, // 12CH: Barco Auro 11.1 (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
             //new int[]{0, 1, 2, 3, 6, 7, 22, 4, 5, 16, 17, 18, 19}, // 13CH: 12-Track (L, R, C, LFE, RL, RR, TFC, SL, SR, TFL, TFR, TSL, TSR)
             //new int[]{0, 1, 2, 3, 6, 7, 4, 5, 16, 17, 22, 23, 18, 19}, // 14CH: Barco Auro 13.1 (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
-            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20}, // 15CH: Cavern (L, R, C, LFE, SL, SR, HI, VI, TL, TR, MD, RR, ES, SL)
-            //new int[]{0, 1, 2, 3, 4, 5, 16, 17, 9, 10, 6, 7, 14, 15, 20, 21}, // 16CH: Cavern XL (L, R, C, LFE, SL, SR, TL, TR, UU, UU, RL, RR, MD, ES, SL, BS)
+            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 16, 17, 6, 7, 14, 15, 20}, // 15CH: Cavern (L, R, C, LFE, SL, SR, HI, VI, TL, TR, RL, RR, MD, ES, SL)
+            //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 16, 17, 6, 7, 14, 15, 20, 21}, // 16CH: Cavern XL (L, R, C, LFE, SL, SR, HI, VI, TL, TR, RL, RR, MD, ES, SL, BS)
         };
 
         void Start() {

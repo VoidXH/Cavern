@@ -7,7 +7,7 @@ bed only, with the Top Surround channels as Left/Right ceiling arrays. Cavern XL
 adds an additional Bottom Surround channel.
 
 | Channel | 5.1 | 7.1 SDDS | 7.1 DS | Auro 11.1 | Cavern | Cavern XL | Notes                                     |
-|---------|:---:|:--------:|:------:|:---------:|:------:|:---------:|-------------------------------------------|
+|--------:|:---:|:--------:|:------:|:---------:|:------:|:---------:|-------------------------------------------|
 | 1       | L   | L        | L      | L         | L      | L         | Front Left                                |
 | 2       | R   | R        | R      | R         | R      | R         | Front Right                               |
 | 3       | C   | C        | C      | C         | C      | C         | Front Center                              |
