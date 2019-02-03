@@ -16,9 +16,10 @@ namespace Cavern.QuickEQ {
         /// <summary>Random number generator.</summary>
         Random Generator = new Random();
 
-        internal override void Precollect() {
+        internal override bool Precollect() {
             if (Rendered.Length != AudioListener3D.RenderBufferSize)
                 Rendered = new float[AudioListener3D.RenderBufferSize];
+            return true;
         }
 
         internal override float[] Collect() {

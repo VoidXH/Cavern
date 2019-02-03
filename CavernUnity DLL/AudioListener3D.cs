@@ -66,6 +66,8 @@ namespace Cavern {
         static Channel[] ChannelCache;
         /// <summary>Lowpass filters for each channel.</summary>
         static Lowpass[] Lowpasses;
+        /// <summary>Sample collector task for each active source.</summary>
+        static Task<float[]>[] Tasks = new Task<float[]>[0];
 
         // ------------------------------------------------------------------
         // Internal functions
@@ -262,15 +264,19 @@ namespace Cavern {
                     if (!Paused || Manual) {
                         // Collect audio data from sources
                         RenderBufferSize = UpdateRate * ChannelCount;
-                        Task<float[]>[] Tasks = new Task<float[]>[ActiveSources.Count];
+                        if (Tasks.Length != ActiveSources.Count)
+                            Tasks = new Task<float[]>[ActiveSources.Count];
                         int TaskCount = 0;
                         Node = ActiveSources.First;
                         while (Node != null) {
-                            Node.Value.Precollect();
-                            LinkedListNode<AudioSource3D> SourceNode = Node;
-                            Tasks[TaskCount++] = Task.Run(() => SourceNode.Value.Collect());
+                            if (Node.Value.Precollect()) {
+                                LinkedListNode<AudioSource3D> SourceNode = Node;
+                                Tasks[TaskCount++] = Task.Run(() => SourceNode.Value.Collect());
+                            }
                             Node = Node.Next;
                         }
+                        Task<float[]>[] RunningTasks = Tasks;
+                        Array.Resize(ref RunningTasks, TaskCount); // This creates a copy of the required size, and won't render Tasks as garbage
                         Task.WaitAll(Tasks);
                         // Mix sources to output
                         Array.Clear(Output, 0, OutputLength);

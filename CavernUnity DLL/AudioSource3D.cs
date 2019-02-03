@@ -38,8 +38,6 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Indicator of cached echo settings.</summary>
         bool CachedEcho = false;
-        /// <summary>The collection should be performed, as all requirements are met.</summary>
-        bool Collectible;
 
         /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
         int BaseUpdateRate;
@@ -142,7 +140,7 @@ namespace Cavern {
         /// <param name="x">Input number</param>
         /// <param name="min">Minimum</param>
         /// <param name="max">Maximum</param>
-        /// <returns>X between Minimum and Maximum</returns>
+        /// <returns>X clamped between <paramref name="min"/> and <paramref name="max"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float Clamp(float x, float min, float max) {
             if (x < min)
@@ -164,8 +162,9 @@ namespace Cavern {
         }
 
         /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
-        internal virtual void Precollect() {
-            if (Collectible = CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
+        /// <returns>The collection should be performed, as all requirements are met</returns>
+        internal virtual bool Precollect() {
+            if (CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
                 ClipChannels = Clip.channels;
                 ClipSamples = Clip.samples;
                 AudioListener3D Listener = AudioListener3D.Current;
@@ -194,21 +193,17 @@ namespace Cavern {
                 Clip.GetData(OriginalSamples, timeSamples);
                 if (Rendered.Length != AudioListener3D.RenderBufferSize)
                     Rendered = new float[AudioListener3D.RenderBufferSize];
-            } else
-                OriginalSamples = null;
+                if (Delay > 0)
+                    Delay -= (ulong)Listener.UpdateRate;
+                return true;
+            }
+            OriginalSamples = null;
+            return false;
         }
 
         /// <summary>Process the source and returns a mix to be added to the output.</summary>
         internal virtual float[] Collect() {
-            if (OriginalSamples == null)
-                return null;
             AudioListener3D Listener = AudioListener3D.Current;
-            if (Delay > 0) {
-                Delay -= (ulong)Listener.UpdateRate;
-                return null;
-            }
-            if (!IsPlaying || !Collectible)
-                return null;
             int Channels = AudioListener3D.ChannelCount;
             Array.Clear(Rendered, 0, Rendered.Length);
             bool OutputRawLFE = !Listener.LFESeparation || LFE;
