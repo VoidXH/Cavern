@@ -38,8 +38,8 @@ namespace Cavern.QuickEQ {
         /// <summary>Frequency at the end of the sweep.</summary>
         [Tooltip("Frequency at the end of the sweep.")]
         [Range(1, 24000)] public float EndFreq = 20000;
-        /// <summary>Measurement signal gain relative to full scale.</summary>
-        [Tooltip("Measurement signal gain relative to full scale.")]
+        /// <summary>Measurement signal gain in decibels relative to full scale.</summary>
+        [Tooltip("Measurement signal gain in decibels relative to full scale.")]
         [Range(-50, 0)] public float SweepGain = -20;
         /// <summary>Length of the measurement signal. Must be a power of 2.</summary>
         [Tooltip("Length of the measurement signal. Must be a power of 2.")]
