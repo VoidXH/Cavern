@@ -184,11 +184,12 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Convert a response curve to decibel scale.</summary>
-        public static float[] ConvertToDecibels(float[] Curve) {
-            Curve = (float[])Curve.Clone();
-            for (int i = 0, End = Curve.Length; i < End; ++i)
+        public static void ConvertToDecibels(float[] Curve, float Minimum = -100) {
+            for (int i = 0, End = Curve.Length; i < End; ++i) {
                 Curve[i] = 20 * Mathf.Log10(Curve[i]);
-            return Curve;
+                if (Curve[i] < Minimum)
+                    Curve[i] = Minimum;
+            }
         }
 
         /// <summary>Convert a response to logarithmically scaled cut frequency range.</summary>
