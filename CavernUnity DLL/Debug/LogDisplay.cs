@@ -4,6 +4,7 @@ using Cavern.Utilities;
 
 namespace Cavern.Debug {
     /// <summary>Displays the last logged message.</summary>
+    [AddComponentMenu("Audio/Debug/Log Display")]
     public class LogDisplay : WindowBase {
         /// <summary>Maximum level to be reported.</summary>
         public LogType LogLevel = LogType.Error;

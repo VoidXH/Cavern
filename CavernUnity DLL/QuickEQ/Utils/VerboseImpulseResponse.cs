@@ -31,8 +31,7 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Create a verbose impulse response from a reference signal and a recorded response.</summary>
-        public VerboseImpulseResponse(float[] Reference, float[] Response) :
-            this(Measurements.IFFT(Measurements.GetFrequencyResponse(Reference, Response))) { }
+        public VerboseImpulseResponse(float[] Reference, float[] Response) : this(Measurements.IFFT(Measurements.GetFrequencyResponse(Reference, Response))) { }
 
         /// <summary>Representation of a peak in the impulse response.</summary>
         public struct Peak {

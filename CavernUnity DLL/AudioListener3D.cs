@@ -17,10 +17,12 @@ namespace Cavern {
         internal static float DeltaTime { get; private set; }
         /// <summary>Position between the last and current game frame's playback position.</summary>
         internal static float PulseDelta { get; private set; }
+        /// <summary>Required output array size for each <see cref="AudioSource3D.Collect"/> function.</summary>
+        internal static int RenderBufferSize { get; private set; }
         /// <summary>The cached length of the <see cref="SourceDistances"/> array.</summary>
         internal static int SourceLimit = 128;
         /// <summary>Distances of sources from the listener.</summary>
-        internal static float[] SourceDistances = new float[128];
+        internal static float[] SourceDistances = new float[SourceLimit];
         /// <summary>Cached number of output channels.</summary>
         internal static int ChannelCount { get; private set; }
         /// <summary>Last position of the active listener.</summary>
@@ -259,6 +261,7 @@ namespace Cavern {
                     DeltaTime = (float)(LastTime - StartTime) / (Now - StartTime);
                     if (!Paused || Manual) {
                         // Collect audio data from sources
+                        RenderBufferSize = UpdateRate * ChannelCount;
                         Task<float[]>[] Tasks = new Task<float[]>[ActiveSources.Count];
                         int TaskCount = 0;
                         Node = ActiveSources.First;

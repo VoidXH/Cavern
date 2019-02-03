@@ -153,21 +153,22 @@ namespace Cavern {
         }
 
         /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
-        internal void Precalculate() {
+        internal virtual void Precalculate() {
             if (Clip && IsPlaying) {
                 LastPosition = transform.position;
                 LastDistance = Distance;
                 Distance = GetDistance(LastPosition);
                 CavernUtilities.BottomlistHandler(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance);
-            }
+            } else
+                Distance = float.NaN;
         }
 
         /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
-        internal void Precollect() {
-            if (Clip && (Collectible = CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance))) {
-                AudioListener3D Listener = AudioListener3D.Current;
+        internal virtual void Precollect() {
+            if (Collectible = CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
                 ClipChannels = Clip.channels;
                 ClipSamples = Clip.samples;
+                AudioListener3D Listener = AudioListener3D.Current;
                 if (Listener.AudioQuality != QualityModes.Low) {
                     if (DopplerLevel == 0)
                         CalculatedPitch = Pitch;
@@ -176,7 +177,6 @@ namespace Cavern {
                             AudioListener3D.PulseDelta), .5f, 3f);
                 } else
                     CalculatedPitch = 1; // Disable any pitch change on low quality
-                    
                 bool NeedsResampling = Listener.SampleRate != Clip.frequency;
                 if (NeedsResampling)
                     ResampleMult = (float)Clip.frequency / Listener.SampleRate;
@@ -191,16 +191,15 @@ namespace Cavern {
                     RightSamples = new float[PitchedUpdateRate];
                 }
                 OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
-                int RenderBufSize = Listener.UpdateRate * AudioListener3D.ChannelCount;
-                if (Rendered.Length != RenderBufSize)
-                    Rendered = new float[RenderBufSize];
                 Clip.GetData(OriginalSamples, timeSamples);
+                if (Rendered.Length != AudioListener3D.RenderBufferSize)
+                    Rendered = new float[AudioListener3D.RenderBufferSize];
             } else
                 OriginalSamples = null;
         }
 
         /// <summary>Process the source and returns a mix to be added to the output.</summary>
-        internal float[] Collect() {
+        internal virtual float[] Collect() {
             if (OriginalSamples == null)
                 return null;
             AudioListener3D Listener = AudioListener3D.Current;

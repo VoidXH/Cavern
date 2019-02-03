@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Cavern.QuickEQ {
     /// <summary>Measures the frequency response of all output channels.</summary>
+    [AddComponentMenu("Audio/QuickEQ/Speaker Sweeper")]
     public class SpeakerSweeper : MonoBehaviour {
         /// <summary>Playable measurement signal.</summary>
         AudioClip Sweep;

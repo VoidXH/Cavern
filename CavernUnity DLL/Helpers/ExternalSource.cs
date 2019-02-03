@@ -18,9 +18,8 @@ namespace Cavern.Helpers {
         public float Latency { get; private set; }
 
         void OnEnable() {
-            int MinFreq, MaxFreq;
             Source.Loop = true;
-            Microphone.GetDeviceCaps(SourceName, out MinFreq, out MaxFreq);
+            Microphone.GetDeviceCaps(SourceName, out int MinFreq, out int MaxFreq);
             Source.clip = Microphone.Start(SourceName, true, 1, MaxFreq);
             Source.clip.name = SourceName;
             Source.Play();
