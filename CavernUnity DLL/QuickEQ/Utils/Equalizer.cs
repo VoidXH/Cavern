@@ -138,9 +138,8 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Generate an equalizer setting to flatten the received response with bands separated in given octavess.</summary>
-        /// <param name="Response">Frequency response to equalize, must be in decibels (use <see cref="Measurements.ConvertToDecibels(float[])"/>),
-        /// and smoothing (<see cref="Measurements.SmoothResponse(float[], int, float)"/>) is strongly recommended, but the only allowed range is 0 to
-        /// sample rate / 2</param>
+        /// <param name="Response">Frequency response to equalize, must be in decibels (use <see cref="Measurements.ConvertToDecibels"/>), and smoothing
+        /// (<see cref="Measurements.SmoothResponse(float[], int, float)"/>) is strongly recommended, but the only allowed range is 0 to sample rate / 2</param>
         /// <param name="SampleRate">Measurement sampling rate</param>
         /// <param name="ReferenceCurve">Match the frequency response to this linear curve of any length, one value means a flat response</param>
         /// <param name="Resolution">Band diversity in octaves</param>
