@@ -12,7 +12,7 @@ namespace Cavern.Debug {
         public float AutoScale = 0;
 
         /// <summary>Displayed room edges.</summary>
-        GameObject[] Edges = new GameObject[12];
+        readonly GameObject[] Edges = new GameObject[12];
         /// <summary>Last environment scale.</summary>
         Vector3 RoomScale;
 

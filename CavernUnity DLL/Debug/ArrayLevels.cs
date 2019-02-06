@@ -41,8 +41,7 @@ namespace Cavern.Debug {
             new Color(0, .578125f, .75f, 1),
             Color.red
         };
-
-        ArrayLevelData[] ChannelData = new ArrayLevelData[Channels];
+        readonly ArrayLevelData[] ChannelData = new ArrayLevelData[Channels];
 
         Texture2D White;
 
