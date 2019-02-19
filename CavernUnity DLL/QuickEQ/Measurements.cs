@@ -3,64 +3,81 @@
 namespace Cavern.QuickEQ {
     /// <summary>Tools for measuring frequency response.</summary>
     public static class Measurements {
+        /// <summary>Actual FFT processing, somewhat in-place.</summary>
+        static void ProcessFFT(Complex[] Samples) {
+            int Length = Samples.Length, HalfLength = Length / 2;
+            if (Length == 1)
+                return;
+            Complex[] Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
+            for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
+                Even[Sample] = Samples[Pair];
+                Odd[Sample] = Samples[Pair + 1];
+            }
+            ProcessFFT(Even);
+            ProcessFFT(Odd);
+            float Step = -2 * Mathf.PI / Length;
+            for (int i = 0; i < HalfLength; ++i)
+                Odd[i].Rotate(Step * i);
+            for (int i = 0; i < HalfLength; ++i) {
+                Samples[i].Real = Even[i].Real + Odd[i].Real;
+                Samples[i].Imaginary = Even[i].Imaginary + Odd[i].Imaginary;
+                int o = i + HalfLength;
+                Samples[o].Real = Even[i].Real - Odd[i].Real;
+                Samples[o].Imaginary = Even[i].Imaginary - Odd[i].Imaginary;
+            }
+        }
+
+        /// <summary>Fast Fourier transform a signal.</summary>
+        public static Complex[] FFT(Complex[] Samples) {
+            Samples = (Complex[])Samples.Clone();
+            ProcessFFT(Samples);
+            return Samples;
+        }
+
         /// <summary>Fast Fourier transform a real signal.</summary>
         public static Complex[] FFT(float[] Samples) {
             int Length = Samples.Length;
             Complex[] ComplexSignal = new Complex[Length];
             for (int i = 0; i < Length; ++i)
                 ComplexSignal[i].Real = Samples[i];
-            return FFT(ComplexSignal);
-        }
-
-        /// <summary>Fast Fourier transform a signal.</summary>
-        public static Complex[] FFT(Complex[] Samples) {
-            int Length = Samples.Length, HalfLength = Length / 2;
-            if (Length == 1)
-                return Samples;
-            Complex[] Output = new Complex[Length], Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
-            for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample) {
-                Even[Sample] = Samples[Pair++];
-                Odd[Sample] = Samples[Pair++];
-            }
-            Complex[] EvenFFT = FFT(Even), OddFFT = FFT(Odd);
-            float Step = -2 * Mathf.PI / Length;
-            for (int i = 0; i < HalfLength; ++i)
-                OddFFT[i].Rotate(Step * i);
-            for (int i = 0; i < HalfLength; ++i) {
-                Output[i] = EvenFFT[i] + OddFFT[i];
-                Output[i + HalfLength] = EvenFFT[i] - OddFFT[i];
-            }
-            return Output;
+            ProcessFFT(ComplexSignal);
+            return ComplexSignal;
         }
 
         /// <summary>Outputs IFFT(X) * N.</summary>
-        static Complex[] ProcessIFFT(Complex[] Samples) {
+        static void ProcessIFFT(Complex[] Samples) {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
-                return Samples;
-            Complex[] Output = new Complex[Length], Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
-            for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample) {
-                Even[Sample] = Samples[Pair++];
-                Odd[Sample] = Samples[Pair++];
+                return;
+            Complex[] Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
+            for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
+                Even[Sample] = Samples[Pair];
+                Odd[Sample] = Samples[Pair + 1];
             }
-            Complex[] EvenFFT = ProcessIFFT(Even), OddFFT = ProcessIFFT(Odd);
+            ProcessIFFT(Even);
+            ProcessIFFT(Odd);
             float Step = 2 * Mathf.PI / Length;
             for (int i = 0; i < HalfLength; ++i)
-                OddFFT[i].Rotate(Step * i);
+                Odd[i].Rotate(Step * i);
             for (int i = 0; i < HalfLength; ++i) {
-                Output[i] = EvenFFT[i] + OddFFT[i];
-                Output[i + HalfLength] = EvenFFT[i] - OddFFT[i];
+                Samples[i].Real = Even[i].Real + Odd[i].Real;
+                Samples[i].Imaginary = Even[i].Imaginary + Odd[i].Imaginary;
+                int o = i + HalfLength;
+                Samples[o].Real = Even[i].Real - Odd[i].Real;
+                Samples[o].Imaginary = Even[i].Imaginary - Odd[i].Imaginary;
             }
-            return Output;
         }
 
         /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
         public static Complex[] IFFT(Complex[] Samples) {
-            Samples = ProcessIFFT(Samples);
+            Samples = (Complex[])Samples.Clone();
+            ProcessIFFT(Samples);
             int N = Samples.Length;
             float Multiplier = 1f / N;
-            for (int i = 0; i < N; ++i)
-                Samples[i] *= Multiplier;
+            for (int i = 0; i < N; ++i) {
+                Samples[i].Real *= Multiplier;
+                Samples[i].Imaginary *= Multiplier;
+            }
             return Samples;
         }
 
@@ -126,8 +143,7 @@ namespace Cavern.QuickEQ {
             float Chirpyness = Mathf.Pow(EndFreq / StartFreq, SampleRate / (float)Samples),
                 LogChirpyness = Mathf.Log(Chirpyness), SinConst = 2 * Mathf.PI * StartFreq;
             for (int Sample = 0; Sample < Samples; ++Sample)
-                Output[Sample] =
-                    Mathf.Sin(SinConst * (Mathf.Pow(Chirpyness, Sample / (float)SampleRate) - 1) / LogChirpyness);
+                Output[Sample] = Mathf.Sin(SinConst * (Mathf.Pow(Chirpyness, Sample / (float)SampleRate) - 1) / LogChirpyness);
             return Output;
         }
 
@@ -153,7 +169,7 @@ namespace Cavern.QuickEQ {
         public static Complex[] GetFrequencyResponse(Complex[] ReferenceFFT, float[] Response) {
             Complex[] ResponseFFT = FFT(Response);
             for (int Sample = 0, Length = ResponseFFT.Length; Sample < Length; ++Sample)
-                ResponseFFT[Sample] /= ReferenceFFT[Sample];
+                ResponseFFT[Sample].Divide(ref ReferenceFFT[Sample]);
             return ResponseFFT;
         }
 
@@ -217,10 +233,17 @@ namespace Cavern.QuickEQ {
             int Length = Samples.Length;
             int WindowSize = (int)(Length * Octave / OctaveRange);
             float[] Smoothed = new float[Length--];
-            for (int Sample = 0; Sample <= Length; ++Sample) {
+            for (int Sample = 0; Sample < WindowSize; ++Sample) {
+                int Start = 0, End = Sample + WindowSize;
+                if (End > Length)
+                    End = Length;
+                float Average = 0;
+                for (int WindowSample = Start; WindowSample <= End; ++WindowSample)
+                    Average += Samples[WindowSample];
+                Smoothed[Sample] = Average / (End - Start);
+            }
+            for (int Sample = WindowSize; Sample <= Length; ++Sample) {
                 int Start = Sample - WindowSize, End = Sample + WindowSize;
-                if (Start < 0)
-                    Start = 0;
                 if (End > Length)
                     End = Length;
                 float Average = 0;

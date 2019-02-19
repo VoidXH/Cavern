@@ -75,14 +75,20 @@ namespace Cavern.QuickEQ {
                 WindowFunction LeftFunc = GetWindowFunction(Left);
                 for (int Sample = 0; Sample < Start; ++Sample)
                     Samples[Sample] = new Complex();
-                for (int Sample = Math.Max(Start, 0), ActEnd = Math.Min(PosSplitter, Samples.Length); Sample < ActEnd; ++Sample)
-                    Samples[Sample] *= LeftFunc((Sample - Start) * LeftSpanDiv);
+                for (int Sample = Math.Max(Start, 0), ActEnd = Math.Min(PosSplitter, Samples.Length); Sample < ActEnd; ++Sample) {
+                    float Mul = LeftFunc((Sample - Start) * LeftSpanDiv);
+                    Samples[Sample].Real *= Mul;
+                    Samples[Sample].Imaginary *= Mul;
+                }
             }
             if (Right != Window.Disabled) {
                 int PosEnd = Math.Max(End, 0);
                 WindowFunction RightFunc = GetWindowFunction(Right);
-                for (int Sample = PosSplitter, ActEnd = Math.Min(PosEnd, Samples.Length); Sample < ActEnd; ++Sample)
-                    Samples[Sample] *= RightFunc((Sample - EndMirror) * RightSpanDiv);
+                for (int Sample = PosSplitter, ActEnd = Math.Min(PosEnd, Samples.Length); Sample < ActEnd; ++Sample) {
+                    float Mul = RightFunc((Sample - EndMirror) * RightSpanDiv);
+                    Samples[Sample].Real *= Mul;
+                    Samples[Sample].Imaginary *= Mul;
+                }
                 for (int Sample = PosEnd, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
                     Samples[Sample] = new Complex();
             }

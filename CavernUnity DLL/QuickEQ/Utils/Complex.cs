@@ -42,10 +42,16 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Complex division.</summary>
         public static Complex operator /(Complex lhs, Complex rhs) {
-            float Divisor = rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary;
-            if (Divisor != 0)
-                return new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) / Divisor, (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) / Divisor);
-            return new Complex();
+            float Multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary);
+            return new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) * Multiplier,
+                (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) * Multiplier);
+        }
+
+        /// <summary>Divide with another complex number.</summary>
+        public void Divide(ref Complex rhs) {
+            float Multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary), OldReal = Real;
+            Real = (Real * rhs.Real + Imaginary * rhs.Imaginary) * Multiplier;
+            Imaginary = (Imaginary * rhs.Real - OldReal * rhs.Imaginary) * Multiplier;
         }
     }
 }
