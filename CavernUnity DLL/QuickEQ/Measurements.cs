@@ -254,6 +254,16 @@ namespace Cavern.QuickEQ {
             return Smoothed;
         }
 
+        /// <summary>Apply variable smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], float, float, int, int)"/>.</summary>
+        public static float[] SmoothGraph(float[] Samples, float StartFreq, float EndFreq, float StartOctave, float EndOctave) {
+            float[] StartGraph = SmoothGraph(Samples, StartFreq, EndFreq, StartOctave), EndGraph = SmoothGraph(Samples, StartFreq, EndFreq, EndOctave),
+                Output = new float[Samples.Length];
+            float Positioner = 1f / Samples.Length;
+            for (int i = 0, Length = Samples.Length; i < Length; ++i)
+                Output[i] = CavernUtilities.FastLerp(StartGraph[i], EndGraph[i], i * Positioner);
+            return Output;
+        }
+
         /// <summary>Apply smoothing (in octaves) on a linear frequency response.</summary>
         public static float[] SmoothResponse(float[] Samples, int SampleRate, float Octave = 1 / 3f) {
             if (Octave == 0)
