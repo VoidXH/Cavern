@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Cavern.QuickEQ {
     /// <summary>Contains an impulse response and data that can be calculated from it.</summary>
@@ -47,17 +48,30 @@ namespace Cavern.QuickEQ {
                 this.Position = Position;
                 this.Size = Size;
             }
+
+            /// <summary>Returns if a peak is <see cref="Null"/>.</summary>
+            public bool IsNull => Position == -1;
+
+            /// <summary>Represents a nonexisting peak.</summary>
+            public static Peak Null = new Peak(-1, 0);
         }
 
         /// <summary>Get the <paramref name="Position"/>th peak in the impulse response.</summary>
         public Peak GetPeak(int Position) {
             if (Peaks == null) {
-                Peaks = new Peak[Response.Length];
-                for (int Pos = 0, Length = Peaks.Length; Pos < Length; ++Pos)
-                    Peaks[Pos] = new Peak(Pos, Response[Pos]);
-                Array.Sort(Peaks, (a, b) => b.Size.CompareTo(a.Size));
+                List<Peak> PeakList = new List<Peak>();
+                float Last = Math.Abs(Response[0]), Abs = Math.Abs(Response[1]);
+                for (int Pos = 2, Length = Response.Length; Pos < Length; ++Pos) {
+                    float Next = Math.Abs(Response[Pos]);
+                    if (Abs > Last && Abs > Next)
+                        PeakList.Add(new Peak(Pos - 1, Abs));
+                    Last = Abs;
+                    Abs = Next;
+                }
+                PeakList.Sort((a, b) => b.Size.CompareTo(a.Size));
+                Peaks = PeakList.ToArray();
             }
-            return Peaks[Position];
+            return Position < Peaks.Length ? Peaks[Position] : Peak.Null;
         }
     }
 }
