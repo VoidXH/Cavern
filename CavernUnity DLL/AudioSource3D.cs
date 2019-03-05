@@ -36,9 +36,6 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
-        /// <summary>Indicator of cached echo settings.</summary>
-        bool CachedEcho = false;
-
         /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
         int BaseUpdateRate;
         /// <summary>Cached channel count of <see cref="Clip"/>.</summary>
@@ -54,10 +51,6 @@ namespace Cavern {
         float Distance;
         /// <summary><see cref="Distance"/> in the previous frame, required for Doppler effect calculation.</summary>
         float LastDistance;
-        /// <summary>Cached <see cref="EchoVolume"/> after <see cref="AudioListener3D.HeadphoneVirtualizer"/> was set.</summary>
-        float OldEchoVolume;
-        /// <summary>Cached <see cref="EchoDelay"/> after <see cref="AudioListener3D.HeadphoneVirtualizer"/> was set.</summary>
-        float OldEchoDelay;
         /// <summary>Sample rate multiplier to match the system sample rate.</summary>
         float ResampleMult;
 
@@ -321,28 +314,6 @@ namespace Cavern {
                         } else for (int Sample = 0; Sample < BaseUpdateRate; ++Sample)
                                 EchoBuffer[EchoBufferPosition++] = Samples[Sample];
                     }
-                    // Echo preparations
-                    bool SkipEcho = false;
-                    if (Listener.HeadphoneVirtualizer) {
-                        float DirectionMagnitudeRecip = 1f / (Direction.magnitude + .0001f);
-                        if (!CachedEcho) {
-                            OldEchoVolume = EchoVolume;
-                            OldEchoDelay = EchoDelay;
-                            CachedEcho = true;
-                        }
-                        SkipEcho = EchoVolume == 0;
-                        Vector3 Forward = AudioListener3D.LastRotation * Vector3.forward, Upward = AudioListener3D.LastRotation * Vector3.up;
-                        float ForwardScalar = Direction.x * Forward.x + Direction.y * Forward.y + Direction.z * Forward.z,
-                            UpwardScalar = Direction.x * Upward.x + Direction.y * Upward.y + Direction.z * Upward.z;
-                        // Set volume by angle diff
-                        EchoVolume = (float)Math.Acos(ForwardScalar / (Forward.magnitude + .0001f) * DirectionMagnitudeRecip) * PiRecip;
-                        float UpwardMatch = (float)Math.Acos(UpwardScalar / (Upward.magnitude + .0001f) * DirectionMagnitudeRecip) * PiRecip;
-                        EchoDelay = (48f - 43.2f * UpwardMatch) / Listener.SampleRate; // Delay simulates height difference
-                    } else if (CachedEcho) {
-                        EchoVolume = OldEchoVolume;
-                        EchoDelay = OldEchoDelay;
-                        CachedEcho = false;
-                    }
                     // ------------------------------------------------------------------
                     // Balance-based engine for symmetrical layouts
                     // ------------------------------------------------------------------
@@ -425,7 +396,7 @@ namespace Cavern {
                                     UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D, Channel, Channels);
                         }
                         // Echo
-                        if (!SkipEcho && EchoVolume != 0 && !LFE) {
+                        if (EchoVolume != 0 && !LFE) {
                             Volume3D *= EchoVolume;
                             int EchoStart = (int)((1f - EchoDelay) * Listener.SampleRate) + ResampledNow;
                             int MultichannelUpdateRate = BaseUpdateRate * Channels;
@@ -483,7 +454,7 @@ namespace Cavern {
                                 UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D * AngleMatches[Channel], Channel, Channels);
                         }
                         // Add echo from every other direction, if enabled
-                        if (!SkipEcho && EchoVolume != 0 && !LFE) {
+                        if (EchoVolume != 0 && !LFE) {
                             float NewAngleMatch = 0;
                             for (int Channel = 0; Channel < Channels; ++Channel) {
                                 AngleMatches[Channel] = TotalAngleMatch - AngleMatches[Channel];

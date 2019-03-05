@@ -52,9 +52,9 @@ namespace Cavern {
         [Tooltip("Disable lowpass on the LFE channel.")]
         public bool DirectLFE = false;
 
-        /// <summary>Virtual surround effect for headphones. Will override any echo settings.</summary>
+        /// <summary>Virtual surround effect for headphones.</summary>
         [Header("Experimental")]
-        [Tooltip("Virtual surround effect for headphones. Will override any echo settings.")]
+        [Tooltip("Virtual surround effect for headphones.")]
         public bool HeadphoneVirtualizer = false;
         /// <summary>Tries to fix standing waves in real-time, but may cause artifacts.</summary>
         [Tooltip("Tries to fix standing waves in real-time, but may cause artifacts.")]

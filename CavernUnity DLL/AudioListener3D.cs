@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 using Cavern.Utilities;
+using Cavern.Virtualizer;
 
 namespace Cavern {
     [AddComponentMenu("Audio/3D Audio Listener"), RequireComponent(typeof(AudioListener))]
@@ -118,23 +119,24 @@ namespace Cavern {
             if (!Paused) {
                 float[] SourceBuffer = Output;
                 int SourceBufferSize = Output.Length;
+                if (HeadphoneVirtualizer)
+                    VirtualizerFilter.Process(SourceBuffer);
                 if (SystemSampleRate != CachedSampleRate) { // Resample output for system sample rate
                     float[][] ChannelSplit = new float[ChannelCount][];
-                    int Channel;
-                    for (Channel = 0; Channel < ChannelCount; ++Channel)
+                    for (int Channel = 0; Channel < ChannelCount; ++Channel)
                         ChannelSplit[Channel] = new float[UpdateRate];
                     int OutputSample = 0;
                     for (int Sample = 0; Sample < UpdateRate; ++Sample)
-                        for (Channel = 0; Channel < ChannelCount; ++Channel)
+                        for (int Channel = 0; Channel < ChannelCount; ++Channel)
                             ChannelSplit[Channel][Sample] = Output[OutputSample++];
-                    for (Channel = 0; Channel < ChannelCount; ++Channel)
+                    for (int Channel = 0; Channel < ChannelCount; ++Channel)
                         ChannelSplit[Channel] = AudioSource3D.Resample(ChannelSplit[Channel], UpdateRate,
                             (int)(UpdateRate * SystemSampleRate / (float)CachedSampleRate));
                     int NewUpdateRate = ChannelSplit[0].Length;
                     SourceBuffer = new float[SourceBufferSize = ChannelCount * NewUpdateRate];
                     OutputSample = 0;
                     for (int Sample = 0; Sample < NewUpdateRate; ++Sample)
-                        for (Channel = 0; Channel < ChannelCount; ++Channel)
+                        for (int Channel = 0; Channel < ChannelCount; ++Channel)
                             SourceBuffer[OutputSample++] = ChannelSplit[Channel][Sample];
                 }
                 int End = FilterOutput.Length;
