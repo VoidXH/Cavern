@@ -128,7 +128,7 @@ namespace Cavern {
                     int OutputSample = 0;
                     for (int Sample = 0; Sample < UpdateRate; ++Sample)
                         for (int Channel = 0; Channel < ChannelCount; ++Channel)
-                            ChannelSplit[Channel][Sample] = Output[OutputSample++];
+                            ChannelSplit[Channel][Sample] = SourceBuffer[OutputSample++];
                     for (int Channel = 0; Channel < ChannelCount; ++Channel)
                         ChannelSplit[Channel] = AudioSource3D.Resample(ChannelSplit[Channel], UpdateRate,
                             (int)(UpdateRate * SystemSampleRate / (float)CachedSampleRate));
@@ -203,6 +203,8 @@ namespace Cavern {
             int StartTime = LastTime;
             // Pre-optimization and channel volume calculation
             bool Recalculate = CompensationCache != EnvironmentCompensation; // Recalculate volumes if channel positioning or environment compensation changed
+            if (HeadphoneVirtualizer) // Virtual channels
+                VirtualizerFilter.SetLayout();
             if (CompensationCache = EnvironmentCompensation)
                 for (int Channel = 0; Channel < ChannelCount; ++Channel)
                     if (ChannelCache[Channel].x != Channels[Channel].x || ChannelCache[Channel].y != Channels[Channel].y) {
