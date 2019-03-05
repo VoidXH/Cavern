@@ -1,23 +1,31 @@
 ﻿using UnityEngine;
 
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ {
     /// <summary>Tools for measuring frequency response.</summary>
     public static class Measurements {
         /// <summary>Actual FFT processing, somewhat in-place.</summary>
-        static void ProcessFFT(Complex[] Samples) {
+        internal static void ProcessFFT(Complex[] Samples, FFTCache Cache = null) {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
                 return;
+            if (Cache == null)
+                Cache = new FFTCache(Length);
             Complex[] Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
             for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
                 Even[Sample] = Samples[Pair];
                 Odd[Sample] = Samples[Pair + 1];
             }
-            ProcessFFT(Even);
-            ProcessFFT(Odd);
-            float Step = -2 * Mathf.PI / Length;
-            for (int i = 0; i < HalfLength; ++i)
-                Odd[i].Rotate(Step * i);
+            ProcessFFT(Even, Cache);
+            ProcessFFT(Odd, Cache);
+            int StepMul = Cache.Cos.Length / HalfLength;
+            for (int i = 0; i < HalfLength; ++i) {
+                float OldReal = Odd[i].Real;
+                int CachePos = i * StepMul;
+                Odd[i].Real = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * Cache.Sin[CachePos];
+                Odd[i].Imaginary = OldReal * Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
+            }
             for (int i = 0; i < HalfLength; ++i) {
                 Samples[i].Real = Even[i].Real + Odd[i].Real;
                 Samples[i].Imaginary = Even[i].Imaginary + Odd[i].Imaginary;
@@ -28,27 +36,29 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Fast Fourier transform a signal.</summary>
-        public static Complex[] FFT(Complex[] Samples) {
+        public static Complex[] FFT(Complex[] Samples, FFTCache Cache = null) {
             Samples = (Complex[])Samples.Clone();
-            ProcessFFT(Samples);
+            ProcessFFT(Samples, Cache);
             return Samples;
         }
 
         /// <summary>Fast Fourier transform a real signal.</summary>
-        public static Complex[] FFT(float[] Samples) {
+        public static Complex[] FFT(float[] Samples, FFTCache Cache = null) {
             int Length = Samples.Length;
             Complex[] ComplexSignal = new Complex[Length];
             for (int i = 0; i < Length; ++i)
                 ComplexSignal[i].Real = Samples[i];
-            ProcessFFT(ComplexSignal);
+            ProcessFFT(ComplexSignal, Cache);
             return ComplexSignal;
         }
 
         /// <summary>Outputs IFFT(X) * N.</summary>
-        static void ProcessIFFT(Complex[] Samples) {
+        static void ProcessIFFT(Complex[] Samples, FFTCache Cache = null) {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
                 return;
+            if (Cache == null)
+                Cache = new FFTCache(Length);
             Complex[] Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
             for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
                 Even[Sample] = Samples[Pair];
@@ -56,9 +66,13 @@ namespace Cavern.QuickEQ {
             }
             ProcessIFFT(Even);
             ProcessIFFT(Odd);
-            float Step = 2 * Mathf.PI / Length;
-            for (int i = 0; i < HalfLength; ++i)
-                Odd[i].Rotate(Step * i);
+            int StepMul = Cache.Cos.Length / HalfLength;
+            for (int i = 0; i < HalfLength; ++i) {
+                float OldReal = Odd[i].Real;
+                int CachePos = i * StepMul;
+                Odd[i].Real = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * -Cache.Sin[CachePos];
+                Odd[i].Imaginary = OldReal * -Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
+            }
             for (int i = 0; i < HalfLength; ++i) {
                 Samples[i].Real = Even[i].Real + Odd[i].Real;
                 Samples[i].Imaginary = Even[i].Imaginary + Odd[i].Imaginary;
@@ -69,9 +83,9 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
-        public static Complex[] IFFT(Complex[] Samples) {
+        public static Complex[] IFFT(Complex[] Samples, FFTCache Cache = null) {
             Samples = (Complex[])Samples.Clone();
-            ProcessIFFT(Samples);
+            ProcessIFFT(Samples, Cache);
             int N = Samples.Length;
             float Multiplier = 1f / N;
             for (int i = 0; i < N; ++i) {
@@ -166,21 +180,24 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Get the frequency response using the original sweep signal's FFT as reference.</summary>
-        public static Complex[] GetFrequencyResponse(Complex[] ReferenceFFT, float[] Response) {
-            Complex[] ResponseFFT = FFT(Response);
+        public static Complex[] GetFrequencyResponse(Complex[] ReferenceFFT, Complex[] ResponseFFT) {
             for (int Sample = 0, Length = ResponseFFT.Length; Sample < Length; ++Sample)
                 ResponseFFT[Sample].Divide(ref ReferenceFFT[Sample]);
             return ResponseFFT;
         }
 
+        /// <summary>Get the frequency response using the original sweep signal's FFT as reference.</summary>
+        public static Complex[] GetFrequencyResponse(Complex[] ReferenceFFT, float[] Response) => GetFrequencyResponse(ReferenceFFT, FFT(Response));
+
         /// <summary>Get the frequency response using the original sweep signal as reference.</summary>
         public static Complex[] GetFrequencyResponse(float[] Reference, float[] Response) => GetFrequencyResponse(FFT(Reference), Response);
 
         /// <summary>Get the complex impulse response using a precalculated frequency response.</summary>
-        public static Complex[] GetImpulseResponse(Complex[] FrequencyResponse) => IFFT(FrequencyResponse);
+        public static Complex[] GetImpulseResponse(Complex[] FrequencyResponse, FFTCache Cache = null) => IFFT(FrequencyResponse, Cache);
 
         /// <summary>Get the complex impulse response using the original sweep signal as a reference.</summary>
-        public static Complex[] GetImpulseResponse(float[] Reference, float[] Response) => IFFT(GetFrequencyResponse(Reference, Response));
+        public static Complex[] GetImpulseResponse(float[] Reference, float[] Response, FFTCache Cache = null) =>
+            IFFT(GetFrequencyResponse(Reference, Response), Cache);
 
         /// <summary>Get the complex impulse response faster using the original sweep signal as a reference.</summary>
         public static Complex[] GetImpulseResponse(float[] Reference, float[] Response, int SpeedMultiplier) {

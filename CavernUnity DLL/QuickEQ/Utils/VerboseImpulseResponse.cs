@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ {
     /// <summary>Contains an impulse response and data that can be calculated from it.</summary>
     public class VerboseImpulseResponse {

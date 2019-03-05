@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Cavern.QuickEQ {
+namespace Cavern.Utilities {
     /// <summary>A complex number.</summary>
     public struct Complex {
         /// <summary>Real part of the complex number.</summary>
@@ -45,6 +45,13 @@ namespace Cavern.QuickEQ {
             float Multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary);
             return new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) * Multiplier,
                 (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) * Multiplier);
+        }
+
+        /// <summary>Multiply with another complex number.</summary>
+        public void Multiply(ref Complex rhs) {
+            float OldReal = Real;
+            Real = Real * rhs.Real - Imaginary * rhs.Imaginary;
+            Imaginary = OldReal * rhs.Imaginary + Imaginary * rhs.Real;
         }
 
         /// <summary>Divide with another complex number.</summary>

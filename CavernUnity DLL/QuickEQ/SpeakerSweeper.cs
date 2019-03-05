@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ {
     /// <summary>Measures the frequency response of all output channels.</summary>
     [AddComponentMenu("Audio/QuickEQ/Speaker Sweeper")]
@@ -24,6 +26,10 @@ namespace Cavern.QuickEQ {
         bool OldLFESeparation;
         /// <summary>Virtualizer before the measurement. Virtualizer is off while measuring.</summary>
         bool OldVirtualizer;
+        /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
+        Complex[] SweepFFT;
+        /// <summary>FFT constant cache for the sweep FFT size.</summary>
+        FFTCache SweepFFTCache;
         /// <summary>Quality mode before the measurement. Quality is set to Low while measuring for constant gain panning.</summary>
         QualityModes OldQuality;
         /// <summary>Response evaluator tasks.</summary>
@@ -56,8 +62,6 @@ namespace Cavern.QuickEQ {
         /// <summary>Room correction, equalizer for each channel.</summary>
         [NonSerialized] public Equalizer[] Equalizers;
 
-        /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
-        public Complex[] SweepFFT { get; private set; }
         /// <summary>Measurement signal samples.</summary>
         public float[] SweepReference { get; private set; }
         /// <summary>Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
@@ -75,14 +79,21 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Generate <see cref="SweepReference"/> and <see cref="SweepFFT"/>.</summary>
+        /// <summary>Generate <see cref="SweepReference"/> and the related optimization values.</summary>
         public void RegenerateSweep() {
             SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreq, SweepLength, AudioListener3D.Current.SampleRate));
             float GainMult = Mathf.Pow(10, SweepGain / 20);
             for (int Sample = 0, Length = SweepReference.Length; Sample < Length; ++Sample)
                 SweepReference[Sample] *= GainMult;
-            SweepFFT = Measurements.FFT(SweepReference);
+            SweepFFT = Measurements.FFT(SweepReference, SweepFFTCache = new FFTCache(SweepReference.Length));
         }
+
+        /// <summary>Get the frequency response of an external measurement that was performed with the current <see cref="SweepFFT"/>.</summary>
+        public Complex[] GetFrequencyResponse(float[] Samples) => Measurements.GetFrequencyResponse(SweepFFT, Measurements.FFT(Samples, SweepFFTCache));
+
+        /// <summary>Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[])"/>.</summary>
+        public VerboseImpulseResponse GetImpulseResponse(Complex[] FrequencyResponse) =>
+            new VerboseImpulseResponse(Measurements.GetImpulseResponse(FrequencyResponse, SweepFFTCache));
 
         void OnEnable() {
             ResultAvailable = false;
@@ -131,7 +142,7 @@ namespace Cavern.QuickEQ {
             SweepResponse.GetData(Result, 0);
             Destroy(SweepResponse);
             ExcitementResponses[Channel] = Result;
-            (Workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(SweepFFT, Result))).Start();
+            (Workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(SweepFFT, SweepFFTCache, Result))).Start();
         }
 
         void Update() {
@@ -176,10 +187,10 @@ namespace Cavern.QuickEQ {
             public float[] FreqResponse;
             public VerboseImpulseResponse ImpResponse;
 
-            public WorkerResult(Complex[] SweepFFT, float[] Response) {
-                Complex[] RawResponse = Measurements.GetFrequencyResponse(SweepFFT, Response);
+            public WorkerResult(Complex[] SweepFFT, FFTCache SweepFFTCache, float[] Response) {
+                Complex[] RawResponse = Measurements.GetFrequencyResponse(SweepFFT, Measurements.FFT(Response, SweepFFTCache));
                 FreqResponse = Measurements.GetSpectrum(RawResponse);
-                ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(RawResponse));
+                ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(RawResponse, SweepFFTCache));
             }
 
             public bool IsNull() => FreqResponse == null || ImpResponse == null;

@@ -1,6 +1,8 @@
 ﻿using System;
 using UnityEngine;
 
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ {
     /// <summary>Available FFT windows.</summary>
     public enum Window {
