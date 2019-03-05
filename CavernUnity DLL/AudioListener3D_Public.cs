@@ -32,7 +32,7 @@ namespace Cavern {
         /// <summary>Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.</summary>
         [Header("Advanced")]
         [Tooltip("Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.")]
-        public int SampleRate = 44100;
+        public int SampleRate = 48000;
         /// <summary>Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.</summary>
         [Tooltip("Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.")]
         public int UpdateRate = 240;
