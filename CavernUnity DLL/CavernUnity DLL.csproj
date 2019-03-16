@@ -93,6 +93,7 @@
     <Compile Include="Spoofer\AutoSpoofer.cs" />
     <Compile Include="Utilities\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
+    <Compile Include="Utilities\Highpass.cs" />
     <Compile Include="Utilities\Lowpass.cs" />
     <Compile Include="Helpers\OneShotDestructor.cs" />
     <Compile Include="Helpers\ScaleByGain.cs" />

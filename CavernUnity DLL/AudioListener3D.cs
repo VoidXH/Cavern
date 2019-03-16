@@ -186,6 +186,8 @@ namespace Cavern {
 
         void Update() {
             // Change checks
+            if (HeadphoneVirtualizer) // Virtual channels
+                VirtualizerFilter.SetLayout();
             if (ChannelCount != Channels.Length || CachedSampleRate != SampleRate || CachedUpdateRate != UpdateRate)
                 ResetFunc();
             LastPosition = transform.position;
@@ -203,8 +205,6 @@ namespace Cavern {
             int StartTime = LastTime;
             // Pre-optimization and channel volume calculation
             bool Recalculate = CompensationCache != EnvironmentCompensation; // Recalculate volumes if channel positioning or environment compensation changed
-            if (HeadphoneVirtualizer) // Virtual channels
-                VirtualizerFilter.SetLayout();
             if (CompensationCache = EnvironmentCompensation)
                 for (int Channel = 0; Channel < ChannelCount; ++Channel)
                     if (ChannelCache[Channel].x != Channels[Channel].x || ChannelCache[Channel].y != Channels[Channel].y) {
