@@ -7,6 +7,7 @@ Cavern is a fully adaptive object-based audio engine and upmixer without limitat
 * Upconverter for regular surround mixes
 * Full cinema and stage support with realtime conversion
 * Cavern QuickEQ corrects the room's frequency response in seconds
+* HRIR headphone virtualizer
 * Mix repositioning based on occupied seats
 * Seat movement generation
 * Unity-like listener and source functionality
@@ -16,6 +17,7 @@ Cavern is a fully adaptive object-based audio engine and upmixer without limitat
 * [Calibration process](./docs/Calibration%20process.md) for traditional or Cavern-only rooms
 * [Cavern DCP channel order](./docs/Cavern%20DCP%20channel%20order.md) compared to DCP standards
 * [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
+* [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
 
 ## Driver disclaimer
 While Cavern itself is open-source, the setup utility and most converter interfaces are not, because they are built on licences not allowing it. However, their functionality is almost entirely using this plugin. Builds can be downloaded from the [Cavern website](http://cavern.cf).
