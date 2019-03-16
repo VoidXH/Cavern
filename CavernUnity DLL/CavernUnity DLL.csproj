@@ -102,6 +102,7 @@
     <Compile Include="Debug\Levels.cs" />
     <Compile Include="SeatAdaptation.cs" />
     <Compile Include="Virtualizer\Convolver.cs" />
+    <Compile Include="Virtualizer\SpatialChannel.cs" />
     <Compile Include="Virtualizer\VirtualizerFilter.cs" />
   </ItemGroup>
   <ItemGroup />

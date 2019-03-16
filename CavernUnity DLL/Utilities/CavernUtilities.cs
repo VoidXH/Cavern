@@ -22,6 +22,8 @@ namespace Cavern {
         internal const float Sqrt2p2 = .7071067811f;
         /// <summary>sqrt(2) / -2</summary>
         internal const float Sqrt2pm2 = -.7071067811f;
+        /// <summary>Reference sound velocity in m/s.</summary>
+        internal const float SpeedOfSound = 340.29f;
 
         /// <summary>For given angles (in radian) it returns a vector for that position on a sphere with the radius of 1.</summary>
         public static Vector3 PlaceInSphere(Vector3 Angles) {

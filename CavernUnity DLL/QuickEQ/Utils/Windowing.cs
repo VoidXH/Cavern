@@ -43,8 +43,7 @@ namespace Cavern.QuickEQ {
             float LeftSpanDiv = 2 * Mathf.PI / (LeftSpan * 2), RightSpanDiv = 2 * Mathf.PI / (RightSpan * 2);
             if (Left != Window.Disabled) {
                 WindowFunction LeftFunc = GetWindowFunction(Left);
-                for (int Sample = 0; Sample < Start; ++Sample)
-                    Samples[Sample] = 0;
+                Array.Clear(Samples, 0, Start);
                 for (int Sample = Math.Max(Start, 0), ActEnd = Math.Min(PosSplitter, Samples.Length); Sample < ActEnd; ++Sample)
                     Samples[Sample] *= LeftFunc((Sample - Start) * LeftSpanDiv);
             }
@@ -53,8 +52,7 @@ namespace Cavern.QuickEQ {
                 WindowFunction RightFunc = GetWindowFunction(Right);
                 for (int Sample = PosSplitter, ActEnd = Math.Min(PosEnd, Samples.Length); Sample < ActEnd; ++Sample)
                     Samples[Sample] *= RightFunc((Sample - EndMirror) * RightSpanDiv);
-                for (int Sample = PosEnd, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
-                    Samples[Sample] = 0;
+                Array.Clear(Samples, PosEnd, Samples.Length - PosEnd);
             }
         }
 

@@ -12,7 +12,6 @@ namespace Cavern {
         // Constants
         // ------------------------------------------------------------------
         const float PiRecip = .3183098861837906f;
-        const float SpeedOfSound = 340.29f;
 
         // ------------------------------------------------------------------
         // Internal helpers
@@ -165,7 +164,7 @@ namespace Cavern {
                     if (DopplerLevel == 0)
                         CalculatedPitch = Pitch;
                     else
-                        CalculatedPitch = Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound - (LastDistance - Distance) /
+                        CalculatedPitch = Clamp(Pitch * DopplerLevel * CavernUtilities.SpeedOfSound / (CavernUtilities.SpeedOfSound - (LastDistance - Distance) /
                             AudioListener3D.PulseDelta), .5f, 3f);
                 } else
                     CalculatedPitch = 1; // Disable any pitch change on low quality
@@ -210,7 +209,7 @@ namespace Cavern {
                 // Mono mix
                 if (Blend3D || !StereoClip) {
                     if (ClipChannels == 1)
-                        Array.Copy(OriginalSamples, Samples, PitchedUpdateRate);
+                        Buffer.BlockCopy(OriginalSamples, 0, Samples, 0, PitchedUpdateRate * sizeof(float));
                     else {
                         if (HighQuality) { // Mono downmix above medium quality
                             Array.Clear(Samples, 0, PitchedUpdateRate);
