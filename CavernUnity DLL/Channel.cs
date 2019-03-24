@@ -9,6 +9,7 @@ namespace Cavern {
         /// <summary>True for channels carrying only Low Frequency Effects.</summary>
         public bool LFE;
 
+#pragma warning disable IDE1006 // Naming Styles
         /// <summary>Rotation around the X axis: height.</summary>
         public float x {
             get => X;
@@ -20,6 +21,7 @@ namespace Cavern {
             get => Y;
             set { Y = value; Recalculate(); }
         }
+#pragma warning restore IDE1006 // Naming Styles
 
         /// <summary>Position on a sphere with the radius of 1.</summary>
         public Vector3 SphericalPos { get; private set; }
@@ -27,10 +29,12 @@ namespace Cavern {
         public Vector3 CubicalPos { get; private set; }
         /// <summary>Position in space. <see cref="SphericalPos"/> in Studio environments, <see cref="CubicalPos"/> otherwise.</summary>
         public Vector3 SpatialPos { get; private set; }
-        /// <summary>Rotation direction of the channel.</summary>
-        public Quaternion Rotation { get; private set; }
         /// <summary>The channel's forward direction.</summary>
         public Vector3 Direction { get; private set; }
+        /// <summary>Rotation direction of the channel.</summary>
+        public Quaternion Rotation { get; private set; }
+        /// <summary>The distance from the listener, relative to the center channel. Magnitude of <see cref="SpatialPos"/>.</summary>
+        public float Distance { get; private set; }
 
         /// <summary>An identical channel.</summary>
         internal Channel Copy { get => new Channel(X, Y, LFE); }
@@ -68,13 +72,13 @@ namespace Cavern {
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
             SphericalPos = new Vector3(SinY * CosX, -SinX, CosY * CosX);
             if (Math.Abs(SinY) > Math.Abs(CosY))
-                SinY = SinY > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
+                SinY = Mathf.Sign(SinY) * CavernUtilities.Sqrt2p2;
             else
-                CosY = CosY > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
+                CosY = Mathf.Sign(CosY) * CavernUtilities.Sqrt2p2;
             SinY /= CavernUtilities.Sqrt2p2;
             CosY /= CavernUtilities.Sqrt2p2;
             if (Math.Abs(SinX) >= CavernUtilities.Sqrt2p2) {
-                SinX = SinX > 0 ? CavernUtilities.Sqrt2p2 : CavernUtilities.Sqrt2pm2;
+                SinX = Mathf.Sign(SinX) * CavernUtilities.Sqrt2p2;
                 CosX /= CavernUtilities.Sqrt2p2;
                 SinY *= CosX;
                 CosY *= CosX;
@@ -85,6 +89,7 @@ namespace Cavern {
                 SpatialPos = CubicalPos;
             else
                 SpatialPos = SphericalPos;
+            Distance = SpatialPos.magnitude;
             // Symmetry check
             if (AudioListener3D.Channels != null) {
                 AudioSource3D.Symmetric = true;

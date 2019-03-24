@@ -18,32 +18,30 @@ namespace Cavern {
             }
         }
 
-        /// <summary>sqrt(2) / 2</summary>
+        /// <summary>sqrt(2) / 2 = 1 / sqrt(2)</summary>
         internal const float Sqrt2p2 = .7071067811f;
-        /// <summary>sqrt(2) / -2</summary>
-        internal const float Sqrt2pm2 = -.7071067811f;
         /// <summary>Reference sound velocity in m/s.</summary>
         internal const float SpeedOfSound = 340.29f;
 
-        /// <summary>For given angles (in radian) it returns a vector for that position on a sphere with the radius of 1.</summary>
+        /// <summary>For given angles (in radians) it returns a vector for that position on a sphere with the radius of 1.</summary>
         public static Vector3 PlaceInSphere(Vector3 Angles) {
             float XRad = Angles.x * Mathf.Deg2Rad, YRad = Angles.y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
             return new Vector3(SinY * CosX, -SinX, CosY * CosX);
         }
 
-        /// <summary>For given angles (in radian) it returns a vector for that position on a cube with the side length of 2.</summary>
+        /// <summary>For given angles (in radians) it returns a vector for that position on a cube with the side length of 2.</summary>
         public static Vector3 PlaceInCube(Vector3 Angles) {
             float XRad = Angles.x * Mathf.Deg2Rad, YRad = Angles.y * Mathf.Deg2Rad, SinX = (float)Math.Sin(XRad), CosX = (float)Math.Cos(XRad),
                 SinY = (float)Math.Sin(YRad), CosY = (float)Math.Cos(YRad);
-            if (Math.Abs(SinY) > Math.Abs(CosY)) {
-                SinY = SinY > 0 ? Sqrt2p2 : Sqrt2pm2;
-            } else
-                CosY = CosY > 0 ? Sqrt2p2 : Sqrt2pm2;
+            if (Math.Abs(SinY) > Math.Abs(CosY))
+                SinY = Mathf.Sign(SinY) * Sqrt2p2;
+            else
+                CosY = Mathf.Sign(CosY) * Sqrt2p2;
             SinY /= Sqrt2p2;
             CosY /= Sqrt2p2;
             if (Math.Abs(SinX) >= Sqrt2p2) {
-                SinX = SinX > 0 ? Sqrt2p2 : Sqrt2pm2;
+                SinX = Mathf.Sign(SinX) * Sqrt2p2;
                 CosX /= Sqrt2p2;
                 SinY *= CosX;
                 CosY *= CosX;
