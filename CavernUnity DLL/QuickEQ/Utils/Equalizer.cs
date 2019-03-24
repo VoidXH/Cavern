@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Cavern.QuickEQ {
@@ -19,7 +20,7 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Bands that make up this equalizer.</summary>
-        public IReadOnlyList<Band> Bands { get { return _Bands; } }
+        public IReadOnlyList<Band> Bands => _Bands;
         List<Band> _Bands = new List<Band>();
 
         /// <summary>Subsonic filter rolloff in dB / octave.</summary>
@@ -137,37 +138,6 @@ namespace Cavern.QuickEQ {
             return Filter;
         }
 
-        /// <summary>Generate an equalizer setting to flatten the received response with bands separated in given octavess.</summary>
-        /// <param name="Response">Frequency response to equalize, must be in decibels (use <see cref="Measurements.ConvertToDecibels"/>), and smoothing
-        /// (<see cref="Measurements.SmoothResponse(float[], int, float)"/>) is strongly recommended, but the only allowed range is 0 to sample rate / 2</param>
-        /// <param name="SampleRate">Measurement sampling rate</param>
-        /// <param name="ReferenceCurve">Match the frequency response to this linear curve of any length, one value means a flat response</param>
-        /// <param name="Resolution">Band diversity in octaves</param>
-        /// <param name="MaxGain">Maximum gain of any generated band</param>
-        public static Equalizer CorrectResponse(float[] Response, int SampleRate, float[] ReferenceCurve, float Resolution, float MaxGain = 6) {
-            Equalizer Result = new Equalizer();
-            float Jumper = Mathf.Pow(2, Resolution), Nyquist = SampleRate * .5f, Sample = Response.Length / Nyquist, LastSample = Sample / Jumper,
-                Length = Response.Length - 1, FreqFromSample = Nyquist / Response.Length, RefFromSample = ReferenceCurve.Length / (float)Response.Length;
-            while (Sample <= Length) {
-                float NextSample = Sample * Jumper, Average = 0;
-                int WindowEnd = (int)NextSample, RefPos = (int)(Sample * RefFromSample), AverageCount = 0;
-                float MinChecked = ReferenceCurve[RefPos] - MaxGain;
-                if (WindowEnd > Length) WindowEnd = (int)Length;
-                for (int WindowPos = (int)LastSample; WindowPos < WindowEnd; ++WindowPos) {
-                    if (Response[WindowPos] > MinChecked) {
-                        Average += Response[WindowPos];
-                        ++AverageCount;
-                    }
-                }
-                if (AverageCount != 0)
-                    Result._Bands.Add(new Band(Sample * FreqFromSample, ReferenceCurve[RefPos] - Average / AverageCount));
-                LastSample = Sample;
-                Sample = NextSample;
-            }
-            Result._Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
-            return Result;
-        }
-
         /// <summary>Generate an equalizer setting to flatten the processed response of
         /// <see cref="Measurements.SmoothGraph(float[], float, float, float)"/>.</summary>
         /// <param name="Graph">Graph to equalize, a pre-applied smoothing (<see cref="Measurements.SmoothGraph(float[], float, float, float)"/> is
@@ -185,19 +155,14 @@ namespace Cavern.QuickEQ {
                 RefPositioner = ReferenceCurve.Length / (float)Length;
             int WindowSize = Length / (int)Bands, WindowEdge = WindowSize / 2;
             for (int Pos = Length - 1; Pos >= 0; Pos -= WindowSize) {
-                int AverageCount = 0, RefPos = (int)(Pos * RefPositioner);
-                float CenterFreq = Mathf.Pow(10, StartPow + PowRange * Pos), Average = 0, MinChecked = ReferenceCurve[RefPos] - MaxGain;
-                int Sample = Pos - WindowEdge, End = Sample + WindowSize;
-                if (Sample < 0) Sample = 0;
-                if (End > Length) End = Length;
-                for (; Sample < End; ++Sample) {
-                    if (Graph[Sample] > MinChecked) {
-                        Average += Graph[Sample];
-                        ++AverageCount;
-                    }
-                }
-                if (AverageCount != 0)
-                    Result._Bands.Add(new Band(CenterFreq, ReferenceCurve[RefPos] - Average / AverageCount));
+                int RefPos = (int)(Pos * RefPositioner);
+                float CenterFreq = Mathf.Pow(10, StartPow + PowRange * Pos), Average = 0;
+                int Start = Math.Max(Pos - WindowEdge, 0), End = Math.Min(Pos + WindowEdge, Length);
+                for (int Sample = Start; Sample < End; ++Sample)
+                    Average += Graph[Sample];
+                float Addition = ReferenceCurve[RefPos] - Average / (End - Start);
+                if (Addition <= MaxGain)
+                    Result._Bands.Add(new Band(CenterFreq, Addition));
             }
             Result._Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
             return Result;

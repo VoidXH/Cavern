@@ -202,23 +202,6 @@ namespace Cavern.QuickEQ {
         public static Complex[] GetImpulseResponse(float[] Reference, float[] Response, FFTCache Cache = null) =>
             IFFT(GetFrequencyResponse(Reference, Response), Cache);
 
-        /// <summary>Get the complex impulse response faster using the original sweep signal as a reference.</summary>
-        public static Complex[] GetImpulseResponse(float[] Reference, float[] Response, int SpeedMultiplier) {
-            int OldSize = Reference.Length, NewSize = OldSize >> SpeedMultiplier, Step = OldSize / NewSize;
-            float AvgDiv = NewSize / (float)OldSize;
-            float[] NewReference = new float[NewSize], NewResponse = new float[NewSize];
-            for (int OldSample = 0, NewSample = 0; OldSample < OldSize; ++NewSample) {
-                float AverageRef = 0, AverageResp = 0;
-                for (int NextStep = OldSample + Step; OldSample < NextStep; ++OldSample) {
-                    AverageRef += Reference[OldSample];
-                    AverageResp += Response[OldSample];
-                }
-                NewReference[NewSample] = AverageRef * AvgDiv;
-                NewResponse[NewSample] = AverageResp * AvgDiv;
-            }
-            return IFFT(GetFrequencyResponse(NewReference, NewResponse));
-        }
-
         /// <summary>Convert a response curve to decibel scale.</summary>
         public static void ConvertToDecibels(float[] Curve, float Minimum = -100) {
             for (int i = 0, End = Curve.Length; i < End; ++i) {
@@ -250,26 +233,25 @@ namespace Cavern.QuickEQ {
             if (Octave == 0)
                 return (float[])Samples.Clone();
             float OctaveRange = Mathf.Log(EndFreq, 2) - Mathf.Log(StartFreq, 2);
-            int Length = Samples.Length;
-            int WindowSize = (int)(Length * Octave / OctaveRange);
+            int Length = Samples.Length, WindowSize = (int)(Length * Octave / OctaveRange), LastBlock = Length - WindowSize;
             float[] Smoothed = new float[Length--];
+            float Average = 0;
+            for (int Sample = 0; Sample < WindowSize; ++Sample)
+                Average += Samples[Sample];
             for (int Sample = 0; Sample < WindowSize; ++Sample) {
-                int Start = 0, End = Sample + WindowSize;
-                if (End > Length)
-                    End = Length;
-                float Average = 0;
-                for (int WindowSample = Start; WindowSample <= End; ++WindowSample)
-                    Average += Samples[WindowSample];
-                Smoothed[Sample] = Average / (End - Start);
+                int NewSample = Sample + WindowSize;
+                Average += Samples[NewSample];
+                Smoothed[Sample] = Average / NewSample;
             }
-            for (int Sample = WindowSize; Sample <= Length; ++Sample) {
-                int Start = Sample - WindowSize, End = Sample + WindowSize;
-                if (End > Length)
-                    End = Length;
-                float Average = 0;
-                for (int WindowSample = Start; WindowSample <= End; ++WindowSample)
-                    Average += Samples[WindowSample];
-                Smoothed[Sample] = Average / (End - Start);
+            for (int Sample = WindowSize; Sample < LastBlock; ++Sample) {
+                int OldSample = Sample - WindowSize, NewSample = Sample + WindowSize;
+                Average += Samples[NewSample] - Samples[OldSample];
+                Smoothed[Sample] = Average / (NewSample - OldSample);
+            }
+            for (int Sample = LastBlock; Sample <= Length; ++Sample) {
+                int OldSample = Sample - WindowSize;
+                Average -= Samples[OldSample];
+                Smoothed[Sample] = Average / (Length - OldSample);
             }
             return Smoothed;
         }
@@ -282,31 +264,6 @@ namespace Cavern.QuickEQ {
             for (int i = 0, Length = Samples.Length; i < Length; ++i)
                 Output[i] = CavernUtilities.FastLerp(StartGraph[i], EndGraph[i], i * Positioner);
             return Output;
-        }
-
-        /// <summary>Apply smoothing (in octaves) on a linear frequency response.</summary>
-        public static float[] SmoothResponse(float[] Samples, int SampleRate, float Octave = 1 / 3f) {
-            if (Octave == 0)
-                return (float[])Samples.Clone();
-            int Length = Samples.Length;
-            float[] Smoothed = new float[Length--];
-            float Nyquist = SampleRate * .5f, Offset = Mathf.Pow(2, Octave), Positioner = Length / Nyquist, FreqAtSample = Nyquist / Length;
-            for (int Sample = 0; Sample <= Length; ++Sample) {
-                float Freq = Sample * FreqAtSample, WindowStart = Freq / Offset, WindowEnd = Freq * Offset;
-                int Start = (int)(WindowStart * Positioner), End = (int)(WindowEnd * Positioner);
-                if (Start < 0)
-                    Start = 0;
-                if (End > Length)
-                    End = Length;
-                float Average = 0;
-                for (int WindowSample = Start; WindowSample <= End; ++WindowSample)
-                    Average += Samples[WindowSample];
-                if (End != Start)
-                    Smoothed[Sample] = Average / (End - Start);
-                else
-                    Smoothed[Sample] = Average;
-            }
-            return Smoothed;
         }
     }
 }
