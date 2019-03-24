@@ -14,8 +14,6 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Internal vars
         // ------------------------------------------------------------------
-        /// <summary>Position between the last and current update frame's playback position.</summary>
-        internal static float DeltaTime { get; private set; }
         /// <summary>Position between the last and current game frame's playback position.</summary>
         internal static float PulseDelta { get; private set; }
         /// <summary>Required output array size for each <see cref="AudioSource3D.Collect"/> function.</summary>
@@ -51,9 +49,7 @@ namespace Cavern {
         static float[] ChannelGains;
 
         /// <summary>Output timer.</summary>
-        static int Now;
-        /// <summary>Output timer in the last frame.</summary>
-        static int LastTime;
+        static int Now = 0;
         /// <summary>Cached <see cref="SampleRate"/> for change detection.</summary>
         static int CachedSampleRate = 0;
         /// <summary>Cached <see cref="UpdateRate"/> for change detection.</summary>
@@ -77,8 +73,6 @@ namespace Cavern {
         void ResetFunc() {
             ChannelCount = Channels.Length;
             CompensationCache = !EnvironmentCompensation;
-            Now = SampleRate;
-            LastTime = 0;
             CachedSampleRate = SampleRate;
             CachedUpdateRate = UpdateRate;
             BufferPosition = 0;
@@ -193,16 +187,20 @@ namespace Cavern {
             LastPosition = transform.position;
             LastRotationInverse = Quaternion.Inverse(LastRotation = transform.rotation);
             // Timing
-            long TicksNow = DateTime.Now.Ticks;
-            long TimePassed = (TicksNow - LastTicks) * SampleRate + AdditionMiss;
-            long Addition = TimePassed / TimeSpan.TicksPerSecond;
-            AdditionMiss = TimePassed % TimeSpan.TicksPerSecond;
-            Now += (int)Addition;
-            LastTicks = TicksNow;
+            if (!Manual) {
+                long TicksNow = DateTime.Now.Ticks;
+                long TimePassed = (TicksNow - LastTicks) * SampleRate + AdditionMiss;
+                long Addition = TimePassed / TimeSpan.TicksPerSecond;
+                AdditionMiss = TimePassed % TimeSpan.TicksPerSecond;
+                Now += (int)Addition;
+                LastTicks = TicksNow;
+                if (Now > SampleRate >> 2) // Lag compensation: don't process more than 1/4 of a second
+                    Now = SampleRate >> 2;
+            } else
+                Now = UpdateRate;
             // Don't work with wrong settings
             if (SampleRate < 44100 || UpdateRate < 16)
                 return;
-            int StartTime = LastTime;
             // Pre-optimization and channel volume calculation
             bool Recalculate = CompensationCache != EnvironmentCompensation; // Recalculate volumes if channel positioning or environment compensation changed
             if (CompensationCache = EnvironmentCompensation)
@@ -235,11 +233,6 @@ namespace Cavern {
                 Array.Clear(Output, 0, OutputLength);
             else
                 Output = new float[OutputLength];
-            // Source processing
-            if (Now - LastTime > SampleRate) // Lag compensation
-                LastTime = Now - UpdateRate;
-            if (Manual)
-                Now = LastTime + UpdateRate;
             // Choose processing functions
             if (AudioQuality >= QualityModes.High) {
                 if (AudioQuality != QualityModes.Perfect)
@@ -253,18 +246,17 @@ namespace Cavern {
                     (AudioSource3D.OutputFunc)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
             AudioSource3D.UsedAngleMatchFunc = AudioQuality >= QualityModes.High ? // Only calculate accurate arc cosine above high quality
                 (AudioSource3D.AngleMatchFunc)AudioSource3D.CalculateAngleMatches : AudioSource3D.LinearizeAngleMatches;
-            if (LastTime < Now) {
+            if (UpdateRate <= Now) {
                 // Set up sound collection environment
                 for (int Source = 0; Source < MaximumSources; ++Source)
                     SourceDistances[Source] = Range;
-                PulseDelta = (Now - LastTime) /(float)SampleRate;
+                PulseDelta = Now /(float)SampleRate;
                 LinkedListNode<AudioSource3D> Node = ActiveSources.First;
                 while (Node != null) {
                     Node.Value.Precalculate();
                     Node = Node.Next;
                 }
-                while (LastTime < Now) {
-                    DeltaTime = (float)(LastTime - StartTime) / (Now - StartTime);
+                while (UpdateRate <= Now) {
                     if (!Paused || Manual) {
                         // Collect audio data from sources
                         RenderBufferSize = UpdateRate * ChannelCount;
@@ -301,7 +293,7 @@ namespace Cavern {
                     }
                     // Finalize
                     OnOutputAvailable();
-                    LastTime += UpdateRate;
+                    Now -= UpdateRate;
                 }
                 Manual = false;
             }
