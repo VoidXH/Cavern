@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Cavern.Utilities {
-    /// <summary>Simple first-order lowpass filter.</summary>
-    internal class Lowpass {
+namespace Cavern.Filters {
+    /// <summary>Simple first-order highpass filter.</summary>
+    internal class Highpass : Filter {
         /// <summary>Cached sample rate.</summary>
         int SampleRate;
         /// <summary>Center frequency (-3 dB point) of the filter.</summary>
@@ -12,7 +12,7 @@ namespace Cavern.Utilities {
         float a1, a2, b1, b2; // Transfer function
         float x1, x2, y1, y2; // History
 
-        public Lowpass(float CenterFreq, float Q = .7071067811865475f) => Reset(CenterFreq, Q);
+        public Highpass(float CenterFreq, float Q = .7071067811865475f) => Reset(CenterFreq, Q);
 
         /// <summary>Regenerate the transfer function.</summary>
         /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
@@ -24,14 +24,17 @@ namespace Cavern.Utilities {
             float w0 = Mathf.PI * 2 * CenterFreq / SampleRate, Cos = Mathf.Cos(w0), Alpha = Mathf.Sin(w0) / (Q + Q), Divisor = 1 / (1 + Alpha);
             a1 = -2 * Cos * Divisor;
             a2 = (1 - Alpha) * Divisor;
-            b2 = (b1 = (1 - Cos) * Divisor) * .5f;
+            b2 = -(b1 = (-1 - Cos) * Divisor) * .5f;
         }
 
-        /// <summary>Apply this filter to an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>Apply highpass on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        public override void Process(float[] Samples) => Process(Samples, 0, 1);
+
+        /// <summary>Apply highpass on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         /// <param name="Samples">Input samples</param>
         /// <param name="Channel">Channel to filter</param>
         /// <param name="Channels">Total channels</param>
-        public void Process(float[] Samples, int Channel = 0, int Channels = 1) {
+        public void Process(float[] Samples, int Channel, int Channels) {
             if (SampleRate != (AudioListener3D.Current != null ? AudioListener3D.Current.SampleRate : 48000))
                 Reset(CenterFreq, Q);
             for (int Sample = Channel, End = Samples.Length; Sample < End; Sample += Channels) {

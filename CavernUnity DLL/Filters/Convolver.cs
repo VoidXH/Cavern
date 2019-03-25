@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Cavern.Utilities {
+namespace Cavern.Filters {
     /// <summary>Simple convolution window filter.</summary>
-    public class Convolver {
+    public class Convolver : Filter {
         /// <summary>Impulse response to convolve with.</summary>
         float[] Impulse;
         /// <summary>Samples to be copied to the beginning of the next output.</summary>
@@ -25,7 +25,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>Apply convolution on a set of samples.</summary>
-        public void Process(float[] Samples) {
+        public override void Process(float[] Samples) {
             // Actual convolution
             int SampleCount = Samples.Length, DelayedImpulse = Impulse.Length + Delay;
             float[] Convolved = new float[SampleCount + DelayedImpulse];

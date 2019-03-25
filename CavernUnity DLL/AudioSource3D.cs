@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-using Cavern.Utilities;
+using Cavern.Filters;
 
 namespace Cavern {
     [AddComponentMenu("Audio/3D Audio Source")]

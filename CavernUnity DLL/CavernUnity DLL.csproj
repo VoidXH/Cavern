@@ -66,6 +66,7 @@
     <Compile Include="AudioSource3D_Symmetric.cs" />
     <Compile Include="Cavern4D\Cavern4DBase.cs" />
     <Compile Include="Cavern4D\Seat4D.cs" />
+    <Compile Include="Filters\Filter.cs" />
     <Compile Include="QuickEQ\MeasurementImporter.cs" />
     <Compile Include="QuickEQ\Utils\FFTCache.cs" />
     <Compile Include="Utilities\Complex.cs" />
@@ -94,15 +95,15 @@
     <Compile Include="Spoofer\AutoSpoofer.cs" />
     <Compile Include="Utilities\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
-    <Compile Include="Utilities\Highpass.cs" />
-    <Compile Include="Utilities\Lowpass.cs" />
+    <Compile Include="Filters\Highpass.cs" />
+    <Compile Include="Filters\Lowpass.cs" />
     <Compile Include="Helpers\OneShotDestructor.cs" />
     <Compile Include="Helpers\ScaleByGain.cs" />
     <Compile Include="Utilities\WindowBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Debug\Levels.cs" />
     <Compile Include="SeatAdaptation.cs" />
-    <Compile Include="Utilities\Convolver.cs" />
+    <Compile Include="Filters\Convolver.cs" />
     <Compile Include="Virtualizer\SpatialChannel.cs" />
     <Compile Include="Virtualizer\VirtualizerFilter.cs" />
   </ItemGroup>
