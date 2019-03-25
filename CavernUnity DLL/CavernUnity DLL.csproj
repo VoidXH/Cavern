@@ -66,6 +66,7 @@
     <Compile Include="AudioSource3D_Symmetric.cs" />
     <Compile Include="Cavern4D\Cavern4DBase.cs" />
     <Compile Include="Cavern4D\Seat4D.cs" />
+    <Compile Include="QuickEQ\MeasurementImporter.cs" />
     <Compile Include="QuickEQ\Utils\FFTCache.cs" />
     <Compile Include="Utilities\Complex.cs" />
     <Compile Include="QuickEQ\Measurements.cs" />
