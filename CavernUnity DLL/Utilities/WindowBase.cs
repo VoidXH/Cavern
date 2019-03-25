@@ -16,6 +16,7 @@ namespace Cavern.Utilities {
         };
 
         /// <summary>The corner to open the window at.</summary>
+        [Tooltip("The corner to open the window at.")]
         public Corners Corner = Corners.TopLeft;
 
         /// <summary>Current window position.</summary>

@@ -6,6 +6,7 @@ namespace Cavern.Debug {
     [AddComponentMenu("Audio/Debug/Monitor")]
     public class Monitor : MonoBehaviour {
         /// <summary>Snap objects out of the room to walls.</summary>
+        [Tooltip("Snap objects out of the room to walls.")]
         public bool LimitBounds = true;
         /// <summary>Normalize size to this by local scale if not 0.</summary>
         [Tooltip("Normalize size to this by local scale if not 0.")]

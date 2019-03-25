@@ -7,6 +7,7 @@ namespace Cavern.Debug {
     [AddComponentMenu("Audio/Debug/Log Display")]
     public class LogDisplay : WindowBase {
         /// <summary>Maximum level to be reported.</summary>
+        [Tooltip("Maximum level to be reported.")]
         public LogType LogLevel = LogType.Error;
 
         /// <summary>Last received log message that matches the criteria.</summary>
