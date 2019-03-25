@@ -1,32 +1,36 @@
 ﻿using System;
 
-namespace Cavern.Virtualizer {
+namespace Cavern.Utilities {
     /// <summary>Simple convolution window filter.</summary>
     public class Convolver {
-        /// <summary>Impulse response to convolve.</summary>
-        readonly float[] Impulse;
+        /// <summary>Impulse response to convolve with.</summary>
+        float[] Impulse;
         /// <summary>Samples to be copied to the beginning of the next output.</summary>
-        readonly float[] Future;
-        /// <summary>Size of <see cref="Impulse"/>.</summary>
-        readonly int ImpulseLength;
+        float[] Future;
         /// <summary>Additional impulse delay in samples.</summary>
         readonly int Delay;
 
         /// <summary>Construct a convolver for a target impulse response.</summary>
         public Convolver(float[] Impulse, int Delay) {
             this.Impulse = Impulse;
-            ImpulseLength = Impulse.Length;
             this.Delay = Delay;
-            Future = new float[ImpulseLength + Delay];
+            Future = new float[Impulse.Length + Delay];
+        }
+
+        /// <summary>Change the impulse response to convolve with. If the length differs from the old impulse, the cached future samples will be dropped.</summary>
+        public void ReplaceImpulse(float[] NewImpulse) {
+            if (Impulse.Length != NewImpulse.Length)
+                Future = new float[NewImpulse.Length + Delay];
+            Impulse = NewImpulse;
         }
 
         /// <summary>Apply convolution on a set of samples.</summary>
         public void Process(float[] Samples) {
             // Actual convolution
-            int SampleCount = Samples.Length, DelayedImpulse = ImpulseLength + Delay;
+            int SampleCount = Samples.Length, DelayedImpulse = Impulse.Length + Delay;
             float[] Convolved = new float[SampleCount + DelayedImpulse];
             for (int Sample = 0; Sample < SampleCount; ++Sample)
-                for (int Step = 0; Step < ImpulseLength; ++Step)
+                for (int Step = 0, LastStep = Impulse.Length; Step < LastStep; ++Step)
                     Convolved[Sample + Step + Delay] += Samples[Sample] * Impulse[Step];
             if (SampleCount > DelayedImpulse) {
                 // Drain cache

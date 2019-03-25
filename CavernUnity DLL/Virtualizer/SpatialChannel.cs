@@ -1,5 +1,6 @@
-﻿using Cavern.Utilities;
-using UnityEngine;
+﻿using UnityEngine;
+
+using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
     static partial class VirtualizerFilter {
