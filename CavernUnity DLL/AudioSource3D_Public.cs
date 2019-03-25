@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
+using Cavern.Filters;
 using Cavern.Helpers;
 
 namespace Cavern {
@@ -62,6 +63,9 @@ namespace Cavern {
         /// <summary>Delay of the added echo effect.</summary>
         [Tooltip("Delay of the added echo effect.")]
         [Range(0, .99f)] public float EchoDelay = 0;
+        /// <summary>Filter to be applied on the 3D mixed output.</summary>
+        [Tooltip("Filter to be applied on the 3D mixed output.")]
+        public Filter SpatialFilter;
 
         // ------------------------------------------------------------------
         // Variables

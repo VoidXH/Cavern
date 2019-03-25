@@ -297,6 +297,9 @@ namespace Cavern {
                             LPF.Process(Samples);
                         }
                     }
+                    // Apply filter if set
+                    if (SpatialFilter != null)
+                        SpatialFilter.Process(Samples);
                     // Buffer for echo, if enabled
                     if (EchoVolume != 0) {
                         int SampleRate = Listener.SampleRate;
