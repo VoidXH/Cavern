@@ -208,6 +208,20 @@ namespace Cavern {
             VolumeRolloff = From.VolumeRolloff; EchoVolume = From.EchoVolume; EchoDelay = From.EchoDelay;
         }
 
+        /// <summary>Add a new <see cref="SpatialFilter"/> to this source.</summary>
+        public void AddFilter(Filter Target) {
+            if (SpatialFilter == null)
+                SpatialFilter = Target;
+            else {
+                if (!(SpatialFilter is ComplexFilter)) {
+                    Filter Old = SpatialFilter;
+                    SpatialFilter = new ComplexFilter();
+                    ((ComplexFilter)SpatialFilter).Filters.Add(Old);
+                }
+                ((ComplexFilter)SpatialFilter).Filters.Add(Target);
+            }
+        }
+
         /// <summary>Play a clip once at the given world position.</summary>
         /// <param name="Clip">Target clip</param>
         /// <param name="Position">World position of the clip</param>
