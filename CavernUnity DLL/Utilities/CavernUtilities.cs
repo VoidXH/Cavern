@@ -9,14 +9,8 @@ namespace Cavern {
         /// <summary>Cached version name.</summary>
         static string _Info;
         /// <summary>Version and creator information.</summary>
-        public static string Info {
-            get {
-                if (_Info == null)
-                    _Info = "Cavern v" + FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion +
-                        " by VoidX (www.voidx.tk)";
-                return _Info;
-            }
-        }
+        public static string Info => _Info ?? (_Info = "Cavern v" +
+            FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion + " by VoidX (www.cavern.cf)");
 
         /// <summary>sqrt(2) / 2 = 1 / sqrt(2)</summary>
         internal const float Sqrt2p2 = .7071067811f;
@@ -76,6 +70,18 @@ namespace Cavern {
                 in0[Replace] = in2;
         }
 
+        /// <summary>
+        /// Clamp an int between limits.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Clamp(int Value, int Min, int Max) {
+            if (Value < Min)
+                return Min;
+            if (Value > Max)
+                return Max;
+            return Value;
+        }
+
         /// <summary>Unclamped linear interpolation.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static float FastLerp(float a, float b, float t) => (b - a) * t + a;
@@ -118,17 +124,6 @@ namespace Cavern {
                     Max = AbsSample;
             }
             return Max;
-        }
-
-        /// <summary>Vector scaling by each axis.</summary>
-        /// <param name="Target">Input vector</param>
-        /// <param name="Scale">Scale</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Vector3 VectorScale(Vector3 Target, Vector3 Scale) {
-            Target.x *= Scale.x;
-            Target.y *= Scale.y;
-            Target.z *= Scale.z;
-            return Target;
         }
 
         /// <summary>Multiplies all values in an array.</summary>

@@ -238,7 +238,7 @@ namespace Cavern {
                     if (StandardChannels[Source].Muted)
                         NewSource.Volume = 0;
                     SphericalObjects[Source].transform.position =
-                        CavernUtilities.VectorScale(CavernUtilities.PlaceInCube(new Vector3(0, StandardChannels[Source].Y)), AudioListener3D.EnvironmentSize);
+                        Vector3.Scale(CavernUtilities.PlaceInCube(new Vector3(0, StandardChannels[Source].Y)), AudioListener3D.EnvironmentSize);
                 }
             }
             for (int Channel = 0; Channel < CavernChannels; ++Channel)

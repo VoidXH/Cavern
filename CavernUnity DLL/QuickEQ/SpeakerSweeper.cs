@@ -123,9 +123,9 @@ namespace Cavern.QuickEQ {
         void MeasurementStart() {
             GameObject SweeperObj = new GameObject();
             if (AudioListener3D._EnvironmentType != Environments.Studio)
-                SweeperObj.transform.position = CavernUtilities.VectorScale(AudioListener3D.Channels[Channel].CubicalPos, AudioListener3D.EnvironmentSize);
+                SweeperObj.transform.position = Vector3.Scale(AudioListener3D.Channels[Channel].CubicalPos, AudioListener3D.EnvironmentSize);
             else
-                SweeperObj.transform.position = CavernUtilities.VectorScale(AudioListener3D.Channels[Channel].SphericalPos, AudioListener3D.EnvironmentSize);
+                SweeperObj.transform.position = Vector3.Scale(AudioListener3D.Channels[Channel].SphericalPos, AudioListener3D.EnvironmentSize);
             Sweeper = SweeperObj.AddComponent<AudioSource3D>();
             Sweeper.Clip = Sweep;
             Sweeper.IsPlaying = true;
