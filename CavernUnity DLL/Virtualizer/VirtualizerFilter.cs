@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Cavern.Virtualizer {
     /// <summary>Convolution filters for each ear and virtual channel to simulate a spatial environment.</summary>
@@ -7,7 +8,7 @@ namespace Cavern.Virtualizer {
         /// <summary>Cache of each output channel.</summary>
         static float[][] OriginalSplit;
         /// <summary>HPF retain cache for the currently processed channel.</summary>
-        static float[] TrebleCache = new float[0];
+        static float[][] TrebleCache;
         /// <summary>Cache of each output channel for one ear.</summary>
         static float[][] LeftSplit, RightSplit;
 
@@ -20,13 +21,14 @@ namespace Cavern.Virtualizer {
             AudioListener3D.Channels = NewChannels;
             if (OriginalSplit == null) {
                 OriginalSplit = new float[ChannelCount][];
+                TrebleCache = new float[ChannelCount][];
                 LeftSplit = new float[ChannelCount][];
                 RightSplit = new float[ChannelCount][];
             }
-            if (TrebleCache.Length != UpdateRate) {
-                TrebleCache = new float[UpdateRate];
+            if (OriginalSplit[0] == null || OriginalSplit[0].Length != UpdateRate) {
                 for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                     OriginalSplit[Channel] = new float[UpdateRate];
+                    TrebleCache[Channel] = new float[UpdateRate];
                     LeftSplit[Channel] = new float[UpdateRate];
                     RightSplit[Channel] = new float[UpdateRate];
                 }
@@ -44,23 +46,23 @@ namespace Cavern.Virtualizer {
                 for (int Channel = 0; Channel < ChannelCount; ++Channel)
                     OriginalSplit[Channel][Sample] = Output[OutputSample++];
             // Convolution
-            for (int Channel = 0; Channel < ChannelCount; ++Channel) {
+            Parallel.For(0, ChannelCount, Channel => {
                 // Select the retain range
                 for (int Sample = 0; Sample < UpdateRate; ++Sample) {
                     Buffer.BlockCopy(OriginalSplit[Channel], 0, LeftSplit[Channel], 0, BlockCopySize);
-                    Buffer.BlockCopy(OriginalSplit[Channel], 0, TrebleCache, 0, BlockCopySize);
+                    Buffer.BlockCopy(OriginalSplit[Channel], 0, TrebleCache[Channel], 0, BlockCopySize);
                 }
                 SpatialChannels[Channel].LFC_LPF.Process(OriginalSplit[Channel]);
-                SpatialChannels[Channel].HFC_HPF.Process(TrebleCache);
+                SpatialChannels[Channel].HFC_HPF.Process(TrebleCache[Channel]);
                 for (int Sample = 0; Sample < UpdateRate; ++Sample)
-                    OriginalSplit[Channel][Sample] += TrebleCache[Sample];
+                    OriginalSplit[Channel][Sample] += TrebleCache[Channel][Sample];
                 // Select the impulse response frequency range
                 SpatialChannels[Channel].LFC_HPF.Process(LeftSplit[Channel]);
                 SpatialChannels[Channel].HFC_LPF.Process(LeftSplit[Channel]);
                 Buffer.BlockCopy(LeftSplit[Channel], 0, RightSplit[Channel], 0, BlockCopySize);
                 SpatialChannels[Channel].LeftFilter.Process(LeftSplit[Channel]);
                 SpatialChannels[Channel].RightFilter.Process(RightSplit[Channel]);
-            }
+            });
             // Stereo downmix
             Array.Clear(Output, 0, Output.Length);
             for (int Sample = 0; Sample < UpdateRate; ++Sample) {
