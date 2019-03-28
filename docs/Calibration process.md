@@ -1,14 +1,17 @@
 # Cavern calibration process
 Cavern's exact calibration process depends on the system it's used on. However,
 using pink noise for frequency analysis is strongly discouraged, as the error
-margin is too large. A full range frequency sweep for measurement, and peaking
-filters instead of a multiband EQ should be used for calibration.
+margin is too large. A full range frequency sweep for measurement, and a
+linear-phase parametric EQ instead of a third-octave one should be used for
+calibration.
 
 ## Regular theatres and studios
 These are the recommended settings for Cavern DCP creation and playback. The
 center of the microphone placement should be at 2/3 of the room from the screen,
-in the center. The room should be equalized to the X-curve (-3 dB/octave below
-63 Hz and above 2 kHz), at the following peak sound pressure levels.
+in the center. The correct microphone aligment is behind a seat, but at least
+the size of the microphone higher than the top of the seat, facing upwards. The
+room should be equalized to the X-curve (-3 dB/octave above 2 kHz), at the
+following peak sound pressure levels.
 
 ### Peak channel sound pressure levels (-20 dB FS)
 In regular theatres, Cavern-ready systems, even with custom layouts, must match
@@ -22,11 +25,11 @@ the standard levels.
 
 ## Cavern theatres and studios
 For Cavern-only content creation and playback, the channels can only be
-calibrated by an at least 1/12 octave EQ or peaking filters, based off a
-frequency sweep reading with at least 7 microphones positioned around the
-reference listening position, to a flat response with the error margin of 0.2 dB
-between 100 Hz and 16 kHz (25 to 120 Hz for LFE channels). The use of Cavern
-QuickEQ for measurement and configuration file generation is hardly recommended.
+calibrated with a linear-phase parametric EQ, based off a frequency sweep
+reading with at least 7 microphones positioned around the reference listening
+position, to a flat response with the error margin of 0.2 dB between 100 Hz and
+16 kHz (25 to 120 Hz for LFE channels). The use of Cavern QuickEQ for
+measurement and configuration file generation is hardly recommended.
 
 ### Peak channel sound pressure levels (-20 dB FS)
 For a Cavern theatre, each individual channel must be capable of outputting 105

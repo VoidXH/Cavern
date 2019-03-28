@@ -16,8 +16,8 @@ adds an additional Bottom Surround channel.
 | 6       | Rs  | Rs       | Rss    | Rs        | Rss    | Rss       | Right (Side) Surround                     |
 | 7       | HI  | HI       | HI     | Ltf       | HI     | HI        | Hearing Impaired Dialog / Left Top Front  |
 | 8       | VI  | VI       | VI     | Rtf       | VI     | VI        | Visually Impaired Narrative / Right Top F |
-| 9       | -   | LC       | -      | Ctf       | Lts    | Lts       | Left Center / Center Top F / Top Surround |
-| 10      | -   | RC       | -      | Gv        | Rts    | Rts       | Right Center / God's Voice / Top Surround |
+| 9       | -   | LC       | -      | Ctf       | Lts    | Lts       | Left Center / Top Surround / Center Top F |
+| 10      | -   | RC       | -      | Gv        | Rts    | Rts       | Right Center / Top Surround / God's Voice |
 | 11      | -   | -        | Lrs    | Lts       | Lrs    | Lrs       | Left Rear / Top Surround                  |
 | 12      | -   | -        | Rrs    | Rts       | Rrs    | Rrs       | Right Rear / Top Surround                 |
 | 13      | MD  | MD       | MD     | MD        | MD     | MD        | Motion Data Sync                          |
