@@ -70,6 +70,7 @@
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="QuickEQ\MeasurementImporter.cs" />
     <Compile Include="QuickEQ\Utils\FFTCache.cs" />
+    <Compile Include="QuickEQ\Utils\SweepChannel.cs" />
     <Compile Include="Utilities\Complex.cs" />
     <Compile Include="QuickEQ\Measurements.cs" />
     <Compile Include="QuickEQ\SpeakerSweeper.cs" />

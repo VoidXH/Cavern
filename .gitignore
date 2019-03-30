@@ -1,8 +1,9 @@
+*.depend
 .vs/
-CavernUnity DLL/obj/
-CavernUnity DLL/bin/
+Cavernize Lite/bin/
+Cavernize Lite/lafconv.layout
+Cavernize Lite/obj/
 Cavernize Lite/source.laf
 Cavernize Lite/target.wav
-Cavernize Lite/bin/
-Cavernize Lite/obj/
-Cavernize Lite/lafconv.layout
+CavernUnity DLL/bin/
+CavernUnity DLL/obj/

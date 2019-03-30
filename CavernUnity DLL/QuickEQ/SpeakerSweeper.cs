@@ -14,24 +14,20 @@ namespace Cavern.QuickEQ {
         AudioClip SweepResponse;
         /// <summary>Cached listener.</summary>
         AudioListener3D Listener;
-        /// <summary>The sweep playback object.</summary>
-        AudioSource3D Sweeper;
         /// <summary>A hack to fix lost playback from the initial hanging caused by sweep generation in <see cref="OnEnable"/>.</summary>
         bool MeasurementStarted;
         /// <summary>Environment compensation before the measurement. Environment compensation is off while measuring.</summary>
         bool OldCompensation;
         /// <summary>LFE pass-through before the measurement. LFE pass-through is on while measuring.</summary>
         bool OldDirectLFE;
-        /// <summary>LFE separation before the measurement. LFE separation is on while measuring.</summary>
-        bool OldLFESeparation;
         /// <summary>Virtualizer before the measurement. Virtualizer is off while measuring.</summary>
         bool OldVirtualizer;
         /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
         Complex[] SweepFFT;
         /// <summary>FFT constant cache for the sweep FFT size.</summary>
         FFTCache SweepFFTCache;
-        /// <summary>Quality mode before the measurement. Quality is set to Low while measuring for constant gain panning.</summary>
-        QualityModes OldQuality;
+        /// <summary>Sweep playback objects.</summary>
+        SweepChannel[] Sweepers;
         /// <summary>Response evaluator tasks.</summary>
         Task<WorkerResult>[] Workers;
 
@@ -75,7 +71,7 @@ namespace Cavern.QuickEQ {
                     return 1;
                 else if (!enabled)
                     return 0;
-                return Channel / (float)AudioListener3D.ChannelCount + (Sweeper.time / Sweep.length) / AudioListener3D.ChannelCount;
+                return (float)Sweepers[AudioListener3D.ChannelCount - 1].timeSamples / SweepReference.Length / AudioListener3D.ChannelCount;
             }
         }
 
@@ -109,78 +105,60 @@ namespace Cavern.QuickEQ {
             Workers = new Task<WorkerResult>[AudioListener3D.ChannelCount];
             OldCompensation = AudioListener3D.EnvironmentCompensation;
             OldDirectLFE = Listener.DirectLFE;
-            OldLFESeparation = Listener.LFESeparation;
             OldVirtualizer = Listener.HeadphoneVirtualizer;
-            OldQuality = Listener.AudioQuality;
             AudioListener3D.EnvironmentCompensation = false;
             Listener.DirectLFE = true;
-            Listener.LFESeparation = true;
             Listener.HeadphoneVirtualizer = false;
-            Listener.AudioQuality = QualityModes.Low;
             MeasurementStarted = false;
         }
 
-        void MeasurementStart() {
-            GameObject SweeperObj = new GameObject();
-            if (AudioListener3D._EnvironmentType != Environments.Studio)
-                SweeperObj.transform.position = Vector3.Scale(AudioListener3D.Channels[Channel].CubicalPos, AudioListener3D.EnvironmentSize);
-            else
-                SweeperObj.transform.position = Vector3.Scale(AudioListener3D.Channels[Channel].SphericalPos, AudioListener3D.EnvironmentSize);
-            Sweeper = SweeperObj.AddComponent<AudioSource3D>();
-            Sweeper.Clip = Sweep;
-            Sweeper.IsPlaying = true;
-            Sweeper.LFE = AudioListener3D.Channels[Channel].LFE;
-            Sweeper.Loop = false;
-            Sweeper.VolumeRolloff = Rolloffs.Disabled;
-            SweepResponse = Microphone.Start(InputDevice, false, Mathf.CeilToInt(SweepLength * 2 / Listener.SampleRate) + 1, Listener.SampleRate);
-        }
-
-        void MeasurementEnd() {
-            Destroy(Sweeper.gameObject);
-            Microphone.End(InputDevice);
-            float[] Result = new float[SweepReference.Length];
-            SweepResponse.GetData(Result, 0);
-            Destroy(SweepResponse);
-            ExcitementResponses[Channel] = Result;
-            (Workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(SweepFFT, SweepFFTCache, Result))).Start();
-        }
-
         void Update() {
+            int Channels = AudioListener3D.ChannelCount;
             if (!MeasurementStarted) {
                 MeasurementStarted = true;
-                MeasurementStart();
+                SweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Channels / Listener.SampleRate + 1, Listener.SampleRate);
+                Sweepers = new SweepChannel[Channels];
+                for (int i = 0; i < Channels; ++i) {
+                    Sweepers[i] = gameObject.AddComponent<SweepChannel>();
+                    Sweepers[i].Channel = i;
+                    Sweepers[i].Sweeper = this;
+                }
             }
             if (ResultAvailable)
                 return;
-            if (Channel == AudioListener3D.ChannelCount) {
-                for (int i = 0, c = Workers.Length; i < c; ++i)
-                    if (Workers[i].Result.IsNull())
-                        return;
-                for (int i = 0, c = Workers.Length; i < c; ++i) {
-                    FreqResponses[i] = Workers[i].Result.FreqResponse;
-                    ImpResponses[i] = Workers[i].Result.ImpResponse;
+            if (!Sweepers[Channel].IsPlaying) {
+                float[] Result = new float[SweepReference.Length];
+                SweepResponse.GetData(Result, Channel * SweepReference.Length);
+                ExcitementResponses[Channel] = Result;
+                (Workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(SweepFFT, SweepFFTCache, Result))).Start();
+                if (++Channel == Channels) {
+                    for (int i = 0; i < Channels; ++i)
+                        if (Workers[i].Result.IsNull())
+                            return;
+                    for (int i = 0; i < Channels; ++i) {
+                        FreqResponses[i] = Workers[i].Result.FreqResponse;
+                        ImpResponses[i] = Workers[i].Result.ImpResponse;
+                        Destroy(Sweepers[i]);
+                    }
+                    if (Microphone.IsRecording(InputDevice))
+                        Microphone.End(InputDevice);
+
+                    Destroy(SweepResponse);
+                    ResultAvailable = true;
                 }
-                ResultAvailable = true;
-                return;
-            }
-            if (!Sweeper.IsPlaying) {
-                MeasurementEnd();
-                if (++Channel != AudioListener3D.ChannelCount)
-                    MeasurementStart();
             }
         }
 
         void OnDisable() {
             Destroy(Sweep);
-            if (Sweeper)
-                Destroy(Sweeper.gameObject);
+            if (Sweepers[0])
+                for (int i = 0, c = AudioListener3D.ChannelCount; i < c; ++i)
+                    Destroy(Sweepers[i]);
             if (SweepResponse)
                 Destroy(SweepResponse);
             AudioListener3D.EnvironmentCompensation = OldCompensation;
             Listener.DirectLFE = OldDirectLFE;
-            Listener.LFESeparation = OldLFESeparation;
             Listener.HeadphoneVirtualizer = OldVirtualizer;
-            Listener.AudioQuality = OldQuality;
         }
 
         struct WorkerResult {
