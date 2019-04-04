@@ -46,10 +46,10 @@
         /// <param name="Delay">Delay between echoes in seconds</param>
         public void Reset(float Strength, float Delay) => Reset(Strength, (int)(Delay * AudioListener3D.Current.SampleRate));
 
-        /// <summary>Apply echo on a set of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>Apply echo on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         public override void Process(float[] Samples) => Process(Samples, 0, 1);
 
-        /// <summary>Apply echo on a set of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>Apply echo on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         /// <param name="Samples">Input samples</param>
         /// <param name="Channel">Channel to filter</param>
         /// <param name="Channels">Total channels</param>
