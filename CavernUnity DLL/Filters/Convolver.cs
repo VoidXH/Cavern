@@ -66,6 +66,34 @@ namespace Cavern.Filters {
         /// <param name="Samples">Input samples</param>
         /// <param name="Channel">Channel to filter</param>
         /// <param name="Channels">Total channels</param>
-        public override void Process(float[] Samples, int Channel, int Channels) => throw new NotImplementedException(); // TODO
+        public override void Process(float[] Samples, int Channel, int Channels) {
+            // Actual convolution
+            int SampleCount = Samples.Length, DelayedImpulse = _Impulse.Length + _Delay;
+            float[] Convolved = new float[SampleCount + DelayedImpulse];
+            for (int Sample = 0; Sample < SampleCount; ++Sample)
+                for (int Step = 0, LastStep = _Impulse.Length; Step < LastStep; ++Step)
+                    Convolved[Sample + Step + _Delay] += Samples[Sample * Channels + Channel] * _Impulse[Step];
+            if (SampleCount > DelayedImpulse) {
+                // Drain cache
+                Buffer.BlockCopy(Convolved, 0, Samples, 0, SampleCount * sizeof(float));
+                for (int Sample = 0; Sample < DelayedImpulse; ++Sample)
+                    Samples[Sample * Channels + Channel] += Future[Sample];
+                // Fill cache
+                for (int Sample = 0; Sample < DelayedImpulse; ++Sample)
+                    Future[Sample] = Convolved[Sample + SampleCount];
+            } else {
+                // Drain cache
+                for (int Sample = 0; Sample < SampleCount; ++Sample)
+                    Samples[Sample * Channels + Channel] = Convolved[Sample] + Future[Sample];
+                // Move cache
+                int FutureEnd = DelayedImpulse - SampleCount;
+                for (int Sample = 0; Sample < FutureEnd; ++Sample)
+                    Future[Sample] = Future[Sample + SampleCount];
+                Array.Clear(Future, FutureEnd, SampleCount);
+                // Merge cache
+                for (int Sample = 0; Sample < DelayedImpulse; ++Sample)
+                    Future[Sample] += Convolved[Sample + SampleCount];
+            }
+        }
     }
 }
