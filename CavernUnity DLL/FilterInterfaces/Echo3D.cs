@@ -61,13 +61,13 @@ namespace Cavern.FilterInterfaces {
             }
         }
 
-        void Start() {
+        void OnEnable() {
             Source = GetComponent<AudioSource3D>();
             Filter = new Convolver(new float[MaxSamples], 0);
             Source.AddFilter(Filter);
         }
 
-        void OnDestroy() => Source.RemoveFilter(Filter);
+        void OnDisable() => Source.RemoveFilter(Filter);
 
         void Update() {
             if (!Source.clip)

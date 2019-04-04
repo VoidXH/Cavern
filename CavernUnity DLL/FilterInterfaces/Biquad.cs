@@ -43,12 +43,15 @@ namespace Cavern.FilterInterfaces {
             Source.AddFilter(Filter);
         }
 
-        void Start() {
+        void OnEnable() {
             Source = GetComponent<AudioSource3D>();
             RecreateFilter();
         }
 
-        void OnDestroy() => Source.RemoveFilter(Filter);
+        void OnDisable() {
+            Source.RemoveFilter(Filter);
+            Filter = null;
+        }
 
         void Update() {
             switch (FilterType) {

@@ -16,13 +16,13 @@ namespace Cavern.FilterInterfaces {
         /// <summary>The attached lowpass filter.</summary>
         Lowpass Filter;
 
-        void Start() {
+        void OnEnable() {
             Source = GetComponent<AudioSource3D>();
             Filter = new Lowpass(120);
             Source.AddFilter(Filter);
         }
 
-        void OnDestroy() => Source.RemoveFilter(Filter);
+        void OnDisable() => Source.RemoveFilter(Filter);
 
         void Update() {
             if (!float.IsNaN(Source.Distance)) {

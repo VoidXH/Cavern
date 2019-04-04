@@ -19,13 +19,13 @@ namespace Cavern.FilterInterfaces {
         /// <summary>The attached echo filter.</summary>
         Echo Filter;
 
-        void Start() {
+        void OnEnable() {
             Source = GetComponent<AudioSource3D>();
             Filter = new Echo(Strength, Delay);
             Source.AddFilter(Filter);
         }
 
-        void OnDestroy() => Source.RemoveFilter(Filter);
+        void OnDisable() => Source.RemoveFilter(Filter);
 
         void Update() {
             int TargetDelay = (int)(Delay * AudioListener3D.Current.SampleRate);
