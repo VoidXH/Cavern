@@ -9,10 +9,10 @@ namespace Cavern.FilterInterfaces {
     public class SimpleEcho : MonoBehaviour {
         /// <summary>Effect strength.</summary>
         [Tooltip("Effect strength.")]
-        [Range(0, 1)] public float Strength;
+        [Range(0, 1)] public float Strength = .25f;
         /// <summary>Delay between echoes in seconds.</summary>
         [Tooltip("Delay between echoes in seconds.")]
-        [Range(0.01f, 1f)] public float Delay;
+        [Range(0.01f, 1f)] public float Delay = .1f;
 
         /// <summary>The attached audio source.</summary>
         AudioSource3D Source;

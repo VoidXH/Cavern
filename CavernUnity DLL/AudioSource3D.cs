@@ -18,6 +18,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Is the user's speaker layout symmetrical?</summary>
         internal static bool Symmetric = false;
+        /// <summary>Distance from the listener.</summary>
+        internal float Distance = float.NaN;
 
         // ------------------------------------------------------------------
         // Lifecycle helpers
@@ -46,8 +48,6 @@ namespace Cavern {
 
         /// <summary>Actually used pitch multiplier including the Doppler effect.</summary>
         float CalculatedPitch;
-        /// <summary>Distance from the listener.</summary>
-        float Distance;
         /// <summary><see cref="Distance"/> in the previous frame, required for Doppler effect calculation.</summary>
         float LastDistance;
         /// <summary>Sample rate multiplier to match the system sample rate.</summary>
@@ -67,9 +67,6 @@ namespace Cavern {
 
         /// <summary>Linked list access for the sources' list.</summary>
         LinkedListNode<AudioSource3D> Node;
-
-        /// <summary>Lowpass filter for <see cref="DistanceLowpass"/>.</summary>
-        Lowpass LPF = new Lowpass(120);
 
         /// <summary>Last source position required for smoothing movement.</summary>
         Vector3 LastPosition;
@@ -287,14 +284,6 @@ namespace Cavern {
                     float RolloffDistance = GetRolloff();
                     Samples = Resample(Samples, Samples.Length, UpdateRate);
                     BaseUpdateRate = Samples.Length;
-                    // Distance lowpass, if enabled
-                    if (DistanceLowpass != 0) {
-                        float DistanceScale = Distance * DistanceLowpass;
-                        if (DistanceScale > 1) {
-                            LPF.Reset(120 + 20000 / DistanceScale);
-                            LPF.Process(Samples);
-                        }
-                    }
                     // Apply filter if set
                     if (SpatialFilter != null)
                         SpatialFilter.Process(Samples);

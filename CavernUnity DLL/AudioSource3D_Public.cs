@@ -51,9 +51,6 @@ namespace Cavern {
         /// <summary>Doppler effect scale, 1 is real.</summary>
         [Tooltip("Doppler effect scale, 1 is real.")]
         [Range(0, 5)] public float DopplerLevel = 0;
-        /// <summary>The further the source, the deeper this effect will make its sound.</summary>
-        [Tooltip("The further the source, the deeper this effect will make its sound.")]
-        [Range(0, 1)] public float DistanceLowpass = 0;
         /// <summary>Volume decreasing function by distance.</summary>
         [Tooltip("Volume decreasing function by distance.")]
         public Rolloffs VolumeRolloff = Rolloffs.Logarithmic;
@@ -198,7 +195,7 @@ namespace Cavern {
             Clip = From.Clip; IsPlaying = From.IsPlaying; Loop = From.Loop;
             Mute = From.Mute; LFE = From.LFE; RandomPosition = From.RandomPosition;
             Volume = From.Volume; Pitch = From.Pitch; StereoPan = From.StereoPan;
-            SpatialBlend = From.SpatialBlend; DopplerLevel = From.DopplerLevel; DistanceLowpass = From.DistanceLowpass;
+            SpatialBlend = From.SpatialBlend; DopplerLevel = From.DopplerLevel;
             VolumeRolloff = From.VolumeRolloff;
         }
 
