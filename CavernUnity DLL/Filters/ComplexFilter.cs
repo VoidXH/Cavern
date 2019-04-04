@@ -11,5 +11,14 @@ namespace Cavern.Filters {
             for (int i = 0, c = Filters.Count; i < c; ++i)
                 Filters[i].Process(Samples);
         }
+
+        /// <summary>Apply these filters on a set of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <param name="Samples">Input samples</param>
+        /// <param name="Channel">Channel to filter</param>
+        /// <param name="Channels">Total channels</param>
+        public override void Process(float[] Samples, int Channel, int Channels) {
+            for (int i = 0, c = Filters.Count; i < c; ++i)
+                Filters[i].Process(Samples, Channel, Channels);
+        }
     }
 }

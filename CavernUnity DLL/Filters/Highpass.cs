@@ -45,7 +45,7 @@ namespace Cavern.Filters {
         /// <param name="Samples">Input samples</param>
         /// <param name="Channel">Channel to filter</param>
         /// <param name="Channels">Total channels</param>
-        public void Process(float[] Samples, int Channel, int Channels) {
+        public override void Process(float[] Samples, int Channel, int Channels) {
             if (SampleRate != (AudioListener3D.Current != null ? AudioListener3D.Current.SampleRate : 48000))
                 Reset(_CenterFreq, _Q);
             for (int Sample = Channel, End = Samples.Length; Sample < End; Sample += Channels) {

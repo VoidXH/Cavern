@@ -31,7 +31,7 @@ namespace Cavern.Filters {
             this.Delay = Delay;
         }
 
-        /// <summary>Apply convolution on a set of samples.</summary>
+        /// <summary>Apply convolution on a set of samples. One filter should be applied to only one continuous stream of samples.</summary>
         public override void Process(float[] Samples) {
             // Actual convolution
             int SampleCount = Samples.Length, DelayedImpulse = _Impulse.Length + _Delay;
@@ -61,5 +61,11 @@ namespace Cavern.Filters {
                     Future[Sample] += Convolved[Sample + SampleCount];
             }
         }
+
+        /// <summary>Apply convolution on a set of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <param name="Samples">Input samples</param>
+        /// <param name="Channel">Channel to filter</param>
+        /// <param name="Channels">Total channels</param>
+        public override void Process(float[] Samples, int Channel, int Channels) => throw new NotImplementedException(); // TODO
     }
 }

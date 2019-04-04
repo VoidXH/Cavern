@@ -49,11 +49,11 @@
         /// <summary>Apply echo on a set of samples. One filter should be applied to only one continuous stream of samples.</summary>
         public override void Process(float[] Samples) => Process(Samples, 0, 1);
 
-        /// <summary>Apply echo on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>Apply echo on a set of samples. One filter should be applied to only one continuous stream of samples.</summary>
         /// <param name="Samples">Input samples</param>
         /// <param name="Channel">Channel to filter</param>
         /// <param name="Channels">Total channels</param>
-        public void Process(float[] Samples, int Channel, int Channels) {
+        public override void Process(float[] Samples, int Channel, int Channels) {
             if (Delay <= 0)
                 return;
             float Gain = 1 / (1 + Strength);
