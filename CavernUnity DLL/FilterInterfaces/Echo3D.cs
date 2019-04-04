@@ -26,7 +26,7 @@ namespace Cavern.FilterInterfaces {
         [Tooltip("Layers to bounce the sound off from.")]
         public LayerMask Layers = int.MaxValue;
 
-        /// <summary>THe attached audio source.</summary>
+        /// <summary>The attached audio source.</summary>
         AudioSource3D Source;
         /// <summary>Convolution filter to process the echo.</summary>
         Convolver Filter;

@@ -1,5 +1,5 @@
 ﻿namespace Cavern.Filters {
-    /// <summary>Simple first-order lowpass filter.</summary>
+    /// <summary>Simple first-order biquad filter.</summary>
     public abstract class BiquadFilter : Filter {
         /// <summary>Center frequency (-3 dB point) of the filter.</summary>
         public float CenterFreq {
