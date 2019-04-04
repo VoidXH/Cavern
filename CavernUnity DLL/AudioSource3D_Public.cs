@@ -57,12 +57,6 @@ namespace Cavern {
         /// <summary>Volume decreasing function by distance.</summary>
         [Tooltip("Volume decreasing function by distance.")]
         public Rolloffs VolumeRolloff = Rolloffs.Logarithmic;
-        /// <summary>Echo effect strength.</summary>
-        [Tooltip("Echo effect strength.")]
-        [Range(0, 1)] public float EchoVolume = 0;
-        /// <summary>Delay of the added echo effect.</summary>
-        [Tooltip("Delay of the added echo effect.")]
-        [Range(0, .99f)] public float EchoDelay = 0;
         /// <summary>Filter to be applied on the 3D mixed output.</summary>
         [Tooltip("Filter to be applied on the 3D mixed output.")]
         public Filter SpatialFilter;
@@ -205,7 +199,7 @@ namespace Cavern {
             Mute = From.Mute; LFE = From.LFE; RandomPosition = From.RandomPosition;
             Volume = From.Volume; Pitch = From.Pitch; StereoPan = From.StereoPan;
             SpatialBlend = From.SpatialBlend; DopplerLevel = From.DopplerLevel; DistanceLowpass = From.DistanceLowpass;
-            VolumeRolloff = From.VolumeRolloff; EchoVolume = From.EchoVolume; EchoDelay = From.EchoDelay;
+            VolumeRolloff = From.VolumeRolloff;
         }
 
         /// <summary>Add a new <see cref="SpatialFilter"/> to this source.</summary>

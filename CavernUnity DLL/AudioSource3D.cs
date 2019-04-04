@@ -53,8 +53,6 @@ namespace Cavern {
         /// <summary>Sample rate multiplier to match the system sample rate.</summary>
         float ResampleMult;
 
-        /// <summary>Past output samples for echo effect.</summary>
-        float[] EchoBuffer = new float[0];
         /// <summary>Stereo mix cache to save allocation times.</summary>
         float[] LeftSamples = new float[0], RightSamples = new float[0];
         /// <summary>Rendered output array kept to save allocation time.</summary>
@@ -300,22 +298,6 @@ namespace Cavern {
                     // Apply filter if set
                     if (SpatialFilter != null)
                         SpatialFilter.Process(Samples);
-                    // Buffer for echo, if enabled
-                    if (EchoVolume != 0) {
-                        int SampleRate = Listener.SampleRate;
-                        if (EchoBuffer.Length != SampleRate)
-                            EchoBuffer = new float[SampleRate];
-                        int EchoBufferPosition = ResampledNow % SampleRate;
-                        if (EchoBufferPosition + BaseUpdateRate >= SampleRate) {
-                            int FirstRun = SampleRate - EchoBufferPosition;
-                            for (int Sample = 0; Sample < FirstRun; ++Sample)
-                                EchoBuffer[EchoBufferPosition++] = Samples[Sample];
-                            EchoBufferPosition = 0;
-                            for (int Sample = FirstRun; Sample < BaseUpdateRate; ++Sample)
-                                EchoBuffer[EchoBufferPosition++] = Samples[Sample];
-                        } else for (int Sample = 0; Sample < BaseUpdateRate; ++Sample)
-                                EchoBuffer[EchoBufferPosition++] = Samples[Sample];
-                    }
                     // ------------------------------------------------------------------
                     // Balance-based engine for symmetrical layouts
                     // ------------------------------------------------------------------
@@ -397,19 +379,6 @@ namespace Cavern {
                                 if (AudioListener3D.Channels[Channel].LFE)
                                     UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D, Channel, Channels);
                         }
-                        // Echo
-                        if (EchoVolume != 0 && !LFE) {
-                            Volume3D *= EchoVolume;
-                            int EchoStart = (int)((1f - EchoDelay) * Listener.SampleRate) + ResampledNow;
-                            int MultichannelUpdateRate = BaseUpdateRate * Channels;
-                            for (int Channel = 0; Channel < Channels; ++Channel) {
-                                if (!AudioListener3D.Channels[Channel].LFE) {
-                                    int EchoPos = EchoStart - 1;
-                                    for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels)
-                                        Rendered[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % Listener.SampleRate] * Volume3D;
-                                }
-                            }
-                        }
                     // ------------------------------------------------------------------
                     // Directional/distance-based engine for asymmetrical layouts
                     // ------------------------------------------------------------------
@@ -454,25 +423,6 @@ namespace Cavern {
                                     UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D * TotalAngleMatch, Channel, Channels);
                             } else if (!LFE && AngleMatches[Channel] != 0)
                                 UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D * AngleMatches[Channel], Channel, Channels);
-                        }
-                        // Add echo from every other direction, if enabled
-                        if (EchoVolume != 0 && !LFE) {
-                            float NewAngleMatch = 0;
-                            for (int Channel = 0; Channel < Channels; ++Channel) {
-                                AngleMatches[Channel] = TotalAngleMatch - AngleMatches[Channel];
-                                NewAngleMatch += AngleMatches[Channel];
-                            }
-                            Volume3D *= EchoVolume * TotalAngleMatch / NewAngleMatch;
-                            int EchoStart = (int)((1f - EchoDelay) * Listener.SampleRate) + ResampledNow;
-                            int MultichannelUpdateRate = BaseUpdateRate * Channels;
-                            for (int Channel = 0; Channel < Channels; ++Channel) {
-                                if (!AudioListener3D.Channels[Channel].LFE) {
-                                    float Gain = RolloffDistance * AngleMatches[Channel] * Volume3D;
-                                    int EchoPos = EchoStart - 1;
-                                    for (int Sample = Channel; Sample < MultichannelUpdateRate; Sample += Channels)
-                                        Rendered[Sample] += EchoBuffer[EchoPos = (EchoPos + 1) % Listener.SampleRate] * Gain;
-                                }
-                            }
                         }
                     }
                 }
