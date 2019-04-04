@@ -2,14 +2,14 @@
 
 using Cavern.Filters;
 
-namespace Cavern {
+namespace Cavern.FilterInterfaces {
     /// <summary>Creates a spatial echo effect by bouncing sound on surfaces.</summary>
-    [AddComponentMenu("Audio/3D Echo")]
+    [AddComponentMenu("Audio/Filters/3D Echo")]
     [RequireComponent(typeof(AudioSource3D))]
     public class Echo3D : MonoBehaviour {
         /// <summary>Speed of sound in units/s.</summary>
         [Tooltip("Speed of sound in units/s.")]
-        public float SpeedOfSound = 3400;
+        public float SpeedOfSound = CavernUtilities.SpeedOfSound * 10;
         /// <summary>Number of directions to check.</summary>
         [Tooltip("Number of directions to check.")]
         public int Detail = 5;

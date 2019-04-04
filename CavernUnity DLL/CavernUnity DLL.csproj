@@ -86,7 +86,7 @@
     <Compile Include="Debug\ArrayLevels.cs" />
     <Compile Include="Debug\LogDisplay.cs" />
     <Compile Include="Debug\Monitor.cs" />
-    <Compile Include="Echo3D.cs" />
+    <Compile Include="FilterInterfaces\Echo3D.cs" />
     <Compile Include="Enumerations.cs" />
     <Compile Include="Format\AudioFormat.cs" />
     <Compile Include="Format\AudioWriter.cs" />

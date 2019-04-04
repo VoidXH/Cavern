@@ -221,7 +221,7 @@ namespace Cavern {
             if (SpatialFilter == Target)
                 SpatialFilter = null;
             else {
-                ComplexFilter Complex = (ComplexFilter)SpatialFilter);
+                ComplexFilter Complex = (ComplexFilter)SpatialFilter;
                 if (Complex.Filters.Count == 1 && Complex.Filters[0] == Target)
                     SpatialFilter = null;
                 else
