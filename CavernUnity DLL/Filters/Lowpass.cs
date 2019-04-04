@@ -3,12 +3,23 @@
 namespace Cavern.Filters {
     /// <summary>Simple first-order lowpass filter.</summary>
     internal class Lowpass : Filter {
+        /// <summary>Center frequency (-3 dB point) of the filter.</summary>
+        public float CenterFreq {
+            get => _CenterFreq;
+            set => Reset(value, Q);
+        }
+        /// <summary>Q-factor of the filter.</summary>
+        public float Q {
+            get => _Q;
+            set => Reset(_CenterFreq, value);
+        }
+
+        /// <summary>Center frequency (-3 dB point) of the filter.</summary>
+        float _CenterFreq;
+        /// <summary>Q-factor of the filter.</summary>
+        float _Q;
         /// <summary>Cached sample rate.</summary>
         int SampleRate;
-        /// <summary>Center frequency (-3 dB point) of the filter.</summary>
-        float CenterFreq;
-        /// <summary>Q-factor of the filter.</summary>
-        float Q;
         float a1, a2, b1, b2; // Transfer function
         float x1, x2, y1, y2; // History
 
@@ -19,8 +30,8 @@ namespace Cavern.Filters {
         /// <param name="Q">Q-factor of the filter</param>
         public void Reset(float CenterFreq, float Q = .7071067811865475f) {
             SampleRate = AudioListener3D.Current != null ? AudioListener3D.Current.SampleRate : 48000;
-            this.CenterFreq = CenterFreq;
-            this.Q = Q;
+            _CenterFreq = CenterFreq;
+            _Q = Q;
             float w0 = Mathf.PI * 2 * CenterFreq / SampleRate, Cos = Mathf.Cos(w0), Alpha = Mathf.Sin(w0) / (Q + Q), Divisor = 1 / (1 + Alpha);
             a1 = -2 * Cos * Divisor;
             a2 = (1 - Alpha) * Divisor;
@@ -36,7 +47,7 @@ namespace Cavern.Filters {
         /// <param name="Channels">Total channels</param>
         public void Process(float[] Samples, int Channel, int Channels) {
             if (SampleRate != (AudioListener3D.Current != null ? AudioListener3D.Current.SampleRate : 48000))
-                Reset(CenterFreq, Q);
+                Reset(_CenterFreq, _Q);
             for (int Sample = Channel, End = Samples.Length; Sample < End; Sample += Channels) {
                 float ThisSample = Samples[Sample];
                 Samples[Sample] = b2 * (ThisSample + x2) + b1 * x1 - a1 * y1 - a2 * y2;

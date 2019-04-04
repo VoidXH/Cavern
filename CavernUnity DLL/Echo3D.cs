@@ -96,7 +96,7 @@ namespace Cavern {
                 }
                 Direction.x += Step;
             }
-            Filter.ReplaceImpulse(Impulse);
+            Filter.Impulse = Impulse;
         }
     }
 }
