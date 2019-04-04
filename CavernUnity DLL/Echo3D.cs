@@ -67,6 +67,8 @@ namespace Cavern {
             Source.AddFilter(Filter);
         }
 
+        void OnDestroy() => Source.RemoveFilter(Filter);
+
         void Update() {
             if (!Source.clip)
                 return;

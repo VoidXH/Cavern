@@ -216,6 +216,19 @@ namespace Cavern {
             }
         }
 
+        /// <summary>Remove a <see cref="SpatialFilter"/> from this source.</summary>
+        public void RemoveFilter(Filter Target) {
+            if (SpatialFilter == Target)
+                SpatialFilter = null;
+            else {
+                ComplexFilter Complex = (ComplexFilter)SpatialFilter);
+                if (Complex.Filters.Count == 1 && Complex.Filters[0] == Target)
+                    SpatialFilter = null;
+                else
+                    Complex.Filters.Remove(Target);
+            }
+        }
+
         /// <summary>Play a clip once at the given world position.</summary>
         /// <param name="Clip">Target clip</param>
         /// <param name="Position">World position of the clip</param>
