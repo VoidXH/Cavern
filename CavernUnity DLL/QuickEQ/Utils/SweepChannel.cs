@@ -6,9 +6,11 @@ namespace Cavern.QuickEQ {
     [AddComponentMenu("Audio/QuickEQ/Sweep Channel")]
     public class SweepChannel : AudioSource3D {
         /// <summary>Target output channel.</summary>
+        [Header("Sweep channel")]
         [Tooltip("Target output channel.")]
         public int Channel = 0;
         /// <summary>Sweeper to use the sweep reference of.</summary>
+        [Tooltip("Sweeper to use the sweep reference of.")]
         public SpeakerSweeper Sweeper;
 
         /// <summary>Rendered output array kept to save allocation time.</summary>
