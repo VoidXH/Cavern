@@ -26,17 +26,13 @@ namespace Cavern.Virtualizer {
             public Convolver LeftFilter => _LeftFilter ?? (_LeftFilter = new Convolver(LeftEarIR, Y > 0 ? Mathf.RoundToInt(Mathf.Sin(Y * Mathf.Deg2Rad) * PeakDelay) : 0));
             public Convolver RightFilter => _RightFilter ?? (_RightFilter = new Convolver(RightEarIR, Y < 0 ? Mathf.RoundToInt(Mathf.Sin(-Y * Mathf.Deg2Rad) * PeakDelay) : 0));
 
-            // Low frequency crossover filters for retaining bass outside the impulse response frequency range
-            Lowpass _LFC_LPF;
-            Highpass _LFC_HPF;
-            public Lowpass LFC_LPF => _LFC_LPF ?? (_LFC_LPF = new Lowpass(LowFrequencyCrossover));
-            public Highpass LFC_HPF => _LFC_HPF ?? (_LFC_HPF = new Highpass(LowFrequencyCrossover));
+            // Low frequency crossover filter for retaining bass outside the impulse response frequency range
+            Crossover _LowCrossover;
+            public Crossover LowCrossover => _LowCrossover ?? (_LowCrossover = new Crossover(LowFrequencyCrossover));
 
-            // High frequency crossover filters for retaining treble outside the impulse response frequency range
-            Lowpass _HFC_LPF;
-            Highpass _HFC_HPF;
-            public Lowpass HFC_LPF => _HFC_LPF ?? (_HFC_LPF = new Lowpass(HighFrequencyCrossover));
-            public Highpass HFC_HPF => _HFC_HPF ?? (_HFC_HPF = new Highpass(HighFrequencyCrossover));
+            // High frequency crossover filter for retaining treble outside the impulse response frequency range
+            Crossover _HighCrossover;
+            public Crossover HighCrossover => _HighCrossover ?? (_HighCrossover = new Crossover(HighFrequencyCrossover));
         }
 
         /// <summary>HRIR database.</summary>

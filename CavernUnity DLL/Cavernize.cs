@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
+using Cavern.Filters;
 using Cavern.Helpers;
 
 namespace Cavern {
@@ -36,9 +37,14 @@ namespace Cavern {
         [Header("Matrix Upmix")]
         [Tooltip("Creates missing channels from existing ones. Works best if the source is matrix-encoded. Not recommended for Gaming 3D setups.")]
         public bool MatrixUpmix = true;
+
         /// <summary>Don't spatialize the front channel. This can fix the speech from above anomaly if it's present.</summary>
+        [Header("Spatializer")]
         [Tooltip("Don't spatialize the front channel. This can fix the speech from above anomaly if it's present.")]
         public bool CenterStays = true;
+        /// <summary>Keep all frequencies below this on the ground.</summary>
+        [Tooltip("Keep all frequencies below this on the ground.")]
+        public float GroundCrossover = 250;
 
         /// <summary>Manually ask for one update period.</summary>
         [Header("Debug")]
@@ -61,7 +67,9 @@ namespace Cavern {
         }
 
         /// <summary>Sources representing imported or created channels.</summary>
-        readonly AudioSource3D[] SphericalPoints = new AudioSource3D[CavernChannels];
+        readonly AudioSource3D[] MovingSources = new AudioSource3D[CavernChannels];
+        /// <summary>Sources representing low frequencies kept on ground level.</summary>
+        readonly AudioSource3D[] GroundSources = new AudioSource3D[CavernChannels];
 
         /// <summary>Indicates if the previous update was initiated manually.</summary>
         bool PrevManual = false;
@@ -76,9 +84,8 @@ namespace Cavern {
         readonly float[] LastHigh = new float[CavernChannels];
         /// <summary>Last output for each channel.</summary>
         readonly float[][] Output = new float[CavernChannels][];
-
-        /// <summary>Objects representing imported or created channels.</summary>
-        readonly GameObject[] SphericalObjects = new GameObject[CavernChannels];
+        /// <summary>Crossover for each channel to separate the ground level.</summary>
+        readonly Crossover[] Crossovers = new Crossover[CavernChannels];
 
         /// <summary>Output timer.</summary>
         int Now = 0;
@@ -98,7 +105,9 @@ namespace Cavern {
         int OldMaxSources;
 
         /// <summary>Visualization renderer for each imported or created channel.</summary>
-        readonly Renderer[] SphericalRenderers = new Renderer[CavernChannels];
+        readonly Renderer[] MovingRenderers = new Renderer[CavernChannels];
+        /// <summary>Visualization renderer for channel kept on ground level.</summary>
+        readonly Renderer[] GroundRenderers = new Renderer[CavernChannels];
 
         /// <summary>Named channel structure.</summary>
         struct CavernizeChannel {
@@ -205,6 +214,26 @@ namespace Cavern {
             //new int[]{0, 1, 2, 3, 4, 5, 11, 12, 16, 17, 6, 7, 14, 15, 20, 21}, // 16CH: Cavern XL (L, R, C, LFE, SL, SR, HI, VI, TL, TR, RL, RR, MD, ES, SL, BS)
         };
 
+        void CreateSource(int Source, AudioSource3D[] SourceArray, Renderer[] RendererArray) {
+            GameObject NewObject;
+            if (Source != 3)
+                NewObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            else
+                NewObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            RendererArray[Source] = NewObject.GetComponent<Renderer>();
+            NewObject.name = StandardChannels[Source].Name;
+            AudioSource3D NewSource = SourceArray[Source] = NewObject.AddComponent<AudioSource3D>();
+            int SampleRate = AudioListener3D.Current.SampleRate;
+            NewSource.Clip = AudioClip.Create(string.Empty, SampleRate, 1, SampleRate, false);
+            NewSource.Loop = true;
+            NewSource.VolumeRolloff = Rolloffs.Disabled;
+            NewSource.LFE = StandardChannels[Source].LFE;
+            NewObject.AddComponent<ScaleByGain>().Source = NewSource;
+            if (StandardChannels[Source].Muted)
+                NewSource.Volume = 0;
+            NewObject.transform.position = Vector3.Scale(CavernUtilities.PlaceInCube(new Vector3(0, StandardChannels[Source].Y)), AudioListener3D.EnvironmentSize);
+        }
+
         void Start() {
             AudioListener3D Listener = AudioListener3D.Current;
             OldSampleRate = Listener.SampleRate;
@@ -223,22 +252,9 @@ namespace Cavern {
                 for (int Channel = 0; Channel < ClipChannels; ++Channel)
                     Spawn |= ChannelMatrix[ClipChannels][Channel] == Source;
                 if (Spawn) {
-                    if (Source != 3)
-                        SphericalObjects[Source] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    else
-                        SphericalObjects[Source] = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    SphericalRenderers[Source] = SphericalObjects[Source].GetComponent<Renderer>();
-                    SphericalObjects[Source].name = StandardChannels[Source].Name;
-                    AudioSource3D NewSource = SphericalPoints[Source] = SphericalObjects[Source].AddComponent<AudioSource3D>();
-                    NewSource.Clip = AudioClip.Create(string.Empty, Listener.SampleRate, 1, Listener.SampleRate, false);
-                    NewSource.Loop = true;
-                    NewSource.VolumeRolloff = Rolloffs.Disabled;
-                    NewSource.LFE = StandardChannels[Source].LFE;
-                    SphericalObjects[Source].AddComponent<ScaleByGain>().Source = NewSource;
-                    if (StandardChannels[Source].Muted)
-                        NewSource.Volume = 0;
-                    SphericalObjects[Source].transform.position =
-                        Vector3.Scale(CavernUtilities.PlaceInCube(new Vector3(0, StandardChannels[Source].Y)), AudioListener3D.EnvironmentSize);
+                    CreateSource(Source, MovingSources, MovingRenderers);
+                    CreateSource(Source, GroundSources, GroundRenderers);
+                    Crossovers[Source] = new Crossover(250);
                 }
             }
             for (int Channel = 0; Channel < CavernChannels; ++Channel)
@@ -256,10 +272,10 @@ namespace Cavern {
             AudioListener3D Listener = AudioListener3D.Current;
             float SmoothFactor = 1f - CavernUtilities.FastLerp(UpdateRate, Listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / Listener.SampleRate * .999f;
             // Timing
-            int Increase = SphericalPoints[2].timeSamples < LastOutputPos ? SphericalPoints[2].timeSamples + Listener.SampleRate - LastOutputPos :
-                SphericalPoints[2].timeSamples - LastOutputPos;
+            int Increase = MovingSources[2].timeSamples < LastOutputPos ? MovingSources[2].timeSamples + Listener.SampleRate - LastOutputPos :
+                MovingSources[2].timeSamples - LastOutputPos;
             Now += Increase;
-            LastOutputPos = SphericalPoints[2].timeSamples;
+            LastOutputPos = MovingSources[2].timeSamples;
             if (Manual)
                 Now = LastTime + UpdateRate;
             else if (!IsPlaying) {
@@ -267,9 +283,10 @@ namespace Cavern {
                 if (!PrevManual)
                     ClipLastTime += Increase;
                 for (int Channel = 0; Channel < CavernChannels; ++Channel) {
-                    if (SphericalObjects[Channel]) {
-                        SphericalPoints[Channel].Mute = true;
-                        SphericalPoints[Channel].Clip.SetData(Output[Channel], ClipLastTime % Listener.SampleRate);
+                    if (MovingSources[Channel]) {
+                        MovingSources[Channel].Mute = GroundSources[Channel].Mute = true;
+                        MovingSources[Channel].Clip.SetData(Output[Channel], ClipLastTime % Listener.SampleRate);
+                        GroundSources[Channel].Clip.SetData(Output[Channel], ClipLastTime % Listener.SampleRate);
                     }
                 }
             }
@@ -346,10 +363,16 @@ namespace Cavern {
                 // Write output
                 float EffectMult = Effect * 15f;
                 for (int Channel = 0; Channel < CavernChannels; ++Channel) {
-                    if (SphericalObjects[Channel]) {
-                        SphericalPoints[Channel].Mute = Mute;
-                        SphericalPoints[Channel].Clip.SetData(Output[Channel], ClipFrom % Listener.SampleRate); // Overwrite channel data with new output, even if it's empty
-                        SphericalRenderers[Channel].enabled = Visualize && WrittenOutput[Channel];
+                    if (MovingSources[Channel]) {
+                        MovingSources[Channel].Mute = Mute;
+                        if (Crossovers[Channel].Frequency != GroundCrossover)
+                            Crossovers[Channel].Frequency = GroundCrossover;
+                        Crossovers[Channel].Process(Output[Channel]);
+                        // Overwrite channel data with new output, even if it's empty
+                        int Position = ClipFrom % Listener.SampleRate;
+                        MovingSources[Channel].Clip.SetData(Crossovers[Channel].HighOutput, Position);
+                        GroundSources[Channel].Clip.SetData(Crossovers[Channel].LowOutput, Position);
+                        MovingRenderers[Channel].enabled = GroundSources[Channel].enabled = Visualize && WrittenOutput[Channel];
                         if (WrittenOutput[Channel]) { // Create height for channels with new audio data
                             float MaxDepth = .0001f, MaxHeight = .0001f;
                             int SamplesToProcess = UpdateRate;
@@ -372,7 +395,7 @@ namespace Cavern {
                             else if (MaxHeight > 1)
                                 MaxHeight = 1;
                             ChannelHeights[Channel] = CavernUtilities.FastLerp(ChannelHeights[Channel], MaxHeight, SmoothFactor);
-                            Transform TargetTransform = SphericalObjects[Channel].transform;
+                            Transform TargetTransform = MovingSources[Channel].transform;
                             TargetTransform.position = CavernUtilities.FastLerp(TargetTransform.position,
                                 new Vector3(TargetTransform.position.x, MaxHeight * AudioListener3D.EnvironmentSize.y, TargetTransform.position.z), SmoothFactor);
                         }
@@ -380,7 +403,7 @@ namespace Cavern {
                 }
                 if (CenterStays) {
                     ChannelHeights[2] = -2;
-                    SphericalObjects[2].transform.position = new Vector3(0, 0, 10);
+                    MovingSources[2].transform.position = new Vector3(0, 0, 10);
                 }
             }
             Manual = false;
@@ -388,9 +411,11 @@ namespace Cavern {
 
         void OnDestroy() {
             for (int Source = 0; Source < CavernChannels; ++Source) {
-                if (SphericalObjects[Source]) {
-                    Destroy(SphericalPoints[Source].Clip);
-                    Destroy(SphericalObjects[Source]);
+                if (MovingSources[Source]) {
+                    Destroy(MovingSources[Source].Clip);
+                    Destroy(GroundSources[Source].Clip);
+                    Destroy(MovingSources[Source].gameObject);
+                    Destroy(GroundSources[Source].gameObject);
                 }
             }
             AudioListener3D Listener = AudioListener3D.Current;
