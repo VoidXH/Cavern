@@ -2,7 +2,7 @@
     /// <summary>Abstract audio filter.</summary>
     public abstract class Filter {
         /// <summary>Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
-        public abstract void Process(float[] Samples);
+        public virtual void Process(float[] Samples) => Process(Samples, 0, 1);
 
         /// <summary>Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         /// <param name="Samples">Input samples</param>

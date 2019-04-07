@@ -34,9 +34,6 @@
         public abstract void Reset(float CenterFreq, float Q = .7071067811865475f);
 
         /// <summary>Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
-        public override void Process(float[] Samples) => Process(Samples, 0, 1);
-
-        /// <summary>Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         /// <param name="Samples">Input samples</param>
         /// <param name="Channel">Channel to filter</param>
         /// <param name="Channels">Total channels</param>
