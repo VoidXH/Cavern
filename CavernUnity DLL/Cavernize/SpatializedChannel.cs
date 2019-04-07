@@ -4,19 +4,33 @@ using UnityEngine;
 using Cavern.Filters;
 
 namespace Cavern.Cavernize {
+    /// <summary>All the data <see cref="Cavernizer"/> needs for a single channel.</summary>
     class SpatializedChannel {
+        /// <summary>Channel position and type information.</summary>
         public readonly CavernizeChannel Channel;
+        /// <summary>Crossover to split the moving and ground part.</summary>
         public readonly Crossover Filter;
+        /// <summary>Samples to split between <see cref="MovingSource"/> and <see cref="GroundSource"/>.</summary>
         public readonly float[] Output;
+        /// <summary>There is available output data, and the channel should be rendered.</summary>
         public bool WrittenOutput;
+        /// <summary>High frequency data with height information.</summary>
         public CavernizeOutput MovingSource { get; private set; }
+        /// <summary>Low frequency data that stays on the ground.</summary>
         public CavernizeOutput GroundSource { get; private set; }
+        /// <summary>Last low frequency sample (used in the height calculation algorithm).</summary>
         public float LastLow;
+        /// <summary>Last unmodified sample (used in the height calculation algorithm).</summary>
         public float LastNormal;
+        /// <summary>Last high frequency sample (used in the height calculation algorithm).</summary>
         public float LastHigh;
+        /// <summary>The moving part's normalized height from the ground.</summary>
         public float Height;
+        /// <summary>Times the sources called for a set of samples. Numbers >= 2 indicate that the next frame should be mixed.</summary>
         public int TicksTook;
+        /// <summary>Renderer for <see cref="MovingSource"/>.</summary>
         public Renderer MovingRenderer { get; private set; }
+        /// <summary>Renderer for <see cref="GroundSource"/>.</summary>
         public Renderer GroundRenderer { get; private set; }
 
         void CreateSource(Cavernizer Master, bool GroundLevel) {
