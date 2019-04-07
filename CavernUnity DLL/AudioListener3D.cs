@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Threading.Tasks;
 using UnityEngine;
 
 using Cavern.Filters;
@@ -55,8 +54,6 @@ namespace Cavern {
         static Channel[] ChannelCache;
         /// <summary>Lowpass filters for each channel.</summary>
         static Lowpass[] Lowpasses;
-        /// <summary>Sample collector task for each active source.</summary>
-        static Task<float[]>[] Tasks = new Task<float[]>[0];
 
         // ------------------------------------------------------------------
         // Internal functions
@@ -167,28 +164,21 @@ namespace Cavern {
             ResetFunc();
         }
 
+        /// <summary>Single update tick rendering.</summary>
         void Frame(int OutputLength) {
             // Collect audio data from sources
             RenderBufferSize = UpdateRate * ChannelCount;
-            if (Tasks.Length != ActiveSources.Count)
-                Tasks = new Task<float[]>[ActiveSources.Count];
-            int TaskCount = 0;
             LinkedListNode<AudioSource3D> Node = ActiveSources.First;
+            List<float[]> Results = new List<float[]>();
             while (Node != null) {
-                if (Node.Value.Precollect()) {
-                    LinkedListNode<AudioSource3D> SourceNode = Node;
-                    Tasks[TaskCount++] = Task.Run(() => SourceNode.Value.Collect());
-                }
+                if (Node.Value.Precollect())
+                    Results.Add(Node.Value.Collect());
                 Node = Node.Next;
             }
-            Task<float[]>[] RunningTasks = Tasks;
-            Array.Resize(ref RunningTasks, TaskCount); // This creates a copy of the required size, and won't render Tasks as garbage
-            Task.WaitAll(Tasks);
             // Mix sources to output
             Array.Clear(Output, 0, OutputLength);
-            for (int TaskPos = 0; TaskPos < TaskCount; ++TaskPos)
-                if (Tasks[TaskPos].Result != null)
-                    CavernUtilities.Mix(Tasks[TaskPos].Result, Output, OutputLength);
+            for (int Result = 0, ResultCount = Results.Count; Result < ResultCount; ++Result)
+                CavernUtilities.Mix(Results[Result], Output, OutputLength);
             // Volume, distance compensation, and subwoofers' lowpass
             for (int Channel = 0; Channel < ChannelCount; ++Channel) {
                 if (Channels[Channel].LFE) {
