@@ -167,6 +167,42 @@ namespace Cavern {
             ResetFunc();
         }
 
+        void Frame(int OutputLength) {
+            // Collect audio data from sources
+            RenderBufferSize = UpdateRate * ChannelCount;
+            if (Tasks.Length != ActiveSources.Count)
+                Tasks = new Task<float[]>[ActiveSources.Count];
+            int TaskCount = 0;
+            LinkedListNode<AudioSource3D> Node = ActiveSources.First;
+            while (Node != null) {
+                if (Node.Value.Precollect()) {
+                    LinkedListNode<AudioSource3D> SourceNode = Node;
+                    Tasks[TaskCount++] = Task.Run(() => SourceNode.Value.Collect());
+                }
+                Node = Node.Next;
+            }
+            Task<float[]>[] RunningTasks = Tasks;
+            Array.Resize(ref RunningTasks, TaskCount); // This creates a copy of the required size, and won't render Tasks as garbage
+            Task.WaitAll(Tasks);
+            // Mix sources to output
+            Array.Clear(Output, 0, OutputLength);
+            for (int TaskPos = 0; TaskPos < TaskCount; ++TaskPos)
+                if (Tasks[TaskPos].Result != null)
+                    CavernUtilities.Mix(Tasks[TaskPos].Result, Output, OutputLength);
+            // Volume, distance compensation, and subwoofers' lowpass
+            for (int Channel = 0; Channel < ChannelCount; ++Channel) {
+                if (Channels[Channel].LFE) {
+                    if (!DirectLFE)
+                        Lowpasses[Channel].Process(Output, Channel, ChannelCount);
+                    CavernUtilities.Gain(Output, UpdateRate, LFEVolume * Volume, Channel, ChannelCount); // LFE Volume
+                } else
+                    CavernUtilities.Gain(Output, UpdateRate, !EnvironmentCompensation ? Volume :
+                        (Volume * Channels[Channel].Distance * CavernUtilities.Sqrt2p2), Channel, ChannelCount);
+            }
+            if (Normalizer != 0) // Normalize
+                Normalize(ref Output, OutputLength, ref Normalization);
+        }
+
         void Update() {
             // Change checks
             if (HeadphoneVirtualizer) // Virtual channels
@@ -220,41 +256,8 @@ namespace Cavern {
                     Node = Node.Next;
                 }
                 while (UpdateRate <= Now) {
-                    if (!Paused || Manual) {
-                        // Collect audio data from sources
-                        RenderBufferSize = UpdateRate * ChannelCount;
-                        if (Tasks.Length != ActiveSources.Count)
-                            Tasks = new Task<float[]>[ActiveSources.Count];
-                        int TaskCount = 0;
-                        Node = ActiveSources.First;
-                        while (Node != null) {
-                            if (Node.Value.Precollect()) {
-                                LinkedListNode<AudioSource3D> SourceNode = Node;
-                                Tasks[TaskCount++] = Task.Run(() => SourceNode.Value.Collect());
-                            }
-                            Node = Node.Next;
-                        }
-                        Task<float[]>[] RunningTasks = Tasks;
-                        Array.Resize(ref RunningTasks, TaskCount); // This creates a copy of the required size, and won't render Tasks as garbage
-                        Task.WaitAll(Tasks);
-                        // Mix sources to output
-                        Array.Clear(Output, 0, OutputLength);
-                        for (int TaskPos = 0; TaskPos < TaskCount; ++TaskPos)
-                            if (Tasks[TaskPos].Result != null)
-                                CavernUtilities.Mix(Tasks[TaskPos].Result, Output, OutputLength);
-                        // Volume, distance compensation, and subwoofers' lowpass
-                        for (int Channel = 0; Channel < ChannelCount; ++Channel) {
-                            if (Channels[Channel].LFE) {
-                                if (!DirectLFE)
-                                    Lowpasses[Channel].Process(Output, Channel, ChannelCount);
-                                CavernUtilities.Gain(Output, UpdateRate, LFEVolume * Volume, Channel, ChannelCount); // LFE Volume
-                            } else
-                                CavernUtilities.Gain(Output, UpdateRate, !EnvironmentCompensation ? Volume :
-                                    (Volume * Channels[Channel].Distance * CavernUtilities.Sqrt2p2), Channel, ChannelCount);
-                        }
-                        if (Normalizer != 0) // Normalize
-                            Normalize(ref Output, OutputLength, ref Normalization);
-                    }
+                    if (!Paused || Manual)
+                        Frame(OutputLength);
                     // Finalize
                     OnOutputAvailable();
                     Now -= UpdateRate;
