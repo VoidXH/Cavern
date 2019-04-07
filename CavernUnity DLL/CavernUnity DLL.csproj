@@ -66,6 +66,9 @@
     <Compile Include="AudioSource3D_Symmetric.cs" />
     <Compile Include="Cavern4D\Cavern4DBase.cs" />
     <Compile Include="Cavern4D\Seat4D.cs" />
+    <Compile Include="Cavernize\CavernizeChannel.cs" />
+    <Compile Include="Cavernize\CavernizeOutput.cs" />
+    <Compile Include="Cavernize\SpatializedChannel.cs" />
     <Compile Include="FilterInterfaces\Biquad.cs" />
     <Compile Include="FilterInterfaces\DistanceBasedLowpass.cs" />
     <Compile Include="FilterInterfaces\SimpleEcho.cs" />
@@ -85,8 +88,8 @@
     <Compile Include="QuickEQ\Utils\VerboseImpulseResponse.cs" />
     <Compile Include="QuickEQ\Utils\NoisyChannel.cs" />
     <Compile Include="QuickEQ\Utils\Windowing.cs" />
-    <Compile Include="Cavernize.cs" />
-    <Compile Include="CavernizeRT.cs" />
+    <Compile Include="Cavernize\Cavernizer.cs" />
+    <Compile Include="Cavernize\CavernizeRT.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Debug\ArrayLevels.cs" />
     <Compile Include="Debug\LogDisplay.cs" />

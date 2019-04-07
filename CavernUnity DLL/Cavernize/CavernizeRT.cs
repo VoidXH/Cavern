@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Cavern {
     /// <summary><see cref="Cavernize"/> on a single source with diverted direct audio output.</summary>
-    [AddComponentMenu("Audio/Single-channel height processor")]
+    [AddComponentMenu("Audio/Cavernize/Single-channel height processor")]
     public class CavernizeRealtime : MonoBehaviour {
         /// <summary>The channel of the source to convert.</summary>
         [Tooltip("The channel of the source to convert.")]

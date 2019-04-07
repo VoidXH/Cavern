@@ -1,13 +1,15 @@
 ﻿using System;
 using UnityEngine;
 
+using Cavern.Cavernize;
+
 namespace Cavern.Cavern4D {
     /// <summary>Seat movement generation for <see cref="Cavernize"/>.</summary>
     [AddComponentMenu("Audio/4D Processor")]
     public class Cavern4DBase : MonoBehaviour {
         /// <summary>The Cavernized audio object to be converted.</summary>
         [Tooltip("The Cavernized audio object to be converted.")]
-        public Cavernize CavernSource;
+        public Cavernizer CavernSource;
         /// <summary>Rotation aggressiveness.</summary>
         [Tooltip("Rotation aggressiveness.")]
         public float RotationConstant = 90;
@@ -26,7 +28,7 @@ namespace Cavern.Cavern4D {
 
         /// <summary>Seat movement description.</summary>
         public struct SeatData {
-            /// <summary>Seat elevation in the range of <see cref="Cavernize.ChannelHeights"/>.</summary>
+            /// <summary>Seat elevation in Cavernize's bounds.</summary>
             [Tooltip("Seat elevation in Cavernize's bounds.")]
             public float Height;
             /// <summary>Seat rotation Euler angles.</summary>
@@ -56,28 +58,29 @@ namespace Cavern.Cavern4D {
                 for (int Column = 0; Column < Columns; ++Column)
                     SeatMovements[Row][Column].Height = 200;
             int LastRow = Rows - 1, LastColumn = Columns - 1;
-            if (CavernSource.WrittenOutput[0]) // Front left
-                SeatMovements[0][0].Height = CavernSource.ChannelHeights[0];
-            if (CavernSource.WrittenOutput[1]) // Front right
-                SeatMovements[0][LastColumn].Height = CavernSource.ChannelHeights[1];
-            if (CavernSource.WrittenOutput[2] && CavernSource.ChannelHeights[2] != -2) // Center
-                SeatMovements[0][LastColumn / 2].Height = CavernSource.ChannelHeights[2];
-            if (CavernSource.WrittenOutput[4]) // Side left
-                SeatMovements[LastRow][0].Height = CavernSource.ChannelHeights[4];
-            if (CavernSource.WrittenOutput[5]) // Side right
-                SeatMovements[LastRow][LastColumn].Height = CavernSource.ChannelHeights[5];
+            if (CavernSource.Mains[0] != null) // Front left
+                SeatMovements[0][0].Height = CavernSource.Mains[0].Height;
+            if (CavernSource.Mains[1] != null) // Front right
+                SeatMovements[0][LastColumn].Height = CavernSource.Mains[1].Height;
+            if (CavernSource.Mains[2] != null && CavernSource.Mains[2].Height != -2) // Center
+                SeatMovements[0][LastColumn / 2].Height = CavernSource.Mains[2].Height;
+            if (CavernSource.Mains[6] != null) // Side left
+                SeatMovements[LastRow][0].Height = CavernSource.Mains[6].Height;
+            if (CavernSource.Mains[7] != null) // Side right
+                SeatMovements[LastRow][LastColumn].Height = CavernSource.Mains[7].Height;
             // Addition is okay, and should be used, as the rears are near the sides in the back corners.
-            if (CavernSource.WrittenOutput[6]) // Rear left
-                SeatMovements[LastRow][0].Height += CavernSource.ChannelHeights[6];
-            if (CavernSource.WrittenOutput[7]) // Rear right
-                SeatMovements[LastRow][LastColumn].Height += CavernSource.ChannelHeights[7];
-            if (CavernSource.WrittenOutput[8]) // Rear center
-                SeatMovements[LastRow][LastColumn / 2].Height = CavernSource.ChannelHeights[8];
+            if (CavernSource.Mains[4] != null) // Rear left
+                SeatMovements[LastRow][0].Height += CavernSource.Mains[4].Height;
+            if (CavernSource.Mains[5] != null) // Rear right
+                SeatMovements[LastRow][LastColumn].Height += CavernSource.Mains[5].Height;
+            SpatializedChannel RearCenter = CavernSource.GetChannel(CavernizeChannel.RearCenter);
+            if (RearCenter != null) // Rear center
+                SeatMovements[LastRow][LastColumn / 2].Height = RearCenter.Height;
             // Use the front channels for moving all seats if nothing else is available for the rear sides
             if (SeatMovements[LastRow][0].Height == 200)
-                SeatMovements[LastRow][0].Height = CavernSource.ChannelHeights[0];
+                SeatMovements[LastRow][0].Height = CavernSource.Mains[0].Height;
             if (SeatMovements[LastRow][LastColumn].Height == 200)
-                SeatMovements[LastRow][LastColumn].Height = CavernSource.ChannelHeights[1];
+                SeatMovements[LastRow][LastColumn].Height = CavernSource.Mains[1].Height;
             // Seat position interpolation
             for (int Row = 0; Row < Rows; ++Row) {
                 int Prev = 0;
