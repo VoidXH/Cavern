@@ -18,6 +18,8 @@ namespace Cavern {
         internal static bool Symmetric = false;
         /// <summary>Distance from the listener.</summary>
         internal float Distance = float.NaN;
+        /// <summary>Indicates that the source meets rendering requirements, and <see cref="GetSamples"/> won't fail.</summary>
+        internal virtual bool Renderable => IsPlaying && Clip;
 
         // ------------------------------------------------------------------
         // Lifecycle helpers
@@ -136,14 +138,21 @@ namespace Cavern {
         }
 
         /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
-        internal virtual void Precalculate() {
-            if (Clip && IsPlaying) {
+        internal void Precalculate() {
+            if (Renderable) {
                 LastPosition = transform.position;
                 LastDistance = Distance;
                 Distance = GetDistance(LastPosition);
                 CavernUtilities.BottomlistHandler(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance);
             } else
                 Distance = float.NaN;
+        }
+
+        /// <summary>Get the next samples in the audio stream.</summary>
+        internal virtual float[] GetSamples() {
+            OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
+            Clip.GetData(OriginalSamples, timeSamples);
+            return OriginalSamples;
         }
 
         /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
@@ -174,8 +183,7 @@ namespace Cavern {
                     LeftSamples = new float[PitchedUpdateRate];
                     RightSamples = new float[PitchedUpdateRate];
                 }
-                OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
-                Clip.GetData(OriginalSamples, timeSamples);
+                OriginalSamples = GetSamples();
                 if (Rendered.Length != AudioListener3D.RenderBufferSize)
                     Rendered = new float[AudioListener3D.RenderBufferSize];
                 if (Delay > 0)
