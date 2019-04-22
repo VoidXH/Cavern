@@ -6,17 +6,17 @@ namespace Cavern.QuickEQ {
     /// <summary>Tools for measuring frequency response.</summary>
     public static class Measurements {
         /// <summary>Actual FFT processing, somewhat in-place.</summary>
-        static void ProcessFFT(Complex[] Samples, FFTCache Cache) {
+        static void ProcessFFT(Complex[] Samples, FFTCache Cache, int Depth) {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
                 return;
-            Complex[] Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
+            Complex[] Even = Cache.Even[Depth], Odd = Cache.Odd[Depth];
             for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
                 Even[Sample] = Samples[Pair];
                 Odd[Sample] = Samples[Pair + 1];
             }
-            ProcessFFT(Even, Cache);
-            ProcessFFT(Odd, Cache);
+            ProcessFFT(Even, Cache, ++Depth);
+            ProcessFFT(Odd, Cache, Depth);
             int StepMul = Cache.Cos.Length / HalfLength;
             for (int i = 0; i < HalfLength; ++i) {
                 float OldReal = Odd[i].Real;
@@ -43,8 +43,8 @@ namespace Cavern.QuickEQ {
                 Even[Sample].Real = Samples[Pair];
                 Odd[Sample].Real = Samples[Pair + 1];
             }
-            ProcessFFT(Even, Cache);
-            ProcessFFT(Odd, Cache);
+            ProcessFFT(Even, Cache, 1);
+            ProcessFFT(Odd, Cache, 1);
             int StepMul = Cache.Cos.Length / HalfLength;
             for (int i = 0; i < HalfLength; ++i) {
                 float OldReal = Odd[i].Real;
@@ -64,7 +64,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Fast Fourier transform a 2D signal.</summary>
         public static Complex[] FFT(Complex[] Samples, FFTCache Cache = null) {
             Samples = (Complex[])Samples.Clone();
-            ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length));
+            ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length), 0);
             return Samples;
         }
 
@@ -74,12 +74,12 @@ namespace Cavern.QuickEQ {
             Complex[] ComplexSignal = new Complex[Length];
             for (int i = 0; i < Length; ++i)
                 ComplexSignal[i].Real = Samples[i];
-            ProcessFFT(ComplexSignal, Cache ?? new FFTCache(Samples.Length));
+            ProcessFFT(ComplexSignal, Cache ?? new FFTCache(Samples.Length), 0);
             return ComplexSignal;
         }
 
         /// <summary>Fast Fourier transform a 2D signal while keeping the source array allocation.</summary>
-        public static void InPlaceFFT(Complex[] Samples, FFTCache Cache = null) => ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length));
+        public static void InPlaceFFT(Complex[] Samples, FFTCache Cache = null) => ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length), 0);
 
         /// <summary>Spectrum of a signal's FFT.</summary>
         public static float[] FFT1D(float[] Samples, FFTCache Cache = null) {
