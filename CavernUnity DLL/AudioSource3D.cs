@@ -83,8 +83,8 @@ namespace Cavern {
 
         /// <summary>Resamples a single channel.</summary>
         /// <param name="Samples">Samples of the source channel</param>
-        /// <param name="From">Old sample rate</param>
-        /// <param name="To">New sample rate</param>
+        /// <param name="From">Old sample count</param>
+        /// <param name="To">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
         internal static float[] Resample(float[] Samples, int From, int To) {
             if (From == To)
