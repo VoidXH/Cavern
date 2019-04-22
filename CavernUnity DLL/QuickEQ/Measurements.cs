@@ -6,7 +6,7 @@ namespace Cavern.QuickEQ {
     /// <summary>Tools for measuring frequency response.</summary>
     public static class Measurements {
         /// <summary>Actual FFT processing, somewhat in-place.</summary>
-        internal static void ProcessFFT(Complex[] Samples, FFTCache Cache) {
+        static void ProcessFFT(Complex[] Samples, FFTCache Cache) {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
                 return;
@@ -33,16 +33,42 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Fast Fourier transform a signal.</summary>
+        /// <summary>Fourier-transform a signal in 1D. The result is the spectral power.</summary>
+        static void ProcessFFT(float[] Samples, FFTCache Cache) {
+            int Length = Samples.Length, HalfLength = Length / 2;
+            if (Length == 1)
+                return;
+            Complex[] Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
+            for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
+                Even[Sample].Real = Samples[Pair];
+                Odd[Sample].Real = Samples[Pair + 1];
+            }
+            ProcessFFT(Even, Cache);
+            ProcessFFT(Odd, Cache);
+            int StepMul = Cache.Cos.Length / HalfLength;
+            for (int i = 0; i < HalfLength; ++i) {
+                float OldReal = Odd[i].Real;
+                int CachePos = i * StepMul;
+                Odd[i].Real = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * Cache.Sin[CachePos];
+                Odd[i].Imaginary = OldReal * Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
+            }
+            for (int i = 0; i < HalfLength; ++i) {
+                float Real = Even[i].Real + Odd[i].Real, Imaginary = Even[i].Imaginary + Odd[i].Imaginary;
+                Samples[i] = Mathf.Sqrt(Real * Real + Imaginary * Imaginary);
+                Real = Even[i].Real - Odd[i].Real;
+                Imaginary = Even[i].Imaginary - Odd[i].Imaginary;
+                Samples[i + HalfLength] = Mathf.Sqrt(Real * Real + Imaginary * Imaginary);
+            }
+        }
+
+        /// <summary>Fast Fourier transform a 2D signal.</summary>
         public static Complex[] FFT(Complex[] Samples, FFTCache Cache = null) {
-            if (Cache == null)
-                Cache = new FFTCache(Samples.Length);
             Samples = (Complex[])Samples.Clone();
-            ProcessFFT(Samples, Cache);
+            ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length));
             return Samples;
         }
 
-        /// <summary>Fast Fourier transform a real signal.</summary>
+        /// <summary>Fast Fourier transform a 1D signal.</summary>
         public static Complex[] FFT(float[] Samples, FFTCache Cache = null) {
             int Length = Samples.Length;
             Complex[] ComplexSignal = new Complex[Length];
@@ -51,6 +77,19 @@ namespace Cavern.QuickEQ {
             ProcessFFT(ComplexSignal, Cache ?? new FFTCache(Samples.Length));
             return ComplexSignal;
         }
+
+        /// <summary>Fast Fourier transform a 2D signal while keeping the source array allocation.</summary>
+        public static void InPlaceFFT(Complex[] Samples, FFTCache Cache = null) => ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length));
+
+        /// <summary>Spectrum of a signal's FFT.</summary>
+        public static float[] FFT1D(float[] Samples, FFTCache Cache = null) {
+            Samples = (float[])Samples.Clone();
+            ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length));
+            return Samples;
+        }
+
+        /// <summary>Spectrum of a signal's FFT while keeping the source array allocation.</summary>
+        public static void InPlaceFFT(float[] Samples, FFTCache Cache = null) => ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length));
 
         /// <summary>Outputs IFFT(X) * N.</summary>
         static void ProcessIFFT(Complex[] Samples, FFTCache Cache) {
@@ -80,8 +119,15 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Somewhat in-place IFFT.</summary>
-        internal static void CopylessIFFT(Complex[] Samples, FFTCache Cache) {
+        /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
+        public static Complex[] IFFT(Complex[] Samples, FFTCache Cache = null) {
+            Samples = (Complex[])Samples.Clone();
+            InPlaceIFFT(Samples, Cache ?? new FFTCache(Samples.Length));
+            return Samples;
+        }
+
+        /// <summary>Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.</summary>
+        public static void InPlaceIFFT(Complex[] Samples, FFTCache Cache) {
             int Length = Samples.Length;
             ProcessIFFT(Samples, Cache);
             float Multiplier = 1f / Length;
@@ -89,13 +135,6 @@ namespace Cavern.QuickEQ {
                 Samples[i].Real *= Multiplier;
                 Samples[i].Imaginary *= Multiplier;
             }
-        }
-
-        /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
-        public static Complex[] IFFT(Complex[] Samples, FFTCache Cache = null) {
-            Samples = (Complex[])Samples.Clone();
-            CopylessIFFT(Samples, Cache ?? new FFTCache(Samples.Length));
-            return Samples;
         }
 
         /// <summary>Get the real part of a signal's FFT.</summary>
