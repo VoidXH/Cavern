@@ -26,9 +26,8 @@ namespace Cavern.QuickEQ {
             Odd = new Complex[31][];
             int DepthLevel = 0;
             while (Size != 0) {
-                Even[DepthLevel] = new Complex[Size];
+                Even[DepthLevel] = new Complex[Size >>= 1];
                 Odd[DepthLevel++] = new Complex[Size];
-                Size >>= 1;
             }
         }
     }
