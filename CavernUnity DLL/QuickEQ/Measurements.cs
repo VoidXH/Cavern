@@ -92,17 +92,17 @@ namespace Cavern.QuickEQ {
         public static void InPlaceFFT(float[] Samples, FFTCache Cache = null) => ProcessFFT(Samples, Cache ?? new FFTCache(Samples.Length));
 
         /// <summary>Outputs IFFT(X) * N.</summary>
-        static void ProcessIFFT(Complex[] Samples, FFTCache Cache) {
+        static void ProcessIFFT(Complex[] Samples, FFTCache Cache, int Depth) {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
                 return;
-            Complex[] Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
+            Complex[] Even = Cache.Even[Depth], Odd = Cache.Odd[Depth];
             for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
                 Even[Sample] = Samples[Pair];
                 Odd[Sample] = Samples[Pair + 1];
             }
-            ProcessIFFT(Even, Cache);
-            ProcessIFFT(Odd, Cache);
+            ProcessIFFT(Even, Cache, ++Depth);
+            ProcessIFFT(Odd, Cache, Depth);
             int StepMul = Cache.Cos.Length / HalfLength;
             for (int i = 0; i < HalfLength; ++i) {
                 float OldReal = Odd[i].Real;
@@ -129,7 +129,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.</summary>
         public static void InPlaceIFFT(Complex[] Samples, FFTCache Cache) {
             int Length = Samples.Length;
-            ProcessIFFT(Samples, Cache);
+            ProcessIFFT(Samples, Cache, 0);
             float Multiplier = 1f / Length;
             for (int i = 0; i < Length; ++i) {
                 Samples[i].Real *= Multiplier;
