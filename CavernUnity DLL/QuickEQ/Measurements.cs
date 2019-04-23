@@ -38,7 +38,7 @@ namespace Cavern.QuickEQ {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
                 return;
-            Complex[] Even = new Complex[HalfLength], Odd = new Complex[HalfLength];
+            Complex[] Even = Cache.Even[0], Odd = Cache.Odd[0];
             for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
                 Even[Sample].Real = Samples[Pair];
                 Odd[Sample].Real = Samples[Pair + 1];
