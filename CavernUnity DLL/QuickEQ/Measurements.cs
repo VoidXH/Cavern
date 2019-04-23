@@ -19,17 +19,14 @@ namespace Cavern.QuickEQ {
             ProcessFFT(Odd, Cache, Depth);
             int StepMul = Cache.Cos.Length / HalfLength;
             for (int i = 0; i < HalfLength; ++i) {
-                float OldReal = Odd[i].Real;
                 int CachePos = i * StepMul;
-                Odd[i].Real = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * Cache.Sin[CachePos];
-                Odd[i].Imaginary = OldReal * Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
-            }
-            for (int i = 0; i < HalfLength; ++i) {
-                Samples[i].Real = Even[i].Real + Odd[i].Real;
-                Samples[i].Imaginary = Even[i].Imaginary + Odd[i].Imaginary;
+                float OddReal = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * Cache.Sin[CachePos],
+                    OddImag = Odd[i].Real * Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
+                Samples[i].Real = Even[i].Real + OddReal;
+                Samples[i].Imaginary = Even[i].Imaginary + OddImag;
                 int o = i + HalfLength;
-                Samples[o].Real = Even[i].Real - Odd[i].Real;
-                Samples[o].Imaginary = Even[i].Imaginary - Odd[i].Imaginary;
+                Samples[o].Real = Even[i].Real - OddReal;
+                Samples[o].Imaginary = Even[i].Imaginary - OddImag;
             }
         }
 
@@ -47,16 +44,13 @@ namespace Cavern.QuickEQ {
             ProcessFFT(Odd, Cache, 1);
             int StepMul = Cache.Cos.Length / HalfLength;
             for (int i = 0; i < HalfLength; ++i) {
-                float OldReal = Odd[i].Real;
                 int CachePos = i * StepMul;
-                Odd[i].Real = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * Cache.Sin[CachePos];
-                Odd[i].Imaginary = OldReal * Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
-            }
-            for (int i = 0; i < HalfLength; ++i) {
-                float Real = Even[i].Real + Odd[i].Real, Imaginary = Even[i].Imaginary + Odd[i].Imaginary;
+                float OddReal = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * Cache.Sin[CachePos],
+                    OddImag = Odd[i].Real * Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
+                float Real = Even[i].Real + OddReal, Imaginary = Even[i].Imaginary + OddImag;
                 Samples[i] = Mathf.Sqrt(Real * Real + Imaginary * Imaginary);
-                Real = Even[i].Real - Odd[i].Real;
-                Imaginary = Even[i].Imaginary - Odd[i].Imaginary;
+                Real = Even[i].Real - OddReal;
+                Imaginary = Even[i].Imaginary - OddImag;
                 Samples[i + HalfLength] = Mathf.Sqrt(Real * Real + Imaginary * Imaginary);
             }
         }
@@ -105,17 +99,14 @@ namespace Cavern.QuickEQ {
             ProcessIFFT(Odd, Cache, Depth);
             int StepMul = Cache.Cos.Length / HalfLength;
             for (int i = 0; i < HalfLength; ++i) {
-                float OldReal = Odd[i].Real;
                 int CachePos = i * StepMul;
-                Odd[i].Real = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * -Cache.Sin[CachePos];
-                Odd[i].Imaginary = OldReal * -Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
-            }
-            for (int i = 0; i < HalfLength; ++i) {
-                Samples[i].Real = Even[i].Real + Odd[i].Real;
-                Samples[i].Imaginary = Even[i].Imaginary + Odd[i].Imaginary;
+                float OddReal = Odd[i].Real * Cache.Cos[CachePos] - Odd[i].Imaginary * -Cache.Sin[CachePos],
+                    OddImag = Odd[i].Real * -Cache.Sin[CachePos] + Odd[i].Imaginary * Cache.Cos[CachePos];
+                Samples[i].Real = Even[i].Real + OddReal;
+                Samples[i].Imaginary = Even[i].Imaginary + OddImag;
                 int o = i + HalfLength;
-                Samples[o].Real = Even[i].Real - Odd[i].Real;
-                Samples[o].Imaginary = Even[i].Imaginary - Odd[i].Imaginary;
+                Samples[o].Real = Even[i].Real - OddReal;
+                Samples[o].Imaginary = Even[i].Imaginary - OddImag;
             }
         }
 
