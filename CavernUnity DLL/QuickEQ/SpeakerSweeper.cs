@@ -116,7 +116,8 @@ namespace Cavern.QuickEQ {
             int Channels = AudioListener3D.ChannelCount;
             if (!MeasurementStarted) {
                 MeasurementStarted = true;
-                SweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Channels / Listener.SampleRate + 1, Listener.SampleRate);
+                if (Microphone.devices.Length != 0)
+                    SweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Channels / Listener.SampleRate + 1, Listener.SampleRate);
                 Sweepers = new SweepChannel[Channels];
                 for (int i = 0; i < Channels; ++i) {
                     Sweepers[i] = gameObject.AddComponent<SweepChannel>();
@@ -128,7 +129,10 @@ namespace Cavern.QuickEQ {
                 return;
             if (!Sweepers[Channel].IsPlaying) {
                 float[] Result = new float[SweepReference.Length];
-                SweepResponse.GetData(Result, Channel * SweepReference.Length);
+                if (SweepResponse)
+                    SweepResponse.GetData(Result, Channel * SweepReference.Length);
+                else
+                    Result = (float[])Result.Clone();
                 ExcitementResponses[Channel] = Result;
                 (Workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(SweepFFT, SweepFFTCache, Result))).Start();
                 if (++Channel == Channels) {
@@ -142,8 +146,8 @@ namespace Cavern.QuickEQ {
                     }
                     if (Microphone.IsRecording(InputDevice))
                         Microphone.End(InputDevice);
-
-                    Destroy(SweepResponse);
+                    if (SweepResponse)
+                        Destroy(SweepResponse);
                     ResultAvailable = true;
                 }
             }
