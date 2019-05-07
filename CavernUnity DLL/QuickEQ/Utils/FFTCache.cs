@@ -8,8 +8,8 @@ namespace Cavern.QuickEQ {
         internal float[] Cos;
         /// <summary>Sines.</summary>
         internal float[] Sin;
-        /// <summary>Preallocated recursion arrays.</summary>
-        internal Complex[][] Even, Odd;
+        /// <summary>Preallocated recursion arrays. Shared between all caches, their sizes are 2^i.</summary>
+        internal static readonly Complex[][] Even = new Complex[30][], Odd = new Complex[30][];
 
         /// <summary>FFT cache constructor.</summary>
         public FFTCache(int Size) {
@@ -22,12 +22,11 @@ namespace Cavern.QuickEQ {
                 Cos[i] = Mathf.Cos(Rotation);
                 Sin[i] = Mathf.Sin(Rotation);
             }
-            Even = new Complex[31][];
-            Odd = new Complex[31][];
-            int DepthLevel = 0;
-            while (Size != 0) {
-                Even[DepthLevel] = new Complex[Size >>= 1];
-                Odd[DepthLevel++] = new Complex[Size];
+            int Log = CavernUtilities.Log2(Size);
+            for (int Depth = 0; Depth < Log; ++Depth) {
+                int DepthSize = 1 << Depth;
+                Even[Depth] = new Complex[DepthSize];
+                Odd[Depth] = new Complex[DepthSize];
             }
         }
     }

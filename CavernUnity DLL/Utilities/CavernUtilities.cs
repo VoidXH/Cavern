@@ -148,6 +148,21 @@ namespace Cavern {
                 Target[Sample] *= Gain;
         }
 
+        /// <summary>Compute the base 2 logarithm of a number faster than a generic Log function.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int Log2(int Value) {
+            int Log = -1;
+            while (Value > 255) {
+                Log += 8;
+                Value >>= 8;
+            }
+            while (Value != 0) {
+                ++Log;
+                Value >>= 1;
+            }
+            return Log;
+        }
+
         /// <summary>Mix a track to a stream.</summary>
         /// <param name="From">Track</param>
         /// <param name="To">Stream</param>
