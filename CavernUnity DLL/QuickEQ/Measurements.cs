@@ -10,7 +10,7 @@ namespace Cavern.QuickEQ {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
                 return;
-            Complex[] Even = FFTCache.Even[Depth], Odd = FFTCache.Odd[Depth];
+            Complex[] Even = Cache.Even[Depth], Odd = Cache.Odd[Depth];
             for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
                 Even[Sample] = Samples[Pair];
                 Odd[Sample] = Samples[Pair + 1];
@@ -35,7 +35,7 @@ namespace Cavern.QuickEQ {
             int Length = Samples.Length, HalfLength = Length / 2, Depth = CavernUtilities.Log2(Samples.Length) - 1;
             if (Length == 1)
                 return;
-            Complex[] Even = FFTCache.Even[Depth], Odd = FFTCache.Odd[Depth];
+            Complex[] Even = Cache.Even[Depth], Odd = Cache.Odd[Depth];
             for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
                 Even[Sample].Real = Samples[Pair];
                 Odd[Sample].Real = Samples[Pair + 1];
@@ -91,7 +91,7 @@ namespace Cavern.QuickEQ {
             int Length = Samples.Length, HalfLength = Length / 2;
             if (Length == 1)
                 return;
-            Complex[] Even = FFTCache.Even[Depth], Odd = FFTCache.Odd[Depth];
+            Complex[] Even = Cache.Even[Depth], Odd = Cache.Odd[Depth];
             for (int Sample = 0, Pair = 0; Sample < HalfLength; ++Sample, Pair += 2) {
                 Even[Sample] = Samples[Pair];
                 Odd[Sample] = Samples[Pair + 1];
