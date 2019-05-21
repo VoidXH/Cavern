@@ -69,8 +69,6 @@ namespace Cavern.Cavernize {
         int OldSampleRate;
         /// <summary>Cached <see cref="AudioListener3D.UpdateRate"/> as the listener is reconfigured for the Cavernize process.</summary>
         int OldUpdateRate;
-        /// <summary>Cached <see cref="AudioListener3D.MaximumSources"/> as the source limit might be too small for the Cavernize process.</summary>
-        int OldMaxSources;
 
         // TODO: 9-16 CH WAV import
 
@@ -82,7 +80,6 @@ namespace Cavern.Cavernize {
             OldUpdateRate = Listener.UpdateRate;
             Listener.SampleRate = Clip.frequency;
             UpdateRate = Listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
-            OldMaxSources = AudioListener3D.MaximumSources;
             int ClipChannels = Clip.channels;
             ClipSamples = new float[ClipChannels * UpdateRate];
             List<CavernizeChannel> TargetChannels = new List<CavernizeChannel>();
@@ -94,8 +91,6 @@ namespace Cavern.Cavernize {
                     TargetChannels.Add(Matrix[Channel]);
             for (int Source = 0, Sources = TargetChannels.Count; Source < Sources; ++Source)
                 Channels[TargetChannels[Source]] = new SpatializedChannel(TargetChannels[Source], this, UpdateRate);
-            if (AudioListener3D.MaximumSources < Channels.Count)
-                AudioListener3D.MaximumSources = Channels.Count;
             Mains[0] = GetChannel(CavernizeChannel.FrontLeft);
             Mains[1] = GetChannel(CavernizeChannel.FrontRight);
             Mains[2] = GetChannel(CavernizeChannel.FrontCenter);
@@ -209,7 +204,6 @@ namespace Cavern.Cavernize {
             AudioListener3D Listener = AudioListener3D.Current;
             Listener.SampleRate = OldSampleRate;
             Listener.UpdateRate = OldUpdateRate;
-            AudioListener3D.MaximumSources = OldMaxSources;
         }
     }
 }

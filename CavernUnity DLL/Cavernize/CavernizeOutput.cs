@@ -14,6 +14,12 @@ namespace Cavern.Cavernize {
         /// <summary>Target channel to render.</summary>
         public SpatializedChannel Channel;
 
+        /// <summary>Force the source to be played.</summary>
+        internal override bool Precollect() {
+            base.Precollect();
+            return true;
+        }
+
         /// <summary>Indicates that the source meets rendering requirements, and <see cref="GetSamples"/> won't fail.</summary>
         internal override bool Renderable => IsPlaying;
 
