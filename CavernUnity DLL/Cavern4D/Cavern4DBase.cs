@@ -78,9 +78,9 @@ namespace Cavern.Cavern4D {
                 SeatMovements[LastRow][LastColumn / 2].Height = RearCenter.Height;
             // Use the front channels for moving all seats if nothing else is available for the rear sides
             if (SeatMovements[LastRow][0].Height == 200)
-                SeatMovements[LastRow][0].Height = CavernSource.Mains[0].Height;
+                SeatMovements[LastRow][0].Height = SeatMovements[0][0].Height;
             if (SeatMovements[LastRow][LastColumn].Height == 200)
-                SeatMovements[LastRow][LastColumn].Height = CavernSource.Mains[1].Height;
+                SeatMovements[LastRow][LastColumn].Height = SeatMovements[0][LastColumn].Height;
             // Seat position interpolation
             for (int Row = 0; Row < Rows; ++Row) {
                 int Prev = 0;
