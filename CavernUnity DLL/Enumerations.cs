@@ -19,7 +19,6 @@
         /// Doppler effect and pitch shifting: No.
         /// Resampling quality: Low (nearest neighbour).
         /// Channels mixed to 3D space: First.
-        /// Panning: Constant gain.
         /// Accurate angle calculation in asymmetric mode: No.
         /// Non-approximated 3D mix for Studio/Home in asymmetric mode: No.
         /// </summary>
@@ -30,7 +29,6 @@
         /// Doppler effect and pitch shifting: Low quality.
         /// Resampling quality: Low (nearest neighbour).
         /// Channels mixed to 3D space: First.
-        /// Panning: Constant gain.
         /// Accurate angle calculation in asymmetric mode: No.
         /// Non-approximated 3D mix for Studio/Home in asymmetric mode: No.
         /// </summary>
@@ -41,7 +39,6 @@
         /// Doppler effect and pitch shifting: High quality.
         /// Resampling quality: Medium (linear interpolation).
         /// Channels mixed to 3D space: All.
-        /// Panning: Approximated constant power.
         /// Accurate angle calculation in asymmetric mode: Yes.
         /// Non-approximated 3D mix for Studio/Home in asymmetric mode: No.
         /// </summary>
@@ -52,7 +49,6 @@
         /// Doppler effect and pitch shifting: High quality.
         /// Resampling quality: High (Catmull-Rom).
         /// Channels mixed to 3D space: All.
-        /// Panning: Constant power.
         /// Accurate angle calculation in asymmetric mode: Yes.
         /// Non-approximated 3D mix for Studio/Home in asymmetric mode: Yes.
         /// </summary>
