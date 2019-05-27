@@ -52,14 +52,6 @@ namespace Cavern {
         [Tooltip("Disable lowpass on the LFE channel.")]
         public bool DirectLFE = false;
 
-        /// <summary>Virtual surround effect for headphones.</summary>
-        [Header("Experimental")]
-        [Tooltip("Virtual surround effect for headphones.")]
-        public bool HeadphoneVirtualizer = false;
-        /// <summary>Tries to fix standing waves in real-time, but may cause artifacts.</summary>
-        [Tooltip("Tries to fix standing waves in real-time, but may cause artifacts.")]
-        public bool StandingWaveFix = false;
-
         // ------------------------------------------------------------------
         // Compatibility
         // ------------------------------------------------------------------
@@ -76,6 +68,8 @@ namespace Cavern {
         public static Channel[] Channels = { new Channel(0, -45), new Channel(0, 45),
                                              new Channel(0, 0), new Channel(15, 15, true),
                                              new Channel(0, -110), new Channel(0, 110) };
+        /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/>.</summary>
+        public bool HeadphoneVirtualizer = false;
 
         /// <summary>3D environment type. Set by the user and applied when an <see cref="AudioListener3D"/> is created.</summary>
         public static Environments EnvironmentType {

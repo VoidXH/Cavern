@@ -223,8 +223,6 @@ namespace Cavern {
             else
                 Output = new float[OutputLength];
             // Choose processing functions
-            AudioSource3D.UsedOutputFunc = !Current.StandingWaveFix ?
-                (AudioSource3D.OutputFunc)AudioSource3D.WriteOutput : AudioSource3D.WriteFixedOutput;
             AudioSource3D.UsedAngleMatchFunc = AudioQuality >= QualityModes.High ? // Only calculate accurate arc cosine above high quality
                 (AudioSource3D.AngleMatchFunc)AudioSource3D.CalculateAngleMatches : AudioSource3D.LinearizeAngleMatches;
             if (UpdateRate <= Now) {

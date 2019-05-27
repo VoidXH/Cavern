@@ -123,20 +123,6 @@ namespace Cavern {
             return Output;
         }
 
-        /// <summary>Clamp a number between two values.</summary>
-        /// <param name="x">Input number</param>
-        /// <param name="min">Minimum</param>
-        /// <param name="max">Maximum</param>
-        /// <returns>X clamped between <paramref name="min"/> and <paramref name="max"/></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float Clamp(float x, float min, float max) {
-            if (x < min)
-                return min;
-            if (x > max)
-                return max;
-            return x;
-        }
-
         /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
         internal void Precalculate() {
             if (Renderable) {
@@ -166,8 +152,8 @@ namespace Cavern {
                     if (DopplerLevel == 0)
                         CalculatedPitch = Pitch;
                     else
-                        CalculatedPitch = Clamp(Pitch * DopplerLevel * CavernUtilities.SpeedOfSound / (CavernUtilities.SpeedOfSound - (LastDistance - Distance) /
-                            AudioListener3D.PulseDelta), .5f, 3f);
+                        CalculatedPitch = Mathf.Clamp(Pitch * DopplerLevel * CavernUtilities.SpeedOfSound / (CavernUtilities.SpeedOfSound -
+                            (LastDistance - Distance) / AudioListener3D.PulseDelta), .5f, 3f);
                 } else
                     CalculatedPitch = 1; // Disable any pitch change on low quality
                 bool NeedsResampling = Listener.SampleRate != Clip.frequency;
@@ -192,6 +178,19 @@ namespace Cavern {
             }
             OriginalSamples = null;
             return false;
+        }
+
+        /// <summary>Output samples to a multichannel array.</summary>
+        /// <param name="Samples">Samples to write</param>
+        /// <param name="Target">Channel array to write to</param>
+        /// <param name="ChannelLength">Size of the source and destination arrays</param>
+        /// <param name="Gain">Source gain</param>
+        /// <param name="Channel">Channel ID</param>
+        /// <param name="Channels">Total channels</param>
+        internal static void WriteOutput(float[] Samples, float[] Target, int ChannelLength, float Gain, int Channel, int Channels) {
+            Gain = Mathf.Sin(Mathf.PI * .5f * Gain);
+            for (int From = 0, To = Channel; From < ChannelLength; ++From, To += Channels)
+                Target[To] += Samples[From] * Gain;
         }
 
         /// <summary>Process the source and returns a mix to be added to the output.</summary>
@@ -301,8 +300,8 @@ namespace Cavern {
                         if (!LFE) {
                             // Find closest channels by cubical position in each direction (bottom/top, front/rear, left/right)
                             int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1;
-                            float ClosestTop = 1.1f, ClosestBottom = -1.1f, ClosestTF = 1.1f, ClosestTR = -1.1f,
-                                ClosestBF = 1.1f, ClosestBR = -1.1f; // Closest layers on y/z
+                            float ClosestTop = 69, ClosestBottom = -83, ClosestTF = 90, ClosestTR = -84,
+                                ClosestBF = 69, ClosestBR = -82; // Closest layers on y/z
                             Direction.x /= AudioListener3D.EnvironmentSize.x;
                             Direction.y /= AudioListener3D.EnvironmentSize.y;
                             Direction.z /= AudioListener3D.EnvironmentSize.z;
@@ -355,24 +354,24 @@ namespace Cavern {
                                 InnerVolume3D *= 1f - Size;
                                 float ExtraChannelVolume = Volume3D * Size / Channels;
                                 for (int Channel = 0; Channel < Channels; ++Channel)
-                                    UsedOutputFunc(Samples, Rendered, UpdateRate, ExtraChannelVolume, Channel, Channels);
+                                    WriteOutput(Samples, Rendered, UpdateRate, ExtraChannelVolume, Channel, Channels);
                             }
                             float BRVol = 1f - BFVol, TRVol = 1f - TFVol; // Remaining length ratios
                             BottomVol *= InnerVolume3D; TopVol *= InnerVolume3D; BFVol *= BottomVol; BRVol *= BottomVol; TFVol *= TopVol; TRVol *= TopVol;
-                            UsedOutputFunc(Samples, Rendered, UpdateRate, BFVol * (1f - BFRVol), BFL, Channels);
-                            UsedOutputFunc(Samples, Rendered, UpdateRate, BFVol * BFRVol, BFR, Channels);
-                            UsedOutputFunc(Samples, Rendered, UpdateRate, BRVol * (1f - BRRVol), BRL, Channels);
-                            UsedOutputFunc(Samples, Rendered, UpdateRate, BRVol * BRRVol, BRR, Channels);
-                            UsedOutputFunc(Samples, Rendered, UpdateRate, TFVol * (1f - TFRVol), TFL, Channels);
-                            UsedOutputFunc(Samples, Rendered, UpdateRate, TFVol * TFRVol, TFR, Channels);
-                            UsedOutputFunc(Samples, Rendered, UpdateRate, TRVol * (1f - TRRVol), TRL, Channels);
-                            UsedOutputFunc(Samples, Rendered, UpdateRate, TRVol * TRRVol, TRR, Channels);
+                            WriteOutput(Samples, Rendered, UpdateRate, BFVol * (1f - BFRVol), BFL, Channels);
+                            WriteOutput(Samples, Rendered, UpdateRate, BFVol * BFRVol, BFR, Channels);
+                            WriteOutput(Samples, Rendered, UpdateRate, BRVol * (1f - BRRVol), BRL, Channels);
+                            WriteOutput(Samples, Rendered, UpdateRate, BRVol * BRRVol, BRR, Channels);
+                            WriteOutput(Samples, Rendered, UpdateRate, TFVol * (1f - TFRVol), TFL, Channels);
+                            WriteOutput(Samples, Rendered, UpdateRate, TFVol * TFRVol, TFR, Channels);
+                            WriteOutput(Samples, Rendered, UpdateRate, TRVol * (1f - TRRVol), TRL, Channels);
+                            WriteOutput(Samples, Rendered, UpdateRate, TRVol * TRRVol, TRR, Channels);
                         }
                         // LFE mix
                         if (OutputRawLFE) {
                             for (int Channel = 0; Channel < Channels; ++Channel)
                                 if (AudioListener3D.Channels[Channel].LFE)
-                                    UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D, Channel, Channels);
+                                    WriteOutput(Samples, Rendered, UpdateRate, Volume3D, Channel, Channels);
                         }
                     // ------------------------------------------------------------------
                     // Directional/distance-based engine for asymmetrical layouts
@@ -415,9 +414,9 @@ namespace Cavern {
                         for (int Channel = 0; Channel < Channels; ++Channel) {
                             if (AudioListener3D.Channels[Channel].LFE) {
                                 if (OutputRawLFE)
-                                    UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D * TotalAngleMatch, Channel, Channels);
+                                    WriteOutput(Samples, Rendered, UpdateRate, Volume3D * TotalAngleMatch, Channel, Channels);
                             } else if (!LFE && AngleMatches[Channel] != 0)
-                                UsedOutputFunc(Samples, Rendered, UpdateRate, Volume3D * AngleMatches[Channel], Channel, Channels);
+                                WriteOutput(Samples, Rendered, UpdateRate, Volume3D * AngleMatches[Channel], Channel, Channels);
                         }
                     }
                 }
