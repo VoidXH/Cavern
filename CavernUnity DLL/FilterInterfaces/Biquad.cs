@@ -12,7 +12,9 @@ namespace Cavern.FilterInterfaces {
             /// <summary>Low-pass filter.</summary>
             Lowpass,
             /// <summary>High-pass filter.</summary>
-            Highpass
+            Highpass,
+            /// <summary>Notch filter.</summary>
+            Notch
         };
         /// <summary>Applied type of biquad filter.</summary>
         [Tooltip("Applied type of biquad filter.")]
@@ -28,16 +30,21 @@ namespace Cavern.FilterInterfaces {
         AudioSource3D Source;
         /// <summary>The attached selected filter.</summary>
         BiquadFilter Filter;
+        /// <summary>Last set type of filter.</summary>
+        FilterTypes LastFilter;
 
         void RecreateFilter() {
             if (Filter != null)
                 Source.RemoveFilter(Filter);
-            switch (FilterType) {
+            switch (LastFilter = FilterType) {
                 case FilterTypes.Lowpass:
                     Filter = new Lowpass(CenterFreq, Q);
                     break;
                 case FilterTypes.Highpass:
                     Filter = new Highpass(CenterFreq, Q);
+                    break;
+                case FilterTypes.Notch:
+                    Filter = new Notch(CenterFreq, Q);
                     break;
             }
             Source.AddFilter(Filter);
@@ -54,16 +61,8 @@ namespace Cavern.FilterInterfaces {
         }
 
         void Update() {
-            switch (FilterType) {
-                case FilterTypes.Lowpass:
-                    if (!(Filter is Lowpass))
-                        RecreateFilter();
-                    break;
-                case FilterTypes.Highpass:
-                    if (!(Filter is Highpass))
-                        RecreateFilter();
-                    break;
-            }
+            if (LastFilter != FilterType)
+                RecreateFilter();
             if (Filter.CenterFreq != CenterFreq || Filter.Q != Q)
                 Filter.Reset(CenterFreq, Q);
         }

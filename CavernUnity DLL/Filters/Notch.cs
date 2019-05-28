@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
 namespace Cavern.Filters {
-    /// <summary>Simple first-order highpass filter.</summary>
-    public class Highpass : BiquadFilter {
-        /// <summary>Simple first-order highpass filter.</summary>
+    /// <summary>Simple first-order notch filter.</summary>
+    public class Notch : BiquadFilter {
+        /// <summary>Simple first-order notch filter.</summary>
         /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="Q">Q-factor of the filter</param>
-        public Highpass(float CenterFreq, float Q = .7071067811865475f) : base(CenterFreq, Q) { }
+        public Notch(float CenterFreq, float Q = .7071067811865475f) : base(CenterFreq, Q) { }
 
         /// <summary>Regenerate the transfer function.</summary>
         /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
@@ -16,9 +16,8 @@ namespace Cavern.Filters {
             _CenterFreq = CenterFreq;
             _Q = Q;
             float w0 = Mathf.PI * 2 * CenterFreq / SampleRate, Cos = Mathf.Cos(w0), Alpha = Mathf.Sin(w0) / (Q + Q), Divisor = 1 / (1 + Alpha); // 1 / a0
-            a1 = -2 * Cos * Divisor;
+            a1 = b1 = -2 * Cos * (b0 = b2 = Divisor);
             a2 = (1 - Alpha) * Divisor;
-            b0 = b2 = -(b1 = (-1 - Cos) * Divisor) * .5f;
         }
     }
 }

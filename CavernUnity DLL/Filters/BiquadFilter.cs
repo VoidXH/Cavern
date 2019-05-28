@@ -19,7 +19,7 @@
         /// <summary>Cached sample rate.</summary>
         protected int SampleRate;
         /// <summary>Transfer function variable.</summary>
-        protected float a1, a2, b1, b2;
+        protected float a1, a2, b0, b1, b2;
         /// <summary>History sample.</summary>
         protected float x1, x2, y1, y2;
 
@@ -42,7 +42,7 @@
                 Reset(_CenterFreq, _Q);
             for (int Sample = Channel, End = Samples.Length; Sample < End; Sample += Channels) {
                 float ThisSample = Samples[Sample];
-                Samples[Sample] = b2 * (ThisSample + x2) + b1 * x1 - a1 * y1 - a2 * y2;
+                Samples[Sample] = b2 * x2 + b1 * x1 + b0 * ThisSample - a1 * y1 - a2 * y2;
                 y2 = y1;
                 y1 = Samples[Sample];
                 x2 = x1;
