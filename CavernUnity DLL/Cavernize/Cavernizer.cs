@@ -55,10 +55,8 @@ namespace Cavern.Cavernize {
         /// <summary>Playback position in samples.</summary>
         public int timeSamples;
 
-        /// <summary>Sources representing imported or created channels.</summary>
-        readonly List<CavernizeOutput> MovingSources = new List<CavernizeOutput>();
-        /// <summary>Sources representing low frequencies kept on ground level.</summary>
-        readonly List<CavernizeOutput> GroundSources = new List<CavernizeOutput>();
+        /// <summary>This height value indicates if a channel is skipped in height processing.</summary>
+        internal const float UnsetHeight = -2;
 
         /// <summary>Imported audio data.</summary>
         float[] ClipSamples;
@@ -182,8 +180,8 @@ namespace Cavern.Cavernize {
                 Channel.Value.Tick(EffectMult, SmoothFactor, GroundCrossover, Visualize);
             if (CenterStays) {
                 SpatializedChannel Channel = GetChannel(CavernizeChannel.FrontCenter);
-                Channel.Height = -2;
-                Channel.MovingSource.transform.position = new Vector3(0, 0, 10);
+                Channel.Height = UnsetHeight;
+                Channel.MovingSource.transform.localPosition = new Vector3(0, 0, 10);
             }
             timeSamples += UpdateRate;
         }

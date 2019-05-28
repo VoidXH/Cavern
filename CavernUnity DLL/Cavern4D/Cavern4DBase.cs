@@ -62,7 +62,7 @@ namespace Cavern.Cavern4D {
                 SeatMovements[0][0].Height = CavernSource.Mains[0].Height;
             if (CavernSource.Mains[1] != null) // Front right
                 SeatMovements[0][LastColumn].Height = CavernSource.Mains[1].Height;
-            if (CavernSource.Mains[2] != null && CavernSource.Mains[2].Height != -2) // Center
+            if (CavernSource.Mains[2] != null && CavernSource.Mains[2].Height != Cavernizer.UnsetHeight) // Center
                 SeatMovements[0][LastColumn / 2].Height = CavernSource.Mains[2].Height;
             if (CavernSource.Mains[6] != null) // Side left
                 SeatMovements[LastRow][0].Height = CavernSource.Mains[6].Height;

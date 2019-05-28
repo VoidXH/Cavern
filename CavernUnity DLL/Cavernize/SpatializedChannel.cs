@@ -59,7 +59,8 @@ namespace Cavern.Cavernize {
             //NewObject.AddComponent<ScaleByGain>().Source = NewSource;
             if (Channel.Muted)
                 NewSource.Volume = 0;
-            NewObject.transform.position =
+            NewObject.transform.SetParent(Master.transform);
+            NewObject.transform.localPosition =
                 Vector3.Scale(CavernUtilities.PlaceInCube(new Vector3(0, Channel.Y)), AudioListener3D.EnvironmentSize);
         }
 
@@ -100,8 +101,9 @@ namespace Cavern.Cavernize {
                     MaxHeight = 1;
                 Height = CavernUtilities.FastLerp(Height, MaxHeight, SmoothFactor);
                 Transform TargetTransform = MovingSource.transform;
-                TargetTransform.position = CavernUtilities.FastLerp(TargetTransform.position,
-                    new Vector3(TargetTransform.position.x, MaxHeight * AudioListener3D.EnvironmentSize.y, TargetTransform.position.z), SmoothFactor);
+                Vector3 OldPos = TargetTransform.localPosition;
+                TargetTransform.localPosition = CavernUtilities.FastLerp(OldPos,
+                    new Vector3(OldPos.x, MaxHeight * AudioListener3D.EnvironmentSize.y, OldPos.z), SmoothFactor);
             }
         }
 
