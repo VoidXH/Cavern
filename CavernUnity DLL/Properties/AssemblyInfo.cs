@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Bence Sgánetz")]
 [assembly: AssemblyProduct("CavernUnity DLL")]
-[assembly: AssemblyCopyright("Copyright © Bence Sgánetz 2016-2017")]
+[assembly: AssemblyCopyright("Copyright © Bence Sgánetz 2016-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
