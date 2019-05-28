@@ -9,10 +9,12 @@ namespace Cavern.FilterInterfaces {
     public class Biquad : MonoBehaviour {
         /// <summary>Possible biquad filter types.</summary>
         public enum FilterTypes {
-            /// <summary>Low-pass filter.</summary>
+            /// <summary>Lowpass filter.</summary>
             Lowpass,
-            /// <summary>High-pass filter.</summary>
+            /// <summary>Highpass filter.</summary>
             Highpass,
+            /// <summary>Bandpass filter.</summary>
+            Bandpass,
             /// <summary>Notch filter.</summary>
             Notch
         };
@@ -42,6 +44,9 @@ namespace Cavern.FilterInterfaces {
                     break;
                 case FilterTypes.Highpass:
                     Filter = new Highpass(CenterFreq, Q);
+                    break;
+                case FilterTypes.Bandpass:
+                    Filter = new Bandpass(CenterFreq, Q);
                     break;
                 case FilterTypes.Notch:
                     Filter = new Notch(CenterFreq, Q);
