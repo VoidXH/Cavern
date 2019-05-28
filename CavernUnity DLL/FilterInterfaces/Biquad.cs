@@ -16,7 +16,9 @@ namespace Cavern.FilterInterfaces {
             /// <summary>Bandpass filter.</summary>
             Bandpass,
             /// <summary>Notch filter.</summary>
-            Notch
+            Notch,
+            /// <summary>Allpass filter.</summary>
+            Allpass
         };
         /// <summary>Applied type of biquad filter.</summary>
         [Tooltip("Applied type of biquad filter.")]
@@ -50,6 +52,9 @@ namespace Cavern.FilterInterfaces {
                     break;
                 case FilterTypes.Notch:
                     Filter = new Notch(CenterFreq, Q);
+                    break;
+                case FilterTypes.Allpass:
+                    Filter = new Allpass(CenterFreq, Q);
                     break;
             }
             Source.AddFilter(Filter);

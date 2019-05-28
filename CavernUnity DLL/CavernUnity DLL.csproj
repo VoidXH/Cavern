@@ -71,6 +71,7 @@
     <Compile Include="FilterInterfaces\Biquad.cs" />
     <Compile Include="FilterInterfaces\DistanceBasedLowpass.cs" />
     <Compile Include="FilterInterfaces\SimpleEcho.cs" />
+    <Compile Include="Filters\Allpass.cs" />
     <Compile Include="Filters\Bandpass.cs" />
     <Compile Include="Filters\BiquadFilter.cs" />
     <Compile Include="Filters\ComplexFilter.cs" />
