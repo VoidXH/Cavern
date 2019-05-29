@@ -10,7 +10,8 @@ namespace Cavern.Format {
         /// <param name="Length">Output length in samples</param>
         /// <param name="SampleRate">Output sample rate</param>
         /// <param name="Bits">Output bit depth</param>
-        public RIFFWaveWriter(BinaryWriter Writer, int ChannelCount, long Length, int SampleRate, BitDepth Bits) : base(Writer, ChannelCount, Length, SampleRate, Bits) {}
+        public RIFFWaveWriter(BinaryWriter Writer, int ChannelCount, long Length, int SampleRate, BitDepth Bits) :
+            base(Writer, ChannelCount, Length, SampleRate, Bits) {}
 
         /// <summary>Create the file header.</summary>
         public override void WriteHeader() {

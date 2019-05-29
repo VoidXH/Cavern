@@ -15,9 +15,9 @@ namespace Cavern.Virtualizer {
         /// <summary>Set up virtual channel set for the virtualization filters.</summary>
         public static void SetLayout() {
             int ChannelCount = SpatialChannels.Length, UpdateRate = AudioListener3D.Current.UpdateRate;
-            Channel[] NewChannels = new Channel[ChannelCount];
+            ChannelUnity[] NewChannels = new ChannelUnity[ChannelCount];
             for (int i = 0; i < ChannelCount; ++i)
-                NewChannels[i] = new Channel(SpatialChannels[i].X, SpatialChannels[i].Y);
+                NewChannels[i] = new ChannelUnity(SpatialChannels[i].X, SpatialChannels[i].Y);
             AudioListener3D.Channels = NewChannels;
             if (OriginalSplit == null) {
                 OriginalSplit = new float[ChannelCount][];

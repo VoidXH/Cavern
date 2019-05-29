@@ -1,5 +1,11 @@
 *.depend
 .vs/
+Cavern.Filters/bin/
+Cavern.Filters/obj/
+Cavern.Format/bin/
+Cavern.Format/obj/
+Cavern/bin/
+Cavern/obj/
 Cavernize Lite/bin/
 Cavernize Lite/lafconv.layout
 Cavernize Lite/obj/

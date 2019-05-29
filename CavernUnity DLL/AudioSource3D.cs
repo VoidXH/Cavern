@@ -141,10 +141,23 @@ namespace Cavern {
             return OriginalSamples;
         }
 
+        /// <summary>Quickly checks if a value is in an array.</summary>
+        /// <param name="Target">Array reference</param>
+        /// <param name="Count">Array length</param>
+        /// <param name="Value">Value to check</param>
+        /// <returns>If an array contains the value</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static bool ArrayContains(float[] Target, int Count, float Value) {
+            for (int Entry = 0; Entry < Count; ++Entry)
+                if (Target[Entry] == Value)
+                    return true;
+            return false;
+        }
+
         /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
         /// <returns>The collection should be performed, as all requirements are met</returns>
         internal virtual bool Precollect() {
-            if (CavernUtilities.ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
+            if (ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
                 ClipChannels = Clip.channels;
                 ClipSamples = Clip.samples;
                 AudioListener3D Listener = AudioListener3D.Current;
@@ -251,11 +264,11 @@ namespace Cavern {
                         RightSamples = Resample(RightSamples, RightSamples.Length, UpdateRate);
                         int LeftDivisor = 0, RightDivisor = 0;
                         for (int Channel = 0; Channel < Channels; ++Channel) {
-                            Channel CurrentChannel = AudioListener3D.Channels[Channel];
+                            ChannelUnity CurrentChannel = AudioListener3D.Channels[Channel];
                             if (!CurrentChannel.LFE) {
-                                if (CurrentChannel.y < 0)
+                                if (CurrentChannel.Y < 0)
                                     LeftDivisor += 1;
-                                else if (CurrentChannel.y > 0)
+                                else if (CurrentChannel.Y > 0)
                                     RightDivisor += 1;
                             }
                         }
@@ -274,9 +287,9 @@ namespace Cavern {
                                     if (OutputRawLFE)
                                         Rendered[ActualSample] += (LeftSample + RightSample) * HalfVolume2D;
                                 } else if (!LFE) {
-                                    if (AudioListener3D.Channels[Channel].y < 0)
+                                    if (AudioListener3D.Channels[Channel].Y < 0)
                                         Rendered[ActualSample] += LeftGained;
-                                    else if (AudioListener3D.Channels[Channel].y > 0)
+                                    else if (AudioListener3D.Channels[Channel].Y > 0)
                                         Rendered[ActualSample] += RightGained;
                                 }
                                 ++ActualSample;

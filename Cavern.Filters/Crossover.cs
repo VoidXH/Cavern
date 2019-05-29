@@ -19,12 +19,13 @@ namespace Cavern.Filters {
         readonly Highpass HPF1, HPF2;
 
         /// <summary>Simple second-order crossover.</summary>
+        /// <param name="SampleRate">Audio sample rate</param>
         /// <param name="Frequency">Crossover frequency</param>
-        public Crossover(float Frequency) {
-            LPF1 = new Lowpass(Frequency);
-            LPF2 = new Lowpass(Frequency);
-            HPF1 = new Highpass(Frequency);
-            HPF2 = new Highpass(Frequency);
+        public Crossover(int SampleRate, float Frequency) {
+            LPF1 = new Lowpass(SampleRate, Frequency);
+            LPF2 = new Lowpass(SampleRate, Frequency);
+            HPF1 = new Highpass(SampleRate, Frequency);
+            HPF2 = new Highpass(SampleRate, Frequency);
         }
 
         /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>

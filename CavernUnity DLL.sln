@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernUnity DLL", "CavernUnity DLL\CavernUnity DLL.csproj", "{CA1F8578-C99C-4BB2-9647-69CB0B308B80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.Filters", "Cavern.Filters\Cavern.Filters.csproj", "{DAF58EED-35DC-416F-8DCE-7816B808BFB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.Format", "Cavern.Format\Cavern.Format.csproj", "{E87A8995-3B65-497B-A808-4DDED25D2ADE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern", "Cavern\Cavern.csproj", "{25898051-C846-4ED1-9A4F-A2D327B5FB0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +21,23 @@ Global
 		{CA1F8578-C99C-4BB2-9647-69CB0B308B80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA1F8578-C99C-4BB2-9647-69CB0B308B80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA1F8578-C99C-4BB2-9647-69CB0B308B80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAF58EED-35DC-416F-8DCE-7816B808BFB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAF58EED-35DC-416F-8DCE-7816B808BFB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAF58EED-35DC-416F-8DCE-7816B808BFB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAF58EED-35DC-416F-8DCE-7816B808BFB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E87A8995-3B65-497B-A808-4DDED25D2ADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E87A8995-3B65-497B-A808-4DDED25D2ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E87A8995-3B65-497B-A808-4DDED25D2ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E87A8995-3B65-497B-A808-4DDED25D2ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25898051-C846-4ED1-9A4F-A2D327B5FB0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25898051-C846-4ED1-9A4F-A2D327B5FB0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25898051-C846-4ED1-9A4F-A2D327B5FB0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25898051-C846-4ED1-9A4F-A2D327B5FB0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A7F9771D-BEA0-4DE3-B267-46E1B87FE612}
 	EndGlobalSection
 EndGlobal

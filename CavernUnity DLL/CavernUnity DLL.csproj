@@ -68,18 +68,10 @@
     <Compile Include="Cavernize\CavernizeChannel.cs" />
     <Compile Include="Cavernize\CavernizeOutput.cs" />
     <Compile Include="Cavernize\SpatializedChannel.cs" />
+    <Compile Include="ChannelUnity.cs" />
     <Compile Include="FilterInterfaces\Biquad.cs" />
     <Compile Include="FilterInterfaces\DistanceBasedLowpass.cs" />
     <Compile Include="FilterInterfaces\SimpleEcho.cs" />
-    <Compile Include="Filters\Allpass.cs" />
-    <Compile Include="Filters\Bandpass.cs" />
-    <Compile Include="Filters\BiquadFilter.cs" />
-    <Compile Include="Filters\ComplexFilter.cs" />
-    <Compile Include="Filters\Crossover.cs" />
-    <Compile Include="Filters\Echo.cs" />
-    <Compile Include="Filters\Filter.cs" />
-    <Compile Include="Filters\Notch.cs" />
-    <Compile Include="Filters\Peaking.cs" />
     <Compile Include="QuickEQ\MeasurementImporter.cs" />
     <Compile Include="QuickEQ\Utils\FFTCache.cs" />
     <Compile Include="QuickEQ\Utils\SweepChannel.cs" />
@@ -93,35 +85,40 @@
     <Compile Include="QuickEQ\Utils\Windowing.cs" />
     <Compile Include="Cavernize\Cavernizer.cs" />
     <Compile Include="Cavernize\CavernizeRT.cs" />
-    <Compile Include="Channel.cs" />
     <Compile Include="Debug\ArrayLevels.cs" />
     <Compile Include="Debug\LogDisplay.cs" />
     <Compile Include="Debug\Monitor.cs" />
     <Compile Include="FilterInterfaces\Echo3D.cs" />
     <Compile Include="Enumerations.cs" />
-    <Compile Include="Format\AudioFormat.cs" />
-    <Compile Include="Format\AudioWriter.cs" />
-    <Compile Include="Format\LimitlessAudioFormatWriter.cs" />
-    <Compile Include="Format\RIFFWaveWriter.cs" />
     <Compile Include="Helpers\ExternalSource.cs" />
     <Compile Include="Spoofer\AudioListenerSpoofer.cs" />
     <Compile Include="Spoofer\AudioSourceSpoofer.cs" />
     <Compile Include="Spoofer\AutoSpoofer.cs" />
     <Compile Include="Utilities\CavernUtilities.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
-    <Compile Include="Filters\Highpass.cs" />
-    <Compile Include="Filters\Lowpass.cs" />
     <Compile Include="Helpers\OneShotDestructor.cs" />
     <Compile Include="Helpers\ScaleByGain.cs" />
     <Compile Include="Utilities\WindowBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Debug\Levels.cs" />
     <Compile Include="SeatAdaptation.cs" />
-    <Compile Include="Filters\Convolver.cs" />
     <Compile Include="Virtualizer\SpatialChannel.cs" />
     <Compile Include="Virtualizer\VirtualizerFilter.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Cavern.Filters\Cavern.Filters.csproj">
+      <Project>{DAF58EED-35DC-416F-8DCE-7816B808BFB6}</Project>
+      <Name>Cavern.Filters</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj">
+      <Project>{e87a8995-3b65-497b-a808-4dded25d2ade}</Project>
+      <Name>Cavern.Format</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cavern\Cavern.csproj">
+      <Project>{25898051-c846-4ed1-9a4f-a2d327b5fb0f}</Project>
+      <Name>Cavern</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

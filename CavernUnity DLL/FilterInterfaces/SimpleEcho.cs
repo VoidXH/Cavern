@@ -21,7 +21,7 @@ namespace Cavern.FilterInterfaces {
 
         void OnEnable() {
             Source = GetComponent<AudioSource3D>();
-            Filter = new Echo(Strength, Delay);
+            Filter = new Echo(AudioListener3D.Current.SampleRate, Strength, Delay);
             Source.AddFilter(Filter);
         }
 

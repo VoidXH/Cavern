@@ -44,19 +44,6 @@ namespace Cavern {
             return new Vector3(SinY, -SinX, CosY);
         }
 
-        /// <summary>Quickly checks if a value is in an array.</summary>
-        /// <param name="Target">Array reference</param>
-        /// <param name="Count">Array length</param>
-        /// <param name="Value">Value to check</param>
-        /// <returns>If an array contains the value</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool ArrayContains(float[] Target, int Count, float Value) {
-            for (int Entry = 0; Entry < Count; ++Entry)
-                if (Target[Entry] == Value)
-                    return true;
-            return false;
-        }
-
         /// <summary>Keeps a value in the given array, if it's smaller than any of its contents.</summary>
         /// <param name="in0">Array reference</param>
         /// <param name="in1">Array length</param>

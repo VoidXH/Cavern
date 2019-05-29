@@ -57,6 +57,18 @@ KLV OBAE::NextKLV() {
 }
 
 void OBAE::ReadHeader() {
+    // Debug only
+    while (true) {
+        KLV klv = NextKLV();
+        if (klv.key == ObjectFrame) {
+            cout << "Object Frame" << endl;
+            for (int32_t i = 0; i < 20; ++i)
+                cout << (unsigned int8_t)klv.value[i] << " ";
+            cout << endl << "============" << endl;
+        }
+        if (klv.key == Footer)
+            return;
+    }
 }
 
 void OBAE::WriteHeader() {

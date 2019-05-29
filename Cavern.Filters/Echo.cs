@@ -10,26 +10,30 @@
         }
         /// <summary>Delay between echoes in seconds.</summary>
         public float DelayTime {
-            get => Delay / (float)AudioListener3D.Current.SampleRate;
+            get => Delay / (float)SampleRate;
             set => Reset(Strength, value);
         }
 
-        /// <summary>Delay between echoes in samples.</summary>
-        int Delay;
         /// <summary>Samples to mix back to the next block.</summary>
         float[] Cache;
         /// <summary>Cache is a loop, this is the current position.</summary>
         int CachePos;
+        /// <summary>Delay between echoes in samples.</summary>
+        int Delay;
+        /// <summary>Cached audio sample rate.</summary>
+        int SampleRate;
 
         /// <summary>Create an echo filter.</summary>
+        /// <param name="SampleRate">Audio sample rate</param>
         /// <param name="Strength">Effect strength</param>
         /// <param name="Delay">Delay between echoes in samples</param>
-        public Echo(float Strength = .25f, int Delay = 4096) => Reset(Strength, Delay);
+        public Echo(int SampleRate, float Strength = .25f, int Delay = 4096) => Reset(Strength, Delay);
 
         /// <summary>Create an echo filter.</summary>
+        /// <param name="SampleRate">Audio sample rate</param>
         /// <param name="Strength">Effect strength</param>
         /// <param name="Delay">Delay between echoes in seconds</param>
-        public Echo(float Strength = .25f, float Delay = .1f) => Reset(Strength, (int)(Delay * AudioListener3D.Current.SampleRate));
+        public Echo(int SampleRate, float Strength = .25f, float Delay = .1f) => Reset(Strength, (int)(Delay * (this.SampleRate = SampleRate)));
 
         /// <summary>Reset filter settings.</summary>
         /// <param name="Strength">Effect strength</param>
@@ -44,7 +48,7 @@
         /// <summary>Reset filter settings.</summary>
         /// <param name="Strength">Effect strength</param>
         /// <param name="Delay">Delay between echoes in seconds</param>
-        public void Reset(float Strength, float Delay) => Reset(Strength, (int)(Delay * AudioListener3D.Current.SampleRate));
+        public void Reset(float Strength, float Delay) => Reset(Strength, (int)(Delay * SampleRate));
 
         /// <summary>Apply echo on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         /// <param name="Samples">Input samples</param>

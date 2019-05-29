@@ -28,11 +28,11 @@ namespace Cavern.Virtualizer {
 
             // Low frequency crossover filter for retaining bass outside the impulse response frequency range
             Crossover _LowCrossover;
-            public Crossover LowCrossover => _LowCrossover ?? (_LowCrossover = new Crossover(LowFrequencyCrossover));
+            public Crossover LowCrossover => _LowCrossover ?? (_LowCrossover = new Crossover(FilterSampleRate, LowFrequencyCrossover));
 
             // High frequency crossover filter for retaining treble outside the impulse response frequency range
             Crossover _HighCrossover;
-            public Crossover HighCrossover => _HighCrossover ?? (_HighCrossover = new Crossover(HighFrequencyCrossover));
+            public Crossover HighCrossover => _HighCrossover ?? (_HighCrossover = new Crossover(FilterSampleRate, HighFrequencyCrossover));
         }
 
         /// <summary>HRIR database.</summary>

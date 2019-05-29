@@ -102,32 +102,32 @@ namespace Cavern.Debug {
                     if (Max < AbsSample)
                         Max = AbsSample;
                 }
-                Channel ThisChannel = AudioListener3D.Channels[ActChannel];
+                ChannelUnity ThisChannel = AudioListener3D.Channels[ActChannel];
                 if (!ThisChannel.LFE) {
-                    if (ThisChannel.x >= 0) { // Standard 7.1 and below
-                        if (ThisChannel.y % 180 == 0) {
-                            if (ThisChannel.y == 0)
+                    if (ThisChannel.X >= 0) { // Standard 7.1 and below
+                        if (ThisChannel.Y % 180 == 0) {
+                            if (ThisChannel.Y == 0)
                                 ArrayLevels[Center] += Max;
                             else {
                                 Max *= .5f;
                                 ArrayLevels[RearL] += Max;
                                 ArrayLevels[RearR] += Max;
                             }
-                        } else if (ThisChannel.y < 0) {
-                            if (ThisChannel.y < -45)
-                                ArrayLevels[ThisChannel.y < -135 ? RearL : SurroundL] += Max;
+                        } else if (ThisChannel.Y < 0) {
+                            if (ThisChannel.Y < -45)
+                                ArrayLevels[ThisChannel.Y < -135 ? RearL : SurroundL] += Max;
                             else
                                 ArrayLevels[Left] += Max;
-                        } else if (ThisChannel.y > 0) {
-                            if (ThisChannel.y > 45)
-                                ArrayLevels[ThisChannel.y > 135 ? RearR : SurroundR] += Max;
+                        } else if (ThisChannel.Y > 0) {
+                            if (ThisChannel.Y > 45)
+                                ArrayLevels[ThisChannel.Y > 135 ? RearR : SurroundR] += Max;
                             else
                                 ArrayLevels[Right] += Max;
                         }
                     } else { // Height/overhead channels
-                        if (ThisChannel.y < 0)
+                        if (ThisChannel.Y < 0)
                             ArrayLevels[TopL] += Max;
-                        else if (ThisChannel.y > 0)
+                        else if (ThisChannel.Y > 0)
                             ArrayLevels[TopR] += Max;
                         else {
                             Max *= .5f;

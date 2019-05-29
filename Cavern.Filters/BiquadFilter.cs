@@ -32,10 +32,14 @@
         protected float x1, x2, y1, y2;
 
         /// <summary>Simple first-order biquad filter.</summary>
+        /// <param name="SampleRate">Audio sample rate</param>
         /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="Q">Q-factor of the filter</param>
         /// <param name="Gain">Gain of the filter in decibels</param>
-        public BiquadFilter(float CenterFreq, float Q = .7071067811865475f, float Gain = 0) => Reset(CenterFreq, Q, Gain);
+        public BiquadFilter(int SampleRate, float CenterFreq, float Q = .7071067811865475f, float Gain = 0) {
+            this.SampleRate = SampleRate;
+            Reset(CenterFreq, Q, Gain);
+        }
 
         /// <summary>Regenerate the transfer function.</summary>
         /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
@@ -52,8 +56,6 @@
         /// <param name="Channel">Channel to filter</param>
         /// <param name="Channels">Total channels</param>
         public override void Process(float[] Samples, int Channel, int Channels) {
-            if (SampleRate != (AudioListener3D.Current != null ? AudioListener3D.Current.SampleRate : 48000))
-                Reset(_CenterFreq, _Q, _Gain);
             for (int Sample = Channel, End = Samples.Length; Sample < End; Sample += Channels) {
                 float ThisSample = Samples[Sample];
                 Samples[Sample] = b2 * x2 + b1 * x1 + b0 * ThisSample - a1 * y1 - a2 * y2;

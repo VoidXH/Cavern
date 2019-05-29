@@ -66,7 +66,7 @@ namespace Cavern.Cavernize {
 
         public SpatializedChannel(CavernizeChannel Source, Cavernizer Master, int UpdateRate) {
             Channel = Source;
-            Filter = new Crossover(250);
+            Filter = new Crossover(AudioListener3D.Current.SampleRate, 250);
             Output = new float[UpdateRate];
             CreateSource(Master, true);
             CreateSource(Master, false);

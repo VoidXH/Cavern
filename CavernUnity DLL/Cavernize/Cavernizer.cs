@@ -156,7 +156,7 @@ namespace Cavern.Cavernize {
                         if (!Mains[4].WrittenOutput) { // Extend sides to rears...
                             bool RearsAvailable = false; // ...but only if there are rears
                             for (int Channel = 0; Channel < AudioListener3D.ChannelCount; ++Channel) {
-                                float CurrentY = AudioListener3D.Channels[Channel].y;
+                                float CurrentY = AudioListener3D.Channels[Channel].Y;
                                 if (CurrentY < -135 || CurrentY > 135) {
                                     RearsAvailable = true;
                                     break;

@@ -47,22 +47,22 @@ namespace Cavern.FilterInterfaces {
                 Source.RemoveFilter(Filter);
             switch (LastFilter = FilterType) {
                 case FilterTypes.Lowpass:
-                    Filter = new Lowpass(CenterFreq, Q, Gain);
+                    Filter = new Lowpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Highpass:
-                    Filter = new Highpass(CenterFreq, Q, Gain);
+                    Filter = new Highpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Bandpass:
-                    Filter = new Bandpass(CenterFreq, Q, Gain);
+                    Filter = new Bandpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Notch:
-                    Filter = new Notch(CenterFreq, Q, Gain);
+                    Filter = new Notch(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Allpass:
-                    Filter = new Allpass(CenterFreq, Q, Gain);
+                    Filter = new Allpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.PeakingEQ:
-                    Filter = new PeakingEQ(CenterFreq, Q, Gain);
+                    Filter = new PeakingEQ(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
             }
             Source.AddFilter(Filter);

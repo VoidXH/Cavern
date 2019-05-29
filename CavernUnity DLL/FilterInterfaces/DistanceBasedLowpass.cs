@@ -18,7 +18,8 @@ namespace Cavern.FilterInterfaces {
 
         void OnEnable() {
             Source = GetComponent<AudioSource3D>();
-            Filter = new Lowpass(120);
+            Filter = new Lowpass(AudioListener3D.Current.SampleRate, 120);
+            Update();
             Source.AddFilter(Filter);
         }
 

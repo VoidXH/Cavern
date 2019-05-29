@@ -65,9 +65,9 @@ namespace Cavern {
         // Global settings
         // ------------------------------------------------------------------
         /// <summary>Output channel data. Set by the user and applied when an <see cref="AudioListener3D"/> is created. The default setup is the standard 5.1 layout.</summary>
-        public static Channel[] Channels = { new Channel(0, -45), new Channel(0, 45),
-                                             new Channel(0, 0), new Channel(15, 15, true),
-                                             new Channel(0, -110), new Channel(0, 110) };
+        public static ChannelUnity[] Channels = { new ChannelUnity(0, -45), new ChannelUnity(0, 45),
+                                             new ChannelUnity(0, 0), new ChannelUnity(15, 15, true),
+                                             new ChannelUnity(0, -110), new ChannelUnity(0, 110) };
         /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/>.</summary>
         public bool HeadphoneVirtualizer = false;
 
@@ -152,9 +152,9 @@ namespace Cavern {
                 int Regular = 0, LFE = 0, Ceiling = 0, Floor = 0;
                 for (int i = 0, ChannelCount = Channels.Length; i < ChannelCount; ++i)
                     if (Channels[i].LFE) ++LFE;
-                    else if (Channels[i].x == 0) ++Regular;
-                    else if (Channels[i].x < 0) ++Ceiling;
-                    else if (Channels[i].x > 0) ++Floor;
+                    else if (Channels[i].X == 0) ++Regular;
+                    else if (Channels[i].X < 0) ++Ceiling;
+                    else if (Channels[i].X > 0) ++Floor;
                 StringBuilder LayOut = new StringBuilder(Regular.ToString()).Append('.').Append(LFE);
                 if (Ceiling > 0 || Floor > 0) LayOut.Append('.').Append(Ceiling);
                 if (Floor > 0) LayOut.Append('.').Append(Floor);
