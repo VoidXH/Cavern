@@ -29,6 +29,9 @@ namespace Cavern.FilterInterfaces {
         /// <summary>Q-factor of the filter.</summary>
         [Tooltip("Q-factor of the filter.")]
         [Range(1/3f, 100/3f)] public float Q = .7071067811865475f;
+        /// <summary>Gain of the filter in decibels.</summary>
+        [Tooltip("Gain of the filter in decibels.")]
+        [Range(-10, 10)] public float Gain = 0;
 
         /// <summary>The attached audio source.</summary>
         AudioSource3D Source;
@@ -42,19 +45,19 @@ namespace Cavern.FilterInterfaces {
                 Source.RemoveFilter(Filter);
             switch (LastFilter = FilterType) {
                 case FilterTypes.Lowpass:
-                    Filter = new Lowpass(CenterFreq, Q);
+                    Filter = new Lowpass(CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Highpass:
-                    Filter = new Highpass(CenterFreq, Q);
+                    Filter = new Highpass(CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Bandpass:
-                    Filter = new Bandpass(CenterFreq, Q);
+                    Filter = new Bandpass(CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Notch:
-                    Filter = new Notch(CenterFreq, Q);
+                    Filter = new Notch(CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Allpass:
-                    Filter = new Allpass(CenterFreq, Q);
+                    Filter = new Allpass(CenterFreq, Q, Gain);
                     break;
             }
             Source.AddFilter(Filter);
@@ -73,8 +76,8 @@ namespace Cavern.FilterInterfaces {
         void Update() {
             if (LastFilter != FilterType)
                 RecreateFilter();
-            if (Filter.CenterFreq != CenterFreq || Filter.Q != Q)
-                Filter.Reset(CenterFreq, Q);
+            if (Filter.CenterFreq != CenterFreq || Filter.Q != Q || Filter.Gain != Gain)
+                Filter.Reset(CenterFreq, Q, Gain);
         }
     }
 }
