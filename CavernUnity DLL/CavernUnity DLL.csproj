@@ -79,6 +79,7 @@
     <Compile Include="Filters\Echo.cs" />
     <Compile Include="Filters\Filter.cs" />
     <Compile Include="Filters\Notch.cs" />
+    <Compile Include="Filters\Peaking.cs" />
     <Compile Include="QuickEQ\MeasurementImporter.cs" />
     <Compile Include="QuickEQ\Utils\FFTCache.cs" />
     <Compile Include="QuickEQ\Utils\SweepChannel.cs" />
