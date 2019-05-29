@@ -51,7 +51,9 @@
     <Compile Include="Echo.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="Highpass.cs" />
+    <Compile Include="HighShelf.cs" />
     <Compile Include="Lowpass.cs" />
+    <Compile Include="LowShelf.cs" />
     <Compile Include="Notch.cs" />
     <Compile Include="Peaking.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

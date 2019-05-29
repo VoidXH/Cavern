@@ -20,7 +20,11 @@ namespace Cavern.FilterInterfaces {
             /// <summary>Allpass filter.</summary>
             Allpass,
             /// <summary>Peaking filter.</summary>
-            PeakingEQ
+            PeakingEQ,
+            /// <summary>Low shelf filter.</summary>
+            LowShelf,
+            /// <summary>High shelf filter.</summary>
+            HighShelf
         };
         /// <summary>Applied type of biquad filter.</summary>
         [Tooltip("Applied type of biquad filter.")]
@@ -63,6 +67,12 @@ namespace Cavern.FilterInterfaces {
                     break;
                 case FilterTypes.PeakingEQ:
                     Filter = new PeakingEQ(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    break;
+                case FilterTypes.LowShelf:
+                    Filter = new LowShelf(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    break;
+                case FilterTypes.HighShelf:
+                    Filter = new HighShelf(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
             }
             Source.AddFilter(Filter);
