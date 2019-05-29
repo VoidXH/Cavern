@@ -12,7 +12,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-i source.wav -cav 404 -br 16 target.wav" />
+				<Option parameters="-i samples/source.wav -cav 404 -br 16 samples/target.wav" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -22,7 +22,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-i atmos1.mxf target.wav" />
+				<Option parameters="-i samples/obae.mxf samples/target.wav" />
 				<Compiler>
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
