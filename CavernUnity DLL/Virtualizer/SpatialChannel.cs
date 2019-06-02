@@ -23,8 +23,8 @@ namespace Cavern.Virtualizer {
             // Convolution filters for spatial placement
             Convolver _LeftFilter;
             Convolver _RightFilter;
-            public Convolver LeftFilter => _LeftFilter ?? (_LeftFilter = new Convolver(LeftEarIR, Y > 0 ? Mathf.RoundToInt(Mathf.Sin(Y * Mathf.Deg2Rad) * PeakDelay) : 0));
-            public Convolver RightFilter => _RightFilter ?? (_RightFilter = new Convolver(RightEarIR, Y < 0 ? Mathf.RoundToInt(Mathf.Sin(-Y * Mathf.Deg2Rad) * PeakDelay) : 0));
+            public Convolver LeftFilter => _LeftFilter ?? (_LeftFilter = new Convolver(LeftEarIR, Y > 0 ? (int)(Mathf.Sin(Y * Mathf.Deg2Rad) * PeakDelay + .5f) : 0));
+            public Convolver RightFilter => _RightFilter ?? (_RightFilter = new Convolver(RightEarIR, Y < 0 ? (int)(Mathf.Sin(-Y * Mathf.Deg2Rad) * PeakDelay + .5f) : 0));
 
             // Low frequency crossover filter for retaining bass outside the impulse response frequency range
             Crossover _LowCrossover;
