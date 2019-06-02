@@ -48,6 +48,7 @@
     <Compile Include="ComplexFilter.cs" />
     <Compile Include="Convolver.cs" />
     <Compile Include="Crossover.cs" />
+    <Compile Include="Delay.cs" />
     <Compile Include="Echo.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="Highpass.cs" />

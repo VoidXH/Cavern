@@ -70,6 +70,7 @@
     <Compile Include="Cavernize\SpatializedChannel.cs" />
     <Compile Include="ChannelUnity.cs" />
     <Compile Include="FilterInterfaces\Biquad.cs" />
+    <Compile Include="FilterInterfaces\Delay.cs" />
     <Compile Include="FilterInterfaces\DistanceBasedLowpass.cs" />
     <Compile Include="FilterInterfaces\SimpleEcho.cs" />
     <Compile Include="QuickEQ\MeasurementImporter.cs" />
