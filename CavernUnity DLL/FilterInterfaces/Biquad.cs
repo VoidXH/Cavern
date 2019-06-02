@@ -3,7 +3,7 @@
 using Cavern.Filters;
 
 namespace Cavern.FilterInterfaces {
-    /// <summary>Apply a <see cref="BiquadFilter"/> on the source the component is applied on.</summary>
+    /// <summary>Apply a <see cref="BiquadFilter"/> on the source this component is applied on.</summary>
     [AddComponentMenu("Audio/Filters/Biquad Filter")]
     [RequireComponent(typeof(AudioSource3D))]
     public class Biquad : MonoBehaviour {

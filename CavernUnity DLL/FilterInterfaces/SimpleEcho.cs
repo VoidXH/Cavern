@@ -3,7 +3,7 @@
 using Cavern.Filters;
 
 namespace Cavern.FilterInterfaces {
-    /// <summary>Apply an <see cref="Echo"/> filter on the source the component is applied on.</summary>
+    /// <summary>Apply an <see cref="Echo"/> filter on the source this component is applied on.</summary>
     [AddComponentMenu("Audio/Filters/Simple Echo")]
     [RequireComponent(typeof(AudioSource3D))]
     public class SimpleEcho : MonoBehaviour {
