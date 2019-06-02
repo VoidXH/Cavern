@@ -3,64 +3,64 @@
     public abstract class BiquadFilter : Filter {
         /// <summary>Center frequency (-3 dB point) of the filter.</summary>
         public float CenterFreq {
-            get => _CenterFreq;
-            set => Reset(value, _Q, _Gain);
+            get => centerFreq;
+            set => Reset(value, q, gain);
         }
         /// <summary>Q-factor of the filter.</summary>
         public float Q {
-            get => _Q;
-            set => Reset(_CenterFreq, value, _Gain);
+            get => q;
+            set => Reset(centerFreq, value, gain);
         }
 
         /// <summary>Gain of the filter in decibels.</summary>
         public float Gain {
-            get => _Gain;
-            set => Reset(_CenterFreq, _Q, value);
+            get => gain;
+            set => Reset(centerFreq, q, value);
         }
 
         /// <summary>Center frequency (-3 dB point) of the filter.</summary>
-        protected float _CenterFreq;
+        protected float centerFreq;
         /// <summary>Q-factor of the filter.</summary>
-        protected float _Q;
+        protected float q;
         /// <summary>Gain of the filter in decibels.</summary>
-        protected float _Gain;
+        protected float gain;
         /// <summary>Cached sample rate.</summary>
-        protected int SampleRate;
+        protected int sampleRate;
         /// <summary>Transfer function variable.</summary>
         protected float a1, a2, b0 = 1, b1, b2;
         /// <summary>History sample.</summary>
         protected float x1, x2, y1, y2;
 
         /// <summary>Simple first-order biquad filter.</summary>
-        /// <param name="SampleRate">Audio sample rate</param>
-        /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
-        /// <param name="Q">Q-factor of the filter</param>
-        /// <param name="Gain">Gain of the filter in decibels</param>
-        public BiquadFilter(int SampleRate, float CenterFreq, float Q = .7071067811865475f, float Gain = 0) {
-            this.SampleRate = SampleRate;
-            Reset(CenterFreq, Q, Gain);
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        /// <param name="gain">Gain of the filter in decibels</param>
+        public BiquadFilter(int sampleRate, float centerFreq, float q = .7071067811865475f, float gain = 0) {
+            this.sampleRate = sampleRate;
+            Reset(centerFreq, q, gain);
         }
 
         /// <summary>Regenerate the transfer function.</summary>
-        /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
-        /// <param name="Q">Q-factor of the filter</param>
-        /// <param name="Gain">Gain of the filter in decibels</param>
-        public virtual void Reset(float CenterFreq, float Q = .7071067811865475f, float Gain = 0) {
-            _CenterFreq = CenterFreq;
-            _Q = Q;
-            _Gain = Gain;
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        /// <param name="gain">Gain of the filter in decibels</param>
+        public virtual void Reset(float centerFreq, float q = .7071067811865475f, float gain = 0) {
+            this.centerFreq = centerFreq;
+            this.q = q;
+            this.gain = gain;
         }
 
         /// <summary>Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
-        /// <param name="Samples">Input samples</param>
-        /// <param name="Channel">Channel to filter</param>
-        /// <param name="Channels">Total channels</param>
-        public override void Process(float[] Samples, int Channel, int Channels) {
-            for (int Sample = Channel, End = Samples.Length; Sample < End; Sample += Channels) {
-                float ThisSample = Samples[Sample];
-                Samples[Sample] = b2 * x2 + b1 * x1 + b0 * ThisSample - a1 * y1 - a2 * y2;
+        /// <param name="samples">Input samples</param>
+        /// <param name="channel">Channel to filter</param>
+        /// <param name="channels">Total channels</param>
+        public override void Process(float[] samples, int channel, int channels) {
+            for (int Sample = channel, End = samples.Length; Sample < End; Sample += channels) {
+                float ThisSample = samples[Sample];
+                samples[Sample] = b2 * x2 + b1 * x1 + b0 * ThisSample - a1 * y1 - a2 * y2;
                 y2 = y1;
-                y1 = Samples[Sample];
+                y1 = samples[Sample];
                 x2 = x1;
                 x1 = ThisSample;
             }

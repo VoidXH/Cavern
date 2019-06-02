@@ -19,53 +19,53 @@ namespace Cavern.Filters {
         readonly Highpass HPF1, HPF2;
 
         /// <summary>Simple second-order crossover.</summary>
-        /// <param name="SampleRate">Audio sample rate</param>
-        /// <param name="Frequency">Crossover frequency</param>
-        public Crossover(int SampleRate, float Frequency) {
-            LPF1 = new Lowpass(SampleRate, Frequency);
-            LPF2 = new Lowpass(SampleRate, Frequency);
-            HPF1 = new Highpass(SampleRate, Frequency);
-            HPF2 = new Highpass(SampleRate, Frequency);
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="frequency">Crossover frequency</param>
+        public Crossover(int sampleRate, float frequency) {
+            LPF1 = new Lowpass(sampleRate, frequency);
+            LPF2 = new Lowpass(sampleRate, frequency);
+            HPF1 = new Highpass(sampleRate, frequency);
+            HPF2 = new Highpass(sampleRate, frequency);
         }
 
         /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
-        /// <param name="Samples">Input samples</param>
-        /// <param name="Channel">Channel to filter</param>
-        /// <param name="Channels">Total channels</param>
-        public override void Process(float[] Samples, int Channel, int Channels) {
-            int SampleCount = Samples.Length;
+        /// <param name="samples">Input samples</param>
+        /// <param name="channel">Channel to filter</param>
+        /// <param name="channels">Total channels</param>
+        public override void Process(float[] samples, int channel, int channels) {
+            int SampleCount = samples.Length;
             if (SampleCount != LowOutput.Length) {
                 LowOutput = new float[SampleCount];
                 HighOutput = new float[SampleCount];
             }
-            Array.Copy(Samples, LowOutput, SampleCount);
-            Array.Copy(Samples, HighOutput, SampleCount);
-            LPF1.Process(LowOutput, Channel, Channels);
-            LPF2.Process(LowOutput, Channel, Channels);
-            HPF1.Process(HighOutput, Channel, Channels);
-            HPF2.Process(HighOutput, Channel, Channels);
+            Array.Copy(samples, LowOutput, SampleCount);
+            Array.Copy(samples, HighOutput, SampleCount);
+            LPF1.Process(LowOutput, channel, channels);
+            LPF2.Process(LowOutput, channel, channels);
+            HPF1.Process(HighOutput, channel, channels);
+            HPF2.Process(HighOutput, channel, channels);
         }
 
         /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
-        /// <param name="Samples">Input samples</param>
-        /// <param name="Lows">Low frequency data</param>
-        /// <param name="Highs">High frequency data</param>
-        public void Process(float[] Samples, out float[] Lows, out float[] Highs) {
-            Process(Samples);
-            Lows = LowOutput;
-            Highs = HighOutput;
+        /// <param name="samples">Input samples</param>
+        /// <param name="lows">Low frequency data</param>
+        /// <param name="highs">High frequency data</param>
+        public void Process(float[] samples, out float[] lows, out float[] highs) {
+            Process(samples);
+            lows = LowOutput;
+            highs = HighOutput;
         }
 
         /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
-        /// <param name="Samples">Input samples</param>
-        /// <param name="Channel">Channel to filter</param>
-        /// <param name="Channels">Total channels</param>
-        /// <param name="Lows">Low frequency data</param>
-        /// <param name="Highs">High frequency data</param>
-        public void Process(float[] Samples, int Channel, int Channels, out float[] Lows, out float[] Highs) {
-            Process(Samples, Channel, Channels);
-            Lows = LowOutput;
-            Highs = HighOutput;
+        /// <param name="samples">Input samples</param>
+        /// <param name="channel">Channel to filter</param>
+        /// <param name="channels">Total channels</param>
+        /// <param name="lows">Low frequency data</param>
+        /// <param name="highs">High frequency data</param>
+        public void Process(float[] samples, int channel, int channels, out float[] lows, out float[] highs) {
+            Process(samples, channel, channels);
+            lows = LowOutput;
+            highs = HighOutput;
         }
     }
 }

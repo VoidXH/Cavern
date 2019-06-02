@@ -5,63 +5,63 @@
         public float Strength;
         /// <summary>Delay between echoes in samples.</summary>
         public int DelaySamples {
-            get => Delay;
+            get => delay;
             set => Reset(Strength, value);
         }
         /// <summary>Delay between echoes in seconds.</summary>
         public float DelayTime {
-            get => Delay / (float)SampleRate;
+            get => delay / (float)sampleRate;
             set => Reset(Strength, value);
         }
 
         /// <summary>Samples to mix back to the next block.</summary>
-        float[] Cache;
+        float[] cache;
         /// <summary>Cache is a loop, this is the current position.</summary>
-        int CachePos;
+        int cachePos;
         /// <summary>Delay between echoes in samples.</summary>
-        int Delay;
+        int delay;
         /// <summary>Cached audio sample rate.</summary>
-        int SampleRate;
+        readonly int sampleRate;
 
         /// <summary>Create an echo filter.</summary>
-        /// <param name="SampleRate">Audio sample rate</param>
-        /// <param name="Strength">Effect strength</param>
-        /// <param name="Delay">Delay between echoes in samples</param>
-        public Echo(int SampleRate, float Strength = .25f, int Delay = 4096) => Reset(Strength, Delay);
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="strength">Effect strength</param>
+        /// <param name="delay">Delay between echoes in samples</param>
+        public Echo(int sampleRate, float strength = .25f, int delay = 4096) => Reset(strength, delay);
 
         /// <summary>Create an echo filter.</summary>
-        /// <param name="SampleRate">Audio sample rate</param>
-        /// <param name="Strength">Effect strength</param>
-        /// <param name="Delay">Delay between echoes in seconds</param>
-        public Echo(int SampleRate, float Strength = .25f, float Delay = .1f) => Reset(Strength, (int)(Delay * (this.SampleRate = SampleRate)));
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="strength">Effect strength</param>
+        /// <param name="delay">Delay between echoes in seconds</param>
+        public Echo(int sampleRate, float strength = .25f, float delay = .1f) => Reset(strength, (int)(delay * (this.sampleRate = sampleRate)));
 
         /// <summary>Reset filter settings.</summary>
-        /// <param name="Strength">Effect strength</param>
-        /// <param name="Delay">Delay between echoes in samples</param>
-        public void Reset(float Strength, int Delay) {
-            this.Strength = Strength;
-            this.Delay = Delay;
-            Cache = new float[Delay];
-            CachePos = 0;
+        /// <param name="strength">Effect strength</param>
+        /// <param name="delay">Delay between echoes in samples</param>
+        public void Reset(float strength, int delay) {
+            Strength = strength;
+            this.delay = delay;
+            cache = new float[delay];
+            cachePos = 0;
         }
 
         /// <summary>Reset filter settings.</summary>
-        /// <param name="Strength">Effect strength</param>
-        /// <param name="Delay">Delay between echoes in seconds</param>
-        public void Reset(float Strength, float Delay) => Reset(Strength, (int)(Delay * SampleRate));
+        /// <param name="strength">Effect strength</param>
+        /// <param name="delay">Delay between echoes in seconds</param>
+        public void Reset(float strength, float delay) => Reset(strength, (int)(delay * sampleRate));
 
         /// <summary>Apply echo on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
-        /// <param name="Samples">Input samples</param>
-        /// <param name="Channel">Channel to filter</param>
-        /// <param name="Channels">Total channels</param>
-        public override void Process(float[] Samples, int Channel, int Channels) {
-            if (Delay <= 0)
+        /// <param name="samples">Input samples</param>
+        /// <param name="channel">Channel to filter</param>
+        /// <param name="channels">Total channels</param>
+        public override void Process(float[] samples, int channel, int channels) {
+            if (delay <= 0)
                 return;
-            float Gain = 1 / (1 + Strength);
-            for (int Sample = Channel, Length = Samples.Length; Sample < Length; Sample += Channels) {
-                Samples[Sample] = (Samples[Sample] + Cache[CachePos]) * Gain;
-                Cache[CachePos] = Samples[Sample] * Strength;
-                CachePos = (CachePos + 1) % Delay;
+            float gain = 1 / (1 + Strength);
+            for (int sample = channel, length = samples.Length; sample < length; sample += channels) {
+                samples[sample] = (samples[sample] + cache[cachePos]) * gain;
+                cache[cachePos] = samples[sample] * Strength;
+                cachePos = (cachePos + 1) % delay;
             }
         }
     }

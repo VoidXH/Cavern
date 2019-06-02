@@ -4,26 +4,26 @@ namespace Cavern.Filters {
     /// <summary>Simple first-order low shelf filter.</summary>
     public class LowShelf : BiquadFilter {
         /// <summary>Simple first-order low shelf filter.</summary>
-        /// <param name="SampleRate">Audio sample rate</param>
-        /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
-        /// <param name="Q">Q-factor of the filter</param>
-        /// <param name="Gain">Gain of the filter in decibels</param>
-        public LowShelf(int SampleRate, float CenterFreq, float Q = .7071067811865475f, float Gain = 0) : base(SampleRate, CenterFreq, Q, Gain) { }
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        /// <param name="gain">Gain of the filter in decibels</param>
+        public LowShelf(int sampleRate, float centerFreq, float q = .7071067811865475f, float gain = 0) : base(sampleRate, centerFreq, q, gain) { }
 
         /// <summary>Regenerate the transfer function.</summary>
-        /// <param name="CenterFreq">Center frequency (-3 dB point) of the filter</param>
-        /// <param name="Q">Q-factor of the filter</param>
-        /// <param name="Gain">Gain of the filter in decibels</param>
-        public override void Reset(float CenterFreq, float Q = .7071067811865475f, float Gain = 0) {
-            base.Reset(CenterFreq, Q, Gain);
-            float w0 = (float)(Math.PI * 2 * CenterFreq / SampleRate), Cos = (float)Math.Cos(w0), Alpha = (float)Math.Sin(w0) / (Q + Q),
-                A = (float)Math.Pow(10, Gain * .05f), Slope = 2 * (float)Math.Sqrt(A) * Alpha, MinCos = (A - 1) * Cos, AddCos = (A + 1) * Cos,
-                Divisor = 1 / (A + 1 + MinCos + Slope); // 1 / a0
-            a1 = -2 * (A - 1 + AddCos) * Divisor;
-            a2 = (A + 1 + MinCos - Slope) * Divisor;
-            b0 = A * (A + 1 - MinCos + Slope) * Divisor;
-            b1 = 2 * A * (A - 1 - AddCos) * Divisor;
-            b2 = A * (A + 1 - MinCos - Slope) * Divisor;
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        /// <param name="gain">Gain of the filter in decibels</param>
+        public override void Reset(float centerFreq, float q = .7071067811865475f, float gain = 0) {
+            base.Reset(centerFreq, q, gain);
+            float w0 = (float)(Math.PI * 2 * centerFreq / sampleRate), cos = (float)Math.Cos(w0), alpha = (float)Math.Sin(w0) / (q + q),
+                a = (float)Math.Pow(10, gain * .05f), slope = 2 * (float)Math.Sqrt(a) * alpha, minCos = (a - 1) * cos, addCos = (a + 1) * cos,
+                divisor = 1 / (a + 1 + minCos + slope); // 1 / a0
+            a1 = -2 * (a - 1 + addCos) * divisor;
+            a2 = (a + 1 + minCos - slope) * divisor;
+            b0 = a * (a + 1 - minCos + slope) * divisor;
+            b1 = 2 * a * (a - 1 - addCos) * divisor;
+            b2 = a * (a + 1 - minCos - slope) * divisor;
         }
     }
 }
