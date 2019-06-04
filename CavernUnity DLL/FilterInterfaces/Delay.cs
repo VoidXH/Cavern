@@ -24,8 +24,7 @@ namespace Cavern.FilterInterfaces {
 
         void Update() {
             int TargetDelay = (int)(DelayTime * AudioListener3D.Current.SampleRate);
-            if (Filter.DelaySamples != TargetDelay)
-                Filter.DelaySamples = TargetDelay;
+            Filter.DelaySamples = TargetDelay;
         }
     }
 }

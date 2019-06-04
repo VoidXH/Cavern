@@ -4,7 +4,10 @@
         /// <summary>Delay in samples.</summary>
         public int DelaySamples {
             get => cache[0].Length;
-            set => RecreateCaches(value);
+            set {
+                if (cache[0].Length != value)
+                    RecreateCaches(value);
+            }
         }
 
         /// <summary>Cached samples for the next block. Alternates between two arrays to prevent memory allocation.</summary>
