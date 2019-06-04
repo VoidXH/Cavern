@@ -45,6 +45,7 @@
     <Compile Include="Allpass.cs" />
     <Compile Include="Bandpass.cs" />
     <Compile Include="BiquadFilter.cs" />
+    <Compile Include="Comb.cs" />
     <Compile Include="ComplexFilter.cs" />
     <Compile Include="Convolver.cs" />
     <Compile Include="Crossover.cs" />
