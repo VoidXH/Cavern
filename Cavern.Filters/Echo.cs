@@ -27,7 +27,10 @@
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="strength">Effect strength</param>
         /// <param name="delay">Delay between echoes in samples</param>
-        public Echo(int sampleRate, float strength = .25f, int delay = 4096) => Reset(strength, delay);
+        public Echo(int sampleRate, float strength = .25f, int delay = 4096) {
+            this.sampleRate = sampleRate;
+            Reset(strength, delay);
+        }
 
         /// <summary>Create an echo filter.</summary>
         /// <param name="sampleRate">Audio sample rate</param>
