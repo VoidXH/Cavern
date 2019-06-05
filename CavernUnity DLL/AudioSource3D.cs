@@ -264,7 +264,7 @@ namespace Cavern {
                         RightSamples = Resample(RightSamples, RightSamples.Length, UpdateRate);
                         int LeftDivisor = 0, RightDivisor = 0;
                         for (int Channel = 0; Channel < Channels; ++Channel) {
-                            ChannelUnity CurrentChannel = AudioListener3D.Channels[Channel];
+                            Channel3D CurrentChannel = AudioListener3D.Channels[Channel];
                             if (!CurrentChannel.LFE) {
                                 if (CurrentChannel.Y < 0)
                                     LeftDivisor += 1;

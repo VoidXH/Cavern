@@ -51,7 +51,7 @@ namespace Cavern {
         static long AdditionMiss = 0;
 
         /// <summary>Cached <see cref="Channels"/> for change detection.</summary>
-        static ChannelUnity[] ChannelCache;
+        static Channel3D[] ChannelCache;
         /// <summary>Lowpass filters for each channel.</summary>
         static Lowpass[] Lowpasses;
 
@@ -68,7 +68,7 @@ namespace Cavern {
             Lowpasses = new Lowpass[ChannelCount];
             FilterOutput = new float[ChannelCount * SampleRate];
             // Optimization arrays
-            ChannelCache = new ChannelUnity[ChannelCount];
+            ChannelCache = new Channel3D[ChannelCount];
             for (int i = 0; i < ChannelCount; ++i) {
                 ChannelCache[i] = Channels[i].Copy;
                 Lowpasses[i] = new Lowpass(SampleRate, 120);
@@ -148,12 +148,12 @@ namespace Cavern {
                 string[] Save = File.ReadAllLines(FileName);
                 int SavePos = 1;
                 int ChannelLength = Convert.ToInt32(Save[0]);
-                Channels = new ChannelUnity[ChannelLength];
+                Channels = new Channel3D[ChannelLength];
                 NumberFormatInfo Format = new NumberFormatInfo {
                     NumberDecimalSeparator = ","
                 };
                 for (int i = 0; i < ChannelLength; ++i)
-                    Channels[i] = new ChannelUnity(Convert.ToSingle(Save[SavePos++], Format), Convert.ToSingle(Save[SavePos++], Format),
+                    Channels[i] = new Channel3D(Convert.ToSingle(Save[SavePos++], Format), Convert.ToSingle(Save[SavePos++], Format),
                         Convert.ToBoolean(Save[SavePos++]));
                 _EnvironmentType = (Environments)Convert.ToInt32(Save[SavePos++], Format);
                 EnvironmentSize = new Vector3(Convert.ToSingle(Save[SavePos++], Format), Convert.ToSingle(Save[SavePos++], Format),

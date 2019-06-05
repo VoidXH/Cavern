@@ -102,7 +102,7 @@ namespace Cavern.Debug {
                     if (Max < AbsSample)
                         Max = AbsSample;
                 }
-                ChannelUnity ThisChannel = AudioListener3D.Channels[ActChannel];
+                Channel3D ThisChannel = AudioListener3D.Channels[ActChannel];
                 if (!ThisChannel.LFE) {
                     if (ThisChannel.X >= 0) { // Standard 7.1 and below
                         if (ThisChannel.Y % 180 == 0) {

@@ -65,9 +65,9 @@ namespace Cavern {
         // Global settings
         // ------------------------------------------------------------------
         /// <summary>Output channel data. Set by the user and applied when an <see cref="AudioListener3D"/> is created. The default setup is the standard 5.1 layout.</summary>
-        public static ChannelUnity[] Channels = { new ChannelUnity(0, -45), new ChannelUnity(0, 45),
-                                             new ChannelUnity(0, 0), new ChannelUnity(15, 15, true),
-                                             new ChannelUnity(0, -110), new ChannelUnity(0, 110) };
+        public static Channel3D[] Channels = { new Channel3D(0, -45), new Channel3D(0, 45),
+                                             new Channel3D(0, 0), new Channel3D(15, 15, true),
+                                             new Channel3D(0, -110), new Channel3D(0, 110) };
         /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/>.</summary>
         public bool HeadphoneVirtualizer = false;
 

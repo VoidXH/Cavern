@@ -39,7 +39,7 @@ namespace Cavern {
             float[] AngleMatches = new float[Channels];
             float DirMagnitudeRecip = 1f / (Direction.magnitude + .0001f);
             for (int Channel = 0; Channel < Channels; ++Channel) {
-                ChannelUnity CurrentChannel = AudioListener3D.Channels[Channel];
+                Channel3D CurrentChannel = AudioListener3D.Channels[Channel];
                 if (!CurrentChannel.LFE) {
                     float Multiplication = Direction.x * CurrentChannel.Direction.x + Direction.y * CurrentChannel.Direction.y + Direction.z * CurrentChannel.Direction.z;
                     AngleMatches[Channel] = MatchModifier((float)(3.1415926535897932384626433832795 - Math.Acos(Multiplication * DirMagnitudeRecip)));
@@ -55,7 +55,7 @@ namespace Cavern {
             float[] AngleMatches = new float[Channels];
             float DirMagnitudeRecip = 1f / (Direction.magnitude + .0001f);
             for (int Channel = 0; Channel < Channels; ++Channel) {
-                ChannelUnity CurrentChannel = AudioListener3D.Channels[Channel];
+                Channel3D CurrentChannel = AudioListener3D.Channels[Channel];
                 if (!CurrentChannel.LFE) {
                     float Multiplication = Direction.x * CurrentChannel.Direction.x + Direction.y * CurrentChannel.Direction.y + Direction.z * CurrentChannel.Direction.z;
                     AngleMatches[Channel] = MatchModifier(1.570796326f + 1.570796326f * (Multiplication * DirMagnitudeRecip));

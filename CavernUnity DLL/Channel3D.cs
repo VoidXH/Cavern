@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Cavern {
     /// <summary>Spatially positioned audio output channel.</summary>
-    public class ChannelUnity : Channel {
+    public class Channel3D : Channel {
         /// <summary>Position on a sphere with the radius of 1.</summary>
         public Vector3 SphericalPos { get; private set; }
         /// <summary>Position on a cube with a side length of 2.</summary>
@@ -18,18 +18,18 @@ namespace Cavern {
         public float Distance { get; private set; }
 
         /// <summary>An identical channel.</summary>
-        public ChannelUnity Copy { get => new ChannelUnity(X, Y, LFE); }
+        public Channel3D Copy { get => new Channel3D(X, Y, LFE); }
 
         /// <summary>Constructor for a channel with given rotation values.</summary>
         /// <param name="X">Rotation around the X axis: height</param>
         /// <param name="Y">Rotation around the Y axis</param>
-        public ChannelUnity(float X, float Y) : base(X, Y) { }
+        public Channel3D(float X, float Y) : base(X, Y) { }
 
         /// <summary>Constructor for a channel with given rotation values and LFE status.</summary>
         /// <param name="X">Rotation around the X axis: height</param>
         /// <param name="Y">Rotation around the Y axis</param>
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
-        public ChannelUnity(float X, float Y, bool LFE) : base(X, Y, LFE) { }
+        public Channel3D(float X, float Y, bool LFE) : base(X, Y, LFE) { }
 
         /// <summary>Move this channel to a new position.</summary>
         /// <param name="X">Rotation around the X axis in degrees: height</param>

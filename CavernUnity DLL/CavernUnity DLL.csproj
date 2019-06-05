@@ -68,7 +68,7 @@
     <Compile Include="Cavernize\CavernizeChannel.cs" />
     <Compile Include="Cavernize\CavernizeOutput.cs" />
     <Compile Include="Cavernize\SpatializedChannel.cs" />
-    <Compile Include="ChannelUnity.cs" />
+    <Compile Include="Channel3D.cs" />
     <Compile Include="FilterInterfaces\Biquad.cs" />
     <Compile Include="FilterInterfaces\Comb.cs" />
     <Compile Include="FilterInterfaces\Delay.cs" />
