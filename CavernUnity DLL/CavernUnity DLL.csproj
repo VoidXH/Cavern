@@ -69,6 +69,7 @@
     <Compile Include="Cavernize\CavernizeOutput.cs" />
     <Compile Include="Cavernize\SpatializedChannel.cs" />
     <Compile Include="Channel3D.cs" />
+    <Compile Include="AudioClip3D.cs" />
     <Compile Include="FilterInterfaces\Biquad.cs" />
     <Compile Include="FilterInterfaces\Comb.cs" />
     <Compile Include="FilterInterfaces\Delay.cs" />
@@ -91,7 +92,6 @@
     <Compile Include="Debug\LogDisplay.cs" />
     <Compile Include="Debug\Monitor.cs" />
     <Compile Include="FilterInterfaces\Echo3D.cs" />
-    <Compile Include="Enumerations.cs" />
     <Compile Include="Helpers\ExternalSource.cs" />
     <Compile Include="Spoofer\AudioListenerSpoofer.cs" />
     <Compile Include="Spoofer\AudioSourceSpoofer.cs" />

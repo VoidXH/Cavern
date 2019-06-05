@@ -10,10 +10,12 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Audio source settings
         // ------------------------------------------------------------------
-        /// <summary>The audio clip to play.</summary>
+        /// <summary>The audio clip to play. If given, it will be converted to Cavern's <see cref="CavernClip"/> format.</summary>
         [Header("Audio clip settings")]
         [Tooltip("The audio clip to play.")]
         public AudioClip Clip;
+        /// <summary>The audio clip to play.</summary>
+        public Clip CavernClip;
         /// <summary>Continue playback of the source.</summary>
         [Tooltip("Continue playback of the source.")]
         public bool IsPlaying = true;
@@ -64,10 +66,11 @@ namespace Cavern {
         /// <summary>Clip playback position in samples.</summary>
         [NonSerialized] public int timeSamples = 0;
 
+#pragma warning disable IDE1006 // Naming Styles
         // ------------------------------------------------------------------
         // Unity variable name aliases
         // ------------------------------------------------------------------
-        /// <summary>Alias for <see cref="Clip"/>.</summary>
+        /// <summary>Alias for <see cref="CavernClip"/>.</summary>
         public AudioClip clip {
             get => Clip;
             set => Clip = value;
@@ -124,16 +127,17 @@ namespace Cavern {
         /// <summary>Clip playback position in seconds.</summary>
         public float time {
             get {
-                if (Clip)
-                    return timeSamples / (float)Clip.frequency;
+                if (CavernClip)
+                    return timeSamples / (float)CavernClip.SampleRate;
                 else
                     return 0;
             }
             set {
-                if (Clip)
-                    timeSamples = (int)(value * Clip.frequency);
+                if (CavernClip)
+                    timeSamples = (int)(value * CavernClip.SampleRate);
             }
         }
+#pragma warning restore IDE1006 // Naming Styles
 
         // ------------------------------------------------------------------
         // Public functions
@@ -150,8 +154,8 @@ namespace Cavern {
         /// <param name="Seconds">Delay in seconds</param>
         public void PlayDelayed(float Seconds) {
             Play();
-            if (Clip)
-                Delay = (ulong)Seconds * (ulong)Clip.frequency;
+            if (CavernClip)
+                Delay = (ulong)Seconds * (ulong)CavernClip.SampleRate;
         }
 
         /// <summary>Pause playback if it's not paused.</summary>
@@ -192,7 +196,7 @@ namespace Cavern {
         /// <summary>Copy the settings of another <see cref="AudioSource3D"/>.</summary>
         /// <param name="From">Target source</param>
         public void CopySettings(AudioSource3D From) {
-            Clip = From.Clip; IsPlaying = From.IsPlaying; Loop = From.Loop;
+            CavernClip = From.CavernClip; IsPlaying = From.IsPlaying; Loop = From.Loop;
             Mute = From.Mute; LFE = From.LFE; RandomPosition = From.RandomPosition;
             Volume = From.Volume; Pitch = From.Pitch; StereoPan = From.StereoPan;
             SpatialBlend = From.SpatialBlend; DopplerLevel = From.DopplerLevel;

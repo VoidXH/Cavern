@@ -50,8 +50,7 @@ namespace Cavern.Cavernize {
                 MovingSource = NewSource;
                 MovingRenderer = NewObject.GetComponent<Renderer>();
             }
-            int SampleRate = AudioListener3D.Current.SampleRate;
-            NewSource.Clip = AudioClip.Create(string.Empty, SampleRate, 1, SampleRate, false); // TODO: remove
+            NewSource.CavernClip = new Clip(new float[1][] { new float[1] }, AudioListener3D.Current.SampleRate);
             NewSource.Loop = true;
             NewSource.VolumeRolloff = Rolloffs.Disabled;
             NewSource.LFE = Channel.LFE;
@@ -108,14 +107,10 @@ namespace Cavern.Cavernize {
         }
 
         public void Destroy() {
-            if (MovingSource) {
-                UnityEngine.Object.Destroy(MovingSource.Clip);
+            if (MovingSource)
                 UnityEngine.Object.Destroy(MovingSource.gameObject);
-            }
-            if (GroundSource) {
-                UnityEngine.Object.Destroy(GroundSource.Clip);
+            if (GroundSource)
                 UnityEngine.Object.Destroy(GroundSource.gameObject);
-            }
         }
     }
 }

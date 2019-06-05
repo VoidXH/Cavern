@@ -30,7 +30,7 @@ namespace Cavern.Spoofer {
                 Target.SpatialBlend = Source.spatialBlend;
                 Target.StereoPan = Source.panStereo;
                 if (Target.Clip = Source.clip) {
-                    bool Decompressed = Target.Clip.loadType == AudioClipLoadType.DecompressOnLoad;
+                    bool Decompressed = Source.clip.loadType == AudioClipLoadType.DecompressOnLoad;
                     if (!Duality)
                         Target.Volume = Source.volume;
                     else if (Decompressed && Source.volume != Mute) {
@@ -38,10 +38,10 @@ namespace Cavern.Spoofer {
                         Source.volume = Mute;
                     }
                     AudioSettings.GetDSPBufferSize(out int BufferSize, out int Buffers);
-                    if (Target.Clip && Math.Abs(Target.timeSamples - Source.timeSamples) > BufferSize)
+                    if (Math.Abs(Target.timeSamples - Source.timeSamples) > BufferSize)
                         Target.timeSamples = Source.timeSamples;
                     if (!Decompressed)
-                        Target.Clip = null;
+                        Target.CavernClip = null;
                 }
                 switch (Source.rolloffMode) {
                     case AudioRolloffMode.Linear:

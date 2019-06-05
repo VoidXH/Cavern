@@ -67,7 +67,7 @@
         Disabled
     }
 
-    /// <summary>Environment type. Rendering method will be chosen by this and <see cref="AudioListener3D.IsSymmetric"/>.</summary>
+    /// <summary>Environment type, which determines rendering method.</summary>
     public enum Environments {
         /// <summary>
         /// For a single listener in the center with speakers placed around in a sphere.<br />

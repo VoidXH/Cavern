@@ -19,14 +19,14 @@ namespace Cavern {
         /// <summary>Distance from the listener.</summary>
         internal float Distance = float.NaN;
         /// <summary>Indicates that the source meets rendering requirements, and <see cref="GetSamples"/> won't fail.</summary>
-        internal virtual bool Renderable => IsPlaying && Clip;
+        internal virtual bool Renderable => IsPlaying && CavernClip;
 
         // ------------------------------------------------------------------
         // Lifecycle helpers
         // ------------------------------------------------------------------
         void OnEnable() {
             if (RandomPosition)
-                timeSamples = UnityEngine.Random.Range(0, Clip.samples);
+                timeSamples = UnityEngine.Random.Range(0, CavernClip.Samples);
             Distance = GetDistance(transform.position);
             SetRolloff();
             Node = AudioListener3D.ActiveSources.AddLast(this);
@@ -39,10 +39,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
         int BaseUpdateRate;
-        /// <summary>Cached channel count of <see cref="Clip"/>.</summary>
-        int ClipChannels;
-        /// <summary>Cached length of <see cref="Clip"/>.</summary>
-        int ClipSamples;
+        /// <summary>Hash code of the last imported <see cref="AudioClip"/> that has been converted to <see cref="Cavern.Clip"/>.</summary>
+        int LastClipHash;
         /// <summary>Samples required to match the listener's update rate after pitch changes.</summary>
         int PitchedUpdateRate;
 
@@ -125,6 +123,12 @@ namespace Cavern {
 
         /// <summary>Calculate distance from the <see cref="AudioListener3D"/> and choose the closest sources to play.</summary>
         internal void Precalculate() {
+            if (Clip && (!CavernClip || LastClipHash != Clip.GetHashCode())) {
+                float[] AllData = new float[Clip.channels * Clip.samples];
+                Clip.GetData(AllData, 0);
+                CavernClip = new Clip(AllData, Clip.channels, Clip.frequency);
+                LastClipHash = Clip.GetHashCode();
+            }
             if (Renderable) {
                 LastPosition = transform.position;
                 LastDistance = Distance;
@@ -136,8 +140,8 @@ namespace Cavern {
 
         /// <summary>Get the next samples in the audio stream.</summary>
         internal virtual float[] GetSamples() {
-            OriginalSamples = new float[ClipChannels * PitchedUpdateRate];
-            Clip.GetData(OriginalSamples, timeSamples);
+            OriginalSamples = new float[CavernClip.Channels * PitchedUpdateRate];
+            CavernClip.GetData(OriginalSamples, timeSamples);
             return OriginalSamples;
         }
 
@@ -158,8 +162,6 @@ namespace Cavern {
         /// <returns>The collection should be performed, as all requirements are met</returns>
         internal virtual bool Precollect() {
             if (ArrayContains(AudioListener3D.SourceDistances, AudioListener3D.MaximumSources, Distance)) {
-                ClipChannels = Clip.channels;
-                ClipSamples = Clip.samples;
                 AudioListener3D Listener = AudioListener3D.Current;
                 if (Listener.AudioQuality != QualityModes.Low) {
                     if (DopplerLevel == 0)
@@ -169,16 +171,16 @@ namespace Cavern {
                             (LastDistance - Distance) / AudioListener3D.PulseDelta), .5f, 3f);
                 } else
                     CalculatedPitch = 1; // Disable any pitch change on low quality
-                bool NeedsResampling = Listener.SampleRate != Clip.frequency;
+                bool NeedsResampling = Listener.SampleRate != CavernClip.SampleRate;
                 if (NeedsResampling)
-                    ResampleMult = (float)Clip.frequency / Listener.SampleRate;
+                    ResampleMult = (float)CavernClip.SampleRate / Listener.SampleRate;
                 else
                     ResampleMult = 1;
                 BaseUpdateRate = (int)(Listener.UpdateRate * CalculatedPitch);
                 PitchedUpdateRate = (int)(BaseUpdateRate * ResampleMult);
                 if (Samples.Length != PitchedUpdateRate)
                     Samples = new float[PitchedUpdateRate];
-                if (ClipChannels == 2 && LeftSamples.Length != PitchedUpdateRate) {
+                if (CavernClip.Channels == 2 && LeftSamples.Length != PitchedUpdateRate) {
                     LeftSamples = new float[PitchedUpdateRate];
                     RightSamples = new float[PitchedUpdateRate];
                 }
@@ -218,6 +220,7 @@ namespace Cavern {
             if (!Mute) {
                 bool Blend2D = SpatialBlend != 1, Blend3D = SpatialBlend != 0;
                 bool HighQuality = Listener.AudioQuality >= QualityModes.High;
+                int ClipChannels = CavernClip.Channels;
                 bool StereoClip = ClipChannels == 2;
                 // Mono mix
                 if (Blend3D || !StereoClip) {
@@ -436,7 +439,7 @@ namespace Cavern {
             }
             // Timing
             timeSamples += PitchedUpdateRate;
-            int MaxLength = ClipSamples;
+            int MaxLength = CavernClip.Samples;
             if (timeSamples >= MaxLength) {
                 if (Loop)
                     timeSamples %= MaxLength;
