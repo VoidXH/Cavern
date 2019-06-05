@@ -58,7 +58,7 @@ namespace Cavern {
         /// <summary>Mono mix cache to save allocation times.</summary>
         float[] Samples = new float[0];
         /// <summary>Sample buffer from the clip.</summary>
-        float[] OriginalSamples;
+        float[][] OriginalSamples;
 
         /// <summary>Remaining delay until starting playback.</summary>
         ulong Delay = 0;
@@ -139,8 +139,11 @@ namespace Cavern {
         }
 
         /// <summary>Get the next samples in the audio stream.</summary>
-        internal virtual float[] GetSamples() {
-            OriginalSamples = new float[CavernClip.Channels * PitchedUpdateRate];
+        internal virtual float[][] GetSamples() {
+            int channels = CavernClip.Channels;
+            OriginalSamples = new float[channels][];
+            for (int channel = 0; channel < channels; ++channel)
+                OriginalSamples[channel] = new float[PitchedUpdateRate];
             CavernClip.GetData(OriginalSamples, timeSamples);
             return OriginalSamples;
         }
@@ -225,18 +228,20 @@ namespace Cavern {
                 // Mono mix
                 if (Blend3D || !StereoClip) {
                     if (ClipChannels == 1)
-                        Buffer.BlockCopy(OriginalSamples, 0, Samples, 0, PitchedUpdateRate * sizeof(float));
+                        Buffer.BlockCopy(OriginalSamples[0], 0, Samples, 0, PitchedUpdateRate * sizeof(float));
                     else {
                         if (HighQuality) { // Mono downmix above medium quality
                             Array.Clear(Samples, 0, PitchedUpdateRate);
                             float ClipChDiv = 1f / ClipChannels;
-                            for (int Sample = 0; Sample < PitchedUpdateRate; ++Sample) {
-                                for (int OrigPos = Sample * ClipChannels, End = OrigPos + ClipChannels; OrigPos < End; ++OrigPos)
-                                    Samples[Sample] += OriginalSamples[OrigPos];
+                            for (int channel = 0; channel < ClipChannels; ++channel) {
+                                float[] sampleSource = OriginalSamples[channel];
+                                for (int sample = 0; sample < PitchedUpdateRate; ++sample)
+                                    Samples[sample] += sampleSource[sample];
                             }
                         } else { // First channel only otherwise
-                            for (int Sample = 0, OrigSample = 0; Sample < PitchedUpdateRate; ++Sample, OrigSample += ClipChannels)
-                                Samples[Sample] = OriginalSamples[OrigSample];
+                            float[] sampleSource = OriginalSamples[0];
+                            for (int sample = 0; sample < PitchedUpdateRate; ++sample)
+                                Samples[sample] = sampleSource[sample];
                         }
                     }
                 }
@@ -258,11 +263,8 @@ namespace Cavern {
                             }
                         }
                     } else {
-                        int ActualSample = 0;
-                        for (int Sample = 0; Sample < PitchedUpdateRate; ++Sample) {
-                            LeftSamples[Sample] = OriginalSamples[ActualSample++];
-                            RightSamples[Sample] = OriginalSamples[ActualSample++];
-                        }
+                        Buffer.BlockCopy(OriginalSamples[0], 0, LeftSamples, 0, PitchedUpdateRate * sizeof(float));
+                        Buffer.BlockCopy(OriginalSamples[1], 0, RightSamples, 0, PitchedUpdateRate * sizeof(float));
                         LeftSamples = Resample(LeftSamples, LeftSamples.Length, UpdateRate);
                         RightSamples = Resample(RightSamples, RightSamples.Length, UpdateRate);
                         int LeftDivisor = 0, RightDivisor = 0;
@@ -281,7 +283,7 @@ namespace Cavern {
                         else if (StereoPan > 0)
                             LeftVolume *= 1 - StereoPan * StereoPan;
                         float HalfVolume2D = Volume2D * .5f;
-                        ActualSample = 0;
+                        int ActualSample = 0;
                         for (int Sample = 0; Sample < UpdateRate; ++Sample) {
                             float LeftSample = LeftSamples[Sample], RightSample = RightSamples[Sample],
                                 LeftGained = LeftSample * LeftVolume, RightGained = RightSample * RightVolume;

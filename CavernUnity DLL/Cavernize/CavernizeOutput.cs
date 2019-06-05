@@ -24,6 +24,6 @@ namespace Cavern.Cavernize {
         internal override bool Renderable => IsPlaying;
 
         /// <summary>Get the next sample block from <see cref="Master"/>.</summary>
-        internal override float[] GetSamples() => Master.Tick(Channel, GroundLevel);
+        internal override float[][] GetSamples() => Master.Tick(Channel, GroundLevel);
     }
 }

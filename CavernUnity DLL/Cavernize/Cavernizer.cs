@@ -186,14 +186,14 @@ namespace Cavern.Cavernize {
             timeSamples += UpdateRate;
         }
 
-        internal float[] Tick(SpatializedChannel Source, bool GroundLevel) {
+        internal float[][] Tick(SpatializedChannel Source, bool GroundLevel) {
             if (Source.TicksTook == 2) { // Both moving and ground source was fed
                 GenerateSampleBlock();
                 foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in Channels)
                     Channel.Value.TicksTook = 0;
             }
             ++Source.TicksTook;
-            return GroundLevel ? Source.Filter.LowOutput : Source.Filter.HighOutput;
+            return new float[1][] { GroundLevel ? Source.Filter.LowOutput : Source.Filter.HighOutput };
         }
 
         void OnDestroy() {
