@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.FilterInterfaces {
     /// <summary>Creates a spatial echo effect by bouncing sound on surfaces.</summary>
@@ -9,7 +10,7 @@ namespace Cavern.FilterInterfaces {
     public class Echo3D : MonoBehaviour {
         /// <summary>Speed of sound in units/s.</summary>
         [Tooltip("Speed of sound in units/s.")]
-        public float SpeedOfSound = CavernUtilities.SpeedOfSound * 10;
+        public float SpeedOfSound = Utils.SpeedOfSound * 10;
         /// <summary>Number of directions to check.</summary>
         [Tooltip("Number of directions to check.")]
         public int Detail = 5;
@@ -27,78 +28,78 @@ namespace Cavern.FilterInterfaces {
         public LayerMask Layers = int.MaxValue;
 
         /// <summary>The attached audio source.</summary>
-        AudioSource3D Source;
+        AudioSource3D source;
         /// <summary>Convolution filter to process the echo.</summary>
-        Convolver Filter;
+        Convolver filter;
 
         void OnDrawGizmosSelected() {
-            float MaxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity;
-            float Step = 360f / Detail, ColorStep = 1f / Bounces, AlphaStep = ColorStep * .25f;
-            Vector3 Direction = Vector3.zero;
-            for (int Horizontal = 0; Horizontal < Detail; ++Horizontal) {
-                for (int Vertical = 0; Vertical < Detail; ++Vertical) {
-                    Vector3 LastPos = transform.position;
-                    Vector3 LastDir = Quaternion.Euler(Direction) * Vector3.forward;
-                    Color LastColor = new Color(0, 1, 0, .5f);
-                    for (int BounceCount = 0; BounceCount < Bounces; ++BounceCount) {
-                        if (Physics.Raycast(LastPos, LastDir, out RaycastHit hit, MaxDist, Layers.value)) {
-                            Gizmos.color = LastColor;
-                            Gizmos.DrawLine(LastPos, hit.point);
-                            LastPos = hit.point;
-                            LastDir = Vector3.Reflect(LastDir, hit.normal);
-                            LastColor.r += ColorStep;
-                            LastColor.b += ColorStep;
-                            LastColor.a -= AlphaStep;
+            float maxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity;
+            float step = 360f / Detail, ColorStep = 1f / Bounces, alphaStep = ColorStep * .25f;
+            Vector3 direction = Vector3.zero;
+            for (int horizontal = 0; horizontal < Detail; ++horizontal) {
+                for (int vertical = 0; vertical < Detail; ++vertical) {
+                    Vector3 lastPos = transform.position;
+                    Vector3 lastDir = Quaternion.Euler(direction) * Vector3.forward;
+                    Color lastColor = new Color(0, 1, 0, .5f);
+                    for (int bounceCount = 0; bounceCount < Bounces; ++bounceCount) {
+                        if (Physics.Raycast(lastPos, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
+                            Gizmos.color = lastColor;
+                            Gizmos.DrawLine(lastPos, hit.point);
+                            lastPos = hit.point;
+                            lastDir = Vector3.Reflect(lastDir, hit.normal);
+                            lastColor.r += ColorStep;
+                            lastColor.b += ColorStep;
+                            lastColor.a -= alphaStep;
                         } else {
-                            Gizmos.color = new Color(1, 0, 0, LastColor.a);
-                            Gizmos.DrawRay(LastPos, LastDir);
+                            Gizmos.color = new Color(1, 0, 0, lastColor.a);
+                            Gizmos.DrawRay(lastPos, lastDir);
                             break;
                         }
                     }
-                    Direction.y += Step;
+                    direction.y += step;
                 }
-                Direction.x += Step;
+                direction.x += step;
             }
         }
 
         void OnEnable() {
-            Source = GetComponent<AudioSource3D>();
-            Filter = new Convolver(new float[MaxSamples], 0);
-            Source.AddFilter(Filter);
+            source = GetComponent<AudioSource3D>();
+            filter = new Convolver(new float[MaxSamples], 0);
+            source.AddFilter(filter);
         }
 
-        void OnDisable() => Source.RemoveFilter(Filter);
+        void OnDisable() => source.RemoveFilter(filter);
 
         void Update() {
-            if (!Source.clip)
+            if (!source.clip)
                 return;
-            float MaxDist = AudioListener3D.Current.Range, Step = 360f / Detail, ColorStep = 1f / Bounces;
-            float[] Impulse = new float[MaxSamples];
-            Impulse[0] = 1;
-            Vector3 Direction = Vector3.zero;
-            for (int Horizontal = 0; Horizontal < Detail; ++Horizontal) {
-                for (int Vertical = 0; Vertical < Detail; ++Vertical) {
-                    Vector3 LastPos = transform.position;
-                    Vector3 LastDir = Quaternion.Euler(Direction) * Vector3.forward;
-                    for (int HitCount = 0; HitCount < Bounces; ++HitCount) {
-                        if (Physics.Raycast(LastPos, LastDir, out RaycastHit hit, MaxDist, Layers.value)) {
-                            LastPos = hit.point;
-                            LastDir = Vector3.Reflect(LastDir, hit.normal);
-                            float Distance = Vector3.Distance(transform.position, hit.point), Volume = 1f / (Distance * DampeningFactor),
-                                TimeOffset = Distance / SpeedOfSound * Source.clip.frequency;
-                            if (TimeOffset < MaxSamples - 1) {
-                                float PostMix = TimeOffset % 1, PreMix = 1 - PostMix;
-                                Impulse[(int)TimeOffset] += PreMix * Volume;
-                                Impulse[(int)TimeOffset + 1] -= PostMix * Volume;
+            float maxDist = AudioListener3D.Current.Range, step = 360f / Detail, colorStep = 1f / Bounces;
+            float[] impulse = new float[MaxSamples];
+            impulse[0] = 1;
+            Vector3 direction = Vector3.zero;
+            for (int horizontal = 0; horizontal < Detail; ++horizontal) {
+                for (int vertical = 0; vertical < Detail; ++vertical) {
+                    Vector3 lastPos = transform.position;
+                    Vector3 lastDir = Quaternion.Euler(direction) * Vector3.forward;
+                    for (int hitCount = 0; hitCount < Bounces; ++hitCount) {
+                        if (Physics.Raycast(lastPos, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
+                            lastPos = hit.point;
+                            lastDir = Vector3.Reflect(lastDir, hit.normal);
+                            float distance = Vector3.Distance(transform.position, hit.point), volume = 1f / (distance * DampeningFactor),
+                                timeOffset = distance / SpeedOfSound * source.clip.frequency;
+                            if (timeOffset < MaxSamples - 1) {
+                                float postMix = timeOffset % 1, preMix = 1 - postMix;
+                                impulse[(int)timeOffset] += preMix * volume;
+                                impulse[(int)timeOffset + 1] -= postMix * volume;
                             }
                         } else
                             break;
                     }
-                    Direction.y += Step;
+                    direction.y += step;
                 }
-                Direction.x += Step;
+                direction.x += step;
             }
-            Filter.Impulse = Impulse;
+            filter.Impulse = impulse;
         }
     }
 }

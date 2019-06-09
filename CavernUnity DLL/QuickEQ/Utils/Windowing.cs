@@ -27,70 +27,70 @@ namespace Cavern.QuickEQ {
     /// <summary>FFT windowing functions.</summary>
     public static class Windowing {
         /// <summary>Apply a predefined window function on a signal.</summary>
-        /// <param name="Samples">Measurement to window</param>
-        /// <param name="Function">Windowing function applied</param>
-        public static void ApplyWindow(float[] Samples, Window Function) => ApplyWindow(Samples, Function, Function, 0, Samples.Length / 2, Samples.Length);
+        /// <param name="samples">Measurement to window</param>
+        /// <param name="function">Windowing function applied</param>
+        public static void ApplyWindow(float[] samples, Window function) => ApplyWindow(samples, function, function, 0, samples.Length / 2, samples.Length);
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
-        /// <param name="Samples">Measurement to window</param>
-        /// <param name="Left">Window function left from the marker</param>
-        /// <param name="Right">Window function right from the marker</param>
-        /// <param name="Start">Beginning of the window in samples</param>
-        /// <param name="Splitter">The point where the two window functions change</param>
-        /// <param name="End">End of the window in samples</param>
-        public static void ApplyWindow(float[] Samples, Window Left, Window Right, int Start, int Splitter, int End) {
-            int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter), PosSplitter = Math.Max(Splitter, 0);
-            float LeftSpanDiv = 2 * Mathf.PI / (LeftSpan * 2), RightSpanDiv = 2 * Mathf.PI / (RightSpan * 2);
-            if (Left != Window.Disabled) {
-                WindowFunction LeftFunc = GetWindowFunction(Left);
-                Array.Clear(Samples, 0, Start);
-                for (int Sample = Math.Max(Start, 0), ActEnd = Math.Min(PosSplitter, Samples.Length); Sample < ActEnd; ++Sample)
-                    Samples[Sample] *= LeftFunc((Sample - Start) * LeftSpanDiv);
+        /// <param name="samples">Measurement to window</param>
+        /// <param name="left">Window function left from the marker</param>
+        /// <param name="right">Window function right from the marker</param>
+        /// <param name="start">Beginning of the window in samples</param>
+        /// <param name="splitter">The point where the two window functions change</param>
+        /// <param name="end">End of the window in samples</param>
+        public static void ApplyWindow(float[] samples, Window left, Window right, int start, int splitter, int end) {
+            int leftSpan = splitter - start, rightSpan = end - splitter, endMirror = splitter - (end - splitter), posSplitter = Math.Max(splitter, 0);
+            float leftSpanDiv = 2 * Mathf.PI / (leftSpan * 2), rightSpanDiv = 2 * Mathf.PI / (rightSpan * 2);
+            if (left != Window.Disabled) {
+                WindowFunction leftFunc = GetWindowFunction(left);
+                Array.Clear(samples, 0, start);
+                for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; ++sample)
+                    samples[sample] *= leftFunc((sample - start) * leftSpanDiv);
             }
-            if (Right != Window.Disabled) {
-                int PosEnd = Math.Max(End, 0);
-                WindowFunction RightFunc = GetWindowFunction(Right);
-                for (int Sample = PosSplitter, ActEnd = Math.Min(PosEnd, Samples.Length); Sample < ActEnd; ++Sample)
-                    Samples[Sample] *= RightFunc((Sample - EndMirror) * RightSpanDiv);
-                Array.Clear(Samples, PosEnd, Samples.Length - PosEnd);
+            if (right != Window.Disabled) {
+                int posEnd = Math.Max(end, 0);
+                WindowFunction rightFunc = GetWindowFunction(right);
+                for (int sample = posSplitter, actEnd = Math.Min(posEnd, samples.Length); sample < actEnd; ++sample)
+                    samples[sample] *= rightFunc((sample - endMirror) * rightSpanDiv);
+                Array.Clear(samples, posEnd, samples.Length - posEnd);
             }
         }
 
         /// <summary>Apply a predefined window function on a signal.</summary>
-        /// <param name="Samples">Measurement to window</param>
-        /// <param name="Function">Windowing function applied</param>
-        public static void ApplyWindow(Complex[] Samples, Window Function) => ApplyWindow(Samples, Function, Function, 0, Samples.Length / 2, Samples.Length);
+        /// <param name="samples">Measurement to window</param>
+        /// <param name="function">Windowing function applied</param>
+        public static void ApplyWindow(Complex[] samples, Window function) => ApplyWindow(samples, function, function, 0, samples.Length / 2, samples.Length);
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
-        /// <param name="Samples">Measurement to window</param>
-        /// <param name="Left">Window function left from the marker</param>
-        /// <param name="Right">Window function right from the marker</param>
-        /// <param name="Start">Beginning of the window in samples</param>
-        /// <param name="Splitter">The point where the two window functions change</param>
-        /// <param name="End">End of the window in samples</param>
-        public static void ApplyWindow(Complex[] Samples, Window Left, Window Right, int Start, int Splitter, int End) {
-            int LeftSpan = Splitter - Start, RightSpan = End - Splitter, EndMirror = Splitter - (End - Splitter), PosSplitter = Math.Max(Splitter, 0);
-            float LeftSpanDiv = 2 * Mathf.PI / (LeftSpan * 2), RightSpanDiv = 2 * Mathf.PI / (RightSpan * 2);
-            if (Left != Window.Disabled) {
-                WindowFunction LeftFunc = GetWindowFunction(Left);
-                for (int Sample = 0; Sample < Start; ++Sample)
-                    Samples[Sample] = new Complex();
-                for (int Sample = Math.Max(Start, 0), ActEnd = Math.Min(PosSplitter, Samples.Length); Sample < ActEnd; ++Sample) {
-                    float Mul = LeftFunc((Sample - Start) * LeftSpanDiv);
-                    Samples[Sample].Real *= Mul;
-                    Samples[Sample].Imaginary *= Mul;
+        /// <param name="samples">Measurement to window</param>
+        /// <param name="left">Window function left from the marker</param>
+        /// <param name="right">Window function right from the marker</param>
+        /// <param name="start">Beginning of the window in samples</param>
+        /// <param name="splitter">The point where the two window functions change</param>
+        /// <param name="end">End of the window in samples</param>
+        public static void ApplyWindow(Complex[] samples, Window left, Window right, int start, int splitter, int end) {
+            int leftSpan = splitter - start, rightSpan = end - splitter, endMirror = splitter - (end - splitter), posSplitter = Math.Max(splitter, 0);
+            float leftSpanDiv = 2 * Mathf.PI / (leftSpan * 2), rightSpanDiv = 2 * Mathf.PI / (rightSpan * 2);
+            if (left != Window.Disabled) {
+                WindowFunction leftFunc = GetWindowFunction(left);
+                for (int sample = 0; sample < start; ++sample)
+                    samples[sample] = new Complex();
+                for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; ++sample) {
+                    float mul = leftFunc((sample - start) * leftSpanDiv);
+                    samples[sample].Real *= mul;
+                    samples[sample].Imaginary *= mul;
                 }
             }
-            if (Right != Window.Disabled) {
-                int PosEnd = Math.Max(End, 0);
-                WindowFunction RightFunc = GetWindowFunction(Right);
-                for (int Sample = PosSplitter, ActEnd = Math.Min(PosEnd, Samples.Length); Sample < ActEnd; ++Sample) {
-                    float Mul = RightFunc((Sample - EndMirror) * RightSpanDiv);
-                    Samples[Sample].Real *= Mul;
-                    Samples[Sample].Imaginary *= Mul;
+            if (right != Window.Disabled) {
+                int posEnd = Math.Max(end, 0);
+                WindowFunction rightFunc = GetWindowFunction(right);
+                for (int sample = posSplitter, actEnd = Math.Min(posEnd, samples.Length); sample < actEnd; ++sample) {
+                    float mul = rightFunc((sample - endMirror) * rightSpanDiv);
+                    samples[sample].Real *= mul;
+                    samples[sample].Imaginary *= mul;
                 }
-                for (int Sample = PosEnd, ActEnd = Samples.Length; Sample < ActEnd; ++Sample)
-                    Samples[Sample] = new Complex();
+                for (int sample = posEnd, actEnd = samples.Length; sample < actEnd; ++sample)
+                    samples[sample] = new Complex();
             }
         }
 
@@ -100,8 +100,8 @@ namespace Cavern.QuickEQ {
         delegate float WindowFunction(float x);
 
         /// <summary>Get the corresponding window function for each <see cref="Window"/> value.</summary>
-        static WindowFunction GetWindowFunction(Window Function) {
-            switch (Function) {
+        static WindowFunction GetWindowFunction(Window function) {
+            switch (function) {
                 case Window.Sine: return SineWindow;
                 case Window.Hamming: return HammingWindow;
                 case Window.Hann: return HannWindow;
@@ -127,11 +127,11 @@ namespace Cavern.QuickEQ {
         }
         /// <summary>A window for impulse response trimming, with a precompiled alpha.</summary>
         static float TukeyWindow(float x) {
-            const float Alpha = .25f, Positioner = 1 / Alpha, FlatLeft = Mathf.PI * Alpha, FlatRight = Mathf.PI * (2 - Alpha);
-            if (x < FlatLeft)
-                return (Mathf.Cos(x * Positioner - Mathf.PI) + 1) * .5f;
-            else if (x > FlatRight)
-                return (Mathf.Cos((2 * Mathf.PI - x) * Positioner - Mathf.PI) + 1) * .5f;
+            const float alpha = .25f, positioner = 1 / alpha, flatLeft = Mathf.PI * alpha, flatRight = Mathf.PI * (2 - alpha);
+            if (x < flatLeft)
+                return (Mathf.Cos(x * positioner - Mathf.PI) + 1) * .5f;
+            else if (x > flatRight)
+                return (Mathf.Cos((2 * Mathf.PI - x) * positioner - Mathf.PI) + 1) * .5f;
             else
                 return 1;
         }

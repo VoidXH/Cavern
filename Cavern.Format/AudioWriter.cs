@@ -4,46 +4,46 @@ namespace Cavern.Format {
     /// <summary>Abstract audio file writer.</summary>
     public abstract class AudioWriter {
         /// <summary>File writer object.</summary>
-        protected BinaryWriter Writer;
+        protected BinaryWriter writer;
         /// <summary>Output channel count.</summary>
-        protected int ChannelCount;
+        protected int channelCount;
         /// <summary>Output length in samples.</summary>
-        protected long Length;
+        protected long length;
         /// <summary>Output sample rate.</summary>
-        protected int SampleRate;
+        protected int sampleRate;
         /// <summary>Output bit depth.</summary>
-        protected BitDepth Bits;
+        protected BitDepth bits;
 
         /// <summary>Abstract audio file writer.</summary>
-        /// <param name="Writer">File writer object</param>
-        /// <param name="ChannelCount">Output channel count</param>
-        /// <param name="Length">Output length in samples</param>
-        /// <param name="SampleRate">Output sample rate</param>
-        /// <param name="Bits">Output bit depth</param>
-        public AudioWriter(BinaryWriter Writer, int ChannelCount, long Length, int SampleRate, BitDepth Bits) {
-            this.Writer = Writer;
-            this.ChannelCount = ChannelCount;
-            this.Length = Length;
-            this.SampleRate = SampleRate;
-            this.Bits = Bits;
+        /// <param name="writer">File writer object</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="length">Output length in samples</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public AudioWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) {
+            this.writer = writer;
+            this.channelCount = channelCount;
+            this.length = length;
+            this.sampleRate = sampleRate;
+            this.bits = bits;
         }
 
         /// <summary>Create the file header.</summary>
         public abstract void WriteHeader();
 
         /// <summary>Write a block of samples.</summary>
-        /// <param name="Samples">Samples to write</param>
-        /// <param name="From">Start position in the input array (inclusive)</param>
-        /// <param name="To">End position in the input array (exclusive)</param>
-        public abstract void WriteBlock(float[] Samples, long From, long To);
+        /// <param name="samples">Samples to write</param>
+        /// <param name="from">Start position in the input array (inclusive)</param>
+        /// <param name="to">End position in the input array (exclusive)</param>
+        public abstract void WriteBlock(float[] samples, long from, long to);
 
         /// <summary>Write the entire file.</summary>
-        /// <param name="Samples">All input samples</param>
-        public void Write(float[] Samples) {
-            Length = Samples.LongLength;
+        /// <param name="samples">All input samples</param>
+        public void Write(float[] samples) {
+            length = samples.LongLength;
             WriteHeader();
-            WriteBlock(Samples, 0, Length);
-            Writer.Close();
+            WriteBlock(samples, 0, length);
+            writer.Close();
         }
     }
 }

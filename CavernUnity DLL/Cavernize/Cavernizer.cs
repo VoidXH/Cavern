@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using Cavern.Utilities;
+
 namespace Cavern.Cavernize {
     /// <summary>Adds height to each channel of a regular surround mix.</summary>
     [AddComponentMenu("Audio/Cavernize/3D Conversion")]
@@ -46,162 +48,162 @@ namespace Cavern.Cavernize {
         [Tooltip("Show converted objects.")]
         public bool Visualize = false;
 
+#pragma warning disable IDE1006 // Naming Styles
         /// <summary>Playback position in seconds.</summary>
         public float time {
             get => timeSamples / (float)AudioListener3D.Current.SampleRate;
             set => timeSamples = (int)(value * AudioListener3D.Current.SampleRate);
         }
+#pragma warning restore IDE1006 // Naming Styles
 
         /// <summary>Playback position in samples.</summary>
         public int timeSamples;
 
         /// <summary>This height value indicates if a channel is skipped in height processing.</summary>
-        internal const float UnsetHeight = -2;
+        internal const float unsetHeight = -2;
 
         /// <summary>Imported audio data.</summary>
-        float[] ClipSamples;
-
+        float[] clipSamples;
         /// <summary><see cref="AudioListener3D.UpdateRate"/> for conversion.</summary>
-        int UpdateRate;
+        int updateRate;
         /// <summary>Cached <see cref="AudioListener3D.SampleRate"/> as the listener is reconfigured for the Cavernize process.</summary>
-        int OldSampleRate;
+        int oldSampleRate;
         /// <summary>Cached <see cref="AudioListener3D.UpdateRate"/> as the listener is reconfigured for the Cavernize process.</summary>
-        int OldUpdateRate;
+        int oldUpdateRate;
+        /// <summary>The channels for a base 7.1 layout.</summary>
+        internal readonly SpatializedChannel[] mains = new SpatializedChannel[8];
 
         // TODO: 9-16 CH WAV import
 
-        internal Dictionary<CavernizeChannel, SpatializedChannel> Channels = new Dictionary<CavernizeChannel, SpatializedChannel>();
+        internal Dictionary<CavernizeChannel, SpatializedChannel> channels = new Dictionary<CavernizeChannel, SpatializedChannel>();
 
         void Start() {
-            AudioListener3D Listener = AudioListener3D.Current;
-            OldSampleRate = Listener.SampleRate;
-            OldUpdateRate = Listener.UpdateRate;
-            Listener.SampleRate = Clip.frequency;
-            UpdateRate = Listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
-            int ClipChannels = Clip.channels;
-            ClipSamples = new float[ClipChannels * UpdateRate];
-            List<CavernizeChannel> TargetChannels = new List<CavernizeChannel>();
-            foreach (CavernizeChannel UpmixTarget in CavernizeChannel.UpmixTargets)
-                TargetChannels.Add(UpmixTarget);
-            CavernizeChannel[] Matrix = CavernizeChannel.StandardMatrix[ClipChannels];
-            for (int Channel = 0, ChannelCount = Matrix.Length; Channel < ChannelCount; ++Channel)
-                if (!TargetChannels.Contains(Matrix[Channel]))
-                    TargetChannels.Add(Matrix[Channel]);
-            for (int Source = 0, Sources = TargetChannels.Count; Source < Sources; ++Source)
-                Channels[TargetChannels[Source]] = new SpatializedChannel(TargetChannels[Source], this, UpdateRate);
-            Mains[0] = GetChannel(CavernizeChannel.FrontLeft);
-            Mains[1] = GetChannel(CavernizeChannel.FrontRight);
-            Mains[2] = GetChannel(CavernizeChannel.FrontCenter);
-            Mains[3] = GetChannel(CavernizeChannel.ScreenLFE);
-            Mains[4] = GetChannel(CavernizeChannel.RearLeft);
-            Mains[5] = GetChannel(CavernizeChannel.RearRight);
-            Mains[6] = GetChannel(CavernizeChannel.SideLeft);
-            Mains[7] = GetChannel(CavernizeChannel.SideRight);
+            AudioListener3D listener = AudioListener3D.Current;
+            oldSampleRate = listener.SampleRate;
+            oldUpdateRate = listener.UpdateRate;
+            listener.SampleRate = Clip.frequency;
+            updateRate = listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
+            int clipChannels = Clip.channels;
+            clipSamples = new float[clipChannels * updateRate];
+            List<CavernizeChannel> targetChannels = new List<CavernizeChannel>();
+            foreach (CavernizeChannel upmixTarget in CavernizeChannel.UpmixTargets)
+                targetChannels.Add(upmixTarget);
+            CavernizeChannel[] matrix = CavernizeChannel.StandardMatrix[clipChannels];
+            for (int channel = 0, channelCount = matrix.Length; channel < channelCount; ++channel)
+                if (!targetChannels.Contains(matrix[channel]))
+                    targetChannels.Add(matrix[channel]);
+            for (int source = 0, sources = targetChannels.Count; source < sources; ++source)
+                channels[targetChannels[source]] = new SpatializedChannel(targetChannels[source], this, updateRate);
+            mains[0] = GetChannel(CavernizeChannel.FrontLeft);
+            mains[1] = GetChannel(CavernizeChannel.FrontRight);
+            mains[2] = GetChannel(CavernizeChannel.FrontCenter);
+            mains[3] = GetChannel(CavernizeChannel.ScreenLFE);
+            mains[4] = GetChannel(CavernizeChannel.RearLeft);
+            mains[5] = GetChannel(CavernizeChannel.RearRight);
+            mains[6] = GetChannel(CavernizeChannel.SideLeft);
+            mains[7] = GetChannel(CavernizeChannel.SideRight);
             GenerateSampleBlock();
         }
 
         internal SpatializedChannel GetChannel(CavernizeChannel Target) {
-            if (Channels.ContainsKey(Target))
-                return Channels[Target];
+            if (channels.ContainsKey(Target))
+                return channels[Target];
             return null;
         }
 
-        /// <summary>The channels for a base 7.1 layout.</summary>
-        internal readonly SpatializedChannel[] Mains = new SpatializedChannel[8];
-
         void GenerateSampleBlock() {
-            AudioListener3D Listener = AudioListener3D.Current;
-            float SmoothFactor = 1f - CavernUtilities.FastLerp(UpdateRate, Listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / Listener.SampleRate * .999f;
-            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in Channels)
-                Array.Clear(Channel.Value.Output, 0, UpdateRate);
-            int MaxLength = Clip.samples;
-            if (timeSamples >= MaxLength) {
+            AudioListener3D listener = AudioListener3D.Current;
+            float smoothFactor = 1f - Utils.Lerp(updateRate, listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
+            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
+                Array.Clear(channel.Value.Output, 0, updateRate);
+            int maxLength = Clip.samples;
+            if (timeSamples >= maxLength) {
                 if (Loop)
-                    timeSamples %= MaxLength;
+                    timeSamples %= maxLength;
                 else {
                     timeSamples = 0;
                     IsPlaying = false;
                     return;
                 }
             }
-            int ClipChannels = Clip.channels;
+            int clipChannels = Clip.channels;
             if (IsPlaying) {
-                foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in Channels)
+                foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in channels)
                     Channel.Value.WrittenOutput = false;
                 // Load input channels
-                Clip.GetData(ClipSamples, timeSamples);
-                for (int Channel = 0; Channel < ClipChannels; ++Channel) {
-                    SpatializedChannel OutputChannel = GetChannel(CavernizeChannel.StandardMatrix[ClipChannels][Channel]);
-                    float[] Target = OutputChannel.Output;
-                    for (int Offset = 0, SrcOffset = Channel; Offset < UpdateRate; ++Offset, SrcOffset += ClipChannels)
-                        Target[Offset] = ClipSamples[SrcOffset] * Volume;
-                    OutputChannel.WrittenOutput = true;
+                Clip.GetData(clipSamples, timeSamples);
+                for (int channel = 0; channel < clipChannels; ++channel) {
+                    SpatializedChannel outputChannel = GetChannel(CavernizeChannel.StandardMatrix[clipChannels][channel]);
+                    float[] target = outputChannel.Output;
+                    for (int offset = 0, srcOffset = channel; offset < updateRate; ++offset, srcOffset += clipChannels)
+                        target[offset] = clipSamples[srcOffset] * Volume;
+                    outputChannel.WrittenOutput = true;
                 }
                 if (MatrixUpmix) { // Create missing channels via matrix
-                    if (Mains[0].WrittenOutput && Mains[1].WrittenOutput) { // Left and right channels available
-                        if (!Mains[2].WrittenOutput) { // Create discrete middle channel
-                            float[] Left = Mains[0].Output, Right = Mains[1].Output, Center = Mains[2].Output;
-                            for (int Offset = 0; Offset < UpdateRate; ++Offset)
-                                Center[Offset] = (Left[Offset] + Right[Offset]) * .5f;
-                            Mains[2].WrittenOutput = true;
+                    if (mains[0].WrittenOutput && mains[1].WrittenOutput) { // Left and right channels available
+                        if (!mains[2].WrittenOutput) { // Create discrete middle channel
+                            float[] left = mains[0].Output, right = mains[1].Output, center = mains[2].Output;
+                            for (int offset = 0; offset < updateRate; ++offset)
+                                center[offset] = (left[offset] + right[offset]) * .5f;
+                            mains[2].WrittenOutput = true;
                         }
-                        if (!Mains[6].WrittenOutput) { // Matrix mix for sides
-                            float[] LeftFront = Mains[0].Output, RightFront = Mains[1].Output, LeftSide = Mains[6].Output, RightSide = Mains[7].Output;
-                            for (int Offset = 0; Offset < UpdateRate; ++Offset) {
-                                LeftSide[Offset] = (LeftFront[Offset] - RightFront[Offset]) * .5f;
-                                RightSide[Offset] = -LeftSide[Offset];
+                        if (!mains[6].WrittenOutput) { // Matrix mix for sides
+                            float[] leftFront = mains[0].Output, rightFront = mains[1].Output, leftSide = mains[6].Output, rightSide = mains[7].Output;
+                            for (int offset = 0; offset < updateRate; ++offset) {
+                                leftSide[offset] = (leftFront[offset] - rightFront[offset]) * .5f;
+                                rightSide[offset] = -leftSide[offset];
                             }
-                            Mains[6].WrittenOutput = Mains[7].WrittenOutput = true;
+                            mains[6].WrittenOutput = mains[7].WrittenOutput = true;
                         }
-                        if (!Mains[4].WrittenOutput) { // Extend sides to rears...
-                            bool RearsAvailable = false; // ...but only if there are rears
-                            for (int Channel = 0; Channel < AudioListener3D.ChannelCount; ++Channel) {
-                                float CurrentY = AudioListener3D.Channels[Channel].Y;
-                                if (CurrentY < -135 || CurrentY > 135) {
-                                    RearsAvailable = true;
+                        if (!mains[4].WrittenOutput) { // Extend sides to rears...
+                            bool rearsAvailable = false; // ...but only if there are rears
+                            for (int channel = 0, channels = AudioListener3D.Channels.Length; channel < channels; ++channel) {
+                                float currentY = AudioListener3D.Channels[channel].Y;
+                                if (currentY < -135 || currentY > 135) {
+                                    rearsAvailable = true;
                                     break;
                                 }
                             }
-                            if (RearsAvailable) {
-                                float[] LeftSide = Mains[6].Output, RightSide = Mains[7].Output, LeftRear = Mains[4].Output, RightRear = Mains[5].Output;
-                                for (int Offset = 0; Offset < UpdateRate; ++Offset) {
-                                    LeftRear[Offset] = (LeftSide[Offset] *= .5f);
-                                    RightRear[Offset] = (RightSide[Offset] *= .5f);
+                            if (rearsAvailable) {
+                                float[] leftSide = mains[6].Output, rightSide = mains[7].Output, leftRear = mains[4].Output, rightRear = mains[5].Output;
+                                for (int offset = 0; offset < updateRate; ++offset) {
+                                    leftRear[offset] = (leftSide[offset] *= .5f);
+                                    rightRear[offset] = (rightSide[offset] *= .5f);
                                 }
-                                Mains[4].WrittenOutput = Mains[5].WrittenOutput = true;
+                                mains[4].WrittenOutput = mains[5].WrittenOutput = true;
                             }
                         }
                     }
                 }
             }
             // Overwrite channel data with new output, even if it's empty
-            float EffectMult = Effect * 15f;
-            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in Channels)
-                Channel.Value.Tick(EffectMult, SmoothFactor, GroundCrossover, Visualize);
+            float effectMult = Effect * 15f;
+            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
+                channel.Value.Tick(effectMult, smoothFactor, GroundCrossover, Visualize);
             if (CenterStays) {
-                SpatializedChannel Channel = GetChannel(CavernizeChannel.FrontCenter);
-                Channel.Height = UnsetHeight;
-                Channel.MovingSource.transform.localPosition = new Vector3(0, 0, 10);
+                SpatializedChannel channel = GetChannel(CavernizeChannel.FrontCenter);
+                channel.Height = unsetHeight;
+                channel.MovingSource.transform.localPosition = new Vector3(0, 0, 10);
             }
-            timeSamples += UpdateRate;
+            timeSamples += updateRate;
         }
 
-        internal float[][] Tick(SpatializedChannel Source, bool GroundLevel) {
-            if (Source.TicksTook == 2) { // Both moving and ground source was fed
+        internal float[][] Tick(SpatializedChannel source, bool groundLevel) {
+            if (source.TicksTook == 2) { // Both moving and ground source was fed
                 GenerateSampleBlock();
-                foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in Channels)
-                    Channel.Value.TicksTook = 0;
+                foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
+                    channel.Value.TicksTook = 0;
             }
-            ++Source.TicksTook;
-            return new float[1][] { GroundLevel ? Source.Filter.LowOutput : Source.Filter.HighOutput };
+            ++source.TicksTook;
+            return new float[1][] { groundLevel ? source.Filter.LowOutput : source.Filter.HighOutput };
         }
 
         void OnDestroy() {
-            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in Channels)
-                Channel.Value.Destroy();
-            AudioListener3D Listener = AudioListener3D.Current;
-            Listener.SampleRate = OldSampleRate;
-            Listener.UpdateRate = OldUpdateRate;
+            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
+                channel.Value.Destroy();
+            AudioListener3D listener = AudioListener3D.Current;
+            listener.SampleRate = oldSampleRate;
+            listener.UpdateRate = oldUpdateRate;
         }
     }
 }

@@ -2,6 +2,8 @@
 using UnityEngine;
 
 using Cavern.Filters;
+using Cavern.Helpers;
+using Cavern.Utilities;
 
 namespace Cavern.Cavernize {
     /// <summary>All the data <see cref="Cavernizer"/> needs for a single channel.</summary>
@@ -33,76 +35,75 @@ namespace Cavern.Cavernize {
         /// <summary>Renderer for <see cref="GroundSource"/>.</summary>
         public Renderer GroundRenderer { get; private set; }
 
-        void CreateSource(Cavernizer Master, bool GroundLevel) {
-            GameObject NewObject;
+        void CreateSource(Cavernizer master, bool groundLevel) {
+            GameObject newObject;
             if (Channel != CavernizeChannel.ScreenLFE)
-                NewObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                newObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             else
-                NewObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            NewObject.name = Channel.Name;
-            CavernizeOutput NewSource = NewObject.AddComponent<CavernizeOutput>();
-            NewSource.Master = Master;
-            NewSource.Channel = this;
-            if (NewSource.GroundLevel = GroundLevel) {
-                GroundSource = NewSource;
-                GroundRenderer = NewObject.GetComponent<Renderer>();
+                newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            newObject.name = Channel.Name;
+            CavernizeOutput newSource = newObject.AddComponent<CavernizeOutput>();
+            newSource.Master = master;
+            newSource.Channel = this;
+            if (newSource.GroundLevel = groundLevel) {
+                GroundSource = newSource;
+                GroundRenderer = newObject.GetComponent<Renderer>();
             } else {
-                MovingSource = NewSource;
-                MovingRenderer = NewObject.GetComponent<Renderer>();
+                MovingSource = newSource;
+                MovingRenderer = newObject.GetComponent<Renderer>();
             }
-            NewSource.CavernClip = new Clip(new float[1][] { new float[1] }, AudioListener3D.Current.SampleRate);
-            NewSource.Loop = true;
-            NewSource.VolumeRolloff = Rolloffs.Disabled;
-            NewSource.LFE = Channel.LFE;
-            // TODO: make this work with custom sample collectors
-            //NewObject.AddComponent<ScaleByGain>().Source = NewSource;
+            newSource.Loop = true;
+            newSource.VolumeRolloff = Rolloffs.Disabled;
+            newSource.LFE = Channel.LFE;
+            // TODO: make it work with custom sources
+            //newObject.AddComponent<ScaleByGain>().Source = NewSource;
             if (Channel.Muted)
-                NewSource.Volume = 0;
-            NewObject.transform.SetParent(Master.transform);
-            NewObject.transform.localPosition =
-                Vector3.Scale(CavernUtilities.PlaceInCube(new Vector3(0, Channel.Y)), AudioListener3D.EnvironmentSize);
+                newSource.Volume = 0;
+            newObject.transform.SetParent(master.transform);
+            newObject.transform.localPosition =
+                Vector3.Scale(CavernUtilities.VectorMatch(Utils.PlaceInCube(new Vector(0, Channel.Y))), AudioListener3D.EnvironmentSize);
         }
 
-        public SpatializedChannel(CavernizeChannel Source, Cavernizer Master, int UpdateRate) {
-            Channel = Source;
+        public SpatializedChannel(CavernizeChannel source, Cavernizer master, int updateRate) {
+            Channel = source;
             Filter = new Crossover(AudioListener3D.Current.SampleRate, 250);
-            Output = new float[UpdateRate];
-            CreateSource(Master, true);
-            CreateSource(Master, false);
+            Output = new float[updateRate];
+            CreateSource(master, true);
+            CreateSource(master, false);
         }
 
-        public void Tick(float EffectMult, float SmoothFactor, float CrossoverFreq, bool Visualize) {
-            int Samples = Output.Length;
+        public void Tick(float effectMult, float smoothFactor, float crossoverFreq, bool visualize) {
+            int samples = Output.Length;
             if (!WrittenOutput)
-                Array.Clear(Output, 0, Samples);
-            if (Filter.Frequency != CrossoverFreq)
-                Filter.Frequency = CrossoverFreq;
+                Array.Clear(Output, 0, samples);
+            if (Filter.Frequency != crossoverFreq)
+                Filter.Frequency = crossoverFreq;
             Filter.Process(Output);
-            MovingRenderer.enabled = GroundRenderer.enabled = Visualize && WrittenOutput;
+            MovingRenderer.enabled = GroundRenderer.enabled = visualize && WrittenOutput;
             if (WrittenOutput) {
-                float MaxDepth = .0001f, MaxHeight = .0001f;
-                for (int Offset = 0; Offset < Samples; ++Offset) {
+                float maxDepth = .0001f, maxHeight = .0001f;
+                for (int offset = 0; offset < samples; ++offset) {
                     // Height is generated by a simplified measurement of volume and pitch
-                    LastHigh = .9f * (LastHigh + Output[Offset] - LastNormal);
-                    float AbsHigh = Math.Abs(LastHigh);
-                    if (MaxHeight < AbsHigh)
-                        MaxHeight = AbsHigh;
+                    LastHigh = .9f * (LastHigh + Output[offset] - LastNormal);
+                    float absHigh = Math.Abs(LastHigh);
+                    if (maxHeight < absHigh)
+                        maxHeight = absHigh;
                     LastLow = LastLow * .99f + LastHigh * .01f;
-                    float AbsLow = Math.Abs(LastLow);
-                    if (MaxDepth < AbsLow)
-                        MaxDepth = AbsLow;
-                    LastNormal = Output[Offset];
+                    float absLow = Math.Abs(LastLow);
+                    if (maxDepth < absLow)
+                        maxDepth = absLow;
+                    LastNormal = Output[offset];
                 }
-                MaxHeight = (MaxHeight - MaxDepth * 1.2f) * EffectMult;
-                if (MaxHeight < -.2f)
-                    MaxHeight = -.2f;
-                else if (MaxHeight > 1)
-                    MaxHeight = 1;
-                Height = CavernUtilities.FastLerp(Height, MaxHeight, SmoothFactor);
-                Transform TargetTransform = MovingSource.transform;
-                Vector3 OldPos = TargetTransform.localPosition;
-                TargetTransform.localPosition = CavernUtilities.FastLerp(OldPos,
-                    new Vector3(OldPos.x, MaxHeight * AudioListener3D.EnvironmentSize.y, OldPos.z), SmoothFactor);
+                maxHeight = (maxHeight - maxDepth * 1.2f) * effectMult;
+                if (maxHeight < -.2f)
+                    maxHeight = -.2f;
+                else if (maxHeight > 1)
+                    maxHeight = 1;
+                Height = Utils.Lerp(Height, maxHeight, smoothFactor);
+                Transform targetTransform = MovingSource.transform;
+                Vector3 oldPos = targetTransform.localPosition;
+                targetTransform.localPosition = CavernUtilities.FastLerp(oldPos,
+                    new Vector3(oldPos.x, maxHeight * AudioListener3D.EnvironmentSize.y, oldPos.z), smoothFactor);
             }
         }
 

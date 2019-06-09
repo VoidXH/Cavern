@@ -1,5 +1,4 @@
-﻿using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Cavern {
     /// <summary>The center of the listening space. <see cref="AudioSource3D"/>s will be rendered relative to this GameObject's position.</summary>
@@ -52,35 +51,41 @@ namespace Cavern {
         [Tooltip("Disable lowpass on the LFE channel.")]
         public bool DirectLFE = false;
 
+
         // ------------------------------------------------------------------
         // Compatibility
         // ------------------------------------------------------------------
+#pragma warning disable IDE1006 // Naming Styles
         /// <summary>Alias for <see cref="Volume"/>.</summary>
         public float volume {
             get => Volume;
             set => Volume = value;
         }
+#pragma warning restore IDE1006 // Naming Styles
 
         // ------------------------------------------------------------------
         // Global settings
         // ------------------------------------------------------------------
-        /// <summary>Output channel data. Set by the user and applied when an <see cref="AudioListener3D"/> is created. The default setup is the standard 5.1 layout.</summary>
-        public static Channel3D[] Channels = { new Channel3D(0, -45), new Channel3D(0, 45),
-                                             new Channel3D(0, 0), new Channel3D(15, 15, true),
-                                             new Channel3D(0, -110), new Channel3D(0, 110) };
-        /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/>.</summary>
-        public bool HeadphoneVirtualizer = false;
-
-        /// <summary>3D environment type. Set by the user and applied when an <see cref="AudioListener3D"/> is created.</summary>
-        public static Environments EnvironmentType {
-            get => _EnvironmentType;
-            set {
-                _EnvironmentType = value;
-                for (int Channel = 0; Channel < ChannelCount; ++Channel)
-                    Channels[Channel].Recalculate();
-            }
+        /// <summary>Output channel data. The default setup is the standard 5.1 layout.</summary>
+        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
+        public static Channel[] Channels {
+            get => Listener.Channels;
+            set => Listener.Channels = value;
         }
-        internal static Environments _EnvironmentType = Environments.Home;
+
+        /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/>.</summary>
+        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
+        public static bool HeadphoneVirtualizer {
+            get => Listener.HeadphoneVirtualizer;
+            set => Listener.HeadphoneVirtualizer = value;
+        }
+
+        /// <summary>3D environment type.</summary>
+        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
+        public static Environments EnvironmentType {
+            get => Listener.EnvironmentType;
+            set => Listener.EnvironmentType = value;
+        }
 
         /// <summary>
         /// The single most important variable defining sound space in
@@ -94,34 +99,22 @@ namespace Cavern {
         /// compensation is enabled. The user's settings should be respected,
         /// thus this vector should be scaled, not completely overridden.
         /// </summary>
-        public static Vector3 EnvironmentSize = new Vector3(10, 7, 10);
-
-        /// <summary>
-        /// Automatically set channel volumes based on
-        /// <see cref="EnvironmentSize"/> and <see cref="EnvironmentType"/>.
-        /// Not recommended for calibrated systems. Set by the user and
-        /// applied when an AudioListener3D is created.
-        /// </summary>
-        public static bool EnvironmentCompensation = false;
+        public static Vector3 EnvironmentSize {
+            get => CavernUtilities.VectorMatch(Listener.EnvironmentSize);
+            set => Listener.EnvironmentSize = CavernUtilities.VectorMatch(value);
+        }
 
         /// <summary>How many sources can be played at the same time.</summary>
-        public static int MaximumSources {
-            get => SourceLimit;
-            set => SourceDistances = new float[SourceLimit = value];
+        public int MaximumSources {
+            get => cavernListener.MaximumSources;
+            set => cavernListener.MaximumSources = value;
         }
 
         // ------------------------------------------------------------------
         // Read-only properties
         // ------------------------------------------------------------------
         /// <summary>True if the layout is symmetric.</summary>
-        public static bool IsSymmetric {
-            get => AudioSource3D.Symmetric;
-        }
-
-        /// <summary>Samples currently cached for output.</summary>
-        public static int FilterBufferPosition {
-            get => BufferPosition;
-        }
+        public static bool IsSymmetric => Listener.IsSymmetric;
 
         // ------------------------------------------------------------------
         // Global vars
@@ -133,44 +126,14 @@ namespace Cavern {
         public static float[] Output = new float[0];
 
         // ------------------------------------------------------------------
-        // Delegates
-        // ------------------------------------------------------------------
-        /// <summary>Handle new outputted samples.</summary>
-        public delegate void OutputAvailable();
-
-        /// <summary>Called when new samples were generated.</summary>
-        public event OutputAvailable OnOutputAvailable;
-
-        // ------------------------------------------------------------------
         // Public static functions
         // ------------------------------------------------------------------
         /// <summary>Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;, or simply "Virtualization".</summary>
-        public static string GetLayoutName() {
-            if (Current.HeadphoneVirtualizer)
-                return "Virtualization";
-            else {
-                int Regular = 0, LFE = 0, Ceiling = 0, Floor = 0;
-                for (int i = 0, ChannelCount = Channels.Length; i < ChannelCount; ++i)
-                    if (Channels[i].LFE) ++LFE;
-                    else if (Channels[i].X == 0) ++Regular;
-                    else if (Channels[i].X < 0) ++Ceiling;
-                    else if (Channels[i].X > 0) ++Floor;
-                StringBuilder LayOut = new StringBuilder(Regular.ToString()).Append('.').Append(LFE);
-                if (Ceiling > 0 || Floor > 0) LayOut.Append('.').Append(Ceiling);
-                if (Floor > 0) LayOut.Append('.').Append(Floor);
-                return LayOut.ToString();
-            }
-        }
+        public static string GetLayoutName() => Listener.GetLayoutName();
 
         // ------------------------------------------------------------------
         // Public functions
         // ------------------------------------------------------------------
-        /// <summary>Restarts the <see cref="AudioListener3D"/>.</summary>
-        public void ForceReset() {
-            ChannelCount = -1;
-            ResetFunc();
-        }
-
         /// <summary>Runs the frame update function.</summary>
         public void ForcedUpdate() => Update();
     }

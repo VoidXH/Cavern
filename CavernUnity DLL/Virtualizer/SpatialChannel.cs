@@ -1,15 +1,16 @@
 ﻿using UnityEngine;
 
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
     static partial class VirtualizerFilter {
         /// <summary>Represents a virtualizable channel with impulse responses for both ears.</summary>
         struct SpatialChannel {
-            const float LowFrequencyCrossover = 120;
-            const float HighFrequencyCrossover = 12000;
+            const float lowFrequencyCrossover = 120;
+            const float highFrequencyCrossover = 12000;
             /// <summary>Ear to ear sound travel time in samples.</summary>
-            const float PeakDelay = FilterSampleRate * .14f /* subject head width in meters */ / CavernUtilities.SpeedOfSound * Mathf.PI;
+            const float peakDelay = filterSampleRate * .14f /* subject head width in meters */ / Utils.SpeedOfSound * Mathf.PI;
 
             /// <summary>Virtual speaker angle difference from the subject's gaze on the x axis: elevation.</summary>
             public float X;
@@ -21,22 +22,22 @@ namespace Cavern.Virtualizer {
             public float[] RightEarIR;
 
             // Convolution filters for spatial placement
-            Convolver _LeftFilter;
-            Convolver _RightFilter;
-            public Convolver LeftFilter => _LeftFilter ?? (_LeftFilter = new Convolver(LeftEarIR, Y > 0 ? (int)(Mathf.Sin(Y * Mathf.Deg2Rad) * PeakDelay + .5f) : 0));
-            public Convolver RightFilter => _RightFilter ?? (_RightFilter = new Convolver(RightEarIR, Y < 0 ? (int)(Mathf.Sin(-Y * Mathf.Deg2Rad) * PeakDelay + .5f) : 0));
+            Convolver leftFilter;
+            Convolver rightFilter;
+            public Convolver LeftFilter => leftFilter ?? (leftFilter = new Convolver(LeftEarIR, Y > 0 ? (int)(Mathf.Sin(Y * Mathf.Deg2Rad) * peakDelay + .5f) : 0));
+            public Convolver RightFilter => rightFilter ?? (rightFilter = new Convolver(RightEarIR, Y < 0 ? (int)(Mathf.Sin(-Y * Mathf.Deg2Rad) * peakDelay + .5f) : 0));
 
-            // Low frequency crossover filter for retaining bass outside the impulse response frequency range
-            Crossover _LowCrossover;
-            public Crossover LowCrossover => _LowCrossover ?? (_LowCrossover = new Crossover(FilterSampleRate, LowFrequencyCrossover));
+            /// <summary>Low frequency crossover filter for retaining bass outside the impulse response frequency range.</summary>
+            public Crossover LowCrossover => lowCrossover ?? (lowCrossover = new Crossover(filterSampleRate, lowFrequencyCrossover));
+            Crossover lowCrossover;
 
-            // High frequency crossover filter for retaining treble outside the impulse response frequency range
-            Crossover _HighCrossover;
-            public Crossover HighCrossover => _HighCrossover ?? (_HighCrossover = new Crossover(FilterSampleRate, HighFrequencyCrossover));
+            /// <summary>High frequency crossover filter for retaining treble outside the impulse response frequency range.</summary>
+            public Crossover HighCrossover => highCrossover ?? (highCrossover = new Crossover(filterSampleRate, highFrequencyCrossover));
+            Crossover highCrossover;
         }
 
         /// <summary>HRIR database.</summary>
-        static readonly SpatialChannel[] SpatialChannels = new SpatialChannel[] {
+        static readonly SpatialChannel[] spatialChannels = new SpatialChannel[] {
             new SpatialChannel() { // Front left
                 X = 0, Y = -45,
                 LeftEarIR = new float[] { -0.0006408691f, -0.1360779f, -0.2473145f, 0.1378174f, 0.4517517f, 0.07791138f, -0.2861633f, -0.2067261f, 0.08905029f, 0.03012085f, -0.07803345f, -0.1439209f, -0.1572266f, -0.2173767f, -0.09585571f, 0.0008239746f, 0.06771851f, 0.07168579f, 0.1448975f, 0.1260376f, 0.08804321f, 0.05847168f, 0.03466797f, -0.03103638f, -0.01782227f, 0.02130127f, 0.03762817f, 0.0135498f, 0.07095337f, 0.07415771f, 0.02191162f, -0.001831055f, 0.03964233f, 3.051758E-05f, -0.03799438f, -0.02938843f, -0.01568604f, -0.04412842f, -3.051758E-05f, 0.03729248f, 0.02877808f, 0.0118103f, 0.04180908f, 0.04876709f, 0.02581787f, 0.01904297f, 0.0163269f, 0.004333496f, 0.003051758f, 0.02993774f, 0.02780151f, 0.01553345f, 0.005126953f, 0.02178955f, 0.0105896f, 0.0123291f, 0.005126953f, 0.01327515f, -0.02267456f, -0.01461792f, -0.01678467f, -0.001068115f, -0.02371216f, -0.005767822f, },

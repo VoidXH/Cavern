@@ -5,55 +5,55 @@ namespace Cavern.Format {
     /// <summary>Minimal RIFF wave file writer.</summary>
     public class RIFFWaveWriter : AudioWriter {
         /// <summary>Minimal RIFF wave file writer.</summary>
-        /// <param name="Writer">File writer object</param>
-        /// <param name="ChannelCount">Output channel count</param>
-        /// <param name="Length">Output length in samples</param>
-        /// <param name="SampleRate">Output sample rate</param>
-        /// <param name="Bits">Output bit depth</param>
-        public RIFFWaveWriter(BinaryWriter Writer, int ChannelCount, long Length, int SampleRate, BitDepth Bits) :
-            base(Writer, ChannelCount, Length, SampleRate, Bits) {}
+        /// <param name="writer">File writer object</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="length">Output length in samples</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public RIFFWaveWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) :
+            base(writer, channelCount, length, sampleRate, bits) {}
 
         /// <summary>Create the file header.</summary>
         public override void WriteHeader() {
             // RIFF header
-            Writer.Write(new byte[] { (byte)'R', (byte)'I', (byte)'F', (byte)'F' });
-            int DataLength = (int)(Length * ((int)Bits / 8));
-            Writer.Write(BitConverter.GetBytes(36 + DataLength)); // File length
-            Writer.Write(new byte[] { (byte)'W', (byte)'A', (byte)'V', (byte)'E' });
+            writer.Write(new byte[] { (byte)'R', (byte)'I', (byte)'F', (byte)'F' });
+            int dataLength = (int)(length * ((int)bits / 8));
+            writer.Write(BitConverter.GetBytes(36 + dataLength)); // File length
+            writer.Write(new byte[] { (byte)'W', (byte)'A', (byte)'V', (byte)'E' });
 
             // FMT header
-            Writer.Write(new byte[] { (byte)'f', (byte)'m', (byte)'t', (byte)' ' });
-            Writer.Write(new byte[] { 16, 0, 0, 0 }); // FMT header size
-            Writer.Write(new byte[] { Bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
-            Writer.Write(BitConverter.GetBytes((short)ChannelCount)); // Audio channels
-            Writer.Write(BitConverter.GetBytes(SampleRate)); // Sample rate
-            int BlockAlign = ChannelCount * ((int)Bits / 8), BPS = SampleRate * BlockAlign;
-            Writer.Write(BitConverter.GetBytes(BPS)); // Bytes per second
-            Writer.Write(BitConverter.GetBytes((short)BlockAlign)); // Block size in bytes
-            Writer.Write(BitConverter.GetBytes((short)Bits)); // Bit depth
+            writer.Write(new byte[] { (byte)'f', (byte)'m', (byte)'t', (byte)' ' });
+            writer.Write(new byte[] { 16, 0, 0, 0 }); // FMT header size
+            writer.Write(new byte[] { bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
+            writer.Write(BitConverter.GetBytes((short)channelCount)); // Audio channels
+            writer.Write(BitConverter.GetBytes(sampleRate)); // Sample rate
+            int blockAlign = channelCount * ((int)bits / 8), BPS = sampleRate * blockAlign;
+            writer.Write(BitConverter.GetBytes(BPS)); // Bytes per second
+            writer.Write(BitConverter.GetBytes((short)blockAlign)); // Block size in bytes
+            writer.Write(BitConverter.GetBytes((short)bits)); // Bit depth
 
             // Data header
-            Writer.Write(new byte[] { (byte)'d', (byte)'a', (byte)'t', (byte)'a' });
-            Writer.Write(BitConverter.GetBytes(DataLength)); // Data length
+            writer.Write(new byte[] { (byte)'d', (byte)'a', (byte)'t', (byte)'a' });
+            writer.Write(BitConverter.GetBytes(dataLength)); // Data length
         }
 
         /// <summary>Write a block of samples.</summary>
-        /// <param name="Samples">Samples to write</param>
-        /// <param name="From">Start position in the input array (inclusive)</param>
-        /// <param name="To">End position in the input array (exclusive)</param>
-        public override void WriteBlock(float[] Samples, long From, long To) {
-            switch (Bits) {
+        /// <param name="samples">Samples to write</param>
+        /// <param name="from">Start position in the input array (inclusive)</param>
+        /// <param name="to">End position in the input array (exclusive)</param>
+        public override void WriteBlock(float[] samples, long from, long to) {
+            switch (bits) {
                 case BitDepth.Int8:
-                    while (From < To)
-                        Writer.Write((byte)((Samples[From++] + 1f) * 127f));
+                    while (from < to)
+                        writer.Write((byte)((samples[from++] + 1f) * 127f));
                     break;
                 case BitDepth.Int16:
-                    while (From < To)
-                        Writer.Write((short)(Samples[From++] * 32767f));
+                    while (from < to)
+                        writer.Write((short)(samples[from++] * 32767f));
                     break;
                 case BitDepth.Float32:
-                    while (From < To)
-                        Writer.Write(Samples[From++]);
+                    while (from < to)
+                        writer.Write(samples[from++]);
                     break;
             }
         }

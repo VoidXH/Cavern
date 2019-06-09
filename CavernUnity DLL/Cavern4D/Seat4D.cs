@@ -15,12 +15,12 @@ namespace Cavern.Cavern4D {
         public int Column;
 
         /// <summary>Keep the last height for delta movement if the object is moved by something else.</summary>
-        float LastHeight;
+        float lastHeight;
 
         void LateUpdate() {
-            float Height = Base.SeatMovements[Row][Column].Height;
-            transform.localPosition += new Vector3(0, Height - LastHeight, 0);
-            LastHeight = Height;
+            float height = Base.SeatMovements[Row][Column].Height;
+            transform.localPosition += new Vector3(0, height - lastHeight, 0);
+            lastHeight = height;
             transform.localRotation = Quaternion.Euler(Base.SeatMovements[Row][Column].Rotation);
         }
     }

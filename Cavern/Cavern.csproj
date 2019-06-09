@@ -44,9 +44,24 @@
   <ItemGroup>
     <Compile Include="Clip.cs" />
     <Compile Include="Channel.cs" />
+    <Compile Include="Listener.cs" />
+    <Compile Include="Listener_Interface.cs" />
+    <Compile Include="Source.cs" />
+    <Compile Include="Source_Asymmetric.cs" />
+    <Compile Include="Source_Interface.cs" />
+    <Compile Include="Source_Rolloff.cs" />
+    <Compile Include="Source_Symmetric.cs" />
+    <Compile Include="Utilities\Resample.cs" />
+    <Compile Include="Utilities\Utils.cs" />
     <Compile Include="Utilities\Enumerations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\Vector.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Cavern.Filters\Cavern.Filters.csproj">
+      <Project>{DAF58EED-35DC-416F-8DCE-7816B808BFB6}</Project>
+      <Name>Cavern.Filters</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

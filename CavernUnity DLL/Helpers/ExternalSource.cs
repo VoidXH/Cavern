@@ -29,10 +29,10 @@ namespace Cavern.Helpers {
             if (!Source)
                 return;
             // Latency fix
-            int MicPos = Microphone.GetPosition(Source.clip.name);
-            Latency = (MicPos - Source.timeSamples + Source.clip.samples) % Source.clip.samples / (float)Source.clip.samples;
+            int micPos = Microphone.GetPosition(Source.clip.name);
+            Latency = (micPos - Source.timeSamples + Source.clip.samples) % Source.clip.samples / (float)Source.clip.samples;
             if (Latency > MaxLatency)
-                Source.timeSamples = MicPos - AudioSettings.GetConfiguration().dspBufferSize;
+                Source.timeSamples = micPos - AudioSettings.GetConfiguration().dspBufferSize;
         }
 
         void OnDisable() => Destroy(Source.clip);

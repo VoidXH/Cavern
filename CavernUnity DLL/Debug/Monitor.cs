@@ -13,61 +13,60 @@ namespace Cavern.Debug {
         public float AutoScale = 0;
 
         /// <summary>Displayed room edges.</summary>
-        readonly GameObject[] Edges = new GameObject[12];
+        readonly GameObject[] edges = new GameObject[12];
+        /// <summary>List of visualized objects.</summary>
+        List<Visualized> objects = new List<Visualized>();
         /// <summary>Last environment scale.</summary>
-        Vector3 RoomScale;
+        Vector3 roomScale;
 
         /// <summary>A visualized object.</summary>
         class Visualized {
             /// <summary>Created object for visualization.</summary>
             public GameObject Object;
             /// <summary>The visualized source.</summary>
-            public AudioSource3D Target;
+            public Source Target;
 
-            public Visualized(GameObject Object, AudioSource3D Target) {
-                this.Object = Object;
-                this.Target = Target;
+            public Visualized(GameObject obj, Source target) {
+                Object = obj;
+                Target = target;
             }
         }
 
-        /// <summary>List of visualized objects.</summary>
-        List<Visualized> Objects = new List<Visualized>();
-
         void SetRoomScale() {
-            RoomScale = AudioListener3D.EnvironmentSize;
-            for (int Vertical = 0; Vertical < 4; ++Vertical) {
-                float ModMult = Vertical % 2 == 0 ? -.5f : .5f, DivMult = Vertical / 2 == 0 ? -.5f : .5f;
-                Edges[Vertical].transform.localPosition = new Vector3(ModMult * RoomScale.x, 0, DivMult * RoomScale.z);
-                Edges[Vertical].transform.localScale = new Vector3(.1f, RoomScale.y, .1f);
-                int Horizontal = Vertical + 4;
-                Edges[Horizontal].transform.localPosition = new Vector3(0, ModMult * RoomScale.y, DivMult * RoomScale.z);
-                Edges[Horizontal].transform.localScale = new Vector3(RoomScale.x, .1f, .1f);
-                Horizontal += 4;
-                Edges[Horizontal].transform.localPosition = new Vector3(ModMult * RoomScale.x, DivMult * RoomScale.y, 0);
-                Edges[Horizontal].transform.localScale = new Vector3(.1f, .1f, RoomScale.z);
+            roomScale = AudioListener3D.EnvironmentSize;
+            for (int vertical = 0; vertical < 4; ++vertical) {
+                float modMult = vertical % 2 == 0 ? -.5f : .5f, divMult = vertical / 2 == 0 ? -.5f : .5f;
+                edges[vertical].transform.localPosition = new Vector3(modMult * roomScale.x, 0, divMult * roomScale.z);
+                edges[vertical].transform.localScale = new Vector3(.1f, roomScale.y, .1f);
+                int horizontal = vertical + 4;
+                edges[horizontal].transform.localPosition = new Vector3(0, modMult * roomScale.y, divMult * roomScale.z);
+                edges[horizontal].transform.localScale = new Vector3(roomScale.x, .1f, .1f);
+                horizontal += 4;
+                edges[horizontal].transform.localPosition = new Vector3(modMult * roomScale.x, divMult * roomScale.y, 0);
+                edges[horizontal].transform.localScale = new Vector3(.1f, .1f, roomScale.z);
             }
         }
 
         void Start() {
             for (int i = 0; i < 12; ++i)
-                (Edges[i] = GameObject.CreatePrimitive(PrimitiveType.Cube)).transform.SetParent(transform, false);
+                (edges[i] = GameObject.CreatePrimitive(PrimitiveType.Cube)).transform.SetParent(transform, false);
             SetRoomScale();
         }
 
         void Update() {
             // Reset scale
-            if (RoomScale != AudioListener3D.EnvironmentSize)
+            if (roomScale != AudioListener3D.EnvironmentSize)
                 SetRoomScale();
-            Vector3 ObjScale = new Vector3(.5f, .5f, .5f);
+            Vector3 objScale = new Vector3(.5f, .5f, .5f);
             if (AutoScale != 0) {
-                float Scale = Mathf.Max(RoomScale.x, RoomScale.y, RoomScale.z);
-                float InvScale = AutoScale / Scale;
-                Scale *= .05f;
-                ObjScale = new Vector3(Scale, Scale, Scale);
-                transform.localScale = new Vector3(InvScale, InvScale, InvScale);
+                float scale = Mathf.Max(roomScale.x, roomScale.y, roomScale.z);
+                float invScale = AutoScale / scale;
+                scale *= .05f;
+                objScale = new Vector3(scale, scale, scale);
+                transform.localScale = new Vector3(invScale, invScale, invScale);
             }
             // Remove destroyed sources
-            Objects.RemoveAll(new System.Predicate<Visualized>((Obj) => {
+            objects.RemoveAll(new System.Predicate<Visualized>((Obj) => {
                 if (!Obj.Target || !Obj.Target.IsPlaying || Obj.Target.Mute) {
                     Destroy(Obj.Object);
                     return true;
@@ -75,32 +74,32 @@ namespace Cavern.Debug {
                 return false;
             }));
             // Add not visualized sources, update visualized sources
-            IEnumerator<Visualized> Vis;
-            Quaternion InverseListenerRot = Quaternion.Inverse(AudioListener3D.Current.transform.rotation);
-            IEnumerator<AudioSource3D> Source = AudioListener3D.ActiveSources.GetEnumerator();
-            while (Source.MoveNext()) {
-                AudioSource3D Current = Source.Current;
-                if (!Current.IsPlaying || Current.Mute)
+            IEnumerator<Visualized> vis;
+            Quaternion inverseListenerRot = Quaternion.Inverse(AudioListener3D.Current.transform.rotation);
+            IEnumerator<Source> source = AudioListener3D.cavernListener.ActiveSources.GetEnumerator();
+            while (source.MoveNext()) {
+                Source current = source.Current;
+                if (!current.IsPlaying || current.Mute)
                     continue;
-                Visualized Target = null;
-                Vis = Objects.GetEnumerator();
-                while (Vis.MoveNext()) {
-                    if (Vis.Current.Target == Current) {
-                        Target = Vis.Current;
+                Visualized target = null;
+                vis = objects.GetEnumerator();
+                while (vis.MoveNext()) {
+                    if (vis.Current.Target == current) {
+                        target = vis.Current;
                         break;
                     }
                 }
-                if (Target == null) {
-                    GameObject Obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    Obj.transform.SetParent(transform, false);
-                    Obj.transform.localScale = ObjScale;
-                    Objects.Add(Target = new Visualized(Obj, Current));
+                if (target == null) {
+                    GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    obj.transform.SetParent(transform, false);
+                    obj.transform.localScale = objScale;
+                    objects.Add(target = new Visualized(obj, current));
                 }
-                Vector3 Pos = InverseListenerRot * (Target.Target.gameObject.transform.position - AudioListener3D.LastPosition);
+                Vector3 pos = inverseListenerRot * (CavernUtilities.VectorMatch(target.Target.Position) - AudioListener3D.Current.transform.position);
                 if (LimitBounds)
-                    Pos = new Vector3(Mathf.Clamp(Pos.x, -RoomScale.x, RoomScale.x), Mathf.Clamp(Pos.y, -RoomScale.y, RoomScale.y),
-                        Mathf.Clamp(Pos.z, -RoomScale.z, RoomScale.z));
-                Target.Object.transform.localPosition = Pos * .5f;
+                    pos = new Vector3(Mathf.Clamp(pos.x, -roomScale.x, roomScale.x), Mathf.Clamp(pos.y, -roomScale.y, roomScale.y),
+                        Mathf.Clamp(pos.z, -roomScale.z, roomScale.z));
+                target.Object.transform.localPosition = pos * .5f;
             }
         }
     }

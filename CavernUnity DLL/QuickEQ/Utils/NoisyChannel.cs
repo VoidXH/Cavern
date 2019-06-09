@@ -12,30 +12,42 @@ namespace Cavern.QuickEQ {
         [Tooltip("Target output channel.")]
         public int Channel = 0;
 
-        /// <summary>Rendered output array kept to save allocation time.</summary>
-        float[] Rendered = new float[0];
-        /// <summary>Random number generator.</summary>
-        Random Generator = new Random();
+        /// <summary>Custom Cavern <see cref="Source"/> for this component.</summary>
+        class NoisyChannelSource : Source {
+            /// <summary>Target output channel.</summary>
+            public int channel = 0;
 
-        internal override bool Precollect() {
-            if (Rendered.Length != AudioListener3D.RenderBufferSize)
-                Rendered = new float[AudioListener3D.RenderBufferSize];
-            return true;
-        }
+            /// <summary>Rendered output array kept to save allocation time.</summary>
+            float[] rendered = new float[0];
+            /// <summary>Random number generator.</summary>
+            Random generator = new Random();
 
-        internal override float[] Collect() {
-            Array.Clear(Rendered, 0, Rendered.Length);
-            if (IsPlaying && !Mute) {
-                int Channels = AudioListener3D.ChannelCount;
-                if (Channel < 0 || Channel >= Channels) {
-                    UnityEngine.Debug.LogError(string.Format("Incorrect channel: {0}", Channel));
-                    return Rendered;
-                }
-                float Gain = Volume * 2;
-                for (int Sample = Channel, End = Rendered.Length; Sample < End; Sample += Channels)
-                    Rendered[Sample] = (float)Generator.NextDouble() * Gain - Volume;
+            protected override bool Precollect() {
+                int renderBufferSize = AudioListener3D.Channels.Length * AudioListener3D.Current.UpdateRate;
+                if (rendered.Length != renderBufferSize)
+                    rendered = new float[renderBufferSize];
+                return true;
             }
-            return Rendered;
+
+            protected override float[] Collect() {
+                Array.Clear(rendered, 0, rendered.Length);
+                if (IsPlaying && !Mute) {
+                    int channels = AudioListener3D.Channels.Length;
+                    if (channel < 0 || channel >= channels) {
+                        UnityEngine.Debug.LogError(string.Format("Incorrect channel: {0}", channel));
+                        return rendered;
+                    }
+                    float gain = Volume * 2;
+                    for (int sample = channel, end = rendered.Length; sample < end; sample += channels)
+                        rendered[sample] = (float)generator.NextDouble() * gain - Volume;
+                }
+                return rendered;
+            }
         }
+
+        /// <summary>Generates noise on the selected output channel.</summary>
+        void Awake() => cavernSource = new NoisyChannelSource();
+
+        void LateUpdate() => ((NoisyChannelSource)cavernSource).channel = Channel;
     }
 }

@@ -9,39 +9,39 @@ namespace Cavern.Spoofer {
         [Tooltip("Use Unity's audio engine for clips that are not transferrable to Cavern (anything that is not decompressed on load).")]
         public bool Duality = true;
 
-        static AutoSpoofer Instance;
+        static AutoSpoofer instance;
 
-        AudioListener ListenerInstance;
-        List<AudioSource> Sources = new List<AudioSource>();
+        AudioListener listenerInstance;
+        List<AudioSource> sources = new List<AudioSource>();
 
         /// <summary>Create an <see cref="AutoSpoofer"/> through the application if it doesn't exist.</summary>
-        /// <param name="Debug">Display <see cref="Debug.Levels"/> in the application.</param>
-        public static void CreateSpoofer(bool Debug = false) {
-            if (!Instance)
+        /// <param name="debug">Display <see cref="Debug.Levels"/> in the application.</param>
+        public static void CreateSpoofer(bool debug = false) {
+            if (!instance)
                 DontDestroyOnLoad(new GameObject("Auto Audio Engine Spoofer").AddComponent<AutoSpoofer>());
-            Debug.Levels LevelsWindow = Instance.GetComponent<Debug.Levels>();
-            if (Debug && !LevelsWindow)
-                Instance.gameObject.AddComponent<Debug.Levels>();
-            else if (!Debug && LevelsWindow)
+            Debug.Levels LevelsWindow = instance.GetComponent<Debug.Levels>();
+            if (debug && !LevelsWindow)
+                instance.gameObject.AddComponent<Debug.Levels>();
+            else if (!debug && LevelsWindow)
                 Destroy(LevelsWindow);
         }
 
-        void Awake() => Instance = this;
+        void Awake() => instance = this;
 
         void Update() {
-            if (!ListenerInstance && (ListenerInstance = FindObjectOfType<AudioListener>())) {
-                AudioListenerSpoofer Spoofer = ListenerInstance.gameObject.AddComponent<AudioListenerSpoofer>();
-                Spoofer.Source = ListenerInstance;
-                Spoofer.Duality = Duality;
+            if (!listenerInstance && (listenerInstance = FindObjectOfType<AudioListener>())) {
+                AudioListenerSpoofer spoofer = listenerInstance.gameObject.AddComponent<AudioListenerSpoofer>();
+                spoofer.Source = listenerInstance;
+                spoofer.duality = Duality;
             }
-            Sources.RemoveAll(x => !x);
-            AudioSource[] All = FindObjectsOfType<AudioSource>();
-            for (int i = 0, Count = All.Length; i < Count; ++i) {
-                if (!Sources.Contains(All[i])) {
-                    Sources.Add(All[i]);
-                    AudioSourceSpoofer Spoofer = All[i].gameObject.AddComponent<AudioSourceSpoofer>();
-                    Spoofer.Source = All[i];
-                    Spoofer.Duality = Duality;
+            this.sources.RemoveAll(x => !x);
+            AudioSource[] sources = FindObjectsOfType<AudioSource>();
+            for (int source = 0, end = sources.Length; source < end; ++source) {
+                if (!this.sources.Contains(sources[source])) {
+                    this.sources.Add(sources[source]);
+                    AudioSourceSpoofer spoofer = sources[source].gameObject.AddComponent<AudioSourceSpoofer>();
+                    spoofer.Source = sources[source];
+                    spoofer.duality = Duality;
                 }
             }
         }

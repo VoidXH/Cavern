@@ -5,26 +5,26 @@ namespace Cavern.Helpers {
     [AddComponentMenu("Audio/Helpers/Internal/One Shot Destructor")]
     internal class OneShotDestructor : MonoBehaviour {
         /// <summary>Source to destruct</summary>
-        AudioSource3D Source;
+        AudioSource3D source;
         /// <summary>Destroy the parent GameObject after playback.</summary>
-        bool DestroyGameObject;
+        bool destroyGameObject;
 
         /// <summary>Constructs a new destructor.</summary>
-        /// <param name="AttachTo">Object containing a source to destruct</param>
-        /// <param name="TargetSource">Source to destruct</param>
-        /// <param name="DestroyAfter">Destroy the parent after playback</param>
-        internal static OneShotDestructor Constructor(GameObject AttachTo, AudioSource3D TargetSource, bool DestroyAfter) {
-            OneShotDestructor Destructor = AttachTo.AddComponent<OneShotDestructor>();
-            Destructor.Source = TargetSource;
-            Destructor.DestroyGameObject = DestroyAfter;
-            return Destructor;
+        /// <param name="attachTo">Object containing a source to destruct</param>
+        /// <param name="targetSource">Source to destruct</param>
+        /// <param name="destroyAfter">Destroy the parent after playback</param>
+        internal static OneShotDestructor Constructor(GameObject attachTo, AudioSource3D targetSource, bool destroyAfter) {
+            OneShotDestructor destructor = attachTo.AddComponent<OneShotDestructor>();
+            destructor.source = targetSource;
+            destructor.destroyGameObject = destroyAfter;
+            return destructor;
         }
 
         void Update() {
-            if (!Source.IsPlaying) {
-                Destroy(Source);
+            if (!source.IsPlaying) {
+                Destroy(source);
                 Destroy(this);
-                if (DestroyGameObject)
+                if (destroyGameObject)
                     Destroy(gameObject);
             }
         }

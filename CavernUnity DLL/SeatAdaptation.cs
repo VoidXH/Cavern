@@ -17,25 +17,25 @@ namespace Cavern {
         void Start() => SeatsOccupied = new bool[Rows, Columns];
 
         void Update() {
-            float RRows = Rows - 1, RColumns = Columns - 1;
-            float CenterRow = RRows * .5f, CenterColumn = RColumns * .5f;
-            int SeatsFound = 0;
-            float SoundPositionX = 0, SoundPositionZ = 0;
-            for (int Z = 0; Z < Rows; ++Z) {
-                for (int X = 0; X < Columns; ++X) {
-                    if (SeatsOccupied[Z, X]) {
-                        SoundPositionX += X;
-                        SoundPositionZ += Z;
-                        ++SeatsFound;
+            float rRows = Rows - 1, rColumns = Columns - 1;
+            float centerRow = rRows * .5f, centerColumn = rColumns * .5f;
+            int seatsFound = 0;
+            float soundPositionX = 0, soundPositionZ = 0;
+            for (int z = 0; z < Rows; ++z) {
+                for (int x = 0; x < Columns; ++x) {
+                    if (SeatsOccupied[z, x]) {
+                        soundPositionX += x;
+                        soundPositionZ += z;
+                        ++seatsFound;
                     }
                 }
             }
-            float SeatRecip = 1f / SeatsFound;
-            SoundPositionX *= SeatRecip;
-            SoundPositionZ *= SeatRecip;
-            AudioListener3D.Current.transform.position = SeatsFound == 0 ? Origin.position :
-                Origin.position + Origin.rotation * new Vector3(AudioListener3D.EnvironmentSize.x * .5f - SoundPositionX / RColumns * AudioListener3D.EnvironmentSize.x, 0,
-                                                                AudioListener3D.EnvironmentSize.z * .5f - SoundPositionZ / RRows * AudioListener3D.EnvironmentSize.z);
+            float seatRecip = 1f / seatsFound;
+            soundPositionX *= seatRecip;
+            soundPositionZ *= seatRecip;
+            AudioListener3D.Current.transform.position = seatsFound == 0 ? Origin.position :
+                Origin.position + Origin.rotation * new Vector3(AudioListener3D.EnvironmentSize.x * .5f - soundPositionX / rColumns * AudioListener3D.EnvironmentSize.x, 0,
+                                                                AudioListener3D.EnvironmentSize.z * .5f - soundPositionZ / rRows * AudioListener3D.EnvironmentSize.z);
         }
 
         void OnDisable() {

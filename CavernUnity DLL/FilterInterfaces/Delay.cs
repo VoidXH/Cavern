@@ -10,21 +10,18 @@ namespace Cavern.FilterInterfaces {
         [Range(0, 3)] public float DelayTime = .25f;
 
         /// <summary>The attached audio source.</summary>
-        AudioSource3D Source;
+        AudioSource3D source;
         /// <summary>The attached delay filter.</summary>
-        Filters.Delay Filter;
+        Filters.Delay filter;
 
         void OnEnable() {
-            Source = GetComponent<AudioSource3D>();
-            Filter = new Filters.Delay(DelayTime, AudioListener3D.Current.SampleRate);
-            Source.AddFilter(Filter);
+            source = GetComponent<AudioSource3D>();
+            filter = new Filters.Delay(DelayTime, AudioListener3D.Current.SampleRate);
+            source.AddFilter(filter);
         }
 
-        void OnDisable() => Source.RemoveFilter(Filter);
+        void OnDisable() => source.RemoveFilter(filter);
 
-        void Update() {
-            int TargetDelay = (int)(DelayTime * AudioListener3D.Current.SampleRate);
-            Filter.DelaySamples = TargetDelay;
-        }
+        void Update() => filter.DelaySamples = (int)(DelayTime * AudioListener3D.Current.SampleRate);
     }
 }

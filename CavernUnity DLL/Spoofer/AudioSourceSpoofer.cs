@@ -13,50 +13,50 @@ namespace Cavern.Spoofer {
         public AudioSource Source;
 
         /// <summary>Use Unity's audio engine for clips that are not transferrable to Cavern (transferred from <see cref="AutoSpoofer"/>).</summary>
-        internal bool Duality = true;
+        internal bool duality = true;
 
-        AudioSource3D Target;
+        AudioSource3D target;
 
         void LateUpdate() {
             if (Source) {
-                if (!Target)
-                    Target = Source.gameObject.AddComponent<AudioSource3D>();
-                Target.enabled = Source.enabled;
-                Target.DopplerLevel = Source.dopplerLevel;
-                Target.IsPlaying = Source.isPlaying;
-                Target.Loop = Source.loop;
-                Target.Mute = Source.mute;
-                Target.Pitch = Source.pitch;
-                Target.SpatialBlend = Source.spatialBlend;
-                Target.StereoPan = Source.panStereo;
-                if (Target.Clip = Source.clip) {
-                    bool Decompressed = Source.clip.loadType == AudioClipLoadType.DecompressOnLoad;
-                    if (!Duality)
-                        Target.Volume = Source.volume;
-                    else if (Decompressed && Source.volume != Mute) {
-                        Target.Volume = Source.volume;
+                if (!target)
+                    target = Source.gameObject.AddComponent<AudioSource3D>();
+                target.enabled = Source.enabled;
+                target.DopplerLevel = Source.dopplerLevel;
+                target.IsPlaying = Source.isPlaying;
+                target.Loop = Source.loop;
+                target.Mute = Source.mute;
+                target.Pitch = Source.pitch;
+                target.SpatialBlend = Source.spatialBlend;
+                target.StereoPan = Source.panStereo;
+                if (target.Clip = Source.clip) {
+                    bool decompressed = Source.clip.loadType == AudioClipLoadType.DecompressOnLoad;
+                    if (!duality)
+                        target.Volume = Source.volume;
+                    else if (decompressed && Source.volume != Mute) {
+                        target.Volume = Source.volume;
                         Source.volume = Mute;
                     }
                     AudioSettings.GetDSPBufferSize(out int BufferSize, out int Buffers);
-                    if (Math.Abs(Target.timeSamples - Source.timeSamples) > BufferSize)
-                        Target.timeSamples = Source.timeSamples;
-                    if (!Decompressed)
-                        Target.CavernClip = null;
+                    if (Math.Abs(target.timeSamples - Source.timeSamples) > BufferSize)
+                        target.timeSamples = Source.timeSamples;
+                    if (!decompressed)
+                        target.Clip = null;
                 }
                 switch (Source.rolloffMode) {
                     case AudioRolloffMode.Linear:
-                        Target.VolumeRolloff = Rolloffs.Linear;
+                        target.VolumeRolloff = Rolloffs.Linear;
                         break;
                     case AudioRolloffMode.Logarithmic:
-                        Target.VolumeRolloff = Rolloffs.Logarithmic;
+                        target.VolumeRolloff = Rolloffs.Logarithmic;
                         break;
                     default:
-                        Target.VolumeRolloff = Rolloffs.Disabled;
+                        target.VolumeRolloff = Rolloffs.Disabled;
                         break;
                 }
             } else {
-                if (Target)
-                    Destroy(Target);
+                if (target)
+                    Destroy(target);
                 Destroy(this);
             }
         }

@@ -2,6 +2,7 @@
 using UnityEngine;
 
 using Cavern.Cavernize;
+using Cavern.Utilities;
 
 namespace Cavern.Cavern4D {
     /// <summary>Seat movement generation for <see cref="Cavernize"/>.</summary>
@@ -40,13 +41,13 @@ namespace Cavern.Cavern4D {
 
         void Start() {
             SeatMovements = new SeatData[Rows][];
-            for (int Row = 0; Row < Rows; ++Row)
-                SeatMovements[Row] = new SeatData[Columns];
+            for (int row = 0; row < Rows; ++row)
+                SeatMovements[row] = new SeatData[Columns];
         }
 
         void OnDisable() {
-            for (int Row = 0; Row < Rows; ++Row)
-                Array.Clear(SeatMovements[Row], 0, Columns);
+            for (int row = 0; row < Rows; ++row)
+                Array.Clear(SeatMovements[row], 0, Columns);
         }
 
         void Update() {
@@ -54,83 +55,87 @@ namespace Cavern.Cavern4D {
                 OnDisable();
                 return;
             }
-            for (int Row = 0; Row < Rows; ++Row)
-                for (int Column = 0; Column < Columns; ++Column)
-                    SeatMovements[Row][Column].Height = 200;
-            int LastRow = Rows - 1, LastColumn = Columns - 1;
-            if (CavernSource.Mains[0] != null) // Front left
-                SeatMovements[0][0].Height = CavernSource.Mains[0].Height;
-            if (CavernSource.Mains[1] != null) // Front right
-                SeatMovements[0][LastColumn].Height = CavernSource.Mains[1].Height;
-            if (CavernSource.Mains[2] != null && CavernSource.Mains[2].Height != Cavernizer.UnsetHeight) // Center
-                SeatMovements[0][LastColumn / 2].Height = CavernSource.Mains[2].Height;
-            if (CavernSource.Mains[6] != null) // Side left
-                SeatMovements[LastRow][0].Height = CavernSource.Mains[6].Height;
-            if (CavernSource.Mains[7] != null) // Side right
-                SeatMovements[LastRow][LastColumn].Height = CavernSource.Mains[7].Height;
+            for (int row = 0; row < Rows; ++row)
+                for (int column = 0; column < Columns; ++column)
+                    SeatMovements[row][column].Height = 200;
+            int lastRow = Rows - 1, lastColumn = Columns - 1;
+            if (CavernSource.mains[0] != null) // Front left
+                SeatMovements[0][0].Height = CavernSource.mains[0].Height;
+            if (CavernSource.mains[1] != null) // Front right
+                SeatMovements[0][lastColumn].Height = CavernSource.mains[1].Height;
+            if (CavernSource.mains[2] != null && CavernSource.mains[2].Height != Cavernizer.unsetHeight) // Center
+                SeatMovements[0][lastColumn / 2].Height = CavernSource.mains[2].Height;
+            if (CavernSource.mains[6] != null) // Side left
+                SeatMovements[lastRow][0].Height = CavernSource.mains[6].Height;
+            if (CavernSource.mains[7] != null) // Side right
+                SeatMovements[lastRow][lastColumn].Height = CavernSource.mains[7].Height;
             // Addition is okay, and should be used, as the rears are near the sides in the back corners.
-            if (CavernSource.Mains[4] != null) // Rear left
-                SeatMovements[LastRow][0].Height += CavernSource.Mains[4].Height;
-            if (CavernSource.Mains[5] != null) // Rear right
-                SeatMovements[LastRow][LastColumn].Height += CavernSource.Mains[5].Height;
-            SpatializedChannel RearCenter = CavernSource.GetChannel(CavernizeChannel.RearCenter);
-            if (RearCenter != null) // Rear center
-                SeatMovements[LastRow][LastColumn / 2].Height = RearCenter.Height;
+            if (CavernSource.mains[4] != null) // Rear left
+                SeatMovements[lastRow][0].Height += CavernSource.mains[4].Height;
+            if (CavernSource.mains[5] != null) // Rear right
+                SeatMovements[lastRow][lastColumn].Height += CavernSource.mains[5].Height;
+            SpatializedChannel rearCenter = CavernSource.GetChannel(CavernizeChannel.RearCenter);
+            if (rearCenter != null) // Rear center
+                SeatMovements[lastRow][lastColumn / 2].Height = rearCenter.Height;
             // Use the front channels for moving all seats if nothing else is available for the rear sides
-            if (SeatMovements[LastRow][0].Height == 200)
-                SeatMovements[LastRow][0].Height = SeatMovements[0][0].Height;
-            if (SeatMovements[LastRow][LastColumn].Height == 200)
-                SeatMovements[LastRow][LastColumn].Height = SeatMovements[0][LastColumn].Height;
+            if (SeatMovements[lastRow][0].Height == 200)
+                SeatMovements[lastRow][0].Height = SeatMovements[0][0].Height;
+            if (SeatMovements[lastRow][lastColumn].Height == 200)
+                SeatMovements[lastRow][lastColumn].Height = SeatMovements[0][lastColumn].Height;
             // Seat position interpolation
-            for (int Row = 0; Row < Rows; ++Row) {
-                int Prev = 0;
-                for (int Column = 0; Column < Columns; ++Column) {
-                    if (SeatMovements[Row][Column].Height != 200) {
-                        float LerpDiv = Column - Prev;
-                        for (int OldColumn = Prev; OldColumn < Column; ++OldColumn)
-                            SeatMovements[Row][OldColumn].Height =
-                                CavernUtilities.FastLerp(SeatMovements[Row][Prev].Height, SeatMovements[Row][Column].Height, (OldColumn - Prev) / LerpDiv);
-                        Prev = Column;
+            for (int row = 0; row < Rows; ++row) {
+                int prev = 0;
+                for (int column = 0; column < Columns; ++column) {
+                    if (SeatMovements[row][column].Height != 200) {
+                        float lerpDiv = column - prev;
+                        for (int oldColumn = prev; oldColumn < column; ++oldColumn)
+                            SeatMovements[row][oldColumn].Height =
+                                Utils.Lerp(SeatMovements[row][prev].Height, SeatMovements[row][column].Height, (oldColumn - prev) / lerpDiv);
+                        prev = column;
                     }
                 }
-                if (Prev != LastColumn) {
-                    float LerpDiv = LastColumn - Prev;
-                    for (int OldColumn = Prev; OldColumn < LastColumn; ++OldColumn)
-                        SeatMovements[Row][OldColumn].Height =
-                            CavernUtilities.FastLerp(SeatMovements[Row][Prev].Height, SeatMovements[Row][LastColumn].Height, (OldColumn - Prev) / LerpDiv);
+                if (prev != lastColumn) {
+                    float lerpDiv = lastColumn - prev;
+                    for (int oldColumn = prev; oldColumn < lastColumn; ++oldColumn)
+                        SeatMovements[row][oldColumn].Height =
+                            Utils.Lerp(SeatMovements[row][prev].Height, SeatMovements[row][lastColumn].Height, (oldColumn - prev) / lerpDiv);
                 }
             }
-            for (int Column = 0; Column < Columns; ++Column) {
-                int Prev = 0;
-                for (int Row = 0; Row < Rows; ++Row) {
-                    if (SeatMovements[Row][Column].Height != 200) {
-                        float LerpDiv = Row - Prev;
-                        for (int OldRow = Prev; OldRow < Row; ++OldRow)
-                            SeatMovements[OldRow][Column].Height =
-                                CavernUtilities.FastLerp(SeatMovements[Prev][Column].Height, SeatMovements[Row][Column].Height, (OldRow - Prev) / LerpDiv);
-                        Prev = Row;
+            for (int column = 0; column < Columns; ++column) {
+                int prev = 0;
+                for (int row = 0; row < Rows; ++row) {
+                    if (SeatMovements[row][column].Height != 200) {
+                        float lerpDiv = row - prev;
+                        for (int oldRow = prev; oldRow < row; ++oldRow)
+                            SeatMovements[oldRow][column].Height =
+                                Utils.Lerp(SeatMovements[prev][column].Height, SeatMovements[row][column].Height, (oldRow - prev) / lerpDiv);
+                        prev = row;
                     }
                 }
-                if (Prev != LastRow) {
-                    float LerpDiv = LastRow - Prev;
-                    for (int OldRow = Prev; OldRow < LastRow; ++OldRow)
-                        SeatMovements[OldRow][Column].Height = CavernUtilities.FastLerp(SeatMovements[Prev][Column].Height, SeatMovements[LastRow][Column].Height, (OldRow - Prev) / LerpDiv);
+                if (prev != lastRow) {
+                    float lerpDiv = lastRow - prev;
+                    for (int oldRow = prev; oldRow < lastRow; ++oldRow)
+                        SeatMovements[oldRow][column].Height = Utils.Lerp(SeatMovements[prev][column].Height, SeatMovements[lastRow][column].Height,
+                            (oldRow - prev) / lerpDiv);
                 }
             }
             // Seat rotation interpolation
-            for (int Row = 0; Row < Rows; ++Row) {
-                SeatMovements[Row][0].Rotation.z = Mathf.Clamp((SeatMovements[Row][1].Height - SeatMovements[Row][0].Height) * RotationConstant * 2, -MaxRotationSide, MaxRotationSide);
-                for (int Column = 1; Column < LastColumn; ++Column)
-                    SeatMovements[Row][Column].Rotation.z = Mathf.Clamp((SeatMovements[Row][Column + 1].Height - SeatMovements[Row][Column - 1].Height) * RotationConstant, -MaxRotationSide, MaxRotationSide);
-                SeatMovements[Row][LastColumn].Rotation.z = Mathf.Clamp((SeatMovements[Row][LastColumn].Height - SeatMovements[Row][LastColumn - 1].Height) * RotationConstant * 2,
+            for (int row = 0; row < Rows; ++row) {
+                SeatMovements[row][0].Rotation.z = Mathf.Clamp((SeatMovements[row][1].Height - SeatMovements[row][0].Height) * RotationConstant * 2,
                     -MaxRotationSide, MaxRotationSide);
+                for (int column = 1; column < lastColumn; ++column)
+                    SeatMovements[row][column].Rotation.z = Mathf.Clamp((SeatMovements[row][column + 1].Height - SeatMovements[row][column - 1].Height) *
+                        RotationConstant, -MaxRotationSide, MaxRotationSide);
+                SeatMovements[row][lastColumn].Rotation.z = Mathf.Clamp((SeatMovements[row][lastColumn].Height - SeatMovements[row][lastColumn - 1].Height) *
+                    RotationConstant * 2, -MaxRotationSide, MaxRotationSide);
             }
-            for (int Column = 0; Column < Columns; ++Column) {
-                SeatMovements[0][Column].Rotation.x = Mathf.Clamp((SeatMovements[1][Column].Height - SeatMovements[0][Column].Height) * RotationConstant * 2, -20, 20);
-                for (int Row = 1; Row < LastRow; ++Row)
-                    SeatMovements[Row][Column].Rotation.x = Mathf.Clamp((SeatMovements[Row + 1][Column].Height - SeatMovements[Row - 1][Column].Height) * RotationConstant, -MaxRotationFace, MaxRotationFace);
-                SeatMovements[LastRow][Column].Rotation.x = Mathf.Clamp((SeatMovements[LastRow][Column].Height - SeatMovements[LastRow - 1][Column].Height) * RotationConstant * 2,
-                    -MaxRotationFace, MaxRotationFace);
+            for (int column = 0; column < Columns; ++column) {
+                SeatMovements[0][column].Rotation.x = Mathf.Clamp((SeatMovements[1][column].Height - SeatMovements[0][column].Height) * RotationConstant * 2, -20, 20);
+                for (int row = 1; row < lastRow; ++row)
+                    SeatMovements[row][column].Rotation.x = Mathf.Clamp((SeatMovements[row + 1][column].Height - SeatMovements[row - 1][column].Height) *
+                        RotationConstant, -MaxRotationFace, MaxRotationFace);
+                SeatMovements[lastRow][column].Rotation.x = Mathf.Clamp((SeatMovements[lastRow][column].Height - SeatMovements[lastRow - 1][column].Height) *
+                    RotationConstant * 2, -MaxRotationFace, MaxRotationFace);
             }
         }
     }

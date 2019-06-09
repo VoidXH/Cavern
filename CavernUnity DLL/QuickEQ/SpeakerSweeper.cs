@@ -8,29 +8,6 @@ namespace Cavern.QuickEQ {
     /// <summary>Measures the frequency response of all output channels.</summary>
     [AddComponentMenu("Audio/QuickEQ/Speaker Sweeper")]
     public class SpeakerSweeper : MonoBehaviour {
-        /// <summary>Playable measurement signal.</summary>
-        AudioClip Sweep;
-        /// <summary>Microphone input.</summary>
-        AudioClip SweepResponse;
-        /// <summary>Cached listener.</summary>
-        AudioListener3D Listener;
-        /// <summary>A hack to fix lost playback from the initial hanging caused by sweep generation in <see cref="OnEnable"/>.</summary>
-        bool MeasurementStarted;
-        /// <summary>Environment compensation before the measurement. Environment compensation is off while measuring.</summary>
-        bool OldCompensation;
-        /// <summary>LFE pass-through before the measurement. LFE pass-through is on while measuring.</summary>
-        bool OldDirectLFE;
-        /// <summary>Virtualizer before the measurement. Virtualizer is off while measuring.</summary>
-        bool OldVirtualizer;
-        /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
-        Complex[] SweepFFT;
-        /// <summary>FFT constant cache for the sweep FFT size.</summary>
-        FFTCache SweepFFTCache;
-        /// <summary>Sweep playback objects.</summary>
-        SweepChannel[] Sweepers;
-        /// <summary>Response evaluator tasks.</summary>
-        Task<WorkerResult>[] Workers;
-
         /// <summary>Name of the recording device. If empty, de system default will be used.</summary>
         [Tooltip("Name of the recording device. If empty, de system default will be used.")]
         public string InputDevice = string.Empty;
@@ -71,108 +48,127 @@ namespace Cavern.QuickEQ {
                     return 1;
                 else if (!enabled)
                     return 0;
-                return (float)Sweepers[AudioListener3D.ChannelCount - 1].timeSamples / SweepReference.Length / AudioListener3D.ChannelCount;
+                return (float)sweepers[AudioListener3D.Channels.Length - 1].timeSamples / SweepReference.Length / AudioListener3D.Channels.Length;
             }
         }
+
+        /// <summary>Playable measurement signal.</summary>
+        AudioClip sweep;
+        /// <summary>Microphone input.</summary>
+        AudioClip sweepResponse;
+        /// <summary>Cached listener.</summary>
+        AudioListener3D listener;
+        /// <summary>A hack to fix lost playback from the initial hanging caused by sweep generation in <see cref="OnEnable"/>.</summary>
+        bool measurementStarted;
+        /// <summary>LFE pass-through before the measurement. LFE pass-through is on while measuring.</summary>
+        bool oldDirectLFE;
+        /// <summary>Virtualizer before the measurement. Virtualizer is off while measuring.</summary>
+        bool oldVirtualizer;
+        /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
+        Complex[] sweepFFT;
+        /// <summary>FFT constant cache for the sweep FFT size.</summary>
+        FFTCache sweepFFTCache;
+        /// <summary>Sweep playback objects.</summary>
+        SweepChannel[] sweepers;
+        /// <summary>Response evaluator tasks.</summary>
+        Task<WorkerResult>[] workers;
 
         /// <summary>Generate <see cref="SweepReference"/> and the related optimization values.</summary>
         public void RegenerateSweep() {
             SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreq, SweepLength, AudioListener3D.Current.SampleRate));
-            float GainMult = Mathf.Pow(10, SweepGain / 20);
-            for (int Sample = 0, Length = SweepReference.Length; Sample < Length; ++Sample)
-                SweepReference[Sample] *= GainMult;
-            SweepFFT = Measurements.FFT(SweepReference, SweepFFTCache = new FFTCache(SweepReference.Length));
+            float gainMult = Mathf.Pow(10, SweepGain / 20);
+            for (int sample = 0, length = SweepReference.Length; sample < length; ++sample)
+                SweepReference[sample] *= gainMult;
+            sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
         }
 
-        /// <summary>Get the frequency response of an external measurement that was performed with the current <see cref="SweepFFT"/>.</summary>
-        public Complex[] GetFrequencyResponse(float[] Samples) => Measurements.GetFrequencyResponse(SweepFFT, Measurements.FFT(Samples, SweepFFTCache));
+        /// <summary>Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.</summary>
+        public Complex[] GetFrequencyResponse(float[] samples) => Measurements.GetFrequencyResponse(sweepFFT, Measurements.FFT(samples, sweepFFTCache));
 
         /// <summary>Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[])"/>.</summary>
-        public VerboseImpulseResponse GetImpulseResponse(Complex[] FrequencyResponse) =>
-            new VerboseImpulseResponse(Measurements.GetImpulseResponse(FrequencyResponse, SweepFFTCache));
+        public VerboseImpulseResponse GetImpulseResponse(Complex[] frequencyResponse) =>
+            new VerboseImpulseResponse(Measurements.GetImpulseResponse(frequencyResponse, sweepFFTCache));
 
         void OnEnable() {
             ResultAvailable = false;
-            Listener = AudioListener3D.Current;
+            listener = AudioListener3D.Current;
             RegenerateSweep();
-            Sweep = AudioClip.Create("Sweep", SweepReference.Length, 1, Listener.SampleRate, false);
-            Sweep.SetData(SweepReference, 0);
+            sweep = AudioClip.Create("Sweep", SweepReference.Length, 1, listener.SampleRate, false);
+            sweep.SetData(SweepReference, 0);
             Channel = 0;
-            FreqResponses = new float[AudioListener3D.ChannelCount][];
-            ImpResponses = new VerboseImpulseResponse[AudioListener3D.ChannelCount];
-            ExcitementResponses = new float[AudioListener3D.ChannelCount][];
-            Equalizers = new Equalizer[AudioListener3D.ChannelCount];
-            Workers = new Task<WorkerResult>[AudioListener3D.ChannelCount];
-            OldCompensation = AudioListener3D.EnvironmentCompensation;
-            OldDirectLFE = Listener.DirectLFE;
-            OldVirtualizer = Listener.HeadphoneVirtualizer;
-            AudioListener3D.EnvironmentCompensation = false;
-            Listener.DirectLFE = true;
+            int channels = Listener.Channels.Length;
+            FreqResponses = new float[channels][];
+            ImpResponses = new VerboseImpulseResponse[channels];
+            ExcitementResponses = new float[channels][];
+            Equalizers = new Equalizer[channels];
+            workers = new Task<WorkerResult>[channels];
+            oldDirectLFE = listener.DirectLFE;
+            oldVirtualizer = Listener.HeadphoneVirtualizer;
+            listener.DirectLFE = true;
             Listener.HeadphoneVirtualizer = false;
-            MeasurementStarted = false;
+            measurementStarted = false;
         }
 
         void Update() {
-            int Channels = AudioListener3D.ChannelCount;
-            if (!MeasurementStarted) {
-                MeasurementStarted = true;
+            int channels = Listener.Channels.Length;
+            if (!measurementStarted) {
+                measurementStarted = true;
                 if (Microphone.devices.Length != 0)
-                    SweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Channels / Listener.SampleRate + 1, Listener.SampleRate);
-                Sweepers = new SweepChannel[Channels];
-                for (int i = 0; i < Channels; ++i) {
-                    Sweepers[i] = gameObject.AddComponent<SweepChannel>();
-                    Sweepers[i].Channel = i;
-                    Sweepers[i].Sweeper = this;
+                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * channels / listener.SampleRate + 1, listener.SampleRate);
+                sweepers = new SweepChannel[channels];
+                for (int i = 0; i < channels; ++i) {
+                    sweepers[i] = gameObject.AddComponent<SweepChannel>();
+                    sweepers[i].Channel = i;
+                    sweepers[i].Sweeper = this;
                 }
             }
             if (ResultAvailable)
                 return;
-            if (!Sweepers[Channel].IsPlaying) {
-                float[] Result = new float[SweepReference.Length];
-                if (SweepResponse)
-                    SweepResponse.GetData(Result, Channel * SweepReference.Length);
+            if (!sweepers[Channel].IsPlaying) {
+                float[] result = new float[SweepReference.Length];
+                if (sweepResponse)
+                    sweepResponse.GetData(result, Channel * SweepReference.Length);
                 else
-                    Result = (float[])Result.Clone();
-                ExcitementResponses[Channel] = Result;
-                (Workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(SweepFFT, SweepFFTCache, Result))).Start();
-                if (++Channel == Channels) {
-                    for (int i = 0; i < Channels; ++i)
-                        if (Workers[i].Result.IsNull())
+                    result = (float[])result.Clone();
+                ExcitementResponses[Channel] = result;
+                (workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(sweepFFT, sweepFFTCache, result))).Start();
+                if (++Channel == channels) {
+                    for (int channel = 0; channel < channels; ++channel)
+                        if (workers[channel].Result.IsNull())
                             return;
-                    for (int i = 0; i < Channels; ++i) {
-                        FreqResponses[i] = Workers[i].Result.FreqResponse;
-                        ImpResponses[i] = Workers[i].Result.ImpResponse;
-                        Destroy(Sweepers[i]);
+                    for (int channel = 0; channel < channels; ++channel) {
+                        FreqResponses[channel] = workers[channel].Result.FreqResponse;
+                        ImpResponses[channel] = workers[channel].Result.ImpResponse;
+                        Destroy(sweepers[channel]);
                     }
                     if (Microphone.IsRecording(InputDevice))
                         Microphone.End(InputDevice);
-                    if (SweepResponse)
-                        Destroy(SweepResponse);
+                    if (sweepResponse)
+                        Destroy(sweepResponse);
                     ResultAvailable = true;
                 }
             }
         }
 
         void OnDisable() {
-            Destroy(Sweep);
-            if (Sweepers[0])
-                for (int i = 0, c = AudioListener3D.ChannelCount; i < c; ++i)
-                    Destroy(Sweepers[i]);
-            if (SweepResponse)
-                Destroy(SweepResponse);
-            AudioListener3D.EnvironmentCompensation = OldCompensation;
-            Listener.DirectLFE = OldDirectLFE;
-            Listener.HeadphoneVirtualizer = OldVirtualizer;
+            Destroy(sweep);
+            if (sweepers[0])
+                for (int channel = 0, channels = AudioListener3D.Channels.Length; channel < channels; ++channel)
+                    Destroy(sweepers[channel]);
+            if (sweepResponse)
+                Destroy(sweepResponse);
+            listener.DirectLFE = oldDirectLFE;
+            Listener.HeadphoneVirtualizer = oldVirtualizer;
         }
 
         struct WorkerResult {
             public float[] FreqResponse;
             public VerboseImpulseResponse ImpResponse;
 
-            public WorkerResult(Complex[] SweepFFT, FFTCache SweepFFTCache, float[] Response) {
-                Complex[] RawResponse = Measurements.GetFrequencyResponse(SweepFFT, Measurements.FFT(Response, SweepFFTCache));
-                FreqResponse = Measurements.GetSpectrum(RawResponse);
-                ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(RawResponse, SweepFFTCache));
+            public WorkerResult(Complex[] sweepFFT, FFTCache sweepFFTCache, float[] response) {
+                Complex[] rawResponse = Measurements.GetFrequencyResponse(sweepFFT, Measurements.FFT(response, sweepFFTCache));
+                FreqResponse = Measurements.GetSpectrum(rawResponse);
+                ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(rawResponse, sweepFFTCache));
             }
 
             public bool IsNull() => FreqResponse == null || ImpResponse == null;

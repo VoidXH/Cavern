@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Cavern.QuickEQ {
     /// <summary>Runs the sweep of a <see cref="SpeakerSweeper"/> with a correct delay for the given channel.</summary>
     [AddComponentMenu("Audio/QuickEQ/Sweep Channel")]
-    public class SweepChannel : AudioSource3D {
+    internal class SweepChannel : AudioSource3D {
         /// <summary>Target output channel.</summary>
         [Header("Sweep channel")]
         [Tooltip("Target output channel.")]
@@ -13,33 +13,50 @@ namespace Cavern.QuickEQ {
         [Tooltip("Sweeper to use the sweep reference of.")]
         public SpeakerSweeper Sweeper;
 
-        /// <summary>Rendered output array kept to save allocation time.</summary>
-        float[] Rendered = new float[0];
+        /// <summary>Custom Cavern <see cref="Source"/> for this component.</summary>
+        class SweepChannelSource : Source {
+            /// <summary>Target output channel.</summary>
+            public int Channel = 0;
+            /// <summary>Sweeper to use the sweep reference of.</summary>
+            public SpeakerSweeper Sweeper;
 
-        internal override bool Precollect() {
-            if (Rendered.Length != AudioListener3D.RenderBufferSize)
-                Rendered = new float[AudioListener3D.RenderBufferSize];
-            return true;
+            /// <summary>Rendered output array kept to save allocation time.</summary>
+            float[] rendered = new float[0];
+
+            protected override bool Precollect() {
+                int renderBufferSize = AudioListener3D.Channels.Length * AudioListener3D.Current.UpdateRate;
+                if (rendered.Length != renderBufferSize)
+                    rendered = new float[renderBufferSize];
+                return true;
+            }
+
+            protected override float[] Collect() {
+                Array.Clear(rendered, 0, rendered.Length);
+                if (IsPlaying && !Mute) {
+                    int sweepLength = Sweeper.SweepReference.Length, delay = Channel * sweepLength, channels = AudioListener3D.Channels.Length;
+                    int pos = TimeSamples - delay;
+                    for (int sample = Channel, end = rendered.Length; sample < end; sample += channels) {
+                        if (pos < 0)
+                            continue;
+                        if (pos >= sweepLength) {
+                            IsPlaying = false;
+                            break;
+                        }
+                        rendered[sample] = Sweeper.SweepReference[pos];
+                        ++pos;
+                    }
+                    TimeSamples += AudioListener3D.Current.UpdateRate;
+                }
+                return rendered;
+            }
         }
 
-        internal override float[] Collect() {
-            Array.Clear(Rendered, 0, Rendered.Length);
-            if (IsPlaying && !Mute) {
-                int SweepLength = Sweeper.SweepReference.Length, Delay = Channel * SweepLength, Channels = AudioListener3D.ChannelCount;
-                int Pos = timeSamples - Delay;
-                for (int Sample = Channel, EndSample = Rendered.Length; Sample < EndSample; Sample += Channels) {
-                    if (Pos < 0)
-                        continue;
-                    if (Pos >= SweepLength) {
-                        IsPlaying = false;
-                        break;
-                    }
-                    Rendered[Sample] = Sweeper.SweepReference[Pos];
-                    ++Pos;
-                }
-                timeSamples += AudioListener3D.Current.UpdateRate;
-            }
-            return Rendered;
+        void Awake() => cavernSource = new SweepChannelSource();
+
+        void Start() {
+            SweepChannelSource source = (SweepChannelSource)cavernSource;
+            source.Channel = Channel;
+            source.Sweeper = Sweeper;
         }
     }
 }

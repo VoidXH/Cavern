@@ -1,43 +1,36 @@
-﻿using System.Runtime.CompilerServices;
-using UnityEngine;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern {
-    public partial class AudioSource3D : MonoBehaviour {
+    public partial class Source {
         /// <summary>Logarithmic rolloff by distance.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         float RolloffLogarithmic() {
-            if (Distance > 1)
-                return 1 / (1 + Mathf.Log(Distance));
+            if (distance > 1)
+                return 1 / (1 + (float)Math.Log(distance));
             return 1;
         }
 
         /// <summary>Linear rolloff in range.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float RolloffLinear() {
-            float Range = AudioListener3D.Current.Range;
-            return (Range - Distance) / Range;
-        }
+        float RolloffLinear() => (listener.Range - distance) / listener.Range;
 
         /// <summary>Physically correct rolloff by distance.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         float RolloffReal() {
-            if (Distance > 1)
-                return 1 / Distance;
+            if (distance > 1)
+                return 1 / distance;
             return 1;
         }
 
         /// <summary>No rolloff.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float RolloffDisabled() => 1;
+        static float RolloffDisabled() => 1;
 
         /// <summary>Rolloff calculator function.</summary>
         delegate float RolloffFunc();
 
         /// <summary>The rolloff function to be used.</summary>
-        RolloffFunc UsedRolloffFunc;
+        RolloffFunc UsedRolloffFunc = RolloffDisabled;
 
         /// <summary>Last value of <see cref="VolumeRolloff"/>.</summary>
-        Rolloffs LastRolloff;
+        Rolloffs LastRolloff = Rolloffs.Disabled;
 
         /// <summary>Set the <see cref="UsedRolloffFunc"/> to match the user's <see cref="VolumeRolloff"/> setting.</summary>
         void SetRolloff() {

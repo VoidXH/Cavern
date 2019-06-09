@@ -11,20 +11,20 @@ namespace Cavern.Debug {
         public LogType LogLevel = LogType.Error;
 
         /// <summary>Last received log message that matches the criteria.</summary>
-        string LastLog = "No message so far.";
-        LogType LastType = LogType.Log;
+        string lastLog = "No message so far.";
+        LogType lastType = LogType.Log;
 
         /// <summary>Window dimension, name, and custom variable setup.</summary>
         protected override void Setup() {
-            Width = 400;
-            Height = 120;
-            Title = "Log Display";
+            width = 400;
+            height = 120;
+            title = "Log Display";
         }
 
-        void LogHandler(string Message, string StackTrace, LogType MessageLevel) {
-            if (MessageLevel <= LogLevel) {
-                LastLog = Message + "\n\n" + StackTrace;
-                LastType = MessageLevel;
+        void LogHandler(string message, string stackTrace, LogType messageLevel) {
+            if (messageLevel <= LogLevel) {
+                lastLog = message + "\n\n" + stackTrace;
+                lastType = messageLevel;
             }
         }
 
@@ -35,20 +35,20 @@ namespace Cavern.Debug {
         /// <summary>Draw window contents.</summary>
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
-            Color OldColor = GUI.color;
-            if (LastType <= LogType.Error)
+            Color oldColor = GUI.color;
+            if (lastType <= LogType.Error)
                 GUI.color = Color.red;
-            TextAnchor OldAlign = GUI.skin.label.alignment;
-            int OldSize = GUI.skin.label.fontSize;
-            bool OldWrap = GUI.skin.label.wordWrap;
+            TextAnchor oldAlign = GUI.skin.label.alignment;
+            int oldSize = GUI.skin.label.fontSize;
+            bool oldWrap = GUI.skin.label.wordWrap;
             GUI.skin.label.alignment = TextAnchor.MiddleCenter;
             GUI.skin.label.fontSize = 12;
             GUI.skin.label.wordWrap = true;
-            GUI.Label(new Rect(0, 0, Width, Height), LastLog);
-            GUI.color = OldColor;
-            GUI.skin.label.alignment = OldAlign;
-            GUI.skin.label.fontSize = OldSize;
-            GUI.skin.label.wordWrap = OldWrap;
+            GUI.Label(new Rect(0, 0, width, height), lastLog);
+            GUI.color = oldColor;
+            GUI.skin.label.alignment = oldAlign;
+            GUI.skin.label.fontSize = oldSize;
+            GUI.skin.label.wordWrap = oldWrap;
             GUI.DragWindow();
         }
     }

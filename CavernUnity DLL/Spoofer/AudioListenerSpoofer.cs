@@ -9,29 +9,29 @@ namespace Cavern.Spoofer {
         public AudioListener Source;
 
         /// <summary>Use Unity's audio engine for clips that are not transferrable to Cavern (transferred from <see cref="AutoSpoofer"/>).</summary>
-        internal bool Duality = true;
+        internal bool duality = true;
 
-        AudioListener3D Target;
+        AudioListener3D target;
 
         void LateUpdate() {
             if (Source) {
-                if (!Target) {
+                if (!target) {
                     if (AudioListener3D.Current)
-                        Target = AudioListener3D.Current;
+                        target = AudioListener3D.Current;
                     else
-                        Target = Source.gameObject.AddComponent<AudioListener3D>();
+                        target = Source.gameObject.AddComponent<AudioListener3D>();
                 }
-                Target.enabled = Source.enabled;
-                Target.Paused = AudioListener.pause;
-                if (Duality)
-                    Target.volume = AudioListener.volume;
+                target.enabled = Source.enabled;
+                target.Paused = AudioListener.pause;
+                if (duality)
+                    target.volume = AudioListener.volume;
                 else if (AudioListener.volume != AudioSourceSpoofer.Mute) {
-                    Target.Volume = AudioListener.volume;
+                    target.Volume = AudioListener.volume;
                     AudioListener.volume = AudioSourceSpoofer.Mute;
                 }
             } else {
-                if (Target)
-                    Destroy(Target);
+                if (target)
+                    Destroy(target);
                 Destroy(this);
             }
         }

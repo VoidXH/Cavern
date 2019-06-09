@@ -26,11 +26,11 @@ namespace Cavern.Utilities {
         [System.NonSerialized] public Matrix4x4 Matrix = Matrix4x4.identity;
 
         /// <summary>Window width.</summary>
-        protected int Width;
+        protected int width;
         /// <summary>Window height.</summary>
-        protected int Height;
+        protected int height;
         /// <summary>Window title.</summary>
-        protected string Title;
+        protected string title;
         /// <summary>Randomly generated window ID.</summary>
         int ID;
 
@@ -43,13 +43,13 @@ namespace Cavern.Utilities {
         void Start() {
             Setup();
             Position = new Rect(Corner == Corners.TopRight || Corner == Corners.BottomRight ? Screen.width : 0,
-                                Corner == Corners.BottomLeft || Corner == Corners.BottomRight ? Screen.height : 0, Width, Height);
+                                Corner == Corners.BottomLeft || Corner == Corners.BottomRight ? Screen.height : 0, width, height);
             ID = Random.Range(100000, int.MaxValue);
         }
 
         void OnGUI() {
             GUI.matrix = Matrix;
-            Position = GUI.Window(ID, Position, Draw, Title);
+            Position = GUI.Window(ID, Position, Draw, title);
             if (Position.x < 0)
                 Position.x = 0;
             if (Position.y < 0)

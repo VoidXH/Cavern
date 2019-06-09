@@ -40,59 +40,59 @@ namespace Cavern.FilterInterfaces {
         [Range(-10, 10)] public float Gain = 0;
 
         /// <summary>The attached audio source.</summary>
-        AudioSource3D Source;
+        AudioSource3D source;
         /// <summary>The attached selected filter.</summary>
-        BiquadFilter Filter;
+        BiquadFilter filter;
         /// <summary>Last set type of filter.</summary>
-        FilterTypes LastFilter;
+        FilterTypes lastFilter;
 
         void RecreateFilter() {
-            if (Filter != null)
-                Source.RemoveFilter(Filter);
-            switch (LastFilter = FilterType) {
+            if (filter != null)
+                source.RemoveFilter(filter);
+            switch (lastFilter = FilterType) {
                 case FilterTypes.Lowpass:
-                    Filter = new Lowpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    filter = new Lowpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Highpass:
-                    Filter = new Highpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    filter = new Highpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Bandpass:
-                    Filter = new Bandpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    filter = new Bandpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Notch:
-                    Filter = new Notch(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    filter = new Notch(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.Allpass:
-                    Filter = new Allpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    filter = new Allpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.PeakingEQ:
-                    Filter = new PeakingEQ(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    filter = new PeakingEQ(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.LowShelf:
-                    Filter = new LowShelf(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    filter = new LowShelf(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
                 case FilterTypes.HighShelf:
-                    Filter = new HighShelf(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
+                    filter = new HighShelf(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain);
                     break;
             }
-            Source.AddFilter(Filter);
+            source.AddFilter(filter);
         }
 
         void OnEnable() {
-            Source = GetComponent<AudioSource3D>();
+            source = GetComponent<AudioSource3D>();
             RecreateFilter();
         }
 
         void OnDisable() {
-            Source.RemoveFilter(Filter);
-            Filter = null;
+            source.RemoveFilter(filter);
+            filter = null;
         }
 
         void Update() {
-            if (LastFilter != FilterType)
+            if (lastFilter != FilterType)
                 RecreateFilter();
-            if (Filter.CenterFreq != CenterFreq || Filter.Q != Q || Filter.Gain != Gain)
-                Filter.Reset(CenterFreq, Q, Gain);
+            if (filter.CenterFreq != CenterFreq || filter.Q != Q || filter.Gain != Gain)
+                filter.Reset(CenterFreq, Q, Gain);
         }
     }
 }

@@ -13,26 +13,26 @@
         public readonly bool Muted;
 
         /// <summary>Standard channel constructor.</summary>
-        /// <param name="Y">Y axis angle</param>
-        /// <param name="Name">Channel name</param>
+        /// <param name="y">Y axis angle</param>
+        /// <param name="name">Channel name</param>
         /// <param name="LFE">True if the channel is used for Low Frequency Effects</param>
-        /// <param name="Muted">Mute status</param>
-        CavernizeChannel(float Y, string Name, bool LFE = false, bool Muted = false) {
+        /// <param name="muted">Mute status</param>
+        CavernizeChannel(float y, string name, bool LFE = false, bool muted = false) {
             X = 0;
-            this.Y = Y;
-            this.Name = Name;
+            Y = y;
+            Name = name;
             this.LFE = LFE;
-            this.Muted = Muted;
+            Muted = muted;
         }
 
         /// <summary>Spatial channel constructor.</summary>
-        /// <param name="Y">Y axis angle</param>
-        /// <param name="X">X axis angle</param>
-        /// <param name="Name">Channel name</param>
-        CavernizeChannel(float Y, float X, string Name) {
-            this.Y = Y;
-            this.X = X;
-            this.Name = Name;
+        /// <param name="y">Y axis angle</param>
+        /// <param name="x">X axis angle</param>
+        /// <param name="name">Channel name</param>
+        CavernizeChannel(float y, float x, string name) {
+            Y = y;
+            X = x;
+            Name = name;
             LFE = Muted = false;
         }
 

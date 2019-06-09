@@ -9,9 +9,9 @@ namespace Cavern.Utilities {
         public float Imaginary;
 
         /// <summary>Constructor from coordinates.</summary>
-        public Complex(float Real = 0, float Imaginary = 0) {
-            this.Real = Real;
-            this.Imaginary = Imaginary;
+        public Complex(float real = 0, float imaginary = 0) {
+            Real = real;
+            Imaginary = imaginary;
         }
 
         /// <summary>Magnitude of the complex number (spectrum for FFT).</summary>
@@ -21,10 +21,10 @@ namespace Cavern.Utilities {
         public float Phase => Mathf.Atan(Imaginary / Real);
 
         /// <summary>Multiply by (cos(x), sin(x)).</summary>
-        public void Rotate(float Angle) {
-            float Cos = Mathf.Cos(Angle), Sin = Mathf.Sin(Angle), OldReal = Real;
-            Real = Real * Cos - Imaginary * Sin;
-            Imaginary = OldReal * Sin + Imaginary * Cos;
+        public void Rotate(float angle) {
+            float cos = Mathf.Cos(angle), sin = Mathf.Sin(angle), oldReal = Real;
+            Real = Real * cos - Imaginary * sin;
+            Imaginary = oldReal * sin + Imaginary * cos;
         }
 
         /// <summary>Complex addition.</summary>
@@ -42,23 +42,23 @@ namespace Cavern.Utilities {
 
         /// <summary>Complex division.</summary>
         public static Complex operator /(Complex lhs, Complex rhs) {
-            float Multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary);
-            return new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) * Multiplier,
-                (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) * Multiplier);
+            float multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary);
+            return new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) * multiplier,
+                (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) * multiplier);
         }
 
         /// <summary>Multiply with another complex number.</summary>
         public void Multiply(ref Complex rhs) {
-            float OldReal = Real;
+            float oldReal = Real;
             Real = Real * rhs.Real - Imaginary * rhs.Imaginary;
-            Imaginary = OldReal * rhs.Imaginary + Imaginary * rhs.Real;
+            Imaginary = oldReal * rhs.Imaginary + Imaginary * rhs.Real;
         }
 
         /// <summary>Divide with another complex number.</summary>
         public void Divide(ref Complex rhs) {
-            float Multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary), OldReal = Real;
-            Real = (Real * rhs.Real + Imaginary * rhs.Imaginary) * Multiplier;
-            Imaginary = (Imaginary * rhs.Real - OldReal * rhs.Imaginary) * Multiplier;
+            float multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary), oldReal = Real;
+            Real = (Real * rhs.Real + Imaginary * rhs.Imaginary) * multiplier;
+            Imaginary = (Imaginary * rhs.Real - oldReal * rhs.Imaginary) * multiplier;
         }
     }
 }

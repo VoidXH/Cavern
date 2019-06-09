@@ -17,19 +17,19 @@ namespace Cavern.Debug {
             public Texture2D Color;
         }
 
-        const int Channels = 10,
-            Left = 0,
-            Center = 1,
-            Right = 2,
-            SurroundL = 3,
-            SurroundR = 4,
-            RearL = 5,
-            RearR = 6,
-            TopL = 7,
-            TopR = 8,
+        const int channels = 10,
+            left = 0,
+            center = 1,
+            right = 2,
+            surroundL = 3,
+            surroundR = 4,
+            rearL = 5,
+            rearR = 6,
+            topL = 7,
+            topR = 8,
             LFE = 9;
-        readonly static string[] Markers = new string[] { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
-        readonly static Color[] ChannelColors = new Color[] {
+        readonly static string[] markers = new string[] { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
+        readonly static Color[] channelColors = new Color[] {
             new Color(.596078431f, .984313725f, .596078431f, 1),
             new Color(1, .647058824f, 0, 1),
             new Color(.596078431f, .984313725f, .596078431f, 1),
@@ -41,117 +41,117 @@ namespace Cavern.Debug {
             new Color(0, .578125f, .75f, 1),
             Color.red
         };
-        readonly ArrayLevelData[] ChannelData = new ArrayLevelData[Channels];
+        readonly ArrayLevelData[] channelData = new ArrayLevelData[channels];
 
-        Texture2D White;
+        Texture2D white;
 
         /// <summary>Window dimension, name, and custom variable setup.</summary>
         protected override void Setup() {
-            Width = 0;
-            Height = 170;
-            Title = "Array Levels";
-            White = new Texture2D(1, 1);
-            White.SetPixel(0, 0, Color.white);
-            White.Apply();
-            for (int Channel = 0; Channel < Channels; ++Channel) {
+            width = 0;
+            height = 170;
+            title = "Array Levels";
+            white = new Texture2D(1, 1);
+            white.SetPixel(0, 0, Color.white);
+            white.Apply();
+            for (int Channel = 0; Channel < channels; ++Channel) {
                 Texture2D ChannelColor = new Texture2D(1, 1);
-                ChannelColor.SetPixel(0, 0, ChannelColors[Channel]);
+                ChannelColor.SetPixel(0, 0, channelColors[Channel]);
                 ChannelColor.Apply();
-                ChannelData[Channel].Color = ChannelColor;
+                channelData[Channel].Color = ChannelColor;
             }
         }
 
-        const int BarHeight = 140;
+        const int barHeight = 140;
 
         /// <summary>Draw window contents.</summary>
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
-            int BlockWidth = 30, GapWidth = BlockWidth / 6, BarWidth = BlockWidth - GapWidth * 2, TargetWidth = Channels * BlockWidth;
-            Position.width = this.Width = TargetWidth + 30;
-            TextAnchor OldAlign = GUI.skin.label.alignment;
+            int blockWidth = 30, gapWidth = blockWidth / 6, barWidth = blockWidth - gapWidth * 2, targetWidth = channels * blockWidth;
+            Position.width = this.width = targetWidth + 30;
+            TextAnchor oldAlign = GUI.skin.label.alignment;
             GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-            int Left = 25 + GapWidth, Top = 25, Width = (int)Position.width - 4;
-            int OldSize = GUI.skin.label.fontSize;
+            int left = 25 + gapWidth, top = 25, width = (int)Position.width - 4;
+            int oldSize = GUI.skin.label.fontSize;
             GUI.skin.label.fontSize = 12;
-            GUI.Label(new Rect(0, Top, 30, 14), (DynamicRange / 10).ToString());
+            GUI.Label(new Rect(0, top, 30, 14), (DynamicRange / 10).ToString());
             for (int i = 2; i <= 10; ++i) {
-                GUI.Label(new Rect(0, Top += 14, 30, 14), (DynamicRange * i / 10).ToString());
-                GUI.DrawTexture(new Rect(2, Top, Width, 1), White);
+                GUI.Label(new Rect(0, top += 14, 30, 14), (DynamicRange * i / 10).ToString());
+                GUI.DrawTexture(new Rect(2, top, width, 1), white);
             }
-            for (int Channel = 0; Channel < Channels; ++Channel) {
-                float Peak = ChannelData[Channel].Peak;
-                if (Peak > 0) {
-                    int Height = (int)(Peak * BarHeight);
-                    GUI.DrawTexture(new Rect(Left, 165 - Height, BarWidth, Height), ChannelData[Channel].Color);
+            for (int channel = 0; channel < channels; ++channel) {
+                float peak = channelData[channel].Peak;
+                if (peak > 0) {
+                    int height = (int)(peak * barHeight);
+                    GUI.DrawTexture(new Rect(left, 165 - height, barWidth, height), channelData[channel].Color);
                 }
-                GUI.Label(new Rect(Left, 150, BarWidth, 15), Markers[Channel]);
-                Left += BlockWidth;
+                GUI.Label(new Rect(left, 150, barWidth, 15), markers[channel]);
+                left += blockWidth;
             }
-            GUI.skin.label.fontSize = OldSize;
-            GUI.skin.label.alignment = OldAlign;
+            GUI.skin.label.fontSize = oldSize;
+            GUI.skin.label.alignment = oldAlign;
             GUI.DragWindow();
         }
 
         void Update() {
-            float[] ArrayLevels = new float[Channels];
-            for (int ActChannel = 0, CavernChannels = AudioListener3D.ChannelCount, MultichannelUpdateRate = AudioListener3D.Output.Length;
-                ActChannel < CavernChannels; ++ActChannel) {
-                float Max = 0;
-                for (int Sample = ActChannel; Sample < MultichannelUpdateRate; Sample += CavernChannels) {
-                    float AbsSample = Math.Abs(AudioListener3D.Output[Sample]);
-                    if (Max < AbsSample)
-                        Max = AbsSample;
+            float[] arrayLevels = new float[channels];
+            for (int actChannel = 0, cavernChannels = AudioListener3D.Channels.Length, multichannelUpdateRate = AudioListener3D.Output.Length;
+                actChannel < cavernChannels; ++actChannel) {
+                float max = 0;
+                for (int sample = actChannel; sample < multichannelUpdateRate; sample += cavernChannels) {
+                    float absSample = Math.Abs(AudioListener3D.Output[sample]);
+                    if (max < absSample)
+                        max = absSample;
                 }
-                Channel3D ThisChannel = AudioListener3D.Channels[ActChannel];
-                if (!ThisChannel.LFE) {
-                    if (ThisChannel.X >= 0) { // Standard 7.1 and below
-                        if (ThisChannel.Y % 180 == 0) {
-                            if (ThisChannel.Y == 0)
-                                ArrayLevels[Center] += Max;
+                Channel thisChannel = AudioListener3D.Channels[actChannel];
+                if (!thisChannel.LFE) {
+                    if (thisChannel.X >= 0) { // Standard 7.1 and below
+                        if (thisChannel.Y % 180 == 0) {
+                            if (thisChannel.Y == 0)
+                                arrayLevels[center] += max;
                             else {
-                                Max *= .5f;
-                                ArrayLevels[RearL] += Max;
-                                ArrayLevels[RearR] += Max;
+                                max *= .5f;
+                                arrayLevels[rearL] += max;
+                                arrayLevels[rearR] += max;
                             }
-                        } else if (ThisChannel.Y < 0) {
-                            if (ThisChannel.Y < -45)
-                                ArrayLevels[ThisChannel.Y < -135 ? RearL : SurroundL] += Max;
+                        } else if (thisChannel.Y < 0) {
+                            if (thisChannel.Y < -45)
+                                arrayLevels[thisChannel.Y < -135 ? rearL : surroundL] += max;
                             else
-                                ArrayLevels[Left] += Max;
-                        } else if (ThisChannel.Y > 0) {
-                            if (ThisChannel.Y > 45)
-                                ArrayLevels[ThisChannel.Y > 135 ? RearR : SurroundR] += Max;
+                                arrayLevels[left] += max;
+                        } else if (thisChannel.Y > 0) {
+                            if (thisChannel.Y > 45)
+                                arrayLevels[thisChannel.Y > 135 ? rearR : surroundR] += max;
                             else
-                                ArrayLevels[Right] += Max;
+                                arrayLevels[right] += max;
                         }
                     } else { // Height/overhead channels
-                        if (ThisChannel.Y < 0)
-                            ArrayLevels[TopL] += Max;
-                        else if (ThisChannel.Y > 0)
-                            ArrayLevels[TopR] += Max;
+                        if (thisChannel.Y < 0)
+                            arrayLevels[topL] += max;
+                        else if (thisChannel.Y > 0)
+                            arrayLevels[topR] += max;
                         else {
-                            Max *= .5f;
-                            ArrayLevels[TopL] += Max;
-                            ArrayLevels[TopR] += Max;
+                            max *= .5f;
+                            arrayLevels[topL] += max;
+                            arrayLevels[topR] += max;
                         }
                     }
                 } else
-                    ArrayLevels[LFE] += Max;
+                    arrayLevels[LFE] += max;
             }
-            for (int Channel = 0; Channel < Channels; ++Channel) {
-                if (ArrayLevels[Channel] > 1)
-                    ArrayLevels[Channel] = 1;
-                float CurrentBarHeight = CavernUtilities.SignalToDb(ArrayLevels[Channel]) / -DynamicRange + 1, CurrentPeak = ChannelData[Channel].Peak - Time.deltaTime;
-                if (CurrentPeak < CurrentBarHeight)
-                    CurrentPeak = CurrentBarHeight;
-                ChannelData[Channel].Peak = CurrentPeak;
+            for (int channel = 0; channel < channels; ++channel) {
+                if (arrayLevels[channel] > 1)
+                    arrayLevels[channel] = 1;
+                float barHeight = CavernUtilities.SignalToDb(arrayLevels[channel]) / -DynamicRange + 1, currentPeak = channelData[channel].Peak - Time.deltaTime;
+                if (currentPeak < barHeight)
+                    currentPeak = barHeight;
+                channelData[channel].Peak = currentPeak;
             }
         }
 
         void OnDestroy() {
-            Destroy(White);
-            for (int Channel = 0; Channel < Channels; ++Channel)
-                Destroy(ChannelData[Channel].Color);
+            Destroy(white);
+            for (int Channel = 0; Channel < channels; ++Channel)
+                Destroy(channelData[Channel].Color);
         }
     }
 }

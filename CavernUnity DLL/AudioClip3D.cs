@@ -31,6 +31,7 @@ namespace Cavern {
             length = Length;
             frequency = SampleRate;
             channels = Channels;
+            samples = Samples;
         }
     }
 }

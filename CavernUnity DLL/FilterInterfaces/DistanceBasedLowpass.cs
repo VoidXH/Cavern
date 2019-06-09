@@ -12,25 +12,23 @@ namespace Cavern.FilterInterfaces {
         [Range(0, 1)] public float Strength = .1f;
 
         /// <summary>The attached audio source.</summary>
-        AudioSource3D Source;
+        AudioSource3D source;
         /// <summary>The attached lowpass filter.</summary>
-        Lowpass Filter;
+        Lowpass filter;
 
         void OnEnable() {
-            Source = GetComponent<AudioSource3D>();
-            Filter = new Lowpass(AudioListener3D.Current.SampleRate, 120);
+            source = GetComponent<AudioSource3D>();
+            filter = new Lowpass(AudioListener3D.Current.SampleRate, 120);
             Update();
-            Source.AddFilter(Filter);
+            source.AddFilter(filter);
         }
 
-        void OnDisable() => Source.RemoveFilter(Filter);
+        void OnDisable() => source.RemoveFilter(filter);
 
         void Update() {
-            if (!float.IsNaN(Source.Distance)) {
-                float DistanceScale = Source.Distance * Strength;
-                if (DistanceScale > 1)
-                    Filter.Reset(120 + 20000 / DistanceScale);
-            }
+            float distance = (source.cavernSource.Position - AudioListener3D.cavernListener.Position).Magnitude, distanceScale = distance * Strength;
+            if (distanceScale > 1)
+                filter.Reset(120 + 20000 / distanceScale);
         }
     }
 }

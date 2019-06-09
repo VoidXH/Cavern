@@ -44,74 +44,74 @@ namespace Cavern {
         public float Height { get; private set; }
 
         /// <summary>Gain modifier calculated from fader level.</summary>
-        static float FaderGain = 1f;
+        static float faderGain = 1f;
 
         /// <summary>The cinema processor's fader level. Required for height calculation as it is partially based on content volume.</summary>
         public static float Fader {
             get {
-                float dB = CavernUtilities.SignalToDb(1f / FaderGain);
+                float dB = CavernUtilities.SignalToDb(1f / faderGain);
                 if (dB > -10)
                     return dB * .3f + 7;
                 return dB * .05f + 4.5f;
             }
-            set => FaderGain = 1f / CavernUtilities.DbToSignal(value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20));
+            set => faderGain = 1f / CavernUtilities.DbToSignal(value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20));
         }
 
-        float LastSample = 0, LowSample = 0, HighSample = 0;
-        int SampleRate;
+        float lastSample = 0, lowSample = 0, highSample = 0;
+        int sampleRate;
 
-        void Start() => SampleRate = GetComponent<AudioSource>().clip.frequency;
+        void Start() => sampleRate = GetComponent<AudioSource>().clip.frequency;
 
         void OnAudioFilterRead(float[] data, int channels) {
             // Mono downmix
-            int Samples = data.Length, UpdateRate = Samples / channels, ActualSample = 0;
-            float[] MonoMix = new float[UpdateRate];
+            int samples = data.Length, UpdateRate = samples / channels, actualSample = 0;
+            float[] monoMix = new float[UpdateRate];
             if (Balanced) {
-                for (int Sample = ChannelUsed; Sample < Samples; Sample += channels)
-                    MonoMix[ActualSample++] = data[Sample];
-                ActualSample = 0;
-                for (int Sample = ChannelUsed % 2 == 0 ? (ChannelUsed + 1) : (ChannelUsed - 1); Sample < Samples; Sample += channels)
-                    MonoMix[ActualSample] = (MonoMix[ActualSample] - data[Sample]) * .5f;
+                for (int sample = ChannelUsed; sample < samples; sample += channels)
+                    monoMix[actualSample++] = data[sample];
+                actualSample = 0;
+                for (int sample = ChannelUsed % 2 == 0 ? (ChannelUsed + 1) : (ChannelUsed - 1); sample < samples; sample += channels)
+                    monoMix[actualSample] = (monoMix[actualSample] - data[sample]) * .5f;
             } else {
-                for (int Sample = ChannelUsed; Sample < Samples; Sample += channels)
-                    MonoMix[ActualSample++] = data[Sample];
+                for (int sample = ChannelUsed; sample < samples; sample += channels)
+                    monoMix[actualSample++] = data[sample];
             }
             // Cavernize
-            float SmoothFactor = 1f - Mathf.LerpUnclamped(UpdateRate, SampleRate, Mathf.Pow(Smoothness, .1f)) / SampleRate * .999f;
-            float MaxDepth = .0001f, MaxHeight = .0001f;
-            for (int Sample = 0; Sample < UpdateRate; ++Sample) {
-                float CurrentSample = MonoMix[Sample] * FaderGain;
-                HighSample = .9f * (HighSample + CurrentSample - LastSample);
-                float AbsHigh = Math.Abs(HighSample);
-                if (MaxHeight < AbsHigh)
-                    MaxHeight = AbsHigh;
-                LowSample = LowSample * .99f + HighSample * .01f;
-                float AbsLow = Math.Abs(LowSample);
-                if (MaxDepth < AbsLow)
-                    MaxDepth = AbsLow;
-                LastSample = CurrentSample;
+            float smoothFactor = 1f - Mathf.LerpUnclamped(UpdateRate, sampleRate, Mathf.Pow(Smoothness, .1f)) / sampleRate * .999f;
+            float maxDepth = .0001f, MaxHeight = .0001f;
+            for (int sample = 0; sample < UpdateRate; ++sample) {
+                float currentSample = monoMix[sample] * faderGain;
+                highSample = .9f * (highSample + currentSample - lastSample);
+                float absHigh = Math.Abs(highSample);
+                if (MaxHeight < absHigh)
+                    MaxHeight = absHigh;
+                lowSample = lowSample * .99f + highSample * .01f;
+                float absLow = Math.Abs(lowSample);
+                if (maxDepth < absLow)
+                    maxDepth = absLow;
+                lastSample = currentSample;
             }
-            MaxHeight = Mathf.Clamp((MaxHeight - MaxDepth * 1.2f) * Effect * 15, BottomSpeakerHeight, TopSpeakerHeight);
-            Height = Mathf.LerpUnclamped(Height, MaxHeight, SmoothFactor);
+            MaxHeight = Mathf.Clamp((MaxHeight - maxDepth * 1.2f) * Effect * 15, BottomSpeakerHeight, TopSpeakerHeight);
+            Height = Mathf.LerpUnclamped(Height, MaxHeight, smoothFactor);
             // Output
-            float UpperMix = (MaxHeight - BottomSpeakerHeight) / (TopSpeakerHeight - BottomSpeakerHeight),
-                LowerMix = Mathf.Sin(Mathf.PI / 2 * (1f - UpperMix));
-            UpperMix = Mathf.Sin(Mathf.PI / 2 * UpperMix);
-            int OutputPos = (int)Divert % channels - channels;
-            Array.Clear(data, 0, Samples);
-            for (int Sample = 0; Sample < UpdateRate; ++Sample) // Base channel
-                data[OutputPos += channels] = MonoMix[Sample] * LowerMix;
-            OutputPos = ((int)HeightDivert + 1) % channels - channels;
-            for (int Sample = 0; Sample < UpdateRate; ++Sample) // Height channel
-                data[OutputPos += channels] = MonoMix[Sample] * UpperMix;
+            float upperMix = (MaxHeight - BottomSpeakerHeight) / (TopSpeakerHeight - BottomSpeakerHeight),
+                lowerMix = Mathf.Sin(Mathf.PI / 2 * (1f - upperMix));
+            upperMix = Mathf.Sin(Mathf.PI / 2 * upperMix);
+            int outputPos = (int)Divert % channels - channels;
+            Array.Clear(data, 0, samples);
+            for (int sample = 0; sample < UpdateRate; ++sample) // Base channel
+                data[outputPos += channels] = monoMix[sample] * lowerMix;
+            outputPos = ((int)HeightDivert + 1) % channels - channels;
+            for (int sample = 0; sample < UpdateRate; ++sample) // Height channel
+                data[outputPos += channels] = monoMix[sample] * upperMix;
             // Metering
-            float CurrentPeak = 0;
-            for (int Sample = 0; Sample < UpdateRate; ++Sample) {
-                float Abs = Math.Abs(data[Sample]);
-                if (CurrentPeak < Abs)
-                    CurrentPeak = Abs;
+            float currentPeak = 0;
+            for (int sample = 0; sample < UpdateRate; ++sample) {
+                float abs = Math.Abs(data[sample]);
+                if (currentPeak < abs)
+                    currentPeak = abs;
             }
-            LastPeak = Mathf.Max(CurrentPeak, LastPeak - PeakDecay * UpdateRate / SampleRate);
+            LastPeak = Mathf.Max(currentPeak, LastPeak - PeakDecay * UpdateRate / sampleRate);
         }
     }
 }

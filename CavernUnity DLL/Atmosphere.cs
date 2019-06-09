@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using Cavern.Utilities;
+
 using Random = UnityEngine.Random;
 
 namespace Cavern {
@@ -33,9 +35,9 @@ namespace Cavern {
             public AudioSource3D Source;
         }
 
-        AtmosphereObject[] Objects;
+        AtmosphereObject[] objects;
 
-        void Start() => Objects = new AtmosphereObject[Sources];
+        void Start() => objects = new AtmosphereObject[Sources];
 
         void OnDrawGizmosSelected() {
             if (!gameObject.activeInHierarchy)
@@ -54,28 +56,28 @@ namespace Cavern {
             }
         }
 
-        delegate Vector3 PlacerFunc(Vector3 Angles);
+        delegate Vector PlacerFunc(Vector angles);
 
         void Update() {
-            PlacerFunc DirectionFunc = Spherical ? (PlacerFunc)CavernUtilities.PlaceInSphere : CavernUtilities.PlaceInCube;
-            float TargetVolume = Volume / Sources;
-            for (int Source = 0, ClipCount = Clips.Length; Source < Sources; ++Source) {
-                if (!Objects[Source].Object) {
+            PlacerFunc directionFunc = Spherical ? (PlacerFunc)Utils.PlaceInSphere : Utils.PlaceInCube;
+            float targetVolume = Volume / Sources;
+            for (int source = 0, clipCount = Clips.Length; source < Sources; ++source) {
+                if (!objects[source].Object) {
                     if (Visualize)
-                        Objects[Source].Object = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        objects[source].Object = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                     else
-                        Objects[Source].Object = new GameObject();
-                    GameObject Creation = Objects[Source].Object;
+                        objects[source].Object = new GameObject();
+                    GameObject creation = objects[source].Object;
                     // Position source
-                    Vector3 Direction = DirectionFunc(new Vector3(Random.value * 360, Random.value * 360));
-                    float Distance = (MaxDistance - MinDistance) * Random.value + MinDistance;
-                    Creation.transform.position = transform.position + Direction * Distance;
+                    Vector direction = directionFunc(new Vector(Random.value * 360, Random.value * 360));
+                    float distance = (MaxDistance - MinDistance) * Random.value + MinDistance;
+                    creation.transform.position = transform.position + CavernUtilities.VectorMatch(direction) * distance;
                     // Add audio
-                    AudioSource3D NewSource = Objects[Source].Source = Creation.AddComponent<AudioSource3D>();
-                    NewSource.Clip = Clips[(int)(ClipCount * Random.value)];
-                    NewSource.Volume = TargetVolume;
-                } else if (!Objects[Source].Source.IsPlaying)
-                    Destroy(Objects[Source].Object);
+                    AudioSource3D newSource = objects[source].Source = creation.AddComponent<AudioSource3D>();
+                    newSource.Clip = Clips[(int)(clipCount * Random.value)];
+                    newSource.Volume = targetVolume;
+                } else if (!objects[source].Source.IsPlaying)
+                    Destroy(objects[source].Object);
             }
         }
     }

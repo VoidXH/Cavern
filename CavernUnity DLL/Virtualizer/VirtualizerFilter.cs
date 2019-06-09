@@ -6,66 +6,66 @@ using Cavern.Filters;
 namespace Cavern.Virtualizer {
     /// <summary>Convolution filters for each ear and virtual channel to simulate a spatial environment.</summary>
     static partial class VirtualizerFilter {
-        const int FilterSampleRate = 48000;
+        const int filterSampleRate = 48000;
         /// <summary>Cache of each output channel.</summary>
-        static float[][] OriginalSplit;
+        static float[][] originalSplit;
         /// <summary>Cache of each output channel for one ear.</summary>
-        static float[][] LeftSplit, RightSplit;
+        static float[][] leftSplit, rightSplit;
 
         /// <summary>Set up virtual channel set for the virtualization filters.</summary>
         public static void SetLayout() {
-            int ChannelCount = SpatialChannels.Length, UpdateRate = AudioListener3D.Current.UpdateRate;
-            Channel3D[] NewChannels = new Channel3D[ChannelCount];
-            for (int i = 0; i < ChannelCount; ++i)
-                NewChannels[i] = new Channel3D(SpatialChannels[i].X, SpatialChannels[i].Y);
-            AudioListener3D.Channels = NewChannels;
-            if (OriginalSplit == null) {
-                OriginalSplit = new float[ChannelCount][];
-                LeftSplit = new float[ChannelCount][];
-                RightSplit = new float[ChannelCount][];
+            int channels = spatialChannels.Length, updateRate = AudioListener3D.Current.UpdateRate;
+            Channel[] newChannels = new Channel[channels];
+            for (int channel = 0; channel < channels; ++channel)
+                newChannels[channel] = new Channel(spatialChannels[channel].X, spatialChannels[channel].Y);
+            AudioListener3D.Channels = newChannels;
+            if (originalSplit == null) {
+                originalSplit = new float[channels][];
+                leftSplit = new float[channels][];
+                rightSplit = new float[channels][];
             }
-            if (OriginalSplit[0] == null || OriginalSplit[0].Length != UpdateRate) {
-                for (int Channel = 0; Channel < ChannelCount; ++Channel) {
-                    OriginalSplit[Channel] = new float[UpdateRate];
-                    LeftSplit[Channel] = new float[UpdateRate];
-                    RightSplit[Channel] = new float[UpdateRate];
+            if (originalSplit[0] == null || originalSplit[0].Length != updateRate) {
+                for (int channel = 0; channel < channels; ++channel) {
+                    originalSplit[channel] = new float[updateRate];
+                    leftSplit[channel] = new float[updateRate];
+                    rightSplit[channel] = new float[updateRate];
                 }
             }
         }
 
         /// <summary>Apply the virtualizer on the <see cref="AudioListener3D"/>'s output,
         /// if the configuration matches the virtualization layout and filter sample rate.</summary>
-        public static void Process(float[] Output) {
-            int ChannelCount = AudioListener3D.ChannelCount, UpdateRate = AudioListener3D.Current.UpdateRate, BlockCopySize = UpdateRate * sizeof(float);
-            if (AudioListener3D.Current.SampleRate != FilterSampleRate)
+        public static void Process(float[] output) {
+            int channelCount = AudioListener3D.Channels.Length, updateRate = AudioListener3D.Current.UpdateRate, blockCopySize = updateRate * sizeof(float);
+            if (AudioListener3D.Current.SampleRate != filterSampleRate)
                 return;
-            int OutputSample = 0;
-            for (int Sample = 0; Sample < UpdateRate; ++Sample)
-                for (int Channel = 0; Channel < ChannelCount; ++Channel)
-                    OriginalSplit[Channel][Sample] = Output[OutputSample++];
+            int outputSample = 0;
+            for (int sample = 0; sample < updateRate; ++sample)
+                for (int channel = 0; channel < channelCount; ++channel)
+                    originalSplit[channel][sample] = output[outputSample++];
             // Convolution
-            Parallel.For(0, ChannelCount, Channel => {
+            Parallel.For(0, channelCount, channel => {
                 // Select the retain range
-                Crossover LowCrossover = SpatialChannels[Channel].LowCrossover, HighCrossover = SpatialChannels[Channel].HighCrossover;
-                LowCrossover.Process(OriginalSplit[Channel]);
-                SpatialChannels[Channel].HighCrossover.Process(LowCrossover.HighOutput);
-                OriginalSplit[Channel] = LowCrossover.LowOutput;
-                for (int Sample = 0; Sample < UpdateRate; ++Sample)
-                    OriginalSplit[Channel][Sample] += HighCrossover.HighOutput[Sample];
+                Crossover lowCrossover = spatialChannels[channel].LowCrossover, highCrossover = spatialChannels[channel].HighCrossover;
+                lowCrossover.Process(originalSplit[channel]);
+                spatialChannels[channel].HighCrossover.Process(lowCrossover.HighOutput);
+                originalSplit[channel] = lowCrossover.LowOutput;
+                for (int sample = 0; sample < updateRate; ++sample)
+                    originalSplit[channel][sample] += highCrossover.HighOutput[sample];
                 // Select the impulse response frequency range
-                LeftSplit[Channel] = HighCrossover.LowOutput;
-                Buffer.BlockCopy(LeftSplit[Channel], 0, RightSplit[Channel], 0, BlockCopySize);
-                SpatialChannels[Channel].LeftFilter.Process(LeftSplit[Channel]);
-                SpatialChannels[Channel].RightFilter.Process(RightSplit[Channel]);
+                leftSplit[channel] = highCrossover.LowOutput;
+                Buffer.BlockCopy(leftSplit[channel], 0, rightSplit[channel], 0, blockCopySize);
+                spatialChannels[channel].LeftFilter.Process(leftSplit[channel]);
+                spatialChannels[channel].RightFilter.Process(rightSplit[channel]);
             });
             // Stereo downmix
-            Array.Clear(Output, 0, Output.Length);
-            for (int Sample = 0; Sample < UpdateRate; ++Sample) {
-                int LeftOut = Sample * ChannelCount, RightOut = LeftOut + 1;
-                for (int Channel = 0; Channel < ChannelCount; ++Channel) {
-                    float Unspatialized = OriginalSplit[Channel][Sample] * .5f;
-                    Output[LeftOut] += LeftSplit[Channel][Sample] + Unspatialized;
-                    Output[RightOut] += RightSplit[Channel][Sample] + Unspatialized;
+            Array.Clear(output, 0, output.Length);
+            for (int sample = 0; sample < updateRate; ++sample) {
+                int leftOut = sample * channelCount, rightOut = leftOut + 1;
+                for (int channel = 0; channel < channelCount; ++channel) {
+                    float unspatialized = originalSplit[channel][sample] * .5f;
+                    output[leftOut] += leftSplit[channel][sample] + unspatialized;
+                    output[rightOut] += rightSplit[channel][sample] + unspatialized;
                 }
             }
         }

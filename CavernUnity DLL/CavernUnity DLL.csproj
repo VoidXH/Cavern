@@ -59,16 +59,11 @@
     <Compile Include="AudioListener3D.cs" />
     <Compile Include="AudioListener3D_Public.cs" />
     <Compile Include="AudioSource3D.cs" />
-    <Compile Include="AudioSource3D_Asymmetric.cs" />
-    <Compile Include="AudioSource3D_Public.cs" />
-    <Compile Include="AudioSource3D_Rolloff.cs" />
-    <Compile Include="AudioSource3D_Symmetric.cs" />
     <Compile Include="Cavern4D\Cavern4DBase.cs" />
     <Compile Include="Cavern4D\Seat4D.cs" />
     <Compile Include="Cavernize\CavernizeChannel.cs" />
     <Compile Include="Cavernize\CavernizeOutput.cs" />
     <Compile Include="Cavernize\SpatializedChannel.cs" />
-    <Compile Include="Channel3D.cs" />
     <Compile Include="AudioClip3D.cs" />
     <Compile Include="FilterInterfaces\Biquad.cs" />
     <Compile Include="FilterInterfaces\Comb.cs" />

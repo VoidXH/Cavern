@@ -15,23 +15,23 @@ namespace Cavern.FilterInterfaces {
         [Range(0.01f, 1f)] public float Delay = .1f;
 
         /// <summary>The attached audio source.</summary>
-        AudioSource3D Source;
+        AudioSource3D source;
         /// <summary>The attached echo filter.</summary>
-        Echo Filter;
+        Echo filter;
 
         void OnEnable() {
-            Source = GetComponent<AudioSource3D>();
-            Filter = new Echo(AudioListener3D.Current.SampleRate, Strength, Delay);
-            Source.AddFilter(Filter);
+            source = GetComponent<AudioSource3D>();
+            filter = new Echo(AudioListener3D.Current.SampleRate, Strength, Delay);
+            source.AddFilter(filter);
         }
 
-        void OnDisable() => Source.RemoveFilter(Filter);
+        void OnDisable() => source.RemoveFilter(filter);
 
         void Update() {
-            int TargetDelay = (int)(Delay * AudioListener3D.Current.SampleRate);
-            if (Filter.DelaySamples != TargetDelay)
-                Filter.DelaySamples = TargetDelay;
-            Filter.Strength = Strength;
+            int targetDelay = (int)(Delay * AudioListener3D.Current.SampleRate);
+            if (filter.DelaySamples != targetDelay)
+                filter.DelaySamples = targetDelay;
+            filter.Strength = Strength;
         }
     }
 }

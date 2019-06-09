@@ -17,24 +17,24 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Peaks in the impulse response.</summary>
         /// <remarks>Calculated when <see cref="GetPeak(int)"/> is called.</remarks>
-        Peak[] Peaks = null;
+        Peak[] peaks = null;
 
         /// <summary>Create a verbose impulse response from a precalculated impulse response.</summary>
-        public VerboseImpulseResponse(Complex[] ImpulseResponse) {
-            Response = Measurements.GetRealPart(ComplexResponse = ImpulseResponse);
-            float AbsPeak = float.NegativeInfinity;
-            for (int Pos = 0, Length = Response.Length; Pos < Length; ++Pos) {
-                float AbsHere = Math.Abs(Response[Pos]);
-                if (AbsPeak < AbsHere) {
-                    AbsPeak = AbsHere;
-                    Delay = Pos;
+        public VerboseImpulseResponse(Complex[] impulseResponse) {
+            Response = Measurements.GetRealPart(ComplexResponse = impulseResponse);
+            float absPeak = float.NegativeInfinity;
+            for (int pos = 0, length = Response.Length; pos < length; ++pos) {
+                float absHere = Math.Abs(Response[pos]);
+                if (absPeak < absHere) {
+                    absPeak = absHere;
+                    Delay = pos;
                 }
             }
             Polarity = Response[Delay] >= 0;
         }
 
         /// <summary>Create a verbose impulse response from a reference signal and a recorded response.</summary>
-        public VerboseImpulseResponse(float[] Reference, float[] Response) : this(Measurements.IFFT(Measurements.GetFrequencyResponse(Reference, Response))) { }
+        public VerboseImpulseResponse(float[] reference, float[] response) : this(Measurements.IFFT(Measurements.GetFrequencyResponse(reference, response))) { }
 
         /// <summary>Representation of a peak in the impulse response.</summary>
         public struct Peak {
@@ -44,11 +44,11 @@ namespace Cavern.QuickEQ {
             public float Size;
 
             /// <summary>Representation of a peak in the impulse response.</summary>
-            /// <param name="Position">Peak time offset in samples.</param>
-            /// <param name="Size">Gain at that position.</param>
-            public Peak(int Position, float Size) {
-                this.Position = Position;
-                this.Size = Size;
+            /// <param name="position">Peak time offset in samples.</param>
+            /// <param name="size">Gain at that position.</param>
+            public Peak(int position, float size) {
+                Position = position;
+                Size = size;
             }
 
             /// <summary>Returns if a peak is <see cref="Null"/>.</summary>
@@ -58,22 +58,22 @@ namespace Cavern.QuickEQ {
             public static Peak Null = new Peak(-1, 0);
         }
 
-        /// <summary>Get the <paramref name="Position"/>th peak in the impulse response.</summary>
-        public Peak GetPeak(int Position) {
-            if (Peaks == null) {
-                List<Peak> PeakList = new List<Peak>();
-                float Last = Math.Abs(Response[0]), Abs = Math.Abs(Response[1]);
-                for (int Pos = 2, Length = Response.Length; Pos < Length; ++Pos) {
-                    float Next = Math.Abs(Response[Pos]);
-                    if (Abs > Last && Abs > Next)
-                        PeakList.Add(new Peak(Pos - 1, Abs));
-                    Last = Abs;
-                    Abs = Next;
+        /// <summary>Get the <paramref name="position"/>th peak in the impulse response.</summary>
+        public Peak GetPeak(int position) {
+            if (peaks == null) {
+                List<Peak> peakList = new List<Peak>();
+                float last = Math.Abs(Response[0]), abs = Math.Abs(Response[1]);
+                for (int pos = 2, length = Response.Length; pos < length; ++pos) {
+                    float next = Math.Abs(Response[pos]);
+                    if (abs > last && abs > next)
+                        peakList.Add(new Peak(pos - 1, abs));
+                    last = abs;
+                    abs = next;
                 }
-                PeakList.Sort((a, b) => b.Size.CompareTo(a.Size));
-                Peaks = PeakList.ToArray();
+                peakList.Sort((a, b) => b.Size.CompareTo(a.Size));
+                peaks = peakList.ToArray();
             }
-            return Position < Peaks.Length ? Peaks[Position] : Peak.Null;
+            return position < peaks.Length ? peaks[position] : Peak.Null;
         }
     }
 }

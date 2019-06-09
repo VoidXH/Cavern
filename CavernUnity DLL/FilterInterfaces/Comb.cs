@@ -13,21 +13,21 @@ namespace Cavern.FilterInterfaces {
         [Range(0, 3)] public float Alpha;
 
         /// <summary>The attached audio source.</summary>
-        AudioSource3D Source;
+        AudioSource3D source;
         /// <summary>The attached delay filter.</summary>
-        Filters.Comb Filter;
+        Filters.Comb filter;
 
         void OnEnable() {
-            Source = GetComponent<AudioSource3D>();
-            Filter = new Filters.Comb(AudioListener3D.Current.SampleRate, Frequency, Alpha);
-            Source.AddFilter(Filter);
+            source = GetComponent<AudioSource3D>();
+            filter = new Filters.Comb(AudioListener3D.Current.SampleRate, Frequency, Alpha);
+            source.AddFilter(filter);
         }
 
-        void OnDisable() => Source.RemoveFilter(Filter);
+        void OnDisable() => source.RemoveFilter(filter);
 
         void Update() {
-            Filter.Frequency = Frequency;
-            Filter.Alpha = Alpha;
+            filter.Frequency = Frequency;
+            filter.Alpha = Alpha;
         }
     }
 }

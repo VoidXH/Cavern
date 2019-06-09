@@ -13,188 +13,188 @@ namespace Cavern.QuickEQ {
             public float Gain;
 
             /// <summary>EQ band constructor.</summary>
-            public Band(float Frequency, float Gain) {
-                this.Frequency = Frequency;
-                this.Gain = Gain;
+            public Band(float frequency, float gain) {
+                Frequency = frequency;
+                Gain = gain;
             }
         }
 
         /// <summary>Bands that make up this equalizer.</summary>
-        public IReadOnlyList<Band> Bands => _Bands;
-        List<Band> _Bands = new List<Band>();
+        public IReadOnlyList<Band> Bands => bands;
+        List<Band> bands = new List<Band>();
 
         /// <summary>Subsonic filter rolloff in dB / octave.</summary>
         public float SubsonicRolloff {
-            get => _SubsonicRolloff;
+            get => subsonicRolloff;
             set {
-                bool WasFiltered = SubsonicFilter;
-                if (WasFiltered)
+                bool wasFiltered = SubsonicFilter;
+                if (wasFiltered)
                     SubsonicFilter = false;
-                _SubsonicRolloff = value;
-                if (WasFiltered)
+                subsonicRolloff = value;
+                if (wasFiltered)
                     SubsonicFilter = true;
             }
         }
-        float _SubsonicRolloff = 24;
+        float subsonicRolloff = 24;
 
         /// <summary>Cut off low frequencies that are out of the channel's frequency range.</summary>
         public bool SubsonicFilter {
-            get => _SubsonicFilter;
+            get => subsonicFilter;
             set {
-                if (_SubsonicFilter && !value) {
-                    if (_Bands.Count > 0)
-                        _Bands.RemoveAt(0);
-                } else if (!_SubsonicFilter && value && _Bands.Count > 0)
-                    AddBand(new Band(_Bands[0].Frequency * .5f, _Bands[0].Gain - _SubsonicRolloff));
-                _SubsonicFilter = value;
+                if (subsonicFilter && !value) {
+                    if (bands.Count > 0)
+                        bands.RemoveAt(0);
+                } else if (!subsonicFilter && value && bands.Count > 0)
+                    AddBand(new Band(bands[0].Frequency * .5f, bands[0].Gain - subsonicRolloff));
+                subsonicFilter = value;
             }
         }
-        bool _SubsonicFilter = false;
+        bool subsonicFilter = false;
 
         /// <summary>Add a new band to the EQ.</summary>
         public void AddBand(Band NewBand) {
-            bool SubFiltered = _SubsonicFilter;
-            if (SubFiltered)
+            bool subFiltered = subsonicFilter;
+            if (subFiltered)
                 SubsonicFilter = false;
-            _Bands.Add(NewBand);
-            _Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
-            if (SubFiltered)
+            bands.Add(NewBand);
+            bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
+            if (subFiltered)
                 SubsonicFilter = true;
         }
 
         /// <summary>Remove a band from the EQ.</summary>
         public void RemoveBand(Band Removable) {
-            bool SubFiltered = _SubsonicFilter;
-            if (SubFiltered)
+            bool subFiltered = subsonicFilter;
+            if (subFiltered)
                 SubsonicFilter = false;
-            _Bands.Remove(Removable);
-            if (SubFiltered)
+            bands.Remove(Removable);
+            if (subFiltered)
                 SubsonicFilter = true;
         }
 
         /// <summary>Reset this EQ.</summary>
         public void ClearBands() {
-            bool SubFiltered = _SubsonicFilter;
-            if (SubFiltered)
+            bool subFiltered = subsonicFilter;
+            if (subFiltered)
                 SubsonicFilter = false;
-            _Bands.Clear();
-            if (SubFiltered)
+            bands.Clear();
+            if (subFiltered)
                 SubsonicFilter = true;
         }
 
         /// <summary>Shows the EQ curve in a logarithmically scaled frequency axis.</summary>
-        /// <param name="StartFreq">Frequency at the beginning of the curve</param>
-        /// <param name="EndFreq">Frequency at the end of the curve</param>
-        /// <param name="Length">Points on the curve</param>
-        public float[] Visualize(float StartFreq, float EndFreq, int Length) {
-            float[] Result = new float[Length];
-            int BandCount = _Bands.Count;
-            if (BandCount == 0)
-                return Result;
-            float StartPow = Mathf.Log10(StartFreq), EndPow = Mathf.Log10(EndFreq), PowRange = (EndPow - StartPow) / Length;
-            int NextBand = 0, LastBand = 0;
-            for (int CurBand = 0, End = BandCount; CurBand < End; ++CurBand) {
-                if (_Bands[CurBand].Frequency > StartFreq) {
-                    NextBand = CurBand;
-                    LastBand = CurBand != 0 ? CurBand - 1 : 0;
+        /// <param name="startFreq">Frequency at the beginning of the curve</param>
+        /// <param name="endFreq">Frequency at the end of the curve</param>
+        /// <param name="length">Points on the curve</param>
+        public float[] Visualize(float startFreq, float endFreq, int length) {
+            float[] result = new float[length];
+            int bandCount = bands.Count;
+            if (bandCount == 0)
+                return result;
+            float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / length;
+            int nextBand = 0, lastBand = 0;
+            for (int curBand = 0, end = bandCount; curBand < end; ++curBand) {
+                if (bands[curBand].Frequency > startFreq) {
+                    nextBand = curBand;
+                    lastBand = curBand != 0 ? curBand - 1 : 0;
                     break;
                 }
             }
-            float FreqDiffStart = _Bands[LastBand].Frequency, FreqDiff = _Bands[NextBand].Frequency - FreqDiffStart,
-                GainDiffStart = _Bands[LastBand].Gain, GainDiff = _Bands[NextBand].Gain - GainDiffStart;
-            for (int Pos = 0; Pos < Length; ++Pos) {
-                float FreqHere = Mathf.Pow(10, StartPow + PowRange * Pos);
-                if (FreqHere > _Bands[NextBand].Frequency) {
-                    LastBand = NextBand++;
-                    if (NextBand == BandCount) {
-                        for (; Pos < Length; ++Pos)
-                            Result[Pos] = _Bands[LastBand].Gain;
-                        return Result;
+            float freqDiffStart = bands[lastBand].Frequency, freqDiff = bands[nextBand].Frequency - freqDiffStart,
+                gainDiffStart = bands[lastBand].Gain, gainDiff = bands[nextBand].Gain - gainDiffStart;
+            for (int pos = 0; pos < length; ++pos) {
+                float freqHere = Mathf.Pow(10, startPow + powRange * pos);
+                if (freqHere > bands[nextBand].Frequency) {
+                    lastBand = nextBand++;
+                    if (nextBand == bandCount) {
+                        for (; pos < length; ++pos)
+                            result[pos] = bands[lastBand].Gain;
+                        return result;
                     }
-                    FreqDiffStart = _Bands[LastBand].Frequency;
-                    FreqDiff = _Bands[NextBand].Frequency - FreqDiffStart;
-                    GainDiffStart = _Bands[LastBand].Gain;
-                    GainDiff = _Bands[NextBand].Gain - GainDiffStart;
+                    freqDiffStart = bands[lastBand].Frequency;
+                    freqDiff = bands[nextBand].Frequency - freqDiffStart;
+                    gainDiffStart = bands[lastBand].Gain;
+                    gainDiff = bands[nextBand].Gain - gainDiffStart;
                 }
-                float FreqPassed = FreqHere - FreqDiffStart;
-                if (FreqDiff != 0)
-                    Result[Pos] = GainDiffStart + FreqPassed / FreqDiff * GainDiff;
+                float freqPassed = freqHere - freqDiffStart;
+                if (freqDiff != 0)
+                    result[pos] = gainDiffStart + freqPassed / freqDiff * gainDiff;
                 else
-                    Result[Pos] = GainDiffStart;
+                    result[pos] = gainDiffStart;
             }
-            return Result;
+            return result;
         }
 
         /// <summary>Shows the resulting frequency response if this EQ is applied.</summary>
-        /// <param name="Response">Frequency response curve to apply the EQ on, from
+        /// <param name="response">Frequency response curve to apply the EQ on, from
         /// <see cref="Measurements.ConvertToGraph(float[], float, float, int, int)"/></param>
-        /// <param name="StartFreq">Frequency at the beginning of the curve</param>
-        /// <param name="EndFreq">Frequency at the end of the curve</param>
-        public float[] Apply(float[] Response, float StartFreq, float EndFreq) {
-            int Length = Response.Length;
-            float[] Filter = Visualize(StartFreq, EndFreq, Length);
-            for (int i = 0; i < Length; ++i)
-                Filter[i] += Response[i];
-            return Filter;
+        /// <param name="startFreq">Frequency at the beginning of the curve</param>
+        /// <param name="endFreq">Frequency at the end of the curve</param>
+        public float[] Apply(float[] response, float startFreq, float endFreq) {
+            int length = response.Length;
+            float[] filter = Visualize(startFreq, endFreq, length);
+            for (int i = 0; i < length; ++i)
+                filter[i] += response[i];
+            return filter;
         }
 
         /// <summary>Generate an equalizer setting to flatten the processed response of
         /// <see cref="Measurements.SmoothGraph(float[], float, float, float)"/>.</summary>
-        /// <param name="Graph">Graph to equalize, a pre-applied smoothing (<see cref="Measurements.SmoothGraph(float[], float, float, float)"/> is
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="Measurements.SmoothGraph(float[], float, float, float)"/> is
         /// strongly recommended</param>
-        /// <param name="StartFreq">Frequency at the beginning of the graph</param>
-        /// <param name="EndFreq">Frequency at the end of the graph</param>
-        /// <param name="ReferenceCurve">Match the frequency response to this logarithmic curve of any length, one value means a flat response</param>
-        /// <param name="Resolution">Band diversity in octaves</param>
-        /// <param name="MaxGain">Maximum gain of any generated band</param>
-        public static Equalizer CorrectGraph(float[] Graph, float StartFreq, float EndFreq, float[] ReferenceCurve, float Resolution = 1 / 3f, float MaxGain = 6) {
-            Equalizer Result = new Equalizer();
-            int Length = Graph.Length;
-            float StartPow = Mathf.Log10(StartFreq), EndPow = Mathf.Log10(EndFreq), PowRange = (EndPow - StartPow) / Length,
-                OctaveRange = Mathf.Log(EndFreq, 2) - Mathf.Log(StartFreq, 2), Bands = OctaveRange / Resolution + 1,
-                RefPositioner = ReferenceCurve.Length / (float)Length;
-            int WindowSize = Length / (int)Bands, WindowEdge = WindowSize / 2;
-            for (int Pos = Length - 1; Pos >= 0; Pos -= WindowSize) {
-                int RefPos = (int)(Pos * RefPositioner);
-                float CenterFreq = Mathf.Pow(10, StartPow + PowRange * Pos), Average = 0;
-                int Start = Math.Max(Pos - WindowEdge, 0), End = Math.Min(Pos + WindowEdge, Length);
-                for (int Sample = Start; Sample < End; ++Sample)
-                    Average += Graph[Sample];
-                float Addition = ReferenceCurve[RefPos] - Average / (End - Start);
-                if (Addition <= MaxGain)
-                    Result._Bands.Add(new Band(CenterFreq, Addition));
+        /// <param name="startFreq">Frequency at the beginning of the graph</param>
+        /// <param name="endFreq">Frequency at the end of the graph</param>
+        /// <param name="referenceCurve">Match the frequency response to this logarithmic curve of any length, one value means a flat response</param>
+        /// <param name="resolution">Band diversity in octaves</param>
+        /// <param name="maxGain">Maximum gain of any generated band</param>
+        public static Equalizer CorrectGraph(float[] graph, float startFreq, float endFreq, float[] referenceCurve, float resolution = 1 / 3f, float maxGain = 6) {
+            Equalizer result = new Equalizer();
+            int length = graph.Length;
+            float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / length,
+                octaveRange = Mathf.Log(endFreq, 2) - Mathf.Log(startFreq, 2), bands = octaveRange / resolution + 1,
+                refPositioner = referenceCurve.Length / (float)length;
+            int windowSize = length / (int)bands, windowEdge = windowSize / 2;
+            for (int pos = length - 1; pos >= 0; pos -= windowSize) {
+                int refPos = (int)(pos * refPositioner);
+                float centerFreq = Mathf.Pow(10, startPow + powRange * pos), average = 0;
+                int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, length);
+                for (int sample = start; sample < end; ++sample)
+                    average += graph[sample];
+                float addition = referenceCurve[refPos] - average / (end - start);
+                if (addition <= maxGain)
+                    result.bands.Add(new Band(centerFreq, addition));
             }
-            Result._Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
-            return Result;
+            result.bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
+            return result;
         }
 
         /// <summary>Generate a precise equalizer setting to flatten the processed response of
         /// <see cref="Measurements.SmoothGraph(float[], float, float, float)"/>.</summary>
-        /// <param name="Graph">Graph to equalize, a pre-applied smoothing (<see cref="Measurements.SmoothGraph(float[], float, float, float)"/> is
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="Measurements.SmoothGraph(float[], float, float, float)"/> is
         /// strongly recommended</param>
-        /// <param name="StartFreq">Frequency at the beginning of the graph</param>
-        /// <param name="EndFreq">Frequency at the end of the graph</param>
-        /// <param name="ReferenceCurve">Match the frequency response to this logarithmic curve of any length, one value means a flat response</param>
-        /// <param name="MaxGain">Maximum gain of any generated band</param>
-        public static Equalizer AutoCorrectGraph(float[] Graph, float StartFreq, float EndFreq, float[] ReferenceCurve, float MaxGain = 6) {
-            Equalizer Result = new Equalizer();
-            int Length = Graph.Length;
-            float StartPow = Mathf.Log10(StartFreq), EndPow = Mathf.Log10(EndFreq), PowRange = (EndPow - StartPow) / Length;
-            float RefPositioner = ReferenceCurve.Length / (float)Length;
-            List<int> WindowEdges = new List<int>(new int[] { 0 });
-            for (int Sample = 1, End = Length - 1; Sample < End; ++Sample) {
-                float Lower = Graph[Sample - 1], Upper = Graph[Sample + 1];
-                if ((Lower < Graph[Sample] && Upper > Graph[Sample]) || (Lower > Graph[Sample] && Upper < Graph[Sample]))
-                    WindowEdges.Add(Sample);
+        /// <param name="startFreq">Frequency at the beginning of the graph</param>
+        /// <param name="endFreq">Frequency at the end of the graph</param>
+        /// <param name="referenceCurve">Match the frequency response to this logarithmic curve of any length, one value means a flat response</param>
+        /// <param name="maxGain">Maximum gain of any generated band</param>
+        public static Equalizer AutoCorrectGraph(float[] graph, float startFreq, float endFreq, float[] referenceCurve, float maxGain = 6) {
+            Equalizer result = new Equalizer();
+            int length = graph.Length;
+            float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / length;
+            float refPositioner = referenceCurve.Length / (float)length;
+            List<int> windowEdges = new List<int>(new int[] { 0 });
+            for (int sample = 1, End = length - 1; sample < End; ++sample) {
+                float lower = graph[sample - 1], Upper = graph[sample + 1];
+                if ((lower < graph[sample] && Upper > graph[sample]) || (lower > graph[sample] && Upper < graph[sample]))
+                    windowEdges.Add(sample);
             }
-            for (int Sample = 0, End = WindowEdges.Count - 1; Sample < End; ++Sample) {
-                int WindowPos = WindowEdges[Sample];
-                float RefGain = ReferenceCurve[(int)(WindowPos * RefPositioner)];
-                if (Graph[WindowPos] > RefGain - MaxGain)
-                    Result._Bands.Add(new Band(Mathf.Pow(10, StartPow + PowRange * WindowPos), RefGain - Graph[WindowPos]));
+            for (int sample = 0, End = windowEdges.Count - 1; sample < End; ++sample) {
+                int windowPos = windowEdges[sample];
+                float refGain = referenceCurve[(int)(windowPos * refPositioner)];
+                if (graph[windowPos] > refGain - maxGain)
+                    result.bands.Add(new Band(Mathf.Pow(10, startPow + powRange * windowPos), refGain - graph[windowPos]));
             }
-            Result._Bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
-            return Result;
+            result.bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
+            return result;
         }
     }
 }

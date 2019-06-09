@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using UnityEngine;
 
-using Cavern.Filters;
+using Cavern.Utilities;
 using Cavern.Virtualizer;
 
 namespace Cavern {
@@ -13,125 +10,108 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Internal vars
         // ------------------------------------------------------------------
-        /// <summary>Position between the last and current game frame's playback position.</summary>
-        internal static float PulseDelta { get; private set; }
-        /// <summary>Required output array size for each <see cref="AudioSource3D.Collect"/> function.</summary>
+        /// <summary>Actual listener handled by this interface.</summary>
+        internal static Listener cavernListener = new Listener();
+        /// <summary>Required output array size for each sample collection.</summary>
         internal static int RenderBufferSize { get; private set; }
-        /// <summary>The cached length of the <see cref="SourceDistances"/> array.</summary>
-        internal static int SourceLimit = 128;
-        /// <summary>Distances of sources from the listener.</summary>
-        internal static float[] SourceDistances = new float[SourceLimit];
         /// <summary>Cached number of output channels.</summary>
         internal static int ChannelCount { get; private set; }
-        /// <summary>Last position of the active listener.</summary>
-        internal static Vector3 LastPosition { get; private set; }
-        /// <summary>Last rotation of the active listener.</summary>
-        internal static Quaternion LastRotation { get; private set; }
-        /// <summary>Inverse of the rotation of the active listener.</summary>
-        internal static Quaternion LastRotationInverse { get; private set; }
 
         // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
-        /// <summary>List of enabled <see cref="AudioSource3D"/>'s.</summary>
-        internal static LinkedList<AudioSource3D> ActiveSources = new LinkedList<AudioSource3D>();
-
-        /// <summary>Listener normalizer gain.</summary>
-        static float Normalization = 1;
-
         /// <summary>Output timer.</summary>
-        static int Now = 0;
+        static int now = 0;
         /// <summary>Cached <see cref="SampleRate"/> for change detection.</summary>
-        static int CachedSampleRate = 0;
+        static int cachedSampleRate = 0;
         /// <summary>Cached <see cref="UpdateRate"/> for change detection.</summary>
-        static int CachedUpdateRate = 0;
+        static int cachedUpdateRate = 0;
         /// <summary>Current time in ticks in the last frame.</summary>
-        static long LastTicks = 0;
+        static long lastTicks = 0;
         /// <summary>Ticks missed by integer division in the last frame. Required for perfect timing.</summary>
-        static long AdditionMiss = 0;
+        static long additionMiss = 0;
 
-        /// <summary>Cached <see cref="Channels"/> for change detection.</summary>
-        static Channel3D[] ChannelCache;
-        /// <summary>Lowpass filters for each channel.</summary>
-        static Lowpass[] Lowpasses;
+        // ------------------------------------------------------------------
+        // Filter output
+        // ------------------------------------------------------------------
+        /// <summary>Filter buffer position, samples currently cached for output.</summary>
+        static int bufferPosition = 0;
+        /// <summary>Samples to play with the filter.</summary>
+        static float[] filterOutput;
+        /// <summary>Lock for the <see cref="bufferPosition"/>, which is set in multiple threads.</summary>
+        static object bufferLock = new object();
+        /// <summary>Filter normalizer gain.</summary>
+        static float filterNormalizer = 1;
+        /// <summary>Cached system sample rate.</summary>
+        static int systemSampleRate;
 
         // ------------------------------------------------------------------
         // Internal functions
         // ------------------------------------------------------------------
+        void MatchListener() {
+            cavernListener.Volume = Volume;
+            cavernListener.LFEVolume = LFEVolume;
+            cavernListener.Range = Range;
+            cavernListener.Paused = Paused;
+            cavernListener.Normalizer = Normalizer;
+            cavernListener.LimiterOnly = LimiterOnly;
+            cavernListener.SampleRate = SampleRate;
+            cavernListener.UpdateRate = UpdateRate;
+            cavernListener.DelayTarget = DelayTarget;
+            cavernListener.AudioQuality = AudioQuality;
+            cavernListener.Manual = Manual;
+            cavernListener.LFESeparation = LFESeparation;
+            cavernListener.DirectLFE = DirectLFE;
+            cavernListener.Position = CavernUtilities.VectorMatch(transform.position);
+        }
+
         /// <summary>Reset the listener after any change.</summary>
         void ResetFunc() {
             ChannelCount = Channels.Length;
-            CachedSampleRate = SampleRate;
-            CachedUpdateRate = UpdateRate;
-            BufferPosition = 0;
-            LastTicks = DateTime.Now.Ticks;
-            Lowpasses = new Lowpass[ChannelCount];
-            FilterOutput = new float[ChannelCount * SampleRate];
-            // Optimization arrays
-            ChannelCache = new Channel3D[ChannelCount];
-            for (int i = 0; i < ChannelCount; ++i) {
-                ChannelCache[i] = Channels[i].Copy;
-                Lowpasses[i] = new Lowpass(SampleRate, 120);
-            }
-        }
-
-        /// <summary>Normalize an array of samples.</summary>
-        /// <param name="Target">Samples to normalize</param>
-        /// <param name="TargetLength">Target array size</param>
-        /// <param name="LastGain">Last normalizer gain (a reserved float with a default of 1 to always pass to this function)</param>
-        void Normalize(ref float[] Target, int TargetLength, ref float LastGain) {
-            float Max = Math.Abs(Target[0]), AbsSample;
-            for (int Sample = 1; Sample < TargetLength; ++Sample) {
-                AbsSample = Math.Abs(Target[Sample]);
-                if (Max < AbsSample)
-                    Max = AbsSample;
-            }
-            if (Max * LastGain > 1) // Kick in
-                LastGain = .9f / Max;
-            CavernUtilities.Gain(Target, TargetLength, LastGain); // Normalize last samples
-            // Release
-            LastGain += Normalizer * UpdateRate / SampleRate;
-            if (LimiterOnly && LastGain > 1)
-                LastGain = 1;
+            cachedSampleRate = SampleRate;
+            cachedUpdateRate = UpdateRate;
+            bufferPosition = 0;
+            lastTicks = DateTime.Now.Ticks;
+            filterOutput = new float[ChannelCount * SampleRate];
         }
 
         /// <summary>The function to initially call when samples are available, to feed them to the filter.</summary>
         void Finalization() {
             if (!Paused) {
-                float[] SourceBuffer = Output;
-                int SourceBufferSize = Output.Length;
+                float[] sourceBuffer = Output;
+                int sourceBufferSize = Output.Length;
                 if (HeadphoneVirtualizer)
-                    VirtualizerFilter.Process(SourceBuffer);
-                if (SystemSampleRate != CachedSampleRate) { // Resample output for system sample rate
-                    float[][] ChannelSplit = new float[ChannelCount][];
-                    for (int Channel = 0; Channel < ChannelCount; ++Channel)
-                        ChannelSplit[Channel] = new float[UpdateRate];
-                    int OutputSample = 0;
-                    for (int Sample = 0; Sample < UpdateRate; ++Sample)
-                        for (int Channel = 0; Channel < ChannelCount; ++Channel)
-                            ChannelSplit[Channel][Sample] = SourceBuffer[OutputSample++];
-                    for (int Channel = 0; Channel < ChannelCount; ++Channel)
-                        ChannelSplit[Channel] = AudioSource3D.Resample(ChannelSplit[Channel], UpdateRate,
-                            (int)(UpdateRate * SystemSampleRate / (float)CachedSampleRate));
-                    int NewUpdateRate = ChannelSplit[0].Length;
-                    SourceBuffer = new float[SourceBufferSize = ChannelCount * NewUpdateRate];
-                    OutputSample = 0;
-                    for (int Sample = 0; Sample < NewUpdateRate; ++Sample)
-                        for (int Channel = 0; Channel < ChannelCount; ++Channel)
-                            SourceBuffer[OutputSample++] = ChannelSplit[Channel][Sample];
+                    VirtualizerFilter.Process(sourceBuffer);
+                if (systemSampleRate != cachedSampleRate) { // Resample output for system sample rate
+                    float[][] channelSplit = new float[ChannelCount][];
+                    for (int channel = 0; channel < ChannelCount; ++channel)
+                        channelSplit[channel] = new float[UpdateRate];
+                    int outputSample = 0;
+                    for (int sample = 0; sample < UpdateRate; ++sample)
+                        for (int channel = 0; channel < ChannelCount; ++channel)
+                            channelSplit[channel][sample] = sourceBuffer[outputSample++];
+                    for (int channel = 0; channel < ChannelCount; ++channel)
+                        channelSplit[channel] = Resample.Adaptive(channelSplit[channel],
+                            (int)(UpdateRate * systemSampleRate / (float)cachedSampleRate), AudioQuality);
+                    int newUpdateRate = channelSplit[0].Length;
+                    sourceBuffer = new float[sourceBufferSize = ChannelCount * newUpdateRate];
+                    outputSample = 0;
+                    for (int sample = 0; sample < newUpdateRate; ++sample)
+                        for (int channel = 0; channel < ChannelCount; ++channel)
+                            sourceBuffer[outputSample++] = channelSplit[channel][sample];
                 }
-                int End = FilterOutput.Length;
-                lock (BufferLock) {
-                    int AltEnd = BufferPosition + SourceBufferSize;
-                    if (End > AltEnd)
-                        End = AltEnd;
-                    int OutputPos = 0;
-                    for (int BufferWrite = BufferPosition; BufferWrite < End; ++BufferWrite)
-                        FilterOutput[BufferWrite] = SourceBuffer[OutputPos++];
-                    BufferPosition = End;
+                int end = filterOutput.Length;
+                lock (bufferLock) {
+                    int altEnd = bufferPosition + sourceBufferSize;
+                    if (end > altEnd)
+                        end = altEnd;
+                    int outputPos = 0;
+                    for (int bufferWrite = bufferPosition; bufferWrite < end; ++bufferWrite)
+                        filterOutput[bufferWrite] = sourceBuffer[outputPos++];
+                    bufferPosition = end;
                 }
             } else
-                FilterOutput = new float[ChannelCount * CachedSampleRate];
+                filterOutput = new float[ChannelCount * cachedSampleRate];
         }
 
         void Awake() {
@@ -140,168 +120,89 @@ namespace Cavern {
                 Destroy(Current);
             }
             Current = this;
-            OnOutputAvailable = Finalization; // Call finalization when samples are available
-            SystemSampleRate = AudioSettings.GetConfiguration().sampleRate;
-            ChannelCount = 0;
-            string FileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
-            if (File.Exists(FileName)) {
-                string[] Save = File.ReadAllLines(FileName);
-                int SavePos = 1;
-                int ChannelLength = Convert.ToInt32(Save[0]);
-                Channels = new Channel3D[ChannelLength];
-                NumberFormatInfo Format = new NumberFormatInfo {
-                    NumberDecimalSeparator = ","
-                };
-                for (int i = 0; i < ChannelLength; ++i)
-                    Channels[i] = new Channel3D(Convert.ToSingle(Save[SavePos++], Format), Convert.ToSingle(Save[SavePos++], Format),
-                        Convert.ToBoolean(Save[SavePos++]));
-                _EnvironmentType = (Environments)Convert.ToInt32(Save[SavePos++], Format);
-                EnvironmentSize = new Vector3(Convert.ToSingle(Save[SavePos++], Format), Convert.ToSingle(Save[SavePos++], Format),
-                    Convert.ToSingle(Save[SavePos++], Format));
-                HeadphoneVirtualizer = Save.Length > SavePos ? Convert.ToBoolean(Save[SavePos++]) : false; // Added: 2016.04.24.
-                EnvironmentCompensation = Save.Length > SavePos ? Convert.ToBoolean(Save[SavePos++]) : false; // Added: 2017.06.18.
-            }
+            systemSampleRate = AudioSettings.GetConfiguration().sampleRate;
             ResetFunc();
         }
 
-        /// <summary>Single update tick rendering.</summary>
-        void Frame(int OutputLength) {
-            // Collect audio data from sources
-            RenderBufferSize = UpdateRate * ChannelCount;
-            LinkedListNode<AudioSource3D> Node = ActiveSources.First;
-            List<float[]> Results = new List<float[]>();
-            while (Node != null) {
-                if (Node.Value.Precollect())
-                    Results.Add(Node.Value.Collect());
-                Node = Node.Next;
-            }
-            // Mix sources to output
-            Array.Clear(Output, 0, OutputLength);
-            for (int Result = 0, ResultCount = Results.Count; Result < ResultCount; ++Result)
-                CavernUtilities.Mix(Results[Result], Output, OutputLength);
-            // Volume, distance compensation, and subwoofers' lowpass
-            for (int Channel = 0; Channel < ChannelCount; ++Channel) {
-                if (Channels[Channel].LFE) {
-                    if (!DirectLFE)
-                        Lowpasses[Channel].Process(Output, Channel, ChannelCount);
-                    CavernUtilities.Gain(Output, UpdateRate, LFEVolume * Volume, Channel, ChannelCount); // LFE Volume
-                } else
-                    CavernUtilities.Gain(Output, UpdateRate, !EnvironmentCompensation ? Volume :
-                        (Volume * Channels[Channel].Distance * CavernUtilities.Sqrt2p2), Channel, ChannelCount);
-            }
-            if (Normalizer != 0) // Normalize
-                Normalize(ref Output, OutputLength, ref Normalization);
-        }
-
         void Update() {
+            MatchListener();
             // Change checks
             if (HeadphoneVirtualizer) // Virtual channels
                 VirtualizerFilter.SetLayout();
-            if (ChannelCount != Channels.Length || CachedSampleRate != SampleRate || CachedUpdateRate != UpdateRate)
+            if (ChannelCount != Channels.Length || cachedSampleRate != SampleRate || cachedUpdateRate != UpdateRate)
                 ResetFunc();
-            LastPosition = transform.position;
-            LastRotationInverse = Quaternion.Inverse(LastRotation = transform.rotation);
             // Timing
             if (!Manual) {
-                long TicksNow = DateTime.Now.Ticks;
-                long TimePassed = (TicksNow - LastTicks) * SampleRate + AdditionMiss;
-                long Addition = TimePassed / TimeSpan.TicksPerSecond;
-                AdditionMiss = TimePassed % TimeSpan.TicksPerSecond;
-                Now += (int)Addition;
-                LastTicks = TicksNow;
-                if (Now > SampleRate >> 2) // Lag compensation: don't process more than 1/4 of a second
-                    Now = SampleRate >> 2;
+                long ticksNow = DateTime.Now.Ticks, timePassed = (ticksNow - lastTicks) * SampleRate + additionMiss, addition = timePassed / TimeSpan.TicksPerSecond;
+                additionMiss = timePassed % TimeSpan.TicksPerSecond;
+                now += (int)addition;
+                lastTicks = ticksNow;
+                if (now > SampleRate >> 2) // Lag compensation: don't process more than 1/4 of a second
+                    now = SampleRate >> 2;
             } else
-                Now = UpdateRate;
+                now = UpdateRate;
             // Don't work with wrong settings
             if (SampleRate < 44100 || UpdateRate < 16)
                 return;
             // Output buffer creation
-            int OutputLength = ChannelCount * UpdateRate;
-            if (Output.Length == OutputLength)
-                Array.Clear(Output, 0, OutputLength);
+            RenderBufferSize = ChannelCount * UpdateRate;
+            if (Output.Length == RenderBufferSize)
+                Array.Clear(Output, 0, RenderBufferSize);
             else
-                Output = new float[OutputLength];
-            // Choose processing functions
-            AudioSource3D.UsedAngleMatchFunc = AudioQuality >= QualityModes.High ? // Only calculate accurate arc cosine above high quality
-                (AudioSource3D.AngleMatchFunc)AudioSource3D.CalculateAngleMatches : AudioSource3D.LinearizeAngleMatches;
-            if (UpdateRate <= Now) {
-                // Set up sound collection environment
-                for (int Source = 0; Source < MaximumSources; ++Source)
-                    SourceDistances[Source] = Range;
-                PulseDelta = Now /(float)SampleRate;
-                LinkedListNode<AudioSource3D> Node = ActiveSources.First;
-                while (Node != null) {
-                    Node.Value.Precalculate();
-                    Node = Node.Next;
-                }
-                while (UpdateRate <= Now) {
+                Output = new float[RenderBufferSize];
+            if (UpdateRate <= now) {
+                while (UpdateRate <= now) {
                     if (!Paused || Manual)
-                        Frame(OutputLength);
+                        Output = cavernListener.Render(); // TODO: use tick count for proper Doppler
                     // Finalize
-                    OnOutputAvailable();
-                    Now -= UpdateRate;
+                    Finalization();
+                    now -= UpdateRate;
                 }
                 Manual = false;
             }
         }
 
-        // ------------------------------------------------------------------
-        // Filter output
-        // ------------------------------------------------------------------
-        /// <summary>Filter buffer position, samples currently cached for output.</summary>
-        static int BufferPosition = 0;
-        /// <summary>Samples to play with the filter.</summary>
-        static float[] FilterOutput;
-        /// <summary>Lock for the <see cref="BufferPosition"/>, which is set in multiple threads.</summary>
-        static object BufferLock = new object();
-        /// <summary>Filter normalizer gain.</summary>
-        static float FilterNormalizer = 1;
-        /// <summary>Cached system sample rate.</summary>
-        static int SystemSampleRate;
-
         /// <summary>Output Cavern's generated audio as a filter.</summary>
-        /// <param name="UnityBuffer">Output buffer</param>
-        /// <param name="UnityChannels">Output channel count</param>
-        void OnAudioFilterRead(float[] UnityBuffer, int UnityChannels) {
-            if (BufferPosition == 0)
+        /// <param name="unityBuffer">Output buffer</param>
+        /// <param name="unityChannels">Output channel count</param>
+        void OnAudioFilterRead(float[] unityBuffer, int unityChannels) {
+            if (bufferPosition == 0)
                 return;
-            int SamplesPerChannel = UnityBuffer.Length / UnityChannels;
-            int End = Math.Min(BufferPosition, SamplesPerChannel * ChannelCount);
+            int samplesPerChannel = unityBuffer.Length / unityChannels, end = Math.Min(bufferPosition, samplesPerChannel * ChannelCount);
             // Output audio
-            if (UnityChannels <= 4) { // For non-surround setups, downmix properly
-                for (int Channel = 0; Channel < ChannelCount; ++Channel) {
-                    int UnityChannel = Channel % UnityChannels;
-                    if (Channel != 2 && Channel != 3)
-                        for (int Sample = 0; Sample < SamplesPerChannel; ++Sample)
-                            UnityBuffer[Sample * UnityChannels + UnityChannel] += FilterOutput[Sample * ChannelCount + Channel];
+            if (unityChannels <= 4) { // For non-surround setups, downmix properly
+                for (int channel = 0; channel < ChannelCount; ++channel) {
+                    int unityChannel = channel % unityChannels;
+                    if (channel != 2 && channel != 3)
+                        for (int sample = 0; sample < samplesPerChannel; ++sample)
+                            unityBuffer[sample * unityChannels + unityChannel] += filterOutput[sample * ChannelCount + channel];
                     else {
-                        for (int Sample = 0; Sample < SamplesPerChannel; ++Sample) {
-                            int LeftOut = Sample * UnityChannels;
-                            float CopySample = FilterOutput[Sample * ChannelCount + Channel];
-                            UnityBuffer[LeftOut] += CopySample;
-                            UnityBuffer[LeftOut + 1] += CopySample;
+                        for (int sample = 0; sample < samplesPerChannel; ++sample) {
+                            int leftOut = sample * unityChannels;
+                            float copySample = filterOutput[sample * ChannelCount + channel];
+                            unityBuffer[leftOut] += copySample;
+                            unityBuffer[leftOut + 1] += copySample;
                         }
                     }
                 }
             } else {
-                for (int Channel = 0; Channel < ChannelCount; ++Channel) {
-                    int UnityChannel = Channel % UnityChannels;
-                    for (int Sample = 0; Sample < SamplesPerChannel; ++Sample)
-                        UnityBuffer[Sample * UnityChannels + UnityChannel] += FilterOutput[Sample * ChannelCount + Channel];
+                for (int channel = 0; channel < ChannelCount; ++channel) {
+                    int unityChannel = channel % unityChannels;
+                    for (int sample = 0; sample < samplesPerChannel; ++sample)
+                        unityBuffer[sample * unityChannels + unityChannel] += filterOutput[sample * ChannelCount + channel];
                 }
             }
             if (Normalizer != 0) // Normalize
-                Normalize(ref UnityBuffer, UnityBuffer.Length, ref FilterNormalizer);
+                Utils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
             // Remove used samples
-            lock (BufferLock) {
-                for (int BufferPos = End; BufferPos < BufferPosition; ++BufferPos)
-                    FilterOutput[BufferPos - End] = FilterOutput[BufferPos];
-                int MaxLatency = ChannelCount * CachedSampleRate / DelayTarget;
-                if (BufferPosition < MaxLatency)
-                    BufferPosition -= End;
+            lock (bufferLock) {
+                for (int bufferPos = end; bufferPos < bufferPosition; ++bufferPos)
+                    filterOutput[bufferPos - end] = filterOutput[bufferPos];
+                int maxLatency = ChannelCount * cachedSampleRate / DelayTarget;
+                if (bufferPosition < maxLatency)
+                    bufferPosition -= end;
                 else
-                    BufferPosition = 0;
+                    bufferPosition = 0;
             }
         }
     }

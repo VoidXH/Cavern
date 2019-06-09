@@ -4,34 +4,34 @@ namespace Cavern.QuickEQ {
     /// <summary>EQ curve generation functions.</summary>
     public static class Curves {
         /// <summary>Generate a linear curve for the correction generators.</summary>
-        /// <param name="Function">Curve function used for generation, built-in curves are available with <see cref="GetCurve(CurveFunctions)"/></param>
-        /// <param name="Length">Curve length</param>
-        /// <param name="SampleRate">Sample rate of the measurement that the generated curve will be used for</param>
-        /// <param name="Gain">Curve reference level</param>
-        public static float[] GenerateLinearCurve(CurveFunction Function, int Length, int SampleRate, float Gain) {
-            float[] Curve = new float[Length];
-            float Positioner = SampleRate * .5f / Length;
-            for (int Pos = 0; Pos < Length; ++Pos)
-                Curve[Pos] = Gain + Function(Pos * Positioner);
-            return Curve;
+        /// <param name="function">Curve function used for generation, built-in curves are available with <see cref="GetCurve(CurveFunctions)"/></param>
+        /// <param name="length">Curve length</param>
+        /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
+        /// <param name="gain">Curve reference level</param>
+        public static float[] GenerateLinearCurve(CurveFunction function, int length, int sampleRate, float gain) {
+            float[] curve = new float[length];
+            float positioner = sampleRate * .5f / length;
+            for (int pos = 0; pos < length; ++pos)
+                curve[pos] = gain + function(pos * positioner);
+            return curve;
         }
 
         /// <summary>Generate a logarithmic curve for the correction generators.</summary>
-        /// <param name="Function">Curve function used for generation, built-in curves are available with <see cref="GetCurve(CurveFunctions)"/></param>
-        /// <param name="Length">Curve length</param>
-        /// <param name="StartFreq">Frequency at the beginning of the curve</param>
-        /// <param name="EndFreq">Frequency at the end of the curve</param>
-        /// <param name="Gain">Curve reference level</param>
-        public static float[] GenerateLogCurve(CurveFunction Function, int Length, float StartFreq, float EndFreq, float Gain) {
-            float[] Curve = new float[Length];
-            float PowerMin = Mathf.Log10(StartFreq), PowerRange = (Mathf.Log10(EndFreq) - PowerMin) / Length;
-            for (int Pos = 0; Pos < Length; ++Pos)
-                Curve[Pos] = Gain + Function(Mathf.Pow(10, PowerMin + PowerRange * Pos));
-            return Curve;
+        /// <param name="function">Curve function used for generation, built-in curves are available with <see cref="GetCurve(CurveFunctions)"/></param>
+        /// <param name="length">Curve length</param>
+        /// <param name="startFreq">Frequency at the beginning of the curve</param>
+        /// <param name="endFreq">Frequency at the end of the curve</param>
+        /// <param name="gain">Curve reference level</param>
+        public static float[] GenerateLogCurve(CurveFunction function, int length, float startFreq, float endFreq, float gain) {
+            float[] curve = new float[length];
+            float powerMin = Mathf.Log10(startFreq), powerRange = (Mathf.Log10(endFreq) - powerMin) / length;
+            for (int pos = 0; pos < length; ++pos)
+                curve[pos] = gain + function(Mathf.Pow(10, powerMin + powerRange * pos));
+            return curve;
         }
 
         /// <summary>Function describing a target EQ curve, returning gain for each frequency.</summary>
-        public delegate float CurveFunction(float Frequency);
+        public delegate float CurveFunction(float frequency);
 
         /// <summary>Available built-in target curves.</summary>
         public enum CurveFunctions {
@@ -60,30 +60,30 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Uniform gain on all frequencies.</summary>
-        static float Flat(float Frequency) => 0;
+        static float Flat(float frequency) => 0;
 
         /// <summary>Cinema standard curve.</summary>
-        static float XCurve(float Frequency) {
-            if (Frequency < 2000)
+        static float XCurve(float frequency) {
+            if (frequency < 2000)
                 return 0;
-            else if (Frequency < 10000)
-                return -6 / 8000f * (Frequency - 2000);
+            else if (frequency < 10000)
+                return -6 / 8000f * (frequency - 2000);
             else
-                return -6 / 10000f * (Frequency - 10000) - 6;
+                return -6 / 10000f * (frequency - 10000) - 6;
         }
 
         /// <summary>Adds a bass bump for punch emphasis.</summary>
-        static float Punch(float Frequency) {
-            if (Frequency > 120)
+        static float Punch(float frequency) {
+            if (frequency > 120)
                 return 0;
-            return (1 - Mathf.Cos(Mathf.PI * Mathf.Log(.9f / 120 * Frequency + .1f))) * 5;
+            return (1 - Mathf.Cos(Mathf.PI * Mathf.Log(.9f / 120 * frequency + .1f))) * 5;
         }
 
         /// <summary>Adds a sub-bass slope for depth emphasis.</summary>
-        static float Depth(float Frequency) {
-            if (Frequency > 60)
+        static float Depth(float frequency) {
+            if (frequency > 60)
                 return 0;
-            return 12f / 60 * (60 - Frequency);
+            return 12f / 60 * (60 - frequency);
         }
     }
 }
