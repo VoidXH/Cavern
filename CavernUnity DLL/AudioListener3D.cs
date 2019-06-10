@@ -26,8 +26,6 @@ namespace Cavern {
         static int cachedUpdateRate = 0;
         /// <summary>Current time in ticks in the last frame.</summary>
         static long lastTicks = 0;
-        /// <summary>Ticks missed by integer division in the last frame. Required for perfect timing.</summary>
-        static long additionMiss = 0;
 
         // ------------------------------------------------------------------
         // Filter output
@@ -61,6 +59,7 @@ namespace Cavern {
             cavernListener.LFESeparation = LFESeparation;
             cavernListener.DirectLFE = DirectLFE;
             cavernListener.Position = CavernUtilities.VectorMatch(transform.position);
+            cavernListener.Rotation = CavernUtilities.VectorMatch(transform.eulerAngles);
         }
 
         /// <summary>Reset the listener after any change.</summary>
@@ -127,10 +126,10 @@ namespace Cavern {
             // Change checks
             if (HeadphoneVirtualizer) // Virtual channels
                 VirtualizerFilter.SetLayout();
+            MatchListener();
             if (Manual) {
                 if (ChannelCount != Channels.Length || cachedSampleRate != SampleRate || cachedUpdateRate != UpdateRate)
                     ResetFunc();
-                MatchListener();
                 Output = cavernListener.Render();
                 Manual = false;
                 return;

@@ -229,9 +229,8 @@ namespace Cavern {
                     }
                 }
                 if (blend3D && distance < listener.Range) { // 3D mix, if the source is in range
-                    // TODO: apply rotation
-                    //Vector direction = listener.LastRotationInverse * (Position - listener.Position);
                     Vector direction = Position - listener.Position;
+                    direction.RotateInverse(listener.Rotation);
                     float rolloffDistance = GetRolloff();
                     samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
                     baseUpdateRate = samples.Length;
@@ -316,9 +315,9 @@ namespace Cavern {
                             for (int channel = 0; channel < channels; ++channel)
                                 if (Listener.Channels[channel].LFE)
                                     WriteOutput(samples, rendered, volume3D, channel, channels);
-                        // ------------------------------------------------------------------
-                        // Directional/distance-based engine for asymmetrical layouts
-                        // ------------------------------------------------------------------
+                    // ------------------------------------------------------------------
+                    // Directional/distance-based engine for asymmetrical layouts
+                    // ------------------------------------------------------------------
                     } else {
                         // Angle match calculations
                         float[] angleMatches;

@@ -28,6 +28,60 @@ namespace Cavern.Utilities {
             this.z = z;
         }
 
+        /// <summary>Rotate this vector by the X axis.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void RotateX(float degrees) {
+            degrees *= Utils.Deg2Rad;
+            float cos = (float)Math.Cos(degrees), sin = (float)Math.Sin(degrees);
+            y = cos * y - sin * z;
+            z = sin * y + cos * z;
+        }
+
+        /// <summary>Rotate this vector by the Y axis.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void RotateY(float degrees) {
+            degrees *= Utils.Deg2Rad;
+            float cos = (float)Math.Cos(degrees), sin = (float)Math.Sin(degrees);
+            x = cos * x + sin * z;
+            z = cos * z - sin * x;
+        }
+
+        /// <summary>Rotate this vector by the Z axis.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void RotateZ(float degrees) {
+            degrees *= Utils.Deg2Rad;
+            float cos = (float)Math.Cos(degrees), sin = (float)Math.Sin(degrees);
+            x = cos * x - sin * y;
+            y = sin * x + cos * y;
+        }
+
+        /// <summary>Rotate this vector by the X and Y axes.</summary>
+        public void RotateXY(float xDegrees, float yDegrees) {
+            RotateY(yDegrees);
+            RotateX(xDegrees);
+        }
+
+        /// <summary>Rotate this vector by all axes.</summary>
+        public void Rotate(float xDegrees, float yDegrees, float zDegrees) {
+            RotateZ(zDegrees);
+            RotateY(yDegrees);
+            RotateX(xDegrees);
+        }
+
+        /// <summary>Rotate this vector by all axes.</summary>
+        public void Rotate(Vector with) {
+            RotateZ(with.z);
+            RotateY(with.y);
+            RotateX(with.x);
+        }
+
+        /// <summary>Rotate this vector by all axes in the opposite direction.</summary>
+        public void RotateInverse(Vector with) {
+            RotateZ(-with.z);
+            RotateY(-with.y);
+            RotateX(-with.x);
+        }
+
         /// <summary>Get the distance from another vector's position.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float Distance(Vector from) {
@@ -36,6 +90,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>Multiply this vector with another one by each dimension.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Scale(Vector with) {
             x *= with.x;
             y *= with.y;
@@ -52,7 +107,7 @@ namespace Cavern.Utilities {
 
         /// <summary>Calculate the dot product with another vector.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float Dot(Vector rhs) => x * rhs.x + y * rhs.y + z * rhs.z;
+        public float Dot(Vector with) => x * with.x + y * with.y + z * with.z;
 
         /// <summary>Normalize this vector.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,6 +117,9 @@ namespace Cavern.Utilities {
             y *= multiplier;
             z *= multiplier;
         }
+
+        /// <summary>Vector addition.</summary>
+        public static Vector operator+(Vector lhs, Vector rhs) => new Vector(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
 
         /// <summary>Vector substraction.</summary>
         public static Vector operator-(Vector lhs, Vector rhs) => new Vector(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);

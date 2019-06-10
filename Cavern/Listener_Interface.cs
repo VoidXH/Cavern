@@ -12,6 +12,9 @@ namespace Cavern {
         /// <summary>Absolute spatial position.</summary>
         public Vector Position;
 
+        /// <summary>Rotation in Euler angles (degrees).</summary>
+        public Vector Rotation;
+
         /// <summary>3D environment type.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
         public static Environments EnvironmentType = Environments.Home;
