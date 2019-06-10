@@ -248,7 +248,7 @@ namespace Cavern {
                             int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1;
                             float closestTop = 69, closestBottom = -83, closestTF = 90, closestTR = -84,
                                 closestBF = 69, closestBR = -82; // Closest layers on y/z
-                            direction.Divide(Listener.EnvironmentSize);
+                            direction.Downscale(Listener.EnvironmentSize);
                             for (int channel = 0; channel < channels; ++channel) { // Find closest horizontal layers
                                 if (!Listener.Channels[channel].LFE) {
                                     float channelY = Listener.Channels[channel].CubicalPos.y;

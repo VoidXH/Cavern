@@ -12,8 +12,6 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Actual listener handled by this interface.</summary>
         internal static Listener cavernListener = new Listener();
-        /// <summary>Required output array size for each sample collection.</summary>
-        internal static int RenderBufferSize { get; private set; }
         /// <summary>Cached number of output channels.</summary>
         internal static int ChannelCount { get; private set; }
 
@@ -84,15 +82,16 @@ namespace Cavern {
                     VirtualizerFilter.Process(sourceBuffer);
                 if (systemSampleRate != cachedSampleRate) { // Resample output for system sample rate
                     float[][] channelSplit = new float[ChannelCount][];
+                    int splitSize = sourceBufferSize / ChannelCount;
                     for (int channel = 0; channel < ChannelCount; ++channel)
-                        channelSplit[channel] = new float[UpdateRate];
+                        channelSplit[channel] = new float[splitSize];
                     int outputSample = 0;
-                    for (int sample = 0; sample < UpdateRate; ++sample)
+                    for (int sample = 0; sample < splitSize; ++sample)
                         for (int channel = 0; channel < ChannelCount; ++channel)
                             channelSplit[channel][sample] = sourceBuffer[outputSample++];
                     for (int channel = 0; channel < ChannelCount; ++channel)
                         channelSplit[channel] = Resample.Adaptive(channelSplit[channel],
-                            (int)(UpdateRate * systemSampleRate / (float)cachedSampleRate), AudioQuality);
+                            (int)(splitSize * systemSampleRate / (float)cachedSampleRate), AudioQuality);
                     int newUpdateRate = channelSplit[0].Length;
                     sourceBuffer = new float[sourceBufferSize = ChannelCount * newUpdateRate];
                     outputSample = 0;
@@ -125,40 +124,16 @@ namespace Cavern {
         }
 
         void Update() {
-            MatchListener();
             // Change checks
             if (HeadphoneVirtualizer) // Virtual channels
                 VirtualizerFilter.SetLayout();
-            if (ChannelCount != Channels.Length || cachedSampleRate != SampleRate || cachedUpdateRate != UpdateRate)
-                ResetFunc();
-            // Timing
-            if (!Manual) {
-                long ticksNow = DateTime.Now.Ticks, timePassed = (ticksNow - lastTicks) * SampleRate + additionMiss, addition = timePassed / TimeSpan.TicksPerSecond;
-                additionMiss = timePassed % TimeSpan.TicksPerSecond;
-                now += (int)addition;
-                lastTicks = ticksNow;
-                if (now > SampleRate >> 2) // Lag compensation: don't process more than 1/4 of a second
-                    now = SampleRate >> 2;
-            } else
-                now = UpdateRate;
-            // Don't work with wrong settings
-            if (SampleRate < 44100 || UpdateRate < 16)
-                return;
-            // Output buffer creation
-            RenderBufferSize = ChannelCount * UpdateRate;
-            if (Output.Length == RenderBufferSize)
-                Array.Clear(Output, 0, RenderBufferSize);
-            else
-                Output = new float[RenderBufferSize];
-            if (UpdateRate <= now) {
-                while (UpdateRate <= now) {
-                    if (!Paused || Manual)
-                        Output = cavernListener.Render(); // TODO: use tick count for proper Doppler
-                    // Finalize
-                    Finalization();
-                    now -= UpdateRate;
-                }
+            if (Manual) {
+                if (ChannelCount != Channels.Length || cachedSampleRate != SampleRate || cachedUpdateRate != UpdateRate)
+                    ResetFunc();
+                MatchListener();
+                Output = cavernListener.Render();
                 Manual = false;
+                return;
             }
         }
 
@@ -166,6 +141,19 @@ namespace Cavern {
         /// <param name="unityBuffer">Output buffer</param>
         /// <param name="unityChannels">Output channel count</param>
         void OnAudioFilterRead(float[] unityBuffer, int unityChannels) {
+            if (Paused)
+                return;
+            if (ChannelCount != Channels.Length || cachedSampleRate != SampleRate || cachedUpdateRate != UpdateRate)
+                ResetFunc();
+            now += unityBuffer.Length / unityChannels;
+            // Output buffer creation
+            if (UpdateRate <= now) {
+                int frames = now / UpdateRate;
+                Output = cavernListener.Render(frames);
+                // Finalize
+                Finalization();
+                now %= UpdateRate;
+            }
             if (bufferPosition == 0)
                 return;
             int samplesPerChannel = unityBuffer.Length / unityChannels, end = Math.Min(bufferPosition, samplesPerChannel * ChannelCount);

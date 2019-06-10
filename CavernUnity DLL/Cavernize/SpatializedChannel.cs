@@ -35,6 +35,9 @@ namespace Cavern.Cavernize {
         /// <summary>Renderer for <see cref="GroundSource"/>.</summary>
         public Renderer GroundRenderer { get; private set; }
 
+        /// <summary>Enable visualization of this channel in the next frame.</summary>
+        bool visualize;
+
         void CreateSource(Cavernizer master, bool groundLevel) {
             GameObject newObject;
             if (Channel != CavernizeChannel.ScreenLFE)
@@ -60,8 +63,9 @@ namespace Cavern.Cavernize {
             if (Channel.Muted)
                 newSource.Volume = 0;
             newObject.transform.SetParent(master.transform);
-            newObject.transform.localPosition =
-                Vector3.Scale(CavernUtilities.VectorMatch(Utils.PlaceInCube(new Vector(0, Channel.Y))), AudioListener3D.EnvironmentSize);
+            Vector position = Utils.PlaceInCube(new Vector(0, Channel.Y));
+            position.Scale(Listener.EnvironmentSize);
+            newObject.transform.localPosition = CavernUtilities.VectorMatch(position);
         }
 
         public SpatializedChannel(CavernizeChannel source, Cavernizer master, int updateRate) {
@@ -79,7 +83,7 @@ namespace Cavern.Cavernize {
             if (Filter.Frequency != crossoverFreq)
                 Filter.Frequency = crossoverFreq;
             Filter.Process(Output);
-            MovingRenderer.enabled = GroundRenderer.enabled = visualize && WrittenOutput;
+            this.visualize = visualize && WrittenOutput;
             if (WrittenOutput) {
                 float maxDepth = .0001f, maxHeight = .0001f;
                 for (int offset = 0; offset < samples; ++offset) {
@@ -100,11 +104,19 @@ namespace Cavern.Cavernize {
                 else if (maxHeight > 1)
                     maxHeight = 1;
                 Height = Utils.Lerp(Height, maxHeight, smoothFactor);
-                Transform targetTransform = MovingSource.transform;
-                Vector3 oldPos = targetTransform.localPosition;
-                targetTransform.localPosition = CavernUtilities.FastLerp(oldPos,
-                    new Vector3(oldPos.x, maxHeight * AudioListener3D.EnvironmentSize.y, oldPos.z), smoothFactor);
+                if (Channel.Y != 0 || !MovingSource.Master.CenterStays || Channel.X != 0) {
+                    Vector oldPos = MovingSource.cavernSource.Position;
+                    MovingSource.cavernSource.Position.y = Height * Listener.EnvironmentSize.y;
+                } else {
+                    MovingSource.cavernSource.Position.y = 0;
+                    Height = 0;
+                }
             }
+        }
+
+        public void Update() {
+            MovingRenderer.enabled = GroundRenderer.enabled = visualize;
+            MovingSource.transform.localPosition = CavernUtilities.VectorMatch(MovingSource.cavernSource.Position);
         }
 
         public void Destroy() {

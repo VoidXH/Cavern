@@ -96,6 +96,8 @@ namespace Cavern {
 
         /// <summary>Ask for update ticks.</summary>
         public float[] Render(int frames = 1) {
+            if (SampleRate < 44100 || UpdateRate < 16) // Don't work with wrong settings
+                return null;
             for (int source = 0; source < sourceLimit; ++source)
                 sourceDistances[source] = Range;
             pulseDelta = (frames * UpdateRate) / (float)SampleRate;

@@ -119,10 +119,13 @@ namespace Cavern.Debug {
             if (channelData.Length != channels || JackColoring != oldJackColoring)
                 RepaintChannels();
             bool doRepaint = false;
-            for (int channel = 0, multichannelUpdateRate = AudioListener3D.Output.Length; channel < channels; ++channel) {
+            float[] outputCache = AudioListener3D.Output;
+            if (outputCache == null)
+                return;
+            for (int channel = 0, samples = outputCache.Length; channel < channels; ++channel) {
                 float max = 0;
-                for (int sample = channel; sample < multichannelUpdateRate; sample += channels) {
-                    float AbsSample = Math.Abs(AudioListener3D.Output[sample]);
+                for (int sample = channel; sample < samples; sample += channels) {
+                    float AbsSample = Math.Abs(outputCache[sample]);
                     if (max < AbsSample)
                         max = AbsSample;
                 }

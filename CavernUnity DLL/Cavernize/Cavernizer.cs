@@ -64,6 +64,10 @@ namespace Cavern.Cavernize {
 
         /// <summary>Imported audio data.</summary>
         float[] clipSamples;
+        /// <summary>Channel count of <see cref="Clip"/>.</summary>
+        int clipChannels;
+        /// <summary>Length of <see cref="Clip"/> in samples/channel.</summary>
+        int clipLength;
         /// <summary><see cref="AudioListener3D.UpdateRate"/> for conversion.</summary>
         int updateRate;
         /// <summary>Cached <see cref="AudioListener3D.SampleRate"/> as the listener is reconfigured for the Cavernize process.</summary>
@@ -83,8 +87,8 @@ namespace Cavern.Cavernize {
             oldUpdateRate = listener.UpdateRate;
             listener.SampleRate = Clip.frequency;
             updateRate = listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
-            int clipChannels = Clip.channels;
-            clipSamples = new float[clipChannels * updateRate];
+            clipSamples = new float[(clipChannels = Clip.channels) * ((clipLength = Clip.samples) + updateRate)];
+            Clip.GetData(clipSamples, 0);
             List<CavernizeChannel> targetChannels = new List<CavernizeChannel>();
             foreach (CavernizeChannel upmixTarget in CavernizeChannel.UpmixTargets)
                 targetChannels.Add(upmixTarget);
@@ -116,26 +120,23 @@ namespace Cavern.Cavernize {
             float smoothFactor = 1f - Utils.Lerp(updateRate, listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
             foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
                 Array.Clear(channel.Value.Output, 0, updateRate);
-            int maxLength = Clip.samples;
-            if (timeSamples >= maxLength) {
+            if (timeSamples >= clipLength) {
                 if (Loop)
-                    timeSamples %= maxLength;
+                    timeSamples %= clipLength;
                 else {
                     timeSamples = 0;
                     IsPlaying = false;
                     return;
                 }
             }
-            int clipChannels = Clip.channels;
             if (IsPlaying) {
                 foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in channels)
                     Channel.Value.WrittenOutput = false;
                 // Load input channels
-                Clip.GetData(clipSamples, timeSamples);
                 for (int channel = 0; channel < clipChannels; ++channel) {
                     SpatializedChannel outputChannel = GetChannel(CavernizeChannel.StandardMatrix[clipChannels][channel]);
                     float[] target = outputChannel.Output;
-                    for (int offset = 0, srcOffset = channel; offset < updateRate; ++offset, srcOffset += clipChannels)
+                    for (int offset = 0, srcOffset = timeSamples * clipChannels + channel; offset < updateRate; ++offset, srcOffset += clipChannels)
                         target[offset] = clipSamples[srcOffset] * Volume;
                     outputChannel.WrittenOutput = true;
                 }
@@ -180,11 +181,6 @@ namespace Cavern.Cavernize {
             float effectMult = Effect * 15f;
             foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
                 channel.Value.Tick(effectMult, smoothFactor, GroundCrossover, Visualize);
-            if (CenterStays) {
-                SpatializedChannel channel = GetChannel(CavernizeChannel.FrontCenter);
-                channel.Height = unsetHeight;
-                channel.MovingSource.transform.localPosition = new Vector3(0, 0, 10);
-            }
             timeSamples += updateRate;
         }
 

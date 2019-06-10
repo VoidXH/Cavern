@@ -35,9 +35,16 @@ namespace Cavern.Utilities {
             return (float)Math.Sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
         }
 
+        /// <summary>Multiply this vector with another one by each dimension.</summary>
+        public void Scale(Vector with) {
+            x *= with.x;
+            y *= with.y;
+            z *= with.z;
+        }
+
         /// <summary>Divide this vector with another one by each dimension.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Divide(Vector with) {
+        public void Downscale(Vector with) {
             x /= with.x;
             y /= with.y;
             z /= with.z;

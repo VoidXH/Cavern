@@ -36,7 +36,9 @@ namespace Cavern.Cavernize {
             protected override float[][] GetSamples() => Master.Tick(Channel, GroundLevel);
         }
 
-        void Awake() => cavernSource = new CavernizeOutputSource();
+        void Awake() => cavernSource = new CavernizeOutputSource() {
+            Clip = new Clip(new float[1][] { new float[1] }, 48000)
+        };
 
         void Start() {
             CavernizeOutputSource source = (CavernizeOutputSource)cavernSource;
@@ -46,5 +48,7 @@ namespace Cavern.Cavernize {
             source.Channel = Channel;
             SourceUpdate();
         }
+
+        void Update() => Channel.Update();
     }
 }
