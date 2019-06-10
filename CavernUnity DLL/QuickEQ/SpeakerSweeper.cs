@@ -48,7 +48,7 @@ namespace Cavern.QuickEQ {
                     return 1;
                 else if (!enabled)
                     return 0;
-                return (float)sweepers[AudioListener3D.Channels.Length - 1].timeSamples / SweepReference.Length / AudioListener3D.Channels.Length;
+                return (float)sweepers[Listener.Channels.Length - 1].timeSamples / SweepReference.Length / Listener.Channels.Length;
             }
         }
 
@@ -153,7 +153,7 @@ namespace Cavern.QuickEQ {
         void OnDisable() {
             Destroy(sweep);
             if (sweepers[0])
-                for (int channel = 0, channels = AudioListener3D.Channels.Length; channel < channels; ++channel)
+                for (int channel = 0, channels = Listener.Channels.Length; channel < channels; ++channel)
                     Destroy(sweepers[channel]);
             if (sweepResponse)
                 Destroy(sweepResponse);

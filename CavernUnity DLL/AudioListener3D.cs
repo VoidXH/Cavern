@@ -18,14 +18,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
-        /// <summary>Output timer.</summary>
-        static int now = 0;
         /// <summary>Cached <see cref="SampleRate"/> for change detection.</summary>
         static int cachedSampleRate = 0;
-        /// <summary>Cached <see cref="UpdateRate"/> for change detection.</summary>
-        static int cachedUpdateRate = 0;
-        /// <summary>Current time in ticks in the last frame.</summary>
-        static long lastTicks = 0;
 
         // ------------------------------------------------------------------
         // Filter output
@@ -34,41 +28,16 @@ namespace Cavern {
         static int bufferPosition = 0;
         /// <summary>Samples to play with the filter.</summary>
         static float[] filterOutput;
-        /// <summary>Lock for the <see cref="bufferPosition"/>, which is set in multiple threads.</summary>
-        static object bufferLock = new object();
         /// <summary>Filter normalizer gain.</summary>
         static float filterNormalizer = 1;
         /// <summary>Cached system sample rate.</summary>
         static int systemSampleRate;
 
-        // ------------------------------------------------------------------
-        // Internal functions
-        // ------------------------------------------------------------------
-        void MatchListener() {
-            cavernListener.Volume = Volume;
-            cavernListener.LFEVolume = LFEVolume;
-            cavernListener.Range = Range;
-            cavernListener.Paused = Paused;
-            cavernListener.Normalizer = Normalizer;
-            cavernListener.LimiterOnly = LimiterOnly;
-            cavernListener.SampleRate = SampleRate;
-            cavernListener.UpdateRate = UpdateRate;
-            cavernListener.DelayTarget = DelayTarget;
-            cavernListener.AudioQuality = AudioQuality;
-            cavernListener.Manual = Manual;
-            cavernListener.LFESeparation = LFESeparation;
-            cavernListener.DirectLFE = DirectLFE;
-            cavernListener.Position = CavernUtilities.VectorMatch(transform.position);
-            cavernListener.Rotation = CavernUtilities.VectorMatch(transform.eulerAngles);
-        }
-
         /// <summary>Reset the listener after any change.</summary>
         void ResetFunc() {
-            ChannelCount = Channels.Length;
-            cachedSampleRate = SampleRate;
-            cachedUpdateRate = UpdateRate;
+            ChannelCount = Listener.Channels.Length;
             bufferPosition = 0;
-            lastTicks = DateTime.Now.Ticks;
+            cachedSampleRate = SampleRate;
             filterOutput = new float[ChannelCount * SampleRate];
         }
 
@@ -98,16 +67,12 @@ namespace Cavern {
                         for (int channel = 0; channel < ChannelCount; ++channel)
                             sourceBuffer[outputSample++] = channelSplit[channel][sample];
                 }
-                int end = filterOutput.Length;
-                lock (bufferLock) {
-                    int altEnd = bufferPosition + sourceBufferSize;
-                    if (end > altEnd)
-                        end = altEnd;
-                    int outputPos = 0;
-                    for (int bufferWrite = bufferPosition; bufferWrite < end; ++bufferWrite)
-                        filterOutput[bufferWrite] = sourceBuffer[outputPos++];
-                    bufferPosition = end;
-                }
+                int end = filterOutput.Length, altEnd = bufferPosition + sourceBufferSize, outputPos = 0;
+                if (end > altEnd)
+                    end = altEnd;
+                for (int bufferWrite = bufferPosition; bufferWrite < end; ++bufferWrite)
+                    filterOutput[bufferWrite] = sourceBuffer[outputPos++];
+                bufferPosition = end;
             } else
                 filterOutput = new float[ChannelCount * cachedSampleRate];
         }
@@ -126,9 +91,21 @@ namespace Cavern {
             // Change checks
             if (HeadphoneVirtualizer) // Virtual channels
                 VirtualizerFilter.SetLayout();
-            MatchListener();
+            cavernListener.Volume = Volume;
+            cavernListener.LFEVolume = LFEVolume;
+            cavernListener.Range = Range;
+            cavernListener.Normalizer = Normalizer;
+            cavernListener.LimiterOnly = LimiterOnly;
+            cavernListener.SampleRate = SampleRate;
+            cavernListener.UpdateRate = UpdateRate;
+            cavernListener.DelayTarget = DelayTarget;
+            cavernListener.AudioQuality = AudioQuality;
+            cavernListener.LFESeparation = LFESeparation;
+            cavernListener.DirectLFE = DirectLFE;
+            cavernListener.Position = CavernUtilities.VectorMatch(transform.position);
+            cavernListener.Rotation = CavernUtilities.VectorMatch(transform.eulerAngles);
             if (Manual) {
-                if (ChannelCount != Channels.Length || cachedSampleRate != SampleRate || cachedUpdateRate != UpdateRate)
+                if (ChannelCount != Listener.Channels.Length || cachedSampleRate != SampleRate)
                     ResetFunc();
                 Output = cavernListener.Render();
                 Manual = false;
@@ -140,23 +117,16 @@ namespace Cavern {
         /// <param name="unityBuffer">Output buffer</param>
         /// <param name="unityChannels">Output channel count</param>
         void OnAudioFilterRead(float[] unityBuffer, int unityChannels) {
-            if (Paused)
+            if (Paused || Manual)
                 return;
-            if (ChannelCount != Channels.Length || cachedSampleRate != SampleRate || cachedUpdateRate != UpdateRate)
+            if (ChannelCount != Listener.Channels.Length || cachedSampleRate != SampleRate)
                 ResetFunc();
-            now += unityBuffer.Length / unityChannels;
-            // Output buffer creation
-            if (UpdateRate <= now) {
-                int frames = now / UpdateRate;
-                Output = cavernListener.Render(frames);
-                // Finalize
-                Finalization();
-                now %= UpdateRate;
-            }
-            if (bufferPosition == 0)
-                return;
-            int samplesPerChannel = unityBuffer.Length / unityChannels, end = Math.Min(bufferPosition, samplesPerChannel * ChannelCount);
+            int needed = unityBuffer.Length / unityChannels - bufferPosition / ChannelCount;
+            int frames = needed * cavernListener.SampleRate / systemSampleRate / UpdateRate + 1;
+            Output = cavernListener.Render(frames);
+            Finalization();
             // Output audio
+            int samplesPerChannel = unityBuffer.Length / unityChannels, end = Math.Min(bufferPosition, samplesPerChannel * ChannelCount);
             if (unityChannels <= 4) { // For non-surround setups, downmix properly
                 for (int channel = 0; channel < ChannelCount; ++channel) {
                     int unityChannel = channel % unityChannels;
@@ -182,15 +152,9 @@ namespace Cavern {
             if (Normalizer != 0) // Normalize
                 Utils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
             // Remove used samples
-            lock (bufferLock) {
-                for (int bufferPos = end; bufferPos < bufferPosition; ++bufferPos)
-                    filterOutput[bufferPos - end] = filterOutput[bufferPos];
-                int maxLatency = ChannelCount * cachedSampleRate / DelayTarget;
-                if (bufferPosition < maxLatency)
-                    bufferPosition -= end;
-                else
-                    bufferPosition = 0;
-            }
+            for (int bufferPos = end; bufferPos < bufferPosition; ++bufferPos)
+                filterOutput[bufferPos - end] = filterOutput[bufferPos];
+            bufferPosition -= end;
         }
     }
 }

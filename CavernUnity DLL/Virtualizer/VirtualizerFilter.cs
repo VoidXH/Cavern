@@ -18,7 +18,7 @@ namespace Cavern.Virtualizer {
             Channel[] newChannels = new Channel[channels];
             for (int channel = 0; channel < channels; ++channel)
                 newChannels[channel] = new Channel(spatialChannels[channel].X, spatialChannels[channel].Y);
-            AudioListener3D.Channels = newChannels;
+            Listener.Channels = newChannels;
             if (originalSplit == null) {
                 originalSplit = new float[channels][];
                 leftSplit = new float[channels][];
@@ -36,7 +36,7 @@ namespace Cavern.Virtualizer {
         /// <summary>Apply the virtualizer on the <see cref="AudioListener3D"/>'s output,
         /// if the configuration matches the virtualization layout and filter sample rate.</summary>
         public static void Process(float[] output) {
-            int channelCount = AudioListener3D.Channels.Length, updateRate = AudioListener3D.Current.UpdateRate, blockCopySize = updateRate * sizeof(float);
+            int channelCount = Listener.Channels.Length, updateRate = AudioListener3D.Current.UpdateRate, blockCopySize = updateRate * sizeof(float);
             if (AudioListener3D.Current.SampleRate != filterSampleRate)
                 return;
             int outputSample = 0;

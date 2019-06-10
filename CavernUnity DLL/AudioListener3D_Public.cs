@@ -66,48 +66,11 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Global settings
         // ------------------------------------------------------------------
-        /// <summary>Output channel data. The default setup is the standard 5.1 layout.</summary>
-        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
-        public static Channel[] Channels {
-            get => Listener.Channels;
-            set => Listener.Channels = value;
-        }
-
         /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/>.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
         public static bool HeadphoneVirtualizer {
             get => Listener.HeadphoneVirtualizer;
             set => Listener.HeadphoneVirtualizer = value;
-        }
-
-        /// <summary>3D environment type.</summary>
-        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
-        public static Environments EnvironmentType {
-            get => Listener.EnvironmentType;
-            set => Listener.EnvironmentType = value;
-        }
-
-        /// <summary>
-        /// The single most important variable defining sound space in
-        /// symmetric mode, the environment scaling. Originally set by the
-        /// user and applied when an <see cref="AudioListener3D"/> is
-        /// created, however, overriding it in specific applications can make
-        /// a huge difference. Objects inside a box this size are positioned
-        /// inside the room, and defines the range of balance between
-        /// left/right, front/rear, and top/bottom speakers. On asymmetric
-        /// systems, this setting only affects channel volumes if environment
-        /// compensation is enabled. The user's settings should be respected,
-        /// thus this vector should be scaled, not completely overridden.
-        /// </summary>
-        public static Vector3 EnvironmentSize {
-            get => CavernUtilities.VectorMatch(Listener.EnvironmentSize);
-            set => Listener.EnvironmentSize = CavernUtilities.VectorMatch(value);
-        }
-
-        /// <summary>How many sources can be played at the same time.</summary>
-        public int MaximumSources {
-            get => cavernListener.MaximumSources;
-            set => cavernListener.MaximumSources = value;
         }
 
         // ------------------------------------------------------------------

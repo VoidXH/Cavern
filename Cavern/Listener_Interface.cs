@@ -55,8 +55,6 @@ namespace Cavern {
         public float LFEVolume = 1;
         /// <summary>Hearing distance.</summary>
         public float Range = 100;
-        /// <summary>Disables any audio. Use this instead of enabling/disabling the script.</summary>
-        public bool Paused = false;
 
         // ------------------------------------------------------------------
         // Normalizer settings
@@ -77,8 +75,6 @@ namespace Cavern {
         public int DelayTarget = 12;
         /// <summary>Lower qualities increase performance for many sources.</summary>
         public QualityModes AudioQuality = QualityModes.High;
-        /// <summary>Manually ask for one update period.</summary>
-        public bool Manual = false;
         /// <summary>Only mix LFE tagged sources to subwoofers.</summary>
         public bool LFESeparation = false;
         /// <summary>Disable lowpass on the LFE channel.</summary>

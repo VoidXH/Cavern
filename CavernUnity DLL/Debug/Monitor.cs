@@ -33,7 +33,7 @@ namespace Cavern.Debug {
         }
 
         void SetRoomScale() {
-            roomScale = AudioListener3D.EnvironmentSize;
+            roomScale = CavernUtilities.VectorMatch(Listener.EnvironmentSize);
             for (int vertical = 0; vertical < 4; ++vertical) {
                 float modMult = vertical % 2 == 0 ? -.5f : .5f, divMult = vertical / 2 == 0 ? -.5f : .5f;
                 edges[vertical].transform.localPosition = new Vector3(modMult * roomScale.x, 0, divMult * roomScale.z);
@@ -55,7 +55,7 @@ namespace Cavern.Debug {
 
         void Update() {
             // Reset scale
-            if (roomScale != AudioListener3D.EnvironmentSize)
+            if (!CavernUtilities.VectorCompare(Listener.EnvironmentSize, roomScale))
                 SetRoomScale();
             Vector3 objScale = new Vector3(.5f, .5f, .5f);
             if (AutoScale != 0) {

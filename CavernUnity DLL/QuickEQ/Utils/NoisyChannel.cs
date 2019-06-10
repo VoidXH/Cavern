@@ -23,7 +23,7 @@ namespace Cavern.QuickEQ {
             Random generator = new Random();
 
             protected override bool Precollect() {
-                int renderBufferSize = AudioListener3D.Channels.Length * AudioListener3D.Current.UpdateRate;
+                int renderBufferSize = Listener.Channels.Length * AudioListener3D.Current.UpdateRate;
                 if (rendered.Length != renderBufferSize)
                     rendered = new float[renderBufferSize];
                 return true;
@@ -32,7 +32,7 @@ namespace Cavern.QuickEQ {
             protected override float[] Collect() {
                 Array.Clear(rendered, 0, rendered.Length);
                 if (IsPlaying && !Mute) {
-                    int channels = AudioListener3D.Channels.Length;
+                    int channels = Listener.Channels.Length;
                     if (channel < 0 || channel >= channels) {
                         UnityEngine.Debug.LogError(string.Format("Incorrect channel: {0}", channel));
                         return rendered;

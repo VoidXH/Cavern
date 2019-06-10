@@ -49,6 +49,9 @@ namespace Cavern.Cavernize {
             SourceUpdate();
         }
 
-        void Update() => Channel.Update();
+        void Update() {
+            Channel.Update();
+            SourceUpdate();
+        }
     }
 }

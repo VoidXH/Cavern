@@ -94,7 +94,7 @@ namespace Cavern.Debug {
 
         void Update() {
             float[] arrayLevels = new float[channels], outputCache = AudioListener3D.Output;
-            for (int actChannel = 0, cavernChannels = AudioListener3D.Channels.Length, multichannelUpdateRate = outputCache.Length;
+            for (int actChannel = 0, cavernChannels = Listener.Channels.Length, multichannelUpdateRate = outputCache.Length;
                 actChannel < cavernChannels; ++actChannel) {
                 float max = 0;
                 for (int sample = actChannel; sample < multichannelUpdateRate; sample += cavernChannels) {
@@ -102,7 +102,7 @@ namespace Cavern.Debug {
                     if (max < absSample)
                         max = absSample;
                 }
-                Channel thisChannel = AudioListener3D.Channels[actChannel];
+                Channel thisChannel = Listener.Channels[actChannel];
                 if (!thisChannel.LFE) {
                     if (thisChannel.X >= 0) { // Standard 7.1 and below
                         if (thisChannel.Y % 180 == 0) {

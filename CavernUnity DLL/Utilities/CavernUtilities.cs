@@ -77,7 +77,7 @@ namespace Cavern {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 VectorMatch(Vector source) => new Vector3(source.x, source.y, source.z);
 
-        /// <summary>Compares Cavern and Unity vectors.</summary>
+        /// <summary>Checks if a Cavern and Unity vector are equal.</summary>
         public static bool VectorCompare(Vector cavernVector, Vector3 unityVector) =>
             cavernVector.x == unityVector.x && cavernVector.y == unityVector.y && cavernVector.z == unityVector.z;
     }

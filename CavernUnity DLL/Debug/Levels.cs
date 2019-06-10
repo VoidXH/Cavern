@@ -63,7 +63,7 @@ namespace Cavern.Debug {
             for (int channel = 0; channel < channels; ++channel) {
                 if (channelData[channel].Color == null)
                     channelData[channel].Color = new Texture2D(1, 1);
-                channelData[channel].LastPos = CavernUtilities.VectorMatch(AudioListener3D.Channels[channel].CubicalPos);
+                channelData[channel].LastPos = CavernUtilities.VectorMatch(Listener.Channels[channel].CubicalPos);
                 if (JackColoring) {
                     channelData[channel].Color.SetPixel(0, 0, channel < 2 ? new Color(.596078431f, .984313725f, .596078431f, 1) :
                         channel < 4 ? (channels <= 4 ? Color.black : new Color(1, .647058824f, 0, 1)) :
@@ -72,7 +72,7 @@ namespace Cavern.Debug {
                         new Color(0, .578125f, .75f, 1));
                 } else {
                     Vector3 channelPos = channelData[channel].LastPos;
-                    Color targetColor = AudioListener3D.Channels[channel].LFE ? Color.black :
+                    Color targetColor = Listener.Channels[channel].LFE ? Color.black :
                         GetHueColor(channelPos.z % 1 == 0 ? (channelPos.y + 1f) * channelPos.z * 45f + 180f : (channelPos.x * (channelPos.y + 1f) * 22.5f + 45f));
                     targetColor = new Color(targetColor.r * .75f + .25f, targetColor.g * .75f + .25f, targetColor.b * .75f + .25f);
                     channelData[channel].Color.SetPixel(0, 0, targetColor);
@@ -133,7 +133,7 @@ namespace Cavern.Debug {
                 if (currentPeak < currentBarHeight)
                     currentPeak = currentBarHeight;
                 channelData[channel].Peak = currentPeak;
-                doRepaint |= CavernUtilities.VectorCompare(AudioListener3D.Channels[channel].CubicalPos, channelData[channel].LastPos);
+                doRepaint |= CavernUtilities.VectorCompare(Listener.Channels[channel].CubicalPos, channelData[channel].LastPos);
             }
             if (doRepaint)
                 RepaintChannels();

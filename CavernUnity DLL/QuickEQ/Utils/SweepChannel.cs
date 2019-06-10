@@ -24,7 +24,7 @@ namespace Cavern.QuickEQ {
             float[] rendered = new float[0];
 
             protected override bool Precollect() {
-                int renderBufferSize = AudioListener3D.Channels.Length * AudioListener3D.Current.UpdateRate;
+                int renderBufferSize = Listener.Channels.Length * AudioListener3D.Current.UpdateRate;
                 if (rendered.Length != renderBufferSize)
                     rendered = new float[renderBufferSize];
                 return true;
@@ -33,7 +33,7 @@ namespace Cavern.QuickEQ {
             protected override float[] Collect() {
                 Array.Clear(rendered, 0, rendered.Length);
                 if (IsPlaying && !Mute) {
-                    int sweepLength = Sweeper.SweepReference.Length, delay = Channel * sweepLength, channels = AudioListener3D.Channels.Length;
+                    int sweepLength = Sweeper.SweepReference.Length, delay = Channel * sweepLength, channels = Listener.Channels.Length;
                     int pos = TimeSamples - delay;
                     for (int sample = Channel, end = rendered.Length; sample < end; sample += channels) {
                         if (pos < 0)

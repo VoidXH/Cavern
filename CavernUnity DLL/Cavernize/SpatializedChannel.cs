@@ -103,20 +103,19 @@ namespace Cavern.Cavernize {
                     maxHeight = -.2f;
                 else if (maxHeight > 1)
                     maxHeight = 1;
-                Height = Utils.Lerp(Height, maxHeight, smoothFactor);
-                if (Channel.Y != 0 || !MovingSource.Master.CenterStays || Channel.X != 0) {
-                    Vector oldPos = MovingSource.cavernSource.Position;
-                    MovingSource.cavernSource.Position.y = Height * Listener.EnvironmentSize.y;
-                } else {
-                    MovingSource.cavernSource.Position.y = 0;
+                if (Channel.Y != 0 || !MovingSource.Master.CenterStays || Channel.X != 0)
+                    Height = Utils.Lerp(Height, maxHeight, smoothFactor);
+                else
                     Height = 0;
-                }
             }
         }
 
         public void Update() {
             MovingRenderer.enabled = GroundRenderer.enabled = visualize;
-            MovingSource.transform.localPosition = CavernUtilities.VectorMatch(MovingSource.cavernSource.Position);
+            Vector position = Utils.PlaceInCube(new Vector(0, Channel.Y));
+            position.Scale(Listener.EnvironmentSize);
+            position.y = Height * Listener.EnvironmentSize.y;
+            MovingSource.transform.localPosition = CavernUtilities.VectorMatch(position);
         }
 
         public void Destroy() {
