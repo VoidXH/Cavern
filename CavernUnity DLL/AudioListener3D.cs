@@ -41,42 +41,6 @@ namespace Cavern {
             filterOutput = new float[ChannelCount * SampleRate];
         }
 
-        /// <summary>The function to initially call when samples are available, to feed them to the filter.</summary>
-        void Finalization() {
-            if (!Paused) {
-                float[] sourceBuffer = Output;
-                int sourceBufferSize = Output.Length;
-                if (HeadphoneVirtualizer)
-                    VirtualizerFilter.Process(sourceBuffer);
-                if (systemSampleRate != cachedSampleRate) { // Resample output for system sample rate
-                    float[][] channelSplit = new float[ChannelCount][];
-                    int splitSize = sourceBufferSize / ChannelCount;
-                    for (int channel = 0; channel < ChannelCount; ++channel)
-                        channelSplit[channel] = new float[splitSize];
-                    int outputSample = 0;
-                    for (int sample = 0; sample < splitSize; ++sample)
-                        for (int channel = 0; channel < ChannelCount; ++channel)
-                            channelSplit[channel][sample] = sourceBuffer[outputSample++];
-                    for (int channel = 0; channel < ChannelCount; ++channel)
-                        channelSplit[channel] = Resample.Adaptive(channelSplit[channel],
-                            (int)(splitSize * systemSampleRate / (float)cachedSampleRate), AudioQuality);
-                    int newUpdateRate = channelSplit[0].Length;
-                    sourceBuffer = new float[sourceBufferSize = ChannelCount * newUpdateRate];
-                    outputSample = 0;
-                    for (int sample = 0; sample < newUpdateRate; ++sample)
-                        for (int channel = 0; channel < ChannelCount; ++channel)
-                            sourceBuffer[outputSample++] = channelSplit[channel][sample];
-                }
-                int end = filterOutput.Length, altEnd = bufferPosition + sourceBufferSize, outputPos = 0;
-                if (end > altEnd)
-                    end = altEnd;
-                for (int bufferWrite = bufferPosition; bufferWrite < end; ++bufferWrite)
-                    filterOutput[bufferWrite] = sourceBuffer[outputPos++];
-                bufferPosition = end;
-            } else
-                filterOutput = new float[ChannelCount * cachedSampleRate];
-        }
-
         void Awake() {
             if (Current) {
                 UnityEngine.Debug.LogError("There can be only one 3D audio listener per scene.");
@@ -122,11 +86,25 @@ namespace Cavern {
             if (ChannelCount != Listener.Channels.Length || cachedSampleRate != SampleRate)
                 ResetFunc();
             int needed = unityBuffer.Length / unityChannels - bufferPosition / ChannelCount;
-            int frames = needed * cavernListener.SampleRate / systemSampleRate / UpdateRate + 1;
-            Output = cavernListener.Render(frames);
-            Finalization();
+            int frames = Math.Min(needed * cachedSampleRate / systemSampleRate / UpdateRate + 1, systemSampleRate / (UpdateRate * 4));
+            float[] renderBuffer = cavernListener.Render(frames);
+            int renderSize = renderBuffer.Length;
+            if (systemSampleRate != cachedSampleRate) { // Resample output for system sample rate
+                renderBuffer = Resample.Adaptive(renderBuffer, renderSize / ChannelCount * systemSampleRate / cachedSampleRate,
+                    ChannelCount, AudioQuality);
+                renderSize = renderBuffer.Length;
+            }
+            if (HeadphoneVirtualizer)
+                VirtualizerFilter.Process(renderBuffer);
+            Output = (float[])renderBuffer.Clone(); // Has to be cloned, as this might be a cached array
+            int end = filterOutput.Length, altEnd = bufferPosition + renderSize, outputPos = 0;
+            if (end > altEnd)
+                end = altEnd;
+            for (int bufferWrite = bufferPosition; bufferWrite < end; ++bufferWrite)
+                filterOutput[bufferWrite] = Output[outputPos++];
+            bufferPosition = end;
             // Output audio
-            int samplesPerChannel = unityBuffer.Length / unityChannels, end = Math.Min(bufferPosition, samplesPerChannel * ChannelCount);
+            int samplesPerChannel = unityBuffer.Length / unityChannels, written = Math.Min(bufferPosition, samplesPerChannel * ChannelCount);
             if (unityChannels <= 4) { // For non-surround setups, downmix properly
                 for (int channel = 0; channel < ChannelCount; ++channel) {
                     int unityChannel = channel % unityChannels;
@@ -152,9 +130,9 @@ namespace Cavern {
             if (Normalizer != 0) // Normalize
                 Utils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
             // Remove used samples
-            for (int bufferPos = end; bufferPos < bufferPosition; ++bufferPos)
-                filterOutput[bufferPos - end] = filterOutput[bufferPos];
-            bufferPosition -= end;
+            for (int bufferPos = written; bufferPos < bufferPosition; ++bufferPos)
+                filterOutput[bufferPos - written] = filterOutput[bufferPos];
+            bufferPosition -= written;
         }
     }
 }

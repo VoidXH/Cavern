@@ -45,7 +45,6 @@
     <Compile Include="Clip.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Listener.cs" />
-    <Compile Include="Listener_Interface.cs" />
     <Compile Include="Source.cs" />
     <Compile Include="Source_Asymmetric.cs" />
     <Compile Include="Source_Interface.cs" />

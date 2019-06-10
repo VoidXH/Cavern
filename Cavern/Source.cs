@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
@@ -15,6 +16,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>The <see cref="Listener"/> this source is attached to.</summary>
         internal Listener listener;
+        /// <summary>Cached node from <see cref="Listener.activeSources"/> for faster detach.</summary>
+        internal LinkedListNode<Source> listenerNode;
         /// <summary>Distance from the listener.</summary>
         internal float distance = float.NaN;
 

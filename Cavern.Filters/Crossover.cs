@@ -33,13 +33,13 @@ namespace Cavern.Filters {
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
-            int SampleCount = samples.Length;
-            if (SampleCount != LowOutput.Length) {
-                LowOutput = new float[SampleCount];
-                HighOutput = new float[SampleCount];
+            int sampleCount = samples.Length;
+            if (sampleCount != LowOutput.Length) {
+                LowOutput = new float[sampleCount];
+                HighOutput = new float[sampleCount];
             }
-            Array.Copy(samples, LowOutput, SampleCount);
-            Array.Copy(samples, HighOutput, SampleCount);
+            Array.Copy(samples, LowOutput, sampleCount);
+            Array.Copy(samples, HighOutput, sampleCount);
             LPF1.Process(LowOutput, channel, channels);
             LPF2.Process(LowOutput, channel, channels);
             HPF1.Process(HighOutput, channel, channels);

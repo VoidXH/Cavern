@@ -66,7 +66,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Global settings
         // ------------------------------------------------------------------
-        /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/>.</summary>
+        /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Listener.Channels"/>.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
         public static bool HeadphoneVirtualizer {
             get => Listener.HeadphoneVirtualizer;
@@ -85,7 +85,7 @@ namespace Cavern {
         /// <summary>The active <see cref="AudioListener3D"/> instance.</summary>
         public static AudioListener3D Current;
 
-        /// <summary>Result of the last update. Size is [<see cref="Channels"/>.Length * <see cref="UpdateRate"/>].</summary>
+        /// <summary>Result of the last update. Size is [<see cref="Listener.Channels"/>.Length * <see cref="UpdateRate"/>].</summary>
         public static float[] Output = new float[0];
 
         // ------------------------------------------------------------------
