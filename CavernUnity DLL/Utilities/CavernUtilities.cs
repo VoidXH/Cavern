@@ -36,11 +36,10 @@ namespace Cavern {
 
         /// <summary>Get the peak amplitude of a single-channel array.</summary>
         /// <param name="target">Array reference</param>
-        /// <param name="samples">Sample count</param>
         /// <returns>Peak amplitude in the array in decibels</returns>
-        public static float GetPeak(float[] target, int samples) {
+        public static float GetPeak(float[] target) {
             float max = Math.Abs(target[0]), absSample;
-            for (int sample = 1; sample < samples; ++sample) {
+            for (int sample = 1; sample < target.Length; ++sample) {
                 absSample = Math.Abs(target[sample]);
                 if (max < absSample)
                     max = absSample;

@@ -14,16 +14,15 @@ namespace Cavern.Virtualizer {
 
         /// <summary>Set up virtual channel set for the virtualization filters.</summary>
         public static void SetLayout() {
-            int channels = spatialChannels.Length;
-            Channel[] newChannels = new Channel[channels];
-            for (int channel = 0; channel < channels; ++channel)
+            Channel[] newChannels = new Channel[spatialChannels.Length];
+            for (int channel = 0; channel < spatialChannels.Length; ++channel)
                 newChannels[channel] = new Channel(spatialChannels[channel].X, spatialChannels[channel].Y);
             Listener.Channels = newChannels;
             if (originalSplit == null) {
-                originalSplit = new float[channels][];
-                leftSplit = new float[channels][];
-                rightSplit = new float[channels][];
-                for (int channel = 0; channel < channels; ++channel)
+                originalSplit = new float[spatialChannels.Length][];
+                leftSplit = new float[spatialChannels.Length][];
+                rightSplit = new float[spatialChannels.Length][];
+                for (int channel = 0; channel < spatialChannels.Length; ++channel)
                     rightSplit[channel] = new float[0];
                 originalSplit[0] = new float[0];
             }

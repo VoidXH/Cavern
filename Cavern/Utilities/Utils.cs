@@ -50,7 +50,7 @@ namespace Cavern.Utilities {
         /// <param name="value">Value to insert</param>
         internal static void BottomlistHandler(float[] target, float value) {
             int replace = -1;
-            for (int record = 0, count = target.Length; record < count; ++record)
+            for (int record = 0; record < target.Length; ++record)
                 if (target[record] > value)
                     replace = replace == -1 ? record : (target[record] > target[replace] ? record : replace);
             if (replace != -1)
@@ -90,7 +90,7 @@ namespace Cavern.Utilities {
         /// <param name="value">Multiplier</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Gain(float[] target, float value) {
-            for (int i = 0, count = target.Length; i < count; ++i)
+            for (int i = 0; i < target.Length; ++i)
                 target[i] *= value;
         }
 
@@ -101,7 +101,7 @@ namespace Cavern.Utilities {
         /// <param name="channels">Channel count</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Gain(float[] target, float gain, int channel, int channels) {
-            for (int sample = channel, end = target.Length; sample < end; sample += channels)
+            for (int sample = channel; sample < target.Length; sample += channels)
                 target[sample] *= gain;
         }
 
@@ -110,7 +110,7 @@ namespace Cavern.Utilities {
         /// <param name="to">Stream</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Mix(float[] from, float[] to) {
-            for (int i = 0, count = from.Length; i < count; ++i)
+            for (int i = 0; i < from.Length; ++i)
                 to[i] += from[i];
         }
 
@@ -121,7 +121,7 @@ namespace Cavern.Utilities {
         /// <param name="limiterOnly">Don't go over 0 dB gain</param>
         public static void Normalize(ref float[] target, float decayFactor, ref float lastGain, bool limiterOnly) {
             float max = Math.Abs(target[0]), absSample;
-            for (int sample = 1, length = target.Length; sample < length; ++sample) {
+            for (int sample = 1; sample < target.Length; ++sample) {
                 absSample = Math.Abs(target[sample]);
                 if (max < absSample)
                     max = absSample;

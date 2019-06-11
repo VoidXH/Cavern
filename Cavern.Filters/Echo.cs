@@ -61,7 +61,7 @@
             if (delay <= 0)
                 return;
             float gain = 1 / (1 + Strength);
-            for (int sample = channel, length = samples.Length; sample < length; sample += channels) {
+            for (int sample = channel; sample < samples.Length; sample += channels) {
                 samples[sample] = (samples[sample] + cache[cachePos]) * gain;
                 cache[cachePos] = samples[sample] * Strength;
                 cachePos = (cachePos + 1) % delay;

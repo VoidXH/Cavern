@@ -48,13 +48,12 @@ namespace Cavern.Filters {
 
         /// <summary>Apply comb on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         public override void Process(float[] samples) {
-            int sampleCount = samples.Length;
-            if (cache.Length != sampleCount)
-                cache = new float[sampleCount];
-            Array.Copy(samples, cache, sampleCount);
+            if (cache.Length != samples.Length)
+                cache = new float[samples.Length];
+            Array.Copy(samples, cache, samples.Length);
             delay.Process(cache);
             float divisor = 1 / (1 + Alpha);
-            for (int sample = 0; sample < sampleCount; ++sample)
+            for (int sample = 0; sample < samples.Length; ++sample)
                 samples[sample] = (samples[sample] + cache[sample] * Alpha) * divisor;
         }
     }

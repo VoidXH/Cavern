@@ -20,23 +20,26 @@ namespace Cavern.Helpers {
         [Tooltip("Object scale at maximum gain.")]
         [Range(.1f, 10)] public float MaxSize = 1.25f;
 
-        /// <summary>Samples to check for gain.</summary>
-        [Tooltip("Samples to check for gain.")]
-        public int SampleCount = 512;
-
         /// <summary>Signal level at minimum size.</summary>
         [Tooltip("Signal level at minimum size.")]
         [Range(-300, 0)] public float DynamicRange = -96;
 
         /// <summary>Actual scaling value.</summary>
-        float Scale = 0;
+        float scale;
 
         void Update() {
-            float[] Samples = new float[SampleCount];
-            Source.cavernSource.Clip.GetData(Samples, Source.timeSamples);
-            float Size = Mathf.Clamp(CavernUtilities.GetPeak(Samples, SampleCount) / -DynamicRange + 1, 0, 1);
-            Scale = Utils.Lerp(Scale, (MaxSize - MinSize) * Size + MinSize, 1 - Smoothing);
-            transform.localScale = new Vector3(Scale, Scale, Scale);
+            float[][] samples = Source.cavernSource.Rendered;
+            if (samples != null) {
+                float peakSize = float.NegativeInfinity;
+                for (int channel = 0; channel < samples.Length; ++channel) {
+                    float channelSize = CavernUtilities.GetPeak(samples[channel]);
+                    if (peakSize < channelSize)
+                        peakSize = channelSize;
+                }
+                float size = Mathf.Clamp(peakSize / -DynamicRange + 1, 0, 1);
+                scale = Utils.Lerp(scale, (MaxSize - MinSize) * size + MinSize, 1 - Smoothing);
+                transform.localScale = new Vector3(scale, scale, scale);
+            }
         }
     }
 }

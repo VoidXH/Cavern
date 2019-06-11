@@ -35,7 +35,7 @@ namespace Cavern.QuickEQ {
                 if (IsPlaying && !Mute) {
                     int sweepLength = Sweeper.SweepReference.Length, delay = Channel * sweepLength, channels = Listener.Channels.Length;
                     int pos = TimeSamples - delay;
-                    for (int sample = Channel, end = rendered.Length; sample < end; sample += channels) {
+                    for (int sample = Channel; sample < rendered.Length; sample += channels) {
                         if (pos < 0)
                             continue;
                         if (pos >= sweepLength) {

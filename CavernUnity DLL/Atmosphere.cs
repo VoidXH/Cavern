@@ -61,7 +61,7 @@ namespace Cavern {
         void Update() {
             PlacerFunc directionFunc = Spherical ? (PlacerFunc)Utils.PlaceInSphere : Utils.PlaceInCube;
             float targetVolume = Volume / Sources;
-            for (int source = 0, clipCount = Clips.Length; source < Sources; ++source) {
+            for (int source = 0; source < Sources; ++source) {
                 if (!objects[source].Object) {
                     if (Visualize)
                         objects[source].Object = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -74,7 +74,7 @@ namespace Cavern {
                     creation.transform.position = transform.position + CavernUtilities.VectorMatch(direction) * distance;
                     // Add audio
                     AudioSource3D newSource = objects[source].Source = creation.AddComponent<AudioSource3D>();
-                    newSource.Clip = Clips[(int)(clipCount * Random.value)];
+                    newSource.Clip = Clips[(int)(Clips.Length * Random.value)];
                     newSource.Volume = targetVolume;
                 } else if (!objects[source].Source.IsPlaying)
                     Destroy(objects[source].Object);

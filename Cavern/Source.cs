@@ -42,8 +42,6 @@ namespace Cavern {
         float[] rendered = new float[0];
         /// <summary>Mono mix cache to save allocation times.</summary>
         float[] samples = new float[0];
-        /// <summary>Sample buffer from the clip.</summary>
-        float[][] originalSamples;
 
         /// <summary>Random number generator.</summary>
         Random random = new Random();
@@ -66,11 +64,15 @@ namespace Cavern {
         /// <summary>Get the next samples in the audio stream.</summary>
         protected internal virtual float[][] GetSamples() {
             int channels = Clip.Channels;
-            originalSamples = new float[channels][];
-            for (int channel = 0; channel < channels; ++channel) // TODO: cache
-                originalSamples[channel] = new float[pitchedUpdateRate];
-            Clip.GetData(originalSamples, TimeSamples);
-            return originalSamples;
+            if (Rendered == null || Rendered.Length != channels) {
+                Rendered = new float[channels][];
+                Rendered[0] = new float[0];
+            }
+            if (Rendered[0].Length != pitchedUpdateRate)
+                for (int channel = 0; channel < channels; ++channel)
+                    Rendered[channel] = new float[pitchedUpdateRate];
+            Clip.GetData(Rendered, TimeSamples);
+            return Rendered;
         }
 
         /// <summary>Quickly checks if a value is in an array.</summary>
@@ -115,7 +117,7 @@ namespace Cavern {
                     leftSamples = new float[pitchedUpdateRate];
                     rightSamples = new float[pitchedUpdateRate];
                 }
-                originalSamples = GetSamples();
+                Rendered = GetSamples();
                 int outputLength = Listener.Channels.Length * listener.UpdateRate;
                 if (rendered.Length != outputLength)
                     rendered = new float[outputLength];
@@ -123,7 +125,7 @@ namespace Cavern {
                     delay -= (ulong)listener.UpdateRate;
                 return true;
             }
-            originalSamples = null;
+            Rendered = null;
             return false;
         }
 
@@ -167,20 +169,20 @@ namespace Cavern {
                 // Mono mix
                 if (blend3D) {
                     if (clipChannels == 1)
-                        Buffer.BlockCopy(originalSamples[0], 0, samples, 0, pitchedUpdateRate * sizeof(float));
+                        Buffer.BlockCopy(Rendered[0], 0, samples, 0, pitchedUpdateRate * sizeof(float));
                     else {
                         if (highQuality) { // Mono downmix above medium quality
                             Array.Clear(samples, 0, pitchedUpdateRate);
                             float clipChDiv = 1f / clipChannels;
                             for (int channel = 0; channel < clipChannels; ++channel) {
-                                float[] sampleSource = originalSamples[channel];
+                                float[] sampleSource = Rendered[channel];
                                 for (int sample = 0; sample < pitchedUpdateRate; ++sample)
                                     samples[sample] += sampleSource[sample];
                             }
                             for (int sample = 0; sample < pitchedUpdateRate; ++sample)
                                 samples[sample] *= clipChDiv;
                         } else { // First channel only otherwise
-                            float[] sampleSource = originalSamples[0];
+                            float[] sampleSource = Rendered[0];
                             for (int sample = 0; sample < pitchedUpdateRate; ++sample)
                                 samples[sample] = sampleSource[sample];
                         }
@@ -192,8 +194,8 @@ namespace Cavern {
                         samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
                         WriteOutput(samples, rendered, volume2D, channels);
                     } else {
-                        Buffer.BlockCopy(originalSamples[0], 0, leftSamples, 0, pitchedUpdateRate * sizeof(float));
-                        Buffer.BlockCopy(originalSamples[1], 0, rightSamples, 0, pitchedUpdateRate * sizeof(float));
+                        Buffer.BlockCopy(Rendered[0], 0, leftSamples, 0, pitchedUpdateRate * sizeof(float));
+                        Buffer.BlockCopy(Rendered[1], 0, rightSamples, 0, pitchedUpdateRate * sizeof(float));
                         leftSamples = Resample.Adaptive(leftSamples, updateRate, listener.AudioQuality);
                         rightSamples = Resample.Adaptive(rightSamples, updateRate, listener.AudioQuality);
                         int leftDivisor = 0, rightDivisor = 0;

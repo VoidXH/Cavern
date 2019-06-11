@@ -64,16 +64,16 @@ namespace Cavern {
 
         void OnAudioFilterRead(float[] data, int channels) {
             // Mono downmix
-            int samples = data.Length, UpdateRate = samples / channels, actualSample = 0;
+            int UpdateRate = data.Length / channels, actualSample = 0;
             float[] monoMix = new float[UpdateRate];
             if (Balanced) {
-                for (int sample = ChannelUsed; sample < samples; sample += channels)
+                for (int sample = ChannelUsed; sample < data.Length; sample += channels)
                     monoMix[actualSample++] = data[sample];
                 actualSample = 0;
-                for (int sample = ChannelUsed % 2 == 0 ? (ChannelUsed + 1) : (ChannelUsed - 1); sample < samples; sample += channels)
+                for (int sample = ChannelUsed % 2 == 0 ? (ChannelUsed + 1) : (ChannelUsed - 1); sample < data.Length; sample += channels)
                     monoMix[actualSample] = (monoMix[actualSample] - data[sample]) * .5f;
             } else {
-                for (int sample = ChannelUsed; sample < samples; sample += channels)
+                for (int sample = ChannelUsed; sample < data.Length; sample += channels)
                     monoMix[actualSample++] = data[sample];
             }
             // Cavernize
@@ -98,7 +98,7 @@ namespace Cavern {
                 lowerMix = Mathf.Sin(Mathf.PI / 2 * (1f - upperMix));
             upperMix = Mathf.Sin(Mathf.PI / 2 * upperMix);
             int outputPos = (int)Divert % channels - channels;
-            Array.Clear(data, 0, samples);
+            Array.Clear(data, 0, data.Length);
             for (int sample = 0; sample < UpdateRate; ++sample) // Base channel
                 data[outputPos += channels] = monoMix[sample] * lowerMix;
             outputPos = ((int)HeightDivert + 1) % channels - channels;

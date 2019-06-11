@@ -56,13 +56,13 @@
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
-            for (int Sample = channel, End = samples.Length; Sample < End; Sample += channels) {
-                float ThisSample = samples[Sample];
-                samples[Sample] = b2 * x2 + b1 * x1 + b0 * ThisSample - a1 * y1 - a2 * y2;
+            for (int sample = channel; sample < samples.Length; sample += channels) {
+                float thisSample = samples[sample];
+                samples[sample] = b2 * x2 + b1 * x1 + b0 * thisSample - a1 * y1 - a2 * y2;
                 y2 = y1;
-                y1 = samples[Sample];
+                y1 = samples[sample];
                 x2 = x1;
-                x1 = ThisSample;
+                x1 = thisSample;
             }
         }
     }

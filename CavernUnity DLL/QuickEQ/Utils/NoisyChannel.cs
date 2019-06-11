@@ -38,7 +38,7 @@ namespace Cavern.QuickEQ {
                         return rendered;
                     }
                     float gain = Volume * 2;
-                    for (int sample = channel, end = rendered.Length; sample < end; sample += channels)
+                    for (int sample = channel; sample < rendered.Length; sample += channels)
                         rendered[sample] = (float)generator.NextDouble() * gain - Volume;
                 }
                 return rendered;

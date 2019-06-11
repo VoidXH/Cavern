@@ -54,19 +54,18 @@ namespace Cavern.Debug {
 
         /// <summary>Create a new <see cref="ChannelLevelData"/> for each existing channels, and use the user-set color scheme.</summary>
         void RepaintChannels() {
-            int channels = Listener.Channels.Length;
-            if (channelData.Length != channels) {
-                channelData = new ChannelLevelData[channels];
-                for (int channel = 0; channel < channels; ++channel)
+            if (channelData.Length != Listener.Channels.Length) {
+                channelData = new ChannelLevelData[Listener.Channels.Length];
+                for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                     Destroy(channelData[channel].Color);
             }
-            for (int channel = 0; channel < channels; ++channel) {
+            for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                 if (channelData[channel].Color == null)
                     channelData[channel].Color = new Texture2D(1, 1);
                 channelData[channel].LastPos = CavernUtilities.VectorMatch(Listener.Channels[channel].CubicalPos);
                 if (JackColoring) {
                     channelData[channel].Color.SetPixel(0, 0, channel < 2 ? new Color(.596078431f, .984313725f, .596078431f, 1) :
-                        channel < 4 ? (channels <= 4 ? Color.black : new Color(1, .647058824f, 0, 1)) :
+                        channel < 4 ? (Listener.Channels.Length <= 4 ? Color.black : new Color(1, .647058824f, 0, 1)) :
                         channel < 6 ? Color.black :
                         channel < 8 ? new Color(.75294117647f, .75294117647f, .75294117647f, 1) :
                         new Color(0, .578125f, .75f, 1));
@@ -85,12 +84,12 @@ namespace Cavern.Debug {
         /// <summary>Draw window contents.</summary>
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
-            int maximumWidth = (MaxWidth <= 0 ? Screen.width : MaxWidth) - 30, channels = Listener.Channels.Length, blockWidth = Math.Min(maximumWidth / channels, 30),
-                gapWidth = blockWidth / 6, barWidth = blockWidth - gapWidth * 2, targetWidth = channels * blockWidth;
+            int maximumWidth = (MaxWidth <= 0 ? Screen.width : MaxWidth) - 30, blockWidth = Math.Min(maximumWidth / Listener.Channels.Length, 30),
+                gapWidth = blockWidth / 6, barWidth = blockWidth - gapWidth * 2, targetWidth = Listener.Channels.Length * blockWidth;
             Position.width = this.width = targetWidth + 30;
             TextAnchor oldAlign = GUI.skin.label.alignment;
             GUI.skin.label.alignment = TextAnchor.MiddleCenter;
-            if (channelData.Length != channels)
+            if (channelData.Length != Listener.Channels.Length)
                 RepaintChannels();
             int left = 25 + gapWidth, top = 25, width = (int)Position.width - 4;
             int oldSize = GUI.skin.label.fontSize;
@@ -100,7 +99,7 @@ namespace Cavern.Debug {
                 GUI.Label(new Rect(0, top += 14, 30, 14), (DynamicRange * i / 10).ToString());
                 GUI.DrawTexture(new Rect(2, top, width, 1), white);
             }
-            for (int channel = 0; channel < channels; ++channel) {
+            for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                 float peak = channelData[channel].Peak;
                 if (peak > 0) {
                     int height = (int)(peak * 140);
@@ -122,9 +121,9 @@ namespace Cavern.Debug {
             float[] outputCache = AudioListener3D.Output;
             if (outputCache == null)
                 return;
-            for (int channel = 0, samples = outputCache.Length; channel < channels; ++channel) {
+            for (int channel = 0; channel < channels; ++channel) {
                 float max = 0;
-                for (int sample = channel; sample < samples; sample += channels) {
+                for (int sample = channel; sample < outputCache.Length; sample += channels) {
                     float AbsSample = Math.Abs(outputCache[sample]);
                     if (max < AbsSample)
                         max = AbsSample;
@@ -141,7 +140,7 @@ namespace Cavern.Debug {
 
         void OnDestroy() {
             Destroy(white);
-            for (int channel = 0, Channels = channelData.Length; channel < Channels; ++channel)
+            for (int channel = 0; channel < channelData.Length; ++channel)
                 Destroy(channelData[channel].Color);
         }
     }

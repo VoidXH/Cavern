@@ -78,7 +78,7 @@ namespace Cavern.QuickEQ {
         static float GetNoiseLevel(float[] RMSBlocks) {
             int zeroBlocks = 0;
             float peakNoise = float.PositiveInfinity;
-            for (int block = 0, blocks = RMSBlocks.Length; block < blocks; ++block)
+            for (int block = 0; block < RMSBlocks.Length; ++block)
                 if (RMSBlocks[block] == 0)
                     ++zeroBlocks;
                 else if (peakNoise > RMSBlocks[block])
@@ -92,7 +92,7 @@ namespace Cavern.QuickEQ {
         static List<Ramp> GetRamps(float[] samples, float highLevel) {
             List<Ramp> ramps = new List<Ramp>();
             bool lastRising = false;
-            for (int sample = 0, totalSamples = samples.Length; sample < totalSamples; ++sample) {
+            for (int sample = 0; sample < samples.Length; ++sample) {
                 if (samples[sample] <= highLevel) {
                     if (lastRising)
                         ramps.Add(new Ramp(lastRising = false, sample * blockSize));
@@ -101,7 +101,7 @@ namespace Cavern.QuickEQ {
             }
             // Remove wrongly detected (too short) ramps
             bool[] toRemove = new bool[ramps.Count];
-            for (int ramp = 1, end = ramps.Count; ramp < end; ramp += 2)
+            for (int ramp = 1; ramp < ramps.Count; ramp += 2)
                 if (ramps[ramp].Rising && ramps[ramp].Position - ramps[ramp - 1].Position < scrapSilence)
                     toRemove[ramp] = toRemove[ramp - 1] = true;
             for (int ramp = ramps.Count - 1; ramp >= 0; --ramp)
@@ -113,7 +113,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Based on distances between ramps, guess the FFT size of the measurement.</summary>
         static int GetFFTSize(List<Ramp> ramps) {
             int peakRampDist = 0, mainRampDist = 0; // The LFE measurement may be the highest distance, so we're looking for the second highest
-            for (int ramp = 1, end = ramps.Count; ramp < end; ++ramp) {
+            for (int ramp = 1; ramp < ramps.Count; ++ramp) {
                 int rampDist = ramps[ramp].Position - ramps[ramp - 1].Position;
                 if (peakRampDist < rampDist) {
                     mainRampDist = peakRampDist;

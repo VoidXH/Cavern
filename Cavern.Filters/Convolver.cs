@@ -33,31 +33,31 @@ namespace Cavern.Filters {
         /// <summary>Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         public override void Process(float[] samples) {
             // Actual convolution
-            int sampleCount = samples.Length, delayedImpulse = impulse.Length + delay;
-            float[] convolved = new float[sampleCount + delayedImpulse];
-            for (int sample = 0; sample < sampleCount; ++sample)
+            int delayedImpulse = impulse.Length + delay;
+            float[] convolved = new float[samples.Length + delayedImpulse];
+            for (int sample = 0; sample < samples.Length; ++sample)
                 for (int step = 0, lastStep = impulse.Length; step < lastStep; ++step)
                     convolved[sample + step + delay] += samples[sample] * impulse[step];
-            if (sampleCount > delayedImpulse) {
+            if (samples.Length > delayedImpulse) {
                 // Drain cache
-                Buffer.BlockCopy(convolved, 0, samples, 0, sampleCount * sizeof(float));
+                Buffer.BlockCopy(convolved, 0, samples, 0, samples.Length * sizeof(float));
                 for (int sample = 0; sample < delayedImpulse; ++sample)
                     samples[sample] += future[sample];
                 // Fill cache
                 for (int sample = 0; sample < delayedImpulse; ++sample)
-                    future[sample] = convolved[sample + sampleCount];
+                    future[sample] = convolved[sample + samples.Length];
             } else {
                 // Drain cache
-                for (int sample = 0; sample < sampleCount; ++sample)
+                for (int sample = 0; sample < samples.Length; ++sample)
                     samples[sample] = convolved[sample] + future[sample];
                 // Move cache
-                int futureEnd = delayedImpulse - sampleCount;
+                int futureEnd = delayedImpulse - samples.Length;
                 for (int sample = 0; sample < futureEnd; ++sample)
-                    future[sample] = future[sample + sampleCount];
-                Array.Clear(future, futureEnd, sampleCount);
+                    future[sample] = future[sample + samples.Length];
+                Array.Clear(future, futureEnd, samples.Length);
                 // Merge cache
                 for (int sample = 0; sample < delayedImpulse; ++sample)
-                    future[sample] += convolved[sample + sampleCount];
+                    future[sample] += convolved[sample + samples.Length];
             }
         }
     }

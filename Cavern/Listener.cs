@@ -95,7 +95,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Attach a source to this listener.</summary>
         public void AttachSource(Source source) {
-            if (source.listener) // TODO: node caching for removal
+            if (source.listener)
                 source.listener.DetachSource(source);
             source.listenerNode = activeSources.AddLast(source);
             source.listener = this;
@@ -116,7 +116,7 @@ namespace Cavern {
                 return "Virtualization";
             else {
                 int regular = 0, sub = 0, ceiling = 0, floor = 0;
-                for (int channel = 0, channelCount = Channels.Length; channel < channelCount; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     if (Channels[channel].LFE) ++sub;
                     else if (Channels[channel].X == 0) ++regular;
                     else if (Channels[channel].X < 0) ++ceiling;
@@ -172,7 +172,7 @@ namespace Cavern {
                     multiframeBuffer = new float[sampleCount];
                 for (int frame = 0; frame < frames; ++frame) {
                     float[] frameBuffer = Frame();
-                    for (int sample = 0, samples = frameBuffer.Length, offset = frame * samples; sample < samples; ++sample)
+                    for (int sample = 0, offset = frame * frameBuffer.Length; sample < frameBuffer.Length; ++sample)
                         multiframeBuffer[sample + offset] = frameBuffer[sample];
                 }
                 return multiframeBuffer;
@@ -230,7 +230,7 @@ namespace Cavern {
             }
             // Mix sources to output
             Array.Clear(renderBuffer, 0, renderBuffer.Length);
-            for (int result = 0, resultCount = results.Count; result < resultCount; ++result)
+            for (int result = 0; result < results.Count; ++result)
                 Utils.Mix(results[result], renderBuffer);
             // Volume, distance compensation, and subwoofers' lowpass
             for (int channel = 0; channel < channelCount; ++channel) {

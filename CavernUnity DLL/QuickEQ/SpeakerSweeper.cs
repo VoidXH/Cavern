@@ -77,7 +77,7 @@ namespace Cavern.QuickEQ {
         public void RegenerateSweep() {
             SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreq, SweepLength, AudioListener3D.Current.SampleRate));
             float gainMult = Mathf.Pow(10, SweepGain / 20);
-            for (int sample = 0, length = SweepReference.Length; sample < length; ++sample)
+            for (int sample = 0; sample < SweepReference.Length; ++sample)
                 SweepReference[sample] *= gainMult;
             sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
         }
@@ -110,13 +110,12 @@ namespace Cavern.QuickEQ {
         }
 
         void Update() {
-            int channels = Listener.Channels.Length;
             if (!measurementStarted) {
                 measurementStarted = true;
                 if (Microphone.devices.Length != 0)
-                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * channels / listener.SampleRate + 1, listener.SampleRate);
-                sweepers = new SweepChannel[channels];
-                for (int i = 0; i < channels; ++i) {
+                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Listener.Channels.Length / listener.SampleRate + 1, listener.SampleRate);
+                sweepers = new SweepChannel[Listener.Channels.Length];
+                for (int i = 0; i < Listener.Channels.Length; ++i) {
                     sweepers[i] = gameObject.AddComponent<SweepChannel>();
                     sweepers[i].Channel = i;
                     sweepers[i].Sweeper = this;
@@ -132,11 +131,11 @@ namespace Cavern.QuickEQ {
                     result = (float[])result.Clone();
                 ExcitementResponses[Channel] = result;
                 (workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(sweepFFT, sweepFFTCache, result))).Start();
-                if (++Channel == channels) {
-                    for (int channel = 0; channel < channels; ++channel)
+                if (++Channel == Listener.Channels.Length) {
+                    for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                         if (workers[channel].Result.IsNull())
                             return;
-                    for (int channel = 0; channel < channels; ++channel) {
+                    for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                         FreqResponses[channel] = workers[channel].Result.FreqResponse;
                         ImpResponses[channel] = workers[channel].Result.ImpResponse;
                         Destroy(sweepers[channel]);
@@ -153,7 +152,7 @@ namespace Cavern.QuickEQ {
         void OnDisable() {
             Destroy(sweep);
             if (sweepers[0])
-                for (int channel = 0, channels = Listener.Channels.Length; channel < channels; ++channel)
+                for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                     Destroy(sweepers[channel]);
             if (sweepResponse)
                 Destroy(sweepResponse);

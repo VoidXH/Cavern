@@ -44,11 +44,10 @@
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
         public static float[] NearestNeighbour(float[] samples, int to) {
-            int from = samples.Length;
-            if (from == to)
+            if (samples.Length == to)
                 return samples;
             float[] output = new float[to];
-            float ratio = from / (float)to;
+            float ratio = samples.Length / (float)to;
             for (int i = 0; i < to; ++i)
                 output[i] = samples[(int)(i * ratio)];
             return output;
@@ -59,12 +58,11 @@
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
         public static float[] Lerp(float[] samples, int to) {
-            int from = samples.Length;
-            if (from == to)
+            if (samples.Length == to)
                 return samples;
             float[] output = new float[to];
-            float ratio = from / (float)to;
-            int end = from - 1;
+            float ratio = samples.Length / (float)to;
+            int end = samples.Length - 1;
             for (int i = 0; i < to; ++i) {
                 float fromPos = i * ratio;
                 int sample = (int)fromPos;

@@ -51,13 +51,12 @@ namespace Cavern {
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[][] data, int offset) {
-            int channels = Channels;
-            if (data.Length != channels)
+            if (data.Length != samples.Length)
                 return false;
-            for (int dataPos = 0, dataSize = data[0].Length, sampleCount = Samples; dataPos < dataSize; ++dataPos) {
-                if (offset >= sampleCount)
-                    offset %= sampleCount;
-                for (int channel = 0; channel < channels; ++channel)
+            for (int dataPos = 0; dataPos < data[0].Length; ++dataPos) {
+                if (offset >= samples[0].Length)
+                    offset %= samples[0].Length;
+                for (int channel = 0; channel < samples.Length; ++channel)
                     data[channel][dataPos] = samples[channel][offset];
                 ++offset;
             }
@@ -68,16 +67,15 @@ namespace Cavern {
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[] data, int offset) {
-            int channels = Channels;
-            if (data.Length % channels != 0)
+            if (data.Length % samples.Length != 0)
                 return false;
-            int dataPos = 0, dataSize = data.Length, sampleCount = Samples;
-            while (dataPos < dataSize) {
-                if (offset >= sampleCount)
-                    offset %= sampleCount;
-                for (int channel = 0; channel < channels; ++channel)
+            int dataPos = 0;
+            while (dataPos < data.Length) {
+                if (offset >= samples[0].Length)
+                    offset %= samples[0].Length;
+                for (int channel = 0; channel < samples.Length; ++channel)
                     data[dataPos + channel] = samples[channel][offset];
-                dataPos += channels;
+                dataPos += samples.Length;
                 ++offset;
             }
             return true;
@@ -87,13 +85,12 @@ namespace Cavern {
         /// <param name="data">Data source</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool SetData(float[][] data, int offset) {
-            int channels = Channels;
-            if (data.Length != channels)
+            if (data.Length != samples.Length)
                 return false;
-            for (int dataPos = 0, dataSize = data[0].Length, sampleCount = Samples; dataPos < dataSize; ++dataPos) {
-                if (offset >= sampleCount)
-                    offset %= sampleCount;
-                for (int channel = 0; channel < channels; ++channel)
+            for (int dataPos = 0; dataPos < data[0].Length; ++dataPos) {
+                if (offset >= samples[0].Length)
+                    offset %= samples[0].Length;
+                for (int channel = 0; channel < samples.Length; ++channel)
                     samples[channel][offset] = data[channel][dataPos];
                 ++offset;
             }
@@ -104,16 +101,15 @@ namespace Cavern {
         /// <param name="data">Data source</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool SetData(float[] data, int offset) {
-            int channels = Channels;
-            if (data.Length % channels != 0)
+            if (data.Length % samples.Length != 0)
                 return false;
-            int dataPos = 0, dataSize = data.Length, sampleCount = Samples;
-            while (dataPos < dataSize) {
-                if (offset >= sampleCount)
-                    offset %= sampleCount;
-                for (int channel = 0; channel < channels; ++channel)
+            int dataPos = 0;
+            while (dataPos < data.Length) {
+                if (offset >= samples[0].Length)
+                    offset %= samples[0].Length;
+                for (int channel = 0; channel < samples.Length; ++channel)
                     samples[channel][offset] = data[dataPos + channel];
-                dataPos += channels;
+                dataPos += samples.Length;
                 ++offset;
             }
             return true;

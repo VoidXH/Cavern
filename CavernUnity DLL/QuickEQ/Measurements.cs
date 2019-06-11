@@ -7,8 +7,8 @@ namespace Cavern.QuickEQ {
     public static class Measurements {
         /// <summary>Actual FFT processing, somewhat in-place.</summary>
         static void ProcessFFT(Complex[] samples, FFTCache cache, int depth) {
-            int length = samples.Length, halfLength = length / 2;
-            if (length == 1)
+            int halfLength = samples.Length / 2;
+            if (samples.Length == 1)
                 return;
             Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
             for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
@@ -32,8 +32,8 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Fourier-transform a signal in 1D. The result is the spectral power.</summary>
         static void ProcessFFT(float[] samples, FFTCache cache) {
-            int length = samples.Length, halfLength = length / 2, depth = CavernUtilities.Log2(samples.Length) - 1;
-            if (length == 1)
+            int halfLength = samples.Length / 2, depth = CavernUtilities.Log2(samples.Length) - 1;
+            if (samples.Length == 1)
                 return;
             Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
             for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
@@ -64,11 +64,10 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Fast Fourier transform a 1D signal.</summary>
         public static Complex[] FFT(float[] samples, FFTCache cache = null) {
-            int length = samples.Length;
-            Complex[] complexSignal = new Complex[length];
-            for (int sample = 0; sample < length; ++sample)
+            Complex[] complexSignal = new Complex[samples.Length];
+            for (int sample = 0; sample < samples.Length; ++sample)
                 complexSignal[sample].Real = samples[sample];
-            ProcessFFT(complexSignal, cache ?? new FFTCache(samples.Length), CavernUtilities.Log2(length) - 1);
+            ProcessFFT(complexSignal, cache ?? new FFTCache(samples.Length), CavernUtilities.Log2(samples.Length) - 1);
             return complexSignal;
         }
 
@@ -88,10 +87,10 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Outputs IFFT(X) * N.</summary>
         static void ProcessIFFT(Complex[] samples, FFTCache cache, int depth) {
-            int length = samples.Length, halfLength = length / 2;
-            if (length == 1)
+            if (samples.Length == 1)
                 return;
             Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
+            int halfLength = samples.Length / 2;
             for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
                 even[sample] = samples[pair];
                 odd[sample] = samples[pair + 1];
@@ -120,10 +119,9 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.</summary>
         public static void InPlaceIFFT(Complex[] samples, FFTCache cache) {
-            int length = samples.Length;
-            ProcessIFFT(samples, cache, CavernUtilities.Log2(length) - 1);
-            float multiplier = 1f / length;
-            for (int i = 0; i < length; ++i) {
+            ProcessIFFT(samples, cache, CavernUtilities.Log2(samples.Length) - 1);
+            float multiplier = 1f / samples.Length;
+            for (int i = 0; i < samples.Length; ++i) {
                 samples[i].Real *= multiplier;
                 samples[i].Imaginary *= multiplier;
             }
@@ -131,18 +129,16 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Get the real part of a signal's FFT.</summary>
         public static float[] GetRealPart(Complex[] samples) {
-            int end = samples.Length;
-            float[] output = new float[end];
-            for (int sample = 0; sample < end; ++sample)
+            float[] output = new float[samples.Length];
+            for (int sample = 0; sample < samples.Length; ++sample)
                 output[sample] = samples[sample].Real;
             return output;
         }
 
         /// <summary>Get the imaginary part of a signal's FFT.</summary>
         public static float[] GetImaginaryPart(Complex[] samples) {
-            int end = samples.Length;
-            float[] output = new float[end];
-            for (int sample = 0; sample < end; ++sample)
+            float[] output = new float[samples.Length];
+            for (int sample = 0; sample < samples.Length; ++sample)
                 output[sample] = samples[sample].Imaginary;
             return output;
         }
@@ -206,16 +202,16 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Add silence to the beginning and the end of a sweep for a larger response window.</summary>
         public static float[] SweepFraming(float[] sweep) {
-            int length = sweep.Length, initialSilence = length / 4;
-            float[] result = new float[length * 2];
-            for (int sample = initialSilence, end = length + initialSilence; sample < end; ++sample)
+            int initialSilence = sweep.Length / 4;
+            float[] result = new float[sweep.Length * 2];
+            for (int sample = initialSilence, end = sweep.Length + initialSilence; sample < end; ++sample)
                 result[sample] = sweep[sample - initialSilence];
             return result;
         }
 
         /// <summary>Get the frequency response using the original sweep signal's FFT as reference.</summary>
         public static Complex[] GetFrequencyResponse(Complex[] referenceFFT, Complex[] responseFFT) {
-            for (int sample = 0, length = responseFFT.Length; sample < length; ++sample)
+            for (int sample = 0; sample < responseFFT.Length; ++sample)
                 responseFFT[sample].Divide(ref referenceFFT[sample]);
             return responseFFT;
         }
@@ -237,7 +233,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Convert a response curve to decibel scale.</summary>
         public static void ConvertToDecibels(float[] curve, float minimum = -100) {
-            for (int i = 0, end = curve.Length; i < end; ++i) {
+            for (int i = 0; i < curve.Length; ++i) {
                 curve[i] = 20 * Mathf.Log10(curve[i]);
                 if (curve[i] < minimum)
                     curve[i] = minimum;
@@ -294,7 +290,7 @@ namespace Cavern.QuickEQ {
             float[] startGraph = SmoothGraph(samples, startFreq, endFreq, startOctave), endGraph = SmoothGraph(samples, startFreq, endFreq, endOctave),
                 output = new float[samples.Length];
             float positioner = 1f / samples.Length;
-            for (int i = 0, length = samples.Length; i < length; ++i)
+            for (int i = 0; i < samples.Length; ++i)
                 output[i] = Utils.Lerp(startGraph[i], endGraph[i], i * positioner);
             return output;
         }

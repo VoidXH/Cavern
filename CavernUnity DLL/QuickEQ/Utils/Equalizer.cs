@@ -93,7 +93,7 @@ namespace Cavern.QuickEQ {
                 return result;
             float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / length;
             int nextBand = 0, lastBand = 0;
-            for (int curBand = 0, end = bandCount; curBand < end; ++curBand) {
+            for (int curBand = 0; curBand < bandCount; ++curBand) {
                 if (bands[curBand].Frequency > startFreq) {
                     nextBand = curBand;
                     lastBand = curBand != 0 ? curBand - 1 : 0;
@@ -131,9 +131,8 @@ namespace Cavern.QuickEQ {
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         public float[] Apply(float[] response, float startFreq, float endFreq) {
-            int length = response.Length;
-            float[] filter = Visualize(startFreq, endFreq, length);
-            for (int i = 0; i < length; ++i)
+            float[] filter = Visualize(startFreq, endFreq, response.Length);
+            for (int i = 0; i < response.Length; ++i)
                 filter[i] += response[i];
             return filter;
         }
@@ -149,15 +148,14 @@ namespace Cavern.QuickEQ {
         /// <param name="maxGain">Maximum gain of any generated band</param>
         public static Equalizer CorrectGraph(float[] graph, float startFreq, float endFreq, float[] referenceCurve, float resolution = 1 / 3f, float maxGain = 6) {
             Equalizer result = new Equalizer();
-            int length = graph.Length;
-            float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / length,
+            float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / graph.Length,
                 octaveRange = Mathf.Log(endFreq, 2) - Mathf.Log(startFreq, 2), bands = octaveRange / resolution + 1,
-                refPositioner = referenceCurve.Length / (float)length;
-            int windowSize = length / (int)bands, windowEdge = windowSize / 2;
-            for (int pos = length - 1; pos >= 0; pos -= windowSize) {
+                refPositioner = referenceCurve.Length / (float)graph.Length;
+            int windowSize = graph.Length / (int)bands, windowEdge = windowSize / 2;
+            for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
                 int refPos = (int)(pos * refPositioner);
                 float centerFreq = Mathf.Pow(10, startPow + powRange * pos), average = 0;
-                int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, length);
+                int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, graph.Length);
                 for (int sample = start; sample < end; ++sample)
                     average += graph[sample];
                 float addition = referenceCurve[refPos] - average / (end - start);

@@ -93,10 +93,10 @@ namespace Cavern.Cavernize {
             foreach (CavernizeChannel upmixTarget in CavernizeChannel.UpmixTargets)
                 targetChannels.Add(upmixTarget);
             CavernizeChannel[] matrix = CavernizeChannel.StandardMatrix[clipChannels];
-            for (int channel = 0, channelCount = matrix.Length; channel < channelCount; ++channel)
+            for (int channel = 0; channel < matrix.Length; ++channel)
                 if (!targetChannels.Contains(matrix[channel]))
                     targetChannels.Add(matrix[channel]);
-            for (int source = 0, sources = targetChannels.Count; source < sources; ++source)
+            for (int source = 0; source < targetChannels.Count; ++source)
                 channels[targetChannels[source]] = new SpatializedChannel(targetChannels[source], this, updateRate);
             mains[0] = GetChannel(CavernizeChannel.FrontLeft);
             mains[1] = GetChannel(CavernizeChannel.FrontRight);
@@ -158,7 +158,7 @@ namespace Cavern.Cavernize {
                         }
                         if (!mains[4].WrittenOutput) { // Extend sides to rears...
                             bool rearsAvailable = false; // ...but only if there are rears
-                            for (int channel = 0, channels = Listener.Channels.Length; channel < channels; ++channel) {
+                            for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                                 float currentY = Listener.Channels[channel].Y;
                                 if (currentY < -135 || currentY > 135) {
                                     rearsAvailable = true;

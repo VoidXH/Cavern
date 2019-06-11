@@ -28,14 +28,14 @@
 
         /// <summary>Apply delay on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         public override void Process(float[] samples) {
-            int delaySamples = cache[0].Length, sampleCount = samples.Length;
+            int delaySamples = cache[0].Length;
             float[] cacheToFill = cache[1 - usedCache], cacheToDrain = cache[usedCache];
-            if (delaySamples <= sampleCount) { // Sample array can hold the cache
+            if (delaySamples <= samples.Length) { // Sample array can hold the cache
                 // Fill cache
-                for (int sample = 0, offset = sampleCount - delaySamples; sample < delaySamples; ++sample)
+                for (int sample = 0, offset = samples.Length - delaySamples; sample < delaySamples; ++sample)
                     cacheToFill[sample] = samples[sample + offset];
                 // Move self
-                for (int sample = sampleCount - 1; sample >= delaySamples; --sample)
+                for (int sample = samples.Length - 1; sample >= delaySamples; --sample)
                     samples[sample] = samples[sample - delaySamples];
                 // Drain cache
                 for (int sample = 0; sample < delaySamples; ++sample)
@@ -43,16 +43,16 @@
                 usedCache = 1 - usedCache; // Switch caches
             } else { // Cache can hold the sample array
                 // Fill cache
-                for (int sample = 0; sample < sampleCount; ++sample)
+                for (int sample = 0; sample < samples.Length; ++sample)
                     cacheToFill[sample] = samples[sample];
                 // Drain cache
-                for (int sample = 0; sample < sampleCount; ++sample)
+                for (int sample = 0; sample < samples.Length; ++sample)
                     samples[sample] = cacheToDrain[sample];
                 // Move cache
-                for (int sample = 0, offset = delaySamples - sampleCount; sample < offset; ++sample)
-                    cacheToDrain[sample] = cacheToDrain[sample + sampleCount];
+                for (int sample = 0, offset = delaySamples - samples.Length; sample < offset; ++sample)
+                    cacheToDrain[sample] = cacheToDrain[sample + samples.Length];
                 // Combine cache
-                for (int sample = 0, offset = delaySamples - sampleCount; sample < sampleCount; ++sample)
+                for (int sample = 0, offset = delaySamples - samples.Length; sample < samples.Length; ++sample)
                     cacheToDrain[sample + offset] = cacheToFill[sample];
             }
         }
