@@ -8,7 +8,7 @@ using Cavern.Filters;
 using Cavern.Utilities;
 
 namespace Cavern {
-    /// <summary>Center of a listening space.</summary>
+    /// <summary>Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.</summary>
     public class Listener {
         // ------------------------------------------------------------------
         // Renderer settings
@@ -131,7 +131,7 @@ namespace Cavern {
         /// <summary>Implicit null check.</summary>
         public static implicit operator bool(Listener listener) => listener != null;
 
-        /// <summary>Center of a listening space.</summary>
+        /// <summary>Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.</summary>
         public Listener() {
             string fileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
             if (File.Exists(fileName)) {

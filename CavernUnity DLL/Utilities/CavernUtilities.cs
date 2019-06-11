@@ -6,6 +6,24 @@ using UnityEngine;
 namespace Cavern {
     /// <summary>Useful functions used in multiple classes.</summary>
     public static class CavernUtilities {
+        /// <summary>Downmix audio for a lesser channel count with limited knowledge of the target system's channel locations.</summary>
+        public static void Downmix(float[] from, int fromChannels, float[] to, int toChannels) {
+            int samplesPerChannel = to.Length / toChannels;
+            for (int channel = 0, unityChannel = 0; channel < fromChannels; ++channel, unityChannel = channel % toChannels) {
+                if (toChannels > 4 || (Listener.Channels[channel].Y != 0 && !Listener.Channels[channel].LFE))
+                    for (int sample = 0; sample < samplesPerChannel; ++sample)
+                        to[sample * toChannels + unityChannel] += from[sample * fromChannels + channel];
+                else {
+                    for (int sample = 0; sample < samplesPerChannel; ++sample) {
+                        int leftOut = sample * toChannels;
+                        float copySample = from[sample * fromChannels + channel];
+                        to[leftOut] += copySample;
+                        to[leftOut + 1] += copySample;
+                    }
+                }
+            }
+        }
+
         /// <summary>Clamped linear vector interpolation</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Vector3 FastLerp(Vector3 from, Vector3 to, float t) {
