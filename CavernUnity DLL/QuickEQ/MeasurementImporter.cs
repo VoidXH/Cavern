@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEngine;
 
 using Cavern.Utilities;
 
@@ -69,7 +68,7 @@ namespace Cavern.QuickEQ {
                 float RMSHere = 0;
                 for (int pos = block * blockSize, end = pos + blockSize; pos < end; ++pos)
                     RMSHere += data[pos] * data[pos];
-                RMSs[block] = Mathf.Sqrt(RMSHere / blockSize);
+                RMSs[block] = (float)Math.Sqrt(RMSHere / blockSize);
             }
             return RMSs;
         }
@@ -121,7 +120,7 @@ namespace Cavern.QuickEQ {
                 } else if (mainRampDist < rampDist)
                     mainRampDist = rampDist;
             }
-            return 1 << Mathf.FloorToInt(Mathf.Log(mainRampDist, 2)); // The gap will always be larger than the FFT size as no response is perfect
+            return 1 << (int)Math.Log(mainRampDist, 2); // The gap will always be larger than the FFT size as no response is perfect
         }
 
         /// <summary>Process the <see cref="data"/> and set up the <see cref="sweeper"/>.</summary>

@@ -70,16 +70,9 @@
     <Compile Include="FilterInterfaces\DistanceBasedLowpass.cs" />
     <Compile Include="FilterInterfaces\SimpleEcho.cs" />
     <Compile Include="QuickEQ\MeasurementImporter.cs" />
-    <Compile Include="QuickEQ\Utils\FFTCache.cs" />
-    <Compile Include="QuickEQ\Utils\SweepChannel.cs" />
-    <Compile Include="Utilities\Complex.cs" />
-    <Compile Include="QuickEQ\Measurements.cs" />
+    <Compile Include="QuickEQ\SweepChannel.cs" />
     <Compile Include="QuickEQ\SpeakerSweeper.cs" />
-    <Compile Include="QuickEQ\Utils\Curves.cs" />
-    <Compile Include="QuickEQ\Utils\Equalizer.cs" />
-    <Compile Include="QuickEQ\Utils\VerboseImpulseResponse.cs" />
-    <Compile Include="QuickEQ\Utils\NoisyChannel.cs" />
-    <Compile Include="QuickEQ\Utils\Windowing.cs" />
+    <Compile Include="QuickEQ\NoisyChannel.cs" />
     <Compile Include="Cavernize\Cavernizer.cs" />
     <Compile Include="Cavernize\CavernizeRT.cs" />
     <Compile Include="Debug\ArrayLevels.cs" />
@@ -109,6 +102,10 @@
     <ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj">
       <Project>{e87a8995-3b65-497b-a808-4dded25d2ade}</Project>
       <Name>Cavern.Format</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cavern.QuickEQ\Cavern.QuickEQ.csproj">
+      <Project>{b657f4ac-a378-486f-9355-937499ddd335}</Project>
+      <Name>Cavern.QuickEQ</Name>
     </ProjectReference>
     <ProjectReference Include="..\Cavern\Cavern.csproj">
       <Project>{25898051-c846-4ed1-9a4f-a2d327b5fb0f}</Project>

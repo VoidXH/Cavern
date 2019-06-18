@@ -1,5 +1,6 @@
-﻿using Cavern.Utilities;
-using UnityEngine;
+﻿using System;
+
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
     /// <summary>Precalculated constants and preallocated recursion arrays for a given FFT size.</summary>
@@ -19,15 +20,15 @@ namespace Cavern.QuickEQ {
         /// <summary>FFT cache constructor.</summary>
         public FFTCache(int size) {
             int halfSize = size / 2;
-            float step = -2 * Mathf.PI / size;
+            double step = -2 * Math.PI / size;
             cos = new float[halfSize];
             sin = new float[halfSize];
             for (int i = 0; i < halfSize; ++i) {
-                float rotation = i * step;
-                cos[i] = Mathf.Cos(rotation);
-                sin[i] = Mathf.Sin(rotation);
+                double rotation = i * step;
+                cos[i] = (float)Math.Cos(rotation);
+                sin[i] = (float)Math.Sin(rotation);
             }
-            int log = CavernUtilities.Log2(size);
+            int log = Utils.Log2(size);
             for (int depth = 0; depth < log; ++depth) {
                 int depthSize = 1 << depth;
                 Even[depth] = new Complex[depthSize];

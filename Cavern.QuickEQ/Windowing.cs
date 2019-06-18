@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 using Cavern.Utilities;
 
@@ -40,7 +39,7 @@ namespace Cavern.QuickEQ {
         /// <param name="end">End of the window in samples</param>
         public static void ApplyWindow(float[] samples, Window left, Window right, int start, int splitter, int end) {
             int leftSpan = splitter - start, rightSpan = end - splitter, endMirror = splitter - (end - splitter), posSplitter = Math.Max(splitter, 0);
-            float leftSpanDiv = 2 * Mathf.PI / (leftSpan * 2), rightSpanDiv = 2 * Mathf.PI / (rightSpan * 2);
+            float leftSpanDiv = 2 * (float)Math.PI / (leftSpan * 2), rightSpanDiv = 2 * (float)Math.PI / (rightSpan * 2);
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
                 Array.Clear(samples, 0, start);
@@ -70,7 +69,7 @@ namespace Cavern.QuickEQ {
         /// <param name="end">End of the window in samples</param>
         public static void ApplyWindow(Complex[] samples, Window left, Window right, int start, int splitter, int end) {
             int leftSpan = splitter - start, rightSpan = end - splitter, endMirror = splitter - (end - splitter), posSplitter = Math.Max(splitter, 0);
-            float leftSpanDiv = 2 * Mathf.PI / (leftSpan * 2), rightSpanDiv = 2 * Mathf.PI / (rightSpan * 2);
+            float leftSpanDiv = 2 * (float)Math.PI / (leftSpan * 2), rightSpanDiv = 2 * (float)Math.PI / (rightSpan * 2);
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
                 for (int sample = 0; sample < start; ++sample)
@@ -113,25 +112,25 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>sin(x)</summary>
-        static float SineWindow(float x) => Mathf.Sin(x * .5f);
+        static float SineWindow(float x) => (float)Math.Sin(x * .5f);
         /// <summary>0.54 - 0.46 * cos(x)</summary>
-        static float HammingWindow(float x) => .54f - .46f * Mathf.Cos(x);
+        static float HammingWindow(float x) => (float)(.54 - .46 * Math.Cos(x));
         /// <summary>0.5 * (1 - cos(x))</summary>
-        static float HannWindow(float x) => .5f * (1 - Mathf.Cos(x));
+        static float HannWindow(float x) => (float)(.5 * (1 - Math.Cos(x)));
         /// <summary>0.42 - 0.5 * cos(x) + 0.08 * cos(2 * x)</summary>
-        static float BlackmanWindow(float x) => .42f - .5f * Mathf.Cos(x) + .08f * Mathf.Cos(x + x);
+        static float BlackmanWindow(float x) => (float)(.42 - .5 * Math.Cos(x) + .08 * Math.Cos(x + x));
         /// <summary>0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)</summary>
         static float BlackmanHarrisWindow(float x) {
-            float x2 = x + x;
-            return .35875f - .48829f * Mathf.Cos(x) + .14128f * Mathf.Cos(x2) - .01168f * Mathf.Cos(x2 + x);
+            double x2 = x + x;
+            return (float)(.35875 - .48829 * Math.Cos(x) + .14128 * Math.Cos(x2) - .01168 * Math.Cos(x2 + x));
         }
         /// <summary>A window for impulse response trimming, with a precompiled alpha.</summary>
         static float TukeyWindow(float x) {
-            const float alpha = .25f, positioner = 1 / alpha, flatLeft = Mathf.PI * alpha, flatRight = Mathf.PI * (2 - alpha);
+            const double alpha = .25, positioner = 1 / alpha, flatLeft = Math.PI * alpha, flatRight = Math.PI * (2 - alpha);
             if (x < flatLeft)
-                return (Mathf.Cos(x * positioner - Mathf.PI) + 1) * .5f;
+                return (float)(Math.Cos(x * positioner - Math.PI) + 1) * .5f;
             else if (x > flatRight)
-                return (Mathf.Cos((2 * Mathf.PI - x) * positioner - Mathf.PI) + 1) * .5f;
+                return (float)(Math.Cos((2 * Math.PI - x) * positioner - Math.PI) + 1) * .5f;
             else
                 return 1;
         }

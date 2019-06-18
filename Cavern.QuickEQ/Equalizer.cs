@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Cavern.QuickEQ {
     /// <summary>Equalizer data collector and exporter.</summary>
@@ -91,7 +90,7 @@ namespace Cavern.QuickEQ {
             int bandCount = bands.Count;
             if (bandCount == 0)
                 return result;
-            float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / length;
+            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / length;
             int nextBand = 0, lastBand = 0;
             for (int curBand = 0; curBand < bandCount; ++curBand) {
                 if (bands[curBand].Frequency > startFreq) {
@@ -103,7 +102,7 @@ namespace Cavern.QuickEQ {
             float freqDiffStart = bands[lastBand].Frequency, freqDiff = bands[nextBand].Frequency - freqDiffStart,
                 gainDiffStart = bands[lastBand].Gain, gainDiff = bands[nextBand].Gain - gainDiffStart;
             for (int pos = 0; pos < length; ++pos) {
-                float freqHere = Mathf.Pow(10, startPow + powRange * pos);
+                double freqHere = Math.Pow(10, startPow + powRange * pos);
                 if (freqHere > bands[nextBand].Frequency) {
                     lastBand = nextBand++;
                     if (nextBand == bandCount) {
@@ -116,7 +115,7 @@ namespace Cavern.QuickEQ {
                     gainDiffStart = bands[lastBand].Gain;
                     gainDiff = bands[nextBand].Gain - gainDiffStart;
                 }
-                float freqPassed = freqHere - freqDiffStart;
+                float freqPassed = (float)(freqHere - freqDiffStart);
                 if (freqDiff != 0)
                     result[pos] = gainDiffStart + freqPassed / freqDiff * gainDiff;
                 else
@@ -148,13 +147,13 @@ namespace Cavern.QuickEQ {
         /// <param name="maxGain">Maximum gain of any generated band</param>
         public static Equalizer CorrectGraph(float[] graph, float startFreq, float endFreq, float[] referenceCurve, float resolution = 1 / 3f, float maxGain = 6) {
             Equalizer result = new Equalizer();
-            float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / graph.Length,
-                octaveRange = Mathf.Log(endFreq, 2) - Mathf.Log(startFreq, 2), bands = octaveRange / resolution + 1,
-                refPositioner = referenceCurve.Length / (float)graph.Length;
+            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length,
+                octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2), bands = octaveRange / resolution + 1,
+                refPositioner = referenceCurve.Length / (double)graph.Length;
             int windowSize = graph.Length / (int)bands, windowEdge = windowSize / 2;
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
                 int refPos = (int)(pos * refPositioner);
-                float centerFreq = Mathf.Pow(10, startPow + powRange * pos), average = 0;
+                float centerFreq = (float)Math.Pow(10, startPow + powRange * pos), average = 0;
                 int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, graph.Length);
                 for (int sample = start; sample < end; ++sample)
                     average += graph[sample];
@@ -177,8 +176,8 @@ namespace Cavern.QuickEQ {
         public static Equalizer AutoCorrectGraph(float[] graph, float startFreq, float endFreq, float[] referenceCurve, float maxGain = 6) {
             Equalizer result = new Equalizer();
             int length = graph.Length;
-            float startPow = Mathf.Log10(startFreq), endPow = Mathf.Log10(endFreq), powRange = (endPow - startPow) / length;
-            float refPositioner = referenceCurve.Length / (float)length;
+            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / length,
+                refPositioner = referenceCurve.Length / (double)length;
             List<int> windowEdges = new List<int>(new int[] { 0 });
             for (int sample = 1, End = length - 1; sample < End; ++sample) {
                 float lower = graph[sample - 1], Upper = graph[sample + 1];
@@ -189,7 +188,7 @@ namespace Cavern.QuickEQ {
                 int windowPos = windowEdges[sample];
                 float refGain = referenceCurve[(int)(windowPos * refPositioner)];
                 if (graph[windowPos] > refGain - maxGain)
-                    result.bands.Add(new Band(Mathf.Pow(10, startPow + powRange * windowPos), refGain - graph[windowPos]));
+                    result.bands.Add(new Band((float)Math.Pow(10, startPow + powRange * windowPos), refGain - graph[windowPos]));
             }
             result.bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
             return result;

@@ -85,6 +85,21 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Lerp(float from, float to, float t) => (to - from) * t + from;
 
+        /// <summary>Compute the base 2 logarithm of a number faster than a generic Log function.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Log2(int value) {
+            int log = -1;
+            while (value > 255) {
+                log += 8;
+                value >>= 8;
+            }
+            while (value != 0) {
+                ++log;
+                value >>= 1;
+            }
+            return log;
+        }
+
         /// <summary>Multiplies all values in an array.</summary>
         /// <param name="target">Array reference</param>
         /// <param name="value">Multiplier</param>

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using System;
 
 namespace Cavern.Utilities {
     /// <summary>A complex number.</summary>
@@ -15,14 +15,14 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>Magnitude of the complex number (spectrum for FFT).</summary>
-        public float Magnitude => Mathf.Sqrt(Real * Real + Imaginary * Imaginary);
+        public float Magnitude => (float)Math.Sqrt(Real * Real + Imaginary * Imaginary);
 
         /// <summary>Direction of the complex number (phase for FFT).</summary>
-        public float Phase => Mathf.Atan(Imaginary / Real);
+        public float Phase => (float)Math.Atan(Imaginary / Real);
 
         /// <summary>Multiply by (cos(x), sin(x)).</summary>
         public void Rotate(float angle) {
-            float cos = Mathf.Cos(angle), sin = Mathf.Sin(angle), oldReal = Real;
+            float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle), oldReal = Real;
             Real = Real * cos - Imaginary * sin;
             Imaginary = oldReal * sin + Imaginary * cos;
         }

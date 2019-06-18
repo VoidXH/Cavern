@@ -63,21 +63,6 @@ namespace Cavern {
             return max;
         }
 
-        /// <summary>Compute the base 2 logarithm of a number faster than a generic Log function.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int Log2(int value) {
-            int log = -1;
-            while (value > 255) {
-                log += 8;
-                value >>= 8;
-            }
-            while (value != 0) {
-                ++log;
-                value >>= 1;
-            }
-            return log;
-        }
-
         /// <summary>Converts a signal strength (ref = 1) to dB.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static float SignalToDb(float amplitude) => 20 * Mathf.Log10(amplitude);

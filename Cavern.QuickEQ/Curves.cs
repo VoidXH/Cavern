@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using System;
 
 namespace Cavern.QuickEQ {
     /// <summary>EQ curve generation functions.</summary>
@@ -24,9 +24,9 @@ namespace Cavern.QuickEQ {
         /// <param name="gain">Curve reference level</param>
         public static float[] GenerateLogCurve(CurveFunction function, int length, float startFreq, float endFreq, float gain) {
             float[] curve = new float[length];
-            float powerMin = Mathf.Log10(startFreq), powerRange = (Mathf.Log10(endFreq) - powerMin) / length;
+            double powerMin = Math.Log10(startFreq), powerRange = (Math.Log10(endFreq) - powerMin) / length;
             for (int pos = 0; pos < length; ++pos)
-                curve[pos] = gain + function(Mathf.Pow(10, powerMin + powerRange * pos));
+                curve[pos] = gain + function((float)Math.Pow(10, powerMin + powerRange * pos));
             return curve;
         }
 
@@ -76,7 +76,7 @@ namespace Cavern.QuickEQ {
         static float Punch(float frequency) {
             if (frequency > 120)
                 return 0;
-            return (1 - Mathf.Cos(Mathf.PI * Mathf.Log(.9f / 120 * frequency + .1f))) * 5;
+            return (float)(1 - Math.Cos(Math.PI * Math.Log(.9f / 120 * frequency + .1f))) * 5;
         }
 
         /// <summary>Adds a sub-bass slope for depth emphasis.</summary>

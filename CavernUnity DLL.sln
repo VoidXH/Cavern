@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.Format", "Cavern.For
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern", "Cavern\Cavern.csproj", "{25898051-C846-4ED1-9A4F-A2D327B5FB0F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.QuickEQ", "Cavern.QuickEQ\Cavern.QuickEQ.csproj", "{B657F4AC-A378-486F-9355-937499DDD335}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{25898051-C846-4ED1-9A4F-A2D327B5FB0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25898051-C846-4ED1-9A4F-A2D327B5FB0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25898051-C846-4ED1-9A4F-A2D327B5FB0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B657F4AC-A378-486F-9355-937499DDD335}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B657F4AC-A378-486F-9355-937499DDD335}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B657F4AC-A378-486F-9355-937499DDD335}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B657F4AC-A378-486F-9355-937499DDD335}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
