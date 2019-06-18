@@ -128,11 +128,11 @@ namespace Cavern.QuickEQ {
         void Process() {
             float[] RMSs = GetRMSBlocks(data);
             List<Ramp> ramps = GetRamps(RMSs, GetNoiseLevel(RMSs));
-            int FFTSize = GetFFTSize(ramps);
-            int samplesPerCh = FFTSize << 1;
-            int offset = Math.Max(ramps[0].Position - FFTSize / 2 - blockSize, 0);
-            Channels = (data.Length - offset) / samplesPerCh;
-            int length = Channels * samplesPerCh; // TODO: find the end of the signal
+            int FFTSize = GetFFTSize(ramps), samplesPerCh = FFTSize << 1;
+            int offset = Math.Max(ramps[0].Position - FFTSize / 2 - blockSize, 0),
+                end = Math.Min(ramps[ramps.Count - 1].Position + FFTSize, data.Length);
+            Channels = (end - offset) / samplesPerCh;
+            int length = Channels * samplesPerCh;
             offset = Utils.Clamp(offset, 0, data.Length - length);
             sweeper.SweepLength = FFTSize;
             sweeper.RegenerateSweep();
