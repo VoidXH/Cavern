@@ -13,8 +13,6 @@ namespace Cavern.Format {
         readonly Channel[] channels;
         /// <summary>The past second for each channel.</summary>
         readonly float[] cache;
-        /// <summary>Size of the <see cref="cache"/>.</summary>
-        readonly int cacheLimit;
         /// <summary>Write position in the <see cref="cache"/>. Used to check if the cache is full for block dumping.</summary>
         int cachePosition = 0;
         /// <summary>Total samples written in the file so far. Used to check the end of file and dump the unfilled last block.</summary>
@@ -30,7 +28,7 @@ namespace Cavern.Format {
         public LimitlessAudioFormatWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits, Channel[] channels) :
             base(writer, channelCount, length, sampleRate, bits) {
             this.channels = channels;
-            cache = new float[cacheLimit = channelCount * sampleRate];
+            cache = new float[channelCount * sampleRate];
         }
 
         /// <summary>Create the file header.</summary>
@@ -90,10 +88,10 @@ namespace Cavern.Format {
         public override void WriteBlock(float[] samples, long from, long to) {
             long dumpLength = to - from;
             while (from < to) {
-                for (; from < to && cachePosition < cacheLimit; ++from)
+                for (; from < to && cachePosition < cache.Length; ++from)
                     cache[cachePosition++] = samples[from];
-                if (cachePosition == cacheLimit)
-                    DumpBlock(cacheLimit);
+                if (cachePosition == cache.Length)
+                    DumpBlock(cache.Length);
             }
             if ((totalWritten += dumpLength) == length)
                 DumpBlock(cachePosition);

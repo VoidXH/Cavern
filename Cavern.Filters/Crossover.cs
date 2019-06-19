@@ -5,8 +5,19 @@ namespace Cavern.Filters {
     public class Crossover : Filter {
         /// <summary>Crossover frequency.</summary>
         public float Frequency {
-            get => LPF1.CenterFreq;
-            set => LPF1.CenterFreq = LPF2.CenterFreq = HPF1.CenterFreq = HPF2.CenterFreq = value;
+            get => lowpasses[0].CenterFreq;
+            set {
+                for (int i = 0; i < lowpasses.Length; ++i)
+                    lowpasses[i].CenterFreq = highpasses[i].CenterFreq = value;
+            }
+        }
+
+        /// <summary>Number of filters per pass.</summary>
+        /// <remarks>A value of 2 is recommended for notch prevention when mixing
+        /// <see cref="LowOutput"/> and <see cref="HighOutput"/> back together.</remarks>
+        public int Order {
+            get => lowpasses.Length;
+            set => RecreateFilters(lowpasses[0].CenterFreq, value);
         }
 
         /// <summary>Low frequency data.</summary>
@@ -14,18 +25,30 @@ namespace Cavern.Filters {
         /// <summary>High frequency data.</summary>
         public float[] HighOutput { get; private set; } = new float[0];
 
-        // Filters used. Second order is required for the prevention of a notch after mixing the outputs together.
-        readonly Lowpass LPF1, LPF2;
-        readonly Highpass HPF1, HPF2;
+        /// <summary>Cached filter sample rate.</summary>
+        readonly int sampleRate;
+        /// <summary>Lowpass filters for each pass.</summary>
+        Lowpass[] lowpasses;
+        /// <summary>Highpass filters for each pass.</summary>
+        Highpass[] highpasses;
+
+        /// <summary>Create filters for each pass.</summary>
+        void RecreateFilters(float frequency, int order) {
+            lowpasses = new Lowpass[order];
+            highpasses = new Highpass[order];
+            for (int i = 0; i < order; ++i) {
+                lowpasses[i] = new Lowpass(sampleRate, frequency);
+                highpasses[i] = new Highpass(sampleRate, frequency);
+            }
+        }
 
         /// <summary>Simple second-order crossover.</summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="frequency">Crossover frequency</param>
-        public Crossover(int sampleRate, float frequency) {
-            LPF1 = new Lowpass(sampleRate, frequency);
-            LPF2 = new Lowpass(sampleRate, frequency);
-            HPF1 = new Highpass(sampleRate, frequency);
-            HPF2 = new Highpass(sampleRate, frequency);
+        /// <param name="order">Number of filters per pass, 2 is recommended for mixing notch prevention</param>
+        public Crossover(int sampleRate, float frequency, int order = 2) {
+            this.sampleRate = sampleRate;
+            RecreateFilters(frequency, order);
         }
 
         /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
@@ -40,10 +63,10 @@ namespace Cavern.Filters {
             }
             Array.Copy(samples, LowOutput, sampleCount);
             Array.Copy(samples, HighOutput, sampleCount);
-            LPF1.Process(LowOutput, channel, channels);
-            LPF2.Process(LowOutput, channel, channels);
-            HPF1.Process(HighOutput, channel, channels);
-            HPF2.Process(HighOutput, channel, channels);
+            for (int i = 0; i < lowpasses.Length; ++i) {
+                lowpasses[i].Process(LowOutput, channel, channels);
+                highpasses[i].Process(HighOutput, channel, channels);
+            }
         }
 
         /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>

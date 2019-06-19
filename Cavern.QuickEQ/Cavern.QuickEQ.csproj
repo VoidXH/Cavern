@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FilterAnalyzer.cs" />
     <Compile Include="Measurements.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Curves.cs" />
