@@ -52,6 +52,10 @@
     <Compile Include="Windowing.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cavern.Filters\Cavern.Filters.csproj">
+      <Project>{DAF58EED-35DC-416F-8DCE-7816B808BFB6}</Project>
+      <Name>Cavern.Filters</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cavern\Cavern.csproj">
       <Project>{25898051-c846-4ed1-9a4f-a2d327b5fb0f}</Project>
       <Name>Cavern</Name>

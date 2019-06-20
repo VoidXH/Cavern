@@ -220,8 +220,11 @@ namespace Cavern.QuickEQ {
             GetFrequencyResponse(referenceFFT, FFT(response, cache));
 
         /// <summary>Get the frequency response using the original sweep signal as reference.</summary>
-        public static Complex[] GetFrequencyResponse(float[] reference, float[] response, FFTCache cache = null) =>
-            GetFrequencyResponse(FFT(reference, cache), response);
+        public static Complex[] GetFrequencyResponse(float[] reference, float[] response, FFTCache cache = null) {
+            if (cache == null)
+                cache = new FFTCache(reference.Length);
+            return GetFrequencyResponse(FFT(reference, cache), FFT(response, cache));
+        }
 
         /// <summary>Get the complex impulse response using a precalculated frequency response.</summary>
         public static Complex[] GetImpulseResponse(Complex[] frequencyResponse, FFTCache cache = null) => IFFT(frequencyResponse, cache);
