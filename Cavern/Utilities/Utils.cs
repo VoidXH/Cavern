@@ -85,6 +85,18 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Lerp(float from, float to, float t) => (to - from) * t + from;
 
+        /// <summary>Unclamped linear interpolation.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Lerp(double from, double to, double t) => (to - from) * t + from;
+
+        /// <summary>Gets t for linear interpolation for a given value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float LerpInverse(float from, float to, float value) => (value - from) / (to - from);
+
+        /// <summary>Gets t for linear interpolation for a given value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double LerpInverse(double from, double to, double value) => (value - from) / (to - from);
+
         /// <summary>Compute the base 2 logarithm of a number faster than a generic Log function.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Log2(int value) {

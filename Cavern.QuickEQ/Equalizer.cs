@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cavern.Utilities;
+using System;
 using System.Collections.Generic;
 
 namespace Cavern.QuickEQ {
@@ -7,12 +8,12 @@ namespace Cavern.QuickEQ {
         /// <summary>A single equalizer band.</summary>
         public struct Band {
             /// <summary>Position of the band.</summary>
-            public float Frequency;
+            public double Frequency;
             /// <summary>Gain at <see cref="Frequency"/> in dB.</summary>
-            public float Gain;
+            public double Gain;
 
             /// <summary>EQ band constructor.</summary>
-            public Band(float frequency, float gain) {
+            public Band(double frequency, double gain) {
                 Frequency = frequency;
                 Gain = gain;
             }
@@ -23,7 +24,7 @@ namespace Cavern.QuickEQ {
         List<Band> bands = new List<Band>();
 
         /// <summary>Subsonic filter rolloff in dB / octave.</summary>
-        public float SubsonicRolloff {
+        public double SubsonicRolloff {
             get => subsonicRolloff;
             set {
                 bool wasFiltered = SubsonicFilter;
@@ -34,7 +35,7 @@ namespace Cavern.QuickEQ {
                     SubsonicFilter = true;
             }
         }
-        float subsonicRolloff = 24;
+        double subsonicRolloff = 24;
 
         /// <summary>Cut off low frequencies that are out of the channel's frequency range.</summary>
         public bool SubsonicFilter {
@@ -85,48 +86,26 @@ namespace Cavern.QuickEQ {
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="length">Points on the curve</param>
-        public float[] Visualize(float startFreq, float endFreq, int length) {
+        public float[] Visualize(double startFreq, double endFreq, int length) {
             float[] result = new float[length];
-            int bandCount = bands.Count;
+            int bandCount = bands.Count, nextBand = 0, prevBand = 0;
             if (bandCount == 0)
                 return result;
-            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / length;
-            int nextBand = 0, lastBand = 0;
-            for (int curBand = 0; curBand < bandCount; ++curBand) {
-                if (bands[curBand].Frequency > startFreq) {
-                    nextBand = curBand;
-                    lastBand = curBand != 0 ? curBand - 1 : 0;
-                    break;
-                }
-            }
-            float freqDiffStart = bands[lastBand].Frequency, freqDiff = bands[nextBand].Frequency - freqDiffStart,
-                gainDiffStart = bands[lastBand].Gain, gainDiff = bands[nextBand].Gain - gainDiffStart;
-            for (int pos = 0; pos < length; ++pos) {
-                double freqHere = Math.Pow(10, startPow + powRange * pos);
-                if (freqHere > bands[nextBand].Frequency) {
-                    lastBand = nextBand++;
-                    if (nextBand == bandCount) {
-                        for (; pos < length; ++pos)
-                            result[pos] = bands[lastBand].Gain;
-                        return result;
-                    }
-                    freqDiffStart = bands[lastBand].Frequency;
-                    freqDiff = bands[nextBand].Frequency - freqDiffStart;
-                    gainDiffStart = bands[lastBand].Gain;
-                    gainDiff = bands[nextBand].Gain - gainDiffStart;
-                }
-                float freqPassed = (float)(freqHere - freqDiffStart);
-                if (freqDiff != 0)
-                    result[pos] = gainDiffStart + freqPassed / freqDiff * gainDiff;
+            GraphUtils.ForEachLog(result, startFreq, endFreq, (double freq, ref float value) => {
+                while (nextBand != bandCount && bands[nextBand].Frequency < freq)
+                    prevBand = ++nextBand - 1;
+                if (nextBand != bandCount && nextBand != 0)
+                    value = (float)Utils.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
+                        Utils.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, freq));
                 else
-                    result[pos] = gainDiffStart;
-            }
+                    value = (float)bands[prevBand].Gain;
+            });
             return result;
         }
 
         /// <summary>Shows the resulting frequency response if this EQ is applied.</summary>
         /// <param name="response">Frequency response curve to apply the EQ on, from
-        /// <see cref="Measurements.ConvertToGraph(float[], float, float, int, int)"/></param>
+        /// <see cref="GraphUtils.ConvertToGraph(float[], double, double, int, int)"/></param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         public float[] Apply(float[] response, float startFreq, float endFreq) {
@@ -137,8 +116,8 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Generate an equalizer setting to flatten the processed response of
-        /// <see cref="Measurements.SmoothGraph(float[], float, float, float)"/>.</summary>
-        /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="Measurements.SmoothGraph(float[], float, float, float)"/> is
+        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.</summary>
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is
         /// strongly recommended</param>
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
         /// <param name="endFreq">Frequency at the end of the graph</param>
@@ -166,8 +145,8 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Generate a precise equalizer setting to flatten the processed response of
-        /// <see cref="Measurements.SmoothGraph(float[], float, float, float)"/>.</summary>
-        /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="Measurements.SmoothGraph(float[], float, float, float)"/> is
+        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.</summary>
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is
         /// strongly recommended</param>
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
         /// <param name="endFreq">Frequency at the end of the graph</param>
