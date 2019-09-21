@@ -37,7 +37,7 @@ namespace Cavern.Helpers {
                         peakSize = channelSize;
                 }
                 float size = Mathf.Clamp(peakSize / -DynamicRange + 1, 0, 1);
-                scale = Utils.Lerp(scale, (MaxSize - MinSize) * size + MinSize, 1 - Smoothing);
+                scale = QMath.Lerp(scale, (MaxSize - MinSize) * size + MinSize, 1 - Smoothing);
                 transform.localScale = new Vector3(scale, scale, scale);
             }
         }

@@ -21,7 +21,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Bands that make up this equalizer.</summary>
         public IReadOnlyList<Band> Bands => bands;
-        List<Band> bands = new List<Band>();
+        readonly List<Band> bands = new List<Band>();
 
         /// <summary>Subsonic filter rolloff in dB / octave.</summary>
         public double SubsonicRolloff {
@@ -95,8 +95,8 @@ namespace Cavern.QuickEQ {
                 while (nextBand != bandCount && bands[nextBand].Frequency < freq)
                     prevBand = ++nextBand - 1;
                 if (nextBand != bandCount && nextBand != 0)
-                    value = (float)Utils.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
-                        Utils.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, freq));
+                    value = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
+                        QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, freq));
                 else
                     value = (float)bands[prevBand].Gain;
             });

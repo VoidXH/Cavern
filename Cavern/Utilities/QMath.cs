@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
-    /// <summary>Two plus two is four, minus one, that's three.</summary>
-    public static class QuickMaths {
+    /// <summary>Two plus two is four, minus one, that's three, quick maths.</summary>
+    public static class QMath {
         /// <summary>
         /// Clamp a float between limits.
         /// </summary>

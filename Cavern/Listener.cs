@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -10,6 +11,13 @@ using Cavern.Utilities;
 namespace Cavern {
     /// <summary>Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.</summary>
     public class Listener {
+        /// <summary>Cached version name.</summary>
+        static string info;
+        /// <summary>Version and creator information.</summary>
+        public static string Info => info ?? (info = "Cavern v" +
+            FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion +
+            " by VoidX (cavern.sbence.hu)");
+
         // ------------------------------------------------------------------
         // Renderer settings
         // ------------------------------------------------------------------
@@ -71,9 +79,11 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Advanced settings
         // ------------------------------------------------------------------
-        /// <summary>Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.</summary>
+        /// <summary>Project sample rate (min. 44100).
+        /// It's best to have all your audio clips in this sample rate for maximum performance.</summary>
         public int SampleRate = 48000;
-        /// <summary>Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.</summary>
+        /// <summary>Update interval in audio samples (min. 16).
+        /// Lower values mean better interpolation, but require more processing power.</summary>
         public int UpdateRate = 240;
         /// <summary>Maximum audio delay, defined in this FPS value. This is the minimum frame rate required to render continuous audio.</summary>
         public int DelayTarget = 12;

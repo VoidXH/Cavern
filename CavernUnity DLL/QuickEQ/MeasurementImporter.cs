@@ -132,7 +132,7 @@ namespace Cavern.QuickEQ {
                 end = Math.Min(ramps[ramps.Count - 1].Position + FFTSize, data.Length);
             Channels = (end - offset) / samplesPerCh;
             int length = Channels * samplesPerCh;
-            offset = Utils.Clamp(offset, 0, data.Length - length);
+            offset = QMath.Clamp(offset, 0, data.Length - length);
             sweeper.SweepLength = FFTSize;
             sweeper.RegenerateSweep();
             sweeper.ExcitementResponses = new float[Channels][];

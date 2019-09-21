@@ -52,8 +52,8 @@
     <Compile Include="Source_Rolloff.cs" />
     <Compile Include="Source_Symmetric.cs" />
     <Compile Include="Utilities\Complex.cs" />
+    <Compile Include="Utilities\QMath.cs" />
     <Compile Include="Utilities\Resample.cs" />
-    <Compile Include="Utilities\Utils.cs" />
     <Compile Include="Utilities\Enumerations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\Vector.cs" />

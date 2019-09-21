@@ -102,7 +102,7 @@ namespace Cavern.Cavernize {
                 else if (maxHeight > 1)
                     maxHeight = 1;
                 if (Channel.Y != 0 || !MovingSource.Master.CenterStays || Channel.X != 0)
-                    Height = Utils.Lerp(Height, maxHeight, smoothFactor);
+                    Height = QMath.Lerp(Height, maxHeight, smoothFactor);
                 else
                     Height = 0;
             }

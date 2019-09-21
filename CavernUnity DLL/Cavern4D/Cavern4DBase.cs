@@ -90,7 +90,7 @@ namespace Cavern.Cavern4D {
                         float lerpDiv = column - prev;
                         for (int oldColumn = prev; oldColumn < column; ++oldColumn)
                             SeatMovements[row][oldColumn].Height =
-                                Utils.Lerp(SeatMovements[row][prev].Height, SeatMovements[row][column].Height, (oldColumn - prev) / lerpDiv);
+                                QMath.Lerp(SeatMovements[row][prev].Height, SeatMovements[row][column].Height, (oldColumn - prev) / lerpDiv);
                         prev = column;
                     }
                 }
@@ -98,7 +98,7 @@ namespace Cavern.Cavern4D {
                     float lerpDiv = lastColumn - prev;
                     for (int oldColumn = prev; oldColumn < lastColumn; ++oldColumn)
                         SeatMovements[row][oldColumn].Height =
-                            Utils.Lerp(SeatMovements[row][prev].Height, SeatMovements[row][lastColumn].Height, (oldColumn - prev) / lerpDiv);
+                            QMath.Lerp(SeatMovements[row][prev].Height, SeatMovements[row][lastColumn].Height, (oldColumn - prev) / lerpDiv);
                 }
             }
             for (int column = 0; column < Columns; ++column) {
@@ -108,14 +108,14 @@ namespace Cavern.Cavern4D {
                         float lerpDiv = row - prev;
                         for (int oldRow = prev; oldRow < row; ++oldRow)
                             SeatMovements[oldRow][column].Height =
-                                Utils.Lerp(SeatMovements[prev][column].Height, SeatMovements[row][column].Height, (oldRow - prev) / lerpDiv);
+                                QMath.Lerp(SeatMovements[prev][column].Height, SeatMovements[row][column].Height, (oldRow - prev) / lerpDiv);
                         prev = row;
                     }
                 }
                 if (prev != lastRow) {
                     float lerpDiv = lastRow - prev;
                     for (int oldRow = prev; oldRow < lastRow; ++oldRow)
-                        SeatMovements[oldRow][column].Height = Utils.Lerp(SeatMovements[prev][column].Height, SeatMovements[lastRow][column].Height,
+                        SeatMovements[oldRow][column].Height = QMath.Lerp(SeatMovements[prev][column].Height, SeatMovements[lastRow][column].Height,
                             (oldRow - prev) / lerpDiv);
                 }
             }

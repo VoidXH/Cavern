@@ -67,7 +67,7 @@
                 float fromPos = i * ratio;
                 int sample = (int)fromPos;
                 if (sample < end)
-                    output[i] = Utils.Lerp(samples[sample], samples[++sample], fromPos % 1);
+                    output[i] = QMath.Lerp(samples[sample], samples[++sample], fromPos % 1);
                 else
                     output[i] = samples[sample];
             }

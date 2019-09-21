@@ -117,7 +117,7 @@ namespace Cavern.Cavernize {
 
         void GenerateSampleBlock() {
             AudioListener3D listener = AudioListener3D.Current;
-            float smoothFactor = 1f - Utils.Lerp(updateRate, listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
+            float smoothFactor = 1f - QMath.Lerp(updateRate, listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
             foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
                 Array.Clear(channel.Value.Output, 0, updateRate);
             if (timeSamples >= clipLength) {

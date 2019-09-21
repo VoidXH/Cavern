@@ -113,7 +113,7 @@ namespace Cavern {
                     if (DopplerLevel == 0)
                         calculatedPitch = Pitch;
                     else
-                        calculatedPitch = Utils.Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound -
+                        calculatedPitch = QMath.Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound -
                             (lastDistance - distance) / listener.pulseDelta), .5f, 3f);
                 } else
                     calculatedPitch = 1; // Disable any pitch change on low quality
@@ -308,12 +308,12 @@ namespace Cavern {
                                 TFRVol = WidthRatio(TFL, TFR, direction.x), TRRVol = WidthRatio(TRL, TRR, direction.x),
                                 innerVolume3D = volume3D;
                             if (Size != 0) {
-                                BFVol = Utils.Lerp(BFVol, .5f, Size);
-                                TFVol = Utils.Lerp(TFVol, .5f, Size);
-                                BFRVol = Utils.Lerp(BFRVol, .5f, Size);
-                                BRRVol = Utils.Lerp(BRRVol, .5f, Size);
-                                TFRVol = Utils.Lerp(TFRVol, .5f, Size);
-                                TRRVol = Utils.Lerp(TRRVol, .5f, Size);
+                                BFVol = QMath.Lerp(BFVol, .5f, Size);
+                                TFVol = QMath.Lerp(TFVol, .5f, Size);
+                                BFRVol = QMath.Lerp(BFRVol, .5f, Size);
+                                BRRVol = QMath.Lerp(BRRVol, .5f, Size);
+                                TFRVol = QMath.Lerp(TFRVol, .5f, Size);
+                                TRRVol = QMath.Lerp(TRRVol, .5f, Size);
                                 innerVolume3D *= 1f - Size;
                                 float extraChannelVolume = volume3D * Size / channels;
                                 for (int channel = 0; channel < channels; ++channel)
@@ -354,7 +354,7 @@ namespace Cavern {
                                 if (maxAngleMatch < angleMatches[channel])
                                     maxAngleMatch = angleMatches[channel];
                             for (int channel = 0; channel < channels; ++channel)
-                                angleMatches[channel] = Utils.Lerp(angleMatches[channel], maxAngleMatch, Size);
+                                angleMatches[channel] = QMath.Lerp(angleMatches[channel], maxAngleMatch, Size);
                         }
                         // Only use the closest 3 speakers on non-Perfect qualities or in Theatre mode
                         if (listener.AudioQuality != QualityModes.Perfect || Listener.EnvironmentType == Environments.Theatre) {

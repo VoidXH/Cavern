@@ -87,7 +87,7 @@ namespace Cavern.QuickEQ {
                 output = new float[samples.Length];
             float positioner = 1f / samples.Length;
             for (int i = 0; i < samples.Length; ++i)
-                output[i] = Utils.Lerp(startGraph[i], endGraph[i], i * positioner);
+                output[i] = QMath.Lerp(startGraph[i], endGraph[i], i * positioner);
             return output;
         }
     }
