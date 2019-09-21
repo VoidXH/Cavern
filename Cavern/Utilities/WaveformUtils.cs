@@ -4,6 +4,24 @@ using System.Runtime.CompilerServices;
 namespace Cavern.Utilities {
     /// <summary>Sound processing functions.</summary>
     public static class WaveformUtils {
+        /// <summary>Downmix audio for a lesser channel count with limited knowledge of the target system's channel locations.</summary>
+        public static void Downmix(float[] from, int fromChannels, float[] to, int toChannels) {
+            int samplesPerChannel = to.Length / toChannels;
+            for (int channel = 0, unityChannel = 0; channel < fromChannels; ++channel, unityChannel = channel % toChannels) {
+                if (toChannels > 4 || (Listener.Channels[channel].Y != 0 && !Listener.Channels[channel].LFE))
+                    for (int sample = 0; sample < samplesPerChannel; ++sample)
+                        to[sample * toChannels + unityChannel] += from[sample * fromChannels + channel];
+                else {
+                    for (int sample = 0; sample < samplesPerChannel; ++sample) {
+                        int leftOut = sample * toChannels;
+                        float copySample = from[sample * fromChannels + channel];
+                        to[leftOut] += copySample;
+                        to[leftOut + 1] += copySample;
+                    }
+                }
+            }
+        }
+
         /// <summary>Multiplies all values in an array.</summary>
         /// <param name="target">Array reference</param>
         /// <param name="value">Multiplier</param>
@@ -22,6 +40,35 @@ namespace Cavern.Utilities {
         public static void Gain(float[] target, float gain, int channel, int channels) {
             for (int sample = channel; sample < target.Length; sample += channels)
                 target[sample] *= gain;
+        }
+
+        /// <summary>Get the peak amplitude of a single-channel array.</summary>
+        /// <param name="target">Array reference</param>
+        /// <returns>Peak amplitude in the array in decibels</returns>
+        public static float GetPeak(float[] target) {
+            float max = Math.Abs(target[0]), absSample;
+            for (int sample = 1; sample < target.Length; ++sample) {
+                absSample = Math.Abs(target[sample]);
+                if (max < absSample)
+                    max = absSample;
+            }
+            return max != 0 ? (20 * (float)Math.Log10(max)) : -300;
+        }
+
+        /// <summary>Get the peak amplitude of a given channel in a multichannel array.</summary>
+        /// <param name="target">Array reference</param>
+        /// <param name="samples">Samples per channel</param>
+        /// <param name="channel">Target channel</param>
+        /// <param name="channels">Channel count</param>
+        /// <returns>Maximum absolute value in the array</returns>
+        public static float GetPeak(float[] target, int samples, int channel, int channels) {
+            float max = 0, absSample;
+            for (int sample = channel, end = samples * channels; sample < end; sample += channels) {
+                absSample = Math.Abs(target[sample]);
+                if (max < absSample)
+                    max = absSample;
+            }
+            return max;
         }
 
         /// <summary>Mix a track to a stream.</summary>

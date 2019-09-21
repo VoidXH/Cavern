@@ -32,7 +32,7 @@ namespace Cavern.Helpers {
             if (samples != null) {
                 float peakSize = float.NegativeInfinity;
                 for (int channel = 0; channel < samples.Length; ++channel) {
-                    float channelSize = CavernUtilities.GetPeak(samples[channel]);
+                    float channelSize = WaveformUtils.GetPeak(samples[channel]);
                     if (peakSize < channelSize)
                         peakSize = channelSize;
                 }
