@@ -10,7 +10,7 @@ namespace Cavern.Virtualizer {
             const float lowFrequencyCrossover = 120;
             const float highFrequencyCrossover = 12000;
             /// <summary>Ear to ear sound travel time in samples.</summary>
-            const float peakDelay = filterSampleRate * .14f /* subject head width in meters */ / Utils.SpeedOfSound * Mathf.PI;
+            const float peakDelay = filterSampleRate * .14f /* subject head width in meters */ / Source.SpeedOfSound * Mathf.PI;
 
             /// <summary>Virtual speaker angle difference from the subject's gaze on the x axis: elevation.</summary>
             public float X;

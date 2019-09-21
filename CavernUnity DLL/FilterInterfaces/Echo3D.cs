@@ -10,7 +10,7 @@ namespace Cavern.FilterInterfaces {
     public class Echo3D : MonoBehaviour {
         /// <summary>Speed of sound in units/s.</summary>
         [Tooltip("Speed of sound in units/s.")]
-        public float SpeedOfSound = Utils.SpeedOfSound * 10;
+        public float SpeedOfSound = Source.SpeedOfSound * 10;
         /// <summary>Number of directions to check.</summary>
         [Tooltip("Number of directions to check.")]
         public int Detail = 5;

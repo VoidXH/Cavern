@@ -9,7 +9,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Constants
         // ------------------------------------------------------------------
-        const float piRecip = .3183098861837906f;
+        /// <summary>Reference sound velocity in m/s (dry air, 25.4 degrees Celsius).</summary>
+        public const float SpeedOfSound = 346.74f;
 
         // ------------------------------------------------------------------
         // Internal helpers
@@ -100,7 +101,7 @@ namespace Cavern {
                     if (DopplerLevel == 0)
                         calculatedPitch = Pitch;
                     else
-                        calculatedPitch = Utils.Clamp(Pitch * DopplerLevel * Utils.SpeedOfSound / (Utils.SpeedOfSound -
+                        calculatedPitch = Utils.Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound -
                             (lastDistance - distance) / listener.pulseDelta), .5f, 3f);
                 } else
                     calculatedPitch = 1; // Disable any pitch change on low quality
@@ -135,7 +136,8 @@ namespace Cavern {
         /// <param name="gain">Source gain</param>
         /// <param name="channel">Channel ID</param>
         /// <param name="channels">Total channels</param>
-        /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
+        /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
+        /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
         internal static void WriteOutput(float[] samples, float[] target, float gain, int channel, int channels) {
             gain = (float)Math.Sin(Math.PI * .5 * gain);
             for (int from = 0, to = channel, end = samples.Length; from < end; ++from, to += channels)
@@ -147,7 +149,8 @@ namespace Cavern {
         /// <param name="target">Channel array to write to</param>
         /// <param name="gain">Source gain, total across all channels</param>
         /// <param name="channels">Total channels</param>
-        /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
+        /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
+        /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
         internal static void WriteOutput(float[] samples, float[] target, float gain, int channels) {
             gain /= channels;
             for (int channel = 0; channel < channels; ++channel)

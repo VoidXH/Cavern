@@ -5,9 +5,6 @@ using System.Runtime.CompilerServices;
 namespace Cavern.Utilities {
     /// <summary>Useful functions used in multiple classes.</summary>
     public static class Utils {
-        /// <summary>Reference sound velocity in m/s.</summary>
-        public const float SpeedOfSound = 340.29f;
-
         /// <summary>Cached version name.</summary>
         static string info;
         /// <summary>Version and creator information.</summary>
