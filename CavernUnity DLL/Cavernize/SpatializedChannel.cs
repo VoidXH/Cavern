@@ -62,7 +62,7 @@ namespace Cavern.Cavernize {
             if (Channel.Muted)
                 newSource.Volume = 0;
             newObject.transform.SetParent(master.transform);
-            Vector position = Utils.PlaceInCube(new Vector(0, Channel.Y));
+            Vector position = Vector.PlaceInCube(new Vector(0, Channel.Y));
             position.Scale(Listener.EnvironmentSize);
             newObject.transform.localPosition = CavernUtilities.VectorMatch(position);
         }
@@ -110,7 +110,7 @@ namespace Cavern.Cavernize {
 
         public void Update() {
             MovingRenderer.enabled = GroundRenderer.enabled = visualize;
-            Vector position = Utils.PlaceInCube(new Vector(0, Channel.Y));
+            Vector position = Vector.PlaceInCube(new Vector(0, Channel.Y));
             position.Scale(Listener.EnvironmentSize);
             position.y = Height * Listener.EnvironmentSize.y;
             MovingSource.transform.localPosition = CavernUtilities.VectorMatch(position);

@@ -7,43 +7,12 @@ namespace Cavern.Utilities {
     public static class Utils {
         /// <summary>Reference sound velocity in m/s.</summary>
         public const float SpeedOfSound = 340.29f;
-        /// <summary>Converts degrees to radians. = pi / 180.</summary>
-        internal const float Deg2Rad = .01745329251f;
-        /// <summary>sqrt(2) / 2 = 1 / sqrt(2)</summary>
-        internal const float Sqrt2p2 = .7071067811f;
 
         /// <summary>Cached version name.</summary>
         static string info;
         /// <summary>Version and creator information.</summary>
         public static string Info => info ?? (info = "Cavern v" +
             FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion + " by VoidX (www.cavern.cf)");
-
-        /// <summary>For given angles (in radians) it returns a vector for that position on a sphere with the radius of 1.</summary>
-        public static Vector PlaceInSphere(Vector angles) {
-            float xRad = angles.x * Deg2Rad, yRad = angles.y * Deg2Rad, sinX = (float)Math.Sin(xRad), cosX = (float)Math.Cos(xRad),
-                sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
-            return new Vector(sinY * cosX, -sinX, cosY * cosX);
-        }
-
-        /// <summary>For given angles (in radians) it returns a vector for that position on a cube with the side length of 2.</summary>
-        public static Vector PlaceInCube(Vector angles) {
-            float xRad = angles.x * Deg2Rad, yRad = angles.y * Deg2Rad, sinX = (float)Math.Sin(xRad), cosX = (float)Math.Cos(xRad),
-                sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
-            if (Math.Abs(sinY) > Math.Abs(cosY))
-                sinY = Math.Sign(sinY) * Sqrt2p2;
-            else
-                cosY = Math.Sign(cosY) * Sqrt2p2;
-            sinY /= Sqrt2p2;
-            cosY /= Sqrt2p2;
-            if (Math.Abs(sinX) >= Sqrt2p2) {
-                sinX = Math.Sign(sinX) * Sqrt2p2;
-                cosX /= Sqrt2p2;
-                sinY *= cosX;
-                cosY *= cosX;
-            }
-            sinX /= Sqrt2p2;
-            return new Vector(sinY, -sinX, cosY);
-        }
 
         /// <summary>Keeps a value in the given array, if it's smaller than any of its contents.</summary>
         /// <param name="target">Array reference</param>

@@ -3,7 +3,7 @@ using System;
 
 namespace Cavern {
     /// <summary>Spatially positioned audio output channel.</summary>
-    public class Channel {
+    public class Channel : IEquatable<Channel> {
         /// <summary>Rotation around the X axis in degrees: height.</summary>
         public float X { get; private set; }
         /// <summary>Rotation around the Y axis in degrees.</summary>
@@ -55,23 +55,24 @@ namespace Cavern {
 
         /// <summary>Recalculates properties.</summary>
         void Recalculate() {
-            float xRad = X * Utils.Deg2Rad, yRad = Y * Utils.Deg2Rad, sinX = (float)Math.Sin(xRad), cosX = (float)Math.Cos(xRad),
+            float xRad = X * Vector.Deg2Rad, yRad = Y * Vector.Deg2Rad, sinX = (float)Math.Sin(xRad), cosX = (float)Math.Cos(xRad),
                 sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
             SphericalPos = new Vector(sinY * cosX, -sinX, cosY * cosX);
             if (Math.Abs(sinY) > Math.Abs(cosY))
-                sinY = Math.Sign(sinY) * Utils.Sqrt2p2;
+                sinY = Math.Sign(sinY) * Vector.Sqrt2p2;
             else
-                cosY = Math.Sign(cosY) * Utils.Sqrt2p2;
-            sinY /= Utils.Sqrt2p2;
-            cosY /= Utils.Sqrt2p2;
-            if (Math.Abs(sinX) >= Utils.Sqrt2p2) {
-                sinX = Math.Sign(sinX) * Utils.Sqrt2p2;
-                cosX /= Utils.Sqrt2p2;
+                cosY = Math.Sign(cosY) * Vector.Sqrt2p2;
+            sinY /= Vector.Sqrt2p2;
+            cosY /= Vector.Sqrt2p2;
+            if (Math.Abs(sinX) >= Vector.Sqrt2p2) {
+                sinX = Math.Sign(sinX) * Vector.Sqrt2p2;
+                cosX /= Vector.Sqrt2p2;
                 sinY *= cosX;
                 cosY *= cosX;
             }
-            sinX /= Utils.Sqrt2p2;
+            sinX /= Vector.Sqrt2p2;
             CubicalPos = new Vector(sinY, -sinX, cosY);
+            CubicalPos = Vector.PlaceInCube(new Vector(X, Y));
             if (Listener.EnvironmentType != Environments.Studio)
                 SpatialPos = CubicalPos;
             else
@@ -99,5 +100,8 @@ namespace Cavern {
                         -Listener.Channels[Next].Y % 180 : Listener.Channels[i].Y % 180 == 0 && Listener.Channels[Next].Y % 180 == 0);
             }
         }
+
+        /// <summary>Check if two channels are the same.</summary>
+        public bool Equals(Channel other) => X == other.X && Y == other.Y;
     }
 }

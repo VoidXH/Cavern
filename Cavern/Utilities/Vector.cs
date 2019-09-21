@@ -3,7 +3,12 @@ using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
     /// <summary>Three-dimensional vector.</summary>
-    public struct Vector {
+    public struct Vector : IEquatable<Vector> {
+        /// <summary>Converts degrees to radians. = pi / 180.</summary>
+        internal const float Deg2Rad = .01745329251f;
+        /// <summary>sqrt(2) / 2 = 1 / sqrt(2)</summary>
+        internal const float Sqrt2p2 = .7071067811f;
+
         /// <summary>First coordinate of the vector.</summary>
         public float x;
         /// <summary>Second coordinate of the vector.</summary>
@@ -31,7 +36,7 @@ namespace Cavern.Utilities {
         /// <summary>Rotate this vector by the X axis.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RotateX(float degrees) {
-            degrees *= Utils.Deg2Rad;
+            degrees *= Deg2Rad;
             float cos = (float)Math.Cos(degrees), sin = (float)Math.Sin(degrees);
             y = cos * y - sin * z;
             z = sin * y + cos * z;
@@ -40,7 +45,7 @@ namespace Cavern.Utilities {
         /// <summary>Rotate this vector by the Y axis.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RotateY(float degrees) {
-            degrees *= Utils.Deg2Rad;
+            degrees *= Deg2Rad;
             float cos = (float)Math.Cos(degrees), sin = (float)Math.Sin(degrees);
             x = cos * x + sin * z;
             z = cos * z - sin * x;
@@ -49,7 +54,7 @@ namespace Cavern.Utilities {
         /// <summary>Rotate this vector by the Z axis.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RotateZ(float degrees) {
-            degrees *= Utils.Deg2Rad;
+            degrees *= Deg2Rad;
             float cos = (float)Math.Cos(degrees), sin = (float)Math.Sin(degrees);
             x = cos * x - sin * y;
             y = sin * x + cos * y;
@@ -126,5 +131,35 @@ namespace Cavern.Utilities {
 
         /// <summary>Scalar multiplication.</summary>
         public static Vector operator *(Vector lhs, float rhs) => new Vector(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs);
+
+        /// <summary>For given angles (in degrees) it returns a vector for that position on a sphere with the radius of 1.</summary>
+        public static Vector PlaceInSphere(Vector angles) {
+            float xRad = angles.x * Deg2Rad, yRad = angles.y * Deg2Rad, sinX = (float)Math.Sin(xRad), cosX = (float)Math.Cos(xRad),
+                sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
+            return new Vector(sinY * cosX, -sinX, cosY * cosX);
+        }
+
+        /// <summary>For given angles (in degrees) it returns a vector for that position on a cube with the side length of 2.</summary>
+        public static Vector PlaceInCube(Vector angles) {
+            float xRad = angles.x * Deg2Rad, yRad = angles.y * Deg2Rad, sinX = (float)Math.Sin(xRad), cosX = (float)Math.Cos(xRad),
+                sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
+            if (Math.Abs(sinY) > Math.Abs(cosY))
+                sinY = Math.Sign(sinY) * Sqrt2p2;
+            else
+                cosY = Math.Sign(cosY) * Sqrt2p2;
+            sinY /= Sqrt2p2;
+            cosY /= Sqrt2p2;
+            if (Math.Abs(sinX) >= Sqrt2p2) {
+                sinX = Math.Sign(sinX) * Sqrt2p2;
+                cosX /= Sqrt2p2;
+                sinY *= cosX;
+                cosY *= cosX;
+            }
+            sinX /= Sqrt2p2;
+            return new Vector(sinY, -sinX, cosY);
+        }
+
+        /// <summary>Check if two channels are the same.</summary>
+        public bool Equals(Vector other) => x == other.x && y == other.y && z == other.z;
     }
 }

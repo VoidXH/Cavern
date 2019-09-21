@@ -59,7 +59,7 @@ namespace Cavern {
         delegate Vector PlacerFunc(Vector angles);
 
         void Update() {
-            PlacerFunc directionFunc = Spherical ? (PlacerFunc)Utils.PlaceInSphere : Utils.PlaceInCube;
+            PlacerFunc directionFunc = Spherical ? (PlacerFunc)Vector.PlaceInSphere : Vector.PlaceInCube;
             float targetVolume = Volume / Sources;
             for (int source = 0; source < Sources; ++source) {
                 if (!objects[source].Object) {
