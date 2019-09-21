@@ -62,7 +62,7 @@ namespace Cavern.Debug {
             for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                 if (channelData[channel].Color == null)
                     channelData[channel].Color = new Texture2D(1, 1);
-                channelData[channel].LastPos = CavernUtilities.VectorMatch(Listener.Channels[channel].CubicalPos);
+                channelData[channel].LastPos = VectorUtils.VectorMatch(Listener.Channels[channel].CubicalPos);
                 if (JackColoring) {
                     channelData[channel].Color.SetPixel(0, 0, channel < 2 ? new Color(.596078431f, .984313725f, .596078431f, 1) :
                         channel < 4 ? (Listener.Channels.Length <= 4 ? Color.black : new Color(1, .647058824f, 0, 1)) :
@@ -128,11 +128,11 @@ namespace Cavern.Debug {
                     if (max < AbsSample)
                         max = AbsSample;
                 }
-                float currentBarHeight = CavernUtilities.SignalToDb(max) / -DynamicRange + 1, currentPeak = channelData[channel].Peak - Time.deltaTime;
+                float currentBarHeight = 20 * Mathf.Log10(max) / -DynamicRange + 1, currentPeak = channelData[channel].Peak - Time.deltaTime;
                 if (currentPeak < currentBarHeight)
                     currentPeak = currentBarHeight;
                 channelData[channel].Peak = currentPeak;
-                doRepaint |= CavernUtilities.VectorCompare(Listener.Channels[channel].CubicalPos, channelData[channel].LastPos);
+                doRepaint |= VectorUtils.VectorCompare(Listener.Channels[channel].CubicalPos, channelData[channel].LastPos);
             }
             if (doRepaint)
                 RepaintChannels();

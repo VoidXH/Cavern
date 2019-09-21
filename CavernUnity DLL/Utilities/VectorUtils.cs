@@ -4,15 +4,7 @@ using UnityEngine;
 
 namespace Cavern {
     /// <summary>Useful functions used in multiple classes.</summary>
-    public static class CavernUtilities {
-        /// <summary>Converts a signal strength (ref = 1) to dB.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float SignalToDb(float amplitude) => 20 * Mathf.Log10(amplitude);
-
-        /// <summary>Converts a dB value (ref = 0) to signal strength.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float DbToSignal(float amplitude) => Mathf.Pow(10, 1/20f * amplitude);
-
+    public static class VectorUtils {
         /// <summary>Converts a Unity vector to a Cavern vector.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector VectorMatch(Vector3 source) => new Vector(source.x, source.y, source.z);

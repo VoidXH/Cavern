@@ -64,7 +64,7 @@ namespace Cavern.Cavernize {
             newObject.transform.SetParent(master.transform);
             Vector position = Vector.PlaceInCube(new Vector(0, Channel.Y));
             position.Scale(Listener.EnvironmentSize);
-            newObject.transform.localPosition = CavernUtilities.VectorMatch(position);
+            newObject.transform.localPosition = VectorUtils.VectorMatch(position);
         }
 
         public SpatializedChannel(CavernizeChannel source, Cavernizer master, int updateRate) {
@@ -113,7 +113,7 @@ namespace Cavern.Cavernize {
             Vector position = Vector.PlaceInCube(new Vector(0, Channel.Y));
             position.Scale(Listener.EnvironmentSize);
             position.y = Height * Listener.EnvironmentSize.y;
-            MovingSource.transform.localPosition = CavernUtilities.VectorMatch(position);
+            MovingSource.transform.localPosition = VectorUtils.VectorMatch(position);
         }
 
         public void Destroy() {

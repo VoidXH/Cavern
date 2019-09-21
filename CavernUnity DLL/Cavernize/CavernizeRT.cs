@@ -49,12 +49,12 @@ namespace Cavern {
         /// <summary>The cinema processor's fader level. Required for height calculation as it is partially based on content volume.</summary>
         public static float Fader {
             get {
-                float dB = CavernUtilities.SignalToDb(1f / faderGain);
+                float dB = 20 * Mathf.Log10(1f / faderGain);
                 if (dB > -10)
                     return dB * .3f + 7;
                 return dB * .05f + 4.5f;
             }
-            set => faderGain = 1f / CavernUtilities.DbToSignal(value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20));
+            set => faderGain = 1f / Mathf.Pow(10, 1 / 20f * (value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20)));
         }
 
         float lastSample = 0, lowSample = 0, highSample = 0;

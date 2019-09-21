@@ -140,7 +140,7 @@ namespace Cavern.Debug {
             for (int channel = 0; channel < channels; ++channel) {
                 if (arrayLevels[channel] > 1)
                     arrayLevels[channel] = 1;
-                float barHeight = CavernUtilities.SignalToDb(arrayLevels[channel]) / -DynamicRange + 1, currentPeak = channelData[channel].Peak - Time.deltaTime;
+                float barHeight = 20 * Mathf.Log10(arrayLevels[channel]) / -DynamicRange + 1, currentPeak = channelData[channel].Peak - Time.deltaTime;
                 if (currentPeak < barHeight)
                     currentPeak = barHeight;
                 channelData[channel].Peak = currentPeak;

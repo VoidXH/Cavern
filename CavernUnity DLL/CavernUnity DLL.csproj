@@ -83,7 +83,7 @@
     <Compile Include="Spoofer\AudioListenerSpoofer.cs" />
     <Compile Include="Spoofer\AudioSourceSpoofer.cs" />
     <Compile Include="Spoofer\AutoSpoofer.cs" />
-    <Compile Include="Utilities\CavernUtilities.cs" />
+    <Compile Include="Utilities\VectorUtils.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
     <Compile Include="Helpers\OneShotDestructor.cs" />
     <Compile Include="Helpers\ScaleByGain.cs" />

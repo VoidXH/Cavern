@@ -232,7 +232,7 @@ namespace Cavern {
 
         /// <summary>Synchronize this interface with <see cref="cavernSource"/>.</summary>
         protected void SourceUpdate() {
-            cavernSource.Position = CavernUtilities.VectorMatch(transform.position);
+            cavernSource.Position = VectorUtils.VectorMatch(transform.position);
             if (Clip) {
                 if (!cavernSource.Clip || lastClipHash != Clip.GetHashCode()) {
                     float[] AllData = new float[Clip.channels * Clip.samples];

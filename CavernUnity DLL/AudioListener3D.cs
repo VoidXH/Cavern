@@ -156,8 +156,8 @@ namespace Cavern {
             cavernListener.AudioQuality = AudioQuality;
             cavernListener.LFESeparation = LFESeparation;
             cavernListener.DirectLFE = DirectLFE;
-            cavernListener.Position = CavernUtilities.VectorMatch(transform.position);
-            cavernListener.Rotation = CavernUtilities.VectorMatch(transform.eulerAngles);
+            cavernListener.Position = VectorUtils.VectorMatch(transform.position);
+            cavernListener.Rotation = VectorUtils.VectorMatch(transform.eulerAngles);
         }
 
         /// <summary>Output Cavern's generated audio as a filter.</summary>
