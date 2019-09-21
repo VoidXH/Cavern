@@ -189,7 +189,7 @@ namespace Cavern {
             bufferPosition = end;
             CavernUtilities.Downmix(filterOutput, ChannelCount, unityBuffer, unityChannels); // Output audio
             if (Normalizer != 0) // Normalize
-                Utils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
+                WaveformUtils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
             // Remove used samples
             int written = unityBuffer.Length / unityChannels * ChannelCount;
             if (written > bufferPosition)

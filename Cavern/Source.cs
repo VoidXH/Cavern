@@ -50,6 +50,18 @@ namespace Cavern {
         /// <summary>Remaining delay until starting playback.</summary>
         ulong delay = 0;
 
+        /// <summary>Keeps a value in the given array, if it's smaller than any of its contents.</summary>
+        /// <param name="target">Array reference</param>
+        /// <param name="value">Value to insert</param>
+        static void BottomlistHandler(float[] target, float value) {
+            int replace = -1;
+            for (int record = 0; record < target.Length; ++record)
+                if (target[record] > value)
+                    replace = replace == -1 ? record : (target[record] > target[replace] ? record : replace);
+            if (replace != -1)
+                target[replace] = value;
+        }
+
         /// <summary>Calculate distance from the <see cref="Listener"/> and choose the closest sources to play.</summary>
         internal void Precalculate() {
             if (Renderable) {
@@ -57,7 +69,7 @@ namespace Cavern {
                 distance = Position.Distance(listener.Position);
                 if (float.IsNaN(lastDistance))
                     lastDistance = distance;
-                Utils.BottomlistHandler(listener.sourceDistances, distance);
+                BottomlistHandler(listener.sourceDistances, distance);
             } else
                 distance = float.NaN;
         }

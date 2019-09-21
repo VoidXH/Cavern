@@ -231,18 +231,18 @@ namespace Cavern {
             // Mix sources to output
             Array.Clear(renderBuffer, 0, renderBuffer.Length);
             for (int result = 0; result < results.Count; ++result)
-                Utils.Mix(results[result], renderBuffer);
+                WaveformUtils.Mix(results[result], renderBuffer);
             // Volume, distance compensation, and subwoofers' lowpass
             for (int channel = 0; channel < channelCount; ++channel) {
                 if (Channels[channel].LFE) {
                     if (!DirectLFE)
                         lowpasses[channel].Process(renderBuffer, channel, channelCount);
-                    Utils.Gain(renderBuffer, LFEVolume * Volume, channel, channelCount); // LFE Volume
+                    WaveformUtils.Gain(renderBuffer, LFEVolume * Volume, channel, channelCount); // LFE Volume
                 } else
-                    Utils.Gain(renderBuffer, Volume, channel, channelCount);
+                    WaveformUtils.Gain(renderBuffer, Volume, channel, channelCount);
             }
             if (Normalizer != 0) // Normalize
-                Utils.Normalize(ref renderBuffer, Normalizer * UpdateRate / SampleRate, ref normalization, LimiterOnly);
+                WaveformUtils.Normalize(ref renderBuffer, Normalizer * UpdateRate / SampleRate, ref normalization, LimiterOnly);
             return renderBuffer;
         }
     }
