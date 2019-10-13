@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
 using Cavern.Filters;
-using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
     static partial class VirtualizerFilter {
