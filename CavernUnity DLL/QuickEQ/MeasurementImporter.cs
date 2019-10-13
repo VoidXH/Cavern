@@ -145,7 +145,8 @@ namespace Cavern.QuickEQ {
                 for (int sample = 0; sample < samplesPerCh; ++sample)
                     samples[sample] = data[channelStart + sample];
                 sweeper.ExcitementResponses[ProcessedChannel] = samples;
-                Complex[] RawResponse = sweeper.GetFrequencyResponse(samples);
+                bool LFE = Channels > 4 && ProcessedChannel == 3;
+                Complex[] RawResponse = LFE ? sweeper.GetFrequencyResponseLFE(samples) : sweeper.GetFrequencyResponse(samples);
                 sweeper.FreqResponses[ProcessedChannel] = Measurements.GetSpectrum(RawResponse);
                 sweeper.ImpResponses[ProcessedChannel] = sweeper.GetImpulseResponse(RawResponse);
             }

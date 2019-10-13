@@ -17,6 +17,9 @@ namespace Cavern.QuickEQ {
         /// <summary>Frequency at the end of the sweep.</summary>
         [Tooltip("Frequency at the end of the sweep.")]
         [Range(1, 24000)] public float EndFreq = 20000;
+        /// <summary>Frequency at the end of the sweep.</summary>
+        [Tooltip("Frequency at the end of the sweep for the LFE channel.")]
+        [Range(1, 24000)] public float EndFreqLFE = 200;
         /// <summary>Measurement signal gain in decibels relative to full scale.</summary>
         [Tooltip("Measurement signal gain in decibels relative to full scale.")]
         [Range(-50, 0)] public float SweepGain = -20;
@@ -37,6 +40,8 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Measurement signal samples.</summary>
         public float[] SweepReference { get; private set; }
+        /// <summary>Measurement signal samples for LFE channels.</summary>
+        public float[] SweepReferenceLFE { get; private set; }
         /// <summary>Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
         /// <see cref="FreqResponses"/> are still being processed.</summary>
         public int Channel { get; private set; }
@@ -52,8 +57,6 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Playable measurement signal.</summary>
-        AudioClip sweep;
         /// <summary>Microphone input.</summary>
         AudioClip sweepResponse;
         /// <summary>Cached listener.</summary>
@@ -66,6 +69,8 @@ namespace Cavern.QuickEQ {
         bool oldVirtualizer;
         /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
         Complex[] sweepFFT;
+        /// <summary><see cref="SweepReferenceLFE"/>'s Fourier transform for response calculation optimizations.</summary>
+        Complex[] sweepFFT_LFE;
         /// <summary>FFT constant cache for the sweep FFT size.</summary>
         FFTCache sweepFFTCache;
         /// <summary>Sweep playback objects.</summary>
@@ -75,15 +80,23 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Generate <see cref="SweepReference"/> and the related optimization values.</summary>
         public void RegenerateSweep() {
-            SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreq, SweepLength, AudioListener3D.Current.SampleRate));
+            int sampleRate = AudioListener3D.Current.SampleRate;
+            SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreq, SweepLength, sampleRate));
+            SweepReferenceLFE = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreqLFE, SweepLength, sampleRate));
             float gainMult = Mathf.Pow(10, SweepGain / 20);
-            for (int sample = 0; sample < SweepReference.Length; ++sample)
-                SweepReference[sample] *= gainMult;
+            WaveformUtils.Gain(SweepReference, gainMult);
+            WaveformUtils.Gain(SweepReferenceLFE, gainMult);
             sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
+            sweepFFT_LFE = Measurements.FFT(SweepReferenceLFE, sweepFFTCache);
         }
 
         /// <summary>Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.</summary>
-        public Complex[] GetFrequencyResponse(float[] samples) => Measurements.GetFrequencyResponse(sweepFFT, Measurements.FFT(samples, sweepFFTCache));
+        public Complex[] GetFrequencyResponse(float[] samples) =>
+            Measurements.GetFrequencyResponse(sweepFFT, Measurements.FFT(samples, sweepFFTCache));
+
+        /// <summary>Get the frequency response of an external LFE measurement that was performed with <see cref="sweepFFT_LFE"/>.</summary>
+        public Complex[] GetFrequencyResponseLFE(float[] samples) =>
+            Measurements.GetFrequencyResponse(sweepFFT_LFE, Measurements.FFT(samples, sweepFFTCache));
 
         /// <summary>Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[])"/>.</summary>
         public VerboseImpulseResponse GetImpulseResponse(Complex[] frequencyResponse) =>
@@ -93,8 +106,6 @@ namespace Cavern.QuickEQ {
             ResultAvailable = false;
             listener = AudioListener3D.Current;
             RegenerateSweep();
-            sweep = AudioClip.Create("Sweep", SweepReference.Length, 1, listener.SampleRate, false);
-            sweep.SetData(SweepReference, 0);
             Channel = 0;
             int channels = Listener.Channels.Length;
             FreqResponses = new float[channels][];
@@ -113,7 +124,8 @@ namespace Cavern.QuickEQ {
             if (!measurementStarted) {
                 measurementStarted = true;
                 if (Microphone.devices.Length != 0)
-                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Listener.Channels.Length / listener.SampleRate + 1, listener.SampleRate);
+                    sweepResponse = Microphone.Start(InputDevice, false,
+                        SweepReference.Length * Listener.Channels.Length / listener.SampleRate + 1, listener.SampleRate);
                 sweepers = new SweepChannel[Listener.Channels.Length];
                 for (int i = 0; i < Listener.Channels.Length; ++i) {
                     sweepers[i] = gameObject.AddComponent<SweepChannel>();
@@ -130,7 +142,9 @@ namespace Cavern.QuickEQ {
                 else
                     result = (float[])result.Clone();
                 ExcitementResponses[Channel] = result;
-                (workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(sweepFFT, sweepFFTCache, result))).Start();
+                int cID = Channel;
+                (workers[Channel] = new Task<WorkerResult>(() =>
+                    new WorkerResult(Listener.Channels[cID].LFE ? sweepFFT_LFE : sweepFFT, sweepFFTCache, result))).Start();
                 if (++Channel == Listener.Channels.Length) {
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                         if (workers[channel].Result.IsNull())
@@ -150,7 +164,6 @@ namespace Cavern.QuickEQ {
         }
 
         void OnDisable() {
-            Destroy(sweep);
             if (sweepers[0])
                 for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                     Destroy(sweepers[channel]);

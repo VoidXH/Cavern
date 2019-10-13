@@ -31,9 +31,10 @@ namespace Cavern.QuickEQ {
             }
 
             protected override float[] Collect() {
+                float[] samples = Listener.Channels[Channel].LFE ? Sweeper.SweepReferenceLFE : Sweeper.SweepReference;
                 Array.Clear(rendered, 0, rendered.Length);
                 if (IsPlaying && !Mute) {
-                    int sweepLength = Sweeper.SweepReference.Length, delay = Channel * sweepLength, channels = Listener.Channels.Length;
+                    int sweepLength = samples.Length, delay = Channel * sweepLength, channels = Listener.Channels.Length;
                     int pos = TimeSamples - delay;
                     for (int sample = Channel; sample < rendered.Length; sample += channels) {
                         if (pos < 0)
@@ -42,7 +43,7 @@ namespace Cavern.QuickEQ {
                             IsPlaying = false;
                             break;
                         }
-                        rendered[sample] = Sweeper.SweepReference[pos];
+                        rendered[sample] = samples[pos];
                         ++pos;
                     }
                     TimeSamples += AudioListener3D.Current.UpdateRate;
