@@ -7,10 +7,16 @@ namespace Cavern.Debug {
     public class Monitor : MonoBehaviour {
         /// <summary>Snap objects out of the room to walls.</summary>
         [Tooltip("Snap objects out of the room to walls.")]
-        public bool LimitBounds = true;
+        public bool limitBounds = true;
         /// <summary>Normalize size to this by local scale if not 0.</summary>
         [Tooltip("Normalize size to this by local scale if not 0.")]
         public float AutoScale = 0;
+
+        /// <summary>Alias for <see cref="limitBounds"/> to be used with Unity Events.</summary>
+        public bool LimitBounds {
+            get => limitBounds;
+            set => limitBounds = value;
+        }
 
         /// <summary>Displayed room edges.</summary>
         readonly GameObject[] edges = new GameObject[12];

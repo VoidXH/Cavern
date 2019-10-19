@@ -9,13 +9,19 @@ namespace Cavern.Debug {
     public class Levels : WindowBase {
         /// <summary>Use PC Jack output coloring for level bars. If false, channels will be colored by grouping.</summary>
         [Tooltip("Use PC Jack output coloring for level bars. If false, channels will be colored by grouping.")]
-        public bool JackColoring = true;
+        public bool jackColoring = true;
         /// <summary>The lowest volume to show (in decibels).</summary>
         [Tooltip("The lowest volume to show (in decibels).")]
         [Range(-300, -6)] public int DynamicRange = -60;
         /// <summary>Maximum width of the Levels window. 0 means the screen's width.</summary>
         [Tooltip("Maximum width of the Levels window. Non-positive numbers mean the screen's width.")]
         public int MaxWidth = 0;
+
+        /// <summary>Alias for <see cref="jackColoring"/> to be used with Unity Events.</summary>
+        public bool JackColoring {
+            get => jackColoring;
+            set => jackColoring = value;
+        }
 
         struct ChannelLevelData {
             public float Peak;
