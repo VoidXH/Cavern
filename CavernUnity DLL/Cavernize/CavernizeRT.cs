@@ -26,11 +26,11 @@ namespace Cavern {
         [Tooltip("Output smoothing strength.")]
         [Range(0, 1)] public float Smoothness = .8f;
 
-        /// <summary>Base speaker's position on the Y axis.</summary>
-        [Tooltip("Base speaker's position on the Y axis.")]
+        /// <summary>Base speaker's position on the horizontal axis.</summary>
+        [Tooltip("Base speaker's position on the horizontal axis.")]
         [Range(-1, 1)] public float BottomSpeakerHeight = 0;
-        /// <summary>Height speaker's position on the Y axis.</summary>
-        [Tooltip("Height speaker's position on the Y axis.")]
+        /// <summary>Height speaker's position on the horizontal axis.</summary>
+        [Tooltip("Height speaker's position on the horizontal axis.")]
         [Range(-1, 1)] public float TopSpeakerHeight = 1;
 
         /// <summary>Peak decay rate multiplier.</summary>

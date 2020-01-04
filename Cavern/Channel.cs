@@ -4,9 +4,9 @@ using System;
 namespace Cavern {
     /// <summary>Spatially positioned audio output channel.</summary>
     public class Channel : IEquatable<Channel> {
-        /// <summary>Rotation around the X axis in degrees: height.</summary>
+        /// <summary>Rotation around the vertical axis in degrees: height.</summary>
         public float X { get; private set; }
-        /// <summary>Rotation around the Y axis in degrees.</summary>
+        /// <summary>Rotation around the horizontal axis in degrees.</summary>
         public float Y { get; private set; }
         /// <summary>True for channels carrying only Low Frequency Effects.</summary>
         public bool LFE;
@@ -22,16 +22,16 @@ namespace Cavern {
         public float Distance { get; private set; }
 
         /// <summary>Constructor for a channel with given rotation values.</summary>
-        /// <param name="x">Rotation around the X axis in degrees: height</param>
-        /// <param name="y">Rotation around the Y axis in degrees</param>
+        /// <param name="x">Rotation around the vertical axis in degrees: height</param>
+        /// <param name="y">Rotation around the horizontal axis in degrees</param>
         public Channel(float x, float y) {
             Move(x, y);
             LFE = false;
         }
 
         /// <summary>Constructor for a channel with given rotation values and LFE status.</summary>
-        /// <param name="x">Rotation around the X axis in degrees: height</param>
-        /// <param name="y">Rotation around the Y axis in degrees</param>
+        /// <param name="x">Rotation around the vertical axis in degrees: height</param>
+        /// <param name="y">Rotation around the horizontal axis in degrees</param>
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(float x, float y, bool LFE) {
             Move(x, y);
@@ -39,8 +39,8 @@ namespace Cavern {
         }
 
         /// <summary>Move this channel to a new position.</summary>
-        /// <param name="x">Rotation around the X axis in degrees: height</param>
-        /// <param name="y">Rotation around the Y axis in degrees</param>
+        /// <param name="x">Rotation around the vertical axis in degrees: height</param>
+        /// <param name="y">Rotation around the horizontal axis in degrees</param>
         public virtual void Move(float x, float y) {
             X = x;
             Y = y;
@@ -49,8 +49,8 @@ namespace Cavern {
         }
 
         /// <summary>Rotate this channel.</summary>
-        /// <param name="x">Rotation around the X axis in degrees: height</param>
-        /// <param name="y">Rotation around the Y axis in degrees</param>
+        /// <param name="x">Rotation around the vertical axis in degrees: height</param>
+        /// <param name="y">Rotation around the horizontal axis in degrees</param>
         public void Rotate(float x, float y) => Move(X + x, Y + y);
 
         /// <summary>Recalculates properties.</summary>

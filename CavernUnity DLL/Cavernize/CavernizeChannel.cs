@@ -1,9 +1,9 @@
 ﻿namespace Cavern.Cavernize {
     /// <summary>Named channel structure.</summary>
     class CavernizeChannel {
-        /// <summary>Y axis angle.</summary>
+        /// <summary>Horizontal axis angle.</summary>
         public readonly float Y;
-        /// <summary>X axis angle.</summary>
+        /// <summary>Vertical axis angle.</summary>
         public readonly float X;
         /// <summary>Channel name.</summary>
         public readonly string Name;
@@ -13,7 +13,7 @@
         public readonly bool Muted;
 
         /// <summary>Standard channel constructor.</summary>
-        /// <param name="y">Y axis angle</param>
+        /// <param name="y">Horizontal axis angle</param>
         /// <param name="name">Channel name</param>
         /// <param name="LFE">True if the channel is used for Low Frequency Effects</param>
         /// <param name="muted">Mute status</param>
@@ -26,8 +26,8 @@
         }
 
         /// <summary>Spatial channel constructor.</summary>
-        /// <param name="y">Y axis angle</param>
-        /// <param name="x">X axis angle</param>
+        /// <param name="y">Horizontal axis angle</param>
+        /// <param name="x">Vertical axis angle</param>
         /// <param name="name">Channel name</param>
         CavernizeChannel(float y, float x, string name) {
             Y = y;

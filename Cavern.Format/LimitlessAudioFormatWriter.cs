@@ -39,8 +39,8 @@ namespace Cavern.Format {
             writer.Write(new byte[] { bits == BitDepth.Int8 ? (byte)0 : (bits == BitDepth.Int16 ? (byte)1 : (byte)2), (byte)0 }); // Quality and channel mode indicator
             writer.Write(BitConverter.GetBytes(channelCount)); // Channel/object count
             for (int channel = 0; channel < channelCount; ++channel) { // Channel/object info
-                writer.Write(BitConverter.GetBytes(channels[channel].X)); // Rotation on X axis
-                writer.Write(BitConverter.GetBytes(channels[channel].Y)); // Rotation on Y axis
+                writer.Write(BitConverter.GetBytes(channels[channel].X)); // Rotation on vertical axis
+                writer.Write(BitConverter.GetBytes(channels[channel].Y)); // Rotation on horizontal axis
                 writer.Write(channels[channel].LFE ? (byte)1 : (byte)0); // Low frequency
             }
             writer.Write(BitConverter.GetBytes(sampleRate));

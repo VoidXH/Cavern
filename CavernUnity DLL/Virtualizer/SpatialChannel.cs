@@ -11,9 +11,9 @@ namespace Cavern.Virtualizer {
             /// <summary>Ear to ear sound travel time in samples.</summary>
             const float peakDelay = filterSampleRate * .14f /* subject head width in meters */ / Source.SpeedOfSound * Mathf.PI;
 
-            /// <summary>Virtual speaker angle difference from the subject's gaze on the x axis: elevation.</summary>
+            /// <summary>Virtual speaker angle difference from the subject's gaze on the vertical axis: elevation.</summary>
             public float X;
-            /// <summary>Virtual speaker angle difference from the subject's gaze on the y axis: azimuth.</summary>
+            /// <summary>Virtual speaker angle difference from the subject's gaze on the horizontal axis: azimuth.</summary>
             public float Y;
             /// <summary>Impulse response in the left ear.</summary>
             public float[] LeftEarIR;

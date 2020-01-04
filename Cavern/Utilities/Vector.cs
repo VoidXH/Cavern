@@ -33,7 +33,7 @@ namespace Cavern.Utilities {
             this.z = z;
         }
 
-        /// <summary>Rotate this vector by the X axis.</summary>
+        /// <summary>Rotate this vector by the vertical axis.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RotateX(float degrees) {
             degrees *= Deg2Rad;
@@ -42,7 +42,7 @@ namespace Cavern.Utilities {
             z = sin * y + cos * z;
         }
 
-        /// <summary>Rotate this vector by the Y axis.</summary>
+        /// <summary>Rotate this vector by the horizontal axis.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RotateY(float degrees) {
             degrees *= Deg2Rad;
