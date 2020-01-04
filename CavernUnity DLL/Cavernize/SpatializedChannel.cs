@@ -104,7 +104,7 @@ namespace Cavern.Cavernize {
                 if (Channel.Y != 0 || !MovingSource.Master.CenterStays || Channel.X != 0)
                     Height = QMath.Lerp(Height, maxHeight, smoothFactor);
                 else
-                    Height = 0;
+                    Height = Cavernizer.unsetHeight;
             }
         }
 
@@ -112,7 +112,10 @@ namespace Cavern.Cavernize {
             MovingRenderer.enabled = GroundRenderer.enabled = visualize;
             Vector position = Vector.PlaceInCube(new Vector(0, Channel.Y));
             position.Scale(Listener.EnvironmentSize);
-            position.y = Height * Listener.EnvironmentSize.y;
+            if (Height != Cavernizer.unsetHeight)
+                position.y = Height * Listener.EnvironmentSize.y;
+            else
+                position.y = 0;
             MovingSource.transform.localPosition = VectorUtils.VectorMatch(position);
         }
 
