@@ -1,5 +1,6 @@
-﻿using Cavern.Utilities;
-using System;
+﻿using System;
+
+using Cavern.Utilities;
 
 namespace Cavern {
     /// <summary>Spatially positioned audio output channel.</summary>
@@ -9,9 +10,15 @@ namespace Cavern {
         /// <summary>Rotation around the horizontal axis in degrees.</summary>
         public float Y { get; private set; }
         /// <summary>True for channels carrying only Low Frequency Effects.</summary>
-        public bool LFE;
+        public bool LFE {
+            get => lowFrequency;
+            set {
+                lowFrequency = value;
+                SymmetryCheck();
+            }
+        }
         /// <summary>This channel is part of the screen channels, and should be behind the screen in a theatre.</summary>
-        public bool IsScreenChannel => !LFE && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
+        public bool IsScreenChannel => !lowFrequency && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
         /// <summary>Position on a sphere with the radius of 1.</summary>
         public Vector SphericalPos { get; private set; }
         /// <summary>Position on a cube with a side length of 2.</summary>
@@ -21,21 +28,21 @@ namespace Cavern {
         /// <summary>The distance from the listener, relative to the center channel. Magnitude of <see cref="SpatialPos"/>.</summary>
         public float Distance { get; private set; }
 
+        /// <summary>True for channels carrying only Low Frequency Effects.</summary>
+        bool lowFrequency = false;
+
         /// <summary>Constructor for a channel with given rotation values.</summary>
         /// <param name="x">Rotation around the vertical axis in degrees: height</param>
         /// <param name="y">Rotation around the horizontal axis in degrees</param>
-        public Channel(float x, float y) {
-            Move(x, y);
-            LFE = false;
-        }
+        public Channel(float x, float y) => Move(x, y);
 
         /// <summary>Constructor for a channel with given rotation values and LFE status.</summary>
         /// <param name="x">Rotation around the vertical axis in degrees: height</param>
         /// <param name="y">Rotation around the horizontal axis in degrees</param>
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(float x, float y, bool LFE) {
+            lowFrequency = LFE;
             Move(x, y);
-            this.LFE = LFE;
         }
 
         /// <summary>Move this channel to a new position.</summary>
@@ -94,8 +101,8 @@ namespace Cavern {
                 int Next = i + 1;
                 if (Next != channelCount && Listener.Channels[i] != null && Listener.Channels[Next] != null)
                     Listener.IsSymmetric &=
-                        Listener.Channels[i].LFE ? Listener.Channels[Next].Y % 180 == 0 || Listener.Channels[Next].LFE :
-                        Listener.Channels[Next].LFE ? Listener.Channels[i].Y % 180 == 0 || Listener.Channels[i].LFE :
+                        Listener.Channels[i].lowFrequency ? Listener.Channels[Next].Y % 180 == 0 || Listener.Channels[Next].lowFrequency :
+                        Listener.Channels[Next].lowFrequency ? Listener.Channels[i].Y % 180 == 0 || Listener.Channels[i].lowFrequency :
                         (Listener.Channels[i].X == Listener.Channels[Next].X ? Listener.Channels[i].Y % 180 ==
                         -Listener.Channels[Next].Y % 180 : Listener.Channels[i].Y % 180 == 0 && Listener.Channels[Next].Y % 180 == 0);
             }
