@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
 using Cavern.Filters;
-using Cavern.Utilities;
 
 namespace Cavern.FilterInterfaces {
     /// <summary>Creates a spatial echo effect by bouncing sound on surfaces.</summary>
