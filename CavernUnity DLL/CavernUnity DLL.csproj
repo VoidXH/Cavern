@@ -62,7 +62,6 @@
     <Compile Include="AudioSource3D.cs" />
     <Compile Include="Cavern4D\Cavern4DBase.cs" />
     <Compile Include="Cavern4D\Seat4D.cs" />
-    <Compile Include="Cavernize\CavernizeChannel.cs" />
     <Compile Include="Cavernize\CavernizeOutput.cs" />
     <Compile Include="Cavernize\SpatializedChannel.cs" />
     <Compile Include="AudioClip3D.cs" />

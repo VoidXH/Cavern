@@ -10,13 +10,15 @@ using Cavern.Utilities;
 
 namespace Cavern {
     /// <summary>Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.</summary>
-    public class Listener {
+    public sealed class Listener {
         /// <summary>Cached version name.</summary>
         static string info;
         /// <summary>Version and creator information.</summary>
         public static string Info => info ?? (info = "Cavern v" +
             FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion +
             " by VoidX (cavern.sbence.hu)");
+        /// <summary>Default sample rate.</summary>
+        public const int defaultSampleRate = 48000;
 
         // ------------------------------------------------------------------
         // Renderer settings
@@ -81,7 +83,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Project sample rate (min. 44100).
         /// It's best to have all your audio clips in this sample rate for maximum performance.</summary>
-        public int SampleRate = 48000;
+        public int SampleRate = defaultSampleRate;
         /// <summary>Update interval in audio samples (min. 16).
         /// Lower values mean better interpolation, but require more processing power.</summary>
         public int UpdateRate = 240;

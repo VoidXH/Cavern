@@ -3,13 +3,14 @@ using UnityEngine;
 
 using Cavern.Filters;
 using Cavern.Helpers;
+using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Cavernize {
     /// <summary>All the data <see cref="Cavernizer"/> needs for a single channel.</summary>
     class SpatializedChannel {
         /// <summary>Channel position and type information.</summary>
-        public readonly CavernizeChannel Channel;
+        public readonly ChannelPrototype Channel;
         /// <summary>Crossover to split the moving and ground part.</summary>
         public readonly Crossover Filter;
         /// <summary>Samples to split between <see cref="MovingSource"/> and <see cref="GroundSource"/>.</summary>
@@ -40,7 +41,7 @@ namespace Cavern.Cavernize {
 
         void CreateSource(Cavernizer master, bool groundLevel) {
             GameObject newObject;
-            if (Channel != CavernizeChannel.ScreenLFE)
+            if (!Channel.Equals(ChannelPrototype.ScreenLFE))
                 newObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             else
                 newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -67,7 +68,7 @@ namespace Cavern.Cavernize {
             newObject.transform.localPosition = VectorUtils.VectorMatch(position);
         }
 
-        public SpatializedChannel(CavernizeChannel source, Cavernizer master, int updateRate) {
+        public SpatializedChannel(ChannelPrototype source, Cavernizer master, int updateRate) {
             Channel = source;
             Filter = new Crossover(AudioListener3D.Current.SampleRate, 250);
             Output = new float[updateRate];

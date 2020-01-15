@@ -2,7 +2,7 @@
 
 namespace Cavern {
     /// <summary>Wrapper for Cavern's audio content format to match Unity's <see cref="AudioClip"/> signature.</summary>
-    public class AudioClip3D : Clip {
+    public sealed class AudioClip3D : Clip {
 #pragma warning disable IDE1006 // Naming Styles
         /// <summary>The length of the clip in seconds.</summary>
         public float length { get; private set; }

@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Cavern.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -43,9 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Remapping\ChannelPrototype.cs" />
     <Compile Include="Clip.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Listener.cs" />
+    <Compile Include="Remapping\RemappedChannel.cs" />
+    <Compile Include="Remapping\Remapper.cs" />
     <Compile Include="Source.cs" />
     <Compile Include="Source_Asymmetric.cs" />
     <Compile Include="Source_Interface.cs" />

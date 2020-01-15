@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Cavernize {
@@ -79,7 +80,11 @@ namespace Cavern.Cavernize {
 
         // TODO: 9-16 CH WAV import
 
-        internal Dictionary<CavernizeChannel, SpatializedChannel> channels = new Dictionary<CavernizeChannel, SpatializedChannel>();
+        internal Dictionary<ChannelPrototype, SpatializedChannel> channels = new Dictionary<ChannelPrototype, SpatializedChannel>();
+
+        /// <summary>Possible upmix targets, always created.</summary>
+        static readonly ChannelPrototype[] UpmixTargets = { ChannelPrototype.FrontCenter, ChannelPrototype.SideLeft, ChannelPrototype.SideRight,
+            ChannelPrototype.RearLeft, ChannelPrototype.RearRight };
 
         void Start() {
             AudioListener3D listener = AudioListener3D.Current;
@@ -89,27 +94,27 @@ namespace Cavern.Cavernize {
             updateRate = listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
             clipSamples = new float[(clipChannels = Clip.channels) * ((clipLength = Clip.samples) + updateRate)];
             Clip.GetData(clipSamples, 0);
-            List<CavernizeChannel> targetChannels = new List<CavernizeChannel>();
-            foreach (CavernizeChannel upmixTarget in CavernizeChannel.UpmixTargets)
+            List<ChannelPrototype> targetChannels = new List<ChannelPrototype>();
+            foreach (ChannelPrototype upmixTarget in UpmixTargets)
                 targetChannels.Add(upmixTarget);
-            CavernizeChannel[] matrix = CavernizeChannel.StandardMatrix[clipChannels];
+            ChannelPrototype[] matrix = ChannelPrototype.StandardMatrix[clipChannels];
             for (int channel = 0; channel < matrix.Length; ++channel)
                 if (!targetChannels.Contains(matrix[channel]))
                     targetChannels.Add(matrix[channel]);
             for (int source = 0; source < targetChannels.Count; ++source)
                 channels[targetChannels[source]] = new SpatializedChannel(targetChannels[source], this, updateRate);
-            mains[0] = GetChannel(CavernizeChannel.FrontLeft);
-            mains[1] = GetChannel(CavernizeChannel.FrontRight);
-            mains[2] = GetChannel(CavernizeChannel.FrontCenter);
-            mains[3] = GetChannel(CavernizeChannel.ScreenLFE);
-            mains[4] = GetChannel(CavernizeChannel.RearLeft);
-            mains[5] = GetChannel(CavernizeChannel.RearRight);
-            mains[6] = GetChannel(CavernizeChannel.SideLeft);
-            mains[7] = GetChannel(CavernizeChannel.SideRight);
+            mains[0] = GetChannel(ChannelPrototype.FrontLeft);
+            mains[1] = GetChannel(ChannelPrototype.FrontRight);
+            mains[2] = GetChannel(ChannelPrototype.FrontCenter);
+            mains[3] = GetChannel(ChannelPrototype.ScreenLFE);
+            mains[4] = GetChannel(ChannelPrototype.RearLeft);
+            mains[5] = GetChannel(ChannelPrototype.RearRight);
+            mains[6] = GetChannel(ChannelPrototype.SideLeft);
+            mains[7] = GetChannel(ChannelPrototype.SideRight);
             GenerateSampleBlock();
         }
 
-        internal SpatializedChannel GetChannel(CavernizeChannel Target) {
+        internal SpatializedChannel GetChannel(ChannelPrototype Target) {
             if (channels.ContainsKey(Target))
                 return channels[Target];
             return null;
@@ -118,7 +123,7 @@ namespace Cavern.Cavernize {
         void GenerateSampleBlock() {
             AudioListener3D listener = AudioListener3D.Current;
             float smoothFactor = 1f - QMath.Lerp(updateRate, listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
-            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
+            foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
                 Array.Clear(channel.Value.Output, 0, updateRate);
             if (timeSamples >= clipLength) {
                 if (Loop)
@@ -130,11 +135,11 @@ namespace Cavern.Cavernize {
                 }
             }
             if (IsPlaying) {
-                foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> Channel in channels)
+                foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> Channel in channels)
                     Channel.Value.WrittenOutput = false;
                 // Load input channels
                 for (int channel = 0; channel < clipChannels; ++channel) {
-                    SpatializedChannel outputChannel = GetChannel(CavernizeChannel.StandardMatrix[clipChannels][channel]);
+                    SpatializedChannel outputChannel = GetChannel(ChannelPrototype.StandardMatrix[clipChannels][channel]);
                     float[] target = outputChannel.Output;
                     for (int offset = 0, srcOffset = timeSamples * clipChannels + channel; offset < updateRate; ++offset, srcOffset += clipChannels)
                         target[offset] = clipSamples[srcOffset] * Volume;
@@ -179,7 +184,7 @@ namespace Cavern.Cavernize {
             }
             // Overwrite channel data with new output, even if it's empty
             float effectMult = Effect * 15f;
-            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
+            foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
                 channel.Value.Tick(effectMult, smoothFactor, GroundCrossover, Visualize);
             timeSamples += updateRate;
         }
@@ -187,7 +192,7 @@ namespace Cavern.Cavernize {
         internal float[][] Tick(SpatializedChannel source, bool groundLevel) {
             if (source.TicksTook == 2) { // Both moving and ground source was fed
                 GenerateSampleBlock();
-                foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
+                foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
                     channel.Value.TicksTook = 0;
             }
             ++source.TicksTook;
@@ -195,7 +200,7 @@ namespace Cavern.Cavernize {
         }
 
         void OnDestroy() {
-            foreach (KeyValuePair<CavernizeChannel, SpatializedChannel> channel in channels)
+            foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
                 channel.Value.Destroy();
             AudioListener3D listener = AudioListener3D.Current;
             listener.SampleRate = oldSampleRate;

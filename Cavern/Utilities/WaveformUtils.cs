@@ -22,6 +22,17 @@ namespace Cavern.Utilities {
             }
         }
 
+        /// <summary>Extract a single channel from a multichannel audio stream</summary>
+        /// <param name="from">Source audio stream</param>
+        /// <param name="to">Destination channel data</param>
+        /// <param name="channel">Target channel</param>
+        /// <param name="channels">Channel count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ExtractChannel(float[] from, float[] to, int channel, int channels) {
+            for (int sample = 0, samples = from.Length / channels; sample < samples; ++sample)
+                to[sample] = from[sample * channels + channel];
+        }
+
         /// <summary>Multiplies all values in an array.</summary>
         /// <param name="target">Array reference</param>
         /// <param name="value">Multiplier</param>

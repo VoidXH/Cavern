@@ -2,6 +2,7 @@
 using UnityEngine;
 
 using Cavern.Cavernize;
+using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Cavern4D {
@@ -74,7 +75,7 @@ namespace Cavern.Cavern4D {
                 SeatMovements[lastRow][0].Height += CavernSource.mains[4].Height;
             if (CavernSource.mains[5] != null) // Rear right
                 SeatMovements[lastRow][lastColumn].Height += CavernSource.mains[5].Height;
-            SpatializedChannel rearCenter = CavernSource.GetChannel(CavernizeChannel.RearCenter);
+            SpatializedChannel rearCenter = CavernSource.GetChannel(ChannelPrototype.RearCenter);
             if (rearCenter != null) // Rear center
                 SeatMovements[lastRow][lastColumn / 2].Height = rearCenter.Height;
             // Use the front channels for moving all seats if nothing else is available for the rear sides

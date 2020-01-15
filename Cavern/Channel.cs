@@ -4,7 +4,7 @@ using Cavern.Utilities;
 
 namespace Cavern {
     /// <summary>Spatially positioned audio output channel.</summary>
-    public class Channel : IEquatable<Channel> {
+    public sealed class Channel : IEquatable<Channel> {
         /// <summary>Rotation around the vertical axis in degrees: height.</summary>
         public float X { get; private set; }
         /// <summary>Rotation around the horizontal axis in degrees.</summary>
@@ -48,7 +48,7 @@ namespace Cavern {
         /// <summary>Move this channel to a new position.</summary>
         /// <param name="x">Rotation around the vertical axis in degrees: height</param>
         /// <param name="y">Rotation around the horizontal axis in degrees</param>
-        public virtual void Move(float x, float y) {
+        public void Move(float x, float y) {
             X = x;
             Y = y;
             Recalculate();
@@ -109,6 +109,6 @@ namespace Cavern {
         }
 
         /// <summary>Check if two channels are the same.</summary>
-        public bool Equals(Channel other) => X == other.X && Y == other.Y;
+        public bool Equals(Channel other) => X == other.X && Y == other.Y && lowFrequency == other.lowFrequency;
     }
 }

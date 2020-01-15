@@ -15,12 +15,12 @@ namespace Cavern {
         /// <summary>x to the power of 8.</summary>
         /// <returns>x^8 the fastest way possible</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float PowTo8(float x) { x = x * x; x = x * x; return x * x; }
+        static float PowTo8(float x) { x *= x; x *= x; return x * x; }
 
         /// <summary>x to the power of 16.</summary>
         /// <returns>x^16 the fastest way possible</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float PowTo16(float x) { x = x * x; x = x * x; x = x * x; return x * x; }
+        static float PowTo16(float x) { x *= x; x *= x; x *= x; return x * x; }
 
         /// <summary>Angle match calculations.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

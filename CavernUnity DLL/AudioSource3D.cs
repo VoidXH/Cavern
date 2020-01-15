@@ -141,7 +141,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Start playback from the beginning of the <see cref="clip"/>.</summary>
         /// <param name="delaySamples">Optional delay in samples</param>
-        public void Play(ulong delaySamples = 0) => cavernSource.Play(delaySamples);
+        public void Play(long delaySamples = 0) => cavernSource.Play(delaySamples);
 
         /// <summary>Start playback from the beginning after the given time.</summary>
         /// <param name="seconds">Delay in seconds</param>
@@ -252,7 +252,7 @@ namespace Cavern {
             cavernSource.Mute = Mute;
             cavernSource.LFE = LFE;
             if (RandomPosition) {
-                cavernSource.RandomPosition = true;
+                cavernSource.RandomPosition();
                 RandomPosition = false;
             }
             cavernSource.Volume = Volume;

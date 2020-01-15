@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Cavern.QuickEQ {
     /// <summary>Equalizer data collector and exporter.</summary>
-    public class Equalizer {
+    public sealed class Equalizer {
         /// <summary>A single equalizer band.</summary>
         public struct Band {
             /// <summary>Position of the band.</summary>

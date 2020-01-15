@@ -5,7 +5,7 @@ using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
     /// <summary>Measures properties of a filter, like frequency/impulse response, gain, or delay.</summary>
-    public class FilterAnalyzer {
+    public sealed class FilterAnalyzer {
         /// <summary>Frequency response of the filter.</summary>
         public Complex[] FrequencyResponse {
             get {

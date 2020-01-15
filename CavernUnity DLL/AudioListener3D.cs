@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
+using Cavern.Remapping;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
@@ -51,7 +53,10 @@ namespace Cavern {
         /// <summary>Disable lowpass on the LFE channel.</summary>
         [Tooltip("Disable lowpass on the LFE channel.")]
         public bool DirectLFE = false;
-
+        /// <summary>Save performance by not remapping Unity's output to the user layout and only rendering Cavern sources.</summary>
+        /// <remarks>You should still use Unity's render engine for non-decompressed clips like background music to save memory.</remarks>
+        [Tooltip("Save performance by not remapping Unity's output to the user layout and only rendering Cavern sources.")]
+        public bool DisableUnityAudio = false;
 
         // ------------------------------------------------------------------
         // Compatibility
@@ -111,6 +116,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Cached <see cref="SampleRate"/> for change detection.</summary>
         static int cachedSampleRate = 0;
+        static Remapper remapper;
 
         // ------------------------------------------------------------------
         // Filter output
@@ -139,6 +145,7 @@ namespace Cavern {
             }
             Current = this;
             systemSampleRate = AudioSettings.GetConfiguration().sampleRate;
+            remapper = new Remapper(2, UpdateRate);
             ResetFunc();
         }
 
@@ -168,6 +175,14 @@ namespace Cavern {
                 return;
             if (ChannelCount != Listener.Channels.Length || cachedSampleRate != SampleRate)
                 ResetFunc();
+            if (!DisableUnityAudio) {
+                if (remapper.channels != unityChannels)
+                    remapper = new Remapper(unityChannels, unityBuffer.Length / unityChannels);
+                float[] remapped = remapper.Update(unityBuffer, unityChannels);
+                Array.Clear(unityBuffer, 0, unityBuffer.Length);
+                WaveformUtils.Downmix(remapped, ChannelCount, unityBuffer, unityChannels); // Output remapped Unity audio
+            } else
+                Array.Clear(unityBuffer, 0, unityBuffer.Length);
             // Append new samples to the filter output buffer
             int needed = unityBuffer.Length / unityChannels - bufferPosition / ChannelCount,
                 frames = needed * cachedSampleRate / systemSampleRate / UpdateRate + 1;
@@ -187,7 +202,7 @@ namespace Cavern {
             for (int bufferWrite = bufferPosition, renderPos = 0; bufferWrite < end; ++bufferWrite, ++renderPos)
                 filterOutput[bufferWrite] = Output[renderPos];
             bufferPosition = end;
-            WaveformUtils.Downmix(filterOutput, ChannelCount, unityBuffer, unityChannels); // Output audio
+            WaveformUtils.Downmix(filterOutput, ChannelCount, unityBuffer, unityChannels); // Output Cavern audio
             if (Normalizer != 0) // Normalize
                 WaveformUtils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
             // Remove used samples

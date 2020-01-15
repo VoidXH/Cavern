@@ -16,7 +16,7 @@ namespace Cavern {
         // Internal helpers
         // ------------------------------------------------------------------
         /// <summary>The <see cref="Listener"/> this source is attached to.</summary>
-        internal Listener listener;
+        protected internal Listener listener;
         /// <summary>Cached node from <see cref="Listener.activeSources"/> for faster detach.</summary>
         internal LinkedListNode<Source> listenerNode;
         /// <summary>Distance from the listener.</summary>
@@ -45,10 +45,10 @@ namespace Cavern {
         float[] samples = new float[0];
 
         /// <summary>Random number generator.</summary>
-        Random random = new Random();
+        readonly Random random = new Random();
 
         /// <summary>Remaining delay until starting playback.</summary>
-        ulong delay = 0;
+        long delay = 0;
 
         /// <summary>Keeps a value in the given array, if it's smaller than any of its contents.</summary>
         /// <param name="target">Array reference</param>
@@ -104,9 +104,9 @@ namespace Cavern {
         /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
         /// <returns>The collection should be performed, as all requirements are met</returns>
         protected internal virtual bool Precollect() {
-            if (RandomPosition) {
-                TimeSamples = random.Next(0, Clip.Samples);
-                RandomPosition = false;
+            if (delay > 0) {
+                delay -= listener.UpdateRate;
+                return false;
             }
             if (ArrayContains(listener.sourceDistances, listener.MaximumSources, distance)) {
                 if (listener.AudioQuality != QualityModes.Low) {
@@ -134,8 +134,6 @@ namespace Cavern {
                 int outputLength = Listener.Channels.Length * listener.UpdateRate;
                 if (rendered.Length != outputLength)
                     rendered = new float[outputLength];
-                if (delay > 0)
-                    delay -= (ulong)listener.UpdateRate;
                 return true;
             }
             Rendered = null;

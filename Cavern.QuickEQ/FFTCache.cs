@@ -31,14 +31,14 @@ namespace Cavern.QuickEQ {
             int log = QMath.Log2(size);
             for (int depth = 0; depth < log; ++depth) {
                 int depthSize = 1 << depth;
-                Even[depth] = new Complex[depthSize];
-                Odd[depth] = new Complex[depthSize];
+                globalEven[depth] = new Complex[depthSize];
+                globalOdd[depth] = new Complex[depthSize];
             }
         }
     }
 
     /// <summary>Thread-safe version of <see cref="FFTCache"/>. Uses its own split cache arrays. Use one instance per thread.</summary>
-    public class ThreadSafeFFTCache : FFTCache {
+    public sealed class ThreadSafeFFTCache : FFTCache {
         /// <summary>Preallocated even split arrays.</summary>
         internal override Complex[][] Even { get; } = new Complex[30][];
         /// <summary>Preallocated odd split arrays.</summary>
