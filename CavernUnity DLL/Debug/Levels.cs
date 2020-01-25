@@ -44,20 +44,6 @@ namespace Cavern.Debug {
             white.Apply();
         }
 
-        /// <summary>Get a color by hue value.</summary>
-        /// <param name="degrees">Hue value in degrees.</param>
-        static Color GetHueColor(float degrees) {
-            degrees %= 360;
-            if (degrees < 0)
-                degrees += 360f;
-            return degrees < 60 ? new Color(1f, degrees / 60f, 0f) :
-                degrees < 120 ? new Color(1f - (degrees - 60f) / 60f, 1f, 0f) :
-                degrees < 180 ? new Color(0, 1f, (degrees - 120f) / 60f) :
-                degrees < 240 ? new Color(0, 1f - (degrees - 180f) / 60f, 1f) :
-                degrees < 300 ? new Color((degrees - 240f) / 60f, 0f, 1f) :
-                new Color(1f, 0f, 1f - (degrees - 300f) / 60f);
-        }
-
         /// <summary>Create a new <see cref="ChannelLevelData"/> for each existing channels, and use the user-set color scheme.</summary>
         void RepaintChannels() {
             if (channelData.Length != Listener.Channels.Length) {
@@ -69,19 +55,7 @@ namespace Cavern.Debug {
                 if (channelData[channel].Color == null)
                     channelData[channel].Color = new Texture2D(1, 1);
                 channelData[channel].LastPos = VectorUtils.VectorMatch(Listener.Channels[channel].CubicalPos);
-                if (JackColoring) {
-                    channelData[channel].Color.SetPixel(0, 0, channel < 2 ? new Color(.596078431f, .984313725f, .596078431f, 1) :
-                        channel < 4 ? (Listener.Channels.Length <= 4 ? Color.black : new Color(1, .647058824f, 0, 1)) :
-                        channel < 6 ? Color.black :
-                        channel < 8 ? new Color(.75294117647f, .75294117647f, .75294117647f, 1) :
-                        new Color(0, .578125f, .75f, 1));
-                } else {
-                    Vector3 channelPos = channelData[channel].LastPos;
-                    Color targetColor = Listener.Channels[channel].LFE ? Color.black :
-                        GetHueColor(channelPos.z % 1 == 0 ? (channelPos.y + 1f) * channelPos.z * 45f + 180f : (channelPos.x * (channelPos.y + 1f) * 22.5f + 45f));
-                    targetColor = new Color(targetColor.r * .75f + .25f, targetColor.g * .75f + .25f, targetColor.b * .75f + .25f);
-                    channelData[channel].Color.SetPixel(0, 0, targetColor);
-                }
+                channelData[channel].Color.SetPixel(0, 0, ColorUtils.GetChannelColor(channel, jackColoring));
                 channelData[channel].Color.Apply();
             }
             oldJackColoring = JackColoring;

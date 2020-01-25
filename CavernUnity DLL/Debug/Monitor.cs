@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+using Cavern.Utilities;
+
 namespace Cavern.Debug {
     /// <summary>Visualizer for all objects.</summary>
     [AddComponentMenu("Audio/Debug/Monitor")]

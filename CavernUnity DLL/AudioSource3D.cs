@@ -2,6 +2,7 @@
 
 using Cavern.Filters;
 using Cavern.Helpers;
+using Cavern.Utilities;
 
 namespace Cavern {
     /// <summary>An audio object in 3D space, in stereo, or both.</summary>

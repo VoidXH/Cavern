@@ -30,16 +30,9 @@ namespace Cavern.Debug {
             LFE = 9;
         readonly static string[] markers = new string[] { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
         readonly static Color[] channelColors = new Color[] {
-            new Color(.596078431f, .984313725f, .596078431f, 1),
-            new Color(1, .647058824f, 0, 1),
-            new Color(.596078431f, .984313725f, .596078431f, 1),
-            new Color(.75294117647f, .75294117647f, .75294117647f, 1),
-            new Color(.75294117647f, .75294117647f, .75294117647f, 1),
-            Color.black,
-            Color.black,
-            new Color(0, .578125f, .75f, 1),
-            new Color(0, .578125f, .75f, 1),
-            Color.red
+            ColorUtils.frontJack, ColorUtils.centerJack, ColorUtils.frontJack,
+            ColorUtils.sideJack, ColorUtils.sideJack, Color.black, Color.black,
+            ColorUtils.CavernBlue, ColorUtils.CavernBlue, ColorUtils.centerJack
         };
         readonly ArrayLevelData[] channelData = new ArrayLevelData[channels];
 
