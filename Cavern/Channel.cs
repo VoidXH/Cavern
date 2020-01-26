@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
 
@@ -34,7 +35,7 @@ namespace Cavern {
         /// <summary>Constructor for a channel with given rotation values.</summary>
         /// <param name="x">Rotation around the vertical axis in degrees: height</param>
         /// <param name="y">Rotation around the horizontal axis in degrees</param>
-        public Channel(float x, float y) => Move(x, y);
+        public Channel(float x, float y) => SetPosition(x, y);
 
         /// <summary>Constructor for a channel with given rotation values and LFE status.</summary>
         /// <param name="x">Rotation around the vertical axis in degrees: height</param>
@@ -42,16 +43,14 @@ namespace Cavern {
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(float x, float y, bool LFE) {
             lowFrequency = LFE;
-            Move(x, y);
+            SetPosition(x, y);
         }
 
         /// <summary>Move this channel to a new position.</summary>
         /// <param name="x">Rotation around the vertical axis in degrees: height</param>
         /// <param name="y">Rotation around the horizontal axis in degrees</param>
         public void Move(float x, float y) {
-            X = x;
-            Y = y;
-            Recalculate();
+            SetPosition(x, y);
             SymmetryCheck();
         }
 
@@ -59,6 +58,14 @@ namespace Cavern {
         /// <param name="x">Rotation around the vertical axis in degrees: height</param>
         /// <param name="y">Rotation around the horizontal axis in degrees</param>
         public void Rotate(float x, float y) => Move(X + x, Y + y);
+
+        /// <summary>Set the position of the channel and do all neccessary processing.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SetPosition(float x, float y) {
+            X = x;
+            Y = y;
+            Recalculate();
+        }
 
         /// <summary>Recalculates properties.</summary>
         void Recalculate() {
@@ -88,7 +95,7 @@ namespace Cavern {
         }
 
         /// <summary>Recalculates symmetry when a channel's position is changed.</summary>
-        void SymmetryCheck() {
+        internal static void SymmetryCheck() {
             if (Listener.Channels == null)
                 return;
             Listener.IsSymmetric = true;

@@ -38,12 +38,12 @@ namespace Cavern {
         public static bool HeadphoneVirtualizer = false;
 
         /// <summary>Output channel layout. The default setup is the standard 5.1.</summary>
-        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
-        public static Channel[] Channels = { new Channel(0, -45), new Channel(0, 45), new Channel(0, 0),
-                                             new Channel(15, 15, true), new Channel(0, -110), new Channel(0, 110) };
+        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created.</remarks>
+        public static Channel[] Channels { get; private set; } = new Channel[]
+            { new Channel(0, -45), new Channel(0, 45), new Channel(0, 0), new Channel(15, 15, true), new Channel(0, -110), new Channel(0, 110) };
 
         /// <summary>Is the user's speaker layout symmetrical?</summary>
-        public static bool IsSymmetric { get; internal set; }
+        public static bool IsSymmetric { get; internal set; } = true;
 
         /// <summary>
         /// The single most important variable defining sound space in symmetric mode, the environment scaling. Originally set by the
@@ -121,28 +121,6 @@ namespace Cavern {
             }
         }
 
-        /// <summary>Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;, or simply
-        /// "Virtualization".</summary>
-        public static string GetLayoutName() {
-            if (HeadphoneVirtualizer)
-                return "Virtualization";
-            else {
-                int regular = 0, sub = 0, ceiling = 0, floor = 0;
-                for (int channel = 0; channel < Channels.Length; ++channel)
-                    if (Channels[channel].LFE) ++sub;
-                    else if (Channels[channel].X == 0) ++regular;
-                    else if (Channels[channel].X < 0) ++ceiling;
-                    else if (Channels[channel].X > 0) ++floor;
-                StringBuilder layout = new StringBuilder(regular.ToString()).Append('.').Append(sub);
-                if (ceiling > 0 || floor > 0) layout.Append('.').Append(ceiling);
-                if (floor > 0) layout.Append('.').Append(floor);
-                return layout.ToString();
-            }
-        }
-
-        /// <summary>Implicit null check.</summary>
-        public static implicit operator bool(Listener listener) => listener != null;
-
         /// <summary>Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.</summary>
         public Listener() {
             string fileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
@@ -190,6 +168,38 @@ namespace Cavern {
                 return multiframeBuffer;
             }
         }
+
+        // ------------------------------------------------------------------
+        // Public static functions
+        // ------------------------------------------------------------------
+        /// <summary>Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;, or simply
+        /// "Virtualization".</summary>
+        public static string GetLayoutName() {
+            if (HeadphoneVirtualizer)
+                return "Virtualization";
+            else {
+                int regular = 0, sub = 0, ceiling = 0, floor = 0;
+                for (int channel = 0; channel < Channels.Length; ++channel)
+                    if (Channels[channel].LFE) ++sub;
+                    else if (Channels[channel].X == 0) ++regular;
+                    else if (Channels[channel].X < 0) ++ceiling;
+                    else if (Channels[channel].X > 0) ++floor;
+                StringBuilder layout = new StringBuilder(regular.ToString()).Append('.').Append(sub);
+                if (ceiling > 0 || floor > 0) layout.Append('.').Append(ceiling);
+                if (floor > 0) layout.Append('.').Append(floor);
+                return layout.ToString();
+            }
+        }
+
+        /// <summary>Replace the channel layout.</summary>
+        /// <remarks>If you're making your own configurator, don't forget to overwrite the Cavern configuration file.</remarks>
+        public static void ReplaceChannels(Channel[] channels) {
+            Channels = channels;
+            Channel.SymmetryCheck();
+        }
+
+        /// <summary>Implicit null check.</summary>
+        public static implicit operator bool(Listener listener) => listener != null;
 
         // ------------------------------------------------------------------
         // Private variables

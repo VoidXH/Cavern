@@ -48,7 +48,7 @@ namespace Cavern.Virtualizer {
                         right = channel;
                 }
             }
-            Listener.Channels = newChannels;
+            Listener.ReplaceChannels(newChannels);
             originalSplit = new float[spatialChannels.Length][];
             leftSplit = new float[spatialChannels.Length][];
             rightSplit = new float[spatialChannels.Length][];
