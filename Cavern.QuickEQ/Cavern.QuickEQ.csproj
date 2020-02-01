@@ -43,11 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EQCurves\CurveFunction.cs" />
+    <Compile Include="EQCurves\Depth.cs" />
+    <Compile Include="EQCurves\EQCurve.cs" />
+    <Compile Include="EQCurves\Flat.cs" />
+    <Compile Include="EQCurves\Punch.cs" />
+    <Compile Include="EQCurves\XCurve.cs" />
     <Compile Include="FilterAnalyzer.cs" />
     <Compile Include="Measurements.cs" />
     <Compile Include="NoiseGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Curves.cs" />
     <Compile Include="Equalizer.cs" />
     <Compile Include="FFTCache.cs" />
     <Compile Include="GraphUtils.cs" />
