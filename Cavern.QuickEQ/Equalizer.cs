@@ -1,6 +1,8 @@
-﻿using Cavern.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using Cavern.QuickEQ.EQCurves;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
     /// <summary>Equalizer data collector and exporter.</summary>
@@ -121,26 +123,26 @@ namespace Cavern.QuickEQ {
         /// strongly recommended</param>
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
         /// <param name="endFreq">Frequency at the end of the graph</param>
-        /// <param name="referenceCurve">Match the frequency response to this logarithmic curve of any length, one value means a flat response</param>
+        /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
         /// <param name="resolution">Band diversity in octaves</param>
+        /// <param name="targetGain">Target EQ level</param>
         /// <param name="maxGain">Maximum gain of any generated band</param>
-        public static Equalizer CorrectGraph(float[] graph, float startFreq, float endFreq, float[] referenceCurve, float resolution = 1 / 3f, float maxGain = 6) {
+        public static Equalizer CorrectGraph(float[] graph, float startFreq, float endFreq, EQCurve targetCurve, float targetGain,
+            float resolution = 1 / 3f, float maxGain = 6) {
             Equalizer result = new Equalizer();
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length,
-                octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2), bands = octaveRange / resolution + 1,
-                refPositioner = referenceCurve.Length / (double)graph.Length;
+                octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2), bands = octaveRange / resolution + 1;
             int windowSize = graph.Length / (int)bands, windowEdge = windowSize / 2;
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
-                int refPos = (int)(pos * refPositioner);
                 float centerFreq = (float)Math.Pow(10, startPow + powRange * pos), average = 0;
                 int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, graph.Length);
                 for (int sample = start; sample < end; ++sample)
                     average += graph[sample];
-                float addition = referenceCurve[refPos] - average / (end - start);
+                float addition = targetCurve.At(centerFreq) + targetGain - average / (end - start);
                 if (addition <= maxGain)
                     result.bands.Add(new Band(centerFreq, addition));
             }
-            result.bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
+            result.bands.Reverse();
             return result;
         }
 
@@ -150,13 +152,14 @@ namespace Cavern.QuickEQ {
         /// strongly recommended</param>
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
         /// <param name="endFreq">Frequency at the end of the graph</param>
-        /// <param name="referenceCurve">Match the frequency response to this logarithmic curve of any length, one value means a flat response</param>
+        /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
+        /// <param name="targetGain">Target EQ level</param>
         /// <param name="maxGain">Maximum gain of any generated band</param>
-        public static Equalizer AutoCorrectGraph(float[] graph, float startFreq, float endFreq, float[] referenceCurve, float maxGain = 6) {
+        public static Equalizer AutoCorrectGraph(float[] graph, float startFreq, float endFreq, EQCurve targetCurve, float targetGain,
+            float maxGain = 6) {
             Equalizer result = new Equalizer();
             int length = graph.Length;
-            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / length,
-                refPositioner = referenceCurve.Length / (double)length;
+            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / length;
             List<int> windowEdges = new List<int>(new int[] { 0 });
             for (int sample = 1, End = length - 1; sample < End; ++sample) {
                 float lower = graph[sample - 1], Upper = graph[sample + 1];
@@ -165,11 +168,10 @@ namespace Cavern.QuickEQ {
             }
             for (int sample = 0, End = windowEdges.Count - 1; sample < End; ++sample) {
                 int windowPos = windowEdges[sample];
-                float refGain = referenceCurve[(int)(windowPos * refPositioner)];
+                float frequency = (float)Math.Pow(10, startPow + powRange * windowPos), refGain = targetCurve.At(frequency) + targetGain;
                 if (graph[windowPos] > refGain - maxGain)
-                    result.bands.Add(new Band((float)Math.Pow(10, startPow + powRange * windowPos), refGain - graph[windowPos]));
+                    result.bands.Add(new Band(frequency, refGain - graph[windowPos]));
             }
-            result.bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
             return result;
         }
     }
