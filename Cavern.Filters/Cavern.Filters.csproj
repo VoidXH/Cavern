@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Allpass.cs" />
     <Compile Include="Bandpass.cs" />
+    <Compile Include="BandpassFlat.cs" />
     <Compile Include="BiquadFilter.cs" />
     <Compile Include="Comb.cs" />
     <Compile Include="ComplexFilter.cs" />

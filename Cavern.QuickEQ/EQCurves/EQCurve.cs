@@ -21,6 +21,8 @@ namespace Cavern.QuickEQ.EQCurves {
                     return new Punch();
                 case CurveFunction.Depth:
                     return new Depth();
+                case CurveFunction.Bandpass:
+                    throw new Exception("Bandpass EQ should be created with its constructor.");
                 default:
                     return new Flat();
             }

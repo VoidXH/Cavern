@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EQCurves\Bandpass.cs" />
     <Compile Include="EQCurves\CurveFunction.cs" />
     <Compile Include="EQCurves\Depth.cs" />
     <Compile Include="EQCurves\EQCurve.cs" />

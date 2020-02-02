@@ -8,6 +8,8 @@
         /// <summary>Adds a bass bump for punch emphasis.</summary>
         Punch,
         /// <summary>Adds a sub-bass slope for depth emphasis.</summary>
-        Depth
+        Depth,
+        /// <summary>Bandpass EQ curve, recommended for stage subwoofers.</summary>
+        Bandpass
     }
 }
