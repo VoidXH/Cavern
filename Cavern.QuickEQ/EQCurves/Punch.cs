@@ -51,8 +51,8 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="endFreq">Frequency at the end of the curve</param>
         public override float[] GenerateLogCurve(int length, float startFreq, float endFreq) {
             float[] curve = new float[length];
-            float freqHere = startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length), powerMin = (float)Math.Log10(startFreq),
-                at120 = (int)((log10_120 - powerMin) / (Math.Log10(endFreq) - powerMin) * length);
+            float freqHere = startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length), powerMin = (float)Math.Log10(startFreq);
+            int at120 = (int)((log10_120 - powerMin) / (Math.Log10(endFreq) - powerMin) * length);
             for (int pos = 0; pos < at120; ++pos) {
                 curve[pos] = (float)(1 - Math.Cos(2 * Math.PI / 120 * freqHere)) * 6;
                 freqHere *= multiplier;
@@ -68,12 +68,14 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, float, float)"/>, it's faster.</remarks>
         public override float[] GenerateLogCurve(int length, float startFreq, float endFreq, float gain) {
             float[] curve = new float[length];
-            float freqHere = startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length), powerMin = (float)Math.Log10(startFreq),
-                at120 = (int)((log10_120 - powerMin) / (Math.Log10(endFreq) - powerMin) * length);
+            float freqHere = startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length), powerMin = (float)Math.Log10(startFreq);
+            int at120 = (int)((log10_120 - powerMin) / (Math.Log10(endFreq) - powerMin) * length);
             for (int pos = 0; pos < at120; ++pos) {
                 curve[pos] = (float)(1 - Math.Cos(2 * Math.PI / 120 * freqHere)) * 6 + gain;
                 freqHere *= multiplier;
             }
+            for (int pos = at120; pos < length; ++pos)
+                curve[pos] = gain;
             return curve;
         }
     }
