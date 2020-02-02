@@ -7,15 +7,19 @@ namespace Cavern.QuickEQ.EQCurves {
         const float log10_2000 = 3.30102999566f;
         /// <summary>Hardcoded log10(10000) (high knee position), as C# compilers don't optimize this.</summary>
         const float log10_10000 = 4;
+        /// <summary>Hardcoded log10(10000) - log10(2000) for mid slope division.</summary>
+        const float midDiv = .69897000433f;
+        /// <summary>Hardcoded log10(20000) - log10(10000) for high slope division.</summary>
+        const float highDiv = .30102999566f;
 
         /// <summary>Get the curve's gain in decibels at a given frequency.</summary>
         public override float At(float frequency) {
             if (frequency < 2000)
                 return 0;
-            else if (frequency < 10000)
-                return -6 / 8000f * (frequency - 2000);
+            if (frequency < 10000)
+                return -6 * (float)((Math.Log(frequency, 10) - log10_2000) / midDiv);
             else
-                return -6 / 10000f * (frequency - 10000) - 6;
+                return -6 * (float)((Math.Log(frequency, 10) - log10_10000) / highDiv) - 6;
         }
 
         /// <summary>Generate a linear curve for correction generators.</summary>
@@ -68,7 +72,7 @@ namespace Cavern.QuickEQ.EQCurves {
         public override float[] GenerateLogCurve(int length, float startFreq, float endFreq) {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = (Math.Log10(endFreq) - powerMin) / length;
-            int midKnee = (int)((log10_2000 - powerMin) / length), highKnee = (int)((log10_10000 - powerMin) / length);
+            int midKnee = (int)((log10_2000 - powerMin) / powerRange), highKnee = (int)((log10_10000 - powerMin) / powerRange);
             if (highKnee > length) {
                 highKnee = length;
                 if (midKnee > length)
