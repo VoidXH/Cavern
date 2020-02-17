@@ -51,7 +51,7 @@ namespace Cavern.QuickEQ {
             get {
                 if (ResultAvailable)
                     return 1;
-                else if (!enabled)
+                else if (!enabled || sweepers == null)
                     return 0;
                 return (float)sweepers[Listener.Channels.Length - 1].timeSamples / SweepReference.Length / Listener.Channels.Length;
             }
