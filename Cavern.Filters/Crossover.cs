@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace Cavern.Filters {
-    /// <summary>Simple second-order crossover.</summary>
+    /// <summary>Simple variable-order crossover.</summary>
     public class Crossover : Filter {
         /// <summary>Crossover frequency.</summary>
         public float Frequency {
@@ -42,7 +42,7 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>Simple second-order crossover.</summary>
+        /// <summary>Simple variable-order crossover.</summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="frequency">Crossover frequency</param>
         /// <param name="order">Number of filters per pass, 2 is recommended for mixing notch prevention</param>
