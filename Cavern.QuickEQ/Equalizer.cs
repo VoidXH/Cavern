@@ -10,14 +10,14 @@ namespace Cavern.QuickEQ {
         /// <summary>A single equalizer band.</summary>
         public struct Band {
             /// <summary>Position of the band.</summary>
-            public double Frequency;
-            /// <summary>Gain at <see cref="Frequency"/> in dB.</summary>
-            public double Gain;
+            public readonly double frequency;
+            /// <summary>Gain at <see cref="frequency"/> in dB.</summary>
+            public readonly double gain;
 
             /// <summary>EQ band constructor.</summary>
             public Band(double frequency, double gain) {
-                Frequency = frequency;
-                Gain = gain;
+                this.frequency = frequency;
+                this.gain = gain;
             }
         }
 
@@ -47,29 +47,42 @@ namespace Cavern.QuickEQ {
                     if (bands.Count > 0)
                         bands.RemoveAt(0);
                 } else if (!subsonicFilter && value && bands.Count > 0)
-                    AddBand(new Band(bands[0].Frequency * .5f, bands[0].Gain - subsonicRolloff));
+                    AddBand(new Band(bands[0].frequency * .5f, bands[0].gain - subsonicRolloff));
                 subsonicFilter = value;
             }
         }
         bool subsonicFilter = false;
 
+        /// <summary>The highest gain in this EQ.</summary>
+        public double PeakGain { get; private set; }
+
         /// <summary>Add a new band to the EQ.</summary>
-        public void AddBand(Band NewBand) {
+        public void AddBand(Band newBand) {
             bool subFiltered = subsonicFilter;
             if (subFiltered)
                 SubsonicFilter = false;
-            bands.Add(NewBand);
-            bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
+            if (bands.Count == 0 || PeakGain < newBand.gain)
+                PeakGain = newBand.gain;
+            bands.Add(newBand);
+            bands.Sort((a, b) => a.frequency.CompareTo(b.frequency));
             if (subFiltered)
                 SubsonicFilter = true;
         }
 
         /// <summary>Remove a band from the EQ.</summary>
-        public void RemoveBand(Band Removable) {
+        public void RemoveBand(Band removable) {
             bool subFiltered = subsonicFilter;
             if (subFiltered)
                 SubsonicFilter = false;
-            bands.Remove(Removable);
+            bands.Remove(removable);
+            if (bands.Count == 0)
+                PeakGain = 0;
+            else if (PeakGain == removable.gain) {
+                PeakGain = bands[0].gain;
+                for (int band = 1, count = bands.Count; band < count; ++band)
+                    if (PeakGain > bands[band].gain)
+                        PeakGain = bands[band].gain;
+            }
             if (subFiltered)
                 SubsonicFilter = true;
         }
@@ -79,6 +92,7 @@ namespace Cavern.QuickEQ {
             bool subFiltered = subsonicFilter;
             if (subFiltered)
                 SubsonicFilter = false;
+            PeakGain = 0;
             bands.Clear();
             if (subFiltered)
                 SubsonicFilter = true;
@@ -94,13 +108,13 @@ namespace Cavern.QuickEQ {
             if (bandCount == 0)
                 return result;
             GraphUtils.ForEachLog(result, startFreq, endFreq, (double freq, ref float value) => {
-                while (nextBand != bandCount && bands[nextBand].Frequency < freq)
+                while (nextBand != bandCount && bands[nextBand].frequency < freq)
                     prevBand = ++nextBand - 1;
                 if (nextBand != bandCount && nextBand != 0)
-                    value = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
-                        QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, freq));
+                    value = (float)QMath.Lerp(bands[prevBand].gain, bands[nextBand].gain,
+                        QMath.LerpInverse(bands[prevBand].frequency, bands[nextBand].frequency, freq));
                 else
-                    value = (float)bands[prevBand].Gain;
+                    value = (float)bands[prevBand].gain;
             });
             return result;
         }
@@ -161,12 +175,12 @@ namespace Cavern.QuickEQ {
             int length = graph.Length;
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / length;
             List<int> windowEdges = new List<int>(new int[] { 0 });
-            for (int sample = 1, End = length - 1; sample < End; ++sample) {
+            for (int sample = 1, end = length - 1; sample < end; ++sample) {
                 float lower = graph[sample - 1], Upper = graph[sample + 1];
                 if ((lower < graph[sample] && Upper > graph[sample]) || (lower > graph[sample] && Upper < graph[sample]))
                     windowEdges.Add(sample);
             }
-            for (int sample = 0, End = windowEdges.Count - 1; sample < End; ++sample) {
+            for (int sample = 0, end = windowEdges.Count - 1; sample < end; ++sample) {
                 int windowPos = windowEdges[sample];
                 float frequency = (float)Math.Pow(10, startPow + powRange * windowPos), refGain = targetCurve.At(frequency) + targetGain;
                 if (graph[windowPos] > refGain - maxGain)
