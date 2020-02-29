@@ -7,6 +7,8 @@ namespace Cavern.QuickEQ.EQCurves {
         readonly float positioner;
         /// <summary>Precalculated EQ spectrum.</summary>
         readonly float[] spectrum;
+        /// <summary>Bandpass gain loss compensation.</summary>
+        readonly float gain;
 
         /// <summary>Bandpass EQ curve, recommended for stage subwoofers.</summary>
         /// <param name="lowFreq">Low frequency (highpass) cutoff knee</param>
@@ -16,16 +18,17 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="order">Each order increases the slope with 6 dB/octave</param>
         /// <param name="gain">Filter gain</param>
-        public Bandpass(float lowFreq, float highFreq, int sampleRate, int resolution, float q = .7071067811865475f, int order = 1, float gain = 0) {
+        public Bandpass(float lowFreq, float highFreq, int sampleRate, int resolution, float q = .7071067811865475f, int order = 1, float gain = 6) {
             positioner = resolution * 2f / sampleRate;
             float[] reference = Measurements.ExponentialSweep(20, sampleRate * .5f, resolution * 2, sampleRate), response = (float[])reference.Clone();
-            BandpassFlat filter = new BandpassFlat(lowFreq, highFreq, sampleRate, q, order, gain);
+            BandpassFlat filter = new BandpassFlat(lowFreq, highFreq, sampleRate, q, order);
             filter.Process(response);
             spectrum = Measurements.GetSpectrum(Measurements.GetFrequencyResponse(reference, response));
             GraphUtils.ConvertToDecibels(spectrum);
+            this.gain = gain;
         }
 
         /// <summary>Get the curve's gain in decibels at a given frequency.</summary>
-        public override float At(float frequency) => spectrum[(int)(frequency * positioner)];
+        public override float At(float frequency) => spectrum[(int)(frequency * positioner)] + gain;
     }
 }

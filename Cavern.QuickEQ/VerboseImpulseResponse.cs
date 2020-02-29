@@ -35,10 +35,10 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
-        int delay = -1;
         /// <summary>Raw impulse response on the complex plane.</summary>
         float[] response = null;
+        /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
+        int delay = -1;
         /// <summary>Peaks in the impulse response.</summary>
         /// <remarks>Calculated when <see cref="GetPeak(int)"/> is called.</remarks>
         Peak[] peaks = null;
