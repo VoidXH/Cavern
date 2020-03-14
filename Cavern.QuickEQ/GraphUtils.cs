@@ -24,7 +24,7 @@ namespace Cavern.QuickEQ {
         /// <param name="endFreq">Frequency at the last element of the array</param>
         /// <param name="action">Performed action</param>
         public static void ForEachLog<T>(T[] source, double startFreq, double endFreq, FrequencyFunction<T> action) {
-            double startLog = Math.Log10(startFreq), endLog = Math.Log10(endFreq), mul = Math.Pow(10, (endLog - startLog) / (source.Length - 1));
+            double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (source.Length - 1));
             for (int i = 0; i < source.Length; ++i) {
                 action(startFreq, ref source[i]);
                 startFreq *= mul;
@@ -47,9 +47,12 @@ namespace Cavern.QuickEQ {
         /// <param name="sampleRate">Sample rate of the measurement that generated the curve</param>
         /// <param name="resultSize">Length of the resulting array</param>
         public static float[] ConvertToGraph(float[] samples, double startFreq, double endFreq, int sampleRate, int resultSize) {
-            double freqRange = endFreq - startFreq, nyquist = sampleRate / 2.0;
             float[] graph = new float[resultSize];
-            ForEachLog(graph, startFreq, endFreq, (double freq, ref float value) => value = samples[(int)(samples.Length * freq / nyquist)]);
+            double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (graph.Length - 1)), nyquist = sampleRate / 2.0;
+            for (int i = 0; i < graph.Length; ++i) {
+                graph[i] = samples[(int)(samples.Length * startFreq / nyquist)];
+                startFreq *= mul;
+            }
             return graph;
         }
 
@@ -81,7 +84,8 @@ namespace Cavern.QuickEQ {
             return smoothed;
         }
 
-        /// <summary>Apply variable smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.</summary>
+        /// <summary>Apply variable smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
+        /// </summary>
         public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float startOctave, float endOctave) {
             float[] startGraph = SmoothGraph(samples, startFreq, endFreq, startOctave), endGraph = SmoothGraph(samples, startFreq, endFreq, endOctave),
                 output = new float[samples.Length];
