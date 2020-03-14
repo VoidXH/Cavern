@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 
 using Cavern.Filters;
 using Cavern.Utilities;
@@ -11,8 +12,7 @@ namespace Cavern.QuickEQ {
             get {
                 if (!float.IsNaN(gain))
                     return gain;
-                CreateSpectrum();
-                gain = spectrum[0];
+                gain = Spectrum[0];
                 for (int i = 1; i < spectrum.Length; ++i)
                     if (gain < spectrum[i])
                         gain = spectrum[i];
@@ -39,15 +39,23 @@ namespace Cavern.QuickEQ {
                 return frequencyResponse = Measurements.GetFrequencyResponse(reference, response);
             }
         }
+        Complex[] frequencyResponse;
+
+        /// <summary>Absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
+        float[] Spectrum {
+            get {
+                if (spectrum == null)
+                    spectrum = Measurements.GetSpectrum(FrequencyResponse);
+                return spectrum;
+            }
+        }
+        float[] spectrum;
+
         /// <summary>Impulse response processor.</summary>
         VerboseImpulseResponse Impulse => impulse ?? (impulse = new VerboseImpulseResponse(FrequencyResponse));
 
-        /// <summary>Cached <see cref="FrequencyResponse"/>.</summary>
-        Complex[] frequencyResponse;
         /// <summary>Cached <see cref="Gain"/>.</summary>
         float gain = float.NaN;
-        /// <summary>Absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
-        float[] spectrum;
         /// <summary>Cached <see cref="Impulse"/>.</summary>
         VerboseImpulseResponse impulse;
 
@@ -64,19 +72,16 @@ namespace Cavern.QuickEQ {
             this.sampleRate = sampleRate;
         }
 
-        /// <summary>Generate <see cref="spectrum"/> if it doesn't exist.</summary>
-        void CreateSpectrum() {
-            if (spectrum == null)
-                spectrum = Measurements.GetSpectrum(FrequencyResponse);
-        }
-
         /// <summary>Fet the frequency response of the filter.</summary>
         public Complex[] GetFrequencyResponse() => (Complex[])FrequencyResponse.Clone();
 
+        /// <summary>Fet the frequency response of the filter.</summary>
+        public ReadOnlyCollection<Complex> GetFrequencyResponseReadonly() => Array.AsReadOnly(FrequencyResponse);
+
         /// <summary>Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
-        public float[] GetSpectrum() {
-            CreateSpectrum();
-            return (float[])spectrum.Clone();
-        }
+        public float[] GetSpectrum() => (float[])Spectrum.Clone();
+
+        /// <summary>Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
+        public ReadOnlyCollection<float> GetSpectrumReadonly() => Array.AsReadOnly(Spectrum);
     }
 }
