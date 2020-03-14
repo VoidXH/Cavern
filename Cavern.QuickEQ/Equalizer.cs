@@ -56,6 +56,13 @@ namespace Cavern.QuickEQ {
         /// <summary>The highest gain in this EQ.</summary>
         public double PeakGain { get; private set; }
 
+        void RecalculatePeakGain() {
+            PeakGain = bands[0].Gain;
+            for (int band = 1, count = bands.Count; band < count; ++band)
+                if (PeakGain < bands[band].Gain)
+                    PeakGain = bands[band].Gain;
+        }
+
         /// <summary>Add a new band to the EQ.</summary>
         public void AddBand(Band newBand) {
             bool subFiltered = subsonicFilter;
@@ -77,12 +84,8 @@ namespace Cavern.QuickEQ {
             bands.Remove(removable);
             if (bands.Count == 0)
                 PeakGain = 0;
-            else if (PeakGain == removable.Gain) {
-                PeakGain = bands[0].Gain;
-                for (int band = 1, count = bands.Count; band < count; ++band)
-                    if (PeakGain > bands[band].Gain)
-                        PeakGain = bands[band].Gain;
-            }
+            else if (PeakGain == removable.Gain)
+                RecalculatePeakGain();
             if (subFiltered)
                 SubsonicFilter = true;
         }
@@ -157,6 +160,7 @@ namespace Cavern.QuickEQ {
                     result.bands.Add(new Band(centerFreq, addition));
             }
             result.bands.Reverse();
+            result.RecalculatePeakGain();
             return result;
         }
 
@@ -186,6 +190,7 @@ namespace Cavern.QuickEQ {
                 if (graph[windowPos] > refGain - maxGain)
                     result.bands.Add(new Band(frequency, refGain - graph[windowPos]));
             }
+            result.RecalculatePeakGain();
             return result;
         }
     }
