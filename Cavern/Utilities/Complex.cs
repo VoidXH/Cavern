@@ -47,6 +47,14 @@ namespace Cavern.Utilities {
                 (lhs.Imaginary * rhs.Real - lhs.Real * rhs.Imaginary) * multiplier);
         }
 
+        /// <summary>Convert a float array to complex.</summary>
+        public static Complex[] Parse(float[] source) {
+            Complex[] result = new Complex[source.Length];
+            for (int i = 0; i < source.Length; ++i)
+                result[i].Real = source[i];
+            return result;
+        }
+
         /// <summary>Multiply with another complex number.</summary>
         public void Multiply(ref Complex rhs) {
             float oldReal = Real;
