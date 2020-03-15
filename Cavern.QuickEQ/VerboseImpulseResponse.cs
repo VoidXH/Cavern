@@ -7,8 +7,16 @@ namespace Cavern.QuickEQ {
     /// <summary>Contains an impulse response and data that can be calculated from it.</summary>
     public sealed class VerboseImpulseResponse {
         /// <summary>Raw impulse response on the complex plane.</summary>
-        public readonly Complex[] ComplexResponse;
-        /// <summary>Raw impulse response samples.</summary>
+        public Complex[] ComplexResponse {
+            get {
+                if (complexResponse != null)
+                    return complexResponse;
+                return complexResponse = Complex.Parse(response);
+            }
+        }
+        Complex[] complexResponse = null;
+
+        /// <summary>Raw impulse response on the real plane.</summary>
         public float[] Response {
             get {
                 if (response != null)
@@ -16,6 +24,8 @@ namespace Cavern.QuickEQ {
                 return response = Measurements.GetRealPart(ComplexResponse);
             }
         }
+        float[] response = null;
+
         /// <summary>Impulse polarity, true if positive.</summary>
         public bool Polarity => Response[Delay] >= 0;
         /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
@@ -35,8 +45,6 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Raw impulse response on the complex plane.</summary>
-        float[] response = null;
         /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
         int delay = -1;
         /// <summary>Peaks in the impulse response.</summary>
@@ -44,7 +52,10 @@ namespace Cavern.QuickEQ {
         Peak[] peaks = null;
 
         /// <summary>Create a verbose impulse response from a precalculated impulse response.</summary>
-        public VerboseImpulseResponse(Complex[] impulseResponse) => ComplexResponse = impulseResponse;
+        public VerboseImpulseResponse(Complex[] impulseResponse) => complexResponse = impulseResponse;
+
+        /// <summary>Create a verbose impulse response from a precalculated impulse response.</summary>
+        public VerboseImpulseResponse(float[] impulseResponse) => response = impulseResponse;
 
         /// <summary>Create a verbose impulse response from a reference signal and a recorded response.</summary>
         public VerboseImpulseResponse(float[] reference, float[] response) : this(Measurements.IFFT(Measurements.GetFrequencyResponse(reference, response))) { }
