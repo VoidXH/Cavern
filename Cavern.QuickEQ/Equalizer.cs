@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 
 using Cavern.QuickEQ.EQCurves;
 using Cavern.Utilities;
@@ -193,5 +195,23 @@ namespace Cavern.QuickEQ {
             result.RecalculatePeakGain();
             return result;
         }
+
+        /// <summary>Parse a calibration text where each line is a frequency-gain (dB) pair, and the lines are sorted ascending by frequency.</summary>
+        /// <param name="lines">Lines of the calibration file</param>
+        public static Equalizer FromCalibration(string[] lines) {
+            Equalizer result = new Equalizer();
+            NumberFormatInfo format = new NumberFormatInfo { NumberDecimalSeparator = "," };
+            for (int line = 0; line < lines.Length; ++line) {
+                string[] nums = lines[line].Split(' ', '\t');
+                if (float.TryParse(nums[0].Replace(',', '.'), NumberStyles.Any, format, out float freq) &&
+                    float.TryParse(nums[nums.Length - 1].Replace(',', '.'), NumberStyles.Any, format, out float gain))
+                    result.bands.Add(new Band(freq, gain));
+            }
+            return result;
+        }
+
+        /// <summary>Parse a calibration file where each line is a frequency-gain (dB) pair, and the lines are sorted ascending by frequency.</summary>
+        /// <param name="path">Path to the calibration file</param>
+        public static Equalizer FromCalibrationFile(string path) => FromCalibration(File.ReadAllLines(path));
     }
 }
