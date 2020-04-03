@@ -4,6 +4,18 @@ using System.Runtime.CompilerServices;
 namespace Cavern.Utilities {
     /// <summary>Sound processing functions.</summary>
     public static class WaveformUtils {
+        /// <summary>Downmix audio to mono.</summary>
+        /// <param name="source">Audio to downmix</param>
+        /// <param name="channels">Source channel count</param>
+        public static float[] Downmix(float[] source, int channels) {
+            int length = source.Length / channels;
+            float[] target = new float[length];
+            for (int sample = 0; sample < length; ++sample)
+                for (int channel = 0; channel < channels; ++channel)
+                    target[sample] = source[channels * sample + channel];
+            return target;
+        }
+
         /// <summary>Downmix audio for a lesser channel count with limited knowledge of the target system's channel locations.</summary>
         public static void Downmix(float[] from, int fromChannels, float[] to, int toChannels) {
             int samplesPerChannel = to.Length / toChannels;
