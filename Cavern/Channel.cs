@@ -6,9 +6,9 @@ using Cavern.Utilities;
 namespace Cavern {
     /// <summary>Spatially positioned audio output channel.</summary>
     public sealed class Channel : IEquatable<Channel> {
-        /// <summary>Rotation around the vertical axis in degrees: height.</summary>
+        /// <summary>Rotation around the vertical axis in degrees: elevation.</summary>
         public float X { get; private set; }
-        /// <summary>Rotation around the horizontal axis in degrees.</summary>
+        /// <summary>Rotation around the horizontal axis in degrees: azimuth.</summary>
         public float Y { get; private set; }
         /// <summary>True for channels carrying only Low Frequency Effects.</summary>
         public bool LFE {
@@ -33,13 +33,13 @@ namespace Cavern {
         bool lowFrequency = false;
 
         /// <summary>Constructor for a channel with given rotation values.</summary>
-        /// <param name="x">Rotation around the vertical axis in degrees: height</param>
-        /// <param name="y">Rotation around the horizontal axis in degrees</param>
+        /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
+        /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         public Channel(float x, float y) => SetPosition(x, y);
 
         /// <summary>Constructor for a channel with given rotation values and LFE status.</summary>
-        /// <param name="x">Rotation around the vertical axis in degrees: height</param>
-        /// <param name="y">Rotation around the horizontal axis in degrees</param>
+        /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
+        /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(float x, float y, bool LFE) {
             lowFrequency = LFE;
@@ -47,8 +47,8 @@ namespace Cavern {
         }
 
         /// <summary>Move this channel to a new position.</summary>
-        /// <param name="x">Rotation around the vertical axis in degrees: height</param>
-        /// <param name="y">Rotation around the horizontal axis in degrees</param>
+        /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
+        /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         public void Move(float x, float y) {
             SetPosition(x, y);
             SymmetryCheck();
