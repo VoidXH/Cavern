@@ -179,31 +179,17 @@ namespace Cavern {
             if (!Mute) {
                 bool blend2D = SpatialBlend != 1, blend3D = SpatialBlend != 0, highQuality = listener.AudioQuality >= QualityModes.High;
                 int clipChannels = Clip.Channels;
-                // Mono mix
-                if (blend3D) {
-                    if (clipChannels == 1)
+                if (blend3D) // Mono mix
+                    if (highQuality && clipChannels != 1) { // Mono downmix above medium quality
+                        Array.Clear(samples, 0, pitchedUpdateRate);
+                        for (int channel = 0; channel < clipChannels; ++channel)
+                            WaveformUtils.Mix(Rendered[channel], samples);
+                        WaveformUtils.Gain(samples, 1f / clipChannels);
+                    } else // First channel only otherwise
                         Buffer.BlockCopy(Rendered[0], 0, samples, 0, pitchedUpdateRate * sizeof(float));
-                    else {
-                        if (highQuality) { // Mono downmix above medium quality
-                            Array.Clear(samples, 0, pitchedUpdateRate);
-                            float clipChDiv = 1f / clipChannels;
-                            for (int channel = 0; channel < clipChannels; ++channel) {
-                                float[] sampleSource = Rendered[channel];
-                                for (int sample = 0; sample < pitchedUpdateRate; ++sample)
-                                    samples[sample] += sampleSource[sample];
-                            }
-                            for (int sample = 0; sample < pitchedUpdateRate; ++sample)
-                                samples[sample] *= clipChDiv;
-                        } else { // First channel only otherwise
-                            float[] sampleSource = Rendered[0];
-                            for (int sample = 0; sample < pitchedUpdateRate; ++sample)
-                                samples[sample] = sampleSource[sample];
-                        }
-                    }
-                }
                 if (blend2D) { // 2D mix
                     float volume2D = Volume * (1f - SpatialBlend);
-                    if (Clip.Channels != 2) {
+                    if (clipChannels != 2) {
                         samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
                         WriteOutput(samples, rendered, volume2D, channels);
                     } else {
