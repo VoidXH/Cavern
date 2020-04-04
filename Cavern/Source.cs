@@ -90,12 +90,11 @@ namespace Cavern {
 
         /// <summary>Quickly checks if a value is in an array.</summary>
         /// <param name="target">Array reference</param>
-        /// <param name="count">Array length</param>
         /// <param name="value">Value to check</param>
         /// <returns>If an array contains the value</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool ArrayContains(float[] target, int count, float value) {
-            for (int entry = 0; entry < count; ++entry)
+        static bool ArrayContains(float[] target, float value) {
+            for (int entry = 0; entry < target.Length; ++entry)
                 if (target[entry] == value)
                     return true;
             return false;
@@ -108,7 +107,7 @@ namespace Cavern {
                 delay -= listener.UpdateRate;
                 return false;
             }
-            if (ArrayContains(listener.sourceDistances, listener.MaximumSources, distance)) {
+            if (ArrayContains(listener.sourceDistances, distance)) {
                 if (listener.AudioQuality != QualityModes.Low) {
                     if (DopplerLevel == 0)
                         calculatedPitch = Pitch;
@@ -139,6 +138,9 @@ namespace Cavern {
             Rendered = null;
             return false;
         }
+
+        /// <summary>Makes sure if <see cref="Precollect"/> is called immediatly after this function, it will return true.</summary>
+        protected void ForcePrecollect() => listener.sourceDistances[0] = distance;
 
         /// <summary>Output samples to a multichannel array. Automatically applies constant power mixing.</summary>
         /// <param name="samples">Samples to write</param>
@@ -266,9 +268,11 @@ namespace Cavern {
                                 if (!Listener.Channels[channel].LFE) {
                                     Vector channelPos = Listener.Channels[channel].CubicalPos;
                                     if (channelPos.y == closestBottom) // Bottom layer
-                                        AssignHorizontalLayer(channel, ref BFL, ref BFR, ref BRL, ref BRR, ref closestBF, ref closestBR, direction, channelPos);
+                                        AssignHorizontalLayer(channel, ref BFL, ref BFR, ref BRL, ref BRR,
+                                            ref closestBF, ref closestBR, direction, channelPos);
                                     if (channelPos.y == closestTop) // Top layer
-                                        AssignHorizontalLayer(channel, ref TFL, ref TFR, ref TRL, ref TRR, ref closestTF, ref closestTR, direction, channelPos);
+                                        AssignHorizontalLayer(channel, ref TFL, ref TFR, ref TRL, ref TRR,
+                                            ref closestTF, ref closestTR, direction, channelPos);
                                 }
                             }
                             FixIncompleteLayer(ref TFL, ref TFR, ref TRL, ref TRR); // Fix incomplete top layer
@@ -304,7 +308,8 @@ namespace Cavern {
                                     WriteOutput(samples, rendered, extraChannelVolume, channel, channels);
                             }
                             float BRVol = 1f - BFVol, TRVol = 1f - TFVol; // Remaining length ratios
-                            bottomVol *= innerVolume3D; topVol *= innerVolume3D; BFVol *= bottomVol; BRVol *= bottomVol; TFVol *= topVol; TRVol *= topVol;
+                            bottomVol *= innerVolume3D; topVol *= innerVolume3D;
+                            BFVol *= bottomVol; BRVol *= bottomVol; TFVol *= topVol; TRVol *= topVol;
                             WriteOutput(samples, rendered, BFVol * (1f - BFRVol), BFL, channels);
                             WriteOutput(samples, rendered, BFVol * BFRVol, BFR, channels);
                             WriteOutput(samples, rendered, BRVol * (1f - BRRVol), BRL, channels);

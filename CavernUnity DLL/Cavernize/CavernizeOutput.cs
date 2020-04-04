@@ -25,20 +25,18 @@ namespace Cavern.Cavernize {
 
             /// <summary>Force the source to be played.</summary>
             protected override bool Precollect() {
-                base.Precollect();
-                return true;
+                if (!Master)
+                    return false;
+                ForcePrecollect();
+                bool state = base.Precollect();
+                return state;
             }
 
             /// <summary>Indicates that the source meets rendering requirements, and <see cref="GetSamples"/> won't fail.</summary>
             protected override bool Renderable => IsPlaying;
 
             /// <summary>Get the next sample block from <see cref="Master"/>.</summary>
-            protected override float[][] GetSamples() {
-                if (Master != null)
-                    return Master.Tick(Channel, GroundLevel);
-                else
-                    return new float[1][] { new float[listener.UpdateRate] };
-            }
+            protected override float[][] GetSamples() => Master.Tick(Channel, GroundLevel);
         }
 
         void Awake() => cavernSource = new CavernizeOutputSource() {
