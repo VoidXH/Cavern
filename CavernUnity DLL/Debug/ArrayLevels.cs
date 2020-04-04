@@ -71,6 +71,7 @@ namespace Cavern.Debug {
                 GUI.Label(new Rect(0, top += 14, 30, 14), (DynamicRange * i / 10).ToString());
                 GUI.DrawTexture(new Rect(2, top, width, 1), white);
             }
+            GUI.skin.label.fontSize = 10;
             for (int channel = 0; channel < channels; ++channel) {
                 float peak = channelData[channel].Peak;
                 if (peak > 0) {
