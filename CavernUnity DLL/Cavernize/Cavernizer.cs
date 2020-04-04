@@ -143,10 +143,13 @@ namespace Cavern.Cavernize {
                 foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> Channel in channels)
                     Channel.Value.WrittenOutput = false;
                 // Load input channels
+                int remaining = clipLength - timeSamples;
+                if (remaining > updateRate)
+                    remaining = updateRate;
                 for (int channel = 0; channel < clipChannels; ++channel) {
                     SpatializedChannel outputChannel = GetChannel(ChannelPrototype.StandardMatrix[clipChannels][channel]);
                     float[] target = outputChannel.Output;
-                    for (int offset = 0, srcOffset = timeSamples * clipChannels + channel; offset < updateRate; ++offset, srcOffset += clipChannels)
+                    for (int offset = 0, srcOffset = timeSamples * clipChannels + channel; offset < remaining; ++offset, srcOffset += clipChannels)
                         target[offset] = clipSamples[srcOffset] * Volume;
                     outputChannel.WrittenOutput = true;
                 }
