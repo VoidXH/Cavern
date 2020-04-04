@@ -92,7 +92,12 @@ namespace Cavern.Cavernize {
             oldUpdateRate = listener.UpdateRate;
             listener.SampleRate = Clip.frequency;
             updateRate = listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
-            clipSamples = new float[(clipChannels = Clip.channels) * ((clipLength = Clip.samples) + updateRate)];
+            if (Clip.samples > updateRate)
+                clipLength = Clip.samples;
+            else
+                clipLength = updateRate;
+            int sampleCount = (clipChannels = Clip.channels) * clipLength;
+            clipSamples = new float[sampleCount];
             Clip.GetData(clipSamples, 0);
             List<ChannelPrototype> targetChannels = new List<ChannelPrototype>();
             foreach (ChannelPrototype upmixTarget in UpmixTargets)

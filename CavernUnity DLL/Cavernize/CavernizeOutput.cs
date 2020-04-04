@@ -33,20 +33,25 @@ namespace Cavern.Cavernize {
             protected override bool Renderable => IsPlaying;
 
             /// <summary>Get the next sample block from <see cref="Master"/>.</summary>
-            protected override float[][] GetSamples() => Master.Tick(Channel, GroundLevel);
+            protected override float[][] GetSamples() {
+                if (Master != null)
+                    return Master.Tick(Channel, GroundLevel);
+                else
+                    return new float[1][] { new float[listener.UpdateRate] };
+            }
         }
 
         void Awake() => cavernSource = new CavernizeOutputSource() {
-            Clip = new Clip(new float[1][] { new float[1] }, 48000)
+            Clip = new Clip(new float[1][] { new float[1] }, Listener.defaultSampleRate)
         };
 
         void Start() {
+            SourceUpdate();
             CavernizeOutputSource source = (CavernizeOutputSource)cavernSource;
             source.Clip = new Clip(new float[1][] { new float[1] }, Master.Clip.frequency);
             source.Master = Master;
             source.GroundLevel = GroundLevel;
             source.Channel = Channel;
-            SourceUpdate();
         }
 
         void Update() {
