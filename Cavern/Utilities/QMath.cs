@@ -3,9 +3,7 @@
 namespace Cavern.Utilities {
     /// <summary>Two plus two is four, minus one, that's three, quick maths.</summary>
     public static class QMath {
-        /// <summary>
-        /// Clamp a float between limits.
-        /// </summary>
+        /// <summary>Clamp a float between limits.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Clamp(float value, float min, float max) {
             if (value < min)
@@ -15,9 +13,7 @@ namespace Cavern.Utilities {
             return value;
         }
 
-        /// <summary>
-        /// Clamp an int between limits.
-        /// </summary>
+        /// <summary>Clamp an int between limits.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Clamp(int value, int min, int max) {
             if (value < min)

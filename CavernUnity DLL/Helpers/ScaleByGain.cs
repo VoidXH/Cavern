@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 using Cavern.Utilities;
 
@@ -32,7 +33,9 @@ namespace Cavern.Helpers {
             if (samples != null) {
                 float peakSize = float.NegativeInfinity;
                 for (int channel = 0; channel < samples.Length; ++channel) {
-                    float channelSize = WaveformUtils.GetPeak(samples[channel]);
+                    float channelSize = 20 * (float)Math.Log10(WaveformUtils.GetPeak(samples[channel]));
+                    if (channelSize < -600)
+                        channelSize = -600;
                     if (peakSize < channelSize)
                         peakSize = channelSize;
                 }

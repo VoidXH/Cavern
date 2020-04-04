@@ -67,7 +67,8 @@ namespace Cavern.Utilities {
 
         /// <summary>Get the peak amplitude of a single-channel array.</summary>
         /// <param name="target">Array reference</param>
-        /// <returns>Peak amplitude in the array in decibels</returns>
+        /// <returns>Peak amplitude in the array</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetPeak(float[] target) {
             float max = Math.Abs(target[0]), absSample;
             for (int sample = 1; sample < target.Length; ++sample) {
@@ -75,7 +76,23 @@ namespace Cavern.Utilities {
                 if (max < absSample)
                     max = absSample;
             }
-            return max != 0 ? (20 * (float)Math.Log10(max)) : -300;
+            return max;
+        }
+
+        /// <summary>Get the peak amplitude in a partial audio signal.</summary>
+        /// <param name="target">Array reference</param>
+        /// <param name="from">Range start sample (inclusive)</param>
+        /// <param name="to">Range end sample (exclusive)</param>
+        /// <returns>Peak amplitude in the given range</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetPeak(float[] target, int from, int to) {
+            float max = Math.Abs(target[from++]), absSample;
+            for (; from < to; ++from) {
+                absSample = Math.Abs(target[from]);
+                if (max < absSample)
+                    max = absSample;
+            }
+            return max;
         }
 
         /// <summary>Get the peak amplitude of a given channel in a multichannel array.</summary>
@@ -83,7 +100,8 @@ namespace Cavern.Utilities {
         /// <param name="samples">Samples per channel</param>
         /// <param name="channel">Target channel</param>
         /// <param name="channels">Channel count</param>
-        /// <returns>Maximum absolute value in the array</returns>
+        /// <returns>Peak amplitude of the channel</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetPeak(float[] target, int samples, int channel, int channels) {
             float max = 0, absSample;
             for (int sample = channel, end = samples * channels; sample < end; sample += channels) {
@@ -92,6 +110,25 @@ namespace Cavern.Utilities {
                     max = absSample;
             }
             return max;
+        }
+
+        /// <summary>Get the peak amplitude with its sign in a partial audio signal.</summary>
+        /// <param name="target">Array reference</param>
+        /// <param name="from">Range start sample (inclusive)</param>
+        /// <param name="to">Range end sample (exclusive)</param>
+        /// <returns>Peak amplitude with its sign in the given range</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetPeakSigned(float[] target, int from, int to) {
+            int pos = from;
+            float max = Math.Abs(target[from++]), absSample;
+            for (; from < to; ++from) {
+                absSample = Math.Abs(target[from]);
+                if (max < absSample) {
+                    max = absSample;
+                    pos = from;
+                }
+            }
+            return target[pos];
         }
 
         /// <summary>Mix a track to a stream.</summary>

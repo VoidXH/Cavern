@@ -35,7 +35,7 @@ namespace Cavern.QuickEQ {
         public static void ConvertToDecibels(float[] curve, float minimum = -100) {
             for (int i = 0; i < curve.Length; ++i) {
                 curve[i] = 20 * (float)Math.Log10(curve[i]);
-                if (curve[i] < minimum)
+                if (curve[i] < minimum) // this is also true if curve[i] == 0
                     curve[i] = minimum;
             }
         }
@@ -54,6 +54,24 @@ namespace Cavern.QuickEQ {
                 startFreq *= mul;
             }
             return graph;
+        }
+
+        /// <summary>Scales a graph to another length, while keeping the local peaks.</summary>
+        public static float[] Scale(float[] source, int newLength) {
+            float[] result = new float[newLength];
+            float scale = source.Length / (float)newLength--;
+            for (int pos = 0; pos < newLength; ++pos)
+                result[pos] = WaveformUtils.GetPeakSigned(source, (int)(pos * scale), (int)((pos + 1) * scale));
+            return result;
+        }
+
+        /// <summary>Scales a partial graph to another length, while keeping the local peaks.</summary>
+        public static float[] Scale(float[] source, int newLength, int sourceStart, int sourceEnd) {
+            float[] result = new float[newLength];
+            float scale = (sourceEnd - sourceStart) / (float)newLength--;
+            for (int pos = 0; pos < newLength; ++pos)
+                result[pos] = WaveformUtils.GetPeakSigned(source, sourceStart + (int)(pos * scale), sourceStart + (int)((pos + 1) * scale));
+            return result;
         }
 
         /// <summary>Apply smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.</summary>
