@@ -154,6 +154,7 @@ namespace Cavern.QuickEQ {
                         ImpResponses[channel] = workers[channel].Result.ImpResponse;
                         Destroy(sweepers[channel]);
                     }
+                    sweepers = null;
                     if (Microphone.IsRecording(InputDevice))
                         Microphone.End(InputDevice);
                     if (sweepResponse)
@@ -164,9 +165,10 @@ namespace Cavern.QuickEQ {
         }
 
         void OnDisable() {
-            if (sweepers[0])
+            if (sweepers != null && sweepers[0])
                 for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                     Destroy(sweepers[channel]);
+            sweepers = null;
             if (sweepResponse)
                 Destroy(sweepResponse);
             listener.DirectLFE = oldDirectLFE;
