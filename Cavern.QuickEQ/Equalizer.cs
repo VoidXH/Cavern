@@ -161,13 +161,15 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Minimizes the phase of a spectrum.</summary>
         /// <remarks>This function does not handle zeros in the spectrum. Make sure there is a threshold before using this function.</remarks>
-        void MinimumPhaseSpectrum(Complex[] response) {
+        void MinimumPhaseSpectrum(Complex[] response, FFTCache cache = null) {
+            if (cache == null)
+                cache = new FFTCache(response.Length);
             int halfLength = response.Length / 2;
             for (int i = 0; i < response.Length; ++i) {
                 response[i].Real = (float)Math.Log(response[i].Real);
                 response[i].Imaginary = 0;
             }
-            Measurements.InPlaceIFFT(response);
+            Measurements.InPlaceIFFT(response, cache);
             for (int i = 1; i < halfLength; ++i) {
                 response[i].Real += response[response.Length - i].Real;
                 response[i].Imaginary -= response[response.Length - i].Imaginary;
@@ -175,7 +177,7 @@ namespace Cavern.QuickEQ {
                 response[response.Length - i].Imaginary = 0;
             }
             response[halfLength].Imaginary = -response[halfLength].Imaginary;
-            Measurements.InPlaceFFT(response);
+            Measurements.InPlaceFFT(response, cache);
             for (int i = 0; i < response.Length; ++i) {
                 double exp = Math.Exp(response[i].Real);
                 response[i].Real = (float)(exp * Math.Cos(response[i].Imaginary));
@@ -193,8 +195,9 @@ namespace Cavern.QuickEQ {
             for (int i = 0; i < processedLength; ++i)
                 filter[i].Real = gain; // FFT of DiracDelta(x)
             Apply(filter, sampleRate);
+            FFTCache cache = new FFTCache(processedLength);
             MinimumPhaseSpectrum(filter);
-            Measurements.InPlaceIFFT(filter);
+            Measurements.InPlaceIFFT(filter, cache);
             return Measurements.GetRealPartHalf(filter);
         }
 

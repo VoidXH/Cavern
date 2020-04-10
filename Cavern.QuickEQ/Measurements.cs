@@ -57,32 +57,45 @@ namespace Cavern.QuickEQ {
         /// <summary>Fast Fourier transform a 2D signal.</summary>
         public static Complex[] FFT(Complex[] samples, FFTCache cache = null) {
             samples = (Complex[])samples.Clone();
-            ProcessFFT(samples, cache ?? new FFTCache(samples.Length), QMath.Log2(samples.Length) - 1);
+            if (cache == null)
+                new FFTCache(samples.Length);
+            ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
             return samples;
         }
 
         /// <summary>Fast Fourier transform a 1D signal.</summary>
         public static Complex[] FFT(float[] samples, FFTCache cache = null) {
+            if (cache == null)
+                new FFTCache(samples.Length);
             Complex[] complexSignal = new Complex[samples.Length];
             for (int sample = 0; sample < samples.Length; ++sample)
                 complexSignal[sample].Real = samples[sample];
-            ProcessFFT(complexSignal, cache ?? new FFTCache(samples.Length), QMath.Log2(samples.Length) - 1);
+            ProcessFFT(complexSignal, cache, QMath.Log2(samples.Length) - 1);
             return complexSignal;
         }
 
         /// <summary>Fast Fourier transform a 2D signal while keeping the source array allocation.</summary>
-        public static void InPlaceFFT(Complex[] samples, FFTCache cache = null) =>
-            ProcessFFT(samples, cache ?? new FFTCache(samples.Length), QMath.Log2(samples.Length) - 1);
+        public static void InPlaceFFT(Complex[] samples, FFTCache cache = null) {
+            if (cache == null)
+                new FFTCache(samples.Length);
+            ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+        }
 
         /// <summary>Spectrum of a signal's FFT.</summary>
         public static float[] FFT1D(float[] samples, FFTCache cache = null) {
             samples = (float[])samples.Clone();
-            ProcessFFT(samples, cache ?? new FFTCache(samples.Length));
+            if (cache == null)
+                new FFTCache(samples.Length);
+            ProcessFFT(samples, cache);
             return samples;
         }
 
         /// <summary>Spectrum of a signal's FFT while keeping the source array allocation.</summary>
-        public static void InPlaceFFT(float[] samples, FFTCache cache = null) => ProcessFFT(samples, cache ?? new FFTCache(samples.Length));
+        public static void InPlaceFFT(float[] samples, FFTCache cache = null) {
+            if (cache == null)
+                new FFTCache(samples.Length);
+            ProcessFFT(samples, cache);
+        }
 
         /// <summary>Outputs IFFT(X) * N.</summary>
         static void ProcessIFFT(Complex[] samples, FFTCache cache, int depth) {
@@ -112,13 +125,17 @@ namespace Cavern.QuickEQ {
         /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
         public static Complex[] IFFT(Complex[] samples, FFTCache cache = null) {
             samples = (Complex[])samples.Clone();
-            InPlaceIFFT(samples, cache ?? new FFTCache(samples.Length));
+            if (cache == null)
+                new FFTCache(samples.Length);
+            InPlaceIFFT(samples, cache);
             return samples;
         }
 
         /// <summary>Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.</summary>
         public static void InPlaceIFFT(Complex[] samples, FFTCache cache = null) {
-            ProcessIFFT(samples, cache ?? new FFTCache(samples.Length), QMath.Log2(samples.Length) - 1);
+            if (cache == null)
+                new FFTCache(samples.Length);
+            ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
             float multiplier = 1f / samples.Length;
             for (int i = 0; i < samples.Length; ++i) {
                 samples[i].Real *= multiplier;
