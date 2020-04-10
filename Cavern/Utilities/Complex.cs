@@ -68,5 +68,13 @@ namespace Cavern.Utilities {
             Real = (Real * rhs.Real + Imaginary * rhs.Imaginary) * multiplier;
             Imaginary = (Imaginary * rhs.Real - oldReal * rhs.Imaginary) * multiplier;
         }
+
+        /// <summary>Display the complex number.</summary>
+        public override string ToString() {
+            if (Imaginary >= 0)
+                return string.Format("{0}+{1}i", Real, Imaginary);
+            else
+                return string.Format("{0}{1}i", Real, Imaginary);
+        }
     }
 }

@@ -117,8 +117,8 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.</summary>
-        public static void InPlaceIFFT(Complex[] samples, FFTCache cache) {
-            ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+        public static void InPlaceIFFT(Complex[] samples, FFTCache cache = null) {
+            ProcessIFFT(samples, cache ?? new FFTCache(samples.Length), QMath.Log2(samples.Length) - 1);
             float multiplier = 1f / samples.Length;
             for (int i = 0; i < samples.Length; ++i) {
                 samples[i].Real *= multiplier;
@@ -130,6 +130,15 @@ namespace Cavern.QuickEQ {
         public static float[] GetRealPart(Complex[] samples) {
             float[] output = new float[samples.Length];
             for (int sample = 0; sample < samples.Length; ++sample)
+                output[sample] = samples[sample].Real;
+            return output;
+        }
+
+        /// <summary>Get half of the real part of a signal's FFT.</summary>
+        public static float[] GetRealPartHalf(Complex[] samples) {
+            int half = samples.Length / 2;
+            float[] output = new float[half];
+            for (int sample = 0; sample < half; ++sample)
                 output[sample] = samples[sample].Real;
             return output;
         }

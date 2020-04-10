@@ -103,18 +103,22 @@ namespace Cavern.QuickEQ {
                 SubsonicFilter = true;
         }
 
-        /// <summary>Shows the EQ curve in a logarithmically scaled frequency axis.</summary>
+        /// <summary>Visualize with a custom enumerator.</summary>
+        /// <param name="enumerator">Enumerates values by the frequency axis, with a given scale</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="length">Points on the curve</param>
-        public float[] Visualize(double startFreq, double endFreq, int length) {
+        float[] Visualize(Action<float[], double, double, GraphUtils.FrequencyFunction<float>> enumerator,
+            double startFreq, double endFreq, int length) {
             float[] result = new float[length];
             int bandCount = bands.Count, nextBand = 0, prevBand = 0;
             if (bandCount == 0)
                 return result;
-            GraphUtils.ForEachLog(result, startFreq, endFreq, (double freq, ref float value) => {
-                while (nextBand != bandCount && bands[nextBand].Frequency < freq)
-                    prevBand = ++nextBand - 1;
+            enumerator(result, startFreq, endFreq, (double freq, ref float value) => {
+                while (nextBand != bandCount && bands[nextBand].Frequency < freq) {
+                    prevBand = nextBand;
+                    ++nextBand;
+                }
                 if (nextBand != bandCount && nextBand != 0)
                     value = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
                         QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, freq));
@@ -123,6 +127,12 @@ namespace Cavern.QuickEQ {
             });
             return result;
         }
+
+        /// <summary>Shows the EQ curve in a logarithmically scaled frequency axis.</summary>
+        /// <param name="startFreq">Frequency at the beginning of the curve</param>
+        /// <param name="endFreq">Frequency at the end of the curve</param>
+        /// <param name="length">Points on the curve</param>
+        public float[] Visualize(double startFreq, double endFreq, int length) => Visualize(GraphUtils.ForEachLog, startFreq, endFreq, length);
 
         /// <summary>Shows the resulting frequency response if this EQ is applied.</summary>
         /// <param name="response">Frequency response curve to apply the EQ on, from
@@ -134,6 +144,58 @@ namespace Cavern.QuickEQ {
             for (int i = 0; i < response.Length; ++i)
                 filter[i] += response[i];
             return filter;
+        }
+
+        /// <summary>Apply this EQ on a frequency response.</summary>
+        /// <param name="response">Frequency response to apply the EQ on</param>
+        /// <param name="sampleRate">Sample rate where <paramref name="response"/> was generated</param>
+        public void Apply(Complex[] response, int sampleRate) {
+            int halfLength = response.Length / 2 + 1, nyquist = sampleRate / 2;
+            float[] filter = Visualize(GraphUtils.ForEachLin, 0, nyquist, halfLength);
+            response[0] *= (float)Math.Pow(10, filter[0] * .05f);
+            for (int i = 1, end = response.Length; i < halfLength; ++i) {
+                response[i] *= (float)Math.Pow(10, filter[i] * .05f);
+                response[end - i] = new Complex(response[i].Real, -response[i].Imaginary);
+            }
+        }
+
+        /// <summary>Minimizes the phase of a spectrum.</summary>
+        /// <remarks>This function does not handle zeros in the spectrum. Make sure there is a threshold before using this function.</remarks>
+        void MinimumPhaseSpectrum(Complex[] response) {
+            int halfLength = response.Length / 2;
+            for (int i = 0; i < response.Length; ++i) {
+                response[i].Real = (float)Math.Log(response[i].Real);
+                response[i].Imaginary = 0;
+            }
+            Measurements.InPlaceIFFT(response);
+            for (int i = 1; i < halfLength; ++i) {
+                response[i].Real += response[response.Length - i].Real;
+                response[i].Imaginary -= response[response.Length - i].Imaginary;
+                response[response.Length - i].Real = 0;
+                response[response.Length - i].Imaginary = 0;
+            }
+            response[halfLength].Imaginary = -response[halfLength].Imaginary;
+            Measurements.InPlaceFFT(response);
+            for (int i = 0; i < response.Length; ++i) {
+                double exp = Math.Exp(response[i].Real);
+                response[i].Real = (float)(exp * Math.Cos(response[i].Imaginary));
+                response[i].Imaginary = (float)(exp * Math.Sin(response[i].Imaginary));
+            }
+        }
+
+        /// <summary>Gets a convolution filter that results in this EQ when applied.</summary>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
+        /// <param name="gain">Signal voltage multiplier</param>
+        public float[] GetConvolution(int sampleRate, int length = 1024, float gain = 1) {
+            int processedLength = length * 2;
+            Complex[] filter = new Complex[processedLength];
+            for (int i = 0; i < processedLength; ++i)
+                filter[i].Real = gain; // FFT of DiracDelta(x)
+            Apply(filter, sampleRate);
+            MinimumPhaseSpectrum(filter);
+            Measurements.InPlaceIFFT(filter);
+            return Measurements.GetRealPartHalf(filter);
         }
 
         /// <summary>Generate an equalizer setting to flatten the processed response of
