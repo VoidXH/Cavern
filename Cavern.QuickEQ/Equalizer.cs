@@ -3,26 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
+using Cavern.Filters;
+using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.EQCurves;
+using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
     /// <summary>Equalizer data collector and exporter.</summary>
     public sealed class Equalizer {
-        /// <summary>A single equalizer band.</summary>
-        public struct Band {
-            /// <summary>Position of the band.</summary>
-            public readonly double Frequency { get; }
-            /// <summary>Gain at <see cref="Frequency"/> in dB.</summary>
-            public readonly double Gain { get; }
-
-            /// <summary>EQ band constructor.</summary>
-            public Band(double frequency, double gain) {
-                Frequency = frequency;
-                Gain = gain;
-            }
-        }
-
         /// <summary>Bands that make up this equalizer.</summary>
         public IReadOnlyList<Band> Bands => bands;
         readonly List<Band> bands = new List<Band>();
@@ -201,6 +190,29 @@ namespace Cavern.QuickEQ {
             return Measurements.GetRealPartHalf(filter);
         }
 
+        /// <summary>Create a peaking EQ filter set to approximate the drawn EQ curve.</summary>
+        /// <param name="sampleRate">Target system sample rate</param>
+        /// <param name="smoothing">Smooth out band spikes</param>
+        public PeakingEQ[] GetPeakingEQ(int sampleRate, double smoothing = 2) {
+            PeakingEQ[] result = new PeakingEQ[bands.Count];
+            double freq = bands[0].Frequency, gainMul = 1 / Math.Pow(smoothing, QFactor.reference), qMul = Math.PI / smoothing;
+            if (result.Length > 1) {
+                result[0] = new PeakingEQ(sampleRate, freq, QFactor.FromBandwidth(freq, (bands[1].Frequency - freq) * 2) * qMul,
+                    bands[0].Gain * gainMul);
+                int end = result.Length - 1;
+                for (int band = 1; band < end; ++band) {
+                    freq = bands[band].Frequency;
+                    result[band] = new PeakingEQ(sampleRate, freq, QFactor.FromBandwidth(freq, bands[band - 1].Frequency, bands[band + 1].Frequency)
+                        * qMul, bands[band].Gain * gainMul);
+                }
+                freq = bands[end].Frequency;
+                result[end] = new PeakingEQ(sampleRate, freq, QFactor.FromBandwidth(freq, (freq - bands[end - 1].Frequency) * 2) * qMul,
+                    bands[end].Gain * gainMul);
+            } else if (result.Length == 1)
+                result[0] = new PeakingEQ(sampleRate, freq, .001f, bands[0].Gain);
+            return result;
+        }
+
         /// <summary>Generate an equalizer setting to flatten the processed response of
         /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.</summary>
         /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is
@@ -211,7 +223,7 @@ namespace Cavern.QuickEQ {
         /// <param name="resolution">Band diversity in octaves</param>
         /// <param name="targetGain">Target EQ level</param>
         /// <param name="maxGain">Maximum gain of any generated band</param>
-        public static Equalizer CorrectGraph(float[] graph, float startFreq, float endFreq, EQCurve targetCurve, float targetGain,
+        public static Equalizer CorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
             float resolution = 1 / 3f, float maxGain = 6) {
             Equalizer result = new Equalizer();
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length,
@@ -240,7 +252,7 @@ namespace Cavern.QuickEQ {
         /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
         /// <param name="targetGain">Target EQ level</param>
         /// <param name="maxGain">Maximum gain of any generated band</param>
-        public static Equalizer AutoCorrectGraph(float[] graph, float startFreq, float endFreq, EQCurve targetCurve, float targetGain,
+        public static Equalizer AutoCorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
             float maxGain = 6) {
             Equalizer result = new Equalizer();
             int length = graph.Length;
