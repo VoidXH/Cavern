@@ -24,7 +24,7 @@
         public Delay(int samples) => RecreateCaches(samples);
 
         /// <summary>Create a delay for a given length in seconds.</summary>
-        public Delay(float time, int sampleRate) => RecreateCaches((int)(time * sampleRate + .5f));
+        public Delay(double time, int sampleRate) => RecreateCaches((int)(time * sampleRate + .5f));
 
         /// <summary>Apply delay on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         public override void Process(float[] samples) {

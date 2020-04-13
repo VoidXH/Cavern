@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 using Cavern.Filters;
+using Cavern.Filters.Utilities;
 
 namespace Cavern.FilterInterfaces {
     /// <summary>Apply a <see cref="BiquadFilter"/> on the source this component is applied on.</summary>
@@ -31,13 +32,13 @@ namespace Cavern.FilterInterfaces {
         public FilterTypes FilterType;
         /// <summary>Center frequency (-3 dB point) of the filter.</summary>
         [Tooltip("Center frequency (-3 dB point) of the filter.")]
-        [Range(20, 20000)] public float CenterFreq = 1000;
+        [Range(20, 20000)] public double CenterFreq = 1000;
         /// <summary>Q-factor of the filter.</summary>
         [Tooltip("Q-factor of the filter.")]
-        [Range(1/3f, 100/3f)] public float Q = .7071067811865475f;
+        [Range(1/3f, 100/3f)] public double Q = QFactor.reference;
         /// <summary>Gain of the filter in decibels.</summary>
         [Tooltip("Gain of the filter in decibels.")]
-        [Range(-10, 10)] public float Gain = 0;
+        [Range(-10, 10)] public double Gain = 0;
 
         /// <summary>The attached audio source.</summary>
         AudioSource3D source;

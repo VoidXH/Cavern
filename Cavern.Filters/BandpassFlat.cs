@@ -1,4 +1,6 @@
-﻿namespace Cavern.Filters {
+﻿using Cavern.Filters.Utilities;
+
+namespace Cavern.Filters {
     /// <summary>Combination of a lowpass and a highpass filter.</summary>
     public class BandpassFlat : Filter {
         readonly int order;
@@ -14,7 +16,7 @@
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="order">Each order increases the slope with 6 dB/octave</param>
         /// <param name="gain">Filter gain</param>
-        public BandpassFlat(float lowFreq, float highFreq, int sampleRate, float q = .7071067811865475f, int order = 4, float gain = 0) {
+        public BandpassFlat(double lowFreq, double highFreq, int sampleRate, double q = QFactor.reference, int order = 4, double gain = 0) {
             this.order = order;
             lowpasses = new Lowpass[order];
             highpasses = new Highpass[order];

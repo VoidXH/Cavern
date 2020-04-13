@@ -11,13 +11,13 @@ namespace Cavern.Filters {
         }
 
         /// <summary>First minimum point.</summary>
-        public float Frequency {
-            get => sampleRate * .5f / K;
-            set => K = (int)(.5f / (value / sampleRate) + 1);
+        public double Frequency {
+            get => sampleRate * .5 / K;
+            set => K = (int)(.5 / (value / sampleRate) + 1);
         }
 
         /// <summary>Wet mix multiplier.</summary>
-        public float Alpha;
+        public double Alpha;
 
         /// <summary>Delay filter generating the samples fed forward.</summary>
         readonly Delay delay;
@@ -30,7 +30,7 @@ namespace Cavern.Filters {
         /// <param name="sampleRate">Source sample rate</param>
         /// <param name="K">Delay in samples</param>
         /// <param name="alpha">Wet mix multiplier</param>
-        public Comb(int sampleRate, int K, float alpha) {
+        public Comb(int sampleRate, int K, double alpha) {
             this.sampleRate = sampleRate;
             Alpha = alpha;
             delay = new Delay(K);
@@ -40,10 +40,10 @@ namespace Cavern.Filters {
         /// <param name="sampleRate">Source sample rate</param>
         /// <param name="frequency">First minimum point</param>
         /// <param name="alpha">Wet mix multiplier</param>
-        public Comb(int sampleRate, float frequency, float alpha) {
+        public Comb(int sampleRate, double frequency, double alpha) {
             this.sampleRate = sampleRate;
             Alpha = alpha;
-            delay = new Delay((int)(.5f / (frequency / sampleRate) + 1));
+            delay = new Delay((int)(.5 / (frequency / sampleRate) + 1));
         }
 
         /// <summary>Apply comb on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
@@ -52,9 +52,9 @@ namespace Cavern.Filters {
                 cache = new float[samples.Length];
             Array.Copy(samples, cache, samples.Length);
             delay.Process(cache);
-            float divisor = 1 / (1 + Alpha);
+            float divisor = (float)(1 / (1 + Alpha)), alpha = (float)Alpha;
             for (int sample = 0; sample < samples.Length; ++sample)
-                samples[sample] = (samples[sample] + cache[sample] * Alpha) * divisor;
+                samples[sample] = (samples[sample] + cache[sample] * alpha) * divisor;
         }
     }
 }

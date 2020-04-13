@@ -4,7 +4,7 @@ namespace Cavern.Filters {
     /// <summary>Simple variable-order crossover.</summary>
     public class Crossover : Filter {
         /// <summary>Crossover frequency.</summary>
-        public float Frequency {
+        public double Frequency {
             get => lowpasses[0].CenterFreq;
             set {
                 for (int i = 0; i < lowpasses.Length; ++i)
@@ -33,7 +33,7 @@ namespace Cavern.Filters {
         Highpass[] highpasses;
 
         /// <summary>Create filters for each pass.</summary>
-        void RecreateFilters(float frequency, int order) {
+        void RecreateFilters(double frequency, int order) {
             lowpasses = new Lowpass[order];
             highpasses = new Highpass[order];
             for (int i = 0; i < order; ++i) {
@@ -46,7 +46,7 @@ namespace Cavern.Filters {
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="frequency">Crossover frequency</param>
         /// <param name="order">Number of filters per pass, 2 is recommended for mixing notch prevention</param>
-        public Crossover(int sampleRate, float frequency, int order = 2) {
+        public Crossover(int sampleRate, double frequency, int order = 2) {
             this.sampleRate = sampleRate;
             RecreateFilters(frequency, order);
         }

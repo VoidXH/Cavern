@@ -1,4 +1,5 @@
 ﻿using Cavern.Filters;
+using Cavern.Filters.Utilities;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>Bandpass EQ curve, recommended for stage subwoofers.</summary>
@@ -18,7 +19,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="order">Each order increases the slope with 6 dB/octave</param>
         /// <param name="gain">Filter gain</param>
-        public Bandpass(float lowFreq, float highFreq, int sampleRate, int resolution, float q = .7071067811865475f, int order = 1, float gain = 6) {
+        public Bandpass(double lowFreq, double highFreq, int sampleRate, int resolution, double q = QFactor.reference, int order = 1, float gain = 6) {
             positioner = resolution * 2f / sampleRate;
             float[] reference = Measurements.ExponentialSweep(20, sampleRate * .5f, resolution * 2, sampleRate), response = (float[])reference.Clone();
             BandpassFlat filter = new BandpassFlat(lowFreq, highFreq, sampleRate, q, order);

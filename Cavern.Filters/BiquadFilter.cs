@@ -1,29 +1,31 @@
-﻿namespace Cavern.Filters {
+﻿using Cavern.Filters.Utilities;
+
+namespace Cavern.Filters {
     /// <summary>Simple first-order biquad filter.</summary>
     public abstract class BiquadFilter : Filter {
         /// <summary>Center frequency (-3 dB point) of the filter.</summary>
-        public float CenterFreq {
+        public double CenterFreq {
             get => centerFreq;
             set => Reset(value, q, gain);
         }
         /// <summary>Q-factor of the filter.</summary>
-        public float Q {
+        public double Q {
             get => q;
             set => Reset(centerFreq, value, gain);
         }
 
         /// <summary>Gain of the filter in decibels.</summary>
-        public float Gain {
+        public double Gain {
             get => gain;
             set => Reset(centerFreq, q, value);
         }
 
         /// <summary>Center frequency (-3 dB point) of the filter.</summary>
-        protected float centerFreq;
+        protected double centerFreq;
         /// <summary>Q-factor of the filter.</summary>
-        protected float q;
+        protected double q;
         /// <summary>Gain of the filter in decibels.</summary>
-        protected float gain;
+        protected double gain;
         /// <summary>Cached sample rate.</summary>
         protected int sampleRate;
         /// <summary>Transfer function variable.</summary>
@@ -36,7 +38,7 @@
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
-        public BiquadFilter(int sampleRate, float centerFreq, float q = .7071067811865475f, float gain = 0) {
+        public BiquadFilter(int sampleRate, double centerFreq, double q = QFactor.reference, double gain = 0) {
             this.sampleRate = sampleRate;
             Reset(centerFreq, q, gain);
         }
@@ -45,7 +47,7 @@
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
-        public virtual void Reset(float centerFreq, float q = .7071067811865475f, float gain = 0) {
+        public virtual void Reset(double centerFreq, double q = QFactor.reference, double gain = 0) {
             this.centerFreq = centerFreq;
             this.q = q;
             this.gain = gain;

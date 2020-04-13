@@ -2,15 +2,15 @@
     /// <summary>Simple echo/reverberation filter with delay.</summary>
     public class Echo : Filter {
         /// <summary>Effect strength.</summary>
-        public float Strength;
+        public double Strength;
         /// <summary>Delay between echoes in samples.</summary>
         public int DelaySamples {
             get => delay;
             set => Reset(Strength, value);
         }
         /// <summary>Delay between echoes in seconds.</summary>
-        public float DelayTime {
-            get => delay / (float)sampleRate;
+        public double DelayTime {
+            get => delay / (double)sampleRate;
             set => Reset(Strength, value);
         }
 
@@ -27,7 +27,7 @@
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="strength">Effect strength</param>
         /// <param name="delay">Delay between echoes in samples</param>
-        public Echo(int sampleRate, float strength = .25f, int delay = 4096) {
+        public Echo(int sampleRate, double strength = .25f, int delay = 4096) {
             this.sampleRate = sampleRate;
             Reset(strength, delay);
         }
@@ -36,12 +36,12 @@
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="strength">Effect strength</param>
         /// <param name="delay">Delay between echoes in seconds</param>
-        public Echo(int sampleRate, float strength = .25f, float delay = .1f) => Reset(strength, (int)(delay * (this.sampleRate = sampleRate)));
+        public Echo(int sampleRate, double strength = .25f, double delay = .1f) => Reset(strength, (int)(delay * (this.sampleRate = sampleRate)));
 
         /// <summary>Reset filter settings.</summary>
         /// <param name="strength">Effect strength</param>
         /// <param name="delay">Delay between echoes in samples</param>
-        public void Reset(float strength, int delay) {
+        public void Reset(double strength, int delay) {
             Strength = strength;
             this.delay = delay;
             cache = new float[delay];
@@ -51,7 +51,7 @@
         /// <summary>Reset filter settings.</summary>
         /// <param name="strength">Effect strength</param>
         /// <param name="delay">Delay between echoes in seconds</param>
-        public void Reset(float strength, float delay) => Reset(strength, (int)(delay * sampleRate));
+        public void Reset(double strength, double delay) => Reset(strength, (int)(delay * sampleRate));
 
         /// <summary>Apply echo on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
         /// <param name="samples">Input samples</param>
@@ -60,10 +60,10 @@
         public override void Process(float[] samples, int channel, int channels) {
             if (delay <= 0)
                 return;
-            float gain = 1 / (1 + Strength);
+            float gain = (float)(1 / (1 + Strength)), strength = (float)Strength;
             for (int sample = channel; sample < samples.Length; sample += channels) {
                 samples[sample] = (samples[sample] + cache[cachePos]) * gain;
-                cache[cachePos] = samples[sample] * Strength;
+                cache[cachePos] = samples[sample] * strength;
                 cachePos = (cachePos + 1) % delay;
             }
         }
