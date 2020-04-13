@@ -52,6 +52,7 @@
     <Compile Include="EQCurves\Flat.cs" />
     <Compile Include="EQCurves\Punch.cs" />
     <Compile Include="EQCurves\XCurve.cs" />
+    <Compile Include="Equalization\Band.cs" />
     <Compile Include="FilterAnalyzer.cs" />
     <Compile Include="Measurements.cs" />
     <Compile Include="NoiseGenerator.cs" />
