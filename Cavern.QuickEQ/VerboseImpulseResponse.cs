@@ -28,6 +28,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Impulse polarity, true if positive.</summary>
         public bool Polarity => Response[Delay] >= 0;
+
         /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
         public int Delay {
             get {
@@ -44,9 +45,8 @@ namespace Cavern.QuickEQ {
                 return delay;
             }
         }
-
-        /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
         int delay = -1;
+
         /// <summary>Peaks in the impulse response.</summary>
         /// <remarks>Calculated when <see cref="GetPeak(int)"/> is called.</remarks>
         Peak[] peaks = null;
@@ -58,7 +58,8 @@ namespace Cavern.QuickEQ {
         public VerboseImpulseResponse(float[] impulseResponse) => response = impulseResponse;
 
         /// <summary>Create a verbose impulse response from a reference signal and a recorded response.</summary>
-        public VerboseImpulseResponse(float[] reference, float[] response) : this(Measurements.IFFT(Measurements.GetFrequencyResponse(reference, response))) { }
+        public VerboseImpulseResponse(float[] reference, float[] response) :
+            this(Measurements.IFFT(Measurements.GetFrequencyResponse(reference, response))) { }
 
         /// <summary>Representation of a peak in the impulse response.</summary>
         public struct Peak {
