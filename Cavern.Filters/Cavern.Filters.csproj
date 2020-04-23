@@ -62,7 +62,7 @@
     <Compile Include="Lowpass.cs" />
     <Compile Include="LowShelf.cs" />
     <Compile Include="Notch.cs" />
-    <Compile Include="Peaking.cs" />
+    <Compile Include="PeakingEQ.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\QFactor.cs" />
   </ItemGroup>
