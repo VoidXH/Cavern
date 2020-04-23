@@ -21,7 +21,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="gain">Filter gain</param>
         public Bandpass(double lowFreq, double highFreq, int sampleRate, int resolution, double q = QFactor.reference, int order = 1, float gain = 6) {
             positioner = resolution * 2f / sampleRate;
-            float[] reference = Measurements.ExponentialSweep(20, sampleRate * .5f, resolution * 2, sampleRate), response = (float[])reference.Clone();
+            float[] reference = SweepGenerator.Exponential(20, sampleRate * .5f, resolution * 2, sampleRate), response = (float[])reference.Clone();
             BandpassFlat filter = new BandpassFlat(lowFreq, highFreq, sampleRate, q, order);
             filter.Process(response);
             spectrum = Measurements.GetSpectrum(Measurements.GetFrequencyResponse(reference, response));

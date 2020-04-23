@@ -81,8 +81,8 @@ namespace Cavern.QuickEQ {
         /// <summary>Generate <see cref="SweepReference"/> and the related optimization values.</summary>
         public void RegenerateSweep() {
             int sampleRate = AudioListener3D.Current.SampleRate;
-            SweepReference = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreq, SweepLength, sampleRate));
-            SweepReferenceLFE = Measurements.SweepFraming(Measurements.ExponentialSweep(StartFreq, EndFreqLFE, SweepLength, sampleRate));
+            SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, sampleRate));
+            SweepReferenceLFE = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreqLFE, SweepLength, sampleRate));
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
             WaveformUtils.Gain(SweepReferenceLFE, gainMult);

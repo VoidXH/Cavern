@@ -2,7 +2,7 @@
 
 namespace Cavern.QuickEQ {
     /// <summary>Generates noise for a single channel.</summary>
-    public class NoiseGenerator : Source {
+    public sealed class NoiseGenerator : Source {
         /// <summary>Target output channel.</summary>
         public int channel = 0;
 

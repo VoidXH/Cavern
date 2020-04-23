@@ -11,5 +11,8 @@
             Frequency = frequency;
             Gain = gain;
         }
+
+        /// <summary>Band data as text.</summary>
+        public override string ToString() => string.Format("{0} Hz: {1} dB", Frequency, Gain);
     }
 }

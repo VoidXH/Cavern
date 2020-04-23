@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
     /// <summary>Two plus two is four, minus one, that's three, quick maths.</summary>
@@ -52,6 +53,24 @@ namespace Cavern.Utilities {
                 value >>= 1;
             }
             return log;
+        }
+
+        /// <summary>Sum all elements in an array.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Sum(float[] array) {
+            float sum = 0;
+            for (int i = 0; i < array.Length; ++i)
+                sum += array[i];
+            return sum;
+        }
+
+        /// <summary>Sum absolute values of elements in an array.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float SumAbs(float[] array) {
+            float sum = 0;
+            for (int i = 0; i < array.Length; ++i)
+                sum += Math.Abs(array[i]);
+            return sum;
         }
     }
 }
