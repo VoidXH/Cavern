@@ -186,54 +186,6 @@ namespace Cavern.QuickEQ {
             return output;
         }
 
-        /// <summary>Generate a linear frequency sweep with a flat frequency response.</summary>
-        public static float[] LinearSweep(float startFreq, float endFreq, int samples, int sampleRate) {
-            float[] output = new float[samples];
-            double chirpyness = (endFreq - startFreq) / (2 * samples / (double)sampleRate);
-            for (int sample = 0; sample < samples; ++sample) {
-                double position = sample / (double)sampleRate;
-                output[sample] = (float)Math.Sin(2 * Math.PI * (startFreq * position + chirpyness * position * position));
-            }
-            return output;
-        }
-
-        /// <summary>Generate the frequencies at each sample's position in a linear frequency sweep.</summary>
-        public static float[] LinearSweepFreqs(float startFreq, float endFreq, int samples, int sampleRate) {
-            float[] freqs = new float[samples];
-            float chirpyness = endFreq - startFreq / (samples / (float)sampleRate);
-            for (int sample = 0; sample < samples; ++sample)
-                freqs[sample] = startFreq + chirpyness * sample / sampleRate;
-            return freqs;
-        }
-
-        /// <summary>Generate an exponential frequency sweep.</summary>
-        public static float[] ExponentialSweep(float startFreq, float endFreq, int samples, int sampleRate) {
-            float[] output = new float[samples];
-            double chirpyness = Math.Pow(endFreq / startFreq, sampleRate / (double)samples),
-                logChirpyness = Math.Log(chirpyness), sinConst = 2 * Math.PI * startFreq;
-            for (int sample = 0; sample < samples; ++sample)
-                output[sample] = (float)Math.Sin(sinConst * (Math.Pow(chirpyness, sample / (double)sampleRate) - 1) / logChirpyness);
-            return output;
-        }
-
-        /// <summary>Generate the frequencies at each sample's position in an exponential frequency sweep.</summary>
-        public static float[] ExponentialSweepFreqs(float startFreq, float endFreq, int samples, int sampleRate) {
-            float[] freqs = new float[samples];
-            double chirpyness = Math.Pow(endFreq / startFreq, sampleRate / (double)samples);
-            for (int sample = 0; sample < samples; ++sample)
-                freqs[sample] = startFreq + (float)Math.Pow(chirpyness, sample / (double)sampleRate);
-            return freqs;
-        }
-
-        /// <summary>Add silence to the beginning and the end of a sweep for a larger response window.</summary>
-        public static float[] SweepFraming(float[] sweep) {
-            int initialSilence = sweep.Length / 4;
-            float[] result = new float[sweep.Length * 2];
-            for (int sample = initialSilence, end = sweep.Length + initialSilence; sample < end; ++sample)
-                result[sample] = sweep[sample - initialSilence];
-            return result;
-        }
-
         /// <summary>Get the frequency response using the original sweep signal's FFT as reference.</summary>
         public static Complex[] GetFrequencyResponse(Complex[] referenceFFT, Complex[] responseFFT) {
             for (int sample = 0; sample < responseFFT.Length; ++sample)

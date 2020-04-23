@@ -60,6 +60,7 @@
     <Compile Include="Equalizer.cs" />
     <Compile Include="FFTCache.cs" />
     <Compile Include="GraphUtils.cs" />
+    <Compile Include="SweepGenerator.cs" />
     <Compile Include="VerboseImpulseResponse.cs" />
     <Compile Include="Windowing.cs" />
   </ItemGroup>
