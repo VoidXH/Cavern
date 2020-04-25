@@ -49,7 +49,7 @@ namespace Cavern.QuickEQ {
         public static float[] ConvertToGraph(Complex[] response, double startFreq, double endFreq, int sampleRate, int resultSize) {
             float[] graph = new float[resultSize];
             double step = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (graph.Length - 1)),
-                positioner = response.Length * 2 / (double)sampleRate;
+                positioner = response.Length / (double)sampleRate;
             for (int i = 0; i < graph.Length; ++i) {
                 graph[i] = response[(int)(startFreq * positioner)].Magnitude;
                 startFreq *= step;
