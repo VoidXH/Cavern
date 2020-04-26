@@ -28,10 +28,21 @@ namespace Cavern.Filters {
         protected double gain;
         /// <summary>Cached sample rate.</summary>
         protected int sampleRate;
-        /// <summary>Transfer function variable.</summary>
-        protected float a1, a2, b0 = 1, b1, b2;
         /// <summary>History sample.</summary>
         protected float x1, x2, y1, y2;
+
+#pragma warning disable IDE1006 // Naming Styles
+        /// <summary>Transfer function variable.</summary>
+        public float a1 { get; protected set; }
+        /// <summary>Transfer function variable.</summary>
+        public float a2 { get; protected set; }
+        /// <summary>Transfer function variable.</summary>
+        public float b0 { get; protected set; } = 1;
+        /// <summary>Transfer function variable.</summary>
+        public float b1 { get; protected set; }
+        /// <summary>Transfer function variable.</summary>
+        public float b2 { get; protected set; }
+#pragma warning restore IDE1006 // Naming Styles
 
         /// <summary>Simple first-order biquad filter.</summary>
         /// <param name="sampleRate">Audio sample rate</param>
