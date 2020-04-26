@@ -6,12 +6,6 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <summary>Get the curve's gain in decibels at a given frequency.</summary>
         public abstract float At(float frequency);
 
-        /// <summary>Add gain to a curve in decibels.</summary>
-        public static void AddGain(float[] curve, float gain) {
-            for (int pos = 0; pos < curve.Length; ++pos)
-                curve[pos] += gain;
-        }
-
         /// <summary>Create a curve from <see cref="CurveFunction"/> definitions.</summary>
         public static EQCurve CreateCurve(CurveFunction function) {
             switch (function) {
@@ -23,6 +17,8 @@ namespace Cavern.QuickEQ.EQCurves {
                     return new Depth();
                 case CurveFunction.Bandpass:
                     throw new Exception("Bandpass EQ should be created with its constructor.");
+                case CurveFunction.RoomCurve:
+                    return new RoomCurve();
                 default:
                     return new Flat();
             }

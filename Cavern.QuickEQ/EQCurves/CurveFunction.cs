@@ -10,6 +10,8 @@
         /// <summary>Adds a sub-bass slope for depth emphasis.</summary>
         Depth,
         /// <summary>Bandpass EQ curve, recommended for stage subwoofers.</summary>
-        Bandpass
+        Bandpass,
+        /// <summary>Frequently used target curve for very small rooms.</summary>
+        RoomCurve,
     }
 }
