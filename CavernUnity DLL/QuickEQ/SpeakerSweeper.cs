@@ -8,9 +8,6 @@ namespace Cavern.QuickEQ {
     /// <summary>Measures the frequency response of all output channels.</summary>
     [AddComponentMenu("Audio/QuickEQ/Speaker Sweeper")]
     public class SpeakerSweeper : MonoBehaviour {
-        /// <summary>Name of the recording device. If empty, de system default will be used.</summary>
-        [Tooltip("Name of the recording device. If empty, de system default will be used.")]
-        public string InputDevice = string.Empty;
         /// <summary>Frequency at the beginning of the sweep.</summary>
         [Tooltip("Frequency at the beginning of the sweep.")]
         [Range(1, 24000)] public float StartFreq = 20;
@@ -45,6 +42,8 @@ namespace Cavern.QuickEQ {
         /// <summary>Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
         /// <see cref="FreqResponses"/> are still being processed.</summary>
         public int Channel { get; private set; }
+        /// <summary>Measurement sample rate. Set after an <see cref="InputDevice"/> was selected.</summary>
+        public int SampleRate { get; private set; }
 
         /// <summary>Progress of the measurement process from 0 to 1.</summary>
         public float Progress {
@@ -56,6 +55,31 @@ namespace Cavern.QuickEQ {
                 return (float)sweepers[Listener.Channels.Length - 1].timeSamples / SweepReference.Length / Listener.Channels.Length;
             }
         }
+
+        /// <summary>Name of the recording device. If empty, the system default will be used.</summary>
+        public string InputDevice {
+            get {
+                if (inputDevice != null)
+                    return inputDevice;
+                return InputDevice = string.Empty;
+            }
+            set {
+                int oldSampleRate = SampleRate;
+                try {
+                    sweepResponse = Microphone.Start(value, false, 1, listener.SampleRate);
+                    Microphone.End(value);
+                    Destroy(sweepResponse);
+                    SampleRate = listener.SampleRate;
+                } catch {
+                    Microphone.GetDeviceCaps(value, out int min, out _);
+                    SampleRate = min;
+                }
+                if (SampleRate != oldSampleRate)
+                    RegenerateSweep();
+                inputDevice = value;
+            }
+        }
+        string inputDevice = null;
 
         /// <summary>Microphone input.</summary>
         AudioClip sweepResponse;
@@ -80,9 +104,8 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Generate <see cref="SweepReference"/> and the related optimization values.</summary>
         public void RegenerateSweep() {
-            int sampleRate = AudioListener3D.Current.SampleRate;
-            SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, sampleRate));
-            SweepReferenceLFE = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreqLFE, SweepLength, sampleRate));
+            SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
+            SweepReferenceLFE = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreqLFE, SweepLength, SampleRate));
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
             WaveformUtils.Gain(SweepReferenceLFE, gainMult);
@@ -105,6 +128,7 @@ namespace Cavern.QuickEQ {
         void OnEnable() {
             ResultAvailable = false;
             listener = AudioListener3D.Current;
+            SampleRate = listener.SampleRate;
             RegenerateSweep();
             Channel = 0;
             int channels = Listener.Channels.Length;
@@ -124,8 +148,7 @@ namespace Cavern.QuickEQ {
             if (!measurementStarted) {
                 measurementStarted = true;
                 if (Microphone.devices.Length != 0)
-                    sweepResponse = Microphone.Start(InputDevice, false,
-                        SweepReference.Length * Listener.Channels.Length / listener.SampleRate + 1, listener.SampleRate);
+                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Listener.Channels.Length / SampleRate + 1, SampleRate);
                 sweepers = new SweepChannel[Listener.Channels.Length];
                 for (int i = 0; i < Listener.Channels.Length; ++i) {
                     sweepers[i] = gameObject.AddComponent<SweepChannel>();
