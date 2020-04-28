@@ -14,9 +14,6 @@ namespace Cavern.QuickEQ {
         /// <summary>Frequency at the end of the sweep.</summary>
         [Tooltip("Frequency at the end of the sweep.")]
         [Range(1, 24000)] public float EndFreq = 20000;
-        /// <summary>Frequency at the end of the sweep.</summary>
-        [Tooltip("Frequency at the end of the sweep for the LFE channel.")]
-        [Range(1, 24000)] public float EndFreqLFE = 200;
         /// <summary>Measurement signal gain in decibels relative to full scale.</summary>
         [Tooltip("Measurement signal gain in decibels relative to full scale.")]
         [Range(-50, 0)] public float SweepGain = -20;
@@ -37,13 +34,20 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Measurement signal samples.</summary>
         public float[] SweepReference { get; private set; }
-        /// <summary>Measurement signal samples for LFE channels.</summary>
-        public float[] SweepReferenceLFE { get; private set; }
         /// <summary>Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
         /// <see cref="FreqResponses"/> are still being processed.</summary>
         public int Channel { get; private set; }
+
         /// <summary>Measurement sample rate. Set after an <see cref="InputDevice"/> was selected.</summary>
-        public int SampleRate { get; internal set; }
+        public int SampleRate {
+            get {
+                if (sampleRate != 0)
+                    return sampleRate;
+                return sampleRate = AudioListener3D.Current.SampleRate;
+            }
+            internal set => sampleRate = value;
+        }
+        int sampleRate;
 
         /// <summary>Progress of the measurement process from 0 to 1.</summary>
         public float Progress {
@@ -93,8 +97,6 @@ namespace Cavern.QuickEQ {
         bool oldVirtualizer;
         /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
         Complex[] sweepFFT;
-        /// <summary><see cref="SweepReferenceLFE"/>'s Fourier transform for response calculation optimizations.</summary>
-        Complex[] sweepFFT_LFE;
         /// <summary>FFT constant cache for the sweep FFT size.</summary>
         FFTCache sweepFFTCache;
         /// <summary>Sweep playback objects.</summary>
@@ -105,21 +107,14 @@ namespace Cavern.QuickEQ {
         /// <summary>Generate <see cref="SweepReference"/> and the related optimization values.</summary>
         public void RegenerateSweep() {
             SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
-            SweepReferenceLFE = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreqLFE, SweepLength, SampleRate));
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
-            WaveformUtils.Gain(SweepReferenceLFE, gainMult);
             sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
-            sweepFFT_LFE = Measurements.FFT(SweepReferenceLFE, sweepFFTCache);
         }
 
         /// <summary>Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.</summary>
         public Complex[] GetFrequencyResponse(float[] samples) =>
             Measurements.GetFrequencyResponse(sweepFFT, Measurements.FFT(samples, sweepFFTCache));
-
-        /// <summary>Get the frequency response of an external LFE measurement that was performed with <see cref="sweepFFT_LFE"/>.</summary>
-        public Complex[] GetFrequencyResponseLFE(float[] samples) =>
-            Measurements.GetFrequencyResponse(sweepFFT_LFE, Measurements.FFT(samples, sweepFFTCache));
 
         /// <summary>Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[])"/>.</summary>
         public VerboseImpulseResponse GetImpulseResponse(Complex[] frequencyResponse) =>
@@ -167,7 +162,7 @@ namespace Cavern.QuickEQ {
                 ExcitementResponses[Channel] = result;
                 int cID = Channel;
                 (workers[Channel] = new Task<WorkerResult>(() =>
-                    new WorkerResult(Listener.Channels[cID].LFE ? sweepFFT_LFE : sweepFFT, sweepFFTCache, result))).Start();
+                    new WorkerResult(sweepFFT, sweepFFTCache, result))).Start();
                 if (++Channel == Listener.Channels.Length) {
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                         if (workers[channel].Result.IsNull())

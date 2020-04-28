@@ -31,7 +31,7 @@ namespace Cavern.QuickEQ {
             }
 
             protected override float[] Collect() {
-                float[] samples = Listener.Channels[Channel].LFE ? Sweeper.SweepReferenceLFE : Sweeper.SweepReference;
+                float[] samples = Sweeper.SweepReference;
                 Array.Clear(rendered, 0, rendered.Length);
                 if (IsPlaying && !Mute) {
                     int sweepLength = samples.Length, delay = Channel * sweepLength, channels = Listener.Channels.Length;
