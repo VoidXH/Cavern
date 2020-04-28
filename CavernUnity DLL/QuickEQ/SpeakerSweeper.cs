@@ -43,7 +43,7 @@ namespace Cavern.QuickEQ {
         /// <see cref="FreqResponses"/> are still being processed.</summary>
         public int Channel { get; private set; }
         /// <summary>Measurement sample rate. Set after an <see cref="InputDevice"/> was selected.</summary>
-        public int SampleRate { get; private set; }
+        public int SampleRate { get; internal set; }
 
         /// <summary>Progress of the measurement process from 0 to 1.</summary>
         public float Progress {

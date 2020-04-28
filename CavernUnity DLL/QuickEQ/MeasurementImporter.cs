@@ -38,10 +38,12 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Start importing a previous measurement. Status can be tracked in <see cref="Status"/>.</summary>
         /// <param name="samples">Single-channel microphone recording of a QuickEQ measurement</param>
+        /// <param name="sampleRate">Sample rate of <paramref name="samples"/></param>
         /// <param name="sweeper">Sweeper instance to put the results in</param>
-        public MeasurementImporter(float[] samples, SpeakerSweeper sweeper) {
+        public MeasurementImporter(float[] samples, int sampleRate, SpeakerSweeper sweeper) {
             data = samples;
             this.sweeper = sweeper;
+            sweeper.SampleRate = sampleRate;
             sweeper.ImpResponses = new VerboseImpulseResponse[0];
             sweeper.ResultAvailable = false;
             runner = new Task(Process);
