@@ -69,12 +69,12 @@ namespace Cavern.QuickEQ {
             }
             set {
                 int oldSampleRate = SampleRate;
-                try {
-                    sweepResponse = Microphone.Start(value, false, 1, listener.SampleRate);
+                sweepResponse = Microphone.Start(value, false, 1, listener.SampleRate);
+                if (sweepResponse != null) {
                     Microphone.End(value);
                     Destroy(sweepResponse);
                     SampleRate = listener.SampleRate;
-                } catch {
+                } else {
                     Microphone.GetDeviceCaps(value, out int min, out _);
                     SampleRate = min;
                 }
