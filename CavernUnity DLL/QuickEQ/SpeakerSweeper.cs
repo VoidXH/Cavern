@@ -69,11 +69,11 @@ namespace Cavern.QuickEQ {
             }
             set {
                 int oldSampleRate = SampleRate;
-                sweepResponse = Microphone.Start(value, false, 1, listener.SampleRate);
+                sweepResponse = Microphone.Start(value, false, 1, AudioListener3D.Current.SampleRate);
                 if (sweepResponse != null) {
                     Microphone.End(value);
                     Destroy(sweepResponse);
-                    SampleRate = listener.SampleRate;
+                    SampleRate = AudioListener3D.Current.SampleRate;
                 } else {
                     Microphone.GetDeviceCaps(value, out int min, out _);
                     SampleRate = min;
@@ -87,8 +87,6 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Microphone input.</summary>
         AudioClip sweepResponse;
-        /// <summary>Cached listener.</summary>
-        AudioListener3D listener;
         /// <summary>A hack to fix lost playback from the initial hanging caused by sweep generation in <see cref="OnEnable"/>.</summary>
         bool measurementStarted;
         /// <summary>LFE pass-through before the measurement. LFE pass-through is on while measuring.</summary>
@@ -122,8 +120,6 @@ namespace Cavern.QuickEQ {
 
         void OnEnable() {
             ResultAvailable = false;
-            listener = AudioListener3D.Current;
-            SampleRate = listener.SampleRate;
             RegenerateSweep();
             Channel = 0;
             int channels = Listener.Channels.Length;
@@ -132,9 +128,9 @@ namespace Cavern.QuickEQ {
             ExcitementResponses = new float[channels][];
             Equalizers = new Equalizer[channels];
             workers = new Task<WorkerResult>[channels];
-            oldDirectLFE = listener.DirectLFE;
+            oldDirectLFE = AudioListener3D.Current.DirectLFE;
             oldVirtualizer = Listener.HeadphoneVirtualizer;
-            listener.DirectLFE = true;
+            AudioListener3D.Current.DirectLFE = true;
             Listener.HeadphoneVirtualizer = false;
             measurementStarted = false;
         }
@@ -189,7 +185,7 @@ namespace Cavern.QuickEQ {
             sweepers = null;
             if (sweepResponse)
                 Destroy(sweepResponse);
-            listener.DirectLFE = oldDirectLFE;
+            AudioListener3D.Current.DirectLFE = oldDirectLFE;
             Listener.HeadphoneVirtualizer = oldVirtualizer;
         }
 
