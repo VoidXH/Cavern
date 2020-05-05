@@ -76,7 +76,10 @@ namespace Cavern.QuickEQ {
                     SampleRate = AudioListener3D.Current.SampleRate;
                 } else {
                     Microphone.GetDeviceCaps(value, out int min, out _);
-                    SampleRate = min;
+                    if (min == 0)
+                        SampleRate = 48000;
+                    else
+                        SampleRate = min;
                 }
                 if (SampleRate != oldSampleRate)
                     RegenerateSweep();
