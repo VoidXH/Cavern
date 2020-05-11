@@ -92,28 +92,28 @@ namespace Cavern.QuickEQ {
                 SubsonicFilter = true;
         }
 
-        /// <summary>Visualize with a custom enumerator.</summary>
-        /// <param name="enumerator">Enumerates values by the frequency axis, with a given scale</param>
+        /// <summary>Shows the EQ curve in a linearly scaled frequency axis.</summary>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="length">Points on the curve</param>
-        float[] Visualize(Action<float[], double, double, GraphUtils.FrequencyFunction<float>> enumerator,
-            double startFreq, double endFreq, int length) {
+        public float[] VisualizeLinear(double startFreq, double endFreq, int length) {
             float[] result = new float[length];
-            int bandCount = bands.Count, nextBand = 0, prevBand = 0;
+            int bandCount = bands.Count;
             if (bandCount == 0)
                 return result;
-            enumerator(result, startFreq, endFreq, (double freq, ref float value) => {
+            double step = (endFreq - startFreq) / (length - 1);
+            for (int entry = 0, nextBand = 0, prevBand = 0; entry < length; ++entry) {
+                double freq = startFreq + step * entry;
                 while (nextBand != bandCount && bands[nextBand].Frequency < freq) {
                     prevBand = nextBand;
                     ++nextBand;
                 }
                 if (nextBand != bandCount && nextBand != 0)
-                    value = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
+                    result[entry] = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
                         QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, freq));
                 else
-                    value = (float)bands[prevBand].Gain;
-            });
+                    result[entry] = (float)bands[prevBand].Gain;
+            }
             return result;
         }
 
@@ -121,7 +121,26 @@ namespace Cavern.QuickEQ {
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="length">Points on the curve</param>
-        public float[] Visualize(double startFreq, double endFreq, int length) => Visualize(GraphUtils.ForEachLog, startFreq, endFreq, length);
+        public float[] Visualize(double startFreq, double endFreq, int length) {
+            float[] result = new float[length];
+            int bandCount = bands.Count;
+            if (bandCount == 0)
+                return result;
+            double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (length - 1));
+            for (int i = 0, nextBand = 0, prevBand = 0; i < length; ++i) {
+                while (nextBand != bandCount && bands[nextBand].Frequency < startFreq) {
+                    prevBand = nextBand;
+                    ++nextBand;
+                }
+                if (nextBand != bandCount && nextBand != 0)
+                    result[i] = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
+                        QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, startFreq));
+                else
+                    result[i] = (float)bands[prevBand].Gain;
+                startFreq *= mul;
+            }
+            return result;
+        }
 
         /// <summary>Shows the resulting frequency response if this EQ is applied.</summary>
         /// <param name="response">Frequency response curve to apply the EQ on, from
@@ -140,7 +159,7 @@ namespace Cavern.QuickEQ {
         /// <param name="sampleRate">Sample rate where <paramref name="response"/> was generated</param>
         public void Apply(Complex[] response, int sampleRate) {
             int halfLength = response.Length / 2 + 1, nyquist = sampleRate / 2;
-            float[] filter = Visualize(GraphUtils.ForEachLin, 0, nyquist, halfLength);
+            float[] filter = VisualizeLinear(0, nyquist, halfLength);
             response[0] *= (float)Math.Pow(10, filter[0] * .05f);
             for (int i = 1, end = response.Length; i < halfLength; ++i) {
                 response[i] *= (float)Math.Pow(10, filter[i] * .05f);
