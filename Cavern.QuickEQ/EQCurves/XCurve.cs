@@ -80,7 +80,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
-        public override float[] GenerateLogCurve(int length, float startFreq, float endFreq) {
+        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq) {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = length / (Math.Log10(endFreq) - powerMin);
             int midKnee = (int)((log10_2000 - powerMin) * powerRange), highKnee = (int)((log10_10000 - powerMin) * powerRange);
@@ -108,8 +108,8 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="gain">Curve reference level</param>
-        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, float, float)"/>, it's faster.</remarks>
-        public override float[] GenerateLogCurve(int length, float startFreq, float endFreq, float gain) {
+        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, double, double)"/>, it's faster.</remarks>
+        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq, float gain) {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = length / (Math.Log10(endFreq) - powerMin);
             int midKnee = (int)((log10_2000 - powerMin) * powerRange), highKnee = (int)((log10_10000 - powerMin) * powerRange);

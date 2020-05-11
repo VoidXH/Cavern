@@ -31,13 +31,13 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Convert a response curve back from Decibel scale.</summary>
+        /// <summary>Convert a response curve back from decibel scale.</summary>
         public static void ConvertFromDecibels(float[] curve) {
             for (int i = 0; i < curve.Length; ++i)
                 curve[i] = (float)Math.Pow(10, curve[i] * .05f);
         }
 
-        /// <summary>Convert a response curve to Decibel scale.</summary>
+        /// <summary>Convert a response curve to decibel scale.</summary>
         public static void ConvertToDecibels(float[] curve, float minimum = -100) {
             for (int i = 0; i < curve.Length; ++i) {
                 curve[i] = 20 * (float)Math.Log10(curve[i]);

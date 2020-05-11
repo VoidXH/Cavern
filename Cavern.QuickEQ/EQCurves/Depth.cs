@@ -50,13 +50,13 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
-        public override float[] GenerateLogCurve(int length, float startFreq, float endFreq) {
+        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq) {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = (Math.Log10(endFreq) - powerMin) / length;
             int at60 = (int)((log10_60 - powerMin) / powerRange);
             if (at60 > length)
                 at60 = length;
-            float startGain = At(startFreq), positioner = startGain / at60;
+            float startGain = At((float)startFreq), positioner = startGain / at60;
             for (int pos = 0; pos < at60; ++pos)
                 curve[pos] = startGain - pos * positioner;
             return curve;
@@ -67,14 +67,14 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="gain">Curve reference level</param>
-        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, float, float)"/>, it's faster.</remarks>
-        public override float[] GenerateLogCurve(int length, float startFreq, float endFreq, float gain) {
+        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, double, double)"/>, it's faster.</remarks>
+        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq, float gain) {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = (Math.Log10(endFreq) - powerMin) / length;
             int at60 = (int)((log10_60 - powerMin) / powerRange);
             if (at60 > length)
                 at60 = length;
-            float startGain = At(startFreq), positioner = startGain / at60;
+            float startGain = At((float)startFreq), positioner = startGain / at60;
             for (int pos = 0; pos < at60; ++pos)
                 curve[pos] = startGain - pos * positioner + gain;
             for (int pos = at60; pos < length; ++pos)

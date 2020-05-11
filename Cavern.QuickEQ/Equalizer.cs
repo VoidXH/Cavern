@@ -327,12 +327,13 @@ namespace Cavern.QuickEQ {
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length,
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2), bands = octaveRange / resolution + 1;
             int windowSize = graph.Length / (int)bands, windowEdge = windowSize / 2;
+            float[] refGain = targetCurve.GenerateLogCurve(graph.Length, startFreq, endFreq, targetGain);
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
                 float centerFreq = (float)Math.Pow(10, startPow + powRange * pos), average = 0;
                 int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, graph.Length);
                 for (int sample = start; sample < end; ++sample)
                     average += graph[sample];
-                float addition = targetCurve.At(centerFreq) + targetGain - average / (end - start);
+                float addition = refGain[pos] + targetGain - average / (end - start);
                 if (addition <= maxGain)
                     result.bands.Add(new Band(centerFreq, addition));
             }
@@ -361,11 +362,12 @@ namespace Cavern.QuickEQ {
                 if ((lower < graph[sample] && Upper > graph[sample]) || (lower > graph[sample] && Upper < graph[sample]))
                     windowEdges.Add(sample);
             }
+            float[] refGain = targetCurve.GenerateLogCurve(length, startFreq, endFreq, targetGain);
             for (int sample = 0, end = windowEdges.Count - 1; sample < end; ++sample) {
                 int windowPos = windowEdges[sample];
-                float frequency = (float)Math.Pow(10, startPow + powRange * windowPos), refGain = targetCurve.At(frequency) + targetGain;
-                if (graph[windowPos] > refGain - maxGain)
-                    result.bands.Add(new Band(frequency, refGain - graph[windowPos]));
+                float frequency = (float)Math.Pow(10, startPow + powRange * windowPos);
+                if (graph[windowPos] > refGain[windowPos] - maxGain)
+                    result.bands.Add(new Band(frequency, refGain[windowPos] - graph[windowPos]));
             }
             result.RecalculatePeakGain();
             return result;

@@ -6,11 +6,20 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <summary>Hardcoded log10(120), as C# compilers don't optimize this.</summary>
         const float log10_120 = 2.07918124605f;
 
+        /// <summary>Filter gain in decibels.</summary>
+        public double Gain { get; private set; }
+
+        /// <summary>EQ curve with a 6 dB bass bump for punch emphasis.</summary>
+        public Punch() => Gain = 3;
+
+        /// <summary>EQ curve with a bass bump at custom gain for punch emphasis.</summary>
+        public Punch(double gain) => Gain = gain / 2;
+
         /// <summary>Get the curve's gain in decibels at a given frequency.</summary>
         public override float At(float frequency) {
             if (frequency > 120)
                 return 0;
-            return (float)(1 - Math.Cos(2 * Math.PI / 120 * frequency)) * 6;
+            return (float)((1 - Math.Cos(2 * Math.PI / 120 * frequency)) * Gain);
         }
 
         /// <summary>Generate a linear curve for correction generators.</summary>
@@ -23,7 +32,7 @@ namespace Cavern.QuickEQ.EQCurves {
             if (at120 > length)
                 at120 = length;
             for (int pos = 0; pos < at120; ++pos)
-                curve[pos] = (float)(1 - Math.Cos(2 * Math.PI / 120 * pos * positioner)) * 6;
+                curve[pos] = (float)((1 - Math.Cos(2 * Math.PI / 120 * pos * positioner)) * Gain);
             return curve;
         }
 
@@ -39,7 +48,7 @@ namespace Cavern.QuickEQ.EQCurves {
             if (at120 > length)
                 at120 = length;
             for (int pos = 0; pos < at120; ++pos)
-                curve[pos] = gain + (float)(1 - Math.Cos(2 * Math.PI / 120 * pos * positioner)) * 6;
+                curve[pos] = gain + (float)((1 - Math.Cos(2 * Math.PI / 120 * pos * positioner)) * Gain);
             for (int pos = at120; pos < length; ++pos)
                 curve[pos] = gain;
             return curve;
@@ -49,12 +58,13 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
-        public override float[] GenerateLogCurve(int length, float startFreq, float endFreq) {
+        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq) {
             float[] curve = new float[length];
-            float freqHere = startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length), powerMin = (float)Math.Log10(startFreq);
+            float freqHere = (float)startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length),
+                powerMin = (float)Math.Log10(startFreq);
             int at120 = (int)((log10_120 - powerMin) / (Math.Log10(endFreq) - powerMin) * length);
             for (int pos = 0; pos < at120; ++pos) {
-                curve[pos] = (float)(1 - Math.Cos(2 * Math.PI / 120 * freqHere)) * 6;
+                curve[pos] = (float)((1 - Math.Cos(2 * Math.PI / 120 * freqHere)) * Gain);
                 freqHere *= multiplier;
             }
             return curve;
@@ -65,13 +75,14 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="gain">Curve reference level</param>
-        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, float, float)"/>, it's faster.</remarks>
-        public override float[] GenerateLogCurve(int length, float startFreq, float endFreq, float gain) {
+        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, double, double)"/>, it's faster.</remarks>
+        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq, float gain) {
             float[] curve = new float[length];
-            float freqHere = startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length), powerMin = (float)Math.Log10(startFreq);
+            float freqHere = (float)startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length),
+                powerMin = (float)Math.Log10(startFreq);
             int at120 = (int)((log10_120 - powerMin) / (Math.Log10(endFreq) - powerMin) * length);
             for (int pos = 0; pos < at120; ++pos) {
-                curve[pos] = (float)(1 - Math.Cos(2 * Math.PI / 120 * freqHere)) * 6 + gain;
+                curve[pos] = (float)((1 - Math.Cos(2 * Math.PI / 120 * freqHere)) * Gain) + gain;
                 freqHere *= multiplier;
             }
             for (int pos = at120; pos < length; ++pos)

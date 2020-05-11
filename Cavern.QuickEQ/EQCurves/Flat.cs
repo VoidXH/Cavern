@@ -24,14 +24,14 @@
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
-        public override float[] GenerateLogCurve(int length, float startFreq, float endFreq) => new float[length];
+        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq) => new float[length];
 
         /// <summary>Generate a logarithmic curve for correction generators.</summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="gain">Curve reference level</param>
-        public override float[] GenerateLogCurve(int length, float startFreq, float endFreq, float gain) {
+        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq, float gain) {
             float[] curve = new float[length];
             for (int pos = 0; pos < length; ++pos)
                 curve[pos] = gain;

@@ -63,9 +63,9 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
-        public virtual float[] GenerateLogCurve(int length, float startFreq, float endFreq) {
+        public virtual float[] GenerateLogCurve(int length, double startFreq, double endFreq) {
             float[] curve = new float[length];
-            float freqHere = startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length);
+            float freqHere = (float)startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length);
             for (int pos = 0; pos < length; ++pos) {
                 curve[pos] = At(freqHere);
                 freqHere *= multiplier;
@@ -78,10 +78,10 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="gain">Curve reference level</param>
-        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, float, float)"/>, it's faster.</remarks>
-        public virtual float[] GenerateLogCurve(int length, float startFreq, float endFreq, float gain) {
+        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, double, double)"/>, it's faster.</remarks>
+        public virtual float[] GenerateLogCurve(int length, double startFreq, double endFreq, float gain) {
             float[] curve = new float[length];
-            float freqHere = startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length);
+            float freqHere = (float)startFreq, multiplier = (float)Math.Pow(endFreq / startFreq, 1f / length);
             for (int pos = 0; pos < length; ++pos) {
                 curve[pos] = At(freqHere) + gain;
                 freqHere *= multiplier;
@@ -90,8 +90,8 @@ namespace Cavern.QuickEQ.EQCurves {
         }
 
         /// <summary>
-        /// If you have overridden <see cref="GenerateLogCurve(int, float, float)"/>, but not <see cref="GenerateLogCurve(int, float, float, float)"/>,
-        /// the latter should return this for increased performance.
+        /// If you have overridden <see cref="GenerateLogCurve(int, double, double)"/>, but not
+        /// <see cref="GenerateLogCurve(int, double, double, float)"/>, the latter should return this for increased performance.
         /// </summary>
         protected float[] GenerateLogCurveOptimized(int length, int sampleRate, float gain) {
             float[] curve = GenerateLogCurve(length, sampleRate, gain);
