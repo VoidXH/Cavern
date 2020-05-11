@@ -48,6 +48,10 @@ namespace Cavern.QuickEQ {
         public double PeakGain { get; private set; }
 
         void RecalculatePeakGain() {
+            if (bands.Count == 0) {
+                PeakGain = 0;
+                return;
+            }
             PeakGain = bands[0].Gain;
             for (int band = 1, count = bands.Count; band < count; ++band)
                 if (PeakGain < bands[band].Gain)
@@ -327,7 +331,7 @@ namespace Cavern.QuickEQ {
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length,
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2), bands = octaveRange / resolution + 1;
             int windowSize = graph.Length / (int)bands, windowEdge = windowSize / 2;
-            float[] refGain = targetCurve.GenerateLogCurve(graph.Length, startFreq, endFreq, targetGain);
+            float[] refGain = targetCurve.GenerateLogCurve(graph.Length, startFreq, endFreq);
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
                 float centerFreq = (float)Math.Pow(10, startPow + powRange * pos), average = 0;
                 int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, graph.Length);
@@ -373,7 +377,8 @@ namespace Cavern.QuickEQ {
             return result;
         }
 
-        /// <summary>Parse a calibration text where each line is a frequency-gain (dB) pair, and the lines are sorted ascending by frequency.</summary>
+        /// <summary>Parse a calibration text where each line is a frequency-gain (dB) pair,
+        /// and the lines are sorted ascending by frequency.</summary>
         /// <param name="lines">Lines of the calibration file</param>
         public static Equalizer FromCalibration(string[] lines) {
             Equalizer result = new Equalizer();
@@ -387,7 +392,8 @@ namespace Cavern.QuickEQ {
             return result;
         }
 
-        /// <summary>Parse a calibration file where each line is a frequency-gain (dB) pair, and the lines are sorted ascending by frequency.</summary>
+        /// <summary>Parse a calibration file where each line is a frequency-gain (dB) pair,
+        /// and the lines are sorted ascending by frequency.</summary>
         /// <param name="path">Path to the calibration file</param>
         public static Equalizer FromCalibrationFile(string path) => FromCalibration(File.ReadAllLines(path));
     }
