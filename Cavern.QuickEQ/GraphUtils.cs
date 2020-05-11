@@ -110,8 +110,8 @@ namespace Cavern.QuickEQ {
                 average += samples[sample];
             for (int sample = 0; sample < windowSize; ++sample) {
                 int newSample = sample + windowSize;
-                average += samples[newSample];
                 smoothed[sample] = average / newSample;
+                average += samples[newSample];
             }
             for (int sample = windowSize; sample < lastBlock; ++sample) {
                 int oldSample = sample - windowSize, newSample = sample + windowSize;
