@@ -341,7 +341,7 @@ namespace Cavern.QuickEQ {
         public static Equalizer CorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
             float resolution = 1 / 3f, float maxGain = 6) {
             Equalizer result = new Equalizer();
-            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length,
+            double startPow = Math.Log10(startFreq), powRange = (Math.Log10(endFreq) - startPow) / graph.Length,
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2), bands = octaveRange / resolution + 1;
             int windowSize = graph.Length / (int)bands, windowEdge = windowSize / 2;
             float[] refGain = targetCurve.GenerateLogCurve(graph.Length, startFreq, endFreq);
