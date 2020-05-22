@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-
+using System.Reflection.Emit;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.EQCurves;
@@ -197,20 +197,33 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Gets a convolution filter that results in this EQ when applied.</summary>
+        /// <summary>Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.</summary>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
         /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
         /// <param name="gain">Signal voltage multiplier</param>
         public float[] GetConvolution(int sampleRate, int length = 1024, float gain = 1) {
-            int processedLength = length * 2;
-            Complex[] filter = new Complex[processedLength];
-            for (int i = 0; i < processedLength; ++i)
+            length <<= 1;
+            Complex[] filter = new Complex[length];
+            for (int i = 0; i < length; ++i)
                 filter[i].Real = gain; // FFT of DiracDelta(x)
             Apply(filter, sampleRate);
-            FFTCache cache = new FFTCache(processedLength);
-            MinimumPhaseSpectrum(filter);
+            FFTCache cache = new FFTCache(length);
+            MinimumPhaseSpectrum(filter, cache);
             Measurements.InPlaceIFFT(filter, cache);
             return Measurements.GetRealPartHalf(filter);
+        }
+
+        /// <summary>Gets a linear phase convolution filter that results in this EQ when applied.</summary>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
+        /// <param name="gain">Signal voltage multiplier</param>
+        public float[] GetLinearConvolution(int sampleRate, int length = 1024, float gain = 1) {
+            Complex[] filter = new Complex[length];
+            for (int i = 0; i < length; ++i)
+                filter[i].Real = i % 2 == 0 ? gain : -gain; // FFT of DiracDelta(x - length/2)
+            Apply(filter, sampleRate);
+            Measurements.InPlaceIFFT(filter);
+            return Measurements.GetRealPart(filter);
         }
 
         /// <summary>Create a peaking EQ filter set with bands at the positions of the EQ's bands to approximate the drawn EQ curve.</summary>
