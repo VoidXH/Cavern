@@ -4,6 +4,16 @@ using System.Runtime.CompilerServices;
 namespace Cavern.Utilities {
     /// <summary>Two plus two is four, minus one, that's three, quick maths.</summary>
     public static class QMath {
+        /// <summary>Clamp a double between limits.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Clamp(double value, double min, double max) {
+            if (value < min)
+                return min;
+            if (value > max)
+                return max;
+            return value;
+        }
+
         /// <summary>Clamp a float between limits.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Clamp(float value, float min, float max) {

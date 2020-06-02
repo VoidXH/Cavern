@@ -54,6 +54,7 @@
     <Compile Include="EQCurves\RoomCurve.cs" />
     <Compile Include="EQCurves\XCurve.cs" />
     <Compile Include="Equalization\Band.cs" />
+    <Compile Include="Equalization\PeakingEqualizer.cs" />
     <Compile Include="FilterAnalyzer.cs" />
     <Compile Include="Measurements.cs" />
     <Compile Include="NoiseGenerator.cs" />
