@@ -191,9 +191,8 @@ namespace Cavern.Cavernize {
                 }
             }
             // Overwrite channel data with new output, even if it's empty
-            float effectMult = Effect * 15f;
             foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
-                channel.Value.Tick(effectMult, smoothFactor, GroundCrossover, Visualize);
+                channel.Value.Tick(Effect, smoothFactor, GroundCrossover, Visualize);
             timeSamples += updateRate;
         }
 
@@ -204,7 +203,7 @@ namespace Cavern.Cavernize {
                     channel.Value.TicksTook = 0;
             }
             ++source.TicksTook;
-            return new float[1][] { groundLevel ? source.Filter.LowOutput : source.Filter.HighOutput };
+            return new float[1][] { source.GetOutput(groundLevel) };
         }
 
         void OnDestroy() {
