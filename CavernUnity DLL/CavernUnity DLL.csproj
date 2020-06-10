@@ -51,11 +51,11 @@
     <Reference Include="System.Data" />
     <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\2019.3.0f6\Editor\Data\Managed\UnityEditor.dll</HintPath>
+      <HintPath>..\..\..\2019.4.0f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\2019.3.0f6\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\2019.4.0f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
