@@ -19,6 +19,18 @@ Cavern is a fully adaptive object-based audio engine and upmixer without limitat
 * [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
 * [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
 
+## How to build
+### Cavern
+Cavern is a .NET Framework project with no dependencies. Open the solution with
+Microsoft Visual Studio 2019 or later and all projects should build except
+CavernUnity DLL.
+
+### Cavern for Unity
+Open the solution with Microsoft Visual Studio 2019. Remove the references from
+the CavernUnity DLL project to UnityEngine and UnityEditor. Add these files from
+your own Unity installation as references. They are found in Editor\Data\Managed
+under Unity's installation folder.
+
 ## Disclaimers
 ### Code
 Cavern is a performance software written in an environment that's not ready for
