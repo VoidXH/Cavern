@@ -90,5 +90,12 @@ namespace Cavern.Filters {
             lows = LowOutput;
             highs = HighOutput;
         }
+
+        /// <summary>Create empty outputs for a given <paramref name="updateRate"/>> in case they are used before processing.
+        /// This optimizes zero checks.</summary>
+        public void PresetOutput(int updateRate) {
+            LowOutput = new float[updateRate];
+            HighOutput = new float[updateRate];
+        }
     }
 }

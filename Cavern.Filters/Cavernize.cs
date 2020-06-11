@@ -68,5 +68,9 @@ namespace Cavern.Filters {
                 maxHeight = 1;
             Height = (maxHeight - Height) * SmoothFactor + Height;
         }
+
+        /// <summary>Create empty outputs for a given <paramref name="updateRate"/>> in case they are used before processing.
+        /// This optimizes zero checks.</summary>
+        public void PresetOutput(int updateRate) => crossover.PresetOutput(updateRate);
     }
 }

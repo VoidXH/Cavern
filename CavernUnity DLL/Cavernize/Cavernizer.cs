@@ -31,7 +31,8 @@ namespace Cavern.Cavernize {
         [Tooltip("Smooth object movements.")]
         [Range(0, 1)] public float Smoothness = .8f;
 
-        /// <summary>Creates missing channels from existing ones. Works best if the source is matrix-encoded. Not recommended for Gaming 3D setups.</summary>
+        /// <summary>Creates missing channels from existing ones. Works best if the source is matrix-encoded.
+        /// Not recommended for Gaming 3D setups.</summary>
         [Header("Matrix Upmix")]
         [Tooltip("Creates missing channels from existing ones. Works best if the source is matrix-encoded. Not recommended for Gaming 3D setups.")]
         public bool MatrixUpmix = true;
@@ -162,7 +163,8 @@ namespace Cavern.Cavernize {
                             mains[2].WrittenOutput = true;
                         }
                         if (!mains[6].WrittenOutput) { // Matrix mix for sides
-                            float[] leftFront = mains[0].Output, rightFront = mains[1].Output, leftSide = mains[6].Output, rightSide = mains[7].Output;
+                            float[] leftFront = mains[0].Output, rightFront = mains[1].Output,
+                                leftSide = mains[6].Output, rightSide = mains[7].Output;
                             for (int offset = 0; offset < updateRate; ++offset) {
                                 leftSide[offset] = (leftFront[offset] - rightFront[offset]) * .5f;
                                 rightSide[offset] = -leftSide[offset];
@@ -179,7 +181,8 @@ namespace Cavern.Cavernize {
                                 }
                             }
                             if (rearsAvailable) {
-                                float[] leftSide = mains[6].Output, rightSide = mains[7].Output, leftRear = mains[4].Output, rightRear = mains[5].Output;
+                                float[] leftSide = mains[6].Output, rightSide = mains[7].Output,
+                                    leftRear = mains[4].Output, rightRear = mains[5].Output;
                                 for (int offset = 0; offset < updateRate; ++offset) {
                                     leftRear[offset] = (leftSide[offset] *= .5f);
                                     rightRear[offset] = (rightSide[offset] *= .5f);
