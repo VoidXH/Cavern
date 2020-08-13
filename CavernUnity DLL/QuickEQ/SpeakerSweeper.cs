@@ -159,7 +159,6 @@ namespace Cavern.QuickEQ {
                 else
                     result = (float[])result.Clone();
                 ExcitementResponses[Channel] = result;
-                int cID = Channel;
                 (workers[Channel] = new Task<WorkerResult>(() =>
                     new WorkerResult(sweepFFT, sweepFFTCache, result))).Start();
                 if (++Channel == Listener.Channels.Length) {

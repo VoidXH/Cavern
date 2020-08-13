@@ -78,17 +78,15 @@ namespace Cavern.FilterInterfaces {
             Vector3 direction = Vector3.zero;
             for (int horizontal = 0; horizontal < Detail; ++horizontal) {
                 for (int vertical = 0; vertical < Detail; ++vertical) {
-                    Vector3 lastPos = transform.position;
                     Vector3 lastDir = Quaternion.Euler(direction) * Vector3.forward;
                     for (int hitCount = 0; hitCount < Bounces; ++hitCount) {
-                        if (Physics.Raycast(lastPos, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
-                            lastPos = hit.point;
+                        if (Physics.Raycast(transform.position, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
                             lastDir = Vector3.Reflect(lastDir, hit.normal);
                             float distance = Vector3.Distance(transform.position, hit.point), volume = 1f / (distance * DampeningFactor),
                                 timeOffset = distance / SpeedOfSound * source.clip.frequency;
                             if (timeOffset < MaxSamples - 1) {
-                                float postMix = timeOffset % 1, preMix = 1 - postMix;
-                                impulse[(int)timeOffset] += preMix * volume;
+                                float postMix = timeOffset % 1;
+                                impulse[(int)timeOffset] += (1 - postMix) * volume;
                                 impulse[(int)timeOffset + 1] -= postMix * volume;
                             }
                         } else
