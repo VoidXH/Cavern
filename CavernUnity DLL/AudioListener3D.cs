@@ -100,7 +100,8 @@ namespace Cavern {
             Output = cavernListener.Render();
         }
 
-        /// <summary>Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;, or simply "Virtualization".</summary>
+        /// <summary>Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;,
+        /// or simply "Virtualization".</summary>
         public static string GetLayoutName() => Listener.GetLayoutName();
 
         // ------------------------------------------------------------------
@@ -110,6 +111,8 @@ namespace Cavern {
         internal static Listener cavernListener = new Listener();
         /// <summary>Cached number of output channels.</summary>
         internal static int ChannelCount { get; private set; }
+        /// <summary>Cached system sample rate.</summary>
+        internal static int SystemSampleRate { get; private set; }
 
         // ------------------------------------------------------------------
         // Private vars
@@ -127,8 +130,6 @@ namespace Cavern {
         static float[] filterOutput;
         /// <summary>Filter normalizer gain.</summary>
         static float filterNormalizer = 1;
-        /// <summary>Cached system sample rate.</summary>
-        static int systemSampleRate;
 
         /// <summary>Reset the listener after any change.</summary>
         void ResetFunc() {
@@ -144,7 +145,7 @@ namespace Cavern {
                 Destroy(Current);
             }
             Current = this;
-            systemSampleRate = AudioSettings.GetConfiguration().sampleRate;
+            SystemSampleRate = AudioSettings.GetConfiguration().sampleRate;
             remapper = new Remapper(2, UpdateRate);
             ResetFunc();
         }
@@ -185,11 +186,11 @@ namespace Cavern {
                 Array.Clear(unityBuffer, 0, unityBuffer.Length);
             // Append new samples to the filter output buffer
             int needed = unityBuffer.Length / unityChannels - bufferPosition / ChannelCount,
-                frames = needed * cachedSampleRate / systemSampleRate / UpdateRate + 1;
+                frames = needed * cachedSampleRate / SystemSampleRate / UpdateRate + 1;
             float[] renderBuffer = cavernListener.Render(frames);
             int renderSize = renderBuffer.Length;
-            if (systemSampleRate != cachedSampleRate) { // Resample output for system sample rate
-                renderBuffer = Resample.Adaptive(renderBuffer, renderSize / ChannelCount * systemSampleRate / cachedSampleRate,
+            if (SystemSampleRate != cachedSampleRate) { // Resample output for system sample rate
+                renderBuffer = Resample.Adaptive(renderBuffer, renderSize / ChannelCount * SystemSampleRate / cachedSampleRate,
                     ChannelCount, AudioQuality);
                 renderSize = renderBuffer.Length;
             }

@@ -80,7 +80,7 @@ namespace Cavern.Virtualizer {
         public static void Process(float[] output) {
             int channels = Listener.Channels.Length;
             blockSize = output.Length / channels;
-            if (originalSplit == null || AudioListener3D.Current.SampleRate != filterSampleRate)
+            if (originalSplit == null || AudioListener3D.SystemSampleRate != filterSampleRate)
                 return;
             if (originalSplit[0].Length != blockSize) {
                 for (int channel = 0; channel < channels; ++channel)
