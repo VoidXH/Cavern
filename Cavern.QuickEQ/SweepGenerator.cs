@@ -44,9 +44,8 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Add silence to the beginning and the end of a sweep for a larger response window.</summary>
         public static float[] Frame(float[] sweep) {
-            int initialSilence = sweep.Length / 4;
             float[] result = new float[sweep.Length * 2];
-            for (int sample = initialSilence, end = sweep.Length + initialSilence; sample < end; ++sample)
+            for (int initialSilence = sweep.Length / 4, sample = initialSilence, end = sweep.Length + initialSilence; sample < end; ++sample)
                 result[sample] = sweep[sample - initialSilence];
             return result;
         }

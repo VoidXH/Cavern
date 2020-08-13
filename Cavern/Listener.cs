@@ -25,7 +25,6 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Absolute spatial position.</summary>
         public Vector Position;
-
         /// <summary>Rotation in Euler angles (degrees).</summary>
         public Vector Rotation;
 
@@ -44,6 +43,10 @@ namespace Cavern {
 
         /// <summary>Is the user's speaker layout symmetrical?</summary>
         public static bool IsSymmetric { get; internal set; } = true;
+        /// <summary>Channel count on the left side of the room, but 1 if there's none, as it's used for volume division.</summary>
+        internal static int LeftChannels = 2;
+        /// <summary>Channel count on the right side of the room, but 1 if there's none, as it's used for volume division.</summary>
+        internal static int RightChannels = 2;
 
         /// <summary>
         /// The single most important variable defining sound space in symmetric mode, the environment scaling. Originally set by the
@@ -204,6 +207,9 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Private variables
         // ------------------------------------------------------------------
+        /// <summary>Attached <see cref="Source"/>s.</summary>
+        readonly LinkedList<Source> activeSources = new LinkedList<Source>();
+
         /// <summary>Default value of <see cref="sourceLimit"/> and <see cref="MaximumSources"/>.</summary>
         const int defaultSourceLimit = 128;
         /// <summary>Position between the last and current game frame's playback position.</summary>
@@ -221,8 +227,6 @@ namespace Cavern {
         float[] multiframeBuffer = new float[0];
         /// <summary>Optimization variables.</summary>
         int channelCount, lastSampleRate, lastUpdateRate;
-        /// <summary>Attached <see cref="Source"/>s.</summary>
-        LinkedList<Source> activeSources = new LinkedList<Source>();
         /// <summary>Lowpass filters for each channel.</summary>
         Lowpass[] lowpasses;
 
@@ -231,8 +235,7 @@ namespace Cavern {
             channelCount = Channels.Length;
             lastSampleRate = SampleRate;
             lastUpdateRate = UpdateRate;
-            int outputLength = channelCount * UpdateRate;
-            renderBuffer = new float[outputLength];
+            renderBuffer = new float[channelCount * UpdateRate];
             lowpasses = new Lowpass[channelCount];
             for (int i = 0; i < channelCount; ++i)
                 lowpasses[i] = new Lowpass(SampleRate, 120);

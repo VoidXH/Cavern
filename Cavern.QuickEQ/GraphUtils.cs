@@ -109,19 +109,16 @@ namespace Cavern.QuickEQ {
             for (int sample = 0; sample < windowSize; ++sample)
                 average += samples[sample];
             for (int sample = 0; sample < windowSize; ++sample) {
-                int newSample = sample + windowSize;
-                smoothed[sample] = average / newSample;
-                average += samples[newSample];
+                smoothed[sample] = average / (sample + windowSize);
+                average += samples[sample + windowSize];
             }
             for (int sample = windowSize; sample < lastBlock; ++sample) {
-                int oldSample = sample - windowSize, newSample = sample + windowSize;
-                average += samples[newSample] - samples[oldSample];
-                smoothed[sample] = average / (newSample - oldSample);
+                average += samples[sample + windowSize] - samples[sample - windowSize];
+                smoothed[sample] = average / (windowSize << 1);
             }
             for (int sample = lastBlock; sample <= length; ++sample) {
-                int oldSample = sample - windowSize;
-                average -= samples[oldSample];
-                smoothed[sample] = average / (length - oldSample);
+                average -= samples[sample - windowSize];
+                smoothed[sample] = average / (length - sample + windowSize);
             }
             return smoothed;
         }

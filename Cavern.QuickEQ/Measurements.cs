@@ -18,14 +18,12 @@ namespace Cavern.QuickEQ {
             ProcessFFT(odd, cache, depth);
             int stepMul = cache.cos.Length / halfLength;
             for (int i = 0; i < halfLength; ++i) {
-                int cachePos = i * stepMul;
-                float oddReal = odd[i].Real * cache.cos[cachePos] - odd[i].Imaginary * cache.sin[cachePos],
-                    oddImag = odd[i].Real * cache.sin[cachePos] + odd[i].Imaginary * cache.cos[cachePos];
+                float oddReal = odd[i].Real * cache.cos[i * stepMul] - odd[i].Imaginary * cache.sin[i * stepMul],
+                    oddImag = odd[i].Real * cache.sin[i * stepMul] + odd[i].Imaginary * cache.cos[i * stepMul];
                 samples[i].Real = even[i].Real + oddReal;
                 samples[i].Imaginary = even[i].Imaginary + oddImag;
-                int o = i + halfLength;
-                samples[o].Real = even[i].Real - oddReal;
-                samples[o].Imaginary = even[i].Imaginary - oddImag;
+                samples[i + halfLength].Real = even[i].Real - oddReal;
+                samples[i + halfLength].Imaginary = even[i].Imaginary - oddImag;
             }
         }
 
@@ -43,9 +41,8 @@ namespace Cavern.QuickEQ {
             ProcessFFT(odd, cache, depth);
             int stepMul = cache.cos.Length / halfLength;
             for (int i = 0; i < halfLength; ++i) {
-                int cachePos = i * stepMul;
-                float oddReal = odd[i].Real * cache.cos[cachePos] - odd[i].Imaginary * cache.sin[cachePos],
-                    oddImag = odd[i].Real * cache.sin[cachePos] + odd[i].Imaginary * cache.cos[cachePos];
+                float oddReal = odd[i].Real * cache.cos[i * stepMul] - odd[i].Imaginary * cache.sin[i * stepMul],
+                    oddImag = odd[i].Real * cache.sin[i * stepMul] + odd[i].Imaginary * cache.cos[i * stepMul];
                 float real = even[i].Real + oddReal, imaginary = even[i].Imaginary + oddImag;
                 samples[i] = (float)Math.Sqrt(real * real + imaginary * imaginary);
                 real = even[i].Real - oddReal;
@@ -111,14 +108,12 @@ namespace Cavern.QuickEQ {
             ProcessIFFT(odd, cache, depth);
             int stepMul = cache.cos.Length / halfLength;
             for (int i = 0; i < halfLength; ++i) {
-                int cachePos = i * stepMul;
-                float oddReal = odd[i].Real * cache.cos[cachePos] - odd[i].Imaginary * -cache.sin[cachePos],
-                    oddImag = odd[i].Real * -cache.sin[cachePos] + odd[i].Imaginary * cache.cos[cachePos];
+                float oddReal = odd[i].Real * cache.cos[i * stepMul] - odd[i].Imaginary * -cache.sin[i * stepMul],
+                    oddImag = odd[i].Real * -cache.sin[i * stepMul] + odd[i].Imaginary * cache.cos[i * stepMul];
                 samples[i].Real = even[i].Real + oddReal;
                 samples[i].Imaginary = even[i].Imaginary + oddImag;
-                int o = i + halfLength;
-                samples[o].Real = even[i].Real - oddReal;
-                samples[o].Imaginary = even[i].Imaginary - oddImag;
+                samples[i + halfLength].Real = even[i].Real - oddReal;
+                samples[i + halfLength].Imaginary = even[i].Imaginary - oddImag;
             }
         }
 

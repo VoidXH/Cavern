@@ -30,7 +30,7 @@ namespace Cavern {
             for (int channel = 0; channel < channels; ++channel) {
                 Channel currentChannel = Listener.Channels[channel];
                 if (!currentChannel.LFE)
-                    angleMatches[channel] = matchModifier((float)(3.1415926535897932384626433832795 -
+                    angleMatches[channel] = matchModifier((float)(Math.PI -
                         Math.Acos(direction.Dot(currentChannel.SphericalPos) * dirMagnitudeRecip)));
             }
             return angleMatches;

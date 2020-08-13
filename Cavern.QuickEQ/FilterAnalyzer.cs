@@ -9,8 +9,6 @@ namespace Cavern.QuickEQ {
     public sealed class FilterAnalyzer {
         /// <summary>Used FFT size for most measurements.</summary>
         const int resolution = 65536;
-        /// <summary>First measured frequency.</summary>
-        const double startFreq = 10;
 
         /// <summary>Maximum filter amplification.</summary>
         public float Gain {

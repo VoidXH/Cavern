@@ -78,15 +78,15 @@ namespace Cavern {
             }
             // Cavernize
             float smoothFactor = 1f - Mathf.LerpUnclamped(UpdateRate, sampleRate, Mathf.Pow(Smoothness, .1f)) / sampleRate * .999f;
-            float maxDepth = .0001f, MaxHeight = .0001f;
+            float maxDepth = .0001f, MaxHeight = .0001f, absHigh, absLow;
             for (int sample = 0; sample < UpdateRate; ++sample) {
                 float currentSample = monoMix[sample] * faderGain;
                 highSample = .9f * (highSample + currentSample - lastSample);
-                float absHigh = Math.Abs(highSample);
+                absHigh = Math.Abs(highSample);
                 if (MaxHeight < absHigh)
                     MaxHeight = absHigh;
                 lowSample = lowSample * .99f + highSample * .01f;
-                float absLow = Math.Abs(lowSample);
+                absLow = Math.Abs(lowSample);
                 if (maxDepth < absLow)
                     maxDepth = absLow;
                 lastSample = currentSample;
@@ -105,9 +105,9 @@ namespace Cavern {
             for (int sample = 0; sample < UpdateRate; ++sample) // Height channel
                 data[outputPos += channels] = monoMix[sample] * upperMix;
             // Metering
-            float currentPeak = 0;
+            float currentPeak = 0, abs;
             for (int sample = 0; sample < UpdateRate; ++sample) {
-                float abs = Math.Abs(data[sample]);
+                abs = Math.Abs(data[sample]);
                 if (currentPeak < abs)
                     currentPeak = abs;
             }

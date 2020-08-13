@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Reflection.Emit;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.EQCurves;
@@ -292,15 +291,13 @@ namespace Cavern.QuickEQ {
         public static Equalizer AutoCorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
             float maxGain = 6) {
             Equalizer result = new Equalizer();
-            int length = graph.Length;
-            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / length;
+            double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length;
             List<int> windowEdges = new List<int>(new int[] { 0 });
-            for (int sample = 1, end = length - 1; sample < end; ++sample) {
-                float lower = graph[sample - 1], Upper = graph[sample + 1];
-                if ((lower < graph[sample] && Upper > graph[sample]) || (lower > graph[sample] && Upper < graph[sample]))
-                    windowEdges.Add(sample);
-            }
-            float[] refGain = targetCurve.GenerateLogCurve(length, startFreq, endFreq, targetGain);
+            for (int sample = 1, end = graph.Length - 1; sample < end; ++sample)
+                if ((graph[sample - 1] < graph[sample] && graph[sample + 1] > graph[sample]) ||
+                    (graph[sample - 1] > graph[sample] && graph[sample + 1] < graph[sample]))
+                        windowEdges.Add(sample);
+            float[] refGain = targetCurve.GenerateLogCurve(graph.Length, startFreq, endFreq, targetGain);
             for (int sample = 0, end = windowEdges.Count - 1; sample < end; ++sample) {
                 int windowPos = windowEdges[sample];
                 float frequency = (float)Math.Pow(10, startPow + powRange * windowPos);

@@ -24,11 +24,10 @@ namespace Cavern.QuickEQ {
         protected override float[] Collect() {
             Array.Clear(rendered, 0, rendered.Length);
             if (IsPlaying && !Mute) {
-                int channels = Listener.Channels.Length;
-                if (channel < 0 || channel >= channels)
+                if (channel < 0 || channel >= Listener.Channels.Length)
                     return rendered;
                 float gain = Volume * 2;
-                for (int sample = channel; sample < rendered.Length; sample += channels)
+                for (int sample = channel, channels = Listener.Channels.Length; sample < rendered.Length; sample += channels)
                     rendered[sample] = (float)generator.NextDouble() * gain - Volume;
             }
             return rendered;

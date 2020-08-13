@@ -80,10 +80,10 @@ namespace Cavern.QuickEQ.Equalization {
                 startFreq = 0;
             if (stopFreq >= target.Length)
                 stopFreq = target.Length - 1;
-            float max = Math.Abs(target[startFreq]);
+            float max = Math.Abs(target[startFreq]), abs;
             int maxAt = startFreq;
             for (int i = startFreq + 1; i < stopFreq; ++i) {
-                float abs = Math.Abs(target[i]);
+                abs = Math.Abs(target[i]);
                 if (max < abs) {
                     max = abs;
                     maxAt = i;

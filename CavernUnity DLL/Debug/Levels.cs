@@ -102,11 +102,11 @@ namespace Cavern.Debug {
             if (outputCache == null)
                 return;
             for (int channel = 0; channel < channels; ++channel) {
-                float max = 0;
+                float max = 0, absSample;
                 for (int sample = channel; sample < outputCache.Length; sample += channels) {
-                    float AbsSample = Math.Abs(outputCache[sample]);
-                    if (max < AbsSample)
-                        max = AbsSample;
+                    absSample = Math.Abs(outputCache[sample]);
+                    if (max < absSample)
+                        max = absSample;
                 }
                 float currentBarHeight = 20 * Mathf.Log10(max) / -DynamicRange + 1, currentPeak = channelData[channel].Peak - Time.deltaTime;
                 if (currentPeak < currentBarHeight)

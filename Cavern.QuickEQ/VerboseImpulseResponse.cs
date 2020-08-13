@@ -34,9 +34,9 @@ namespace Cavern.QuickEQ {
             get {
                 if (delay != -1)
                     return delay;
-                float absPeak = float.NegativeInfinity;
+                float absPeak = float.NegativeInfinity, absHere;
                 for (int pos = 0; pos < Response.Length; ++pos) {
-                    float absHere = Math.Abs(response[pos]);
+                    absHere = Math.Abs(response[pos]);
                     if (absPeak < absHere) {
                         absPeak = absHere;
                         delay = pos;

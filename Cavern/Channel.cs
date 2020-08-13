@@ -104,15 +104,30 @@ namespace Cavern {
                 --channelCount;
                 Listener.IsSymmetric = Listener.Channels[channelCount].Y % 180 == 0;
             }
-            for (int i = 0; i < channelCount; i += 2) {
-                int Next = i + 1;
-                if (Next != channelCount && Listener.Channels[i] != null && Listener.Channels[Next] != null)
+            Listener.LeftChannels = Listener.RightChannels = 0;
+            for (int i = 0; i < channelCount; ++i) {
+                Channel current = Listener.Channels[i];
+                if (current == null)
+                    continue;
+                if (!current.lowFrequency) {
+                    if (current.Y < 0)
+                        ++Listener.LeftChannels;
+                    else if (current.Y > 0)
+                        ++Listener.RightChannels;
+                }
+                if (i % 2 == 1)
+                    continue;
+                Channel next = Listener.Channels[i + 1];
+                if (i + 1 != channelCount && next != null)
                     Listener.IsSymmetric &=
-                        Listener.Channels[i].lowFrequency ? Listener.Channels[Next].Y % 180 == 0 || Listener.Channels[Next].lowFrequency :
-                        Listener.Channels[Next].lowFrequency ? Listener.Channels[i].Y % 180 == 0 || Listener.Channels[i].lowFrequency :
-                        (Listener.Channels[i].X == Listener.Channels[Next].X ? Listener.Channels[i].Y % 180 ==
-                        -Listener.Channels[Next].Y % 180 : Listener.Channels[i].Y % 180 == 0 && Listener.Channels[Next].Y % 180 == 0);
+                        current.lowFrequency ? next.Y % 180 == 0 || next.lowFrequency :
+                        next.lowFrequency ? current.Y % 180 == 0 || current.lowFrequency :
+                        (current.X == next.X ? current.Y % 180 == -next.Y % 180 : current.Y % 180 == 0 && next.Y % 180 == 0);
             }
+            if (Listener.LeftChannels == 0)
+                Listener.LeftChannels = 1;
+            if (Listener.RightChannels == 0)
+                Listener.RightChannels = 1;
         }
 
         /// <summary>Check if two channels are the same.</summary>

@@ -47,11 +47,12 @@ namespace Cavern.QuickEQ {
                     samples[sample] *= leftFunc((sample - start) * leftSpanDiv);
             }
             if (right != Window.Disabled) {
-                int posEnd = Math.Max(end, 0);
+                if (end < 0)
+                    end = 0;
                 WindowFunction rightFunc = GetWindowFunction(right);
-                for (int sample = posSplitter, actEnd = Math.Min(posEnd, samples.Length); sample < actEnd; ++sample)
+                for (int sample = posSplitter, actEnd = Math.Min(end, samples.Length); sample < actEnd; ++sample)
                     samples[sample] *= rightFunc((sample - endMirror) * rightSpanDiv);
-                Array.Clear(samples, posEnd, samples.Length - posEnd);
+                Array.Clear(samples, end, samples.Length - end);
             }
         }
 

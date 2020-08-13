@@ -89,9 +89,9 @@ namespace Cavern.Debug {
         void Update() {
             float[] arrayLevels = new float[channels], outputCache = AudioListener3D.Output;
             for (int actChannel = 0, multichannelUpdateRate = outputCache.Length; actChannel < Listener.Channels.Length; ++actChannel) {
-                float max = 0;
+                float max = 0, absSample;
                 for (int sample = actChannel; sample < multichannelUpdateRate; sample += Listener.Channels.Length) {
-                    float absSample = Math.Abs(outputCache[sample]);
+                    absSample = Math.Abs(outputCache[sample]);
                     if (max < absSample)
                         max = absSample;
                 }

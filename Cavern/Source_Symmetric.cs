@@ -35,16 +35,18 @@ namespace Cavern {
         /// <param name="channel">Checked channel ID</param>
         /// <param name="left">Closest left channel ID</param>
         /// <param name="right">Closest right channel ID</param>
-        /// <param name="position">Reference position</param>
-        /// <param name="channelPos">Currently checked channel position</param>
+        /// <param name="posX">Reference position on the X axis</param>
+        /// <param name="channelX">Currently checked channel position on the X axis</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void AssignLR(int channel, ref int left, ref int right, Vector position, Vector channelPos) {
-            if (channelPos.x == position.x) { // Exact match
+        static void AssignLR(int channel, ref int left, ref int right, float posX, float channelX) {
+            if (channelX == posX) { // Exact match
                 left = channel;
                 right = channel;
-            } else if (channelPos.x < position.x) { // Left
-                if (left == -1 || Listener.Channels[left].CubicalPos.x < channelPos.x) left = channel;
-            } else if (right == -1 || Listener.Channels[right].CubicalPos.x > channelPos.x) right = channel; // Right
+            } else if (channelX < posX) { // Left
+                if (left == -1 || Listener.Channels[left].CubicalPos.x < channelX)
+                    left = channel;
+            } else if (right == -1 || Listener.Channels[right].CubicalPos.x > channelX) // Right
+                right = channel;
         }
 
         /// <summary>Get the closest channels to a source in each direction.</summary>
@@ -62,16 +64,17 @@ namespace Cavern {
             ref float closestFront, ref float closestRear, Vector position, Vector channelPos) {
             if (channelPos.z > position.z) { // Front
                 if (channelPos.z < closestFront) { // Front layer selection
-                    closestFront = channelPos.z; frontLeft = frontRight = -1;
+                    closestFront = channelPos.z;
+                    frontLeft = frontRight = -1;
                 }
                 if (channelPos.z == closestFront)
-                    AssignLR(channel, ref frontLeft, ref frontRight, position, channelPos);
+                    AssignLR(channel, ref frontLeft, ref frontRight, position.x, channelPos.x);
             } else { // Rear
                 if (channelPos.z > closestRear) { // Rear layer selection
                     closestRear = channelPos.z; rearLeft = rearRight = -1;
                 }
                 if (channelPos.z == closestRear)
-                    AssignLR(channel, ref rearLeft, ref rearRight, position, channelPos);
+                    AssignLR(channel, ref rearLeft, ref rearRight, position.x, channelPos.x);
             }
         }
 
@@ -84,14 +87,24 @@ namespace Cavern {
         static void FixIncompleteLayer(ref int frontLeft, ref int frontRight, ref int rearLeft, ref int rearRight) {
             if (frontLeft == -1 || frontRight == -1 || rearLeft == -1 || rearRight == -1) {
                 if (frontLeft != -1 || frontRight != -1) {
-                    if (frontLeft == -1) frontLeft = frontRight;
-                    if (frontRight == -1) frontRight = frontLeft;
-                    if (rearLeft == -1 && rearRight == -1) { rearLeft = frontLeft; rearRight = frontRight; }
+                    if (frontLeft == -1)
+                        frontLeft = frontRight;
+                    if (frontRight == -1)
+                        frontRight = frontLeft;
+                    if (rearLeft == -1 && rearRight == -1) {
+                        rearLeft = frontLeft;
+                        rearRight = frontRight;
+                    }
                 }
                 if (rearLeft != -1 || rearRight != -1) {
-                    if (rearLeft == -1) rearLeft = rearRight;
-                    if (rearRight == -1) rearRight = rearLeft;
-                    if (frontLeft == -1 && frontRight == -1) { frontLeft = rearLeft; frontRight = rearRight; }
+                    if (rearLeft == -1)
+                        rearLeft = rearRight;
+                    if (rearRight == -1)
+                        rearRight = rearLeft;
+                    if (frontLeft == -1 && frontRight == -1) {
+                        frontLeft = rearLeft;
+                        frontRight = rearRight;
+                    }
                 }
             }
         }

@@ -64,10 +64,9 @@
             float ratio = samples.Length / (float)to;
             int end = samples.Length - 1;
             for (int i = 0; i < to; ++i) {
-                float fromPos = i * ratio;
-                int sample = (int)fromPos;
+                int sample = (int)(i * ratio);
                 if (sample < end)
-                    output[i] = QMath.Lerp(samples[sample], samples[++sample], fromPos % 1);
+                    output[i] = QMath.Lerp(samples[sample], samples[++sample], i * ratio % 1);
                 else
                     output[i] = samples[sample];
             }
@@ -79,22 +78,20 @@
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
         public static float[] CatmullRom(float[] samples, int to) {
-            int from = samples.Length;
-            if (from == to)
+            if (samples.Length == to)
                 return samples;
             float[] output = new float[to];
-            float ratio = from / (float)to;
-            int start = (int)(1 / ratio + 1), end = from - 3;
+            float ratio = samples.Length / (float)to;
+            int start = (int)(1 / ratio + 1), end = samples.Length - 3;
             for (int i = 0; i < start; ++i)
                 output[i] = samples[i];
             for (int i = start; i < to; ++i) {
-                float fromPos = i * ratio;
-                int sample = (int)fromPos;
+                int sample = (int)(i * ratio);
                 if (sample < end) {
-                    float t = fromPos % 1, t2 = t * t;
+                    float t = i * ratio % 1;
                     float p0 = samples[sample - 1], p1 = samples[sample], p2 = samples[sample + 1], p3 = samples[sample + 2];
-                    output[i] = ((p1 * 2) + (p2 - p0) * t + (p0 * 2 - p1 * 5 + p2 * 4 - p3) * t2 +
-                        (3 * p1 - p0 - 3 * p2 + p3) * t2 * t) * .5f;
+                    output[i] = ((p1 * 2) + (p2 - p0) * t + (p0 * 2 - p1 * 5 + p2 * 4 - p3) * t * t +
+                        (3 * p1 - p0 - 3 * p2 + p3) * t * t * t) * .5f;
                 } else
                     output[i] = samples[sample];
             }

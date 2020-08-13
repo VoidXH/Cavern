@@ -116,8 +116,7 @@ namespace Cavern {
                             (lastDistance - distance) / listener.pulseDelta), .5f, 3f);
                 } else
                     calculatedPitch = 1; // Disable any pitch change on low quality
-                bool needsResampling = listener.SampleRate != Clip.SampleRate;
-                if (needsResampling)
+                if (listener.SampleRate != Clip.SampleRate)
                     resampleMult = (float)Clip.SampleRate / listener.SampleRate;
                 else
                     resampleMult = 1;
@@ -130,9 +129,8 @@ namespace Cavern {
                     rightSamples = new float[pitchedUpdateRate];
                 }
                 Rendered = GetSamples();
-                int outputLength = Listener.Channels.Length * listener.UpdateRate;
-                if (rendered.Length != outputLength)
-                    rendered = new float[outputLength];
+                if (rendered.Length != Listener.Channels.Length * listener.UpdateRate)
+                    rendered = new float[Listener.Channels.Length * listener.UpdateRate];
                 return true;
             }
             Rendered = null;
@@ -174,22 +172,20 @@ namespace Cavern {
         protected internal virtual float[] Collect() {
             int channels = Listener.Channels.Length;
             Array.Clear(rendered, 0, rendered.Length);
-            bool rawLFE = !listener.LFESeparation || LFE;
             // Update rate calculation
             int updateRate = listener.UpdateRate;
             int resampledNow = (int)(TimeSamples / resampleMult);
             if (!Mute) {
-                bool blend2D = SpatialBlend != 1, blend3D = SpatialBlend != 0, highQuality = listener.AudioQuality >= QualityModes.High;
                 int clipChannels = Clip.Channels;
-                if (blend3D) // Mono mix
-                    if (highQuality && clipChannels != 1) { // Mono downmix above medium quality
+                if (SpatialBlend != 0) // Mono mix
+                    if (listener.AudioQuality >= QualityModes.High && clipChannels != 1) { // Mono downmix above medium quality
                         Array.Clear(samples, 0, pitchedUpdateRate);
                         for (int channel = 0; channel < clipChannels; ++channel)
                             WaveformUtils.Mix(Rendered[channel], samples);
                         WaveformUtils.Gain(samples, 1f / clipChannels);
                     } else // First channel only otherwise
                         Buffer.BlockCopy(Rendered[0], 0, samples, 0, pitchedUpdateRate * sizeof(float));
-                if (blend2D) { // 2D mix
+                if (SpatialBlend != 1) { // 2D mix
                     float volume2D = Volume * (1f - SpatialBlend);
                     if (clipChannels != 2) {
                         samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
@@ -199,17 +195,7 @@ namespace Cavern {
                         Buffer.BlockCopy(Rendered[1], 0, rightSamples, 0, pitchedUpdateRate * sizeof(float));
                         leftSamples = Resample.Adaptive(leftSamples, updateRate, listener.AudioQuality);
                         rightSamples = Resample.Adaptive(rightSamples, updateRate, listener.AudioQuality);
-                        int leftDivisor = 0, rightDivisor = 0;
-                        for (int channel = 0; channel < channels; ++channel) {
-                            Channel currentChannel = Listener.Channels[channel];
-                            if (!currentChannel.LFE) {
-                                if (currentChannel.Y < 0)
-                                    leftDivisor += 1;
-                                else if (currentChannel.Y > 0)
-                                    rightDivisor += 1;
-                            }
-                        }
-                        float leftVolume = leftDivisor == 0 ? 0 : volume2D / leftDivisor, rightVolume = rightDivisor == 0 ? 0 : volume2D / rightDivisor;
+                        float leftVolume = volume2D / Listener.LeftChannels, rightVolume = volume2D / Listener.RightChannels;
                         if (stereoPan < 0)
                             rightVolume *= -stereoPan * stereoPan + 1;
                         else if (stereoPan > 0)
@@ -221,7 +207,7 @@ namespace Cavern {
                                 leftGained = leftSample * leftVolume, rightGained = rightSample * rightVolume;
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (Listener.Channels[channel].LFE) {
-                                    if (rawLFE)
+                                    if (!listener.LFESeparation || LFE)
                                         rendered[actualSample] += (leftSample + rightSample) * halfVolume2D;
                                 } else if (!LFE) {
                                     if (Listener.Channels[channel].Y < 0)
@@ -234,7 +220,7 @@ namespace Cavern {
                         }
                     }
                 }
-                if (blend3D && distance < listener.Range) { // 3D mix, if the source is in range
+                if (SpatialBlend != 0 && distance < listener.Range) { // 3D mix, if the source is in range
                     Vector direction = Position - listener.Position;
                     direction.RotateInverse(listener.Rotation);
                     float rolloffDistance = GetRolloff();
@@ -251,8 +237,8 @@ namespace Cavern {
                         if (!LFE) {
                             // Find closest channels by cubical position in each direction (bottom/top, front/rear, left/right)
                             int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1;
-                            float closestTop = 69, closestBottom = -83, closestTF = 90, closestTR = -84,
-                                closestBF = 69, closestBR = -82; // Closest layers on y/z
+                            float closestTop = 80, closestBottom = -65, closestTF = 78, closestTR = -78,
+                                closestBF = 73, closestBR = -3; // Closest layers on y/z
                             direction.Downscale(Listener.EnvironmentSize);
                             for (int channel = 0; channel < channels; ++channel) { // Find closest horizontal layers
                                 if (!Listener.Channels[channel].LFE) {
@@ -320,7 +306,7 @@ namespace Cavern {
                             WriteOutput(samples, rendered, TRVol * TRRVol, TRR, channels);
                         }
                         // LFE mix
-                        if (rawLFE)
+                        if (!listener.LFESeparation || LFE)
                             for (int channel = 0; channel < channels; ++channel)
                                 if (Listener.Channels[channel].LFE)
                                     WriteOutput(samples, rendered, volume3D, channel, channels);
@@ -330,12 +316,15 @@ namespace Cavern {
                     } else {
                         // Angle match calculations
                         float[] angleMatches;
-                        if (listener.AudioQuality >= QualityModes.High)
-                            angleMatches = CalculateAngleMatches(channels, direction,
-                                Listener.EnvironmentType == Environments.Theatre ? (MatchModifierFunc)PowTo16 : PowTo8);
+                        if (listener.AudioQuality >= QualityModes.High) {
+                            if (Listener.EnvironmentType == Environments.Theatre)
+                                angleMatches = CalculateAngleMatches(channels, direction, PowTo16);
+                            else
+                                angleMatches = CalculateAngleMatches(channels, direction, PowTo8);
+                        } else if (Listener.EnvironmentType == Environments.Theatre)
+                            angleMatches = LinearizeAngleMatches(channels, direction, PowTo16);
                         else
-                            angleMatches = LinearizeAngleMatches(channels, direction,
-                                Listener.EnvironmentType == Environments.Theatre ? (MatchModifierFunc)PowTo16 : PowTo8);
+                            angleMatches = LinearizeAngleMatches(channels, direction, PowTo8);
                         // Object size extension
                         if (Size != 0) {
                             float maxAngleMatch = angleMatches[0];
@@ -356,8 +345,8 @@ namespace Cavern {
                                 }
                             }
                             for (int channel = 0; channel < channels; ++channel) {
-                                float match = angleMatches[channel];
-                                if (!Listener.Channels[channel].LFE && match != top0 && match != top1 && match != top2)
+                                if (!Listener.Channels[channel].LFE &&
+                                    angleMatches[channel] != top0 && angleMatches[channel] != top1 && angleMatches[channel] != top2)
                                     angleMatches[channel] = 0;
                             }
                         }
@@ -368,7 +357,7 @@ namespace Cavern {
                         float volume3D = Volume * rolloffDistance * SpatialBlend / totalAngleMatch;
                         for (int channel = 0; channel < channels; ++channel) {
                             if (Listener.Channels[channel].LFE) {
-                                if (rawLFE)
+                                if (!listener.LFESeparation || LFE)
                                     WriteOutput(samples, rendered, volume3D * totalAngleMatch, channel, channels);
                             } else if (!LFE && angleMatches[channel] != 0)
                                 WriteOutput(samples, rendered, volume3D * angleMatches[channel], channel, channels);

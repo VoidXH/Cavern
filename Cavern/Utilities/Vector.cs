@@ -134,9 +134,9 @@ namespace Cavern.Utilities {
 
         /// <summary>For given angles (in degrees) it returns a vector for that position on a sphere with the radius of 1.</summary>
         public static Vector PlaceInSphere(Vector angles) {
-            float xRad = angles.x * Deg2Rad, yRad = angles.y * Deg2Rad, sinX = (float)Math.Sin(xRad), cosX = (float)Math.Cos(xRad),
+            float xRad = angles.x * Deg2Rad, yRad = angles.y * Deg2Rad, cosX = (float)Math.Cos(xRad),
                 sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
-            return new Vector(sinY * cosX, -sinX, cosY * cosX);
+            return new Vector(sinY * cosX, -(float)Math.Sin(xRad), cosY * cosX);
         }
 
         /// <summary>For given angles (in degrees) it returns a vector for that position on a cube with the side length of 2.</summary>

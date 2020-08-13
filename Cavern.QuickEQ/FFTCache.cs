@@ -28,11 +28,9 @@ namespace Cavern.QuickEQ {
                 cos[i] = (float)Math.Cos(rotation);
                 sin[i] = (float)Math.Sin(rotation);
             }
-            int log = QMath.Log2(size);
-            for (int depth = 0; depth < log; ++depth) {
-                int depthSize = 1 << depth;
-                globalEven[depth] = new Complex[depthSize];
-                globalOdd[depth] = new Complex[depthSize];
+            for (int depth = 0, maxDepth = QMath.Log2(size); depth < maxDepth; ++depth) {
+                globalEven[depth] = new Complex[1 << depth];
+                globalOdd[depth] = new Complex[1 << depth];
             }
         }
     }
