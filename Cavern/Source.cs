@@ -149,7 +149,7 @@ namespace Cavern {
         /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
         /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
         internal static void WriteOutput(float[] samples, float[] target, float gain, int channel, int channels) {
-            gain = (float)Math.Sin(Math.PI * .5 * gain);
+            gain = (float)Math.Sqrt(gain);
             for (int from = 0, to = channel, end = samples.Length; from < end; ++from, to += channels)
                 target[to] += samples[from] * gain;
         }
