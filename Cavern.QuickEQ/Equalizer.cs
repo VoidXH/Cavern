@@ -120,6 +120,18 @@ namespace Cavern.QuickEQ {
             return result;
         }
 
+        /// <summary>Gets the corresponding frequencies for <see cref="VisualizeLinear(double, double, int)"/>.</summary>
+        /// <param name="startFreq">Frequency at the beginning of the curve</param>
+        /// <param name="endFreq">Frequency at the end of the curve</param>
+        /// <param name="length">Points on the curve</param>
+        public static float[] FrequenciesLinear(double startFreq, double endFreq, int length) {
+            float[] result = new float[length];
+            double step = (endFreq - startFreq) / (length - 1);
+            for (int entry = 0; entry < length; ++entry)
+                result[entry] = (float)(startFreq + step * entry);
+            return result;
+        }
+
         /// <summary>Shows the EQ curve in a logarithmically scaled frequency axis.</summary>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
@@ -140,6 +152,20 @@ namespace Cavern.QuickEQ {
                         QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, startFreq));
                 else
                     result[i] = (float)bands[prevBand].Gain;
+                startFreq *= mul;
+            }
+            return result;
+        }
+
+        /// <summary>Gets the corresponding frequencies for <see cref="Visualize(double, double, int)"/>.</summary>
+        /// <param name="startFreq">Frequency at the beginning of the curve</param>
+        /// <param name="endFreq">Frequency at the end of the curve</param>
+        /// <param name="length">Points on the curve</param>
+        public static float[] Frequencies(double startFreq, double endFreq, int length) {
+            float[] result = new float[length];
+            double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (length - 1));
+            for (int i = 0; i < length; ++i) {
+                result[i] = (float)startFreq;
                 startFreq *= mul;
             }
             return result;
