@@ -16,13 +16,13 @@ namespace Cavern.Format {
         /// <summary>Create the file header.</summary>
         public override void WriteHeader() {
             // RIFF header
-            writer.Write(new byte[] { (byte)'R', (byte)'I', (byte)'F', (byte)'F' });
-            int dataLength = (int)(length * ((int)bits / 8));
+            writer.Write(RIFFWaveUtils.RIFF);
+            int dataLength = (int)(length * channelCount * ((int)bits / 8));
             writer.Write(BitConverter.GetBytes(36 + dataLength)); // File length
-            writer.Write(new byte[] { (byte)'W', (byte)'A', (byte)'V', (byte)'E' });
+            writer.Write(RIFFWaveUtils.WAVE);
 
-            // FMT header
-            writer.Write(new byte[] { (byte)'f', (byte)'m', (byte)'t', (byte)' ' });
+            // Format header
+            writer.Write(RIFFWaveUtils.fmt);
             writer.Write(new byte[] { 16, 0, 0, 0 }); // FMT header size
             writer.Write(new byte[] { bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
             writer.Write(BitConverter.GetBytes((short)channelCount)); // Audio channels
@@ -33,7 +33,7 @@ namespace Cavern.Format {
             writer.Write(BitConverter.GetBytes((short)bits)); // Bit depth
 
             // Data header
-            writer.Write(new byte[] { (byte)'d', (byte)'a', (byte)'t', (byte)'a' });
+            writer.Write(RIFFWaveUtils.data);
             writer.Write(BitConverter.GetBytes(dataLength)); // Data length
         }
 

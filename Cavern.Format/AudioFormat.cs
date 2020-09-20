@@ -8,7 +8,7 @@
     }
 
     /// <summary>Audio bit depth choices.</summary>
-    public enum BitDepth {
+    public enum BitDepth { // TODO: support 24-bit integer
         /// <summary>8-bit integer.</summary>
         Int8 = 8,
         /// <summary>16-bit integer.</summary>

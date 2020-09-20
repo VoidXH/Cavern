@@ -79,8 +79,6 @@ namespace Cavern.Cavernize {
         /// <summary>The channels for a base 7.1 layout.</summary>
         internal readonly SpatializedChannel[] mains = new SpatializedChannel[8];
 
-        // TODO: 9-16 CH WAV import
-
         internal Dictionary<ChannelPrototype, SpatializedChannel> channels = new Dictionary<ChannelPrototype, SpatializedChannel>();
 
         /// <summary>Possible upmix targets, always created.</summary>
