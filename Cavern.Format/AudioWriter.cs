@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Cavern.Format {
     /// <summary>Abstract audio file writer.</summary>
-    public abstract class AudioWriter {
+    public abstract class AudioWriter : IDisposable {
         /// <summary>File writer object.</summary>
         protected BinaryWriter writer;
         /// <summary>Output channel count.</summary>
@@ -44,6 +45,12 @@ namespace Cavern.Format {
             WriteHeader();
             WriteBlock(samples, 0, length);
             writer.Close();
+        }
+
+        /// <summary>Close the writer.</summary>
+        public void Dispose() {
+            if (writer != null)
+                writer.Close();
         }
     }
 }
