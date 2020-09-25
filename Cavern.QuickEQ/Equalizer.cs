@@ -84,6 +84,30 @@ namespace Cavern.QuickEQ {
                 SubsonicFilter = true;
         }
 
+        /// <summary>Remove multiple bands from the EQ.</summary>
+        /// <param name="first">First band</param>
+        /// <param name="count">Number of bands to remove starting with <paramref name="first"/></param>
+        public void RemoveBands(Band first, int count) {
+            bool subFiltered = subsonicFilter;
+            if (subFiltered)
+                SubsonicFilter = false;
+            int start = bands.FindIndex(band => band.Equals(first));
+            bool recalculatePeak = false;
+            for (int i = 0; i < count; ++i) {
+                if (bands[start + i].Gain == PeakGain) {
+                    recalculatePeak = true;
+                    break;
+                }
+            }
+            bands.RemoveRange(start, count);
+            if (bands.Count == 0)
+                PeakGain = 0;
+            else if (recalculatePeak)
+                RecalculatePeakGain();
+            if (subFiltered)
+                SubsonicFilter = true;
+        }
+
         /// <summary>Reset this EQ.</summary>
         public void ClearBands() {
             bool subFiltered = subsonicFilter;
