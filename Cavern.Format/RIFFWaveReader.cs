@@ -18,12 +18,19 @@ namespace Cavern.Format {
             // Format header
             BlockTest(RIFFWaveUtils.fmt);
             reader.ReadInt32(); // Format header length
-            short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float
+            short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVE EX
             ChannelCount = reader.ReadInt16();
             SampleRate = reader.ReadInt32();
             reader.ReadInt32(); // Bytes/sec
             reader.ReadInt16(); // Block size in bytes
             short bitDepth = reader.ReadInt16();
+            if (sampleFormat == -2) {
+                reader.ReadInt16(); // Extension size (22)
+                reader.ReadInt16(); // Valid bits per sample
+                reader.ReadInt32(); // Channel mask
+                sampleFormat = reader.ReadInt16();
+                reader.BaseStream.Position += 15; // Skip the rest of the sub format GUID
+            }
             if (sampleFormat == 1) {
                 if (bitDepth == 8)
                     Bits = BitDepth.Int8;
@@ -31,7 +38,7 @@ namespace Cavern.Format {
                     Bits = BitDepth.Int16;
                 else
                     throw new IOException(string.Format("Unsupported bit depth for signed little endian integer: {0}.", bitDepth));
-            } else if ((sampleFormat == 3 || sampleFormat == -2) && bitDepth == 32)
+            } else if (sampleFormat == 3 && bitDepth == 32)
                 Bits = BitDepth.Float32;
             else
                 throw new IOException(string.Format("Unsupported bit depth ({0}) for sample format {1}.", bitDepth, sampleFormat));
@@ -69,9 +76,10 @@ namespace Cavern.Format {
                         break;
                     }
                 case BitDepth.Float32: {
-                        if (from < int.MaxValue) {
-                            byte[] source = reader.ReadBytes((int)(to - from) * sizeof(float));
-                            Buffer.BlockCopy(source, 0, samples, (int)from, (int)(to - from));
+                        if (from < int.MaxValue / sizeof(float)) {
+                            int count = (int)(to - from) * sizeof(float);
+                            byte[] source = reader.ReadBytes(count);
+                            Buffer.BlockCopy(source, 0, samples, (int)from * sizeof(float), count);
                         } else while (from < to)
                                 samples[from++] = reader.ReadSingle();
                         break;
