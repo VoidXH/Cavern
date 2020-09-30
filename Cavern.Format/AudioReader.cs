@@ -30,12 +30,37 @@ namespace Cavern.Format {
         /// <remarks>The next to - from samples will be read from the file.</remarks>
         public abstract void ReadBlock(float[] samples, long from, long to);
 
+        /// <summary>Read a block of samples to a multichannel array.</summary>
+        /// <param name="samples">Input array</param>
+        /// <param name="from">Start position in the input array (inclusive)</param>
+        /// <param name="to">End position in the input array (exclusive)</param>
+        /// <remarks>The next to - from samples will be read from the file.</remarks>
+        public virtual void ReadBlock(float[][] samples, long from, long to) {
+            long perChannel = to - from, sampleCount = perChannel * samples.LongLength;
+            float[] source = new float[sampleCount];
+            ReadBlock(source, 0, sampleCount);
+            for (long position = 0, sample = 0; sample < perChannel; ++sample)
+                for (long channel = 0; channel < samples.LongLength; ++channel)
+                    samples[channel][sample] = source[position++];
+        }
+
         /// <summary>Read the entire file.</summary>
         public float[] Read() {
             ReadHeader();
             float[] samples = new float[Length * ChannelCount];
             ReadBlock(samples, 0, samples.Length);
-            reader.Close();
+            Dispose();
+            return samples;
+        }
+
+        /// <summary>Read the entire file.</summary>
+        public float[][] ReadMultichannel() {
+            ReadHeader();
+            float[][] samples = new float[ChannelCount][];
+            for (int channel = 0; channel < ChannelCount; ++channel)
+                samples[channel] = new float[Length];
+            ReadBlock(samples, 0, Length);
+            Dispose();
             return samples;
         }
 
