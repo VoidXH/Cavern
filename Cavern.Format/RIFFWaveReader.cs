@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Cavern.Format {
     /// <summary>Minimal RIFF wave file reader.</summary>
@@ -47,19 +48,34 @@ namespace Cavern.Format {
         /// <param name="to">End position in the input array (exclusive)</param>
         /// <remarks>The next to - from samples will be read from the file.</remarks>
         public override void ReadBlock(float[] samples, long from, long to) {
+            const long skip = 10 * 1024 * 1024 / sizeof(float); // 10 MB source splits at max to optimize for both memory and IO
+            const float fromInt8 = 1 / 128f, fromInt16 = 1 / 32767f;
+            if (to - from > skip) {
+                for (; from < to; from += skip)
+                    ReadBlock(samples, from, Math.Min(to, from + skip));
+                return;
+            }
             switch (Bits) {
-                case BitDepth.Int8:
-                    while (from < to)
-                        samples[from++] = reader.ReadByte() / 127f - 1f;
-                    break;
-                case BitDepth.Int16:
-                    while (from < to)
-                        samples[from++] = reader.ReadInt16() / 32767f;
-                    break;
-                case BitDepth.Float32:
-                    while (from < to)
-                        samples[from++] = reader.ReadSingle();
-                    break;
+                case BitDepth.Int8: {
+                        byte[] source = reader.ReadBytes((int)(to - from));
+                        for (int i = 0; i < source.Length; ++i)
+                            samples[from++] = source[i] * fromInt8 - 1f;
+                        break;
+                    }
+                case BitDepth.Int16: {
+                        byte[] source = reader.ReadBytes((int)(to - from) * sizeof(short));
+                        for (int i = 0; i < source.Length;)
+                            samples[from++] = (short)(source[i++] + source[i++] * 256) * fromInt16;
+                        break;
+                    }
+                case BitDepth.Float32: {
+                        if (from < int.MaxValue) {
+                            byte[] source = reader.ReadBytes((int)(to - from) * sizeof(float));
+                            Buffer.BlockCopy(source, 0, samples, (int)from, (int)(to - from));
+                        } else while (from < to)
+                                samples[from++] = reader.ReadSingle();
+                        break;
+                    }
             }
         }
     }
