@@ -30,11 +30,11 @@ namespace Cavern.Format {
                 else if (bitDepth == 16)
                     Bits = BitDepth.Int16;
                 else
-                    throw new IOException("Unsupported bit depth.");
-            } else if (sampleFormat == 3 && bitDepth == 32)
+                    throw new IOException(string.Format("Unsupported bit depth for signed little endian integer: {0}.", bitDepth));
+            } else if ((sampleFormat == 3 || sampleFormat == -2) && bitDepth == 32)
                 Bits = BitDepth.Float32;
             else
-                throw new IOException("Unsupported bit depth.");
+                throw new IOException(string.Format("Unsupported bit depth ({0}) for sample format {1}.", bitDepth, sampleFormat));
 
             // Data header
             byte[] cache = new byte[RIFFWaveUtils.data.Length];
