@@ -12,6 +12,8 @@ namespace Cavern.Cavernize {
         /// <summary>The audio clip to convert.</summary>
         [Tooltip("The audio clip to convert.")]
         public AudioClip Clip;
+        /// <summary>The audio clip to convert in Cavern's format. Overrides <see cref="Clip"/>.</summary>
+        public AudioClip3D Clip3D;
         /// <summary>Continue playback of the source.</summary>
         [Tooltip("Continue playback of the source.")]
         public bool IsPlaying = true;
@@ -89,15 +91,25 @@ namespace Cavern.Cavernize {
             AudioListener3D listener = AudioListener3D.Current;
             oldSampleRate = listener.SampleRate;
             oldUpdateRate = listener.UpdateRate;
-            listener.SampleRate = Clip.frequency;
-            updateRate = listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
-            if (Clip.samples > updateRate)
-                clipLength = Clip.samples;
-            else
-                clipLength = updateRate;
-            int sampleCount = (clipChannels = Clip.channels) * clipLength;
-            clipSamples = new float[sampleCount];
-            Clip.GetData(clipSamples, 0);
+            if (Clip) {
+                listener.SampleRate = Clip.frequency;
+                updateRate = listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
+                if (Clip.samples > updateRate)
+                    clipLength = Clip.samples;
+                else
+                    clipLength = updateRate;
+                clipSamples = new float[(clipChannels = Clip.channels) * clipLength];
+                Clip.GetData(clipSamples, 0);
+            } else if (Clip3D) {
+                listener.SampleRate = Clip3D.SampleRate;
+                updateRate = listener.UpdateRate = Clip3D.SampleRate / UpdatesPerSecond;
+                if (Clip3D.Samples > updateRate)
+                    clipLength = Clip3D.Samples;
+                else
+                    clipLength = updateRate;
+                clipSamples = new float[(clipChannels = Clip3D.Channels) * clipLength];
+                Clip3D.GetData(clipSamples, 0);
+            }
             List<ChannelPrototype> targetChannels = new List<ChannelPrototype>();
             foreach (ChannelPrototype upmixTarget in UpmixTargets)
                 targetChannels.Add(upmixTarget);

@@ -46,7 +46,10 @@ namespace Cavern.Cavernize {
         void Start() {
             SourceUpdate();
             CavernizeOutputSource source = (CavernizeOutputSource)cavernSource;
-            source.Clip = new Clip(new float[1][] { new float[1] }, Master.Clip.frequency);
+            if (Master.Clip != null)
+                source.Clip = new Clip(new float[1][] { new float[1] }, Master.Clip.frequency);
+            else
+                source.Clip = new Clip(new float[1][] { new float[1] }, Master.Clip3D.SampleRate);
             source.Master = Master;
             source.GroundLevel = GroundLevel;
             source.Channel = Channel;

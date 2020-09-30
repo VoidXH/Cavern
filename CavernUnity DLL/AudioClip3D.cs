@@ -7,7 +7,7 @@ namespace Cavern {
         /// <summary>The length of the clip in seconds.</summary>
         public float length { get; private set; }
         /// <summary>Sampling rate of the clip.</summary>
-        public float frequency { get; private set; }
+        public int frequency { get; private set; }
         /// <summary>Channel count for the clip.</summary>
         public int channels { get; private set; }
         /// <summary>The length of the clip in samples, for a single channel.</summary>

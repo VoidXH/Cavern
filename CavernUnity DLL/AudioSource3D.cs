@@ -14,6 +14,8 @@ namespace Cavern {
         [Header("Audio clip settings")]
         [Tooltip("The audio clip to play.")]
         public AudioClip Clip;
+        /// <summary>The audio clip to play in Cavern's format. Overrides <see cref="Clip"/>.</summary>
+        public AudioClip3D Clip3D;
         /// <summary>Continue playback of the source.</summary>
         [Tooltip("Continue playback of the source.")]
         public bool IsPlaying = true;
@@ -138,6 +140,20 @@ namespace Cavern {
 #pragma warning restore IDE1006 // Naming Styles
 
         // ------------------------------------------------------------------
+        // Public properties
+        // ------------------------------------------------------------------
+        /// <summary>Returns the sample count for a single channel or -1 if there's no active clip.</summary>
+        public int Samples {
+            get {
+                if (Clip3D)
+                    return Clip3D.Samples;
+                if (Clip)
+                    return Clip.samples;
+                return -1;
+            }
+        }
+
+        // ------------------------------------------------------------------
         // Public functions
         // ------------------------------------------------------------------
         /// <summary>Start playback from the beginning of the <see cref="clip"/>.</summary>
@@ -234,7 +250,12 @@ namespace Cavern {
         /// <summary>Synchronize this interface with <see cref="cavernSource"/>.</summary>
         protected void SourceUpdate() {
             cavernSource.Position = VectorUtils.VectorMatch(transform.position);
-            if (Clip) {
+            if (Clip3D) {
+                if (!cavernSource.Clip || lastClipHash != Clip3D.GetHashCode()) {
+                    cavernSource.Clip = Clip3D;
+                    lastClipHash = Clip3D.GetHashCode();
+                }
+            } else if (Clip) {
                 if (!cavernSource.Clip || lastClipHash != Clip.GetHashCode()) {
                     float[] AllData = new float[Clip.channels * Clip.samples];
                     Clip.GetData(AllData, 0);
