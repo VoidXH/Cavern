@@ -36,6 +36,8 @@ namespace Cavern.Format {
                     Bits = BitDepth.Int8;
                 else if (bitDepth == 16)
                     Bits = BitDepth.Int16;
+                else if (bitDepth == 24)
+                    Bits = BitDepth.Int24;
                 else
                     throw new IOException(string.Format("Unsupported bit depth for signed little endian integer: {0}.", bitDepth));
             } else if (sampleFormat == 3 && bitDepth == 32)
@@ -56,7 +58,7 @@ namespace Cavern.Format {
         /// <remarks>The next to - from samples will be read from the file.</remarks>
         public override void ReadBlock(float[] samples, long from, long to) {
             const long skip = 10 * 1024 * 1024 / sizeof(float); // 10 MB source splits at max to optimize for both memory and IO
-            const float fromInt8 = 1 / 128f, fromInt16 = 1 / 32767f;
+            const float fromInt8 = 1 / 128f, fromInt16 = 1 / 32767f, fromInt24 = 1 / 8388608f;
             if (to - from > skip) {
                 for (; from < to; from += skip)
                     ReadBlock(samples, from, Math.Min(to, from + skip));
@@ -73,6 +75,12 @@ namespace Cavern.Format {
                         byte[] source = reader.ReadBytes((int)(to - from) * sizeof(short));
                         for (int i = 0; i < source.Length;)
                             samples[from++] = (short)(source[i++] + source[i++] * 256) * fromInt16;
+                        break;
+                    }
+                case BitDepth.Int24: {
+                        byte[] source = reader.ReadBytes((int)(to - from) * 3);
+                        for (int i = 0; i < source.Length;)
+                            samples[from++] = ((source[i++] << 8) | (source[i++] << 16) | (source[i++] << 24)) / 256 * fromInt24;
                         break;
                     }
                 case BitDepth.Float32: {

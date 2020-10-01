@@ -36,7 +36,23 @@ namespace Cavern.Format {
             writer.Write(limitless); // Limitless marker
             // No custom headers
             writer.Write(head); // Main header marker
-            writer.Write(new byte[] { bits == BitDepth.Int8 ? (byte)0 : (bits == BitDepth.Int16 ? (byte)1 : (byte)2), (byte)0 }); // Quality and channel mode indicator
+            switch (bits) { // Quality
+                case BitDepth.Int8:
+                    writer.Write((byte)0);
+                    break;
+                case BitDepth.Int16:
+                    writer.Write((byte)1);
+                    break;
+                case BitDepth.Float32:
+                    writer.Write((byte)2);
+                    break;
+                case BitDepth.Int24:
+                    writer.Write((byte)3);
+                    break;
+                default:
+                    throw new IOException(string.Format("Unsupported bit depth: {0}.", bits));
+            }
+            writer.Write((byte)0); // Channel mode indicator
             writer.Write(BitConverter.GetBytes(channelCount)); // Channel/object count
             for (int channel = 0; channel < channelCount; ++channel) { // Channel/object info
                 writer.Write(BitConverter.GetBytes(channels[channel].X)); // Rotation on vertical axis
@@ -70,7 +86,17 @@ namespace Cavern.Format {
                 case BitDepth.Int16:
                     for (int sample = 0; sample < until; ++sample)
                         if (toWrite[sample % channelCount])
-                            writer.Write(BitConverter.GetBytes((short)(cache[sample] * 32767f)));
+                            writer.Write((short)(cache[sample] * 32767f));
+                    break;
+                case BitDepth.Int24:
+                    for (int sample = 0; sample < until; ++sample) {
+                        if (toWrite[sample % channelCount]) {
+                            int src = (int)(cache[sample] * 8388607f) * 256;
+                            writer.Write((byte)(src >> 8));
+                            writer.Write((byte)(src >> 16));
+                            writer.Write((byte)(src >> 24));
+                        }
+                    }
                     break;
                 case BitDepth.Float32:
                     for (int sample = 0; sample < until; ++sample)

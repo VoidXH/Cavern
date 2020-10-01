@@ -51,6 +51,14 @@ namespace Cavern.Format {
                     while (from < to)
                         writer.Write((short)(samples[from++] * 32767f));
                     break;
+                case BitDepth.Int24:
+                    while (from < to) {
+                        int src = (int)(samples[from++] * 8388607f) * 256;
+                        writer.Write((byte)(src >> 8));
+                        writer.Write((byte)(src >> 16));
+                        writer.Write((byte)(src >> 24));
+                    }
+                    break;
                 case BitDepth.Float32:
                     while (from < to)
                         writer.Write(samples[from++]);
