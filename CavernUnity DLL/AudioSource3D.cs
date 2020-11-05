@@ -6,6 +6,7 @@ using Cavern.Utilities;
 
 namespace Cavern {
     /// <summary>An audio object in 3D space, in stereo, or both.</summary>
+    [AddComponentMenu("Audio/3D Audio Source")]
     public class AudioSource3D : MonoBehaviour {
         // ------------------------------------------------------------------
         // Audio source settings
