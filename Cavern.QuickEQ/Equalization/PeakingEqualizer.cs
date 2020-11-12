@@ -31,7 +31,8 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>Measure a filter candidate for <see cref="BruteForceQ(ref float[], double, double)"/>.</summary>
         float BruteForceStep(float[] target, out float[] changedTarget) {
-            changedTarget = GraphUtils.ConvertToGraph(analyzer.FrequencyResponse, 20, analyzer.SampleRate * .5, analyzer.SampleRate, target.Length);
+            changedTarget = GraphUtils.ConvertToGraph(analyzer.FrequencyResponse, 20, analyzer.SampleRate * .5,
+                analyzer.SampleRate, target.Length);
             GraphUtils.ConvertToDecibels(changedTarget);
             WaveformUtils.Mix(target, changedTarget);
             return QMath.SumAbs(changedTarget);
@@ -94,15 +95,21 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>Create a peaking EQ filter set with bands placed at optimal frequencies to approximate the drawn EQ curve.</summary>
         public PeakingEQ[] GetPeakingEQ(int sampleRate, int bands) {
-            double nyquist = sampleRate * .5f;
-            float[] target = source.Visualize(20, nyquist, 1024);
+            float[] target = source.Visualize(20, sampleRate * .5f, 1024);
             PeakingEQ[] result = new PeakingEQ[bands];
             analyzer = new FilterAnalyzer(null, sampleRate);
-            for (int pass = 0; pass < bands; ++pass)
-                result[pass] = BruteForceBand(ref target, analyzer);
+            for (int band = 0; band < bands; ++band)
+                result[band] = BruteForceBand(ref target, analyzer);
             return result;
         }
 
-        // TODO: GetPeakingEQ with fixed bands (only use BruteForceQ)
+        /// <summary>Create a peaking EQ filter set with bands placed at equalized frequencies to approximate the drawn EQ curve.</summary>
+        public PeakingEQ[] GetPeakingEQ(int sampleRate) {
+            float[] target = source.Visualize(20, sampleRate * .5f, 1024);
+            PeakingEQ[] result = new PeakingEQ[source.Bands.Count];
+            for (int band = 0, bandc = source.Bands.Count; band < bandc; ++band)
+                result[band] = BruteForceQ(ref target, source.Bands[band].Frequency, source.Bands[band].Gain);
+            return result;
+        }
     }
 }
