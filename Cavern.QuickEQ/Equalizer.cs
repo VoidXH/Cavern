@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.EQCurves;
@@ -14,6 +16,33 @@ namespace Cavern.QuickEQ {
         /// <summary>Bands that make up this equalizer.</summary>
         public IReadOnlyList<Band> Bands => bands;
         readonly List<Band> bands = new List<Band>();
+
+        /// <summary>Equalizer data collector and exporter.</summary>
+        public Equalizer() { }
+
+        /// <summary>Equalizer data collector and exporter from a previously created set of bands.</summary>
+        Equalizer(List<Band> bands) {
+            bands.Sort();
+            this.bands = bands;
+        }
+
+        /// <summary>Gets the gain at a given frequency.</summary>
+        public double this[double frequency] {
+            get {
+                int bandCount = bands.Count;
+                if (bandCount == 0)
+                    return 0;
+                int nextBand = 0, prevBand = 0;
+                while (nextBand != bandCount && bands[nextBand].Frequency < frequency) {
+                    prevBand = nextBand;
+                    ++nextBand;
+                }
+                if (nextBand != bandCount && nextBand != 0)
+                    return QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
+                        QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, frequency));
+                return bands[prevBand].Gain;
+            }
+        }
 
         /// <summary>Subsonic filter rolloff in dB / octave.</summary>
         public double SubsonicRolloff {
@@ -65,7 +94,7 @@ namespace Cavern.QuickEQ {
             if (bands.Count == 0 || PeakGain < newBand.Gain)
                 PeakGain = newBand.Gain;
             bands.Add(newBand);
-            bands.Sort((a, b) => a.Frequency.CompareTo(b.Frequency));
+            bands.Sort();
             if (subFiltered)
                 SubsonicFilter = true;
         }
@@ -287,8 +316,8 @@ namespace Cavern.QuickEQ {
                 int end = result.Length - 1;
                 for (int band = 1; band < end; ++band) {
                     freq = bands[band].Frequency;
-                    result[band] = new PeakingEQ(sampleRate, freq, QFactor.FromBandwidth(freq, bands[band - 1].Frequency, bands[band + 1].Frequency)
-                        * qMul, bands[band].Gain * gainMul);
+                    result[band] = new PeakingEQ(sampleRate, freq, QFactor.FromBandwidth(freq, bands[band - 1].Frequency,
+                        bands[band + 1].Frequency) * qMul, bands[band].Gain * gainMul);
                 }
                 freq = bands[end].Frequency;
                 result[end] = new PeakingEQ(sampleRate, freq, QFactor.FromBandwidth(freq, (freq - bands[end - 1].Frequency) * 2) * qMul,
@@ -296,6 +325,16 @@ namespace Cavern.QuickEQ {
             } else if (result.Length == 1)
                 result[0] = new PeakingEQ(sampleRate, freq, .001f, bands[0].Gain);
             return result;
+        }
+
+        /// <summary>Merge this Equalizer with another, summing their gains.</summary>
+        public Equalizer Merge(Equalizer with) {
+            List<Band> output = new List<Band>();
+            for (int band = 0, bandc = bands.Count; band < bandc; ++ band)
+                output.Add(new Band(bands[band].Frequency, bands[band].Gain + with[bands[band].Frequency]));
+            for (int band = 0, bandc = with.bands.Count; band < bandc; ++band)
+                output.Add(new Band(with.bands[band].Frequency, with.bands[band].Gain + this[with.bands[band].Frequency]));
+            return new Equalizer(output.Distinct().ToList());
         }
 
         /// <summary>Generate an equalizer setting to flatten the processed response of
