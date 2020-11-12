@@ -1,6 +1,8 @@
-﻿namespace Cavern.QuickEQ.Equalization {
+﻿using System;
+
+namespace Cavern.QuickEQ.Equalization {
     /// <summary>A single equalizer band.</summary>
-    public struct Band {
+    public struct Band : IComparable<Band> {
         /// <summary>Position of the band.</summary>
         public readonly double Frequency { get; }
         /// <summary>Gain at <see cref="Frequency"/> in dB.</summary>
@@ -14,5 +16,8 @@
 
         /// <summary>Band data as text.</summary>
         public override string ToString() => string.Format("{0} Hz: {1} dB", Frequency, Gain);
+
+        /// <summary>Compare bands by frequency.</summary>
+        public int CompareTo(Band other) => Frequency.CompareTo(other.Frequency);
     }
 }
