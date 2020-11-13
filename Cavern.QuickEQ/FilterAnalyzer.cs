@@ -10,7 +10,19 @@ namespace Cavern.QuickEQ {
     /// <summary>Measures properties of a filter, like frequency/impulse response, gain, or delay.</summary>
     public sealed class FilterAnalyzer {
         /// <summary>Used FFT size for most measurements.</summary>
-        const int resolution = 65536;
+        public int Resolution {
+            get => resolution;
+            set {
+                gain = float.NaN;
+                cache = null;
+                impulseReference = null;
+                frequencyResponse = null;
+                spectrum = null;
+                impulse = null;
+                resolution = value;
+            }
+        }
+        int resolution = 65536;
 
         /// <summary>Maximum filter amplification.</summary>
         public float Gain {
@@ -30,7 +42,7 @@ namespace Cavern.QuickEQ {
         FFTCache Cache {
             get {
                 if (cache == null)
-                    return cache = new FFTCache(resolution);
+                    return cache = new FFTCache(Resolution);
                 return cache;
             }
         }
@@ -41,7 +53,7 @@ namespace Cavern.QuickEQ {
             get {
                 if (impulseReference != null)
                     return impulseReference;
-                impulseReference = new float[resolution];
+                impulseReference = new float[Resolution];
                 impulseReference[0] = 1;
                 return impulseReference;
             }
@@ -89,7 +101,6 @@ namespace Cavern.QuickEQ {
         public bool Polarity => Impulse.Polarity;
         /// <summary>Response delay in seconds.</summary>
         public float Delay => Impulse.Delay / (float)SampleRate;
-
         /// <summary>Sample rate used for measurements and in <see cref="filter"/> if it's sample rate-dependent.</summary>
         public int SampleRate { get; private set; }
         /// <summary>Filter to measure.</summary>
@@ -115,10 +126,8 @@ namespace Cavern.QuickEQ {
         /// <summary>Change the filter and the sample rate.</summary>
         public void Reset(Filter filter, int sampleRate) {
             Reset(filter);
-            if (SampleRate != sampleRate) {
+            if (SampleRate != sampleRate)
                 SampleRate = sampleRate;
-                impulseReference = null;
-            }
         }
 
         /// <summary>Fet the frequency response of the filter.</summary>
