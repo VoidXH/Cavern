@@ -6,7 +6,7 @@ using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
     /// <summary>Convolution filters for each ear and virtual channel to simulate a spatial environment.</summary>
-    static partial class VirtualizerFilter {
+    public static partial class VirtualizerFilter {
         const int filterSampleRate = 48000, unassigned = -1;
         /// <summary>Cache of each output channel.</summary>
         static float[][] originalSplit;
@@ -75,12 +75,12 @@ namespace Cavern.Virtualizer {
             spatialChannels[channel].RightFilter.Process(rightSplit[channel]);
         }
 
-        /// <summary>Apply the virtualizer on the <see cref="AudioListener3D"/>'s output,
+        /// <summary>Apply the virtualizer on the <see cref="Listener"/>'s output,
         /// if the configuration matches the virtualization layout and filter sample rate.</summary>
-        public static void Process(float[] output) {
+        public static void Process(float[] output, int sampleRate) {
             int channels = Listener.Channels.Length;
             blockSize = output.Length / channels;
-            if (originalSplit == null || AudioListener3D.SystemSampleRate != filterSampleRate)
+            if (originalSplit == null || sampleRate != filterSampleRate)
                 return;
             if (originalSplit[0].Length != blockSize) {
                 for (int channel = 0; channel < channels; ++channel)
@@ -90,7 +90,7 @@ namespace Cavern.Virtualizer {
             for (int sample = 0, outSample = 0; sample < blockSize; ++sample)
                 for (int channel = 0; channel < channels; ++channel, ++outSample)
                     originalSplit[channel][sample] = output[outSample];
-            if (center != unassigned) { // TODO: do this for all front/rear center channels
+            if (center != unassigned) {
                 Buffer.BlockCopy(originalSplit[center], 0, delayedCenter, 0, blockSize * sizeof(float));
                 centerDelay.Process(delayedCenter); // Add 7.5 ms delay
                 WaveformUtils.Gain(delayedCenter, .1f); // -20 dB gain

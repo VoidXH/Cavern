@@ -64,6 +64,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\Vector.cs" />
     <Compile Include="Utilities\WaveformUtils.cs" />
+    <Compile Include="Virtualizer\SpatialChannel.cs" />
+    <Compile Include="Virtualizer\VirtualizerFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cavern.Filters\Cavern.Filters.csproj">

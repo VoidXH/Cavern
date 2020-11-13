@@ -2,7 +2,7 @@
 
 namespace Cavern.QuickEQ {
     /// <summary>Generates various sine sweep (chirp) signals.</summary>
-    public static class SweepGenerator { // TODO: merge SweepChannelSource and seal
+    public static class SweepGenerator {
         /// <summary>Generate a linear frequency sweep with a flat frequency response.</summary>
         public static float[] Linear(double startFreq, double endFreq, int samples, int sampleRate) {
             float[] output = new float[samples];

@@ -1,15 +1,16 @@
-﻿using UnityEngine;
+﻿using System;
 
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
-    static partial class VirtualizerFilter {
+    public static partial class VirtualizerFilter {
         /// <summary>Represents a virtualizable channel with impulse responses for both ears.</summary>
         struct SpatialChannel {
             const float lowFrequencyCrossover = 120;
             const float highFrequencyCrossover = 12000;
             /// <summary>Ear to ear sound travel time in samples.</summary>
-            const float peakDelay = filterSampleRate * .14f /* subject head width in meters */ / Source.SpeedOfSound * Mathf.PI;
+            const float peakDelay = (float)(filterSampleRate * .14 /* subject head width in meters */ / Source.SpeedOfSound * Math.PI);
 
             /// <summary>Virtual speaker angle difference from the subject's gaze on the vertical axis: elevation.</summary>
             public float X;
@@ -23,15 +24,15 @@ namespace Cavern.Virtualizer {
             // Convolution filters for spatial placement
             Convolver leftFilter;
             Convolver rightFilter;
-            public Convolver LeftFilter => leftFilter ?? (leftFilter = new Convolver(LeftEarIR, Y > 0 ? (int)(Mathf.Sin(Y * Mathf.Deg2Rad) * peakDelay + .5f) : 0));
-            public Convolver RightFilter => rightFilter ?? (rightFilter = new Convolver(RightEarIR, Y < 0 ? (int)(Mathf.Sin(-Y * Mathf.Deg2Rad) * peakDelay + .5f) : 0));
+            public Convolver LeftFilter => leftFilter ??= new Convolver(LeftEarIR, Y > 0 ? (int)(Math.Sin(Y * Vector.Deg2Rad) * peakDelay + .5f) : 0);
+            public Convolver RightFilter => rightFilter ??= new Convolver(RightEarIR, Y < 0 ? (int)(Math.Sin(-Y * Vector.Deg2Rad) * peakDelay + .5f) : 0);
 
             /// <summary>Low frequency crossover filter for retaining bass outside the impulse response frequency range.</summary>
-            public Crossover LowCrossover => lowCrossover ?? (lowCrossover = new Crossover(filterSampleRate, lowFrequencyCrossover));
+            public Crossover LowCrossover => lowCrossover ??= new Crossover(filterSampleRate, lowFrequencyCrossover);
             Crossover lowCrossover;
 
             /// <summary>High frequency crossover filter for retaining treble outside the impulse response frequency range.</summary>
-            public Crossover HighCrossover => highCrossover ?? (highCrossover = new Crossover(filterSampleRate, highFrequencyCrossover));
+            public Crossover HighCrossover => highCrossover ??= new Crossover(filterSampleRate, highFrequencyCrossover);
             Crossover highCrossover;
         }
 

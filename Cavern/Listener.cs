@@ -7,6 +7,7 @@ using System.Text;
 
 using Cavern.Filters;
 using Cavern.Utilities;
+using Cavern.Virtualizer;
 
 namespace Cavern {
     /// <summary>Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.</summary>
@@ -32,7 +33,7 @@ namespace Cavern {
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
         public static Environments EnvironmentType = Environments.Home;
 
-        /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/>.</summary>
+        /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/> on the next frame.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
         public static bool HeadphoneVirtualizer = false;
 
@@ -141,7 +142,7 @@ namespace Cavern {
                 EnvironmentType = (Environments)Convert.ToInt32(save[savePos++], format);
                 EnvironmentSize = new Vector(Convert.ToSingle(save[savePos++], format), Convert.ToSingle(save[savePos++], format),
                     Convert.ToSingle(save[savePos++], format));
-                HeadphoneVirtualizer = save.Length > savePos ? Convert.ToBoolean(save[savePos++]) : false; // Added: 2016.04.24.
+                HeadphoneVirtualizer = save.Length > savePos && Convert.ToBoolean(save[savePos++]); // Added: 2016.04.24.
                 ++savePos; // Environment compensation (bool), added: 2017.06.18, removed: 2019.06.06.
             }
         }
@@ -243,6 +244,8 @@ namespace Cavern {
 
         /// <summary>A single update.</summary>
         float[] Frame() {
+            if (HeadphoneVirtualizer)
+                VirtualizerFilter.SetLayout();
             if (channelCount != Channels.Length || lastSampleRate != SampleRate || lastUpdateRate != UpdateRate)
                 Reoptimize();
             // Collect audio data from sources

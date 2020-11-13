@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Remapping;
@@ -128,6 +129,7 @@ namespace Cavern {
         /// <summary>Filter normalizer gain.</summary>
         static float filterNormalizer = 1;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Awake() {
             if (Current) {
                 UnityEngine.Debug.LogError("There can be only one 3D audio listener per scene.");
@@ -138,9 +140,8 @@ namespace Cavern {
             remapper = new Remapper(2, UpdateRate);
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            if (Listener.HeadphoneVirtualizer)
-                VirtualizerFilter.SetLayout();
             cavernListener.Volume = Volume;
             cavernListener.LFEVolume = LFEVolume;
             cavernListener.Range = Range;
@@ -159,6 +160,7 @@ namespace Cavern {
         /// <summary>Output Cavern's generated audio as a filter.</summary>
         /// <param name="unityBuffer">Output buffer</param>
         /// <param name="unityChannels">Output channel count</param>
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnAudioFilterRead(float[] unityBuffer, int unityChannels) {
             if (Paused)
                 return;
@@ -183,7 +185,7 @@ namespace Cavern {
                 if (SystemSampleRate != cachedSampleRate) // Resample output for system sample rate
                     renderBuffer = Resample.Adaptive(renderBuffer, renderBuffer.Length / channels * SystemSampleRate / cachedSampleRate,
                         channels, AudioQuality);
-                VirtualizerFilter.Process(renderBuffer);
+                VirtualizerFilter.Process(renderBuffer, SystemSampleRate);
                 int end = filterOutput.Length, altEnd = bufferPosition + renderBuffer.Length / channels * unityChannels;
                 if (end > altEnd)
                     end = altEnd;
