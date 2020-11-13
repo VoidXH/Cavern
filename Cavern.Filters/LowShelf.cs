@@ -19,7 +19,7 @@ namespace Cavern.Filters {
         public override void Reset(double centerFreq, double q = QFactor.reference, double gain = 0) {
             base.Reset(centerFreq, q, gain);
             float w0 = (float)(Math.PI * 2 * centerFreq / sampleRate), cos = (float)Math.Cos(w0), alpha = (float)(Math.Sin(w0) / (q + q)),
-                a = (float)Math.Pow(10, gain * .05f), slope = 2 * (float)Math.Sqrt(a) * alpha, minCos = (a - 1) * cos, addCos = (a + 1) * cos,
+                a = (float)Math.Pow(10, gain * .025f), slope = 2 * (float)Math.Sqrt(a) * alpha, minCos = (a - 1) * cos, addCos = (a + 1) * cos,
                 divisor = 1 / (a + 1 + minCos + slope); // 1 / a0
             a1 = -2 * (a - 1 + addCos) * divisor;
             a2 = (a + 1 + minCos - slope) * divisor;
