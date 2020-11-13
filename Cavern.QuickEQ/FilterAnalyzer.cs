@@ -130,10 +130,10 @@ namespace Cavern.QuickEQ {
                 SampleRate = sampleRate;
         }
 
-        /// <summary>Fet the frequency response of the filter.</summary>
+        /// <summary>Get the frequency response of the filter.</summary>
         public Complex[] GetFrequencyResponse() => (Complex[])FrequencyResponse.Clone();
 
-        /// <summary>Fet the frequency response of the filter.</summary>
+        /// <summary>Get the frequency response of the filter.</summary>
         public ReadOnlyCollection<Complex> GetFrequencyResponseReadonly() => Array.AsReadOnly(FrequencyResponse);
 
         /// <summary>Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
