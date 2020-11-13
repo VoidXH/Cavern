@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using Cavern.Filters;
+using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
@@ -130,5 +132,21 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
         public ReadOnlyCollection<float> GetSpectrumReadonly() => Array.AsReadOnly(Spectrum);
+
+        /// <summary>Render an approximate <see cref="Equalizer"/> by the analyzed filter's frequency response.</summary>
+        /// <param name="startFreq">Start of the rendered range</param>
+        /// <param name="endFreq">End of the rendered range</param>
+        /// <param name="resolution">Band diversity in octaves</param>
+        /// <param name="oversampling">Detail increase factor</param>
+        public Equalizer ToEqualizer(double startFreq, double endFreq, double resolution = 1 / 3f, int oversampling = 1) {
+            float[] graph = GraphUtils.ConvertToGraph(FrequencyResponse, startFreq, endFreq, SampleRate, SampleRate * oversampling);
+            List<Band> bands = new List<Band>();
+            double startPow = Math.Log10(startFreq), powRange = (Math.Log10(endFreq) - startPow) / graph.Length,
+                octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2);
+            int windowSize = (int)(graph.Length / (octaveRange / resolution + 1));
+            for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize)
+                bands.Add(new Band(Math.Pow(10, startPow + powRange * pos), 20 * Math.Log10(graph[pos])));
+            return new Equalizer(bands);
+        }
     }
 }

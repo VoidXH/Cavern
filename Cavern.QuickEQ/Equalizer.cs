@@ -21,7 +21,7 @@ namespace Cavern.QuickEQ {
         public Equalizer() { }
 
         /// <summary>Equalizer data collector and exporter from a previously created set of bands.</summary>
-        Equalizer(List<Band> bands) {
+        internal Equalizer(List<Band> bands) {
             bands.Sort();
             this.bands = bands;
         }
@@ -229,7 +229,7 @@ namespace Cavern.QuickEQ {
         /// <see cref="GraphUtils.ConvertToGraph(float[], double, double, int, int)"/></param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
-        public float[] Apply(float[] response, float startFreq, float endFreq) {
+        public float[] Apply(float[] response, double startFreq, double endFreq) {
             float[] filter = Visualize(startFreq, endFreq, response.Length);
             for (int i = 0; i < response.Length; ++i)
                 filter[i] += response[i];
@@ -348,7 +348,7 @@ namespace Cavern.QuickEQ {
         /// <param name="targetGain">Target EQ level</param>
         /// <param name="maxGain">Maximum gain of any generated band</param>
         public static Equalizer CorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
-            float resolution = 1 / 3f, float maxGain = 6) {
+            double resolution = 1 / 3f, float maxGain = 6) {
             Equalizer result = new Equalizer();
             double startPow = Math.Log10(startFreq), powRange = (Math.Log10(endFreq) - startPow) / graph.Length,
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2), bands = octaveRange / resolution + 1;
