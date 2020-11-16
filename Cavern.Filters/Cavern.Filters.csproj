@@ -58,6 +58,7 @@
     <Compile Include="Delay.cs" />
     <Compile Include="Echo.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="Gain.cs" />
     <Compile Include="Highpass.cs" />
     <Compile Include="HighShelf.cs" />
     <Compile Include="Lowpass.cs" />
