@@ -416,9 +416,9 @@ namespace Cavern.QuickEQ {
             Equalizer result = new Equalizer();
             NumberFormatInfo format = new NumberFormatInfo { NumberDecimalSeparator = "," };
             for (int line = 0; line < lines.Length; ++line) {
-                string[] nums = lines[line].Split(' ', '\t');
-                if (float.TryParse(nums[0].Replace(',', '.'), NumberStyles.Any, format, out float freq) &&
-                    float.TryParse(nums[nums.Length - 1].Replace(',', '.'), NumberStyles.Any, format, out float gain))
+                string[] nums = lines[line].Trim().Split(' ', '\t');
+                if (nums.Length > 1 && double.TryParse(nums[0].Replace(',', '.'), NumberStyles.Any, format, out double freq) &&
+                    double.TryParse(nums[1].Replace(',', '.'), NumberStyles.Any, format, out double gain))
                     result.bands.Add(new Band(freq, gain));
             }
             return result;
