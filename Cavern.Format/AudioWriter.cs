@@ -4,16 +4,17 @@ using System.IO;
 namespace Cavern.Format {
     /// <summary>Abstract audio file writer.</summary>
     public abstract class AudioWriter : IDisposable {
+        /// <summary>Output channel count.</summary>
+        public int ChannelCount { get; protected set; }
+        /// <summary>Output length in samples.</summary>
+        public long Length { get; protected set; }
+        /// <summary>Output sample rate.</summary>
+        public int SampleRate { get; protected set; }
+        /// <summary>Output bit depth.</summary>
+        public BitDepth Bits { get; protected set; }
+
         /// <summary>File writer object.</summary>
         protected BinaryWriter writer;
-        /// <summary>Output channel count.</summary>
-        protected int channelCount;
-        /// <summary>Output length in samples.</summary>
-        protected long length;
-        /// <summary>Output sample rate.</summary>
-        protected int sampleRate;
-        /// <summary>Output bit depth.</summary>
-        protected BitDepth bits;
 
         /// <summary>Abstract audio file writer.</summary>
         /// <param name="writer">File writer object</param>
@@ -23,10 +24,10 @@ namespace Cavern.Format {
         /// <param name="bits">Output bit depth</param>
         public AudioWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) {
             this.writer = writer;
-            this.channelCount = channelCount;
-            this.length = length;
-            this.sampleRate = sampleRate;
-            this.bits = bits;
+            ChannelCount = channelCount;
+            Length = length;
+            SampleRate = sampleRate;
+            Bits = bits;
         }
 
         /// <summary>Create the file header.</summary>
@@ -41,9 +42,9 @@ namespace Cavern.Format {
         /// <summary>Write the entire file.</summary>
         /// <param name="samples">All input samples</param>
         public void Write(float[] samples) {
-            length = samples.LongLength;
+            Length = samples.LongLength;
             WriteHeader();
-            WriteBlock(samples, 0, length);
+            WriteBlock(samples, 0, Length);
             writer.Close();
         }
 

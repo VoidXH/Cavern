@@ -17,20 +17,20 @@ namespace Cavern.Format {
         public override void WriteHeader() {
             // RIFF header
             writer.Write(RIFFWaveUtils.RIFF);
-            int dataLength = (int)(length * channelCount * ((int)bits / 8));
+            int dataLength = (int)(Length * ChannelCount * ((int)Bits / 8));
             writer.Write(BitConverter.GetBytes(36 + dataLength)); // File length
             writer.Write(RIFFWaveUtils.WAVE);
 
             // Format header
             writer.Write(RIFFWaveUtils.fmt);
             writer.Write(new byte[] { 16, 0, 0, 0 }); // FMT header size
-            writer.Write(new byte[] { bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
-            writer.Write(BitConverter.GetBytes((short)channelCount)); // Audio channels
-            writer.Write(BitConverter.GetBytes(sampleRate)); // Sample rate
-            int blockAlign = channelCount * ((int)bits / 8), BPS = sampleRate * blockAlign;
+            writer.Write(new byte[] { Bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
+            writer.Write(BitConverter.GetBytes((short)ChannelCount)); // Audio channels
+            writer.Write(BitConverter.GetBytes(SampleRate)); // Sample rate
+            int blockAlign = ChannelCount * ((int)Bits / 8), BPS = SampleRate * blockAlign;
             writer.Write(BitConverter.GetBytes(BPS)); // Bytes per second
             writer.Write(BitConverter.GetBytes((short)blockAlign)); // Block size in bytes
-            writer.Write(BitConverter.GetBytes((short)bits)); // Bit depth
+            writer.Write(BitConverter.GetBytes((short)Bits)); // Bit depth
 
             // Data header
             writer.Write(RIFFWaveUtils.data);
@@ -42,7 +42,7 @@ namespace Cavern.Format {
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
         public override void WriteBlock(float[] samples, long from, long to) {
-            switch (bits) {
+            switch (Bits) {
                 case BitDepth.Int8:
                     while (from < to)
                         writer.Write((byte)((samples[from++] + 1f) * 127f));
