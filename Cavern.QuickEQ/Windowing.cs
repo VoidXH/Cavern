@@ -26,12 +26,12 @@ namespace Cavern.QuickEQ {
     /// <summary>FFT windowing functions.</summary>
     public static class Windowing {
         /// <summary>Apply a predefined window function on a signal.</summary>
-        /// <param name="samples">Measurement to window</param>
+        /// <param name="samples">Signal to window</param>
         /// <param name="function">Windowing function applied</param>
         public static void ApplyWindow(float[] samples, Window function) => ApplyWindow(samples, function, function, 0, samples.Length / 2, samples.Length);
 
         /// <summary>Apply a custom window function on part of a signal.</summary>
-        /// <param name="samples">Measurement to window</param>
+        /// <param name="samples">Signal to window</param>
         /// <param name="left">Window function left from the marker</param>
         /// <param name="right">Window function right from the marker</param>
         /// <param name="start">Beginning of the window in samples</param>
@@ -52,6 +52,33 @@ namespace Cavern.QuickEQ {
                 WindowFunction rightFunc = GetWindowFunction(right);
                 for (int sample = posSplitter, actEnd = Math.Min(end, samples.Length); sample < actEnd; ++sample)
                     samples[sample] *= rightFunc((sample - endMirror) * rightSpanDiv);
+                Array.Clear(samples, end, samples.Length - end);
+            }
+        }
+
+        /// <summary>Apply a custom window function on part of a multichannel signal.</summary>
+        /// <param name="samples">Signal to window</param>
+        /// <param name="channels">Channel count</param>
+        /// <param name="left">Window function left from the marker</param>
+        /// <param name="right">Window function right from the marker</param>
+        /// <param name="start">Beginning of the window in samples</param>
+        /// <param name="splitter">The point where the two window functions change</param>
+        /// <param name="end">End of the window in samples</param>
+        public static void ApplyWindow(float[] samples, int channels, Window left, Window right, int start, int splitter, int end) {
+            int leftSpan = splitter - start, rightSpan = end - splitter, endMirror = splitter - (end - splitter), posSplitter = Math.Max(splitter, 0);
+            float leftSpanDiv = 2 * channels * (float)Math.PI / (leftSpan * 2), rightSpanDiv = 2 * channels * (float)Math.PI / (rightSpan * 2);
+            if (left != Window.Disabled) {
+                WindowFunction leftFunc = GetWindowFunction(left);
+                Array.Clear(samples, 0, start);
+                for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; ++sample)
+                    samples[sample] *= leftFunc((sample - start) / channels * leftSpanDiv);
+            }
+            if (right != Window.Disabled) {
+                if (end < 0)
+                    end = 0;
+                WindowFunction rightFunc = GetWindowFunction(right);
+                for (int sample = posSplitter, actEnd = Math.Min(end, samples.Length); sample < actEnd; ++sample)
+                    samples[sample] *= rightFunc((sample - endMirror) / channels * rightSpanDiv);
                 Array.Clear(samples, end, samples.Length - end);
             }
         }
