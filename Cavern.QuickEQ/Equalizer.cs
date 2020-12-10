@@ -409,6 +409,39 @@ namespace Cavern.QuickEQ {
             return result;
         }
 
+        /// <summary>
+        /// Remove correction from spectrum vallies that are most likely measurement errors or uncorrectable room modes.
+        /// </summary>
+        public void ValleyCorrection(float[] curve, EQCurve targetEQ, double startFreq, double stopFreq, float targetGain, float maxGain = 6) {
+            int start = 0, end = curve.Length - 1;
+            float[] target = targetEQ.GenerateLogCurve(curve.Length, startFreq, stopFreq, targetGain);
+            while (start < end && target[start] > curve[start] + maxGain)
+                ++start; // find low extension
+            while (start < end && target[end] > curve[end] + maxGain)
+                --end; // find high extension
+            double startPow = Math.Log10(startFreq), powRange = (Math.Log10(stopFreq) - startPow) / curve.Length;
+            for (int i = start; i <= end; ++i) {
+                if (target[i] > curve[i] + maxGain) {
+                    start = i;
+                    while (start != 0 && curve[start] < target[start])
+                        --start;
+                    double firstFreq = Math.Pow(10, startPow + powRange * start);
+                    while (i < end && curve[i] < target[i])
+                        ++i;
+                    double endFreq = Math.Pow(10, startPow + powRange * i) * 1.01;
+                    for (int band = 0, bandc = bands.Count; band < bandc; ++band) {
+                        double bandFreq = bands[band].Frequency;
+                        if (bandFreq < firstFreq)
+                            continue;
+                        if (bandFreq > endFreq)
+                            break;
+                        RemoveBand(bands[band--]);
+                        --bandc;
+                    }
+                }
+            }
+        }
+
         /// <summary>Parse a calibration text where each line is a frequency-gain (dB) pair,
         /// and the lines are sorted ascending by frequency.</summary>
         /// <param name="lines">Lines of the calibration file</param>
