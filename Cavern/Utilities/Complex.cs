@@ -15,7 +15,10 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>Magnitude of the complex number (spectrum for FFT).</summary>
-        public float Magnitude => (float)Math.Sqrt(Real * Real + Imaginary * Imaginary);
+        public float Magnitude {
+            get => (float)Math.Sqrt(Real * Real + Imaginary * Imaginary);
+            set => this *= value / Magnitude;
+        }
 
         /// <summary>Direction of the complex number (phase for FFT).</summary>
         public float Phase => (float)Math.Atan(Imaginary / Real);

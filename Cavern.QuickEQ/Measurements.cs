@@ -138,6 +138,24 @@ namespace Cavern.QuickEQ {
             }
         }
 
+        /// <summary>
+        /// Add gain to every frequency except a given band.
+        /// </summary>
+        public static void OffbandGain(Complex[] samples, double startFreq, double endFreq, double sampleRate, double dBgain) {
+            int startPos = (int)(samples.Length * startFreq / sampleRate),
+                endPos = (int)(samples.Length * endFreq / sampleRate);
+            float gain = (float)Math.Pow(10, dBgain * .05);
+            samples[0] *= gain;
+            for (int i = 1; i < startPos; ++i) {
+                samples[i] *= gain;
+                samples[samples.Length - i] *= gain;
+            }
+            for (int i = endPos + 1, half = samples.Length / 2; i <= half; ++i) {
+                samples[i] *= gain;
+                samples[samples.Length - i] *= gain;
+            }
+        }
+
         /// <summary>Get the real part of a signal's FFT.</summary>
         public static float[] GetRealPart(Complex[] samples) {
             float[] output = new float[samples.Length];

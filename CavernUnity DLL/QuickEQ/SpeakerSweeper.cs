@@ -111,6 +111,7 @@ namespace Cavern.QuickEQ {
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
             sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
+            Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, sampleRate, 100);
         }
 
         /// <summary>Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.</summary>
