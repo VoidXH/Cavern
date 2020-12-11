@@ -132,5 +132,16 @@ namespace Cavern {
 
         /// <summary>Check if two channels are the same.</summary>
         public bool Equals(Channel other) => X == other.X && Y == other.Y && lowFrequency == other.lowFrequency;
+
+        /// <summary>Get if a channel is LFE for a given channel count.
+        /// If <paramref name="channels"/> == -1, the current layout will be used.</summary>
+        public static bool IsLFE(int channel, int channels = -1) {
+            if (channels == -1)
+                return Listener.Channels[channel].lowFrequency;
+            else if (channels < 6)
+                return false;
+            else
+                return channel == 3;
+        }
     }
 }

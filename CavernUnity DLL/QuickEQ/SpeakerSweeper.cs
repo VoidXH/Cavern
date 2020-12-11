@@ -14,6 +14,9 @@ namespace Cavern.QuickEQ {
         /// <summary>Frequency at the end of the sweep.</summary>
         [Tooltip("Frequency at the end of the sweep.")]
         [Range(1, 24000)] public float EndFreq = 20000;
+        /// <summary>Maximum checked frequency for LFE channels. Other frequencites will be suppressed.</summary>
+        [Tooltip("Maximum checked frequency for LFE channels. Other frequencites will be suppressed.")]
+        [Range(1, 24000)] public float EndFreqLFE = 200;
         /// <summary>Measurement signal gain in decibels relative to full scale.</summary>
         [Tooltip("Measurement signal gain in decibels relative to full scale.")]
         [Range(-50, 0)] public float SweepGain = -20;
@@ -98,6 +101,9 @@ namespace Cavern.QuickEQ {
         bool oldVirtualizer;
         /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
         Complex[] sweepFFT;
+        /// <summary>Measurement signal's Fourier transform for response calculation optimizations
+        /// and removed high frequencies for LFE noise suppression.</summary>
+        Complex[] sweepFFTlow;
         /// <summary>FFT constant cache for the sweep FFT size.</summary>
         FFTCache sweepFFTCache;
         /// <summary>Sweep playback objects.</summary>
@@ -111,14 +117,16 @@ namespace Cavern.QuickEQ {
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
             sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
+            sweepFFTlow = (Complex[])sweepFFT.Clone();
             Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, sampleRate, 100);
+            Measurements.OffbandGain(sweepFFTlow, StartFreq, EndFreqLFE, sampleRate, 100);
         }
 
         /// <summary>Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.</summary>
-        public Complex[] GetFrequencyResponse(float[] samples) =>
-            Measurements.GetFrequencyResponse(sweepFFT, Measurements.FFT(samples, sweepFFTCache));
+        public Complex[] GetFrequencyResponse(float[] samples, bool LFE) =>
+            Measurements.GetFrequencyResponse(LFE ? sweepFFTlow : sweepFFT, Measurements.FFT(samples, sweepFFTCache));
 
-        /// <summary>Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[])"/>.</summary>
+        /// <summary>Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[], bool)"/>.</summary>
         public VerboseImpulseResponse GetImpulseResponse(Complex[] frequencyResponse) =>
             new VerboseImpulseResponse(Measurements.GetImpulseResponse(frequencyResponse, sweepFFTCache));
 
@@ -143,7 +151,8 @@ namespace Cavern.QuickEQ {
             if (!measurementStarted) {
                 measurementStarted = true;
                 if (Microphone.devices.Length != 0)
-                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Listener.Channels.Length / SampleRate + 1, SampleRate);
+                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Listener.Channels.Length / SampleRate + 1,
+                        SampleRate);
                 sweepers = new SweepChannel[Listener.Channels.Length];
                 for (int i = 0; i < Listener.Channels.Length; ++i) {
                     sweepers[i] = gameObject.AddComponent<SweepChannel>();
@@ -160,8 +169,9 @@ namespace Cavern.QuickEQ {
                 else
                     result = (float[])result.Clone();
                 ExcitementResponses[Channel] = result;
+                Complex[] fft = Cavern.Channel.IsLFE(Channel) ? sweepFFTlow : sweepFFT;
                 (workers[Channel] = new Task<WorkerResult>(() =>
-                    new WorkerResult(sweepFFT, sweepFFTCache, result))).Start();
+                    new WorkerResult(fft, sweepFFTCache, result))).Start();
                 if (++Channel == Listener.Channels.Length) {
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                         if (workers[channel].Result.IsNull())

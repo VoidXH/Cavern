@@ -75,7 +75,8 @@ namespace Cavern.QuickEQ {
             return RMSs;
         }
 
-        /// <summary>Guess the noise level by putting it 3 decibels above the lowest non-zero RMS block or at zero if many blocks are zero.</summary>
+        /// <summary>Guess the noise level by putting it 3 decibels above the lowest non-zero RMS block
+        /// or at zero if many blocks are zero.</summary>
         static float GetNoiseLevel(float[] RMSBlocks) {
             int zeroBlocks = 0;
             float peakNoise = float.PositiveInfinity;
@@ -146,7 +147,7 @@ namespace Cavern.QuickEQ {
                 for (int sample = 0; sample < samplesPerCh; ++sample)
                     samples[sample] = data[channelStart + sample];
                 sweeper.ExcitementResponses[ProcessedChannel] = samples;
-                Complex[] RawResponse = sweeper.GetFrequencyResponse(samples);
+                Complex[] RawResponse = sweeper.GetFrequencyResponse(samples, Channel.IsLFE(ProcessedChannel, Channels));
                 sweeper.FreqResponses[ProcessedChannel] = Measurements.GetSpectrum(RawResponse);
                 sweeper.ImpResponses[ProcessedChannel] = sweeper.GetImpulseResponse(RawResponse);
             }
