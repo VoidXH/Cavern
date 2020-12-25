@@ -155,6 +155,7 @@ namespace Cavern.QuickEQ {
             int windowSize = (int)(graph.Length / (octaveRange / resolution + 1));
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize)
                 bands.Add(new Band(Math.Pow(10, startPow + powRange * pos), 20 * Math.Log10(graph[pos])));
+            bands.Reverse();
             return new Equalizer(bands);
         }
     }

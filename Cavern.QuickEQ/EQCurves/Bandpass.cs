@@ -1,5 +1,6 @@
 ﻿using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.QuickEQ.SignalGeneration;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>Bandpass EQ curve, recommended for stage subwoofers.</summary>

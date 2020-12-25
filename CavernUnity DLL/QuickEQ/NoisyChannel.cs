@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using Cavern.QuickEQ.SignalGeneration;
+
 namespace Cavern.QuickEQ {
     /// <summary>Generates noise on the selected output channel.</summary>
     [AddComponentMenu("Audio/QuickEQ/Noisy Channel")]

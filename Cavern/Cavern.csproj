@@ -58,6 +58,7 @@
     <Compile Include="Source_Rolloff.cs" />
     <Compile Include="Source_Symmetric.cs" />
     <Compile Include="Utilities\Complex.cs" />
+    <Compile Include="Utilities\ListExtensions.cs" />
     <Compile Include="Utilities\QMath.cs" />
     <Compile Include="Utilities\Resample.cs" />
     <Compile Include="Utilities\Enumerations.cs" />

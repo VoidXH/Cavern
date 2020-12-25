@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 
 using Cavern.Utilities;
+using Cavern.QuickEQ.Equalization;
+using Cavern.QuickEQ.SignalGeneration;
 
 namespace Cavern.QuickEQ {
     /// <summary>Measures the frequency response of all output channels.</summary>

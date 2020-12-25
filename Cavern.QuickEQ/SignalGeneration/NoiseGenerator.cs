@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cavern.QuickEQ {
+namespace Cavern.QuickEQ.SignalGeneration {
     /// <summary>Generates noise for a single channel.</summary>
     public sealed class NoiseGenerator : Source {
         /// <summary>Target output channel.</summary>
