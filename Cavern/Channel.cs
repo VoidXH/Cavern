@@ -86,7 +86,6 @@ namespace Cavern {
             }
             sinX /= Vector.Sqrt2p2;
             CubicalPos = new Vector(sinY, -sinX, cosY);
-            CubicalPos = Vector.PlaceInCube(new Vector(X, Y));
             if (Listener.EnvironmentType != Environments.Studio)
                 SpatialPos = CubicalPos;
             else

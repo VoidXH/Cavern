@@ -137,7 +137,6 @@ namespace Cavern {
             }
             Current = this;
             SystemSampleRate = AudioSettings.GetConfiguration().sampleRate;
-            remapper = new Remapper(2, UpdateRate);
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
@@ -170,14 +169,6 @@ namespace Cavern {
                 filterOutput = new float[unityChannels * SampleRate];
             }
             int channels = Listener.Channels.Length;
-            if (!DisableUnityAudio) {
-                if (remapper.channels != unityChannels)
-                    remapper = new Remapper(unityChannels, unityBuffer.Length / unityChannels);
-                float[] remapped = remapper.Update(unityBuffer, unityChannels);
-                Array.Clear(unityBuffer, 0, unityBuffer.Length);
-                WaveformUtils.Downmix(remapped, channels, unityBuffer, unityChannels); // Output remapped Unity audio
-            } else
-                Array.Clear(unityBuffer, 0, unityBuffer.Length);
             // Append new samples to the filter output buffer
             float[] renderBuffer = Output = cavernListener.Render((unityBuffer.Length - bufferPosition) / unityChannels *
                 cachedSampleRate / SystemSampleRate / UpdateRate + 1);
@@ -208,7 +199,15 @@ namespace Cavern {
                 Array.Copy(downmix, 0, filterOutput, bufferPosition, end - bufferPosition);
                 bufferPosition = end;
             }
-            Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
+            if (!DisableUnityAudio) {
+                if (remapper == null || remapper.channels != unityChannels)
+                    remapper = new Remapper(unityChannels, unityBuffer.Length / unityChannels);
+                float[] remapped = remapper.Update(unityBuffer, unityChannels);
+                Array.Clear(unityBuffer, 0, unityBuffer.Length);
+                Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
+                WaveformUtils.Downmix(remapped, channels, unityBuffer, unityChannels); // Output remapped Unity audio
+            } else
+                Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
             if (Normalizer != 0) // Normalize
                 WaveformUtils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
             // Remove used samples

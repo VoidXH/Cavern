@@ -17,7 +17,7 @@ namespace Cavern.Remapping {
 
         int updateRate;
 
-        readonly Listener listener = new Listener();
+        readonly Listener listener = new Listener(false);
         readonly RemappedChannel[] clips;
 
         /// <summary>Convert any standard multichannel audio stream to the channel layout set for Cavern.</summary>
@@ -49,7 +49,6 @@ namespace Cavern.Remapping {
                     clips[channel].Remake(actualRate);
                 listener.UpdateRate = updateRate = actualRate;
             }
-            // TODO: optimization: channels that have an exact match in the layout should just be copied
             for (int channel = 0; channel < channels; ++channel)
                 clips[channel].Update(stream, channel, channels);
             return listener.Render();

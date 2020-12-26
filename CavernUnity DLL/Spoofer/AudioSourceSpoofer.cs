@@ -37,23 +37,17 @@ namespace Cavern.Spoofer {
                         target.Volume = Source.volume;
                         Source.volume = Mute;
                     }
-                    AudioSettings.GetDSPBufferSize(out int BufferSize, out int Buffers);
+                    AudioSettings.GetDSPBufferSize(out int BufferSize, out int _);
                     if (Math.Abs(target.timeSamples - Source.timeSamples) > BufferSize)
                         target.timeSamples = Source.timeSamples;
                     if (!decompressed)
                         target.Clip = null;
                 }
-                switch (Source.rolloffMode) {
-                    case AudioRolloffMode.Linear:
-                        target.VolumeRolloff = Rolloffs.Linear;
-                        break;
-                    case AudioRolloffMode.Logarithmic:
-                        target.VolumeRolloff = Rolloffs.Logarithmic;
-                        break;
-                    default:
-                        target.VolumeRolloff = Rolloffs.Disabled;
-                        break;
-                }
+                target.VolumeRolloff = Source.rolloffMode switch {
+                    AudioRolloffMode.Linear => Rolloffs.Linear,
+                    AudioRolloffMode.Logarithmic => Rolloffs.Logarithmic,
+                    _ => Rolloffs.Disabled,
+                };
             } else {
                 if (target)
                     Destroy(target);

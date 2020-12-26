@@ -69,6 +69,7 @@
     <Compile Include="FilterInterfaces\Comb.cs" />
     <Compile Include="FilterInterfaces\Delay.cs" />
     <Compile Include="FilterInterfaces\DistanceBasedLowpass.cs" />
+    <Compile Include="FilterInterfaces\_Exceptions.cs" />
     <Compile Include="FilterInterfaces\SimpleEcho.cs" />
     <Compile Include="QuickEQ\MeasurementImporter.cs" />
     <Compile Include="QuickEQ\SweepChannel.cs" />

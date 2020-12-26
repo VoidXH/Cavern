@@ -126,7 +126,11 @@ namespace Cavern {
         }
 
         /// <summary>Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.</summary>
-        public Listener() {
+        /// <param name="loadGlobals">Load the global settings for all listeners. This should be false for listeners created on the fly, as
+        /// this overwrites previous application settings that might have been modified.</param>
+        public Listener(bool loadGlobals = true) {
+            if (!loadGlobals)
+                return;
             string fileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
             if (File.Exists(fileName)) {
                 string[] save = File.ReadAllLines(fileName);

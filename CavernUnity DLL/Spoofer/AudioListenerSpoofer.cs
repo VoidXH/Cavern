@@ -11,6 +11,8 @@ namespace Cavern.Spoofer {
         /// <summary>Use Unity's audio engine for clips that are not transferrable to Cavern (transferred from <see cref="AutoSpoofer"/>).</summary>
         internal bool duality = true;
 
+        void OnEnable() => AudioListener3D.Current.DisableUnityAudio = !duality;
+
         void LateUpdate() {
             if (Source) {
                 AudioListener3D target = AudioListener3D.Current;
