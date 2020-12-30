@@ -71,6 +71,22 @@ namespace Cavern.QuickEQ {
         }
         int delay = -1;
 
+        /// <summary>Get the time in samples where the impulse decays by 60 dB.</summary>
+        public int RT60 {
+            get {
+                if (rt60 != -1)
+                    return rt60;
+                float target = Math.Abs(Response[Delay] * .001f);
+                float[] abs = new float[rt60 = response.Length];
+                for (int i = 0; i < rt60; ++i)
+                    abs[i] = Math.Abs(response[i]);
+                float[] smoothed = GraphUtils.SmoothGraph(abs, 20, 20000, .1f);
+                while (smoothed[--rt60] < target && rt60 > delay) ;
+                return rt60 -= delay;
+            }
+        }
+        int rt60 = -1;
+
         /// <summary>Peaks in the impulse response.</summary>
         /// <remarks>Calculated when <see cref="GetPeak(int)"/> is called.</remarks>
         Peak[] peaks = null;
