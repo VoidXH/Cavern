@@ -29,6 +29,30 @@ namespace Cavern.QuickEQ {
         /// <summary>Impulse polarity, true if positive.</summary>
         public bool Polarity => Response[Delay] >= 0;
 
+        /// <summary>Get the phase of this impulse relative to a Dirac-delta in radians.</summary>
+        public double Phase {
+            get {
+                if (!double.IsNaN(phase))
+                    return phase;
+                float reference = Response[Delay], other;
+                if (reference < 0) {
+                    other = float.NegativeInfinity;
+                    for (int i = 0; i < response.Length; ++i)
+                        if (other < response[i])
+                            other = response[i];
+                } else {
+                    other = float.PositiveInfinity;
+                    for (int i = 0; i < response.Length; ++i)
+                        if (other > response[i])
+                            other = response[i];
+                }
+                if (other == 0)
+                    return phase = 0;
+                return phase = Math.Atan(.5 * Math.PI * Math.Abs(other) / reference);
+            }
+        }
+        double phase = double.NaN;
+
         /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
         public int Delay {
             get {
