@@ -48,10 +48,25 @@ namespace Cavern.QuickEQ {
                 }
                 if (other == 0)
                     return phase = 0;
-                return phase = Math.Atan(.5 * Math.PI * Math.Abs(other) / reference);
+                return phase = Math.Asin(Math.Abs(other) / reference);
             }
         }
         double phase = double.NaN;
+
+        /// <summary>How likely this signal is an impulse.</summary>
+        public double Impulseness {
+            get {
+                if (!double.IsNaN(impulseness))
+                    return impulseness;
+                float peak = Math.Abs(Response[Delay]) * .1f;
+                int below = 0;
+                for (int i = 0; i < response.Length; ++i)
+                    if (Math.Abs(response[i]) < peak)
+                        ++below;
+                return impulseness = below / (double)response.Length;
+            }
+        }
+        double impulseness = double.NaN;
 
         /// <summary>Response delay in samples relative to the reference it was calculated from.</summary>
         public int Delay {
