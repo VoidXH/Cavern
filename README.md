@@ -13,11 +13,10 @@ Cavern is a fully adaptive object-based audio engine and upmixer without limitat
 * Unity-like listener and source functionality
 * Ultra low latency, even the upconverter can work from as low as one sample per frame
 
-## Helpful documents
-* [Calibration process](./docs/Calibration%20process.md) for traditional or Cavern-only rooms
-* [Cavern DCP channel order](./docs/Cavern%20DCP%20channel%20order.md) compared to DCP standards
-* [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
-* [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
+## User documentation
+User documentation can be found at the [Cavern documentation webpage](http://cavern.sbence.hu/cavern/doc.php).
+Please go to this page for basic setup, in-depth QuickEQ tutorials, and
+command-line arguments.
 
 ## How to build
 ### Cavern
@@ -30,6 +29,16 @@ Open the solution with Microsoft Visual Studio 2019. Remove the references from
 the CavernUnity DLL project to UnityEngine and UnityEditor. Add these files from
 your own Unity installation as references. They are found in Editor\Data\Managed
 under Unity's installation folder.
+
+### Cavernize Lite
+This is a Code::Blocks project, set up for the MingW compiler. No additional
+libraries were used, this is standard C++ code, so importing just the .cpp and
+.h files into any IDE will work perfectly.
+
+## Development documents
+* [Cavern DCP channel order](./docs/Cavern%20DCP%20channel%20order.md) compared to DCP standards
+* [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
+* [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
 
 ## Disclaimers
 ### Code
