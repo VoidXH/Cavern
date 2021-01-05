@@ -40,7 +40,7 @@ namespace Cavern {
         /// <summary>Output channel layout. The default setup is the standard 5.1.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created.</remarks>
         public static Channel[] Channels { get; private set; } = new Channel[]
-            { new Channel(0, -45), new Channel(0, 45), new Channel(0, 0), new Channel(15, 15, true), new Channel(0, -110), new Channel(0, 110) };
+            { new Channel(0, -30), new Channel(0, 30), new Channel(0, 0), new Channel(15, 15, true), new Channel(0, -110), new Channel(0, 110) };
 
         /// <summary>Is the user's speaker layout symmetrical?</summary>
         public static bool IsSymmetric { get; internal set; } = true;
