@@ -21,8 +21,8 @@ namespace Cavern.Utilities {
             int samplesPerChannel = to.Length / toChannels;
             for (int channel = 0; channel < fromChannels; ++channel) {
                 if (toChannels > 4 || (Listener.Channels[channel].Y != 0 && !Listener.Channels[channel].LFE))
-                    for (int sample = 0; sample < samplesPerChannel; ++sample)
-                        to[sample * toChannels + channel % toChannels] += from[sample * fromChannels + channel];
+                    for (int sample = 0, overflow = channel % toChannels; sample < samplesPerChannel; ++sample)
+                        to[sample * toChannels + overflow] += from[sample * fromChannels + channel];
                 else {
                     for (int sample = 0; sample < samplesPerChannel; ++sample) {
                         float copySample = from[sample * fromChannels + channel];
