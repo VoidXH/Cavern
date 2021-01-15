@@ -35,20 +35,31 @@ namespace Cavern.QuickEQ {
                 if (!double.IsNaN(phase))
                     return phase;
                 float reference = Response[Delay], other;
+                int otherPos = delay;
                 if (reference < 0) {
                     other = float.NegativeInfinity;
-                    for (int i = 0; i < response.Length; ++i)
-                        if (other < response[i])
+                    for (int i = 0; i < response.Length; ++i) {
+                        if (other < response[i]) {
                             other = response[i];
+                            otherPos = i;
+                        }
+                    }
                 } else {
                     other = float.PositiveInfinity;
-                    for (int i = 0; i < response.Length; ++i)
-                        if (other > response[i])
+                    for (int i = 0; i < response.Length; ++i) {
+                        if (other > response[i]) {
                             other = response[i];
+                            otherPos = i;
+                        }
+                    }
                 }
                 if (other == 0)
                     return phase = 0;
-                return phase = Math.Asin(Math.Abs(other) / reference);
+                phase = otherPos < delay ? -1 : 1;
+                if (reference >= 0)
+                    return phase *= Math.Asin(-other / reference);
+                else
+                    return phase *= Math.PI * 0.5 - Math.Asin(other / reference);
             }
         }
         double phase = double.NaN;
