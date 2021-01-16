@@ -32,6 +32,10 @@ void Waveform::ReadHeader() {
     totalSamples = dataLength / ((bitDepth / 8) * channelCount);
 }
 
+void Waveform::ForceDCPStandardOrder() {
+    channels = DefaultChannelSet(16);
+}
+
 void Waveform::WriteHeader() {
     char riff[5] = "RIFF", wave[5] = "WAVE", fmt[10] = {'f', 'm', 't', ' ', 16 /* fmt size */, 0, 0, 0, quality == Float32 ? (char)3 : (char)1 /* sample format */, 0}, data[5] = "data";
     fileHandler.write(riff, sizeof(char) * 4); // RIFF marker

@@ -23,6 +23,7 @@ public:
     virtual ~Format();
 
     virtual void ReadHeader() = 0;
+    virtual void ForceDCPStandardOrder() {}
     virtual void WriteHeader() = 0;
     virtual void Read(float* samples, int64_t sampleCount) = 0;
     virtual void Write(float* samples, int64_t sampleCount) = 0;

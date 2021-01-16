@@ -4,7 +4,6 @@ std::vector<AudioChannel> AudioChannel::channels = std::vector<AudioChannel>();
 
 void AudioChannel::Recalculate() {
     float XRad = X * deg2Rad, YRad = Y * deg2Rad, SinX = sinf(XRad), CosX = cosf(XRad), SinY = sinf(YRad), CosY = cosf(YRad);
-    //SphericalPos = Vector3(SinY * CosX, -SinX, CosY * CosX);
     if (fabsf(SinY) > fabsf(CosY)) {
         SinY = SinY > 0 ? sqrt2p2 : sqrt2pm2;
     } else
