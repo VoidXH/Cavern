@@ -22,10 +22,10 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-i samples/obae.mxf samples/target.wav" />
+				<Option parameters="-i samples/source.wav -dcp samples/target.wav" />
 				<Compiler>
 					<Add option="-fexpensive-optimizations" />
-					<Add option="-O3" />
+					<Add option="-O2" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 				</Compiler>
