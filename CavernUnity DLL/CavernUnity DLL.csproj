@@ -50,10 +50,10 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="UnityEditor">
-      <HintPath>..\..\..\2020.2.1f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
+      <HintPath>..\..\..\2020.2.3f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\2020.2.1f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\2020.2.3f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
