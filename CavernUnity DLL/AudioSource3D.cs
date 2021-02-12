@@ -159,23 +159,41 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>Start playback from the beginning of the <see cref="clip"/>.</summary>
         /// <param name="delaySamples">Optional delay in samples</param>
-        public void Play(long delaySamples = 0) => cavernSource.Play(delaySamples);
+        public void Play(long delaySamples = 0) {
+            cavernSource.Play(delaySamples);
+            IsPlaying = cavernSource.IsPlaying;
+        }
 
         /// <summary>Start playback from the beginning after the given time.</summary>
         /// <param name="seconds">Delay in seconds</param>
-        public void PlayDelayed(float seconds) => cavernSource.PlayDelayed(seconds);
+        public void PlayDelayed(float seconds) {
+            cavernSource.PlayDelayed(seconds);
+            IsPlaying = cavernSource.IsPlaying;
+        }
 
         /// <summary>Pause playback if it's not paused.</summary>
-        public void Pause() => cavernSource.Pause();
+        public void Pause() {
+            cavernSource.Pause();
+            IsPlaying = cavernSource.IsPlaying;
+        }
 
         /// <summary>Continue playback if it's paused.</summary>
-        public void UnPause() => cavernSource.UnPause();
+        public void UnPause() {
+            cavernSource.UnPause();
+            IsPlaying = cavernSource.IsPlaying;
+        }
 
         /// <summary>Toggle between playback and pause.</summary>
-        public void TogglePlay() => cavernSource.TogglePlay();
+        public void TogglePlay() {
+            cavernSource.TogglePlay();
+            IsPlaying = cavernSource.IsPlaying;
+        }
 
         /// <summary>Pause playback and reset position. The next <see cref="UnPause"/> will start playback from the beginning.</summary>
-        public void Stop() => cavernSource.Stop();
+        public void Stop() {
+            cavernSource.Stop();
+            IsPlaying = cavernSource.IsPlaying;
+        }
 
         /// <summary>Play a clip once.</summary>
         /// <param name="clip">Target clip</param>
