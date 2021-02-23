@@ -72,6 +72,9 @@ namespace Cavern.QuickEQ {
                     RMSHere += data[pos] * data[pos];
                 RMSs[block] = (float)Math.Sqrt(RMSHere / blockSize);
             }
+            --blocks;
+            for (int block = 1; block < blocks; ++block) // Ghetto smoothing
+                RMSs[block] = (RMSs[block - 1] + RMSs[block] + RMSs[block + 1]) * .33f;
             return RMSs;
         }
 
@@ -79,13 +82,17 @@ namespace Cavern.QuickEQ {
         /// or at zero if many blocks are zero.</summary>
         static float GetNoiseLevel(float[] RMSBlocks) {
             int zeroBlocks = 0;
-            float peakNoise = float.PositiveInfinity;
-            for (int block = 0; block < RMSBlocks.Length; ++block)
+            float average = 0, peak = float.PositiveInfinity;
+            for (int block = 0; block < RMSBlocks.Length; ++block) {
                 if (RMSBlocks[block] == 0)
                     ++zeroBlocks;
-                else if (peakNoise > RMSBlocks[block])
-                    peakNoise = RMSBlocks[block];
-            return zeroBlocks < RMSBlocks.Length / 5 ? peakNoise * 10 : 0;
+                else {
+                    if (peak > RMSBlocks[block])
+                        peak = RMSBlocks[block];
+                    average += RMSBlocks[block];
+                }
+            }
+            return zeroBlocks < RMSBlocks.Length / 5 ? (peak + average / RMSBlocks.Length) * .5f : 0;
         }
 
         /// <summary>Find edges (jumps between low level and high level or noise and signal).</summary>
