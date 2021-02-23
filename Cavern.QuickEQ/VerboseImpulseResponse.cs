@@ -27,14 +27,22 @@ namespace Cavern.QuickEQ {
         float[] response = null;
 
         /// <summary>Impulse polarity, true if positive.</summary>
-        public bool Polarity => Response[Delay] >= 0;
+        public bool Polarity {
+            get {
+                if (Delay >= 0)
+                    return Response[delay] >= 0;
+                return true;
+            }
+        }
 
         /// <summary>Get the phase of this impulse relative to a Dirac-delta in radians.</summary>
         public double Phase {
             get {
                 if (!double.IsNaN(phase))
                     return phase;
-                float reference = Response[Delay], other;
+                if (Delay < 0)
+                    return double.NaN;
+                float reference = Response[delay], other;
                 int otherPos = delay;
                 if (reference < 0) {
                     other = float.NegativeInfinity;
@@ -69,7 +77,9 @@ namespace Cavern.QuickEQ {
             get {
                 if (!double.IsNaN(impulseness))
                     return impulseness;
-                float peak = Math.Abs(Response[Delay]) * .1f;
+                if (Delay < 0)
+                    return double.NaN;
+                float peak = Math.Abs(Response[delay]) * .1f;
                 int below = 0;
                 for (int i = 0; i < response.Length; ++i)
                     if (Math.Abs(response[i]) < peak)
@@ -102,7 +112,9 @@ namespace Cavern.QuickEQ {
             get {
                 if (rt60 != -1)
                     return rt60;
-                float target = Math.Abs(Response[Delay] * .001f);
+                if (Delay < 0)
+                    return 0;
+                float target = Math.Abs(Response[delay] * .001f);
                 float[] abs = new float[rt60 = response.Length];
                 for (int i = 0; i < rt60; ++i)
                     abs[i] = Math.Abs(response[i]);
@@ -151,7 +163,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Get the <paramref name="position"/>th peak in the impulse response.</summary>
         public Peak GetPeak(int position) {
-            if (peaks == null) {
+            if (peaks == null && response.Length > 0) {
                 List<Peak> peakList = new List<Peak>();
                 float[] response = Response;
                 float last = Math.Abs(response[0]), abs = Math.Abs(response[1]);
