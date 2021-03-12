@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="EQCurves\Bandpass.cs" />
     <Compile Include="EQCurves\CurveFunction.cs" />
+    <Compile Include="EQCurves\Custom.cs" />
     <Compile Include="EQCurves\Depth.cs" />
     <Compile Include="EQCurves\EQCurve.cs" />
     <Compile Include="EQCurves\Flat.cs" />
