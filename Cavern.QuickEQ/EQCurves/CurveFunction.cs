@@ -13,5 +13,7 @@
         Bandpass,
         /// <summary>Frequently used target curve for very small rooms.</summary>
         RoomCurve,
+        /// <summary>An EQ curve with any amount of custom bands.</summary>
+        Custom
     }
 }

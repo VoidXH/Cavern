@@ -238,7 +238,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         public void ValleyCorrection(float[] curve, EQCurve targetEQ, double startFreq, double stopFreq, float targetGain, float maxGain = 6) {
             int start = 0, end = curve.Length - 1;
-            float[] target = targetEQ.GenerateLogCurve(curve.Length, startFreq, stopFreq, targetGain);
+            float[] target = targetEQ.GenerateLogCurve(startFreq, stopFreq, curve.Length, targetGain);
             while (start < end && target[start] > curve[start] + maxGain)
                 ++start; // find low extension
             while (start < end && target[end] > curve[end] + maxGain)

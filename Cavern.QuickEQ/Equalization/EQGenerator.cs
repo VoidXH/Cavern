@@ -36,7 +36,7 @@ namespace Cavern.QuickEQ.Equalization {
             double startPow = Math.Log10(startFreq), powRange = (Math.Log10(endFreq) - startPow) / graph.Length,
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2);
             int windowSize = graph.Length / (int)(octaveRange / resolution + 1), windowEdge = windowSize / 2;
-            float[] refGain = targetCurve.GenerateLogCurve(graph.Length, startFreq, endFreq);
+            float[] refGain = targetCurve.GenerateLogCurve(startFreq, endFreq, graph.Length);
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
                 float centerFreq = (float)Math.Pow(10, startPow + powRange * pos), average = 0;
                 int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, graph.Length);
@@ -68,7 +68,7 @@ namespace Cavern.QuickEQ.Equalization {
                 if ((graph[sample - 1] < graph[sample] && graph[sample + 1] > graph[sample]) ||
                     (graph[sample - 1] > graph[sample] && graph[sample + 1] < graph[sample]))
                     windowEdges.Add(sample);
-            float[] refGain = targetCurve.GenerateLogCurve(graph.Length, startFreq, endFreq, targetGain);
+            float[] refGain = targetCurve.GenerateLogCurve(startFreq, endFreq, graph.Length, targetGain);
             for (int sample = 0, end = windowEdges.Count - 1; sample < end; ++sample) {
                 int windowPos = windowEdges[sample];
                 if (graph[windowPos] > refGain[windowPos] - maxGain)

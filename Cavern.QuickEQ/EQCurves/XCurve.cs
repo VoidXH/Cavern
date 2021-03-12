@@ -15,18 +15,20 @@ namespace Cavern.QuickEQ.EQCurves {
         const double highMul = 3.32192809489;
 
         /// <summary>Get the curve's gain in decibels at a given frequency.</summary>
-        public override float At(float frequency) {
-            if (frequency < 2000)
-                return 0;
-            if (frequency < 10000)
-                return -6 * (float)((Math.Log10(frequency) - log10_2000) * midMul);
-            return -6 * (float)((Math.Log10(frequency) - log10_10000) * highMul) - 6;
+        public override double this[double frequency] {
+            get {
+                if (frequency < 2000)
+                    return 0;
+                if (frequency < 10000)
+                    return -6 * (Math.Log10(frequency) - log10_2000) * midMul;
+                return -6 * ((Math.Log10(frequency) - log10_10000) * highMul) - 6;
+            }
         }
 
         /// <summary>Generate a linear curve for correction generators.</summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
-        public override float[] GenerateLinearCurve(int length, int sampleRate) {
+        public override float[] GenerateLinearCurve(int sampleRate, int length) {
             int midKnee = length * 2000 / sampleRate, highKnee = length * 10000 / sampleRate;
             if (midKnee < 0) {
                 midKnee = 0;
@@ -52,7 +54,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
         /// <param name="gain">Curve reference level</param>
         /// <remarks>For uses where gain is not needed, use <see cref="GenerateLinearCurve(int, int)"/>, it's faster.</remarks>
-        public override float[] GenerateLinearCurve(int length, int sampleRate, float gain) {
+        public override float[] GenerateLinearCurve(int sampleRate, int length, float gain) {
             int midKnee = length * 2000 / sampleRate, highKnee = length * 10000 / sampleRate;
             if (midKnee < 0) {
                 midKnee = 0;
@@ -80,7 +82,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
-        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq) {
+        public override float[] GenerateLogCurve(double startFreq, double endFreq, int length) {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = length / (Math.Log10(endFreq) - powerMin);
             int midKnee = (int)((log10_2000 - powerMin) * powerRange), highKnee = (int)((log10_10000 - powerMin) * powerRange);
@@ -108,8 +110,8 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="gain">Curve reference level</param>
-        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(int, double, double)"/>, it's faster.</remarks>
-        public override float[] GenerateLogCurve(int length, double startFreq, double endFreq, float gain) {
+        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(double, double, int)"/>, it's faster.</remarks>
+        public override float[] GenerateLogCurve(double startFreq, double endFreq, int length, float gain) {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = length / (Math.Log10(endFreq) - powerMin);
             int midKnee = (int)((log10_2000 - powerMin) * powerRange), highKnee = (int)((log10_10000 - powerMin) * powerRange);
