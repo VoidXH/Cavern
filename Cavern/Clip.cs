@@ -47,12 +47,13 @@ namespace Cavern {
             }
         }
 
-        /// <summary>Fills an array with sample data from the clip.</summary>
+        /// <summary>Fills an array with sample data from the clip.
+        /// Clip data overflows, and free samples are filled with the beginning of the Clip.</summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[][] data, int offset) {
             if (data.Length != this.data.Length)
-                return false;
+                return false; // Channel count doesn't match
             for (int dataPos = 0; dataPos < data[0].Length; ++dataPos) {
                 if (offset >= this.data[0].Length)
                     offset %= this.data[0].Length;
@@ -63,12 +64,32 @@ namespace Cavern {
             return true;
         }
 
-        /// <summary>Fills an array with sample data from the clip.</summary>
+        /// <summary>Fills an array with sample data from the clip. Clip data doesn't overflow and free samples are filled with zeros.</summary>
+        /// <param name="data">Audio data cache</param>
+        /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
+        public bool GetDataNonLooping(float[][] data, int offset) {
+            if (data.Length != this.data.Length)
+                return false; // Channel count doesn't match
+            int dataPos = 0, endPos = this.data[0].Length - offset;
+            if (endPos > data[0].Length)
+                endPos = data[0].Length;
+            for (; dataPos < endPos; ++dataPos) {
+                for (int channel = 0; channel < this.data.Length; ++channel)
+                    data[channel][dataPos] = this.data[channel][offset];
+                ++offset;
+            }
+            for (int channel = 0; channel < this.data.Length; ++channel)
+                Array.Clear(data[channel], dataPos, data[0].Length - dataPos);
+            return true;
+        }
+
+        /// <summary>Fills an array with sample data from the clip.
+        /// Clip data overflows, and free samples are filled with the beginning of the Clip.</summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[] data, int offset) {
             if (data.Length % this.data.Length != 0)
-                return false;
+                return false; // Channel count doesn't match
             int dataPos = 0;
             while (dataPos < data.Length) {
                 if (offset >= this.data[0].Length)
@@ -78,6 +99,25 @@ namespace Cavern {
                 dataPos += this.data.Length;
                 ++offset;
             }
+            return true;
+        }
+
+        /// <summary>Fills an array with sample data from the clip. Clip data doesn't overflow and free samples are filled with zeros.</summary>
+        /// <param name="data">Audio data cache</param>
+        /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
+        public bool GetDataNonLooping(float[] data, int offset) {
+            if (data.Length != this.data.Length)
+                return false; // Channel count doesn't match
+            int dataPos = 0, endPos = this.data[0].Length - offset;
+            if (endPos > data.Length)
+                endPos = data.Length;
+            while (dataPos < endPos) {
+                for (int channel = 0; channel < this.data.Length; ++channel)
+                    data[channel + dataPos] = this.data[channel][offset];
+                dataPos += this.data.Length;
+                ++offset;
+            }
+            Array.Clear(data, dataPos, data.Length - dataPos);
             return true;
         }
 

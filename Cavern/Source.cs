@@ -84,7 +84,10 @@ namespace Cavern {
             if (Rendered[0].Length != pitchedUpdateRate)
                 for (int channel = 0; channel < channels; ++channel)
                     Rendered[channel] = new float[pitchedUpdateRate];
-            Clip.GetData(Rendered, TimeSamples);
+            if (Loop)
+                Clip.GetData(Rendered, TimeSamples);
+            else
+                Clip.GetDataNonLooping(Rendered, TimeSamples);
             return Rendered;
         }
 
