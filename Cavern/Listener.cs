@@ -134,8 +134,8 @@ namespace Cavern {
             string fileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
             if (File.Exists(fileName)) {
                 string[] save = File.ReadAllLines(fileName);
-                int savePos = 1;
-                int channelCount = Convert.ToInt32(save[0]);
+                int savePos = 1,
+                    channelCount = Convert.ToInt32(save[0]);
                 Channels = new Channel[channelCount];
                 NumberFormatInfo format = new NumberFormatInfo {
                     NumberDecimalSeparator = ","
@@ -158,12 +158,17 @@ namespace Cavern {
             for (int source = 0; source < sourceLimit; ++source)
                 sourceDistances[source] = Range;
             pulseDelta = (frames * UpdateRate) / (float)SampleRate;
+
+            // Choose the sources to play
             LinkedListNode<Source> node = activeSources.First;
             while (node != null) {
                 node.Value.Precalculate();
                 node = node.Next;
             }
-            if (frames == 1) return Frame();
+
+            // Render the required number of frames
+            if (frames == 1)
+                return Frame();
             else {
                 int sampleCount = frames * Channels.Length * UpdateRate;
                 if (multiframeBuffer.Length != sampleCount)
@@ -188,13 +193,19 @@ namespace Cavern {
             else {
                 int regular = 0, sub = 0, ceiling = 0, floor = 0;
                 for (int channel = 0; channel < Channels.Length; ++channel)
-                    if (Channels[channel].LFE) ++sub;
-                    else if (Channels[channel].X == 0) ++regular;
-                    else if (Channels[channel].X < 0) ++ceiling;
-                    else if (Channels[channel].X > 0) ++floor;
+                    if (Channels[channel].LFE)
+                        ++sub;
+                    else if (Channels[channel].X == 0)
+                        ++regular;
+                    else if (Channels[channel].X < 0)
+                        ++ceiling;
+                    else if (Channels[channel].X > 0)
+                        ++floor;
                 StringBuilder layout = new StringBuilder(regular.ToString()).Append('.').Append(sub);
-                if (ceiling > 0 || floor > 0) layout.Append('.').Append(ceiling);
-                if (floor > 0) layout.Append('.').Append(floor);
+                if (ceiling > 0 || floor > 0)
+                    layout.Append('.').Append(ceiling);
+                if (floor > 0)
+                    layout.Append('.').Append(floor);
                 return layout.ToString();
             }
         }

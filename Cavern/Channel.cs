@@ -69,8 +69,12 @@ namespace Cavern {
 
         /// <summary>Recalculates properties.</summary>
         void Recalculate() {
-            float xRad = X * Vector.Deg2Rad, yRad = Y * Vector.Deg2Rad, sinX = (float)Math.Sin(xRad), cosX = (float)Math.Cos(xRad),
-                sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
+            float xRad = X * Vector.Deg2Rad,
+                yRad = Y * Vector.Deg2Rad,
+                sinX = (float)Math.Sin(xRad),
+                cosX = (float)Math.Cos(xRad),
+                sinY = (float)Math.Sin(yRad),
+                cosY = (float)Math.Cos(yRad);
             SphericalPos = new Vector(sinY * cosX, -sinX, cosY * cosX);
             if (Math.Abs(sinY) > Math.Abs(cosY))
                 sinY = Math.Sign(sinY) * Vector.Sqrt2p2;
@@ -103,7 +107,7 @@ namespace Cavern {
                 --channelCount;
                 Listener.IsSymmetric = Listener.Channels[channelCount].Y % 180 == 0;
             }
-            Listener.LeftChannels = Listener.RightChannels = 0;
+            Listener.LeftChannels = Listener.RightChannels = 0; // Count left and right side channels anyway for 2D mixing gains
             for (int i = 0; i < channelCount; ++i) {
                 Channel current = Listener.Channels[i];
                 if (current == null)

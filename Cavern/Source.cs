@@ -171,16 +171,49 @@ namespace Cavern {
                     target[to] = samples[from] * gain;
         }
 
+        void Stereo2DMix(float volume2D) {
+            float leftVolume = volume2D / Listener.LeftChannels,
+                rightVolume = volume2D / Listener.RightChannels;
+            if (stereoPan < 0)
+                rightVolume *= -stereoPan * stereoPan + 1;
+            else if (stereoPan > 0)
+                leftVolume *= 1 - stereoPan * stereoPan;
+            float halfVolume2D = volume2D * .5f;
+            int actualSample = 0;
+            for (int sample = 0; sample < listener.UpdateRate; ++sample) {
+                float leftSample = leftSamples[sample], rightSample = rightSamples[sample],
+                    leftGained = leftSample * leftVolume, rightGained = rightSample * rightVolume;
+                for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
+                    if (Listener.Channels[channel].LFE) {
+                        if (!listener.LFESeparation || LFE)
+                            rendered[actualSample] += (leftSample + rightSample) * halfVolume2D;
+                    } else if (!LFE) {
+                        if (Listener.Channels[channel].Y < 0)
+                            rendered[actualSample] += leftGained;
+                        else if (Listener.Channels[channel].Y > 0)
+                            rendered[actualSample] += rightGained;
+                    }
+                    ++actualSample;
+                }
+            }
+        }
+
         /// <summary>Process the source and returns a mix to be added to the output.</summary>
         protected internal virtual float[] Collect() {
+            // Preparations, clean environment
             int channels = Listener.Channels.Length;
             Array.Clear(rendered, 0, rendered.Length);
+
             // Update rate calculation
             int updateRate = listener.UpdateRate;
             int resampledNow = (int)(TimeSamples / resampleMult);
+
+            // Render audio if not muted
             if (!Mute) {
                 int clipChannels = Clip.Channels;
-                if (SpatialBlend != 0) // Mono mix
+
+                // 3D renderer preprocessing
+                if (SpatialBlend != 0)
                     if (listener.AudioQuality >= QualityModes.High && clipChannels != 1) { // Mono downmix above medium quality
                         Array.Clear(samples, 0, pitchedUpdateRate);
                         for (int channel = 0; channel < clipChannels; ++channel)
@@ -188,42 +221,28 @@ namespace Cavern {
                         WaveformUtils.Gain(samples, 1f / clipChannels);
                     } else // First channel only otherwise
                         Buffer.BlockCopy(Rendered[0], 0, samples, 0, pitchedUpdateRate * sizeof(float));
-                if (SpatialBlend != 1) { // 2D mix
+
+                // 2D renderer
+                if (SpatialBlend != 1) {
                     float volume2D = Volume * (1f - SpatialBlend);
+                    // 1:1 mix for non-stereo sources
                     if (clipChannels != 2) {
                         samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
                         WriteOutput(samples, rendered, volume2D, channels);
-                    } else {
+                    }
+
+                    // Full side mix for stereo sources
+                    else {
                         Buffer.BlockCopy(Rendered[0], 0, leftSamples, 0, pitchedUpdateRate * sizeof(float));
                         Buffer.BlockCopy(Rendered[1], 0, rightSamples, 0, pitchedUpdateRate * sizeof(float));
                         leftSamples = Resample.Adaptive(leftSamples, updateRate, listener.AudioQuality);
                         rightSamples = Resample.Adaptive(rightSamples, updateRate, listener.AudioQuality);
-                        float leftVolume = volume2D / Listener.LeftChannels, rightVolume = volume2D / Listener.RightChannels;
-                        if (stereoPan < 0)
-                            rightVolume *= -stereoPan * stereoPan + 1;
-                        else if (stereoPan > 0)
-                            leftVolume *= 1 - stereoPan * stereoPan;
-                        float halfVolume2D = volume2D * .5f;
-                        int actualSample = 0;
-                        for (int sample = 0; sample < updateRate; ++sample) {
-                            float leftSample = leftSamples[sample], rightSample = rightSamples[sample],
-                                leftGained = leftSample * leftVolume, rightGained = rightSample * rightVolume;
-                            for (int channel = 0; channel < channels; ++channel) {
-                                if (Listener.Channels[channel].LFE) {
-                                    if (!listener.LFESeparation || LFE)
-                                        rendered[actualSample] += (leftSample + rightSample) * halfVolume2D;
-                                } else if (!LFE) {
-                                    if (Listener.Channels[channel].Y < 0)
-                                        rendered[actualSample] += leftGained;
-                                    else if (Listener.Channels[channel].Y > 0)
-                                        rendered[actualSample] += rightGained;
-                                }
-                                ++actualSample;
-                            }
-                        }
+                        Stereo2DMix(volume2D);
                     }
                 }
-                if (SpatialBlend != 0 && distance < listener.Range) { // 3D mix, if the source is in range
+
+                // 3D mix, if the source is in range
+                if (SpatialBlend != 0 && distance < listener.Range) {
                     Vector direction = Position - listener.Position;
                     direction.RotateInverse(listener.Rotation);
                     float rolloffDistance = GetRolloff();
@@ -232,18 +251,32 @@ namespace Cavern {
                     // Apply filter if set
                     if (SpatialFilter != null)
                         SpatialFilter.Process(samples);
+
                     // ------------------------------------------------------------------
                     // Balance-based engine for symmetrical layouts
                     // ------------------------------------------------------------------
                     if (Listener.IsSymmetric) {
                         float volume3D = Volume * rolloffDistance * SpatialBlend;
                         if (!LFE) {
-                            // Find closest channels by cubical position in each direction (bottom/top, front/rear, left/right)
-                            int BFL = -1, BFR = -1, BRL = -1, BRR = -1, TFL = -1, TFR = -1, TRL = -1, TRR = -1;
-                            float closestTop = 80, closestBottom = -65, closestTF = 78, closestTR = -78,
-                                closestBF = 73, closestBR = -3; // Closest layers on y/z
+                            // Find a bounding box
+                            int bottomFrontLeft = -1,
+                                bottomFrontRight = -1,
+                                bottomRearLeft = -1,
+                                bottomRearRight = -1,
+                                topFrontLeft = -1,
+                                topFrontRight = -1,
+                                topRearLeft = -1,
+                                topRearRight = -1;
+                            // Closest layers on Y and Z axes
+                            float closestTop = 80,
+                                closestBottom = -65,
+                                closestTF = 78,
+                                closestTR = -78,
+                                closestBF = 73,
+                                closestBR = -3;
+                            // Find closest horizontal layers
                             direction.Downscale(Listener.EnvironmentSize);
-                            for (int channel = 0; channel < channels; ++channel) { // Find closest horizontal layers
+                            for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE) {
                                     float channelY = Listener.Channels[channel].CubicalPos.y;
                                     if (channelY < direction.y) {
@@ -257,32 +290,50 @@ namespace Cavern {
                                 if (!Listener.Channels[channel].LFE) {
                                     Vector channelPos = Listener.Channels[channel].CubicalPos;
                                     if (channelPos.y == closestBottom) // Bottom layer
-                                        AssignHorizontalLayer(channel, ref BFL, ref BFR, ref BRL, ref BRR,
-                                            ref closestBF, ref closestBR, direction, channelPos);
+                                        AssignHorizontalLayer(channel, ref bottomFrontLeft, ref bottomFrontRight,
+                                            ref bottomRearLeft, ref bottomRearRight, ref closestBF, ref closestBR, direction, channelPos);
                                     if (channelPos.y == closestTop) // Top layer
-                                        AssignHorizontalLayer(channel, ref TFL, ref TFR, ref TRL, ref TRR,
+                                        AssignHorizontalLayer(channel, ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight,
                                             ref closestTF, ref closestTR, direction, channelPos);
                                 }
                             }
-                            FixIncompleteLayer(ref TFL, ref TFR, ref TRL, ref TRR); // Fix incomplete top layer
-                            if (BFL == -1 && BFR == -1 && BRL == -1 && BRR == -1) { // Fully incomplete bottom layer, use top
-                                BFL = TFL; BFR = TFR; BRL = TRL; BRR = TRR;
-                            } else
-                                FixIncompleteLayer(ref BFL, ref BFR, ref BRL, ref BRR); // Fix incomplete bottom layer
-                            if (TFL == -1 || TFR == -1 || TRL == -1 || TRR == -1) { // Fully incomplete top layer, use bottom
-                                TFL = BFL; TFR = BFR; TRL = BRL; TRR = BRR;
+                            FixIncompleteLayer(ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight); // Fix incomplete top layer
+
+                            // When the bottom layer is completely empty (= the source is below all channels), copy the top layer
+                            if (bottomFrontLeft == -1 && bottomFrontRight == -1 && bottomRearLeft == -1 && bottomRearRight == -1) {
+                                bottomFrontLeft = topFrontLeft;
+                                bottomFrontRight = topFrontRight;
+                                bottomRearLeft = topRearLeft;
+                                bottomRearRight = topRearRight;
                             }
-                            // Spatial mix
+                            // Fix incomplete bottom layer
+                            else
+                                FixIncompleteLayer(ref bottomFrontLeft, ref bottomFrontRight, ref bottomRearLeft, ref bottomRearRight);
+
+                            // When the top layer is completely empty (= the source is above all channels), copy the bottom layer
+                            if (topFrontLeft == -1 || topFrontRight == -1 || topRearLeft == -1 || topRearRight == -1) {
+                                topFrontLeft = bottomFrontLeft;
+                                topFrontRight = bottomFrontRight; topRearLeft = bottomRearLeft;
+                                topRearRight = bottomRearRight;
+                            }
+
+                            // Spatial mix gain precalculation
                             float topVol, bottomVol;
-                            if (TFL != BFL) { // Height ratio calculation
-                                float bottomY = Listener.Channels[BFL].CubicalPos.y;
-                                topVol = (direction.y - bottomY) / (Listener.Channels[TFL].CubicalPos.y - bottomY);
+                            if (topFrontLeft != bottomFrontLeft) { // Height ratio calculation
+                                float bottomY = Listener.Channels[bottomFrontLeft].CubicalPos.y;
+                                topVol = (direction.y - bottomY) / (Listener.Channels[topFrontLeft].CubicalPos.y - bottomY);
                                 bottomVol = 1f - topVol;
                             } else
                                 topVol = bottomVol = .5f;
-                            float BFVol = LengthRatio(BRL, BFL, direction.z), TFVol = LengthRatio(TRL, TFL, direction.z), // Length ratios
-                                BFRVol = WidthRatio(BFL, BFR, direction.x), BRRVol = WidthRatio(BRL, BRR, direction.x), // Width ratios
-                                TFRVol = WidthRatio(TFL, TFR, direction.x), TRRVol = WidthRatio(TRL, TRR, direction.x),
+
+                            // Length ratios
+                            float BFVol = LengthRatio(bottomRearLeft, bottomFrontLeft, direction.z),
+                                TFVol = LengthRatio(topRearLeft, topFrontLeft, direction.z);
+                            // Width ratios
+                            float BFRVol = WidthRatio(bottomFrontLeft, bottomFrontRight, direction.x),
+                                BRRVol = WidthRatio(bottomRearLeft, bottomRearRight, direction.x),
+                                TFRVol = WidthRatio(topFrontLeft, topFrontRight, direction.x),
+                                TRRVol = WidthRatio(topRearLeft, topRearRight, direction.x),
                                 innerVolume3D = volume3D;
                             if (Size != 0) {
                                 BFVol = QMath.Lerp(BFVol, .5f, Size);
@@ -296,27 +347,37 @@ namespace Cavern {
                                 for (int channel = 0; channel < channels; ++channel)
                                     WriteOutput(samples, rendered, extraChannelVolume, channel, channels);
                             }
-                            float BRVol = 1f - BFVol, TRVol = 1f - TFVol; // Remaining length ratios
-                            bottomVol *= innerVolume3D; topVol *= innerVolume3D;
-                            BFVol *= bottomVol; BRVol *= bottomVol; TFVol *= topVol; TRVol *= topVol;
-                            WriteOutput(samples, rendered, BFVol * (1f - BFRVol), BFL, channels);
-                            WriteOutput(samples, rendered, BFVol * BFRVol, BFR, channels);
-                            WriteOutput(samples, rendered, BRVol * (1f - BRRVol), BRL, channels);
-                            WriteOutput(samples, rendered, BRVol * BRRVol, BRR, channels);
-                            WriteOutput(samples, rendered, TFVol * (1f - TFRVol), TFL, channels);
-                            WriteOutput(samples, rendered, TFVol * TFRVol, TFR, channels);
-                            WriteOutput(samples, rendered, TRVol * (1f - TRRVol), TRL, channels);
-                            WriteOutput(samples, rendered, TRVol * TRRVol, TRR, channels);
+                            // Remaining length ratios
+                            float BRVol = 1f - BFVol,
+                                TRVol = 1f - TFVol;
+
+                            // Spatial mix gain finalization
+                            bottomVol *= innerVolume3D;
+                            topVol *= innerVolume3D;
+                            BFVol *= bottomVol;
+                            BRVol *= bottomVol;
+                            TFVol *= topVol;
+                            TRVol *= topVol;
+                            WriteOutput(samples, rendered, BFVol * (1f - BFRVol), bottomFrontLeft, channels);
+                            WriteOutput(samples, rendered, BFVol * BFRVol, bottomFrontRight, channels);
+                            WriteOutput(samples, rendered, BRVol * (1f - BRRVol), bottomRearLeft, channels);
+                            WriteOutput(samples, rendered, BRVol * BRRVol, bottomRearRight, channels);
+                            WriteOutput(samples, rendered, TFVol * (1f - TFRVol), topFrontLeft, channels);
+                            WriteOutput(samples, rendered, TFVol * TFRVol, topFrontRight, channels);
+                            WriteOutput(samples, rendered, TRVol * (1f - TRRVol), topRearLeft, channels);
+                            WriteOutput(samples, rendered, TRVol * TRRVol, topRearRight, channels);
                         }
                         // LFE mix
                         if (!listener.LFESeparation || LFE)
                             for (int channel = 0; channel < channels; ++channel)
                                 if (Listener.Channels[channel].LFE)
                                     WriteOutput(samples, rendered, volume3D, channel, channels);
+                    }
+
                     // ------------------------------------------------------------------
                     // Directional/distance-based engine for asymmetrical layouts
                     // ------------------------------------------------------------------
-                    } else {
+                    else {
                         // Angle match calculations
                         float[] angleMatches;
                         if (listener.AudioQuality >= QualityModes.High) {
@@ -328,6 +389,7 @@ namespace Cavern {
                             angleMatches = LinearizeAngleMatches(channels, direction, PowTo16);
                         else
                             angleMatches = LinearizeAngleMatches(channels, direction, PowTo8);
+
                         // Object size extension
                         if (Size != 0) {
                             float maxAngleMatch = angleMatches[0];
@@ -343,15 +405,21 @@ namespace Cavern {
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE) {
                                     float match = angleMatches[channel];
-                                    if (top0 < match) { top2 = top1; top1 = top0; top0 = match; }
-                                    else if (top1 < match) { top2 = top1; top1 = match; } else if (top2 < match) top2 = match;
+                                    if (top0 < match) {
+                                        top2 = top1;
+                                        top1 = top0;
+                                        top0 = match;
+                                    } else if (top1 < match) {
+                                        top2 = top1;
+                                        top1 = match;
+                                    } else if (top2 < match)
+                                        top2 = match;
                                 }
                             }
-                            for (int channel = 0; channel < channels; ++channel) {
+                            for (int channel = 0; channel < channels; ++channel)
                                 if (!Listener.Channels[channel].LFE &&
                                     angleMatches[channel] != top0 && angleMatches[channel] != top1 && angleMatches[channel] != top2)
                                     angleMatches[channel] = 0;
-                            }
                         }
                         // Place in sphere, write data to output channels
                         float totalAngleMatch = 0;
@@ -368,6 +436,7 @@ namespace Cavern {
                     }
                 }
             }
+
             // Timing
             TimeSamples += pitchedUpdateRate;
             if (TimeSamples >= Clip.Samples) {

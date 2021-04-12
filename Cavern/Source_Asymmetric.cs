@@ -15,12 +15,21 @@ namespace Cavern {
         /// <summary>x to the power of 8.</summary>
         /// <returns>x^8 the fastest way possible</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float PowTo8(float x) { x *= x; x *= x; return x * x; }
+        static float PowTo8(float x) {
+            x *= x;
+            x *= x;
+            return x * x;
+        }
 
         /// <summary>x to the power of 16.</summary>
         /// <returns>x^16 the fastest way possible</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static float PowTo16(float x) { x *= x; x *= x; x *= x; return x * x; }
+        static float PowTo16(float x) {
+            x *= x;
+            x *= x;
+            x *= x;
+            return x * x;
+        }
 
         /// <summary>Angle match calculations.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -30,8 +39,8 @@ namespace Cavern {
             for (int channel = 0; channel < channels; ++channel) {
                 Channel currentChannel = Listener.Channels[channel];
                 if (!currentChannel.LFE)
-                    angleMatches[channel] = matchModifier((float)(Math.PI -
-                        Math.Acos(direction.Dot(currentChannel.SphericalPos) * dirMagnitudeRecip)));
+                    angleMatches[channel] =
+                        matchModifier((float)(Math.PI - Math.Acos(direction.Dot(currentChannel.SphericalPos) * dirMagnitudeRecip)));
             }
             return angleMatches;
         }
@@ -45,7 +54,8 @@ namespace Cavern {
             for (int channel = 0; channel < channels; ++channel) {
                 Channel currentChannel = Listener.Channels[channel];
                 if (!currentChannel.LFE)
-                    angleMatches[channel] = matchModifier(1.570796326f + 1.570796326f * direction.Dot(currentChannel.SphericalPos) * dirMagnitudeRecip);
+                    angleMatches[channel] =
+                        matchModifier(1.570796326f + 1.570796326f * direction.Dot(currentChannel.SphericalPos) * dirMagnitudeRecip);
             }
             return angleMatches;
         }

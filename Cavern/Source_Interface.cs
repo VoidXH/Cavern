@@ -94,8 +94,16 @@ namespace Cavern {
         /// <summary>Copy the settings of another <see cref="Source"/>.</summary>
         /// <param name="from">Target source</param>
         public void CopySettings(Source from) {
-            Clip = from.Clip; IsPlaying = from.IsPlaying; Loop = from.Loop; Mute = from.Mute; LFE = from.LFE; Volume = from.Volume;
-            Pitch = from.Pitch; stereoPan = from.stereoPan; SpatialBlend = from.SpatialBlend; DopplerLevel = from.DopplerLevel;
+            Clip = from.Clip;
+            IsPlaying = from.IsPlaying;
+            Loop = from.Loop;
+            Mute = from.Mute;
+            LFE = from.LFE;
+            Volume = from.Volume;
+            Pitch = from.Pitch;
+            stereoPan = from.stereoPan;
+            SpatialBlend = from.SpatialBlend;
+            DopplerLevel = from.DopplerLevel;
             VolumeRolloff = from.VolumeRolloff;
         }
 

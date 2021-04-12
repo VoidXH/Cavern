@@ -1,6 +1,7 @@
 ﻿using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.QuickEQ.EQCurves {
+    /// <summary>An EQ curve with any amount of custom bands.</summary>
     public class Custom : EQCurve {
         /// <summary>Equalization source.</summary>
         readonly Equalizer eq;

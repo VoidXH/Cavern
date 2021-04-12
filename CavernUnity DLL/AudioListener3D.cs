@@ -35,11 +35,13 @@ namespace Cavern {
         [Tooltip("If active, the normalizer won't increase the volume above 100%.")]
         public bool LimiterOnly = true;
 
-        /// <summary>Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.</summary>
+        /// <summary>Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.
+        /// </summary>
         [Header("Advanced")]
         [Tooltip("Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.")]
         public int SampleRate = 48000;
-        /// <summary>Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.</summary>
+        /// <summary>Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.
+        /// </summary>
         [Tooltip("Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.")]
         public int UpdateRate = 240;
         /// <summary>Maximum audio delay, defined in this FPS value. This is the minimum frame rate required to render continuous audio.</summary>
@@ -161,37 +163,44 @@ namespace Cavern {
         /// <param name="unityChannels">Output channel count</param>
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnAudioFilterRead(float[] unityBuffer, int unityChannels) {
-            if (Paused)
+            if (Paused || SystemSampleRate == 0)
                 return;
             if (cachedSampleRate != SampleRate) {
                 cachedSampleRate = SampleRate;
                 bufferPosition = 0;
                 filterOutput = new float[unityChannels * SampleRate];
             }
-            int channels = Listener.Channels.Length;
+
             // Append new samples to the filter output buffer
+            int channels = Listener.Channels.Length;
             float[] renderBuffer = Output = cavernListener.Render((unityBuffer.Length - bufferPosition) / unityChannels *
                 cachedSampleRate / SystemSampleRate / UpdateRate + 1);
-            if (Listener.HeadphoneVirtualizer) { // Virtualizer pipeline: resample -> filter -> downmix
+
+            // Virtualizer pipeline: resample -> filter -> downmix
+            if (Listener.HeadphoneVirtualizer) {
                 if (SystemSampleRate != cachedSampleRate) // Resample output for system sample rate
-                    renderBuffer = Resample.Adaptive(renderBuffer, renderBuffer.Length / channels * SystemSampleRate / cachedSampleRate,
-                        channels, AudioQuality);
+                    renderBuffer = Resample.Adaptive(renderBuffer,
+                        renderBuffer.Length / channels * SystemSampleRate / cachedSampleRate, channels, AudioQuality);
                 VirtualizerFilter.Process(renderBuffer, SystemSampleRate);
-                int end = filterOutput.Length, altEnd = bufferPosition + renderBuffer.Length / channels * unityChannels;
+                int end = filterOutput.Length,
+                    altEnd = bufferPosition + renderBuffer.Length / channels * unityChannels;
                 if (end > altEnd)
                     end = altEnd;
                 for (int renderPos = 0; bufferPosition < end; bufferPosition += unityChannels, renderPos += channels) {
                     filterOutput[bufferPosition] = renderBuffer[renderPos];
                     filterOutput[bufferPosition + 1] = renderBuffer[renderPos + 1];
                 }
-            } else { // Default pipeline: downmix -> resample (faster for many virtual channels)
+            }
+
+            // Default pipeline: downmix -> resample (faster for many virtual channels)
+            else {
                 float[] downmix = renderBuffer;
                 if (channels != unityChannels) {
                     downmix = new float[renderBuffer.Length / channels * unityChannels];
                     WaveformUtils.Downmix(renderBuffer, channels, downmix, unityChannels);
                     if (SystemSampleRate != cachedSampleRate) // Resample output for system sample rate
-                        downmix = Resample.Adaptive(downmix, downmix.Length / unityChannels * SystemSampleRate / cachedSampleRate,
-                            unityChannels, AudioQuality);
+                        downmix = Resample.Adaptive(downmix,
+                            downmix.Length / unityChannels * SystemSampleRate / cachedSampleRate, unityChannels, AudioQuality);
                 }
                 int end = filterOutput.Length;
                 if (end > bufferPosition + downmix.Length)
@@ -199,6 +208,8 @@ namespace Cavern {
                 Array.Copy(downmix, 0, filterOutput, bufferPosition, end - bufferPosition);
                 bufferPosition = end;
             }
+
+            // If Unity has audio output and it's rendering is enabled, mix it for the user's layout
             if (!DisableUnityAudio) {
                 if (remapper == null || remapper.channels != unityChannels)
                     remapper = new Remapper(unityChannels, unityBuffer.Length / unityChannels);
@@ -208,9 +219,12 @@ namespace Cavern {
                 WaveformUtils.Downmix(remapped, channels, unityBuffer, unityChannels); // Output remapped Unity audio
             } else
                 Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
-            if (Normalizer != 0) // Normalize
+
+            // Apply normalizer
+            if (Normalizer != 0)
                 WaveformUtils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
-            // Remove used samples
+
+            // Generate output from buffer
             int written = unityBuffer.Length;
             if (written > bufferPosition)
                 written = bufferPosition;

@@ -34,20 +34,12 @@ namespace Cavern {
 
         /// <summary>Set the <see cref="UsedRolloffFunc"/> to match the user's <see cref="VolumeRolloff"/> setting.</summary>
         void SetRolloff() {
-            switch (LastRolloff = VolumeRolloff) {
-                case Rolloffs.Logarithmic:
-                    UsedRolloffFunc = RolloffLogarithmic;
-                    break;
-                case Rolloffs.Linear:
-                    UsedRolloffFunc = RolloffLinear;
-                    break;
-                case Rolloffs.Real:
-                    UsedRolloffFunc = RolloffReal;
-                    break;
-                default:
-                    UsedRolloffFunc = RolloffDisabled;
-                    break;
-            }
+            UsedRolloffFunc = (LastRolloff = VolumeRolloff) switch {
+                Rolloffs.Logarithmic => RolloffLogarithmic,
+                Rolloffs.Linear => RolloffLinear,
+                Rolloffs.Real => RolloffReal,
+                _ => RolloffDisabled,
+            };
         }
 
         /// <summary>Get the gain by rolloff mode and distance.</summary>

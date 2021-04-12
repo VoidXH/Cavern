@@ -68,10 +68,12 @@ namespace Cavern {
                     else
                         objects[source].Object = new GameObject();
                     GameObject creation = objects[source].Object;
+
                     // Position source
                     Vector direction = directionFunc(new Vector(Random.value * 360, Random.value * 360));
                     float distance = (MaxDistance - MinDistance) * Random.value + MinDistance;
                     creation.transform.position = transform.position + VectorUtils.VectorMatch(direction) * distance;
+
                     // Add audio
                     AudioSource3D newSource = objects[source].Source = creation.AddComponent<AudioSource3D>();
                     newSource.Clip = Clips[(int)(Clips.Length * Random.value)];
