@@ -268,12 +268,12 @@ namespace Cavern {
                                 topRearLeft = -1,
                                 topRearRight = -1;
                             // Closest layers on Y and Z axes
-                            float closestTop = 80,
-                                closestBottom = -65,
-                                closestTF = 78,
-                                closestTR = -78,
-                                closestBF = 73,
-                                closestBR = -3;
+                            float closestTop = 78,
+                                closestBottom = -73,
+                                closestTF = 75,
+                                closestTR = -73,
+                                closestBF = 75,
+                                closestBR = -69;
                             // Find closest horizontal layers
                             direction.Downscale(Listener.EnvironmentSize);
                             for (int channel = 0; channel < channels; ++channel) {
@@ -313,7 +313,8 @@ namespace Cavern {
                             // When the top layer is completely empty (= the source is above all channels), copy the bottom layer
                             if (topFrontLeft == -1 || topFrontRight == -1 || topRearLeft == -1 || topRearRight == -1) {
                                 topFrontLeft = bottomFrontLeft;
-                                topFrontRight = bottomFrontRight; topRearLeft = bottomRearLeft;
+                                topFrontRight = bottomFrontRight;
+                                topRearLeft = bottomRearLeft;
                                 topRearRight = bottomRearRight;
                             }
 
