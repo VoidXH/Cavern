@@ -1,4 +1,5 @@
 *.depend
+*.layout
 .vs/
 Cavern.Filters/bin/
 Cavern.Filters/obj/
@@ -8,8 +9,10 @@ Cavern.QuickEQ/bin/
 Cavern.QuickEQ/obj/
 Cavern/bin/
 Cavern/obj/
+CavernAmp/bin/Release/libCavernAmp.a
+CavernAmp/bin/Release/libCavernAmp.def
+CavernAmp/obj/
 Cavernize Lite/bin/
-Cavernize Lite/lafconv.layout
 Cavernize Lite/obj/
 Cavernize Lite/samples/
 CavernUnity DLL/bin/

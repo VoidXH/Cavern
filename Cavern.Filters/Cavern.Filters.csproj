@@ -69,4 +69,7 @@
     <Compile Include="Utilities\QFactor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy ..\..\..\CavernAmp\bin\Release\CavernAmp.dll CavernAmp.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>

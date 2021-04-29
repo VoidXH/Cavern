@@ -57,6 +57,7 @@
     <Compile Include="Source_Interface.cs" />
     <Compile Include="Source_Rolloff.cs" />
     <Compile Include="Source_Symmetric.cs" />
+    <Compile Include="Utilities\CavernAmp.cs" />
     <Compile Include="Utilities\Complex.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />
     <Compile Include="Utilities\QMath.cs" />
@@ -75,4 +76,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy ..\..\..\CavernAmp\bin\Release\CavernAmp.dll CavernAmp.dll</PostBuildEvent>
+  </PropertyGroup>
 </Project>
