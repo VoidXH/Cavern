@@ -84,8 +84,8 @@ namespace Cavern.Cavernize {
         internal Dictionary<ChannelPrototype, SpatializedChannel> channels = new Dictionary<ChannelPrototype, SpatializedChannel>();
 
         /// <summary>Possible upmix targets, always created.</summary>
-        static readonly ChannelPrototype[] UpmixTargets = { ChannelPrototype.FrontCenter, ChannelPrototype.SideLeft, ChannelPrototype.SideRight,
-            ChannelPrototype.RearLeft, ChannelPrototype.RearRight };
+        static readonly ChannelPrototype[] UpmixTargets = { ChannelPrototype.FrontLeft, ChannelPrototype.FrontRight, ChannelPrototype.FrontCenter,
+            ChannelPrototype.SideLeft, ChannelPrototype.SideRight, ChannelPrototype.RearLeft, ChannelPrototype.RearRight };
 
         void Start() {
             AudioListener3D listener = AudioListener3D.Current;
@@ -130,9 +130,9 @@ namespace Cavern.Cavernize {
             GenerateSampleBlock();
         }
 
-        internal SpatializedChannel GetChannel(ChannelPrototype Target) {
-            if (channels.ContainsKey(Target))
-                return channels[Target];
+        internal SpatializedChannel GetChannel(ChannelPrototype target) {
+            if (channels.ContainsKey(target))
+                return channels[target];
             return null;
         }
 
