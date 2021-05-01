@@ -114,5 +114,13 @@ namespace Cavern.Remapping {
 
         /// <summary>Check if two channel prototypes are the same.</summary>
         public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
+
+        /// <summary>Human-readable channel prototype data.</summary>
+        public override string ToString() {
+            string basic = $"{(LFE ? Name + "(LFE)" : Name)} ({X}; {Y})";
+            if (Muted)
+                return basic + " (muted)";
+            return basic;
+        }
     }
 }
