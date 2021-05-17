@@ -23,12 +23,16 @@ namespace Cavern {
         internal float distance = float.NaN;
 
         // ------------------------------------------------------------------
+        // Protected properties
+        // ------------------------------------------------------------------
+        /// <summary>Samples required to match the listener's update rate after pitch changes.</summary>
+        protected int PitchedUpdateRate { get; private set; }
+
+        // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
-        /// <summary><see cref="pitchedUpdateRate"/> without resampling.</summary>
+        /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
         int baseUpdateRate;
-        /// <summary>Samples required to match the listener's update rate after pitch changes.</summary>
-        int pitchedUpdateRate;
 
         /// <summary>Actually used pitch multiplier including the Doppler effect.</summary>
         float calculatedPitch;
@@ -81,9 +85,9 @@ namespace Cavern {
                 Rendered = new float[channels][];
                 Rendered[0] = new float[0];
             }
-            if (Rendered[0].Length != pitchedUpdateRate)
+            if (Rendered[0].Length != PitchedUpdateRate)
                 for (int channel = 0; channel < channels; ++channel)
-                    Rendered[channel] = new float[pitchedUpdateRate];
+                    Rendered[channel] = new float[PitchedUpdateRate];
             if (Loop)
                 Clip.GetData(Rendered, TimeSamples);
             else
@@ -124,12 +128,12 @@ namespace Cavern {
                 else
                     resampleMult = 1;
                 baseUpdateRate = (int)(listener.UpdateRate * calculatedPitch);
-                pitchedUpdateRate = (int)(baseUpdateRate * resampleMult);
-                if (samples.Length != pitchedUpdateRate)
-                    samples = new float[pitchedUpdateRate];
-                if (Clip.Channels == 2 && leftSamples.Length != pitchedUpdateRate) {
-                    leftSamples = new float[pitchedUpdateRate];
-                    rightSamples = new float[pitchedUpdateRate];
+                PitchedUpdateRate = (int)(baseUpdateRate * resampleMult);
+                if (samples.Length != PitchedUpdateRate)
+                    samples = new float[PitchedUpdateRate];
+                if (Clip.Channels == 2 && leftSamples.Length != PitchedUpdateRate) {
+                    leftSamples = new float[PitchedUpdateRate];
+                    rightSamples = new float[PitchedUpdateRate];
                 }
                 Rendered = GetSamples();
                 if (rendered.Length != Listener.Channels.Length * listener.UpdateRate)
@@ -201,12 +205,9 @@ namespace Cavern {
         /// <summary>Process the source and returns a mix to be added to the output.</summary>
         protected internal virtual float[] Collect() {
             // Preparations, clean environment
-            int channels = Listener.Channels.Length;
+            int channels = Listener.Channels.Length,
+                updateRate = listener.UpdateRate;
             Array.Clear(rendered, 0, rendered.Length);
-
-            // Update rate calculation
-            int updateRate = listener.UpdateRate;
-            int resampledNow = (int)(TimeSamples / resampleMult);
 
             // Render audio if not muted
             if (!Mute) {
@@ -215,12 +216,12 @@ namespace Cavern {
                 // 3D renderer preprocessing
                 if (SpatialBlend != 0)
                     if (listener.AudioQuality >= QualityModes.High && clipChannels != 1) { // Mono downmix above medium quality
-                        Array.Clear(samples, 0, pitchedUpdateRate);
+                        Array.Clear(samples, 0, PitchedUpdateRate);
                         for (int channel = 0; channel < clipChannels; ++channel)
                             WaveformUtils.Mix(Rendered[channel], samples);
                         WaveformUtils.Gain(samples, 1f / clipChannels);
                     } else // First channel only otherwise
-                        Buffer.BlockCopy(Rendered[0], 0, samples, 0, pitchedUpdateRate * sizeof(float));
+                        Buffer.BlockCopy(Rendered[0], 0, samples, 0, PitchedUpdateRate * sizeof(float));
 
                 // 2D renderer
                 if (SpatialBlend != 1) {
@@ -233,8 +234,8 @@ namespace Cavern {
 
                     // Full side mix for stereo sources
                     else {
-                        Buffer.BlockCopy(Rendered[0], 0, leftSamples, 0, pitchedUpdateRate * sizeof(float));
-                        Buffer.BlockCopy(Rendered[1], 0, rightSamples, 0, pitchedUpdateRate * sizeof(float));
+                        Buffer.BlockCopy(Rendered[0], 0, leftSamples, 0, PitchedUpdateRate * sizeof(float));
+                        Buffer.BlockCopy(Rendered[1], 0, rightSamples, 0, PitchedUpdateRate * sizeof(float));
                         leftSamples = Resample.Adaptive(leftSamples, updateRate, listener.AudioQuality);
                         rightSamples = Resample.Adaptive(rightSamples, updateRate, listener.AudioQuality);
                         Stereo2DMix(volume2D);
@@ -439,7 +440,7 @@ namespace Cavern {
             }
 
             // Timing
-            TimeSamples += pitchedUpdateRate;
+            TimeSamples += PitchedUpdateRate;
             if (TimeSamples >= Clip.Samples) {
                 if (Loop)
                     TimeSamples %= Clip.Samples;

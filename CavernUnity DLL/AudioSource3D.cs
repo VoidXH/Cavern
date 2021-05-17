@@ -269,22 +269,7 @@ namespace Cavern {
         /// <summary>Synchronize this interface with <see cref="cavernSource"/>.</summary>
         protected void SourceUpdate() {
             cavernSource.Position = VectorUtils.VectorMatch(transform.position);
-            if (Clip3D) {
-                if (!cavernSource.Clip || lastClipHash != Clip3D.GetHashCode()) {
-                    cavernSource.Clip = Clip3D;
-                    lastClipHash = Clip3D.GetHashCode();
-                }
-            } else if (Clip) {
-                if (!cavernSource.Clip || lastClipHash != Clip.GetHashCode()) {
-                    float[] AllData = new float[Clip.channels * Clip.samples];
-                    Clip.GetData(AllData, 0);
-                    cavernSource.Clip = new Clip(AllData, Clip.channels, Clip.frequency);
-                    lastClipHash = Clip.GetHashCode();
-                }
-            } else if (cavernSource.Clip && lastClipHash != 0) {
-                cavernSource.Clip = null;
-                lastClipHash = 0;
-            }
+            Tunneler.TunnelClips(ref cavernSource.Clip, Clip, Clip3D, ref lastClipHash);
             if (cavernSource.IsPlaying == internalPlayState)
                 cavernSource.IsPlaying = IsPlaying;
             else

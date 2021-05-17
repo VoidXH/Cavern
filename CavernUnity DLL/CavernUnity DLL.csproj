@@ -85,9 +85,11 @@
     <Compile Include="Debug\Monitor.cs" />
     <Compile Include="FilterInterfaces\Echo3D.cs" />
     <Compile Include="Helpers\ExternalSource.cs" />
+    <Compile Include="SpecialSources\InfiniteSource3D.cs" />
     <Compile Include="Spoofer\AudioListenerSpoofer.cs" />
     <Compile Include="Spoofer\AudioSourceSpoofer.cs" />
     <Compile Include="Spoofer\AutoSpoofer.cs" />
+    <Compile Include="Utilities\Tunneler.cs" />
     <Compile Include="Utilities\ColorUtils.cs" />
     <Compile Include="Utilities\VectorUtils.cs" />
     <Compile Include="Debug\SeatAdaptationDemo.cs" />
