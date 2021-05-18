@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ using Cavern.QuickEQ.SignalGeneration;
 namespace Cavern.QuickEQ {
     /// <summary>Measures the frequency response of all output channels.</summary>
     [AddComponentMenu("Audio/QuickEQ/Speaker Sweeper")]
-    public class SpeakerSweeper : MonoBehaviour {
+    public class SpeakerSweeper : MonoBehaviour, IDisposable {
         /// <summary>Frequency at the beginning of the sweep.</summary>
         [Tooltip("Frequency at the beginning of the sweep.")]
         [Range(1, 24000)] public float StartFreq = 20;
@@ -118,6 +119,8 @@ namespace Cavern.QuickEQ {
             SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
+            if (sweepFFTCache != null)
+                sweepFFTCache.Dispose();
             sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
             sweepFFTlow = (Complex[])sweepFFT.Clone();
             Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, sampleRate, 100);
@@ -132,6 +135,7 @@ namespace Cavern.QuickEQ {
         public VerboseImpulseResponse GetImpulseResponse(Complex[] frequencyResponse) =>
             new VerboseImpulseResponse(Measurements.GetImpulseResponse(frequencyResponse, sweepFFTCache));
 
+        [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() {
             ResultAvailable = false;
             RegenerateSweep();
@@ -149,6 +153,7 @@ namespace Cavern.QuickEQ {
             measurementStarted = false;
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             if (!measurementStarted) {
                 measurementStarted = true;
@@ -193,6 +198,7 @@ namespace Cavern.QuickEQ {
             }
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() {
             if (sweepers != null && sweepers[0])
                 for (int channel = 0; channel < Listener.Channels.Length; ++channel)
@@ -202,6 +208,15 @@ namespace Cavern.QuickEQ {
                 Destroy(sweepResponse);
             AudioListener3D.Current.DirectLFE = oldDirectLFE;
             Listener.HeadphoneVirtualizer = oldVirtualizer;
+        }
+
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
+        void OnDestroy() => Dispose();
+        
+        /// <summary>Free the resources used by this object.</summary>
+        public void Dispose() {
+            if (sweepFFTCache != null)
+                sweepFFTCache.Dispose();
         }
 
         struct WorkerResult {

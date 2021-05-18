@@ -8,12 +8,14 @@ using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
     /// <summary>Measures properties of a filter, like frequency/impulse response, gain, or delay.</summary>
-    public sealed class FilterAnalyzer {
+    public sealed class FilterAnalyzer : IDisposable {
         /// <summary>Used FFT size for most measurements.</summary>
         public int Resolution {
             get => resolution;
             set {
                 gain = float.NaN;
+                if (cache != null)
+                    Dispose();
                 cache = null;
                 impulseReference = null;
                 frequencyResponse = null;
@@ -157,6 +159,12 @@ namespace Cavern.QuickEQ {
                 bands.Add(new Band(Math.Pow(10, startPow + powRange * pos), 20 * Math.Log10(graph[pos])));
             bands.Reverse();
             return new Equalizer(bands);
+        }
+
+        /// <summary>Free the resources used by this analyzer.</summary>
+        public void Dispose() {
+            if (CavernAmp.Available)
+                cache.Dispose();
         }
     }
 }

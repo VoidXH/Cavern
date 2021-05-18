@@ -100,6 +100,7 @@ namespace Cavern.QuickEQ.Equalization {
             analyzer = new FilterAnalyzer(null, sampleRate);
             for (int band = 0; band < bands; ++band)
                 result[band] = BruteForceBand(ref target, analyzer);
+            analyzer.Dispose();
             return result;
         }
 

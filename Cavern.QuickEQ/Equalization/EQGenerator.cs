@@ -94,9 +94,10 @@ namespace Cavern.QuickEQ.Equalization {
                 for (int i = 0; i < length; ++i)
                     filter[i].Real = initial[i].Magnitude * gain;
             eq.Apply(filter, sampleRate);
-            FFTCache cache = new FFTCache(length);
-            Measurements.MinimumPhaseSpectrum(filter, cache);
-            Measurements.InPlaceIFFT(filter, cache);
+            using (FFTCache cache = new FFTCache(length)) {
+                Measurements.MinimumPhaseSpectrum(filter, cache);
+                Measurements.InPlaceIFFT(filter, cache);
+            }
             return Measurements.GetRealPartHalf(filter);
         }
 
