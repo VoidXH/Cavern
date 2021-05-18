@@ -5,14 +5,7 @@
 
 #include "fftcache.h"
 #include "main.h"
-
-inline int log2(const int x) {
-  int y;
-  asm ("\tbsr %1, %0\n"
-      : "=r"(y)
-      : "r" (x));
-  return y;
-}
+#include "qmath.h"
 
 FFTCache::FFTCache(const int fftSize) {
     depth = fftSize / 2;

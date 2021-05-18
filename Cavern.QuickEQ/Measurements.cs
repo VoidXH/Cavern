@@ -1,5 +1,6 @@
-﻿using Cavern.Utilities;
-using System;
+﻿using System;
+
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
     /// <summary>Tools for measuring frequency response.</summary>

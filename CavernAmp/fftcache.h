@@ -4,9 +4,6 @@
 #ifndef FFTCACHE_H
 #define FFTCACHE_H
 
-/// Helpers
-inline int log2(const int x);
-
 /// Class
 // Precalculated constants and preallocated recursion arrays for a given FFT size.
 class FFTCache {
