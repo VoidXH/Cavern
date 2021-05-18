@@ -28,8 +28,14 @@
 				</Linker>
 			</Target>
 		</Build>
+		<Unit filename="complex.h" />
+		<Unit filename="export.h" />
+		<Unit filename="fftcache.cpp" />
+		<Unit filename="fftcache.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
+		<Unit filename="measurements.cpp" />
+		<Unit filename="measurements.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

@@ -3,18 +3,14 @@
 
 #include <windows.h>
 
-#ifdef BUILD_DLL
-    #define DLL_EXPORT __declspec(dllexport)
-#else
-    #define DLL_EXPORT __declspec(dllimport)
-#endif
-
+#include "export.h"
+#include "fftcache.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
+// Main
 bool DLL_EXPORT IsAvailable();
 
 #ifdef __cplusplus
