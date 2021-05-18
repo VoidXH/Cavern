@@ -36,6 +36,8 @@
 		<Unit filename="main.h" />
 		<Unit filename="measurements.cpp" />
 		<Unit filename="measurements.h" />
+		<Unit filename="qmath.cpp" />
+		<Unit filename="qmath.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
