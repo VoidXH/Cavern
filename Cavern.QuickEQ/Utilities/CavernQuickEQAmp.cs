@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 using Cavern.Utilities;
@@ -29,10 +30,45 @@ namespace Cavern.QuickEQ.Utilities {
 
         /// <summary>Fast Fourier transform a 2D signal while keeping the source array allocation.</summary>
         [DllImport("CavernAmp.dll", EntryPoint = "InPlaceFFT")]
-        internal static extern void InPlaceFFT(Complex[] samples, int sampleCount, IntPtr cache);
+        static extern void InPlaceFFTCall(Complex[] samples, int sampleCount, IntPtr cache);
+
+        /// <summary>Fast Fourier transform a 2D signal while keeping the source array allocation.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void InPlaceFFT(Complex[] samples, FFTCache cache = null) {
+            if (cache == null)
+                InPlaceFFTCall(samples, samples.Length, new IntPtr(0));
+            else
+                InPlaceFFTCall(samples, samples.Length, cache.Native);
+        }
 
         /// <summary>Spectrum of a signal's FFT while keeping the source array allocation.</summary>
         [DllImport("CavernAmp.dll", EntryPoint = "InPlaceFFT1D")]
-        internal static extern void InPlaceFFT(float[] samples, int sampleCount, IntPtr cache);
+        static extern void InPlaceFFTCall(float[] samples, int sampleCount, IntPtr cache);
+
+        /// <summary>Spectrum of a signal's FFT while keeping the source array allocation.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void InPlaceFFT(float[] samples, FFTCache cache = null) {
+            if (cache == null)
+                InPlaceFFTCall(samples, samples.Length, new IntPtr(0));
+            else
+                InPlaceFFTCall(samples, samples.Length, cache.Native);
+        }
+
+        /// <summary>Outputs IFFT(X) * N.</summary>
+        [DllImport("CavernAmp.dll", EntryPoint = "ProcessIFFT")]
+        internal static extern void ProcessIFFT(Complex[] samples, int sampleCount, IntPtr cache, int depth);
+
+        /// <summary>Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.</summary>
+        [DllImport("CavernAmp.dll", EntryPoint = "InPlaceIFFT")]
+        static extern void InPlaceIFFTCall(Complex[] samples, int sampleCount, IntPtr cache);
+
+        /// <summary>Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void InPlaceIFFT(Complex[] samples, FFTCache cache = null) {
+            if (cache == null)
+                InPlaceIFFTCall(samples, samples.Length, new IntPtr(0));
+            else
+                InPlaceIFFTCall(samples, samples.Length, cache.Native);
+        }
     }
 }
