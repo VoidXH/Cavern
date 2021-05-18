@@ -67,3 +67,39 @@ void DLL_EXPORT InPlaceFFT1D(float *samples, int sampleCount, FFTCache *cache) {
     } else
         ProcessFFT1D(samples, sampleCount, cache);
 }
+
+void DLL_EXPORT ProcessIFFT(Complex *samples, int sampleCount, FFTCache *cache, int depth) {
+    if (sampleCount == 1)
+        return;
+    Complex *even = cache->even[depth], *odd = cache->odd[depth];
+    int halfLength = sampleCount / 2;
+    for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
+        even[sample] = samples[pair];
+        odd[sample] = samples[pair + 1];
+    }
+    ProcessIFFT(even, halfLength, cache, --depth);
+    ProcessIFFT(odd, halfLength, cache, depth);
+    int stepMul = cache->size() / halfLength;
+    for (int i = 0; i < halfLength; ++i) {
+        float oddReal = odd[i].real * cache->cos[i * stepMul] - odd[i].imaginary * -cache->sin[i * stepMul],
+            oddImag = odd[i].real * -cache->sin[i * stepMul] + odd[i].imaginary * cache->cos[i * stepMul];
+        samples[i].real = even[i].real + oddReal;
+        samples[i].imaginary = even[i].imaginary + oddImag;
+        samples[i + halfLength].real = even[i].real - oddReal;
+        samples[i + halfLength].imaginary = even[i].imaginary - oddImag;
+    }
+}
+
+void DLL_EXPORT InPlaceIFFT(Complex *samples, int sampleCount, FFTCache *cache) {
+    if (!cache) {
+        cache = FFTCache_Create(sampleCount);
+        ProcessIFFT(samples, sampleCount, cache, log2(sampleCount) - 1);
+        FFTCache_Dispose(cache);
+    } else
+        ProcessIFFT(samples, sampleCount, cache, log2(sampleCount) - 1);
+    float multiplier = 1.f / sampleCount;
+    for (int i = 0; i < sampleCount; ++i) {
+        samples[i].real *= multiplier;
+        samples[i].imaginary *= multiplier;
+    }
+}

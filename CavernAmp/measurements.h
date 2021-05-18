@@ -17,6 +17,10 @@ void DLL_EXPORT ProcessFFT1D(float *samples, int sampleCount, FFTCache *cache);
 void DLL_EXPORT InPlaceFFT(Complex *samples, int sampleCount, FFTCache *cache);
 // Spectrum of a signal's FFT while keeping the source array allocation.
 void DLL_EXPORT InPlaceFFT1D(float *samples, int sampleCount, FFTCache *cache);
+// Outputs IFFT(X) * N.
+void DLL_EXPORT ProcessIFFT(Complex *samples, int sampleCount, FFTCache *cache, int depth);
+// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
+void DLL_EXPORT InPlaceIFFT(Complex *samples, int sampleCount, FFTCache *cache);
 
 #ifdef __cplusplus
 }
