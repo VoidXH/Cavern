@@ -2,7 +2,7 @@
 
 namespace Cavern.Utilities {
     /// <summary>A complex number.</summary>
-    public struct Complex {
+    public struct Complex : IComparable<float>, IComparable<Complex>, IEquatable<float>, IEquatable<Complex> {
         /// <summary>Real part of the complex number.</summary>
         public float Real;
         /// <summary>Imaginary part of the complex number.</summary>
@@ -71,6 +71,18 @@ namespace Cavern.Utilities {
             Real = (Real * rhs.Real + Imaginary * rhs.Imaginary) * multiplier;
             Imaginary = (Imaginary * rhs.Real - oldReal * rhs.Imaginary) * multiplier;
         }
+
+        /// <summary>Compare thie number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.</summary>
+        public int CompareTo(float other) => Magnitude.CompareTo(other);
+
+        /// <summary>Compare thie number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.</summary>
+        public int CompareTo(Complex other) => Magnitude.CompareTo(other.Magnitude);
+
+        /// <summary>Check if this number equals an <paramref name="other"/>.</summary>
+        public bool Equals(float other) => Real == other && Imaginary == 0;
+
+        /// <summary>Check if this number equals an <paramref name="other"/>.</summary>
+        public bool Equals(Complex other) => Real == other.Real && Imaginary == other.Imaginary;
 
         /// <summary>Display the complex number.</summary>
         public override string ToString() {
