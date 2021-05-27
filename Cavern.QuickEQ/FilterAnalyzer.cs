@@ -13,15 +13,17 @@ namespace Cavern.QuickEQ {
         public int Resolution {
             get => resolution;
             set {
+                if (resolution != value) {
+                    if (cache != null)
+                        Dispose();
+                    cache = null;
+                    resolution = value;
+                }
                 gain = float.NaN;
-                if (cache != null)
-                    Dispose();
-                cache = null;
                 impulseReference = null;
                 frequencyResponse = null;
                 spectrum = null;
                 impulse = null;
-                resolution = value;
             }
         }
         int resolution = 65536;
