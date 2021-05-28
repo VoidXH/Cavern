@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Diagnostics.CodeAnalysis;
+using UnityEngine;
 
 using Cavern.Filters;
 using Cavern.Helpers;
@@ -258,10 +259,16 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Lifecycle helpers
         // ------------------------------------------------------------------
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
+        void OnDrawGizmos() => Gizmos.DrawIcon(transform.position, "AudioSource Gizmo", true);
+
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() => AudioListener3D.cavernListener.AttachSource(cavernSource);
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() => AudioListener3D.cavernListener.DetachSource(cavernSource);
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() => Update();
 
         void Update() => SourceUpdate();

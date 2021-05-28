@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Diagnostics.CodeAnalysis;
+using UnityEngine;
 
 using Cavern.Utilities;
 
@@ -37,8 +38,10 @@ namespace Cavern {
 
         AtmosphereObject[] objects;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() => objects = new AtmosphereObject[Sources];
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDrawGizmosSelected() {
             if (!gameObject.activeInHierarchy)
                 return;
@@ -58,6 +61,7 @@ namespace Cavern {
 
         delegate Vector PlacerFunc(Vector angles);
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             PlacerFunc directionFunc = Spherical ? (PlacerFunc)Vector.PlaceInSphere : Vector.PlaceInCube;
             float targetVolume = Volume / Sources;
