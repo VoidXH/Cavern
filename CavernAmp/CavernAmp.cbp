@@ -5,6 +5,7 @@
 		<Option title="CavernAmp" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="Filters/;Filters/Headers/;Filters/Sources/" />
 		<Build>
 			<Target title="Release">
 				<Option output="bin/Release/CavernAmp" prefix_auto="1" extension_auto="1" />
@@ -36,6 +37,12 @@
 		<Unit filename="main.h" />
 		<Unit filename="measurements.cpp" />
 		<Unit filename="measurements.h" />
+		<Unit filename="peakingFilter.cpp">
+			<Option virtualFolder="Filters/Sources/" />
+		</Unit>
+		<Unit filename="peakingFilter.h">
+			<Option virtualFolder="Filters/Headers/" />
+		</Unit>
 		<Unit filename="qmath.cpp" />
 		<Unit filename="qmath.h" />
 		<Extensions>
