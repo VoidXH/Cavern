@@ -117,6 +117,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
+        /// <summary>Used to prevent sample generation before the first frame.</summary>
+        bool startSkip = true;
         /// <summary>Cached <see cref="SampleRate"/> for change detection.</summary>
         static int cachedSampleRate = -1;
         static Remapper remapper;
@@ -156,6 +158,7 @@ namespace Cavern {
             cavernListener.DirectLFE = DirectLFE;
             cavernListener.Position = VectorUtils.VectorMatch(transform.position);
             cavernListener.Rotation = VectorUtils.VectorMatch(transform.eulerAngles);
+            startSkip = false;
         }
 
         /// <summary>Output Cavern's generated audio as a filter.</summary>
@@ -163,7 +166,7 @@ namespace Cavern {
         /// <param name="unityChannels">Output channel count</param>
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnAudioFilterRead(float[] unityBuffer, int unityChannels) {
-            if (Paused || SystemSampleRate == 0)
+            if (startSkip || Paused || SystemSampleRate == 0)
                 return;
             if (cachedSampleRate != SampleRate) {
                 cachedSampleRate = SampleRate;
