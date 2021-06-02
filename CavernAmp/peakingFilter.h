@@ -1,7 +1,7 @@
 #include "filter.h"
 
-#ifndef BIQUADFILTER_H
-#define BIQUADFILTER_H
+#ifndef PEAKINGFILTER_H
+#define PEAKINGFILTER_H
 
 #define Q_REF 0.7071067811865475
 
@@ -19,4 +19,4 @@ public:
     void Process(float* samples, int len, int channel, int channels);
 };
 
-#endif // BIQUADFILTER_H
+#endif // PEAKINGFILTER_H

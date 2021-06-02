@@ -1,9 +1,9 @@
+#ifndef MEASUREMENTS_H
+#define MEASUREMENTS_H
+
 #include "complex.h"
 #include "export.h"
 #include "fftcache.h"
-
-#ifndef MEASUREMENTS_H
-#define MEASUREMENTS_H
 
 #ifdef __cplusplus
 extern "C" {
