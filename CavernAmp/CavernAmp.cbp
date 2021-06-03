@@ -59,6 +59,12 @@
 		<Unit filename="qmath.h">
 			<Option virtualFolder="Utilities/Headers/" />
 		</Unit>
+		<Unit filename="waveformUtils.cpp">
+			<Option virtualFolder="Utilities/Sources/" />
+		</Unit>
+		<Unit filename="waveformUtils.h">
+			<Option virtualFolder="Utilities/Headers/" />
+		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
