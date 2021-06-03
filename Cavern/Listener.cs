@@ -15,9 +15,9 @@ namespace Cavern {
         /// <summary>Cached version name.</summary>
         static string info;
         /// <summary>Version and creator information.</summary>
-        public static string Info => info ?? (info = "Cavern v" +
+        public static string Info => info ??= "Cavern v" +
             FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion +
-            " by VoidX (cavern.sbence.hu)");
+            " by VoidX (cavern.sbence.hu)";
         /// <summary>Default sample rate.</summary>
         public const int defaultSampleRate = 48000;
 
