@@ -53,8 +53,12 @@
 		<Unit filename="peakingFilter.h">
 			<Option virtualFolder="Filters/Headers/" />
 		</Unit>
-		<Unit filename="qmath.cpp" />
-		<Unit filename="qmath.h" />
+		<Unit filename="qmath.cpp">
+			<Option virtualFolder="Utilities/Sources/" />
+		</Unit>
+		<Unit filename="qmath.h">
+			<Option virtualFolder="Utilities/Headers/" />
+		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
