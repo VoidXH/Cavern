@@ -12,7 +12,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>Minimum filter gain in dB.</summary>
         public double MinGain { get; set; } = -100;
 
-        /// <summary>Round the gain of each filter to this precision..</summary>
+        /// <summary>Round the gain of each filter to this precision.</summary>
         public double GainPrecision { get; set; } = .01;
 
         /// <summary>Q at the first try.</summary>
@@ -42,7 +42,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// Correct <paramref name="target"/> to the frequency response with the inverse of the found filter.</summary>
         PeakingEQ BruteForceQ(ref float[] target, double freq, double gain) {
             double q = StartQ, qStep = q * .5;
-            gain = Math.Round(QMath.Clamp(-gain, -MaxGain, -MinGain) / GainPrecision) * GainPrecision;
+            gain = Math.Round(-QMath.Clamp(gain, MinGain, MaxGain) / GainPrecision) * GainPrecision;
             float targetSum = QMath.SumAbs(target);
             float[] targetSource = (float[])target.Clone();
             for (int i = 0; i < Iterations; ++i) {
@@ -66,7 +66,7 @@ namespace Cavern.QuickEQ.Equalization {
             return new PeakingEQ(analyzer.SampleRate, freq, q, -gain);
         }
 
-        /// <summary>Finds a <see cref="PeakingEQ"/> to correct the worst problem on the input spectrum</summary>
+        /// <summary>Finds a <see cref="PeakingEQ"/> to correct the worst problem on the input spectrum.</summary>
         /// <param name="target">Logarithmic input spectrum from 20 to sample rate/2 Hz</param>
         /// <param name="analyzer">A filter analyzer with cached variables that shoudn't be computed again</param>
         /// <remarks><paramref name="target"/> will be corrected to the frequency response with the found filter</remarks>
