@@ -5,8 +5,10 @@
 #include "fftcache.h"
 #include "peakingFilter.h"
 
+/// Class
+// Measures properties of a filter, like frequency/impulse response, gain, or delay.
 class FilterAnalyzer {
-    PeakingFilter* filter;
+    PeakingFilter *filter;
     int sampleRate;
 
     int resolution;
@@ -16,29 +18,46 @@ class FilterAnalyzer {
     double maxGain;
     int iterations;
 
-    float* impulseReference;
-    FFTCache* cache;
-    float* spectrum;
+    float *impulseReference;
+    FFTCache *cache;
+    float *spectrum;
 
 public:
-    FilterAnalyzer(PeakingFilter* filter, int sampleRate);
-    void Reset(PeakingFilter* filter, int sampleRate);
+    FilterAnalyzer(PeakingFilter *filter, const int sampleRate);
+    void Reset(PeakingFilter *filter, const int sampleRate);
+    void ClearFilter();
     int GetSampleRate() { return sampleRate; }
     float* GetSpectrum();
     ~FilterAnalyzer();
 
     int GetResolution() { return resolution; }
-    void SetResolution(int value) { resolution = value; }
+    void SetResolution(const int value);
     double GetStartQ() { return startQ; }
-    void SetStartQ(double value) { startQ = value; }
+    void SetStartQ(const double value) { startQ = value; }
     double GetGainPrecision() { return gainPrecision; }
-    void SetGainPrecision(double value) { gainPrecision = value; }
+    void SetGainPrecision(const double value) { gainPrecision = value; }
     double GetMinGain() { return minGain; }
-    void SetMinGain(double value) { minGain = value; }
+    void SetMinGain(const double value) { minGain = value; }
     double GetMaxGain() { return maxGain; }
-    void SetMaxGain(double value) { maxGain = value; }
+    void SetMaxGain(const double value) { maxGain = value; }
     int GetIterations() { return iterations; }
-    void SetIterations(int value) { iterations = value; }
+    void SetIterations(const int value) { iterations = value; }
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/// Exports
+// Filter analyzer constructor.
+FilterAnalyzer* DLL_EXPORT FilterAnalyzer_Create(const int sampleRate);
+// Reset a filter with a PeakingEQ.
+void DLL_EXPORT FilterAnalyzer_AddPEQ(FilterAnalyzer *analyzer, double centerFreq, double q, double gain);
+// Dispose a filter analyzer.
+void DLL_EXPORT FilterAnalyzer_Dispose(FilterAnalyzer *analyzer);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // FILTERANALYZER_H
