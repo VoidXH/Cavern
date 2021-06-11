@@ -107,6 +107,7 @@ namespace Cavern.QuickEQ {
         public float Delay => Impulse.Delay / (float)SampleRate;
         /// <summary>Sample rate used for measurements and in <see cref="filter"/> if it's sample rate-dependent.</summary>
         public int SampleRate { get; private set; }
+
         /// <summary>Filter to measure.</summary>
         Filter filter;
 
@@ -165,7 +166,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Free the resources used by this analyzer.</summary>
         public void Dispose() {
-            if (CavernAmp.Available)
+            if (CavernAmp.Available && cache != null)
                 cache.Dispose();
         }
     }
