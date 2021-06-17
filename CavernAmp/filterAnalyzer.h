@@ -32,6 +32,7 @@ public:
 
     int GetResolution() { return resolution; }
     void SetResolution(const int value);
+    // TODO: move this to PeakingEqualizer
     double GetStartQ() { return startQ; }
     void SetStartQ(const double value) { startQ = value; }
     double GetGainPrecision() { return gainPrecision; }
@@ -50,7 +51,7 @@ extern "C" {
 
 /// Exports
 // Filter analyzer constructor.
-FilterAnalyzer* DLL_EXPORT FilterAnalyzer_Create(const int sampleRate);
+FilterAnalyzer* DLL_EXPORT FilterAnalyzer_Create(const int sampleRate, const double maxGain, const double minGain, const double gainPrecision, const double startQ, const int iterations);
 // Reset a filter with a PeakingEQ.
 void DLL_EXPORT FilterAnalyzer_AddPEQ(FilterAnalyzer *analyzer, double centerFreq, double q, double gain);
 // Dispose a filter analyzer.

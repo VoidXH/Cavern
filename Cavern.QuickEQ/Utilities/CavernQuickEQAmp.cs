@@ -81,7 +81,8 @@ namespace Cavern.QuickEQ.Utilities {
         #region FilterAnalyzer
         /// <summary>Filter analyzer constructor.</summary>
         [DllImport("CavernAmp.dll", EntryPoint = "FilterAnalyzer_Create")]
-        internal static extern IntPtr FilterAnalyzer_Create(int sampleRate);
+        internal static extern IntPtr FilterAnalyzer_Create(int sampleRate, double maxGain, double minGain,
+            double gainPrecision, double startQ, int iterations);
 
         /// <summary>Reset a filter with a PeakingEQ.</summary>
         [DllImport("CavernAmp.dll", EntryPoint = "FilterAnalyzer_AddPEQ")]

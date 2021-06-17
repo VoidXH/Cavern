@@ -49,9 +49,14 @@ void FilterAnalyzer::SetResolution(const int value) {
     spectrum = (float*)malloc(resolution * sizeof(float));
 }
 
-FilterAnalyzer* DLL_EXPORT FilterAnalyzer_Create(const int sampleRate) {
+FilterAnalyzer* DLL_EXPORT FilterAnalyzer_Create(const int sampleRate, const double maxGain, const double minGain, const double gainPrecision, const double startQ, const int iterations) {
     FilterAnalyzer* analyzer = (FilterAnalyzer*)malloc(sizeof(FilterAnalyzer));
     new(analyzer) FilterAnalyzer(NULL, sampleRate);
+    analyzer->SetMaxGain(maxGain);
+    analyzer->SetMinGain(minGain);
+    analyzer->SetGainPrecision(gainPrecision);
+    analyzer->SetStartQ(startQ);
+    analyzer->SetIterations(iterations);
     return analyzer;
 }
 

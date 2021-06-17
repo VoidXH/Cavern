@@ -106,7 +106,7 @@ namespace Cavern.QuickEQ.Equalization {
                 stopPos = target.Length - 1;
 
             if (CavernAmp.Available) {
-                IntPtr extAnalyzer = CavernQuickEQAmp.FilterAnalyzer_Create(sampleRate);
+                IntPtr extAnalyzer = CavernQuickEQAmp.FilterAnalyzer_Create(sampleRate, MaxGain, MinGain, GainPrecision, StartQ, Iterations);
                 for (int band = 0; band < bands; ++band) {
                     CavernAmpPeakingEQ newBand = CavernQuickEQAmp.BruteForceBand(target, target.Length, extAnalyzer, startPos, stopPos);
                     result[band] = new PeakingEQ(sampleRate, newBand.centerFreq, newBand.q, newBand.gain);
