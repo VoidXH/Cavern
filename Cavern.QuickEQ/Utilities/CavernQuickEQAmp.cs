@@ -7,7 +7,9 @@ using Cavern.Utilities;
 namespace Cavern.QuickEQ.Utilities {
     /// <summary>The format of PEQ filters resulting from CavernAmp's PeakingEqualizer.</summary>
     internal struct CavernAmpPeakingEQ {
+#pragma warning disable 0649 // Set when returning from C++
         public double centerFreq, q, gain;
+#pragma warning restore 0649
     }
 
     /// <summary>Drastically faster versions of some functions written in C++.</summary>
