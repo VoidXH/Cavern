@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -41,6 +42,10 @@ namespace Cavern.Utilities {
         /// <summary>Unclamped linear interpolation.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Lerp(double from, double to, double t) => (to - from) * t + from;
+
+        /// <summary>Unclamped linear interpolation.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 Lerp(Vector2 from, Vector2 to, float t) => (to - from) * t + from;
 
         /// <summary>Gets t for linear interpolation for a given value.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

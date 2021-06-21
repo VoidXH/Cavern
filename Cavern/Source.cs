@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
+
+using Vector = Cavern.Utilities.Vector;
 
 namespace Cavern {
     public partial class Source {
@@ -298,7 +301,8 @@ namespace Cavern {
                                             ref closestTF, ref closestTR, direction, channelPos);
                                 }
                             }
-                            FixIncompleteLayer(ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight); // Fix incomplete top layer
+                            // Fix incomplete top layer
+                            FixIncompleteLayer(ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight);
 
                             // When the bottom layer is completely empty (= the source is below all channels), copy the top layer
                             if (bottomFrontLeft == -1 && bottomFrontRight == -1 && bottomRearLeft == -1 && bottomRearRight == -1) {
@@ -320,17 +324,16 @@ namespace Cavern {
                             }
 
                             // Spatial mix gain precalculation
-                            float topVol, bottomVol;
+                            Vector2 layerVol = new Vector2(.5f); // (bottom; top)
                             if (topFrontLeft != bottomFrontLeft) { // Height ratio calculation
                                 float bottomY = Listener.Channels[bottomFrontLeft].CubicalPos.y;
-                                topVol = (direction.y - bottomY) / (Listener.Channels[topFrontLeft].CubicalPos.y - bottomY);
-                                bottomVol = 1f - topVol;
-                            } else
-                                topVol = bottomVol = .5f;
+                                layerVol.Y = (direction.y - bottomY) / (Listener.Channels[topFrontLeft].CubicalPos.y - bottomY);
+                                layerVol.X = 1f - layerVol.Y;
+                            }
 
-                            // Length ratios
-                            float BFVol = LengthRatio(bottomRearLeft, bottomFrontLeft, direction.z),
-                                TFVol = LengthRatio(topRearLeft, topFrontLeft, direction.z);
+                            // Length ratios (bottom; top)
+                            Vector2 frontVol = new Vector2(LengthRatio(bottomRearLeft, bottomFrontLeft, direction.z),
+                                LengthRatio(topRearLeft, topFrontLeft, direction.z));
                             // Width ratios
                             float BFRVol = WidthRatio(bottomFrontLeft, bottomFrontRight, direction.x),
                                 BRRVol = WidthRatio(bottomRearLeft, bottomRearRight, direction.x),
@@ -338,8 +341,7 @@ namespace Cavern {
                                 TRRVol = WidthRatio(topRearLeft, topRearRight, direction.x),
                                 innerVolume3D = volume3D;
                             if (Size != 0) {
-                                BFVol = QMath.Lerp(BFVol, .5f, Size);
-                                TFVol = QMath.Lerp(TFVol, .5f, Size);
+                                frontVol = QMath.Lerp(frontVol, new Vector2(.5f), Size);
                                 BFRVol = QMath.Lerp(BFRVol, .5f, Size);
                                 BRRVol = QMath.Lerp(BRRVol, .5f, Size);
                                 TFRVol = QMath.Lerp(TFRVol, .5f, Size);
@@ -349,25 +351,20 @@ namespace Cavern {
                                 for (int channel = 0; channel < channels; ++channel)
                                     WriteOutput(samples, rendered, extraChannelVolume, channel, channels);
                             }
-                            // Remaining length ratios
-                            float BRVol = 1f - BFVol,
-                                TRVol = 1f - TFVol;
 
                             // Spatial mix gain finalization
-                            bottomVol *= innerVolume3D;
-                            topVol *= innerVolume3D;
-                            BFVol *= bottomVol;
-                            BRVol *= bottomVol;
-                            TFVol *= topVol;
-                            TRVol *= topVol;
-                            WriteOutput(samples, rendered, BFVol * (1f - BFRVol), bottomFrontLeft, channels);
-                            WriteOutput(samples, rendered, BFVol * BFRVol, bottomFrontRight, channels);
-                            WriteOutput(samples, rendered, BRVol * (1f - BRRVol), bottomRearLeft, channels);
-                            WriteOutput(samples, rendered, BRVol * BRRVol, bottomRearRight, channels);
-                            WriteOutput(samples, rendered, TFVol * (1f - TFRVol), topFrontLeft, channels);
-                            WriteOutput(samples, rendered, TFVol * TFRVol, topFrontRight, channels);
-                            WriteOutput(samples, rendered, TRVol * (1f - TRRVol), topRearLeft, channels);
-                            WriteOutput(samples, rendered, TRVol * TRRVol, topRearRight, channels);
+                            Vector2 rearVol = new Vector2(1) - frontVol;
+                            layerVol *= innerVolume3D;
+                            frontVol *= layerVol;
+                            rearVol *= layerVol;
+                            WriteOutput(samples, rendered, frontVol.X * (1f - BFRVol), bottomFrontLeft, channels);
+                            WriteOutput(samples, rendered, frontVol.X * BFRVol, bottomFrontRight, channels);
+                            WriteOutput(samples, rendered, rearVol.X * (1f - BRRVol), bottomRearLeft, channels);
+                            WriteOutput(samples, rendered, rearVol.X * BRRVol, bottomRearRight, channels);
+                            WriteOutput(samples, rendered, frontVol.Y * (1f - TFRVol), topFrontLeft, channels);
+                            WriteOutput(samples, rendered, frontVol.Y * TFRVol, topFrontRight, channels);
+                            WriteOutput(samples, rendered, rearVol.Y * (1f - TRRVol), topRearLeft, channels);
+                            WriteOutput(samples, rendered, rearVol.Y * TRRVol, topRearRight, channels);
                         }
                         // LFE mix
                         if (!listener.LFESeparation || LFE)
