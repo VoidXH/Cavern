@@ -19,8 +19,6 @@ namespace Cavern {
         protected internal Listener listener;
         /// <summary>Cached node from <see cref="Listener.activeSources"/> for faster detach.</summary>
         internal LinkedListNode<Source> listenerNode;
-        /// <summary>Distance from the listener.</summary>
-        internal float distance = float.NaN;
 
         // ------------------------------------------------------------------
         // Protected properties
@@ -36,6 +34,8 @@ namespace Cavern {
 
         /// <summary>Actually used pitch multiplier including the Doppler effect.</summary>
         float calculatedPitch;
+        /// <summary>Distance from the listener.</summary>
+        float distance = float.NaN;
         /// <summary><see cref="distance"/> in the previous frame, required for Doppler effect calculation.</summary>
         float lastDistance;
         /// <summary>Sample rate multiplier to match the system sample rate.</summary>
@@ -119,8 +119,8 @@ namespace Cavern {
                     if (DopplerLevel == 0)
                         calculatedPitch = Pitch;
                     else
-                        calculatedPitch = QMath.Clamp(Pitch * DopplerLevel * SpeedOfSound / (SpeedOfSound -
-                            (lastDistance - distance) / listener.pulseDelta), .5f, 3f);
+                        calculatedPitch = QMath.Clamp(Pitch + DopplerLevel * // c / (c - dv), dv = ds / dt
+                            (SpeedOfSound / (SpeedOfSound - (lastDistance - distance) / listener.pulseDelta) - 1), .5f, 3f);
                 } else
                     calculatedPitch = 1; // Disable any pitch change on low quality
                 if (listener.SampleRate != Clip.SampleRate)
