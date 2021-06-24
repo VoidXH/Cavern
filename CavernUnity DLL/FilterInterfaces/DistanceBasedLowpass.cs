@@ -26,7 +26,8 @@ namespace Cavern.FilterInterfaces {
         void OnDisable() => source.RemoveFilter(filter);
 
         void Update() {
-            float distance = (source.cavernSource.Position - AudioListener3D.cavernListener.Position).Magnitude, distanceScale = distance * Strength;
+            float distance = (source.cavernSource.Position - AudioListener3D.cavernListener.Position).Length(),
+                distanceScale = distance * Strength;
             if (distanceScale > 1)
                 filter.Reset(120 + 20000 / distanceScale);
         }

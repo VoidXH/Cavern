@@ -5,8 +5,6 @@ using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
 
-using Vector = Cavern.Utilities.Vector;
-
 namespace Cavern {
     public partial class Source {
         // ------------------------------------------------------------------
@@ -73,7 +71,7 @@ namespace Cavern {
         internal void Precalculate() {
             if (Renderable) {
                 lastDistance = distance;
-                distance = Position.Distance(listener.Position);
+                distance = Vector3.Distance(Position, listener.Position);
                 if (float.IsNaN(lastDistance))
                     lastDistance = distance;
                 BottomlistHandler(listener.sourceDistances, distance);
@@ -247,7 +245,7 @@ namespace Cavern {
 
                 // 3D mix, if the source is in range
                 if (SpatialBlend != 0 && distance < listener.Range) {
-                    Vector direction = Position - listener.Position;
+                    Vector3 direction = Position - listener.Position;
                     direction.RotateInverse(listener.Rotation);
                     float rolloffDistance = GetRolloff();
                     samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
@@ -279,11 +277,11 @@ namespace Cavern {
                                 closestBF = 75,
                                 closestBR = -69;
                             // Find closest horizontal layers
-                            direction.Downscale(Listener.EnvironmentSize);
+                            direction /= Listener.EnvironmentSize;
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE) {
-                                    float channelY = Listener.Channels[channel].CubicalPos.y;
-                                    if (channelY < direction.y) {
+                                    float channelY = Listener.Channels[channel].CubicalPos.Y;
+                                    if (channelY < direction.Y) {
                                         if (channelY > closestBottom)
                                             closestBottom = channelY;
                                     } else if (channelY < closestTop)
@@ -292,11 +290,11 @@ namespace Cavern {
                             }
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE) {
-                                    Vector channelPos = Listener.Channels[channel].CubicalPos;
-                                    if (channelPos.y == closestBottom) // Bottom layer
+                                    Vector3 channelPos = Listener.Channels[channel].CubicalPos;
+                                    if (channelPos.Y == closestBottom) // Bottom layer
                                         AssignHorizontalLayer(channel, ref bottomFrontLeft, ref bottomFrontRight,
                                             ref bottomRearLeft, ref bottomRearRight, ref closestBF, ref closestBR, direction, channelPos);
-                                    if (channelPos.y == closestTop) // Top layer
+                                    if (channelPos.Y == closestTop) // Top layer
                                         AssignHorizontalLayer(channel, ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight,
                                             ref closestTF, ref closestTR, direction, channelPos);
                                 }
@@ -326,19 +324,19 @@ namespace Cavern {
                             // Spatial mix gain precalculation
                             Vector2 layerVol = new Vector2(.5f); // (bottom; top)
                             if (topFrontLeft != bottomFrontLeft) { // Height ratio calculation
-                                float bottomY = Listener.Channels[bottomFrontLeft].CubicalPos.y;
-                                layerVol.Y = (direction.y - bottomY) / (Listener.Channels[topFrontLeft].CubicalPos.y - bottomY);
+                                float bottomY = Listener.Channels[bottomFrontLeft].CubicalPos.Y;
+                                layerVol.Y = (direction.Y - bottomY) / (Listener.Channels[topFrontLeft].CubicalPos.Y - bottomY);
                                 layerVol.X = 1f - layerVol.Y;
                             }
 
                             // Length ratios (bottom; top)
-                            Vector2 frontVol = new Vector2(LengthRatio(bottomRearLeft, bottomFrontLeft, direction.z),
-                                LengthRatio(topRearLeft, topFrontLeft, direction.z));
+                            Vector2 frontVol = new Vector2(LengthRatio(bottomRearLeft, bottomFrontLeft, direction.Z),
+                                LengthRatio(topRearLeft, topFrontLeft, direction.Z));
                             // Width ratios
-                            float BFRVol = WidthRatio(bottomFrontLeft, bottomFrontRight, direction.x),
-                                BRRVol = WidthRatio(bottomRearLeft, bottomRearRight, direction.x),
-                                TFRVol = WidthRatio(topFrontLeft, topFrontRight, direction.x),
-                                TRRVol = WidthRatio(topRearLeft, topRearRight, direction.x),
+                            float BFRVol = WidthRatio(bottomFrontLeft, bottomFrontRight, direction.X),
+                                BRRVol = WidthRatio(bottomRearLeft, bottomRearRight, direction.X),
+                                TFRVol = WidthRatio(topFrontLeft, topFrontRight, direction.X),
+                                TRRVol = WidthRatio(topRearLeft, topRearRight, direction.X),
                                 innerVolume3D = volume3D;
                             if (Size != 0) {
                                 frontVol = QMath.Lerp(frontVol, new Vector2(.5f), Size);

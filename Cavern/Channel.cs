@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
@@ -21,11 +22,11 @@ namespace Cavern {
         /// <summary>This channel is part of the screen channels, and should be behind the screen in a theatre.</summary>
         public bool IsScreenChannel => !lowFrequency && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
         /// <summary>Position on a sphere with the radius of 1.</summary>
-        public Vector SphericalPos { get; private set; }
+        public Vector3 SphericalPos { get; private set; }
         /// <summary>Position on a cube with a side length of 2.</summary>
-        public Vector CubicalPos { get; private set; }
+        public Vector3 CubicalPos { get; private set; }
         /// <summary>Position in space. <see cref="SphericalPos"/> in Studio environments, <see cref="CubicalPos"/> otherwise.</summary>
-        public Vector SpatialPos { get; private set; }
+        public Vector3 SpatialPos { get; private set; }
         /// <summary>The distance from the listener, relative to the center channel. Magnitude of <see cref="SpatialPos"/>.</summary>
         public float Distance { get; private set; }
 
@@ -69,32 +70,32 @@ namespace Cavern {
 
         /// <summary>Recalculates properties.</summary>
         void Recalculate() {
-            float xRad = X * Vector.Deg2Rad,
-                yRad = Y * Vector.Deg2Rad,
+            float xRad = X * VectorExtensions.Deg2Rad,
+                yRad = Y * VectorExtensions.Deg2Rad,
                 sinX = (float)Math.Sin(xRad),
                 cosX = (float)Math.Cos(xRad),
                 sinY = (float)Math.Sin(yRad),
                 cosY = (float)Math.Cos(yRad);
-            SphericalPos = new Vector(sinY * cosX, -sinX, cosY * cosX);
+            SphericalPos = new Vector3(sinY * cosX, -sinX, cosY * cosX);
             if (Math.Abs(sinY) > Math.Abs(cosY))
-                sinY = Math.Sign(sinY) * Vector.Sqrt2p2;
+                sinY = Math.Sign(sinY) * VectorExtensions.Sqrt2p2;
             else
-                cosY = Math.Sign(cosY) * Vector.Sqrt2p2;
-            sinY /= Vector.Sqrt2p2;
-            cosY /= Vector.Sqrt2p2;
-            if (Math.Abs(sinX) >= Vector.Sqrt2p2) {
-                sinX = Math.Sign(sinX) * Vector.Sqrt2p2;
-                cosX /= Vector.Sqrt2p2;
+                cosY = Math.Sign(cosY) * VectorExtensions.Sqrt2p2;
+            sinY /= VectorExtensions.Sqrt2p2;
+            cosY /= VectorExtensions.Sqrt2p2;
+            if (Math.Abs(sinX) >= VectorExtensions.Sqrt2p2) {
+                sinX = Math.Sign(sinX) * VectorExtensions.Sqrt2p2;
+                cosX /= VectorExtensions.Sqrt2p2;
                 sinY *= cosX;
                 cosY *= cosX;
             }
-            sinX /= Vector.Sqrt2p2;
-            CubicalPos = new Vector(sinY, -sinX, cosY);
+            sinX /= VectorExtensions.Sqrt2p2;
+            CubicalPos = new Vector3(sinY, -sinX, cosY);
             if (Listener.EnvironmentType != Environments.Studio)
                 SpatialPos = CubicalPos;
             else
                 SpatialPos = SphericalPos;
-            Distance = SpatialPos.Magnitude;
+            Distance = SpatialPos.Length();
         }
 
         /// <summary>Recalculates symmetry when a channel's position is changed.</summary>

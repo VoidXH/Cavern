@@ -1,6 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-
-using Cavern.Utilities;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Cavern {
     public partial class Source {
@@ -15,8 +14,8 @@ namespace Cavern {
         static float WidthRatio(int left, int right, float pos) {
             if (left == right)
                 return .5f;
-            float leftX = Listener.Channels[left].CubicalPos.x;
-            return (pos - leftX) / (Listener.Channels[right].CubicalPos.x - leftX);
+            float leftX = Listener.Channels[left].CubicalPos.X;
+            return (pos - leftX) / (Listener.Channels[right].CubicalPos.X - leftX);
         }
 
         /// <summary>Length ratio of a point between two channels.</summary>
@@ -27,8 +26,8 @@ namespace Cavern {
         static float LengthRatio(int rear, int front, float pos) {
             if (rear == front)
                 return .5f;
-            float rearZ = Listener.Channels[rear].CubicalPos.z;
-            return (pos - rearZ) / (Listener.Channels[front].CubicalPos.z - rearZ);
+            float rearZ = Listener.Channels[rear].CubicalPos.Z;
+            return (pos - rearZ) / (Listener.Channels[front].CubicalPos.Z - rearZ);
         }
 
         /// <summary>Check and assign a channel if it's the closest left/right from a given position.</summary>
@@ -43,9 +42,9 @@ namespace Cavern {
                 left = channel;
                 right = channel;
             } else if (channelX < posX) { // Left
-                if (left == -1 || Listener.Channels[left].CubicalPos.x < channelX)
+                if (left == -1 || Listener.Channels[left].CubicalPos.X < channelX)
                     left = channel;
-            } else if (right == -1 || Listener.Channels[right].CubicalPos.x > channelX) // Right
+            } else if (right == -1 || Listener.Channels[right].CubicalPos.X > channelX) // Right
                 right = channel;
         }
 
@@ -61,20 +60,20 @@ namespace Cavern {
         /// <param name="channelPos">Currently checked channel position</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void AssignHorizontalLayer(int channel, ref int frontLeft, ref int frontRight, ref int rearLeft, ref int rearRight,
-            ref float closestFront, ref float closestRear, Vector position, Vector channelPos) {
-            if (channelPos.z > position.z) { // Front
-                if (channelPos.z < closestFront) { // Front layer selection
-                    closestFront = channelPos.z;
+            ref float closestFront, ref float closestRear, Vector3 position, Vector3 channelPos) {
+            if (channelPos.Z > position.Z) { // Front
+                if (channelPos.Z < closestFront) { // Front layer selection
+                    closestFront = channelPos.Z;
                     frontLeft = frontRight = -1;
                 }
-                if (channelPos.z == closestFront)
-                    AssignLR(channel, ref frontLeft, ref frontRight, position.x, channelPos.x);
+                if (channelPos.Z == closestFront)
+                    AssignLR(channel, ref frontLeft, ref frontRight, position.X, channelPos.X);
             } else { // Rear
-                if (channelPos.z > closestRear) { // Rear layer selection
-                    closestRear = channelPos.z; rearLeft = rearRight = -1;
+                if (channelPos.Z > closestRear) { // Rear layer selection
+                    closestRear = channelPos.Z; rearLeft = rearRight = -1;
                 }
-                if (channelPos.z == closestRear)
-                    AssignLR(channel, ref rearLeft, ref rearRight, position.x, channelPos.x);
+                if (channelPos.Z == closestRear)
+                    AssignLR(channel, ref rearLeft, ref rearRight, position.X, channelPos.X);
             }
         }
 

@@ -6,15 +6,15 @@ namespace Cavern.Utilities {
     public static class VectorUtils {
         /// <summary>Converts a Unity vector to a Cavern vector.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector VectorMatch(Vector3 source) => new Vector(source.x, source.y, source.z);
+        public static System.Numerics.Vector3 VectorMatch(Vector3 source) => new System.Numerics.Vector3(source.x, source.y, source.z);
 
         /// <summary>Converts a Cavern vector to a Unity vector.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 VectorMatch(Vector source) => new Vector3(source.x, source.y, source.z);
+        public static Vector3 VectorMatch(System.Numerics.Vector3 source) => new Vector3(source.X, source.Y, source.Z);
 
         /// <summary>Checks if a Cavern and Unity vector are equal.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool VectorCompare(Vector cavernVector, Vector3 unityVector) =>
-            cavernVector.x == unityVector.x && cavernVector.y == unityVector.y && cavernVector.z == unityVector.z;
+        public static bool VectorCompare(System.Numerics.Vector3 cavernVector, Vector3 unityVector) =>
+            cavernVector.X == unityVector.x && cavernVector.Y == unityVector.y && cavernVector.Z == unityVector.z;
     }
 }

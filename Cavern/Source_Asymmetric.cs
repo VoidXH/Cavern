@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
-
-using Cavern.Utilities;
 
 namespace Cavern {
     public partial class Source {
@@ -33,29 +32,29 @@ namespace Cavern {
 
         /// <summary>Angle match calculations.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float[] CalculateAngleMatches(int channels, Vector direction, MatchModifierFunc matchModifier) {
+        internal static float[] CalculateAngleMatches(int channels, Vector3 direction, MatchModifierFunc matchModifier) {
             float[] angleMatches = new float[channels];
-            float dirMagnitudeRecip = 1f / (direction.Magnitude + .0001f);
+            float dirMagnitudeRecip = 1f / (direction.Length() + .0001f);
             for (int channel = 0; channel < channels; ++channel) {
                 Channel currentChannel = Listener.Channels[channel];
                 if (!currentChannel.LFE)
                     angleMatches[channel] =
-                        matchModifier((float)(Math.PI - Math.Acos(direction.Dot(currentChannel.SphericalPos) * dirMagnitudeRecip)));
+                        matchModifier((float)(Math.PI - Math.Acos(Vector3.Dot(direction, currentChannel.SphericalPos) * dirMagnitudeRecip)));
             }
             return angleMatches;
         }
 
-        /// <summary>Linearized <see cref="CalculateAngleMatches(int, Vector, MatchModifierFunc)"/>:
+        /// <summary>Linearized <see cref="CalculateAngleMatches(int, Vector3, MatchModifierFunc)"/>:
         /// pi / 2 - pi / 2 * x, angle match: pi - (lin acos) = pi / 2 + pi / 2 * x.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float[] LinearizeAngleMatches(int channels, Vector direction, MatchModifierFunc matchModifier) {
+        internal static float[] LinearizeAngleMatches(int channels, Vector3 direction, MatchModifierFunc matchModifier) {
             float[] angleMatches = new float[channels];
-            float dirMagnitudeRecip = 1f / (direction.Magnitude + .0001f);
+            float dirMagnitudeRecip = 1f / (direction.Length() + .0001f);
             for (int channel = 0; channel < channels; ++channel) {
                 Channel currentChannel = Listener.Channels[channel];
                 if (!currentChannel.LFE)
                     angleMatches[channel] =
-                        matchModifier(1.570796326f + 1.570796326f * direction.Dot(currentChannel.SphericalPos) * dirMagnitudeRecip);
+                        matchModifier(1.570796326f + 1.570796326f * Vector3.Dot(direction, currentChannel.SphericalPos) * dirMagnitudeRecip);
             }
             return angleMatches;
         }

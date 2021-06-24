@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Numerics;
 using UnityEngine;
 
 using Cavern.Helpers;
 using Cavern.Remapping;
 using Cavern.Utilities;
+
+using Vector3D = System.Numerics.Vector3;
 
 namespace Cavern.Cavernize {
     /// <summary>All the data <see cref="Cavernizer"/> needs for a single channel.</summary>
@@ -55,8 +58,8 @@ namespace Cavern.Cavernize {
             if (Channel.Muted)
                 newSource.Volume = 0;
             newObject.transform.SetParent(master.transform);
-            Vector position = Vector.PlaceInCube(new Vector(0, Channel.Y));
-            position.Scale(Listener.EnvironmentSize);
+            Vector3D position = VectorExtensions.PlaceInCube(new Vector3D(0, Channel.Y, 0));
+            position *= Listener.EnvironmentSize;
             newObject.transform.localPosition = VectorUtils.VectorMatch(position);
         }
 
@@ -94,12 +97,12 @@ namespace Cavern.Cavernize {
 
         public void Update() {
             MovingRenderer.enabled = GroundRenderer.enabled = visualize;
-            Vector position = Vector.PlaceInCube(new Vector(0, Channel.Y));
-            position.Scale(Listener.EnvironmentSize);
+            Vector3D position = VectorExtensions.PlaceInCube(new Vector3D(0, Channel.Y, 0));
+            position *= Listener.EnvironmentSize;
             if (Height != Cavernizer.unsetHeight)
-                position.y = Height * Listener.EnvironmentSize.y;
+                position.Y = Height * Listener.EnvironmentSize.Y;
             else
-                position.y = 0;
+                position.Y = 0;
             MovingSource.transform.localPosition = VectorUtils.VectorMatch(position);
         }
 

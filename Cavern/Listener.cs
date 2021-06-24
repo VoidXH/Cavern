@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 using Cavern.Filters;
@@ -25,9 +26,9 @@ namespace Cavern {
         // Renderer settings
         // ------------------------------------------------------------------
         /// <summary>Absolute spatial position.</summary>
-        public Vector Position;
+        public Vector3 Position;
         /// <summary>Rotation in Euler angles (degrees).</summary>
-        public Vector Rotation;
+        public Vector3 Rotation;
 
         /// <summary>3D environment type.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
@@ -56,7 +57,7 @@ namespace Cavern {
         /// left/right, front/rear, and top/bottom speakers. Does not effect directional rendering. The user's settings should be
         /// respected, thus this vector should be scaled, not completely overridden.
         /// </summary>
-        public static Vector EnvironmentSize = new Vector(10, 7, 10);
+        public static Vector3 EnvironmentSize = new Vector3(10, 7, 10);
 
         /// <summary>How many sources can be played at the same time.</summary>
         public int MaximumSources {
@@ -144,7 +145,7 @@ namespace Cavern {
                     Channels[i] = new Channel(Convert.ToSingle(save[savePos++], format), Convert.ToSingle(save[savePos++], format),
                         Convert.ToBoolean(save[savePos++]));
                 EnvironmentType = (Environments)Convert.ToInt32(save[savePos++], format);
-                EnvironmentSize = new Vector(Convert.ToSingle(save[savePos++], format), Convert.ToSingle(save[savePos++], format),
+                EnvironmentSize = new Vector3(Convert.ToSingle(save[savePos++], format), Convert.ToSingle(save[savePos++], format),
                     Convert.ToSingle(save[savePos++], format));
                 HeadphoneVirtualizer = save.Length > savePos && Convert.ToBoolean(save[savePos++]); // Added: 2016.04.24.
                 ++savePos; // Environment compensation (bool), added: 2017.06.18, removed: 2019.06.06.

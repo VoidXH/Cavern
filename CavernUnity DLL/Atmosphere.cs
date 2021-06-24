@@ -4,6 +4,7 @@ using UnityEngine;
 using Cavern.Utilities;
 
 using Random = UnityEngine.Random;
+using Vector3D = System.Numerics.Vector3;
 
 namespace Cavern {
     /// <summary>Creates an atmosphere of the given <see cref="Clips"/>.</summary>
@@ -59,11 +60,11 @@ namespace Cavern {
             }
         }
 
-        delegate Vector PlacerFunc(Vector angles);
+        delegate Vector3D PlacerFunc(Vector3D angles);
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            PlacerFunc directionFunc = Spherical ? (PlacerFunc)Vector.PlaceInSphere : Vector.PlaceInCube;
+            PlacerFunc directionFunc = Spherical ? (PlacerFunc)VectorExtensions.PlaceInSphere : VectorExtensions.PlaceInCube;
             float targetVolume = Volume / Sources;
             for (int source = 0; source < Sources; ++source) {
                 if (!objects[source].Object) {
@@ -74,7 +75,7 @@ namespace Cavern {
                     GameObject creation = objects[source].Object;
 
                     // Position source
-                    Vector direction = directionFunc(new Vector(Random.value * 360, Random.value * 360));
+                    Vector3D direction = directionFunc(new Vector3D(Random.value * 360, Random.value * 360, 0));
                     float distance = (MaxDistance - MinDistance) * Random.value + MinDistance;
                     creation.transform.position = transform.position + VectorUtils.VectorMatch(direction) * distance;
 

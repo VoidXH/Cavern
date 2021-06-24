@@ -34,8 +34,9 @@ namespace Cavern {
             soundPositionX *= seatRecip;
             soundPositionZ *= seatRecip;
             AudioListener3D.Current.transform.position = seatsFound == 0 ? Origin.position :
-                Origin.position + Origin.rotation * new Vector3(Listener.EnvironmentSize.x * .5f - soundPositionX / rColumns * Listener.EnvironmentSize.x, 0,
-                                                                Listener.EnvironmentSize.z * .5f - soundPositionZ / rRows * Listener.EnvironmentSize.z);
+                Origin.position + Origin.rotation *
+                new Vector3(Listener.EnvironmentSize.X * .5f - soundPositionX / rColumns * Listener.EnvironmentSize.X, 0,
+                            Listener.EnvironmentSize.Z * .5f - soundPositionZ / rRows * Listener.EnvironmentSize.Z);
         }
 
         void OnDisable() {

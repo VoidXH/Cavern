@@ -1,4 +1,6 @@
-﻿using Cavern.Utilities;
+﻿using System.Numerics;
+
+using Cavern.Utilities;
 
 namespace Cavern.Remapping {
     /// <summary>Convert any standard multichannel audio stream to the channel layout set for Cavern.</summary>
@@ -33,8 +35,8 @@ namespace Cavern.Remapping {
                 source.Clip = clips[channel] = new RemappedChannel(updateRate);
                 source.Loop = true;
                 source.LFE = prototype.LFE;
-                source.Position = Vector.PlaceInCube(new Vector(prototype.X, prototype.Y));
-                source.Position.Scale(Listener.EnvironmentSize);
+                source.Position = VectorExtensions.PlaceInCube(new Vector3(prototype.X, prototype.Y, 0));
+                source.Position *= Listener.EnvironmentSize;
                 source.VolumeRolloff = Rolloffs.Disabled;
             }
         }

@@ -1,5 +1,6 @@
-﻿using Cavern.Filters;
-using Cavern.Utilities;
+﻿using System.Numerics;
+
+using Cavern.Filters;
 
 namespace Cavern {
     /// <summary>An audio object in 3D space, in stereo, or both.</summary>
@@ -46,7 +47,7 @@ namespace Cavern {
         // Variables
         // ------------------------------------------------------------------
         /// <summary>Object position in absolute space.</summary>
-        public Vector Position;
+        public Vector3 Position;
         /// <summary>Clip playback position in samples.</summary>
         public int TimeSamples = 0;
 

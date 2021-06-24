@@ -14,14 +14,14 @@ namespace Cavern.Utilities {
 
         /// <summary>Get the color of a channel that should be used when displaying a massively multichannel system.</summary>
         public static Color GetChannelColor(int channel) {
-            Vector channelPos = Listener.Channels[channel].CubicalPos;
+            System.Numerics.Vector3 channelPos = Listener.Channels[channel].CubicalPos;
             if (Listener.Channels[channel].LFE)
                 return Color.black;
             float hue;
-            if (channelPos.z % 1 == 0)
-                hue = (channelPos.y + 1f) * channelPos.z * 45f + 180f;
+            if (channelPos.Z % 1 == 0)
+                hue = (channelPos.Y + 1f) * channelPos.Z * 45f + 180f;
             else
-                hue = channelPos.x * (channelPos.y + 1f) * 22.5f + 45f;
+                hue = channelPos.X * (channelPos.Y + 1f) * 22.5f + 45f;
             Color targetColor = GetHueColor(hue);
             return new Color(targetColor.r * .75f + .25f, targetColor.g * .75f + .25f, targetColor.b * .75f + .25f);
         }
