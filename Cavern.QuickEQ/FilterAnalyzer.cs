@@ -88,7 +88,7 @@ namespace Cavern.QuickEQ {
         VerboseImpulseResponse Impulse {
             get {
                 if (impulse == null) {
-                    float[] response = (float[])ImpulseReference.Clone();
+                    float[] response = ImpulseReference.FastClone();
                     filter.Process(response);
                     return impulse = new VerboseImpulseResponse(response);
                 }
@@ -136,13 +136,13 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Get the frequency response of the filter.</summary>
-        public Complex[] GetFrequencyResponse() => (Complex[])FrequencyResponse.Clone();
+        public Complex[] GetFrequencyResponse() => FrequencyResponse.FastClone();
 
         /// <summary>Get the frequency response of the filter.</summary>
         public ReadOnlyCollection<Complex> GetFrequencyResponseReadonly() => Array.AsReadOnly(FrequencyResponse);
 
         /// <summary>Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
-        public float[] GetSpectrum() => (float[])Spectrum.Clone();
+        public float[] GetSpectrum() => Spectrum.FastClone();
 
         /// <summary>Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
         public ReadOnlyCollection<float> GetSpectrumReadonly() => Array.AsReadOnly(Spectrum);

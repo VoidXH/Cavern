@@ -45,7 +45,7 @@ namespace Cavern.QuickEQ.Equalization {
             double q = StartQ, qStep = q * .5;
             gain = Math.Round(-QMath.Clamp(gain, MinGain, MaxGain) / GainPrecision) * GainPrecision;
             float targetSum = QMath.SumAbs(target);
-            float[] targetSource = (float[])target.Clone();
+            float[] targetSource = target.FastClone();
             for (int i = 0; i < Iterations; ++i) {
                 double lowerQ = q - qStep, upperQ = q + qStep;
                 analyzer.Reset(new PeakingEQ(analyzer.SampleRate, freq, lowerQ, gain));

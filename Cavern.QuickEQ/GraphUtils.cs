@@ -101,7 +101,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Apply smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.</summary>
         public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float octave = 1 / 3f) {
             if (octave == 0)
-                return (float[])samples.Clone();
+                return samples.FastClone();
             double octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2);
             int length = samples.Length, windowSize = (int)(length * octave / octaveRange), lastBlock = length - windowSize;
             float[] smoothed = new float[length--];

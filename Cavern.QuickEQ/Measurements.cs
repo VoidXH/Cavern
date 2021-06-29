@@ -71,7 +71,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Fast Fourier transform a 2D signal.</summary>
         public static Complex[] FFT(Complex[] samples, FFTCache cache = null) {
-            samples = (Complex[])samples.Clone();
+            samples = samples.FastClone();
             InPlaceFFT(samples, cache);
             return samples;
         }
@@ -99,7 +99,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Spectrum of a signal's FFT.</summary>
         public static float[] FFT1D(float[] samples, FFTCache cache = null) {
-            samples = (float[])samples.Clone();
+            samples = samples.FastClone();
             InPlaceFFT(samples, cache);
             return samples;
         }
@@ -156,7 +156,7 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
         public static Complex[] IFFT(Complex[] samples, FFTCache cache = null) {
-            samples = (Complex[])samples.Clone();
+            samples = samples.FastClone();
             if (CavernAmp.Available)
                 CavernQuickEQAmp.InPlaceIFFT(samples, cache);
             else {

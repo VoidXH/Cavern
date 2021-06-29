@@ -26,7 +26,8 @@ namespace Cavern.Filters {
 
         /// <summary>Construct a convolver for a target impulse response.</summary>
         public Convolver(float[] impulse, int delay) {
-            this.impulse = (float[])impulse.Clone();
+            this.impulse = new float[impulse.Length];
+            Buffer.BlockCopy(impulse, 0, this.impulse, 0, impulse.Length * sizeof(float));
             Delay = delay;
         }
 

@@ -62,6 +62,7 @@
     <Compile Include="Source_Rolloff.cs" />
     <Compile Include="Source_Symmetric.cs" />
     <Compile Include="SpecialSources\InfiniteSource.cs" />
+    <Compile Include="Utilities\ArrayExtensions.cs" />
     <Compile Include="Utilities\CavernAmp.cs" />
     <Compile Include="Utilities\Complex.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />

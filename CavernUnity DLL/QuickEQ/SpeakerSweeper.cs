@@ -122,7 +122,7 @@ namespace Cavern.QuickEQ {
             if (sweepFFTCache != null)
                 sweepFFTCache.Dispose();
             sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
-            sweepFFTlow = (Complex[])sweepFFT.Clone();
+            sweepFFTlow = sweepFFT.FastClone();
             Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, sampleRate, 100);
             Measurements.OffbandGain(sweepFFTlow, StartFreq, EndFreqLFE, sampleRate, 100);
         }
@@ -174,7 +174,7 @@ namespace Cavern.QuickEQ {
                 if (sweepResponse)
                     sweepResponse.GetData(result, Channel * SweepReference.Length);
                 else
-                    result = (float[])result.Clone();
+                    result = result.FastClone();
                 ExcitementResponses[Channel] = result;
                 Complex[] fft = Cavern.Channel.IsLFE(Channel) ? sweepFFTlow : sweepFFT;
                 (workers[Channel] = new Task<WorkerResult>(() =>
