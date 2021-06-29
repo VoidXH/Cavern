@@ -8,40 +8,55 @@ namespace Cavern.QuickEQ {
     /// <summary>Tools for measuring frequency response.</summary>
     public static class Measurements {
         /// <summary>Actual FFT processing, somewhat in-place.</summary>
-        static void ProcessFFT(Complex[] samples, FFTCache cache, int depth) {
-            int halfLength = samples.Length / 2;
-            if (samples.Length == 1)
-                return;
-            Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
-            for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
-                even[sample] = samples[pair];
-                odd[sample] = samples[pair + 1];
+        static void ProcessFFT(Complex[] samples, FFTCache cache) {
+            Complex[] source = samples, target = cache.temp;
+            for (int depth = 0, maxDepth = QMath.Log2(samples.Length) - 1; depth <= maxDepth; ++depth) {
+                int halfLength = 1 << depth,
+                    step = 1 << (maxDepth - depth),
+                    fullStep = step << 1;
+
+                for (int offset = 0; offset < step; ++offset) {
+                    for (int i = 0,
+                            cachePos = 0,
+                            targetPos = offset,
+                            targetEnd = offset + halfLength * step,
+                            even = offset,
+                            odd = offset + step;
+                        i < halfLength;
+                        ++i,
+                            cachePos += step,
+                            targetPos += step,
+                            targetEnd += step,
+                            even += fullStep,
+                            odd += fullStep) {
+                        float oddReal = source[odd].Real * cache.cos[cachePos] - source[odd].Imaginary * cache.sin[cachePos],
+                            oddImag = source[odd].Real * cache.sin[cachePos] + source[odd].Imaginary * cache.cos[cachePos];
+                        target[targetPos].Real = source[even].Real + oddReal;
+                        target[targetPos].Imaginary = source[even].Imaginary + oddImag;
+                        target[targetEnd].Real = source[even].Real - oddReal;
+                        target[targetEnd].Imaginary = source[even].Imaginary - oddImag;
+                    }
+                }
+
+                (source, target) = (target, source);
             }
-            ProcessFFT(even, cache, --depth);
-            ProcessFFT(odd, cache, depth);
-            int stepMul = cache.cos.Length / halfLength;
-            for (int i = 0; i < halfLength; ++i) {
-                float oddReal = odd[i].Real * cache.cos[i * stepMul] - odd[i].Imaginary * cache.sin[i * stepMul],
-                    oddImag = odd[i].Real * cache.sin[i * stepMul] + odd[i].Imaginary * cache.cos[i * stepMul];
-                samples[i].Real = even[i].Real + oddReal;
-                samples[i].Imaginary = even[i].Imaginary + oddImag;
-                samples[i + halfLength].Real = even[i].Real - oddReal;
-                samples[i + halfLength].Imaginary = even[i].Imaginary - oddImag;
-            }
+
+            if (target == samples)
+                Array.Copy(source, samples, samples.Length);
         }
 
         /// <summary>Fourier-transform a signal in 1D. The result is the spectral power.</summary>
         static void ProcessFFT(float[] samples, FFTCache cache) {
-            int halfLength = samples.Length / 2, depth = QMath.Log2(samples.Length) - 1;
+            int halfLength = samples.Length / 2;
             if (samples.Length == 1)
                 return;
-            Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
+            Complex[] even = cache.even, odd = cache.odd;
             for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
                 even[sample].Real = samples[pair];
                 odd[sample].Real = samples[pair + 1];
             }
-            ProcessFFT(even, cache, --depth);
-            ProcessFFT(odd, cache, depth);
+            ProcessFFT(even, cache);
+            ProcessFFT(odd, cache);
             int stepMul = cache.cos.Length / halfLength;
             for (int i = 0; i < halfLength; ++i) {
                 float oddReal = odd[i].Real * cache.cos[i * stepMul] - odd[i].Imaginary * cache.sin[i * stepMul],
@@ -78,7 +93,7 @@ namespace Cavern.QuickEQ {
             else {
                 if (cache == null)
                     cache = new FFTCache(samples.Length);
-                ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+                ProcessFFT(samples, cache);
             }
         }
 
@@ -102,26 +117,41 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>Outputs IFFT(X) * N.</summary>
-        static void ProcessIFFT(Complex[] samples, FFTCache cache, int depth) {
-            if (samples.Length == 1)
-                return;
-            Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
-            int halfLength = samples.Length / 2;
-            for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
-                even[sample] = samples[pair];
-                odd[sample] = samples[pair + 1];
+        static void ProcessIFFT(Complex[] samples, FFTCache cache) {
+            Complex[] source = samples, target = cache.temp;
+            for (int depth = 0, maxDepth = QMath.Log2(samples.Length) - 1; depth <= maxDepth; ++depth) {
+                int halfLength = 1 << depth,
+                    step = 1 << (maxDepth - depth),
+                    fullStep = step << 1;
+
+                for (int offset = 0; offset < step; ++offset) {
+                    for (int i = 0,
+                            cachePos = 0,
+                            targetPos = offset,
+                            targetEnd = offset + halfLength * step,
+                            even = offset,
+                            odd = offset + step;
+                        i < halfLength;
+                        ++i,
+                            cachePos += step,
+                            targetPos += step,
+                            targetEnd += step,
+                            even += fullStep,
+                            odd += fullStep) {
+                        float oddReal = source[odd].Real * cache.cos[cachePos] - source[odd].Imaginary * -cache.sin[cachePos],
+                            oddImag = source[odd].Real * -cache.sin[cachePos] + source[odd].Imaginary * cache.cos[cachePos];
+                        target[targetPos].Real = source[even].Real + oddReal;
+                        target[targetPos].Imaginary = source[even].Imaginary + oddImag;
+                        target[targetEnd].Real = source[even].Real - oddReal;
+                        target[targetEnd].Imaginary = source[even].Imaginary - oddImag;
+                    }
+                }
+
+                (source, target) = (target, source);
             }
-            ProcessIFFT(even, cache, --depth);
-            ProcessIFFT(odd, cache, depth);
-            int stepMul = cache.cos.Length / halfLength;
-            for (int i = 0; i < halfLength; ++i) {
-                float oddReal = odd[i].Real * cache.cos[i * stepMul] - odd[i].Imaginary * -cache.sin[i * stepMul],
-                    oddImag = odd[i].Real * -cache.sin[i * stepMul] + odd[i].Imaginary * cache.cos[i * stepMul];
-                samples[i].Real = even[i].Real + oddReal;
-                samples[i].Imaginary = even[i].Imaginary + oddImag;
-                samples[i + halfLength].Real = even[i].Real - oddReal;
-                samples[i + halfLength].Imaginary = even[i].Imaginary - oddImag;
-            }
+
+            if (target == samples)
+                Array.Copy(source, samples, samples.Length);
         }
 
         /// <summary>Inverse Fast Fourier Transform of a transformed signal.</summary>
@@ -145,7 +175,7 @@ namespace Cavern.QuickEQ {
             }
             if (cache == null)
                 cache = new FFTCache(samples.Length);
-            ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+            ProcessIFFT(samples, cache);
             float multiplier = 1f / samples.Length;
             for (int i = 0; i < samples.Length; ++i) {
                 samples[i].Real *= multiplier;
