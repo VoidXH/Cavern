@@ -55,8 +55,12 @@
 		</Unit>
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
-		<Unit filename="measurements.cpp" />
-		<Unit filename="measurements.h" />
+		<Unit filename="measurements.cpp">
+			<Option virtualFolder="QuickEQ/Sources/" />
+		</Unit>
+		<Unit filename="measurements.h">
+			<Option virtualFolder="QuickEQ/Headers/" />
+		</Unit>
 		<Unit filename="peakingEqualizer.cpp">
 			<Option virtualFolder="QuickEQ/Sources/" />
 		</Unit>

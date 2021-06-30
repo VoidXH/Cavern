@@ -81,8 +81,8 @@ void DLL_EXPORT ProcessIFFT(Complex *samples, int sampleCount, FFTCache *cache, 
     ProcessIFFT(odd, halfLength, cache, depth);
     int stepMul = cache->size() / halfLength;
     for (int i = 0; i < halfLength; ++i) {
-        float oddReal = odd[i].real * cache->cos[i * stepMul] - odd[i].imaginary * -cache->sin[i * stepMul],
-            oddImag = odd[i].real * -cache->sin[i * stepMul] + odd[i].imaginary * cache->cos[i * stepMul];
+        float oddReal = odd[i].real * cache->cos[i * stepMul] + odd[i].imaginary * cache->sin[i * stepMul],
+            oddImag = odd[i].imaginary * cache->cos[i * stepMul] - odd[i].real * cache->sin[i * stepMul];
         samples[i].real = even[i].real + oddReal;
         samples[i].imaginary = even[i].imaginary + oddImag;
         samples[i + halfLength].real = even[i].real - oddReal;
