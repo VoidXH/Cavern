@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Diagnostics.CodeAnalysis;
 
 using Cavern.Filters;
 
@@ -26,14 +27,18 @@ namespace Cavern.FilterInterfaces {
         [Tooltip("Layers to bounce the sound off from.")]
         public LayerMask Layers = int.MaxValue;
 
+        /// <summary>Last generated FIR filter of the echo.</summary>
+        public float[] Impulse { get; private set; }
+
         /// <summary>The attached audio source.</summary>
         AudioSource3D source;
         /// <summary>Convolution filter to process the echo.</summary>
         Convolver filter;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDrawGizmosSelected() {
             float maxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity;
-            float step = 360f / Detail, ColorStep = 1f / Bounces, alphaStep = ColorStep * .25f;
+            float step = 360f / Detail, colorStep = 1f / Bounces, alphaStep = colorStep * .25f;
             Vector3 direction = Vector3.zero;
             for (int horizontal = 0; horizontal < Detail; ++horizontal) {
                 for (int vertical = 0; vertical < Detail; ++vertical) {
@@ -46,8 +51,8 @@ namespace Cavern.FilterInterfaces {
                             Gizmos.DrawLine(lastPos, hit.point);
                             lastPos = hit.point;
                             lastDir = Vector3.Reflect(lastDir, hit.normal);
-                            lastColor.r += ColorStep;
-                            lastColor.b += ColorStep;
+                            lastColor.r += colorStep;
+                            lastColor.b += colorStep;
                             lastColor.a -= alphaStep;
                         } else {
                             Gizmos.color = new Color(1, 0, 0, lastColor.a);
@@ -61,19 +66,22 @@ namespace Cavern.FilterInterfaces {
             }
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() {
             source = GetComponent<AudioSource3D>();
             filter = new Convolver(new float[MaxSamples], 0);
             source.AddFilter(filter);
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() => source.RemoveFilter(filter);
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             if (!source.clip)
                 return;
-            float maxDist = AudioListener3D.Current.Range, step = 360f / Detail, colorStep = 1f / Bounces;
-            float[] impulse = new float[MaxSamples];
+            float maxDist = AudioListener3D.Current.Range, step = 360f / Detail;
+            float[] impulse = Impulse = new float[MaxSamples];
             impulse[0] = 1;
             Vector3 direction = Vector3.zero;
             for (int horizontal = 0; horizontal < Detail; ++horizontal) {
