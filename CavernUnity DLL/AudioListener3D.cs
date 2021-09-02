@@ -214,8 +214,11 @@ namespace Cavern {
 
             // If Unity has audio output and it's rendering is enabled, mix it for the user's layout
             if (!DisableUnityAudio) {
-                if (remapper == null || remapper.channels != unityChannels)
+                if (remapper == null || remapper.channels != unityChannels) {
+                    if (remapper != null)
+                        remapper.Dispose();
                     remapper = new Remapper(unityChannels, unityBuffer.Length / unityChannels);
+                }
                 float[] remapped = remapper.Update(unityBuffer, unityChannels);
                 Array.Clear(unityBuffer, 0, unityBuffer.Length);
                 Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
