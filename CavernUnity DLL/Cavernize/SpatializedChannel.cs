@@ -62,8 +62,8 @@ namespace Cavern.Cavernize {
             newObject.transform.localPosition = VectorUtils.VectorMatch(position);
         }
 
-        public SpatializedChannel(ChannelPrototype source, Cavernizer master, int updateRate) {
-            Channel = source;
+        public SpatializedChannel(ReferenceChannel source, Cavernizer master, int updateRate) {
+            Channel = ChannelPrototype.Mapping[(int)source];
             filter = new Filters.Cavernize(AudioListener3D.Current.SampleRate, 250);
             filter.PresetOutput(updateRate);
             Output = new float[updateRate];

@@ -66,50 +66,102 @@ namespace Cavern.Remapping {
             GodsVoice = new ChannelPrototype(0, -90, "God's voice"),
             RearCenter = new ChannelPrototype(180, "Rear center");
 
+        /// <summary>Converts the <see cref="ReferenceChannel"/> values to a <see cref="ChannelPrototype"/>.</summary>
+        public static readonly ChannelPrototype[] Mapping = {
+            FrontLeft, FrontRight, FrontCenter, ScreenLFE, SideLeft, SideRight, RearLeft, RearRight,
+            FrontLeftCenter, FrontRightCenter, HearingImpaired, VisuallyImpaired, Unused, MotionData, ExternalData,
+            TopFrontLeft, TopFrontRight, TopSideLeft, TopSideRight, SignLanguage, BottomSurround, TopFrontCenter,
+            GodsVoice, RearCenter
+        };
+
         /// <summary>Industry standard channel orders for each input channel count.</summary>
         /// <remarks>Matrices with 8+ channels are DCP orders, with messy standardization, and are unused in commercial applications.
         /// Manual revision before each workflow is recommended when working with non-5.1 DCPs or content with 8+ channels.</remarks>
-        public static readonly ChannelPrototype[][] StandardMatrix = {
-            new ChannelPrototype[0],
+        public static readonly ReferenceChannel[][] StandardMatrix = {
+            new ReferenceChannel[0],
             // 1CH: 1.0 (C)
-            new ChannelPrototype[]{FrontCenter},
+            new ReferenceChannel[] { ReferenceChannel.FrontCenter},
             // 2CH: 2.0 (L, R)
-            new ChannelPrototype[]{FrontLeft, FrontRight},
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight },
             // 3CH: 3.0 (L, R, C) - non-standard
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter},
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter },
             // 4CH: 4.0 (L, R, SL, SR)
-            new ChannelPrototype[]{FrontLeft, FrontRight, SideLeft, SideRight},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+            },
             // 5CH: 5.0 (L, R, C, SL, SR)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, SideLeft, SideRight},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+            },
             // 6CH: 5.1 (L, R, C, LFE, SL, SR)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, SideLeft, SideRight},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+            },
             // 7CH: 6.1 (L, R, C, LFE, SL, SR, RC)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, SideLeft, SideRight, RearCenter},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearCenter
+            },
             // 8CH: 7.1 (L, R, C, LFE, RL, RR, SL, SR)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+            },
             // 9CH: 8.1 (not used) (L, R, C, LFE, RL, RR, SL, SR, RC)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight, RearCenter},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.RearCenter
+            },
             // 10CH: 7.1.2 (out-of-order Cavern DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight,
-                TopFrontLeft, TopFrontRight},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
+            },
             // 11CH: 7.1.2.1 (out-of-order Cavern XL DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, BS)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight,
-                TopFrontLeft, TopFrontRight, BottomSurround},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.BottomSurround
+            },
             // 12CH: 11.1 (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, SideLeft, SideRight, TopFrontLeft, TopFrontRight,
-                TopFrontCenter, GodsVoice, TopSideLeft, TopSideRight},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+            },
             // 13CH: 12-Track (L, R, C, LFE, RL, RR, TFC, SL, SR, TFL, TFR, TSL, TSR)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, TopFrontCenter, SideLeft, SideRight,
-                TopFrontLeft, TopFrontRight, TopSideLeft, TopSideRight},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.TopFrontCenter,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+            },
             // 14CH: 13.1 (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight,
-                TopFrontLeft, TopFrontRight, TopFrontCenter, GodsVoice, TopSideLeft, TopSideRight},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice,
+                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+            },
             // 15CH: Cavern DCP (L, R, C, LFE, SL, SR, HI, VI, TFL, TFR, RL, RR, MD, ES, SL)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, SideLeft, SideRight, HearingImpaired, VisuallyImpaired,
-                TopFrontLeft, TopFrontRight, RearLeft, RearRight, MotionData, ExternalData, SignLanguage},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage
+            },
             // 16CH: Cavern XL DCP (L, R, C, LFE, SL, SR, HI, VI, TL, TR, RL, RR, MD, ES, SL, BS)
-            new ChannelPrototype[]{FrontLeft, FrontRight, FrontCenter, ScreenLFE, SideLeft, SideRight, HearingImpaired, VisuallyImpaired,
-                TopFrontLeft, TopFrontRight, RearLeft, RearRight, MotionData, ExternalData, SignLanguage, BottomSurround},
+            new ReferenceChannel[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage, ReferenceChannel.BottomSurround
+            }
         };
 
         /// <summary>Check if two channel prototypes are the same.</summary>

@@ -54,6 +54,7 @@
     <Compile Include="Clip.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Listener.cs" />
+    <Compile Include="Remapping\ReferenceChannel.cs" />
     <Compile Include="Remapping\RemappedChannel.cs" />
     <Compile Include="Remapping\Remapper.cs" />
     <Compile Include="Source.cs" />

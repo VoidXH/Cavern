@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Remapping;
@@ -81,12 +82,13 @@ namespace Cavern.Cavernize {
         /// <summary>The channels for a base 7.1 layout.</summary>
         internal readonly SpatializedChannel[] mains = new SpatializedChannel[8];
 
-        internal Dictionary<ChannelPrototype, SpatializedChannel> channels = new Dictionary<ChannelPrototype, SpatializedChannel>();
+        internal Dictionary<ReferenceChannel, SpatializedChannel> channels = new Dictionary<ReferenceChannel, SpatializedChannel>();
 
         /// <summary>Possible upmix targets, always created.</summary>
-        static readonly ChannelPrototype[] UpmixTargets = { ChannelPrototype.FrontLeft, ChannelPrototype.FrontRight, ChannelPrototype.FrontCenter,
-            ChannelPrototype.SideLeft, ChannelPrototype.SideRight, ChannelPrototype.RearLeft, ChannelPrototype.RearRight };
+        static readonly ReferenceChannel[] UpmixTargets = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight };
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() {
             AudioListener3D listener = AudioListener3D.Current;
             oldSampleRate = listener.SampleRate;
@@ -110,27 +112,27 @@ namespace Cavern.Cavernize {
                 clipSamples = new float[(clipChannels = Clip3D.Channels) * clipLength];
                 Clip3D.GetData(clipSamples, 0);
             }
-            List<ChannelPrototype> targetChannels = new List<ChannelPrototype>();
-            foreach (ChannelPrototype upmixTarget in UpmixTargets)
+            List<ReferenceChannel> targetChannels = new List<ReferenceChannel>();
+            foreach (ReferenceChannel upmixTarget in UpmixTargets)
                 targetChannels.Add(upmixTarget);
-            ChannelPrototype[] matrix = ChannelPrototype.StandardMatrix[clipChannels];
+            ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[clipChannels];
             for (int channel = 0; channel < matrix.Length; ++channel)
                 if (!targetChannels.Contains(matrix[channel]))
                     targetChannels.Add(matrix[channel]);
             for (int source = 0; source < targetChannels.Count; ++source)
                 channels[targetChannels[source]] = new SpatializedChannel(targetChannels[source], this, updateRate);
-            mains[0] = GetChannel(ChannelPrototype.FrontLeft);
-            mains[1] = GetChannel(ChannelPrototype.FrontRight);
-            mains[2] = GetChannel(ChannelPrototype.FrontCenter);
-            mains[3] = GetChannel(ChannelPrototype.ScreenLFE);
-            mains[4] = GetChannel(ChannelPrototype.RearLeft);
-            mains[5] = GetChannel(ChannelPrototype.RearRight);
-            mains[6] = GetChannel(ChannelPrototype.SideLeft);
-            mains[7] = GetChannel(ChannelPrototype.SideRight);
+            mains[0] = GetChannel(ReferenceChannel.FrontLeft);
+            mains[1] = GetChannel(ReferenceChannel.FrontRight);
+            mains[2] = GetChannel(ReferenceChannel.FrontCenter);
+            mains[3] = GetChannel(ReferenceChannel.ScreenLFE);
+            mains[4] = GetChannel(ReferenceChannel.RearLeft);
+            mains[5] = GetChannel(ReferenceChannel.RearRight);
+            mains[6] = GetChannel(ReferenceChannel.SideLeft);
+            mains[7] = GetChannel(ReferenceChannel.SideRight);
             GenerateSampleBlock();
         }
 
-        internal SpatializedChannel GetChannel(ChannelPrototype target) {
+        internal SpatializedChannel GetChannel(ReferenceChannel target) {
             if (channels.ContainsKey(target))
                 return channels[target];
             return null;
@@ -139,7 +141,7 @@ namespace Cavern.Cavernize {
         void GenerateSampleBlock() {
             AudioListener3D listener = AudioListener3D.Current;
             float smoothFactor = 1f - QMath.Lerp(updateRate, listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
-            foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
+            foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
                 Array.Clear(channel.Value.Output, 0, updateRate);
             if (timeSamples >= clipLength) {
                 if (Loop)
@@ -151,7 +153,7 @@ namespace Cavern.Cavernize {
                 }
             }
             if (IsPlaying) {
-                foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> Channel in channels)
+                foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> Channel in channels)
                     Channel.Value.WrittenOutput = false;
                 // Load input channels
                 int remaining = clipLength - timeSamples;
@@ -204,7 +206,7 @@ namespace Cavern.Cavernize {
                 }
             }
             // Overwrite channel data with new output, even if it's empty
-            foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
+            foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
                 channel.Value.Tick(Effect, smoothFactor, GroundCrossover, Visualize);
             timeSamples += updateRate;
         }
@@ -212,15 +214,16 @@ namespace Cavern.Cavernize {
         internal float[][] Tick(SpatializedChannel source, bool groundLevel) {
             if (source.TicksTook == 2) { // Both moving and ground source was fed
                 GenerateSampleBlock();
-                foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
+                foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
                     channel.Value.TicksTook = 0;
             }
             ++source.TicksTook;
             return new float[1][] { source.GetOutput(groundLevel) };
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() {
-            foreach (KeyValuePair<ChannelPrototype, SpatializedChannel> channel in channels)
+            foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
                 channel.Value.Destroy();
             AudioListener3D listener = AudioListener3D.Current;
             listener.SampleRate = oldSampleRate;
