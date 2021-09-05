@@ -86,7 +86,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy ..\..\..\CavernAmp\bin\Release\CavernAmp.dll CavernAmp.dll</PostBuildEvent>
-  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll CavernAmp.dll" IgnoreExitCode="true" />
+  </Target>
 </Project>
