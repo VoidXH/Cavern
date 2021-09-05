@@ -56,7 +56,7 @@ namespace Cavern {
                 return false; // Channel count doesn't match
             for (int dataPos = 0; dataPos < data[0].Length; ++dataPos) {
                 if (offset >= this.data[0].Length)
-                    offset %= this.data[0].Length;
+                    offset %= this.data[0].Length; // TODO: just don't
                 for (int channel = 0; channel < this.data.Length; ++channel)
                     data[channel][dataPos] = this.data[channel][offset];
                 ++offset;
@@ -93,7 +93,7 @@ namespace Cavern {
             int dataPos = 0;
             while (dataPos < data.Length) {
                 if (offset >= this.data[0].Length)
-                    offset %= this.data[0].Length;
+                    offset %= this.data[0].Length; // TODO: same as above
                 for (int channel = 0; channel < this.data.Length; ++channel)
                     data[dataPos + channel] = this.data[channel][offset];
                 dataPos += this.data.Length;
