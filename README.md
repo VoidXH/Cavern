@@ -1,6 +1,11 @@
 # Cavern
 Cavern is a fully adaptive object-based audio engine and upmixer without limitations for home, cinema, and stage use. This repository features a Unity plugin and a standalone converter in C++.
 
+[![Build Status](https://app.travis-ci.com/VoidXH/Cavern.svg?branch=master)](https://app.travis-ci.com/VoidXH/Cavern)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)
+![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/VoidXH/Cavern/latest)
+![Lines of Code](https://img.shields.io/tokei/lines/github/VoidXH/Cavern "Lines of Code")
+
 ## Features
 * Unlimited objects and output channels without position restrictions
 * Custom audio format for storing spatial mixes
