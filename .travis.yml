@@ -1,2 +1,3 @@
 language: csharp
+os: windows
 solution: Cavern.sln
