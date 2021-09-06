@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cavernize\SurroundUpmixer.cs" />
     <Compile Include="Remapping\ChannelPrototype.cs" />
     <Compile Include="Clip.cs" />
     <Compile Include="Channel.cs" />

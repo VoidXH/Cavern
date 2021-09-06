@@ -67,69 +67,34 @@ namespace Cavern.Cavernize {
         /// <summary>This height value indicates if a channel is skipped in height processing.</summary>
         internal const float unsetHeight = -2;
 
-        /// <summary>Imported audio data.</summary>
-        float[] clipSamples;
-        /// <summary>Channel count of <see cref="Clip"/>.</summary>
-        int clipChannels;
-        /// <summary>Length of <see cref="Clip"/> in samples/channel.</summary>
-        int clipLength;
         /// <summary><see cref="AudioListener3D.UpdateRate"/> for conversion.</summary>
         int updateRate;
         /// <summary>Cached <see cref="AudioListener3D.SampleRate"/> as the listener is reconfigured for the Cavernize process.</summary>
         int oldSampleRate;
         /// <summary>Cached <see cref="AudioListener3D.UpdateRate"/> as the listener is reconfigured for the Cavernize process.</summary>
         int oldUpdateRate;
-        /// <summary>The channels for a base 7.1 layout.</summary>
-        internal readonly SpatializedChannel[] mains = new SpatializedChannel[8];
 
         internal Dictionary<ReferenceChannel, SpatializedChannel> channels = new Dictionary<ReferenceChannel, SpatializedChannel>();
+        internal SpatializedChannel this[int index] => channels[(ReferenceChannel)index]; // This is horribly hacky and will be removed
 
-        /// <summary>Possible upmix targets, always created.</summary>
-        static readonly ReferenceChannel[] UpmixTargets = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-            ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight };
+        /// <summary>The 5.1/7.1 stream generator.</summary>
+        SurroundUpmixer generator;
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() {
             AudioListener3D listener = AudioListener3D.Current;
             oldSampleRate = listener.SampleRate;
             oldUpdateRate = listener.UpdateRate;
-            if (Clip) {
-                listener.SampleRate = Clip.frequency;
-                updateRate = listener.UpdateRate = Clip.frequency / UpdatesPerSecond;
-                if (Clip.samples > updateRate)
-                    clipLength = Clip.samples;
-                else
-                    clipLength = updateRate;
-                clipSamples = new float[(clipChannels = Clip.channels) * clipLength];
-                Clip.GetData(clipSamples, 0);
-            } else if (Clip3D) {
-                listener.SampleRate = Clip3D.SampleRate;
-                updateRate = listener.UpdateRate = Clip3D.SampleRate / UpdatesPerSecond;
-                if (Clip3D.Samples > updateRate)
-                    clipLength = Clip3D.Samples;
-                else
-                    clipLength = updateRate;
-                clipSamples = new float[(clipChannels = Clip3D.Channels) * clipLength];
-                Clip3D.GetData(clipSamples, 0);
-            }
-            List<ReferenceChannel> targetChannels = new List<ReferenceChannel>();
-            foreach (ReferenceChannel upmixTarget in UpmixTargets)
-                targetChannels.Add(upmixTarget);
-            ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[clipChannels];
-            for (int channel = 0; channel < matrix.Length; ++channel)
-                if (!targetChannels.Contains(matrix[channel]))
-                    targetChannels.Add(matrix[channel]);
-            for (int source = 0; source < targetChannels.Count; ++source)
+            updateRate = listener.UpdateRate = (listener.SampleRate = Clip3D.SampleRate) / UpdatesPerSecond;
+
+            if (Clip)
+                Clip3D = AudioClip3D.FromUnityClip(Clip);
+            generator = new SurroundUpmixer(Clip3D);
+            generator.OnPlaybackFinished += () => IsPlaying = false;
+
+            ReferenceChannel[] targetChannels = generator.GetChannels();
+            for (int source = 0; source < targetChannels.Length; ++source)
                 channels[targetChannels[source]] = new SpatializedChannel(targetChannels[source], this, updateRate);
-            mains[0] = GetChannel(ReferenceChannel.FrontLeft);
-            mains[1] = GetChannel(ReferenceChannel.FrontRight);
-            mains[2] = GetChannel(ReferenceChannel.FrontCenter);
-            mains[3] = GetChannel(ReferenceChannel.ScreenLFE);
-            mains[4] = GetChannel(ReferenceChannel.RearLeft);
-            mains[5] = GetChannel(ReferenceChannel.RearRight);
-            mains[6] = GetChannel(ReferenceChannel.SideLeft);
-            mains[7] = GetChannel(ReferenceChannel.SideRight);
-            GenerateSampleBlock();
         }
 
         internal SpatializedChannel GetChannel(ReferenceChannel target) {
@@ -141,74 +106,20 @@ namespace Cavern.Cavernize {
         void GenerateSampleBlock() {
             AudioListener3D listener = AudioListener3D.Current;
             float smoothFactor = 1f - QMath.Lerp(updateRate, listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
-            foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
-                Array.Clear(channel.Value.Output, 0, updateRate);
-            if (timeSamples >= clipLength) {
-                if (Loop)
-                    timeSamples %= clipLength;
-                else {
-                    timeSamples = 0;
-                    IsPlaying = false;
-                    return;
-                }
-            }
             if (IsPlaying) {
-                foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> Channel in channels)
-                    Channel.Value.WrittenOutput = false;
-                // Load input channels
-                int remaining = clipLength - timeSamples;
-                if (remaining > updateRate)
-                    remaining = updateRate;
-                for (int channel = 0; channel < clipChannels; ++channel) {
-                    SpatializedChannel outputChannel = GetChannel(ChannelPrototype.StandardMatrix[clipChannels][channel]);
-                    float[] target = outputChannel.Output;
-                    for (int offset = 0, srcOffset = timeSamples * clipChannels + channel; offset < remaining; ++offset, srcOffset += clipChannels)
-                        target[offset] = clipSamples[srcOffset] * Volume;
-                    outputChannel.WrittenOutput = true;
-                }
-                if (MatrixUpmix) { // Create missing channels via matrix
-                    if (mains[0].WrittenOutput && mains[1].WrittenOutput) { // Left and right channels available
-                        if (!mains[2].WrittenOutput) { // Create discrete middle channel
-                            float[] left = mains[0].Output, right = mains[1].Output, center = mains[2].Output;
-                            for (int offset = 0; offset < updateRate; ++offset)
-                                center[offset] = (left[offset] + right[offset]) * .5f;
-                            mains[2].WrittenOutput = true;
-                        }
-                        if (!mains[6].WrittenOutput) { // Matrix mix for sides
-                            float[] leftFront = mains[0].Output, rightFront = mains[1].Output,
-                                leftSide = mains[6].Output, rightSide = mains[7].Output;
-                            for (int offset = 0; offset < updateRate; ++offset) {
-                                leftSide[offset] = (leftFront[offset] - rightFront[offset]) * .5f;
-                                rightSide[offset] = -leftSide[offset];
-                            }
-                            mains[6].WrittenOutput = mains[7].WrittenOutput = true;
-                        }
-                        if (!mains[4].WrittenOutput) { // Extend sides to rears...
-                            bool rearsAvailable = false; // ...but only if there are rears
-                            for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
-                                float currentY = Listener.Channels[channel].Y;
-                                if (currentY < -135 || currentY > 135) {
-                                    rearsAvailable = true;
-                                    break;
-                                }
-                            }
-                            if (rearsAvailable) {
-                                float[] leftSide = mains[6].Output, rightSide = mains[7].Output,
-                                    leftRear = mains[4].Output, rightRear = mains[5].Output;
-                                for (int offset = 0; offset < updateRate; ++offset) {
-                                    leftRear[offset] = (leftSide[offset] *= .5f);
-                                    rightRear[offset] = (rightSide[offset] *= .5f);
-                                }
-                                mains[4].WrittenOutput = mains[5].WrittenOutput = true;
-                            }
-                        }
-                    }
+                generator.loop = Loop;
+                generator.timeSamples = timeSamples;
+                generator.GenerateSamples(updateRate);
+                timeSamples = generator.timeSamples; // This nasty wrapping will also be removed once Cavernize is moved away from the Unity DLL
+                foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels) {
+                    channel.Value.WrittenOutput = generator.Readable(channel.Key);
+                    float[] source = generator.RetrieveSamples(channel.Key);
+                    Array.Copy(source, channel.Value.Output, source.Length);
                 }
             }
             // Overwrite channel data with new output, even if it's empty
             foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
                 channel.Value.Tick(Effect, smoothFactor, GroundCrossover, Visualize);
-            timeSamples += updateRate;
         }
 
         internal float[][] Tick(SpatializedChannel source, bool groundLevel) {

@@ -60,21 +60,21 @@ namespace Cavern.Cavern4D {
                 for (int column = 0; column < Columns; ++column)
                     SeatMovements[row][column].Height = 200;
             int lastRow = Rows - 1, lastColumn = Columns - 1;
-            if (CavernSource.mains[0] != null) // Front left
-                SeatMovements[0][0].Height = CavernSource.mains[0].Height;
-            if (CavernSource.mains[1] != null) // Front right
-                SeatMovements[0][lastColumn].Height = CavernSource.mains[1].Height;
-            if (CavernSource.mains[2] != null && CavernSource.mains[2].Height != Cavernizer.unsetHeight) // Center
-                SeatMovements[0][lastColumn / 2].Height = CavernSource.mains[2].Height;
-            if (CavernSource.mains[6] != null) // Side left
-                SeatMovements[lastRow][0].Height = CavernSource.mains[6].Height;
-            if (CavernSource.mains[7] != null) // Side right
-                SeatMovements[lastRow][lastColumn].Height = CavernSource.mains[7].Height;
+            if (CavernSource[0] != null) // Front left
+                SeatMovements[0][0].Height = CavernSource[0].Height;
+            if (CavernSource[1] != null) // Front right
+                SeatMovements[0][lastColumn].Height = CavernSource[1].Height;
+            if (CavernSource[2] != null && CavernSource[2].Height != Cavernizer.unsetHeight) // Center
+                SeatMovements[0][lastColumn / 2].Height = CavernSource[2].Height;
+            if (CavernSource[6] != null) // Side left
+                SeatMovements[lastRow][0].Height = CavernSource[6].Height;
+            if (CavernSource[7] != null) // Side right
+                SeatMovements[lastRow][lastColumn].Height = CavernSource[7].Height;
             // Addition is okay, and should be used, as the rears are near the sides in the back corners.
-            if (CavernSource.mains[4] != null) // Rear left
-                SeatMovements[lastRow][0].Height += CavernSource.mains[4].Height;
-            if (CavernSource.mains[5] != null) // Rear right
-                SeatMovements[lastRow][lastColumn].Height += CavernSource.mains[5].Height;
+            if (CavernSource[4] != null) // Rear left
+                SeatMovements[lastRow][0].Height += CavernSource[4].Height;
+            if (CavernSource[5] != null) // Rear right
+                SeatMovements[lastRow][lastColumn].Height += CavernSource[5].Height;
             SpatializedChannel rearCenter = CavernSource.GetChannel(ReferenceChannel.RearCenter);
             if (rearCenter != null) // Rear center
                 SeatMovements[lastRow][lastColumn / 2].Height = rearCenter.Height;

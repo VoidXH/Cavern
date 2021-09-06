@@ -45,10 +45,10 @@ namespace Cavern.Remapping {
             FrontRight = new ChannelPrototype(30, "Front right"),
             FrontCenter = new ChannelPrototype(0, "Front center", false, false),
             ScreenLFE = new ChannelPrototype(0, "LFE", true),
-            SideLeft = new ChannelPrototype(-110, "Side left", false, false),
-            SideRight = new ChannelPrototype(110, "Side right", false, false),
             RearLeft = new ChannelPrototype(-150, "Rear left", false, false),
             RearRight = new ChannelPrototype(150, "Rear right", false, false),
+            SideLeft = new ChannelPrototype(-110, "Side left", false, false),
+            SideRight = new ChannelPrototype(110, "Side right", false, false),
             FrontLeftCenter = new ChannelPrototype(-15, "Front left center"),
             FrontRightCenter = new ChannelPrototype(15, "Front right center"),
             HearingImpaired = new ChannelPrototype(0, "Hearing impaired", false, true),
@@ -68,7 +68,7 @@ namespace Cavern.Remapping {
 
         /// <summary>Converts the <see cref="ReferenceChannel"/> values to a <see cref="ChannelPrototype"/>.</summary>
         public static readonly ChannelPrototype[] Mapping = {
-            FrontLeft, FrontRight, FrontCenter, ScreenLFE, SideLeft, SideRight, RearLeft, RearRight,
+            FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight,
             FrontLeftCenter, FrontRightCenter, HearingImpaired, VisuallyImpaired, Unused, MotionData, ExternalData,
             TopFrontLeft, TopFrontRight, TopSideLeft, TopSideRight, SignLanguage, BottomSurround, TopFrontCenter,
             GodsVoice, RearCenter

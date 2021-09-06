@@ -27,6 +27,13 @@ namespace Cavern {
         /// <param name="sampleRate">Sample rate</param>
         public AudioClip3D(float[] data, int channels, int sampleRate) : base(data, channels, sampleRate) => Fill();
 
+        /// <summary>Create a Cavern clip from a Unity clip.</summary>
+        public static AudioClip3D FromUnityClip(AudioClip source) {
+            float[] data = new float[source.samples * source.channels];
+            source.GetData(data, 0);
+            return new AudioClip3D(data, source.channels, source.frequency);
+        }
+
         void Fill() {
             length = Length;
             frequency = SampleRate;
