@@ -17,8 +17,10 @@ namespace Cavern.FilterInterfaces {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDrawGizmosSelected() {
-            float maxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity;
-            float step = 360f / Detail, colorStep = 1f / Bounces, alphaStep = colorStep * .25f;
+            float maxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity,
+                step = 360f / Detail,
+                colorStep = 1f / Bounces,
+                alphaStep = colorStep * .25f;
             Vector3 direction = Vector3.zero;
             for (int horizontal = 0; horizontal < Detail; ++horizontal) {
                 for (int vertical = 0; vertical < Detail; ++vertical) {

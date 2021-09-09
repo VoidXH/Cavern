@@ -77,6 +77,7 @@
     <Compile Include="FilterInterfaces\Delay.cs" />
     <Compile Include="FilterInterfaces\DistanceBasedLowpass.cs" />
     <Compile Include="FilterInterfaces\Raytraced.cs" />
+    <Compile Include="FilterInterfaces\Simulation.cs" />
     <Compile Include="FilterInterfaces\_Exceptions.cs" />
     <Compile Include="FilterInterfaces\SimpleEcho.cs" />
     <Compile Include="QuickEQ\MeasurementImporter.cs" />
