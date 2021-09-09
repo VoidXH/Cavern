@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using UnityEngine;
 
 using Cavern.Filters;
 
@@ -7,25 +7,17 @@ namespace Cavern.FilterInterfaces {
     /// <summary>Creates a spatial echo effect by bouncing sound on surfaces.</summary>
     [AddComponentMenu("Audio/Filters/3D Echo")]
     [RequireComponent(typeof(AudioSource3D))]
-    public class Echo3D : MonoBehaviour {
+    public class Echo3D : Raytraced {
         /// <summary>Speed of sound in units/s.</summary>
+        [Header("Echo")]
         [Tooltip("Speed of sound in units/s.")]
         public float SpeedOfSound = Source.SpeedOfSound * 10;
-        /// <summary>Number of directions to check.</summary>
-        [Tooltip("Number of directions to check.")]
-        public int Detail = 5;
-        /// <summary>Maximum surface bounces.</summary>
-        [Tooltip("Maximum surface bounces.")]
-        public int Bounces = 3;
         /// <summary>Bounce dampening multiplier.</summary>
         [Tooltip("Bounce dampening multiplier.")]
-        public float DampeningFactor = 1;
+        public float DampeningFactor = 2;
         /// <summary>Maximal echo travel time in samples, size of the convolution filter.</summary>
         [Tooltip("Maximal echo travel time in samples, size of the convolution filter.")]
         public int MaxSamples = 64;
-        /// <summary>Layers to bounce the sound off from.</summary>
-        [Tooltip("Layers to bounce the sound off from.")]
-        public LayerMask Layers = int.MaxValue;
 
         /// <summary>Last generated FIR filter of the echo.</summary>
         public float[] Impulse { get; private set; }
@@ -34,37 +26,6 @@ namespace Cavern.FilterInterfaces {
         AudioSource3D source;
         /// <summary>Convolution filter to process the echo.</summary>
         Convolver filter;
-
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void OnDrawGizmosSelected() {
-            float maxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity;
-            float step = 360f / Detail, colorStep = 1f / Bounces, alphaStep = colorStep * .25f;
-            Vector3 direction = Vector3.zero;
-            for (int horizontal = 0; horizontal < Detail; ++horizontal) {
-                for (int vertical = 0; vertical < Detail; ++vertical) {
-                    Vector3 lastPos = transform.position;
-                    Vector3 lastDir = Quaternion.Euler(direction) * Vector3.forward;
-                    Color lastColor = new Color(0, 1, 0, .5f);
-                    for (int bounceCount = 0; bounceCount < Bounces; ++bounceCount) {
-                        if (Physics.Raycast(lastPos, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
-                            Gizmos.color = lastColor;
-                            Gizmos.DrawLine(lastPos, hit.point);
-                            lastPos = hit.point;
-                            lastDir = Vector3.Reflect(lastDir, hit.normal);
-                            lastColor.r += colorStep;
-                            lastColor.b += colorStep;
-                            lastColor.a -= alphaStep;
-                        } else {
-                            Gizmos.color = new Color(1, 0, 0, lastColor.a);
-                            Gizmos.DrawRay(lastPos, lastDir);
-                            break;
-                        }
-                    }
-                    direction.y += step;
-                }
-                direction.x += step;
-            }
-        }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() {
@@ -80,7 +41,10 @@ namespace Cavern.FilterInterfaces {
         void Update() {
             if (!source.clip)
                 return;
-            float maxDist = AudioListener3D.Current.Range, step = 360f / Detail;
+            Vector3 listenerPos = AudioListener3D.Current.transform.position;
+            float maxDist = AudioListener3D.Current.Range,
+                sourceDist = Vector3.Distance(transform.position, listenerPos),
+                step = 360f / Detail;
             float[] impulse = Impulse = new float[MaxSamples];
             impulse[0] = 1;
             Vector3 direction = Vector3.zero;
@@ -90,12 +54,14 @@ namespace Cavern.FilterInterfaces {
                     for (int hitCount = 0; hitCount < Bounces; ++hitCount) {
                         if (Physics.Raycast(transform.position, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
                             lastDir = Vector3.Reflect(lastDir, hit.normal);
-                            float distance = Vector3.Distance(transform.position, hit.point), volume = 1f / (distance * DampeningFactor),
+                            float distance = Vector3.Distance(transform.position, hit.point) +
+                                             Vector3.Distance(hit.point, listenerPos) - sourceDist,
+                                gain = 1f / (distance * DampeningFactor),
                                 timeOffset = distance / SpeedOfSound * source.clip.frequency;
                             if (timeOffset < MaxSamples - 1) {
                                 float postMix = timeOffset % 1;
-                                impulse[(int)timeOffset] += (1 - postMix) * volume;
-                                impulse[(int)timeOffset + 1] -= postMix * volume;
+                                impulse[(int)timeOffset] += (1 - postMix) * gain;
+                                impulse[(int)timeOffset + 1] -= postMix * gain;
                             }
                         } else
                             break;
