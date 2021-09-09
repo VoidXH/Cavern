@@ -25,15 +25,15 @@ command-line arguments.
 
 ## How to build
 ### Cavern
-Cavern is a .NET Framework project with no dependencies. Open the solution with
-Microsoft Visual Studio 2019 or later and all projects should build except
-CavernUnity DLL.
+Cavern is a .NET Framework project with no dependencies other than NuGet ones.
+Open the `Cavern.sln` solution with Microsoft Visual Studio 2019 or later and all
+projects should build.
 
 ### Cavern for Unity
-Open the solution with Microsoft Visual Studio 2019. Remove the references from
-the CavernUnity DLL project to UnityEngine and UnityEditor. Add these files from
-your own Unity installation as references. They are found in Editor\Data\Managed
-under Unity's installation folder.
+Open the `CavernUnity DLL.sln` solution with Microsoft Visual Studio 2019. Remove
+the references from the CavernUnity DLL project to UnityEngine and UnityEditor.
+Add these files from your own Unity installation as references. They are found in
+`Editor\Data\Managed` under Unity's installation folder.
 
 ### Cavernize Lite
 This is a Code::Blocks project, set up for the MingW compiler. No additional
