@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -67,6 +68,7 @@
     <Compile Include="Utilities\ArrayExtensions.cs" />
     <Compile Include="Utilities\CavernAmp.cs" />
     <Compile Include="Utilities\Complex.cs" />
+    <Compile Include="Utilities\Linked.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />
     <Compile Include="Utilities\QMath.cs" />
     <Compile Include="Utilities\Resample.cs" />
