@@ -4,7 +4,7 @@ using Cavern.Filters;
 
 namespace Cavern.FilterInterfaces {
     /// <summary>The further the source from the listener, the deeper this effect will make its sound.</summary>
-    [AddComponentMenu("Audio/Filters/Distance-based lowpass")]
+    [AddComponentMenu("Audio/Filters/Distance-based Lowpass")]
     [RequireComponent(typeof(AudioSource3D))]
     public class DistanceBasedLowpass : MonoBehaviour {
         /// <summary>Effect strength multiplier.</summary>
