@@ -144,13 +144,27 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Public properties
         // ------------------------------------------------------------------
-        /// <summary>Returns the sample count for a single channel or -1 if there's no active clip.</summary>
+        /// <summary>True if the source has an active clip.</summary>
+        public bool HasClip => Clip != null || Clip3D != null;
+
+        /// <summary>Sample count for a single channel or -1 if there's no active clip.</summary>
         public int Samples {
             get {
                 if (Clip3D)
                     return Clip3D.Samples;
                 if (Clip)
                     return Clip.samples;
+                return -1;
+            }
+        }
+
+        /// <summary>Sample rate or -1 if there's no active clip.</summary>
+        public int SampleRate {
+            get {
+                if (Clip3D)
+                    return Clip3D.SampleRate;
+                if (Clip)
+                    return Clip.frequency;
                 return -1;
             }
         }
