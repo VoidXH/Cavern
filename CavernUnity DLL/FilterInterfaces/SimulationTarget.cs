@@ -46,7 +46,9 @@ namespace Cavern.FilterInterfaces {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() {
-            filter = new Convolver(new float[MaxSamples], 0);
+            float[] impulse = new float[MaxSamples];
+            impulse[0] = 1;
+            filter = new Convolver(impulse, 0);
             AddFilter(filter);
         }
 
