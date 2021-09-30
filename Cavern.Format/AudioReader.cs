@@ -53,6 +53,9 @@ namespace Cavern.Format {
             return samples;
         }
 
+        /// <summary>Read the entire file and pack it in a <see cref="Clip"/>.</summary>
+        public Clip ReadClip() => new Clip(Read(), ChannelCount, SampleRate);
+
         /// <summary>Read the entire file.</summary>
         public float[][] ReadMultichannel() {
             ReadHeader();
