@@ -2,6 +2,7 @@
 using UnityEngine;
 
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.FilterInterfaces {
     /// <summary>Creates an IR simulation between a <see cref="SimulationSource"/> and this object.</summary>
@@ -13,6 +14,9 @@ namespace Cavern.FilterInterfaces {
         /// <summary>The impulse response of the simulated material. A single channel is required with the system sample rate.</summary>
         [Tooltip("The impulse response of the simulated material. A single channel is required with the system sample rate.")]
         public AudioClip Characteristics;
+        /// <summary>The impulse response of the simulated material in Cavern's format.
+        /// A single channel is required with the system sample rate.</summary>
+        public Clip Characteristics3D;
 
         /// <summary>Convolution filter to apply the character.</summary>
         Convolver filter;
@@ -27,6 +31,10 @@ namespace Cavern.FilterInterfaces {
             if (Characteristics != null) {
                 character = new float[Characteristics.samples];
                 Characteristics.GetData(character, 0);
+            }
+            if (Characteristics3D != null) {
+                character = new float[Characteristics3D.Samples];
+                Characteristics3D.GetData(character, 0);
             }
         }
 
