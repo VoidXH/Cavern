@@ -4,7 +4,7 @@ namespace Cavern.Utilities {
     /// <summary>Provides synchronization between Unity and Cavern objects.</summary>
     public static class Tunneler {
         /// <summary>Provides the <paramref name="source"/> a clip from either Cavern or Unity.</summary>
-        public static void TunnelClips(ref Clip source, AudioClip unity, AudioClip3D cavern, ref int lastClipHash) {
+        public static void TunnelClips(ref Clip source, AudioClip unity, Clip cavern, ref int lastClipHash) {
             if (cavern) {
                 if (!source || lastClipHash != cavern.GetHashCode()) {
                     source = cavern;

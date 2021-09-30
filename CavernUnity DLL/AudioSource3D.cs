@@ -17,7 +17,7 @@ namespace Cavern {
         [Tooltip("The audio clip to play.")]
         public AudioClip Clip;
         /// <summary>The audio clip to play in Cavern's format. Overrides <see cref="Clip"/>.</summary>
-        public AudioClip3D Clip3D;
+        public Clip Clip3D;
         /// <summary>Continue playback of the source.</summary>
         [Tooltip("Continue playback of the source.")]
         public bool IsPlaying = true;

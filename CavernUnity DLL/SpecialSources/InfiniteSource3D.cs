@@ -11,13 +11,13 @@ namespace Cavern.SpecialSources {
         public AudioClip intro;
         /// <summary>Clip to start playback with in Cavern's format. Overrides <see cref="intro"/>.</summary>
         [Tooltip("Clip to start playback with in Cavern's format. Overrides Intro.")]
-        public AudioClip3D intro3D;
+        public Clip intro3D;
         /// <summary>Clip to play continuously after.</summary>
         [Tooltip("Clip to play continuously after.")]
         public AudioClip loopClip;
         /// <summary>Clip to play continuously after in Cavern's format. Overrides <see cref="loopClip"/>.</summary>
         [Tooltip("Clip to play continuously after in Cavern's format. Overrides Loop Clip.")]
-        public AudioClip3D loopClip3D;
+        public Clip loopClip3D;
 
         int introClipHash;
         int loopClipHash;
