@@ -8,7 +8,7 @@ namespace Cavern.Virtualizer {
         /// <summary>Represents a virtualizable channel with impulse responses for both ears.</summary>
         struct SpatialChannel {
             const float lowFrequencyCrossover = 120;
-            const float highFrequencyCrossover = 12000;
+            const float highFrequencyCrossover = 16000;
             /// <summary>Ear to ear sound travel time in samples.</summary>
             const float peakDelay = (float)(filterSampleRate * .14 /* subject head width in meters */ / Source.SpeedOfSound * Math.PI);
 
