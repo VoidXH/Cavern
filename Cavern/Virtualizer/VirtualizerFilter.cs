@@ -60,16 +60,13 @@ namespace Cavern.Virtualizer {
         /// <summary>Split and convolve a single channel by ID.</summary>
         static void ProcessChannel(int channel) {
             // Select the retain range
-            Crossover lowCrossover = spatialChannels[channel].LowCrossover, highCrossover = spatialChannels[channel].HighCrossover;
+            Crossover lowCrossover = spatialChannels[channel].Crossover;
             lowCrossover.Process(originalSplit[channel]);
-            spatialChannels[channel].HighCrossover.Process(lowCrossover.HighOutput);
             originalSplit[channel] = lowCrossover.LowOutput;
-            for (int sample = 0; sample < blockSize; ++sample)
-                originalSplit[channel][sample] += highCrossover.HighOutput[sample];
             // Select the impulse response frequency range
             if (rightSplit[channel].Length != blockSize)
                 rightSplit[channel] = new float[blockSize];
-            leftSplit[channel] = highCrossover.LowOutput;
+            leftSplit[channel] = lowCrossover.HighOutput;
             Buffer.BlockCopy(leftSplit[channel], 0, rightSplit[channel], 0, blockSize * sizeof(float));
             spatialChannels[channel].LeftFilter.Process(leftSplit[channel]);
             spatialChannels[channel].RightFilter.Process(rightSplit[channel]);

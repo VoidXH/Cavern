@@ -7,8 +7,8 @@ namespace Cavern.Virtualizer {
     public static partial class VirtualizerFilter {
         /// <summary>Represents a virtualizable channel with impulse responses for both ears.</summary>
         struct SpatialChannel {
-            const float lowFrequencyCrossover = 120;
-            const float highFrequencyCrossover = 16000;
+            /// <summary>Low frequency crossover, sounds not to be spatialized.</summary>
+            const float crossoverFrequency = 120;
             /// <summary>Ear to ear sound travel time in samples.</summary>
             const float peakDelay = (float)(filterSampleRate * .14 /* subject head width in meters */ / Source.SpeedOfSound * Math.PI);
 
@@ -55,13 +55,9 @@ namespace Cavern.Virtualizer {
                 }
             }
 
-            /// <summary>Low frequency crossover filter for retaining bass outside the impulse response frequency range.</summary>
-            public Crossover LowCrossover => lowCrossover ??= new Crossover(filterSampleRate, lowFrequencyCrossover);
-            Crossover lowCrossover;
-
-            /// <summary>High frequency crossover filter for retaining treble outside the impulse response frequency range.</summary>
-            public Crossover HighCrossover => highCrossover ??= new Crossover(filterSampleRate, highFrequencyCrossover);
-            Crossover highCrossover;
+            /// <summary>Low frequency crossover filter for retaining bass outside the usable impulse response frequency range.</summary>
+            public Crossover Crossover => crossover ??= new Crossover(filterSampleRate, crossoverFrequency);
+            Crossover crossover;
         }
 
         /// <summary>HRIR database.</summary>
