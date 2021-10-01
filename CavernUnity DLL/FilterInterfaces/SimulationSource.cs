@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Utilities;
@@ -41,8 +42,8 @@ namespace Cavern.FilterInterfaces {
             if (hitCount != 0) {
                 distance = Vector3.Distance(transform.position, hits[0]);
                 int lastHit = hitCount - 1;
-                for (int i = 0; i < lastHit; ++i)
-                    distance += Vector3.Distance(hits[i], hits[i + 1]);
+                for (int hit = 0; hit < lastHit; ++hit)
+                    distance += Vector3.Distance(hits[hit], hits[hit + 1]);
                 distance += Vector3.Distance(hits[lastHit], AudioListener3D.Current.transform.position);
             } else
                 distance = Vector3.Distance(transform.position, AudioListener3D.Current.transform.position);
@@ -55,10 +56,26 @@ namespace Cavern.FilterInterfaces {
             }
         }
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void Update() {
-            float maxDist = AudioListener3D.Current.Range,
+        void PaintPath(SimulationTarget target) {
+            Vector3 lastPos = transform.position;
+            Color lastColor = new Color(0, 1, 0, .5f);
+            float colorStep = 1f / Bounces,
+                alphaStep = colorStep * .25f;
+            for (int hit = 0; hit < hitCount; ++hit) {
+                lastColor.r += colorStep;
+                lastColor.b += colorStep;
+                lastColor.a -= alphaStep;
+                Gizmos.color = lastColor;
+                Gizmos.DrawLine(lastPos, hits[hit]);
+                lastPos = hits[hit];
+            }
+        }
+
+        void Raycast(Action<SimulationTarget> onHit) {
+            float maxDist = float.PositiveInfinity,
                 step = 360f / Detail;
+            if (AudioListener3D.Current != null)
+                maxDist = AudioListener3D.Current.Range;
             Vector3 direction = Vector3.zero;
 
             hits = new Vector3[Bounces];
@@ -67,18 +84,19 @@ namespace Cavern.FilterInterfaces {
 
             for (int horizontal = 0; horizontal < Detail; ++horizontal) {
                 for (int vertical = 0; vertical < Detail; ++vertical) {
+                    Vector3 lastPos = transform.position;
                     Vector3 lastDir = Quaternion.Euler(direction) * Vector3.forward;
                     hitCount = 0;
                     for (int bounce = 0; bounce < Bounces; ++bounce) {
-                        if (Physics.Raycast(transform.position, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
+                        if (Physics.Raycast(lastPos, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
                             for (int i = 0; i < colliders.Length; ++i) {
                                 if (colliders[i] == hit.collider) { // Found a path to one collider
-                                    MixImpulse(Targets[i]);
+                                    onHit(Targets[i]);
                                     break;
                                 }
                             }
                             lastDir = Vector3.Reflect(lastDir, hit.normal);
-                            hits[hitCount++] = hit.point;
+                            hits[hitCount++] = lastPos = hit.point;
                         } else
                             break;
                     }
@@ -86,7 +104,14 @@ namespace Cavern.FilterInterfaces {
                 }
                 direction.x += step;
             }
+        }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
+        void OnDrawGizmosSelected() => Raycast(PaintPath);
+
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
+        void Update() {
+            Raycast(MixImpulse);
             for (int target = 0; target < Targets.Length; ++target)
                 Targets[target].UpdateFilter();
         }
