@@ -2,7 +2,6 @@
 using UnityEngine;
 
 using Cavern.Filters;
-using Cavern.Utilities;
 
 namespace Cavern.FilterInterfaces {
     /// <summary>Creates an IR simulation between a <see cref="SimulationSource"/> and this object.</summary>
@@ -46,10 +45,6 @@ namespace Cavern.FilterInterfaces {
             if (character != null)
                 new Convolver(character, 0).Process(Impulse);
             filter.Impulse = Impulse;
-            int c = 0;
-            for (int i = 0; i < Impulse.Length; ++i)
-                if (Impulse[i] != 0)
-                    ++c;
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
