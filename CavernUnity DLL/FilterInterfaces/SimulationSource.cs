@@ -11,6 +11,9 @@ namespace Cavern.FilterInterfaces {
         /// <summary>Speed of sound in units/s.</summary>
         [Tooltip("Speed of sound in units/s.")]
         public float SpeedOfSound = Source.SpeedOfSound;
+        /// <summary>Change the phase of the sound wave on reflection.</summary>
+        [Tooltip("Change the phase of the sound wave on reflection.")]
+        public bool ChangePhase = false;
         /// <summary>Targets which absorb the emitted rays and generate their impulse response by.</summary>
         [Tooltip("Targets which absorb the emitted rays and generate their impulse response by.")]
         [Linked("colliders")]
@@ -52,6 +55,8 @@ namespace Cavern.FilterInterfaces {
                 float gain = 1f / timeOffset;
                 if (gain > 1)
                     gain = 1;
+                if (ChangePhase && hitCount % 2 == 1)
+                    gain = -gain;
                 target.Impulse[(int)timeOffset] += gain;
             }
         }
