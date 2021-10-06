@@ -19,6 +19,11 @@ namespace Cavern.FilterInterfaces {
         [Linked("colliders")]
         public SimulationTarget[] Targets;
 
+        /// <summary>Show all rays, even the ones that didn't hit.</summary>
+        [Header("Debug")]
+        [Tooltip("Show all rays, even the ones that didn't hit.")]
+        public bool ShowAllRays = false;
+
         /// <summary>Colliders for the <see cref="Targets"/>.</summary>
         [Linked("Targets")]
         Collider[] colliders;
@@ -28,8 +33,7 @@ namespace Cavern.FilterInterfaces {
         /// <summary>The hit positions of the last ray's path.</summary>
         Vector3[] hits;
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void Start() {
+        void ResetColliders() {
             colliders = new Collider[Targets.Length];
             for (int target = 0; target < Targets.Length; ++target) {
                 colliders[target] = Targets[target].GetComponent<Collider>();
@@ -37,6 +41,9 @@ namespace Cavern.FilterInterfaces {
                     UnityEngine.Debug.LogError(Targets[target].name + " doesn't have a collider to be used for simulation.");
             }
         }
+
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
+        void Start() => ResetColliders();
 
         void MixImpulse(SimulationTarget target) {
             if (!target.HasClip)
@@ -112,10 +119,17 @@ namespace Cavern.FilterInterfaces {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void OnDrawGizmosSelected() => Raycast(PaintPath);
+        void OnDrawGizmosSelected() {
+            if (ShowAllRays)
+                DrawDebugRays();
+            else
+                Raycast(PaintPath);
+        }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
+            if (Targets.Length != colliders.Length)
+                ResetColliders();
             Raycast(MixImpulse);
             for (int target = 0; target < Targets.Length; ++target)
                 Targets[target].UpdateFilter();

@@ -15,8 +15,8 @@ namespace Cavern.FilterInterfaces {
         [Tooltip("Layers to bounce the sound off from.")]
         public LayerMask Layers = int.MaxValue;
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void OnDrawGizmosSelected() {
+        /// <summary>Draw all emitted rays as gizmos.</summary>
+        protected void DrawDebugRays() {
             float maxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity,
                 step = 360f / Detail,
                 colorStep = 1f / Bounces,
@@ -47,5 +47,8 @@ namespace Cavern.FilterInterfaces {
                 direction.x += step;
             }
         }
+
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
+        void OnDrawGizmosSelected() => DrawDebugRays();
     }
 }
