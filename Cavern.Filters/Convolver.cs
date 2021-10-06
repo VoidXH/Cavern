@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Filters {
     /// <summary>Simple convolution window filter.</summary>
@@ -18,11 +19,11 @@ namespace Cavern.Filters {
         }
 
         /// <summary>Additional impulse delay in samples.</summary>
-        int delay;
+        protected int delay;
         /// <summary>Impulse response to convolve with.</summary>
-        float[] impulse;
+        protected float[] impulse;
         /// <summary>Samples to be copied to the beginning of the next output.</summary>
-        float[] future;
+        protected float[] future;
 
         /// <summary>Construct a convolver for a target impulse response.</summary>
         public Convolver(float[] impulse, int delay) {
@@ -31,14 +32,9 @@ namespace Cavern.Filters {
             Delay = delay;
         }
 
-        /// <summary>Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
-        public override void Process(float[] samples) {
-            // Actual convolution
+        /// <summary>Output the result and handle the future.</summary>
+        protected void Finalize(float[] samples, float[] convolved) {
             int delayedImpulse = impulse.Length + delay;
-            float[] convolved = new float[samples.Length + delayedImpulse];
-            for (int sample = 0; sample < samples.Length; ++sample)
-                for (int step = 0, lastStep = impulse.Length; step < lastStep; ++step)
-                    convolved[sample + step + delay] += samples[sample] * impulse[step];
             if (samples.Length > delayedImpulse) {
                 // Drain cache
                 Buffer.BlockCopy(convolved, 0, samples, 0, samples.Length * sizeof(float));
@@ -60,6 +56,36 @@ namespace Cavern.Filters {
                 for (int sample = 0; sample < delayedImpulse; ++sample)
                     future[sample] += convolved[sample + samples.Length];
             }
+        }
+
+        /// <summary>Perform a convolution.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[] Convolve(float[] a, float[] b) {
+            float[] convolved = new float[a.Length + b.Length];
+            for (int i = 0; i < a.Length; ++i)
+                for (int j = 0; j < b.Length; ++j)
+                    convolved[i + j] += a[i] * b[j];
+            return convolved;
+        }
+
+        /// <summary>Perform a convolution with a delay.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[] Convolve(float[] a, float[] b, int delay) {
+            float[] convolved = new float[a.Length + b.Length + delay];
+            for (int i = 0; i < a.Length; ++i)
+                for (int j = 0; j < b.Length; ++j)
+                    convolved[i + j + delay] += a[i] * b[j];
+            return convolved;
+        }
+
+        /// <summary>Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        public override void Process(float[] samples) {
+            float[] convolved;
+            if (delay == 0)
+                convolved = Convolve(samples, impulse);
+            else
+                convolved = Convolve(samples, impulse, delay);
+            Finalize(samples, convolved);
         }
     }
 }
