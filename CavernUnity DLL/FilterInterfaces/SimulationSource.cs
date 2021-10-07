@@ -17,7 +17,7 @@ namespace Cavern.FilterInterfaces {
         /// <summary>Targets which absorb the emitted rays and generate their impulse response by.</summary>
         [Tooltip("Targets which absorb the emitted rays and generate their impulse response by.")]
         [Linked("colliders")]
-        public SimulationTarget[] Targets;
+        public SimulationTarget[] Targets = new SimulationTarget[0];
 
         /// <summary>Show all rays, even the ones that didn't hit.</summary>
         [Header("Debug")]
@@ -26,7 +26,7 @@ namespace Cavern.FilterInterfaces {
 
         /// <summary>Colliders for the <see cref="Targets"/>.</summary>
         [Linked("Targets")]
-        Collider[] colliders;
+        Collider[] colliders = new Collider[0];
 
         /// <summary>Hits in the last ray's path.</summary>
         int hitCount;
@@ -128,8 +128,8 @@ namespace Cavern.FilterInterfaces {
                 Raycast(PaintPath);
         }
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void Update() {
+        /// <summary>Render new impulse responses by the state of the scene.</summary>
+        public void Update() {
             if (Targets.Length != colliders.Length)
                 ResetColliders();
             Raycast(MixImpulse);
