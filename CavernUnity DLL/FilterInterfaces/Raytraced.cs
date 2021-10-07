@@ -4,9 +4,9 @@ using UnityEngine;
 namespace Cavern.FilterInterfaces {
     /// <summary>A filter built on raytracing with ideal geometric relections.</summary>
     public abstract class Raytraced : MonoBehaviour {
-        /// <summary>Number of directions to check.</summary>
+        /// <summary>Number of rays per plane.</summary>
         [Header("Raycast")]
-        [Tooltip("Number of directions to check.")]
+        [Tooltip("Number of rays per plane.")]
         public int Detail = 5;
         /// <summary>Maximum surface bounces.</summary>
         [Tooltip("Maximum surface bounces.")]
