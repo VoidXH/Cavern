@@ -32,8 +32,9 @@ namespace Cavern.Virtualizer {
                     ComplexFilter filter = new ComplexFilter();
                     int delay = 0;
                     if (Y % 180 > 0) {
-                        delay = (int)(Math.Sin(Y * VectorExtensions.Deg2Rad) * peakDelay + .5f);
-                        filter.Filters.Add(new Gain(-16));
+                        double azimuth = Math.Sin(Y * VectorExtensions.Deg2Rad);
+                        delay = (int)(azimuth * peakDelay + .5f);
+                        filter.Filters.Add(new Gain(-16 * azimuth));
                     }
                     filter.Filters.Add(new Convolver(LeftEarIR, delay));
                     return leftFilter = filter;
@@ -47,8 +48,9 @@ namespace Cavern.Virtualizer {
                     ComplexFilter filter = new ComplexFilter();
                     int delay = 0;
                     if (Y < 0) {
-                        delay = (int)(Math.Sin(-Y * VectorExtensions.Deg2Rad) * peakDelay + .5f);
-                        filter.Filters.Add(new Gain(-16));
+                        double azimuth = Math.Sin(-Y * VectorExtensions.Deg2Rad);
+                        delay = (int)(azimuth * peakDelay + .5f);
+                        filter.Filters.Add(new Gain(-16 * azimuth));
                     }
                     filter.Filters.Add(new Convolver(RightEarIR, delay));
                     return rightFilter = filter;
