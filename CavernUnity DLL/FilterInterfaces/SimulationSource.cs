@@ -90,7 +90,7 @@ namespace Cavern.FilterInterfaces {
                 maxDist = AudioListener3D.Current.Range;
             Vector3 direction = Vector3.zero;
 
-            hits = new Vector3[Bounces];
+            hits = new Vector3[Bounces + 1];
             for (int target = 0; target < Targets.Length; ++target)
                 Targets[target].Prepare();
 
@@ -103,7 +103,9 @@ namespace Cavern.FilterInterfaces {
                         if (Physics.Raycast(lastPos, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
                             for (int i = 0; i < colliders.Length; ++i) {
                                 if (colliders[i] == hit.collider) { // Found a path to one collider
+                                    hits[hitCount++] = hit.point;
                                     onHit(Targets[i]);
+                                    bounce = Bounces; // Break outer loop
                                     break;
                                 }
                             }
