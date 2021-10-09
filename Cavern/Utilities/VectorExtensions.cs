@@ -9,37 +9,8 @@ namespace Cavern.Utilities {
         /// <summary>sqrt(2) / 2 = 1 / sqrt(2)</summary>
         internal const float Sqrt2p2 = .7071067811f;
 
-        /// <summary>Rotate this vector by all axes in the opposite direction.</summary>
-        public static Vector3 RotateInverse(this Vector3 vector, Vector3 angles) {
-            angles *= -Deg2Rad;
-
-            float cos = (float)Math.Cos(angles.Z),
-                sin = (float)Math.Sin(angles.Z),
-                x = cos * vector.X - sin * vector.Y,
-                y = sin * x + cos * vector.Y;
-
-            cos = (float)Math.Cos(angles.Y);
-            sin = (float)Math.Sin(angles.Y);
-            x = cos * x + sin * angles.Z;
-            float z = cos * angles.Z - sin * x;
-
-            cos = (float)Math.Cos(angles.X);
-            sin = (float)Math.Sin(angles.X);
-            y = cos * y - sin * z;
-            z = sin * y + cos * z;
-
-            return new Vector3(x, y, z);
-        }
-
-        /// <summary>For given angles (in degrees) it returns a vector for that position on a sphere with the radius of 1.</summary>
-        public static Vector3 PlaceInSphere(Vector3 angles) {
-            float xRad = angles.X * Deg2Rad, yRad = angles.Y * Deg2Rad, cosX = (float)Math.Cos(xRad),
-                sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
-            return new Vector3(sinY * cosX, -(float)Math.Sin(xRad), cosY * cosX);
-        }
-
         /// <summary>For given angles (in degrees) it returns a vector for that position on a cube with the side length of 2.</summary>
-        public static Vector3 PlaceInCube(Vector3 angles) {
+        public static Vector3 PlaceInCube(this Vector3 angles) {
             float xRad = angles.X * Deg2Rad,
                 yRad = angles.Y * Deg2Rad,
                 sinX = (float)Math.Sin(xRad),
@@ -60,6 +31,35 @@ namespace Cavern.Utilities {
             }
             sinX /= Sqrt2p2;
             return new Vector3(sinY, -sinX, cosY);
+        }
+
+        /// <summary>For given angles (in degrees) it returns a vector for that position on a sphere with the radius of 1.</summary>
+        public static Vector3 PlaceInSphere(this Vector3 angles) {
+            float xRad = angles.X * Deg2Rad, yRad = angles.Y * Deg2Rad, cosX = (float)Math.Cos(xRad),
+                sinY = (float)Math.Sin(yRad), cosY = (float)Math.Cos(yRad);
+            return new Vector3(sinY * cosX, -(float)Math.Sin(xRad), cosY * cosX);
+        }
+
+        /// <summary>Rotate this vector by all axes in the opposite direction.</summary>
+        public static Vector3 RotateInverse(this Vector3 vector, Vector3 angles) {
+            angles *= -Deg2Rad;
+
+            float cos = (float)Math.Cos(angles.Z),
+                sin = (float)Math.Sin(angles.Z),
+                x = cos * vector.X - sin * vector.Y,
+                y = sin * x + cos * vector.Y;
+
+            cos = (float)Math.Cos(angles.Y);
+            sin = (float)Math.Sin(angles.Y);
+            x = cos * x + sin * angles.Z;
+            float z = cos * angles.Z - sin * x;
+
+            cos = (float)Math.Cos(angles.X);
+            sin = (float)Math.Sin(angles.X);
+            y = cos * y - sin * z;
+            z = sin * y + cos * z;
+
+            return new Vector3(x, y, z);
         }
     }
 }

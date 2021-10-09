@@ -38,7 +38,7 @@ namespace Cavern.Remapping {
                 source.Clip = clips[channel] = new RemappedChannel(updateRate);
                 source.Loop = true;
                 source.LFE = prototype.LFE;
-                source.Position = VectorExtensions.PlaceInCube(new Vector3(prototype.X, prototype.Y, 0));
+                source.Position = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube();
                 source.Position *= Listener.EnvironmentSize;
                 source.VolumeRolloff = Rolloffs.Disabled;
             }
