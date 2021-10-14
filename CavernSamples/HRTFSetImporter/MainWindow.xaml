@@ -1,0 +1,23 @@
+﻿<Window x:Class="HRTFSetImporter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HRTFSetImporter"
+        mc:Ignorable="d"
+        Title="HRTF Set Importer" Height="280" Width="335">
+    <Grid>
+        <GroupBox Header="Directional set" Height="100" Margin="10,10,10,0" VerticalAlignment="Top">
+            <Grid>
+                <!-- TODO: import set and generate C# file -->
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Distance and angle set" Height="115" Margin="10,115,10,0" VerticalAlignment="Top">
+            <Grid>
+                <Label Content="File name format ({A}: angle, {D}: distance (cm)):" Padding="0,5,5,5" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="angleSetName" Height="23" Margin="10,36,10,0" TextWrapping="Wrap" Text="AngleImpulse_{A}_D{D}.wav" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
+                <Button Content="Import" Margin="0,64,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="ImportAngleSet"/>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>
