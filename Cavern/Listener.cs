@@ -276,7 +276,7 @@ namespace Cavern {
             Array.Clear(renderBuffer, 0, renderBuffer.Length);
             for (int result = 0; result < results.Count; ++result)
                 WaveformUtils.Mix(results[result], renderBuffer);
-            // Volume, distance compensation, and subwoofers' lowpass
+            // Volume and subwoofers' lowpass
             for (int channel = 0; channel < channelCount; ++channel) {
                 if (Channels[channel].LFE) {
                     if (!DirectLFE)

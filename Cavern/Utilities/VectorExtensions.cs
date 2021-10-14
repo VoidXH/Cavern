@@ -6,6 +6,8 @@ namespace Cavern.Utilities {
     public static class VectorExtensions {
         /// <summary>Converts degrees to radians. = pi / 180.</summary>
         internal const float Deg2Rad = .01745329251f;
+        /// <summary>Converts radians to degrees. = 180 / pi.</summary>
+        internal const float Rad2Deg = 57.295779513f;
         /// <summary>sqrt(2) / 2 = 1 / sqrt(2)</summary>
         internal const float Sqrt2p2 = .7071067811f;
 

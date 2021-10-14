@@ -61,6 +61,9 @@ namespace Cavern {
         /// <summary>Filter to be applied on the 3D mixed output.</summary>
         [Tooltip("Filter to be applied on the 3D mixed output.")]
         public Filter SpatialFilter;
+        /// <summary>Simulates distance, not just direction when using virtualization.</summary>
+        [Tooltip("Simulates distance, not just direction when using virtualization.")]
+        public bool DistanceSimulation;
 
 #pragma warning disable IDE1006 // Naming Styles
         // ------------------------------------------------------------------
@@ -310,6 +313,7 @@ namespace Cavern {
             cavernSource.DopplerLevel = DopplerLevel;
             cavernSource.VolumeRolloff = VolumeRolloff;
             cavernSource.SpatialFilter = SpatialFilter;
+            cavernSource.DistanceSimulation = DistanceSimulation;
         }
     }
 }

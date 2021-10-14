@@ -42,6 +42,8 @@ namespace Cavern {
         public Rolloffs VolumeRolloff = Rolloffs.Logarithmic;
         /// <summary>Filter to be applied on the 3D mixed output.</summary>
         public Filter SpatialFilter;
+        /// <summary>Simulates distance, not just direction when using virtualization.</summary>
+        public bool DistanceSimulation;
 
         // ------------------------------------------------------------------
         // Variables

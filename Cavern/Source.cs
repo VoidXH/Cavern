@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
+using Cavern.Virtualizer;
 
 namespace Cavern {
     public partial class Source {
@@ -30,6 +31,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
+        /// <summary>Filter for applying <see cref="DistanceSimulation"/>.</summary>
+        Distancer distancer;
         /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
         int baseUpdateRate;
 
@@ -430,6 +433,13 @@ namespace Cavern {
                             } else if (!LFE && angleMatches[channel] != 0)
                                 WriteOutput(samples, rendered, volume3D * angleMatches[channel], channel, channels);
                         }
+                    }
+
+                    // Distance simulation for HRTF
+                    if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
+                        if (distancer == null)
+                            distancer = new Distancer(this);
+                        // TODO
                     }
                 }
             }
