@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Authors>VoidX</Authors>
+    <Description>Sample GUI spatial upconverter with Cavern's renderer.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+    <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+  </ItemGroup>
+
+</Project>
