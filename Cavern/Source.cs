@@ -31,8 +31,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
-        /// <summary>Filter for applying <see cref="DistanceSimulation"/>.</summary>
-        Distancer distancer;
+        /// <summary>Filters for applying <see cref="DistanceSimulation"/>. One filter for each channel in range.</summary>
+        Distancer[] distancers;
         /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
         int baseUpdateRate;
 
@@ -437,9 +437,15 @@ namespace Cavern {
 
                     // Distance simulation for HRTF
                     if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
-                        if (distancer == null)
-                            distancer = new Distancer(this);
-                        // TODO
+                        if (distancers == null)
+                            distancers = new Distancer[channels];
+                        for (int channel = 0; channel < channels; ++channel) {
+                            if (QMath.SignCompare(Listener.Channels[channel].Y, direction.X)) {
+                                if (distancers[channel] == null)
+                                    distancers[channel] = new Distancer(this);
+                                distancers[channel].Process(rendered, channel, channels);
+                            }
+                        }
                     }
                 }
             }

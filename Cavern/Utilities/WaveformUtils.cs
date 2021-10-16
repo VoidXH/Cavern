@@ -131,12 +131,22 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>Mix a track to a stream.</summary>
-        /// <param name="from">Track</param>
-        /// <param name="to">Stream</param>
+        /// <param name="source">Source track</param>
+        /// <param name="destination">Destination stream</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Mix(float[] from, float[] to) {
-            for (int i = 0; i < from.Length; ++i)
-                to[i] += from[i];
+        public static void Mix(float[] source, float[] destination) {
+            for (int i = 0; i < source.Length; ++i)
+                destination[i] += source[i];
+        }
+
+        /// <summary>Mix a track to a stream with a given gain.</summary>
+        /// <param name="source">Source track</param>
+        /// <param name="destination">Destination stream</param>
+        /// <param name="gain">Linear amplification of the <paramref name="source"/> track</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Mix(float[] source, float[] destination, float gain) {
+            for (int i = 0; i < source.Length; ++i)
+                destination[i] += source[i] * gain;
         }
 
         /// <summary>Normalize an array of samples.</summary>

@@ -72,6 +72,11 @@ namespace Cavern.Utilities {
             return ((a.asInt >> 23) + 1) & 0x1F;
         }
 
+        /// <summary>Checks if the two numbers have the same sign.</summary>
+        /// <remarks>This function does not handle 0, 0 correctly for optimization purposes.</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool SignCompare(float a, float b) => a * b > 0;
+
         /// <summary>Sum all elements in an array.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Sum(float[] array) {

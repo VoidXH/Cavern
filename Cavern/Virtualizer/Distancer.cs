@@ -8,18 +8,71 @@ namespace Cavern.Virtualizer {
     /// <summary>Simulates distance for objects when enabled and using virtualization.</summary>
     public class Distancer : Filter {
         /// <summary>The filtered source.</summary>
-        Source source;
+        readonly Source source;
+		/// <summary>Convolution used for actual filtering.</summary>
+        readonly SpikeConvolver filter;
 
         /// <summary>Create a distance simulation for a <see cref="Source"/>.</summary>
-        public Distancer(Source source) => this.source = source;
+        public Distancer(Source source) {
+            this.source = source;
+			filter = new SpikeConvolver(new float[16], 0);
+        }
 
-        public override void Process(float[] samples) {
+        /// <summary>Apply distance simulation on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <param name="samples">Input samples</param>
+        /// <param name="channel">Channel to filter</param>
+        /// <param name="channels">Total channels</param>
+        public override void Process(float[] samples, int channel, int channels) {
+            // TODO: optimization by running this code once per object
             Vector3 sourceForward = source.listener.Rotation.PlaceInSphere();
             Vector3 dir = source.Position - source.listener.Position;
-            float den = (float)Math.Sqrt(dir.LengthSquared());
-            float angle = Vector3.Dot(sourceForward, dir) / den * VectorExtensions.Rad2Deg;
-			// TODO
-        }
+            float distance = dir.Length();
+            float angle = Vector3.Dot(sourceForward, dir) / distance * VectorExtensions.Rad2Deg;
+
+            // Find bounding angles with discrete impulses
+            int smallerAngle = 0;
+            while (smallerAngle < angles.Length - 1 && angles[smallerAngle] < angle)
+                ++smallerAngle;
+            int largerAngle = smallerAngle + 1;
+            if (largerAngle == angles.Length)
+                largerAngle = angles.Length - 1;
+            float angleRatio = Math.Min(QMath.LerpInverse(angles[smallerAngle], angles[largerAngle], angle), 1);
+
+            // Find bounding distances with discrete impulses
+            int smallerDistance = 0;
+            while (smallerDistance < distances.Length - 1 && distances[smallerDistance] < distance)
+                ++smallerDistance;
+            int largerDistance = smallerDistance + 1;
+            if (largerDistance == distances.Length)
+                largerDistance = distances.Length - 1;
+            float distanceRatio = QMath.Clamp(QMath.LerpInverse(distances[smallerDistance], distances[largerDistance], distance), 0, 1);
+
+            // Find impulse candidates and their weight
+            float[][] candidates = new float[4][] {
+                impulses[smallerAngle][smallerDistance],
+                impulses[smallerAngle][largerDistance],
+                impulses[largerAngle][smallerDistance],
+                impulses[largerAngle][largerDistance]
+            };
+            float[] gains = new float[4] {
+                (float)Math.Sqrt((1 - angleRatio) * (1 - distanceRatio)),
+                (float)Math.Sqrt((1 - angleRatio) * distanceRatio),
+                (float)Math.Sqrt(angleRatio * (1 - distanceRatio)),
+                (float)Math.Sqrt(angleRatio * distanceRatio)
+            };
+
+            // Create and apply the filter
+            int filterSize = Math.Max(
+                Math.Max(candidates[0].Length, candidates[1].Length),
+                Math.Max(candidates[2].Length, candidates[3].Length)
+            );
+            float[] filterImpulse = new float[filterSize];
+            for (int candidate = 0; candidate < candidates.Length; ++candidate)
+                WaveformUtils.Mix(candidates[candidate], filterImpulse, gains[candidate]);
+            filter.Impulse = filterImpulse;
+            // TODO: find why this breaks Unity audio completely, maybe spectrally corrected impulses will work
+            filter.Process(samples, channel, channels);
+		}
 
 		/// <summary>All the angles that have their own impulse responses.</summary>
 		static readonly float[] angles = new float[6] { 0, 15, 30, 45, 60, 75 };
