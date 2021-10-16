@@ -38,20 +38,18 @@ namespace Cavern.Filters {
             int delayedImpulse = impulse.Length + delay;
             if (samples.Length > delayedImpulse) {
                 // Drain cache
-                Buffer.BlockCopy(convolved, 0, samples, 0, samples.Length * sizeof(float));
+                Array.Copy(convolved, 0, samples, 0, samples.Length);
                 for (int sample = 0; sample < delayedImpulse; ++sample)
                     samples[sample] += future[sample];
                 // Fill cache
-                for (int sample = 0; sample < delayedImpulse; ++sample)
-                    future[sample] = convolved[sample + samples.Length];
+                Array.Copy(convolved, samples.Length, future, 0, delayedImpulse);
             } else {
                 // Drain cache
                 for (int sample = 0; sample < samples.Length; ++sample)
                     samples[sample] = convolved[sample] + future[sample];
                 // Move cache
                 int futureEnd = delayedImpulse - samples.Length;
-                for (int sample = 0; sample < futureEnd; ++sample)
-                    future[sample] = future[sample + samples.Length];
+                Array.Copy(future, samples.Length, future, 0, futureEnd);
                 Array.Clear(future, futureEnd, samples.Length);
                 // Merge cache
                 for (int sample = 0; sample < delayedImpulse; ++sample)
