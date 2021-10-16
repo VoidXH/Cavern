@@ -9,7 +9,7 @@ namespace Cavern {
     public sealed class Channel : IEquatable<Channel> {
         /// <summary>Rotation around the vertical axis in degrees: elevation.</summary>
         public float X { get; private set; }
-        /// <summary>Rotation around the horizontal axis in degrees: azimuth.</summary>
+        /// <summary>Rotation around the horizontal axis in degrees, clockwise: azimuth.</summary>
         public float Y { get; private set; }
         /// <summary>True for channels carrying only Low Frequency Effects.</summary>
         public bool LFE {
