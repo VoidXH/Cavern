@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-using Cavern.QuickEQ.Utilities;
-using Cavern.Utilities;
-
-namespace Cavern.QuickEQ {
+namespace Cavern.Utilities {
     /// <summary>Tools for measuring frequency response.</summary>
     public static class Measurements {
         /// <summary>Actual FFT processing, somewhat in-place.</summary>
@@ -74,7 +71,7 @@ namespace Cavern.QuickEQ {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(Complex[] samples, FFTCache cache = null) {
             if (CavernAmp.Available)
-                CavernQuickEQAmp.InPlaceFFT(samples, cache);
+                CavernAmp.InPlaceFFT(samples, cache);
             else {
                 if (cache == null)
                     cache = new FFTCache(samples.Length);
@@ -93,7 +90,7 @@ namespace Cavern.QuickEQ {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(float[] samples, FFTCache cache = null) {
             if (CavernAmp.Available)
-                CavernQuickEQAmp.InPlaceFFT(samples, cache);
+                CavernAmp.InPlaceFFT(samples, cache);
             else {
                 if (cache == null)
                     cache = new FFTCache(samples.Length);
@@ -128,7 +125,7 @@ namespace Cavern.QuickEQ {
         public static Complex[] IFFT(Complex[] samples, FFTCache cache = null) {
             samples = samples.FastClone();
             if (CavernAmp.Available)
-                CavernQuickEQAmp.InPlaceIFFT(samples, cache);
+                CavernAmp.InPlaceIFFT(samples, cache);
             else {
                 if (cache == null)
                     cache = new FFTCache(samples.Length);
@@ -140,7 +137,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.</summary>
         public static void InPlaceIFFT(Complex[] samples, FFTCache cache = null) {
             if (CavernAmp.Available) {
-                CavernQuickEQAmp.InPlaceIFFT(samples, cache);
+                CavernAmp.InPlaceIFFT(samples, cache);
                 return;
             }
             if (cache == null)
@@ -167,7 +164,7 @@ namespace Cavern.QuickEQ {
                 response[i].Imaginary = 0;
             }
             if (CavernAmp.Available)
-                CavernQuickEQAmp.InPlaceIFFT(response, cache);
+                CavernAmp.InPlaceIFFT(response, cache);
             else
                 InPlaceIFFT(response, cache);
             for (int i = 1; i < halfLength; ++i) {
@@ -178,7 +175,7 @@ namespace Cavern.QuickEQ {
             }
             response[halfLength].Imaginary = -response[halfLength].Imaginary;
             if (CavernAmp.Available)
-                CavernQuickEQAmp.InPlaceFFT(response, cache);
+                CavernAmp.InPlaceFFT(response, cache);
             else
                 InPlaceFFT(response, cache);
             for (int i = 0; i < response.Length; ++i) {

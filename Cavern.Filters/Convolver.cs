@@ -9,6 +9,7 @@ namespace Cavern.Filters {
             get => delay;
             set => future = new float[impulse.Length + (delay = value)];
         }
+
         /// <summary>Impulse response to convolve with.</summary>
         public float[] Impulse {
             get => impulse;

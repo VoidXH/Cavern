@@ -1,9 +1,6 @@
 ﻿using System;
 
-using Cavern.QuickEQ.Utilities;
-using Cavern.Utilities;
-
-namespace Cavern.QuickEQ {
+namespace Cavern.Utilities {
     /// <summary>Precalculated constants and preallocated recursion arrays for a given FFT size.</summary>
     /// <remarks>Avoid simultaneously calculating two FFTs (since the split arrays are shared), unless you use <see cref="ThreadSafeFFTCache"/>.
     /// </remarks>
@@ -19,13 +16,13 @@ namespace Cavern.QuickEQ {
         /// <summary>Preallocated recursion arrays. Shared between all caches, their sizes are 2^i.</summary>
         static readonly Complex[][] globalEven = new Complex[30][], globalOdd = new Complex[30][];
 
-        /// <summary>C++ FFT cache class memory address to be passed to <see cref="CavernQuickEQAmp"/>.</summary>
-        internal IntPtr Native { get; private set; } = new IntPtr(0);
+        /// <summary>C++ FFT cache class memory address to be passed to <see cref="CavernAmp"/>.</summary>
+        internal IntPtr Native { get; private set; } = IntPtr.Zero;
 
         /// <summary>FFT cache constructor.</summary>
         public FFTCache(int size) {
             if (CavernAmp.Available) {
-                Native = CavernQuickEQAmp.FFTCache_Create(size);
+                Native = CavernAmp.FFTCache_Create(size);
                 return;
             }
 
@@ -49,7 +46,7 @@ namespace Cavern.QuickEQ {
         /// <summary>Free all used resources if there is any.</summary>
         public void Dispose() {
             if (Native.ToInt64() != 0)
-                CavernQuickEQAmp.FFTCache_Dispose(Native);
+                CavernAmp.FFTCache_Dispose(Native);
         }
     }
 

@@ -62,11 +62,9 @@
     <Compile Include="Equalization\EQGenerator.cs" />
     <Compile Include="Equalization\PeakingEqualizer.cs" />
     <Compile Include="FilterAnalyzer.cs" />
-    <Compile Include="Measurements.cs" />
     <Compile Include="SignalGeneration\NoiseGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Equalization\Equalizer.cs" />
-    <Compile Include="FFTCache.cs" />
     <Compile Include="GraphUtils.cs" />
     <Compile Include="SignalGeneration\SweepGenerator.cs" />
     <Compile Include="Utilities\CavernQuickEQAmp.cs" />
