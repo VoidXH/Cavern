@@ -269,7 +269,7 @@ namespace Cavern {
             List<float[]> results = new List<float[]>();
             while (node != null) {
                 if (node.Value.Precollect())
-                    results.Add(node.Value.Collect());
+                    results.Add(node.Value.Collect()); // TODO: Parallel, but not for Precollect
                 node = node.Next;
             }
             // Mix sources to output
