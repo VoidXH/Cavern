@@ -105,9 +105,11 @@ namespace HRTFSetImporter {
                 TrailingClearing(data);
 
                 StringBuilder result = new StringBuilder("float[][][] impulses = new float[").Append(data.Count).AppendLine("][][] {");
-                foreach (KeyValuePair<int, Dictionary<int, float[]>> angle in data) {
+                IOrderedEnumerable<KeyValuePair<int, Dictionary<int, float[]>>> orderedData = data.OrderBy(entry => entry.Key);
+                foreach (KeyValuePair<int, Dictionary<int, float[]>> angle in orderedData) {
                     result.Append("\tnew float[").Append(angle.Value.Count).AppendLine("][] {");
-                    foreach (KeyValuePair<int, float[]> distance in angle.Value) {
+                    IOrderedEnumerable<KeyValuePair<int, float[]>> orderedDistances = angle.Value.OrderBy(entry => entry.Key);
+                    foreach (KeyValuePair<int, float[]> distance in orderedDistances) {
                         float[] samples = distance.Value;
                         result.Append("\t\tnew float[").Append(samples.Length).Append("] { ");
                         for (int i = 0; i < samples.Length; ++i)
