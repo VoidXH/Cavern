@@ -80,6 +80,7 @@
     <Compile Include="Utilities\VectorExtensions.cs" />
     <Compile Include="Utilities\WaveformUtils.cs" />
     <Compile Include="Virtualizer\Distancer.cs" />
+    <Compile Include="Virtualizer\DistancerMaster.cs" />
     <Compile Include="Virtualizer\SpatialChannel.cs" />
     <Compile Include="Virtualizer\VirtualizerFilter.cs" />
   </ItemGroup>
