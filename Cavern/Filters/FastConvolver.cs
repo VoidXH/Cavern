@@ -9,19 +9,22 @@ namespace Cavern.Filters {
         public float[] Impulse {
             get => impulse;
             set {
+                if (impulse.Length != value.Length) {
+                    int filterSize = 2 << QMath.Log2(value.Length << 1) << shiftFactor;
+                    transferFunction = new Complex[filterSize];
+                    cache = new FFTCache(filterSize);
+                    unprocessed = new float[filterSize];
+                    processed = new float[filterSize];
+                    position = 0;
+                }
                 impulse = value;
-                int filterSize = 2 << QMath.Log2(impulse.Length << 1) << shiftFactor;
-                transferFunction = new Complex[filterSize];
-                cache = new FFTCache(filterSize);
-                unprocessed = new float[filterSize];
-                processed = new float[filterSize];
-                position = 0;
                 for (int i = 0; i < impulse.Length; ++i)
                     transferFunction[i].Real = impulse[i];
+                Array.Clear(transferFunction, impulse.Length, transferFunction.Length - impulse.Length);
                 Measurements.InPlaceFFT(transferFunction, cache);
             }
         }
-        float[] impulse;
+        float[] impulse = new float[0];
 
         /// <summary>Padded FFT of <see cref="Impulse"/>.</summary>
         Complex[] transferFunction;

@@ -1,4 +1,5 @@
-﻿using Cavern.Utilities;
+﻿using Cavern.Filters;
+using Cavern.Utilities;
 using System;
 using System.Numerics;
 
@@ -14,8 +15,18 @@ namespace Cavern.Virtualizer {
         /// <summary>The right ear's convolution impulse.</summary>
         public float[] RightFilter { get; private set; }
 
+        /// <summary>The maximum length of any of the <see cref="impulses"/>, because if the <see cref="FastConvolver"/> is used, the arrays won't be
+        /// reassigned and the filter won't cut out, and if the <see cref="SpikeConvolver"/> is used, the overhead is basically zero.</summary>
+        int filterSize;
+
         /// <summary>Create a distance simulation for a <see cref="Source"/>.</summary>
-        public DistancerMaster(Source source) => this.source = source;
+        public DistancerMaster(Source source) {
+            this.source = source;
+            for (int i = 0; i < impulses.Length; ++i)
+                for (int j = 0; j < impulses[i].Length; ++j)
+                    if (filterSize < impulses[i][j].Length)
+                        filterSize = impulses[i][j].Length;
+        }
 
         /// <summary>Generate the left/right ear filters.</summary>
         /// <param name="right">The object is to the right of the <see cref="Listener"/>'s forward vector.</param>
@@ -63,10 +74,6 @@ namespace Cavern.Virtualizer {
             };
 
             // Create the main filter
-            int filterSize = Math.Max(
-                Math.Max(candidates[0].Length, candidates[1].Length),
-                Math.Max(candidates[2].Length, candidates[3].Length)
-            );
             float[] filterImpulse = new float[filterSize];
             for (int candidate = 0; candidate < candidates.Length; ++candidate)
                 WaveformUtils.Mix(candidates[candidate], filterImpulse, gains[candidate]);
