@@ -5,12 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImpulseFlattener"
         mc:Ignorable="d"
-        Title="Impulse Flattener" Height="170" Width="400">
+        Title="Impulse Flattener" Height="270" Width="400">
     <Grid>
         <CheckBox x:Name="forceFloat" Content="Force 32-bit floating point export" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="30,30,0,0" TextWrapping="Wrap" Text="If not selected, the input format is kept." VerticalAlignment="Top"/>
         <CheckBox x:Name="normalizeToPeak" Content="Normalize to peak sample" HorizontalAlignment="Left" Margin="10,51,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="30,71,0,0" TextWrapping="Wrap" Text="If not selected, the result will have its spectrum around 0 dB." VerticalAlignment="Top"/>
-        <Button Content="Process impulse" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" Width="100" Click="ProcessImpulse"/>
+        <CheckBox x:Name="separateExport" Content="Export channels separately" HorizontalAlignment="Left" Margin="10,92,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="30,112,0,0" TextWrapping="Wrap" Text="For multichannel sources, results are exported in separate files." VerticalAlignment="Top"/>
+        <Button Content="Process impulse" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top" Width="100" Click="ProcessImpulse"/>
     </Grid>
 </Window>
