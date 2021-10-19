@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImpulseFlattener"
         mc:Ignorable="d"
-        Title="Impulse Flattener" Height="270" Width="400">
+        Title="Impulse Flattener" Height="245" Width="400">
     <Grid>
         <CheckBox x:Name="forceFloat" Content="Force 32-bit floating point export" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="30,30,0,0" TextWrapping="Wrap" Text="If not selected, the input format is kept." VerticalAlignment="Top"/>
