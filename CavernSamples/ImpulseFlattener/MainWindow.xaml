@@ -13,6 +13,8 @@
         <TextBlock HorizontalAlignment="Left" Margin="30,71,0,0" TextWrapping="Wrap" Text="If not selected, the result will have its spectrum around 0 dB." VerticalAlignment="Top"/>
         <CheckBox x:Name="separateExport" Content="Export channels separately" HorizontalAlignment="Left" Margin="10,92,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="30,112,0,0" TextWrapping="Wrap" Text="For multichannel sources, results are exported in separate files." VerticalAlignment="Top"/>
-        <Button Content="Process impulse" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top" Width="100" Click="ProcessImpulse"/>
+        <CheckBox x:Name="phasePerfect" Content="Phase-perfect results" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="30,153,0,0" TextWrapping="Wrap" Text="Linear-phase EQ-ing, but this creates huge delays." VerticalAlignment="Top"/>
+        <Button Content="Process impulse" HorizontalAlignment="Left" Margin="10,174,0,0" VerticalAlignment="Top" Width="100" Click="ProcessImpulse"/>
     </Grid>
 </Window>

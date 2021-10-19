@@ -56,7 +56,9 @@ namespace ImpulseFlattener {
                                 gain = abs;
                         }
                     }
-                    float[] filterSamples = eq.GetConvolution(reader.SampleRate, targetLen, gain);
+                    float[] filterSamples = phasePerfect.IsChecked.Value
+                        ? eq.GetLinearConvolution(reader.SampleRate, targetLen, gain)
+                        : eq.GetConvolution(reader.SampleRate, targetLen, gain);
                     filters[ch] = new Convolver(filterSamples, 0);
                 }
 
