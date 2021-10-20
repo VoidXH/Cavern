@@ -31,9 +31,7 @@ namespace ImpulseFlattener {
                 BinaryReader stream = new BinaryReader(File.Open(browser.FileName, FileMode.Open));
                 RIFFWaveReader reader = new RIFFWaveReader(stream);
                 float[] impulse = reader.Read();
-                int targetLen = 1 << QMath.Log2((int)reader.Length);
-                if (targetLen != reader.Length)
-                    targetLen <<= 1;
+                int targetLen = QMath.Base2Ceil((int)reader.Length);
                 Convolver[] filters = new Convolver[reader.ChannelCount];
 
                 for (int ch = 0; ch < reader.ChannelCount; ++ch) {

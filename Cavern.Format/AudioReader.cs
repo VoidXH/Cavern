@@ -6,7 +6,7 @@ namespace Cavern.Format {
     public abstract class AudioReader : IDisposable {
         /// <summary>Content channel count.</summary>
         public int ChannelCount { get; protected set; }
-        /// <summary>Content length in samples.</summary>
+        /// <summary>Content length in samples for a single channel.</summary>
         public long Length { get; protected set; }
         /// <summary>Content sample rate.</summary>
         public int SampleRate { get; protected set; }

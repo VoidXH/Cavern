@@ -6,6 +6,25 @@ using System.Runtime.InteropServices;
 namespace Cavern.Utilities {
     /// <summary>Two plus two is four, minus one, that's three, quick maths.</summary>
     public static class QMath {
+        /// <summary>Hack for <see cref="Log2(int)"/> to use in-CPU float conversion as log2 by shifting the exponent.</summary>
+        [StructLayout(LayoutKind.Explicit)]
+        struct ConverterStruct {
+            [FieldOffset(0)] public int asInt;
+            [FieldOffset(0)] public float asFloat;
+        }
+
+        /// <summary>Round up the number in base 2.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Base2Ceil(int val) {
+            ConverterStruct a = new ConverterStruct {
+                asFloat = val
+            };
+            int result = 1 << (((a.asInt >> 23) + 1) & 0x1F);
+            if (result != val)
+                result <<= 1;
+            return result;
+        }
+
         /// <summary>Clamp a double between limits.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Clamp(double value, double min, double max) {
@@ -55,13 +74,6 @@ namespace Cavern.Utilities {
         /// <summary>Gets t for linear interpolation for a given value.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double LerpInverse(double from, double to, double value) => (value - from) / (to - from);
-
-        /// <summary>Hack for <see cref="Log2(int)"/> to use in-CPU float conversion as log2 by shifting the exponent.</summary>
-        [StructLayout(LayoutKind.Explicit)]
-        struct ConverterStruct {
-            [FieldOffset(0)] public int asInt;
-            [FieldOffset(0)] public float asFloat;
-        }
 
         /// <summary>Compute the base 2 logarithm of a number faster than a generic Log function.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

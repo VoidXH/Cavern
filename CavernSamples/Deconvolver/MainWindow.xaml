@@ -1,0 +1,14 @@
+﻿<Window x:Class="Deconvolver.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Deconvolver"
+        mc:Ignorable="d"
+        Title="Deconvolver" Height="125" Width="300">
+    <Grid>
+        <CheckBox x:Name="padding" Content="Padding" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="Double the length of the output with front room." VerticalAlignment="Top"/>
+        <Button Content="Load files" HorizontalAlignment="Left" Margin="10,51,0,0" VerticalAlignment="Top" Width="75" Click="LoadFiles"/>
+    </Grid>
+</Window>
