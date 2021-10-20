@@ -5,8 +5,8 @@ namespace Cavern.Filters {
     public class Gain : Filter {
         /// <summary>Filter gain in decibels.</summary>
         public double GainValue {
-            get => 20 * Math.Log10(gainValue / 20);
-            set => gainValue = (float)Math.Pow(10, GainValue * .05);
+            get => 20 * Math.Log10(gainValue);
+            set => gainValue = (float)Math.Pow(10, value * .05);
         }
 
         /// <summary>Filter gain as a multiplier.</summary>
