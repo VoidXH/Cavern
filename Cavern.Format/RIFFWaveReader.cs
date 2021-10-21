@@ -87,6 +87,7 @@ namespace Cavern.Format {
                         if (from < int.MaxValue / sizeof(float)) {
                             int count = (int)(to - from) * sizeof(float);
                             byte[] source = reader.ReadBytes(count);
+                            count = source.Length; // Don't overflow
                             Buffer.BlockCopy(source, 0, samples, (int)from * sizeof(float), count);
                         } else while (from < to)
                                 samples[from++] = reader.ReadSingle();
