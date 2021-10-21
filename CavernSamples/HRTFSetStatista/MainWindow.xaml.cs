@@ -1,6 +1,7 @@
 ﻿using Cavern.QuickEQ;
 using Cavern.Utilities;
 using HRTFSetStatista.Properties;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -20,9 +21,9 @@ namespace HRTFSetStatista {
     public partial class MainWindow : Window {
         const string hMarker = "{Y}", wMarker = "{X}", distanceMarker = "{D}";
         /// <summary>
-        /// -60 dB gain, 10^(-60/20).
+        /// -20 dB gain, 10^(-20/20).
         /// </summary>
-        const float m60dB = .001f;
+        const float m20dB = .1f;
 
         readonly FolderBrowserDialog importer = new FolderBrowserDialog();
         readonly NumberFormatInfo numberFormat = new NumberFormatInfo {
@@ -80,8 +81,8 @@ namespace HRTFSetStatista {
                     for (int channel = 0; channel < setEntry.Data.Length; ++channel) {
                         float[] data = setEntry.Data[channel];
                         int delay = 0;
-                        float firstValid = WaveformUtils.GetPeak(data) * m60dB * 10f;
-                        while (delay < data.Length && data[delay] < firstValid)
+                        float firstValid = WaveformUtils.GetPeak(data) * m20dB;
+                        while (delay < data.Length && Math.Abs(data[delay]) < firstValid)
                             ++delay;
                         if (maxDelay < delay)
                             maxDelay = delay;
