@@ -1,4 +1,5 @@
 ﻿using Cavern.QuickEQ;
+using Cavern.Utilities;
 using HRTFSetStatista.Properties;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +19,10 @@ namespace HRTFSetStatista {
     /// </summary>
     public partial class MainWindow : Window {
         const string hMarker = "{Y}", wMarker = "{X}", distanceMarker = "{D}";
+        /// <summary>
+        /// -60 dB gain, 10^(-60/20).
+        /// </summary>
+        const float m60dB = .001f;
 
         readonly FolderBrowserDialog importer = new FolderBrowserDialog();
         readonly NumberFormatInfo numberFormat = new NumberFormatInfo {
@@ -71,11 +76,15 @@ namespace HRTFSetStatista {
                     HRTFSetEntry setEntry = entries[entry];
                     int maxDelay = 0, minDelay = int.MaxValue;
                     for (int channel = 0; channel < setEntry.Data.Length; ++channel) {
-                        VerboseImpulseResponse response = new VerboseImpulseResponse(setEntry.Data[channel]);
-                        if (maxDelay < response.Delay)
-                            maxDelay = response.Delay;
-                        if (minDelay > response.Delay)
-                            minDelay = response.Delay;
+                        float[] data = setEntry.Data[channel];
+                        int delay = 0;
+                        float firstValid = WaveformUtils.GetPeak(data) * m60dB * 10f;
+                        while (delay < data.Length && data[delay] < firstValid)
+                            ++delay;
+                        if (maxDelay < delay)
+                            maxDelay = delay;
+                        if (minDelay > delay)
+                            minDelay = delay;
                     }
                     if (!delayDiffs.ContainsKey(setEntry.Distance))
                         delayDiffs[setEntry.Distance] = new int[hValues.Count];
