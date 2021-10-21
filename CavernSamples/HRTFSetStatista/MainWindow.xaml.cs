@@ -50,10 +50,12 @@ namespace HRTFSetStatista {
                 for (int file = 0; file < folders.Length; ++file) {
                     string fileName = Path.GetFileName(folders[file]);
                     Match match = pattern.Match(fileName);
-                    if (match.Success &&
-                        double.TryParse(match.Groups["h"].Value, NumberStyles.Any, numberFormat, out double h) &&
-                        double.TryParse(match.Groups["w"].Value, NumberStyles.Any, numberFormat, out double w) &&
-                        double.TryParse(match.Groups["distance"].Value, NumberStyles.Any, numberFormat, out double distance)) {
+                    if (match.Success) {
+                        if (!double.TryParse(match.Groups["h"].Value, NumberStyles.Any, numberFormat, out double h))
+                            continue;
+                        double.TryParse(match.Groups["w"].Value, NumberStyles.Any, numberFormat, out double w);
+                        if (!double.TryParse(match.Groups["distance"].Value, NumberStyles.Any, numberFormat, out double distance))
+                            distance = 1;
                         entries.Add(new HRTFSetEntry(h, w, distance, folders[file]));
                     }
                 }
