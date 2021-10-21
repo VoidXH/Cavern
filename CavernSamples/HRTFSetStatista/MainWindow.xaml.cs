@@ -1,5 +1,7 @@
 ﻿using Cavern.QuickEQ;
+using HRTFSetStatista.Properties;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -22,7 +24,12 @@ namespace HRTFSetStatista {
             NumberDecimalSeparator = "."
         };
 
-        public MainWindow() => InitializeComponent();
+        public MainWindow() {
+            InitializeComponent();
+            if (Settings.Default.LastPath != null && Directory.Exists(Settings.Default.LastPath))
+                importer.SelectedPath = Settings.Default.LastPath;
+            setName.Text = Settings.Default.SetName;
+        }
 
         void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
@@ -77,6 +84,13 @@ namespace HRTFSetStatista {
 
                 // TODO: draw the delayDiffs graphs by each distance
             }
+        }
+
+        protected override void OnClosing(CancelEventArgs e) {
+            Settings.Default.LastPath = importer.SelectedPath;
+            Settings.Default.SetName = setName.Text;
+            Settings.Default.Save();
+            base.OnClosing(e);
         }
     }
 }
