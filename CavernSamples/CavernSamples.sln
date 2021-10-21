@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRTFSetImporter", "HRTFSetI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deconvolver", "Deconvolver\Deconvolver.csproj", "{BBF0C06D-880A-480F-BFA1-23041F574578}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRTFSetStatista", "HRTFSetStatista\HRTFSetStatista.csproj", "{08435591-B0BA-4A24-B785-1136B0DFC97D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{BBF0C06D-880A-480F-BFA1-23041F574578}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBF0C06D-880A-480F-BFA1-23041F574578}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBF0C06D-880A-480F-BFA1-23041F574578}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08435591-B0BA-4A24-B785-1136B0DFC97D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08435591-B0BA-4A24-B785-1136B0DFC97D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08435591-B0BA-4A24-B785-1136B0DFC97D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08435591-B0BA-4A24-B785-1136B0DFC97D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

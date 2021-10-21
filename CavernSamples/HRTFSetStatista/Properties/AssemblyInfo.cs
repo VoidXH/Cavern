@@ -2,11 +2,11 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 
-[assembly: AssemblyTitle("Deconvolver")]
-[assembly: AssemblyDescription("Inverts convolutions or generates a transfer function between two systems.")]
+[assembly: AssemblyTitle("HRTF Set Statista")]
+[assembly: AssemblyDescription("Creates different statistic graphs from a HRTF set.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("VoidX")]
-[assembly: AssemblyProduct("Deconvolver")]
+[assembly: AssemblyProduct("HRTF Set Statista")]
 [assembly: AssemblyCopyright("Copyright © VoidX 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

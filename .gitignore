@@ -17,8 +17,12 @@ Cavernize Lite/obj/
 Cavernize Lite/samples/
 CavernSamples/CavernizeGUI/bin/
 CavernSamples/CavernizeGUI/obj/
+CavernSamples/Deconvolver/bin/
+CavernSamples/Deconvolver/obj/
 CavernSamples/HRTFSetImporter/bin/
 CavernSamples/HRTFSetImporter/obj/
+CavernSamples/HRTFSetStatista/bin/
+CavernSamples/HRTFSetStatista/obj/
 CavernSamples/ImpulseFlattener/bin/
 CavernSamples/ImpulseFlattener/obj/
 CavernUnity DLL/bin/
