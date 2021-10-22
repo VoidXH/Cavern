@@ -130,6 +130,17 @@ namespace Cavern.Utilities {
             return target[pos];
         }
 
+        /// <summary>Get the root mean square amplitude of a single-channel signal.</summary>
+        /// <param name="target">Array reference</param>
+        /// <returns>RMS amplitude of the signal</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetRMS(float[] target) {
+            float sum = 0;
+            for (int sample = 0; sample < target.Length; ++sample)
+                sum += target[sample] * target[sample];
+            return (float)Math.Sqrt(sum / target.Length);
+        }
+
         /// <summary>Mix a track to a stream.</summary>
         /// <param name="source">Source track</param>
         /// <param name="destination">Destination stream</param>

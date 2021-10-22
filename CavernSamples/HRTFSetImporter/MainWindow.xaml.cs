@@ -10,7 +10,6 @@ using System.Windows;
 using System.Windows.Forms;
 
 using Clipboard = System.Windows.Clipboard;
-using DataFormats = System.Windows.DataFormats;
 using MessageBox = System.Windows.MessageBox;
 
 namespace HRTFSetImporter {
@@ -119,7 +118,7 @@ namespace HRTFSetImporter {
                     result.AppendLine("\t},");
                 }
                 result.Append("};");
-                Clipboard.SetData(DataFormats.Text, result.ToString());
+                Clipboard.SetText(result.ToString());
                 MessageBox.Show("Impulse response array successfully copied to clipboard.", "Success",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }

@@ -1,5 +1,4 @@
-﻿using Cavern.QuickEQ;
-using Cavern.Utilities;
+﻿using Cavern.Utilities;
 using HRTFSetStatista.Properties;
 using System;
 using System.Collections.Generic;
@@ -7,10 +6,12 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
 
+using Clipboard = System.Windows.Clipboard;
 using MessageBox = System.Windows.MessageBox;
 using Window = System.Windows.Window;
 
@@ -38,6 +39,62 @@ namespace HRTFSetStatista {
         }
 
         void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        Dictionary<double, int[]> GetDelayDifferences(List<HRTFSetEntry> entries, List<double> hValues) {
+            Dictionary<double, int[]> result = new Dictionary<double, int[]>(); // Distance; array by hValues
+            for (int entry = 0, count = entries.Count; entry < count; ++entry) {
+                HRTFSetEntry setEntry = entries[entry];
+                int maxDelay = 0, minDelay = int.MaxValue;
+                for (int channel = 0; channel < setEntry.Data.Length; ++channel) {
+                    float[] data = setEntry.Data[channel];
+                    int delay = 0;
+                    float firstValid = WaveformUtils.GetPeak(data) * m20dB;
+                    while (delay < data.Length && Math.Abs(data[delay]) < firstValid)
+                        ++delay;
+                    if (maxDelay < delay)
+                        maxDelay = delay;
+                    if (minDelay > delay)
+                        minDelay = delay;
+                }
+                if (!result.ContainsKey(setEntry.Distance))
+                    result[setEntry.Distance] = new int[hValues.Count];
+                result[setEntry.Distance][hValues.IndexOf(setEntry.Azimuth)] = maxDelay - minDelay;
+            }
+            return result;
+        }
+
+        Dictionary<double, float[]> GetGainDifferences(List<HRTFSetEntry> entries, List<double> hValues) {
+            Dictionary<double, float[]> result = new Dictionary<double, float[]>(); // Distance; array by hValues
+            for (int entry = 0, count = entries.Count; entry < count; ++entry) {
+                HRTFSetEntry setEntry = entries[entry];
+                float maxGain = float.MinValue, minGain = float.MaxValue;
+                for (int channel = 0; channel < setEntry.Data.Length; ++channel) {
+                    float peak = QMath.GainToDb(WaveformUtils.GetRMS(setEntry.Data[channel]));
+                    if (maxGain < peak)
+                        maxGain = peak;
+                    if (minGain > peak)
+                        minGain = peak;
+                }
+                if (!result.ContainsKey(setEntry.Distance))
+                    result[setEntry.Distance] = new float[hValues.Count];
+                result[setEntry.Distance][hValues.IndexOf(setEntry.Azimuth)] = maxGain - minGain;
+            }
+            return result;
+        }
+
+        void CopyToClipboard<T>(Dictionary<double, T[]> set, List<double> hValues) {
+            StringBuilder result = new StringBuilder();
+            double[] columns = set.Keys.ToArray();
+            for (int h = 0; h < hValues.Count; ++h) {
+                result.Append(hValues[h]).Append('\t');
+                for (int i = 0; i < columns.Length; ++i)
+                    if (i != columns.Length - 1)
+                        result.Append(set[columns[i]][h].ToString()).Append('\t');
+                    else
+                        result.AppendLine(set[columns[i]][h].ToString());
+            }
+            Clipboard.SetText(result.ToString());
+        }
 
         void LoadSet(object sender, RoutedEventArgs e) {
             if (importer.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
@@ -74,27 +131,10 @@ namespace HRTFSetStatista {
                     if (!hValues.Contains(entries[entry].Azimuth))
                         hValues.Add(entries[entry].Azimuth);
 
-                Dictionary<double, int[]> delayDiffs = new Dictionary<double, int[]>(); // Distance; array by hValues
-                for (int entry = 0; entry < entryCount; ++entry) {
-                    HRTFSetEntry setEntry = entries[entry];
-                    int maxDelay = 0, minDelay = int.MaxValue;
-                    for (int channel = 0; channel < setEntry.Data.Length; ++channel) {
-                        float[] data = setEntry.Data[channel];
-                        int delay = 0;
-                        float firstValid = WaveformUtils.GetPeak(data) * m20dB;
-                        while (delay < data.Length && Math.Abs(data[delay]) < firstValid)
-                            ++delay;
-                        if (maxDelay < delay)
-                            maxDelay = delay;
-                        if (minDelay > delay)
-                            minDelay = delay;
-                    }
-                    if (!delayDiffs.ContainsKey(setEntry.Distance))
-                        delayDiffs[setEntry.Distance] = new int[hValues.Count];
-                    delayDiffs[setEntry.Distance][hValues.IndexOf(setEntry.Azimuth)] = maxDelay - minDelay;
-                }
+                Dictionary<double, int[]> delayDiffs = GetDelayDifferences(entries, hValues);
+                Dictionary<double, float[]> gainDiffs = GetGainDifferences(entries, hValues);
 
-                // TODO: draw the delayDiffs graphs by each distance
+                // TODO: draw graphs
             }
         }
 

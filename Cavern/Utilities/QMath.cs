@@ -55,6 +55,9 @@ namespace Cavern.Utilities {
             return value;
         }
 
+        /// <summary>Convert voltage gain to decibels.</summary>
+        public static float GainToDb(float gain) => 20 * (float)Math.Log10(gain);
+
         /// <summary>Unclamped linear interpolation.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Lerp(float from, float to, float t) => (to - from) * t + from;
