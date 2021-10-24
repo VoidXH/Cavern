@@ -42,9 +42,9 @@ namespace Cavern.Format {
         /// <summary>Write the entire file.</summary>
         /// <param name="samples">All input samples</param>
         public void Write(float[] samples) {
-            Length = samples.LongLength;
+            Length = samples.LongLength / ChannelCount;
             WriteHeader();
-            WriteBlock(samples, 0, Length);
+            WriteBlock(samples, 0, samples.LongLength);
             writer.Close();
         }
 
