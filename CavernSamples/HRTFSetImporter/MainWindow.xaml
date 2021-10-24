@@ -5,18 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HRTFSetImporter"
         mc:Ignorable="d"
-        Title="HRTF Set Importer" Height="280" Width="335">
+        Title="HRTF Set Importer" Height="290" Width="335">
     <Grid>
-        <GroupBox Header="Directional set" Height="100" Margin="10,10,10,0" VerticalAlignment="Top">
+        <GroupBox Header="Directional set" Height="112" Margin="10,10,10,0" VerticalAlignment="Top">
             <Grid>
-                <!-- TODO: import set and generate C# file -->
+                <TextBlock Text="File name format ({Y}, {X}: rotations around axes):" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="directionalSetName" Height="23" Margin="10,31,10,0" TextWrapping="Wrap" Text="DirectionalImpulse_{Y}_{X}.wav" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
+                <Button Content="Import" Margin="0,0,10,10" HorizontalAlignment="Right" Width="75" Click="ImportDirectionalSet" Height="20" VerticalAlignment="Bottom"/>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Distance and angle set" Height="115" Margin="10,115,10,0" VerticalAlignment="Top">
+        <GroupBox Header="Distance and angle set" Height="112" Margin="10,127,10,0" VerticalAlignment="Top">
             <Grid>
-                <Label Content="File name format ({A}: angle, {D}: distance (cm)):" Padding="0,5,5,5" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="angleSetName" Height="23" Margin="10,36,10,0" TextWrapping="Wrap" Text="AngleImpulse_{A}_D{D}.wav" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
-                <Button Content="Import" Margin="0,64,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="ImportAngleSet"/>
+                <TextBlock Text="File name format ({A}: angle, {D}: distance (cm)):" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="angleSetName" Height="23" Margin="10,31,10,0" TextWrapping="Wrap" Text="AngleImpulse_{A}_D{D}.wav" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
+                <Button Content="Import" Margin="0,0,10,10" HorizontalAlignment="Right" Width="75" Click="ImportAngleSet" Height="20" VerticalAlignment="Bottom"/>
             </Grid>
         </GroupBox>
     </Grid>
