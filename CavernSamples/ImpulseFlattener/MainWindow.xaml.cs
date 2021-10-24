@@ -43,12 +43,8 @@ namespace ImpulseFlattener {
                 float[] channel = new float[targetLen];
                 WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
 
-                float gain = 1;
-                if (normalizeToPeak.IsChecked.Value)
-                    gain = WaveformUtils.GetPeak(channel);
-
                 Complex[] spectrum = Measurements.FFT(channel, cache);
-                filters[ch] = GetFilter(spectrum, gain, reader.SampleRate);
+                filters[ch] = GetFilter(spectrum, 1, reader.SampleRate);
             }
 
             Array.Resize(ref impulse, impulse.Length << 1);
@@ -58,7 +54,6 @@ namespace ImpulseFlattener {
 
         void ProcessCommon(RIFFWaveReader reader, ref float[] impulse) {
             int targetLen = QMath.Base2Ceil((int)reader.Length);
-            float gain = 1;
             Complex[] commonSpectrum = new Complex[targetLen];
             FFTCache cache = new FFTCache(targetLen);
 
@@ -74,14 +69,10 @@ namespace ImpulseFlattener {
             float mul = 1f / reader.ChannelCount;
             for (int band = 0; band < commonSpectrum.Length; ++band)
                 commonSpectrum[band] *= mul;
-            if (normalizeToPeak.IsChecked.Value) {
-                float[] channel = Measurements.GetRealPart(Measurements.IFFT(commonSpectrum, cache));
-                gain = WaveformUtils.GetPeak(channel);
-            }
 
             Array.Resize(ref impulse, impulse.Length << 1);
             for (int ch = 0; ch < reader.ChannelCount; ++ch) {
-                Convolver filter = GetFilter(commonSpectrum, gain, reader.SampleRate);
+                Convolver filter = GetFilter(commonSpectrum, 1, reader.SampleRate);
                 filter.Process(impulse, ch, reader.ChannelCount);
             }
         }
@@ -91,11 +82,17 @@ namespace ImpulseFlattener {
                 BinaryReader stream = new BinaryReader(File.Open(browser.FileName, FileMode.Open));
                 RIFFWaveReader reader = new RIFFWaveReader(stream);
                 float[] impulse = reader.Read();
+                float gain = 1;
+                if (keepGain.IsChecked.Value)
+                    gain = WaveformUtils.GetPeak(impulse);
 
                 if (commonEQ.IsChecked.Value)
                     ProcessCommon(reader, ref impulse);
                 else
                     ProcessPerChannel(reader, ref impulse);
+
+                if (keepGain.IsChecked.Value)
+                    WaveformUtils.Gain(impulse, gain / WaveformUtils.GetPeak(impulse));
 
                 BitDepth bits = reader.Bits;
                 if (forceFloat.IsChecked.Value)
