@@ -77,6 +77,14 @@ namespace Cavern.QuickEQ.Equalization {
             return new Equalizer(bands);
         }
 
+        public static Equalizer FlattenSpectrum(Complex[] spectrum, int sampleRate) {
+            double step = sampleRate / spectrum.Length;
+            List<Band> bands = new List<Band>(spectrum.Length >> 1);
+            for (int i = 0; i < spectrum.Length >> 1; ++i)
+                bands.Add(new Band(i * step, -20 * Math.Log10(spectrum[i].Magnitude)));
+            return new Equalizer(bands);
+        }
+
         /// <summary>Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.</summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>

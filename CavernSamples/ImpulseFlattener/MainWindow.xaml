@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImpulseFlattener"
         mc:Ignorable="d"
-        Title="Impulse Flattener" Height="245" Width="400">
+        Title="Impulse Flattener" Height="285" Width="400">
     <Grid>
         <CheckBox x:Name="forceFloat" Content="Force 32-bit floating point export" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="30,30,0,0" TextWrapping="Wrap" Text="If not selected, the input format is kept." VerticalAlignment="Top"/>
@@ -14,7 +14,9 @@
         <CheckBox x:Name="separateExport" Content="Export channels separately" HorizontalAlignment="Left" Margin="10,92,0,0" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="30,112,0,0" TextWrapping="Wrap" Text="For multichannel sources, results are exported in separate files." VerticalAlignment="Top"/>
         <CheckBox x:Name="phasePerfect" Content="Phase-perfect results" HorizontalAlignment="Left" Margin="10,133,0,0" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="30,153,0,0" TextWrapping="Wrap" Text="Linear-phase EQ-ing, but this creates huge delays." VerticalAlignment="Top"/>
-        <Button Content="Process impulse" HorizontalAlignment="Left" Margin="10,174,0,0" VerticalAlignment="Top" Width="100" Click="ProcessImpulse"/>
+        <TextBlock HorizontalAlignment="Left" Margin="30,153,0,0" TextWrapping="Wrap" Text="Linear-phase EQ-ing, but this creates large delays." VerticalAlignment="Top"/>
+        <CheckBox x:Name="commonEQ" Content="Common EQ" HorizontalAlignment="Left" Margin="10,174,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="30,194,0,0" TextWrapping="Wrap" Text="Both channels get the same filtering. Recommended for HRTF." VerticalAlignment="Top"/>
+        <Button Content="Process impulse" HorizontalAlignment="Left" Margin="10,215,0,0" VerticalAlignment="Top" Width="100" Click="ProcessImpulse"/>
     </Grid>
 </Window>

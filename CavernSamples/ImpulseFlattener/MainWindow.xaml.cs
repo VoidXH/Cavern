@@ -26,47 +26,82 @@ namespace ImpulseFlattener {
 
         public MainWindow() => InitializeComponent();
 
+        Convolver GetFilter(Complex[] spectrum, float gain, int sampleRate) {
+            Equalizer eq = EQGenerator.FlattenSpectrum(spectrum, sampleRate);
+            float[] filterSamples = phasePerfect.IsChecked.Value
+                ? eq.GetLinearConvolution(sampleRate, spectrum.Length, gain)
+                : eq.GetConvolution(sampleRate, spectrum.Length, gain);
+            return new Convolver(filterSamples, 0);
+        }
+
+        void ProcessPerChannel(RIFFWaveReader reader, ref float[] impulse) {
+            int targetLen = QMath.Base2Ceil((int)reader.Length);
+            Convolver[] filters = new Convolver[reader.ChannelCount];
+            FFTCache cache = new FFTCache(targetLen);
+
+            for (int ch = 0; ch < reader.ChannelCount; ++ch) {
+                float[] channel = new float[targetLen];
+                WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
+
+                float gain = 1;
+                if (normalizeToPeak.IsChecked.Value)
+                    gain = WaveformUtils.GetPeak(channel);
+
+                Complex[] spectrum = Measurements.FFT(channel, cache);
+                filters[ch] = GetFilter(spectrum, gain, reader.SampleRate);
+            }
+
+            Array.Resize(ref impulse, impulse.Length << 1);
+            for (int ch = 0; ch < reader.ChannelCount; ++ch)
+                filters[ch].Process(impulse, ch, reader.ChannelCount);
+        }
+
+        void ProcessCommon(RIFFWaveReader reader, ref float[] impulse) {
+            int targetLen = QMath.Base2Ceil((int)reader.Length);
+            float gain = 1;
+            Complex[] commonSpectrum = new Complex[targetLen];
+            FFTCache cache = new FFTCache(targetLen);
+
+            for (int ch = 0; ch < reader.ChannelCount; ++ch) {
+                float[] channel = new float[targetLen];
+                WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
+
+                Complex[] spectrum = Measurements.FFT(channel, cache);
+                for (int band = 0; band < spectrum.Length; ++band)
+                    commonSpectrum[band] += spectrum[band];
+            }
+
+            float mul = 1f / reader.ChannelCount;
+            for (int band = 0; band < commonSpectrum.Length; ++band)
+                commonSpectrum[band] *= mul;
+            if (normalizeToPeak.IsChecked.Value) {
+                float[] channel = Measurements.GetRealPart(Measurements.IFFT(commonSpectrum, cache));
+                gain = WaveformUtils.GetPeak(channel);
+            }
+
+            Array.Resize(ref impulse, impulse.Length << 1);
+            for (int ch = 0; ch < reader.ChannelCount; ++ch) {
+                Convolver filter = GetFilter(commonSpectrum, gain, reader.SampleRate);
+                filter.Process(impulse, ch, reader.ChannelCount);
+            }
+        }
+
         void ProcessImpulse(object sender, RoutedEventArgs e) {
             if (browser.ShowDialog().Value) {
                 BinaryReader stream = new BinaryReader(File.Open(browser.FileName, FileMode.Open));
                 RIFFWaveReader reader = new RIFFWaveReader(stream);
                 float[] impulse = reader.Read();
-                int targetLen = QMath.Base2Ceil((int)reader.Length);
-                Convolver[] filters = new Convolver[reader.ChannelCount];
 
-                for (int ch = 0; ch < reader.ChannelCount; ++ch) {
-                    float[] channel = new float[targetLen];
-                    WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
-
-                    float[] spectrum = Measurements.GetSpectrum(Measurements.FFT(channel));
-                    double step = reader.SampleRate * .5 / spectrum.Length;
-                    Equalizer eq = new Equalizer();
-                    for (int i = 0; i < spectrum.Length; ++i)
-                        eq.AddBand(new Band(i * step, -20 * Math.Log10(spectrum[i])));
-
-                    Array.Resize(ref channel, targetLen << 1);
-                    float gain = 1;
-                    if (normalizeToPeak.IsChecked.Value) {
-                        gain = 0;
-                        for (int i = 0; i < reader.Length; ++i) {
-                            float abs = Math.Abs(channel[i]);
-                            if (gain < abs)
-                                gain = abs;
-                        }
-                    }
-                    float[] filterSamples = phasePerfect.IsChecked.Value
-                        ? eq.GetLinearConvolution(reader.SampleRate, targetLen, gain)
-                        : eq.GetConvolution(reader.SampleRate, targetLen, gain);
-                    filters[ch] = new Convolver(filterSamples, 0);
-                }
-
-                Array.Resize(ref impulse, targetLen * reader.ChannelCount * 2);
-                for (int ch = 0; ch < reader.ChannelCount; ++ch)
-                    filters[ch].Process(impulse, ch, reader.ChannelCount);
+                if (commonEQ.IsChecked.Value)
+                    ProcessCommon(reader, ref impulse);
+                else
+                    ProcessPerChannel(reader, ref impulse);
 
                 BitDepth bits = reader.Bits;
                 if (forceFloat.IsChecked.Value)
                     bits = BitDepth.Float32;
+
+                int targetLen = QMath.Base2Ceil((int)reader.Length);
                 if (separateExport.IsChecked.Value) {
                     ReferenceChannel[] channels = ChannelPrototype.StandardMatrix[reader.ChannelCount];
                     for (int ch = 0; ch < reader.ChannelCount; ++ch) {
