@@ -27,15 +27,17 @@ namespace ImpulseFlattener {
         public MainWindow() => InitializeComponent();
 
         Convolver GetFilter(Complex[] spectrum, float gain, int sampleRate) {
-            Equalizer eq = EQGenerator.FlattenSpectrum(spectrum, sampleRate);
+            for (int band = 0; band < spectrum.Length; ++band)
+                spectrum[band] = spectrum[band].Invert();
+            Equalizer eq = new Equalizer();
             float[] filterSamples = phasePerfect.IsChecked.Value
-                ? eq.GetLinearConvolution(sampleRate, spectrum.Length, gain)
-                : eq.GetConvolution(sampleRate, spectrum.Length, gain);
+                ? eq.GetLinearConvolution(sampleRate, spectrum.Length / 2, gain, spectrum)
+                : eq.GetConvolution(sampleRate, spectrum.Length / 2, gain, spectrum);
             return new Convolver(filterSamples, 0);
         }
 
         void ProcessPerChannel(RIFFWaveReader reader, ref float[] impulse) {
-            int targetLen = QMath.Base2Ceil((int)reader.Length);
+            int targetLen = QMath.Base2Ceil((int)reader.Length) << 1;
             Convolver[] filters = new Convolver[reader.ChannelCount];
             FFTCache cache = new FFTCache(targetLen);
 
@@ -44,7 +46,7 @@ namespace ImpulseFlattener {
                 WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
 
                 Complex[] spectrum = Measurements.FFT(channel, cache);
-                filters[ch] = GetFilter(spectrum, 1, reader.SampleRate);
+                filters[ch] = GetFilter(spectrum, WaveformUtils.GetRMS(channel), reader.SampleRate);
             }
 
             Array.Resize(ref impulse, impulse.Length << 1);
@@ -53,7 +55,7 @@ namespace ImpulseFlattener {
         }
 
         void ProcessCommon(RIFFWaveReader reader, ref float[] impulse) {
-            int targetLen = QMath.Base2Ceil((int)reader.Length);
+            int targetLen = QMath.Base2Ceil((int)reader.Length) << 1;
             Complex[] commonSpectrum = new Complex[targetLen];
             FFTCache cache = new FFTCache(targetLen);
 

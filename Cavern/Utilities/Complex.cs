@@ -36,6 +36,9 @@ namespace Cavern.Utilities {
         /// <summary>Complex substraction.</summary>
         public static Complex operator -(Complex lhs, Complex rhs) => new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);
 
+        /// <summary>Complex negation.</summary>
+        public static Complex operator -(Complex pon) => new Complex(-pon.Real, -pon.Imaginary);
+
         /// <summary>Complex multiplication.</summary>
         public static Complex operator *(Complex lhs, Complex rhs) =>
             new Complex(lhs.Real * rhs.Real - lhs.Imaginary * rhs.Imaginary, lhs.Real * rhs.Imaginary + lhs.Imaginary * rhs.Real);
@@ -70,6 +73,12 @@ namespace Cavern.Utilities {
             float multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary), oldReal = Real;
             Real = (Real * rhs.Real + Imaginary * rhs.Imaginary) * multiplier;
             Imaginary = (Imaginary * rhs.Real - oldReal * rhs.Imaginary) * multiplier;
+        }
+
+        /// <summary>Calculate 1 / z.</summary>
+        public Complex Invert() {
+            float mul = 1 / (Real * Real + Imaginary * Imaginary);
+            return new Complex(Real * mul, Imaginary * mul);
         }
 
         /// <summary>Compare thie number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.</summary>
