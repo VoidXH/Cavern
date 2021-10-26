@@ -426,7 +426,7 @@ namespace Cavern {
                         // Place in sphere, write data to output channels
                         float totalAngleMatch = 0;
                         for (int channel = 0; channel < channels; ++channel)
-                            totalAngleMatch += angleMatches[channel];
+                            totalAngleMatch += angleMatches[channel] * angleMatches[channel];
                         float volume3D = Volume * rolloffDistance * SpatialBlend / totalAngleMatch;
                         for (int channel = 0; channel < channels; ++channel) {
                             if (Listener.Channels[channel].LFE) {
