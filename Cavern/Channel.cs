@@ -91,10 +91,10 @@ namespace Cavern {
             }
             sinX /= VectorExtensions.Sqrt2p2;
             CubicalPos = new Vector3(sinY, -sinX, cosY);
-            if (Listener.EnvironmentType != Environments.Studio)
-                SpatialPos = CubicalPos;
-            else
+            if (Listener.EnvironmentType == Environments.Studio || Listener.HeadphoneVirtualizer)
                 SpatialPos = SphericalPos;
+            else
+                SpatialPos = CubicalPos;
             Distance = SpatialPos.Length();
         }
 

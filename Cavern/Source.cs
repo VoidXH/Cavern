@@ -282,7 +282,10 @@ namespace Cavern {
                                 closestBF = 75,
                                 closestBR = -69;
                             // Find closest horizontal layers
-                            direction /= Listener.EnvironmentSize;
+                            if (Listener.HeadphoneVirtualizer)
+                                direction = direction.WarpToCube() / Listener.EnvironmentSize;
+                            else
+                                direction /= Listener.EnvironmentSize;
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE) {
                                     float channelY = Listener.Channels[channel].CubicalPos.Y;

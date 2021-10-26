@@ -14,14 +14,14 @@ namespace Cavern.Utilities {
 
         /// <summary>Returns a vector that's the same direction as the source vector, but it's on the side of a 2x2x2 cube.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 MapToCube(this Vector3 src) {
-            float max = Math.Max(Math.Abs(src.X), Math.Max(Math.Abs(src.Y), Math.Abs(src.Z)));
-            return src / max;
+        public static Vector3 MapToCube(this Vector3 vector) {
+            float max = Math.Max(Math.Abs(vector.X), Math.Max(Math.Abs(vector.Y), Math.Abs(vector.Z)));
+            return vector / max;
         }
 
         /// <summary>Returns a vector that's the same direction as the source vector, but has a length of 1.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 Normalized(this Vector3 src) => src / src.Length();
+        public static Vector3 Normalized(this Vector3 vector) => vector / vector.Length();
 
         /// <summary>For given angles (in degrees) it returns a vector for that position on a cube with the side length of 2.</summary>
         public static Vector3 PlaceInCube(this Vector3 angles) {
@@ -74,6 +74,13 @@ namespace Cavern.Utilities {
             z = sin * y + cos * z;
 
             return new Vector3(x, y, z);
+        }
+
+        /// <summary>Warps the points of a sphere to points a cube.</summary>
+        public static Vector3 WarpToCube(this Vector3 vector) {
+            float length = vector.Length();
+            float max = Math.Max(Math.Abs(vector.X), Math.Max(Math.Abs(vector.Y), Math.Abs(vector.Z)));
+            return vector * length / max;
         }
     }
 }
