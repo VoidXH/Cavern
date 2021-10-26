@@ -35,7 +35,7 @@ namespace Cavern {
         public bool RandomPosition = false;
 
         /// <summary>Source playback volume.</summary>
-        [Header("2D processing")]
+        [Header("1D processing")]
         [Tooltip("Source playback volume.")]
         [Range(0, 1)] public float Volume = 1;
         /// <summary>Playback speed with no pitch correction.</summary>
@@ -45,7 +45,7 @@ namespace Cavern {
         [Tooltip("Balance between left and right channels.")]
         [Range(-1, 1)] public float StereoPan = 0;
 
-        /// <summary>Balance between 2D and 3D mixing. 0 is 2D and 1 is 3D.</summary>
+        /// <summary>Balance between 1D and 3D mixing. 0 is 1D and 1 is 3D.</summary>
         [Header("3D processing")]
         [Tooltip("Stereo mix <-> 3D mix")]
         [Range(0, 1)] public float SpatialBlend = 1;

@@ -108,7 +108,7 @@ namespace Cavern {
                 --channelCount;
                 Listener.IsSymmetric = Listener.Channels[channelCount].Y % 180 == 0;
             }
-            Listener.LeftChannels = Listener.RightChannels = 0; // Count left and right side channels anyway for 2D mixing gains
+            Listener.LeftChannels = Listener.RightChannels = 0; // Count left and right side channels anyway for 1D mixing gains
             for (int i = 0; i < channelCount; ++i) {
                 Channel current = Listener.Channels[i];
                 if (current == null)

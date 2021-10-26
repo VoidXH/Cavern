@@ -20,7 +20,7 @@ namespace Cavern {
         public bool LFE = false;
 
         // ------------------------------------------------------------------
-        // 2D processing
+        // 1D processing
         // ------------------------------------------------------------------
         /// <summary>Source playback volume.</summary>
         public float Volume = 1;
@@ -32,7 +32,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // 3D processing
         // ------------------------------------------------------------------
-        /// <summary>Balance between 2D and 3D mixing. 0 is 2D and 1 is 3D.</summary>
+        /// <summary>Balance between 1D and 3D mixing. 0 is 1D and 1 is 3D.</summary>
         public float SpatialBlend = 1;
         /// <summary>Audio source size relative to <see cref="Listener.EnvironmentSize"/>. 0 is a point, 1 is the entire room.</summary>
         public float Size = 0;

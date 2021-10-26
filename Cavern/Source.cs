@@ -181,14 +181,14 @@ namespace Cavern {
                     target[to] = samples[from] * gain;
         }
 
-        void Stereo2DMix(float volume2D) {
-            float leftVolume = volume2D / Listener.LeftChannels,
-                rightVolume = volume2D / Listener.RightChannels;
+        void Stereo1DMix(float volume1D) {
+            float leftVolume = volume1D / Listener.LeftChannels,
+                rightVolume = volume1D / Listener.RightChannels;
             if (stereoPan < 0)
                 rightVolume *= -stereoPan * stereoPan + 1;
             else if (stereoPan > 0)
                 leftVolume *= 1 - stereoPan * stereoPan;
-            float halfVolume2D = volume2D * .5f;
+            float halfVolume1D = volume1D * .5f;
             int actualSample = 0;
             for (int sample = 0; sample < listener.UpdateRate; ++sample) {
                 float leftSample = leftSamples[sample], rightSample = rightSamples[sample],
@@ -196,7 +196,7 @@ namespace Cavern {
                 for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                     if (Listener.Channels[channel].LFE) {
                         if (!listener.LFESeparation || LFE)
-                            rendered[actualSample] += (leftSample + rightSample) * halfVolume2D;
+                            rendered[actualSample] += (leftSample + rightSample) * halfVolume1D;
                     } else if (!LFE) {
                         if (Listener.Channels[channel].Y < 0)
                             rendered[actualSample] += leftGained;
@@ -229,13 +229,13 @@ namespace Cavern {
                     } else // First channel only otherwise
                         Buffer.BlockCopy(Rendered[0], 0, samples, 0, PitchedUpdateRate * sizeof(float));
 
-                // 2D renderer
+                // 1D renderer
                 if (SpatialBlend != 1) {
-                    float volume2D = Volume * (1f - SpatialBlend);
+                    float volume1D = Volume * (1f - SpatialBlend);
                     // 1:1 mix for non-stereo sources
                     if (clipChannels != 2) {
                         samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
-                        WriteOutput(samples, rendered, volume2D, channels);
+                        WriteOutput(samples, rendered, volume1D, channels);
                     }
 
                     // Full side mix for stereo sources
@@ -244,7 +244,7 @@ namespace Cavern {
                         Buffer.BlockCopy(Rendered[1], 0, rightSamples, 0, PitchedUpdateRate * sizeof(float));
                         leftSamples = Resample.Adaptive(leftSamples, updateRate, listener.AudioQuality);
                         rightSamples = Resample.Adaptive(rightSamples, updateRate, listener.AudioQuality);
-                        Stereo2DMix(volume2D);
+                        Stereo1DMix(volume1D);
                     }
                 }
 
