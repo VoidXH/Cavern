@@ -32,11 +32,23 @@ namespace Cavern {
 
         /// <summary>3D environment type.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
-        public static Environments EnvironmentType = Environments.Home;
+        public static Environments EnvironmentType {
+            get => environmentType;
+            set {
+                environmentType = value;
+                Recalculate();
+            }
+        }
 
         /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/> on the next frame.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
-        public static bool HeadphoneVirtualizer = false;
+        public static bool HeadphoneVirtualizer {
+            get => headphoneVirtualizer;
+            set {
+                headphoneVirtualizer = value;
+                Recalculate();
+            }
+        }
 
         /// <summary>Output channel layout. The default setup is the standard 5.1.</summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created.</remarks>
@@ -135,20 +147,21 @@ namespace Cavern {
             string fileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
             if (File.Exists(fileName)) {
                 string[] save = File.ReadAllLines(fileName);
-                int savePos = 1,
-                    channelCount = Convert.ToInt32(save[0]);
-                Channels = new Channel[channelCount];
+                int savePos = 1;
+                Channels = new Channel[Convert.ToInt32(save[0])];
                 NumberFormatInfo format = new NumberFormatInfo {
                     NumberDecimalSeparator = ","
                 };
-                for (int i = 0; i < channelCount; ++i)
+                for (int i = 0; i < Channels.Length; ++i)
                     Channels[i] = new Channel(Convert.ToSingle(save[savePos++], format), Convert.ToSingle(save[savePos++], format),
                         Convert.ToBoolean(save[savePos++]));
                 EnvironmentType = (Environments)Convert.ToInt32(save[savePos++], format);
                 EnvironmentSize = new Vector3(Convert.ToSingle(save[savePos++], format), Convert.ToSingle(save[savePos++], format),
                     Convert.ToSingle(save[savePos++], format));
                 HeadphoneVirtualizer = save.Length > savePos && Convert.ToBoolean(save[savePos++]); // Added: 2016.04.24.
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
                 ++savePos; // Environment compensation (bool), added: 2017.06.18, removed: 2019.06.06.
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
             }
         }
 
@@ -189,7 +202,7 @@ namespace Cavern {
         /// <summary>Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;, or simply
         /// "Virtualization".</summary>
         public static string GetLayoutName() {
-            if (HeadphoneVirtualizer)
+            if (headphoneVirtualizer)
                 return "Virtualization";
             else {
                 int regular = 0, sub = 0, ceiling = 0, floor = 0;
@@ -224,11 +237,17 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Private variables
         // ------------------------------------------------------------------
+        /// <summary>Default value of <see cref="sourceLimit"/> and <see cref="MaximumSources"/>.</summary>
+        const int defaultSourceLimit = 128;
+
+        /// <summary>Virtual surround effect for headphones. This will replace the active <see cref="Channels"/> on the next frame.</summary>
+        static bool headphoneVirtualizer = false;
+        /// <summary>3D environment type.</summary>
+        static Environments environmentType = Environments.Home;
+
         /// <summary>Attached <see cref="Source"/>s.</summary>
         readonly LinkedList<Source> activeSources = new LinkedList<Source>();
 
-        /// <summary>Default value of <see cref="sourceLimit"/> and <see cref="MaximumSources"/>.</summary>
-        const int defaultSourceLimit = 128;
         /// <summary>Position between the last and current game frame's playback position.</summary>
         internal float pulseDelta;
         /// <summary>Distances of sources from the listener.</summary>
@@ -247,6 +266,12 @@ namespace Cavern {
         /// <summary>Lowpass filters for each channel.</summary>
         Lowpass[] lowpasses;
 
+        /// <summary>Recalculate the rendering environment.</summary>
+        static void Recalculate() {
+            for (int channel = 0; channel < Channels.Length; ++channel)
+                Channels[channel].Recalculate();
+        }
+
         /// <summary>Recreate optimization arrays.</summary>
         void Reoptimize() {
             channelCount = Channels.Length;
@@ -260,7 +285,7 @@ namespace Cavern {
 
         /// <summary>A single update.</summary>
         float[] Frame() {
-            if (HeadphoneVirtualizer)
+            if (headphoneVirtualizer)
                 VirtualizerFilter.SetLayout();
             if (channelCount != Channels.Length || lastSampleRate != SampleRate || lastUpdateRate != UpdateRate)
                 Reoptimize();

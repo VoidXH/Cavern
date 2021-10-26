@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
     /// <summary>Extra vector calculations.</summary>
@@ -10,6 +11,17 @@ namespace Cavern.Utilities {
         internal const float Rad2Deg = 57.295779513f;
         /// <summary>sqrt(2) / 2 = 1 / sqrt(2)</summary>
         internal const float Sqrt2p2 = .7071067811f;
+
+        /// <summary>Returns a vector that's the same direction as the source vector, but it's on the side of a 2x2x2 cube.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 MapToCube(this Vector3 src) {
+            float max = Math.Max(Math.Abs(src.X), Math.Max(Math.Abs(src.Y), Math.Abs(src.Z)));
+            return src / max;
+        }
+
+        /// <summary>Returns a vector that's the same direction as the source vector, but has a length of 1.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 Normalized(this Vector3 src) => src / src.Length();
 
         /// <summary>For given angles (in degrees) it returns a vector for that position on a cube with the side length of 2.</summary>
         public static Vector3 PlaceInCube(this Vector3 angles) {

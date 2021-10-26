@@ -69,7 +69,7 @@ namespace Cavern {
         }
 
         /// <summary>Recalculates properties.</summary>
-        void Recalculate() {
+        internal void Recalculate() {
             float xRad = X * VectorExtensions.Deg2Rad,
                 yRad = Y * VectorExtensions.Deg2Rad,
                 sinX = (float)Math.Sin(xRad),
