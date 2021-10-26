@@ -27,8 +27,6 @@ namespace ImpulseFlattener {
         public MainWindow() => InitializeComponent();
 
         Convolver GetFilter(Complex[] spectrum, float gain, int sampleRate) {
-            for (int band = 0; band < spectrum.Length; ++band)
-                spectrum[band] = spectrum[band].Invert();
             Equalizer eq = new Equalizer();
             float[] filterSamples = phasePerfect.IsChecked.Value
                 ? eq.GetLinearConvolution(sampleRate, spectrum.Length / 2, gain, spectrum)
@@ -46,6 +44,8 @@ namespace ImpulseFlattener {
                 WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
 
                 Complex[] spectrum = Measurements.FFT(channel, cache);
+                for (int band = 0; band < spectrum.Length; ++band)
+                    spectrum[band] = spectrum[band].Invert();
                 filters[ch] = GetFilter(spectrum, WaveformUtils.GetRMS(channel), reader.SampleRate);
             }
 
@@ -70,7 +70,7 @@ namespace ImpulseFlattener {
 
             float mul = 1f / reader.ChannelCount;
             for (int band = 0; band < commonSpectrum.Length; ++band)
-                commonSpectrum[band] *= mul;
+                commonSpectrum[band] = (commonSpectrum[band] * mul).Invert();
 
             Array.Resize(ref impulse, impulse.Length << 1);
             for (int ch = 0; ch < reader.ChannelCount; ++ch) {
