@@ -6,11 +6,6 @@ namespace Cavern.Virtualizer {
     public static partial class VirtualizerFilter {
         /// <summary>Represents a virtualizable channel with impulse responses for both ears.</summary>
         struct SpatialChannel {
-            /// <summary>Subject head width in samples.</summary>
-            internal const float headWidth = .2f;
-            /// <summary>Reference impulses were measured at this distance, meters.</summary>
-            internal const float referenceDistance = 1;
-
             /// <summary>Low frequency crossover, sounds not to be spatialized.</summary>
             const float crossoverFrequency = 120;
 
@@ -55,6 +50,9 @@ namespace Cavern.Virtualizer {
             public Crossover Crossover => crossover ??= new Crossover(filterSampleRate, crossoverFrequency);
             Crossover crossover;
         }
+
+        /// <summary>Reference impulses were measured at this distance, meters.</summary>
+        public const float referenceDistance = 1;
 
         /// <summary>HRIR database.</summary>
         static readonly SpatialChannel[] spatialChannels = new SpatialChannel[] {

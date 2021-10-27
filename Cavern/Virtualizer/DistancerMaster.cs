@@ -22,6 +22,7 @@ namespace Cavern.Virtualizer {
         /// <summary>Create a distance simulation for a <see cref="Source"/>.</summary>
         public DistancerMaster(Source source) {
             this.source = source;
+            source.VolumeRolloff = Rolloffs.Disabled;
             for (int i = 0; i < impulses.Length; ++i)
                 for (int j = 0; j < impulses[i].Length; ++j)
                     if (filterSize < impulses[i][j].Length)
@@ -34,10 +35,11 @@ namespace Cavern.Virtualizer {
             float dirMul = -90;
             if (right)
                 dirMul = 90;
-            Vector3 sourceForward = new Vector3(0, dirMul, 0).RotateInverse(source.listener.Rotation).PlaceInSphere();
-            Vector3 dir = source.Position - source.listener.Position;
-            float distance = dir.Length();
-            float angle = (float)Math.Acos(Vector3.Dot(sourceForward, dir) / distance) * VectorExtensions.Rad2Deg;
+            Vector3 sourceForward = new Vector3(0, dirMul, 0).RotateInverse(source.listener.Rotation).PlaceInSphere(),
+                dir = source.Position - source.listener.Position;
+            float distance = dir.Length(),
+                rawAngle = (float)Math.Acos(Vector3.Dot(sourceForward, dir) / distance),
+                angle = rawAngle * VectorExtensions.Rad2Deg;
 
             // Find bounding angles with discrete impulses
             int smallerAngle = 0;
@@ -83,7 +85,11 @@ namespace Cavern.Virtualizer {
             while (delay < filterImpulse.Length && filterImpulse[delay] == 0)
                 ++delay;
             float[] delayImpulse = new float[delay];
-            delayImpulse[delay - 1] = 1;
+
+            // Find the gain difference and apply it for the delay
+            float angleDiff = (float)(Math.Sin(rawAngle) * .097f);
+            delayImpulse[delay - 1] = 40 * Math.Abs((float)Math.Log10((distance + angleDiff) * (VirtualizerFilter.referenceDistance - angleDiff) /
+                                                                     ((distance - angleDiff) * (VirtualizerFilter.referenceDistance + angleDiff))));
 
             // Extract the filter
             if (right) {

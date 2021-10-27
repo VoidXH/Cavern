@@ -448,7 +448,7 @@ namespace Cavern {
                         }
                         distancerMaster.Generate(direction.X > 0);
                         for (int channel = 0; channel < channels; ++channel) {
-                            if (Listener.Channels[channel].Y != 0 && !Listener.Channels[channel].LFE) {
+                            if (Listener.Channels[channel].Y != 0 && Listener.Channels[channel].Y != 180 && !Listener.Channels[channel].LFE) {
                                 if (distancers[channel] == null)
                                     distancers[channel] = new Distancer(distancerMaster);
                                 distancers[channel].Process(rendered, channel, channels);
