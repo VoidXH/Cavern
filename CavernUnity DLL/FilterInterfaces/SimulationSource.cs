@@ -54,9 +54,9 @@ namespace Cavern.FilterInterfaces {
                 int lastHit = hitCount - 1;
                 for (int hit = 0; hit < lastHit; ++hit)
                     distance += Vector3.Distance(hits[hit], hits[hit + 1]);
-                distance += Vector3.Distance(hits[lastHit], AudioListener3D.Current.transform.position);
+                distance += Vector3.Distance(hits[lastHit], target.transform.position);
             } else
-                distance = Vector3.Distance(transform.position, AudioListener3D.Current.transform.position);
+                distance = Vector3.Distance(transform.position, target.transform.position);
             float timeOffset = distance / SpeedOfSound * target.SampleRate;
             if (timeOffset < target.MaxSamples - 1) {
                 float gain = 1f / timeOffset;
@@ -124,8 +124,11 @@ namespace Cavern.FilterInterfaces {
         void OnDrawGizmosSelected() {
             if (ShowAllRays)
                 DrawDebugRays();
-            else
+            else {
+                if (Targets.Length != colliders.Length)
+                    ResetColliders();
                 Raycast(PaintPath);
+            }
         }
 
         /// <summary>Render new impulse responses by the state of the scene.</summary>
