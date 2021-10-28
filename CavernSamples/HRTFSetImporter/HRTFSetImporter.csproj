@@ -101,6 +101,10 @@
       <Project>{E87A8995-3B65-497B-A808-4DDED25D2ADE}</Project>
       <Name>Cavern.Format</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Cavern\Cavern.csproj">
+      <Project>{25898051-c846-4ed1-9a4f-a2d327b5fb0f}</Project>
+      <Name>Cavern</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

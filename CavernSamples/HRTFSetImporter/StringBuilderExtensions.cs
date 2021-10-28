@@ -13,7 +13,7 @@ namespace HRTFSetImporter {
                 string str = array[i].ToString(numberFormat);
                 if (str.StartsWith("0."))
                     builder.Append(str.Substring(1)).Append("f, ");
-                else if (str.Length == 1)
+                else if (str.Equals("0"))
                     builder.Append("0, ");
                 else
                     builder.Append(str).Append("f, ");

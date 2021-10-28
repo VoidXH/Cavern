@@ -1,4 +1,5 @@
 ﻿using Cavern.Format;
+using Cavern.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -140,6 +141,16 @@ namespace HRTFSetImporter {
             }
         }
 
+        void Normalize(Dictionary<int, Dictionary<int, float[][]>> data) {
+            foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in data) {
+                foreach (KeyValuePair<int, float[][]> distance in angle.Value) {
+                    float[] samples = distance.Value[0];
+                    float gain = 1 / WaveformUtils.GetPeak(samples);
+                    WaveformUtils.Gain(samples, gain);
+                }
+            }
+        }
+
         void ImportAngleSet(object _, RoutedEventArgs e) {
             if (importer.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
                 string format = angleSetName.Text
@@ -160,8 +171,10 @@ namespace HRTFSetImporter {
 
                 LeadingClearing(data);
                 TrailingClearing(data);
+                Normalize(data);
 
-                StringBuilder result = new StringBuilder("float[][][] impulses = new float[").Append(data.Count).AppendLine("][][] {");
+                StringBuilder result = new StringBuilder("static readonly float[][][] impulses = new float[")
+                    .Append(data.Count).AppendLine("][][] {");
                 IOrderedEnumerable<KeyValuePair<int, Dictionary<int, float[][]>>> orderedData = data.OrderBy(entry => entry.Key);
                 foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in orderedData) {
                     result.Append("\tnew float[").Append(angle.Value.Count).AppendLine("][] {");
