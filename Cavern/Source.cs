@@ -262,7 +262,7 @@ namespace Cavern {
                     // ------------------------------------------------------------------
                     // Balance-based engine for symmetrical layouts
                     // ------------------------------------------------------------------
-                    if (Listener.IsSymmetric) {
+                    if (Listener.IsSymmetric && !DistanceSimulation) {
                         float volume3D = Volume * rolloffDistance * SpatialBlend;
                         if (!LFE) {
                             // Find a bounding box
@@ -438,20 +438,21 @@ namespace Cavern {
                             } else if (!LFE && angleMatches[channel] != 0)
                                 WriteOutput(samples, rendered, volume3D * angleMatches[channel], channel, channels);
                         }
-                    }
 
-                    // Distance simulation for HRTF
-                    if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
-                        if (distancers == null) {
-                            distancerMaster = new DistancerMaster(this);
-                            distancers = new Distancer[channels];
-                        }
-                        distancerMaster.Generate(direction.X > 0);
-                        for (int channel = 0; channel < channels; ++channel) {
-                            if (Listener.Channels[channel].Y != 0 && Listener.Channels[channel].Y != 180 && !Listener.Channels[channel].LFE) {
-                                if (distancers[channel] == null)
-                                    distancers[channel] = new Distancer(distancerMaster);
-                                distancers[channel].Process(rendered, channel, channels);
+                        // Distance simulation for HRTF
+                        if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
+                            if (distancers == null) {
+                                distancerMaster = new DistancerMaster(this);
+                                distancers = new Distancer[channels];
+                            }
+                            distancerMaster.Generate(direction.X > 0);
+                            for (int channel = 0; channel < channels; ++channel) {
+                                if (Listener.Channels[channel].Y != 0 && Listener.Channels[channel].Y != 180
+                                    && !Listener.Channels[channel].LFE) {
+                                    if (distancers[channel] == null)
+                                        distancers[channel] = new Distancer(distancerMaster);
+                                    distancers[channel].Process(rendered, channel, channels);
+                                }
                             }
                         }
                     }
