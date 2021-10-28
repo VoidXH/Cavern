@@ -88,8 +88,12 @@ namespace Cavern.Virtualizer {
 
             // Find the gain difference and apply it for the delay
             float angleDiff = (float)(Math.Sin(rawAngle) * .097f);
-            delayImpulse[delay - 1] = 40 * Math.Abs((float)Math.Log10((distance + angleDiff) * (VirtualizerFilter.referenceDistance - angleDiff) /
-                                                                     ((distance - angleDiff) * (VirtualizerFilter.referenceDistance + angleDiff))));
+            float ratioDiff = (distance + angleDiff) * (VirtualizerFilter.referenceDistance - angleDiff) /
+                             ((distance - angleDiff) * (VirtualizerFilter.referenceDistance + angleDiff));
+            if (ratioDiff > 1)
+                delayImpulse[delay - 1] = 1 / ratioDiff;
+            else
+                delayImpulse[delay - 1] = ratioDiff;
 
             // Extract the filter
             if (right) {
