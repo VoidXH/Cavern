@@ -38,7 +38,8 @@ namespace Cavern.Virtualizer {
         }
 
         /// <summary>Generate the left/right ear filters.</summary>
-        /// <param name="right">The object is to the right of the <see cref="Listener"/>'s forward vector.</param>
+        /// <param name="right">The object is to the right of the <see cref="Listener"/>'s forward vector</param>
+        /// <param name="samples">Single-channel downmixed samples to process</param>
         public void Generate(bool right, float[] samples) {
             float dirMul = -90;
             if (right)
