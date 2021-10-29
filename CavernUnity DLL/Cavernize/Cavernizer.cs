@@ -85,10 +85,10 @@ namespace Cavern.Cavernize {
             AudioListener3D listener = AudioListener3D.Current;
             oldSampleRate = listener.SampleRate;
             oldUpdateRate = listener.UpdateRate;
-            updateRate = listener.UpdateRate = (listener.SampleRate = Clip3D.SampleRate) / UpdatesPerSecond;
 
             if (Clip)
                 Clip3D = AudioClip3D.FromUnityClip(Clip);
+            updateRate = listener.UpdateRate = (listener.SampleRate = Clip3D.SampleRate) / UpdatesPerSecond;
             generator = new SurroundUpmixer(Clip3D);
             generator.OnPlaybackFinished += () => IsPlaying = false;
 

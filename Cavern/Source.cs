@@ -31,10 +31,8 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
-        /// <summary>Handler for the <see cref="distancers"/>.</summary>
-        DistancerMaster distancerMaster;
-        /// <summary>Filters for applying <see cref="DistanceSimulation"/>. One filter for each channel in range.</summary>
-        Distancer[] distancers;
+        /// <summary>Distance simulator for virtualization.</summary>
+        Distancer distancer;
         /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
         int baseUpdateRate;
 
@@ -404,6 +402,7 @@ namespace Cavern {
                             for (int channel = 0; channel < channels; ++channel)
                                 angleMatches[channel] = QMath.Lerp(angleMatches[channel], maxAngleMatch, Size);
                         }
+
                         // Only use the closest 3 speakers on non-Perfect qualities or in Theatre mode
                         if (listener.AudioQuality != QualityModes.Perfect || Listener.EnvironmentType == Environments.Theatre) {
                             float top0 = 0, top1 = 0, top2 = 0;
@@ -426,10 +425,24 @@ namespace Cavern {
                                     angleMatches[channel] != top0 && angleMatches[channel] != top1 && angleMatches[channel] != top2)
                                     angleMatches[channel] = 0;
                         }
-                        // Place in sphere, write data to output channels
                         float totalAngleMatch = 0;
                         for (int channel = 0; channel < channels; ++channel)
                             totalAngleMatch += angleMatches[channel] * angleMatches[channel];
+                        totalAngleMatch = (float)Math.Sqrt(totalAngleMatch);
+
+                        // Distance simulation for HRTF
+                        if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
+                            if (distancer == null)
+                                distancer = new Distancer(this);
+                            distancer.Generate(direction.X > 0, samples);
+                            for (int channel = 0; channel < channels; ++channel)
+                                if (Listener.Channels[channel].Y < 0 && distancer.LeftGain != 1)
+                                    angleMatches[channel] *= distancer.LeftGain;
+                                else if (Listener.Channels[channel].Y % 180 > 0 && distancer.RightGain != 1)
+                                    angleMatches[channel] *= distancer.RightGain;
+                        }
+
+                        // Place in sphere, write data to output channels
                         float volume3D = Volume * rolloffDistance * SpatialBlend / totalAngleMatch;
                         for (int channel = 0; channel < channels; ++channel) {
                             if (Listener.Channels[channel].LFE) {
@@ -437,23 +450,6 @@ namespace Cavern {
                                     WriteOutput(samples, rendered, volume3D * totalAngleMatch, channel, channels);
                             } else if (!LFE && angleMatches[channel] != 0)
                                 WriteOutput(samples, rendered, volume3D * angleMatches[channel], channel, channels);
-                        }
-
-                        // Distance simulation for HRTF
-                        if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
-                            if (distancers == null) {
-                                distancerMaster = new DistancerMaster(this);
-                                distancers = new Distancer[channels];
-                            }
-                            distancerMaster.Generate(direction.X > 0);
-                            for (int channel = 0; channel < channels; ++channel) {
-                                if (Listener.Channels[channel].Y != 0 && Listener.Channels[channel].Y != 180
-                                    && !Listener.Channels[channel].LFE) {
-                                    if (distancers[channel] == null)
-                                        distancers[channel] = new Distancer(distancerMaster);
-                                    distancers[channel].Process(rendered, channel, channels);
-                                }
-                            }
                         }
                     }
                 }
