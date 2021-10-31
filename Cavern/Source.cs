@@ -248,8 +248,7 @@ namespace Cavern {
 
                 // 3D mix, if the source is in range
                 if (SpatialBlend != 0 && distance < listener.Range) {
-                    Vector3 direction = Position - listener.Position;
-                    direction.RotateInverse(listener.Rotation);
+                    Vector3 direction = (Position - listener.Position).RotateInverse(listener.Rotation);
                     float rolloffDistance = GetRolloff();
                     samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
                     baseUpdateRate = samples.Length;

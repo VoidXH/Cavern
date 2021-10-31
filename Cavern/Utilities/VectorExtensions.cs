@@ -61,17 +61,18 @@ namespace Cavern.Utilities {
             float cos = (float)Math.Cos(angles.Z),
                 sin = (float)Math.Sin(angles.Z),
                 x = cos * vector.X - sin * vector.Y,
-                y = sin * x + cos * vector.Y;
+                y = sin * vector.X + cos * vector.Y;
 
             cos = (float)Math.Cos(angles.Y);
             sin = (float)Math.Sin(angles.Y);
-            x = cos * x + sin * angles.Z;
-            float z = cos * angles.Z - sin * x;
+            float z = cos * vector.Z - sin * x;
+            x = cos * x + sin * vector.Z;
 
             cos = (float)Math.Cos(angles.X);
             sin = (float)Math.Sin(angles.X);
+            float oldY = y;
             y = cos * y - sin * z;
-            z = sin * y + cos * z;
+            z = sin * oldY + cos * z;
 
             return new Vector3(x, y, z);
         }
