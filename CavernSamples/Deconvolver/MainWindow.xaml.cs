@@ -1,5 +1,6 @@
 ﻿using Cavern.Format;
 using Cavern.Utilities;
+using Deconvolver.Properties;
 using Microsoft.Win32;
 using System;
 using System.IO;
@@ -17,9 +18,12 @@ namespace Deconvolver {
             Filter = "RIFF WAVE files (*.wav)|*.wav"
         };
 
-        public MainWindow() => InitializeComponent();
+        public MainWindow() {
+            InitializeComponent();
+            padding.IsChecked = Settings.Default.Padding;
+        }
 
-        RIFFWaveReader import(string fileName) {
+        RIFFWaveReader Import(string fileName) {
             browser.FileName = fileName;
             if (browser.ShowDialog().Value) {
                 BinaryReader reader = new BinaryReader(File.OpenRead(browser.FileName));
@@ -31,10 +35,10 @@ namespace Deconvolver {
         void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         private void LoadFiles(object sender, RoutedEventArgs e) {
-            RIFFWaveReader responseReader = import("Response.wav");
+            RIFFWaveReader responseReader = Import("Response.wav");
             if (responseReader == null)
                 return;
-            RIFFWaveReader impulseReader = import("Impulse.wav");
+            RIFFWaveReader impulseReader = Import("Impulse.wav");
             if (impulseReader == null)
                 return;
 
@@ -105,6 +109,12 @@ namespace Deconvolver {
                     responseReader.SampleRate, responseReader.Bits);
                 writer.Write(response);
             }
+        }
+
+        protected override void OnClosed(EventArgs e) {
+            Settings.Default.Padding = padding.IsChecked.Value;
+            Settings.Default.Save();
+            base.OnClosed(e);
         }
     }
 }

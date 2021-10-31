@@ -1,5 +1,6 @@
 ﻿using Cavern.Format;
 using Cavern.Utilities;
+using HRTFSetImporter.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,9 +23,16 @@ namespace HRTFSetImporter {
 
         readonly FolderBrowserDialog importer = new FolderBrowserDialog();
 
-        public MainWindow() => InitializeComponent();
+        public MainWindow() {
+            InitializeComponent();
+            if (!string.IsNullOrEmpty(Settings.Default.LastFolder) && Directory.Exists(Settings.Default.LastFolder))
+                importer.SelectedPath = Settings.Default.LastFolder;
+            directionalSetName.Text = Settings.Default.DirectionalSetName;
+            angleSetName.Text = Settings.Default.AngleSetName;
+        }
 
         Dictionary<int, Dictionary<int, float[][]>> ImportImpulses(string path, Regex pattern) {
+            Settings.Default.LastFolder = path;
             string[] folders = Directory.GetFiles(path);
             Dictionary<int, Dictionary<int, float[][]>> data = new Dictionary<int, Dictionary<int, float[][]>>();
             for (int file = 0; file < folders.Length; ++file) {
@@ -190,6 +198,13 @@ namespace HRTFSetImporter {
                 MessageBox.Show("Impulse response array successfully copied to clipboard.", "Success",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+
+        protected override void OnClosed(EventArgs e) {
+            Settings.Default.DirectionalSetName = directionalSetName.Text;
+            Settings.Default.AngleSetName = angleSetName.Text;
+            Settings.Default.Save();
+            base.OnClosed(e);
         }
     }
 }

@@ -10,6 +10,7 @@ using Cavern.Remapping;
 using Cavern.Utilities;
 
 using Window = System.Windows.Window;
+using ImpulseFlattener.Properties;
 
 namespace ImpulseFlattener {
     /// <summary>
@@ -24,7 +25,14 @@ namespace ImpulseFlattener {
             Filter = "RIFF WAVE files (*.wav)|*.wav"
         };
 
-        public MainWindow() => InitializeComponent();
+        public MainWindow() {
+            InitializeComponent();
+            forceFloat.IsChecked = Settings.Default.ForceFloat;
+            keepGain.IsChecked = Settings.Default.KeepGain;
+            separateExport.IsChecked = Settings.Default.SeparateExport;
+            phasePerfect.IsChecked = Settings.Default.PhasePerfect;
+            commonEQ.IsChecked = Settings.Default.CommonEQ;
+        }
 
         Convolver GetFilter(Complex[] spectrum, float gain, int sampleRate) {
             Equalizer eq = new Equalizer();
@@ -124,6 +132,16 @@ namespace ImpulseFlattener {
                     }
                 }
             }
+        }
+
+        protected override void OnClosed(EventArgs e) {
+            Settings.Default.ForceFloat = forceFloat.IsChecked.Value;
+            Settings.Default.KeepGain = keepGain.IsChecked.Value;
+            Settings.Default.SeparateExport = separateExport.IsChecked.Value;
+            Settings.Default.PhasePerfect = phasePerfect.IsChecked.Value;
+            Settings.Default.CommonEQ = commonEQ.IsChecked.Value;
+            Settings.Default.Save();
+            base.OnClosed(e);
         }
     }
 }

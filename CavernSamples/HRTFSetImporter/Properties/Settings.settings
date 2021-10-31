@@ -1,7 +1,15 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="HRTFSetImporter.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="LastFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="DirectionalSetName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">DirectionalImpulse_{Y}_{X}.wav</Value>
+    </Setting>
+    <Setting Name="AngleSetName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">AngleImpulse_{A}_D{D}.wav</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>
