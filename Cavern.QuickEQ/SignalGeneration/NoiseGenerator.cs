@@ -27,7 +27,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
                 if (channel < 0 || channel >= Listener.Channels.Length)
                     return rendered;
                 float gain = Volume * 2;
-                for (int sample = channel, channels = Listener.Channels.Length; sample < rendered.Length; sample += channels)
+                for (int sample = channel; sample < rendered.Length; sample += Listener.Channels.Length)
                     rendered[sample] = (float)generator.NextDouble() * gain - Volume;
             }
             return rendered;

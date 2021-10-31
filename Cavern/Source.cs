@@ -161,7 +161,7 @@ namespace Cavern {
         /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
         internal static void WriteOutput(float[] samples, float[] target, float gain, int channel, int channels) {
             gain = (float)Math.Sqrt(gain);
-            for (int from = 0, to = channel, end = samples.Length; from < end; ++from, to += channels)
+            for (int from = 0, to = channel; from < samples.Length; ++from, to += channels)
                 target[to] += samples[from] * gain;
         }
 
@@ -175,7 +175,7 @@ namespace Cavern {
         internal static void WriteOutput(float[] samples, float[] target, float gain, int channels) {
             gain /= channels;
             for (int channel = 0; channel < channels; ++channel)
-                for (int from = 0, to = channel, sampleCount = samples.Length; from < sampleCount; ++from, to += channels)
+                for (int from = 0, to = channel; from < samples.Length; ++from, to += channels)
                     target[to] = samples[from] * gain;
         }
 
@@ -225,7 +225,7 @@ namespace Cavern {
                             WaveformUtils.Mix(Rendered[channel], samples);
                         WaveformUtils.Gain(samples, 1f / clipChannels);
                     } else // First channel only otherwise
-                        Buffer.BlockCopy(Rendered[0], 0, samples, 0, PitchedUpdateRate * sizeof(float));
+                        Array.Copy(Rendered[0], samples, PitchedUpdateRate);
 
                 // 1D renderer
                 if (SpatialBlend != 1) {
@@ -238,8 +238,8 @@ namespace Cavern {
 
                     // Full side mix for stereo sources
                     else {
-                        Buffer.BlockCopy(Rendered[0], 0, leftSamples, 0, PitchedUpdateRate * sizeof(float));
-                        Buffer.BlockCopy(Rendered[1], 0, rightSamples, 0, PitchedUpdateRate * sizeof(float));
+                        Array.Copy(Rendered[0], leftSamples, PitchedUpdateRate);
+                        Array.Copy(Rendered[1], rightSamples, PitchedUpdateRate);
                         leftSamples = Resample.Adaptive(leftSamples, updateRate, listener.AudioQuality);
                         rightSamples = Resample.Adaptive(rightSamples, updateRate, listener.AudioQuality);
                         Stereo1DMix(volume1D);
@@ -301,8 +301,8 @@ namespace Cavern {
                                         AssignHorizontalLayer(channel, ref bottomFrontLeft, ref bottomFrontRight,
                                             ref bottomRearLeft, ref bottomRearRight, ref closestBF, ref closestBR, direction, channelPos);
                                     if (channelPos.Y == closestTop) // Top layer
-                                        AssignHorizontalLayer(channel, ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight,
-                                            ref closestTF, ref closestTR, direction, channelPos);
+                                        AssignHorizontalLayer(channel, ref topFrontLeft, ref topFrontRight,
+                                            ref topRearLeft, ref topRearRight, ref closestTF, ref closestTR, direction, channelPos);
                                 }
                             }
                             // Fix incomplete top layer
@@ -435,11 +435,14 @@ namespace Cavern {
                             if (distancer == null)
                                 distancer = new Distancer(this);
                             distancer.Generate(direction.X > 0, samples);
-                            for (int channel = 0; channel < channels; ++channel)
+                            for (int channel = 0; channel < channels; ++channel) {
+                                if (Listener.Channels[channel].LFE)
+                                    continue;
                                 if (Listener.Channels[channel].Y < 0 && distancer.LeftGain != 1)
                                     angleMatches[channel] *= distancer.LeftGain;
                                 else if (Listener.Channels[channel].Y % 180 > 0 && distancer.RightGain != 1)
                                     angleMatches[channel] *= distancer.RightGain;
+                            }
                         }
 
                         // Place in sphere, write data to output channels

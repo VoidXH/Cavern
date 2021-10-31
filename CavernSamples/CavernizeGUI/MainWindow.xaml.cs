@@ -33,7 +33,7 @@ namespace CavernizeGUI {
                 Filter = "RIFF WAVE files (*.wav)|*.wav"
             };
             if (dialog.ShowDialog().Value) {
-                reader = new RIFFWaveReader(new(File.Open(dialog.FileName, FileMode.Open)));
+                reader = new RIFFWaveReader(new(File.OpenRead(dialog.FileName)));
                 fileName.Text = Path.GetFileName(dialog.FileName);
             }
         }

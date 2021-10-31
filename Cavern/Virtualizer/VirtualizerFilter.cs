@@ -67,7 +67,7 @@ namespace Cavern.Virtualizer {
             if (rightSplit[channel].Length != blockSize)
                 rightSplit[channel] = new float[blockSize];
             leftSplit[channel] = lowCrossover.HighOutput;
-            Buffer.BlockCopy(leftSplit[channel], 0, rightSplit[channel], 0, blockSize * sizeof(float));
+            Array.Copy(leftSplit[channel], rightSplit[channel], blockSize);
             spatialChannels[channel].LeftFilter.Process(leftSplit[channel]);
             spatialChannels[channel].RightFilter.Process(rightSplit[channel]);
         }
@@ -88,7 +88,7 @@ namespace Cavern.Virtualizer {
                 for (int channel = 0; channel < channels; ++channel, ++outSample)
                     originalSplit[channel][sample] = output[outSample];
             if (center != unassigned) {
-                Buffer.BlockCopy(originalSplit[center], 0, delayedCenter, 0, blockSize * sizeof(float));
+                Array.Copy(originalSplit[center], delayedCenter, blockSize);
                 centerDelay.Process(delayedCenter); // Add 7.5 ms delay
                 WaveformUtils.Gain(delayedCenter, .1f); // -20 dB gain
                 if (left != unassigned && right != unassigned) { // Simulate front wall to convey actual forward direction

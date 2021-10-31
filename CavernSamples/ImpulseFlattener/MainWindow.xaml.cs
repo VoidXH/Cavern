@@ -81,7 +81,7 @@ namespace ImpulseFlattener {
 
         void ProcessImpulse(object sender, RoutedEventArgs e) {
             if (browser.ShowDialog().Value) {
-                BinaryReader stream = new BinaryReader(File.Open(browser.FileName, FileMode.Open));
+                BinaryReader stream = new BinaryReader(File.OpenRead(browser.FileName));
                 RIFFWaveReader reader = new RIFFWaveReader(stream);
                 float[] impulse = reader.Read();
                 float gain = 1;
@@ -112,14 +112,14 @@ namespace ImpulseFlattener {
                         if (exporter.ShowDialog().Value) {
                             float[] channel = new float[targetLen * 2];
                             WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
-                            BinaryWriter outStream = new BinaryWriter(File.Open(exporter.FileName, FileMode.Create));
+                            BinaryWriter outStream = new BinaryWriter(File.OpenWrite(exporter.FileName));
                             new RIFFWaveWriter(outStream, 1, targetLen * 2, reader.SampleRate, bits).Write(channel);
                         }
                     }
                 } else {
                     exporter.FileName = Path.GetFileName(browser.FileName);
                     if (exporter.ShowDialog().Value) {
-                        BinaryWriter outStream = new BinaryWriter(File.Open(exporter.FileName, FileMode.Create));
+                        BinaryWriter outStream = new BinaryWriter(File.OpenWrite(exporter.FileName));
                         new RIFFWaveWriter(outStream, reader.ChannelCount, targetLen * 2, reader.SampleRate, bits).Write(impulse);
                     }
                 }
