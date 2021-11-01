@@ -42,6 +42,8 @@ namespace Cavern {
         float distance = float.NaN;
         /// <summary><see cref="distance"/> in the previous frame, required for Doppler effect calculation.</summary>
         float lastDistance;
+        /// <summary>Contains smoothed pitch for the doppler effect. Used to mitigate frames where v = 0, because audio FPS > video FPS.</summary>
+        float lastDoppler = 1;
         /// <summary>Sample rate multiplier to match the system sample rate.</summary>
         float resampleMult;
 
@@ -122,9 +124,13 @@ namespace Cavern {
                 if (listener.AudioQuality != QualityModes.Low) {
                     if (DopplerLevel == 0)
                         calculatedPitch = Pitch;
-                    else
-                        calculatedPitch = QMath.Clamp(Pitch + DopplerLevel * // c / (c - dv), dv = ds / dt
-                            (SpeedOfSound / (SpeedOfSound - (lastDistance - distance) / listener.pulseDelta) - 1), .5f, 3f);
+                    else {
+                        float dopplerTarget = Pitch + lastDoppler * // c / (c - dv), dv = ds / dt
+                            (SpeedOfSound / (SpeedOfSound - (lastDistance - distance) / listener.pulseDelta) - 1);
+                        lastDoppler = QMath.Clamp(QMath.Lerp(lastDoppler, dopplerTarget,
+                            10 * listener.UpdateRate / (float)listener.SampleRate), 0, DopplerLevel);
+                        calculatedPitch = QMath.Clamp(lastDoppler, .5f, 3f);
+                    }
                 } else
                     calculatedPitch = 1; // Disable any pitch change on low quality
                 if (listener.SampleRate != Clip.SampleRate)
