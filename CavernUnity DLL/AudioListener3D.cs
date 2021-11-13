@@ -200,7 +200,10 @@ namespace Cavern {
                 float[] downmix = renderBuffer;
                 if (channels != unityChannels) {
                     downmix = new float[renderBuffer.Length / channels * unityChannels];
-                    WaveformUtils.Downmix(renderBuffer, channels, downmix, unityChannels);
+                    if (renderBuffer.Length * unityChannels == downmix.Length * channels)
+                        WaveformUtils.Downmix(renderBuffer, channels, downmix, unityChannels);
+                    else
+                        Array.Clear(downmix, 0, downmix.Length);
                     if (SystemSampleRate != cachedSampleRate) // Resample output for system sample rate
                         downmix = Resample.Adaptive(downmix,
                             downmix.Length / unityChannels * SystemSampleRate / cachedSampleRate, unityChannels, AudioQuality);
