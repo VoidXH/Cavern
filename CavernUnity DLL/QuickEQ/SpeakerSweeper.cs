@@ -157,15 +157,15 @@ namespace Cavern.QuickEQ {
         void Update() {
             if (!measurementStarted) {
                 measurementStarted = true;
-                if (Microphone.devices.Length != 0)
-                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Listener.Channels.Length / SampleRate + 1,
-                        SampleRate);
                 sweepers = new SweepChannel[Listener.Channels.Length];
                 for (int i = 0; i < Listener.Channels.Length; ++i) {
                     sweepers[i] = gameObject.AddComponent<SweepChannel>();
                     sweepers[i].Channel = i;
                     sweepers[i].Sweeper = this;
                 }
+                if (Microphone.devices.Length != 0)
+                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Listener.Channels.Length / SampleRate + 1,
+                        SampleRate);
             }
             if (ResultAvailable)
                 return;
