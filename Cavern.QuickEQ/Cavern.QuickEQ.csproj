@@ -67,6 +67,7 @@
     <Compile Include="Equalization\Equalizer.cs" />
     <Compile Include="GraphUtils.cs" />
     <Compile Include="SignalGeneration\SweepGenerator.cs" />
+    <Compile Include="SignalGeneration\TimedTestTone.cs" />
     <Compile Include="Utilities\CavernQuickEQAmp.cs" />
     <Compile Include="VerboseImpulseResponse.cs" />
     <Compile Include="Windowing.cs" />
