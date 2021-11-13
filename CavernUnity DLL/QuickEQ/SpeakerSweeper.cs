@@ -38,6 +38,15 @@ namespace Cavern.QuickEQ {
         /// <summary>Room correction, equalizer for each channel.</summary>
         [NonSerialized] public Equalizer[] Equalizers;
 
+        /// <summary>Change the measurement signal to this tone.</summary>
+        public float[] Bypass {
+            get => bypass;
+            set {
+                bypass = value;
+                RegenerateSweep();
+            }
+        }
+        float[] bypass;
         /// <summary>Measurement signal samples.</summary>
         public float[] SweepReference { get; private set; }
         /// <summary>Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
@@ -116,14 +125,17 @@ namespace Cavern.QuickEQ {
 
         /// <summary>Generate <see cref="SweepReference"/> and the related optimization values.</summary>
         public void RegenerateSweep() {
-            SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
+            if (bypass == null)
+                SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
+            else
+                SweepReference = (float[])bypass.Clone();
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
             if (sweepFFTCache != null)
                 sweepFFTCache.Dispose();
             sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
             sweepFFTlow = sweepFFT.FastClone();
-            Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, sampleRate, 100);
+            Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, SampleRate, 100);
             Measurements.OffbandGain(sweepFFTlow, StartFreq, EndFreqLFE, sampleRate, 100);
         }
 

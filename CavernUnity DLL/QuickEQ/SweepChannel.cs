@@ -20,7 +20,6 @@ namespace Cavern.QuickEQ {
             AudioListener3D.cavernListener.DetachSource(cavernSource); // preattached in OnCreate
             cavernSource = new TimedTestTone(Channel, Sweeper.SweepReference);
             AudioListener3D.cavernListener.AttachSource(cavernSource);
-            TimedTestTone source = (TimedTestTone)cavernSource;
         }
     }
 }
