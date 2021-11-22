@@ -26,6 +26,11 @@ namespace Cavern.QuickEQ {
         /// <summary>Length of the measurement signal. Must be a power of 2.</summary>
         [Tooltip("Length of the measurement signal. Must be a power of 2.")]
         public int SweepLength = 32768;
+        /// <summary>Waits a sweep's time before the actual measurement.
+        /// This helps for measuring with microphones that click when the system turns them on.</summary>
+        [Tooltip("Waits a sweep's time before the actual measurement. " +
+            "This helps for measurement with microphones that click when the system turns them on.")]
+        public bool WarmUpMode;
 
         /// <summary>The measurement is done and responses are available.</summary>
         [NonSerialized] public bool ResultAvailable;
@@ -71,7 +76,8 @@ namespace Cavern.QuickEQ {
                     return 1;
                 else if (!enabled || sweepers == null)
                     return 0;
-                return (float)sweepers[Listener.Channels.Length - 1].timeSamples / SweepReference.Length / Listener.Channels.Length;
+                int divisor = WarmUpMode ? Listener.Channels.Length + 1 : Listener.Channels.Length;
+                return (float)sweepers[Listener.Channels.Length - 1].timeSamples / SweepReference.Length / divisor;
             }
         }
 
@@ -174,27 +180,28 @@ namespace Cavern.QuickEQ {
                     sweepers[i] = gameObject.AddComponent<SweepChannel>();
                     sweepers[i].Channel = i;
                     sweepers[i].Sweeper = this;
+                    sweepers[i].WarmUpMode = WarmUpMode;
                 }
-                if (Microphone.devices.Length != 0)
-                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * Listener.Channels.Length / SampleRate + 1,
-                        SampleRate);
+                if (Microphone.devices.Length != 0) {
+                    int channels = WarmUpMode ? Listener.Channels.Length + 1 : Listener.Channels.Length;
+                    sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * channels / SampleRate + 1, SampleRate);
+                }
             }
             if (ResultAvailable)
                 return;
             if (!sweepers[Channel].IsPlaying) {
                 float[] result = new float[SweepReference.Length];
-                if (sweepResponse)
-                    sweepResponse.GetData(result, Channel * SweepReference.Length);
-                else
-                    result = result.FastClone();
+                if (sweepResponse) {
+                    int offset = WarmUpMode ? Channel + 1 : Channel;
+                    sweepResponse.GetData(result, offset * SweepReference.Length);
+                }
                 ExcitementResponses[Channel] = result;
                 Complex[] fft = Cavern.Channel.IsLFE(Channel) ? sweepFFTlow : sweepFFT;
                 (workers[Channel] = new Task<WorkerResult>(() =>
                     new WorkerResult(fft, sweepFFTCache, result))).Start();
                 if (++Channel == Listener.Channels.Length) {
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel)
-                        if (workers[channel].Result.IsNull())
-                            return;
+                        while (workers[channel].Result.IsNull()) ;
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                         FreqResponses[channel] = workers[channel].Result.FreqResponse;
                         ImpResponses[channel] = workers[channel].Result.ImpResponse;

@@ -8,14 +8,17 @@ namespace Cavern.QuickEQ.SignalGeneration {
         readonly float[] testTone;
         /// <summary>Target output channel.</summary>
         readonly int channel = 0;
+        /// <summary>Delay playback by this many times the <see cref="testTone"/>'s length. Used to play after preceding measurements.</summary>
+        readonly int delayChannel;
 
         /// <summary>Rendered output array kept to save allocation time.</summary>
         float[] rendered = new float[0];
 
         /// <summary>Create the source from any waveform.</summary>
-        public TimedTestTone(int channel, float[] testTone) {
+        public TimedTestTone(int channel, float[] testTone, bool warmUpMode = false) {
             this.channel = channel;
             this.testTone = testTone;
+            delayChannel = warmUpMode ? channel + 1 : channel;
         }
 
         /// <summary>Creates a cache and always marks this source for playback.</summary>
@@ -29,7 +32,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
         protected override float[] Collect() {
             Array.Clear(rendered, 0, rendered.Length);
             if (IsPlaying && !Mute && testTone != null) {
-                int delay = channel * testTone.Length, channels = Listener.Channels.Length;
+                int delay = delayChannel * testTone.Length, channels = Listener.Channels.Length;
                 int pos = TimeSamples - delay;
                 for (int sample = channel; sample < rendered.Length; sample += channels) {
                     if (pos < 0) {

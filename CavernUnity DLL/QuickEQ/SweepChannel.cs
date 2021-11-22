@@ -14,11 +14,16 @@ namespace Cavern.QuickEQ {
         /// <summary>Sweeper to use the sweep reference of.</summary>
         [Tooltip("Sweeper to use the sweep reference of.")]
         public SpeakerSweeper Sweeper;
+        /// <summary>Waits a sweep's time before the actual measurement.
+        /// This helps for measuring with microphones that click when the system turns them on.</summary>
+        [Tooltip("Waits a sweep's time before the actual measurement. " +
+            "This helps for measurement with microphones that click when the system turns them on.")]
+        public bool WarmUpMode;
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() {
             AudioListener3D.cavernListener.DetachSource(cavernSource); // preattached in OnCreate
-            cavernSource = new TimedTestTone(Channel, Sweeper.SweepReference);
+            cavernSource = new TimedTestTone(Channel, Sweeper.SweepReference, WarmUpMode);
             AudioListener3D.cavernListener.AttachSource(cavernSource);
         }
     }
