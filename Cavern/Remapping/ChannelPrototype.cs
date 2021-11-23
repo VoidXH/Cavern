@@ -164,6 +164,13 @@ namespace Cavern.Remapping {
             }
         };
 
+        /// <summary>Get a <paramref name="channel"/>'s <see cref="ChannelPrototype"/> of the standard layout
+        /// with a given number of <paramref name="channels"/>.</summary>
+        public static ChannelPrototype Get(int channel, int channels) {
+            int prototypeID = (int)StandardMatrix[channels][channel];
+            return Mapping[prototypeID];
+        }
+
         /// <summary>Check if two channel prototypes are the same.</summary>
         public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
 
