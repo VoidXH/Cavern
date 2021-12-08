@@ -11,56 +11,98 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Constants
         // ------------------------------------------------------------------
-        /// <summary>Reference sound velocity in m/s (dry air, 25.4 degrees Celsius).</summary>
+        /// <summary>
+        /// Reference sound velocity in m/s (dry air, 25.4 degrees Celsius).
+        /// </summary>
         public const float SpeedOfSound = 346.74f;
 
         // ------------------------------------------------------------------
         // Internal helpers
         // ------------------------------------------------------------------
-        /// <summary>The <see cref="Listener"/> this source is attached to.</summary>
+        /// <summary>
+        /// The <see cref="Listener"/> this source is attached to.
+        /// </summary>
         protected internal Listener listener;
-        /// <summary>Cached node from <see cref="Listener.activeSources"/> for faster detach.</summary>
+
+        /// <summary>
+        /// Cached node from <see cref="Listener.activeSources"/> for faster detach.
+        /// </summary>
         internal LinkedListNode<Source> listenerNode;
 
         // ------------------------------------------------------------------
         // Protected properties
         // ------------------------------------------------------------------
-        /// <summary>Samples required to match the listener's update rate after pitch changes.</summary>
+        /// <summary>
+        /// Samples required to match the listener's update rate after pitch changes.
+        /// </summary>
         protected int PitchedUpdateRate { get; private set; }
 
         // ------------------------------------------------------------------
         // Private vars
         // ------------------------------------------------------------------
-        /// <summary>Distance simulator for virtualization.</summary>
+        /// <summary>
+        /// Distance simulator for virtualization.
+        /// </summary>
         Distancer distancer;
-        /// <summary><see cref="PitchedUpdateRate"/> without resampling.</summary>
+
+        /// <summary>
+        /// <see cref="PitchedUpdateRate"/> without resampling.
+        /// </summary>
         int baseUpdateRate;
 
-        /// <summary>Actually used pitch multiplier including the Doppler effect.</summary>
+        /// <summary>
+        /// Actually used pitch multiplier including the Doppler effect.
+        /// </summary>
         float calculatedPitch;
-        /// <summary>Distance from the listener.</summary>
+
+        /// <summary>
+        /// Distance from the listener.
+        /// </summary>
         float distance = float.NaN;
-        /// <summary><see cref="distance"/> in the previous frame, required for Doppler effect calculation.</summary>
+
+        /// <summary>
+        /// <see cref="distance"/> in the previous frame, required for Doppler effect calculation.
+        /// </summary>
         float lastDistance;
-        /// <summary>Contains smoothed pitch for the doppler effect. Used to mitigate frames where v = 0, because audio FPS > video FPS.</summary>
+
+        /// <summary>
+        /// Contains smoothed pitch for the doppler effect. Used to mitigate frames where v = 0, because audio FPS > video FPS.
+        /// </summary>
         float lastDoppler = 1;
-        /// <summary>Sample rate multiplier to match the system sample rate.</summary>
+
+        /// <summary>
+        /// Sample rate multiplier to match the system sample rate.
+        /// </summary>
         float resampleMult;
 
-        /// <summary>Stereo mix cache to save allocation times.</summary>
+        /// <summary>
+        /// Stereo mix cache to save allocation times.
+        /// </summary>
         float[] leftSamples = new float[0], rightSamples = new float[0];
-        /// <summary>Rendered output array kept to save allocation time.</summary>
+
+        /// <summary>
+        /// Rendered output array kept to save allocation time.
+        /// </summary>
         float[] rendered = new float[0];
-        /// <summary>Mono mix cache to save allocation times.</summary>
+
+        /// <summary>
+        /// Mono mix cache to save allocation times.
+        /// </summary>
         float[] samples = new float[0];
 
-        /// <summary>Random number generator.</summary>
+        /// <summary>
+        /// Random number generator.
+        /// </summary>
         readonly Random random = new Random();
 
-        /// <summary>Remaining delay until starting playback.</summary>
+        /// <summary>
+        /// Remaining delay until starting playback.
+        /// </summary>
         long delay = 0;
 
-        /// <summary>Keeps a value in the given array, if it's smaller than any of its contents.</summary>
+        /// <summary>
+        /// Keeps a value in the given array, if it's smaller than any of its contents.
+        /// </summary>
         /// <param name="target">Array reference</param>
         /// <param name="value">Value to insert</param>
         static void BottomlistHandler(float[] target, float value) {
@@ -72,7 +114,9 @@ namespace Cavern {
                 target[replace] = value;
         }
 
-        /// <summary>Calculate distance from the <see cref="Listener"/> and choose the closest sources to play.</summary>
+        /// <summary>
+        /// Calculate distance from the <see cref="Listener"/> and choose the closest sources to play.
+        /// </summary>
         internal void Precalculate() {
             if (Renderable) {
                 lastDistance = distance;
@@ -84,7 +128,9 @@ namespace Cavern {
                 distance = float.NaN;
         }
 
-        /// <summary>Get the next samples in the audio stream.</summary>
+        /// <summary>
+        /// Get the next samples in the audio stream.
+        /// </summary>
         protected internal virtual float[][] GetSamples() {
             int channels = Clip.Channels;
             if (Rendered == null || Rendered.Length != channels) {
@@ -101,7 +147,9 @@ namespace Cavern {
             return Rendered;
         }
 
-        /// <summary>Quickly checks if a value is in an array.</summary>
+        /// <summary>
+        /// Quickly checks if a value is in an array.
+        /// </summary>
         /// <param name="target">Array reference</param>
         /// <param name="value">Value to check</param>
         /// <returns>If an array contains the value</returns>
@@ -113,7 +161,9 @@ namespace Cavern {
             return false;
         }
 
-        /// <summary>Cache the samples if the source should be rendered. This wouldn't be thread safe.</summary>
+        /// <summary>
+        /// Cache the samples if the source should be rendered. This wouldn't be thread safe.
+        /// </summary>
         /// <returns>The collection should be performed, as all requirements are met</returns>
         protected internal virtual bool Precollect() {
             if (delay > 0) {
@@ -154,10 +204,14 @@ namespace Cavern {
             return false;
         }
 
-        /// <summary>Makes sure if <see cref="Precollect"/> is called immediatly after this function, it will return true.</summary>
+        /// <summary>
+        /// Makes sure if <see cref="Precollect"/> is called immediatly after this function, it will return true.
+        /// </summary>
         protected void ForcePrecollect() => listener.sourceDistances[0] = distance;
 
-        /// <summary>Output samples to a multichannel array. Automatically applies constant power mixing.</summary>
+        /// <summary>
+        /// Output samples to a multichannel array. Automatically applies constant power mixing.
+        /// </summary>
         /// <param name="samples">Samples to write</param>
         /// <param name="target">Channel array to write to</param>
         /// <param name="gain">Source gain</param>
@@ -171,7 +225,9 @@ namespace Cavern {
                 target[to] += samples[from] * gain;
         }
 
-        /// <summary>Output samples to all channels of a multichannel array.</summary>
+        /// <summary>
+        /// Output samples to all channels of a multichannel array.
+        /// </summary>
         /// <param name="samples">Samples to write</param>
         /// <param name="target">Channel array to write to</param>
         /// <param name="gain">Source gain, total across all channels</param>
@@ -185,6 +241,9 @@ namespace Cavern {
                     target[to] = samples[from] * gain;
         }
 
+        /// <summary>
+        /// Render the stereo side mix.
+        /// </summary>
         void Stereo1DMix(float volume1D) {
             float leftVolume = volume1D / Listener.LeftChannels,
                 rightVolume = volume1D / Listener.RightChannels;
@@ -212,7 +271,9 @@ namespace Cavern {
             }
         }
 
-        /// <summary>Process the source and returns a mix to be added to the output.</summary>
+        /// <summary>
+        /// Process the source and returns a mix to be added to the output.
+        /// </summary>
         protected internal virtual float[] Collect() {
             // Preparations, clean environment
             int channels = Listener.Channels.Length,

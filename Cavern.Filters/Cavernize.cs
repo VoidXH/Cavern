@@ -1,50 +1,82 @@
 ﻿using System;
 
 namespace Cavern.Filters {
-    /// <summary>Separates ground and height data for a channel of a regular surround mix.</summary>
+    /// <summary>
+    /// Separates ground and height data for a channel of a regular surround mix.
+    /// </summary>
     public class Cavernize : Filter {
-        /// <summary>3D audio effect strength.</summary>
+        /// <summary>
+        /// 3D audio effect strength.
+        /// </summary>
         public float Effect { get; set; } = .75f;
 
-        /// <summary>Ratio of the distance actually moved between calculated heights of ftames. Should be set with
-        /// <see cref="CalculateSmoothingFactor(int, int, double)"/>.</summary>
+        /// <summary>
+        /// Ratio of the distance actually moved between calculated heights of ftames. Should be set with
+        /// <see cref="CalculateSmoothingFactor(int, int, double)"/>.
+        /// </summary>
         /// <remarks>The default value is calculated with 0.8 smoothness, with an update rate of 240 at 48 kHz sampling.</remarks>
         public float SmoothFactor { get; set; } = .0229349384f;
 
-        /// <summary>Keep all frequencies below this on the ground.</summary>
+        /// <summary>
+        /// Keep all frequencies below this on the ground.
+        /// </summary>
         public double GroundCrossover {
             get => crossover.Frequency;
             set => crossover.Frequency = value;
         }
 
-        /// <summary>The moving part's normalized height from the ground. Clamped between -0.2 and 1, 1 means max height.</summary>
+        /// <summary>
+        /// The moving part's normalized height from the ground. Clamped between -0.2 and 1, 1 means max height.
+        /// </summary>
         public float Height { get; private set; }
-        /// <summary>Audio that must be played at ground level. Results are from the last frame.</summary>
+
+        /// <summary>
+        /// Audio that must be played at ground level. Results are from the last frame.
+        /// </summary>
         public float[] GroundLevel => crossover.LowOutput;
-        /// <summary>Audio that should be played at the level by <see cref="Height"/>. Results are from the last frame.</summary>
+
+        /// <summary>
+        /// Audio that should be played at the level by <see cref="Height"/>. Results are from the last frame.
+        /// </summary>
         public float[] HeightLevel => crossover.HighOutput;
 
-        /// <summary>Crossover that mixes height sounds below its frequency back to the ground.</summary>
+        /// <summary>
+        /// Crossover that mixes height sounds below its frequency back to the ground.
+        /// </summary>
         readonly Crossover crossover;
 
-        /// <summary>Last low frequency sample (used in the height calculation algorithm).</summary>
+        /// <summary>
+        /// Last low frequency sample (used in the height calculation algorithm).
+        /// </summary>
         float lastLow;
-        /// <summary>Last unmodified sample (used in the height calculation algorithm).</summary>
+
+        /// <summary>
+        /// Last unmodified sample (used in the height calculation algorithm).
+        /// </summary>
         float lastNormal;
-        /// <summary>Last high frequency sample (used in the height calculation algorithm).</summary>
+
+        /// <summary>
+        /// Last high frequency sample (used in the height calculation algorithm).
+        /// </summary>
         float lastHigh;
 
-        /// <summary>Separates ground and height data for a channel of a regular surround mix.</summary>
+        /// <summary>
+        /// Separates ground and height data for a channel of a regular surround mix.
+        /// </summary>
         public Cavernize(int sampleRate, float crossoverFrequency = 250) => crossover = new Crossover(sampleRate, crossoverFrequency, 2);
 
-        /// <summary>Generate the smoothing factor for a smoothness value.</summary>
+        /// <summary>
+        /// Generate the smoothing factor for a smoothness value.
+        /// </summary>
         /// <param name="updateRate">Block size for processing</param>
         /// <param name="sampleRate">Clip sample rate</param>
         /// <param name="smoothness">Smoothness from 0 to 1</param>
         public void CalculateSmoothingFactor(int updateRate, int sampleRate, double smoothness = .8) =>
             SmoothFactor = (updateRate + (float)((sampleRate - updateRate) * Math.Pow(smoothness, .1))) / sampleRate * .999f;
 
-        /// <summary>Cavernize an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>
+        /// Cavernize an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
         /// <param name="samples">Input samples</param>
         public override void Process(float[] samples) {
             crossover.Process(samples);
@@ -69,8 +101,9 @@ namespace Cavern.Filters {
             Height = (maxHeight - Height) * SmoothFactor + Height;
         }
 
-        /// <summary>Create empty outputs for a given <paramref name="updateRate"/>> in case they are used before processing.
-        /// This optimizes zero checks.</summary>
+        /// <summary>
+        /// Create empty outputs for a given <paramref name="updateRate"/>> in case they are used before processing. This optimizes zero checks.
+        /// </summary>
         public void PresetOutput(int updateRate) => crossover.PresetOutput(updateRate);
     }
 }

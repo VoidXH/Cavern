@@ -7,23 +7,33 @@ using Cavern.QuickEQ.SignalGeneration;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
-    /// <summary>Equalizer data collector and exporter.</summary>
+    /// <summary>
+    /// Equalizer data collector and exporter.
+    /// </summary>
     public sealed class Equalizer {
-        /// <summary>Bands that make up this equalizer.</summary>
+        /// <summary>
+        /// Bands that make up this equalizer.
+        /// </summary>
         public IReadOnlyList<Band> Bands => bands;
         readonly List<Band> bands = new List<Band>();
 
-        /// <summary>Equalizer data collector and exporter.</summary>
+        /// <summary>
+        /// Equalizer data collector and exporter.
+        /// </summary>
         public Equalizer() { }
 
-        /// <summary>Equalizer data collector and exporter from a previously created set of bands.</summary>
+        /// <summary>
+        /// Equalizer data collector and exporter from a previously created set of bands.
+        /// </summary>
         /// <remarks>The list of bands must be sorted.</remarks>
         internal Equalizer(List<Band> bands) {
             this.bands = bands;
             RecalculatePeakGain();
         }
 
-        /// <summary>Gets the gain at a given frequency.</summary>
+        /// <summary>
+        /// Gets the gain at a given frequency.
+        /// </summary>
         public double this[double frequency] {
             get {
                 int bandCount = bands.Count;
@@ -41,7 +51,9 @@ namespace Cavern.QuickEQ.Equalization {
             }
         }
 
-        /// <summary>Cut off low frequencies that are out of the channel's frequency range.</summary>
+        /// <summary>
+        /// Cut off low frequencies that are out of the channel's frequency range.
+        /// </summary>
         public bool SubsonicFilter {
             get => subsonicFilter;
             set {
@@ -55,7 +67,9 @@ namespace Cavern.QuickEQ.Equalization {
         }
         bool subsonicFilter = false;
 
-        /// <summary>Frame modifications to not break subsonic filtering.</summary>
+        /// <summary>
+        /// Frame modifications to not break subsonic filtering.
+        /// </summary>
         void Modify(Action action) {
             bool wasFiltered = subsonicFilter;
             subsonicFilter = false;
@@ -69,14 +83,18 @@ namespace Cavern.QuickEQ.Equalization {
             }
         }
 
-        /// <summary>Subsonic filter rolloff in dB / octave.</summary>
+        /// <summary>
+        /// Subsonic filter rolloff in dB / octave.
+        /// </summary>
         public double SubsonicRolloff {
             get => subsonicRolloff;
             set => Modify(() => subsonicRolloff = value);
         }
         double subsonicRolloff = 24;
 
-        /// <summary>The highest gain in this EQ.</summary>
+        /// <summary>
+        /// The highest gain in this EQ.
+        /// </summary>
         public double PeakGain { get; private set; }
 
         void RecalculatePeakGain() {
@@ -90,14 +108,18 @@ namespace Cavern.QuickEQ.Equalization {
                     PeakGain = bands[band].Gain;
         }
 
-        /// <summary>Add a new band to the EQ.</summary>
+        /// <summary>
+        /// Add a new band to the EQ.
+        /// </summary>
         public void AddBand(Band newBand) => Modify(() => {
             if (bands.Count == 0 || PeakGain < newBand.Gain)
                 PeakGain = newBand.Gain;
             bands.AddSortedDistinct(newBand);
         });
 
-        /// <summary>Remove a band from the EQ.</summary>
+        /// <summary>
+        /// Remove a band from the EQ.
+        /// </summary>
         public void RemoveBand(Band removable) => Modify(() => {
             bands.RemoveSorted(removable);
             if (bands.Count == 0)
@@ -106,7 +128,9 @@ namespace Cavern.QuickEQ.Equalization {
                 RecalculatePeakGain();
         });
 
-        /// <summary>Remove multiple bands from the EQ.</summary>
+        /// <summary>
+        /// Remove multiple bands from the EQ.
+        /// </summary>
         /// <param name="first">First band</param>
         /// <param name="count">Number of bands to remove starting with <paramref name="first"/></param>
         public void RemoveBands(Band first, int count) => Modify(() => {
@@ -127,13 +151,17 @@ namespace Cavern.QuickEQ.Equalization {
             }
         });
 
-        /// <summary>Reset this EQ.</summary>
+        /// <summary>
+        /// Reset this EQ.
+        /// </summary>
         public void ClearBands() => Modify(() => {
             PeakGain = 0;
             bands.Clear();
         });
 
-        /// <summary>Shows the EQ curve in a linearly scaled frequency axis.</summary>
+        /// <summary>
+        /// Shows the EQ curve in a linearly scaled frequency axis.
+        /// </summary>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="length">Points on the curve</param>
@@ -158,14 +186,18 @@ namespace Cavern.QuickEQ.Equalization {
             return result;
         }
 
-        /// <summary>Gets the corresponding frequencies for <see cref="VisualizeLinear(double, double, int)"/>.</summary>
+        /// <summary>
+        /// Gets the corresponding frequencies for <see cref="VisualizeLinear(double, double, int)"/>.
+        /// </summary>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="length">Points on the curve</param>
         public static float[] FrequenciesLinear(double startFreq, double endFreq, int length) =>
             SweepGenerator.LinearFreqs(startFreq, endFreq, length);
 
-        /// <summary>Shows the EQ curve in a logarithmically scaled frequency axis.</summary>
+        /// <summary>
+        /// Shows the EQ curve in a logarithmically scaled frequency axis.
+        /// </summary>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="length">Points on the curve</param>
@@ -190,14 +222,18 @@ namespace Cavern.QuickEQ.Equalization {
             return result;
         }
 
-        /// <summary>Gets the corresponding frequencies for <see cref="Visualize(double, double, int)"/>.</summary>
+        /// <summary>
+        /// Gets the corresponding frequencies for <see cref="Visualize(double, double, int)"/>.
+        /// </summary>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="length">Points on the curve</param>
         public static float[] Frequencies(double startFreq, double endFreq, int length) =>
             SweepGenerator.ExponentialFreqs(startFreq, endFreq, length);
 
-        /// <summary>Shows the resulting frequency response if this EQ is applied.</summary>
+        /// <summary>
+        /// Shows the resulting frequency response if this EQ is applied.
+        /// </summary>
         /// <param name="response">Frequency response curve to apply the EQ on, from
         /// <see cref="GraphUtils.ConvertToGraph(float[], double, double, int, int)"/></param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
@@ -209,7 +245,9 @@ namespace Cavern.QuickEQ.Equalization {
             return filter;
         }
 
-        /// <summary>Apply this EQ on a frequency response.</summary>
+        /// <summary>
+        /// Apply this EQ on a frequency response.
+        /// </summary>
         /// <param name="response">Frequency response to apply the EQ on</param>
         /// <param name="sampleRate">Sample rate where <paramref name="response"/> was generated</param>
         public void Apply(Complex[] response, int sampleRate) {
@@ -222,7 +260,9 @@ namespace Cavern.QuickEQ.Equalization {
             }
         }
 
-        /// <summary>Merge this Equalizer with another, summing their gains.</summary>
+        /// <summary>
+        /// Merge this Equalizer with another, summing their gains.
+        /// </summary>
         public Equalizer Merge(Equalizer with) {
             List<Band> output = new List<Band>();
             for (int band = 0, bandc = bands.Count; band < bandc; ++ band)

@@ -5,28 +5,44 @@ using Cavern.Filters;
 using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
-    /// <summary>Handles distancing calculations for a single source's two ears.</summary>
+    /// <summary>
+    /// Handles distancing calculations for a single source's two ears.
+    /// </summary>
     public class Distancer {
-        /// <summary>Decreases real distances by this factor to shrink the environment's scale.</summary>
+        /// <summary>
+        /// Decreases real distances by this factor to shrink the environment's scale.
+        /// </summary>
         public float distanceFactor = 10f; // TODO: by environment size
 
-        /// <summary>The left ear's gain that corresponds to the <see cref="source"/>'s distance.</summary>
+        /// <summary>
+        /// The left ear's gain that corresponds to the <see cref="source"/>'s distance.
+        /// </summary>
         public float LeftGain { get; private set; }
 
-        /// <summary>The left ear's gain that corresponds to the <see cref="source"/>'s distance.</summary>
+        /// <summary>
+        /// The left ear's gain that corresponds to the <see cref="source"/>'s distance.
+        /// </summary>
         public float RightGain { get; private set; }
 
-        /// <summary>The filtered source.</summary>
+        /// <summary>
+        /// The filtered source.
+        /// </summary>
         readonly Source source;
 
-        /// <summary>The filter processing the <see cref="source"/>.</summary>
+        /// <summary>
+        /// The filter processing the <see cref="source"/>.
+        /// </summary>
         readonly SpikeConvolver filter;
 
-        /// <summary>The maximum length of any of the <see cref="impulses"/>, because if the <see cref="FastConvolver"/> is used, the arrays won't be
-        /// reassigned and the filter won't cut out, and if the <see cref="SpikeConvolver"/> is used, the overhead is basically zero.</summary>
+        /// <summary>
+        /// The maximum length of any of the <see cref="impulses"/>, because if the <see cref="FastConvolver"/> is used, the arrays won't be
+        /// reassigned and the filter won't cut out, and if the <see cref="SpikeConvolver"/> is used, the overhead is basically zero.
+        /// </summary>
         readonly int filterSize;
 
-        /// <summary>Create a distance simulation for a <see cref="Source"/>.</summary>
+        /// <summary>
+        /// Create a distance simulation for a <see cref="Source"/>.
+        /// </summary>
         public Distancer(Source source) {
             this.source = source;
             source.VolumeRolloff = Rolloffs.Disabled;
@@ -37,7 +53,9 @@ namespace Cavern.Virtualizer {
             filter = new SpikeConvolver(new float[filterSize], 0);
         }
 
-        /// <summary>Generate the left/right ear filters.</summary>
+        /// <summary>
+        /// Generate the left/right ear filters.
+        /// </summary>
         /// <param name="right">The object is to the right of the <see cref="Listener"/>'s forward vector</param>
         /// <param name="samples">Single-channel downmixed samples to process</param>
         public void Generate(bool right, float[] samples) {
@@ -111,13 +129,20 @@ namespace Cavern.Virtualizer {
             }
         }
 
-        /// <summary>All the angles that have their own impulse responses.</summary>
+        /// <summary>
+        /// All the angles that have their own impulse responses.
+        /// </summary>
         static readonly float[] angles = new float[7] { 0, 15, 30, 45, 60, 75, 90 };
-        /// <summary>All the distances that have their own impulse responses for each angle in meters.</summary>
+
+        /// <summary>
+        /// All the distances that have their own impulse responses for each angle in meters.
+        /// </summary>
         static readonly float[] distances = new float[5] { .1f, .25f, .5f, 1, 2 };
 
-        /// <summary>Ear canal distortion impulse responses for given angles and distances. The first dimension is the angle,
-        /// provided in <see cref="angles"/>, and the second dimension is the distance, provided in <see cref="distances"/>.</summary>
+        /// <summary>
+        /// Ear canal distortion impulse responses for given angles and distances. The first dimension is the angle,
+        /// provided in <see cref="angles"/>, and the second dimension is the distance, provided in <see cref="distances"/>.
+        /// </summary>
         static readonly float[][][] impulses = new float[7][][] {
             new float[5][] {
                 new float[15] { 0, 0, 0, 0, 0, 0, 0, 0, .07280911f, .06462494f, .03621706f, .02388191f, 1f, .3592792f, .01247505f },

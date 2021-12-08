@@ -1,21 +1,39 @@
 ﻿using System;
 
 namespace Cavern.Remapping {
-    /// <summary>Light audio channel information structure.</summary>
+    /// <summary>
+    /// Light audio channel information structure.
+    /// </summary>
     public struct ChannelPrototype : IEquatable<ChannelPrototype> {
-        /// <summary>Horizontal axis angle.</summary>
+        /// <summary>
+        /// Horizontal axis angle.
+        /// </summary>
         public readonly float Y;
-        /// <summary>Vertical axis angle.</summary>
+
+        /// <summary>
+        /// Vertical axis angle.
+        /// </summary>
         public readonly float X;
-        /// <summary>Channel name.</summary>
+
+        /// <summary>
+        /// Channel name.
+        /// </summary>
         public readonly string Name;
-        /// <summary>True if the channel is used for Low Frequency Effects.</summary>
+
+        /// <summary>
+        /// True if the channel is used for Low Frequency Effects.
+        /// </summary>
         public readonly bool LFE;
-        /// <summary>Mute status.</summary>
+
+        /// <summary>
+        /// Mute status.
+        /// </summary>
         /// <remarks>Some channels should not be played back on the spatial master, like hearing/visually impaired tracks.</remarks>
         public readonly bool Muted;
 
-        /// <summary>Standard channel constructor.</summary>
+        /// <summary>
+        /// Standard channel constructor.
+        /// </summary>
         /// <param name="y">Horizontal axis angle</param>
         /// <param name="name">Channel name</param>
         /// <param name="LFE">True if the channel is used for Low Frequency Effects</param>
@@ -28,7 +46,9 @@ namespace Cavern.Remapping {
             Muted = muted;
         }
 
-        /// <summary>Spatial channel constructor.</summary>
+        /// <summary>
+        /// Spatial channel constructor.
+        /// </summary>
         /// <param name="y">Horizontal axis angle</param>
         /// <param name="x">Vertical axis angle</param>
         /// <param name="name">Channel name</param>
@@ -39,7 +59,9 @@ namespace Cavern.Remapping {
             LFE = Muted = false;
         }
 
-        /// <summary>Possible channels to use in layouts.</summary>
+        /// <summary>
+        /// Possible channels to use in layouts.
+        /// </summary>
         public static readonly ChannelPrototype
             FrontLeft = new ChannelPrototype(-30, "Front left"),
             FrontRight = new ChannelPrototype(30, "Front right"),
@@ -66,7 +88,9 @@ namespace Cavern.Remapping {
             GodsVoice = new ChannelPrototype(0, -90, "God's voice"),
             RearCenter = new ChannelPrototype(180, "Rear center");
 
-        /// <summary>Converts the <see cref="ReferenceChannel"/> values to a <see cref="ChannelPrototype"/>.</summary>
+        /// <summary>
+        /// Converts the <see cref="ReferenceChannel"/> values to a <see cref="ChannelPrototype"/>.
+        /// </summary>
         public static readonly ChannelPrototype[] Mapping = {
             FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight,
             FrontLeftCenter, FrontRightCenter, HearingImpaired, VisuallyImpaired, Unused, MotionData, ExternalData,
@@ -74,7 +98,9 @@ namespace Cavern.Remapping {
             GodsVoice, RearCenter
         };
 
-        /// <summary>Industry standard channel orders for each input channel count.</summary>
+        /// <summary>
+        /// Industry standard channel orders for each input channel count.
+        /// </summary>
         /// <remarks>Matrices with 8+ channels are DCP orders, with messy standardization, and are unused in commercial applications.
         /// Manual revision before each workflow is recommended when working with non-5.1 DCPs or content with 8+ channels.</remarks>
         public static readonly ReferenceChannel[][] StandardMatrix = {
@@ -164,17 +190,23 @@ namespace Cavern.Remapping {
             }
         };
 
-        /// <summary>Get a <paramref name="channel"/>'s <see cref="ChannelPrototype"/> of the standard layout
-        /// with a given number of <paramref name="channels"/>.</summary>
+        /// <summary>
+        /// Get a <paramref name="channel"/>'s <see cref="ChannelPrototype"/> of the standard layout
+        /// with a given number of <paramref name="channels"/>.
+        /// </summary>
         public static ChannelPrototype Get(int channel, int channels) {
             int prototypeID = (int)StandardMatrix[channels][channel];
             return Mapping[prototypeID];
         }
 
-        /// <summary>Check if two channel prototypes are the same.</summary>
+        /// <summary>
+        /// Check if two channel prototypes are the same.
+        /// </summary>
         public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
 
-        /// <summary>Human-readable channel prototype data.</summary>
+        /// <summary>
+        /// Human-readable channel prototype data.
+        /// </summary>
         public override string ToString() {
             string basic = $"{(LFE ? Name + "(LFE)" : Name)} ({X}; {Y})";
             if (Muted)

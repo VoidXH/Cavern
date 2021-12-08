@@ -7,11 +7,15 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Helpers for the asymmetric renderer
         // ------------------------------------------------------------------
-        /// <summary>Angle match value modifier.</summary>
+        /// <summary>
+        /// Angle match value modifier.
+        /// </summary>
         /// <param name="Matching">Old angle match</param>
         internal delegate float MatchModifierFunc(float Matching);
 
-        /// <summary>x to the power of 8.</summary>
+        /// <summary>
+        /// x to the power of 8.
+        /// </summary>
         /// <returns>x^8 the fastest way possible</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float PowTo8(float x) {
@@ -20,7 +24,9 @@ namespace Cavern {
             return x * x;
         }
 
-        /// <summary>x to the power of 16.</summary>
+        /// <summary>
+        /// x to the power of 16.
+        /// </summary>
         /// <returns>x^16 the fastest way possible</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float PowTo16(float x) {
@@ -30,7 +36,9 @@ namespace Cavern {
             return x * x;
         }
 
-        /// <summary>Angle match calculations.</summary>
+        /// <summary>
+        /// Angle match calculations.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static float[] CalculateAngleMatches(int channels, Vector3 direction, MatchModifierFunc matchModifier) {
             float[] angleMatches = new float[channels];
@@ -44,8 +52,10 @@ namespace Cavern {
             return angleMatches;
         }
 
-        /// <summary>Linearized <see cref="CalculateAngleMatches(int, Vector3, MatchModifierFunc)"/>:
-        /// pi / 2 - pi / 2 * x, angle match: pi - (lin acos) = pi / 2 + pi / 2 * x.</summary>
+        /// <summary>
+        /// Linearized <see cref="CalculateAngleMatches(int, Vector3, MatchModifierFunc)"/>:
+        /// pi / 2 - pi / 2 * x, angle match: pi - (lin acos) = pi / 2 + pi / 2 * x.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static float[] LinearizeAngleMatches(int channels, Vector3 direction, MatchModifierFunc matchModifier) {
             float[] angleMatches = new float[channels];

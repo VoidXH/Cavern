@@ -5,23 +5,53 @@ using Cavern.Filters;
 using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
-    /// <summary>Convolution filters for each ear and virtual channel to simulate a spatial environment.</summary>
+    /// <summary>
+    /// Convolution filters for each ear and virtual channel to simulate a spatial environment.
+    /// </summary>
     public static partial class VirtualizerFilter {
-        const int filterSampleRate = 48000, unassigned = -1;
-        /// <summary>Cache of each output channel.</summary>
+        /// <summary>
+        /// Sample rate of the recorded HRIR filters. Only this system sample rate is allowed for virtualization.
+        /// </summary>
+        const int filterSampleRate = 48000;
+
+        /// <summary>
+        /// Marker instead of a channel ID when a channel was not set.
+        /// </summary>
+        const int unassigned = -1;
+
+        /// <summary>
+        /// Cache of each output channel.
+        /// </summary>
         static float[][] originalSplit;
-        /// <summary>Cache of each output channel for one ear.</summary>
+
+        /// <summary>
+        /// Cache of each output channel for one ear.
+        /// </summary>
         static float[][] leftSplit, rightSplit;
-        /// <summary>Length of split arrays.</summary>
+
+        /// <summary>
+        /// Length of split arrays.
+        /// </summary>
         static int blockSize;
-        /// <summary>Cached channel IDs for center hack.</summary>
+
+        /// <summary>
+        /// Cached channel IDs for center hack.
+        /// </summary>
         static int left = unassigned, right = unassigned, center = unassigned;
-        /// <summary>Center hack: add a 7.5 ms -20 dB delay of the center to fronts to simulate a wall echo for better immersion.</summary>
+
+        /// <summary>
+        /// Center hack: add a 7.5 ms -20 dB delay of the center to fronts to simulate a wall echo for better immersion.
+        /// </summary>
         static Delay centerDelay;
-        /// <summary>Delayed center channel signal for center hack.</summary>
+
+        /// <summary>
+        /// Delayed center channel signal for center hack.
+        /// </summary>
         static float[] delayedCenter;
 
-        /// <summary>Set up virtual channel set for the virtualization filters.</summary>
+        /// <summary>
+        /// Set up virtual channel set for the virtualization filters.
+        /// </summary>
         public static void SetLayout() {
             bool setAgain = centerDelay == null;
             if (Listener.Channels.Length == spatialChannels.Length) {
@@ -57,7 +87,9 @@ namespace Cavern.Virtualizer {
             originalSplit[0] = new float[0];
         }
 
-        /// <summary>Split and convolve a single channel by ID.</summary>
+        /// <summary>
+        /// Split and convolve a single channel by ID.
+        /// </summary>
         static void ProcessChannel(int channel) {
             // Select the retain range
             Crossover lowCrossover = spatialChannels[channel].Crossover;
@@ -72,8 +104,10 @@ namespace Cavern.Virtualizer {
             spatialChannels[channel].RightFilter.Process(rightSplit[channel]);
         }
 
-        /// <summary>Apply the virtualizer on the <see cref="Listener"/>'s output,
-        /// if the configuration matches the virtualization layout and filter sample rate.</summary>
+        /// <summary>
+        /// Apply the virtualizer on the <see cref="Listener"/>'s output,
+        /// if the configuration matches the virtualization layout and filter sample rate.
+        /// </summary>
         public static void Process(float[] output, int sampleRate) {
             int channels = Listener.Channels.Length;
             blockSize = output.Length / channels;
@@ -97,6 +131,7 @@ namespace Cavern.Virtualizer {
                 }
             }
             Parallel.For(0, channels, ProcessChannel);
+
             // Stereo downmix
             Array.Clear(output, 0, output.Length);
             for (int sample = 0; sample < blockSize; ++sample) {

@@ -1,5 +1,7 @@
 ﻿namespace Cavern.Remapping {
-    /// <summary>Possible channels in channel-based legacy systems.</summary>
+    /// <summary>
+    /// Possible channels in channel-based legacy systems.
+    /// </summary>
     /// <remarks>The standard 7.1 layout is the first 8 entries.</remarks>
     public enum ReferenceChannel {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member

@@ -9,7 +9,9 @@ using Cavern.QuickEQ.EQCurves;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
-    /// <summary>Equalizer generation functions.</summary>
+    /// <summary>
+    /// Equalizer generation functions.
+    /// </summary>
     public static class EQGenerator {
         static NumberFormatInfo NumberFormat {
             get {
@@ -20,8 +22,9 @@ namespace Cavern.QuickEQ.Equalization {
         }
         static NumberFormatInfo numberFormat;
 
-        /// <summary>Generate an equalizer setting to flatten the processed response of
-        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.</summary>
+        /// <summary>
+        /// Generate an equalizer setting to flatten the processed response of <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.
+        /// </summary>
         /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is
         /// strongly recommended</param>
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
@@ -50,8 +53,10 @@ namespace Cavern.QuickEQ.Equalization {
             return new Equalizer(bands);
         }
 
-        /// <summary>Generate a precise equalizer setting to flatten the processed response of
-        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.</summary>
+        /// <summary>
+        /// Generate a precise equalizer setting to flatten the processed response of
+        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.
+        /// </summary>
         /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is
         /// strongly recommended</param>
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
@@ -77,7 +82,9 @@ namespace Cavern.QuickEQ.Equalization {
             return new Equalizer(bands);
         }
 
-        /// <summary>Create an EQ that completely linearizes the <paramref name="spectrum"/>.</summary>
+        /// <summary>
+        /// Create an EQ that completely linearizes the <paramref name="spectrum"/>.
+        /// </summary>
         public static Equalizer FlattenSpectrum(Complex[] spectrum, int sampleRate) {
             double step = sampleRate / spectrum.Length;
             List<Band> bands = new List<Band>(spectrum.Length >> 1);
@@ -86,7 +93,9 @@ namespace Cavern.QuickEQ.Equalization {
             return new Equalizer(bands);
         }
 
-        /// <summary>Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.</summary>
+        /// <summary>
+        /// Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.
+        /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
         /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
@@ -110,14 +119,17 @@ namespace Cavern.QuickEQ.Equalization {
             return Measurements.GetRealPartHalf(filter);
         }
 
-        /// <summary>Gets a linear phase convolution filter that results in this EQ when applied.</summary>
+        /// <summary>
+        /// Gets a linear phase convolution filter that results in this EQ when applied.
+        /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
         /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
         /// <param name="gain">Signal voltage multiplier</param>
         /// <param name="initial">Custom initial spectrum to apply the EQ on - phases will be corrected, this is not convolved,
         /// and has to be twice the size of <paramref name="length"/></param>
-        public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length = 1024, float gain = 1, Complex[] initial = null) {
+        public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length = 1024, float gain = 1,
+            Complex[] initial = null) {
             Complex[] filter = new Complex[length];
             if (initial == null)
                 for (int i = 0; i < length; ++i)
@@ -130,7 +142,9 @@ namespace Cavern.QuickEQ.Equalization {
             return Measurements.GetRealPart(filter);
         }
 
-        /// <summary>Create a peaking EQ filter set with bands at the positions of the EQ's bands to approximate the drawn EQ curve.</summary>
+        /// <summary>
+        /// Create a peaking EQ filter set with bands at the positions of the EQ's bands to approximate the drawn EQ curve.
+        /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Target system sample rate</param>
         /// <param name="smoothing">Smooth out band spikes</param>
@@ -155,8 +169,9 @@ namespace Cavern.QuickEQ.Equalization {
             return result;
         }
 
-        /// <summary>Parse a calibration text where each line is a frequency-gain (dB) pair,
-        /// and the lines are sorted ascending by frequency.</summary>
+        /// <summary>
+        /// Parse a calibration text where each line is a frequency-gain (dB) pair, and the lines are sorted ascending by frequency.
+        /// </summary>
         /// <param name="lines">Lines of the calibration file</param>
         public static Equalizer FromCalibration(string[] lines) {
             List<Band> bands = new List<Band>();
@@ -170,8 +185,9 @@ namespace Cavern.QuickEQ.Equalization {
             return new Equalizer(bands);
         }
 
-        /// <summary>Parse a calibration file where each line is a frequency-gain (dB) pair,
-        /// and the lines are sorted ascending by frequency.</summary>
+        /// <summary>
+        /// Parse a calibration file where each line is a frequency-gain (dB) pair, and the lines are sorted ascending by frequency.
+        /// </summary>
         /// <param name="path">Path to the calibration file</param>
         public static Equalizer FromCalibrationFile(string path) => FromCalibration(File.ReadAllLines(path));
     }

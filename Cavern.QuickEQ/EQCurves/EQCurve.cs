@@ -1,25 +1,31 @@
 ﻿using System;
 
 namespace Cavern.QuickEQ.EQCurves {
-    /// <summary>Equalizer curve processing.</summary>
+    /// <summary>
+    /// Equalizer curve processing.
+    /// </summary>
     public abstract class EQCurve {
-        /// <summary>Get the curve's gain in decibels at a given frequency.</summary>
+        /// <summary>
+        /// Get the curve's gain in decibels at a given frequency.
+        /// </summary>
         public abstract double this[double frequency] { get; }
 
-        /// <summary>Create a curve from <see cref="CurveFunction"/> definitions.</summary>
-        public static EQCurve CreateCurve(CurveFunction function) {
-            return function switch {
-                CurveFunction.XCurve => new XCurve(),
-                CurveFunction.Punch => new Punch(),
-                CurveFunction.Depth => new Depth(),
-                CurveFunction.Bandpass => throw new Exception("Bandpass EQ should be created with its constructor."),
-                CurveFunction.RoomCurve => new RoomCurve(),
-                CurveFunction.Custom => throw new Exception("Custom EQ should be created with its constructor."),
-                _ => new Flat(),
-            };
-        }
+        /// <summary>
+        /// Create a curve from <see cref="CurveFunction"/> definitions.
+        /// </summary>
+        public static EQCurve CreateCurve(CurveFunction function) => function switch {
+            CurveFunction.XCurve => new XCurve(),
+            CurveFunction.Punch => new Punch(),
+            CurveFunction.Depth => new Depth(),
+            CurveFunction.Bandpass => throw new Exception("Bandpass EQ should be created with its constructor."),
+            CurveFunction.RoomCurve => new RoomCurve(),
+            CurveFunction.Custom => throw new Exception("Custom EQ should be created with its constructor."),
+            _ => new Flat(),
+        };
 
-        /// <summary>Generate a linear curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a linear curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
         public virtual float[] GenerateLinearCurve(int sampleRate, int length) {
@@ -30,7 +36,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a linear curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a linear curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
         /// <param name="gain">Curve reference level</param>
@@ -54,7 +62,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a logarithmic curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a logarithmic curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
@@ -68,7 +78,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a logarithmic curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a logarithmic curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>

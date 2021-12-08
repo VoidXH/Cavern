@@ -1,21 +1,33 @@
 ﻿using System;
 
 namespace Cavern.QuickEQ.EQCurves {
-    /// <summary>EQ curve with a bass bump for punch emphasis.</summary>
+    /// <summary>
+    /// EQ curve with a bass bump for punch emphasis.
+    /// </summary>
     public class Punch : EQCurve {
-        /// <summary>Hardcoded log10(120), as C# compilers don't optimize this.</summary>
+        /// <summary>
+        /// Hardcoded log10(120), as C# compilers don't optimize this.
+        /// </summary>
         const float log10_120 = 2.07918124605f;
 
-        /// <summary>Filter gain in decibels.</summary>
+        /// <summary>
+        /// Filter gain in decibels.
+        /// </summary>
         public double Gain { get; private set; }
 
-        /// <summary>EQ curve with a 6 dB bass bump for punch emphasis.</summary>
+        /// <summary>
+        /// EQ curve with a 6 dB bass bump for punch emphasis.
+        /// </summary>
         public Punch() => Gain = 3;
 
-        /// <summary>EQ curve with a bass bump at custom gain for punch emphasis.</summary>
+        /// <summary>
+        /// EQ curve with a bass bump at custom gain for punch emphasis.
+        /// </summary>
         public Punch(double gain) => Gain = gain / 2;
 
-        /// <summary>Get the curve's gain in decibels at a given frequency.</summary>
+        /// <summary>
+        /// Get the curve's gain in decibels at a given frequency.
+        /// </summary>
         public override double this[double frequency] {
             get {
                 if (frequency > 120)
@@ -24,7 +36,9 @@ namespace Cavern.QuickEQ.EQCurves {
             }
         }
 
-        /// <summary>Generate a linear curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a linear curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
         public override float[] GenerateLinearCurve(int sampleRate, int length) {
@@ -38,7 +52,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a linear curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a linear curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
         /// <param name="gain">Curve reference level</param>
@@ -56,7 +72,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a logarithmic curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a logarithmic curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
@@ -72,7 +90,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a logarithmic curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a logarithmic curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>

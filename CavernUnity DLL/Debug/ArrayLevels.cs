@@ -1,13 +1,18 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Utilities;
 
 namespace Cavern.Debug {
-    /// <summary>Cinema channel array volume meters (7.1 + overhead sides).</summary>
+    /// <summary>
+    /// Cinema channel array volume meters (7.1 + overhead sides).
+    /// </summary>
     [AddComponentMenu("Audio/Debug/Array Levels")]
     public class ArrayLevels : WindowBase {
-        /// <summary>The lowest volume to show (in decibels).</summary>
+        /// <summary>
+        /// The lowest volume to show (in decibels).
+        /// </summary>
         [Tooltip("The lowest volume to show (in decibels).")]
         [Range(-300, -6)]
         public int DynamicRange = -60;
@@ -28,17 +33,22 @@ namespace Cavern.Debug {
             topL = 7,
             topR = 8,
             LFE = 9;
+
         readonly static string[] markers = new string[] { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
+
         readonly static Color[] channelColors = new Color[] {
             ColorUtils.frontJack, ColorUtils.centerJack, ColorUtils.frontJack,
             ColorUtils.sideJack, ColorUtils.sideJack, Color.black, Color.black,
             ColorUtils.CavernBlue, ColorUtils.CavernBlue, ColorUtils.centerJack
         };
+
         readonly ArrayLevelData[] channelData = new ArrayLevelData[channels];
 
         Texture2D white;
 
-        /// <summary>Window dimension, name, and custom variable setup.</summary>
+        /// <summary>
+        /// Window dimension, name, and custom variable setup.
+        /// </summary>
         protected override void Setup() {
             width = 0;
             height = 170;
@@ -56,7 +66,9 @@ namespace Cavern.Debug {
 
         const int barHeight = 140;
 
-        /// <summary>Draw window contents.</summary>
+        /// <summary>
+        /// Draw window contents.
+        /// </summary>
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
             int blockWidth = 30, gapWidth = blockWidth / 6, barWidth = blockWidth - gapWidth * 2, targetWidth = channels * blockWidth;
@@ -86,6 +98,7 @@ namespace Cavern.Debug {
             GUI.DragWindow();
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             float[] arrayLevels = new float[channels], outputCache = AudioListener3D.Output;
             for (int actChannel = 0, multichannelUpdateRate = outputCache.Length; actChannel < Listener.Channels.Length; ++actChannel) {
@@ -141,6 +154,7 @@ namespace Cavern.Debug {
             }
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() {
             Destroy(white);
             for (int Channel = 0; Channel < channels; ++Channel)

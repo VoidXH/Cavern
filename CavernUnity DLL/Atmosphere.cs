@@ -7,28 +7,50 @@ using Random = UnityEngine.Random;
 using Vector3D = System.Numerics.Vector3;
 
 namespace Cavern {
-    /// <summary>Creates an atmosphere of the given <see cref="Clips"/>.</summary>
+    /// <summary>
+    /// Creates an atmosphere of the given <see cref="Clips"/>.
+    /// </summary>
     [AddComponentMenu("Audio/3D Atmosphere")]
     public class Atmosphere : MonoBehaviour {
-        /// <summary>The possible clips that will be played at random positions.</summary>
+        /// <summary>
+        /// The possible clips that will be played at random positions.
+        /// </summary>
         [Tooltip("The possible clips that will be played at random positions.")]
         public AudioClip[] Clips;
-        /// <summary>The amount of audio sources in the atmosphere.</summary>
+
+        /// <summary>
+        /// The amount of audio sources in the atmosphere.
+        /// </summary>
         [Tooltip("The amount of audio sources in the atmosphere.")]
         public int Sources;
-        /// <summary>Create a spherical environment instead of cubic.</summary>
+
+        /// <summary>
+        /// Create a spherical environment instead of cubic.
+        /// </summary>
         [Tooltip("Create a spherical environment instead of cubic.")]
         public bool Spherical = false;
-        /// <summary>Minimal distance to spawn sources from the object's position.</summary>
+
+        /// <summary>
+        /// Minimal distance to spawn sources from the object's position.
+        /// </summary>
         [Tooltip("Minimal distance to spawn sources from the object's position.")]
         public float MinDistance = 5;
-        /// <summary>Maximum distance to spawn sources from the object's position.</summary>
+
+        /// <summary>
+        /// Maximum distance to spawn sources from the object's position.
+        /// </summary>
         [Tooltip("Maximum distance to spawn sources from the object's position.")]
         public float MaxDistance = 20;
-        /// <summary>Atmosphere volume.</summary>
+
+        /// <summary>
+        /// Atmosphere volume.
+        /// </summary>
         [Tooltip("Atmosphere volume.")]
         [Range(0, 1)] public float Volume = .25f;
-        /// <summary>Show created objects.</summary>
+
+        /// <summary>
+        /// Show created objects.
+        /// </summary>
         [Tooltip("Show created objects.")]
         public bool Visualize = false;
 

@@ -1,52 +1,86 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 namespace Cavern {
-    /// <summary><see cref="Cavernize"/> on a single source with diverted direct audio output.</summary>
+    /// <summary>
+    /// <see cref="Cavernize"/> on a single source with diverted direct audio output.
+    /// </summary>
     [AddComponentMenu("Audio/Cavernize/Single-channel height processor")]
     public class CavernizeRealtime : MonoBehaviour {
-        /// <summary>The channel of the source to convert.</summary>
+        /// <summary>
+        /// The channel of the source to convert.
+        /// </summary>
         [Tooltip("The channel of the source to convert.")]
         public int ChannelUsed = 0;
-        /// <summary>Indicates a balanced input line.</summary>
+
+        /// <summary>
+        /// Indicates a balanced input line.
+        /// </summary>
         [Tooltip("Indicates a balanced input line.")]
         public bool Balanced = false;
 
-        /// <summary>Target output for the base channel (L).</summary>
+        /// <summary>
+        /// Target output for the base channel (L).
+        /// </summary>
         [Tooltip("Target output for the base channel (L).")]
         public Jack Divert = Jack.Front;
-        /// <summary>Target output for the height channel (R).</summary>
+
+        /// <summary>
+        /// Target output for the height channel (R).
+        /// </summary>
         [Tooltip("Target output for the height channel (R).")]
         public Jack HeightDivert = Jack.Front;
 
-        /// <summary>Height effect strength.</summary>
+        /// <summary>
+        /// Height effect strength.
+        /// </summary>
         [Tooltip("Height effect strength.")]
         [Range(0, 1)] public float Effect = .75f;
-        /// <summary>Output smoothing strength.</summary>
+
+        /// <summary>
+        /// Output smoothing strength.
+        /// </summary>
         [Tooltip("Output smoothing strength.")]
         [Range(0, 1)] public float Smoothness = .8f;
 
-        /// <summary>Base speaker's position on the horizontal axis.</summary>
+        /// <summary>
+        /// Base speaker's position on the horizontal axis.
+        /// </summary>
         [Tooltip("Base speaker's position on the horizontal axis.")]
         [Range(-1, 1)] public float BottomSpeakerHeight = 0;
-        /// <summary>Height speaker's position on the horizontal axis.</summary>
+
+        /// <summary>
+        /// Height speaker's position on the horizontal axis.
+        /// </summary>
         [Tooltip("Height speaker's position on the horizontal axis.")]
         [Range(-1, 1)] public float TopSpeakerHeight = 1;
 
-        /// <summary>Peak decay rate multiplier.</summary>
+        /// <summary>
+        /// Peak decay rate multiplier.
+        /// </summary>
         [Header("Metering")]
         [Tooltip("Peak decay rate multiplier.")]
         public float PeakDecay = .5f;
 
-        /// <summary>Channel amplitude at the last update.</summary>
+        /// <summary>
+        /// Channel amplitude at the last update.
+        /// </summary>
         public float LastPeak { get; private set; }
-        /// <summary>Channel height at the last update.</summary>
+
+        /// <summary>
+        /// Channel height at the last update.
+        /// </summary>
         public float Height { get; private set; }
 
-        /// <summary>Gain modifier calculated from fader level.</summary>
+        /// <summary>
+        /// Gain modifier calculated from fader level.
+        /// </summary>
         static float faderGain = 1f;
 
-        /// <summary>The cinema processor's fader level. Required for height calculation as it is partially based on content volume.</summary>
+        /// <summary>
+        /// The cinema processor's fader level. Required for height calculation as it is partially based on content volume.
+        /// </summary>
         public static float Fader {
             get {
                 float dB = 20 * Mathf.Log10(1f / faderGain);
@@ -60,8 +94,10 @@ namespace Cavern {
         float lastSample = 0, lowSample = 0, highSample = 0;
         int sampleRate;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() => sampleRate = GetComponent<AudioSource>().clip.frequency;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnAudioFilterRead(float[] data, int channels) {
             // Mono downmix
             int UpdateRate = data.Length / channels, actualSample = 0;

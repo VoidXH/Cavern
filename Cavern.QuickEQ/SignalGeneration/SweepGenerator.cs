@@ -1,9 +1,13 @@
 ﻿using System;
 
 namespace Cavern.QuickEQ.SignalGeneration {
-    /// <summary>Generates various sine sweep (chirp) signals.</summary>
+    /// <summary>
+    /// Generates various sine sweep (chirp) signals.
+    /// </summary>
     public static class SweepGenerator {
-        /// <summary>Generate a linear frequency sweep with a flat frequency response.</summary>
+        /// <summary>
+        /// Generate a linear frequency sweep with a flat frequency response.
+        /// </summary>
         public static float[] Linear(double startFreq, double endFreq, int samples, int sampleRate) {
             float[] output = new float[samples];
             double chirpyness = (endFreq - startFreq) / (2 * samples / (double)sampleRate), mul = 1.0 / sampleRate;
@@ -14,7 +18,9 @@ namespace Cavern.QuickEQ.SignalGeneration {
             return output;
         }
 
-        /// <summary>Generate the frequencies at each sample's position in a linear frequency sweep.</summary>
+        /// <summary>
+        /// Generate the frequencies at each sample's position in a linear frequency sweep.
+        /// </summary>
         public static float[] LinearFreqs(double startFreq, double endFreq, int samples) {
             float[] result = new float[samples];
             double step = (endFreq - startFreq) / (samples - 1);
@@ -23,7 +29,9 @@ namespace Cavern.QuickEQ.SignalGeneration {
             return result;
         }
 
-        /// <summary>Generate an exponential frequency sweep.</summary>
+        /// <summary>
+        /// Generate an exponential frequency sweep.
+        /// </summary>
         public static float[] Exponential(double startFreq, double endFreq, int samples, int sampleRate) {
             float[] output = new float[samples];
             double chirpyness = Math.Pow(endFreq / startFreq, sampleRate / (double)samples), mul = 1.0 / sampleRate,
@@ -33,7 +41,9 @@ namespace Cavern.QuickEQ.SignalGeneration {
             return output;
         }
 
-        /// <summary>Generate the frequencies at each sample's position in an exponential frequency sweep.</summary>
+        /// <summary>
+        /// Generate the frequencies at each sample's position in an exponential frequency sweep.
+        /// </summary>
         public static float[] ExponentialFreqs(double startFreq, double endFreq, int samples) {
             float[] result = new float[samples];
             double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (samples - 1));
@@ -44,7 +54,9 @@ namespace Cavern.QuickEQ.SignalGeneration {
             return result;
         }
 
-        /// <summary>Add silence to the beginning and the end of a sweep for a larger response window.</summary>
+        /// <summary>
+        /// Add silence to the beginning and the end of a sweep for a larger response window.
+        /// </summary>
         public static float[] Frame(float[] sweep) {
             float[] result = new float[sweep.Length * 2];
             for (int initialSilence = sweep.Length / 4, sample = initialSilence, end = sweep.Length + initialSilence; sample < end; ++sample)

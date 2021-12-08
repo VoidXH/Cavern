@@ -3,16 +3,22 @@
 using Cavern.Filters.Utilities;
 
 namespace Cavern.Filters {
-    /// <summary>Simple first-order notch filter.</summary>
+    /// <summary>
+    /// Simple first-order notch filter.
+    /// </summary>
     public class Notch : BiquadFilter {
-        /// <summary>Simple first-order notch filter.</summary>
+        /// <summary>
+        /// Simple first-order notch filter.
+        /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
         public Notch(int sampleRate, double centerFreq, double q = QFactor.reference, double gain = 0) : base(sampleRate, centerFreq, q, gain) { }
 
-        /// <summary>Regenerate the transfer function.</summary>
+        /// <summary>
+        /// Regenerate the transfer function.
+        /// </summary>
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>

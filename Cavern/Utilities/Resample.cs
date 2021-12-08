@@ -1,7 +1,11 @@
 ﻿namespace Cavern.Utilities {
-    /// <summary>Audio resampling functions.</summary>
+    /// <summary>
+    /// Audio resampling functions.
+    /// </summary>
     public static class Resample {
-        /// <summary>Resamples a single channel with the quality set by the user.</summary>
+        /// <summary>
+        /// Resamples a single channel with the quality set by the user.
+        /// </summary>
         /// <param name="samples">Samples of the source channel</param>
         /// <param name="to">New sample count</param>
         /// <param name="quality">Listener audio quality</param>
@@ -15,7 +19,9 @@
                 return CatmullRom(samples, to);
         }
 
-        /// <summary>Resamples a multichannel array with the quality set by the user.</summary>
+        /// <summary>
+        /// Resamples a multichannel array with the quality set by the user.
+        /// </summary>
         /// <param name="samples">Samples of the source channel</param>
         /// <param name="to">New sample count per channel</param>
         /// <param name="channels">Channel count</param>
@@ -39,7 +45,9 @@
             return samples;
         }
 
-        /// <summary>Resamples a single channel with medium quality (nearest neighbour).</summary>
+        /// <summary>
+        /// Resamples a single channel with medium quality (nearest neighbour).
+        /// </summary>
         /// <param name="samples">Samples of the source channel</param>
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
@@ -53,7 +61,9 @@
             return output;
         }
 
-        /// <summary>Resamples a single channel with medium quality (linear interpolation).</summary>
+        /// <summary>
+        /// Resamples a single channel with medium quality (linear interpolation).
+        /// </summary>
         /// <param name="samples">Samples of the source channel</param>
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
@@ -73,7 +83,9 @@
             return output;
         }
 
-        /// <summary>Resamples a single channel with high quality (Catmull-Rom spline).</summary>
+        /// <summary>
+        /// Resamples a single channel with high quality (Catmull-Rom spline).
+        /// </summary>
         /// <param name="samples">Samples of the source channel</param>
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>

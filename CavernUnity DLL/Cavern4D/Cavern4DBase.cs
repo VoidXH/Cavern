@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Cavernize;
@@ -6,40 +7,69 @@ using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Cavern4D {
-    /// <summary>Seat movement generation for <see cref="Cavernize"/>.</summary>
+    /// <summary>
+    /// Seat movement generation for <see cref="Cavernize"/>.
+    /// </summary>
     [AddComponentMenu("Audio/4D Processor")]
     public class Cavern4DBase : MonoBehaviour {
-        /// <summary>The Cavernized audio object to be converted.</summary>
+        /// <summary>
+        /// The Cavernized audio object to be converted.
+        /// </summary>
         [Tooltip("The Cavernized audio object to be converted.")]
         public Cavernizer CavernSource;
-        /// <summary>Rotation aggressiveness.</summary>
+
+        /// <summary>
+        /// Rotation aggressiveness.
+        /// </summary>
         [Tooltip("Rotation aggressiveness.")]
         public float RotationConstant = 90;
-        /// <summary>Maximum forward and backward seat rotation.</summary>
+
+        /// <summary>
+        /// Maximum forward and backward seat rotation.
+        /// </summary>
         [Tooltip("Maximum forward and backward seat rotation.")]
         [Range(0, 45)] public float MaxRotationFace = 20;
-        /// <summary>Maximum sideways seat rotation.</summary>
+
+        /// <summary>
+        /// Maximum sideways seat rotation.
+        /// </summary>
         [Tooltip("Maximum sideways seat rotation.")]
         [Range(0, 45)] public float MaxRotationSide = 10;
-        /// <summary>Number of seat rows.</summary>
+
+        /// <summary>
+        /// Number of seat rows.
+        /// </summary>
         [Tooltip("Number of seat rows.")]
         public int Rows;
-        /// <summary>Number of seats in a row.</summary>
+
+        /// <summary>
+        /// Number of seats in a row.
+        /// </summary>
         [Tooltip("Number of seats in a row.")]
         public int Columns;
 
-        /// <summary>Seat movement description.</summary>
+        /// <summary>
+        /// Seat movement description.
+        /// </summary>
         public struct SeatData {
-            /// <summary>Seat elevation in Cavernize's bounds.</summary>
+            /// <summary>
+            /// Seat elevation in Cavernize's bounds.
+            /// </summary>
             [Tooltip("Seat elevation in Cavernize's bounds.")]
             public float Height;
-            /// <summary>Seat rotation Euler angles.</summary>
+
+            /// <summary>
+            /// Seat rotation Euler angles.
+            /// </summary>
             public Vector3 Rotation;
         }
 
-        /// <summary>Seat movement descriptions. The first dimension is the row, the second is the column.</summary>
+        /// <summary>
+        /// Seat movement descriptions. The first dimension is the row, the second is the column.
+        /// </summary>
         public SeatData[][] SeatMovements;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() {
             SeatMovements = new SeatData[Rows][];
             for (int row = 0; row < Rows; ++row)
@@ -51,6 +81,7 @@ namespace Cavern.Cavern4D {
                 Array.Clear(SeatMovements[row], 0, Columns);
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             if (!CavernSource) {
                 OnDisable();

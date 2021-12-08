@@ -5,13 +5,23 @@ using System.Runtime.CompilerServices;
 using Cavern.Utilities;
 
 namespace Cavern {
-    /// <summary>Spatially positioned audio output channel.</summary>
+    /// <summary>
+    /// Spatially positioned audio output channel.
+    /// </summary>
     public sealed class Channel : IEquatable<Channel> {
-        /// <summary>Rotation around the vertical axis in degrees: elevation.</summary>
+        /// <summary>
+        /// Rotation around the vertical axis in degrees: elevation.
+        /// </summary>
         public float X { get; private set; }
-        /// <summary>Rotation around the horizontal axis in degrees, clockwise: azimuth.</summary>
+
+        /// <summary>
+        /// Rotation around the horizontal axis in degrees, clockwise: azimuth.
+        /// </summary>
         public float Y { get; private set; }
-        /// <summary>True for channels carrying only Low Frequency Effects.</summary>
+
+        /// <summary>
+        /// True for channels carrying only Low Frequency Effects.
+        /// </summary>
         public bool LFE {
             get => lowFrequency;
             set {
@@ -19,26 +29,47 @@ namespace Cavern {
                 SymmetryCheck();
             }
         }
-        /// <summary>This channel is part of the screen channels, and should be behind the screen in a theatre.</summary>
+
+        /// <summary>
+        /// This channel is part of the screen channels, and should be behind the screen in a theatre.
+        /// </summary>
         public bool IsScreenChannel => !lowFrequency && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
-        /// <summary>Position on a sphere with the radius of 1.</summary>
+
+        /// <summary>
+        /// Position on a sphere with the radius of 1.
+        /// </summary>
         public Vector3 SphericalPos { get; private set; }
-        /// <summary>Position on a cube with a side length of 2.</summary>
+
+        /// <summary>
+        /// Position on a cube with a side length of 2.
+        /// </summary>
         public Vector3 CubicalPos { get; private set; }
-        /// <summary>Position in space. <see cref="SphericalPos"/> in Studio environments, <see cref="CubicalPos"/> otherwise.</summary>
+
+        /// <summary>
+        /// Position in space. <see cref="SphericalPos"/> in Studio environments, <see cref="CubicalPos"/> otherwise.
+        /// </summary>
         public Vector3 SpatialPos { get; private set; }
-        /// <summary>The distance from the listener, relative to the center channel. Magnitude of <see cref="SpatialPos"/>.</summary>
+
+        /// <summary>
+        /// The distance from the listener, relative to the center channel. Magnitude of <see cref="SpatialPos"/>.
+        /// </summary>
         public float Distance { get; private set; }
 
-        /// <summary>True for channels carrying only Low Frequency Effects.</summary>
+        /// <summary>
+        /// True for channels carrying only Low Frequency Effects.
+        /// </summary>
         bool lowFrequency = false;
 
-        /// <summary>Constructor for a channel with given rotation values.</summary>
+        /// <summary>
+        /// Constructor for a channel with given rotation values.
+        /// </summary>
         /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
         /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         public Channel(float x, float y) => SetPosition(x, y);
 
-        /// <summary>Constructor for a channel with given rotation values and LFE status.</summary>
+        /// <summary>
+        /// Constructor for a channel with given rotation values and LFE status.
+        /// </summary>
         /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
         /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
@@ -47,7 +78,9 @@ namespace Cavern {
             SetPosition(x, y);
         }
 
-        /// <summary>Move this channel to a new position.</summary>
+        /// <summary>
+        /// Move this channel to a new position.
+        /// </summary>
         /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
         /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         public void Move(float x, float y) {
@@ -55,12 +88,16 @@ namespace Cavern {
             SymmetryCheck();
         }
 
-        /// <summary>Rotate this channel.</summary>
+        /// <summary>
+        /// Rotate this channel.
+        /// </summary>
         /// <param name="x">Rotation around the vertical axis in degrees: height</param>
         /// <param name="y">Rotation around the horizontal axis in degrees</param>
         public void Rotate(float x, float y) => Move(X + x, Y + y);
 
-        /// <summary>Set the position of the channel and do all neccessary processing.</summary>
+        /// <summary>
+        /// Set the position of the channel and do all neccessary processing.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SetPosition(float x, float y) {
             X = x;
@@ -68,7 +105,9 @@ namespace Cavern {
             Recalculate();
         }
 
-        /// <summary>Recalculates properties.</summary>
+        /// <summary>
+        /// Recalculates properties.
+        /// </summary>
         internal void Recalculate() {
             float xRad = X * VectorExtensions.Deg2Rad,
                 yRad = Y * VectorExtensions.Deg2Rad,
@@ -98,7 +137,9 @@ namespace Cavern {
             Distance = SpatialPos.Length();
         }
 
-        /// <summary>Recalculates symmetry when a channel's position is changed.</summary>
+        /// <summary>
+        /// Recalculates symmetry when a channel's position is changed.
+        /// </summary>
         internal static void SymmetryCheck() {
             if (Listener.Channels == null)
                 return;
@@ -134,11 +175,14 @@ namespace Cavern {
                 Listener.RightChannels = 1;
         }
 
-        /// <summary>Check if two channels are the same.</summary>
+        /// <summary>
+        /// Check if two channels are the same.
+        /// </summary>
         public bool Equals(Channel other) => X == other.X && Y == other.Y && lowFrequency == other.lowFrequency;
 
-        /// <summary>Get if a channel is LFE for a given channel count.
-        /// If <paramref name="channels"/> == -1, the current layout will be used.</summary>
+        /// <summary>
+        /// Get if a channel is LFE for a given channel count. If <paramref name="channels"/> == -1, the current layout will be used.
+        /// </summary>
         public static bool IsLFE(int channel, int channels = -1) {
             if (channels == -1)
                 return Listener.Channels[channel].lowFrequency;

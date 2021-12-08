@@ -7,9 +7,13 @@ using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
-    /// <summary>Measures properties of a filter, like frequency/impulse response, gain, or delay.</summary>
+    /// <summary>
+    /// Measures properties of a filter, like frequency/impulse response, gain, or delay.
+    /// </summary>
     public sealed class FilterAnalyzer : IDisposable {
-        /// <summary>Used FFT size for most measurements.</summary>
+        /// <summary>
+        /// Used FFT size for most measurements.
+        /// </summary>
         public int Resolution {
             get => resolution;
             set {
@@ -28,7 +32,9 @@ namespace Cavern.QuickEQ {
         }
         int resolution = 65536;
 
-        /// <summary>Maximum filter amplification.</summary>
+        /// <summary>
+        /// Maximum filter amplification.
+        /// </summary>
         public float Gain {
             get {
                 if (!float.IsNaN(gain))
@@ -42,7 +48,9 @@ namespace Cavern.QuickEQ {
         }
         float gain = float.NaN;
 
-        /// <summary><see cref="FFTCache"/> used for <see cref="FrequencyResponse"/>.</summary>
+        /// <summary>
+        /// <see cref="FFTCache"/> used for <see cref="FrequencyResponse"/>.
+        /// </summary>
         FFTCache Cache {
             get {
                 if (cache == null)
@@ -52,7 +60,9 @@ namespace Cavern.QuickEQ {
         }
         FFTCache cache;
 
-        /// <summary>Swept sine used for frequency and impulse response measurements.</summary>
+        /// <summary>
+        /// Swept sine used for frequency and impulse response measurements.
+        /// </summary>
         float[] ImpulseReference {
             get {
                 if (impulseReference != null)
@@ -64,7 +74,9 @@ namespace Cavern.QuickEQ {
         }
         float[] impulseReference;
 
-        /// <summary>Frequency response of the filter.</summary>
+        /// <summary>
+        /// Frequency response of the filter.
+        /// </summary>
         internal Complex[] FrequencyResponse {
             get {
                 if (frequencyResponse == null)
@@ -74,7 +86,9 @@ namespace Cavern.QuickEQ {
         }
         Complex[] frequencyResponse;
 
-        /// <summary>Absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
+        /// <summary>
+        /// Absolute of <see cref="FrequencyResponse"/> up to half the sample rate.
+        /// </summary>
         internal float[] Spectrum {
             get {
                 if (spectrum == null)
@@ -84,7 +98,9 @@ namespace Cavern.QuickEQ {
         }
         float[] spectrum;
 
-        /// <summary>Impulse response processor.</summary>
+        /// <summary>
+        /// Impulse response processor.
+        /// </summary>
         VerboseImpulseResponse Impulse {
             get {
                 if (impulse == null) {
@@ -97,21 +113,39 @@ namespace Cavern.QuickEQ {
         }
         VerboseImpulseResponse impulse;
 
-        /// <summary>Maximum filter amplification in decibels.</summary>
+        /// <summary>
+        /// Maximum filter amplification in decibels.
+        /// </summary>
         public float GainDecibels => (float)(20 * Math.Log10(Gain));
-        /// <summary>Filter impulse response samples.</summary>
+
+        /// <summary>
+        /// Filter impulse response samples.
+        /// </summary>
         public float[] ImpulseResponse => Impulse.Response;
-        /// <summary>Filter polarity, true if positive.</summary>
+
+        /// <summary>
+        /// Filter polarity, true if positive.
+        /// </summary>
         public bool Polarity => Impulse.Polarity;
-        /// <summary>Response delay in seconds.</summary>
+
+        /// <summary>
+        /// Response delay in seconds.
+        /// </summary>
         public float Delay => Impulse.Delay / (float)SampleRate;
-        /// <summary>Sample rate used for measurements and in <see cref="filter"/> if it's sample rate-dependent.</summary>
+
+        /// <summary>
+        /// Sample rate used for measurements and in <see cref="filter"/> if it's sample rate-dependent.
+        /// </summary>
         public int SampleRate { get; private set; }
 
-        /// <summary>Filter to measure.</summary>
+        /// <summary>
+        /// Filter to measure.
+        /// </summary>
         Filter filter;
 
-        /// <summary>Copy a filter for measurements.</summary>
+        /// <summary>
+        /// Copy a filter for measurements.
+        /// </summary>
         /// <param name="filter">Filter to measure</param>
         /// <param name="sampleRate">Sample rate used for measurements and in <paramref name="filter"/> if it's sample rate-dependent</param>
         public FilterAnalyzer(Filter filter, int sampleRate) {
@@ -119,7 +153,9 @@ namespace Cavern.QuickEQ {
             SampleRate = sampleRate;
         }
 
-        /// <summary>Change the filter while keeping the sample rate.</summary>
+        /// <summary>
+        /// Change the filter while keeping the sample rate.
+        /// </summary>
         public void Reset(Filter filter) {
             this.filter = filter;
             gain = float.NaN;
@@ -128,26 +164,38 @@ namespace Cavern.QuickEQ {
             impulse = null;
         }
 
-        /// <summary>Change the filter and the sample rate.</summary>
+        /// <summary>
+        /// Change the filter and the sample rate.
+        /// </summary>
         public void Reset(Filter filter, int sampleRate) {
             Reset(filter);
             if (SampleRate != sampleRate)
                 SampleRate = sampleRate;
         }
 
-        /// <summary>Get the frequency response of the filter.</summary>
+        /// <summary>
+        /// Get the frequency response of the filter.
+        /// </summary>
         public Complex[] GetFrequencyResponse() => FrequencyResponse.FastClone();
 
-        /// <summary>Get the frequency response of the filter.</summary>
+        /// <summary>
+        /// Get the frequency response of the filter.
+        /// </summary>
         public ReadOnlyCollection<Complex> GetFrequencyResponseReadonly() => Array.AsReadOnly(FrequencyResponse);
 
-        /// <summary>Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
+        /// <summary>
+        /// Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.
+        /// </summary>
         public float[] GetSpectrum() => Spectrum.FastClone();
 
-        /// <summary>Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.</summary>
+        /// <summary>
+        /// Get the absolute of <see cref="FrequencyResponse"/> up to half the sample rate.
+        /// </summary>
         public ReadOnlyCollection<float> GetSpectrumReadonly() => Array.AsReadOnly(Spectrum);
 
-        /// <summary>Render an approximate <see cref="Equalizer"/> by the analyzed filter's frequency response.</summary>
+        /// <summary>
+        /// Render an approximate <see cref="Equalizer"/> by the analyzed filter's frequency response.
+        /// </summary>
         /// <param name="startFreq">Start of the rendered range</param>
         /// <param name="endFreq">End of the rendered range</param>
         /// <param name="resolution">Band diversity in octaves</param>
@@ -164,7 +212,9 @@ namespace Cavern.QuickEQ {
             return new Equalizer(bands);
         }
 
-        /// <summary>Free the resources used by this analyzer.</summary>
+        /// <summary>
+        /// Free the resources used by this analyzer.
+        /// </summary>
         public void Dispose() {
             if (CavernAmp.Available && cache != null)
                 cache.Dispose();

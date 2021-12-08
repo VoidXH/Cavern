@@ -1,34 +1,52 @@
 ﻿using System;
 
 namespace Cavern.QuickEQ.SignalGeneration {
-    /// <summary>Plays a test tone on a single channel, with a delay to let channels with a smaller ID play first.
-    /// An instance has to be created for all channels for complete system measurement.</summary>
+    /// <summary>
+    /// Plays a test tone on a single channel, with a delay to let channels with a smaller ID play first.
+    /// An instance has to be created for all channels for complete system measurement.
+    /// </summary>
     public class TimedTestTone : Source {
-        /// <summary>Pregenerated test tone samples.</summary>
+        /// <summary>
+        /// Pregenerated test tone samples.
+        /// </summary>
         readonly float[] testTone;
-        /// <summary>Target output channel.</summary>
+
+        /// <summary>
+        /// Target output channel.
+        /// </summary>
         readonly int channel = 0;
-        /// <summary>Delay playback by this many times the <see cref="testTone"/>'s length. Used to play after preceding measurements.</summary>
+
+        /// <summary>
+        /// Delay playback by this many times the <see cref="testTone"/>'s length. Used to play after preceding measurements.
+        /// </summary>
         readonly int delayChannel;
 
-        /// <summary>Rendered output array kept to save allocation time.</summary>
+        /// <summary>
+        /// Rendered output array kept to save allocation time.
+        /// </summary>
         float[] rendered = new float[0];
 
-        /// <summary>Create the source from any waveform.</summary>
+        /// <summary>
+        /// Create the source from any waveform.
+        /// </summary>
         public TimedTestTone(int channel, float[] testTone, bool warmUpMode = false) {
             this.channel = channel;
             this.testTone = testTone;
             delayChannel = warmUpMode ? channel + 1 : channel;
         }
 
-        /// <summary>Creates a cache and always marks this source for playback.</summary>
+        /// <summary>
+        /// Creates a cache and always marks this source for playback.
+        /// </summary>
         protected override bool Precollect() {
             if (rendered.Length != Listener.Channels.Length * listener.UpdateRate)
                 rendered = new float[Listener.Channels.Length * listener.UpdateRate];
             return true;
         }
 
-        /// <summary>Generates the tone and returns a mix to be added to the output.</summary>
+        /// <summary>
+        /// Generates the tone and returns a mix to be added to the output.
+        /// </summary>
         protected override float[] Collect() {
             Array.Clear(rendered, 0, rendered.Length);
             if (IsPlaying && !Mute && testTone != null) {

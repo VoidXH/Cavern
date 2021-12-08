@@ -1,37 +1,62 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Utilities;
 
 namespace Cavern.Debug {
-    /// <summary>Visualizer for all objects.</summary>
+    /// <summary>
+    /// Visualizer for all objects.
+    /// </summary>
     [AddComponentMenu("Audio/Debug/Monitor")]
     public class Monitor : MonoBehaviour {
-        /// <summary>Snap objects out of the room to walls.</summary>
+        /// <summary>
+        /// Snap objects out of the room to walls.
+        /// </summary>
         [Tooltip("Snap objects out of the room to walls.")]
         public bool limitBounds = true;
-        /// <summary>Normalize size to this by local scale if not 0.</summary>
+
+        /// <summary>
+        /// Normalize size to this by local scale if not 0.
+        /// </summary>
         [Tooltip("Normalize size to this by local scale if not 0.")]
         public float AutoScale = 0;
 
-        /// <summary>Alias for <see cref="limitBounds"/> to be used with Unity Events.</summary>
+        /// <summary>
+        /// Alias for <see cref="limitBounds"/> to be used with Unity Events.
+        /// </summary>
         public bool LimitBounds {
             get => limitBounds;
             set => limitBounds = value;
         }
 
-        /// <summary>Displayed room edges.</summary>
+        /// <summary>
+        /// Displayed room edges.
+        /// </summary>
         readonly GameObject[] edges = new GameObject[12];
-        /// <summary>List of visualized objects.</summary>
-        List<Visualized> objects = new List<Visualized>();
-        /// <summary>Last environment scale.</summary>
+
+        /// <summary>
+        /// List of visualized objects.
+        /// </summary>
+        readonly List<Visualized> objects = new List<Visualized>();
+
+        /// <summary>
+        /// Last environment scale.
+        /// </summary>
         Vector3 roomScale;
 
-        /// <summary>A visualized object.</summary>
+        /// <summary>
+        /// A visualized object.
+        /// </summary>
         class Visualized {
-            /// <summary>Created object for visualization.</summary>
+            /// <summary>
+            /// Created object for visualization.
+            /// </summary>
             public GameObject Object;
-            /// <summary>The visualized source.</summary>
+
+            /// <summary>
+            /// The visualized source.
+            /// </summary>
             public Source Target;
 
             public Visualized(GameObject obj, Source target) {
@@ -55,12 +80,14 @@ namespace Cavern.Debug {
             }
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() {
             for (int i = 0; i < 12; ++i)
                 (edges[i] = GameObject.CreatePrimitive(PrimitiveType.Cube)).transform.SetParent(transform, false);
             SetRoomScale();
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             // Reset scale
             if (!VectorUtils.VectorCompare(Listener.EnvironmentSize, roomScale))
@@ -73,6 +100,7 @@ namespace Cavern.Debug {
                 objScale = new Vector3(scale, scale, scale);
                 transform.localScale = new Vector3(invScale, invScale, invScale);
             }
+
             // Remove destroyed sources
             objects.RemoveAll(new System.Predicate<Visualized>((Obj) => {
                 if (!Obj.Target || !Obj.Target.IsPlaying || Obj.Target.Mute) {
@@ -81,6 +109,7 @@ namespace Cavern.Debug {
                 }
                 return false;
             }));
+
             // Add not visualized sources, update visualized sources
             IEnumerator<Visualized> vis;
             Quaternion inverseListenerRot = Quaternion.Inverse(AudioListener3D.Current.transform.rotation);

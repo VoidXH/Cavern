@@ -2,15 +2,21 @@
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Filters {
-    /// <summary>Simple convolution window filter.</summary>
+    /// <summary>
+    /// Simple convolution window filter.
+    /// </summary>
     public class Convolver : Filter {
-        /// <summary>Additional impulse delay in samples.</summary>
+        /// <summary>
+        /// Additional impulse delay in samples.
+        /// </summary>
         public int Delay {
             get => delay;
             set => future = new float[impulse.Length + (delay = value)];
         }
 
-        /// <summary>Impulse response to convolve with.</summary>
+        /// <summary>
+        /// Impulse response to convolve with.
+        /// </summary>
         public float[] Impulse {
             get => impulse;
             set {
@@ -19,20 +25,32 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>Additional impulse delay in samples.</summary>
+        /// <summary>
+        /// Additional impulse delay in samples.
+        /// </summary>
         protected int delay;
-        /// <summary>Impulse response to convolve with.</summary>
+
+        /// <summary>
+        /// Impulse response to convolve with.
+        /// </summary>
         protected float[] impulse;
-        /// <summary>Samples to be copied to the beginning of the next output.</summary>
+
+        /// <summary>
+        /// Samples to be copied to the beginning of the next output.
+        /// </summary>
         protected float[] future;
 
-        /// <summary>Construct a convolver for a target impulse response.</summary>
+        /// <summary>
+        /// Construct a convolver for a target impulse response.
+        /// </summary>
         public Convolver(float[] impulse, int delay) {
             this.impulse = impulse;
             Delay = delay;
         }
 
-        /// <summary>Output the result and handle the future.</summary>
+        /// <summary>
+        /// Output the result and handle the future.
+        /// </summary>
         protected void Finalize(float[] samples, float[] convolved) {
             int delayedImpulse = impulse.Length + delay;
             if (samples.Length > delayedImpulse) {
@@ -56,7 +74,9 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>Perform a convolution.</summary>
+        /// <summary>
+        /// Perform a convolution.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] Convolve(float[] a, float[] b) {
             float[] convolved = new float[a.Length + b.Length];
@@ -66,7 +86,9 @@ namespace Cavern.Filters {
             return convolved;
         }
 
-        /// <summary>Perform a convolution with a delay.</summary>
+        /// <summary>
+        /// Perform a convolution with a delay.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] Convolve(float[] a, float[] b, int delay) {
             float[] convolved = new float[a.Length + b.Length + delay];
@@ -76,7 +98,9 @@ namespace Cavern.Filters {
             return convolved;
         }
 
-        /// <summary>Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>
+        /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
         public override void Process(float[] samples) {
             float[] convolved;
             if (delay == 0)

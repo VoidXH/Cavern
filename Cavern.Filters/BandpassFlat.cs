@@ -1,7 +1,9 @@
 ﻿using Cavern.Filters.Utilities;
 
 namespace Cavern.Filters {
-    /// <summary>Combination of a lowpass and a highpass filter.</summary>
+    /// <summary>
+    /// Combination of a lowpass and a highpass filter.
+    /// </summary>
     public class BandpassFlat : Filter {
         readonly int order;
         readonly Highpass[] highpasses;
@@ -28,7 +30,9 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>Apply bandpass on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>
+        /// Apply bandpass on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
         public override void Process(float[] samples) {
             for (int filter = 0; filter < order; ++filter) {
                 lowpasses[filter].Process(samples);
@@ -36,7 +40,9 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>Apply bandpass on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>
+        /// Apply bandpass on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
         /// <param name="samples">Input samples</param>
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>

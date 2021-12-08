@@ -4,16 +4,29 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Cavern.Utilities {
-    /// <summary>Two plus two is four, minus one, that's three, quick maths.</summary>
+    /// <summary>
+    /// Two plus two is four, minus one, that's three, quick maths.
+    /// </summary>
     public static class QMath {
-        /// <summary>Hack for <see cref="Log2(int)"/> to use in-CPU float conversion as log2 by shifting the exponent.</summary>
+        /// <summary>
+        /// Hack for <see cref="Log2(int)"/> to use in-CPU float conversion as log2 by shifting the exponent.
+        /// </summary>
         [StructLayout(LayoutKind.Explicit)]
         struct ConverterStruct {
+            /// <summary>
+            /// Get the contained 4 bytes as an integer.
+            /// </summary>
             [FieldOffset(0)] public int asInt;
+
+            /// <summary>
+            /// Get the contained 4 bytes as a float.
+            /// </summary>
             [FieldOffset(0)] public float asFloat;
         }
 
-        /// <summary>Round up the number in base 2.</summary>
+        /// <summary>
+        /// Round up the number in base 2.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Base2Ceil(int val) {
             ConverterStruct a = new ConverterStruct {
@@ -25,7 +38,9 @@ namespace Cavern.Utilities {
             return result;
         }
 
-        /// <summary>Clamp a double between limits.</summary>
+        /// <summary>
+        /// Clamp a double between limits.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Clamp(double value, double min, double max) {
             if (value < min)
@@ -35,7 +50,9 @@ namespace Cavern.Utilities {
             return value;
         }
 
-        /// <summary>Clamp a float between limits.</summary>
+        /// <summary>
+        /// Clamp a float between limits.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Clamp(float value, float min, float max) {
             if (value < min)
@@ -45,7 +62,9 @@ namespace Cavern.Utilities {
             return value;
         }
 
-        /// <summary>Clamp an int between limits.</summary>
+        /// <summary>
+        /// Clamp an int between limits.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Clamp(int value, int min, int max) {
             if (value < min)
@@ -55,31 +74,45 @@ namespace Cavern.Utilities {
             return value;
         }
 
-        /// <summary>Convert voltage gain to decibels.</summary>
+        /// <summary>
+        /// Convert voltage gain to decibels.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GainToDb(float gain) => 20 * (float)Math.Log10(gain);
 
-        /// <summary>Unclamped linear interpolation.</summary>
+        /// <summary>
+        /// Unclamped linear interpolation.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Lerp(float from, float to, float t) => (to - from) * t + from;
 
-        /// <summary>Unclamped linear interpolation.</summary>
+        /// <summary>
+        /// Unclamped linear interpolation.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Lerp(double from, double to, double t) => (to - from) * t + from;
 
-        /// <summary>Unclamped linear interpolation.</summary>
+        /// <summary>
+        /// Unclamped linear interpolation.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Lerp(Vector2 from, Vector2 to, float t) => (to - from) * t + from;
 
-        /// <summary>Gets t for linear interpolation for a given value.</summary>
+        /// <summary>
+        /// Gets t for linear interpolation for a given value.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float LerpInverse(float from, float to, float value) => (value - from) / (to - from);
 
-        /// <summary>Gets t for linear interpolation for a given value.</summary>
+        /// <summary>
+        /// Gets t for linear interpolation for a given value.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double LerpInverse(double from, double to, double value) => (value - from) / (to - from);
 
-        /// <summary>Compute the base 2 logarithm of a number faster than a generic Log function.</summary>
+        /// <summary>
+        /// Compute the base 2 logarithm of a number faster than a generic Log function.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Log2(int val) {
             ConverterStruct a = new ConverterStruct {
@@ -88,12 +121,16 @@ namespace Cavern.Utilities {
             return ((a.asInt >> 23) + 1) & 0x1F;
         }
 
-        /// <summary>Checks if the two numbers have the same sign.</summary>
+        /// <summary>
+        /// Checks if the two numbers have the same sign.
+        /// </summary>
         /// <remarks>This function does not handle 0, 0 correctly for optimization purposes.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool SignCompare(float a, float b) => a * b > 0;
 
-        /// <summary>Sum all elements in an array.</summary>
+        /// <summary>
+        /// Sum all elements in an array.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Sum(float[] array) {
             float sum = 0;
@@ -102,7 +139,9 @@ namespace Cavern.Utilities {
             return sum;
         }
 
-        /// <summary>Sum absolute values of elements in an array.</summary>
+        /// <summary>
+        /// Sum absolute values of elements in an array.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float SumAbs(float[] array) {
             float sum = 0;

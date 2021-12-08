@@ -5,32 +5,51 @@ using UnityEngine;
 using Cavern.Utilities;
 
 namespace Cavern.FilterInterfaces {
-    /// <summary>Creates an IR simulation between this object and <see cref="SimulationTarget"/>s.</summary>
+    /// <summary>
+    /// Creates an IR simulation between this object and <see cref="SimulationTarget"/>s.
+    /// </summary>
     [AddComponentMenu("Audio/Filters/Advanced/Path Simulation Source")]
     public class SimulationSource : Raytraced {
-        /// <summary>Speed of sound in units/s.</summary>
+        /// <summary>
+        /// Speed of sound in units/s.
+        /// </summary>
         [Tooltip("Speed of sound in units/s.")]
         public float SpeedOfSound = Source.SpeedOfSound;
-        /// <summary>Change the phase of the sound wave on reflection.</summary>
+
+        /// <summary>
+        /// Change the phase of the sound wave on reflection.
+        /// </summary>
         [Tooltip("Change the phase of the sound wave on reflection.")]
         public bool ChangePhase = false;
-        /// <summary>Targets which absorb the emitted rays and generate their impulse response by.</summary>
+
+        /// <summary>
+        /// Targets which absorb the emitted rays and generate their impulse response by.
+        /// </summary>
         [Tooltip("Targets which absorb the emitted rays and generate their impulse response by.")]
         [Linked("colliders")]
         public SimulationTarget[] Targets = new SimulationTarget[0];
 
-        /// <summary>Show all rays, even the ones that didn't hit.</summary>
+        /// <summary>
+        /// Show all rays, even the ones that didn't hit.
+        /// </summary>
         [Header("Debug")]
         [Tooltip("Show all rays, even the ones that didn't hit.")]
         public bool ShowAllRays = false;
 
-        /// <summary>Colliders for the <see cref="Targets"/>.</summary>
+        /// <summary>
+        /// Colliders for the <see cref="Targets"/>.
+        /// </summary>
         [Linked("Targets")]
         Collider[] colliders = new Collider[0];
 
-        /// <summary>Hits in the last ray's path.</summary>
+        /// <summary>
+        /// Hits in the last ray's path.
+        /// </summary>
         int hitCount;
-        /// <summary>The hit positions of the last ray's path.</summary>
+
+        /// <summary>
+        /// The hit positions of the last ray's path.
+        /// </summary>
         Vector3[] hits;
 
         void ResetColliders() {
@@ -131,7 +150,9 @@ namespace Cavern.FilterInterfaces {
             }
         }
 
-        /// <summary>Render new impulse responses by the state of the scene.</summary>
+        /// <summary>
+        /// Render new impulse responses by the state of the scene.
+        /// </summary>
         public void Update() {
             if (Targets.Length != colliders.Length)
                 ResetColliders();

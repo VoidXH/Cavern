@@ -1,30 +1,46 @@
 ﻿using System;
 
 namespace Cavern {
-    /// <summary>Audio content.</summary>
+    /// <summary>
+    /// Audio content.
+    /// </summary>
     public class Clip { // TOOD: lööps can be optimized to the sky
-        /// <summary>Name of the clip.</summary>
+        /// <summary>
+        /// Name of the clip.
+        /// </summary>
         public string Name;
 
-        /// <summary>Channel count for the clip.</summary>
+        /// <summary>
+        /// Channel count for the clip.
+        /// </summary>
         public int Channels {
             get => data.Length;
             set => Array.Resize(ref data, value);
         }
 
-        /// <summary>The length of the clip in samples, for a single channel.</summary>
+        /// <summary>
+        /// The length of the clip in samples, for a single channel.
+        /// </summary>
         public int Samples => data[0].Length;
 
-        /// <summary>The length of the clip in seconds.</summary>
+        /// <summary>
+        /// The length of the clip in seconds.
+        /// </summary>
         public float Length => Samples / (float)SampleRate;
 
-        /// <summary>Sampling rate of the clip.</summary>
+        /// <summary>
+        /// Sampling rate of the clip.
+        /// </summary>
         public int SampleRate { get; protected set; }
 
-        /// <summary>Samples for each channel.</summary>
+        /// <summary>
+        /// Samples for each channel.
+        /// </summary>
         protected float[][] data;
 
-        /// <summary>Audio content.</summary>
+        /// <summary>
+        /// Audio content.
+        /// </summary>
         /// <param name="data">Audio data, with the size of [channels][samples for given channel]</param>
         /// <param name="sampleRate">Sample rate</param>
         public Clip(float[][] data, int sampleRate) {
@@ -32,7 +48,9 @@ namespace Cavern {
             this.data = data;
         }
 
-        /// <summary>Audio content.</summary>
+        /// <summary>
+        /// Audio content.
+        /// </summary>
         /// <param name="data">Audio data, with interlaced channels</param>
         /// <param name="channels">Channel count</param>
         /// <param name="sampleRate">Sample rate</param>
@@ -47,8 +65,9 @@ namespace Cavern {
             }
         }
 
-        /// <summary>Fills an array with sample data from the clip.
-        /// Clip data overflows, and free samples are filled with the beginning of the Clip.</summary>
+        /// <summary>
+        /// Fills an array with sample data from the clip. Clip data overflows, and free samples are filled with the beginning of the Clip.
+        /// </summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[][] data, int offset) {
@@ -64,7 +83,9 @@ namespace Cavern {
             return true;
         }
 
-        /// <summary>Fills an array with sample data from the clip. Clip data doesn't overflow and free samples are filled with zeros.</summary>
+        /// <summary>
+        /// Fills an array with sample data from the clip. Clip data doesn't overflow and free samples are filled with zeros.
+        /// </summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetDataNonLooping(float[][] data, int offset) {
@@ -83,8 +104,9 @@ namespace Cavern {
             return true;
         }
 
-        /// <summary>Fills an array with sample data from the clip.
-        /// Clip data overflows, and free samples are filled with the beginning of the Clip.</summary>
+        /// <summary>
+        /// Fills an array with sample data from the clip. Clip data overflows, and free samples are filled with the beginning of the Clip.
+        /// </summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[] data, int offset) {
@@ -102,7 +124,9 @@ namespace Cavern {
             return true;
         }
 
-        /// <summary>Fills an array with sample data from the clip. Clip data doesn't overflow and free samples are filled with zeros.</summary>
+        /// <summary>
+        /// Fills an array with sample data from the clip. Clip data doesn't overflow and free samples are filled with zeros.
+        /// </summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetDataNonLooping(float[] data, int offset) {
@@ -121,7 +145,9 @@ namespace Cavern {
             return true;
         }
 
-        /// <summary>Overwrite samples in this clip.</summary>
+        /// <summary>
+        /// Overwrite samples in this clip.
+        /// </summary>
         /// <param name="data">Data source</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool SetData(float[][] data, int offset) {
@@ -137,7 +163,9 @@ namespace Cavern {
             return true;
         }
 
-        /// <summary>Overwrite samples in this clip.</summary>
+        /// <summary>
+        /// Overwrite samples in this clip.
+        /// </summary>
         /// <param name="data">Data source</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool SetData(float[] data, int offset) {
@@ -155,7 +183,9 @@ namespace Cavern {
             return true;
         }
 
-        /// <summary>Implicit null check.</summary>
+        /// <summary>
+        /// Implicit null check.
+        /// </summary>
         public static implicit operator bool(Clip clip) => clip != null;
     }
 }

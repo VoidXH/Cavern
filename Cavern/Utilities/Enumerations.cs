@@ -1,13 +1,23 @@
 ﻿namespace Cavern {
-    /// <summary>Relations of PC jack outputs and their channels.</summary>
+    /// <summary>
+    /// Relations of PC jack outputs and their channels.
+    /// </summary>
     public enum Jack {
-        /// <summary>Front Jack (channel 0-1).</summary>
+        /// <summary>
+        /// Front Jack (channel 0-1).
+        /// </summary>
         Front = 0,
-        /// <summary>Center/LFE Jack (channel 2-3).</summary>
+        /// <summary>
+        /// Center/LFE Jack (channel 2-3).
+        /// </summary>
         CenterLFE = 2,
-        /// <summary>Rear (or Side in 5.1/Side configuration) Jack (channel 4-5).</summary>
+        /// <summary>
+        /// Rear (or Side in 5.1/Side configuration) Jack (channel 4-5).
+        /// </summary>
         Rear = 4,
-        /// <summary>Side Jack (channel 6-7).</summary>
+        /// <summary>
+        /// Side Jack (channel 6-7).
+        /// </summary>
         Side = 6
     }
 
@@ -55,19 +65,31 @@
         Perfect
     }
 
-    /// <summary>Audio rolloff modes.</summary>
+    /// <summary>
+    /// Audio rolloff modes.
+    /// </summary>
     public enum Rolloffs {
-        /// <summary>Logarithmic rolloff by distance.</summary>
+        /// <summary>
+        /// Logarithmic rolloff by distance.
+        /// </summary>
         Logarithmic,
-        /// <summary>Linear rolloff in range.</summary>
+        /// <summary>
+        /// Linear rolloff in range.
+        /// </summary>
         Linear,
-        /// <summary>Physically correct rolloff by distance.</summary>
+        /// <summary>
+        /// Physically correct rolloff by distance.
+        /// </summary>
         Real,
-        /// <summary>No rolloff.</summary>
+        /// <summary>
+        /// No rolloff.
+        /// </summary>
         Disabled
     }
 
-    /// <summary>Environment type, which determines rendering method.</summary>
+    /// <summary>
+    /// Environment type, which determines rendering method.
+    /// </summary>
     public enum Environments {
         /// <summary>
         /// For a single listener in the center with speakers placed around in a sphere.<br />

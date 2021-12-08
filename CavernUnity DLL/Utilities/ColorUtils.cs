@@ -1,18 +1,32 @@
 ﻿using UnityEngine;
 
 namespace Cavern.Utilities {
-    /// <summary>Useful color functions used in multiple classes.</summary>
+    /// <summary>
+    /// Useful color functions used in multiple classes.
+    /// </summary>
     public static class ColorUtils {
-        /// <summary>Cavern's symbolic blue.</summary>
+        /// <summary>
+        /// Cavern's symbolic blue.</summary>
         public static readonly Color CavernBlue = new Color(0, .578125f, .75f, 1);
-        /// <summary>Standard color of the front (green) jack.</summary>
+
+        /// <summary>
+        /// Standard color of the front (green) jack.
+        /// </summary>
         public static readonly Color frontJack = new Color(.596078431f, .984313725f, .596078431f, 1);
-        /// <summary>Standard color of the center (orange) jack.</summary>
+
+        /// <summary>
+        /// Standard color of the center (orange) jack.
+        /// </summary>
         public static readonly Color centerJack = new Color(1, .647058824f, 0, 1);
-        /// <summary>Standard color of the side (gray) jack.</summary>
+
+        /// <summary>
+        /// Standard color of the side (gray) jack.
+        /// </summary>
         public static readonly Color sideJack = new Color(.75294117647f, .75294117647f, .75294117647f, 1);
 
-        /// <summary>Get the color of a channel that should be used when displaying a massively multichannel system.</summary>
+        /// <summary>
+        /// Get the color of a channel that should be used when displaying a massively multichannel system.
+        /// </summary>
         public static Color GetChannelColor(int channel) {
             System.Numerics.Vector3 channelPos = Listener.Channels[channel].CubicalPos;
             if (Listener.Channels[channel].LFE)
@@ -26,14 +40,18 @@ namespace Cavern.Utilities {
             return new Color(targetColor.r * .75f + .25f, targetColor.g * .75f + .25f, targetColor.b * .75f + .25f);
         }
 
-        /// <summary>Get the Cavern or Jack port color of a channel.</summary>
+        /// <summary>
+        /// Get the Cavern or Jack port color of a channel.
+        /// </summary>
         public static Color GetChannelColor(int channel, bool jackColoring) {
             if (jackColoring)
                 return GetJackColor(channel);
             return GetChannelColor(channel);
         }
 
-        /// <summary>Get a color by hue value.</summary>
+        /// <summary>
+        /// Get a color by hue value.
+        /// </summary>
         /// <param name="degrees">Hue value in degrees.</param>
         public static Color GetHueColor(float degrees) {
             degrees %= 360;
@@ -54,8 +72,10 @@ namespace Cavern.Utilities {
             }
         }
 
-        /// <summary>Get a Jack color associated to a standard output channel by the layout currently set.
-        /// <see cref="CavernBlue"/> is returned when the channel is invalid for the 8-channel Jack out standard.</summary>
+        /// <summary>
+        /// Get a Jack color associated to a standard output channel by the layout currently set.
+        /// <see cref="CavernBlue"/> is returned when the channel is invalid for the 8-channel Jack out standard.
+        /// </summary>
         public static Color GetJackColor(int channel) {
             switch (channel) {
                 case 0:

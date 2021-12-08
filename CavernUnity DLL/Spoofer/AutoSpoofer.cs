@@ -1,20 +1,28 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 namespace Cavern.Spoofer {
-    /// <summary>Automatically replaces Unity Audio with Cavern on the fly.</summary>
+    /// <summary>
+    /// Automatically replaces Unity Audio with Cavern on the fly.
+    /// </summary>
     [AddComponentMenu("Audio/Spoofer/Auto Audio Engine Spoofer")]
     public sealed class AutoSpoofer : MonoBehaviour {
-        /// <summary>Use Unity's audio engine for clips that are not transferrable to Cavern (anything that is not decompressed on load).</summary>
+        /// <summary>
+        /// Use Unity's audio engine for clips that are not transferrable to Cavern (anything that is not decompressed on load).
+        /// </summary>
         [Tooltip("Use Unity's audio engine for clips that are not transferrable to Cavern (anything that is not decompressed on load).")]
         public bool Duality = true;
 
         static AutoSpoofer instance;
 
         AudioListener listenerInstance;
-        List<AudioSource> sources = new List<AudioSource>();
 
-        /// <summary>Create an <see cref="AutoSpoofer"/> through the application if it doesn't exist.</summary>
+        readonly List<AudioSource> sources = new List<AudioSource>();
+
+        /// <summary>
+        /// Create an <see cref="AutoSpoofer"/> through the application if it doesn't exist.
+        /// </summary>
         /// <param name="debug">Display <see cref="Debug.Levels"/> in the application.</param>
         public static void CreateSpoofer(bool debug = false) {
             if (!instance)
@@ -26,8 +34,10 @@ namespace Cavern.Spoofer {
                 Destroy(LevelsWindow);
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Awake() => instance = this;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             if (!listenerInstance && (listenerInstance = FindObjectOfType<AudioListener>())) {
                 AudioListenerSpoofer spoofer = listenerInstance.gameObject.AddComponent<AudioListenerSpoofer>();

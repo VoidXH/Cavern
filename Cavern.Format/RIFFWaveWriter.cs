@@ -2,9 +2,13 @@
 using System.IO;
 
 namespace Cavern.Format {
-    /// <summary>Minimal RIFF wave file writer.</summary>
+    /// <summary>
+    /// Minimal RIFF wave file writer.
+    /// </summary>
     public class RIFFWaveWriter : AudioWriter {
-        /// <summary>Minimal RIFF wave file writer.</summary>
+        /// <summary>
+        /// Minimal RIFF wave file writer.
+        /// </summary>
         /// <param name="writer">File writer object</param>
         /// <param name="channelCount">Output channel count</param>
         /// <param name="length">Output length in samples</param>
@@ -13,7 +17,9 @@ namespace Cavern.Format {
         public RIFFWaveWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) :
             base(writer, channelCount, length, sampleRate, bits) {}
 
-        /// <summary>Create the file header.</summary>
+        /// <summary>
+        /// Create the file header.
+        /// </summary>
         public override void WriteHeader() {
             // RIFF header
             writer.Write(RIFFWaveUtils.RIFF);
@@ -37,7 +43,9 @@ namespace Cavern.Format {
             writer.Write(BitConverter.GetBytes(dataLength)); // Data length
         }
 
-        /// <summary>Write a block of samples.</summary>
+        /// <summary>
+        /// Write a block of samples.
+        /// </summary>
         /// <param name="samples">Samples to write</param>
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>

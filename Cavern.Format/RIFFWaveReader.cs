@@ -2,13 +2,19 @@
 using System.IO;
 
 namespace Cavern.Format {
-    /// <summary>Minimal RIFF wave file reader.</summary>
+    /// <summary>
+    /// Minimal RIFF wave file reader.
+    /// </summary>
     public class RIFFWaveReader : AudioReader {
-        /// <summary>Minimal RIFF wave file reader.</summary>
+        /// <summary>
+        /// Minimal RIFF wave file reader.
+        /// </summary>
         /// <param name="reader">File reader object</param>
         public RIFFWaveReader(BinaryReader reader) : base(reader) { }
 
-        /// <summary>Read the file header.</summary>
+        /// <summary>
+        /// Read the file header.
+        /// </summary>
         public override void ReadHeader() {
             // RIFF header
             BlockTest(RIFFWaveUtils.RIFF);
@@ -51,7 +57,9 @@ namespace Cavern.Format {
             Length = reader.ReadInt32() * 8 / (int)Bits / ChannelCount;
         }
 
-        /// <summary>Read a block of samples.</summary>
+        /// <summary>
+        /// Read a block of samples.
+        /// </summary>
         /// <param name="samples">Input array</param>
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>

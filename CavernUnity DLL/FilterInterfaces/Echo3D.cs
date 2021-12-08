@@ -4,27 +4,44 @@ using UnityEngine;
 using Cavern.Filters;
 
 namespace Cavern.FilterInterfaces {
-    /// <summary>Creates a spatial echo effect by bouncing sound on surfaces.</summary>
+    /// <summary>
+    /// Creates a spatial echo effect by bouncing sound on surfaces.
+    /// </summary>
     [AddComponentMenu("Audio/Filters/3D Echo")]
     [RequireComponent(typeof(AudioSource3D))]
     public class Echo3D : Raytraced {
-        /// <summary>Speed of sound in units/s.</summary>
+        /// <summary>
+        /// Speed of sound in units/s.
+        /// </summary>
         [Header("Echo")]
         [Tooltip("Speed of sound in units/s.")]
         public float SpeedOfSound = Source.SpeedOfSound * 10;
-        /// <summary>Bounce dampening multiplier.</summary>
+
+        /// <summary>
+        /// Bounce dampening multiplier.
+        /// </summary>
         [Tooltip("Bounce dampening multiplier.")]
         public float DampeningFactor = 2;
-        /// <summary>Maximal echo travel time in samples, size of the convolution filter.</summary>
+
+        /// <summary>
+        /// Maximal echo travel time in samples, size of the convolution filter.
+        /// </summary>
         [Tooltip("Maximal echo travel time in samples, size of the convolution filter.")]
         public int MaxSamples = 64;
 
-        /// <summary>Last generated FIR filter of the echo.</summary>
+        /// <summary>
+        /// Last generated FIR filter of the echo.
+        /// </summary>
         public float[] Impulse { get; private set; }
 
-        /// <summary>The attached audio source.</summary>
+        /// <summary>
+        /// The attached audio source.
+        /// </summary>
         AudioSource3D source;
-        /// <summary>Convolution filter to process the echo.</summary>
+
+        /// <summary>
+        /// Convolution filter to process the echo.
+        /// </summary>
         Convolver filter;
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]

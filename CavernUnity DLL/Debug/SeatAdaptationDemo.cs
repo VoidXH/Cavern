@@ -3,16 +3,22 @@
 using Cavern.Utilities;
 
 namespace Cavern.Debug {
-    /// <summary>Setup window for <see cref="SeatAdaptation"/>.</summary>
+    /// <summary>
+    /// Setup window for <see cref="SeatAdaptation"/>.
+    /// </summary>
     [AddComponentMenu("Audio/Debug/Seat Adaptation Demo")]
     public class SeatAdaptationDemo : WindowBase {
-        /// <summary>The Seat Adaptation component to configure.</summary>
+        /// <summary>
+        /// The Seat Adaptation component to configure.
+        /// </summary>
         [Tooltip("The Seat Adaptation component to configure.")]
         public SeatAdaptation Adaptor;
 
         Texture2D Gray;
 
-        /// <summary>Window dimension, name, and custom variable setup.</summary>
+        /// <summary>
+        /// Window dimension, name, and custom variable setup.
+        /// </summary>
         protected override void Setup() {
             width = Adaptor.Columns * 20 + 5;
             height = Adaptor.Rows * 20 + 25;
@@ -22,7 +28,9 @@ namespace Cavern.Debug {
             Gray.Apply();
         }
 
-        /// <summary>Draw window contents.</summary>
+        /// <summary>
+        /// Draw window contents.
+        /// </summary>
         /// <param name="ID">Window ID</param>
         protected override void Draw(int ID) {
             GUI.DrawTexture(new Rect(5, 20, Adaptor.Columns * 20 - 5, 2), Gray);

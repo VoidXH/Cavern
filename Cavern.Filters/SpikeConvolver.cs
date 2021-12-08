@@ -5,10 +5,14 @@ namespace Cavern.Filters {
     /// Simple convolution window
     /// </summary>
     public class SpikeConvolver : Convolver {
-        /// <summary>Construct a spike convolver for a target impulse response.</summary>
+        /// <summary>
+        /// Construct a spike convolver for a target impulse response.
+        /// </summary>
         public SpikeConvolver(float[] impulse, int delay) : base(impulse, delay) {}
 
-        /// <summary>Perform a convolution.</summary>
+        /// <summary>
+        /// Perform a convolution.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] SpikeConvolve(float[] impulse, float[] samples) {
             float[] convolved = new float[impulse.Length + samples.Length];
@@ -19,7 +23,9 @@ namespace Cavern.Filters {
             return convolved;
         }
 
-        /// <summary>Perform a convolution with a delay.</summary>
+        /// <summary>
+        /// Perform a convolution with a delay.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] SpikeConvolve(float[] impulse, float[] samples, int delay) {
             float[] convolved = new float[impulse.Length + samples.Length + delay];
@@ -30,7 +36,9 @@ namespace Cavern.Filters {
             return convolved;
         }
 
-        /// <summary>Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>
+        /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
         public override void Process(float[] samples) {
             float[] convolved;
             if (delay == 0)

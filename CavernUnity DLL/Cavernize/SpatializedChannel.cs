@@ -8,29 +8,60 @@ using Cavern.Utilities;
 using Vector3D = System.Numerics.Vector3;
 
 namespace Cavern.Cavernize {
-    /// <summary>All the data <see cref="Cavernizer"/> needs for a single channel.</summary>
+    /// <summary>
+    /// All the data <see cref="Cavernizer"/> needs for a single channel.
+    /// </summary>
     class SpatializedChannel {
-        /// <summary>Channel position and type information.</summary>
+        /// <summary>
+        /// Channel position and type information.
+        /// </summary>
         public readonly ChannelPrototype Channel;
-        /// <summary>Samples to split between <see cref="MovingSource"/> and <see cref="GroundSource"/>.</summary>
+
+        /// <summary>
+        /// Samples to split between <see cref="MovingSource"/> and <see cref="GroundSource"/>.
+        /// </summary>
         public readonly float[] Output;
-        /// <summary>There is available output data, and the channel should be rendered.</summary>
+
+        /// <summary>
+        /// There is available output data, and the channel should be rendered.
+        /// </summary>
         public bool WrittenOutput;
-        /// <summary>High frequency data with height information.</summary>
+
+        /// <summary>
+        /// High frequency data with height information.
+        /// </summary>
         public CavernizeOutput MovingSource { get; private set; }
-        /// <summary>Low frequency data that stays on the ground.</summary>
+
+        /// <summary>
+        /// Low frequency data that stays on the ground.
+        /// </summary>
         public CavernizeOutput GroundSource { get; private set; }
-        /// <summary>The moving part's normalized height from the ground.</summary>
+
+        /// <summary>
+        /// The moving part's normalized height from the ground.
+        /// </summary>
         public float Height { get; private set; }
-        /// <summary>Times the sources called for a set of samples. Numbers >= 2 indicate that the next frame should be mixed.</summary>
+
+        /// <summary>
+        /// Times the sources called for a set of samples. Numbers >= 2 indicate that the next frame should be mixed.
+        /// </summary>
         public int TicksTook;
-        /// <summary>Renderer for <see cref="MovingSource"/>.</summary>
+
+        /// <summary>
+        /// Renderer for <see cref="MovingSource"/>.
+        /// </summary>
         public Renderer MovingRenderer { get; private set; }
-        /// <summary>Renderer for <see cref="GroundSource"/>.</summary>
+
+        /// <summary>
+        /// Renderer for <see cref="GroundSource"/>.
+        /// </summary>
         public Renderer GroundRenderer { get; private set; }
 
-        /// <summary>Enable visualization of this channel in the next frame.</summary>
+        /// <summary>
+        /// Enable visualization of this channel in the next frame.
+        /// </summary>
         bool visualize;
+
         readonly Filters.Cavernize filter;
 
         void CreateSource(Cavernizer master, bool groundLevel) {

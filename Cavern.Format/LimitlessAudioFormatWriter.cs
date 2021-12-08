@@ -2,23 +2,43 @@
 using System.IO;
 
 namespace Cavern.Format {
-    /// <summary>Minimal Limitless Audio Format file writer.</summary>
+    /// <summary>
+    /// Minimal Limitless Audio Format file writer.
+    /// </summary>
     public class LimitlessAudioFormatWriter : AudioWriter {
-        /// <summary>Limitless Audio Format indicator starting bytes.</summary>
+        /// <summary>
+        /// Limitless Audio Format indicator starting bytes.
+        /// </summary>
         static readonly byte[] limitless = new byte[9] { (byte)'L', (byte)'I', (byte)'M', (byte)'I', (byte)'T', (byte)'L', (byte)'E', (byte)'S', (byte)'S' };
-        /// <summary>Header marker bytes.</summary>
+
+        /// <summary>
+        /// Header marker bytes.
+        /// </summary>
         static readonly byte[] head = new byte[4] { (byte)'H', (byte)'E', (byte)'A', (byte)'D', };
 
-        /// <summary>Output channel information.</summary>
+        /// <summary>
+        /// Output channel information.
+        /// </summary>
         readonly Channel[] channels;
-        /// <summary>The past second for each channel.</summary>
+
+        /// <summary>
+        /// The past second for each channel.
+        /// </summary>
         readonly float[] cache;
-        /// <summary>Write position in the <see cref="cache"/>. Used to check if the cache is full for block dumping.</summary>
+
+        /// <summary>
+        /// Write position in the <see cref="cache"/>. Used to check if the cache is full for block dumping.
+        /// </summary>
         int cachePosition = 0;
-        /// <summary>Total samples written in the file so far. Used to check the end of file and dump the unfilled last block.</summary>
+
+        /// <summary>
+        /// Total samples written in the file so far. Used to check the end of file and dump the unfilled last block.
+        /// </summary>
         long totalWritten = 0;
 
-        /// <summary>Minimal Limitless Audio Format file writer.</summary>
+        /// <summary>
+        /// Minimal Limitless Audio Format file writer.
+        /// </summary>
         /// <param name="writer">File writer object</param>
         /// <param name="channelCount">Output channel count</param>
         /// <param name="length">Output length in samples</param>
@@ -31,7 +51,9 @@ namespace Cavern.Format {
             cache = new float[channelCount * sampleRate];
         }
 
-        /// <summary>Create the file header.</summary>
+        /// <summary>
+        /// Create the file header.
+        /// </summary>
         public override void WriteHeader() {
             writer.Write(limitless); // Limitless marker
             // No custom headers
@@ -63,7 +85,9 @@ namespace Cavern.Format {
             writer.Write(BitConverter.GetBytes(Length));
         }
 
-        /// <summary>Output only the used channels from the last second.</summary>
+        /// <summary>
+        /// Output only the used channels from the last second.
+        /// </summary>
         /// <param name="until">Samples to dump from the <see cref="cache"/></param>
         void DumpBlock(long until) {
             bool[] toWrite = new bool[ChannelCount];
@@ -107,7 +131,9 @@ namespace Cavern.Format {
             cachePosition = 0;
         }
 
-        /// <summary>Write a block of samples.</summary>
+        /// <summary>
+        /// Write a block of samples.
+        /// </summary>
         /// <param name="samples">Samples to write</param>
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>

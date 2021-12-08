@@ -1,20 +1,29 @@
-﻿using UnityEngine;
+﻿using System.Diagnostics.CodeAnalysis;
+using UnityEngine;
 
 using Cavern.Utilities;
 
 namespace Cavern.Debug {
-    /// <summary>Displays the last logged message.</summary>
+    /// <summary>
+    /// Displays the last logged message.
+    /// </summary>
     [AddComponentMenu("Audio/Debug/Log Display")]
     public class LogDisplay : WindowBase {
-        /// <summary>Maximum level to be reported.</summary>
+        /// <summary>
+        /// Maximum level to be reported.
+        /// </summary>
         [Tooltip("Maximum level to be reported.")]
         public LogType LogLevel = LogType.Error;
 
-        /// <summary>Last received log message that matches the criteria.</summary>
+        /// <summary>
+        /// Last received log message that matches the criteria.
+        /// </summary>
         string lastLog = "No message so far.";
         LogType lastType = LogType.Log;
 
-        /// <summary>Window dimension, name, and custom variable setup.</summary>
+        /// <summary>
+        /// Window dimension, name, and custom variable setup.
+        /// </summary>
         protected override void Setup() {
             width = 400;
             height = 120;
@@ -28,11 +37,15 @@ namespace Cavern.Debug {
             }
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() => Application.logMessageReceived += LogHandler;
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() => Application.logMessageReceived -= LogHandler;
 
-        /// <summary>Draw window contents.</summary>
+        /// <summary>
+        /// Draw window contents.
+        /// </summary>
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
             Color oldColor = GUI.color;

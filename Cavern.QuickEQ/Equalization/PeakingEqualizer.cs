@@ -5,32 +5,48 @@ using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
-    /// <summary>Generates peaking EQ filter sets that try to match <see cref="Equalizer"/> curves.</summary>
+    /// <summary>
+    /// Generates peaking EQ filter sets that try to match <see cref="Equalizer"/> curves.
+    /// </summary>
     public class PeakingEqualizer {
-        /// <summary>Maximum filter gain in dB.</summary>
+        /// <summary>
+        /// Maximum filter gain in dB.
+        /// </summary>
         public double MaxGain { get; set; } = 20;
 
-        /// <summary>Minimum filter gain in dB.</summary>
+        /// <summary>
+        /// Minimum filter gain in dB.
+        /// </summary>
         public double MinGain { get; set; } = -100;
 
-        /// <summary>Round the gain of each filter to this precision.</summary>
+        /// <summary>
+        /// Round the gain of each filter to this precision.
+        /// </summary>
         public double GainPrecision { get; set; } = .01;
 
-        /// <summary>Q at the first try.</summary>
+        /// <summary>
+        /// Q at the first try.
+        /// </summary>
         public double StartQ { get; set; } = 10;
 
-        /// <summary>In each iteration, <see cref="StartQ"/> is divided in half, and checks steps in each direction.
-        /// The precision of Q will be <see cref="StartQ"/> / 2^<see cref="Iterations"/>.</summary>
+        /// <summary>
+        /// In each iteration, <see cref="StartQ"/> is divided in half, and checks steps in each direction.
+        /// The precision of Q will be <see cref="StartQ"/> / 2^<see cref="Iterations"/>.
+        /// </summary>
         public int Iterations { get; set; } = 8;
 
         readonly Equalizer source;
 
         FilterAnalyzer analyzer;
 
-        /// <summary>Generates peaking EQ filter sets that try to match <see cref="Equalizer"/> curves.</summary>
+        /// <summary>
+        /// Generates peaking EQ filter sets that try to match <see cref="Equalizer"/> curves.
+        /// </summary>
         public PeakingEqualizer(Equalizer source) => this.source = source;
 
-        /// <summary>Measure a filter candidate for <see cref="BruteForceQ(ref float[], double, double)"/>.</summary>
+        /// <summary>
+        /// Measure a filter candidate for <see cref="BruteForceQ(ref float[], double, double)"/>.
+        /// </summary>
         float BruteForceStep(float[] target, out float[] changedTarget) {
             changedTarget = GraphUtils.ConvertToGraph(analyzer.FrequencyResponse, 20, analyzer.SampleRate * .5,
                 analyzer.SampleRate, target.Length);
@@ -39,8 +55,10 @@ namespace Cavern.QuickEQ.Equalization {
             return QMath.SumAbs(changedTarget);
         }
 
-        /// <summary>Find the filter with the best Q for the given frequency and gain in <paramref name="target"/>.
-        /// Correct <paramref name="target"/> to the frequency response with the inverse of the found filter.</summary>
+        /// <summary>
+        /// Find the filter with the best Q for the given frequency and gain in <paramref name="target"/>.
+        /// Correct <paramref name="target"/> to the frequency response with the inverse of the found filter.
+        /// </summary>
         PeakingEQ BruteForceQ(ref float[] target, double freq, double gain) {
             double q = StartQ, qStep = q * .5;
             gain = Math.Round(-QMath.Clamp(gain, MinGain, MaxGain) / GainPrecision) * GainPrecision;
@@ -67,7 +85,9 @@ namespace Cavern.QuickEQ.Equalization {
             return new PeakingEQ(analyzer.SampleRate, freq, q, -gain);
         }
 
-        /// <summary>Finds a <see cref="PeakingEQ"/> to correct the worst problem on the input spectrum.</summary>
+        /// <summary>
+        /// Finds a <see cref="PeakingEQ"/> to correct the worst problem on the input spectrum.
+        /// </summary>
         /// <param name="target">Logarithmic input spectrum from 20 to sample rate/2 Hz</param>
         /// <param name="analyzer">A filter analyzer with cached variables that shoudn't be computed again</param>
         /// <param name="startPos">First band to analyze</param>
@@ -87,7 +107,9 @@ namespace Cavern.QuickEQ.Equalization {
             return BruteForceQ(ref target, Math.Pow(10, log10_20 + powRange * maxAt / target.Length), target[maxAt]);
         }
 
-        /// <summary>Create a peaking EQ filter set with bands placed at optimal frequencies to approximate the drawn EQ curve.</summary>
+        /// <summary>
+        /// Create a peaking EQ filter set with bands placed at optimal frequencies to approximate the drawn EQ curve.
+        /// </summary>
         public PeakingEQ[] GetPeakingEQ(int sampleRate, int bands) {
             PeakingEQ[] result = new PeakingEQ[bands];
             if (source.Bands.Count == 0) {
@@ -121,7 +143,9 @@ namespace Cavern.QuickEQ.Equalization {
             return result;
         }
 
-        /// <summary>Create a peaking EQ filter set with bands placed at equalized frequencies to approximate the drawn EQ curve.</summary>
+        /// <summary>
+        /// Create a peaking EQ filter set with bands placed at equalized frequencies to approximate the drawn EQ curve.
+        /// </summary>
         public PeakingEQ[] GetPeakingEQ(int sampleRate) {
             float[] target = source.Visualize(20, sampleRate * .5f, 1024);
             PeakingEQ[] result = new PeakingEQ[source.Bands.Count];

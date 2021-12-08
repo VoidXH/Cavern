@@ -6,7 +6,9 @@ namespace Cavern {
         // ------------------------------------------------------------------
         // Helpers for the symmetric renderer
         // ------------------------------------------------------------------
-        /// <summary>Width ratio of a point between two channels.</summary>
+        /// <summary>
+        /// Width ratio of a point between two channels.
+        /// </summary>
         /// <param name="left">Left channel ID</param>
         /// <param name="right">Right channel ID</param>
         /// <param name="pos">Point X position</param>
@@ -18,7 +20,9 @@ namespace Cavern {
             return (pos - leftX) / (Listener.Channels[right].CubicalPos.X - leftX);
         }
 
-        /// <summary>Length ratio of a point between two channels.</summary>
+        /// <summary>
+        /// Length ratio of a point between two channels.
+        /// </summary>
         /// <param name="rear">Rear channel ID</param>
         /// <param name="front">Front channel ID</param>
         /// <param name="pos">Point Z position</param>
@@ -30,7 +34,9 @@ namespace Cavern {
             return (pos - rearZ) / (Listener.Channels[front].CubicalPos.Z - rearZ);
         }
 
-        /// <summary>Check and assign a channel if it's the closest left/right from a given position.</summary>
+        /// <summary>
+        /// Check and assign a channel if it's the closest left/right from a given position.
+        /// </summary>
         /// <param name="channel">Checked channel ID</param>
         /// <param name="left">Closest left channel ID</param>
         /// <param name="right">Closest right channel ID</param>
@@ -48,7 +54,9 @@ namespace Cavern {
                 right = channel;
         }
 
-        /// <summary>Get the closest channels to a source in each direction.</summary>
+        /// <summary>
+        /// Get the closest channels to a source in each direction.
+        /// </summary>
         /// <param name="channel">Checked channel ID</param>
         /// <param name="frontLeft">Closest front left channel ID</param>
         /// <param name="frontRight">Closest front right channel ID</param>
@@ -77,7 +85,9 @@ namespace Cavern {
             }
         }
 
-        /// <summary>For a given horizontal layer, if it's over a side of the room, fill blank speakers.</summary>
+        /// <summary>
+        /// For a given horizontal layer, if it's over a side of the room, fill blank speakers.
+        /// </summary>
         /// <param name="frontLeft">Front left ID</param>
         /// <param name="frontRight">Front right ID</param>
         /// <param name="rearLeft">Rear left ID</param>

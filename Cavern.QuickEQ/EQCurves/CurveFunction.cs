@@ -1,19 +1,35 @@
 ﻿namespace Cavern.QuickEQ.EQCurves {
-    /// <summary>Available built-in target curves.</summary>
+    /// <summary>
+    /// Available built-in target curves.
+    /// </summary>
     public enum CurveFunction {
-        /// <summary>Uniform gain on all frequencies.</summary>
+        /// <summary>
+        /// Uniform gain on all frequencies.
+        /// </summary>
         Flat,
-        /// <summary>Cinema standard curve.</summary>
+        /// <summary>
+        /// Cinema standard curve.
+        /// </summary>
         XCurve,
-        /// <summary>Adds a bass bump for punch emphasis.</summary>
+        /// <summary>
+        /// Adds a bass bump for punch emphasis.
+        /// </summary>
         Punch,
-        /// <summary>Adds a sub-bass slope for depth emphasis.</summary>
+        /// <summary>
+        /// Adds a sub-bass slope for depth emphasis.
+        /// </summary>
         Depth,
-        /// <summary>Bandpass EQ curve, recommended for stage subwoofers.</summary>
+        /// <summary>
+        /// Bandpass EQ curve, recommended for stage subwoofers.
+        /// </summary>
         Bandpass,
-        /// <summary>Frequently used target curve for very small rooms.</summary>
+        /// <summary>
+        /// Frequently used target curve for very small rooms.
+        /// </summary>
         RoomCurve,
-        /// <summary>An EQ curve with any amount of custom bands.</summary>
+        /// <summary>
+        /// An EQ curve with any amount of custom bands.
+        /// </summary>
         Custom
     }
 }

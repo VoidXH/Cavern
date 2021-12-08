@@ -5,18 +5,31 @@ using System.Runtime.CompilerServices;
 using Cavern.Remapping;
 using Cavern.Utilities;
 
-namespace Cavern.Cavernize { // TODO: fix 5.1 rear, use 5.1 side instead
-    /// <summary>Creates 5.1 or 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels.</summary>
+namespace Cavern.Cavernize {
+    /// <summary>
+    /// Creates 5.1 or 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels.
+    /// </summary>
     public class SurroundUpmixer {
-        /// <summary>Creates missing channels from existing ones. Works best if the source is matrix-encoded.
-        /// Not recommended for Gaming 3D setups.</summary>
+        /// <summary>
+        /// Creates missing channels from existing ones. Works best if the source is matrix-encoded.
+        /// </summary>
+        /// <remarks>Not recommended for Gaming 3D setups, as the rear channels are inverses of each other and this will
+        /// cancel out for a single rear channel.</remarks>
         public bool matrixUpmix = true;
-        /// <summary>Restart the source when finished.</summary>
+
+        /// <summary>
+        /// Restart the source when finished.
+        /// </summary>
         public bool loop;
-        /// <summary>Playback position in samples.</summary>
+
+        /// <summary>
+        /// Playback position in samples.
+        /// </summary>
         public int timeSamples;
 
-        /// <summary>Required data for handling a single channel in the upmixing process.</summary>
+        /// <summary>
+        /// Required data for handling a single channel in the upmixing process.
+        /// </summary>
         struct ChannelData {
             public ReferenceChannel target;
             public bool writtenTo;
@@ -29,17 +42,31 @@ namespace Cavern.Cavernize { // TODO: fix 5.1 rear, use 5.1 side instead
             }
         }
 
-        /// <summary>Required data per channel for handling the upmixing process.</summary>
+        /// <summary>
+        /// Required data per channel for handling the upmixing process.
+        /// </summary>
         ChannelData[] output;
-        /// <summary>Cached samples from the <see cref="source"/> for processing.</summary>
+
+        /// <summary>
+        /// Cached samples from the <see cref="source"/> for processing.
+        /// </summary>
         float[][] cache;
-         /// <summary>Stream to be upmixed.</summary>
+
+        /// <summary>
+        /// Stream to be upmixed.
+        /// </summary>
         /// <remarks>A legacy channel layout found in <see cref="ChannelPrototype.StandardMatrix"/> is required.</remarks>
         readonly Clip source;
 
-        /// <summary>Called when a non-<see cref="loop"/>ing <see cref="source"/> has generated its last sample blocks.</summary>
+        /// <summary>
+        /// Called when a non-<see cref="loop"/>ing <see cref="source"/> has generated its last sample blocks.
+        /// </summary>
         public event Action OnPlaybackFinished;
 
+        /// <summary>
+        /// Initializes this upmixer by creating the obligatory reference channels and the extra channels that are
+        /// used by the <see cref="source"/>.
+        /// </summary>
         void Init() {
             ReferenceChannel[] layout = ChannelPrototype.StandardMatrix[8];
             output = new ChannelData[layout.Length];
@@ -60,20 +87,26 @@ namespace Cavern.Cavernize { // TODO: fix 5.1 rear, use 5.1 side instead
                 output[channel + offset] = new ChannelData(missing[channel]);
         }
 
-        /// <summary>Creates 5.1 or 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels.</summary>
+        /// <summary>
+        /// Creates 5.1 or 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels.
+        /// </summary>
         public SurroundUpmixer(Clip source) {
             this.source = source;
             Init();
         }
 
-        /// <summary>Creates 5.1 or 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels.</summary>
+        /// <summary>
+        /// Creates 5.1 or 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels.
+        /// </summary>
         public SurroundUpmixer(Clip source, bool matrixUpmix) {
             this.source = source;
             this.matrixUpmix = matrixUpmix;
             Init();
         }
 
-        /// <summary>Returns an array of all channels that are required to play this upmixed <see cref="source"/>.</summary>
+        /// <summary>
+        /// Returns an array of all channels that are required to play this upmixed <see cref="source"/>.
+        /// </summary>
         public ReferenceChannel[] GetChannels() {
             ReferenceChannel[] result = new ReferenceChannel[output.Length];
             for (int channel = 0; channel < output.Length; ++channel)
@@ -81,7 +114,9 @@ namespace Cavern.Cavernize { // TODO: fix 5.1 rear, use 5.1 side instead
             return result;
         }
 
-        /// <summary>Get the position of <paramref name="channel"/> in <see cref="output"/>.</summary>
+        /// <summary>
+        /// Get the position of <paramref name="channel"/> in <see cref="output"/>.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         int GetChannelId(ReferenceChannel channel) {
             if ((int)channel < 8)
@@ -92,8 +127,9 @@ namespace Cavern.Cavernize { // TODO: fix 5.1 rear, use 5.1 side instead
             return -1;
         }
 
-        /// <summary>Generate the next <paramref name="samples"/> samples to be retrieved with
-        /// <see cref="RetrieveSamples(ReferenceChannel)"/>.</summary>
+        /// <summary>
+        /// Generate the next <paramref name="samples"/> samples to be retrieved with <see cref="RetrieveSamples(ReferenceChannel)"/>.
+        /// </summary>
         public void GenerateSamples(int samples) {
             // Preparations
             ReferenceChannel[] layout = ChannelPrototype.StandardMatrix[source.Channels];
@@ -171,7 +207,9 @@ namespace Cavern.Cavernize { // TODO: fix 5.1 rear, use 5.1 side instead
             }
         }
 
-        /// <summary>Returns if the given channel was updated the last time <see cref="GenerateSamples(int)"/> was called.</summary>
+        /// <summary>
+        /// Returns if the given channel was updated the last time <see cref="GenerateSamples(int)"/> was called.
+        /// </summary>
         public bool Readable(ReferenceChannel channel) {
             if ((int)channel < 8)
                 return output[(int)channel].writtenTo;
@@ -181,7 +219,9 @@ namespace Cavern.Cavernize { // TODO: fix 5.1 rear, use 5.1 side instead
             return false;
         }
 
-        /// <summary>Retrieve samples generated with <see cref="GenerateSamples(int)"/>.</summary>
+        /// <summary>
+        /// Retrieve samples generated with <see cref="GenerateSamples(int)"/>.
+        /// </summary>
         /// <remarks>This function doesn't check if a channel contains fresh data or not.
         /// Use <see cref="Readable(ReferenceChannel)"/> for this check.</remarks>
         public float[] RetrieveSamples(ReferenceChannel channel) {

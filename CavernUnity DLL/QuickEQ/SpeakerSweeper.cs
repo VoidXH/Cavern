@@ -8,42 +8,74 @@ using Cavern.QuickEQ.Equalization;
 using Cavern.QuickEQ.SignalGeneration;
 
 namespace Cavern.QuickEQ {
-    /// <summary>Measures the frequency response of all output channels.</summary>
+    /// <summary>
+    /// Measures the frequency response of all output channels.
+    /// </summary>
     [AddComponentMenu("Audio/QuickEQ/Speaker Sweeper")]
     public class SpeakerSweeper : MonoBehaviour, IDisposable {
-        /// <summary>Frequency at the beginning of the sweep.</summary>
+        /// <summary>
+        /// Frequency at the beginning of the sweep.
+        /// </summary>
         [Tooltip("Frequency at the beginning of the sweep.")]
         [Range(1, 24000)] public float StartFreq = 20;
-        /// <summary>Frequency at the end of the sweep.</summary>
+
+        /// <summary>
+        /// Frequency at the end of the sweep.
+        /// </summary>
         [Tooltip("Frequency at the end of the sweep.")]
         [Range(1, 24000)] public float EndFreq = 20000;
-        /// <summary>Maximum checked frequency for LFE channels. Other frequencites will be suppressed.</summary>
+
+        /// <summary>
+        /// Maximum checked frequency for LFE channels. Other frequencites will be suppressed.
+        /// </summary>
         [Tooltip("Maximum checked frequency for LFE channels. Other frequencites will be suppressed.")]
         [Range(1, 24000)] public float EndFreqLFE = 200;
-        /// <summary>Measurement signal gain in decibels relative to full scale.</summary>
+
+        /// <summary>
+        /// Measurement signal gain in decibels relative to full scale.
+        /// </summary>
         [Tooltip("Measurement signal gain in decibels relative to full scale.")]
         [Range(-50, 0)] public float SweepGain = -20;
-        /// <summary>Length of the measurement signal. Must be a power of 2.</summary>
+
+        /// <summary>
+        /// Length of the measurement signal. Must be a power of 2.
+        /// </summary>
         [Tooltip("Length of the measurement signal. Must be a power of 2.")]
         public int SweepLength = 32768;
-        /// <summary>Waits a sweep's time before the actual measurement.
-        /// This helps for measuring with microphones that click when the system turns them on.</summary>
+
+        /// <summary>
+        /// Waits a sweep's time before the actual measurement. This helps for measuring with microphones that click when the system turns them on.
+        /// </summary>
         [Tooltip("Waits a sweep's time before the actual measurement. " +
             "This helps for measurement with microphones that click when the system turns them on.")]
         public bool WarmUpMode;
 
         /// <summary>The measurement is done and responses are available.</summary>
         [NonSerialized] public bool ResultAvailable;
-        /// <summary>Raw recorded signals of output channels.</summary>
+
+        /// <summary>
+        /// Raw recorded signals of output channels.
+        /// </summary>
         [NonSerialized] public float[][] ExcitementResponses;
-        /// <summary>Frequency responses of output channels.</summary>
+
+        /// <summary>
+        /// Frequency responses of output channels.
+        /// </summary>
         [NonSerialized] public float[][] FreqResponses;
-        /// <summary>Impulse responses of output channels.</summary>
+
+        /// <summary>
+        /// Impulse responses of output channels.
+        /// </summary>
         [NonSerialized] public VerboseImpulseResponse[] ImpResponses;
-        /// <summary>Room correction, equalizer for each channel.</summary>
+
+        /// <summary>
+        /// Room correction, equalizer for each channel.
+        /// </summary>
         [NonSerialized] public Equalizer[] Equalizers;
 
-        /// <summary>Change the measurement signal to this tone.</summary>
+        /// <summary>
+        /// Change the measurement signal to this tone.
+        /// </summary>
         public float[] Bypass {
             get => bypass;
             set {
@@ -52,13 +84,21 @@ namespace Cavern.QuickEQ {
             }
         }
         float[] bypass;
-        /// <summary>Measurement signal samples.</summary>
+
+        /// <summary>
+        /// Measurement signal samples.
+        /// </summary>
         public float[] SweepReference { get; private set; }
-        /// <summary>Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
-        /// <see cref="FreqResponses"/> are still being processed.</summary>
+
+        /// <summary>
+        /// Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
+        /// <see cref="FreqResponses"/> are still being processed.
+        /// </summary>
         public int Channel { get; private set; }
 
-        /// <summary>Measurement sample rate. Set after an <see cref="InputDevice"/> was selected.</summary>
+        /// <summary
+        /// >Measurement sample rate. Set after an <see cref="InputDevice"/> was selected.
+        /// </summary>
         public int SampleRate {
             get {
                 if (sampleRate != 0)
@@ -69,7 +109,9 @@ namespace Cavern.QuickEQ {
         }
         int sampleRate;
 
-        /// <summary>Progress of the measurement process from 0 to 1.</summary>
+        /// <summary>
+        /// Progress of the measurement process from 0 to 1.
+        /// </summary>
         public float Progress {
             get {
                 if (ResultAvailable)
@@ -81,7 +123,9 @@ namespace Cavern.QuickEQ {
             }
         }
 
-        /// <summary>Name of the recording device. If empty, the system default will be used.</summary>
+        /// <summary>
+        /// Name of the recording device. If empty, the system default will be used.
+        /// </summary>
         public string InputDevice {
             get {
                 if (inputDevice != null)
@@ -109,27 +153,55 @@ namespace Cavern.QuickEQ {
         }
         string inputDevice = null;
 
-        /// <summary>Microphone input.</summary>
+        /// <summary>
+        /// Microphone input.
+        /// </summary>
         AudioClip sweepResponse;
-        /// <summary>A hack to fix lost playback from the initial hanging caused by sweep generation in <see cref="OnEnable"/>.</summary>
+
+        /// <summary>
+        /// A hack to fix lost playback from the initial hanging caused by sweep generation in <see cref="OnEnable"/>.
+        /// </summary>
         bool measurementStarted;
-        /// <summary>LFE pass-through before the measurement. LFE pass-through is on while measuring.</summary>
+
+        /// <summary>
+        /// LFE pass-through before the measurement. LFE pass-through is on while measuring.
+        /// </summary>
         bool oldDirectLFE;
-        /// <summary>Virtualizer before the measurement. Virtualizer is off while measuring.</summary>
+
+        /// <summary>
+        /// Virtualizer before the measurement. Virtualizer is off while measuring.
+        /// </summary>
         bool oldVirtualizer;
-        /// <summary>Measurement signal's Fourier transform for response calculation optimizations.</summary>
+
+        /// <summary>
+        /// Measurement signal's Fourier transform for response calculation optimizations.
+        /// </summary>
         Complex[] sweepFFT;
-        /// <summary>Measurement signal's Fourier transform for response calculation optimizations
-        /// and removed high frequencies for LFE noise suppression.</summary>
+
+        /// <summary>
+        /// Measurement signal's Fourier transform for response calculation optimizations
+        /// and removed high frequencies for LFE noise suppression.
+        /// </summary>
         Complex[] sweepFFTlow;
-        /// <summary>FFT constant cache for the sweep FFT size.</summary>
+
+        /// <summary>
+        /// FFT constant cache for the sweep FFT size.
+        /// </summary>
         FFTCache sweepFFTCache;
-        /// <summary>Sweep playback objects.</summary>
+
+        /// <summary>
+        /// Sweep playback objects.
+        /// </summary>
         SweepChannel[] sweepers;
-        /// <summary>Response evaluator tasks.</summary>
+
+        /// <summary>
+        /// Response evaluator tasks.
+        /// </summary>
         Task<WorkerResult>[] workers;
 
-        /// <summary>Generate <see cref="SweepReference"/> and the related optimization values.</summary>
+        /// <summary>
+        /// Generate <see cref="SweepReference"/> and the related optimization values.
+        /// </summary>
         public void RegenerateSweep() {
             if (bypass == null)
                 SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
@@ -145,11 +217,15 @@ namespace Cavern.QuickEQ {
             Measurements.OffbandGain(sweepFFTlow, StartFreq, EndFreqLFE, sampleRate, 100);
         }
 
-        /// <summary>Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.</summary>
+        /// <summary>
+        /// Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.
+        /// </summary>
         public Complex[] GetFrequencyResponse(float[] samples, bool LFE) =>
             Measurements.GetFrequencyResponse(LFE ? sweepFFTlow : sweepFFT, Measurements.FFT(samples, sweepFFTCache));
 
-        /// <summary>Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[], bool)"/>.</summary>
+        /// <summary>
+        /// Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[], bool)"/>.
+        /// </summary>
         public VerboseImpulseResponse GetImpulseResponse(Complex[] frequencyResponse) =>
             new VerboseImpulseResponse(Measurements.GetImpulseResponse(frequencyResponse, sweepFFTCache));
 
@@ -232,7 +308,9 @@ namespace Cavern.QuickEQ {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() => Dispose();
         
-        /// <summary>Free the resources used by this object.</summary>
+        /// <summary>
+        /// Free the resources used by this object.
+        /// </summary>
         public void Dispose() {
             if (sweepFFTCache != null)
                 sweepFFTCache.Dispose();

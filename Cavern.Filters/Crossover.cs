@@ -1,9 +1,13 @@
 ﻿using System;
 
 namespace Cavern.Filters {
-    /// <summary>Simple variable-order crossover.</summary>
+    /// <summary>
+    /// Simple variable-order crossover.
+    /// </summary>
     public class Crossover : Filter {
-        /// <summary>Crossover frequency.</summary>
+        /// <summary>
+        /// Crossover frequency.
+        /// </summary>
         public double Frequency {
             get => lowpasses[0].CenterFreq;
             set {
@@ -12,7 +16,9 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>Number of filters per pass.</summary>
+        /// <summary>
+        /// Number of filters per pass.
+        /// </summary>
         /// <remarks>A value of 2 is recommended for notch prevention when mixing
         /// <see cref="LowOutput"/> and <see cref="HighOutput"/> back together.</remarks>
         public int Order {
@@ -20,19 +26,34 @@ namespace Cavern.Filters {
             set => RecreateFilters(lowpasses[0].CenterFreq, value);
         }
 
-        /// <summary>Low frequency data.</summary>
+        /// <summary>
+        /// Low frequency data.
+        /// </summary>
         public float[] LowOutput { get; private set; } = new float[0];
-        /// <summary>High frequency data.</summary>
+
+        /// <summary>
+        /// High frequency data.
+        /// </summary>
         public float[] HighOutput { get; private set; } = new float[0];
 
-        /// <summary>Cached filter sample rate.</summary>
+        /// <summary>
+        /// Cached filter sample rate.
+        /// </summary>
         readonly int sampleRate;
-        /// <summary>Lowpass filters for each pass.</summary>
+
+        /// <summary>
+        /// Lowpass filters for each pass.
+        /// </summary>
         Lowpass[] lowpasses;
-        /// <summary>Highpass filters for each pass.</summary>
+
+        /// <summary>
+        /// Highpass filters for each pass.
+        /// </summary>
         Highpass[] highpasses;
 
-        /// <summary>Create filters for each pass.</summary>
+        /// <summary>
+        /// Create filters for each pass.
+        /// </summary>
         void RecreateFilters(double frequency, int order) {
             lowpasses = new Lowpass[order];
             highpasses = new Highpass[order];
@@ -42,7 +63,9 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>Simple variable-order crossover.</summary>
+        /// <summary>
+        /// Simple variable-order crossover.
+        /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="frequency">Crossover frequency</param>
         /// <param name="order">Number of filters per pass, 2 is recommended for mixing notch prevention</param>
@@ -51,7 +74,9 @@ namespace Cavern.Filters {
             RecreateFilters(frequency, order);
         }
 
-        /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>
+        /// Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
         /// <param name="samples">Input samples</param>
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
@@ -69,7 +94,9 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>
+        /// Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
         /// <param name="samples">Input samples</param>
         /// <param name="lows">Low frequency data</param>
         /// <param name="highs">High frequency data</param>
@@ -79,7 +106,9 @@ namespace Cavern.Filters {
             highs = HighOutput;
         }
 
-        /// <summary>Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.</summary>
+        /// <summary>
+        /// Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
         /// <param name="samples">Input samples</param>
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
@@ -91,8 +120,9 @@ namespace Cavern.Filters {
             highs = HighOutput;
         }
 
-        /// <summary>Create empty outputs for a given <paramref name="updateRate"/>> in case they are used before processing.
-        /// This optimizes zero checks.</summary>
+        /// <summary>
+        /// Create empty outputs for a given <paramref name="updateRate"/>> in case they are used before processing. This optimizes zero checks.
+        /// </summary>
         public void PresetOutput(int updateRate) {
             LowOutput = new float[updateRate];
             HighOutput = new float[updateRate];

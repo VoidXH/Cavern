@@ -2,9 +2,13 @@
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
-    /// <summary>Sound processing functions.</summary>
+    /// <summary>
+    /// Sound processing functions.
+    /// </summary>
     public static class WaveformUtils {
-        /// <summary>Downmix audio to mono.</summary>
+        /// <summary>
+        /// Downmix audio to mono.
+        /// </summary>
         /// <param name="source">Audio to downmix</param>
         /// <param name="channels">Source channel count</param>
         public static float[] Downmix(float[] source, int channels) {
@@ -16,7 +20,9 @@ namespace Cavern.Utilities {
             return target;
         }
 
-        /// <summary>Downmix audio for a lesser channel count with limited knowledge of the target system's channel locations.</summary>
+        /// <summary>
+        /// Downmix audio for a lesser channel count with limited knowledge of the target system's channel locations.
+        /// </summary>
         public static void Downmix(float[] from, int fromChannels, float[] to, int toChannels) {
             int samplesPerChannel = to.Length / toChannels;
             for (int channel = 0; channel < fromChannels; ++channel) {
@@ -33,7 +39,9 @@ namespace Cavern.Utilities {
             }
         }
 
-        /// <summary>Extract a single channel from a multichannel audio stream</summary>
+        /// <summary>
+        /// Extract a single channel from a multichannel audio stream.
+        /// </summary>
         /// <param name="from">Source audio stream</param>
         /// <param name="to">Destination channel data</param>
         /// <param name="channel">Target channel</param>
@@ -44,7 +52,9 @@ namespace Cavern.Utilities {
                 to[sample] = from[sample * channels + channel];
         }
 
-        /// <summary>Multiplies all values in an array.</summary>
+        /// <summary>
+        /// Multiplies all values in an array.
+        /// </summary>
         /// <param name="target">Array reference</param>
         /// <param name="value">Multiplier</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,7 +63,9 @@ namespace Cavern.Utilities {
                 target[i] *= value;
         }
 
-        /// <summary>Set gain for a channel in a multichannel array.</summary>
+        /// <summary>
+        /// Set gain for a channel in a multichannel array.
+        /// </summary>
         /// <param name="target">Sample reference</param>
         /// <param name="gain">Gain</param>
         /// <param name="channel">Target channel</param>
@@ -64,7 +76,9 @@ namespace Cavern.Utilities {
                 target[sample] *= gain;
         }
 
-        /// <summary>Get the peak amplitude of a single-channel array.</summary>
+        /// <summary>
+        /// Get the peak amplitude of a single-channel array.
+        /// </summary>
         /// <param name="target">Array reference</param>
         /// <returns>Peak amplitude in the array</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -78,7 +92,9 @@ namespace Cavern.Utilities {
             return max;
         }
 
-        /// <summary>Get the peak amplitude in a partial audio signal.</summary>
+        /// <summary>
+        /// Get the peak amplitude in a partial audio signal.
+        /// </summary>
         /// <param name="target">Array reference</param>
         /// <param name="from">Range start sample (inclusive)</param>
         /// <param name="to">Range end sample (exclusive)</param>
@@ -94,7 +110,9 @@ namespace Cavern.Utilities {
             return max;
         }
 
-        /// <summary>Get the peak amplitude of a given channel in a multichannel array.</summary>
+        /// <summary>
+        /// Get the peak amplitude of a given channel in a multichannel array.
+        /// </summary>
         /// <param name="target">Array reference</param>
         /// <param name="samples">Samples per channel</param>
         /// <param name="channel">Target channel</param>
@@ -111,7 +129,9 @@ namespace Cavern.Utilities {
             return max;
         }
 
-        /// <summary>Get the peak amplitude with its sign in a partial audio signal.</summary>
+        /// <summary>
+        /// Get the peak amplitude with its sign in a partial audio signal.
+        /// </summary>
         /// <param name="target">Array reference</param>
         /// <param name="from">Range start sample (inclusive)</param>
         /// <param name="to">Range end sample (exclusive)</param>
@@ -130,7 +150,9 @@ namespace Cavern.Utilities {
             return target[pos];
         }
 
-        /// <summary>Get the root mean square amplitude of a single-channel signal.</summary>
+        /// <summary>
+        /// Get the root mean square amplitude of a single-channel signal.
+        /// </summary>
         /// <param name="target">Array reference</param>
         /// <returns>RMS amplitude of the signal</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -141,7 +163,9 @@ namespace Cavern.Utilities {
             return (float)Math.Sqrt(sum / target.Length);
         }
 
-        /// <summary>Mix a track to a stream.</summary>
+        /// <summary>
+        /// Mix a track to a stream.
+        /// </summary>
         /// <param name="source">Source track</param>
         /// <param name="destination">Destination stream</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -150,7 +174,9 @@ namespace Cavern.Utilities {
                 destination[i] += source[i];
         }
 
-        /// <summary>Mix a track to a stream with a given gain.</summary>
+        /// <summary>
+        /// Mix a track to a stream with a given gain.
+        /// </summary>
         /// <param name="source">Source track</param>
         /// <param name="destination">Destination stream</param>
         /// <param name="gain">Linear amplification of the <paramref name="source"/> track</param>
@@ -160,7 +186,9 @@ namespace Cavern.Utilities {
                 destination[i] += source[i] * gain;
         }
 
-        /// <summary>Normalize an array of samples.</summary>
+        /// <summary>
+        /// Normalize an array of samples.
+        /// </summary>
         /// <param name="target">Samples to normalize</param>
         /// <param name="decayFactor">Gain increment per frame, should be decay rate * update rate / sample rate</param>
         /// <param name="lastGain">Last normalizer gain (a reserved float with a default of 1 to always pass to this function)</param>

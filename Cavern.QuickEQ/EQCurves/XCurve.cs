@@ -1,20 +1,38 @@
 ﻿using System;
 
 namespace Cavern.QuickEQ.EQCurves {
-    /// <summary>Cinema standard EQ curve.</summary>
+    /// <summary>
+    /// Cinema standard EQ curve.
+    /// </summary>
     public class XCurve : EQCurve {
-        /// <summary>Hardcoded log10(2000) (mid knee position), as C# compilers don't optimize this.</summary>
+        /// <summary>
+        /// Hardcoded log10(2000) (mid knee position), as C# compilers don't optimize this.
+        /// </summary>
         const double log10_2000 = 3.30102999566;
-        /// <summary>Hardcoded log10(10000) (high knee position), as C# compilers don't optimize this.</summary>
+
+        /// <summary>
+        /// Hardcoded log10(10000) (high knee position), as C# compilers don't optimize this.
+        /// </summary>
         const double log10_10000 = 4;
-        /// <summary>Hardcoded log10(20000) (high extension position helper), as C# compilers don't optimize this.</summary>
+
+        /// <summary>
+        /// Hardcoded log10(20000) (high extension position helper), as C# compilers don't optimize this.
+        /// </summary>
         const double log10_20000 = 4.30102999566f;
-        /// <summary>Hardcoded 1 / (log10(10000) - log10(2000)) for mid slope positioning.</summary>
+
+        /// <summary>
+        /// Hardcoded 1 / (log10(10000) - log10(2000)) for mid slope positioning.
+        /// </summary>
         const double midMul = 1.43067655807;
-        /// <summary>Hardcoded 1 / (log10(20000) - log10(10000)) for high slope division.</summary>
+
+        /// <summary>
+        /// Hardcoded 1 / (log10(20000) - log10(10000)) for high slope division.
+        /// </summary>
         const double highMul = 3.32192809489;
 
-        /// <summary>Get the curve's gain in decibels at a given frequency.</summary>
+        /// <summary>
+        /// Get the curve's gain in decibels at a given frequency.
+        /// </summary>
         public override double this[double frequency] {
             get {
                 if (frequency < 2000)
@@ -25,7 +43,9 @@ namespace Cavern.QuickEQ.EQCurves {
             }
         }
 
-        /// <summary>Generate a linear curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a linear curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
         public override float[] GenerateLinearCurve(int sampleRate, int length) {
@@ -49,7 +69,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a linear curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a linear curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
         /// <param name="gain">Curve reference level</param>
@@ -78,7 +100,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a logarithmic curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a logarithmic curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
@@ -105,7 +129,9 @@ namespace Cavern.QuickEQ.EQCurves {
             return curve;
         }
 
-        /// <summary>Generate a logarithmic curve for correction generators.</summary>
+        /// <summary>
+        /// Generate a logarithmic curve for correction generators.
+        /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>

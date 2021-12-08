@@ -1,23 +1,36 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Utilities;
 
 namespace Cavern.Debug {
-    /// <summary>Current channel volume display window.</summary>
+    /// <summary>
+    /// Current channel volume display window.
+    /// </summary>
     [AddComponentMenu("Audio/Debug/Levels")]
     public class Levels : WindowBase {
-        /// <summary>Use PC Jack output coloring for level bars. If false, channels will be colored by grouping.</summary>
+        /// <summary>
+        /// Use PC Jack output coloring for level bars. If false, channels will be colored by grouping.
+        /// </summary>
         [Tooltip("Use PC Jack output coloring for level bars. If false, channels will be colored by grouping.")]
         public bool jackColoring = true;
-        /// <summary>The lowest volume to show (in decibels).</summary>
+
+        /// <summary>
+        /// The lowest volume to show (in decibels).
+        /// </summary>
         [Tooltip("The lowest volume to show (in decibels).")]
         [Range(-300, -6)] public int DynamicRange = -60;
-        /// <summary>Maximum width of the Levels window. 0 means the screen's width.</summary>
+
+        /// <summary>
+        /// Maximum width of the Levels window. 0 means the screen's width.
+        /// </summary>
         [Tooltip("Maximum width of the Levels window. Non-positive numbers mean the screen's width.")]
         public int MaxWidth = 0;
 
-        /// <summary>Alias for <see cref="jackColoring"/> to be used with Unity Events.</summary>
+        /// <summary>
+        /// Alias for <see cref="jackColoring"/> to be used with Unity Events.
+        /// </summary>
         public bool JackColoring {
             get => jackColoring;
             set => jackColoring = value;
@@ -32,9 +45,12 @@ namespace Cavern.Debug {
         ChannelLevelData[] channelData = new ChannelLevelData[0];
 
         bool oldJackColoring = true;
+
         Texture2D white;
 
-        /// <summary>Window dimension, name, and custom variable setup.</summary>
+        /// <summary>
+        /// Window dimension, name, and custom variable setup.
+        /// </summary>
         protected override void Setup() {
             width = 0;
             height = 170;
@@ -44,7 +60,9 @@ namespace Cavern.Debug {
             white.Apply();
         }
 
-        /// <summary>Create a new <see cref="ChannelLevelData"/> for each existing channels, and use the user-set color scheme.</summary>
+        /// <summary>
+        /// Create a new <see cref="ChannelLevelData"/> for each existing channels, and use the user-set color scheme.
+        /// </summary>
         void RepaintChannels() {
             if (channelData.Length != Listener.Channels.Length) {
                 channelData = new ChannelLevelData[Listener.Channels.Length];
@@ -61,7 +79,9 @@ namespace Cavern.Debug {
             oldJackColoring = JackColoring;
         }
 
-        /// <summary>Draw window contents.</summary>
+        /// <summary>
+        /// Draw window contents.
+        /// </summary>
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
             int maximumWidth = (MaxWidth <= 0 ? Screen.width : MaxWidth) - 30, blockWidth = Math.Min(maximumWidth / Listener.Channels.Length, 30),
@@ -93,6 +113,7 @@ namespace Cavern.Debug {
             GUI.DragWindow();
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             int channels = Listener.Channels.Length;
             if (channelData.Length != channels || JackColoring != oldJackColoring)
@@ -118,6 +139,7 @@ namespace Cavern.Debug {
                 RepaintChannels();
         }
 
+        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() {
             Destroy(white);
             for (int channel = 0; channel < channelData.Length; ++channel)

@@ -2,20 +2,32 @@
 using UnityEngine;
 
 namespace Cavern.FilterInterfaces {
-    /// <summary>A filter built on raytracing with ideal geometric relections.</summary>
+    /// <summary>
+    /// A filter built on raytracing with ideal geometric relections.
+    /// </summary>
     public abstract class Raytraced : MonoBehaviour {
-        /// <summary>Number of rays per plane.</summary>
+        /// <summary>
+        /// Number of rays per plane.
+        /// </summary>
         [Header("Raycast")]
         [Tooltip("Number of rays per plane.")]
         public int Detail = 5;
-        /// <summary>Maximum surface bounces.</summary>
+
+        /// <summary>
+        /// Maximum surface bounces.
+        /// </summary>
         [Tooltip("Maximum surface bounces.")]
         public int Bounces = 3;
-        /// <summary>Layers to bounce the sound off from.</summary>
+
+        /// <summary>
+        /// Layers to bounce the sound off from.
+        /// </summary>
         [Tooltip("Layers to bounce the sound off from.")]
         public LayerMask Layers = int.MaxValue;
 
-        /// <summary>Draw all emitted rays as gizmos.</summary>
+        /// <summary>
+        /// Draw all emitted rays as gizmos.
+        /// </summary>
         protected void DrawDebugRays() {
             float maxDist = AudioListener3D.Current ? AudioListener3D.Current.Range : float.PositiveInfinity,
                 step = 360f / Detail,

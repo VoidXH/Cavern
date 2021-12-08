@@ -4,25 +4,48 @@ using Cavern.Filters;
 
 namespace Cavern.Virtualizer {
     public static partial class VirtualizerFilter {
-        /// <summary>Represents a virtualizable channel with impulse responses for both ears.</summary>
+        /// <summary>
+        /// Represents a virtualizable channel with impulse responses for both ears.
+        /// </summary>
         struct SpatialChannel {
-            /// <summary>Low frequency crossover, sounds not to be spatialized.</summary>
+            /// <summary>
+            /// Low frequency crossover, sounds not to be spatialized.
+            /// </summary>
             const float crossoverFrequency = 120;
 
-            /// <summary>Virtual speaker angle difference from the subject's gaze on the vertical axis: elevation.</summary>
+            /// <summary>
+            /// Virtual speaker angle difference from the subject's gaze on the vertical axis: elevation.
+            /// </summary>
             public float X;
-            /// <summary>Virtual speaker angle difference from the subject's gaze on the horizontal axis: azimuth.</summary>
+
+            /// <summary>
+            /// Virtual speaker angle difference from the subject's gaze on the horizontal axis: azimuth.
+            /// </summary>
             public float Y;
-            /// <summary>Impulse response in the left ear.</summary>
+
+            /// <summary>
+            /// Impulse response in the left ear.
+            /// </summary>
             public float[] LeftEarIR;
-            /// <summary>Impulse response in the right ear.</summary>
+
+            /// <summary>
+            /// Impulse response in the right ear.
+            /// </summary>
             public float[] RightEarIR;
 
-            // Convolution filters for spatial placement
+            /// <summary>
+            /// Convolution filter for spatial placement on the left ear.
+            /// </summary>
             Filter leftFilter;
+
+            /// <summary>
+            /// Convolution filter for spatial placement on the right ear.
+            /// </summary>
             Filter rightFilter;
 
-            /// <summary>Get the secondary ear's delay by angle of attack.</summary>
+            /// <summary>
+            /// Get the secondary ear's delay by angle of attack.
+            /// </summary>
             /// <remarks>This formula is based on measurements and the sine wave's usability was disproven.</remarks>
             static int GetDelay(float angle) => (int)((90 - Math.Abs(angle - 90)) / 2.7f);
 
@@ -46,15 +69,21 @@ namespace Cavern.Virtualizer {
                 }
             }
 
-            /// <summary>Low frequency crossover filter for retaining bass outside the usable impulse response frequency range.</summary>
+            /// <summary>
+            /// Low frequency crossover filter for retaining bass outside the usable impulse response frequency range.
+            /// </summary>
             public Crossover Crossover => crossover ??= new Crossover(filterSampleRate, crossoverFrequency);
             Crossover crossover;
         }
 
-        /// <summary>Reference impulses were measured at this distance, meters.</summary>
+        /// <summary>
+        /// Reference impulses were measured at this distance, meters.
+        /// </summary>
         public const float referenceDistance = 1;
 
-        /// <summary>HRIR database.</summary>
+        /// <summary>
+        /// HRIR database.
+        /// </summary>
         static readonly SpatialChannel[] spatialChannels = new SpatialChannel[] {
             new SpatialChannel() {
                 Y = 0, X = 0,

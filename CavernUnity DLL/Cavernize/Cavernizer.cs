@@ -7,77 +7,126 @@ using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Cavernize {
-    /// <summary>Adds height to each channel of a regular surround mix.</summary>
+    /// <summary>
+    /// Adds height to each channel of a regular surround mix.
+    /// </summary>
     [AddComponentMenu("Audio/Cavernize/3D Conversion")]
     public class Cavernizer : MonoBehaviour {
-        /// <summary>The audio clip to convert.</summary>
+        /// <summary>
+        /// The audio clip to convert.
+        /// </summary>
         [Tooltip("The audio clip to convert.")]
         public AudioClip Clip;
-        /// <summary>The audio clip to convert in Cavern's format. Overrides <see cref="Clip"/>.</summary>
+
+        /// <summary>
+        /// The audio clip to convert in Cavern's format. Overrides <see cref="Clip"/>.
+        /// </summary>
         public Clip Clip3D;
-        /// <summary>Continue playback of the source.</summary>
+
+        /// <summary>
+        /// Continue playback of the source.
+        /// </summary>
         [Tooltip("Continue playback of the source.")]
         public bool IsPlaying = true;
-        /// <summary>Restart the source when finished.</summary>
+
+        /// <summary>
+        /// Restart the source when finished.
+        /// </summary>
         [Tooltip("Restart the source when finished.")]
         public bool Loop = false;
-        /// <summary>How many times the object positions are calculated every second.</summary>
+
+        /// <summary>
+        /// How many times the object positions are calculated every second.
+        /// </summary>
         [Tooltip("How many times the object positions are calculated every second.")]
         public int UpdatesPerSecond = 200;
-        /// <summary>Source playback volume.</summary>
+
+        /// <summary>
+        /// Source playback volume.
+        /// </summary>
         [Tooltip("Source playback volume.")]
         [Range(0, 1)] public float Volume = 1;
-        /// <summary>3D audio effect strength.</summary>
+
+        /// <summary>
+        /// 3D audio effect strength.
+        /// </summary>
         [Tooltip("3D audio effect strength.")]
         [Range(0, 1)] public float Effect = .75f;
-        /// <summary>Smooth object movements.</summary>
+
+        /// <summary>
+        /// Smooth object movements.
+        /// </summary>
         [Tooltip("Smooth object movements.")]
         [Range(0, 1)] public float Smoothness = .8f;
 
-        /// <summary>Creates missing channels from existing ones. Works best if the source is matrix-encoded.
-        /// Not recommended for Gaming 3D setups.</summary>
+        /// <summary>
+        /// Creates missing channels from existing ones. Works best if the source is matrix-encoded. Not recommended for Gaming 3D setups.
+        /// </summary>
         [Header("Matrix Upmix")]
         [Tooltip("Creates missing channels from existing ones. Works best if the source is matrix-encoded. Not recommended for Gaming 3D setups.")]
         public bool MatrixUpmix = true;
 
-        /// <summary>Don't spatialize the front channel. This can fix the speech from above anomaly if it's present.</summary>
+        /// <summary>
+        /// Don't spatialize the front channel. This can fix the speech from above anomaly if it's present.
+        /// </summary>
         [Header("Spatializer")]
         [Tooltip("Don't spatialize the front channel. This can fix the speech from above anomaly if it's present.")]
         public bool CenterStays = true;
-        /// <summary>Keep all frequencies below this on the ground.</summary>
+
+        /// <summary>
+        /// Keep all frequencies below this on the ground.
+        /// </summary>
         [Tooltip("Keep all frequencies below this on the ground.")]
         public float GroundCrossover = 250;
 
-        /// <summary>Show converted objects.</summary>
+        /// <summary>
+        /// Show converted objects.
+        /// </summary>
         [Header("Debug")]
         [Tooltip("Show converted objects.")]
         public bool Visualize = false;
 
 #pragma warning disable IDE1006 // Naming Styles
-        /// <summary>Playback position in seconds.</summary>
+        /// <summary>
+        /// Playback position in seconds.
+        /// </summary>
         public float time {
             get => timeSamples / (float)AudioListener3D.Current.SampleRate;
             set => timeSamples = (int)(value * AudioListener3D.Current.SampleRate);
         }
 #pragma warning restore IDE1006 // Naming Styles
 
-        /// <summary>Playback position in samples.</summary>
+        /// <summary>
+        /// Playback position in samples.
+        /// </summary>
         public int timeSamples;
 
-        /// <summary>This height value indicates if a channel is skipped in height processing.</summary>
+        /// <summary>
+        /// This height value indicates if a channel is skipped in height processing.
+        /// </summary>
         internal const float unsetHeight = -2;
 
-        /// <summary><see cref="AudioListener3D.UpdateRate"/> for conversion.</summary>
+        /// <summary>
+        /// <see cref="AudioListener3D.UpdateRate"/> for conversion.
+        /// </summary>
         int updateRate;
-        /// <summary>Cached <see cref="AudioListener3D.SampleRate"/> as the listener is reconfigured for the Cavernize process.</summary>
+
+        /// <summary>
+        /// Cached <see cref="AudioListener3D.SampleRate"/> as the listener is reconfigured for the Cavernize process.
+        /// </summary>
         int oldSampleRate;
-        /// <summary>Cached <see cref="AudioListener3D.UpdateRate"/> as the listener is reconfigured for the Cavernize process.</summary>
+
+        /// <summary>
+        /// Cached <see cref="AudioListener3D.UpdateRate"/> as the listener is reconfigured for the Cavernize process.
+        /// </summary>
         int oldUpdateRate;
 
         internal Dictionary<ReferenceChannel, SpatializedChannel> channels = new Dictionary<ReferenceChannel, SpatializedChannel>();
         internal SpatializedChannel this[int index] => channels[(ReferenceChannel)index]; // This is horribly hacky and will be removed
 
-        /// <summary>The 5.1/7.1 stream generator.</summary>
+        /// <summary>
+        /// The 5.1/7.1 stream generator.
+        /// </summary>
         SurroundUpmixer generator;
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
