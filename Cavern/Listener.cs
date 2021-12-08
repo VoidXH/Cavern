@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 using Cavern.Filters;
@@ -55,12 +56,19 @@ namespace Cavern {
         public static Channel[] Channels { get; private set; } = new Channel[]
             { new Channel(0, -30), new Channel(0, 30), new Channel(0, 0), new Channel(15, 15, true), new Channel(0, -110), new Channel(0, 110) };
 
-        /// <summary>Is the user's speaker layout symmetrical?</summary>
-        public static bool IsSymmetric { get; internal set; } = true;
         /// <summary>Channel count on the left side of the room, but 1 if there's none, as it's used for volume division.</summary>
         internal static int LeftChannels = 2;
         /// <summary>Channel count on the right side of the room, but 1 if there's none, as it's used for volume division.</summary>
         internal static int RightChannels = 2;
+
+        /// <summary>Gets if the speakers are placed in a sphere according to current layout settings.</summary>
+        public static bool IsSpherical {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => EnvironmentType == Environments.Studio || HeadphoneVirtualizer;
+        }
+
+        /// <summary>Is the user's speaker layout symmetrical?</summary>
+        public static bool IsSymmetric { get; internal set; } = true;
 
         /// <summary>
         /// The single most important variable defining sound space in symmetric mode, the environment scaling. Originally set by the

@@ -91,7 +91,7 @@ namespace Cavern {
             }
             sinX /= VectorExtensions.Sqrt2p2;
             CubicalPos = new Vector3(sinY, -sinX, cosY);
-            if (Listener.EnvironmentType == Environments.Studio || Listener.HeadphoneVirtualizer)
+            if (Listener.IsSpherical)
                 SpatialPos = SphericalPos;
             else
                 SpatialPos = CubicalPos;

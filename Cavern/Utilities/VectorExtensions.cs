@@ -54,6 +54,22 @@ namespace Cavern.Utilities {
             return new Vector3(sinY * cosX, -(float)Math.Sin(xRad), cosY * cosX);
         }
 
+        /// <summary>Depending on the room shape (spherical or cube), returns the position on the normalized shape.
+        /// To get the actual wall position, scale with <see cref="Listener.EnvironmentSize"/>.</summary>
+        public static Vector3 PlaceOnRoom(this Vector3 angles) {
+            if (Listener.IsSpherical)
+                return PlaceInSphere(angles);
+            return PlaceInCube(angles);
+        }
+
+        /// <summary>Converts a normalized direction vector to the normalized shape of the room.
+        /// To get the actual wall position, scale with <see cref="Listener.EnvironmentSize"/>.</summary>
+        public static Vector3 PlaceNormalOnRoom(this Vector3 normal) {
+            if (Listener.IsSpherical)
+                return normal;
+            return normal.WarpNormalToCube();
+        }
+
         /// <summary>Rotate this vector by all axes in the opposite direction.</summary>
         public static Vector3 RotateInverse(this Vector3 vector, Vector3 angles) {
             angles *= -Deg2Rad;
@@ -82,6 +98,12 @@ namespace Cavern.Utilities {
             float length = vector.Length();
             float max = Math.Max(Math.Abs(vector.X), Math.Max(Math.Abs(vector.Y), Math.Abs(vector.Z)));
             return vector * length / max;
+        }
+
+        /// <summary>Warps the points of a normalized sphere to points a cube. Requires the length of the vector to be 1.</summary>
+        public static Vector3 WarpNormalToCube(this Vector3 vector) {
+            float max = Math.Max(Math.Abs(vector.X), Math.Max(Math.Abs(vector.Y), Math.Abs(vector.Z)));
+            return vector / max;
         }
     }
 }
