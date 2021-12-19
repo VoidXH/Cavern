@@ -108,5 +108,29 @@ namespace Cavern.Filters {
                 }
             }
         }
+
+        /// <summary>
+        /// Performs the convolution of two real signals. The FFT of the result is returned.
+        /// </summary>
+        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/> to match in a length of a power of 2.</remarks>
+        public static Complex[] ConvolveFourier(float[] excitation, float[] impulse, FFTCache cache = null) {
+            if (cache == null)
+                cache = new FFTCache(excitation.Length);
+            Complex[] excitationFFT = excitation.FFT(cache),
+                impulseFFT = impulse.FFT(cache);
+            for (int i = 0; i < excitationFFT.Length; ++i)
+                excitationFFT[i].Multiply(impulseFFT[i]);
+            return excitationFFT;
+        }
+
+        /// <summary>
+        /// Performs the convolution of two real signals. The real result is returned.
+        /// </summary>
+        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/> to match in a length of a power of 2.</remarks>
+        public static Complex[] Convolve(float[] excitation, float[] impulse, FFTCache cache = null) {
+            Complex[] result = ConvolveFourier(excitation, impulse, cache);
+            result.InPlaceIFFT();
+            return result;
+        }
     }
 }
