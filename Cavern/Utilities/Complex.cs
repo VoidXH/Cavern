@@ -34,7 +34,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Direction of the complex number (phase for FFT).
         /// </summary>
-        public float Phase => (float)Math.Atan(Imaginary / Real);
+        public float Phase => (float)Math.Atan2(Imaginary, Real);
 
         /// <summary>
         /// Multiply by (cos(x), sin(x)).
@@ -93,7 +93,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Multiply with another complex number.
         /// </summary>
-        public void Multiply(ref Complex rhs) {
+        public void Multiply(Complex rhs) {
             float oldReal = Real;
             Real = Real * rhs.Real - Imaginary * rhs.Imaginary;
             Imaginary = oldReal * rhs.Imaginary + Imaginary * rhs.Real;
@@ -102,7 +102,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Divide with another complex number.
         /// </summary>
-        public void Divide(ref Complex rhs) {
+        public void Divide(Complex rhs) {
             float multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary), oldReal = Real;
             Real = (Real * rhs.Real + Imaginary * rhs.Imaginary) * multiplier;
             Imaginary = (Imaginary * rhs.Real - oldReal * rhs.Imaginary) * multiplier;

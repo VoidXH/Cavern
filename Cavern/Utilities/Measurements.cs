@@ -287,7 +287,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static Complex[] GetFrequencyResponse(Complex[] referenceFFT, Complex[] responseFFT) {
             for (int sample = 0; sample < responseFFT.Length; ++sample)
-                responseFFT[sample].Divide(ref referenceFFT[sample]);
+                responseFFT[sample].Divide(referenceFFT[sample]);
             return responseFFT;
         }
 

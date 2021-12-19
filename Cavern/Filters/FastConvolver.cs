@@ -82,7 +82,7 @@ namespace Cavern.Filters {
         void ProcessFrame() {
             Complex[] result = unprocessed.FFT(cache);
             for (int i = 0; i < result.Length; ++i)
-                result[i].Multiply(ref transferFunction[i]);
+                result[i].Multiply(transferFunction[i]);
             result.InPlaceIFFT(cache);
             for (int i = 0; i < result.Length; ++i)
                 processed[i] += result[i].Real;
