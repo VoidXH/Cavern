@@ -114,7 +114,7 @@ namespace Cavern.QuickEQ.Equalization {
             eq.Apply(filter, sampleRate);
             using (FFTCache cache = new FFTCache(length)) {
                 Measurements.MinimumPhaseSpectrum(filter, cache);
-                Measurements.InPlaceIFFT(filter, cache);
+                filter.InPlaceIFFT(cache);
             }
             return Measurements.GetRealPartHalf(filter);
         }
@@ -138,7 +138,7 @@ namespace Cavern.QuickEQ.Equalization {
                 for (int i = 0; i < length; ++i)
                     filter[i].Real = initial[i].Magnitude * (i % 2 == 0 ? gain : -gain);
             eq.Apply(filter, sampleRate);
-            Measurements.InPlaceIFFT(filter);
+            filter.InPlaceIFFT();
             return Measurements.GetRealPart(filter);
         }
 

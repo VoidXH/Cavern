@@ -80,7 +80,7 @@ namespace Cavern.QuickEQ {
         internal Complex[] FrequencyResponse {
             get {
                 if (frequencyResponse == null)
-                    return frequencyResponse = Measurements.FFT(ImpulseResponse, Cache);
+                    return frequencyResponse = ImpulseResponse.FFT(Cache);
                 return frequencyResponse;
             }
         }

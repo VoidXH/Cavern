@@ -60,20 +60,20 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 2D signal.
         /// </summary>
-        public static Complex[] FFT(Complex[] samples, FFTCache cache = null) {
+        public static Complex[] FFT(this Complex[] samples, FFTCache cache = null) {
             samples = samples.FastClone();
-            InPlaceFFT(samples, cache);
+            samples.InPlaceFFT(cache);
             return samples;
         }
 
         /// <summary>
         /// Fast Fourier transform a 1D signal.
         /// </summary>
-        public static Complex[] FFT(float[] samples, FFTCache cache = null) {
+        public static Complex[] FFT(this float[] samples, FFTCache cache = null) {
             Complex[] complexSignal = new Complex[samples.Length];
             for (int sample = 0; sample < samples.Length; ++sample)
                 complexSignal[sample].Real = samples[sample];
-            InPlaceFFT(complexSignal, cache);
+            complexSignal.InPlaceFFT(cache);
             return complexSignal;
         }
 
@@ -81,7 +81,7 @@ namespace Cavern.Utilities {
         /// Fast Fourier transform a 2D signal while keeping the source array allocation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InPlaceFFT(Complex[] samples, FFTCache cache = null) {
+        public static void InPlaceFFT(this Complex[] samples, FFTCache cache = null) {
             if (CavernAmp.Available)
                 CavernAmp.InPlaceFFT(samples, cache);
             else {
@@ -94,9 +94,9 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Spectrum of a signal's FFT.
         /// </summary>
-        public static float[] FFT1D(float[] samples, FFTCache cache = null) {
+        public static float[] FFT1D(this float[] samples, FFTCache cache = null) {
             samples = samples.FastClone();
-            InPlaceFFT(samples, cache);
+            samples.InPlaceFFT(cache);
             return samples;
         }
 
@@ -104,7 +104,7 @@ namespace Cavern.Utilities {
         /// Spectrum of a signal's FFT while keeping the source array allocation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InPlaceFFT(float[] samples, FFTCache cache = null) {
+        public static void InPlaceFFT(this float[] samples, FFTCache cache = null) {
             if (CavernAmp.Available)
                 CavernAmp.InPlaceFFT(samples, cache);
             else {
@@ -142,14 +142,14 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Inverse Fast Fourier Transform of a transformed signal.
         /// </summary>
-        public static Complex[] IFFT(Complex[] samples, FFTCache cache = null) {
+        public static Complex[] IFFT(this Complex[] samples, FFTCache cache = null) {
             samples = samples.FastClone();
             if (CavernAmp.Available)
                 CavernAmp.InPlaceIFFT(samples, cache);
             else {
                 if (cache == null)
                     cache = new FFTCache(samples.Length);
-                InPlaceIFFT(samples, cache);
+                samples.InPlaceIFFT(cache);
             }
             return samples;
         }
@@ -157,7 +157,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
         /// </summary>
-        public static void InPlaceIFFT(Complex[] samples, FFTCache cache = null) {
+        public static void InPlaceIFFT(this Complex[] samples, FFTCache cache = null) {
             if (CavernAmp.Available) {
                 CavernAmp.InPlaceIFFT(samples, cache);
                 return;
@@ -190,7 +190,7 @@ namespace Cavern.Utilities {
             if (CavernAmp.Available)
                 CavernAmp.InPlaceIFFT(response, cache);
             else
-                InPlaceIFFT(response, cache);
+                response.InPlaceIFFT(cache);
             for (int i = 1; i < halfLength; ++i) {
                 response[i].Real += response[response.Length - i].Real;
                 response[i].Imaginary -= response[response.Length - i].Imaginary;
@@ -201,7 +201,7 @@ namespace Cavern.Utilities {
             if (CavernAmp.Available)
                 CavernAmp.InPlaceFFT(response, cache);
             else
-                InPlaceFFT(response, cache);
+                response.InPlaceFFT(cache);
             for (int i = 0; i < response.Length; ++i) {
                 double exp = Math.Exp(response[i].Real);
                 response[i].Real = (float)(exp * Math.Cos(response[i].Imaginary));
@@ -295,7 +295,7 @@ namespace Cavern.Utilities {
         /// Get the frequency response using the original sweep signal's FFT as reference.
         /// </summary>
         public static Complex[] GetFrequencyResponse(Complex[] referenceFFT, float[] response, FFTCache cache = null) =>
-            GetFrequencyResponse(referenceFFT, FFT(response, cache));
+            GetFrequencyResponse(referenceFFT, response.FFT(cache));
 
         /// <summary>
         /// Get the frequency response using the original sweep signal as reference.
@@ -303,14 +303,14 @@ namespace Cavern.Utilities {
         public static Complex[] GetFrequencyResponse(float[] reference, float[] response, FFTCache cache = null) {
             if (cache == null)
                 using (cache = new FFTCache(reference.Length))
-                    return GetFrequencyResponse(FFT(reference, cache), FFT(response, cache));
-            return GetFrequencyResponse(FFT(reference, cache), FFT(response, cache));
+                    return GetFrequencyResponse(reference.FFT(cache), response.FFT(cache));
+            return GetFrequencyResponse(reference.FFT(cache), response.FFT(cache));
         }
 
         /// <summary>
         /// Get the complex impulse response using a precalculated frequency response.
         /// </summary>
-        public static Complex[] GetImpulseResponse(Complex[] frequencyResponse, FFTCache cache = null) => IFFT(frequencyResponse, cache);
+        public static Complex[] GetImpulseResponse(Complex[] frequencyResponse, FFTCache cache = null) => frequencyResponse.IFFT(cache);
 
         /// <summary>
         /// Get the complex impulse response using the original sweep signal as a reference.

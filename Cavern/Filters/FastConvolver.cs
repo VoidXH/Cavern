@@ -1,5 +1,6 @@
-﻿using Cavern.Utilities;
-using System;
+﻿using System;
+
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -25,7 +26,7 @@ namespace Cavern.Filters {
                 for (int i = 0; i < impulse.Length; ++i)
                     transferFunction[i].Real = impulse[i];
                 Array.Clear(transferFunction, impulse.Length, transferFunction.Length - impulse.Length);
-                Measurements.InPlaceFFT(transferFunction, cache);
+                transferFunction.InPlaceFFT(cache);
             }
         }
         float[] impulse = new float[0];
@@ -79,10 +80,10 @@ namespace Cavern.Filters {
         /// <remarks>Use the <see cref="unprocessed"/> array such as the next samples are in the first half only,
         /// the second half should be silent.</remarks>
         void ProcessFrame() {
-            Complex[] result = Measurements.FFT(unprocessed, cache);
+            Complex[] result = unprocessed.FFT(cache);
             for (int i = 0; i < result.Length; ++i)
                 result[i].Multiply(ref transferFunction[i]);
-            Measurements.InPlaceIFFT(result, cache);
+            result.InPlaceIFFT(cache);
             for (int i = 0; i < result.Length; ++i)
                 processed[i] += result[i].Real;
         }

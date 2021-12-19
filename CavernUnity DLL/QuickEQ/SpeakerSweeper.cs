@@ -211,7 +211,7 @@ namespace Cavern.QuickEQ {
             WaveformUtils.Gain(SweepReference, gainMult);
             if (sweepFFTCache != null)
                 sweepFFTCache.Dispose();
-            sweepFFT = Measurements.FFT(SweepReference, sweepFFTCache = new FFTCache(SweepReference.Length));
+            sweepFFT = SweepReference.FFT(sweepFFTCache = new FFTCache(SweepReference.Length));
             sweepFFTlow = sweepFFT.FastClone();
             Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, SampleRate, 100);
             Measurements.OffbandGain(sweepFFTlow, StartFreq, EndFreqLFE, sampleRate, 100);
@@ -221,7 +221,7 @@ namespace Cavern.QuickEQ {
         /// Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.
         /// </summary>
         public Complex[] GetFrequencyResponse(float[] samples, bool LFE) =>
-            Measurements.GetFrequencyResponse(LFE ? sweepFFTlow : sweepFFT, Measurements.FFT(samples, sweepFFTCache));
+            Measurements.GetFrequencyResponse(LFE ? sweepFFTlow : sweepFFT, samples.FFT(sweepFFTCache));
 
         /// <summary>
         /// Get the impulse response of a frequency response generated with <see cref="GetFrequencyResponse(float[], bool)"/>.
@@ -321,7 +321,7 @@ namespace Cavern.QuickEQ {
             public VerboseImpulseResponse ImpResponse;
 
             public WorkerResult(Complex[] sweepFFT, FFTCache sweepFFTCache, float[] response) {
-                Complex[] rawResponse = Measurements.GetFrequencyResponse(sweepFFT, Measurements.FFT(response, sweepFFTCache));
+                Complex[] rawResponse = Measurements.GetFrequencyResponse(sweepFFT, response.FFT(sweepFFTCache));
                 FreqResponse = Measurements.GetSpectrum(rawResponse);
                 ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(rawResponse, sweepFFTCache));
             }
