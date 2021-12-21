@@ -96,7 +96,7 @@ namespace Deconvolver {
                 Measurements.InPlaceFFT(responseFFT, cache);
 
                 for (int sample = 0; sample < fftSize; ++sample)
-                    responseFFT[sample].Divide(ref impulseFFT[sample]);
+                    responseFFT[sample].Divide(impulseFFT[sample]);
                 Measurements.InPlaceIFFT(responseFFT, cache);
                 for (int i = 0, channels = responseChannels; i < responseChannel.Length; ++i)
                     response[channels * i + channel] = responseFFT[i].Real;
