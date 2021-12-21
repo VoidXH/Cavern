@@ -48,6 +48,7 @@
     <Compile Include="AudioFormat.cs" />
     <Compile Include="AudioReader.cs" />
     <Compile Include="AudioWriter.cs" />
+    <Compile Include="FilterSet\EqualizerAPOUtils.cs" />
     <Compile Include="LimitlessAudioFormatWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RIFFWaveReader.cs" />
