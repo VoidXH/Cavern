@@ -119,35 +119,45 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>
-        /// Apply smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
+        /// Smooth any kind of graph with a uniform window size.
         /// </summary>
-        public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float octave = 1 / 3f) {
-            if (octave == 0)
-                return samples.FastClone();
-            double octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2);
-            int length = samples.Length,
-                windowSize = (int)(length * octave / octaveRange),
+        public static float[] SmoothUniform(float[] source, int windowSize) {
+            int length = source.Length,
                 lastBlock = length - windowSize;
             float[] smoothed = new float[length--];
             float average = 0;
             for (int sample = 0; sample < windowSize; ++sample)
-                average += samples[sample];
+                average += source[sample];
             for (int sample = 0; sample < windowSize; ++sample) {
                 smoothed[sample] = average / (sample + windowSize);
-                average += samples[sample + windowSize];
+                average += source[sample + windowSize];
             }
             for (int sample = windowSize; sample < lastBlock; ++sample) {
-                average += samples[sample + windowSize] - samples[sample - windowSize];
+                average += source[sample + windowSize] - source[sample - windowSize];
                 smoothed[sample] = average / (windowSize << 1);
             }
             for (int sample = lastBlock; sample <= length; ++sample) {
-                average -= samples[sample - windowSize];
+                average -= source[sample - windowSize];
                 smoothed[sample] = average / (length - sample + windowSize);
             }
             return smoothed;
         }
 
-        /// <summary>Apply variable smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
+        /// <summary>
+        /// Apply smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
+        /// </summary>
+        public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float octave = 1 / 3f) {
+            if (octave == 0)
+                return samples.FastClone();
+            double octaveRange = Math.Log(endFreq, 2);
+            if (startFreq != 0)
+                octaveRange -= Math.Log(startFreq, 2);
+            int windowSize = (int)(samples.Length * octave / octaveRange);
+            return SmoothUniform(samples, windowSize);
+        }
+
+        /// <summary>
+        /// Apply variable smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
         /// </summary>
         public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float startOctave, float endOctave) {
             float[] startGraph = SmoothGraph(samples, startFreq, endFreq, startOctave),
