@@ -183,10 +183,8 @@ namespace Cavern.Utilities {
                 customCache = true;
             }
             int halfLength = response.Length / 2;
-            for (int i = 0; i < response.Length; ++i) {
-                response[i].Real = (float)Math.Log(response[i].Real);
-                response[i].Imaginary = 0;
-            }
+            for (int i = 0; i < response.Length; ++i)
+                response[i] = Complex.Log(response[i].Real);
             if (CavernAmp.Available)
                 CavernAmp.InPlaceIFFT(response, cache);
             else

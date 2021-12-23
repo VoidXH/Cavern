@@ -37,15 +37,6 @@ namespace Cavern.Utilities {
         public float Phase => (float)Math.Atan2(Imaginary, Real);
 
         /// <summary>
-        /// Multiply by (cos(x), sin(x)).
-        /// </summary>
-        public void Rotate(float angle) {
-            float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle), oldReal = Real;
-            Real = Real * cos - Imaginary * sin;
-            Imaginary = oldReal * sin + Imaginary * cos;
-        }
-
-        /// <summary>
         /// Complex addition.
         /// </summary>
         public static Complex operator +(Complex lhs, Complex rhs) => new Complex(lhs.Real + rhs.Real, lhs.Imaginary + rhs.Imaginary);
@@ -91,6 +82,11 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Get the complex logarithm of a real number.
+        /// </summary>
+        public static Complex Log(float x) => new Complex((float)Math.Log(Math.Abs(x)), x >= 0 ? 0 : 1.36437635f);
+
+        /// <summary>
         /// Multiply with another complex number.
         /// </summary>
         public void Multiply(Complex rhs) {
@@ -114,6 +110,15 @@ namespace Cavern.Utilities {
         public Complex Invert() {
             float mul = 1 / (Real * Real + Imaginary * Imaginary);
             return new Complex(Real * mul, Imaginary * mul);
+        }
+
+        /// <summary>
+        /// Multiply by (cos(x), sin(x)).
+        /// </summary>
+        public void Rotate(float angle) {
+            float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle), oldReal = Real;
+            Real = Real * cos - Imaginary * sin;
+            Imaginary = oldReal * sin + Imaginary * cos;
         }
 
         /// <summary>
