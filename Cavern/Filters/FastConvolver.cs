@@ -81,8 +81,7 @@ namespace Cavern.Filters {
         /// the second half should be silent.</remarks>
         void ProcessFrame() {
             Complex[] result = unprocessed.FFT(cache);
-            for (int i = 0; i < result.Length; ++i)
-                result[i].Multiply(transferFunction[i]);
+            result.Convolve(transferFunction);
             result.InPlaceIFFT(cache);
             for (int i = 0; i < result.Length; ++i)
                 processed[i] += result[i].Real;
@@ -116,10 +115,8 @@ namespace Cavern.Filters {
         public static Complex[] ConvolveFourier(float[] excitation, float[] impulse, FFTCache cache = null) {
             if (cache == null)
                 cache = new FFTCache(excitation.Length);
-            Complex[] excitationFFT = excitation.FFT(cache),
-                impulseFFT = impulse.FFT(cache);
-            for (int i = 0; i < excitationFFT.Length; ++i)
-                excitationFFT[i].Multiply(impulseFFT[i]);
+            Complex[] excitationFFT = excitation.FFT(cache);
+            excitationFFT.Convolve(impulse.FFT(cache));
             return excitationFFT;
         }
 

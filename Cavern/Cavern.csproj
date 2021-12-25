@@ -69,6 +69,7 @@
     <Compile Include="Utilities\ArrayExtensions.cs" />
     <Compile Include="Utilities\CavernAmp.cs" />
     <Compile Include="Utilities\Complex.cs" />
+    <Compile Include="Utilities\ComplexArray.cs" />
     <Compile Include="Utilities\FFTCache.cs" />
     <Compile Include="Utilities\Linked.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />
