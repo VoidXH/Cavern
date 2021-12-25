@@ -81,14 +81,24 @@ namespace Cavern.Utilities {
         /// Fast Fourier transform a 2D signal while keeping the source array allocation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InPlaceFFT(this Complex[] samples, FFTCache cache = null) {
+        public static void InPlaceFFT(this Complex[] samples) {
+            if (CavernAmp.Available)
+                CavernAmp.InPlaceFFT(samples);
+            else {
+                using FFTCache cache = new FFTCache(samples.Length);
+                InPlaceFFT(samples, cache);
+            }
+        }
+
+        /// <summary>
+        /// Fast Fourier transform a 2D signal while keeping the source array allocation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InPlaceFFT(this Complex[] samples, FFTCache cache) {
             if (CavernAmp.Available)
                 CavernAmp.InPlaceFFT(samples, cache);
-            else {
-                if (cache == null)
-                    cache = new FFTCache(samples.Length);
+            else
                 ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
-            }
         }
 
         /// <summary>
@@ -104,14 +114,24 @@ namespace Cavern.Utilities {
         /// Spectrum of a signal's FFT while keeping the source array allocation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void InPlaceFFT(this float[] samples, FFTCache cache = null) {
+        public static void InPlaceFFT(this float[] samples) {
+            if (CavernAmp.Available)
+                CavernAmp.InPlaceFFT(samples);
+            else {
+                using FFTCache cache = new FFTCache(samples.Length);
+                InPlaceFFT(samples, cache);
+            }
+        }
+
+        /// <summary>
+        /// Spectrum of a signal's FFT while keeping the source array allocation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InPlaceFFT(this float[] samples, FFTCache cache) {
             if (CavernAmp.Available)
                 CavernAmp.InPlaceFFT(samples, cache);
-            else {
-                if (cache == null)
-                    cache = new FFTCache(samples.Length);
+            else
                 ProcessFFT(samples, cache);
-            }
         }
 
         /// <summary>
@@ -142,28 +162,49 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Inverse Fast Fourier Transform of a transformed signal.
         /// </summary>
-        public static Complex[] IFFT(this Complex[] samples, FFTCache cache = null) {
+        public static Complex[] IFFT(this Complex[] samples) {
+            samples = samples.FastClone();
+            if (CavernAmp.Available)
+                CavernAmp.InPlaceIFFT(samples);
+            else {
+                using FFTCache cache = new FFTCache(samples.Length);
+                IFFT(samples, cache);
+            }
+            return samples;
+        }
+
+        /// <summary>
+        /// Inverse Fast Fourier Transform of a transformed signal.
+        /// </summary>
+        public static Complex[] IFFT(this Complex[] samples, FFTCache cache) {
             samples = samples.FastClone();
             if (CavernAmp.Available)
                 CavernAmp.InPlaceIFFT(samples, cache);
-            else {
-                if (cache == null)
-                    cache = new FFTCache(samples.Length);
+            else
                 samples.InPlaceIFFT(cache);
-            }
             return samples;
         }
 
         /// <summary>
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
         /// </summary>
-        public static void InPlaceIFFT(this Complex[] samples, FFTCache cache = null) {
+        public static void InPlaceIFFT(this Complex[] samples) {
+            if (CavernAmp.Available) {
+                CavernAmp.InPlaceIFFT(samples);
+                return;
+            }
+            using FFTCache cache = new FFTCache(samples.Length);
+            InPlaceIFFT(samples, cache);
+        }
+
+        /// <summary>
+        /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
+        /// </summary>
+        public static void InPlaceIFFT(this Complex[] samples, FFTCache cache) {
             if (CavernAmp.Available) {
                 CavernAmp.InPlaceIFFT(samples, cache);
                 return;
             }
-            if (cache == null)
-                cache = new FFTCache(samples.Length);
             ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
             float multiplier = 1f / samples.Length;
             for (int i = 0; i < samples.Length; ++i) {
@@ -284,8 +325,7 @@ namespace Cavern.Utilities {
         /// Get the frequency response using the original sweep signal's FFT as reference.
         /// </summary>
         public static Complex[] GetFrequencyResponse(Complex[] referenceFFT, Complex[] responseFFT) {
-            for (int sample = 0; sample < responseFFT.Length; ++sample)
-                responseFFT[sample].Divide(referenceFFT[sample]);
+            responseFFT.Deconvolve(referenceFFT);
             return responseFFT;
         }
 

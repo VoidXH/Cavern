@@ -99,7 +99,8 @@ namespace Cavern.Utilities {
         /// Divide with another complex number.
         /// </summary>
         public void Divide(Complex rhs) {
-            float multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary), oldReal = Real;
+            float multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary),
+                oldReal = Real;
             Real = (Real * rhs.Real + Imaginary * rhs.Imaginary) * multiplier;
             Imaginary = (Imaginary * rhs.Real - oldReal * rhs.Imaginary) * multiplier;
         }
