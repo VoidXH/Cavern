@@ -7,6 +7,46 @@ namespace Cavern.Utilities {
     /// </summary>
     public static class WaveformUtils {
         /// <summary>
+        /// Apply a delay of a given number of <paramref name="samples"/> on a <paramref name="waveform"/>.
+        /// </summary>
+        public static void Delay(float[] waveform, int samples) {
+            Array.Copy(waveform, 0, waveform, samples, waveform.Length - samples);
+            Array.Clear(waveform, 0, samples);
+        }
+
+        /// <summary>
+        /// Apply a delay on the <paramref name="signal"/> even with fraction <paramref name="samples"/>.
+        /// </summary>
+        public static void Delay(float[] signal, float samples) {
+            using FFTCache cache = new FFTCache(QMath.Base2Ceil(signal.Length));
+            Delay(signal, samples);
+        }
+
+        /// <summary>
+        /// Apply a delay on the <paramref name="signal"/> even with fraction <paramref name="samples"/>.
+        /// </summary>
+        public static void Delay(float[] signal, float samples, FFTCache cache) {
+            Complex[] fft = signal.ParseForFFT();
+            fft.InPlaceFFT(cache);
+            Delay(signal, samples, cache);
+            fft.InPlaceIFFT(cache);
+            for (int i = 0; i < signal.Length; ++i)
+                signal[i] = fft[i].Real;
+        }
+
+        /// <summary>
+        /// Apply a delay on the <paramref name="signal"/> even with fraction <paramref name="samples"/>.
+        /// </summary>
+        public static void Delay(Complex[] signal, float samples) {
+            float cycle = 2 * (float)Math.PI * samples / signal.Length;
+            for (int i = 1; i < signal.Length / 2; ++i) {
+                float phase = cycle * i;
+                signal[i].Rotate(-phase);
+                signal[signal.Length - i].Rotate(phase);
+            }
+        }
+
+        /// <summary>
         /// Downmix audio to mono.
         /// </summary>
         /// <param name="source">Audio to downmix</param>
