@@ -50,7 +50,8 @@ namespace Cavern.QuickEQ {
         /// </summary>
         /// <param name="samples">Signal to window</param>
         /// <param name="function">Windowing function applied</param>
-        public static void ApplyWindow(float[] samples, Window function) => ApplyWindow(samples, function, function, 0, samples.Length / 2, samples.Length);
+        public static void ApplyWindow(float[] samples, Window function) =>
+            ApplyWindow(samples, function, function, 0, samples.Length / 2, samples.Length);
 
         /// <summary>
         /// Apply a custom window function on part of a signal.
@@ -62,8 +63,12 @@ namespace Cavern.QuickEQ {
         /// <param name="splitter">The point where the two window functions change</param>
         /// <param name="end">End of the window in samples</param>
         public static void ApplyWindow(float[] samples, Window left, Window right, int start, int splitter, int end) {
-            int leftSpan = splitter - start, rightSpan = end - splitter, endMirror = splitter - (end - splitter), posSplitter = Math.Max(splitter, 0);
-            float leftSpanDiv = 2 * (float)Math.PI / (leftSpan * 2), rightSpanDiv = 2 * (float)Math.PI / (rightSpan * 2);
+            int leftSpan = splitter - start,
+                rightSpan = end - splitter,
+                endMirror = splitter - (end - splitter),
+                posSplitter = Math.Max(splitter, 0);
+            float leftSpanDiv = 2 * (float)Math.PI / (leftSpan * 2),
+                rightSpanDiv = 2 * (float)Math.PI / (rightSpan * 2);
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
                 Array.Clear(samples, 0, start);
@@ -91,8 +96,12 @@ namespace Cavern.QuickEQ {
         /// <param name="splitter">The point where the two window functions change</param>
         /// <param name="end">End of the window in samples</param>
         public static void ApplyWindow(float[] samples, int channels, Window left, Window right, int start, int splitter, int end) {
-            int leftSpan = splitter - start, rightSpan = end - splitter, endMirror = splitter - (end - splitter), posSplitter = Math.Max(splitter, 0);
-            float leftSpanDiv = 2 * channels * (float)Math.PI / (leftSpan * 2), rightSpanDiv = 2 * channels * (float)Math.PI / (rightSpan * 2);
+            int leftSpan = splitter - start,
+                rightSpan = end - splitter,
+                endMirror = splitter - (end - splitter),
+                posSplitter = Math.Max(splitter, 0);
+            float leftSpanDiv = 2 * channels * (float)Math.PI / (leftSpan * 2),
+                rightSpanDiv = 2 * channels * (float)Math.PI / (rightSpan * 2);
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
                 Array.Clear(samples, 0, start);
@@ -114,7 +123,8 @@ namespace Cavern.QuickEQ {
         /// </summary>
         /// <param name="samples">Measurement to window</param>
         /// <param name="function">Windowing function applied</param>
-        public static void ApplyWindow(Complex[] samples, Window function) => ApplyWindow(samples, function, function, 0, samples.Length / 2, samples.Length);
+        public static void ApplyWindow(Complex[] samples, Window function) =>
+            ApplyWindow(samples, function, function, 0, samples.Length / 2, samples.Length);
 
         /// <summary>
         /// Apply a custom window function on part of a signal.
@@ -126,8 +136,12 @@ namespace Cavern.QuickEQ {
         /// <param name="splitter">The point where the two window functions change</param>
         /// <param name="end">End of the window in samples</param>
         public static void ApplyWindow(Complex[] samples, Window left, Window right, int start, int splitter, int end) {
-            int leftSpan = splitter - start, rightSpan = end - splitter, endMirror = splitter - (end - splitter), posSplitter = Math.Max(splitter, 0);
-            float leftSpanDiv = 2 * (float)Math.PI / (leftSpan * 2), rightSpanDiv = 2 * (float)Math.PI / (rightSpan * 2);
+            int leftSpan = splitter - start,
+                rightSpan = end - splitter,
+                endMirror = splitter - (end - splitter),
+                posSplitter = Math.Max(splitter, 0);
+            float leftSpanDiv = 2 * (float)Math.PI / (leftSpan * 2),
+                rightSpanDiv = 2 * (float)Math.PI / (rightSpan * 2);
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
                 for (int sample = 0; sample < start; ++sample)
@@ -203,7 +217,9 @@ namespace Cavern.QuickEQ {
         /// A window for impulse response trimming, with a precompiled alpha.
         /// </summary>
         static float TukeyWindow(float x) {
-            const double alpha = .25, positioner = 1 / alpha, flatLeft = Math.PI * alpha, flatRight = Math.PI * (2 - alpha);
+            const double alpha = .25, positioner = 1 / alpha,
+                flatLeft = Math.PI * alpha,
+                flatRight = Math.PI * (2 - alpha);
             if (x < flatLeft)
                 return (float)(Math.Cos(x * positioner - Math.PI) + 1) * .5f;
             else if (x > flatRight)

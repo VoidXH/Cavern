@@ -254,9 +254,9 @@ namespace Cavern.QuickEQ.Equalization {
             int halfLength = response.Length / 2 + 1, nyquist = sampleRate / 2;
             float[] filter = VisualizeLinear(0, nyquist, halfLength);
             response[0] *= (float)Math.Pow(10, filter[0] * .05f);
-            for (int i = 1, end = response.Length; i < halfLength; ++i) {
+            for (int i = 1; i < halfLength; ++i) {
                 response[i] *= (float)Math.Pow(10, filter[i] * .05f);
-                response[end - i] = new Complex(response[i].Real, -response[i].Imaginary);
+                response[response.Length - i] = new Complex(response[i].Real, -response[i].Imaginary);
             }
         }
 
