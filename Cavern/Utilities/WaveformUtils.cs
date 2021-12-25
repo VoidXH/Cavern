@@ -173,6 +173,25 @@ namespace Cavern.Utilities {
         /// Get the peak amplitude with its sign in a partial audio signal.
         /// </summary>
         /// <param name="target">Array reference</param>
+        /// <returns>Peak amplitude with its sign</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetPeakSigned(float[] target) {
+            int pos = 0;
+            float max = Math.Abs(target[0]), absSample;
+            for (int sample = 1; sample < target.Length; ++sample) {
+                absSample = Math.Abs(target[sample]);
+                if (max < absSample) {
+                    max = absSample;
+                    pos = sample;
+                }
+            }
+            return target[pos];
+        }
+
+        /// <summary>
+        /// Get the peak amplitude with its sign in a partial audio signal.
+        /// </summary>
+        /// <param name="target">Array reference</param>
         /// <param name="from">Range start sample (inclusive)</param>
         /// <param name="to">Range end sample (exclusive)</param>
         /// <returns>Peak amplitude with its sign in the given range</returns>
