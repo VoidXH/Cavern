@@ -170,7 +170,18 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Parse a calibration text where each line is a frequency-gain (dB) pair, and the lines are sorted ascending by frequency.
+        /// Parse a calibration array where entries are in frequency-gain (dB) pairs.
+        /// </summary>
+        public static Equalizer FromCalibration(float[] source) {
+            List<Band> bands = new List<Band>();
+            for (int band = 0; band < source.Length; band += 2)
+                bands.Add(new Band(source[band], source[band + 1]));
+            bands.Sort();
+            return new Equalizer(bands);
+        }
+
+        /// <summary>
+        /// Parse a calibration text where each line is a frequency-gain (dB) pair.
         /// </summary>
         /// <param name="lines">Lines of the calibration file</param>
         public static Equalizer FromCalibration(string[] lines) {

@@ -223,6 +223,14 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Invert an audio signal.
+        /// </summary>
+        public static void Invert(float[] target) {
+            for (int i = 0; i < target.Length; ++i)
+                target[i] = -target[i];
+        }
+
+        /// <summary>
         /// Mix a track to a stream.
         /// </summary>
         /// <param name="source">Source track</param>
