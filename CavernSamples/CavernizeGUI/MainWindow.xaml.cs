@@ -14,8 +14,7 @@ namespace CavernizeGUI {
         readonly Listener listener;
 
         AudioReader reader;
-        string exportPath;
-        TaskEngine taskEngine;
+        readonly TaskEngine taskEngine;
 
         public MainWindow() {
             InitializeComponent();
@@ -33,7 +32,7 @@ namespace CavernizeGUI {
                 Filter = "RIFF WAVE files (*.wav)|*.wav"
             };
             if (dialog.ShowDialog().Value) {
-                reader = new RIFFWaveReader(new(File.OpenRead(dialog.FileName)));
+                reader = new RIFFWaveReader(dialog.FileName);
                 fileName.Text = Path.GetFileName(dialog.FileName);
             }
         }
