@@ -13,6 +13,12 @@ namespace Cavern.Format {
         public RIFFWaveReader(BinaryReader reader) : base(reader) { }
 
         /// <summary>
+        /// Minimal RIFF wave file reader.
+        /// </summary>
+        /// <param name="path">Input file name</param>
+        public RIFFWaveReader(string path) : base(path) { }
+
+        /// <summary>
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {

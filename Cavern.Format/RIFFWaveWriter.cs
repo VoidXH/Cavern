@@ -11,11 +11,22 @@ namespace Cavern.Format {
         /// </summary>
         /// <param name="writer">File writer object</param>
         /// <param name="channelCount">Output channel count</param>
-        /// <param name="length">Output length in samples</param>
+        /// <param name="length">Output length in samples per channel</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         public RIFFWaveWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) :
             base(writer, channelCount, length, sampleRate, bits) {}
+
+        /// <summary>
+        /// Minimal RIFF wave file writer.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="length">Output length in samples per channel</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public RIFFWaveWriter(string path, int channelCount, long length, int sampleRate, BitDepth bits) :
+            base(path, channelCount, length, sampleRate, bits) { }
 
         /// <summary>
         /// Create the file header.
@@ -53,11 +64,11 @@ namespace Cavern.Format {
             switch (Bits) {
                 case BitDepth.Int8:
                     while (from < to)
-                        writer.Write((byte)((samples[from++] + 1f) * 127f));
+                        writer.Write((sbyte)((samples[from++] + 1f) * sbyte.MaxValue));
                     break;
                 case BitDepth.Int16:
                     while (from < to)
-                        writer.Write((short)(samples[from++] * 32767f));
+                        writer.Write((short)(samples[from++] * short.MaxValue));
                     break;
                 case BitDepth.Int24:
                     while (from < to) {
@@ -72,6 +83,103 @@ namespace Cavern.Format {
                         writer.Write(samples[from++]);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Write a block of samples.
+        /// </summary>
+        /// <param name="samples">Samples to write</param>
+        /// <param name="from">Start position in the input array (inclusive)</param>
+        /// <param name="to">End position in the input array (exclusive)</param>
+        public override void WriteBlock(float[][] samples, long from, long to) {
+            switch (Bits) {
+                case BitDepth.Int8:
+                    while (from < to) {
+                        for (int channel = 0; channel < samples.Length; ++channel)
+                            writer.Write((sbyte)((samples[channel][from] + 1f) * sbyte.MaxValue));
+                        ++from;
+                    }
+                    break;
+                case BitDepth.Int16:
+                    while (from < to) {
+                        for (int channel = 0; channel < samples.Length; ++channel)
+                            writer.Write((short)(samples[channel][from] * short.MaxValue));
+                        ++from;
+                    }
+                    break;
+                case BitDepth.Int24:
+                    while (from < to) {
+                        for (int channel = 0; channel < samples.Length; ++channel) {
+                            int src = (int)(samples[channel][from] * 8388607f) * 256;
+                            writer.Write((byte)(src >> 8));
+                            writer.Write((byte)(src >> 16));
+                            writer.Write((byte)(src >> 24));
+                        }
+                        ++from;
+                    }
+                    break;
+                case BitDepth.Float32:
+                    while (from < to) {
+                        for (int channel = 0; channel < samples.Length; ++channel)
+                            writer.Write(samples[channel][from]);
+                        ++from;
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Export an array of samples to an audio file.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static void Write(string path, float[] data, int channelCount, int sampleRate, BitDepth bits) {
+            RIFFWaveWriter writer = new RIFFWaveWriter(path, channelCount, data.LongLength / channelCount, sampleRate, bits);
+            writer.Write(data);
+            writer.Dispose();
+        }
+
+        /// <summary>
+        /// Export an array of multichannel samples to an audio file.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static void Write(string path, float[][] data, int sampleRate, BitDepth bits) {
+            RIFFWaveWriter writer = new RIFFWaveWriter(path, data.Length, data[0].LongLength / data.LongLength, sampleRate, bits);
+            writer.Write(data);
+            writer.Dispose();
+        }
+
+        /// <summary>
+        /// Export an audio file to be played back channel after channel.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits) {
+            RIFFWaveWriter writer = new RIFFWaveWriter(path, 0, 0, sampleRate, bits);
+            writer.WriteOffset(data);
+            writer.Dispose();
+        }
+
+        /// <summary>
+        /// Export an audio file to be played back channel after channel.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static void WriteForEachChannel(string path, float[] data, int channelCount, int sampleRate, BitDepth bits) {
+            RIFFWaveWriter writer = new RIFFWaveWriter(path, 0, 0, sampleRate, bits);
+            writer.WriteForEachChannel(data, channelCount);
+            writer.Dispose();
         }
     }
 }

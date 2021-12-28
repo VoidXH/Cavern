@@ -38,6 +38,12 @@ namespace Cavern.Format {
         public AudioReader(BinaryReader reader) => this.reader = reader;
 
         /// <summary>
+        /// Abstract audio file reader.
+        /// </summary>
+        /// <param name="path">Input file name</param>
+        public AudioReader(string path) => reader = new BinaryReader(File.OpenRead(path));
+
+        /// <summary>
         /// Read the file header.
         /// </summary>
         public abstract void ReadHeader();
