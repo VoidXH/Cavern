@@ -60,7 +60,15 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 2D signal.
         /// </summary>
-        public static Complex[] FFT(this Complex[] samples, FFTCache cache = null) {
+        public static Complex[] FFT(this Complex[] samples) {
+            using FFTCache cache = new FFTCache(samples.Length);
+            return samples.FFT(cache);
+        }
+
+        /// <summary>
+        /// Fast Fourier transform a 2D signal.
+        /// </summary>
+        public static Complex[] FFT(this Complex[] samples, FFTCache cache) {
             samples = samples.FastClone();
             samples.InPlaceFFT(cache);
             return samples;
@@ -69,7 +77,15 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 1D signal.
         /// </summary>
-        public static Complex[] FFT(this float[] samples, FFTCache cache = null) {
+        public static Complex[] FFT(this float[] samples) {
+            using FFTCache cache = new FFTCache(samples.Length);
+            return samples.FFT(cache);
+        }
+
+        /// <summary>
+        /// Fast Fourier transform a 1D signal.
+        /// </summary>
+        public static Complex[] FFT(this float[] samples, FFTCache cache) {
             Complex[] complexSignal = new Complex[samples.Length];
             for (int sample = 0; sample < samples.Length; ++sample)
                 complexSignal[sample].Real = samples[sample];
@@ -86,7 +102,7 @@ namespace Cavern.Utilities {
                 CavernAmp.InPlaceFFT(samples);
             else {
                 using FFTCache cache = new FFTCache(samples.Length);
-                InPlaceFFT(samples, cache);
+                ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
             }
         }
 
@@ -104,7 +120,15 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Spectrum of a signal's FFT.
         /// </summary>
-        public static float[] FFT1D(this float[] samples, FFTCache cache = null) {
+        public static float[] FFT1D(this float[] samples) {
+            using FFTCache cache = new FFTCache(samples.Length);
+            return samples.FFT1D(cache);
+        }
+
+        /// <summary>
+        /// Spectrum of a signal's FFT.
+        /// </summary>
+        public static float[] FFT1D(this float[] samples, FFTCache cache) {
             samples = samples.FastClone();
             samples.InPlaceFFT(cache);
             return samples;
@@ -119,7 +143,7 @@ namespace Cavern.Utilities {
                 CavernAmp.InPlaceFFT(samples);
             else {
                 using FFTCache cache = new FFTCache(samples.Length);
-                InPlaceFFT(samples, cache);
+                ProcessFFT(samples, cache);
             }
         }
 
@@ -163,12 +187,12 @@ namespace Cavern.Utilities {
         /// Inverse Fast Fourier Transform of a transformed signal.
         /// </summary>
         public static Complex[] IFFT(this Complex[] samples) {
-            samples = samples.FastClone();
-            if (CavernAmp.Available)
+            if (CavernAmp.Available) {
+                samples = samples.FastClone();
                 CavernAmp.InPlaceIFFT(samples);
-            else {
+            } else {
                 using FFTCache cache = new FFTCache(samples.Length);
-                IFFT(samples, cache);
+                samples.IFFT(cache);
             }
             return samples;
         }
@@ -194,7 +218,7 @@ namespace Cavern.Utilities {
                 return;
             }
             using FFTCache cache = new FFTCache(samples.Length);
-            InPlaceIFFT(samples, cache);
+            samples.InPlaceIFFT(cache);
         }
 
         /// <summary>
@@ -216,7 +240,8 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Minimizes the phase of a spectrum.
         /// </summary>
-        /// <remarks>This function does not handle zeros in the spectrum. Make sure there is a threshold before using this function.</remarks>
+        /// <remarks>This function does not handle zeros in the spectrum.
+        /// Make sure there is a threshold before using this function.</remarks>
         public static void MinimumPhaseSpectrum(Complex[] response, FFTCache cache = null) {
             bool customCache = false;
             if (cache == null) {
