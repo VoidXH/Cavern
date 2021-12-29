@@ -1,62 +1,37 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CA1F8578-C99C-4BB2-9647-69CB0B308B80}</ProjectGuid>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cavern</RootNamespace>
     <AssemblyName>CavernUnity</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>
     </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <DocumentationFile>bin\Release\CavernUnity.xml</DocumentationFile>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <Version>1.5</Version>
+    <Description>Unity wrappers for the Cavern spatial audio engine.</Description>
+    <Copyright>Copyright © Bence Sgánetz 2016-2021</Copyright>
+    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>..\..\..\2021.1.2f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
@@ -65,71 +40,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Atmosphere.cs" />
-    <Compile Include="AudioListener3D.cs" />
-    <Compile Include="AudioSource3D.cs" />
-    <Compile Include="Cavern4D\Cavern4DBase.cs" />
-    <Compile Include="Cavern4D\Seat4D.cs" />
-    <Compile Include="Cavernize\CavernizeOutput.cs" />
-    <Compile Include="Cavernize\SpatializedChannel.cs" />
-    <Compile Include="AudioClip3D.cs" />
-    <Compile Include="FilterInterfaces\Biquad.cs" />
-    <Compile Include="FilterInterfaces\Comb.cs" />
-    <Compile Include="FilterInterfaces\Delay.cs" />
-    <Compile Include="FilterInterfaces\DistanceBasedLowpass.cs" />
-    <Compile Include="FilterInterfaces\Raytraced.cs" />
-    <Compile Include="FilterInterfaces\SimulationSource.cs" />
-    <Compile Include="FilterInterfaces\SimulationTarget.cs" />
-    <Compile Include="FilterInterfaces\_Exceptions.cs" />
-    <Compile Include="FilterInterfaces\SimpleEcho.cs" />
-    <Compile Include="QuickEQ\MeasurementImporter.cs" />
-    <Compile Include="QuickEQ\SweepChannel.cs" />
-    <Compile Include="QuickEQ\SpeakerSweeper.cs" />
-    <Compile Include="QuickEQ\NoisyChannel.cs" />
-    <Compile Include="Cavernize\Cavernizer.cs" />
-    <Compile Include="Cavernize\CavernizeRT.cs" />
-    <Compile Include="Debug\ArrayLevels.cs" />
-    <Compile Include="Debug\LogDisplay.cs" />
-    <Compile Include="Debug\Monitor.cs" />
-    <Compile Include="FilterInterfaces\Echo3D.cs" />
-    <Compile Include="Helpers\ExternalSource.cs" />
-    <Compile Include="SpecialSources\InfiniteSource3D.cs" />
-    <Compile Include="Spoofer\AudioListenerSpoofer.cs" />
-    <Compile Include="Spoofer\AudioSourceSpoofer.cs" />
-    <Compile Include="Spoofer\AutoSpoofer.cs" />
-    <Compile Include="Utilities\Tunneler.cs" />
-    <Compile Include="Utilities\ColorUtils.cs" />
-    <Compile Include="Utilities\VectorUtils.cs" />
-    <Compile Include="Debug\SeatAdaptationDemo.cs" />
-    <Compile Include="Helpers\OneShotDestructor.cs" />
-    <Compile Include="Helpers\ScaleByGain.cs" />
-    <Compile Include="Utilities\WindowBase.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Debug\Levels.cs" />
-    <Compile Include="SeatAdaptation.cs" />
+    <ProjectReference Include="..\Cavern.Filters\Cavern.Filters.csproj" />
+    <ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj" />
+    <ProjectReference Include="..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
+    <ProjectReference Include="..\Cavern\Cavern.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cavern.Filters\Cavern.Filters.csproj">
-      <Project>{DAF58EED-35DC-416F-8DCE-7816B808BFB6}</Project>
-      <Name>Cavern.Filters</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj">
-      <Project>{e87a8995-3b65-497b-a808-4dded25d2ade}</Project>
-      <Name>Cavern.Format</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cavern.QuickEQ\Cavern.QuickEQ.csproj">
-      <Project>{b657f4ac-a378-486f-9355-937499ddd335}</Project>
-      <Name>Cavern.QuickEQ</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cavern\Cavern.csproj">
-      <Project>{25898051-c846-4ed1-9a4f-a2d327b5fb0f}</Project>
-      <Name>Cavern</Name>
-    </ProjectReference>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.261602">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll bin\Release\CavernAmp.dll" IgnoreExitCode="true" />
   </Target>
