@@ -112,9 +112,18 @@ namespace Cavern.Filters {
         /// Performs the convolution of two real signals. The FFT of the result is returned.
         /// </summary>
         /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/> to match in a length of a power of 2.</remarks>
-        public static Complex[] ConvolveFourier(float[] excitation, float[] impulse, FFTCache cache = null) {
-            if (cache == null)
-                cache = new FFTCache(excitation.Length);
+        public static Complex[] ConvolveFourier(float[] excitation, float[] impulse) {
+            using FFTCache cache = new FFTCache(excitation.Length);
+            Complex[] excitationFFT = excitation.FFT(cache);
+            excitationFFT.Convolve(impulse.FFT(cache));
+            return excitationFFT;
+        }
+
+        /// <summary>
+        /// Performs the convolution of two real signals. The FFT of the result is returned.
+        /// </summary>
+        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/> to match in a length of a power of 2.</remarks>
+        public static Complex[] ConvolveFourier(float[] excitation, float[] impulse, FFTCache cache) {
             Complex[] excitationFFT = excitation.FFT(cache);
             excitationFFT.Convolve(impulse.FFT(cache));
             return excitationFFT;
@@ -124,10 +133,12 @@ namespace Cavern.Filters {
         /// Performs the convolution of two real signals. The real result is returned.
         /// </summary>
         /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/> to match in a length of a power of 2.</remarks>
-        public static Complex[] Convolve(float[] excitation, float[] impulse, FFTCache cache = null) {
-            Complex[] result = ConvolveFourier(excitation, impulse, cache);
+        public static float[] Convolve(float[] excitation, float[] impulse, FFTCache cache = null) {
+            Complex[] result = cache != null?
+                ConvolveFourier(excitation, impulse, cache) :
+                ConvolveFourier(excitation, impulse);
             result.InPlaceIFFT();
-            return result;
+            return Measurements.GetRealPart(result);
         }
     }
 }
