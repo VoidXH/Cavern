@@ -1,0 +1,20 @@
+﻿<Window x:Class="WavefrontSimulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WavefrontSimulator"
+        mc:Ignorable="d"
+        Title="Wavefront Simulator" Height="436" Width="800">
+    <Grid>
+        <Rectangle HorizontalAlignment="Left" Margin="10,10,0,10" Width="400">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlDarkColorKey}}"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Image x:Name="image" HorizontalAlignment="Left" Margin="10,10,0,10" Width="400" Stretch="Uniform"/>
+        <Button Content="Load impulse response" HorizontalAlignment="Left" Margin="420,10,0,0" VerticalAlignment="Top" Click="LoadImpulseResponse"/>
+        <Button Content="Render" HorizontalAlignment="Left" Margin="420,55,0,0" VerticalAlignment="Top" Click="Render"/>
+        <CheckBox x:Name="toeIn" Content="Toe-in" HorizontalAlignment="Left" Margin="420,35,0,0" VerticalAlignment="Top"/>
+    </Grid>
+</Window>
