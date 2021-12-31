@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31402.337
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CavernizeGUI", "CavernizeGUI\CavernizeGUI.csproj", "{935CA5EA-F167-44C1-8A5F-46D1C0A8668F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern", "..\Cavern\Cavern.csproj", "{25898051-C846-4ED1-9A4F-A2D327B5FB0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern", "..\Cavern\Cavern.csproj", "{25898051-C846-4ED1-9A4F-A2D327B5FB0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.Filters", "..\Cavern.Filters\Cavern.Filters.csproj", "{DAF58EED-35DC-416F-8DCE-7816B808BFB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.Filters", "..\Cavern.Filters\Cavern.Filters.csproj", "{DAF58EED-35DC-416F-8DCE-7816B808BFB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.Format", "..\Cavern.Format\Cavern.Format.csproj", "{E87A8995-3B65-497B-A808-4DDED25D2ADE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.Format", "..\Cavern.Format\Cavern.Format.csproj", "{E87A8995-3B65-497B-A808-4DDED25D2ADE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImpulseFlattener", "ImpulseFlattener\ImpulseFlattener.csproj", "{55CF3028-6E8B-4320-B3AF-5D9229FF8BEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.QuickEQ", "..\Cavern.QuickEQ\Cavern.QuickEQ.csproj", "{B657F4AC-A378-486F-9355-937499DDD335}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.QuickEQ", "..\Cavern.QuickEQ\Cavern.QuickEQ.csproj", "{B657F4AC-A378-486F-9355-937499DDD335}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}"
 EndProject
