@@ -88,6 +88,43 @@ namespace Cavern.Remapping {
             GodsVoice = new ChannelPrototype(0, -90, "God's voice"),
             RearCenter = new ChannelPrototype(180, "Rear center");
 
+        const string frontLeftMark = "L",
+            frontRightMark = "R",
+            frontCenterMark = "C",
+            screenLFEMark = "LFE",
+            subwooferMark = "SUB",
+            rearLeftMark = "RL",
+            rearRightMark = "RR",
+            sideLeftMark = "SL",
+            sideRightMark = "SR";
+
+        /// <summary>
+        /// Converts a standard channel shorthand to a <see cref="ChannelPrototype"/>.
+        /// </summary>
+        public static ChannelPrototype FromStandardName(string name) {
+            switch (name) {
+                case frontLeftMark:
+                    return FrontLeft;
+                case frontRightMark:
+                    return FrontRight;
+                case frontCenterMark:
+                    return FrontCenter;
+                case screenLFEMark:
+                case subwooferMark:
+                    return ScreenLFE;
+                case rearLeftMark:
+                    return RearLeft;
+                case rearRightMark:
+                    return RearRight;
+                case sideLeftMark:
+                    return SideLeft;
+                case sideRightMark:
+                    return SideRight;
+                default:
+                    return Unused;
+            }
+        }
+
         /// <summary>
         /// Converts the <see cref="ReferenceChannel"/> values to a <see cref="ChannelPrototype"/>.
         /// </summary>
