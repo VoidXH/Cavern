@@ -12,13 +12,9 @@
     <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <LangVersion>9.0</LangVersion>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <DocumentationFile>bin\Release\Cavern.QuickEQ.xml</DocumentationFile>
-    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cavern.Filters\Cavern.Filters.csproj" />

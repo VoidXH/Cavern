@@ -93,7 +93,7 @@ namespace Cavern {
         /// <summary>
         /// Random number generator.
         /// </summary>
-        readonly Random random = new();
+        readonly Random random = new Random();
 
         /// <summary>
         /// Remaining delay until starting playback.
@@ -394,7 +394,7 @@ namespace Cavern {
                             }
 
                             // Spatial mix gain precalculation
-                            Vector2 layerVol = new(.5f); // (bottom; top)
+                            Vector2 layerVol = new Vector2(.5f); // (bottom; top)
                             if (topFrontLeft != bottomFrontLeft) { // Height ratio calculation
                                 float bottomY = Listener.Channels[bottomFrontLeft].CubicalPos.Y;
                                 layerVol.Y = (direction.Y - bottomY) / (Listener.Channels[topFrontLeft].CubicalPos.Y - bottomY);
@@ -402,7 +402,7 @@ namespace Cavern {
                             }
 
                             // Length ratios (bottom; top)
-                            Vector2 frontVol = new(LengthRatio(bottomRearLeft, bottomFrontLeft, direction.Z),
+                            Vector2 frontVol = new Vector2(LengthRatio(bottomRearLeft, bottomFrontLeft, direction.Z),
                                 LengthRatio(topRearLeft, topFrontLeft, direction.Z));
                             // Width ratios
                             float BFRVol = WidthRatio(bottomFrontLeft, bottomFrontRight, direction.X),
@@ -411,7 +411,7 @@ namespace Cavern {
                                 TRRVol = WidthRatio(topRearLeft, topRearRight, direction.X),
                                 innerVolume3D = volume3D;
                             if (Size != 0) {
-                                frontVol = QMath.Lerp(frontVol, new(.5f), Size);
+                                frontVol = QMath.Lerp(frontVol, new Vector2(.5f), Size);
                                 BFRVol = QMath.Lerp(BFRVol, .5f, Size);
                                 BRRVol = QMath.Lerp(BRRVol, .5f, Size);
                                 TFRVol = QMath.Lerp(TFRVol, .5f, Size);
@@ -499,7 +499,7 @@ namespace Cavern {
                         // Distance simulation for HRTF
                         if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
                             if (distancer == null)
-                                distancer = new(this);
+                                distancer = new Distancer(this);
                             distancer.Generate(direction.X > 0, samples);
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (Listener.Channels[channel].LFE)

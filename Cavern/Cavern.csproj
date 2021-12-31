@@ -19,14 +19,9 @@
     <Version>1.5</Version>
     <Authors>Bence Sgánetz</Authors>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DocumentationFile>bin\Debug\Cavern.xml</DocumentationFile>
-    <LangVersion>9.0</LangVersion>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <DocumentationFile>bin\Release\Cavern.xml</DocumentationFile>
-    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\README.md">
