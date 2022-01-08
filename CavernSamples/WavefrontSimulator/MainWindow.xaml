@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WavefrontSimulator"
         mc:Ignorable="d"
-        Title="Wavefront Simulator" Height="436" Width="800">
+        Title="Wavefront Simulator" Height="460" Width="800" Closing="OnExit">
     <Grid>
         <Rectangle HorizontalAlignment="Left" Margin="10,10,0,10" Width="400">
             <Rectangle.Fill>
@@ -13,8 +13,18 @@
             </Rectangle.Fill>
         </Rectangle>
         <Image x:Name="image" HorizontalAlignment="Left" Margin="10,10,0,10" Width="400" Stretch="Uniform"/>
-        <Button Content="Load impulse response" HorizontalAlignment="Left" Margin="420,10,0,0" VerticalAlignment="Top" Click="LoadImpulseResponse"/>
-        <Button Content="Render" HorizontalAlignment="Left" Margin="420,55,0,0" VerticalAlignment="Top" Click="Render"/>
-        <CheckBox x:Name="toeIn" Content="Toe-in" HorizontalAlignment="Left" Margin="420,35,0,0" VerticalAlignment="Top"/>
+        <Button Content="Load impulse response" HorizontalAlignment="Left" Margin="415,10,0,0" VerticalAlignment="Top" Click="LoadImpulseResponse" Width="205"/>
+        <Button x:Name="clear" Content="Clear" IsEnabled="False" HorizontalAlignment="Left" Margin="625,10,0,0" VerticalAlignment="Top" Click="Clear"/>
+        <CheckBox x:Name="toeIn" Content="Toe-in" HorizontalAlignment="Left" Margin="415,35,0,0" VerticalAlignment="Top"/>
+        <CheckBox x:Name="realTime" Content="Re-render on changes" HorizontalAlignment="Left" Margin="473,35,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="415,55,0,0" TextWrapping="Wrap" Text="Directivity index:" VerticalAlignment="Top"/>
+        <TextBlock x:Name="dirIndex" HorizontalAlignment="Left" Margin="632,55,0,0" TextWrapping="Wrap" Text="3.0" VerticalAlignment="Top"/>
+        <Slider x:Name="dirIndexValue" HorizontalAlignment="Left" Margin="507,55,0,0" VerticalAlignment="Top" Width="120" Maximum="10" Value="3" ValueChanged="DirectivityIndexChanged"/>
+        <TextBlock HorizontalAlignment="Left" Margin="415,78,0,0" TextWrapping="Wrap" Text="Wall length:" VerticalAlignment="Top"/>
+        <TextBlock x:Name="wallLen" HorizontalAlignment="Left" Margin="632,78,0,0" TextWrapping="Wrap" Text="5.0 m" VerticalAlignment="Top"/>
+        <Slider x:Name="wallLenValue" HorizontalAlignment="Left" Margin="507,78,0,0" VerticalAlignment="Top" Width="120" Minimum="1" Maximum="10" Value="5" ValueChanged="WallLengthChanged"/>
+        <Button Content="Render" HorizontalAlignment="Left" Margin="415,101,0,0" VerticalAlignment="Top" Click="Render" Width="100"/>
+        <Button Content="Export render" HorizontalAlignment="Left" Margin="520,101,0,0" VerticalAlignment="Top" Width="100" Click="ExportRender"/>
+        <TextBlock x:Name="uniformity" HorizontalAlignment="Left" Margin="420,0,0,10" TextWrapping="Wrap" Text="" Height="16" VerticalAlignment="Bottom"/>
     </Grid>
 </Window>
