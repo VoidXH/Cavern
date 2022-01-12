@@ -142,7 +142,7 @@ namespace Cavern.Format {
                 if (cachePosition == cache.Length)
                     DumpBlock(cache.Length);
             }
-            if ((totalWritten += dumpLength) == Length)
+            if ((totalWritten += dumpLength) == Length * ChannelCount)
                 DumpBlock(cachePosition);
         }
 

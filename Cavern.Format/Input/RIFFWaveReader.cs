@@ -67,7 +67,7 @@ namespace Cavern.Format {
         /// <param name="samples">Input array</param>
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
-        /// <remarks>The next to - from samples will be read from the file.</remarks>
+        /// <remarks>The next to - from samples will be read from the file. Samples are counted for all channels.</remarks>
         public override void ReadBlock(float[] samples, long from, long to) {
             const long skip = 10 * 1024 * 1024 / sizeof(float); // 10 MB source splits at max to optimize for both memory and IO
             if (to - from > skip) {

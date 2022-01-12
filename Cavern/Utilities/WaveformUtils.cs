@@ -254,6 +254,17 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Convert a multichannel waveform in different arrays to an interlaced waveform.
+        /// </summary>
+        public static float[] MultichannelToInterlaced(float[][] source) {
+            float[] result = new float[source.Length * source[0].Length];
+            for (int channel = 0; channel < source.Length; ++channel)
+                for (int sample = 0; sample < source[channel].Length; ++sample)
+                    result[sample * channel + channel] = source[channel][sample];
+            return result;
+        }
+
+        /// <summary>
         /// Normalize an array of samples.
         /// </summary>
         /// <param name="target">Samples to normalize</param>
