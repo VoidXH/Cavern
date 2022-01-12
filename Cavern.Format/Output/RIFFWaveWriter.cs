@@ -64,7 +64,7 @@ namespace Cavern.Format {
             switch (Bits) {
                 case BitDepth.Int8:
                     while (from < to)
-                        writer.Write((sbyte)((samples[from++] + 1f) * sbyte.MaxValue));
+                        writer.Write((sbyte)(samples[from++] * sbyte.MaxValue));
                     break;
                 case BitDepth.Int16:
                     while (from < to)
@@ -72,10 +72,10 @@ namespace Cavern.Format {
                     break;
                 case BitDepth.Int24:
                     while (from < to) {
-                        int src = (int)(samples[from++] * 8388607f) * 256;
+                        int src = (int)(samples[from++] * 8388607f);
+                        writer.Write((byte)src);
                         writer.Write((byte)(src >> 8));
                         writer.Write((byte)(src >> 16));
-                        writer.Write((byte)(src >> 24));
                     }
                     break;
                 case BitDepth.Float32:
@@ -96,7 +96,7 @@ namespace Cavern.Format {
                 case BitDepth.Int8:
                     while (from < to) {
                         for (int channel = 0; channel < samples.Length; ++channel)
-                            writer.Write((sbyte)((samples[channel][from] + 1f) * sbyte.MaxValue));
+                            writer.Write((sbyte)(samples[channel][from] * sbyte.MaxValue));
                         ++from;
                     }
                     break;
@@ -110,10 +110,10 @@ namespace Cavern.Format {
                 case BitDepth.Int24:
                     while (from < to) {
                         for (int channel = 0; channel < samples.Length; ++channel) {
-                            int src = (int)(samples[channel][from] * 8388607f) * 256;
+                            int src = (int)(samples[channel][from] * 8388607f);
+                            writer.Write((byte)src);
                             writer.Write((byte)(src >> 8));
                             writer.Write((byte)(src >> 16));
-                            writer.Write((byte)(src >> 24));
                         }
                         ++from;
                     }
