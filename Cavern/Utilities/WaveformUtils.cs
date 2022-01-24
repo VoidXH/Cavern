@@ -259,8 +259,20 @@ namespace Cavern.Utilities {
         public static float[] MultichannelToInterlaced(float[][] source) {
             float[] result = new float[source.Length * source[0].Length];
             for (int channel = 0; channel < source.Length; ++channel)
-                for (int sample = 0; sample < source[channel].Length; ++sample)
-                    result[sample * channel + channel] = source[channel][sample];
+                for (long sample = 0; sample < source[channel].LongLength; ++sample)
+                    result[sample * source.Length + channel] = source[channel][sample];
+            return result;
+        }
+
+        /// <summary>
+        /// Convert part of a multichannel waveform in different arrays to an interlaced waveform.
+        /// </summary>
+        public static float[] MultichannelToInterlaced(float[][] source, long from, long to) {
+            float[] result = new float[source.Length * source[0].Length];
+            to -= from;
+            for (int channel = 0; channel < source.Length; ++channel)
+                for (long sample = 0; sample < to; ++sample)
+                    result[sample * source.Length + channel] = source[channel][from + sample];
             return result;
         }
 

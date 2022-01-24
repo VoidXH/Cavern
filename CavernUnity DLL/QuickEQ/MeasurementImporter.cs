@@ -43,6 +43,16 @@ namespace Cavern.QuickEQ {
         public int Channels { get; private set; }
 
         /// <summary>
+        /// Signature used for <see cref="OnMeasurement"/>.
+        /// </summary>
+        public delegate void OnMeasurementDelegate(int measurement, int measurements);
+
+        /// <summary>
+        /// Called when a single measurement was imported successfully.
+        /// </summary>
+        public event OnMeasurementDelegate OnMeasurement;
+
+        /// <summary>
         /// RMS level calculation interval.
         /// </summary>
         const int blockSize = 2048;
@@ -53,9 +63,10 @@ namespace Cavern.QuickEQ {
         const int scrapSilence = 8192;
 
         /// <summary>
-        /// Single-channel microphone recording of a QuickEQ measurement.
+        /// Recording of a QuickEQ measurement. If single-channel, it's a microphone recording of a QuickEQ measurement.
+        /// If multichannel, it's an exported measurement from Cavern.
         /// </summary>
-        readonly float[] data;
+        readonly float[][] data;
 
         /// <summary>
         /// Sweeper instance to put the results in.
@@ -73,12 +84,11 @@ namespace Cavern.QuickEQ {
         /// <param name="samples">Single-channel microphone recording of a QuickEQ measurement</param>
         /// <param name="sampleRate">Sample rate of <paramref name="samples"/></param>
         /// <param name="sweeper">Sweeper instance to put the results in</param>
-        public MeasurementImporter(float[] samples, int sampleRate, SpeakerSweeper sweeper) {
+        public MeasurementImporter(float[][] samples, int sampleRate, SpeakerSweeper sweeper) {
             data = samples;
             this.sweeper = sweeper;
             sweeper.SampleRate = sampleRate;
             sweeper.ImpResponses = new VerboseImpulseResponse[0];
-            sweeper.ResultAvailable = false;
             runner = new Task(Process);
             runner.Start();
         }
@@ -90,12 +100,12 @@ namespace Cavern.QuickEQ {
             /// <summary>
             /// Marks a rising edge.
             /// </summary>
-            public bool Rising;
-            public int Position;
+            public bool rising;
+            public int position;
 
             public Ramp(bool rising, int position) {
-                Rising = rising;
-                Position = position;
+                this.rising = rising;
+                this.position = position;
             }
         }
 
@@ -120,19 +130,19 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Guess the noise level by putting it 3 decibels above the lowest non-zero RMS block or at zero if many blocks are zero.
         /// </summary>
-        static float GetNoiseLevel(float[] RMSBlocks) {
+        static float GetNoiseLevel(float[] rmsBlocks) {
             int zeroBlocks = 0;
             float average = 0, peak = float.PositiveInfinity;
-            for (int block = 0; block < RMSBlocks.Length; ++block) {
-                if (RMSBlocks[block] == 0)
+            for (int block = 0; block < rmsBlocks.Length; ++block) {
+                if (rmsBlocks[block] == 0)
                     ++zeroBlocks;
                 else {
-                    if (peak > RMSBlocks[block])
-                        peak = RMSBlocks[block];
-                    average += RMSBlocks[block];
+                    if (peak > rmsBlocks[block])
+                        peak = rmsBlocks[block];
+                    average += rmsBlocks[block];
                 }
             }
-            return zeroBlocks < RMSBlocks.Length / 5 ? (peak + average / RMSBlocks.Length) * .5f : 0;
+            return zeroBlocks < rmsBlocks.Length / 5 ? (peak + average / rmsBlocks.Length) * .5f : 0;
         }
 
         /// <summary>
@@ -154,7 +164,7 @@ namespace Cavern.QuickEQ {
             // Remove wrongly detected (too short) ramps
             bool[] toRemove = new bool[ramps.Count];
             for (int ramp = 1; ramp < ramps.Count; ramp += 2)
-                if (ramps[ramp].Rising && ramps[ramp].Position - ramps[ramp - 1].Position < scrapSilence)
+                if (ramps[ramp].rising && ramps[ramp].position - ramps[ramp - 1].position < scrapSilence)
                     toRemove[ramp] = toRemove[ramp - 1] = true;
             for (int ramp = ramps.Count - 1; ramp >= 0; --ramp)
                 if (toRemove[ramp])
@@ -166,9 +176,10 @@ namespace Cavern.QuickEQ {
         /// Based on distances between ramps, guess the FFT size of the measurement.
         /// </summary>
         static int GetFFTSize(List<Ramp> ramps) {
-            int peakRampDist = 0, mainRampDist = 0; // The LFE measurement may be the highest distance, so we're looking for the second highest
+            int peakRampDist = 0,
+                mainRampDist = 0; // The LFE measurement may be the highest distance, so we're looking for the second highest
             for (int ramp = 1; ramp < ramps.Count; ++ramp) {
-                int rampDist = ramps[ramp].Position - ramps[ramp - 1].Position;
+                int rampDist = ramps[ramp].position - ramps[ramp - 1].position;
                 if (peakRampDist < rampDist) {
                     mainRampDist = peakRampDist;
                     peakRampDist = rampDist;
@@ -179,35 +190,69 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>
-        /// Process the <see cref="data"/> and set up the <see cref="sweeper"/>.
+        /// Process a microphone recording, extract the QuickEQ measurement from it.
         /// </summary>
-        void Process() {
+        void ProcessRecording(float[] data) {
             float[] RMSs = GetRMSBlocks(data);
             List<Ramp> ramps = GetRamps(RMSs, GetNoiseLevel(RMSs));
             int FFTSize = GetFFTSize(ramps), samplesPerCh = FFTSize << 1;
-            int offset = Math.Max(ramps[0].Position - FFTSize / 2 - blockSize, 0),
-                end = Math.Min(ramps[ramps.Count - 1].Position + FFTSize, data.Length);
+            int offset = Math.Max(ramps[0].position - FFTSize / 2 - blockSize, 0),
+                end = Math.Min(ramps[^1].position + FFTSize, data.Length);
             Channels = (end - offset) / samplesPerCh;
             offset = QMath.Clamp(offset, 0, data.Length - Channels * samplesPerCh);
-            sweeper.SweepLength = FFTSize;
-            sweeper.RegenerateSweep();
-            sweeper.ExcitementResponses = new float[Channels][];
-            sweeper.FreqResponses = new float[Channels][];
-            sweeper.ImpResponses = new VerboseImpulseResponse[Channels];
+
+            sweeper.OverwriteSweeper(Channels, FFTSize);
             Status = MeasurementImporterStatus.Processing;
             for (; ProcessedChannel < Channels; ++ProcessedChannel) {
                 float[] samples = new float[samplesPerCh];
-                int channelStart = offset + ProcessedChannel * samplesPerCh;
-                for (int sample = 0; sample < samplesPerCh; ++sample)
-                    samples[sample] = data[channelStart + sample];
-                sweeper.ExcitementResponses[ProcessedChannel] = samples;
-                Complex[] RawResponse = sweeper.GetFrequencyResponse(samples, Channel.IsLFE(ProcessedChannel, Channels));
-                sweeper.FreqResponses[ProcessedChannel] = Measurements.GetSpectrum(RawResponse);
-                sweeper.ImpResponses[ProcessedChannel] = sweeper.GetImpulseResponse(RawResponse);
+                Array.Copy(data, offset + ProcessedChannel * samplesPerCh, samples, 0, samplesPerCh);
+                sweeper.OverwriteChannel(ProcessedChannel, samples);
             }
-
-            // Finalize
             sweeper.ResultAvailable = true;
+        }
+
+        /// <summary>
+        /// Process a QuickEQ export, simply import the recorded data.
+        /// </summary>
+        void ProcessExport() {
+            Channels = 0;
+            int lastSample = data[0].Length;
+            while (data[0][--lastSample] == 0 && lastSample > 0) ;
+            for (int channel = 1; channel < data.Length; ++channel) {
+                int firstSample = 0;
+                while (data[channel][firstSample] == 0 && ++firstSample < data[channel].Length) ;
+                if (firstSample < lastSample) {
+                    Channels = channel + 1;
+                    break;
+                }
+            }
+            if (Channels == 0)
+                Channels = data.Length;
+
+            int measurements = data.Length / Channels,
+                samplesPerCh = data[0].Length / Channels;
+            sweeper.OverwriteSweeper(Channels, samplesPerCh >> 1);
+            Status = MeasurementImporterStatus.Processing;
+            for (int measurement = 0; measurement < measurements; ++measurement) {
+                sweeper.ResultAvailable = false;
+                for (ProcessedChannel = 0; ProcessedChannel < Channels; ++ProcessedChannel) {
+                    float[] samples = new float[samplesPerCh];
+                    Array.Copy(data[ProcessedChannel], samplesPerCh * ProcessedChannel, samples, 0, samplesPerCh);
+                    sweeper.OverwriteChannel(ProcessedChannel, samples);
+                }
+                sweeper.ResultAvailable = true;
+                OnMeasurement?.Invoke(measurement, measurements);
+            }
+        }
+
+        /// <summary>
+        /// Process the <see cref="data"/> and set up the <see cref="sweeper"/>.
+        /// </summary>
+        void Process() {
+            if (data.Length == 1)
+                ProcessRecording(data[0]);
+            else
+                ProcessExport();
             Status = MeasurementImporterStatus.Done;
         }
     }

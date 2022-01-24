@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Cavern.Format {
@@ -92,10 +91,9 @@ namespace Cavern.Format {
                 return;
             bool[] writtenChannels = new bool[ChannelCount];
             int channelsToRead = 0;
-            for (int channel = 0; channel < ChannelCount; ++channel) {
-                writtenChannels[channel] = (layoutBytes[channel >> 3] >> (channel % 8)) % 2 != 0;
-                ++channelsToRead;
-            }
+            for (int channel = 0; channel < ChannelCount; ++channel)
+                if (writtenChannels[channel] = (layoutBytes[channel >> 3] >> (channel % 8)) % 2 != 0)
+                    ++channelsToRead;
 
             int samplesToRead = (int)Math.Min(Length - readSamples, SampleRate);
             int bytesToRead = samplesToRead * channelsToRead * ((int)Bits >> 3);

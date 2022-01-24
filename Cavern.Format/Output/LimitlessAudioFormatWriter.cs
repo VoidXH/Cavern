@@ -30,30 +30,28 @@ namespace Cavern.Format {
         /// Minimal Limitless Audio Format file writer.
         /// </summary>
         /// <param name="writer">File writer object</param>
-        /// <param name="channelCount">Output channel count</param>
         /// <param name="length">Output length in samples per channel</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         /// <param name="channels">Output channel information</param>
-        public LimitlessAudioFormatWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits, Channel[] channels) :
-            base(writer, channelCount, length, sampleRate, bits) {
+        public LimitlessAudioFormatWriter(BinaryWriter writer, long length, int sampleRate, BitDepth bits, Channel[] channels) :
+            base(writer, channels.Length, length, sampleRate, bits) {
             this.channels = channels;
-            cache = new float[channelCount * sampleRate];
+            cache = new float[channels.Length * sampleRate];
         }
 
         /// <summary>
         /// Minimal Limitless Audio Format file writer.
         /// </summary>
         /// <param name="path">Output file name</param>
-        /// <param name="channelCount">Output channel count</param>
         /// <param name="length">Output length in samples per channel</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         /// <param name="channels">Output channel information</param>
-        public LimitlessAudioFormatWriter(string path, int channelCount, long length, int sampleRate, BitDepth bits, Channel[] channels) :
-            base(path, channelCount, length, sampleRate, bits) {
+        public LimitlessAudioFormatWriter(string path, long length, int sampleRate, BitDepth bits, Channel[] channels) :
+            base(path, channels.Length, length, sampleRate, bits) {
             this.channels = channels;
-            cache = new float[channelCount * sampleRate];
+            cache = new float[channels.Length * sampleRate];
         }
 
         /// <summary>
@@ -89,7 +87,7 @@ namespace Cavern.Format {
         void DumpBlock(long until) {
             bool[] toWrite = new bool[ChannelCount];
             for (int channel = 0; channel < ChannelCount; ++channel)
-                for (int sample = channel; !toWrite[channel] && sample < SampleRate; sample += ChannelCount)
+                for (int sample = channel; !toWrite[channel] && sample < cache.Length; sample += ChannelCount)
                     if (cache[sample] != 0)
                         toWrite[channel] = true;
             byte[] layoutBytes = new byte[ChannelCount % 8 == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1)];
@@ -156,8 +154,38 @@ namespace Cavern.Format {
         /// <param name="channels">Output channel information</param>
         public static void Write(string path, float[] data, int sampleRate, BitDepth bits, Channel[] channels) {
             LimitlessAudioFormatWriter writer =
-                new LimitlessAudioFormatWriter(path, channels.Length, data.Length / channels.Length, sampleRate, bits, channels);
+                new LimitlessAudioFormatWriter(path, data.Length / channels.Length, sampleRate, bits, channels);
             writer.Write(data);
+            writer.Dispose();
+        }
+
+        /// <summary>
+        /// Export an array of multichannel samples to an audio file.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        /// <param name="channels">Output channel information</param>
+        public static void Write(string path, float[][] data, int sampleRate, BitDepth bits, Channel[] channels) {
+            LimitlessAudioFormatWriter writer = new LimitlessAudioFormatWriter(path, data[0].LongLength, sampleRate, bits, channels);
+            writer.Write(data);
+            writer.Dispose();
+        }
+
+        /// <summary>
+        /// Export an audio file to be played back channel after channel.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        /// <param name="channels">Output channel information</param>
+        /// <param name="period">Channels separated by this many channels are played simultaneously</param>
+        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, Channel[] channels,
+            int period = -1) {
+            LimitlessAudioFormatWriter writer = new LimitlessAudioFormatWriter(path, data[0].LongLength, sampleRate, bits, channels);
+            writer.WriteOffset(data, period);
             writer.Dispose();
         }
     }

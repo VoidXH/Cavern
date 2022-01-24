@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Utilities;
+
 namespace Cavern.Format {
     /// <summary>
     /// Abstract audio file writer.
@@ -78,11 +80,7 @@ namespace Cavern.Format {
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
         public virtual void WriteBlock(float[][] samples, long from, long to) {
-            long length = to - from;
-            float[] cache = new float[ChannelCount * length];
-            for (long sample = 0; sample < length; ++sample)
-                for (int channel = 0; channel < samples.Length; ++channel)
-                    cache[sample * samples.Length + channel] = samples[channel][from + sample];
+            float[] cache = WaveformUtils.MultichannelToInterlaced(samples, from, to);
             WriteBlock(cache, 0, cache.Length);
         }
 
@@ -112,19 +110,21 @@ namespace Cavern.Format {
         /// Writes the <paramref name="samples"/> to be played back channel after channel.
         /// </summary>
         /// <param name="samples">All input samples</param>
-        public void WriteOffset(float[][] samples) {
+        /// <param name="period">Channels separated by this many channels are played simultaneously</param>
+        public void WriteOffset(float[][] samples, int period = -1) {
             ChannelCount = samples.Length;
-            Length = samples.Length * samples[0].Length;
+            if (period == -1)
+                period = ChannelCount;
+            Length = period * samples[0].Length;
             float[] empty = new float[samples[0].Length];
             float[][] holder = new float[samples.Length][];
             WriteHeader();
-            for (int channel = 0; channel < samples.Length; ++channel) {
-                for (int i = 0; i < samples.Length; ++i)
-                    holder[i] = empty;
-                holder[channel] = samples[channel];
-                WriteBlock(holder, 0, samples[channel].Length);
+            for (int curPeriod = 0; curPeriod < period; ++curPeriod) {
+                for (int channel = 0; channel < holder.Length; ++channel)
+                    holder[channel] = channel % period == curPeriod ? samples[channel] : empty;
+                WriteBlock(holder, 0, holder[0].Length);
             }
-            writer.Close();
+            writer.Dispose();
         }
 
         /// <summary>

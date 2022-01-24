@@ -44,7 +44,8 @@ namespace Cavern.QuickEQ {
         public int SweepLength = 32768;
 
         /// <summary>
-        /// Waits a sweep's time before the actual measurement. This helps for measuring with microphones that click when the system turns them on.
+        /// Waits a sweep's time before the actual measurement.
+        /// This helps for measuring with microphones that click when the system turns them on.
         /// </summary>
         [Tooltip("Waits a sweep's time before the actual measurement. " +
             "This helps for measurement with microphones that click when the system turns them on.")]
@@ -228,6 +229,37 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public VerboseImpulseResponse GetImpulseResponse(Complex[] frequencyResponse) =>
             new VerboseImpulseResponse(Measurements.GetImpulseResponse(frequencyResponse, sweepFFTCache));
+
+        /// <summary>
+        /// Prepare this sweeper for importing measurement data channel by channel with <see cref="OverwriteChannel(int, float[])"/>.
+        /// </summary>
+        public void OverwriteSweeper(int channels, int fftSize) {
+            SweepLength = fftSize;
+            RegenerateSweep();
+            ExcitementResponses = new float[channels][];
+            FreqResponses = new float[channels][];
+            ImpResponses = new VerboseImpulseResponse[channels];
+        }
+
+        /// <summary>
+        /// Import measurement data to a given channel.
+        /// </summary>
+        public void OverwriteChannel(int channel, float[] response) {
+            ExcitementResponses[channel] = response;
+            int lfeGetterChannels = ExcitementResponses.Length == Listener.Channels.Length ? -1 : ExcitementResponses.Length;
+            Complex[] RawResponse = GetFrequencyResponse(response, Cavern.Channel.IsLFE(channel, lfeGetterChannels));
+            FreqResponses[channel] = Measurements.GetSpectrum(RawResponse);
+            ImpResponses[channel] = GetImpulseResponse(RawResponse);
+        }
+
+        /// <summary>
+        /// Import a full external measurement.
+        /// </summary>
+        public void Overwrite(float[][] responses) {
+            OverwriteSweeper(responses.Length, responses[0].Length >> 1);
+            for (int channel = 0; channel < responses.Length; ++channel)
+                OverwriteChannel(channel, responses[channel]);
+        }
 
         [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() {
