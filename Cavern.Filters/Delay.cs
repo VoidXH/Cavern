@@ -1,4 +1,6 @@
-﻿namespace Cavern.Filters {
+﻿using System;
+
+namespace Cavern.Filters {
     /// <summary>
     /// Delays the audio.
     /// </summary>
@@ -47,28 +49,22 @@
             float[] cacheToFill = cache[1 - usedCache], cacheToDrain = cache[usedCache];
             if (delaySamples <= samples.Length) { // Sample array can hold the cache
                 // Fill cache
-                for (int sample = 0, offset = samples.Length - delaySamples; sample < delaySamples; ++sample)
-                    cacheToFill[sample] = samples[sample + offset];
+                Array.Copy(samples, samples.Length - delaySamples, cacheToFill, 0, delaySamples);
                 // Move self
                 for (int sample = samples.Length - 1; sample >= delaySamples; --sample)
                     samples[sample] = samples[sample - delaySamples];
                 // Drain cache
-                for (int sample = 0; sample < delaySamples; ++sample)
-                    samples[sample] = cacheToDrain[sample];
+                Array.Copy(cacheToDrain, samples, delaySamples);
                 usedCache = 1 - usedCache; // Switch caches
             } else { // Cache can hold the sample array
                 // Fill cache
-                for (int sample = 0; sample < samples.Length; ++sample)
-                    cacheToFill[sample] = samples[sample];
+                Array.Copy(samples, cacheToFill, samples.Length);
                 // Drain cache
-                for (int sample = 0; sample < samples.Length; ++sample)
-                    samples[sample] = cacheToDrain[sample];
+                Array.Copy(cacheToDrain, samples, samples.Length);
                 // Move cache
-                for (int sample = 0, offset = delaySamples - samples.Length; sample < offset; ++sample)
-                    cacheToDrain[sample] = cacheToDrain[sample + samples.Length];
+                Array.Copy(cacheToDrain, samples.Length, cacheToDrain, 0, delaySamples - samples.Length);
                 // Combine cache
-                for (int sample = 0, offset = delaySamples - samples.Length; sample < samples.Length; ++sample)
-                    cacheToDrain[sample + offset] = cacheToFill[sample];
+                Array.Copy(cacheToFill, 0, cacheToDrain, delaySamples - samples.Length, samples.Length);
             }
         }
     }
