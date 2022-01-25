@@ -234,6 +234,7 @@ namespace Cavern.QuickEQ {
         /// Prepare this sweeper for importing measurement data channel by channel with <see cref="OverwriteChannel(int, float[])"/>.
         /// </summary>
         public void OverwriteSweeper(int channels, int fftSize) {
+            ResultAvailable = false;
             SweepLength = fftSize;
             RegenerateSweep();
             ExcitementResponses = new float[channels][];

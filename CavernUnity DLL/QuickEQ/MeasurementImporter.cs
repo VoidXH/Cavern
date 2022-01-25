@@ -43,6 +43,11 @@ namespace Cavern.QuickEQ {
         public int Channels { get; private set; }
 
         /// <summary>
+        /// True if this imported measurement contained multiple microphone locations.
+        /// </summary>
+        public bool MultiMeasurement { get; private set; }
+
+        /// <summary>
         /// Signature used for <see cref="OnMeasurement"/>.
         /// </summary>
         public delegate void OnMeasurementDelegate(int measurement, int measurements);
@@ -222,22 +227,24 @@ namespace Cavern.QuickEQ {
                 int firstSample = 0;
                 while (data[channel][firstSample] == 0 && ++firstSample < data[channel].Length) ;
                 if (firstSample < lastSample) {
-                    Channels = channel + 1;
+                    Channels = channel;
                     break;
                 }
             }
             if (Channels == 0)
                 Channels = data.Length;
+            if (Channels != data.Length)
+                MultiMeasurement = true;
 
             int measurements = data.Length / Channels,
                 samplesPerCh = data[0].Length / Channels;
-            sweeper.OverwriteSweeper(Channels, samplesPerCh >> 1);
             Status = MeasurementImporterStatus.Processing;
             for (int measurement = 0; measurement < measurements; ++measurement) {
-                sweeper.ResultAvailable = false;
+                sweeper.OverwriteSweeper(Channels, samplesPerCh >> 1);
                 for (ProcessedChannel = 0; ProcessedChannel < Channels; ++ProcessedChannel) {
                     float[] samples = new float[samplesPerCh];
-                    Array.Copy(data[ProcessedChannel], samplesPerCh * ProcessedChannel, samples, 0, samplesPerCh);
+                    Array.Copy(data[ProcessedChannel + measurement * Channels],
+                        samplesPerCh * ProcessedChannel, samples, 0, samplesPerCh);
                     sweeper.OverwriteChannel(ProcessedChannel, samples);
                 }
                 sweeper.ResultAvailable = true;
