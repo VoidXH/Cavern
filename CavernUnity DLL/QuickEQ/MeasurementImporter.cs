@@ -200,7 +200,8 @@ namespace Cavern.QuickEQ {
         void ProcessRecording(float[] data) {
             float[] RMSs = GetRMSBlocks(data);
             List<Ramp> ramps = GetRamps(RMSs, GetNoiseLevel(RMSs));
-            int FFTSize = GetFFTSize(ramps), samplesPerCh = FFTSize << 1;
+            int FFTSize = GetFFTSize(ramps),
+                samplesPerCh = FFTSize * 2;
             int offset = Math.Max(ramps[0].position - FFTSize / 2 - blockSize, 0),
                 end = Math.Min(ramps[^1].position + FFTSize, data.Length);
             Channels = (end - offset) / samplesPerCh;

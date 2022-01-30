@@ -15,7 +15,7 @@ namespace Cavern.Filters {
             get => impulse;
             set {
                 if (impulse.Length != value.Length) {
-                    int filterSize = 2 << QMath.Log2(value.Length << 1) << shiftFactor;
+                    int filterSize = 2 << QMath.Log2(value.Length * 2) << shiftFactor;
                     transferFunction = new Complex[filterSize];
                     cache = new FFTCache(filterSize);
                     unprocessed = new float[filterSize];

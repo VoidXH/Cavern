@@ -74,7 +74,7 @@ namespace Cavern.Utilities {
             };
             int result = 1 << (((a.asInt >> 23) + 1) & 0x1F);
             if (result != val)
-                return result << 1;
+                return result * 2;
             return result;
         }
 
