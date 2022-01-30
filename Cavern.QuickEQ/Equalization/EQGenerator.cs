@@ -170,6 +170,17 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Parse an Equalizer from a drawn graph.
+        /// </summary>
+        public static Equalizer FromGraph(float[] source, float startFreq, float endFreq) {
+            List<Band> bands = new List<Band>();
+            GraphUtils.ForEachLog(source, startFreq, endFreq, (double freq, ref float gain) => {
+                bands.Add(new Band(freq, gain));
+            });
+            return new Equalizer(bands);
+        }
+
+        /// <summary>
         /// Parse a calibration array where entries are in frequency-gain (dB) pairs.
         /// </summary>
         public static Equalizer FromCalibration(float[] source) {

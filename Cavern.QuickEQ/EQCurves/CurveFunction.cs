@@ -30,6 +30,10 @@
         /// <summary>
         /// An EQ curve with any amount of custom bands.
         /// </summary>
-        Custom
+        Custom,
+        /// <summary>
+        /// Smooths out inter-channel differences while keeping the system's sound character.
+        /// </summary>
+        Smoother
     }
 }

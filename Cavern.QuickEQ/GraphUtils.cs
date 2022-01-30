@@ -97,6 +97,15 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>
+        /// Moves a graph's average value to 0.
+        /// </summary>
+        public static void Normalize(float[] graph) {
+            float avg = QMath.Average(graph);
+            for (int i = 0; i < graph.Length; ++i)
+                graph[i] -= avg;
+        }
+
+        /// <summary>
         /// Scales a graph to another length, while keeping the local peaks.
         /// </summary>
         public static float[] Scale(float[] source, int newLength) {

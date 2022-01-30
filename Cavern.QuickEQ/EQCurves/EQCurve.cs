@@ -6,6 +6,11 @@ namespace Cavern.QuickEQ.EQCurves {
     /// </summary>
     public abstract class EQCurve {
         /// <summary>
+        /// Returned when an EQ Curve can't be created by a generic switch.
+        /// </summary>
+        const string constructorException = "This EQ should be created with its constructor.";
+
+        /// <summary>
         /// Get the curve's gain in decibels at a given frequency.
         /// </summary>
         public abstract double this[double frequency] { get; }
@@ -13,15 +18,24 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <summary>
         /// Create a curve from <see cref="CurveFunction"/> definitions.
         /// </summary>
-        public static EQCurve CreateCurve(CurveFunction function) => function switch {
-            CurveFunction.XCurve => new XCurve(),
-            CurveFunction.Punch => new Punch(),
-            CurveFunction.Depth => new Depth(),
-            CurveFunction.Bandpass => throw new Exception("Bandpass EQ should be created with its constructor."),
-            CurveFunction.RoomCurve => new RoomCurve(),
-            CurveFunction.Custom => throw new Exception("Custom EQ should be created with its constructor."),
-            _ => new Flat(),
-        };
+        public static EQCurve CreateCurve(CurveFunction function) {
+            switch (function) {
+                case CurveFunction.XCurve:
+                    return new XCurve();
+                case CurveFunction.Punch:
+                    return new Punch();
+                case CurveFunction.Depth:
+                    return new Depth();
+                case CurveFunction.RoomCurve:
+                    return new RoomCurve();
+                case CurveFunction.Bandpass:
+                case CurveFunction.Custom:
+                case CurveFunction.Smoother:
+                    throw new Exception(constructorException);
+                default:
+                    return new Flat();
+            }
+        }
 
         /// <summary>
         /// Generate a linear curve for correction generators.
@@ -70,7 +84,8 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="endFreq">Frequency at the end of the curve</param>
         public virtual float[] GenerateLogCurve(double startFreq, double endFreq, int length) {
             float[] curve = new float[length];
-            double freqHere = startFreq, multiplier = Math.Pow(endFreq / startFreq, 1.0 / length);
+            double freqHere = startFreq,
+                multiplier = Math.Pow(endFreq / startFreq, 1.0 / length);
             for (int pos = 0; pos < length; ++pos) {
                 curve[pos] = (float)this[freqHere];
                 freqHere *= multiplier;
@@ -88,7 +103,8 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(double, double, int)"/>, it's faster.</remarks>
         public virtual float[] GenerateLogCurve(double startFreq, double endFreq, int length, float gain) {
             float[] curve = new float[length];
-            double freqHere = startFreq, multiplier = Math.Pow(endFreq / startFreq, 1.0 / length);
+            double freqHere = startFreq,
+                multiplier = Math.Pow(endFreq / startFreq, 1.0 / length);
             for (int pos = 0; pos < length; ++pos) {
                 curve[pos] = (float)this[freqHere] + gain;
                 freqHere *= multiplier;
