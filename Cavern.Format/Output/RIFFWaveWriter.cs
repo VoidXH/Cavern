@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Common;
+
 namespace Cavern.Format {
     /// <summary>
     /// Minimal RIFF wave file writer.

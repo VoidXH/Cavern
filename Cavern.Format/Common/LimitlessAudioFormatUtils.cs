@@ -1,4 +1,4 @@
-﻿namespace Cavern.Format {
+﻿namespace Cavern.Format.Common {
     /// <summary>
     /// Used for both <see cref="LimitlessAudioFormatReader"/> and <see cref="LimitlessAudioFormatWriter"/>.
     /// </summary>
