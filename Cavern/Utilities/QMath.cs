@@ -79,6 +79,21 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Count the number of bits after the most significant bit. 1 less than the MSB's position.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int BitsAfterMSB(int x) {
+            x |= x >> 1;
+            x |= x >> 2;
+            x |= x >> 4;
+            x |= x >> 8;
+            x |= x >> 16;
+            return bitsAfterMSBHack[(((x * 0x07C4ACDD) >> 27) + 32) % 32];
+        }
+        static readonly byte[] bitsAfterMSBHack = new byte[32] { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,
+                                                               8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
+
+        /// <summary>
         /// Clamp a double between limits.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -119,6 +134,18 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GainToDb(float gain) => 20 * (float)Math.Log10(gain);
+
+        /// <summary>
+        /// Counts the leading zeros in a byte.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LeadingZeros(byte x) => 7 - BitsAfterMSB(x);
+
+        /// <summary>
+        /// Counts the leading zeros in an integer.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int LeadingZeros(int x) => 31 - BitsAfterMSB(x);
 
         /// <summary>
         /// Unclamped linear interpolation.
