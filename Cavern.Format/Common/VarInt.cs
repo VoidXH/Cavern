@@ -16,10 +16,8 @@ namespace Cavern.Format.Common {
             byte first = reader.ReadByte();
             int extraBytes = QMath.LeadingZeros(first);
             long value = first;
-            for (int i = 0; i < extraBytes; ++i) {
-                value *= byteShiftMultiplier;
-                value |= reader.ReadByte();
-            }
+            for (int i = 0; i < extraBytes; ++i)
+                value = (value * byteShiftMultiplier) | reader.ReadByte();
             return value;
         }
 
@@ -29,6 +27,16 @@ namespace Cavern.Format.Common {
         public static int ReadValue(BinaryReader reader) { // TODO: has to be long
             int value = (int)ReadTag(reader);
             return value - (1 << QMath.BitsAfterMSB(value));
+        }
+
+        /// <summary>
+        /// Reads a fixed length VINT (the actual value field from a <see cref="KeyLengthValue"/>).
+        /// </summary>
+        public static long ReadValue(BinaryReader reader, int length) {
+            long value = 0;
+            for (int i = 0; i < length; ++i)
+                value = (value * byteShiftMultiplier) | reader.ReadByte();
+            return value;
         }
     }
 }

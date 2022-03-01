@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Cavern.Format.Common {
     /// <summary>
@@ -36,17 +37,29 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Read the raw bytes of the value.
         /// </summary>
-        public byte[] GetRawData(BinaryReader reader) {
+        public byte[] GetBytes(BinaryReader reader) {
             reader.BaseStream.Position = position;
             return reader.ReadBytes(Length);
         }
 
         /// <summary>
+        /// Read the value as a big-endian float.
+        /// </summary>
+        public double GetFloatBE(BinaryReader reader) {
+            byte[] bytes = GetBytes(reader);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            if (Length == 8)
+                return BitConverter.ToDouble(bytes);
+            return BitConverter.ToSingle(bytes);
+        }
+
+        /// <summary>
         /// Read the value as <see cref="VarInt"/>.
         /// </summary>
-        public int GetValue(BinaryReader reader) {
+        public long GetValue(BinaryReader reader) {
             reader.BaseStream.Position = position;
-            return VarInt.ReadValue(reader);
+            return VarInt.ReadValue(reader, Length);
         }
 
         /// <summary>

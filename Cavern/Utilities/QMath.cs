@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -215,6 +216,17 @@ namespace Cavern.Utilities {
             float sum = 0;
             for (int i = from; i < to; ++i)
                 sum += array[i];
+            return sum;
+        }
+
+        /// <summary>
+        /// Sum the elements in a list.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Sum(IReadOnlyList<double> list) {
+            double sum = 0;
+            for (int i = 0, to = list.Count; i < to; ++i)
+                sum += list[i];
             return sum;
         }
 

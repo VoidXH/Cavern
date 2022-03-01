@@ -6,6 +6,11 @@ namespace Cavern.Format.Container {
     /// </summary>
     public abstract class ContainerReader {
         /// <summary>
+        /// Content length in seconds.
+        /// </summary>
+        public double Duration { get; protected set; }
+
+        /// <summary>
         /// File reader object.
         /// </summary>
         protected BinaryReader reader;
