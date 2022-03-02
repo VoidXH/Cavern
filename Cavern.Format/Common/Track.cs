@@ -4,6 +4,11 @@
     /// </summary>
     public class Track {
         /// <summary>
+        /// Identifier of the track.
+        /// </summary>
+        public long ID { get; set; }
+
+        /// <summary>
         /// Name of the track.
         /// </summary>
         public string Name { get; set; }

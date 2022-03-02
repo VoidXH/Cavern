@@ -4,7 +4,7 @@ using System.IO;
 
 using Cavern.Format.Common;
 
-namespace Cavern.Format.Container {
+namespace Cavern.Format.Container.Matroska {
     /// <summary>
     /// Builds a tree of a Matroska file's neccessary tags.
     /// </summary>
@@ -16,6 +16,8 @@ namespace Cavern.Format.Container {
         internal const int Segment_Tracks_TrackEntry_CodecID = 0x86,
             Segment_Cluster_BlockGroup = 0xA0,
             Segment_Tracks_TrackEntry = 0xAE,
+            Segment_Tracks_TrackEntry_TrackNumber = 0xD7,
+            Segment_Cluster_Timestamp = 0xE7,
             Segment_Info_Duration = 0x4489,
             Segment_SeekHead_Seek = 0x4DBB,
             Segment_Tracks_TrackEntry_Name = 0x536E,
@@ -72,7 +74,7 @@ namespace Cavern.Format.Container {
         }
 
         /// <summary>
-        /// Fetch all instances of a tag.
+        /// Fetch all child instances of a tag.
         /// </summary>
         public MatroskaTree[] GetChildren(int tag) {
             int tags = 0;
@@ -92,7 +94,7 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Fetch the first child by a tag path if it exists.
         /// </summary>
-        public MatroskaTree GetByPath(params int[] path) {
+        public MatroskaTree GetChildByPath(params int[] path) {
             MatroskaTree result = this;
             for (int depth = 0; depth < path.Length; ++depth) {
                 result = result.GetChild(path[depth]);
@@ -100,6 +102,40 @@ namespace Cavern.Format.Container {
                     return null;
             }
             return result;
+        }
+
+        /// <summary>
+        /// Fetch all child instances which have a given path.
+        /// </summary>
+        public List<MatroskaTree> GetChildrenByPath(params int[] path) {
+            List<MatroskaTree> check = new List<MatroskaTree>() { this },
+                queue = new List<MatroskaTree>();
+            for (int depth = 0; depth < path.Length; ++depth) {
+                for (int i = 0, c = check.Count; i < c; ++i)
+                    queue.AddRange(check[i].GetChildren(path[depth]));
+                check = queue;
+            }
+            return check;
+        }
+
+        /// <summary>
+        /// Get the first child's UTF-8 value by tag if it exists.
+        /// </summary>
+        public string GetChildUTF8(BinaryReader reader, int tag) {
+            MatroskaTree child = GetChild(tag);
+            if (child != null)
+                return child.GetUTF8(reader);
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Get the first child's <see cref="VarInt"/> value by tag if it exists.
+        /// </summary>
+        public long GetChildValue(BinaryReader reader, int tag) {
+            MatroskaTree child = GetChild(tag);
+            if (child != null)
+                return child.GetValue(reader);
+            return -1;
         }
     }
 }
