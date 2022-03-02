@@ -24,9 +24,9 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Reads the next VINT from a stream, cuts the leading 1, reads the correct value.
         /// </summary>
-        public static int ReadValue(BinaryReader reader) { // TODO: has to be long
-            int value = (int)ReadTag(reader);
-            return value - (1 << QMath.BitsAfterMSB(value));
+        public static long ReadValue(BinaryReader reader) {
+            long value = ReadTag(reader);
+            return value - (1L << QMath.BitsAfterMSB(value));
         }
 
         /// <summary>

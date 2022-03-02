@@ -13,11 +13,14 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// EBML tag IDs.
         /// </summary>
-        internal const int Segment_Cluster_BlockGroup = 0xA0,
+        internal const int Segment_Tracks_TrackEntry_CodecID = 0x86,
+            Segment_Cluster_BlockGroup = 0xA0,
             Segment_Tracks_TrackEntry = 0xAE,
             Segment_Info_Duration = 0x4489,
             Segment_SeekHead_Seek = 0x4DBB,
+            Segment_Tracks_TrackEntry_Name = 0x536E,
             Segment_Info_ChapterTranslate = 0x6924,
+            Segment_Tracks_TrackEntry_Language = 0x22B59C,
             Segment_Info_TimestampScale = 0x2AD7B1,
             Segment_SeekHead = 0x114D9B74,
             Segment_Info = 0x1549A966,
@@ -59,7 +62,7 @@ namespace Cavern.Format.Container {
         }
 
         /// <summary>
-        /// Fetch a child by tag if it exists.
+        /// Fetch the first child of a tag if it exists.
         /// </summary>
         public MatroskaTree GetChild(int tag) {
             for (int i = 0, c = Children.Count; i < c; ++i)
@@ -69,7 +72,25 @@ namespace Cavern.Format.Container {
         }
 
         /// <summary>
-        /// Fetch a child by tag path if it exists.
+        /// Fetch all instances of a tag.
+        /// </summary>
+        public MatroskaTree[] GetChildren(int tag) {
+            int tags = 0;
+            for (int i = 0, c = Children.Count; i < c; ++i)
+                if (Children[i].Tag == tag)
+                    ++tags;
+            MatroskaTree[] children = new MatroskaTree[tags];
+            for (int i = 0, c = Children.Count; i < c; ++i) {
+                if (Children[i].Tag == tag) {
+                    children[^tags] = Children[i];
+                    --tags;
+                }
+            }
+            return children;
+        }
+
+        /// <summary>
+        /// Fetch the first child by a tag path if it exists.
         /// </summary>
         public MatroskaTree GetByPath(params int[] path) {
             MatroskaTree result = this;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 
 namespace Cavern.Format.Common {
     /// <summary>
@@ -16,7 +17,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Length of the entry.
         /// </summary>
-        public int Length { get; private set; }
+        public long Length { get; private set; }
 
         /// <summary>
         /// Position in the file where the raw data of this entry starts.
@@ -39,7 +40,7 @@ namespace Cavern.Format.Common {
         /// </summary>
         public byte[] GetBytes(BinaryReader reader) {
             reader.BaseStream.Position = position;
-            return reader.ReadBytes(Length);
+            return reader.ReadBytes((int)Length);
         }
 
         /// <summary>
@@ -55,11 +56,16 @@ namespace Cavern.Format.Common {
         }
 
         /// <summary>
+        /// Read the value as an UTF-8 string.
+        /// </summary>
+        public string GetUTF8(BinaryReader reader) => Encoding.UTF8.GetString(GetBytes(reader));
+
+        /// <summary>
         /// Read the value as <see cref="VarInt"/>.
         /// </summary>
         public long GetValue(BinaryReader reader) {
             reader.BaseStream.Position = position;
-            return VarInt.ReadValue(reader, Length);
+            return VarInt.ReadValue(reader, (int)Length);
         }
 
         /// <summary>
