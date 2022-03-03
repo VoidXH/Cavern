@@ -22,7 +22,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Position in the file where the raw data of this entry starts.
         /// </summary>
-        readonly long position;
+        protected readonly long position;
 
         /// <summary>
         /// Read the metadata of a KLV.

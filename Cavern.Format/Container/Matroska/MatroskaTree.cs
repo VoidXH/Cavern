@@ -15,6 +15,8 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         internal const int Segment_Tracks_TrackEntry_CodecID = 0x86,
             Segment_Cluster_BlockGroup = 0xA0,
+            Segment_Cluster_BlockGroup_Block = 0xA1,
+            Segment_Cluster_SimpleBlock = 0xA3,
             Segment_Tracks_TrackEntry = 0xAE,
             Segment_Tracks_TrackEntry_TrackNumber = 0xD7,
             Segment_Cluster_Timestamp = 0xE7,
@@ -42,9 +44,9 @@ namespace Cavern.Format.Container.Matroska {
         };
 
         /// <summary>
-        /// The contained subtree. Key is the tag ID.
+        /// The contained subtree.
         /// </summary>
-        public List<MatroskaTree> Children { get; private set; }
+        readonly List<MatroskaTree> children;
 
         /// <summary>
         /// Build the next KLV subtree.
@@ -55,11 +57,11 @@ namespace Cavern.Format.Container.Matroska {
                 return;
             }
 
-            Children = new List<MatroskaTree>();
+            children = new List<MatroskaTree>();
             long end = reader.BaseStream.Position + Length;
             while (reader.BaseStream.Position < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
-                Children.Add(subtree);
+                children.Add(subtree);
             }
         }
 
@@ -67,9 +69,9 @@ namespace Cavern.Format.Container.Matroska {
         /// Fetch the first child of a tag if it exists.
         /// </summary>
         public MatroskaTree GetChild(int tag) {
-            for (int i = 0, c = Children.Count; i < c; ++i)
-                if (Children[i].Tag == tag)
-                    return Children[i];
+            for (int i = 0, c = children.Count; i < c; ++i)
+                if (children[i].Tag == tag)
+                    return children[i];
             return null;
         }
 
@@ -78,13 +80,13 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public MatroskaTree[] GetChildren(int tag) {
             int tags = 0;
-            for (int i = 0, c = Children.Count; i < c; ++i)
-                if (Children[i].Tag == tag)
+            for (int i = 0, c = this.children.Count; i < c; ++i)
+                if (this.children[i].Tag == tag)
                     ++tags;
             MatroskaTree[] children = new MatroskaTree[tags];
-            for (int i = 0, c = Children.Count; i < c; ++i) {
-                if (Children[i].Tag == tag) {
-                    children[^tags] = Children[i];
+            for (int i = 0, c = this.children.Count; i < c; ++i) {
+                if (this.children[i].Tag == tag) {
+                    children[^tags] = this.children[i];
                     --tags;
                 }
             }
@@ -137,5 +139,7 @@ namespace Cavern.Format.Container.Matroska {
                 return child.GetValue(reader);
             return -1;
         }
+
+        public void Position(BinaryReader reader) => reader.BaseStream.Position = position;
     }
 }
