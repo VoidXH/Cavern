@@ -69,6 +69,11 @@ namespace Cavern.Format.Common {
         }
 
         /// <summary>
+        /// Move a <see cref="BinaryReader"/>'s position to the start of the value.
+        /// </summary>
+        public void Position(BinaryReader reader) => reader.BaseStream.Position = position;
+
+        /// <summary>
         /// Advance the file to the next KLV.
         /// </summary>
         public void Skip(BinaryReader reader) => reader.BaseStream.Seek(Length, SeekOrigin.Current);

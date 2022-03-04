@@ -14,15 +14,19 @@ namespace Cavern.Format.Container.Matroska {
         /// EBML tag IDs.
         /// </summary>
         internal const int Segment_Tracks_TrackEntry_CodecID = 0x86,
+            Segment_Tracks_TrackEntry_Audio_Channels = 0x9F,
             Segment_Cluster_BlockGroup = 0xA0,
             Segment_Cluster_BlockGroup_Block = 0xA1,
             Segment_Cluster_SimpleBlock = 0xA3,
             Segment_Tracks_TrackEntry = 0xAE,
+            Segment_Tracks_TrackEntry_Audio_SamplingFrequency = 0xB5,
             Segment_Tracks_TrackEntry_TrackNumber = 0xD7,
+            Segment_Tracks_TrackEntry_Audio = 0xE1,
             Segment_Cluster_Timestamp = 0xE7,
             Segment_Info_Duration = 0x4489,
             Segment_SeekHead_Seek = 0x4DBB,
             Segment_Tracks_TrackEntry_Name = 0x536E,
+            Segment_Tracks_TrackEntry_Audio_BitDepth = 0x6264,
             Segment_Info_ChapterTranslate = 0x6924,
             Segment_Tracks_TrackEntry_Language = 0x22B59C,
             Segment_Info_TimestampScale = 0x2AD7B1,
@@ -39,8 +43,9 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         /// <remarks>They have to be in ascending order for the binary search to work.</remarks>
         internal readonly static int[] hasChildren = new int[] {
-            Segment_Cluster_BlockGroup, Segment_Tracks_TrackEntry, Segment_SeekHead_Seek, Segment_Info_ChapterTranslate,
-            Segment_SeekHead, Segment_Info, Segment_Tracks, Segment, EBML, Segment_Cues, Segment_Cluster
+            Segment_Cluster_BlockGroup, Segment_Tracks_TrackEntry, Segment_Tracks_TrackEntry_Audio, Segment_SeekHead_Seek,
+            Segment_Info_ChapterTranslate, Segment_SeekHead, Segment_Info, Segment_Tracks, Segment, EBML, Segment_Cues,
+            Segment_Cluster
         };
 
         /// <summary>
@@ -121,7 +126,17 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
-        /// Get the first child's UTF-8 value by tag if it exists.
+        /// Get the first found child's big-endian floating point value by tag if it exists.
+        /// </summary>
+        public double GetChildFloatBE(BinaryReader reader, int tag) {
+            MatroskaTree child = GetChild(tag);
+            if (child != null)
+                return child.GetFloatBE(reader);
+            return -1;
+        }
+
+        /// <summary>
+        /// Get the first found child's UTF-8 value by tag if it exists.
         /// </summary>
         public string GetChildUTF8(BinaryReader reader, int tag) {
             MatroskaTree child = GetChild(tag);
@@ -131,7 +146,7 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
-        /// Get the first child's <see cref="VarInt"/> value by tag if it exists.
+        /// Get the first found child's <see cref="VarInt"/> value by tag if it exists.
         /// </summary>
         public long GetChildValue(BinaryReader reader, int tag) {
             MatroskaTree child = GetChild(tag);
@@ -139,7 +154,5 @@ namespace Cavern.Format.Container.Matroska {
                 return child.GetValue(reader);
             return -1;
         }
-
-        public void Position(BinaryReader reader) => reader.BaseStream.Position = position;
     }
 }

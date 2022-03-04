@@ -230,6 +230,29 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Sum all elements in an array.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Sum(int[] array) => Sum(array, 0, array.Length);
+
+        /// <summary>
+        /// Sum the elements in an array until the selected border element (exclusive).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Sum(int[] array, int until) => Sum(array, 0, until);
+
+        /// <summary>
+        /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Sum(int[] array, int from, int to) {
+            int sum = 0;
+            for (int i = from; i < to; ++i)
+                sum += array[i];
+            return sum;
+        }
+
+        /// <summary>
         /// Sum the elements in a list.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

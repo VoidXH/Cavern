@@ -14,6 +14,11 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// All blocks of the cluster, in order.
         /// </summary>
+        public IReadOnlyList<Block> Blocks => blocks;
+
+        /// <summary>
+        /// All blocks of the cluster, in order.
+        /// </summary>
         readonly Block[] blocks;
 
         /// <summary>

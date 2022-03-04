@@ -22,5 +22,10 @@
         /// Codec of the track.
         /// </summary>
         public Codec Format { get; set; }
+
+        /// <summary>
+        /// Additional metadata depending on the content type.
+        /// </summary>
+        public TrackExtra Extra { get; set; }
     }
 }

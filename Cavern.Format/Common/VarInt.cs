@@ -30,6 +30,14 @@ namespace Cavern.Format.Common {
         }
 
         /// <summary>
+        /// Reads the next signed VINT from a stream, cuts the leading 1, reads the correct value.
+        /// </summary>
+        public static long ReadSignedValue(BinaryReader reader) {
+            long value = ReadTag(reader);
+            return value - (3L << (QMath.BitsAfterMSB(value) - 1)) + 1;
+        }
+
+        /// <summary>
         /// Reads a fixed length VINT (the actual value field from a <see cref="KeyLengthValue"/>).
         /// </summary>
         public static long ReadValue(BinaryReader reader, int length) {

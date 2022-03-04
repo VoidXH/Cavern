@@ -10,7 +10,7 @@ namespace Cavern.Format.Container {
     /// Reads EBML, a kind of binary XML format that is used by Matroska.
     /// </summary>
     /// <see href="https://www.matroska.org/files/matroska_file_format_alexander_noe.pdf"/>
-    public class MatroskaReader : ContainerReader {
+    public class MatroskaReader : ContainerReader { // TODO: lazy chunk loading
         /// <summary>
         /// Nanoseconds to seconds.
         /// </summary>
@@ -26,6 +26,9 @@ namespace Cavern.Format.Container {
         /// </summary>
         readonly List<MatroskaTree> contents = new List<MatroskaTree>();
 
+        /// <summary>
+        /// Stream metadata and readers to the data.
+        /// </summary>
         readonly List<Cluster> clusters = new List<Cluster>();
 
         /// <summary>
@@ -54,6 +57,25 @@ namespace Cavern.Format.Container {
         /// Minimal EBML reader.
         /// </summary>
         public MatroskaReader(string path) : base(path) { ReadSkeleton(); }
+
+        /// <summary>
+        /// Continue reading a given track.
+        /// </summary>
+        /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the <see cref="Tracks"/> array.</param>
+        public byte[] ReadNextBlock(long track) {
+            MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
+            while (trackData.lastCluster < clusters.Count) {
+                IReadOnlyList<Block> blocks = clusters[trackData.lastCluster].Blocks;
+                while (trackData.lastBlock < blocks.Count) {
+                    Block block = blocks[trackData.lastBlock++];
+                    if (block.Track == trackData.ID)
+                        return block.GetData(reader);
+                }
+                trackData.lastBlock = 0;
+                ++trackData.lastCluster;
+            }
+            return null;
+        }
 
         /// <summary>
         /// Read the metadata and basic block structure of the file.
@@ -89,7 +111,9 @@ namespace Cavern.Format.Container {
             MatroskaTree[] entries = tracklist.GetChildren(MatroskaTree.Segment_Tracks_TrackEntry);
             Tracks = new Track[entries.Length];
             for (int track = 0; track < entries.Length; ++track) {
-                Track entry = Tracks[track] = new Track();
+                MatroskaTrack entry = new MatroskaTrack();
+                Tracks[track] = entry;
+
                 MatroskaTree source = entries[track];
                 entry.ID = source.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_TrackNumber);
                 entry.Name = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_Name);
@@ -97,6 +121,17 @@ namespace Cavern.Format.Container {
                 string codec = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_CodecID);
                 if (codecNames.ContainsKey(codec))
                     entry.Format = codecNames[codec];
+
+                MatroskaTree audioData = source.GetChild(MatroskaTree.Segment_Tracks_TrackEntry_Audio);
+                if (audioData != null)
+                    entry.Extra = new TrackExtraAudio {
+                        SampleRate = audioData.GetChildFloatBE(reader,
+                            MatroskaTree.Segment_Tracks_TrackEntry_Audio_SamplingFrequency),
+                        ChannelCount = (int)audioData.GetChildValue(reader,
+                            MatroskaTree.Segment_Tracks_TrackEntry_Audio_Channels),
+                        Depth = (BitDepth)audioData.GetChildValue(reader,
+                            MatroskaTree.Segment_Tracks_TrackEntry_Audio_BitDepth)
+                    };
             }
         }
     }

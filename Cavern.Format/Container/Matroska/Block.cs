@@ -120,7 +120,9 @@ namespace Cavern.Format.Container.Matroska {
                     case Lacing.EBML:
                         frameSizes[0] = (int)VarInt.ReadValue(reader);
                         for (byte i = 1; i < frameCount; ++i)
-                            frameSizes[i] = (int)VarInt.ReadValue(reader) - frameSizes[i - 1]; // TODO: read signed!
+                            frameSizes[i] = (int)VarInt.ReadSignedValue(reader);
+                        for (byte i = (byte)(frameCount - 1); i > 0; --i)
+                            frameSizes[i] -= frameSizes[i - 1];
                         break;
                     default:
                         break;
@@ -130,6 +132,15 @@ namespace Cavern.Format.Container.Matroska {
                 frameCount = 1;
                 frameSizes = new int[1] { (int)(source.Length - (firstFrame - start)) };
             }
+        }
+
+        /// <summary>
+        /// Read all stream data from this block, without separating frames.
+        /// </summary>
+        public byte[] GetData(BinaryReader reader) {
+            reader.BaseStream.Position = firstFrame;
+            int length = Utilities.QMath.Sum(frameSizes);
+            return reader.ReadBytes(length);
         }
 
         /// <summary>
