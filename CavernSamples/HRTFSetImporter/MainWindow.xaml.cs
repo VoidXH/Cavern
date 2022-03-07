@@ -1,6 +1,5 @@
 ﻿using Cavern.Format;
 using Cavern.Utilities;
-using HRTFSetImporter.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +30,7 @@ namespace HRTFSetImporter {
             angleSetName.Text = Settings.Default.AngleSetName;
         }
 
-        Dictionary<int, Dictionary<int, float[][]>> ImportImpulses(string path, Regex pattern) {
+        static Dictionary<int, Dictionary<int, float[][]>> ImportImpulses(string path, Regex pattern) {
             Settings.Default.LastFolder = path;
             string[] folders = Directory.GetFiles(path);
             Dictionary<int, Dictionary<int, float[][]>> data = new Dictionary<int, Dictionary<int, float[][]>>();
@@ -50,7 +49,7 @@ namespace HRTFSetImporter {
             return data;
         }
 
-        bool WriteDirectionalChannel(StringBuilder builder, List<int> written, int h, int w, float[][] samples) {
+        static bool WriteDirectionalChannel(StringBuilder builder, List<int> written, int h, int w, float[][] samples) {
             int hash = h * 1000 + w;
             if (written.Contains(hash))
                 return false;
@@ -107,7 +106,7 @@ namespace HRTFSetImporter {
             }
         }
 
-        void LeadingClearing(Dictionary<int, Dictionary<int, float[][]>> data) {
+        static void LeadingClearing(Dictionary<int, Dictionary<int, float[][]>> data) {
             int minLead = int.MaxValue;
             foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in data) {
                 foreach (KeyValuePair<int, float[][]> distance in angle.Value) {
@@ -134,7 +133,7 @@ namespace HRTFSetImporter {
             }
         }
 
-        void TrailingClearing(Dictionary<int, Dictionary<int, float[][]>> data) {
+        static void TrailingClearing(Dictionary<int, Dictionary<int, float[][]>> data) {
             int[] angles = data.Keys.ToArray();
             foreach (int angle in angles) {
                 int[] distances = data[angle].Keys.ToArray();
@@ -149,7 +148,7 @@ namespace HRTFSetImporter {
             }
         }
 
-        void Normalize(Dictionary<int, Dictionary<int, float[][]>> data) {
+        static void Normalize(Dictionary<int, Dictionary<int, float[][]>> data) {
             foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in data) {
                 foreach (KeyValuePair<int, float[][]> distance in angle.Value) {
                     float[] samples = distance.Value[0];

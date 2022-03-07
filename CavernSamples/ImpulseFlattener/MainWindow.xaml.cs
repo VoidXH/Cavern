@@ -10,7 +10,6 @@ using Cavern.Remapping;
 using Cavern.Utilities;
 
 using Window = System.Windows.Window;
-using ImpulseFlattener.Properties;
 
 namespace ImpulseFlattener {
     /// <summary>

@@ -2,10 +2,19 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <Authors>VoidX</Authors>
+    <Copyright>Copyright © VoidX 2022</Copyright>
     <Description>Sample GUI spatial upconverter with Cavern's renderer.</Description>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <DebugType>full</DebugType>
+    <Authors>VoidX</Authors>
+    <Product>Cavernize GUI</Product>
+    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>

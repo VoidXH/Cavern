@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace HRTFSetStatista.Properties {
+namespace HRTFSetStatista {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

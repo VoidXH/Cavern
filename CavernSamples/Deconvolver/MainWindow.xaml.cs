@@ -1,6 +1,5 @@
 ﻿using Cavern.Format;
 using Cavern.Utilities;
-using Deconvolver.Properties;
 using Microsoft.Win32;
 using System;
 using System.IO;
@@ -105,9 +104,9 @@ namespace Deconvolver {
             exporter.FileName = "Deconvolved.wav";
             if (exporter.ShowDialog().Value) {
                 BinaryWriter handler = new BinaryWriter(File.OpenWrite(exporter.FileName));
-                using (RIFFWaveWriter writer = new RIFFWaveWriter(handler, responseChannels, responseReader.Length,
-                    responseReader.SampleRate, responseReader.Bits))
-                    writer.Write(response);
+                using RIFFWaveWriter writer = new RIFFWaveWriter(handler, responseChannels, responseReader.Length,
+                    responseReader.SampleRate, responseReader.Bits);
+                writer.Write(response);
             }
         }
 

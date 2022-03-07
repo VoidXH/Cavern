@@ -1,5 +1,4 @@
 ﻿using Cavern.Utilities;
-using HRTFSetStatista.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -38,9 +37,9 @@ namespace HRTFSetStatista {
             setName.Text = Settings.Default.SetName;
         }
 
-        void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        static void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-        Dictionary<double, int[]> GetDelayDifferences(List<HRTFSetEntry> entries, List<double> hValues) {
+        static Dictionary<double, int[]> GetDelayDifferences(List<HRTFSetEntry> entries, List<double> hValues) {
             Dictionary<double, int[]> result = new Dictionary<double, int[]>(); // Distance; array by hValues
             for (int entry = 0, count = entries.Count; entry < count; ++entry) {
                 HRTFSetEntry setEntry = entries[entry];
@@ -63,7 +62,7 @@ namespace HRTFSetStatista {
             return result;
         }
 
-        Dictionary<double, float[]> GetGainDifferences(List<HRTFSetEntry> entries, List<double> hValues) {
+        static Dictionary<double, float[]> GetGainDifferences(List<HRTFSetEntry> entries, List<double> hValues) {
             Dictionary<double, float[]> result = new Dictionary<double, float[]>(); // Distance; array by hValues
             for (int entry = 0, count = entries.Count; entry < count; ++entry) {
                 HRTFSetEntry setEntry = entries[entry];
@@ -82,16 +81,20 @@ namespace HRTFSetStatista {
             return result;
         }
 
-        void CopyToClipboard<T>(Dictionary<double, T[]> set, List<double> hValues) {
+        static void CopyToClipboard<T>(Dictionary<double, T[]> set, List<double> hValues) {
             StringBuilder result = new StringBuilder();
             double[] columns = set.Keys.ToArray();
             for (int h = 0; h < hValues.Count; ++h) {
                 result.Append(hValues[h]).Append('\t');
-                for (int i = 0; i < columns.Length; ++i)
-                    if (i != columns.Length - 1)
-                        result.Append(set[columns[i]][h].ToString()).Append('\t');
-                    else
-                        result.AppendLine(set[columns[i]][h].ToString());
+                for (int i = 0; i < columns.Length; ++i) {
+                    var next = set[columns[i]][h];
+                    if (next != null) {
+                        if (i != columns.Length - 1)
+                            result.Append(next.ToString()).Append('\t');
+                        else
+                            result.AppendLine(next.ToString());
+                    }
+                }
             }
             Clipboard.SetText(result.ToString());
         }
