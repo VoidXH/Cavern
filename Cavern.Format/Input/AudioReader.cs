@@ -74,7 +74,7 @@ namespace Cavern.Format {
         }
 
         /// <summary>
-        /// Read the entire file.
+        /// Read the entire file, including the header, and get the data.
         /// </summary>
         public float[] Read() {
             ReadHeader();

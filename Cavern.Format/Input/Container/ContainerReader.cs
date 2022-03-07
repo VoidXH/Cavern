@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using Cavern.Format.Common;
+
 namespace Cavern.Format.Container {
     /// <summary>
     /// Multimedia container reader base class.
@@ -11,9 +13,14 @@ namespace Cavern.Format.Container {
         public double Duration { get; protected set; }
 
         /// <summary>
+        /// Metadata of media streams in this file.
+        /// </summary>
+        public Track[] Tracks { get; protected set; }
+
+        /// <summary>
         /// File reader object.
         /// </summary>
-        protected BinaryReader reader;
+        internal protected BinaryReader reader;
 
         /// <summary>
         /// Abstract audio file reader.
@@ -26,5 +33,11 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <param name="path">Input file name</param>
         public ContainerReader(string path) => reader = new BinaryReader(File.OpenRead(path));
+
+        /// <summary>
+        /// Continue reading a given track.
+        /// </summary>
+        /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the <see cref="Tracks"/> array.</param>
+        public abstract byte[] ReadNextBlock(int track);
     }
 }

@@ -17,11 +17,6 @@ namespace Cavern.Format.Container {
         const double nsToS = 1.0 / 1000000000;
 
         /// <summary>
-        /// Metadata of media streams in this file.
-        /// </summary>
-        public Track[] Tracks { get; private set; }
-
-        /// <summary>
         /// All headers and segments of the file.
         /// </summary>
         readonly List<MatroskaTree> contents = new List<MatroskaTree>();
@@ -62,7 +57,7 @@ namespace Cavern.Format.Container {
         /// Continue reading a given track.
         /// </summary>
         /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the <see cref="Tracks"/> array.</param>
-        public byte[] ReadNextBlock(long track) {
+        public override byte[] ReadNextBlock(int track) {
             MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
             while (trackData.lastCluster < clusters.Count) {
                 IReadOnlyList<Block> blocks = clusters[trackData.lastCluster].Blocks;
@@ -129,7 +124,7 @@ namespace Cavern.Format.Container {
                             MatroskaTree.Segment_Tracks_TrackEntry_Audio_SamplingFrequency),
                         ChannelCount = (int)audioData.GetChildValue(reader,
                             MatroskaTree.Segment_Tracks_TrackEntry_Audio_Channels),
-                        Depth = (BitDepth)audioData.GetChildValue(reader,
+                        Bits = (BitDepth)audioData.GetChildValue(reader,
                             MatroskaTree.Segment_Tracks_TrackEntry_Audio_BitDepth)
                     };
             }

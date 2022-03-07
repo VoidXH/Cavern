@@ -16,6 +16,6 @@
         /// <summary>
         /// Audio sample size in bits.
         /// </summary>
-        public BitDepth Depth { get; set; }
+        public BitDepth Bits { get; set; }
     }
 }
