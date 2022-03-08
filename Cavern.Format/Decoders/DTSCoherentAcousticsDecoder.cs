@@ -121,86 +121,94 @@ namespace Cavern.Format.Decoders {
             // ------------------------------------------------------------------
             // Frame header
             // ------------------------------------------------------------------
-            BitExtractor header = new BitExtractor(reader.Read(headerLength));
-            int sync = header.Read(32);
+            BitExtractor extractor = new BitExtractor(reader.Read(headerLength));
+            int sync = extractor.Read(32); // TODO: handle the DTS-HD MA sync word, extract objects when documented
             if (sync != syncWord)
                 throw new SyncException();
 
-            header.ReadBit(); // True if the frame is not a terminator, which can be used for video sync
-            int deficitSampleCount = header.Read(5); // Samples missing from a terminator block
+            extractor.Skip(1); // True if the frame is not a terminator, which can be used for video sync
+
+            int deficitSampleCount = extractor.Read(5); // Samples missing from a terminator block
             if (deficitSampleCount != allowedDeficit)
                 throw new UnsupportedFeatureException("terminator frames");
 
-            bool crcPresent = header.ReadBit();
+            bool crcPresent = extractor.ReadBit();
             if (crcPresent)
                 throw new UnsupportedFeatureException("CRC");
 
-            int pcmBlockCount = header.Read(7) + 1; // A PCM block contains 32 samples for each channel
+            int pcmBlockCount = extractor.Read(7) + 1; // A PCM block contains 32 samples for each channel
             if (pcmBlockCount < 5)
                 throw new ArgumentOutOfRangeException("PCM block count");
 
-            int frameSize = header.Read(14); // Total size of the current frame including audio and extensions
+            int frameSize = extractor.Read(14) + 1; // Total size of the current frame including audio and extensions
             if (frameSize < 95)
                 throw new ArgumentOutOfRangeException("frame size");
 
-            int channelArrangement = header.Read(6);
+            int channelArrangement = extractor.Read(6);
             if (channelArrangement >= coreChannelArrangements.Length)
                 throw new ArgumentOutOfRangeException("channel layout");
             ChannelPrototype[] channels = ChannelPrototype.Get(coreChannelArrangements[channelArrangement]);
+            if (channels.Length > 5)
+                throw new UnsupportedFeatureException(">5.1 core"); // This would require splitting the frames between channels
 
-            ushort sampleRate = sampleRates[header.Read(4)];
+            ushort sampleRate = sampleRates[extractor.Read(4)];
             if (sampleRate == 0)
                 throw new ArgumentOutOfRangeException("sample rate");
 
-            bool lossless = header.Read(5) == 29; // These 5 bits mark the bitrate
+            bool lossless = extractor.Read(5) == 29; // These 5 bits mark the bitrate
 
-            if (header.ReadBit())
+            if (extractor.ReadBit())
                 throw new ArgumentOutOfRangeException("reserved bit");
 
-            bool embeddedDynamicRange = header.ReadBit(); // Marks if DRC coefficients are present in a frame
+            bool embeddedDynamicRange = extractor.ReadBit(); // Marks if DRC coefficients are present in a frame
             if (embeddedDynamicRange)
                 throw new UnsupportedFeatureException("DRC");
 
-            bool timestamps = header.ReadBit(); // Marks if timestamps are embedded after audio frames
-            bool auxPresent = header.ReadBit(); // Marks if auxillary data is found after audio frames
-            header.ReadBit(); // Marks if the source was mastered in HDCD
-            header.Read(3); // Extended audio descriptor flag, none of those are supported
-            if (header.ReadBit())
+            bool timestamps = extractor.ReadBit(); // Marks if timestamps are embedded after audio frames
+            bool auxPresent = extractor.ReadBit(); // Marks if auxillary data is found after audio frames
+            extractor.Skip(1); // Marks if the source was mastered in HDCD
+            extractor.Skip(3); // Extended audio descriptor flag, none of those are supported
+            if (extractor.ReadBit())
                 throw new UnsupportedFeatureException("extended audio");
 
-            bool syncWordPlacement = header.ReadBit(); // If false, sync word is placed after each subframe, otherwise subsubframe
+            // If false, sync word is placed after each subframe, otherwise subsubframe
+            bool syncWordPlacement = extractor.ReadBit();
 
-            int lfeInterploationFactor = header.Read(2); // If 0, LFE is disabled
+            int lfeInterploationFactor = extractor.Read(2); // If 0, LFE is disabled
             if (lfeInterploationFactor != 0)
                 lfeInterploationFactor = 192 - lfeInterploationFactor * 64;
 
-            bool usePredictorHistory = header.ReadBit(); // Don't discard the predictor history from last frame
-            bool perfectReconstruction = header.ReadBit(); // Uses a different set of multirate interpolation filter coefficients
+            bool usePredictorHistory = extractor.ReadBit(); // Don't discard the predictor history from last frame
+            bool perfectReconstruction = extractor.ReadBit(); // Uses a different set of multirate interpolation filter coeffs
 
-            int encoderVersion = header.Read(4);
+            int encoderVersion = extractor.Read(4);
             if (encoderVersion > 7)
                 throw new UnsupportedFeatureException("encoder");
 
-            header.Read(2); // Audio copy history, omitted deliberately
+            extractor.Skip(2); // Audio copy history, omitted deliberately
 
-            int sourceResolution = header.Read(3);
+            int sourceResolution = extractor.Read(3);
             if (sourceResolution % 2 == 1)
                 throw new UnsupportedFeatureException("DTS-ES");
             int bitDepth = (sourceResolution >> 1) * 4 + 16;
             if (bitDepth == 28)
                 bitDepth = 24;
 
-            bool sumDifferenceFront = header.ReadBit();
-            bool sumDifferenceSurround = header.ReadBit();
+            bool sumDifferenceFront = extractor.ReadBit();
+            bool sumDifferenceSurround = extractor.ReadBit();
             if (sumDifferenceFront || sumDifferenceSurround)
                 throw new UnsupportedFeatureException("sum-difference");
 
-            header.Read(4); // Dialog compression - skipped as Cavern is against the loudness war
+            extractor.Skip(4); // Dialog compression - skipped as Cavern is against the loudness war
 
             // ------------------------------------------------------------------
             // Primary coding header
             // ------------------------------------------------------------------
-            return new float[1000]; // TODO: continue in place of this
+            extractor = new BitExtractor(reader.Read(frameSize - headerLength)); // also includes data
+            int substreamCount = extractor.Read(4) + 1;
+            int primaryChannelCount = extractor.Read(3) + 1;
+
+            throw new NotImplementedException(); // TODO: continue core decoding
         }
     }
 }
