@@ -39,4 +39,16 @@ namespace Cavern.Format.Common {
         public UnsupportedCodecException(bool needAudio, Codec codec) :
             base(string.Format(message, needAudio ? audio : video, codec.ToString())) { }
     }
+
+    /// <summary>
+    /// Tells if a required feature in the codec is unsupported.
+    /// </summary>
+    public class UnsupportedFeatureException : Exception {
+        const string message = "A required feature in the codec is unsupported: ";
+
+        /// <summary>
+        /// Tells if a required feature in the codec is unsupported.
+        /// </summary>
+        public UnsupportedFeatureException(string featureName) : base(message + featureName) { }
+    }
 }

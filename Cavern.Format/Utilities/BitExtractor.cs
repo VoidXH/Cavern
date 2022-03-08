@@ -29,10 +29,22 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         public int Read(int bits) {
             int result = 0;
-            while (--bits >= 0) {
-                result = (result << 1) | (source[position / 8] >> (position % 8)) & 1;
-                ++position;
-            }
+            while (--bits >= 0)
+                result = (result << 1) | NextBit();
+            return result;
+        }
+
+        /// <summary>
+        /// Read the next single bit as a flag.
+        /// </summary>
+        public bool ReadBit() => NextBit() == 1;
+
+        /// <summary>
+        /// Read the next bit and advance the position.
+        /// </summary>
+        int NextBit() {
+            int result = (source[position / 8] >> (position % 8)) & 1;
+            ++position;
             return result;
         }
     }
