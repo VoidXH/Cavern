@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 using Cavern.Format.Common;
+using Cavern.Utilities;
 
 namespace Cavern.Format.Container.Matroska {
     /// <summary>
@@ -139,7 +140,7 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public byte[] GetData(BinaryReader reader) {
             reader.BaseStream.Position = firstFrame;
-            int length = Utilities.QMath.Sum(frameSizes);
+            int length = QMath.Sum(frameSizes);
             return reader.ReadBytes(length);
         }
 

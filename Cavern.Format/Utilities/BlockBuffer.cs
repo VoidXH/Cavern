@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace Cavern.Utilities {
+namespace Cavern.Format.Utilities {
     /// <summary>
     /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.
     /// </summary>
-    public sealed class BlockBuffer<T> {
+    internal sealed class BlockBuffer<T> {
         /// <summary>
         /// Result of the last <see cref="Fetcher"/> call.
         /// </summary>

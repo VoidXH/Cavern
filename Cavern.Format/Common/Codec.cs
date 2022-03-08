@@ -18,6 +18,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         HEVC,
         /// <summary>
+        /// DTS, could be any DTS format, audio.
+        /// </summary>
+        DTS,
+        /// <summary>
         /// DTS-HD lossless, could be DTS:X, audio.
         /// </summary>
         DTS_HD,
@@ -42,7 +46,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
-        static readonly Codec[] audioCodecs = { Codec.DTS_HD, Codec.Opus, Codec.PCM_Float, Codec.PCM_LE };
+        static readonly Codec[] audioCodecs = { Codec.DTS, Codec.DTS_HD, Codec.Opus, Codec.PCM_Float, Codec.PCM_LE };
 
         /// <summary>
         /// Checks if a codec is used for audio only.

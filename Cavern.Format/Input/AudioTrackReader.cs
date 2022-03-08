@@ -1,7 +1,7 @@
 ﻿using Cavern.Format.Common;
 using Cavern.Format.Container;
 using Cavern.Format.Decoders;
-using Cavern.Utilities;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format {
     /// <summary>
@@ -51,6 +51,9 @@ namespace Cavern.Format {
             Bits = info.Bits;
 
             switch (selected.Format) {
+                case Codec.DTS:
+                    decoder = new DTSCoherentAcousticsDecoder(new BlockBuffer<byte>(ReadNextBlock));
+                    break;
                 case Codec.PCM_LE:
                 case Codec.PCM_Float:
                     decoder = new RIFFWaveDecoder(new BlockBuffer<byte>(ReadNextBlock), Bits);

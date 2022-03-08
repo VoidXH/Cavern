@@ -1,4 +1,4 @@
-﻿using Cavern.Utilities;
+﻿using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {
     /// <summary>

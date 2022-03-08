@@ -32,6 +32,7 @@ namespace Cavern.Format.Container {
         static readonly Dictionary<string, Codec> codecNames = new Dictionary<string, Codec>() {
             ["V_MPEG4/ISO/AVC"] = Codec.AVC,
             ["V_MPEGH/ISO/HEVC"] = Codec.HEVC,
+            ["A_DTS"] = Codec.DTS,
             ["A_DTS/LOSSLESS"] = Codec.DTS_HD,
             ["A_PCM/FLOAT/IEEE"] = Codec.PCM_Float,
             ["A_PCM/INT/LIT"] = Codec.PCM_LE,

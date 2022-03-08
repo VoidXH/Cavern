@@ -200,6 +200,11 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Reverse the bit order in a byte.
+        /// </summary>
+        public static byte Revert(this byte b) => (byte)((b * 0x0202020202 & 0x010884422010) % 1023);
+
+        /// <summary>
         /// Checks if the two numbers have the same sign.
         /// </summary>
         /// <remarks>This function does not handle 0, 0 correctly for optimization purposes.</remarks>
