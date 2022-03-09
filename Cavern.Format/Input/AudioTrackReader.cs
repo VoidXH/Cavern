@@ -54,6 +54,9 @@ namespace Cavern.Format {
                 case Codec.DTS:
                     decoder = new DTSCoherentAcousticsDecoder(new BlockBuffer<byte>(ReadNextBlock));
                     break;
+                case Codec.EnhancedAC3:
+                    decoder = new EnhancedAC3Decoder(new BlockBuffer<byte>(ReadNextBlock));
+                    break;
                 case Codec.PCM_LE:
                 case Codec.PCM_Float:
                     decoder = new RIFFWaveDecoder(new BlockBuffer<byte>(ReadNextBlock), Bits);

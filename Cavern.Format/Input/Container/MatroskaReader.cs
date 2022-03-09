@@ -34,6 +34,7 @@ namespace Cavern.Format.Container {
             ["V_MPEGH/ISO/HEVC"] = Codec.HEVC,
             ["A_DTS"] = Codec.DTS,
             ["A_DTS/LOSSLESS"] = Codec.DTS_HD,
+            ["A_EAC3"] = Codec.EnhancedAC3,
             ["A_PCM/FLOAT/IEEE"] = Codec.PCM_Float,
             ["A_PCM/INT/LIT"] = Codec.PCM_LE,
             ["A_OPUS"] = Codec.Opus

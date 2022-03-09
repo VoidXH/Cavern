@@ -141,10 +141,16 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Convert decibels to voltage gain.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float DbToGain(float gain) => MathF.Pow(10, gain * .05f);
+
+        /// <summary>
         /// Convert voltage gain to decibels.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float GainToDb(float gain) => 20 * (float)Math.Log10(gain);
+        public static float GainToDb(float gain) => 20 * MathF.Log10(gain);
 
         /// <summary>
         /// Counts the leading zeros in a byte.

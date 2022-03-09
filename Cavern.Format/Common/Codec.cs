@@ -26,6 +26,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         DTS_HD,
         /// <summary>
+        /// Enhanced AC-3 (Dolby Digital Plus), audio.
+        /// </summary>
+        EnhancedAC3,
+        /// <summary>
         /// Opus, audio.
         /// </summary>
         Opus,
@@ -46,7 +50,8 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
-        static readonly Codec[] audioCodecs = { Codec.DTS, Codec.DTS_HD, Codec.Opus, Codec.PCM_Float, Codec.PCM_LE };
+        static readonly Codec[] audioCodecs = { Codec.DTS, Codec.DTS_HD, Codec.EnhancedAC3,
+            Codec.Opus, Codec.PCM_Float, Codec.PCM_LE };
 
         /// <summary>
         /// Checks if a codec is used for audio only.
