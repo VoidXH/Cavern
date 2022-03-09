@@ -206,6 +206,20 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Compute the base 2 logarithm of a number faster than a generic Log function and round it up.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Log2Ceil(int val) {
+            ConverterStruct a = new ConverterStruct {
+                asFloat = val
+            };
+            int log = (((a.asInt >> 23) + 1) & 0x1F);
+            if ((1 << log) != val)
+                return log + 1;
+            return log;
+        }
+
+        /// <summary>
         /// Reverse the bit order in a byte.
         /// </summary>
         public static byte Revert(this byte b) => (byte)((b * 0x0202020202 & 0x010884422010) % 1023);
