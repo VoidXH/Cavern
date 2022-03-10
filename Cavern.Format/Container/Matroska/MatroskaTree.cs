@@ -42,7 +42,7 @@ namespace Cavern.Format.Container.Matroska {
         /// Tags which have metadata in their children.
         /// </summary>
         /// <remarks>They have to be in ascending order for the binary search to work.</remarks>
-        internal readonly static int[] hasChildren = new int[] {
+        internal static readonly int[] hasChildren = new int[] {
             Segment_Cluster_BlockGroup, Segment_Tracks_TrackEntry, Segment_Tracks_TrackEntry_Audio, Segment_SeekHead_Seek,
             Segment_Info_ChapterTranslate, Segment_SeekHead, Segment_Info, Segment_Tracks, Segment, EBML, Segment_Cues,
             Segment_Cluster

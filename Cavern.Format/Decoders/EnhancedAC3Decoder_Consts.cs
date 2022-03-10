@@ -13,14 +13,19 @@ namespace Cavern.Format.Decoders {
         const int mustDecode = 5;
 
         /// <summary>
+        /// Number of LFE groups.
+        /// </summary>
+        const int nlfegrps = 2;
+
+        /// <summary>
         /// Number of blocks per sync frame for each code.
         /// </summary>
-        readonly static byte[] numberOfBlocks = new byte[] { 1, 2, 3, 6 };
+        static readonly byte[] numberOfBlocks = new byte[] { 1, 2, 3, 6 };
 
         /// <summary>
         /// Sample rates for each sample rate code.
         /// </summary>
-        readonly static ushort[] sampleRates = new ushort[] { 48000, 44100, 32000 };
+        static readonly ushort[] sampleRates = new ushort[] { 48000, 44100, 32000 };
 
         /// <summary>
         /// Possible channel arrangements in E-AC3. The index is the ID read from the file. LFE channel is marked separately.
@@ -46,5 +51,21 @@ namespace Cavern.Format.Decoders {
                 { ReferenceChannel.FrontLeft, ReferenceChannel.FrontCenter, ReferenceChannel.FrontRight,
                     ReferenceChannel.SideLeft, ReferenceChannel.SideRight }
         };
+
+        /// <summary>
+        /// Meaning of values for chexpstr[ch], cplexpstr, and lfeexpstr.
+        /// </summary>
+        enum ExponentStrategies {
+            Reuse = 0,
+            D15,
+            D25,
+            D45
+        }
+
+        /// <summary>
+        /// Sub-band transform start coefficients.
+        /// </summary>
+        static readonly int[] ecplsubbndtab = new int[23]
+            { 13, 19, 25, 31, 37, 49, 61, 73, 85, 97, 109, 121, 133, 145, 157, 169, 181, 193, 205, 217, 229, 241, 253 };
     }
 }
