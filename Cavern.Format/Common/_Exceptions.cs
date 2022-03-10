@@ -2,6 +2,18 @@
 
 namespace Cavern.Format.Common {
     /// <summary>
+    /// Tells if the decoder ran into a predefined error code that is found in the decoder's documentation.
+    /// </summary>
+    public class DecoderException : Exception {
+        const string message = "Internal decoder error code: ";
+
+        /// <summary>
+        /// Tells if the decoder ran into a predefined error code that is found in the decoder's documentation.
+        /// </summary>
+        public DecoderException(int errorCode) : base(message + errorCode) { }
+    }
+
+    /// <summary>
     /// Tells if the selected track had an invalid ID.
     /// </summary>
     public class InvalidTrackException : Exception {

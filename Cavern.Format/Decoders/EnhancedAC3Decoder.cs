@@ -47,18 +47,19 @@ namespace Cavern.Format.Decoders {
 
             bool LFE = extractor.ReadBit();
             extractor = new BitExtractor(reader.Read(frameSize - mustDecode));
-            int bsid = extractor.Read(5);
-            int dialnorm = extractor.Read(5);
-            int compr = extractor.ReadBit() ? extractor.Read(8) : 0;
+            Decoder decoder = ParseDecoder(extractor.Read(5));
+            float dialogNormalization = ParseDialogNormalization(extractor.Read(5));
+            if (extractor.ReadBit()) // compr, omitted
+                extractor.Skip(8);
 
             // Mixing and mapping metadata
             int dmixmod, ltrtcmixlev, lorocmixlev, ltrtsurmixlev, lorosurmixlev, lfemixlevcod,
                 programScaleFactor = 0, // Gain offset for the entire stream in dB.
                 extpgmscl;
+            int[] blkmixcfginfo = new int[blocks];
             if (extractor.ReadBit()) {
-                if (acmod > 2) {
+                if (acmod > 2)
                     dmixmod = extractor.Read(2);
-                }
                 if (((acmod & 1) != 0) && (acmod > 2)) { // 3 front channels present
                     ltrtcmixlev = extractor.Read(3);
                     lorocmixlev = extractor.Read(3);
@@ -67,9 +68,8 @@ namespace Cavern.Format.Decoders {
                     ltrtsurmixlev = extractor.Read(3);
                     lorosurmixlev = extractor.Read(3);
                 }
-                if (LFE) { // LFE present
+                if (LFE) // LFE present
                     lfemixlevcod = extractor.ReadBit() ? extractor.Read(5) : 0;
-                }
                 if (streamType == 0) { // Independent stream
                     programScaleFactor = extractor.ReadBit() ? extractor.Read(6) - 51 : 0;
                     extpgmscl = extractor.ReadBit() ? extractor.Read(6) : 0;
@@ -78,13 +78,19 @@ namespace Cavern.Format.Decoders {
                 }
                 if (extractor.ReadBit())
                     throw new UnsupportedFeatureException("mixing config");
+                if (extractor.ReadBit()) { // Mixing configuration information
+                    if (numblkscod == 0)
+                        blkmixcfginfo[0] = extractor.Read(5);
+                    else
+                        for (int block = 0; block < blocks; ++block)
+                            blkmixcfginfo[block] = extractor.ReadBit() ? extractor.Read(5) : 0;
+                }
             }
 
             if (extractor.ReadBit()) { // Informational metadata
                 if (extractor.Read(3) != 0)
                     throw new UnsupportedFeatureException("bit stream modes");
-                extractor.Skip(1); // Copyright bit
-                extractor.Skip(1); // Original bitstream bit
+                extractor.Skip(2); // Copyright & original bitstream bits
                 if (acmod >= 6 && extractor.Read(2) != 0)
                     throw new UnsupportedFeatureException("ProLogic");
                 if (extractor.ReadBit())
@@ -93,7 +99,7 @@ namespace Cavern.Format.Decoders {
                     extractor.Skip(1); // The sample rate was halved from the original
             }
 
-            if ((streamType == 0x0) && (numblkscod != 0x3))
+            if ((streamType == 0) && (numblkscod != 3))
                 extractor.ReadBit(); // Converter snychronization flag
 
             if (extractor.ReadBit()) { // Additional bit stream information (omitted)
@@ -112,8 +118,7 @@ namespace Cavern.Format.Decoders {
             }
 
             int snroffststr = extractor.Read(2);
-            if (extractor.ReadBit())
-                throw new UnsupportedFeatureException("transproce");
+            bool transproce = extractor.ReadBit();
             bool blkswe = extractor.ReadBit();
             bool dithflage = extractor.ReadBit();
             bool bamode = extractor.ReadBit();
@@ -137,6 +142,7 @@ namespace Cavern.Format.Decoders {
                 }
             }
 
+            // Exponent strategy data init
             int[][] chexpstr = new int[blocks][];
             int ncplblks = 0;
             for (int block = 0; block < blocks; ++block) {
@@ -163,36 +169,37 @@ namespace Cavern.Format.Decoders {
             }
 
             bool[] lfeexpstr = new bool[blocks];
-            for (int block = 0; block < blocks; ++block)
-                lfeexpstr[block] = extractor.ReadBit();
+            if (LFE)
+                for (int block = 0; block < blocks; ++block)
+                    lfeexpstr[block] = extractor.ReadBit();
 
+            // Converter exponent strategy data
             int[] convexpstr = new int[channels.Length];
             if (streamType == 0) {
-                bool convexpstre = true;
-                if (numblkscod != 3)
-                    convexpstre = extractor.ReadBit();
-                if (convexpstre)
+                if (numblkscod == 3 || extractor.ReadBit())
                     for (int channel = 0; channel < channels.Length; ++channel)
                         convexpstr[channel] = extractor.Read(5);
             }
 
+            // Audio frame SNR offset data
             int frmcsnroffst, frmfsnroffst = 0;
             if (snroffststr == 0) {
                 frmcsnroffst = extractor.Read(6);
                 frmfsnroffst = extractor.Read(4);
             }
 
-            bool blockStartInfoEnabled = false;
-            if (numblkscod != 0)
-                blockStartInfoEnabled = extractor.ReadBit();
-            if (blockStartInfoEnabled) {
+            // Transient pre-noise processing data
+            if (transproce)
+                for (int channel = 0; channel < channels.Length; ++channel)
+                    if (extractor.ReadBit()) // chintransproc
+                        extractor.Skip(18); // transprocloc and transproclen
+
+            if (numblkscod != 0 && extractor.ReadBit()) {
                 int blockStartInfoBits = (blocks - 1) * (4 + QMath.Log2Ceil(wordsPerSyncframe));
                 extractor.Skip(blockStartInfoBits); // Block start info (omitted)
             }
 
-            // ------------------------------------------------------------------
-            // Audio blocks
-            // ------------------------------------------------------------------
+            // Syntax state init
             bool[] firstspxcos = new bool[channels.Length], firstcplcos = new bool[channels.Length];
             for (int channel = 0; channel < channels.Length; ++channel) {
                 firstspxcos[channel] = true;
@@ -200,6 +207,9 @@ namespace Cavern.Format.Decoders {
             }
             bool firstcplleak = true;
 
+            // ------------------------------------------------------------------
+            // Audio blocks
+            // ------------------------------------------------------------------
             bool spxinu = false,
                 phsflginu = false,
                 ecplinu = false;
@@ -226,14 +236,18 @@ namespace Cavern.Format.Decoders {
                     for (int channel = 0; channel < channels.Length; ++channel)
                         dithflag[channel] = true;
 
-                int dynrng = extractor.ReadBit() ? extractor.Read(8) : 0;
+                if (extractor.ReadBit()) // dynrng, omitted
+                    extractor.Skip(8);
 
                 // Spectral extension strategy information
-                if (block != 0 ? extractor.ReadBit() : true) {
+                if (block == 0 || extractor.ReadBit()) {
                     spxinu = extractor.ReadBit();
                     if (spxinu) {
-                        for (int channel = 0; channel < channels.Length; ++channel)
-                            chinspx[channel] = extractor.ReadBit();
+                        if (acmod == 1)
+                            chinspx[0] = true;
+                        else
+                            for (int channel = 0; channel < channels.Length; ++channel)
+                                    chinspx[channel] = extractor.ReadBit();
                         int spxstrtf = extractor.Read(2);
                         int spxbegf = extractor.Read(3);
                         int spxendf = extractor.Read(3);
@@ -241,9 +255,9 @@ namespace Cavern.Format.Decoders {
                         int spx_end_subbnd = spxendf < 3 ? spxendf + 5 : (spxendf * 2 + 3);
                         bool spxbndstrce = extractor.ReadBit();
                         if (spxbndstrce) {
-                            bool[] spxbndstrc = new bool[spx_end_subbnd - spx_begin_subbnd - 1];
-                            for (int start = spx_begin_subbnd + 1, band = start; band < spx_end_subbnd; ++band)
-                                spxbndstrc[band - start] = extractor.ReadBit();
+                            bool[] spxbndstrc = new bool[spx_end_subbnd];
+                            for (int band = spx_begin_subbnd + 1; band < spx_end_subbnd; ++band)
+                                spxbndstrc[band] = extractor.ReadBit();
                         }
                     } else {
                         for (int channel = 0; channel < channels.Length; ++channel) {
@@ -255,7 +269,7 @@ namespace Cavern.Format.Decoders {
 
                 // Spectral extension strategy coordinates
                 if (spxinu)
-                    throw new UnsupportedFeatureException("spxinu");
+                    throw new UnsupportedFeatureException("spxinu"); // TODO
 
                 // (Enhanced) coupling strategy information
                 if (cplstre[block]) {
@@ -358,6 +372,22 @@ namespace Cavern.Format.Decoders {
                         lfeexpstr[block] ? ExponentStrategies.D15 : ExponentStrategies.Reuse);
                     for (int bin = 0; bin < nlfemant; ++bin)
                         lfemant[bin] = extractor.Read(bap[bin]);
+                }
+
+                // Error checks
+                if (block == 0) {
+                    if (!cplstre[block])
+                        throw new DecoderException(1);
+                    if (LFE && !lfeexpstr[block])
+                        throw new DecoderException(10);
+                    if (!bitAllocInfo.snroffste)
+                        throw new DecoderException(13);
+                }
+                for (int channel = 0; channel < channels.Length; ++channel) {
+                    if (block == 0 && chexpstr[0][channel] == 0)
+                        throw new DecoderException(8);
+                    if (!chincpl[channel] && chbwcod[channel] > 60)
+                        throw new DecoderException(11);
                 }
             }
             WaveformUtils.Gain(result, QMath.DbToGain(programScaleFactor));

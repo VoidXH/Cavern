@@ -58,6 +58,14 @@ namespace Cavern.Format.Decoders {
         };
 
         /// <summary>
+        /// Supported decoder versions.
+        /// </summary>
+        enum Decoder {
+            AC3 = 8,
+            EAC3 = 16
+        }
+
+        /// <summary>
         /// Meaning of values for chexpstr[ch], cplexpstr, and lfeexpstr.
         /// </summary>
         enum ExponentStrategies {

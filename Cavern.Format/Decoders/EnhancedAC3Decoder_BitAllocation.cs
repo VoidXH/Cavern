@@ -5,6 +5,7 @@ using Cavern.Format.Utilities;
 namespace Cavern.Format.Decoders {
     internal partial class EnhancedAC3Decoder {
         class BitAllocation {
+            public readonly bool snroffste;
             public readonly int sdcycod,
                 fdcycod,
                 sgaincod,
@@ -48,7 +49,7 @@ namespace Cavern.Format.Decoders {
                     if (LFE)
                         lfefsnroffst = frmfsnroffst;
                 } else {
-                    bool snroffste = true;
+                    snroffste = true;
                     if (block != 0)
                         snroffste = extractor.ReadBit();
                     if (snroffste) {
