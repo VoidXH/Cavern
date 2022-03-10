@@ -210,7 +210,8 @@ namespace Cavern.Format.Decoders {
             int convsnroffst;
             int[] chbwcod = new int[channels.Length],
                 lfeexps = new int[nlfegrps + 1],
-                chahtinu = new int[channels.Length];
+                chahtinu = new int[channels.Length],
+                lfemant = new int[nlfemant];
             int[][] exps = new int[channels.Length][],
                 chmant = new int[channels.Length][];
             float[] result = new float[blocks * 256];
@@ -325,7 +326,7 @@ namespace Cavern.Format.Decoders {
 
                 // Bit allocation parametric information
                 BitAllocation bitAllocInfo = new BitAllocation(extractor, block, channels.Length, LFE,
-                    bamode, snroffststr, frmfsnroffst, frmfgaincode);
+                    bamode, snroffststr, frmfsnroffst, frmfgaincode, fscod);
 
                 if (streamType == 0) {
                     if (extractor.ReadBit())
@@ -337,16 +338,26 @@ namespace Cavern.Format.Decoders {
                     extractor.Skip(extractor.Read(9) * 8);
 
                 // Quantized mantissa values
-                bool got_cplchan = false;
                 for (int channel = 0; channel < channels.Length; ++channel) {
                     if (chahtinu[channel] == 0) {
                         chmant[channel] = new int[nchmant[channel]];
                         int[] bap = bitAllocInfo.Allocate(nchmant, channel, nchgrps[channel],
                             exps[channel], (ExponentStrategies)chexpstr[block][channel]);
                         for (int bin = 0; bin < nchmant[channel]; ++bin)
-                            chmant[channel][bin] = extractor.Read(16); // TODO
+                            chmant[channel][bin] = extractor.Read(bap[bin]);
                     } else
                         throw new UnsupportedFeatureException("chahtinu");
+
+                    if (cplinu[block])
+                        throw new UnsupportedFeatureException("cplinu");
+                }
+
+                if (LFE) {
+                    // AHT not handled
+                    int[] bap = bitAllocInfo.AllocateLFE(lfeexps,
+                        lfeexpstr[block] ? ExponentStrategies.D15 : ExponentStrategies.Reuse);
+                    for (int bin = 0; bin < nlfemant; ++bin)
+                        lfemant[bin] = extractor.Read(bap[bin]);
                 }
             }
             WaveformUtils.Gain(result, QMath.DbToGain(programScaleFactor));

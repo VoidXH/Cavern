@@ -16,8 +16,13 @@ namespace Cavern.Format.Decoders {
             public readonly int[] fsnroffst,
                 fgaincod;
 
+            readonly int fscod;
+
             public BitAllocation(BitExtractor extractor, int block, int channels, bool LFE,
-                bool bamode, int snroffststr, int frmfsnroffst, bool frmfgaincode) {
+                bool bamode, int snroffststr, int frmfsnroffst, bool frmfgaincode,
+                int fscod) {
+                this.fscod = fscod;
+
                 fsnroffst = new int[channels];
                 fgaincod = new int[channels];
 
@@ -76,17 +81,15 @@ namespace Cavern.Format.Decoders {
             }
 
             public int[] Allocate(int[] endmant, int channel, int ngrps, int[] gexp, ExponentStrategies expstr) {
-                int end = endmant[channel];
                 int fgain = fastgain[fgaincod[channel]];
                 int snroffset = (csnroffst - 15) << 4 + fsnroffst[channel] << 2;
-                return Allocate(end, fgain, snroffset, ngrps, gexp, expstr);
+                return Allocate(endmant[channel], fgain, snroffset, ngrps, gexp, expstr);
             }
 
-            public int[] AllocateLFE(int ngrps, int[] gexp, ExponentStrategies expstr) {
-                int end = 7;
+            public int[] AllocateLFE(int[] gexp, ExponentStrategies expstr) {
                 int fgain = fastgain[lfefgaincod];
                 int snroffset = (csnroffst - 15) << 4 + lfefsnroffst << 2;
-                return Allocate(end, fgain, snroffset, ngrps, gexp, expstr);
+                return Allocate(nlfemant, fgain, snroffset, nlfegrps, gexp, expstr);
             }
 
             int[] Allocate(int end, int fgain, int snroffset, int ngrps, int[] gexp, ExponentStrategies expstr) {
@@ -98,6 +101,7 @@ namespace Cavern.Format.Decoders {
                 int start = 0;
                 int lowcomp = 0;
 
+                // PSD integration
                 int[] psd = new int[end], exp = Exponents(ngrps, gexp, expstr);
                 for (int bin = start; bin < end; bin++)
                     psd[bin] = (3072 - (exp[bin] << 7));
@@ -117,7 +121,85 @@ namespace Cavern.Format.Decoders {
                     ++k;
                 } while (end > lastbin);
 
-                return null; // TODO
+                // Compute excitation function
+                int begin;
+                int bndstrt = masktab[start];
+                int bndend = masktab[end - 1] + 1;
+                int fastleak = 0, slowleak = 0;
+                int[] excite = new int[bndend];
+                // For full bandwidth and LFE channels
+                if (bndstrt == 0) { /* note: do not call calc_lowcomp() for the last band of the lfe channel, (bin = 6) */
+                    lowcomp = CalcLowcomp(lowcomp, bndpsd[0], bndpsd[1], 0);
+                    excite[0] = bndpsd[0] - fgain - lowcomp;
+                    lowcomp = CalcLowcomp(lowcomp, bndpsd[1], bndpsd[2], 1);
+                    excite[1] = bndpsd[1] - fgain - lowcomp;
+                    begin = 7;
+                    for (int bin = 2; bin < 7; ++bin) {
+                        if ((bndend != 7) || (bin != 6)) /* skip for last bin of lfe channels */
+                            lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
+                        fastleak = bndpsd[bin] - fgain;
+                        slowleak = bndpsd[bin] - sgain;
+                        excite[bin] = fastleak - lowcomp;
+                        if ((bndend != 7) || (bin != 6)) { /* skip for last bin of lfe channel */
+                            if (bndpsd[bin] <= bndpsd[bin + 1]) {
+                                begin = bin + 1;
+                                break;
+                            }
+                        }
+                    }
+                    for (int bin = begin; bin < Math.Min(bndend, 22); ++bin) {
+                        if ((bndend != 7) || (bin != 6)) /* skip for last bin of lfe channel */
+                            lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
+                        fastleak -= fdecay;
+                        fastleak = Math.Max(fastleak, bndpsd[bin] - fgain);
+                        slowleak -= sdecay;
+                        slowleak = Math.Max(slowleak, bndpsd[bin] - sgain);
+                        excite[bin] = Math.Max(fastleak - lowcomp, slowleak);
+                    }
+                    begin = 22;
+                } else // For coupling channel
+                    begin = bndstrt;
+                for (int bin = begin; bin < bndend; ++bin) {
+                    fastleak -= fdecay;
+                    fastleak = Math.Max(fastleak, bndpsd[bin] - fgain);
+                    slowleak -= sdecay;
+                    slowleak = Math.Max(slowleak, bndpsd[bin] - sgain);
+                    excite[bin] = Math.Max(fastleak, slowleak);
+                }
+
+                // Compute masking curve
+                int[] mask = new int[bndend];
+                for (int bin = bndstrt; bin < bndend; ++bin) {
+                    if (bndpsd[bin] < dbknee) {
+                        excite[bin] += ((dbknee - bndpsd[bin]) >> 2);
+                    }
+                    mask[bin] = Math.Max(excite[bin], hth[fscod][bin]);
+                }
+
+                // Place of delta bit allocation if enabled
+
+                // Compute bit allocation
+                int ii = start;
+                j = masktab[start];
+                int[] bap = new int[end];
+                do {
+                    lastbin = Math.Min(bndtab[j] + bndsz[j], end);
+                    mask[j] -= snroffset;
+                    mask[j] -= floor;
+                    if (mask[j] < 0)
+                        mask[j] = 0;
+                    mask[j] &= 0x1fe0;
+                    mask[j] += floor;
+                    for (k = ii; k < lastbin; k++) {
+                        int address = (psd[ii] - mask[j]) >> 5;
+                        address = Math.Min(63, Math.Max(0, address));
+                        bap[ii] = baptab[address];
+                        ++ii;
+                    }
+                    ++j;
+                }
+                while (end > lastbin);
+                return bap;
             }
 
             int[] Exponents(int ngrps, int[] gexp, ExponentStrategies expstr) {
@@ -164,6 +246,22 @@ namespace Cavern.Format.Decoders {
                 if (c >= 0)
                     return a + latab[address];
                 return b + latab[address];
+            }
+
+            int CalcLowcomp(int a, int b0, int b1, int bin) {
+                if (bin < 7) {
+                    if ((b0 + 256) == b1)
+                        a = 384;
+                    else if (b0 > b1)
+                        a = Math.Max(0, a - 64);
+                } else if (bin < 20) {
+                    if ((b0 + 256) == b1)
+                        a = 320;
+                    else if (b0 > b1)
+                        a = Math.Max(0, a - 64);
+                } else
+                    a = Math.Max(0, a - 128);
+                return a;
             }
 
             /// <summary>
@@ -280,6 +378,61 @@ namespace Cavern.Format.Decoders {
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+            };
+
+            /// <summary>
+            /// Hearing threshold table.
+            /// </summary>
+            static readonly int[][] hth = new int[3][] {
+                new int[50] {
+                    0x04d0, 0x04d0, 0x0440, 0x0400, 0x03e0,
+                    0x03c0, 0x03b0, 0x03b0, 0x03a0, 0x03a0,
+                    0x03a0, 0x03a0, 0x03a0, 0x0390, 0x0390,
+                    0x0390, 0x0380, 0x0380, 0x0370, 0x0370,
+                    0x0360, 0x0360, 0x0350, 0x0350, 0x0340,
+                    0x0340, 0x0330, 0x0320, 0x0310, 0x0300,
+                    0x02f0, 0x02f0, 0x02f0, 0x02f0, 0x0300,
+                    0x0310, 0x0340, 0x0390, 0x03e0, 0x0420,
+                    0x0460, 0x0490, 0x04a0, 0x0460, 0x0440,
+                    0x0440, 0x0520, 0x0800, 0x0840, 0x0840
+                },
+                new int[50] {
+                    0x04f0, 0x04f0, 0x0460, 0x0410, 0x03e0,
+                    0x03d0, 0x03c0, 0x03b0, 0x03b0, 0x03a0,
+                    0x03a0, 0x03a0, 0x03a0, 0x03a0, 0x0390,
+                    0x0390, 0x0390, 0x0380, 0x0380, 0x0380,
+                    0x0370, 0x0370, 0x0360, 0x0360, 0x0350,
+                    0x0350, 0x0340, 0x0340, 0x0320, 0x0310,
+                    0x0300, 0x02f0, 0x02f0, 0x02f0, 0x02f0,
+                    0x0300, 0x0320, 0x0350, 0x0390, 0x03e0,
+                    0x0420, 0x0450, 0x04a0, 0x0490, 0x0460,
+                    0x0440, 0x0480, 0x0630, 0x0840, 0x0840
+                },
+                new int[50] {
+                    0x0580, 0x0580, 0x04b0, 0x0450, 0x0420,
+                    0x03f0, 0x03e0, 0x03d0, 0x03c0, 0x03b0,
+                    0x03b0, 0x03b0, 0x03a0, 0x03a0, 0x03a0,
+                    0x03a0, 0x03a0, 0x03a0, 0x03a0, 0x03a0,
+                    0x0390, 0x0390, 0x0390, 0x0390, 0x0380,
+                    0x0380, 0x0380, 0x0370, 0x0360, 0x0350,
+                    0x0340, 0x0330, 0x0320, 0x0310, 0x0300,
+                    0x02f0, 0x02f0, 0x02f0, 0x0300, 0x0310,
+                    0x0330, 0x0350, 0x03c0, 0x0410, 0x0470,
+                    0x04a0, 0x0460, 0x0440, 0x0450, 0x04e0
+                }
+            };
+
+            /// <summary>
+            /// Bit allocation pointer table.
+            /// </summary>
+            static readonly int[] baptab = new int[64] {
+                0,  1,  1,  1,  1,  1,  2,  2,  3,  3,
+                3,  4,  4,  5,  5,  6,  6,  6,  6,  7,
+                7,  7,  7,  8,  8,  8,  8,  9,  9,  9,
+                9,  10, 10, 10, 10, 11, 11, 11, 11, 12,
+                12, 12, 12, 13, 13, 13, 13, 14, 14, 14,
+                14, 14, 14, 14, 14, 15, 15, 15, 15, 15,
+                15, 15, 15, 15
             };
         }
     }

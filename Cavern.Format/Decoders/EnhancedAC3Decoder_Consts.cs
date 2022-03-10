@@ -18,6 +18,11 @@ namespace Cavern.Format.Decoders {
         const int nlfegrps = 2;
 
         /// <summary>
+        /// Fixed LFE mantissa count.
+        /// </summary>
+        const int nlfemant = 7;
+
+        /// <summary>
         /// Number of blocks per sync frame for each code.
         /// </summary>
         static readonly byte[] numberOfBlocks = new byte[] { 1, 2, 3, 6 };
