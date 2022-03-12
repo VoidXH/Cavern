@@ -81,19 +81,19 @@ namespace Cavern.Format.Decoders {
                 }
             }
 
-            public int[] Allocate(int[] endmant, int channel, int ngrps, int[] gexp, ExponentStrategies expstr) {
+            public int[] Allocate(int[] endmant, int channel, int ngrps, int[] gexp, ExpStrat expstr) {
                 int fgain = fastgain[fgaincod[channel]];
                 int snroffset = (csnroffst - 15) << 4 + fsnroffst[channel] << 2;
                 return Allocate(endmant[channel], fgain, snroffset, ngrps, gexp, expstr);
             }
 
-            public int[] AllocateLFE(int[] gexp, ExponentStrategies expstr) {
+            public int[] AllocateLFE(int[] gexp, ExpStrat expstr) {
                 int fgain = fastgain[lfefgaincod];
                 int snroffset = (csnroffst - 15) << 4 + lfefsnroffst << 2;
                 return Allocate(nlfemant, fgain, snroffset, nlfegrps, gexp, expstr);
             }
 
-            int[] Allocate(int end, int fgain, int snroffset, int ngrps, int[] gexp, ExponentStrategies expstr) {
+            int[] Allocate(int end, int fgain, int snroffset, int ngrps, int[] gexp, ExpStrat expstr) {
                 int sdecay = slowdec[sdcycod];
                 int fdecay = fastdec[fdcycod];
                 int sgain = slowgain[sgaincod];
@@ -203,7 +203,7 @@ namespace Cavern.Format.Decoders {
                 return bap;
             }
 
-            int[] Exponents(int ngrps, int[] gexp, ExponentStrategies expstr) {
+            int[] Exponents(int ngrps, int[] gexp, ExpStrat expstr) {
                 // Unpack the mapped values
                 int[] dexp = new int[ngrps * 3];
                 for (int grp = 0; grp < ngrps; ++grp) {
@@ -228,10 +228,8 @@ namespace Cavern.Format.Decoders {
                 }
 
                 // Expand to full absolute exponent array, using grpsize
-                if (expstr == ExponentStrategies.Reuse)
-                    expstr = ExponentStrategies.D15;
                 int grpsize = (int)expstr;
-                if (expstr == ExponentStrategies.D45)
+                if (expstr == ExpStrat.D45)
                     grpsize = 4;
                 int[] exp = new int[ngrps * 3 * grpsize + 1];
                 exp[0] = gexp[0];

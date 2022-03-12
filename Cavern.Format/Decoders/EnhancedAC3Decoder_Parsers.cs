@@ -1,5 +1,4 @@
 ﻿using Cavern.Format.Common;
-using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders {
     internal partial class EnhancedAC3Decoder {
@@ -12,12 +11,7 @@ namespace Cavern.Format.Decoders {
             else if (bsid == (int)Decoder.EAC3)
                 return Decoder.EAC3;
             else
-                throw new UnsupportedFeatureException("decoder version " + bsid);
+                throw new UnsupportedFeatureException("decoder " + bsid);
         }
-
-        /// <summary>
-        /// The <paramref name="dialnorm"/> variable tells how far the average dialog level is below 0 dB FS.
-        /// </summary>
-        static float ParseDialogNormalization(int dialnorm) => QMath.DbToGain(dialnorm != 0 ? -dialnorm : -31);
     }
 }

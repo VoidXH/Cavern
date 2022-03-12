@@ -63,6 +63,16 @@ namespace Cavern.Format.Utilities {
         public bool ReadBit() => NextBit() == 1;
 
         /// <summary>
+        /// Read a byte array, even if it's offset from byte borders.
+        /// </summary>
+        public byte[] ReadBytes(int count) {
+            byte[] result = new byte[count];
+            for (int i = 0; i < count; ++i)
+                result[i] = (byte)Read(8);
+            return result;
+        }
+
+        /// <summary>
         /// Skip some bits.
         /// </summary>
         public void Skip(int count) => position += count;
