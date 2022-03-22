@@ -2,7 +2,33 @@
 
 namespace Cavern.Format.Decoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
-    internal partial class EnhancedAC3Decoder { // TODO: alphabetically
+    internal partial class EnhancedAC3Decoder {
+        bool dynrnge;
+        int dynrng;
+        int blkfsnroffst;
+        int cplfsnroffst;
+        bool fgaincode;
+        int cplfgaincod;
+        bool convsnroffste;
+        int[] endmant;
+        bool dynrng2e;
+        int dynrng2;
+        bool spxstre;
+        bool cplbndstrce;
+        bool ecplbndstrce;
+        bool baie;
+        int sdcycod;
+        int fdcycod;
+        int sgaincod;
+        int dbpbcod;
+        int floorcod;
+        bool snroffste;
+        int lfefsnroffst;
+        int csnroffst;
+        int lfefgaincod;
+        int[] fsnroffst;
+        int[] fgaincod;
+        // TODO: alphabetically
         bool adconvtyp;
         bool adconvtyp2;
         bool addbsie;
@@ -115,7 +141,7 @@ namespace Cavern.Format.Decoders {
         int[] lfemant;
         int[] mstrspxco;
         int[] nchgrps;
-        int[] nchmant; // = endmant
+        int[] nchmant;
         int[] spxblnd;
         int[] spxbndsztab;
         int[] transproclen;
@@ -140,17 +166,20 @@ namespace Cavern.Format.Decoders {
             cplinu = new bool[blocks];
             cplstre = new bool[blocks];
             dithflag = new bool[channels];
+            endmant = new int[channels];
             exps = new int[channels][];
+            fgaincod = new int[channels];
             firstcplcos = new bool[channels];
             firstspxcos = new bool[channels];
             frmchexpstr = new int[channels];
+            fsnroffst = new int[channels];
             gainrng = new int[channels];
             lfeexps = new int[nlfegrps + 1];
             lfeexpstr = new bool[blocks];
             lfemant = new int[nlfemant];
             mstrspxco = new int[channels];
             nchgrps = new int[channels];
-            nchmant = new int[channels];
+            nchmant = endmant;
             spxblnd = new int[channels];
             spxcoe = new bool[channels];
             spxcoexp = new int[channels][];
