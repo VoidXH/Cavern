@@ -30,7 +30,7 @@ namespace Cavern.Format.Decoders {
             // PSD integration
             int[] psd = new int[end], exp = Exponents(ngrps, gexp, expstr);
             for (int bin = start; bin < end; bin++)
-                psd[bin] = (3072 - (exp[bin] << 7));
+                psd[bin] = 3072 - (exp[bin] << 7);
 
             int j = start;
             int k = masktab[start];

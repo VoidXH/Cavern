@@ -31,6 +31,8 @@ namespace Cavern.Format.Decoders {
             }
         }
 
+        int ParseSpxbandtable(int band) => band * 12 + 25;
+
         /// <summary>
         /// Set endmant and nchgrps.
         /// </summary>
@@ -40,8 +42,7 @@ namespace Cavern.Format.Decoders {
                     endmant[channel] = ecplsubbndtab[ecpl_begin_subbnd];
                 else {
                     if (spxinu && !cplinu[block])
-                        //endmant = spxbandtable[spx_begin_subbnd];
-                        throw new UnsupportedFeatureException("spxbandtable");
+                        endmant[channel] = ParseSpxbandtable(spx_begin_subbnd);
                     else if (cplinu[block])
                         endmant[channel] = cplbegf * 12 + 37;
                     else

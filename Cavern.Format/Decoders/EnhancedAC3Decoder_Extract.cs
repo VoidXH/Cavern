@@ -347,15 +347,10 @@ namespace Cavern.Format.Decoders {
                 throw new UnsupportedFeatureException("stereo");
 
             // Channel bandwidth code
-            for (int channel = 0; channel < channels.Length; ++channel) {
-                if (chexpstr[block][channel] != ExpStrat.Reuse) {
-                    if (!chincpl[channel] && !chinspx[channel]) {
+            for (int channel = 0; channel < channels.Length; ++channel)
+                if (chexpstr[block][channel] != ExpStrat.Reuse)
+                    if (!chincpl[channel] && !chinspx[channel])
                         chbwcod[channel] = extractor.Read(6);
-                        if (chbwcod[channel] > 60)
-                            throw new DecoderException(-1);
-                    }
-                }
-            }
 
             // Exponents    
             if (cplinu[block])
@@ -474,12 +469,15 @@ namespace Cavern.Format.Decoders {
                 extractor.Skip(extractor.Read(9) * 8);
 
             // Quantized mantissa values
+            int[][] bap = new int[channels.Length][];
             for (int channel = 0; channel < channels.Length; ++channel) {
                 if (chahtinu[channel] == 0) {
                     chmant[channel] = new int[nchmant[channel]];
-                    int[] bap = Allocate(nchmant, channel, nchgrps[channel], exps[channel], chexpstr[block][channel]);
-                    for (int bin = 0; bin < nchmant[channel]; ++bin)
-                        chmant[channel][bin] = extractor.Read(bap[bin]);
+                    if (chexpstr[block][channel] != ExpStrat.Reuse)
+                        bap[channel] = Allocate(nchmant, channel, nchgrps[channel], exps[channel], chexpstr[block][channel]);
+                    if (bap[channel] != null)
+                        for (int bin = 0; bin < nchmant[channel]; ++bin)
+                            chmant[channel][bin] = extractor.Read(bap[channel][bin]);
                 } else
                     throw new UnsupportedFeatureException("chahtinu");
 
@@ -487,11 +485,14 @@ namespace Cavern.Format.Decoders {
                     throw new UnsupportedFeatureException("cplinu");
             }
 
+            int[] lfebap = null;
             if (lfeon) {
                 // AHT not handled
-                int[] bap = AllocateLFE(lfeexps, lfeexpstr[block] ? ExpStrat.D15 : ExpStrat.Reuse);
-                for (int bin = 0; bin < nlfemant; ++bin)
-                    lfemant[bin] = extractor.Read(bap[bin]);
+                if (lfeexpstr[block])
+                    lfebap = AllocateLFE(lfeexps, ExpStrat.D15);
+                if (lfebap != null)
+                    for (int bin = 0; bin < nlfemant; ++bin)
+                        lfemant[bin] = extractor.Read(lfebap[bin]);
             }
         }
     }
