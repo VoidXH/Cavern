@@ -29,7 +29,7 @@ namespace Cavern.Format.Decoders {
             for (int grp = 0; grp < ngrps; ++grp) {
                 int expacc = gexp[grp];
                 dexp[grp * 3] = expacc / 25;
-                expacc -= (25 * dexp[grp * 3]);
+                expacc -= 25 * dexp[grp * 3];
                 dexp[grp * 3 + 1] = expacc / 5;
                 expacc -= (5 * dexp[grp * 3 + 1]);
                 dexp[grp * 3 + 2] = expacc;
@@ -91,7 +91,7 @@ namespace Cavern.Format.Decoders {
             int bndstrt = masktab[start];
             int bndend = masktab[end - 1] + 1;
             int begin;
-            int[] excite = new int[end];
+            int[] excite = new int[bndend];
             if (bndstrt == 0) { // For full bandwidth and LFE channels
                 lowcomp = CalcLowcomp(lowcomp, bndpsd[0], bndpsd[1], 0);
                 excite[0] = bndpsd[0] - fgain - lowcomp;
@@ -169,7 +169,7 @@ namespace Cavern.Format.Decoders {
         }
 
         int LogAdd(int a, int b) {
-            int c = a + b;
+            int c = a - b;
             int address = Math.Min(Math.Abs(c) >> 1, 255);
             if (c >= 0)
                 return a + latab[address];
