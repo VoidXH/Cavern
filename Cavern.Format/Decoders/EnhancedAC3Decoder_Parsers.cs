@@ -38,6 +38,7 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         void ParseParametricBitAllocation(int block) {
             for (int channel = 0; channel < channels.Length; ++channel) {
+                strtmant[channel] = 0;
                 if (ecplinu)
                     endmant[channel] = ecplsubbndtab[ecpl_begin_subbnd];
                 else {
@@ -63,6 +64,9 @@ namespace Cavern.Format.Decoders {
                         break;
                 }
             }
+
+            cplstrtmant = 37 + 12 * cplbegf;
+            cplendmant = 37 + 12 * (cplendf + 3);
         }
     }
 }

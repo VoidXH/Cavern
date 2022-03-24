@@ -1,72 +1,110 @@
 ﻿using System;
 
+using Cavern.Format.Common;
+
 namespace Cavern.Format.Decoders {
     internal partial class EnhancedAC3Decoder {
-        int[] Allocate(int[] endmant, int channel, int ngrps, int[] gexp, ExpStrat expstr) {
+        int[] Allocate(int channel, int[] gexp, ExpStrat expstr) {
+            int start = strtmant[channel];
+            int end = endmant[channel];
             int fgain = fastgain[fgaincod[channel]];
-            int snroffset = (csnroffst - 15) << 4 + fsnroffst[channel] << 2;
             if (csnroffst == 0 && fsnroffst[channel] == 0)
-                return new int[endmant[channel]];
-            return Allocate(endmant[channel], fgain, snroffset, ngrps, gexp, expstr);
+                return new int[nchmant[channel]];
+            int snroffset = (csnroffst - 15) << 4 + fsnroffst[channel] << 2;
+            return Allocate(start, end, 0, fgain, snroffset, gexp, nchgrps[channel], exps[channel][0], expstr);
         }
 
         int[] AllocateLFE(int[] gexp, ExpStrat expstr) {
             int fgain = fastgain[lfefgaincod];
-            int snroffset = (csnroffst - 15) << 4 + lfefsnroffst << 2;
             if (csnroffst == 0 && lfefsnroffst == 0)
                 return new int[nlfemant];
-            return Allocate(nlfemant, fgain, snroffset, nlfegrps, gexp, expstr);
+            int snroffset = (csnroffst - 15) << 4 + lfefsnroffst << 2;
+            return Allocate(lfestrtmant, lfeendmant, 0, fgain, snroffset, gexp, nlfegrps, lfeexps[0], expstr);
         }
 
-        int[] Allocate(int end, int fgain, int snroffset, int ngrps, int[] gexp, ExpStrat expstr) {
+        int[] Allocate(int start, int end, int lowcomp, int fgain, int snroffset, int[] gexp, int ngrps, int absexp,
+            ExpStrat expstr, int fastleak = 0, int slowleak = 0) { // TODO: fix
+            // Unpack the mapped values
+            int[] dexp = new int[ngrps * 3];
+            for (int grp = 0; grp < ngrps; ++grp) {
+                int expacc = gexp[grp];
+                dexp[grp * 3] = expacc / 25;
+                expacc -= (25 * dexp[grp * 3]);
+                dexp[grp * 3 + 1] = expacc / 5;
+                expacc -= (5 * dexp[grp * 3 + 1]);
+                dexp[grp * 3 + 2] = expacc;
+            }
+
+            // Unbiased mapped values
+            for (int grp = 0; grp < ngrps * 3; ++grp)
+                dexp[grp] = dexp[grp] - 2;
+
+            // Convert from differentials to absolutes
+            int i, j;
+            int prevexp = absexp;
+            int[] aexp = new int[ngrps * 3];
+            for (i = 0; i < (ngrps * 3); ++i) {
+                aexp[i] = prevexp + dexp[i];
+                prevexp = aexp[i];
+            }
+
+            // Expand to full absolute exponent array, using grpsize
+            int[] exp = new int[end];
+            int grpsize = (int)expstr;
+            if (grpsize == (int)ExpStrat.D45)
+                grpsize = 4;
+            exp[0] = absexp;
+            for (i = 0; i < (ngrps * 3); ++i)
+                for (j = 0; j < grpsize; ++j)
+                    exp[i * grpsize + j + 1] = aexp[i];
+
+            // Initialization
             int sdecay = slowdec[sdcycod];
             int fdecay = fastdec[fdcycod];
             int sgain = slowgain[sgaincod];
             int dbknee = dbpbtab[dbpbcod];
             int floor = floortab[floorcod];
-            int start = 0;
-            int lowcomp = 0;
 
-            // PSD integration
-            int[] psd = new int[end], exp = Exponents(ngrps, gexp, expstr);
-            for (int bin = start; bin < end; bin++)
+            // Exponent mapping into psd
+            int[] psd = new int[end];
+            for (int bin = start; bin < end; ++bin)
                 psd[bin] = 3072 - (exp[bin] << 7);
 
-            int j = start;
+            // psd integration
+            int[] bndpsd = new int[end];
+            j = start;
             int k = masktab[start];
             int lastbin;
-            int[] bndpsd = new int[256];
             do {
                 lastbin = Math.Min(bndtab[k] + bndsz[k], end);
                 bndpsd[k] = psd[j];
                 ++j;
-                for (int i = j; i < lastbin; ++i) {
+                for (i = j; i < lastbin; ++i) {
                     bndpsd[k] = LogAdd(bndpsd[k], psd[j]);
                     ++j;
                 }
                 ++k;
-            } while (end > lastbin);
+            }
+            while (end > lastbin);
 
             // Compute excitation function
-            int begin;
             int bndstrt = masktab[start];
             int bndend = masktab[end - 1] + 1;
-            int fastleak = 0, slowleak = 0;
-            int[] excite = new int[bndend];
-            // For full bandwidth and LFE channels
-            if (bndstrt == 0) {
+            int begin;
+            int[] excite = new int[end];
+            if (bndstrt == 0) { // For full bandwidth and LFE channels
                 lowcomp = CalcLowcomp(lowcomp, bndpsd[0], bndpsd[1], 0);
                 excite[0] = bndpsd[0] - fgain - lowcomp;
                 lowcomp = CalcLowcomp(lowcomp, bndpsd[1], bndpsd[2], 1);
                 excite[1] = bndpsd[1] - fgain - lowcomp;
                 begin = 7;
                 for (int bin = 2; bin < 7; ++bin) {
-                    if ((bndend != 7) || (bin != 6)) // Skip for last bin of LFE channels
+                    if ((bndend != 7) || (bin != 6))
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
                     fastleak = bndpsd[bin] - fgain;
                     slowleak = bndpsd[bin] - sgain;
                     excite[bin] = fastleak - lowcomp;
-                    if ((bndend != 7) || (bin != 6)) { // Skip for last bin of LFE channels
+                    if ((bndend != 7) || (bin != 6)) {
                         if (bndpsd[bin] <= bndpsd[bin + 1]) {
                             begin = bin + 1;
                             break;
@@ -74,7 +112,7 @@ namespace Cavern.Format.Decoders {
                     }
                 }
                 for (int bin = begin; bin < Math.Min(bndend, 22); ++bin) {
-                    if ((bndend != 7) || (bin != 6)) // Skip for last bin of LFE channels
+                    if ((bndend != 7) || (bin != 6))
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
                     fastleak -= fdecay;
                     fastleak = Math.Max(fastleak, bndpsd[bin] - fgain);
@@ -83,7 +121,7 @@ namespace Cavern.Format.Decoders {
                     excite[bin] = Math.Max(fastleak - lowcomp, slowleak);
                 }
                 begin = 22;
-            } else // For coupling channel
+            } else /* For coupling channel */
                 begin = bndstrt;
             for (int bin = begin; bin < bndend; ++bin) {
                 fastleak -= fdecay;
@@ -96,72 +134,38 @@ namespace Cavern.Format.Decoders {
             // Compute masking curve
             int[] mask = new int[bndend];
             for (int bin = bndstrt; bin < bndend; ++bin) {
-                if (bndpsd[bin] < dbknee) {
-                    excite[bin] += ((dbknee - bndpsd[bin]) >> 2);
-                }
+                if (bndpsd[bin] < dbknee)
+                    excite[bin] += (dbknee - bndpsd[bin]) >> 2;
                 mask[bin] = Math.Max(excite[bin], hth[fscod][bin]);
             }
 
-            // Place of delta bit allocation if enabled
+            // Apply delta bit allocation
+            if (dbaflde)
+                throw new UnsupportedFeatureException("dbaflde");
 
             // Compute bit allocation
-            int ii = start;
+            i = start;
             j = masktab[start];
             int[] bap = new int[end];
             do {
                 lastbin = Math.Min(bndtab[j] + bndsz[j], end);
                 mask[j] -= snroffset;
                 mask[j] -= floor;
-                if (mask[j] < 0)
+                if (mask[j] < 0) {
                     mask[j] = 0;
+                }
                 mask[j] &= 0x1fe0;
                 mask[j] += floor;
-                for (k = ii; k < lastbin; k++) {
-                    int address = (psd[ii] - mask[j]) >> 5;
+                for (k = i; k < lastbin; k++) {
+                    int address = (psd[i] - mask[j]) >> 5;
                     address = Math.Min(63, Math.Max(0, address));
-                    bap[ii] = baptab[address];
-                    ++ii;
+                    bap[i] = baptab[address];
+                    i++;
                 }
-                ++j;
+                j++;
             }
             while (end > lastbin);
             return bap;
-        }
-
-        int[] Exponents(int ngrps, int[] gexp, ExpStrat expstr) {
-            // Unpack the mapped values
-            int[] dexp = new int[ngrps * 3];
-            for (int grp = 0; grp < ngrps; ++grp) {
-                int expacc = gexp[grp];
-                dexp[grp * 3] = expacc / 25;
-                expacc -= 25 * dexp[grp * 3];
-                dexp[grp * 3 + 1] = expacc / 5;
-                expacc -= 5 * dexp[grp * 3 + 1];
-                dexp[grp * 3 + 2] = expacc;
-            }
-
-            // Unbiased mapped values
-            for (int grp = 0; grp < ngrps * 3; ++grp)
-                dexp[grp] -= 2;
-
-            // Convert from differentials to absolutes
-            int[] aexp = new int[ngrps * 3];
-            int prevexp = gexp[0];
-            for (int i = 0; i < ngrps * 3; ++i) {
-                aexp[i] = prevexp + dexp[i];
-                prevexp = aexp[i];
-            }
-
-            // Expand to full absolute exponent array, using grpsize
-            int grpsize = (int)expstr;
-            if (expstr == ExpStrat.D45)
-                grpsize = 4;
-            int[] exp = new int[ngrps * 3 * grpsize + 1];
-            exp[0] = gexp[0];
-            for (int i = 0; i < ngrps * 3; ++i)
-                for (int j = 0; j < grpsize; ++j)
-                    exp[i * grpsize + j + 1] = aexp[i];
-            return exp;
         }
 
         int LogAdd(int a, int b) {

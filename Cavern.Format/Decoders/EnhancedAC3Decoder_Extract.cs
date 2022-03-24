@@ -211,6 +211,10 @@ namespace Cavern.Format.Decoders {
                 firstcplcos[channel] = true;
             }
             firstcplleak = true;
+
+            // Clear per-frame reuse data
+            Array.Clear(bap, 0, bap.Length);
+            lfebap = null;
         }
 
         void AudioBlock(BitExtractor extractor, int block) {
@@ -469,30 +473,32 @@ namespace Cavern.Format.Decoders {
                 extractor.Skip(extractor.Read(9) * 8);
 
             // Quantized mantissa values
-            int[][] bap = new int[channels.Length][];
             for (int channel = 0; channel < channels.Length; ++channel) {
                 if (chahtinu[channel] == 0) {
                     chmant[channel] = new int[nchmant[channel]];
                     if (chexpstr[block][channel] != ExpStrat.Reuse)
-                        bap[channel] = Allocate(nchmant, channel, nchgrps[channel], exps[channel], chexpstr[block][channel]);
-                    if (bap[channel] != null)
-                        for (int bin = 0; bin < nchmant[channel]; ++bin)
-                            chmant[channel][bin] = extractor.Read(bap[channel][bin]);
+                        bap[channel] = Allocate(channel, exps[channel], chexpstr[block][channel]);
+                    if (bap[channel] == null)
+                        throw new DecoderException(-1);
+                    for (int bin = 0; bin < nchmant[channel]; ++bin)
+                        chmant[channel][bin] = extractor.Read(bap[channel][bin]);
                 } else
-                    throw new UnsupportedFeatureException("chahtinu");
+                    throw new UnsupportedFeatureException("AHT");
 
                 if (cplinu[block])
                     throw new UnsupportedFeatureException("cplinu");
             }
 
-            int[] lfebap = null;
             if (lfeon) {
-                // AHT not handled
-                if (lfeexpstr[block])
-                    lfebap = AllocateLFE(lfeexps, ExpStrat.D15);
-                if (lfebap != null)
+                if (lfeahtinu == 0) {
+                    if (lfeexpstr[block])
+                        lfebap = AllocateLFE(lfeexps, ExpStrat.D15);
+                    if (lfebap == null)
+                        throw new DecoderException(-1);
                     for (int bin = 0; bin < nlfemant; ++bin)
                         lfemant[bin] = extractor.Read(lfebap[bin]);
+                } else
+                    throw new UnsupportedFeatureException("AHT");
             }
         }
     }

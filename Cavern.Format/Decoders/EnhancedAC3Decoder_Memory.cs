@@ -3,38 +3,16 @@
 namespace Cavern.Format.Decoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
     internal partial class EnhancedAC3Decoder {
-        bool dynrnge;
-        int dynrng;
-        int blkfsnroffst;
-        int cplfsnroffst;
-        bool fgaincode;
-        int cplfgaincod;
-        bool convsnroffste;
-        int[] endmant;
-        bool dynrng2e;
-        int dynrng2;
-        bool spxstre;
-        bool cplbndstrce;
-        bool ecplbndstrce;
-        bool baie;
-        int sdcycod;
-        int fdcycod;
-        int sgaincod;
-        int dbpbcod;
-        int floorcod;
-        bool snroffste;
-        int lfefsnroffst;
-        int csnroffst;
-        int lfefgaincod;
-        int[] fsnroffst;
-        int[] fgaincod;
-        // TODO: alphabetically
+        const int lfestrtmant = 0;
+        const int lfeendmant = 7;
+
         bool adconvtyp;
         bool adconvtyp2;
         bool addbsie;
         bool ahte;
         bool audprodie;
         bool audprodie2;
+        bool baie;
         bool bamode;
         bool blkid;
         bool blkstrtinfoe;
@@ -43,12 +21,18 @@ namespace Cavern.Format.Decoders {
         bool compr2e;
         bool compre;
         bool convexpstre;
+        bool convsnroffste;
         bool convsync;
+        bool cplbndstrce;
         bool dbaflde;
         bool dithflage;
+        bool dynrng2e;
+        bool dynrnge;
+        bool ecplbndstrce;
         bool ecplinu;
         bool expstre;
         bool extpgmscle;
+        bool fgaincode;
         bool firstcplleak;
         bool frmfgaincode;
         bool frmmixcfginfoe;
@@ -60,10 +44,12 @@ namespace Cavern.Format.Decoders {
         bool pgmscle;
         bool phsflginu;
         bool skipflde;
+        bool snroffste;
         bool sourcefscod;
         bool spxattene;
         bool spxbndstrce;
         bool spxinu;
+        bool spxstre;
         bool transproce;
         bool[] blksw;
         bool[] chincpl;
@@ -85,6 +71,7 @@ namespace Cavern.Format.Decoders {
         ExpStrat[] cplexpstr;
         ExpStrat[][] chexpstr;
         int acmod;
+        int blkfsnroffst;
         int blkstrtinfo;
         int blocks;
         int bsmod;
@@ -94,20 +81,33 @@ namespace Cavern.Format.Decoders {
         int convsnroffst;
         int cplbegf;
         int cplendf;
+        int cplendmant;
+        int cplfgaincod;
+        int cplfsnroffst;
+        int cplstrtmant;
+        int csnroffst;
+        int dbpbcod;
         int dialnorm;
         int dialnorm2;
         int dmixmod;
+        int dynrng;
+        int dynrng2;
         int ecpl_begin_subbnd;
         int ecpl_end_subbnd;
         int ecplbegf;
         int ecplendf;
         int extpgmscl;
+        int fdcycod;
+        int floorcod;
         int frmcplexpstr;
         int frmcsnroffst;
         int frmfsnroffst;
         int frmsiz;
         int frmsizecod;
         int fscod;
+        int lfeahtinu;
+        int lfefgaincod;
+        int lfefsnroffst;
         int lfemixlevcod;
         int lorocmixlev;
         int lorosurmixlev;
@@ -122,6 +122,8 @@ namespace Cavern.Format.Decoders {
         int pgmscl2;
         int roomtyp;
         int roomtyp2;
+        int sdcycod;
+        int sgaincod;
         int snroffststr;
         int spx_begin_subbnd;
         int spx_end_subbnd;
@@ -135,8 +137,12 @@ namespace Cavern.Format.Decoders {
         int[] chahtinu;
         int[] chbwcod;
         int[] convexpstr;
+        int[] endmant;
+        int[] fgaincod;
         int[] frmchexpstr;
+        int[] fsnroffst;
         int[] gainrng;
+        int[] lfebap;
         int[] lfeexps;
         int[] lfemant;
         int[] mstrspxco;
@@ -144,14 +150,17 @@ namespace Cavern.Format.Decoders {
         int[] nchmant;
         int[] spxblnd;
         int[] spxbndsztab;
+        int[] strtmant;
         int[] transproclen;
         int[] transprocloc;
+        int[][] bap;
         int[][] chmant;
         int[][] exps;
         int[][] spxcoexp;
         int[][] spxcomant;
 
         void CreateCacheTables(int blocks, int channels) {
+            bap = new int[channels][];
             blkmixcfginfo = new int[blocks];
             blksw = new bool[channels];
             chahtinu = new int[channels];
@@ -184,6 +193,7 @@ namespace Cavern.Format.Decoders {
             spxcoe = new bool[channels];
             spxcoexp = new int[channels][];
             spxcomant = new int[channels][];
+            strtmant = new int[channels];
             transproclen = new int[channels];
             transprocloc = new int[channels];
 
