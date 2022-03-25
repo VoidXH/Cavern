@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Format.Common;
+using Cavern.Format.Decoders.EnhancedAC3;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {
@@ -33,8 +34,8 @@ namespace Cavern.Format.Decoders {
             for (int block = 0; block < blocks; ++block)
                 AudioBlock(extractor, block);
 
-            // TODO: auxdata
-            // TODO: errorcheck
+            ExtensibleMetadataDecoder emdf = new ExtensibleMetadataDecoder(extractor);
+
             throw new NotImplementedException();
         }
     }

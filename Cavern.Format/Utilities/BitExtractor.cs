@@ -6,29 +6,36 @@ namespace Cavern.Format.Utilities {
     /// </summary>
     internal sealed class BitExtractor {
         /// <summary>
+        /// Next bit to read.
+        /// </summary>
+        public int Position { get; set; }
+
+        /// <summary>
+        /// Next bit to read from the back.
+        /// </summary>
+        public int BackPosition { get; set; }
+
+        /// <summary>
         /// Bytestream to get the data from.
         /// </summary>
         byte[] source;
 
         /// <summary>
-        /// Next bit to read.
-        /// </summary>
-        int position;
-
-        /// <summary>
         /// Construct an extractor to a bitstream.
         /// </summary>
-        public BitExtractor(byte[] source) {
-            for (int i = 0; i < source.Length; ++i)
-                source[i] = source[i].Revert();
+        public BitExtractor(byte[] source, bool revert = true) {
+            if (revert)
+                for (int i = 0; i < source.Length; ++i)
+                    source[i] = source[i].Revert();
             this.source = source;
+            BackPosition = source.Length * 8;
         }
 
         /// <summary>
         /// Add more bytes to the read queue.
         /// </summary>
         public void Expand(byte[] source) {
-            int skip = position >> 3,
+            int skip = Position >> 3,
                 split = this.source.Length - skip;
             byte[] newSource = new byte[split + source.Length];
             for (int i = skip; i < this.source.Length; ++i)
@@ -36,15 +43,25 @@ namespace Cavern.Format.Utilities {
             for (int i = 0; i < source.Length; ++i)
                 newSource[i + split] = source[i].Revert();
             this.source = newSource;
-            position -= skip * 8;
+            Position -= skip * 8;
+            BackPosition = this.source.Length * 8;
         }
 
         /// <summary>
         /// Gets the number of additional bytes required if <paramref name="forBits"/> has to be read.
         /// </summary>
         public int NeededBytes(int forBits) {
-            int partial = position + forBits - source.Length * 8;
+            int partial = Position + forBits - source.Length * 8;
             return (partial >> 3) + (partial % 8 != 0 ? 1 : 0);
+        }
+
+        /// <summary>
+        /// Check the next bits without advancing the position.
+        /// </summary>
+        public int Peek(int bits) {
+            int result = Read(bits);
+            Position -= bits;
+            return result;
         }
 
         /// <summary>
@@ -58,9 +75,25 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Read the next custom length word from the back.
+        /// </summary>
+        public int ReadBack(int bits) {
+            int oldPos = Position;
+            Position = BackPosition -= bits;
+            int result = Read(bits);
+            Position = oldPos;
+            return result;
+        }
+
+        /// <summary>
         /// Read the next single bit as a flag.
         /// </summary>
         public bool ReadBit() => NextBit() == 1;
+
+        /// <summary>
+        /// Read the next single bit from the back as a flag.
+        /// </summary>
+        public bool ReadBitBack() => NextBitBack() == 1;
 
         /// <summary>
         /// Read a byte array, even if it's offset from byte borders.
@@ -75,14 +108,23 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Skip some bits.
         /// </summary>
-        public void Skip(int count) => position += count;
+        public void Skip(int count) => Position += count;
 
         /// <summary>
         /// Read the next bit and advance the position.
         /// </summary>
         int NextBit() {
-            int result = (source[position / 8] >> (position % 8)) & 1;
-            ++position;
+            int result = (source[Position / 8] >> (Position % 8)) & 1;
+            ++Position;
+            return result;
+        }
+
+        /// <summary>
+        /// Read the next bit from the back and advance the position.
+        /// </summary>
+        int NextBitBack() {
+            --BackPosition;
+            int result = (source[BackPosition / 8] >> (BackPosition % 8)) & 1;
             return result;
         }
     }
