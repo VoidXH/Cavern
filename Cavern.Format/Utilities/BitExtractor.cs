@@ -4,7 +4,7 @@ namespace Cavern.Format.Utilities {
     /// <summary>
     /// Read custom length words from a bitstream.
     /// </summary>
-    internal sealed class BitExtractor {
+    sealed class BitExtractor {
         /// <summary>
         /// Next bit to read.
         /// </summary>
@@ -91,9 +91,14 @@ namespace Cavern.Format.Utilities {
         public bool ReadBit() => NextBit() == 1;
 
         /// <summary>
-        /// Read the next single bit from the back as a flag.
+        /// Read the next masked flag value as an array.
         /// </summary>
-        public bool ReadBitBack() => NextBitBack() == 1;
+        public bool[] ReadBits(int bits) {
+            bool[] result = new bool[bits];
+            while (bits-- > 0)
+                result[bits] = ReadBit();
+            return result;
+        }
 
         /// <summary>
         /// Read a byte array, even if it's offset from byte borders.
@@ -116,15 +121,6 @@ namespace Cavern.Format.Utilities {
         int NextBit() {
             int result = (source[Position / 8] >> (Position % 8)) & 1;
             ++Position;
-            return result;
-        }
-
-        /// <summary>
-        /// Read the next bit from the back and advance the position.
-        /// </summary>
-        int NextBitBack() {
-            --BackPosition;
-            int result = (source[BackPosition / 8] >> (BackPosition % 8)) & 1;
             return result;
         }
     }

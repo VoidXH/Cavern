@@ -1,5 +1,7 @@
-﻿using Cavern.Format.Utilities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
+using Cavern.Format.Common;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
@@ -36,6 +38,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         /// <remarks>There can be only one JOC payload in every E-AC3 frame.</remarks>
         public JointObjectCoding JOC { get; private set; }
+
+        /// <summary>
+        /// The Object Audio Metadata in this frame.
+        /// </summary>
+        /// <remarks>There can be only one OAMD payload in every E-AC3 frame.</remarks>
+        public ObjectAudioMetadata OAMD { get; private set; }
 
         /// <summary>
         /// EMDF source stream.
@@ -80,6 +88,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int key_id = extractor.Read(3);
             if (key_id == 7)
                 key_id += extractor.VariableBits(3);
+            if (emdf_version != 0 || key_id != 0)
+                throw new UnsupportedFeatureException("EMDFextra");
             int emdf_payload_id;
             while ((emdf_payload_id = extractor.Read(5)) != 0) {
                 if (emdf_payload_id == 0x1F)
@@ -88,6 +98,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 payloads.Add(payload);
                 if (payload.ID == jocPayloadID)
                     JOC = new JointObjectCoding(payload);
+                else if (payload.ID == oamdPayloadID)
+                    OAMD = new ObjectAudioMetadata(payload);
             }
         }
     }
