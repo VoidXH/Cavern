@@ -7,7 +7,7 @@ using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders {
     // Bitstream data extraction
-    internal partial class EnhancedAC3Decoder {
+    partial class EnhancedAC3Decoder {
         void BitstreamInfo(ref BitExtractor extractor) {
             strmtyp = extractor.Read(2);
             substreamid = extractor.Read(3);

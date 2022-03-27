@@ -4,7 +4,7 @@ namespace Cavern.Format.Decoders {
     /// <summary>
     /// Converts a bitstream to raw samples.
     /// </summary>
-    internal abstract class Decoder {
+    public abstract class Decoder {
         /// <summary>
         /// Stream reader and block regrouping object.
         /// </summary>

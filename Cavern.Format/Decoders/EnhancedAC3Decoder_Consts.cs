@@ -1,7 +1,7 @@
 ﻿using Cavern.Remapping;
 
 namespace Cavern.Format.Decoders {
-    internal partial class EnhancedAC3Decoder {
+    partial class EnhancedAC3Decoder {
         /// <summary>
         /// First word of all AC-3 frames.
         /// </summary>
@@ -33,7 +33,7 @@ namespace Cavern.Format.Decoders {
         static readonly ushort[] sampleRates = new ushort[] { 48000, 44100, 32000 };
 
         /// <summary>
-        /// Possible channel arrangements in E-AC3. The index is the ID read from the file. LFE channel is marked separately.
+        /// Possible channel arrangements in E-AC-3. The index is the ID read from the file. LFE channel is marked separately.
         /// </summary>
         static readonly ReferenceChannel[][] channelArrangements = {
             new ReferenceChannel[] // 0: dual mono

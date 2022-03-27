@@ -3,7 +3,7 @@
 using Cavern.Format.Common;
 
 namespace Cavern.Format.Decoders {
-    internal partial class EnhancedAC3Decoder {
+    partial class EnhancedAC3Decoder {
         int[] Allocate(int channel, int[] gexp, ExpStrat expstr) {
             int start = strtmant[channel];
             int end = endmant[channel];

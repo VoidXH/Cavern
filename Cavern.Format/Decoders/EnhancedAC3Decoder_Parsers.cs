@@ -1,7 +1,7 @@
 ﻿using Cavern.Format.Common;
 
 namespace Cavern.Format.Decoders {
-    internal partial class EnhancedAC3Decoder {
+    partial class EnhancedAC3Decoder {
         /// <summary>
         /// Decoder version check.
         /// </summary>

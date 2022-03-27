@@ -2,10 +2,13 @@
 
 namespace Cavern.Format.Decoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
-    internal partial class EnhancedAC3Decoder {
+    partial class EnhancedAC3Decoder {
+        internal int ChannelCount => channels.Length + (lfeon ? 1 : 0);
+
         const int lfestrtmant = 0;
         const int lfeendmant = 7;
 
+#pragma warning disable IDE0052 // Remove unread private members
         bool adconvtyp;
         bool adconvtyp2;
         bool addbsie;
@@ -158,6 +161,7 @@ namespace Cavern.Format.Decoders {
         int[][] exps;
         int[][] spxcoexp;
         int[][] spxcomant;
+#pragma warning restore IDE0052 // Remove unread private members
 
         void CreateCacheTables(int blocks, int channels) {
             bap = new int[channels][];

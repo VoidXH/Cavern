@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
-using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
-    /// Decodes Extensible Metadata Delivery Format (EMDF) from the reserved fields of an E-AC3 bitstream.
+    /// Decodes Extensible Metadata Delivery Format (EMDF) from the reserved fields of an E-AC-3 bitstream.
     /// </summary>
     class ExtensibleMetadataDecoder {
         /// <summary>
@@ -36,13 +35,13 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// The Joint Object Coding data in this frame.
         /// </summary>
-        /// <remarks>There can be only one JOC payload in every E-AC3 frame.</remarks>
+        /// <remarks>There can be only one JOC payload in every E-AC-3 frame.</remarks>
         public JointObjectCoding JOC { get; private set; }
 
         /// <summary>
         /// The Object Audio Metadata in this frame.
         /// </summary>
-        /// <remarks>There can be only one OAMD payload in every E-AC3 frame.</remarks>
+        /// <remarks>There can be only one OAMD payload in every E-AC-3 frame.</remarks>
         public ObjectAudioMetadata OAMD { get; private set; }
 
         /// <summary>

@@ -7,7 +7,7 @@ namespace Cavern.Format.Decoders {
     /// Converts a frame-based bitstream to raw samples.
     /// Only a single function is required which processes a single frame, with access to the <see cref="Decoder.reader"/>.
     /// </summary>
-    internal abstract class FrameBasedDecoder : Decoder {
+    public abstract class FrameBasedDecoder : Decoder {
         /// <summary>
         /// Frame cache object.
         /// </summary>
