@@ -31,7 +31,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             object_count = extractor.Read(5);
             if (object_count == 31)
                 object_count = extractor.Read(7);
-            ++object_count;
             ProgramAssignment(extractor);
             b_alternate_object_data_present = extractor.ReadBit();
             int oa_element_count_bits = extractor.Read(4);
@@ -39,7 +38,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 oa_element_count_bits += extractor.Read(5);
             elements = new OAElementMD[oa_element_count_bits];
             for (int i = 0; i < oa_element_count_bits; ++i)
-                elements[i] = new OAElementMD(extractor, b_alternate_object_data_present, object_count);
+                elements[i] = new OAElementMD(extractor, b_alternate_object_data_present, object_count, bed_or_isf_objects);
         }
 
         void ProgramAssignment(BitExtractor extractor) {
@@ -75,8 +74,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
 
                 // Intermediate spatial format (ISF)
-                if (content_description[2])
+                if (content_description[2]) {
                     intermediate_spatial_format_idx = extractor.Read(3);
+                    if (intermediate_spatial_format_idx >= isf_objects.Length)
+                        throw new UnsupportedFeatureException("ISF");
+                }
 
                 // Object(s) with room-anchored or screen-anchored coordinates
                 if (content_description[1]) {
@@ -90,6 +92,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     int reserved_data_size = extractor.Read(4) + 1;
                     extractor.Skip(reserved_data_size * 8);
                 }
+
+                bed_or_isf_objects = num_bed_instances + isf_objects[intermediate_spatial_format_idx];
             }
         }
 
@@ -104,9 +108,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         bool[][] nonstd_bed_channel_assignment;
         int num_bed_instances;
         int intermediate_spatial_format_idx;
+        int bed_or_isf_objects;
         int num_dynamic_objects_bits;
         readonly bool b_alternate_object_data_present;
         readonly int object_count;
 #pragma warning restore IDE0052 // Remove unread private members
+
+        int[] isf_objects = { 4, 8, 10, 14, 15, 30 };
     }
 }

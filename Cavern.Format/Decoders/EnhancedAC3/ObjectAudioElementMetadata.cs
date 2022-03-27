@@ -1,27 +1,44 @@
 ﻿using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
+    /// <summary>
+    /// Decodes an object audio element metadata block.
+    /// </summary>
     class OAElementMD {
-        public OAElementMD(BitExtractor extractor, bool b_alternate_object_data_present, int object_count) {
+        /// <summary>
+        /// Rendering info for each object's updates.
+        /// </summary>
+        /// <remarks>Can be null if the element is not an object element.</remarks>
+        public ObjectInfoBlock[][] InfoBlocks { get; private set; }
+
+        /// <summary>
+        /// Decodes an object audio element metadata block.
+        /// </summary>
+        public OAElementMD(BitExtractor extractor, bool b_alternate_object_data_present, int object_count,
+            int bed_or_isf_objects) {
             oa_element_id_idx = extractor.Read(4);
             oa_element_size = VariableBitsMax(extractor, 4, 4) + 1;
             int endPos = extractor.Position + oa_element_size;
             if (b_alternate_object_data_present)
                 alternate_object_data_id_idx = extractor.Read(4);
             b_discard_unknown_element = extractor.ReadBit();
-            ObjectElement(extractor, object_count);
+            if (oa_element_id_idx == 1)
+                ObjectElement(extractor, object_count, bed_or_isf_objects);
+            // TODO: support other element types
             extractor.Position = endPos; // Padding
         }
 
-        void ObjectElement(BitExtractor extractor, int object_count) {
+        void ObjectElement(BitExtractor extractor, int object_count, int bed_or_isf_objects) {
             MDUpdateInfo(extractor);
             bool b_reserved_data_not_present = extractor.ReadBit();
             if (!b_reserved_data_not_present)
                 extractor.Skip(5);
+
+            InfoBlocks = new ObjectInfoBlock[object_count][];
             for (int j = 0; j < object_count; ++j) {
-                for (int blk = 0; blk < num_obj_info_blocks; ++blk) {
-                    // TODO: ObjectInfoBlock(extractor, blk); - per object
-                }
+                InfoBlocks[j] = new ObjectInfoBlock[num_obj_info_blocks];
+                for (int blk = 0; blk < num_obj_info_blocks; ++blk)
+                    InfoBlocks[j][blk] = new ObjectInfoBlock(extractor, blk, j < bed_or_isf_objects);
             }
         }
 

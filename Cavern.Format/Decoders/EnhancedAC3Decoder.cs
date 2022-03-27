@@ -31,12 +31,12 @@ namespace Cavern.Format.Decoders {
             AudioFrame(extractor);
 
             float[] result = new float[blocks * 256];
-            for (int block = 0; block < blocks; ++block)
-                AudioBlock(extractor, block);
+            // TODO: decode actual audio data
+            //for (int block = 0; block < blocks; ++block)
+            //    AudioBlock(extractor, block);
 
             ExtensibleMetadataDecoder emdf = new ExtensibleMetadataDecoder(extractor);
-
-            throw new NotImplementedException();
+            return result;
         }
     }
 }

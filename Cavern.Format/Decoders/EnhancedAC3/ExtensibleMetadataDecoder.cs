@@ -62,25 +62,21 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             this.extractor = extractor;
             while (extractor.Position != extractor.BackPosition - 16) {
                 int syncword = extractor.Peek(16);
-                if (syncword == syncWord) {
-                    IsValid = true;
+                if ((syncword == syncWord) && (IsValid = Decode()))
                     break;
-                }
                 ++extractor.Position;
             }
-            if (IsValid)
-                Decode();
         }
 
-        void Decode() {
+        bool Decode() {
             if (extractor.Read(16) != syncWord) {
                 IsValid = false;
-                return;
+                return false;
             }
             int emdf_container_length = extractor.Read(16);
             if (extractor.Position + emdf_container_length > extractor.BackPosition) {
                 IsValid = false;
-                return;
+                return false;
             }
             int emdf_version = extractor.Read(2);
             if (emdf_version == 3)
@@ -89,18 +85,25 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (key_id == 7)
                 key_id += extractor.VariableBits(3);
             if (emdf_version != 0 || key_id != 0)
-                throw new UnsupportedFeatureException("EMDFextra");
+                return false;
             int emdf_payload_id;
             while ((emdf_payload_id = extractor.Read(5)) != 0) {
                 if (emdf_payload_id == 0x1F)
                     emdf_payload_id += extractor.VariableBits(5);
+                if (emdf_payload_id > jocPayloadID) {
+                    payloads.Clear();
+                    JOC = null;
+                    OAMD = null;
+                    return false;
+                }
                 ExtensibleMetadataPayload payload = new ExtensibleMetadataPayload(emdf_payload_id, extractor);
                 payloads.Add(payload);
-                if (payload.ID == jocPayloadID)
+                if (emdf_payload_id == jocPayloadID)
                     JOC = new JointObjectCoding(payload);
-                else if (payload.ID == oamdPayloadID)
+                else if (emdf_payload_id == oamdPayloadID)
                     OAMD = new ObjectAudioMetadata(payload);
             }
+            return true;
         }
     }
 }
