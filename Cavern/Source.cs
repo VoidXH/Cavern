@@ -34,6 +34,7 @@ namespace Cavern {
         // ------------------------------------------------------------------
         /// <summary>
         /// Samples required to match the listener's update rate after pitch changes.
+        /// This is the number of samples that has to be rendered.
         /// </summary>
         protected int PitchedUpdateRate { get; private set; }
 

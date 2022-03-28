@@ -86,7 +86,11 @@ namespace Cavern.Remapping {
             BottomSurround = new ChannelPrototype(0, 90, "Bottom surround"),
             TopFrontCenter = new ChannelPrototype(0, -45, "Top front center"),
             GodsVoice = new ChannelPrototype(0, -90, "God's voice"),
-            RearCenter = new ChannelPrototype(180, "Rear center");
+            RearCenter = new ChannelPrototype(180, "Rear center"),
+            WideLeft = new ChannelPrototype(-70, "Wide left"),
+            WideRight = new ChannelPrototype(70, "Wide right"),
+            TopRearLeft = new ChannelPrototype(-160, -45, "Top rear left"),
+            TopRearRight = new ChannelPrototype(160, -45, "Top rear right");
 
         const string frontLeftMark = "L",
             frontRightMark = "R",
@@ -132,7 +136,7 @@ namespace Cavern.Remapping {
             FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight,
             FrontLeftCenter, FrontRightCenter, HearingImpaired, VisuallyImpaired, Unused, MotionData, ExternalData,
             TopFrontLeft, TopFrontRight, TopSideLeft, TopSideRight, SignLanguage, BottomSurround, TopFrontCenter,
-            GodsVoice, RearCenter
+            GodsVoice, RearCenter, WideLeft, WideRight, TopRearLeft, TopRearRight
         };
 
         /// <summary>

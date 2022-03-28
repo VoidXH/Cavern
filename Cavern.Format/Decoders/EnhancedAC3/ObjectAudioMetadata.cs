@@ -2,6 +2,8 @@
 
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
+using Cavern.Remapping;
+using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
@@ -11,12 +13,23 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Number of audio objects in the stream.
         /// </summary>
-        readonly int objectCount;
+        public int ObjectCount { get; private set; }
 
         /// <summary>
         /// Decoded object audio element metadata.
         /// </summary>
         readonly OAElementMD[] elements;
+
+        /// <summary>
+        /// Bed channels used. The first dimension is the element ID, the second is one bit for each channel,
+        /// in the order of <see cref="bedChannels"/>.
+        /// </summary>
+        bool[][] bedAssignment;
+
+        /// <summary>
+        /// Count of bed channels.
+        /// </summary>
+        int beds;
 
         /// <summary>
         /// Decodes a OAMD frame from an EMDF payload.
@@ -28,18 +41,18 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 oa_md_version_bits += extractor.Read(3);
             if (oa_md_version_bits != 0)
                 throw new UnsupportedFeatureException("OAver");
-            objectCount = extractor.Read(5);
-            if (objectCount == 31)
-                objectCount = extractor.Read(7);
-            ++objectCount;
+            ObjectCount = extractor.Read(5);
+            if (ObjectCount == 31)
+                ObjectCount = extractor.Read(7);
+            ++ObjectCount;
             ProgramAssignment(extractor);
-            b_alternate_object_data_present = extractor.ReadBit();
+            bool alternateObjectPresent = extractor.ReadBit();
             int elementCount = extractor.Read(4);
             if (elementCount == 15)
                 elementCount += extractor.Read(5);
             elements = new OAElementMD[elementCount];
             for (int i = 0; i < elementCount; ++i)
-                elements[i] = new OAElementMD(extractor, b_alternate_object_data_present, objectCount, bed_or_isf_objects);
+                elements[i] = new OAElementMD(extractor, alternateObjectPresent, ObjectCount, bed_or_isf_objects);
         }
 
         /// <summary>
@@ -54,18 +67,27 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     break;
                 }
             }
+
             // TODO: handle ramps
-            return elements[element].GetPositions();
+
+            Vector3[] result = elements[element].GetPositions();
+            int checkedBed = 0;
+            for (int i = 0; i < beds; ++i) {
+                while (!bedAssignment[element][checkedBed])
+                    ++checkedBed;
+                ChannelPrototype prototype = ChannelPrototype.Mapping[(int)bedChannels[checkedBed]];
+                result[i] = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube() * Listener.EnvironmentSize;
+            }
+            return result;
         }
 
         void ProgramAssignment(BitExtractor extractor) {
             b_dyn_object_only_program = extractor.ReadBit();
             if (b_dyn_object_only_program) {
                 b_lfe_present = extractor.ReadBit();
-                b_standard_chan_assign = new bool[] { true };
-                bed_channel_assignment = new bool[num_bed_instances = 1][];
-                bed_channel_assignment[0] = new bool[(int)OAMDBedChannel.Max];
-                bed_channel_assignment[0][(int)OAMDBedChannel.LowFrequencyEffects] = true;
+                bedAssignment = new bool[num_bed_instances = 1][];
+                bedAssignment[0] = new bool[(int)NonStandardBedChannel.Max];
+                bedAssignment[0][(int)NonStandardBedChannel.LowFrequencyEffects] = true;
             } else {
                 content_description = extractor.ReadBits(4);
 
@@ -76,21 +98,20 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         num_bed_instances = extractor.Read(3) + 2;
                     else
                         num_bed_instances = 1;
-                    b_standard_chan_assign = new bool[num_bed_instances];
-                    bed_channel_assignment = new bool[num_bed_instances][];
-                    nonstd_bed_channel_assignment = new bool[num_bed_instances][];
+                    bedAssignment = new bool[num_bed_instances][];
                     for (int bed = 0; bed < num_bed_instances; ++bed) {
                         bool b_lfe_only = extractor.ReadBit();
                         if (b_lfe_only) {
-                            b_standard_chan_assign[bed] = true;
-                            bed_channel_assignment[bed] = new bool[(int)OAMDBedChannel.Max];
-                            bed_channel_assignment[bed][(int)OAMDBedChannel.LowFrequencyEffects] = true;
+                            bedAssignment[bed] = new bool[(int)NonStandardBedChannel.Max];
+                            bedAssignment[bed][(int)NonStandardBedChannel.LowFrequencyEffects] = true;
                         } else {
-                            b_standard_chan_assign[bed] = extractor.ReadBit();
-                            if (b_standard_chan_assign[bed])
-                                bed_channel_assignment[bed] = extractor.ReadBits(10);
-                            else
-                                nonstd_bed_channel_assignment[bed] = extractor.ReadBits((int)NonStandardBedChannel.Max);
+                            if (extractor.ReadBit()) { // Standard bed assignment
+                                bool[] standardAssignment = extractor.ReadBits(10);
+                                for (int i = 0; i < standardAssignment.Length; ++i)
+                                    for (int j = 0; j < standardBedChannels[i].Length; ++j)
+                                        bedAssignment[bed][standardBedChannels[i][j]] = standardAssignment[i];
+                            } else
+                                bedAssignment[bed] = extractor.ReadBits((int)NonStandardBedChannel.Max);
                         }
                     }
                 }
@@ -116,17 +137,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
-            int beds = 0;
+            beds = 0;
             for (int bed = 0; bed < num_bed_instances; ++bed) {
-                if (b_standard_chan_assign[bed]) {
-                    for (int i = 0; i < (int)OAMDBedChannel.Max; ++i)
-                        if (bed_channel_assignment[bed][i])
-                            beds += standardBedChannels[i];
-                } else {
-                    for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i)
-                        if (nonstd_bed_channel_assignment[bed][i])
-                            ++beds;
-                }
+                for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i)
+                    if (bedAssignment[bed][i])
+                        ++beds;
             }
             bed_or_isf_objects = beds;
             if (use_isf)
@@ -140,17 +155,51 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         bool b_multiple_bed_instances_present;
         bool use_isf;
         bool[] content_description;
-        bool[] b_standard_chan_assign;
-        bool[][] bed_channel_assignment;
-        bool[][] nonstd_bed_channel_assignment;
         int num_bed_instances;
         int intermediate_spatial_format_idx;
         int bed_or_isf_objects;
         int num_dynamic_objects_bits;
-        readonly bool b_alternate_object_data_present;
 #pragma warning restore IDE0052 // Remove unread private members
 
-        static readonly int[] standardBedChannels = { 1, 2, 2, 2, 2, 2, 2, 1, 1, 2 };
-        static readonly int[] isf_objects = { 4, 8, 10, 14, 15, 30 };
+        static readonly byte[] isf_objects = { 4, 8, 10, 14, 15, 30 };
+
+        /// <summary>
+        /// What each bit of <see cref="bedAssignment"/> means.
+        /// </summary>
+        static readonly ReferenceChannel[] bedChannels = {
+            ReferenceChannel.ScreenLFE,
+            ReferenceChannel.WideRight,
+            ReferenceChannel.WideLeft,
+            ReferenceChannel.TopRearRight,
+            ReferenceChannel.TopRearLeft,
+            ReferenceChannel.TopSideRight,
+            ReferenceChannel.TopSideLeft,
+            ReferenceChannel.TopFrontRight,
+            ReferenceChannel.TopFrontLeft,
+            ReferenceChannel.RearRight,
+            ReferenceChannel.RearLeft,
+            ReferenceChannel.SideRight,
+            ReferenceChannel.SideLeft,
+            ReferenceChannel.ScreenLFE,
+            ReferenceChannel.FrontCenter,
+            ReferenceChannel.FrontRight,
+            ReferenceChannel.FrontLeft
+        };
+
+        /// <summary>
+        /// Which <see cref="bedChannels"/> are set with each bit of a standard layout.
+        /// </summary>
+        static readonly byte[][] standardBedChannels = {
+            new byte[] { 0 },
+            new byte[] { 1, 2 },
+            new byte[] { 3, 4 },
+            new byte[] { 5, 6 },
+            new byte[] { 7, 8 },
+            new byte[] { 9, 10 },
+            new byte[] { 11, 12 },
+            new byte[] { 13 },
+            new byte[] { 14 },
+            new byte[] { 15, 16 }
+        };
     }
 }

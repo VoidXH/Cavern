@@ -28,7 +28,11 @@
         BottomSurround,
         TopFrontCenter,
         GodsVoice,
-        RearCenter
+        RearCenter,
+        WideLeft,
+        WideRight,
+        TopRearLeft,
+        TopRearRight
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 }

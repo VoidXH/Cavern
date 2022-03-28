@@ -36,6 +36,22 @@ namespace Cavern.Format {
         }
 
         /// <summary>
+        /// Reads an audio track from a container.
+        /// </summary>
+        /// <param name="source">Container to fetch the tracklist from</param>
+        /// <param name="codec">Select a track of this codec or throw an exception if it doesn't exist</param>
+        public AudioTrackReader(ContainerReader source, Codec codec) : base(source.reader) {
+            this.source = source;
+            for (int track = 0; track < source.Tracks.Length; ++track) {
+                if (source.Tracks[track].Format == codec) {
+                    this.track = track;
+                    return;
+                }
+            }
+            throw new CodecNotFoundException(codec);
+        }
+
+        /// <summary>
         /// Fill the file metadata from the selected track.
         /// </summary>
         public override void ReadHeader() {

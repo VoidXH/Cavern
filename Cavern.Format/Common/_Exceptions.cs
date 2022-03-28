@@ -2,6 +2,18 @@
 
 namespace Cavern.Format.Common {
     /// <summary>
+    /// Tells if no stream was present in the container with the selected codec.
+    /// </summary>
+    public class CodecNotFoundException : Exception {
+        const string message = "No stream is present in the container with the selected codec: ";
+
+        /// <summary>
+        /// Tells if no stream was present in the container with the selected codec.
+        /// </summary>
+        public CodecNotFoundException(Codec codec) : base(message + codec) { }
+    }
+
+    /// <summary>
     /// Tells if the decoder ran into a predefined error code that is found in the decoder's documentation.
     /// </summary>
     public class DecoderException : Exception {
@@ -49,7 +61,7 @@ namespace Cavern.Format.Common {
         /// Tells if a codec is unsupported.
         /// </summary>
         public UnsupportedCodecException(bool needAudio, Codec codec) :
-            base(string.Format(message, needAudio ? audio : video, codec.ToString())) { }
+            base(string.Format(message, needAudio ? audio : video, codec)) { }
     }
 
     /// <summary>

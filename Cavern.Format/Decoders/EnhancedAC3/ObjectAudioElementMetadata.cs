@@ -27,7 +27,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Decodes an object audio element metadata block.
         /// </summary>
-        public OAElementMD(BitExtractor extractor, bool b_alternate_object_data_present, int objectCount,
+        public OAElementMD(BitExtractor extractor, bool alternateObjectPresent, int objectCount,
             int bed_or_isf_objects) {
             if (lastPrecisePositions == null || lastPrecisePositions.Length != objectCount)
                 lastPrecisePositions = new Vector3[objectCount];
@@ -35,7 +35,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             oa_element_id_idx = extractor.Read(4);
             oa_element_size = VariableBitsMax(extractor, 4, 4) + 1;
             int endPos = extractor.Position + oa_element_size;
-            if (b_alternate_object_data_present)
+            if (alternateObjectPresent)
                 alternate_object_data_id_idx = extractor.Read(4);
             b_discard_unknown_element = extractor.ReadBit();
             if (oa_element_id_idx == 1)

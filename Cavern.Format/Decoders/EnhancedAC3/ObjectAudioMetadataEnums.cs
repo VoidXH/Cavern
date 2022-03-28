@@ -1,18 +1,4 @@
 ﻿namespace Cavern.Format.Decoders.EnhancedAC3 {
-    enum OAMDBedChannel {
-        Max = 10,
-        Fronts = 9,
-        Center = 8,
-        LowFrequencyEffects = 7,
-        Surrounds = 6,
-        Rears = 5,
-        TopFronts = 4,
-        TopSurrounds = 3,
-        TopRears = 2,
-        Wides = 1,
-        LowFrequencyEffects2 = 0
-    }
-
     enum NonStandardBedChannel {
         Max = 17,
         FrontLeft = 16,

@@ -1,8 +1,4 @@
-﻿using Cavern;
-using Cavern.Filters;
-using Cavern.Format;
-using Cavern.Remapping;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +10,11 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+
+using Cavern;
+using Cavern.Filters;
+using Cavern.Format;
+using Cavern.Remapping;
 
 using Color = System.Drawing.Color;
 

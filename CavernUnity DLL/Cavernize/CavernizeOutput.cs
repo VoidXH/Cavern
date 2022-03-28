@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
+using Cavern.SpecialSources;
+
 namespace Cavern.Cavernize {
     /// <summary>
     /// Outputs audio from a <see cref="Cavernizer"/> at a given channel.
@@ -28,7 +30,7 @@ namespace Cavern.Cavernize {
         /// <summary>
         /// Custom Cavern <see cref="Source"/> for this component.
         /// </summary>
-        class CavernizeOutputSource : Source {
+        class CavernizeOutputSource : StreamedSource {
             /// <summary>
             /// The Cavernizer to output audio from.
             /// </summary>
@@ -50,15 +52,8 @@ namespace Cavern.Cavernize {
             protected override bool Precollect() {
                 if (!Master)
                     return false;
-                ForcePrecollect();
-                bool state = base.Precollect();
-                return state;
+                return base.Precollect();
             }
-
-            /// <summary>
-            /// Indicates that the source meets rendering requirements, and <see cref="GetSamples"/> won't fail.
-            /// </summary>
-            protected override bool Renderable => IsPlaying;
 
             /// <summary>
             /// Get the next sample block from <see cref="Master"/>.

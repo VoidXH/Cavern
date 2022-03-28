@@ -55,6 +55,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         // TODO
                         break;
                 }
+
+                // Convert to Cavern coordinate space
+                pos = new Vector3(pos.X * 2 - 1, pos.Z, pos.Y * -2 + 1) * Listener.EnvironmentSize;
             }
         }
 
