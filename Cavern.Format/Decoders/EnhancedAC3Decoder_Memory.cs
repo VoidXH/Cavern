@@ -93,6 +93,7 @@ namespace Cavern.Format.Decoders {
         int dialnorm;
         int dialnorm2;
         int dmixmod;
+        int dsurexmod;
         int dynrng;
         int dynrng2;
         int ecpl_begin_subbnd;

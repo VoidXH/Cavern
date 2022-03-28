@@ -9,6 +9,11 @@ namespace Cavern.Format.Decoders {
     /// </summary>
     public abstract class FrameBasedDecoder : Decoder {
         /// <summary>
+        /// The position of the first sample of the last exported block in the buffer.
+        /// </summary>
+        public int LastFetchStart => decoder.LastFetchStart;
+
+        /// <summary>
         /// Frame cache object.
         /// </summary>
         readonly BlockBuffer<float> decoder;

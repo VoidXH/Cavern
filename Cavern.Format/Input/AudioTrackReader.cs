@@ -1,6 +1,7 @@
 ﻿using Cavern.Format.Common;
 using Cavern.Format.Container;
 using Cavern.Format.Decoders;
+using Cavern.Format.Renderers;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format {
@@ -64,6 +65,15 @@ namespace Cavern.Format {
                 default:
                     throw new UnsupportedCodecException(true, selected.Format);
             }
+        }
+
+        /// <summary>
+        /// If the stream can be rendered in 3D by Cavern, return a renderer.
+        /// </summary>
+        public Renderer GetRenderer() {
+            if (decoder is EnhancedAC3Decoder eac3)
+                return new EnhancedAC3Renderer(eac3);
+            return null;
         }
 
         /// <summary>

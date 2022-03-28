@@ -6,6 +6,11 @@ namespace Cavern.Format.Utilities {
     /// </summary>
     public sealed class BlockBuffer<T> {
         /// <summary>
+        /// The position of the first sample of the last exported block in the buffer.
+        /// </summary>
+        public int LastFetchStart { get; private set; }
+
+        /// <summary>
         /// Result of the last <see cref="Fetcher"/> call.
         /// </summary>
         T[] lastFetch;
@@ -25,7 +30,7 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         public BlockBuffer(Func<T[]> fetcher) {
             Fetcher = fetcher;
-            lastFetch = new T[0];
+            lastFetch = Fetcher();
         }
 
         /// <summary>
@@ -34,6 +39,7 @@ namespace Cavern.Format.Utilities {
         /// <remarks>The returned array can have a smaller length than <paramref name="elements"/>
         /// if there's no more data to be fetched.</remarks>
         public T[] Read(int elements) {
+            LastFetchStart = lastFetchPosition;
             T[] result = new T[elements];
             int pointer = 0;
             while (pointer < elements) {
@@ -49,6 +55,7 @@ namespace Cavern.Format.Utilities {
                         Array.Resize(ref result, pointer);
                         return result;
                     }
+                    LastFetchStart = 0;
                     lastFetchPosition = 0;
                 }
             }

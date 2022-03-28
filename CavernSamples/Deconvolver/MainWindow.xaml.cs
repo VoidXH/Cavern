@@ -31,7 +31,7 @@ namespace Deconvolver {
             return null;
         }
 
-        void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        static void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         private void LoadFiles(object sender, RoutedEventArgs e) {
             RIFFWaveReader responseReader = Import("Response.wav");

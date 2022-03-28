@@ -65,7 +65,7 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
-        /// Read the next custom length word.
+        /// Read the next custom length unsigned word.
         /// </summary>
         public int Read(int bits) {
             int result = 0;
@@ -83,6 +83,15 @@ namespace Cavern.Format.Utilities {
             int result = Read(bits);
             Position = oldPos;
             return result;
+        }
+
+        /// <summary>
+        /// Read the next custom length signed word.
+        /// </summary>
+        public int ReadSigned(int bits) {
+            int value = Read(bits);
+            int sign = value & (1 << bits);
+            return sign << (31 - bits) + value - sign;
         }
 
         /// <summary>

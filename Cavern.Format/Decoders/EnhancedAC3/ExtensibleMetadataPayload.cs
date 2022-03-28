@@ -7,7 +7,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     class ExtensibleMetadataPayload {
         public int ID { get; }
 
-        public byte[] Payload { get; }
+        public byte[] Payload { get; private set; }
 
         /// <summary>
         /// Decodes a single payload from an EMDF stream.
@@ -44,6 +44,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
             int emdf_payload_size = extractor.VariableBits(8);
             Payload = extractor.ReadBytes(emdf_payload_size);
+        }
+
+        public void MergeWith(ExtensibleMetadataPayload payload) {
+
         }
 
 #pragma warning disable IDE0052 // Remove unread private members

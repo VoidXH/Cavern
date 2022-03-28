@@ -82,8 +82,8 @@ namespace Cavern.Format.Decoders {
                 extractor.Skip(2); // Copyright & original bitstream bits
                 if (acmod == 2)
                     throw new UnsupportedFeatureException("stereo");
-                if (acmod >= 6 && extractor.Read(2) != 0)
-                    throw new UnsupportedFeatureException("ProLogic");
+                if (acmod >= 6)
+                    dsurexmod = extractor.Read(2);
                 if (audprodie = extractor.ReadBit()) {
                     mixlevel = extractor.Read(5);
                     roomtyp = extractor.Read(2);

@@ -13,7 +13,7 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// Rendered spatial objects.
         /// </summary>
-        protected List<Source> objects;
+        protected readonly List<Source> objects = new List<Source>();
 
         /// <summary>
         /// Read the next <paramref name="samples"/> and update the <see cref="objects"/>.

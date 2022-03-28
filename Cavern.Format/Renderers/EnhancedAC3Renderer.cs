@@ -1,4 +1,7 @@
-﻿using Cavern.Format.Decoders;
+﻿using System.Numerics;
+
+using Cavern.Format.Decoders;
+using Cavern.Format.Decoders.EnhancedAC3;
 
 namespace Cavern.Format.Renderers {
     /// <summary>
@@ -21,7 +24,12 @@ namespace Cavern.Format.Renderers {
         public override void Update(int samples) {
             float[] input = new float[samples * stream.ChannelCount];
             stream.DecodeBlock(input, 0, input.LongLength);
-            // TODO: render, position
+            ObjectAudioMetadata oamd = null;
+            if (stream.Extensions != null)
+                oamd = stream.Extensions.OAMD;
+            if (oamd == null)
+                return;
+            Vector3[] positions = oamd.GetPositions(stream.LastFetchStart);
         }
     }
 }

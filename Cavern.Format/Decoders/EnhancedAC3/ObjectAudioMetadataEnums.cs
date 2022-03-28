@@ -1,15 +1,42 @@
 ﻿namespace Cavern.Format.Decoders.EnhancedAC3 {
     enum OAMDBedChannel {
         Max = 10,
-        RC_LR = 9,
-        RC_C = 8,
-        RC_LFE = 7,
-        RC_LS_RS = 6,
-        RC_LB_RB = 5,
-        RC_TFL_TFR = 4,
-        RC_TSL_TSR = 3,
-        RC_TBL_TBR = 2,
-        RC_LW_RW = 1,
-        RC_LFE2 = 0
+        Fronts = 9,
+        Center = 8,
+        LowFrequencyEffects = 7,
+        Surrounds = 6,
+        Rears = 5,
+        TopFronts = 4,
+        TopSurrounds = 3,
+        TopRears = 2,
+        Wides = 1,
+        LowFrequencyEffects2 = 0
+    }
+
+    enum NonStandardBedChannel {
+        Max = 17,
+        FrontLeft = 16,
+        FrontRight = 15,
+        Center = 14,
+        LowFrequencyEffects = 13,
+        SurroundLeft = 12,
+        SurroundRight = 11,
+        RearLeft = 10,
+        RearRight = 9,
+        TopFrontLeft = 8,
+        TopFrontRight = 7,
+        TopSurroundLeft = 6,
+        TopSurroundRight = 5,
+        TopRearLeft = 4,
+        TopRearRight = 3,
+        WideLeft = 2,
+        WideRight = 1,
+        LowFrequencyEffects2 = 0
+    }
+
+    enum ObjectAnchor {
+        Room,
+        Screen,
+        Speaker
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Numerics;
 
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
@@ -9,9 +9,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// </summary>
     class ObjectAudioMetadata {
         /// <summary>
-        /// Decoded object audio element metadata.
+        /// Number of audio objects in the stream.
         /// </summary>
-        public IReadOnlyList<OAElementMD> Elements => elements;
+        readonly int objectCount;
 
         /// <summary>
         /// Decoded object audio element metadata.
@@ -28,24 +28,45 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 oa_md_version_bits += extractor.Read(3);
             if (oa_md_version_bits != 0)
                 throw new UnsupportedFeatureException("OAver");
-            object_count = extractor.Read(5);
-            if (object_count == 31)
-                object_count = extractor.Read(7);
+            objectCount = extractor.Read(5);
+            if (objectCount == 31)
+                objectCount = extractor.Read(7);
+            ++objectCount;
             ProgramAssignment(extractor);
             b_alternate_object_data_present = extractor.ReadBit();
-            int oa_element_count_bits = extractor.Read(4);
-            if (oa_element_count_bits == 15)
-                oa_element_count_bits += extractor.Read(5);
-            elements = new OAElementMD[oa_element_count_bits];
-            for (int i = 0; i < oa_element_count_bits; ++i)
-                elements[i] = new OAElementMD(extractor, b_alternate_object_data_present, object_count, bed_or_isf_objects);
+            int elementCount = extractor.Read(4);
+            if (elementCount == 15)
+                elementCount += extractor.Read(5);
+            elements = new OAElementMD[elementCount];
+            for (int i = 0; i < elementCount; ++i)
+                elements[i] = new OAElementMD(extractor, b_alternate_object_data_present, objectCount, bed_or_isf_objects);
+        }
+
+        /// <summary>
+        /// Get the spatial position of each object.
+        /// </summary>
+        /// <param name="timecode">Samples since the beginning of the audio frame</param>
+        public Vector3[] GetPositions(int timecode) {
+            int element = 0;
+            for (int i = elements.Length - 1; i >= 0; --i) {
+                if (elements[i].MinOffset <= timecode) {
+                    element = i;
+                    break;
+                }
+            }
+            // TODO: handle ramps
+            return elements[element].GetPositions();
         }
 
         void ProgramAssignment(BitExtractor extractor) {
             b_dyn_object_only_program = extractor.ReadBit();
-            if (b_dyn_object_only_program)
+            if (b_dyn_object_only_program) {
                 b_lfe_present = extractor.ReadBit();
-            else {
+                b_standard_chan_assign = new bool[] { true };
+                bed_channel_assignment = new bool[num_bed_instances = 1][];
+                bed_channel_assignment[0] = new bool[(int)OAMDBedChannel.Max];
+                bed_channel_assignment[0][(int)OAMDBedChannel.LowFrequencyEffects] = true;
+            } else {
                 content_description = extractor.ReadBits(4);
 
                 // Object(s) with speaker-anchored coordinate(s) (bed objects)
@@ -61,20 +82,21 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     for (int bed = 0; bed < num_bed_instances; ++bed) {
                         bool b_lfe_only = extractor.ReadBit();
                         if (b_lfe_only) {
+                            b_standard_chan_assign[bed] = true;
                             bed_channel_assignment[bed] = new bool[(int)OAMDBedChannel.Max];
-                            bed_channel_assignment[bed][(int)OAMDBedChannel.RC_LFE] = true;
+                            bed_channel_assignment[bed][(int)OAMDBedChannel.LowFrequencyEffects] = true;
                         } else {
                             b_standard_chan_assign[bed] = extractor.ReadBit();
                             if (b_standard_chan_assign[bed])
                                 bed_channel_assignment[bed] = extractor.ReadBits(10);
                             else
-                                nonstd_bed_channel_assignment[bed] = extractor.ReadBits(17);
+                                nonstd_bed_channel_assignment[bed] = extractor.ReadBits((int)NonStandardBedChannel.Max);
                         }
                     }
                 }
 
                 // Intermediate spatial format (ISF)
-                if (content_description[2]) {
+                if (use_isf = content_description[2]) {
                     intermediate_spatial_format_idx = extractor.Read(3);
                     if (intermediate_spatial_format_idx >= isf_objects.Length)
                         throw new UnsupportedFeatureException("ISF");
@@ -92,9 +114,23 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     int reserved_data_size = extractor.Read(4) + 1;
                     extractor.Skip(reserved_data_size * 8);
                 }
-
-                bed_or_isf_objects = num_bed_instances + isf_objects[intermediate_spatial_format_idx];
             }
+
+            int beds = 0;
+            for (int bed = 0; bed < num_bed_instances; ++bed) {
+                if (b_standard_chan_assign[bed]) {
+                    for (int i = 0; i < (int)OAMDBedChannel.Max; ++i)
+                        if (bed_channel_assignment[bed][i])
+                            beds += standardBedChannels[i];
+                } else {
+                    for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i)
+                        if (nonstd_bed_channel_assignment[bed][i])
+                            ++beds;
+                }
+            }
+            bed_or_isf_objects = beds;
+            if (use_isf)
+                bed_or_isf_objects += isf_objects[intermediate_spatial_format_idx];
         }
 
 #pragma warning disable IDE0052 // Remove unread private members
@@ -102,6 +138,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         bool b_lfe_present;
         bool b_bed_chan_distribute;
         bool b_multiple_bed_instances_present;
+        bool use_isf;
         bool[] content_description;
         bool[] b_standard_chan_assign;
         bool[][] bed_channel_assignment;
@@ -111,9 +148,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         int bed_or_isf_objects;
         int num_dynamic_objects_bits;
         readonly bool b_alternate_object_data_present;
-        readonly int object_count;
 #pragma warning restore IDE0052 // Remove unread private members
 
-        int[] isf_objects = { 4, 8, 10, 14, 15, 30 };
+        static readonly int[] standardBedChannels = { 1, 2, 2, 2, 2, 2, 2, 1, 1, 2 };
+        static readonly int[] isf_objects = { 4, 8, 10, 14, 15, 30 };
     }
 }
