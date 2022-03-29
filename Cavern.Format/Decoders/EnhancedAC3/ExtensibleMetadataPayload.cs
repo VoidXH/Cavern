@@ -5,8 +5,19 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// Decodes a single payload from an EMDF stream.
     /// </summary>
     class ExtensibleMetadataPayload {
+        /// <summary>
+        /// Payload identifier.
+        /// </summary>
         public int ID { get; }
 
+        /// <summary>
+        /// This payload applies this many samples later.
+        /// </summary>
+        public int SampleOffset { get; private set; }
+
+        /// <summary>
+        /// Raw payload data.
+        /// </summary>
         public byte[] Payload { get; private set; }
 
         /// <summary>
@@ -15,53 +26,31 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public ExtensibleMetadataPayload(int id, BitExtractor extractor) {
             ID = id;
 
-            if (smploffste = extractor.ReadBit()) {
-                smploffst = extractor.Read(11);
+            bool sampleOffset;
+            if (sampleOffset = extractor.ReadBit()) {
+                SampleOffset = extractor.Read(11);
                 extractor.Skip(1);
             }
-            if (duratione = extractor.ReadBit())
-                duration = extractor.VariableBits(11);
-            if (groupide = extractor.ReadBit())
-                groupid = extractor.VariableBits(2);
-            if (codecdatae = extractor.ReadBit())
+
+            if (extractor.ReadBit())
+                extractor.VariableBits(11);
+            if (extractor.ReadBit())
+                extractor.VariableBits(2);
+            if (extractor.ReadBit())
                 extractor.Skip(8);
 
-            bool discard_unknown_payload = extractor.ReadBit();
-            if (!discard_unknown_payload) {
-                bool payload_frame_aligned = false;
-                if (!smploffste) {
-                    payload_frame_aligned = extractor.ReadBit();
-                    if (payload_frame_aligned) {
-                        create_duplicate = extractor.ReadBit();
-                        remove_duplicate = extractor.ReadBit();
-                    }
+            if (!extractor.ReadBit()) {
+                bool frameAligned = false;
+                if (!sampleOffset) {
+                    frameAligned = extractor.ReadBit();
+                    if (frameAligned)
+                        extractor.Skip(2);
                 }
-                if (smploffste || payload_frame_aligned) {
-                    priority = extractor.Read(5);
-                    proc_allowed = extractor.Read(2);
-                }
+                if (sampleOffset || frameAligned)
+                    extractor.Skip(7);
             }
 
-            int emdf_payload_size = extractor.VariableBits(8);
-            Payload = extractor.ReadBytes(emdf_payload_size);
+            Payload = extractor.ReadBytes(extractor.VariableBits(8));
         }
-
-        public void MergeWith(ExtensibleMetadataPayload payload) {
-
-        }
-
-#pragma warning disable IDE0052 // Remove unread private members
-        readonly bool codecdatae;
-        readonly bool create_duplicate;
-        readonly bool duratione;
-        readonly bool groupide;
-        readonly bool remove_duplicate;
-        readonly bool smploffste;
-        readonly int duration;
-        readonly int groupid;
-        readonly int priority;
-        readonly int proc_allowed;
-        readonly int smploffst;
-#pragma warning restore IDE0052 // Remove unread private members
     }
 }

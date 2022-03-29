@@ -49,7 +49,8 @@ namespace Cavern {
         /// <summary>
         /// 3D environment type.
         /// </summary>
-        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
+        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created.
+        /// Don't override without user interaction.</remarks>
         public static Environments EnvironmentType {
             get => environmentType;
             set {
@@ -61,7 +62,8 @@ namespace Cavern {
         /// <summary>
         /// Virtual surround effect for headphones. This will replace the active <see cref="Channels"/> on the next frame.
         /// </summary>
-        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created. Don't override without user interaction.</remarks>
+        /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created.
+        /// Don't override without user interaction.</remarks>
         public static bool HeadphoneVirtualizer {
             get => headphoneVirtualizer;
             set {
@@ -75,7 +77,8 @@ namespace Cavern {
         /// </summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created.</remarks>
         public static Channel[] Channels { get; private set; } = new Channel[]
-            { new Channel(0, -30), new Channel(0, 30), new Channel(0, 0), new Channel(15, 15, true), new Channel(0, -110), new Channel(0, 110) };
+            { new Channel(0, -30), new Channel(0, 30), new Channel(0, 0), new Channel(15, 15, true),
+                new Channel(0, -110), new Channel(0, 110) };
 
         /// <summary>
         /// Channel count on the left side of the room, but 1 if there's none, as it's used for volume division.
@@ -108,6 +111,12 @@ namespace Cavern {
         /// respected, thus this vector should be scaled, not completely overridden.
         /// </summary>
         public static Vector3 EnvironmentSize = new Vector3(10, 7, 10);
+
+        /// <summary>
+        /// Relative size of the screen to the front wall's width. Used for rendering screen-anchored objects. The user's settings
+        /// should be respected, thus this vector should not be overridden without good reason.
+        /// </summary>
+        public static Vector2 ScreenSize = new Vector2(.9f, .486f);
 
         /// <summary>
         /// How many sources can be played at the same time.
@@ -215,8 +224,8 @@ namespace Cavern {
         /// <summary>
         /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
         /// </summary>
-        /// <param name="loadGlobals">Load the global settings for all listeners. This should be false for listeners created on the fly, as
-        /// this overwrites previous application settings that might have been modified.</param>
+        /// <param name="loadGlobals">Load the global settings for all listeners. This should be false for listeners created
+        /// on the fly, as this overwrites previous application settings that might have been modified.</param>
         public Listener(bool loadGlobals = true) {
             if (!loadGlobals)
                 return;
@@ -278,7 +287,8 @@ namespace Cavern {
         // Public static functions
         // ------------------------------------------------------------------
         /// <summary>
-        /// Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;, or simply "Virtualization".
+        /// Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;,
+        /// or simply "Virtualization".
         /// </summary>
         public static string GetLayoutName() {
             if (headphoneVirtualizer)

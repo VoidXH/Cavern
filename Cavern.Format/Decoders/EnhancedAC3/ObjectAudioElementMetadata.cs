@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
@@ -14,58 +16,82 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public int MinOffset => blockOffsetFactor[0];
 
         /// <summary>
+        /// Last decoded precise object update positions.
+        /// </summary>
+        static Vector3[] lastPrecisePositions;
+
+        /// <summary>
+        /// Global sample offset, applied to all info blocks.
+        /// </summary>
+        int sampleOffset;
+
+        /// <summary>
+        /// The beginning of each info block in samples.
+        /// </summary>
+        int[] blockOffsetFactor;
+
+        /// <summary>
+        /// Time to fade to a new position in samples for each info block.
+        /// </summary>
+        int[] rampDuration;
+
+        /// <summary>
         /// Rendering info for each object's updates. The first dimension is the object, the second is the info block.
         /// </summary>
         /// <remarks>Can be null if the element is not an object element.</remarks>
         ObjectInfoBlock[][] infoBlocks;
 
         /// <summary>
-        /// Last decoded precise object update positions.
-        /// </summary>
-        static Vector3[] lastPrecisePositions;
-
-        /// <summary>
         /// Decodes an object audio element metadata block.
         /// </summary>
-        public OAElementMD(BitExtractor extractor, bool alternateObjectPresent, int objectCount,
-            int bed_or_isf_objects) {
-            if (lastPrecisePositions == null || lastPrecisePositions.Length != objectCount)
+        public OAElementMD(BitExtractor extractor, bool alternateObjectPresent, int objectCount, int bedOrISFObjects) {
+            if (lastPrecisePositions == null)
                 lastPrecisePositions = new Vector3[objectCount];
-
-            oa_element_id_idx = extractor.Read(4);
-            oa_element_size = VariableBitsMax(extractor, 4, 4) + 1;
-            int endPos = extractor.Position + oa_element_size;
-            if (alternateObjectPresent)
-                alternate_object_data_id_idx = extractor.Read(4);
-            b_discard_unknown_element = extractor.ReadBit();
-            if (oa_element_id_idx == 1)
-                ObjectElement(extractor, objectCount, bed_or_isf_objects);
+            int elementIndex = extractor.Read(4);
+            int endPos = extractor.Position + VariableBitsMax(extractor, 4, 4) + 1;
+            extractor.Skip(alternateObjectPresent ? 5 : 1);
+            if (elementIndex == 1)
+                ObjectElement(extractor, objectCount, bedOrISFObjects);
             // TODO: support other element types
             extractor.Position = endPos; // Padding
         }
 
         /// <summary>
-        /// Get where each object is located in the room.
+        /// Set the object properties from metadata.
         /// </summary>
-        public Vector3[] GetPositions() {
-            Vector3[] result = new Vector3[infoBlocks.Length];
-            for (int pos = 0; pos < infoBlocks.Length; ++pos)
-                for (int blk = 0; blk < infoBlocks[pos].Length; ++blk)
-                    infoBlocks[pos][blk].UpdatePosition(ref result[pos], ref lastPrecisePositions[pos]);
-            return result;
+        /// <param name="timecode">Samples since the beginning of the audio frame</param>
+        /// <param name="sources">The sources used for rendering this track</param>
+        /// <param name="lastHoldPos">A helper array for each object, holding the last non-ramped position</param>
+        public void SetPositions(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
+            for (int obj = 0; obj < infoBlocks.Length; ++obj) {
+                for (int blk = 0; blk < infoBlocks[obj].Length; ++blk) {
+                    if (timecode > blockOffsetFactor[blk] + rampDuration[blk]) {
+                        if (blk == 0)
+                            sources[obj].Position = lastHoldPos[obj];
+                        break;
+                    }
+                    infoBlocks[obj][blk].UpdateSource(sources[obj], ref lastPrecisePositions[obj]);
+                    if (timecode > blockOffsetFactor[blk]) {
+                        float t = (timecode - blockOffsetFactor[blk]) / (float)rampDuration[blk];
+                        sources[obj].Position = Vector3.Lerp(lastHoldPos[obj], sources[obj].Position, Math.Min(t, 1));
+                        lastHoldPos[obj] = sources[obj].Position;
+                        break;
+                    }
+                    lastHoldPos[obj] = sources[obj].Position;
+                }
+            }
         }
 
-        void ObjectElement(BitExtractor extractor, int objectCount, int bed_or_isf_objects) {
+        void ObjectElement(BitExtractor extractor, int objectCount, int bedOrISFObjects) {
             MDUpdateInfo(extractor);
-            bool b_reserved_data_not_present = extractor.ReadBit();
-            if (!b_reserved_data_not_present)
+            if (!extractor.ReadBit()) // Reserved
                 extractor.Skip(5);
 
             infoBlocks = new ObjectInfoBlock[objectCount][];
-            for (int j = 0; j < objectCount; ++j) {
-                infoBlocks[j] = new ObjectInfoBlock[infoBlockCount];
-                for (int blk = 0; blk < infoBlockCount; ++blk)
-                    infoBlocks[j][blk] = new ObjectInfoBlock(extractor, blk, j < bed_or_isf_objects);
+            for (int obj = 0; obj < objectCount; ++obj) {
+                infoBlocks[obj] = new ObjectInfoBlock[rampDuration.Length];
+                for (int blk = 0; blk < infoBlocks[obj].Length; ++blk)
+                    infoBlocks[obj][blk] = new ObjectInfoBlock(extractor, blk, obj < bedOrISFObjects);
             }
         }
 
@@ -76,10 +102,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 2 => extractor.Read(5),
                 _ => throw new UnsupportedFeatureException("mdOffset"),
             };
-            infoBlockCount = extractor.Read(3) + 1;
-            blockOffsetFactor = new int[infoBlockCount];
-            rampDuration = new int[infoBlockCount];
-            for (int blk = 0; blk < infoBlockCount; ++blk)
+            blockOffsetFactor = new int[extractor.Read(3) + 1];
+            rampDuration = new int[blockOffsetFactor.Length];
+            for (int blk = 0; blk < rampDuration.Length; ++blk)
                 BlockUpdateInfo(extractor, blk);
         }
 
@@ -95,43 +120,32 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 rampDuration[blk] = rampDurations[rampDurationCode];
         }
 
-#pragma warning disable IDE0052 // Remove unread private members
-        int sampleOffset;
-        int infoBlockCount;
-        int[] blockOffsetFactor;
-        int[] rampDuration;
-        readonly bool b_discard_unknown_element;
-        readonly int oa_element_id_idx;
-        readonly int oa_element_size;
-        readonly int alternate_object_data_id_idx;
-#pragma warning restore IDE0052 // Remove unread private members
-
         static readonly int[] sampleOffsetIndex = { 8, 16, 18, 24 };
         static readonly int[] rampDurations = { 0, 512, 1536 };
         static readonly int[] rampDurationIndex =
             { 32, 64, 128, 256, 320, 480, 1000, 1001, 1024, 1600, 1601, 1602, 1920, 2000, 2002, 2048 };
 
-        int VariableBitsMax(BitExtractor extractor, int n, int max_num_groups) {
+        int VariableBitsMax(BitExtractor extractor, int n, int groups) {
             int value = 0;
-            int num_group = 1;
+            int group = 1;
             int read = extractor.Read(n);
             value += read;
-            bool b_read_more = extractor.ReadBit();
-            if (max_num_groups > num_group) {
-                if (b_read_more) {
+            bool readMore = extractor.ReadBit();
+            if (groups > group) {
+                if (readMore) {
                     value <<= n;
                     value += (1 << n);
                 }
-                while (b_read_more) {
+                while (readMore) {
                     read = extractor.Read(n);
                     value += read;
-                    b_read_more = extractor.ReadBit();
-                    if (num_group >= max_num_groups)
+                    readMore = extractor.ReadBit();
+                    if (group >= groups)
                         break;
-                    if (b_read_more) {
+                    if (readMore) {
                         value <<= n;
                         value += (1 << n);
-                        num_group += 1;
+                        group += 1;
                     }
                 }
             }

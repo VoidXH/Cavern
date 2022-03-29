@@ -30,6 +30,11 @@ namespace Cavern.Format.Renderers {
         readonly StreamMaster reader;
 
         /// <summary>
+        /// Last non-interpolated position of each object.
+        /// </summary>
+        readonly Vector3[] lastHoldPos;
+
+        /// <summary>
         /// Parse an E-AC-3 decoder to a renderer.
         /// </summary>
         public EnhancedAC3Renderer(EnhancedAC3Decoder stream) {
@@ -40,6 +45,7 @@ namespace Cavern.Format.Renderers {
             hasObjects = oamd != null;
             if (hasObjects) {
                 objectSamples = new float[oamd.ObjectCount][];
+                lastHoldPos = new Vector3[oamd.ObjectCount];
                 reader = new StreamMaster(GetNextObjectSamples);
                 for (int obj = 0; obj < oamd.ObjectCount; ++obj)
                     objects.Add(new StreamMasterSource(reader, obj));
@@ -61,11 +67,10 @@ namespace Cavern.Format.Renderers {
                 if (oamd == null)
                     return;
 
-                Vector3[] positions = oamd.GetPositions(stream.LastFetchStart);
-                for (int obj = 0; obj < positions.Length; ++obj) {
-                    objects[obj].Position = positions[obj];
+                int offset = stream.Extensions.GetPayloadByID(ExtensibleMetadataDecoder.oamdPayloadID).SampleOffset;
+                oamd.SetPositions(stream.LastFetchStart - offset, objects, lastHoldPos);
+                for (int obj = 0; obj < objectSamples.Length; ++obj)
                     objectSamples[obj] = new float[samples];
-                }
             }
         }
 

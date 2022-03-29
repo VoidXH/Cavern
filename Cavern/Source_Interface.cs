@@ -39,7 +39,7 @@ namespace Cavern {
         // 1D processing
         // ------------------------------------------------------------------
         /// <summary>
-        /// Source playback volume.
+        /// Source playback volume (ratio to full volume).
         /// </summary>
         public float Volume = 1;
 

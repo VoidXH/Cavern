@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
@@ -32,14 +33,24 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         int beds;
 
         /// <summary>
+        /// Use intermediate spatial format (ISF), which has a few fixed layouts.
+        /// </summary>
+        bool isfInUse;
+
+        /// <summary>
+        /// ISF layout ID.
+        /// </summary>
+        int isfIndex;
+
+        /// <summary>
         /// Decodes a OAMD frame from an EMDF payload.
         /// </summary>
         public ObjectAudioMetadata(ExtensibleMetadataPayload payload) {
             BitExtractor extractor = new BitExtractor(payload.Payload);
-            int oa_md_version_bits = extractor.Read(2);
-            if (oa_md_version_bits == 3)
-                oa_md_version_bits += extractor.Read(3);
-            if (oa_md_version_bits != 0)
+            int versionNumber = extractor.Read(2);
+            if (versionNumber == 3)
+                versionNumber += extractor.Read(3);
+            if (versionNumber != 0)
                 throw new UnsupportedFeatureException("OAver");
             ObjectCount = extractor.Read(5);
             if (ObjectCount == 31)
@@ -50,16 +61,22 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int elementCount = extractor.Read(4);
             if (elementCount == 15)
                 elementCount += extractor.Read(5);
+
+            int bedOrISFObjects = beds;
+            if (isfInUse)
+                bedOrISFObjects += isfObjectCount[isfIndex];
             elements = new OAElementMD[elementCount];
             for (int i = 0; i < elementCount; ++i)
-                elements[i] = new OAElementMD(extractor, alternateObjectPresent, ObjectCount, bed_or_isf_objects);
+                elements[i] = new OAElementMD(extractor, alternateObjectPresent, ObjectCount, bedOrISFObjects);
         }
 
         /// <summary>
-        /// Get the spatial position of each object.
+        /// Set the object properties from metadata.
         /// </summary>
         /// <param name="timecode">Samples since the beginning of the audio frame</param>
-        public Vector3[] GetPositions(int timecode) {
+        /// <param name="sources">The sources used for rendering this track</param>
+        /// <param name="lastHoldPos">A helper array the size of <see cref="ObjectCount"/></param>
+        public void SetPositions(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
             int element = 0;
             for (int i = elements.Length - 1; i >= 0; --i) {
                 if (elements[i].MinOffset <= timecode) {
@@ -68,40 +85,36 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
-            // TODO: handle ramps
-
-            Vector3[] result = elements[element].GetPositions();
+            elements[element].SetPositions(timecode, sources, lastHoldPos);
             int checkedBed = 0;
+            int checkedBedInstance = 0;
             for (int i = 0; i < beds; ++i) {
-                while (!bedAssignment[element][checkedBed])
+                while (!bedAssignment[checkedBedInstance][checkedBed]) {
                     ++checkedBed;
+                    if (checkedBed == (int)NonStandardBedChannel.Max)
+                        ++checkedBedInstance;
+                }
                 ChannelPrototype prototype = ChannelPrototype.Mapping[(int)bedChannels[checkedBed]];
-                result[i] = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube() * Listener.EnvironmentSize;
+                sources[i].Position = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube() * Listener.EnvironmentSize;
             }
-            return result;
         }
 
         void ProgramAssignment(BitExtractor extractor) {
-            b_dyn_object_only_program = extractor.ReadBit();
-            if (b_dyn_object_only_program) {
-                b_lfe_present = extractor.ReadBit();
-                bedAssignment = new bool[num_bed_instances = 1][];
-                bedAssignment[0] = new bool[(int)NonStandardBedChannel.Max];
-                bedAssignment[0][(int)NonStandardBedChannel.LowFrequencyEffects] = true;
+            if (extractor.ReadBit()) { // Dynamic object-only program
+                if (extractor.ReadBit()) { // LFE present
+                    bedAssignment = new bool[1][];
+                    bedAssignment[0] = new bool[(int)NonStandardBedChannel.Max];
+                    bedAssignment[0][(int)NonStandardBedChannel.LowFrequencyEffects] = true;
+                }
             } else {
-                content_description = extractor.ReadBits(4);
+                bool[] contentDescription = extractor.ReadBits(4);
 
                 // Object(s) with speaker-anchored coordinate(s) (bed objects)
-                if (content_description[3]) {
-                    b_bed_chan_distribute = extractor.ReadBit();
-                    if (b_multiple_bed_instances_present = extractor.ReadBit())
-                        num_bed_instances = extractor.Read(3) + 2;
-                    else
-                        num_bed_instances = 1;
-                    bedAssignment = new bool[num_bed_instances][];
-                    for (int bed = 0; bed < num_bed_instances; ++bed) {
-                        bool b_lfe_only = extractor.ReadBit();
-                        if (b_lfe_only) {
+                if (contentDescription[3]) {
+                    extractor.Skip(1); // The object is distributable - Cavern will do it anyway
+                    bedAssignment = new bool[extractor.ReadBit() ? extractor.Read(3) + 2 : 1][];
+                    for (int bed = 0; bed < bedAssignment.Length; ++bed) {
+                        if (extractor.ReadBit()) { // LFE only
                             bedAssignment[bed] = new bool[(int)NonStandardBedChannel.Max];
                             bedAssignment[bed][(int)NonStandardBedChannel.LowFrequencyEffects] = true;
                         } else {
@@ -117,51 +130,30 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
 
                 // Intermediate spatial format (ISF)
-                if (use_isf = content_description[2]) {
-                    intermediate_spatial_format_idx = extractor.Read(3);
-                    if (intermediate_spatial_format_idx >= isf_objects.Length)
+                if (isfInUse = contentDescription[2]) {
+                    isfIndex = extractor.Read(3);
+                    if (isfIndex >= isfObjectCount.Length)
                         throw new UnsupportedFeatureException("ISF");
                 }
 
                 // Object(s) with room-anchored or screen-anchored coordinates
-                if (content_description[1]) {
-                    num_dynamic_objects_bits = extractor.Read(5);
-                    if (num_dynamic_objects_bits == 31)
-                        num_dynamic_objects_bits += extractor.Read(7);
-                }
+                if (contentDescription[1]) // This is useless, same as ObjectCount - bedOrISFObjects, also found in JOC
+                    if (extractor.Read(5) == 31)
+                        extractor.Skip(7);
 
                 // Reserved
-                if (content_description[0]) {
-                    int reserved_data_size = extractor.Read(4) + 1;
-                    extractor.Skip(reserved_data_size * 8);
-                }
+                if (contentDescription[0])
+                    extractor.Skip((extractor.Read(4) + 1) * 8);
             }
 
             beds = 0;
-            for (int bed = 0; bed < num_bed_instances; ++bed) {
+            for (int bed = 0; bed < bedAssignment.Length; ++bed)
                 for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i)
                     if (bedAssignment[bed][i])
                         ++beds;
-            }
-            bed_or_isf_objects = beds;
-            if (use_isf)
-                bed_or_isf_objects += isf_objects[intermediate_spatial_format_idx];
         }
 
-#pragma warning disable IDE0052 // Remove unread private members
-        bool b_dyn_object_only_program;
-        bool b_lfe_present;
-        bool b_bed_chan_distribute;
-        bool b_multiple_bed_instances_present;
-        bool use_isf;
-        bool[] content_description;
-        int num_bed_instances;
-        int intermediate_spatial_format_idx;
-        int bed_or_isf_objects;
-        int num_dynamic_objects_bits;
-#pragma warning restore IDE0052 // Remove unread private members
-
-        static readonly byte[] isf_objects = { 4, 8, 10, 14, 15, 30 };
+        static readonly byte[] isfObjectCount = { 4, 8, 10, 14, 15, 30 };
 
         /// <summary>
         /// What each bit of <see cref="bedAssignment"/> means.

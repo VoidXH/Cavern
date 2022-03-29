@@ -15,7 +15,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Payload ID for Object Audio Metadata.
         /// </summary>
-        const int oamdPayloadID = 11;
+        internal const int oamdPayloadID = 11;
 
         /// <summary>
         /// Payload ID for Joint Object Coding.
@@ -67,39 +67,52 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
         }
 
+        /// <summary>
+        /// Get a payload by its ID if it exists.
+        /// </summary>
+        public ExtensibleMetadataPayload GetPayloadByID(int id) {
+            for (int i = 0, c = payloads.Count; i < c; ++i)
+                if (payloads[i].ID == id)
+                    return payloads[i];
+            return null;
+        }
+
+        /// <summary>
+        /// Tries to decode an EMDF block, returns if succeeded.
+        /// </summary>
         bool Decode() {
             if (extractor.Read(16) != syncWord) {
                 IsValid = false;
                 return false;
             }
-            int emdf_container_length = extractor.Read(16);
-            if (extractor.Position + emdf_container_length > extractor.BackPosition) {
+
+            if (extractor.Position + extractor.Read(16) /* length */ > extractor.BackPosition) {
                 IsValid = false;
                 return false;
             }
-            int emdf_version = extractor.Read(2);
-            if (emdf_version == 3)
-                emdf_version += extractor.VariableBits(2);
-            int key_id = extractor.Read(3);
-            if (key_id == 7)
-                key_id += extractor.VariableBits(3);
-            if (emdf_version != 0 || key_id != 0)
+            int version = extractor.Read(2);
+            if (version == 3)
+                version += extractor.VariableBits(2);
+            int key = extractor.Read(3);
+            if (key == 7)
+                key += extractor.VariableBits(3);
+            if (version != 0 || key != 0)
                 return false;
-            int emdf_payload_id;
-            while ((emdf_payload_id = extractor.Read(5)) != 0) {
-                if (emdf_payload_id == 0x1F)
-                    emdf_payload_id += extractor.VariableBits(5);
-                if (emdf_payload_id > jocPayloadID) {
+            int payloadID;
+            while ((payloadID = extractor.Read(5)) != 0) {
+                if (payloadID == 0x1F)
+                    payloadID += extractor.VariableBits(5);
+                if (payloadID > jocPayloadID) {
                     payloads.Clear();
                     JOC = null;
                     OAMD = null;
                     return false;
                 }
-                ExtensibleMetadataPayload payload = new ExtensibleMetadataPayload(emdf_payload_id, extractor);
+                ExtensibleMetadataPayload payload = new ExtensibleMetadataPayload(payloadID, extractor);
                 payloads.Add(payload);
-                if (emdf_payload_id == jocPayloadID)
+                if (payloadID == jocPayloadID)
                     JOC = new JointObjectCoding(payload);
-                else if (emdf_payload_id == oamdPayloadID)
+                else if (payloadID == oamdPayloadID)
                     OAMD = new ObjectAudioMetadata(payload);
             }
             return true;
