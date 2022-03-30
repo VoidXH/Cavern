@@ -14,7 +14,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Number of audio objects in the stream.
         /// </summary>
-        public int ObjectCount { get; private set; }
+        public byte ObjectCount { get; private set; }
 
         /// <summary>
         /// Decoded object audio element metadata.
@@ -30,7 +30,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Count of bed channels.
         /// </summary>
-        int beds;
+        byte beds;
 
         /// <summary>
         /// Use intermediate spatial format (ISF), which has a few fixed layouts.
@@ -40,7 +40,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// ISF layout ID.
         /// </summary>
-        int isfIndex;
+        byte isfIndex;
 
         /// <summary>
         /// Decodes a OAMD frame from an EMDF payload.
@@ -52,9 +52,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 versionNumber += extractor.Read(3);
             if (versionNumber != 0)
                 throw new UnsupportedFeatureException("OAver");
-            ObjectCount = extractor.Read(5);
+            ObjectCount = (byte)extractor.Read(5);
             if (ObjectCount == 31)
-                ObjectCount = extractor.Read(7);
+                ObjectCount += (byte)extractor.Read(7);
             ++ObjectCount;
             ProgramAssignment(extractor);
             bool alternateObjectPresent = extractor.ReadBit();
@@ -71,12 +71,29 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         /// <summary>
+        /// Gets which object is the LFE channel or -1 if it's not present.
+        /// </summary>
+        public int GetLFEPosition() {
+            int beds = 0;
+            for (int bed = 0; bed < bedAssignment.Length; ++bed) {
+                for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i) {
+                    if (bedAssignment[bed][i]) {
+                        if (i == (int)NonStandardBedChannel.LowFrequencyEffects)
+                            return beds;
+                        ++beds;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
         /// Set the object properties from metadata.
         /// </summary>
         /// <param name="timecode">Samples since the beginning of the audio frame</param>
         /// <param name="sources">The sources used for rendering this track</param>
         /// <param name="lastHoldPos">A helper array the size of <see cref="ObjectCount"/></param>
-        public void SetPositions(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
+        public void UpdateSources(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
             int element = 0;
             for (int i = elements.Length - 1; i >= 0; --i) {
                 if (elements[i].MinOffset <= timecode) {
@@ -85,7 +102,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
-            elements[element].SetPositions(timecode, sources, lastHoldPos);
+            elements[element].UpdateSources(timecode, sources, lastHoldPos);
             int checkedBed = 0;
             int checkedBedInstance = 0;
             for (int i = 0; i < beds; ++i) {
@@ -96,6 +113,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
                 ChannelPrototype prototype = ChannelPrototype.Mapping[(int)bedChannels[checkedBed]];
                 sources[i].Position = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube() * Listener.EnvironmentSize;
+                sources[i].LFE = prototype.LFE;
             }
         }
 
@@ -131,7 +149,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
                 // Intermediate spatial format (ISF)
                 if (isfInUse = contentDescription[2]) {
-                    isfIndex = extractor.Read(3);
+                    isfIndex = (byte)extractor.Read(3);
                     if (isfIndex >= isfObjectCount.Length)
                         throw new UnsupportedFeatureException("ISF");
                 }

@@ -21,8 +21,8 @@ namespace Cavern.Format.Decoders {
             words_per_syncframe = frmsiz + 1;
             SampleRate = sampleRates[fscod];
             blocks = numberOfBlocks[numblkscod];
-            channels = ChannelPrototype.Get(channelArrangements[acmod]);
-            CreateCacheTables(blocks, channels.Length);
+            Channels = channelArrangements[acmod];
+            CreateCacheTables(blocks, Channels.Length);
             extractor = new BitExtractor(reader.Read(words_per_syncframe * 2 - mustDecode));
 
             decoder = ParseDecoder(extractor.Read(5));
@@ -146,7 +146,7 @@ namespace Cavern.Format.Decoders {
                 for (int block = 0; block < blocks; ++block) {
                     if (cplinu[block])
                         cplexpstr[block] = (ExpStrat)extractor.Read(2);
-                    for (int channel = 0; channel < channels.Length; ++channel)
+                    for (int channel = 0; channel < Channels.Length; ++channel)
                         chexpstr[block][channel] = (ExpStrat)extractor.Read(2);
                 }
             } else {
@@ -156,12 +156,12 @@ namespace Cavern.Format.Decoders {
                         ++ncplblks;
                 if (acmod > 1 && ncplblks > 0)
                     frmcplexpstr = extractor.Read(5);
-                for (int channel = 0; channel < channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     frmchexpstr[channel] = extractor.Read(5);
 
                 for (int block = 0; block < blocks; ++block) {
                     cplexpstr[block] = frmcplexpstr_tbl[frmcplexpstr][block];
-                    for (int channel = 0; channel < channels.Length; ++channel)
+                    for (int channel = 0; channel < Channels.Length; ++channel)
                         chexpstr[block][channel] = frmcplexpstr_tbl[frmchexpstr[channel]][block];
                 }
             }
@@ -172,7 +172,7 @@ namespace Cavern.Format.Decoders {
 
             // Converter exponent strategy data
             if (strmtyp == 0 && (convexpstre = numblkscod == 3 || extractor.ReadBit()))
-                for (int channel = 0; channel < channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     convexpstr[channel] = extractor.Read(5);
 
             // AHT data
@@ -187,7 +187,7 @@ namespace Cavern.Format.Decoders {
 
             // Transient pre-noise processing data
             if (transproce) {
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < Channels.Length; ++channel) {
                     if (chintransproc[channel] = extractor.ReadBit()) {
                         transprocloc[channel] = extractor.Read(10);
                         transproclen[channel] = extractor.Read(8);
@@ -206,7 +206,7 @@ namespace Cavern.Format.Decoders {
             }
 
             // Syntax state init
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < Channels.Length; ++channel) {
                 firstspxcos[channel] = true;
                 firstcplcos[channel] = true;
             }
@@ -219,13 +219,13 @@ namespace Cavern.Format.Decoders {
 
         void AudioBlock(BitExtractor extractor, int block) {
             if (blkswe)
-                for (int channel = 0; channel < channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     blksw[channel] = extractor.ReadBit();
             if (dithflage)
-                for (int channel = 0; channel < channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     dithflag[channel] = extractor.ReadBit();
             else
-                for (int channel = 0; channel < channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     dithflag[channel] = true;
 
             if (dynrnge = extractor.ReadBit())
@@ -239,7 +239,7 @@ namespace Cavern.Format.Decoders {
                     if (acmod == 1)
                         chinspx[0] = true;
                     else
-                        for (int channel = 0; channel < channels.Length; ++channel)
+                        for (int channel = 0; channel < Channels.Length; ++channel)
                             chinspx[channel] = extractor.ReadBit();
                     spxstrtf = extractor.Read(2);
                     spxbegf = extractor.Read(3);
@@ -255,7 +255,7 @@ namespace Cavern.Format.Decoders {
 
                     ParseSPX();
                 } else {
-                    for (int channel = 0; channel < channels.Length; ++channel) {
+                    for (int channel = 0; channel < Channels.Length; ++channel) {
                         chinspx[channel] = false;
                         firstspxcos[channel] = true;
                     }
@@ -264,7 +264,7 @@ namespace Cavern.Format.Decoders {
 
             // Spectral extension strategy coordinates
             if (spxinu) {
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < Channels.Length; ++channel) {
                     if (chinspx[channel]) {
                         if (firstspxcos[channel]) {
                             spxcoe[channel] = true;
@@ -292,7 +292,7 @@ namespace Cavern.Format.Decoders {
                     if (acmod == 2)
                         chincpl[0] = chincpl[1] = true;
                     else
-                        for (int channel = 0; channel < channels.Length; ++channel)
+                        for (int channel = 0; channel < Channels.Length; ++channel)
                             chincpl[channel] = extractor.ReadBit();
                     if (!ecplinu) { // Standard coupling
                         if (acmod == 0x2)
@@ -328,7 +328,7 @@ namespace Cavern.Format.Decoders {
                         }
                     }
                 } else {
-                    for (int channel = 0; channel < channels.Length; ++channel) {
+                    for (int channel = 0; channel < Channels.Length; ++channel) {
                         chincpl[channel] = false;
                         firstcplcos[channel] = true;
                     }
@@ -351,7 +351,7 @@ namespace Cavern.Format.Decoders {
                 throw new UnsupportedFeatureException("stereo");
 
             // Channel bandwidth code
-            for (int channel = 0; channel < channels.Length; ++channel)
+            for (int channel = 0; channel < Channels.Length; ++channel)
                 if (chexpstr[block][channel] != ExpStrat.Reuse)
                     if (!chincpl[channel] && !chinspx[channel])
                         chbwcod[channel] = extractor.Read(6);
@@ -363,7 +363,7 @@ namespace Cavern.Format.Decoders {
             ParseParametricBitAllocation(block);
 
             // Exponents for full bandwidth channels
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < Channels.Length; ++channel) {
                 if (chexpstr[block][channel] != ExpStrat.Reuse) {
                     int expl = nchgrps[channel] + 1;
                     if (exps[channel] == null || exps[channel].Length != expl)
@@ -404,7 +404,7 @@ namespace Cavern.Format.Decoders {
             if (snroffststr == 0) {
                 if (cplinu[block])
                     cplfsnroffst = frmfsnroffst;
-                for (int channel = 0; channel < channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     fsnroffst[channel] = frmfsnroffst;
                 if (lfeon)
                     lfefsnroffst = frmfsnroffst;
@@ -414,13 +414,13 @@ namespace Cavern.Format.Decoders {
                     if (snroffststr == 1) {
                         blkfsnroffst = extractor.Read(4);
                         cplfsnroffst = blkfsnroffst;
-                        for (int channel = 0; channel < channels.Length; ++channel)
+                        for (int channel = 0; channel < Channels.Length; ++channel)
                             fsnroffst[channel] = blkfsnroffst;
                         lfefsnroffst = blkfsnroffst;
                     } else if (snroffststr == 2) {
                         if (cplinu[block])
                             cplfsnroffst = extractor.Read(4);
-                        for (int channel = 0; channel < channels.Length; ++channel)
+                        for (int channel = 0; channel < Channels.Length; ++channel)
                             fsnroffst[channel] = extractor.Read(4);
                         if (lfeon)
                             lfefsnroffst = extractor.Read(4);
@@ -431,14 +431,14 @@ namespace Cavern.Format.Decoders {
             if (fgaincode = frmfgaincode && extractor.ReadBit()) {
                 if (cplinu[block])
                     cplfgaincod = extractor.Read(3);
-                for (int channel = 0; channel < channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     fgaincod[channel] = extractor.Read(3);
                 if (lfeon)
                     lfefgaincod = extractor.Read(3);
             } else {
                 if (cplinu[block])
                     cplfgaincod = 4;
-                for (int channel = 0; channel < channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel)
                     fgaincod[channel] = 4;
                 if (lfeon)
                     lfefgaincod = 4;
@@ -461,7 +461,7 @@ namespace Cavern.Format.Decoders {
                 if (lfeon && !lfeexpstr[block])
                     throw new DecoderException(10);
             }
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < Channels.Length; ++channel) {
                 if (block == 0 && chexpstr[0][channel] == ExpStrat.Reuse)
                     throw new DecoderException(8);
                 if (!chincpl[channel] && chbwcod[channel] > 60)
@@ -473,7 +473,7 @@ namespace Cavern.Format.Decoders {
                 extractor.Skip(extractor.Read(9) * 8);
 
             // Quantized mantissa values
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < Channels.Length; ++channel) {
                 if (chahtinu[channel] == 0) {
                     chmant[channel] = new int[nchmant[channel]];
                     if (chexpstr[block][channel] != ExpStrat.Reuse)

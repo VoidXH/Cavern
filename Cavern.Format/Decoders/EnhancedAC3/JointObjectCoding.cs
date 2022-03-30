@@ -5,7 +5,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
     /// A decoded JOC frame from an EMDF payload.
     /// </summary>
-    class JointObjectCoding {
+    partial class JointObjectCoding {
         /// <summary>
         /// Decodes a JOC frame from an EMDF payload.
         /// </summary>
@@ -25,12 +25,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             joc_ext_config_idx = extractor.Read(3);
 
             b_joc_obj_present = new bool[joc_num_objects];
-            joc_num_bands = new int[joc_num_objects];
+            joc_num_bands = new byte[joc_num_objects];
             b_joc_sparse = new bool[joc_num_objects];
             joc_num_quant_idx = new bool[joc_num_objects];
             joc_slope_idx = new bool[joc_num_objects];
             joc_num_dpoints = new int[joc_num_objects];
-            joc_offset_ts_bits = new int[joc_num_objects, 2];
+            joc_offset_ts = new int[joc_num_objects][];
             joc_channel_idx = new int[joc_num_objects][][];
             joc_vec = new int[joc_num_objects][][];
             joc_mtx = new int[joc_num_objects][][][];
@@ -49,9 +49,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     // joc_data_point_info
                     joc_slope_idx[obj] = extractor.ReadBit();
                     joc_num_dpoints[obj] = extractor.Read(1) + 1;
-                    if (joc_slope_idx[obj])
+                    if (joc_slope_idx[obj]) {
+                        joc_offset_ts[obj] = new int[2];
                         for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp)
-                            joc_offset_ts_bits[obj, dp] = extractor.Read(5);
+                            joc_offset_ts[obj][dp] = extractor.Read(5) + 1;
+                    }
 
                     // Allocation
                     joc_channel_idx[obj] = new int[joc_num_dpoints[obj]][];
@@ -107,6 +109,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         bool[] b_joc_sparse;
         bool[] joc_num_quant_idx;
         bool[] joc_slope_idx;
+        byte[] joc_num_bands;
         int joc_dmx_config_idx;
         int joc_ext_config_idx;
         int joc_num_channels;
@@ -114,9 +117,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         int joc_clipgain_x_bits;
         int joc_clipgain_y_bits;
         int joc_seq_count_bits;
-        int[] joc_num_bands;
         int[] joc_num_dpoints;
-        int[,] joc_offset_ts_bits;
+        int[][] joc_offset_ts;
         int[][][] joc_channel_idx;
         int[][][] joc_vec;
         int[][][][] joc_mtx;

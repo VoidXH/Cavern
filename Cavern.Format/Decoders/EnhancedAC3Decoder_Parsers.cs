@@ -37,7 +37,7 @@ namespace Cavern.Format.Decoders {
         /// Set endmant and nchgrps.
         /// </summary>
         void ParseParametricBitAllocation(int block) {
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < Channels.Length; ++channel) {
                 strtmant[channel] = 0;
                 if (ecplinu)
                     endmant[channel] = ecplsubbndtab[ecpl_begin_subbnd];

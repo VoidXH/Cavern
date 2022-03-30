@@ -13,7 +13,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Gets the timecode of the first update in this block.
         /// </summary>
-        public int MinOffset => blockOffsetFactor[0];
+        public short MinOffset => blockOffsetFactor[0];
 
         /// <summary>
         /// Last decoded precise object update positions.
@@ -23,17 +23,17 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Global sample offset, applied to all info blocks.
         /// </summary>
-        int sampleOffset;
+        byte sampleOffset;
 
         /// <summary>
         /// The beginning of each info block in samples.
         /// </summary>
-        int[] blockOffsetFactor;
+        short[] blockOffsetFactor;
 
         /// <summary>
         /// Time to fade to a new position in samples for each info block.
         /// </summary>
-        int[] rampDuration;
+        short[] rampDuration;
 
         /// <summary>
         /// Rendering info for each object's updates. The first dimension is the object, the second is the info block.
@@ -62,7 +62,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <param name="timecode">Samples since the beginning of the audio frame</param>
         /// <param name="sources">The sources used for rendering this track</param>
         /// <param name="lastHoldPos">A helper array for each object, holding the last non-ramped position</param>
-        public void SetPositions(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
+        public void UpdateSources(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
             for (int obj = 0; obj < infoBlocks.Length; ++obj) {
                 for (int blk = 0; blk < infoBlocks[obj].Length; ++blk) {
                     if (timecode > blockOffsetFactor[blk] + rampDuration[blk]) {
@@ -99,30 +99,30 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             sampleOffset = extractor.Read(2) switch {
                 0 => 0,
                 1 => sampleOffsetIndex[extractor.Read(2)],
-                2 => extractor.Read(5),
+                2 => (byte)extractor.Read(5),
                 _ => throw new UnsupportedFeatureException("mdOffset"),
             };
-            blockOffsetFactor = new int[extractor.Read(3) + 1];
-            rampDuration = new int[blockOffsetFactor.Length];
+            blockOffsetFactor = new short[extractor.Read(3) + 1];
+            rampDuration = new short[blockOffsetFactor.Length];
             for (int blk = 0; blk < rampDuration.Length; ++blk)
                 BlockUpdateInfo(extractor, blk);
         }
 
         void BlockUpdateInfo(BitExtractor extractor, int blk) {
-            blockOffsetFactor[blk] = extractor.Read(6) + sampleOffset;
+            blockOffsetFactor[blk] = (short)(extractor.Read(6) + sampleOffset);
             int rampDurationCode = extractor.Read(2);
             if (rampDurationCode == 3) {
                 if (extractor.ReadBit())
                     rampDuration[blk] = rampDurationIndex[extractor.Read(4)];
                 else
-                    rampDuration[blk] = extractor.Read(11);
+                    rampDuration[blk] = (short)extractor.Read(11);
             } else
                 rampDuration[blk] = rampDurations[rampDurationCode];
         }
 
-        static readonly int[] sampleOffsetIndex = { 8, 16, 18, 24 };
-        static readonly int[] rampDurations = { 0, 512, 1536 };
-        static readonly int[] rampDurationIndex =
+        static readonly byte[] sampleOffsetIndex = { 8, 16, 18, 24 };
+        static readonly short[] rampDurations = { 0, 512, 1536 };
+        static readonly short[] rampDurationIndex =
             { 32, 64, 128, 256, 320, 480, 1000, 1001, 1024, 1600, 1601, 1602, 1920, 2000, 2002, 2048 };
 
         int VariableBitsMax(BitExtractor extractor, int n, int groups) {

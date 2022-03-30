@@ -3,7 +3,15 @@
 namespace Cavern.Format.Decoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
     partial class EnhancedAC3Decoder {
-        internal int ChannelCount => channels.Length + (lfeon ? 1 : 0);
+        /// <summary>
+        /// Used full bandwidth channels.
+        /// </summary>
+        public ReferenceChannel[] Channels { get; private set; }
+
+        /// <summary>
+        /// Number of total output channels.
+        /// </summary>
+        public int ChannelCount => Channels.Length + (lfeon ? 1 : 0);
 
         const int lfestrtmant = 0;
         const int lfeendmant = 7;
@@ -69,7 +77,6 @@ namespace Cavern.Format.Decoders {
         bool[] spxbndstrc;
         bool[] spxcoe;
         byte[] addbsi;
-        ChannelPrototype[] channels;
         Decoder decoder;
         ExpStrat[] cplexpstr;
         ExpStrat[][] chexpstr;
