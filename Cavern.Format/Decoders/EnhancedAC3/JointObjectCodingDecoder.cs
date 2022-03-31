@@ -36,7 +36,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 int offset = joc_num_quant_idx[obj] ? 96 : 48;
                 for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp) {
                     for (int ch = 0; ch < joc_num_channels; ++ch) {
-                        joc_mix_mtx[obj][dp][ch][0] = (offset + joc_mtx[obj][dp][ch][1]) % nquant;
+                        joc_mix_mtx[obj][dp][ch][0] = (offset + joc_mtx[obj][dp][ch][0]) % nquant;
                         for (int pb = 1; pb < joc_num_bands[obj]; ++pb)
                             joc_mix_mtx[obj][dp][ch][pb] = (joc_mix_mtx[obj][dp][ch][pb - 1] +
                                 joc_mtx[obj][dp][ch][pb]) % nquant;
