@@ -13,7 +13,12 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Result of the last <see cref="Fetcher"/> call.
         /// </summary>
-        T[] lastFetch;
+        public T[] LastFetch { get; private set; }
+
+        /// <summary>
+        /// Reusable output array.
+        /// </summary>
+        T[] result = new T[0];
 
         /// <summary>
         /// First sample from <see cref="lastFetch"/> that wasn't collected.
@@ -30,7 +35,7 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         public BlockBuffer(Func<T[]> fetcher) {
             Fetcher = fetcher;
-            lastFetch = Fetcher();
+            LastFetch = Fetcher();
         }
 
         /// <summary>
@@ -40,18 +45,19 @@ namespace Cavern.Format.Utilities {
         /// if there's no more data to be fetched.</remarks>
         public T[] Read(int elements) {
             LastFetchStart = lastFetchPosition;
-            T[] result = new T[elements];
+            if (result.Length != elements)
+                result = new T[elements];
             int pointer = 0;
             while (pointer < elements) {
-                int next = Math.Min(elements - pointer, lastFetch.Length - lastFetchPosition);
+                int next = Math.Min(elements - pointer, LastFetch.Length - lastFetchPosition);
                 for (int i = 0; i < next; ++i)
-                    result[pointer + i] = lastFetch[lastFetchPosition + i];
+                    result[pointer + i] = LastFetch[lastFetchPosition + i];
 
                 pointer += next;
                 lastFetchPosition += next;
-                if (lastFetchPosition == lastFetch.Length) {
-                    lastFetch = Fetcher();
-                    if (lastFetch == null) {
+                if (lastFetchPosition == LastFetch.Length) {
+                    LastFetch = Fetcher();
+                    if (LastFetch == null) {
                         Array.Resize(ref result, pointer);
                         return result;
                     }

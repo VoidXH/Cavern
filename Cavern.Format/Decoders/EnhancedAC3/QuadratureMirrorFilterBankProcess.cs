@@ -90,10 +90,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Convert a timeslot of real <see cref="subbands"/> to QMFB.
         /// </summary>
-        public Complex[] ProcessForward(float[] input, int inputOffset) {
+        public Complex[] ProcessForward(float[] input) {
             Array.Copy(inputStreamForward, 0, inputStreamForward, subbands, coeffs.Length - subbands);
             for (int sample = 0; sample < subbands; ++sample)
-                inputStreamForward[sample] = input[subbands - sample - 1 + inputOffset];
+                inputStreamForward[sample] = input[subbands - sample - 1];
 
             for (int sample = 0; sample < window.Length; ++sample)
                 window[sample] = inputStreamForward[sample] * coeffs[sample];
@@ -116,7 +116,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Convert a timeslot of QMFB <see cref="subbands"/> to PCM samples.
         /// </summary>
-        public void ProcessInverse(Complex[] input, float[] output, int outputOffset) {
+        public void ProcessInverse(Complex[] input, float[] output) {
             int doubleLength = subbands * 2;
             int quadrupleLength = subbands * 4;
 
@@ -144,7 +144,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 float outSample = 0;
                 for (int j = 0, end = coeffs.Length / subbands; j < end; ++j)
                     outSample += window[subbands * j + ts];
-                output[ts + outputOffset] = outSample;
+                output[ts] = outSample;
             }
         }
     }

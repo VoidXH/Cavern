@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
@@ -19,30 +20,44 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         readonly int objects;
 
         /// <summary>
-        /// Number of time division blocks for processing. A timeslot's length is the same as
-        /// the number of <see cref="QuadratureMirrorFilterBank.subbands"/>.
+        /// Length of an AC-3 frame.
         /// </summary>
-        readonly int timeslots;
+        readonly int frameSize;
 
         /// <summary>
-        /// Preallocated output sample arrays.
+        /// Recycled timeslot object output arrays.
         /// </summary>
-        readonly float[][] outCache;
+        readonly float[][] timeslotCache;
 
         /// <summary>
-        /// Preallocated forward transformation result holder.
+        /// Previous JOC mixing matrix values.
+        /// </summary>
+        readonly float[][][] prevMatrix;
+
+        /// <summary>
+        /// Recycled forward transformation result holder.
         /// </summary>
         readonly Complex[][] results;
 
         /// <summary>
-        /// Preallocated QMFB operation arrays.
+        /// Recycled QMFB operation arrays.
         /// </summary>
         readonly Complex[][] qmfbCache;
 
         /// <summary>
-        /// Preallocated QMFB transform objects.
+        /// Recycled QMFB transform objects.
         /// </summary>
         readonly QuadratureMirrorFilterBank[] converters;
+
+        /// <summary>
+        /// Channels to objects matrix.
+        /// </summary>
+        float[][][][] mixMatrix;
+
+        /// <summary>
+        /// Next timeslot to read in the <see cref="current"/> JOC.
+        /// </summary>
+        int timeslot;
 
         /// <summary>
         /// Creates a converter from a channel-based audio stream and JOC to object output samples.
@@ -50,13 +65,13 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public JointObjectCodingApplier(int channels, int objects, int frameSize) {
             this.channels = channels;
             this.objects = objects;
-            timeslots = frameSize / QuadratureMirrorFilterBank.subbands;
+            this.frameSize = frameSize;
 
-            outCache = new float[objects][];
+            timeslotCache = new float[objects][];
             results = new Complex[channels][];
             qmfbCache = new Complex[objects][];
             for (int obj = 0; obj < objects; ++obj) {
-                outCache[obj] = new float[frameSize];
+                timeslotCache[obj] = new float[QuadratureMirrorFilterBank.subbands];
                 qmfbCache[obj] = new Complex[QuadratureMirrorFilterBank.subbands];
             }
 
@@ -64,30 +79,38 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             converters = new QuadratureMirrorFilterBank[converterCount];
             for (int i = 0; i < converterCount; ++i)
                 converters[i] = new QuadratureMirrorFilterBank();
+
+            prevMatrix = new float[objects][][];
+            for (int obj = 0; obj < objects; ++obj) {
+                prevMatrix[obj] = new float[channels][];
+                for (int ch = 0; ch < channels; ++ch)
+                    prevMatrix[obj][ch] = new float[QuadratureMirrorFilterBank.subbands];
+            }
         }
 
         /// <summary>
-        /// Gets the audio samples of each object for an audio frame.
+        /// Gets the audio samples of each object for the next timeslot.
         /// </summary>
-        public float[][] Apply(float[][] input, float[][][][] mixMatrix) {
-            for (int ts = 0; ts < timeslots; ++ts) {
-                int firstSample = ts * QuadratureMirrorFilterBank.subbands;
-                Parallel.For(0, channels, ch => results[ch] = converters[ch].ProcessForward(input[ch], firstSample));
-                Parallel.For(0, objects, obj => ProcessObject(obj, mixMatrix[obj][ts], firstSample));
-            }
-            return outCache;
+        public float[][] Apply(float[][] input, JointObjectCoding actual) {
+            if (timeslot == 0)
+                mixMatrix = actual.GetMixingMatrices(frameSize, prevMatrix);
+            Parallel.For(0, channels, ch => results[ch] = converters[ch].ProcessForward(input[ch]));
+            Parallel.For(0, objects, obj => ProcessObject(obj, mixMatrix[obj][timeslot]));
+            if (++timeslot == channels)
+                timeslot = 0;
+            return timeslotCache;
         }
 
         /// <summary>
         /// Mixes channel-based samples by a matrix to the objects.
         /// </summary>
-        void ProcessObject(int obj, float[][] mixMatrix, int firstSample) {
+        void ProcessObject(int obj, float[][] mixMatrix) {
             Array.Clear(qmfbCache[obj], 0, QuadratureMirrorFilterBank.subbands);
             for (int ch = 0; ch < channels; ++ch) {
                 for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
                     qmfbCache[obj][sb] += results[ch][sb] * mixMatrix[ch][sb];
             }
-            converters[obj].ProcessInverse(qmfbCache[obj], outCache[obj], firstSample);
+            converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
         }
     }
 }

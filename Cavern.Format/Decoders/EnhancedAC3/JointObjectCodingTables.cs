@@ -1,4 +1,6 @@
-﻿namespace Cavern.Format.Decoders.EnhancedAC3 {
+﻿using Cavern.Remapping;
+
+namespace Cavern.Format.Decoders.EnhancedAC3 {
     enum HuffmanType {
         /// <summary>
         /// Matrix.
@@ -26,6 +28,14 @@
             HuffmanType.MTX => mode == 1 ? joc_huff_code_fine_generic : joc_huff_code_coarse_generic,
             HuffmanType.VEC => mode == 1 ? joc_huff_code_fine_coeff_sparse : joc_huff_code_coarse_coeff_sparse,
             _ => mode == 7 ? joc_huff_code_7ch_pos_index_sparse : joc_huff_code_5ch_pos_index_sparse,
+        };
+
+        /// <summary>
+        /// The order of input channels for JOC matrix mixing.
+        /// </summary>
+        public static readonly ReferenceChannel[] inputMatrix = new ReferenceChannel[] {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight
         };
 
         public static readonly byte[] joc_num_bands = { 1, 3, 5, 7, 9, 12, 15, 23 };

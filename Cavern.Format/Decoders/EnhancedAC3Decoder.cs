@@ -13,6 +13,11 @@ namespace Cavern.Format.Decoders {
         public int SampleRate { get; private set; }
 
         /// <summary>
+        /// Samples in each decoded frame
+        /// </summary>
+        public int FrameSize => blocks * 256;
+
+        /// <summary>
         /// Auxillary metadata parsed for the last decoded frame.
         /// </summary>
         internal ExtensibleMetadataDecoder Extensions { get; private set; }
@@ -33,7 +38,7 @@ namespace Cavern.Format.Decoders {
             BitstreamInfo(ref extractor);
             AudioFrame(extractor);
 
-            float[] result = new float[blocks * 256 * ChannelCount];
+            float[] result = new float[FrameSize * ChannelCount];
             // TODO: decode actual audio data
             //for (int block = 0; block < blocks; ++block)
             //    AudioBlock(extractor, block);
