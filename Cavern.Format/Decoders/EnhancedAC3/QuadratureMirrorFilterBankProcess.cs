@@ -120,7 +120,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int doubleLength = subbands * 2;
             int quadrupleLength = subbands * 4;
 
-            Array.Copy(inputStreamInverse, 0, inputStreamInverse, doubleLength, coeffs.Length - doubleLength);
+            Array.Copy(inputStreamInverse, 0, inputStreamInverse, doubleLength, inputStreamInverse.Length - doubleLength);
             for (int j = 0; j < doubleLength; ++j) {
                 inputStreamInverse[j] = 0;
                 for (int sb = 0; sb < subbands; ++sb)
