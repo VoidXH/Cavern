@@ -114,7 +114,7 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// Update the objects and get the samples they need to render.
         /// </summary>
-        float[][] GetNextObjectSamples(int samples) {
+        public float[][] GetNextObjectSamples(int samples) {
             Update(samples);
             return objectSamples;
         }

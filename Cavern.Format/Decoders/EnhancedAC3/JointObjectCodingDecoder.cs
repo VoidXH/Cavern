@@ -2,16 +2,11 @@
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     partial class JointObjectCoding {
-        /// <summary>
-        /// Preallocated output sample arrays.
-        /// </summary>
-        float[][] outCache;
-
         void DecodeSparse(int obj) {
             if (b_joc_obj_present[obj]) {
                 int nquant = joc_num_quant_idx[obj] ? 192 : 96;
+                int offset = joc_num_quant_idx[obj] ? 100 : 50;
                 for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp) {
-                    int offset = joc_num_quant_idx[obj] ? 100 : 50;
                     for (int pb = 0; pb < joc_num_bands[obj]; ++pb) {
                         int joc_channel_idx_mod;
                         if (pb == 0)
@@ -38,8 +33,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         void DecodeCoarse(int obj) {
             if (b_joc_obj_present[obj]) {
                 int nquant = joc_num_quant_idx[obj] ? 192 : 96;
+                int offset = joc_num_quant_idx[obj] ? 96 : 48;
                 for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp) {
-                    int offset = joc_num_quant_idx[obj] ? 96 : 48;
                     for (int ch = 0; ch < joc_num_channels; ++ch) {
                         joc_mix_mtx[obj][dp][ch][0] = (offset + joc_mtx[obj][dp][ch][1]) % nquant;
                         for (int pb = 1; pb < joc_num_bands[obj]; ++pb)
@@ -64,7 +59,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         void InterpolateSideInfo(int num_qmf_timeslots) {
             for (int obj = 0; obj < joc_num_objects; ++obj) {
                 for (int ch = 0; ch < joc_num_channels; ++ch) {
-                    for (byte sb = 0; sb < num_qmf_subbands; ++sb) {
+                    for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
                         int id = Array.BinarySearch(JointObjectCodingTables.joc_num_bands, joc_num_bands[obj]);
                         if (id < 0)
                             id = ~id - 1;
@@ -116,13 +111,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         /// <param name="input">Samples for each full bandwidth channel</param>
         public float[][] Decode(float[][] input) {
-            if (outCache == null || outCache.Length != joc_num_objects || outCache[0].Length != input[0].Length) {
-                outCache = new float[joc_num_objects][];
-                for (int obj = 0; obj < joc_num_objects; ++obj)
-                    outCache[obj] = new float[input[0].Length];
-            }
 
-            int num_qmf_timeslots = input[0].Length / num_qmf_subbands;
+            int num_qmf_timeslots = input[0].Length / QuadratureMirrorFilterBank.subbands;
             joc_mix_mtx = new float[joc_num_objects][][][];
             joc_mix_mtx_interp = new float[joc_num_objects][][][];
 
@@ -131,14 +121,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp) {
                     joc_mix_mtx[obj][dp] = new float[joc_num_channels][];
                     for (int ch = 0; ch < joc_num_channels; ++ch)
-                        joc_mix_mtx[obj][dp][ch] = new float[num_qmf_subbands];
+                        joc_mix_mtx[obj][dp][ch] = new float[QuadratureMirrorFilterBank.subbands];
                 }
 
                 joc_mix_mtx_interp[obj] = new float[num_qmf_timeslots][][];
                 for (int ts = 0; ts < num_qmf_timeslots; ++ts) {
                     joc_mix_mtx_interp[obj][ts] = new float[joc_num_channels][];
                     for (int ch = 0; ch < joc_num_channels; ++ch)
-                        joc_mix_mtx_interp[obj][ts][ch] = new float[num_qmf_subbands];
+                        joc_mix_mtx_interp[obj][ts][ch] = new float[QuadratureMirrorFilterBank.subbands];
                 }
             }
 
@@ -147,7 +137,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 for (int obj = 0; obj < joc_num_objects; ++obj) {
                     joc_mix_mtx_prev[obj] = new float[joc_num_channels][];
                     for (int ch = 0; ch < joc_num_channels; ++ch)
-                        joc_mix_mtx_prev[obj][ch] = new float[num_qmf_subbands];
+                        joc_mix_mtx_prev[obj][ch] = new float[QuadratureMirrorFilterBank.subbands];
                 }
             }
 
@@ -160,31 +150,13 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             DecodeSideInfo();
             InterpolateSideInfo(num_qmf_timeslots);
 
-            for (int obj = 0; obj < joc_num_objects; ++obj) {
-                Array.Clear(outCache[obj], 0, outCache[obj].Length);
-                for (int ts = 0; ts < num_qmf_timeslots; ++ts) {
-                    int firstSample = ts * num_qmf_subbands;
-                    int lastSample = firstSample + num_qmf_subbands;
-                    for (int ch = 0; ch < joc_num_channels; ++ch) {
-                        float mul = 0;
-                        int not0 = 0;
-                        for (int sb = 0; sb < num_qmf_subbands; ++sb) {
-                            if (joc_mix_mtx_interp[obj][ts][ch][sb] != 0) {
-                                mul += joc_mix_mtx_interp[obj][ts][ch][sb];
-                                ++not0;
-                            }
-                        }
-                        if (not0 != 0)
-                            mul /= not0;
-                        for (int smp = firstSample; smp < lastSample; ++smp)
-                            outCache[obj][smp] += input[ch][smp] * mul;
-                    }
-                }
-            }
-            return outCache;
+            if (applier == null)
+                applier = new JointObjectCodingApplier(joc_num_channels, joc_num_objects, input[0].Length);
+            return applier.Apply(input, joc_mix_mtx_interp);
         }
 
-        const int num_qmf_subbands = 64;
+        static JointObjectCodingApplier applier; // TODO: elsewhere, sync, buffer: always decode complete timeslots
+
         float[][][][] joc_mix_mtx;
         float[][][][] joc_mix_mtx_interp;
         static float[][][] joc_mix_mtx_prev; // TODO: sync between frames normally
