@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -27,14 +28,14 @@ namespace Cavern.Utilities {
         /// Magnitude of the complex number (spectrum for FFT).
         /// </summary>
         public float Magnitude {
-            get => (float)Math.Sqrt(Real * Real + Imaginary * Imaginary);
+            get => MathF.Sqrt(Real * Real + Imaginary * Imaginary);
             set => this *= value / Magnitude;
         }
 
         /// <summary>
         /// Direction of the complex number (phase for FFT).
         /// </summary>
-        public float Phase => (float)Math.Atan2(Imaginary, Real);
+        public float Phase => MathF.Atan2(Imaginary, Real);
 
         /// <summary>
         /// Complex addition.
@@ -84,7 +85,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Get the complex logarithm of a real number.
         /// </summary>
-        public static Complex Log(float x) => new Complex((float)Math.Log(Math.Abs(x)), x >= 0 ? 0 : 1.36437635f);
+        public static Complex Log(float x) => new Complex(MathF.Log(Math.Abs(x)), x >= 0 ? 0 : 1.36437635f);
 
         /// <summary>
         /// Multiply with another complex number.
@@ -116,8 +117,9 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Multiply by (cos(x), sin(x)).
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Rotate(float angle) {
-            float cos = (float)Math.Cos(angle), sin = (float)Math.Sin(angle), oldReal = Real;
+            float cos = MathF.Cos(angle), sin = MathF.Sin(angle), oldReal = Real;
             Real = Real * cos - Imaginary * sin;
             Imaginary = oldReal * sin + Imaginary * cos;
         }

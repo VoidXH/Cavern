@@ -306,8 +306,8 @@ namespace Cavern.QuickEQ {
                 }
                 ExcitementResponses[Channel] = result;
                 Complex[] fft = Cavern.Channel.IsLFE(Channel) ? sweepFFTlow : sweepFFT;
-                (workers[Channel] = new Task<WorkerResult>(() =>
-                    new WorkerResult(fft, sweepFFTCache, result))).Start();
+                workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(fft, sweepFFTCache, result));
+                workers[Channel].Start();
                 if (++Channel == Listener.Channels.Length) {
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel)
                         while (workers[channel].Result.IsNull()) ;
@@ -316,6 +316,8 @@ namespace Cavern.QuickEQ {
                         ImpResponses[channel] = workers[channel].Result.ImpResponse;
                         Destroy(sweepers[channel]);
                     }
+                    for (int channel = 0; channel < Listener.Channels.Length; ++channel)
+                        workers[channel].Dispose();
                     sweepers = null;
                     if (Microphone.IsRecording(InputDevice))
                         Microphone.End(InputDevice);
