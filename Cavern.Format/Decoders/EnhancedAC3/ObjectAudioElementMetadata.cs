@@ -11,6 +11,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// </summary>
     class OAElementMD {
         /// <summary>
+        /// Marks an object positioning frame.
+        /// </summary>
+        const int objectElementIndex = 1;
+
+        /// <summary>
         /// Gets the timecode of the first update in this block.
         /// </summary>
         public short MinOffset => blockOffsetFactor[0];
@@ -28,6 +33,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// The beginning of each info block in samples.
         /// </summary>
+        /// <remarks>Negative numbers mean that this element doesn't contain object location data.</remarks>
         short[] blockOffsetFactor;
 
         /// <summary>
@@ -50,8 +56,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int elementIndex = extractor.Read(4);
             int endPos = extractor.Position + VariableBitsMax(extractor, 4, 4) + 1;
             extractor.Skip(alternateObjectPresent ? 5 : 1);
-            if (elementIndex == 1)
+            if (elementIndex == objectElementIndex)
                 ObjectElement(extractor, objectCount, bedOrISFObjects);
+            else
+                blockOffsetFactor = new short[] { -1 };
             // TODO: support other element types
             extractor.Position = endPos; // Padding
         }
@@ -63,13 +71,15 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <param name="sources">The sources used for rendering this track</param>
         /// <param name="lastHoldPos">A helper array for each object, holding the last non-ramped position</param>
         public void UpdateSources(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
-            for (int obj = 0; obj < infoBlocks.Length; ++obj) {
-                for (int blk = 0; blk < infoBlocks[obj].Length; ++blk) {
-                    if (timecode > blockOffsetFactor[blk] + rampDuration[blk]) {
-                        if (blk == 0)
+            for (int blk = 0; blk < infoBlocks[0].Length; ++blk) {
+                if (timecode > blockOffsetFactor[blk] + rampDuration[blk]) {
+                    if (blk == 0)
+                        for (int obj = 0; obj < infoBlocks.Length; ++obj)
                             sources[obj].Position = lastHoldPos[obj];
-                        break;
-                    }
+                    break;
+                }
+
+                for (int obj = 0; obj < infoBlocks.Length; ++obj) {
                     infoBlocks[obj][blk].UpdateSource(sources[obj], ref lastPrecisePositions[obj]);
                     if (timecode > blockOffsetFactor[blk]) {
                         float t = (timecode - blockOffsetFactor[blk]) / (float)rampDuration[blk];
@@ -125,7 +135,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         static readonly short[] rampDurationIndex =
             { 32, 64, 128, 256, 320, 480, 1000, 1001, 1024, 1600, 1601, 1602, 1920, 2000, 2002, 2048 };
 
-        int VariableBitsMax(BitExtractor extractor, int n, int groups) {
+        int VariableBitsMax(BitExtractor extractor, byte n, int groups) {
             int value = 0;
             int group = 1;
             int read = extractor.Read(n);

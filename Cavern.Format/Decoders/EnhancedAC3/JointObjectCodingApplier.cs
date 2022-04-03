@@ -24,11 +24,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         readonly float[][] timeslotCache;
 
         /// <summary>
-        /// Previous JOC mixing matrix values.
-        /// </summary>
-        readonly float[][][] prevMatrix;
-
-        /// <summary>
         /// Recycled forward transformation result holder.
         /// </summary>
         readonly Complex[][] results;
@@ -73,13 +68,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             converters = new QuadratureMirrorFilterBank[converterCount];
             for (int i = 0; i < converterCount; ++i)
                 converters[i] = new QuadratureMirrorFilterBank();
-
-            prevMatrix = new float[objects][][];
-            for (int obj = 0; obj < objects; ++obj) {
-                prevMatrix[obj] = new float[maxChannels][];
-                for (int ch = 0; ch < maxChannels; ++ch)
-                    prevMatrix[obj][ch] = new float[QuadratureMirrorFilterBank.subbands];
-            }
         }
 
         /// <summary>
@@ -87,7 +75,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         public float[][] Apply(float[][] input, JointObjectCoding actual) {
             if (timeslot == 0)
-                mixMatrix = actual.GetMixingMatrices(frameSize, prevMatrix);
+                mixMatrix = actual.GetMixingMatrices(frameSize);
             Parallel.For(0, input.Length, ch => results[ch] = converters[ch].ProcessForward(input[ch]));
             Parallel.For(0, objects, obj => ProcessObject(input.Length, obj, mixMatrix[obj][timeslot]));
             if (++timeslot == input.Length)

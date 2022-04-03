@@ -3,7 +3,7 @@ using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
-    /// A decoded JOC frame from an EMDF payload.
+    /// Joint object coding decoder and renderer.
     /// </summary>
     partial class JointObjectCoding {
         /// <summary>
@@ -17,16 +17,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public int ObjectCount { get; private set; }
 
         /// <summary>
-        /// Helps reusing a large number of arrays.
-        /// </summary>
-        JointObjectCodingCache cache;
-
-        /// <summary>
         /// Decodes a JOC frame from an EMDF payload.
         /// </summary>
-        public JointObjectCoding(ExtensibleMetadataPayload payload, JointObjectCodingCache cache) {
-            BitExtractor extractor = new BitExtractor(payload.Payload);
-            this.cache = cache;
+        public void Decode(BitExtractor extractor) {
             DecodeHeader(extractor);
             DecodeInfo(extractor);
             DecodeData(extractor);
@@ -38,15 +31,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 throw new UnsupportedFeatureException("DMXconfig");
             ChannelCount = (joc_dmx_config_idx == 0 || joc_dmx_config_idx == 3) ? 5 : 7;
             ObjectCount = extractor.Read(6) + 1;
+            UpdateCache();
             joc_ext_config_idx = extractor.Read(3);
-            cache.Update(ObjectCount);
-
-            b_joc_obj_present = new bool[ObjectCount];
-            joc_num_bands = new byte[ObjectCount];
-            b_joc_sparse = new bool[ObjectCount];
-            joc_num_quant_idx = new bool[ObjectCount];
-            joc_slope_idx = new bool[ObjectCount];
-            joc_num_dpoints = new int[ObjectCount];
         }
 
         void DecodeInfo(BitExtractor extractor) {
@@ -54,29 +40,25 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             joc_clipgain_y_bits = extractor.Read(5);
             joc_seq_count_bits = extractor.Read(10);
             for (int obj = 0; obj < ObjectCount; ++obj) {
-                if (b_joc_obj_present[obj] = extractor.ReadBit()) {
+                if (objectActive[obj] = extractor.ReadBit()) {
                     joc_num_bands[obj] = JointObjectCodingTables.joc_num_bands[extractor.Read(3)];
                     b_joc_sparse[obj] = extractor.ReadBit();
                     joc_num_quant_idx[obj] = extractor.ReadBit();
 
                     // joc_data_point_info
                     joc_slope_idx[obj] = extractor.ReadBit();
-                    joc_num_dpoints[obj] = extractor.Read(1) + 1;
-                    int[][] joc_offset_ts = cache.joc_offset_ts;
+                    dataPoints[obj] = extractor.Read(1) + 1;
                     if (joc_slope_idx[obj])
-                        for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp)
+                        for (int dp = 0; dp < dataPoints[obj]; ++dp)
                             joc_offset_ts[obj][dp] = extractor.Read(5) + 1;
                 }
             }
         }
 
         void DecodeData(BitExtractor extractor) {
-            int[][][] joc_channel_idx = cache.joc_channel_idx;
-            int[][][] joc_vec = cache.joc_vec;
-            int[][][][] joc_mtx = cache.joc_mtx;
             for (int obj = 0; obj < ObjectCount; ++obj) {
-                if (b_joc_obj_present[obj]) {
-                    for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp) {
+                if (objectActive[obj]) {
+                    for (int dp = 0; dp < dataPoints[obj]; ++dp) {
                         int[][] joc_huff_code;
                         if (b_joc_sparse[obj]) {
                             joc_channel_idx[obj][dp][0] = extractor.Read(3);
@@ -108,17 +90,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
 #pragma warning disable IDE0052 // Remove unread private members
-        bool[] b_joc_obj_present;
-        bool[] b_joc_sparse;
-        bool[] joc_num_quant_idx;
-        bool[] joc_slope_idx;
-        byte[] joc_num_bands;
         int joc_dmx_config_idx;
         int joc_ext_config_idx;
         int joc_clipgain_x_bits;
         int joc_clipgain_y_bits;
         int joc_seq_count_bits;
-        int[] joc_num_dpoints;
 #pragma warning restore IDE0052 // Remove unread private members
     }
 }

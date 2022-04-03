@@ -1,4 +1,4 @@
-﻿using Cavern.Utilities;
+﻿using System;
 
 namespace Cavern.Format.Utilities {
     /// <summary>
@@ -23,10 +23,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Construct an extractor to a bitstream.
         /// </summary>
-        public BitExtractor(byte[] source, bool revert = true) {
-            if (revert)
-                for (int i = 0; i < source.Length; ++i)
-                    source[i] = source[i].Revert();
+        public BitExtractor(byte[] source) {
             this.source = source;
             BackPosition = source.Length * 8;
         }
@@ -38,10 +35,8 @@ namespace Cavern.Format.Utilities {
             int skip = Position >> 3,
                 split = this.source.Length - skip;
             byte[] newSource = new byte[split + source.Length];
-            for (int i = skip; i < this.source.Length; ++i)
-                newSource[i - skip] = this.source[i];
-            for (int i = 0; i < source.Length; ++i)
-                newSource[i + split] = source[i].Revert();
+            Array.Copy(this.source, skip, newSource, 0, split);
+            Array.Copy(source, 0, newSource, split, source.Length);
             this.source = newSource;
             Position -= skip * 8;
             BackPosition = this.source.Length * 8;
@@ -58,7 +53,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Check the next bits without advancing the position.
         /// </summary>
-        public int Peek(int bits) {
+        public int Peek(byte bits) {
             int result = Read(bits);
             Position -= bits;
             return result;
@@ -67,17 +62,26 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read the next custom length unsigned word.
         /// </summary>
-        public int Read(int bits) {
+        public int Read(byte bits) {
             int result = 0;
-            while (--bits >= 0)
-                result = (result << 1) | NextBit();
+            while (bits > 0) {
+                int removedLeft = Position & 7;
+                int removedRight = 0;
+                if (removedLeft + bits < 8)
+                    removedRight = 8 - removedLeft - bits;
+                int shiftBack = removedLeft + removedRight;
+                int readBits = 8 - shiftBack;
+                result = (result << readBits) + (((source[Position / 8] << removedLeft) & 0xFF) >> shiftBack);
+                bits -= (byte)readBits;
+                Position += readBits;
+            }
             return result;
         }
 
         /// <summary>
         /// Read the next custom length word from the back.
         /// </summary>
-        public int ReadBack(int bits) {
+        public int ReadBack(byte bits) {
             int oldPos = Position;
             Position = BackPosition -= bits;
             int result = Read(bits);
@@ -88,7 +92,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read the next custom length signed word.
         /// </summary>
-        public int ReadSigned(int bits) {
+        public int ReadSigned(byte bits) {
             int value = Read(bits);
             int sign = value & (1 << bits);
             return sign << (31 - bits) + value - sign;
@@ -110,16 +114,6 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
-        /// Read a byte array, even if it's offset from byte borders.
-        /// </summary>
-        public byte[] ReadBytes(int count) {
-            byte[] result = new byte[count];
-            for (int i = 0; i < count; ++i)
-                result[i] = (byte)Read(8);
-            return result;
-        }
-
-        /// <summary>
         /// Skip some bits.
         /// </summary>
         public void Skip(int count) => Position += count;
@@ -134,7 +128,7 @@ namespace Cavern.Format.Utilities {
         /// Read the next bit and advance the position.
         /// </summary>
         int NextBit() {
-            int result = (source[Position / 8] >> (Position % 8)) & 1;
+            int result = (source[Position / 8] >> (7 - Position % 8)) & 1;
             ++Position;
             return result;
         }

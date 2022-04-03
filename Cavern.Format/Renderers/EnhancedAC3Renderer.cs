@@ -75,14 +75,9 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         public EnhancedAC3Renderer(EnhancedAC3Decoder stream) {
             this.stream = stream;
-            ObjectAudioMetadata oamd = null;
-            JointObjectCoding joc = null;
-            if (stream.Extensions != null) {
-                oamd = stream.Extensions.OAMD;
-                joc = stream.Extensions.JOC;
-            }
-            hasObjects = oamd != null && joc != null;
-            if (hasObjects) {
+            if (hasObjects = stream.Extensions.HasObjects) {
+                ObjectAudioMetadata oamd = stream.Extensions.OAMD;
+                JointObjectCoding joc = stream.Extensions.JOC;
                 objectSamples = new float[oamd.ObjectCount][];
                 finalResult = new float[joc.ObjectCount][];
                 lastHoldPos = new Vector3[oamd.ObjectCount];
@@ -98,12 +93,13 @@ namespace Cavern.Format.Renderers {
         /// Read the next <paramref name="samples"/> and update the objects.
         /// </summary>
         public override void Update(int samples) {
+            if (lfeResult.Length != samples) {
+                for (int obj = 0; obj < finalResult.Length; ++obj)
+                    finalResult[obj] = new float[samples];
+                lfeResult = new float[samples];
+            }
+
             if (hasObjects) {
-                if (lfeResult.Length != samples) {
-                    for (int obj = 0; obj < finalResult.Length; ++obj)
-                        finalResult[obj] = new float[samples];
-                    lfeResult = new float[samples];
-                }
                 int pointer = 0;
                 while (pointer < samples) {
                     if (timeslotPosition == 0)
@@ -136,7 +132,9 @@ namespace Cavern.Format.Renderers {
                 } else
                     for (int obj = 0; obj < objectSamples.Length; ++obj)
                         objectSamples[obj] = finalResult[obj];
-            }
+            } else
+                for (int obj = 0; obj < objectSamples.Length; ++obj)
+                    Array.Clear(objectSamples[obj] = finalResult[obj], 0, samples);
         }
 
         /// <summary>
@@ -158,8 +156,7 @@ namespace Cavern.Format.Renderers {
             float[][] grouped = WaveformUtils.InterlacedToMultichannel(input, stream.ChannelCount);
 
             if (hasObjects) {
-                int offset = stream.Extensions.GetPayloadByID(ExtensibleMetadataDecoder.oamdPayloadID).SampleOffset;
-                stream.Extensions.OAMD.UpdateSources(stream.LastFetchStart - offset, objects, lastHoldPos);
+                stream.Extensions.OAMD.UpdateSources(stream.LastFetchStart, objects, lastHoldPos);
 
                 ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
                 float[][] sources = new float[stream.Channels.Length][];
@@ -177,6 +174,8 @@ namespace Cavern.Format.Renderers {
                         lfeTimeslot = grouped[i];
 
                 timeslotResult = applier.Apply(sources, stream.Extensions.JOC);
+            } else {
+                // Render the channel-based data
             }
         }
     }

@@ -81,7 +81,8 @@ namespace Cavern.Format.Decoders {
         bool[] lfeexpstr;
         bool[] spxbndstrc;
         bool[] spxcoe;
-        byte[] addbsi;
+        byte[][] bap;
+        byte[] lfebap;
         Decoders decoder;
         ExpStrat[] cplexpstr;
         ExpStrat[][] chexpstr;
@@ -159,7 +160,6 @@ namespace Cavern.Format.Decoders {
         int[] frmchexpstr;
         int[] fsnroffst;
         int[] gainrng;
-        int[] lfebap;
         int[] lfeexps;
         int[] lfemant;
         int[] mstrspxco;
@@ -171,7 +171,6 @@ namespace Cavern.Format.Decoders {
         int[] strtmant;
         int[] transproclen;
         int[] transprocloc;
-        int[][] bap;
         int[][] chmant;
         int[][] exps;
         int[][] spxcoexp;
@@ -179,7 +178,7 @@ namespace Cavern.Format.Decoders {
 #pragma warning restore IDE0052 // Remove unread private members
 
         void CreateCacheTables(int blocks, int channels) {
-            bap = new int[channels][];
+            bap = new byte[channels][];
             blkmixcfginfo = new int[blocks];
             blksw = new bool[channels];
             chahtinu = new int[channels];

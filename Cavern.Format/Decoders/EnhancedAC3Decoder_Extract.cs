@@ -94,10 +94,8 @@ namespace Cavern.Format.Decoders {
             if (streamType == StreamTypes.Repackaged && (blkid = numblkscod == 3 || extractor.ReadBit()))
                 extractor.Skip(6); // AC-3 frame size code
 
-            if (addbsie = extractor.ReadBit()) { // Additional bit stream information (omitted)
-                int addbsil = extractor.Read(6);
-                addbsi = extractor.ReadBytes(addbsil + 1);
-            }
+            if (addbsie = extractor.ReadBit()) // Additional bit stream information (omitted)
+                extractor.Skip((extractor.Read(6) + 1) * 8);
         }
 
         /// <summary>
@@ -258,7 +256,7 @@ namespace Cavern.Format.Decoders {
             blkstrtinfoe = numblkscod != 0 && extractor.ReadBit();
             if (blkstrtinfoe) {
                 int nblkstrtbits = (blocks - 1) * (4 + QMath.Log2Ceil(words_per_syncframe));
-                blkstrtinfo = extractor.Read(nblkstrtbits);
+                blkstrtinfo = extractor.Read((byte)nblkstrtbits);
             }
 
             // Syntax state init

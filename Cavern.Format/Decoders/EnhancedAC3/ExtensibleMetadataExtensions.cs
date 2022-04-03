@@ -8,7 +8,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Read variable-length values from an EMDF stream.
         /// </summary>
-        public static int VariableBits(this BitExtractor extractor, int bits) {
+        public static int VariableBits(this BitExtractor extractor, byte bits) {
             int value = 0;
             bool readMore;
             do {

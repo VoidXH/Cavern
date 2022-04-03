@@ -1,48 +1,98 @@
 ﻿namespace Cavern.Format.Decoders.EnhancedAC3 {
-    /// <summary>
-    /// Helps reuse large memory allocations for <see cref="JointObjectCoding"/>.
-    /// </summary>
-    class JointObjectCodingCache {
-        public int[][] joc_offset_ts;
-        public int[][][] joc_channel_idx;
-        public int[][][] joc_vec;
-        public int[][][][] joc_mtx;
+    // Reusable arrays
+    partial class JointObjectCoding {
+        /// <summary>
+        /// Maximum number of objects to render.
+        /// </summary>
+        const int maxObjects = 64;
 
         /// <summary>
-        /// Create reusable arrays for the given number of <paramref name="objects"/>.
+        /// Previous JOC mixing matrix values.
         /// </summary>
-        public JointObjectCodingCache(int objects) => RecreateCache(objects);
+        readonly float[][][] prevMatrix;
 
         /// <summary>
-        /// Checks if the cache is ready for the given number of <paramref name="objects"/>, and fixes if it's not.
+        /// The object is active and will have rendered audio data.
         /// </summary>
-        public void Update(int objects) {
-            if (joc_offset_ts.Length != objects)
-                RecreateCache(objects);
+        bool[] objectActive = new bool[0]; // TODO: mute inactive objects
+
+        /// <summary>
+        /// Number of processed bands of each object.
+        /// </summary>
+        byte[] joc_num_bands;
+
+        /// <summary>
+        /// Number of data points for each object.
+        /// </summary>
+        int[] dataPoints;
+
+        bool[] b_joc_sparse;
+        bool[] joc_num_quant_idx;
+        bool[] joc_slope_idx;
+        float[][][][] joc_mix_mtx;
+        float[][][][] joc_mix_mtx_interp;
+        int[][] joc_offset_ts;
+        int[][][] joc_channel_idx;
+        int[][][] joc_vec;
+        int[][][][] joc_mtx;
+
+        /// <summary>
+        /// Create a JOC decoder. Always reuse a previous one as history data is required for decoding.
+        /// </summary>
+        public JointObjectCoding() {
+            int maxChannels = JointObjectCodingTables.inputMatrix.Length;
+            prevMatrix = new float[maxObjects][][];
+            for (int obj = 0; obj < maxObjects; ++obj) {
+                prevMatrix[obj] = new float[maxChannels][];
+                for (int ch = 0; ch < maxChannels; ++ch)
+                    prevMatrix[obj][ch] = new float[QuadratureMirrorFilterBank.subbands];
+            }
         }
 
         /// <summary>
-        /// Generate arrays for the given number of <paramref name="objects"/>.
+        /// Checks if the cache is ready for the given number of objects and channels, and fixes if it's not.
         /// </summary>
-        void RecreateCache(int objects) {
-            int maxBands = JointObjectCodingTables.joc_num_bands[^1];
-            int maxChannels = JointObjectCodingTables.inputMatrix.Length;
-            const int maxDataPoints = 2;
-            joc_offset_ts = new int[objects][];
-            joc_channel_idx = new int[objects][][];
-            joc_vec = new int[objects][][];
-            joc_mtx = new int[objects][][][];
+        public void UpdateCache() {
+            if (objectActive.Length == ObjectCount && joc_mtx[0][0].Length == ChannelCount)
+                return;
 
-            for (int obj = 0; obj < objects; ++obj) {
+            objectActive = new bool[ObjectCount];
+            joc_num_bands = new byte[ObjectCount];
+            b_joc_sparse = new bool[ObjectCount];
+            joc_num_quant_idx = new bool[ObjectCount];
+            joc_slope_idx = new bool[ObjectCount];
+            joc_mix_mtx = new float[ObjectCount][][][];
+            joc_mix_mtx_interp = new float[ObjectCount][][][];
+            dataPoints = new int[ObjectCount];
+            joc_offset_ts = new int[ObjectCount][];
+            joc_channel_idx = new int[ObjectCount][][];
+            joc_vec = new int[ObjectCount][][];
+            joc_mtx = new int[ObjectCount][][][];
+
+            int maxBands = JointObjectCodingTables.joc_num_bands[^1];
+            const int maxDataPoints = 2;
+            const int maxTimeslots = 1536 / QuadratureMirrorFilterBank.subbands;
+            for (int obj = 0; obj < ObjectCount; ++obj) {
+                joc_mix_mtx[obj] = new float[maxDataPoints][][];
+                joc_mix_mtx_interp[obj] = new float[maxTimeslots][][];
+                joc_offset_ts[obj] = new int[maxDataPoints];
                 joc_channel_idx[obj] = new int[maxDataPoints][];
                 joc_vec[obj] = new int[maxDataPoints][];
                 joc_mtx[obj] = new int[maxDataPoints][][];
                 for (int dp = 0; dp < maxDataPoints; ++dp) {
+                    joc_mix_mtx[obj][dp] = new float[ChannelCount][];
                     joc_channel_idx[obj][dp] = new int[maxBands];
                     joc_vec[obj][dp] = new int[maxBands];
-                    joc_mtx[obj][dp] = new int[maxChannels][];
-                    for (int ch = 0; ch < maxChannels; ++ch)
+                    joc_mtx[obj][dp] = new int[ChannelCount][];
+                    for (int ch = 0; ch < ChannelCount; ++ch) {
+                        joc_mix_mtx[obj][dp][ch] = new float[QuadratureMirrorFilterBank.subbands];
                         joc_mtx[obj][dp][ch] = new int[maxBands];
+                    }
+                }
+                for (int ts = 0; ts < maxTimeslots; ++ts) {
+                    joc_mix_mtx_interp[obj][ts] = new float[ChannelCount][];
+                    for (int ch = 0; ch < ChannelCount; ++ch)
+                        joc_mix_mtx_interp[obj][ts][ch] = new float[QuadratureMirrorFilterBank.subbands];
                 }
             }
         }

@@ -19,7 +19,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Decoded object audio element metadata.
         /// </summary>
-        readonly OAElementMD[] elements;
+        readonly List<OAElementMD> elements = new List<OAElementMD>();
 
         /// <summary>
         /// Bed channels used. The first dimension is the element ID, the second is one bit for each channel,
@@ -43,10 +43,15 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         byte isfIndex;
 
         /// <summary>
+        /// This payload applies this many samples later.
+        /// </summary>
+        int offset;
+
+        /// <summary>
         /// Decodes a OAMD frame from an EMDF payload.
         /// </summary>
-        public ObjectAudioMetadata(ExtensibleMetadataPayload payload) {
-            BitExtractor extractor = new BitExtractor(payload.Payload);
+        public void Decode(BitExtractor extractor, int offset) {
+            this.offset = offset;
             int versionNumber = extractor.Read(2);
             if (versionNumber == 3)
                 versionNumber += extractor.Read(3);
@@ -65,9 +70,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int bedOrISFObjects = beds;
             if (isfInUse)
                 bedOrISFObjects += isfObjectCount[isfIndex];
-            elements = new OAElementMD[elementCount];
+            elements.Clear();
             for (int i = 0; i < elementCount; ++i)
-                elements[i] = new OAElementMD(extractor, alternateObjectPresent, ObjectCount, bedOrISFObjects);
+                elements.Add(new OAElementMD(extractor, alternateObjectPresent, ObjectCount, bedOrISFObjects));
         }
 
         /// <summary>
@@ -94,8 +99,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <param name="sources">The sources used for rendering this track</param>
         /// <param name="lastHoldPos">A helper array the size of <see cref="ObjectCount"/></param>
         public void UpdateSources(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
+            timecode -= offset;
             int element = 0;
-            for (int i = elements.Length - 1; i >= 0; --i) {
+            for (int i = elements.Count - 1; i >= 0; --i) {
+                if (elements[i].MinOffset < 0)
+                    continue;
                 if (elements[i].MinOffset <= timecode) {
                     element = i;
                     break;

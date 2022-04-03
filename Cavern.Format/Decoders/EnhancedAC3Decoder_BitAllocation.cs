@@ -4,25 +4,25 @@ using Cavern.Format.Common;
 
 namespace Cavern.Format.Decoders {
     partial class EnhancedAC3Decoder {
-        int[] Allocate(int channel, int[] gexp, ExpStrat expstr) {
+        byte[] Allocate(int channel, int[] gexp, ExpStrat expstr) {
             int start = strtmant[channel];
             int end = endmant[channel];
             int fgain = fastgain[fgaincod[channel]];
             if (csnroffst == 0 && fsnroffst[channel] == 0)
-                return new int[nchmant[channel]];
+                return new byte[nchmant[channel]];
             int snroffset = (csnroffst - 15) << 4 + fsnroffst[channel] << 2;
             return Allocate(start, end, 0, fgain, snroffset, gexp, nchgrps[channel], exps[channel][0], expstr);
         }
 
-        int[] AllocateLFE(int[] gexp, ExpStrat expstr) {
+        byte[] AllocateLFE(int[] gexp, ExpStrat expstr) {
             int fgain = fastgain[lfefgaincod];
             if (csnroffst == 0 && lfefsnroffst == 0)
-                return new int[nlfemant];
+                return new byte[nlfemant];
             int snroffset = (csnroffst - 15) << 4 + lfefsnroffst << 2;
             return Allocate(lfestrtmant, lfeendmant, 0, fgain, snroffset, gexp, nlfegrps, lfeexps[0], expstr);
         }
 
-        int[] Allocate(int start, int end, int lowcomp, int fgain, int snroffset, int[] gexp, int ngrps, int absexp,
+        byte[] Allocate(int start, int end, int lowcomp, int fgain, int snroffset, int[] gexp, int ngrps, int absexp,
             ExpStrat expstr, int fastleak = 0, int slowleak = 0) { // TODO: fix
             // Unpack the mapped values
             int[] dexp = new int[ngrps * 3];
@@ -146,7 +146,7 @@ namespace Cavern.Format.Decoders {
             // Compute bit allocation
             i = start;
             j = masktab[start];
-            int[] bap = new int[end];
+            byte[] bap = new byte[end];
             do {
                 lastbin = Math.Min(bndtab[j] + bndsz[j], end);
                 mask[j] -= snroffset;
@@ -353,7 +353,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Bit allocation pointer table.
         /// </summary>
-        static readonly int[] baptab = new int[64] {
+        static readonly byte[] baptab = {
             0,  1,  1,  1,  1,  1,  2,  2,  3,  3,
             3,  4,  4,  5,  5,  6,  6,  6,  6,  7,
             7,  7,  7,  8,  8,  8,  8,  9,  9,  9,

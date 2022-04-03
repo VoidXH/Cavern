@@ -23,13 +23,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Auxillary metadata parsed for the last decoded frame.
         /// </summary>
-        /// <remarks>If it's set, it's valid.</remarks>
-        internal ExtensibleMetadataDecoder Extensions { get; private set; }
-
-        /// <summary>
-        /// Reusable arrays for <see cref="JointObjectCoding"/>.
-        /// </summary>
-        readonly JointObjectCodingCache jocCache = new JointObjectCodingCache(0);
+        internal ExtensibleMetadataDecoder Extensions { get; private set; } = new ExtensibleMetadataDecoder();
 
         /// <summary>
         /// Reads through the current frame.
@@ -79,9 +73,7 @@ namespace Cavern.Format.Decoders {
                 //for (int block = 0; block < blocks; ++block)
                 //    AudioBlock(block);
 
-                ExtensibleMetadataDecoder extraMetadata = new ExtensibleMetadataDecoder(extractor, jocCache);
-                if (extraMetadata.IsValid)
-                    Extensions = extraMetadata;
+                Extensions.Decode(extractor);
                 ReadHeader();
             } while (streamType == StreamTypes.Dependent);
 

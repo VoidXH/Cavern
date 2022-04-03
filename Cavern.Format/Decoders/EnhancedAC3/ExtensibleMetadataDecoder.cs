@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using Cavern.Format.Utilities;
+﻿using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
@@ -15,7 +13,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Payload ID for Object Audio Metadata.
         /// </summary>
-        internal const int oamdPayloadID = 11;
+        const int oamdPayloadID = 11;
 
         /// <summary>
         /// Payload ID for Joint Object Coding.
@@ -23,73 +21,43 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         const int jocPayloadID = 14;
 
         /// <summary>
-        /// This decoder has found and decoded an EMDF frame.
+        /// The last EBML frame contained object data.
         /// </summary>
-        public bool IsValid { get; private set; }
-
-        /// <summary>
-        /// Payloads contained in this EMDF document.
-        /// </summary>
-        public IReadOnlyList<ExtensibleMetadataPayload> Payloads => payloads;
+        public bool HasObjects { get; private set; }
 
         /// <summary>
         /// The Joint Object Coding data in this frame.
         /// </summary>
         /// <remarks>There can be only one JOC payload in every E-AC-3 frame.</remarks>
-        public JointObjectCoding JOC { get; private set; }
+        public JointObjectCoding JOC { get; private set; } = new JointObjectCoding();
 
         /// <summary>
         /// The Object Audio Metadata in this frame.
         /// </summary>
         /// <remarks>There can be only one OAMD payload in every E-AC-3 frame.</remarks>
-        public ObjectAudioMetadata OAMD { get; private set; }
+        public ObjectAudioMetadata OAMD { get; private set; } = new ObjectAudioMetadata();
 
         /// <summary>
-        /// EMDF source stream.
+        /// Decode the next EMDF frame from a bitstream.
         /// </summary>
-        readonly BitExtractor extractor;
-
-        /// <summary>
-        /// Payloads contained in this EMDF document.
-        /// </summary>
-        readonly List<ExtensibleMetadataPayload> payloads = new List<ExtensibleMetadataPayload>();
-
-        /// <summary>
-        /// Decode EMDF from a bitstream.
-        /// </summary>
-        public ExtensibleMetadataDecoder(BitExtractor extractor, JointObjectCodingCache jocCache) {
-            this.extractor = extractor;
+        public void Decode(BitExtractor extractor) {
             while (extractor.Position != extractor.BackPosition - 16) {
                 int syncword = extractor.Peek(16);
-                if ((syncword == syncWord) && (IsValid = Decode(jocCache)))
+                if ((syncword == syncWord) && (HasObjects = DecodeBlock(extractor)))
                     break;
                 ++extractor.Position;
             }
         }
 
         /// <summary>
-        /// Get a payload by its ID if it exists.
-        /// </summary>
-        public ExtensibleMetadataPayload GetPayloadByID(int id) {
-            for (int i = 0, c = payloads.Count; i < c; ++i)
-                if (payloads[i].ID == id)
-                    return payloads[i];
-            return null;
-        }
-
-        /// <summary>
         /// Tries to decode an EMDF block, returns if succeeded.
         /// </summary>
-        bool Decode(JointObjectCodingCache jocCache) {
-            if (extractor.Read(16) != syncWord) {
-                IsValid = false;
+        bool DecodeBlock(BitExtractor extractor) {
+            HasObjects = false;
+            if (extractor.Read(16) != syncWord)
                 return false;
-            }
-
-            if (extractor.Position + extractor.Read(16) * 8 /* length */ > extractor.BackPosition) {
-                IsValid = false;
+            if (extractor.Position + extractor.Read(16) * 8 /* length */ > extractor.BackPosition)
                 return false;
-            }
 
             int version = extractor.Read(2);
             if (version == 3)
@@ -104,19 +72,39 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             while ((payloadID = extractor.Read(5)) != 0) {
                 if (payloadID == 0x1F)
                     payloadID += extractor.VariableBits(5);
-                if (payloadID > jocPayloadID) {
-                    payloads.Clear();
-                    JOC = null;
-                    OAMD = null;
+                if (payloadID > jocPayloadID)
                     return false;
+
+                bool hasSampleOffset;
+                int sampleOffset = 0;
+                if (hasSampleOffset = extractor.ReadBit())
+                    sampleOffset = extractor.Read(12) >> 1; // Skip 1 bit
+
+                if (extractor.ReadBit())
+                    extractor.VariableBits(11);
+                if (extractor.ReadBit())
+                    extractor.VariableBits(2);
+                if (extractor.ReadBit())
+                    extractor.Skip(8);
+
+                if (!extractor.ReadBit()) {
+                    bool frameAligned = false;
+                    if (!hasSampleOffset) {
+                        frameAligned = extractor.ReadBit();
+                        if (frameAligned)
+                            extractor.Skip(2);
+                    }
+                    if (hasSampleOffset || frameAligned)
+                        extractor.Skip(7);
                 }
 
-                ExtensibleMetadataPayload payload = new ExtensibleMetadataPayload(payloadID, extractor);
-                payloads.Add(payload);
-                if (payloadID == jocPayloadID)
-                    JOC = new JointObjectCoding(payload, jocCache);
-                else if (payloadID == oamdPayloadID)
-                    OAMD = new ObjectAudioMetadata(payload);
+                int payloadEnd = extractor.VariableBits(8) * 8 + extractor.Position;
+                if (payloadID == jocPayloadID) {
+                    JOC.Decode(extractor);
+                    HasObjects = true;
+                } else if (payloadID == oamdPayloadID)
+                    OAMD.Decode(extractor, sampleOffset);
+                extractor.Position = payloadEnd;
             }
             return true;
         }
