@@ -125,6 +125,12 @@ namespace Cavern.Format.Utilities {
         public void Skip(int count) => Position += count;
 
         /// <summary>
+        /// Get a byte at a fixed position of the input data.
+        /// </summary>
+        /// <remarks><see cref="Expand(byte[])"/> can remove bytes from the beginning of the cache.</remarks>
+        public byte this[int index] => source[index];
+
+        /// <summary>
         /// Read the next bit and advance the position.
         /// </summary>
         int NextBit() {

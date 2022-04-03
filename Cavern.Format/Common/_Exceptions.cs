@@ -14,6 +14,18 @@ namespace Cavern.Format.Common {
     }
 
     /// <summary>
+    /// Tells if the decoded stream is corrupted.
+    /// </summary>
+    public class CorruptionException : Exception {
+        const string message = "The decoder found corrupted data at {0}.";
+
+        /// <summary>
+        /// Tells if the decoded stream is corrupted.
+        /// </summary>
+        public CorruptionException(string location) : base(string.Format(message, location)) { }
+    }
+
+    /// <summary>
     /// Tells if the decoder ran into a predefined error code that is found in the decoder's documentation.
     /// </summary>
     public class DecoderException : Exception {
@@ -35,6 +47,19 @@ namespace Cavern.Format.Common {
         /// Tells if the selected track had an invalid ID.
         /// </summary>
         public InvalidTrackException(int id, int tracks) : base(string.Format(message, id, tracks)) { }
+    }
+
+    /// <summary>
+    /// Tells if a decoded value is reserved. This could mark a transport error.
+    /// </summary>
+    public class ReservedValueException : Exception {
+        const string message = "A reserved value of {0} was found in the stream. " +
+            "This error most likely means that the file is corrupt.";
+
+        /// <summary>
+        /// Tells if a decoded value is reserved. This could mark a transport error.
+        /// </summary>
+        public ReservedValueException(string feature) : base(string.Format(message, feature)) { }
     }
 
     /// <summary>

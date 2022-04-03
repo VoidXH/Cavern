@@ -57,11 +57,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Decode EMDF from a bitstream.
         /// </summary>
-        public ExtensibleMetadataDecoder(BitExtractor extractor) {
+        public ExtensibleMetadataDecoder(BitExtractor extractor, JointObjectCodingCache jocCache) {
             this.extractor = extractor;
             while (extractor.Position != extractor.BackPosition - 16) {
                 int syncword = extractor.Peek(16);
-                if ((syncword == syncWord) && (IsValid = Decode()))
+                if ((syncword == syncWord) && (IsValid = Decode(jocCache)))
                     break;
                 ++extractor.Position;
             }
@@ -80,16 +80,17 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Tries to decode an EMDF block, returns if succeeded.
         /// </summary>
-        bool Decode() {
+        bool Decode(JointObjectCodingCache jocCache) {
             if (extractor.Read(16) != syncWord) {
                 IsValid = false;
                 return false;
             }
 
-            if (extractor.Position + extractor.Read(16) /* length */ > extractor.BackPosition) {
+            if (extractor.Position + extractor.Read(16) * 8 /* length */ > extractor.BackPosition) {
                 IsValid = false;
                 return false;
             }
+
             int version = extractor.Read(2);
             if (version == 3)
                 version += extractor.VariableBits(2);
@@ -98,6 +99,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 key += extractor.VariableBits(3);
             if (version != 0 || key != 0)
                 return false;
+
             int payloadID;
             while ((payloadID = extractor.Read(5)) != 0) {
                 if (payloadID == 0x1F)
@@ -108,10 +110,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     OAMD = null;
                     return false;
                 }
+
                 ExtensibleMetadataPayload payload = new ExtensibleMetadataPayload(payloadID, extractor);
                 payloads.Add(payload);
                 if (payloadID == jocPayloadID)
-                    JOC = new JointObjectCoding(payload);
+                    JOC = new JointObjectCoding(payload, jocCache);
                 else if (payloadID == oamdPayloadID)
                     OAMD = new ObjectAudioMetadata(payload);
             }

@@ -3,6 +3,8 @@
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     partial class JointObjectCoding {
         void DecodeSparse(int obj) {
+            int[][][] joc_channel_idx = cache.joc_channel_idx;
+            int[][][] joc_vec = cache.joc_vec;
             if (b_joc_obj_present[obj]) {
                 int nquant = joc_num_quant_idx[obj] ? 192 : 96;
                 int offset = joc_num_quant_idx[obj] ? 100 : 50;
@@ -31,6 +33,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         void DecodeCoarse(int obj) {
+            int[][][][] joc_mtx = cache.joc_mtx;
             if (b_joc_obj_present[obj]) {
                 int nquant = joc_num_quant_idx[obj] ? 192 : 96;
                 int offset = joc_num_quant_idx[obj] ? 96 : 48;
@@ -57,6 +60,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         void InterpolateSideInfo(int num_qmf_timeslots, float[][][] prevMatrix) {
+            int[][] joc_offset_ts = cache.joc_offset_ts;
             for (int obj = 0; obj < ObjectCount; ++obj) {
                 for (int ch = 0; ch < ChannelCount; ++ch) {
                     for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {

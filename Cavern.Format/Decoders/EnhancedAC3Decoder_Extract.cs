@@ -1,31 +1,78 @@
 ﻿using System;
 
 using Cavern.Format.Common;
-using Cavern.Format.Utilities;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders {
-    // Bitstream data extraction
     partial class EnhancedAC3Decoder {
-        void BitstreamInfo(ref BitExtractor extractor) {
-            strmtyp = extractor.Read(2);
+        /// <summary>
+        /// Bitstream data extraction from the frame header.
+        /// </summary>
+        void BitstreamInfo() {
+            streamType = (StreamTypes)extractor.Read(2);
             substreamid = extractor.Read(3);
-            frmsiz = extractor.Read(11);
+            words_per_syncframe = extractor.Read(11) + 1;
             fscod = extractor.Read(2);
             numblkscod = extractor.Read(2);
-
             acmod = extractor.Read(3);
             lfeon = extractor.ReadBit();
+            decoder = ParseDecoder(extractor.Read(5));
 
-            words_per_syncframe = frmsiz + 1;
+            if (decoder == Decoders.EAC3) {
+                blocks = numberOfBlocks[numblkscod];
+                extractor.Expand(reader.Read(words_per_syncframe * 2 - mustDecode));
+            } else {
+                streamType = StreamTypes.Repackaged;
+                blocks = 6;
+                fscod = extractor[4] >> 6;
+                int frameSize = frameSizes[(extractor[4] & 0b00111110) >> 1];
+                if (fscod == 1) { // 44.1 kHz
+                    frameSize = frameSize / 2 * 1393 / 1280;
+                    if ((extractor[4] & 1) == 1)
+                        ++frameSize;
+                    frameSize *= 2;
+                } else if (fscod == 2)
+                    frameSize = frameSize * 3 / 2;
+                extractor.Expand(reader.Read(frameSize - mustDecode));
+                bsmod = extractor.Read(3);
+                acmod = extractor.Read(3);
+            }
+
+            if (streamType == StreamTypes.Reserved)
+                throw new ReservedValueException("strmtyp");
+            if (fscod == 3)
+                throw new ReservedValueException("fscod");
             SampleRate = sampleRates[fscod];
-            blocks = numberOfBlocks[numblkscod];
             Channels = channelArrangements[acmod];
             CreateCacheTables(blocks, Channels.Length);
-            extractor = new BitExtractor(reader.Read(words_per_syncframe * 2 - mustDecode));
 
-            decoder = ParseDecoder(extractor.Read(5));
+            switch (decoder) {
+                case Decoders.AlternateAC3:
+                    HeaderAlternativeAC3();
+                    break;
+                case Decoders.AC3:
+                    throw new UnsupportedFeatureException("legacy");
+                case Decoders.EAC3:
+                    HeaderEAC3();
+                    break;
+            }
+        }
+
+        void HeaderAlternativeAC3() {
+            if ((acmod & 0x1) != 0 && (acmod != 0x1)) // 3 fronts exist
+                cmixlev = extractor.Read(2);
+            if ((acmod & 0x4) != 0) // Surrounds exist
+                surmixlev = extractor.Read(2);
+            if (acmod == 0x2) // Stereo
+                dsurmod = extractor.Read(2);
+            lfeon = extractor.ReadBit();
+            dialnorm = extractor.Read(5);
+            if (compre = extractor.ReadBit())
+                compr = extractor.Read(8);
+            // TODO
+        }
+
+        void HeaderEAC3() {
             dialnorm = extractor.Read(5);
             if (compre = extractor.ReadBit())
                 compr = extractor.Read(8);
@@ -36,75 +83,16 @@ namespace Cavern.Format.Decoders {
                     compr2 = extractor.Read(8);
             }
 
-            if (strmtyp == 1 && (chanmape = extractor.ReadBit()))
-                chanmap = extractor.Read(16);
-
-            // Mixing and mapping metadata
-            if (mixmdate = extractor.ReadBit()) {
-                if (acmod > 2)
-                    dmixmod = extractor.Read(2);
-                if (((acmod & 1) != 0) && (acmod > 2)) { // 3 front channels present
-                    ltrtcmixlev = extractor.Read(3);
-                    lorocmixlev = extractor.Read(3);
-                }
-                if ((acmod & 0x4) != 0) { // Surround present
-                    ltrtsurmixlev = extractor.Read(3);
-                    lorosurmixlev = extractor.Read(3);
-                }
-                if (lfeon && (lfemixlevcode = extractor.ReadBit())) // LFE present
-                    lfemixlevcod = extractor.Read(5);
-                if (strmtyp == 0) {
-                    if (pgmscle = extractor.ReadBit())
-                        pgmscl = extractor.Read(6);
-                    if (acmod == 0 && (pgmscl2e = extractor.ReadBit()))
-                        pgmscl2 = extractor.Read(6);
-                    if (extpgmscle = extractor.ReadBit())
-                        extpgmscl = extractor.Read(6);
-                    mixdef = extractor.Read(2);
-                    if (mixdef != 0)
-                        throw new UnsupportedFeatureException("mixdef");
-                    if (acmod < 2)
-                        throw new UnsupportedFeatureException("mono");
-                    if (frmmixcfginfoe = extractor.ReadBit()) { // Mixing configuration information
-                        if (numblkscod == 0)
-                            blkmixcfginfo[0] = extractor.Read(5);
-                        else
-                            for (int block = 0; block < blocks; ++block)
-                                blkmixcfginfo[block] = extractor.ReadBit() ? extractor.Read(5) : 0;
-                    }
-                }
-            }
-
-            if (infomdate = extractor.ReadBit()) { // Informational metadata
-                bsmod = extractor.Read(3);
-                if (bsmod != 0)
-                    throw new UnsupportedFeatureException("bit stream modes");
-                extractor.Skip(2); // Copyright & original bitstream bits
-                if (acmod == 2)
-                    throw new UnsupportedFeatureException("stereo");
-                if (acmod >= 6)
-                    dsurexmod = extractor.Read(2);
-                if (audprodie = extractor.ReadBit()) {
-                    mixlevel = extractor.Read(5);
-                    roomtyp = extractor.Read(2);
-                    adconvtyp = extractor.ReadBit();
-                }
-                if (acmod == 0) {
-                    if (audprodie2 = extractor.ReadBit()) {
-                        mixlevel2 = extractor.Read(5);
-                        roomtyp2 = extractor.Read(2);
-                        adconvtyp2 = extractor.ReadBit();
-                    }
-                }
-                if (fscod < 3)
-                    sourcefscod = extractor.ReadBit();
-            }
-
-            if ((strmtyp == 0) && (numblkscod != 3))
+            if (streamType == StreamTypes.Dependent && extractor.ReadBit())
+                ParseChannelMap(extractor.ReadBits(16));
+            if (mixmdate = extractor.ReadBit())
+                MixingMetadata();
+            if (infomdate = extractor.ReadBit())
+                InfoMetadata();
+            if (streamType == StreamTypes.Independent && numblkscod != 3)
                 convsync = extractor.ReadBit();
-
-            if (strmtyp == 2 && (blkid = numblkscod == 3 || extractor.ReadBit()))
-                frmsizecod = extractor.Read(6);
+            if (streamType == StreamTypes.Repackaged && (blkid = numblkscod == 3 || extractor.ReadBit()))
+                extractor.Skip(6); // AC-3 frame size code
 
             if (addbsie = extractor.ReadBit()) { // Additional bit stream information (omitted)
                 int addbsil = extractor.Read(6);
@@ -112,7 +100,73 @@ namespace Cavern.Format.Decoders {
             }
         }
 
-        void AudioFrame(BitExtractor extractor) {
+        /// <summary>
+        /// Parse mixing and mapping metadata.
+        /// </summary>
+        void MixingMetadata() {
+            if (acmod > 2)
+                dmixmod = extractor.Read(2);
+            if (((acmod & 1) != 0) && (acmod > 2)) { // 3 front channels present
+                ltrtcmixlev = extractor.Read(3);
+                lorocmixlev = extractor.Read(3);
+            }
+            if ((acmod & 0x4) != 0) { // Surround present
+                ltrtsurmixlev = extractor.Read(3);
+                lorosurmixlev = extractor.Read(3);
+            }
+            if (lfeon && (lfemixlevcode = extractor.ReadBit())) // LFE present
+                lfemixlevcod = extractor.Read(5);
+            if (streamType == StreamTypes.Independent) {
+                if (pgmscle = extractor.ReadBit())
+                    pgmscl = extractor.Read(6);
+                if (acmod == 0 && (pgmscl2e = extractor.ReadBit()))
+                    pgmscl2 = extractor.Read(6);
+                if (extpgmscle = extractor.ReadBit())
+                    extpgmscl = extractor.Read(6);
+                mixdef = extractor.Read(2);
+                if (mixdef != 0)
+                    throw new UnsupportedFeatureException("mixdef");
+                if (acmod < 2)
+                    throw new UnsupportedFeatureException("mono");
+                if (frmmixcfginfoe = extractor.ReadBit()) { // Mixing configuration information
+                    if (numblkscod == 0)
+                        blkmixcfginfo[0] = extractor.Read(5);
+                    else
+                        for (int block = 0; block < blocks; ++block)
+                            blkmixcfginfo[block] = extractor.ReadBit() ? extractor.Read(5) : 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Parse informational metadata.
+        /// </summary>
+        void InfoMetadata() {
+            bsmod = extractor.Read(3);
+            extractor.Skip(2); // Copyright & original bitstream bits
+            if (acmod == 2) {
+                dsurmod = extractor.Read(2);
+                dheadphonmod = extractor.Read(2);
+            }
+            if (acmod >= 6)
+                dsurexmod = extractor.Read(2);
+            if (audprodie = extractor.ReadBit()) {
+                mixlevel = extractor.Read(5);
+                roomtyp = extractor.Read(2);
+                adconvtyp = extractor.ReadBit();
+            }
+            if (acmod == 0) {
+                if (audprodie2 = extractor.ReadBit()) {
+                    mixlevel2 = extractor.Read(5);
+                    roomtyp2 = extractor.Read(2);
+                    adconvtyp2 = extractor.ReadBit();
+                }
+            }
+            if (fscod < 3)
+                sourcefscod = extractor.ReadBit();
+        }
+
+        void AudioFrame() {
             expstre = true;
             if (numblkscod == 3) {
                 expstre = extractor.ReadBit();
@@ -171,7 +225,7 @@ namespace Cavern.Format.Decoders {
                     lfeexpstr[block] = extractor.ReadBit();
 
             // Converter exponent strategy data
-            if (strmtyp == 0 && (convexpstre = numblkscod == 3 || extractor.ReadBit()))
+            if (streamType == StreamTypes.Independent && (convexpstre = numblkscod == 3 || extractor.ReadBit()))
                 for (int channel = 0; channel < Channels.Length; ++channel)
                     convexpstr[channel] = extractor.Read(5);
 
@@ -197,7 +251,9 @@ namespace Cavern.Format.Decoders {
 
             // Spectral extension attenuation data
             if (spxattene)
-                throw new UnsupportedFeatureException("spxatten");
+                for (int ch = 0; ch < Channels.Length; ++ch)
+                    if (chinspxatten[ch] = extractor.ReadBit())
+                        spxattencod[ch] = extractor.Read(5);
 
             blkstrtinfoe = numblkscod != 0 && extractor.ReadBit();
             if (blkstrtinfoe) {
@@ -217,7 +273,7 @@ namespace Cavern.Format.Decoders {
             lfebap = null;
         }
 
-        void AudioBlock(BitExtractor extractor, int block) {
+        void AudioBlock(int block) {
             if (blkswe)
                 for (int channel = 0; channel < Channels.Length; ++channel)
                     blksw[channel] = extractor.ReadBit();
@@ -444,7 +500,7 @@ namespace Cavern.Format.Decoders {
                     lfefgaincod = 4;
             }
 
-            if (strmtyp == 0 && (convsnroffste = extractor.ReadBit()))
+            if (streamType == StreamTypes.Independent && (convsnroffste = extractor.ReadBit()))
                 convsnroffst = extractor.Read(10);
 
             if (cplinu[block])

@@ -106,7 +106,7 @@ namespace Cavern.Format {
         protected bool RollingBlockCheck(byte[] cache, byte[] block) {
             for (int i = 1; i < cache.Length; ++i)
                 cache[i - 1] = cache[i];
-            cache[cache.Length - 1] = reader.ReadByte();
+            cache[^1] = reader.ReadByte();
             for (int i = 0; i < block.Length; ++i)
                 if (cache[i] != block[i])
                     return false;

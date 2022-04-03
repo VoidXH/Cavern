@@ -17,10 +17,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public int ObjectCount { get; private set; }
 
         /// <summary>
+        /// Helps reusing a large number of arrays.
+        /// </summary>
+        JointObjectCodingCache cache;
+
+        /// <summary>
         /// Decodes a JOC frame from an EMDF payload.
         /// </summary>
-        public JointObjectCoding(ExtensibleMetadataPayload payload) {
+        public JointObjectCoding(ExtensibleMetadataPayload payload, JointObjectCodingCache cache) {
             BitExtractor extractor = new BitExtractor(payload.Payload);
+            this.cache = cache;
             DecodeHeader(extractor);
             DecodeInfo(extractor);
             DecodeData(extractor);
@@ -33,6 +39,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             ChannelCount = (joc_dmx_config_idx == 0 || joc_dmx_config_idx == 3) ? 5 : 7;
             ObjectCount = extractor.Read(6) + 1;
             joc_ext_config_idx = extractor.Read(3);
+            cache.Update(ObjectCount);
 
             b_joc_obj_present = new bool[ObjectCount];
             joc_num_bands = new byte[ObjectCount];
@@ -40,10 +47,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             joc_num_quant_idx = new bool[ObjectCount];
             joc_slope_idx = new bool[ObjectCount];
             joc_num_dpoints = new int[ObjectCount];
-            joc_offset_ts = new int[ObjectCount][];
-            joc_channel_idx = new int[ObjectCount][][];
-            joc_vec = new int[ObjectCount][][];
-            joc_mtx = new int[ObjectCount][][][];
         }
 
         void DecodeInfo(BitExtractor extractor) {
@@ -59,28 +62,18 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     // joc_data_point_info
                     joc_slope_idx[obj] = extractor.ReadBit();
                     joc_num_dpoints[obj] = extractor.Read(1) + 1;
-                    if (joc_slope_idx[obj]) {
-                        joc_offset_ts[obj] = new int[2];
+                    int[][] joc_offset_ts = cache.joc_offset_ts;
+                    if (joc_slope_idx[obj])
                         for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp)
                             joc_offset_ts[obj][dp] = extractor.Read(5) + 1;
-                    }
-
-                    // Allocation
-                    joc_channel_idx[obj] = new int[joc_num_dpoints[obj]][];
-                    joc_vec[obj] = new int[joc_num_dpoints[obj]][];
-                    joc_mtx[obj] = new int[joc_num_dpoints[obj]][][];
-                    for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp) {
-                        joc_channel_idx[obj][dp] = new int[joc_num_bands[obj]];
-                        joc_vec[obj][dp] = new int[joc_num_bands[obj]];
-                        joc_mtx[obj][dp] = new int[ChannelCount][];
-                        for (int ch = 0; ch < ChannelCount; ++ch)
-                            joc_mtx[obj][dp][ch] = new int[joc_num_bands[obj]];
-                    }
                 }
             }
         }
 
         void DecodeData(BitExtractor extractor) {
+            int[][][] joc_channel_idx = cache.joc_channel_idx;
+            int[][][] joc_vec = cache.joc_vec;
+            int[][][][] joc_mtx = cache.joc_mtx;
             for (int obj = 0; obj < ObjectCount; ++obj) {
                 if (b_joc_obj_present[obj]) {
                     for (int dp = 0; dp < joc_num_dpoints[obj]; ++dp) {
@@ -126,10 +119,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         int joc_clipgain_y_bits;
         int joc_seq_count_bits;
         int[] joc_num_dpoints;
-        int[][] joc_offset_ts;
-        int[][][] joc_channel_idx;
-        int[][][] joc_vec;
-        int[][][][] joc_mtx;
 #pragma warning restore IDE0052 // Remove unread private members
     }
 }

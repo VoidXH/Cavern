@@ -5,13 +5,31 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Decoder version check.
         /// </summary>
-        static Decoder ParseDecoder(int bsid) {
-            if (bsid <= (int)Decoder.AC3)
-                return Decoder.AC3;
-            else if (bsid == (int)Decoder.EAC3)
-                return Decoder.EAC3;
+        static Decoders ParseDecoder(int bsid) {
+            if (bsid == (int)Decoders.AlternateAC3)
+                return Decoders.AlternateAC3;
+            if (bsid <= (int)Decoders.AC3)
+                return Decoders.AC3;
+            if (bsid == (int)Decoders.EAC3)
+                return Decoders.EAC3;
             else
                 throw new UnsupportedFeatureException("decoder " + bsid);
+        }
+
+        /// <summary>
+        /// Parse a dependent stream's channel mapping.
+        /// </summary>
+        void ParseChannelMap(bool[] channelMap) {
+            int channel = 0;
+            for (int i = channelMap.Length - 1; i > 0; --i) {
+                if (channelMap[i]) {
+                    for (int j = 0; j < channelMappingTargets[i].Length; ++j) {
+                        if (channel == Channels.Length)
+                            throw new CorruptionException("chanmap");
+                        Channels[channel++] = channelMappingTargets[i][j];
+                    }
+                }
+            }
         }
 
         /// <summary>

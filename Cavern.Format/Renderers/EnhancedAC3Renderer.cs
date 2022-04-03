@@ -86,7 +86,7 @@ namespace Cavern.Format.Renderers {
                 objectSamples = new float[oamd.ObjectCount][];
                 finalResult = new float[joc.ObjectCount][];
                 lastHoldPos = new Vector3[oamd.ObjectCount];
-                applier = new JointObjectCodingApplier(joc.ChannelCount, joc.ObjectCount, stream.FrameSize);
+                applier = new JointObjectCodingApplier(joc.ObjectCount, stream.FrameSize);
                 reader = new StreamMaster(GetNextObjectSamples);
                 for (int obj = 0; obj < oamd.ObjectCount; ++obj)
                     objects.Add(new StreamMasterSource(reader, obj));

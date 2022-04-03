@@ -6,6 +6,11 @@ namespace Cavern.Format.Utilities {
     /// </summary>
     public sealed class BlockBuffer<T> {
         /// <summary>
+        /// Indicates that the <see cref="LastFetch"/> was not yet read from.
+        /// </summary>
+        public bool FreshFetch => lastFetchPosition == 0;
+
+        /// <summary>
         /// The position of the first sample of the last exported block in the buffer.
         /// </summary>
         public int LastFetchStart { get; private set; }
@@ -66,6 +71,21 @@ namespace Cavern.Format.Utilities {
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Read the next value from the stream.
+        /// </summary>
+        /// <remarks>Returns the default value of <see cref="T"/> when new data can't be fetched.</remarks>
+        public T ReadOne() {
+            if (lastFetchPosition != LastFetch.Length) {
+                LastFetchStart = lastFetchPosition;
+                return LastFetch[lastFetchPosition++];
+            }
+            LastFetch = Fetcher();
+            LastFetchStart = 0;
+            lastFetchPosition = 1;
+            return LastFetch != null ? LastFetch[0] : default;
         }
     }
 }

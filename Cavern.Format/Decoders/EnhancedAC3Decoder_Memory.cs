@@ -3,6 +3,9 @@
 namespace Cavern.Format.Decoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
     partial class EnhancedAC3Decoder {
+        const int lfestrtmant = 0;
+        const int lfeendmant = 7;
+
         /// <summary>
         /// Used full bandwidth channels.
         /// </summary>
@@ -11,10 +14,12 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Number of total output channels.
         /// </summary>
-        public int ChannelCount => Channels.Length + (lfeon ? 1 : 0);
+        public int ChannelCount => outputs.Count;
 
-        const int lfestrtmant = 0;
-        const int lfeendmant = 7;
+        /// <summary>
+        /// Type of the last decoded substream.
+        /// </summary>
+        StreamTypes streamType;
 
 #pragma warning disable IDE0052 // Remove unread private members
         bool adconvtyp;
@@ -28,7 +33,6 @@ namespace Cavern.Format.Decoders {
         bool blkid;
         bool blkstrtinfoe;
         bool blkswe;
-        bool chanmape;
         bool compr2e;
         bool compre;
         bool convexpstre;
@@ -65,6 +69,7 @@ namespace Cavern.Format.Decoders {
         bool[] blksw;
         bool[] chincpl;
         bool[] chinspx;
+        bool[] chinspxatten;
         bool[] chintransproc;
         bool[] cplbndstrc;
         bool[] cplinu;
@@ -77,7 +82,7 @@ namespace Cavern.Format.Decoders {
         bool[] spxbndstrc;
         bool[] spxcoe;
         byte[] addbsi;
-        Decoder decoder;
+        Decoders decoder;
         ExpStrat[] cplexpstr;
         ExpStrat[][] chexpstr;
         int acmod;
@@ -86,6 +91,7 @@ namespace Cavern.Format.Decoders {
         int blocks;
         int bsmod;
         int chanmap;
+        int cmixlev;
         int compr;
         int compr2;
         int convsnroffst;
@@ -97,10 +103,12 @@ namespace Cavern.Format.Decoders {
         int cplstrtmant;
         int csnroffst;
         int dbpbcod;
+        int dheadphonmod;
         int dialnorm;
         int dialnorm2;
         int dmixmod;
         int dsurexmod;
+        int dsurmod;
         int dynrng;
         int dynrng2;
         int ecpl_begin_subbnd;
@@ -113,8 +121,6 @@ namespace Cavern.Format.Decoders {
         int frmcplexpstr;
         int frmcsnroffst;
         int frmfsnroffst;
-        int frmsiz;
-        int frmsizecod;
         int fscod;
         int lfeahtinu;
         int lfefgaincod;
@@ -141,8 +147,8 @@ namespace Cavern.Format.Decoders {
         int spxbegf;
         int spxendf;
         int spxstrtf;
-        int strmtyp;
         int substreamid;
+        int surmixlev;
         int words_per_syncframe;
         int[] blkmixcfginfo;
         int[] chahtinu;
@@ -159,6 +165,7 @@ namespace Cavern.Format.Decoders {
         int[] mstrspxco;
         int[] nchgrps;
         int[] nchmant;
+        int[] spxattencod;
         int[] spxblnd;
         int[] spxbndsztab;
         int[] strtmant;
@@ -180,6 +187,7 @@ namespace Cavern.Format.Decoders {
             chexpstr = new ExpStrat[blocks][];
             chincpl = new bool[channels];
             chinspx = new bool[channels];
+            chinspxatten = new bool[channels];
             chintransproc = new bool[channels];
             chmant = new int[channels][];
             convexpstr = new int[channels];
@@ -201,6 +209,7 @@ namespace Cavern.Format.Decoders {
             mstrspxco = new int[channels];
             nchgrps = new int[channels];
             nchmant = endmant;
+            spxattencod = new int[channels];
             spxblnd = new int[channels];
             spxcoe = new bool[channels];
             spxcoexp = new int[channels][];

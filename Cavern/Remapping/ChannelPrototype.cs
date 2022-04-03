@@ -167,10 +167,10 @@ namespace Cavern.Remapping {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight
             },
-            // 7CH: 6.1 (L, R, C, LFE, SL, SR, RC)
+            // 7CH: 7.0 (L, R, C, RL, RR, SL, SR)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearCenter
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
             },
             // 8CH: 7.1 (L, R, C, LFE, RL, RR, SL, SR)
             new ReferenceChannel[] {

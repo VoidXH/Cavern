@@ -3,6 +3,48 @@
 namespace Cavern.Format.Decoders {
     partial class EnhancedAC3Decoder {
         /// <summary>
+        /// Supported decoder versions.
+        /// </summary>
+        enum Decoders {
+            AlternateAC3 = 6,
+            AC3 = 8,
+            EAC3 = 16
+        }
+
+        /// <summary>
+        /// Meaning of values for chexpstr[ch], cplexpstr, and lfeexpstr.
+        /// </summary>
+        enum ExpStrat {
+            Reuse = 0,
+            D15,
+            D25,
+            D45
+        }
+
+        /// <summary>
+        /// Types of programs in a single frame of a stream.
+        /// </summary>
+        enum StreamTypes {
+            /// <summary>
+            /// Main program, can be decoded on its own.
+            /// </summary>
+            Independent,
+            /// <summary>
+            /// Should be decoded with the associated independent substream.
+            /// </summary>
+            Dependent,
+            /// <summary>
+            /// This frame was converted from AC-3, the E-AC-3 extra data will follow.
+            /// Usually used to go beyond 5.1, up to 16 discrete channels.
+            /// </summary>
+            Repackaged,
+            /// <summary>
+            /// Unused type.
+            /// </summary>
+            Reserved
+        }
+
+        /// <summary>
         /// First word of all AC-3 frames.
         /// </summary>
         const int syncWord = 0x0B77;
@@ -10,7 +52,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Bytes that must be read before determining the frame size.
         /// </summary>
-        const int mustDecode = 5;
+        const int mustDecode = 6;
 
         /// <summary>
         /// Number of LFE groups.
@@ -31,6 +73,14 @@ namespace Cavern.Format.Decoders {
         /// Sample rates for each sample rate code.
         /// </summary>
         static readonly ushort[] sampleRates = new ushort[] { 48000, 44100, 32000 };
+
+        /// <summary>
+        /// Frame size code to actual frame size in bytes for 48 kHz sample rate.
+        /// For 44.1 kHz, frame sizes are 1393/1280 times these values.
+        /// For 32 kHz, frame sizes are 3/2 times these values.
+        /// </summary>
+        static readonly ushort[] frameSizes = new ushort[19]
+            { 128, 160, 192, 224, 256, 320, 384, 448, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2304, 2560 };
 
         /// <summary>
         /// Possible channel arrangements in E-AC-3. The index is the ID read from the file. LFE channel is marked separately.
@@ -58,22 +108,26 @@ namespace Cavern.Format.Decoders {
         };
 
         /// <summary>
-        /// Supported decoder versions.
+        /// If a custom channel mapping is present, these are the channels for each bit.
         /// </summary>
-        enum Decoder {
-            AC3 = 8,
-            EAC3 = 16
-        }
-
-        /// <summary>
-        /// Meaning of values for chexpstr[ch], cplexpstr, and lfeexpstr.
-        /// </summary>
-        enum ExpStrat {
-            Reuse = 0,
-            D15,
-            D25,
-            D45
-        }
+        static readonly ReferenceChannel[][] channelMappingTargets = {
+            new ReferenceChannel[] { ReferenceChannel.ScreenLFE },
+            new ReferenceChannel[] { ReferenceChannel.ScreenLFE },
+            new ReferenceChannel[] { ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight },
+            new ReferenceChannel[] { ReferenceChannel.Unused }, // front height center
+            new ReferenceChannel[] { ReferenceChannel.Unused, ReferenceChannel.Unused }, // front height LR
+            new ReferenceChannel[] { ReferenceChannel.WideLeft, ReferenceChannel.WideRight },
+            new ReferenceChannel[] { ReferenceChannel.SideLeft, ReferenceChannel.SideRight },
+            new ReferenceChannel[] { ReferenceChannel.GodsVoice },
+            new ReferenceChannel[] { ReferenceChannel.RearCenter },
+            new ReferenceChannel[] { ReferenceChannel.RearLeft, ReferenceChannel.RearRight },
+            new ReferenceChannel[] { ReferenceChannel.FrontLeftCenter, ReferenceChannel.FrontRightCenter },
+            new ReferenceChannel[] { ReferenceChannel.SideRight },
+            new ReferenceChannel[] { ReferenceChannel.SideLeft },
+            new ReferenceChannel[] { ReferenceChannel.FrontRight },
+            new ReferenceChannel[] { ReferenceChannel.FrontCenter },
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft }
+        };
 
         /// <summary>
         /// Sub-band transform start coefficients.
