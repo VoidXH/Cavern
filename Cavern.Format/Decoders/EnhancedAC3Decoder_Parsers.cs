@@ -1,37 +1,5 @@
-﻿using Cavern.Format.Common;
-
-namespace Cavern.Format.Decoders {
+﻿namespace Cavern.Format.Decoders {
     partial class EnhancedAC3Decoder {
-        /// <summary>
-        /// Decoder version check.
-        /// </summary>
-        static Decoders ParseDecoder(int bsid) {
-            if (bsid == (int)Decoders.AlternateAC3)
-                return Decoders.AlternateAC3;
-            if (bsid <= (int)Decoders.AC3)
-                return Decoders.AC3;
-            if (bsid == (int)Decoders.EAC3)
-                return Decoders.EAC3;
-            else
-                throw new UnsupportedFeatureException("decoder " + bsid);
-        }
-
-        /// <summary>
-        /// Parse a dependent stream's channel mapping.
-        /// </summary>
-        void ParseChannelMap(bool[] channelMap) {
-            int channel = 0;
-            for (int i = channelMap.Length - 1; i > 0; --i) {
-                if (channelMap[i]) {
-                    for (int j = 0; j < channelMappingTargets[i].Length; ++j) {
-                        if (channel == Channels.Length)
-                            throw new CorruptionException("chanmap");
-                        Channels[channel++] = channelMappingTargets[i][j];
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// Parse spectral extension data.
         /// </summary>
@@ -47,6 +15,10 @@ namespace Cavern.Format.Decoders {
                 } else
                     spxbndsztab[nspxbnds - 1] += 12;
             }
+            for (int channel = 0; channel < channels.Length; ++channel) {
+                spxcoexp[channel] = new int[nspxbnds];
+                spxcomant[channel] = new int[nspxbnds];
+            }
         }
 
         int ParseSpxbandtable(int band) => band * 12 + 25;
@@ -55,7 +27,7 @@ namespace Cavern.Format.Decoders {
         /// Set endmant and nchgrps.
         /// </summary>
         void ParseParametricBitAllocation(int block) {
-            for (int channel = 0; channel < Channels.Length; ++channel) {
+            for (int channel = 0; channel < channels.Length; ++channel) {
                 strtmant[channel] = 0;
                 if (ecplinu)
                     endmant[channel] = ecplsubbndtab[ecpl_begin_subbnd];
@@ -83,8 +55,15 @@ namespace Cavern.Format.Decoders {
                 }
             }
 
+            if (cplexpstr[block] != ExpStrat.Reuse)
+                ncplgrps = (cplendmant - cplstrtmant) / groupDiv[(int)cplexpstr[block] - 1];
             cplstrtmant = 37 + 12 * cplbegf;
             cplendmant = 37 + 12 * (cplendf + 3);
         }
+
+        /// <summary>
+        /// Divider of each <see cref="ExpStrat"/> for <see cref="ncplgrps"/>.
+        /// </summary>
+        static readonly byte[] groupDiv = { 3, 6, 12 };
     }
 }

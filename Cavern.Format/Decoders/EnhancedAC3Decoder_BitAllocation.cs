@@ -14,6 +14,15 @@ namespace Cavern.Format.Decoders {
             return Allocate(start, end, 0, fgain, snroffset, gexp, nchgrps[channel], exps[channel][0], expstr);
         }
 
+        byte[] AllocateCoupling(ExpStrat expstr) {
+            int fgain = fastgain[cplfgaincod];
+            if (csnroffst == 0 && lfefsnroffst == 0)
+                return new byte[nlfemant];
+            int snroffset = (csnroffst - 15) << 4 + cplfsnroffst << 2;
+            return Allocate(cplstrtmant, cplendmant, 0, fgain, snroffset, cplexps, ncplgrps, cplabsexp, expstr,
+                (cplfleak << 8) + 768, (cplsleak << 8) + 768);
+        }
+
         byte[] AllocateLFE(int[] gexp, ExpStrat expstr) {
             int fgain = fastgain[lfefgaincod];
             if (csnroffst == 0 && lfefsnroffst == 0)
@@ -136,7 +145,7 @@ namespace Cavern.Format.Decoders {
             for (int bin = bndstrt; bin < bndend; ++bin) {
                 if (bndpsd[bin] < dbknee)
                     excite[bin] += (dbknee - bndpsd[bin]) >> 2;
-                mask[bin] = Math.Max(excite[bin], hth[fscod][bin]);
+                mask[bin] = Math.Max(excite[bin], hth[header.SampleRateCode][bin]);
             }
 
             // Apply delta bit allocation

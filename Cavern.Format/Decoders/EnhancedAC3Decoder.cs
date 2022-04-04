@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-using Cavern.Format.Common;
 using Cavern.Format.Decoders.EnhancedAC3;
+using Cavern.Format.InOut;
 using Cavern.Format.Utilities;
 using Cavern.Remapping;
+using static Cavern.Format.InOut.EnhancedAC3;
 
 namespace Cavern.Format.Decoders {
     /// <summary>
@@ -13,12 +15,17 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Content sample rate.
         /// </summary>
-        public int SampleRate { get; private set; }
+        public int SampleRate => header.SampleRate;
 
         /// <summary>
         /// Samples in each decoded frame
         /// </summary>
-        public int FrameSize => blocks * 256;
+        public int FrameSize => header.Blocks * 256;
+
+        /// <summary>
+        /// Header data container and reader.
+        /// </summary>
+        readonly EnhancedAC3Header header = new EnhancedAC3Header();
 
         /// <summary>
         /// Auxillary metadata parsed for the last decoded frame.
@@ -49,22 +56,21 @@ namespace Cavern.Format.Decoders {
         /// Decode a new frame if the cached samples are already fetched.
         /// </summary>
         protected override float[] DecodeFrame() {
-            Dictionary<ReferenceChannel, float[]> lastOut = outputs;
-            outputs = new Dictionary<ReferenceChannel, float[]>();
-            if (Channels == null)
+            if (channels == null)
                 ReadHeader();
 
             do {
                 // Create or reuse per-channel outputs
-                for (int i = 0; i < Channels.Length; ++i) {
-                    if (lastOut.ContainsKey(Channels[i]))
-                        outputs[Channels[i]] = lastOut[Channels[i]];
+                for (int i = 0; i < channels.Length; ++i) {
+                    if (outputs.ContainsKey(channels[i]) && outputs[channels[i]].Length == FrameSize)
+                        Array.Clear(outputs[channels[i]], 0, FrameSize);
                     else
-                        outputs[Channels[i]] = new float[FrameSize];
+                        outputs[channels[i]] = new float[FrameSize];
                 }
-                if (lfeon) {
-                    if (lastOut.ContainsKey(ReferenceChannel.ScreenLFE))
-                        outputs[ReferenceChannel.ScreenLFE] = lastOut[ReferenceChannel.ScreenLFE];
+                if (header.LFE) {
+                    if (outputs.ContainsKey(ReferenceChannel.ScreenLFE) &&
+                        outputs[ReferenceChannel.ScreenLFE].Length == FrameSize)
+                        Array.Clear(outputs[ReferenceChannel.ScreenLFE], 0, FrameSize);
                     else
                         outputs[ReferenceChannel.ScreenLFE] = new float[FrameSize];
                 }
@@ -75,7 +81,7 @@ namespace Cavern.Format.Decoders {
 
                 Extensions.Decode(extractor);
                 ReadHeader();
-            } while (streamType == StreamTypes.Dependent);
+            } while (header.StreamType == StreamTypes.Dependent);
 
             int outLength = outputs.Count * FrameSize;
             if (outCache.Length != outLength)
@@ -89,11 +95,9 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         /// <remarks>This decoder has to read the beginning of the next frame to know if it's a beginning.</remarks>
         void ReadHeader() {
-            extractor = new BitExtractor(reader.Read(mustDecode));
-            if (extractor.Read(16) != syncWord)
-                throw new SyncException();
-
-            BitstreamInfo();
+            extractor = header.Decode(reader);
+            channels = header.GetChannelArrangement();
+            CreateCacheTables(header.Blocks, channels.Length);
             AudioFrame();
         }
     }

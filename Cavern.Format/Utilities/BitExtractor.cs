@@ -79,17 +79,6 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
-        /// Read the next custom length word from the back.
-        /// </summary>
-        public int ReadBack(byte bits) {
-            int oldPos = Position;
-            Position = BackPosition -= bits;
-            int result = Read(bits);
-            Position = oldPos;
-            return result;
-        }
-
-        /// <summary>
         /// Read the next custom length signed word.
         /// </summary>
         public int ReadSigned(byte bits) {
@@ -110,6 +99,16 @@ namespace Cavern.Format.Utilities {
             bool[] result = new bool[bits];
             while (bits-- > 0)
                 result[bits] = ReadBit();
+            return result;
+        }
+
+        /// <summary>
+        /// Read a byte array, even if it's offset from byte borders.
+        /// </summary>
+        public byte[] ReadBytes(int count) {
+            byte[] result = new byte[count];
+            for (int i = 0; i < count; ++i)
+                result[i] = (byte)Read(8);
             return result;
         }
 

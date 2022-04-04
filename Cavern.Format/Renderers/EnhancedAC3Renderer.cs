@@ -90,6 +90,14 @@ namespace Cavern.Format.Renderers {
         }
 
         /// <summary>
+        /// Update the objects and get the samples they need to render.
+        /// </summary>
+        public float[][] GetNextObjectSamples(int samples) {
+            Update(samples);
+            return objectSamples;
+        }
+
+        /// <summary>
         /// Read the next <paramref name="samples"/> and update the objects.
         /// </summary>
         public override void Update(int samples) {
@@ -138,14 +146,6 @@ namespace Cavern.Format.Renderers {
         }
 
         /// <summary>
-        /// Update the objects and get the samples they need to render.
-        /// </summary>
-        public float[][] GetNextObjectSamples(int samples) {
-            Update(samples);
-            return objectSamples;
-        }
-
-        /// <summary>
         /// Render new object samples for the next timeslot
         /// </summary>
         void RenderNextTimeslot() {
@@ -155,11 +155,11 @@ namespace Cavern.Format.Renderers {
                 Source.ReadBlock(input, 0, input.LongLength);
             float[][] grouped = WaveformUtils.InterlacedToMultichannel(input, stream.ChannelCount);
 
-            if (hasObjects) {
+            ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
+            if (hasObjects) { // Objects can be rendered
                 stream.Extensions.OAMD.UpdateSources(stream.LastFetchStart, objects, lastHoldPos);
 
-                ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
-                float[][] sources = new float[stream.Channels.Length][];
+                float[][] sources = new float[JointObjectCodingTables.inputMatrix.Length][];
                 for (int i = 0; i < sources.Length; ++i) {
                     for (int j = 0; j < matrix.Length; ++j) {
                         if (JointObjectCodingTables.inputMatrix[i] == matrix[j]) {
@@ -174,8 +174,18 @@ namespace Cavern.Format.Renderers {
                         lfeTimeslot = grouped[i];
 
                 timeslotResult = applier.Apply(sources, stream.Extensions.JOC);
-            } else {
-                // Render the channel-based data
+            } else { // Channel-based stream or decoder error fallback to channels
+                for (int i = 0; i < matrix.Length; ++i) {
+                    timeslotResult[i] = grouped[i];
+                    ChannelPrototype prototype = ChannelPrototype.Mapping[(int)matrix[i]];
+                    objects[i].Mute = false;
+                    objects[i].Position = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube() * Listener.EnvironmentSize;
+                    objects[i].LFE = prototype.LFE;
+                }
+                for (int i = matrix.Length; i < timeslotResult.Length; ++i) {
+                    objects[i].Position = default;
+                    Array.Clear(timeslotResult[i], 0, timeslotResult[i].Length);
+                }
             }
         }
     }

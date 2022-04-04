@@ -76,8 +76,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public float[][] Apply(float[][] input, JointObjectCoding actual) {
             if (timeslot == 0)
                 mixMatrix = actual.GetMixingMatrices(frameSize);
-            Parallel.For(0, input.Length, ch => results[ch] = converters[ch].ProcessForward(input[ch]));
-            Parallel.For(0, objects, obj => ProcessObject(input.Length, obj, mixMatrix[obj][timeslot]));
+            Parallel.For(0, actual.ChannelCount, ch => results[ch] = converters[ch].ProcessForward(input[ch]));
+            Parallel.For(0, objects, obj => ProcessObject(actual.ChannelCount, obj, mixMatrix[obj][timeslot]));
             if (++timeslot == input.Length)
                 timeslot = 0;
             return timeslotCache;

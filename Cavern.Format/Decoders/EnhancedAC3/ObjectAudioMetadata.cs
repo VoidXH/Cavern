@@ -133,10 +133,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     bedAssignment[0][(int)NonStandardBedChannel.LowFrequencyEffects] = true;
                 }
             } else {
-                bool[] contentDescription = extractor.ReadBits(4);
+                int contentDescription = extractor.Read(4);
 
                 // Object(s) with speaker-anchored coordinate(s) (bed objects)
-                if (contentDescription[3]) {
+                if ((contentDescription & 8) != 0) {
                     extractor.Skip(1); // The object is distributable - Cavern will do it anyway
                     bedAssignment = new bool[extractor.ReadBit() ? extractor.Read(3) + 2 : 1][];
                     for (int bed = 0; bed < bedAssignment.Length; ++bed) {
@@ -156,19 +156,19 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
 
                 // Intermediate spatial format (ISF)
-                if (isfInUse = contentDescription[2]) {
+                if (isfInUse = (contentDescription & 4) != 0) {
                     isfIndex = (byte)extractor.Read(3);
                     if (isfIndex >= isfObjectCount.Length)
                         throw new UnsupportedFeatureException("ISF");
                 }
 
                 // Object(s) with room-anchored or screen-anchored coordinates
-                if (contentDescription[1]) // This is useless, same as ObjectCount - bedOrISFObjects, also found in JOC
+                if ((contentDescription & 2) != 0) // This is useless, same as ObjectCount - bedOrISFObjects, also found in JOC
                     if (extractor.Read(5) == 31)
                         extractor.Skip(7);
 
                 // Reserved
-                if (contentDescription[0])
+                if ((contentDescription & 1) != 0)
                     extractor.Skip((extractor.Read(4) + 1) * 8);
             }
 

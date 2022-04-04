@@ -41,10 +41,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Decode the next EMDF frame from a bitstream.
         /// </summary>
         public void Decode(BitExtractor extractor) {
-            while (extractor.Position != extractor.BackPosition - 16) {
+            HasObjects = false;
+            while (extractor.Position < extractor.BackPosition - 32) {
                 int syncword = extractor.Peek(16);
-                if ((syncword == syncWord) && (HasObjects = DecodeBlock(extractor)))
-                    break;
+                if (syncword == syncWord && DecodeBlock(extractor))
+                    HasObjects = true;
                 ++extractor.Position;
             }
         }
@@ -53,10 +54,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Tries to decode an EMDF block, returns if succeeded.
         /// </summary>
         bool DecodeBlock(BitExtractor extractor) {
-            HasObjects = false;
             if (extractor.Read(16) != syncWord)
                 return false;
-            int frameEndPos = extractor.Position + extractor.Read(16) * 8;
+            extractor.Position -= 16 + 9;
+            int skipl = extractor.Read(9);
+            extractor.Position += 16;
+            int length = extractor.Read(16);
+            const int emdfSyncBytes = 4;
+            if (length + emdfSyncBytes != skipl)
+                return false; // TODO: handle multipart EMDFs
+            int frameEndPos = extractor.Position + length * 8;
             if (frameEndPos > extractor.BackPosition)
                 return false;
 

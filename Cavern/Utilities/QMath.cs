@@ -51,7 +51,8 @@ namespace Cavern.Utilities {
         public static float AverageAccurate(float[] array) => SumAccurate(array, 0, array.Length) / array.Length;
 
         /// <summary>
-        /// Calculate the average of an array until the selected border element (exclusive) without floating point rounding errors.
+        /// Calculate the average of an array until the selected border element (exclusive)
+        /// without floating point rounding errors.
         /// </summary>
         /// <remarks>This is slower than <see cref="Average(float[], int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -301,7 +302,8 @@ namespace Cavern.Utilities {
         public static float SumAbs(float[] array, int until) => SumAbs(array, 0, until);
 
         /// <summary>
-        /// Sum absolute values of elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
+        /// Sum absolute values of elements in an array between <paramref name="from"/> (inclusive)
+        /// and <paramref name="to"/> (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float SumAbs(float[] array, int from, int to) {

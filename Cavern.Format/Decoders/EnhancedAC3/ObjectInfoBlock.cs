@@ -79,7 +79,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         QMath.Clamp(lastPrecise.Z + position.Z, 0, 1)
                     );
                 else
-                    lastPrecise = source.Position = position;
+                    source.Position = position;
+                lastPrecise = source.Position;
 
                 switch (anchor) {
                     case ObjectAnchor.Room:
@@ -113,14 +114,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         void ObjectBasicInfo(BitExtractor extractor, bool readAllBlocks) {
-            bool[] blocks;
-            if (readAllBlocks)
-                blocks = new bool[] { true, true };
-            else
-                blocks = extractor.ReadBits(2);
+            int blocks = readAllBlocks ? 3 : extractor.Read(2);
 
             // Gain
-            if (blocks[1]) {
+            if ((blocks & 2) != 0) {
                 int gainHelper = extractor.Read(2);
                 gain = gainHelper switch {
                     0 => 1,
@@ -131,19 +128,15 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
 
             // Priority - unneccessary, everything's rendered
-            if (blocks[0] && !extractor.ReadBit())
+            if ((blocks & 1) != 0 && !extractor.ReadBit())
                 extractor.Skip(5);
         }
 
         void ObjectRenderInfo(BitExtractor extractor, int blk, bool readAllBlocks) {
-            bool[] blocks;
-            if (readAllBlocks)
-                blocks = new bool[] { true, true, true, true };
-            else
-                blocks = extractor.ReadBits(4);
+            int blocks = readAllBlocks ? 15 : extractor.Read(4);
 
             // Spatial position
-            if (validPosition = blocks[3]) {
+            if (validPosition = (blocks & 8) != 0) {
                 differentialPosition = blk != 0 && extractor.ReadBit();
                 if (differentialPosition)
                     position = new Vector3(
@@ -172,11 +165,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
 
             // Zone constraints - the renderer is not prepared for zoning
-            if (blocks[2])
+            if ((blocks & 4) != 0)
                 extractor.Skip(4);
 
             // Scaling
-            if (blocks[1])
+            if ((blocks & 2) != 0)
                 size = extractor.Read(2) switch {
                     0 => 0,
                     1 => extractor.Read(5) * sizeScale,
@@ -185,7 +178,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 };
 
             // Screen anchoring
-            if (blocks[0] && extractor.ReadBit()) {
+            if ((blocks & 1) != 0 && extractor.ReadBit()) {
                 anchor = ObjectAnchor.Screen;
                 screenFactor = (extractor.Read(3) + 1) * .125f;
                 depthFactor = depthFactors[extractor.Read(2)];
