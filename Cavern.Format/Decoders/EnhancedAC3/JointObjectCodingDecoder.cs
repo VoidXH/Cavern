@@ -58,6 +58,13 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
         void InterpolateSideInfo(int num_qmf_timeslots, float[][][] prevMatrix) {
             for (int obj = 0; obj < ObjectCount; ++obj) {
+                if (!objectActive[obj]) {
+                    for (int ts = 0; ts < num_qmf_timeslots; ++ts)
+                        for (int ch = 0; ch < ChannelCount; ++ch)
+                            for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
+                                joc_mix_mtx_interp[obj][ts][ch][sb] = 0;
+                    continue;
+                }
                 for (int ch = 0; ch < ChannelCount; ++ch) {
                     for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
                         // TODO: sb to pb by LUT

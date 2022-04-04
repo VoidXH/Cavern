@@ -47,7 +47,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             new byte[7]  { 0, 1, 2, 4, 8, 14, 23 },
             new byte[9]  { 0, 1, 2, 3, 5, 7, 9, 14, 23 },
             new byte[12] { 0, 1, 2, 3, 4, 6, 8, 11, 14, 18, 23, 35 },
-            new byte[15] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 14, 18, 23, 35 }
+            new byte[15] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 14, 18, 23, 35 },
+            new byte[23] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 23, 26, 30, 35, 41, 48 }
         };
 
         static readonly int[][] joc_huff_code_coarse_generic = {

@@ -56,7 +56,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             HasObjects = false;
             if (extractor.Read(16) != syncWord)
                 return false;
-            if (extractor.Position + extractor.Read(16) * 8 /* length */ > extractor.BackPosition)
+            int frameEndPos = extractor.Position + extractor.Read(16) * 8;
+            if (frameEndPos > extractor.BackPosition)
                 return false;
 
             int version = extractor.Read(2);
@@ -69,7 +70,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 return false;
 
             int payloadID;
-            while ((payloadID = extractor.Read(5)) != 0) {
+            while (extractor.Position > 0 && extractor.Position < frameEndPos && (payloadID = extractor.Read(5)) != 0) {
                 if (payloadID == 0x1F)
                     payloadID += extractor.VariableBits(5);
                 if (payloadID > jocPayloadID)
@@ -99,6 +100,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
 
                 int payloadEnd = extractor.VariableBits(8) * 8 + extractor.Position;
+                if (payloadEnd > extractor.BackPosition)
+                    return false;
                 if (payloadID == jocPayloadID) {
                     JOC.Decode(extractor);
                     HasObjects = true;
