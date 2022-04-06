@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Cavern.Format.Utilities {
     /// <summary>
@@ -26,7 +27,7 @@ namespace Cavern.Format.Utilities {
         T[] result = new T[0];
 
         /// <summary>
-        /// First sample from <see cref="lastFetch"/> that wasn't collected.
+        /// First sample from <see cref="LastFetch"/> that wasn't collected.
         /// </summary>
         int lastFetchPosition;
 
@@ -42,6 +43,12 @@ namespace Cavern.Format.Utilities {
             Fetcher = fetcher;
             LastFetch = Fetcher();
         }
+
+        /// <summary>
+        /// Converts a stream reader to a block buffer of fixed size.
+        /// </summary>
+        public static BlockBuffer<byte> Create(BinaryReader reader, int blockSize = 4096) =>
+            new BlockBuffer<byte>(() => reader.ReadBytes(blockSize));
 
         /// <summary>
         /// Read the next fixed number of elements from the stream.
@@ -76,7 +83,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read the next value from the stream.
         /// </summary>
-        /// <remarks>Returns the default value of <see cref="T"/> when new data can't be fetched.</remarks>
+        /// <remarks>Returns the default value of <typeparamref name="T"/> when new data can't be fetched.</remarks>
         public T ReadOne() {
             if (lastFetchPosition != LastFetch.Length) {
                 LastFetchStart = lastFetchPosition;

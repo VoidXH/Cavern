@@ -56,7 +56,7 @@ namespace Cavern.Format.Container.Matroska {
         public bool IsDiscardable => (flags & discardableFlag) != 0;
 
         /// <summary>
-        /// Used <see cref="Track"/> from <see cref="MatroskaReader.Tracks"/>.
+        /// Used <see cref="Track"/> from a <see cref="MatroskaReader"/>.
         /// </summary>
         public long Track { get; private set; }
 

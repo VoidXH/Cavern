@@ -18,12 +18,12 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// The stream is object-based.
         /// </summary>
-        readonly bool hasObjects;
+        public bool HasObjects { get; }
 
         /// <summary>
-        /// Samples for the rendered objects in the last update.
+        /// Count of free-floating objects.
         /// </summary>
-        readonly float[][] objectSamples;
+        public int DynamicObjects { get; }
 
         /// <summary>
         /// Aligned timeslot results for final output.
@@ -31,19 +31,9 @@ namespace Cavern.Format.Renderers {
         readonly float[][] finalResult;
 
         /// <summary>
-        /// Source stream.
-        /// </summary>
-        readonly EnhancedAC3Decoder stream;
-
-        /// <summary>
         /// Creates the object mix from channels.
         /// </summary>
         readonly JointObjectCodingApplier applier;
-
-        /// <summary>
-        /// Sample supplier for the rendered objects.
-        /// </summary>
-        readonly StreamMaster reader;
 
         /// <summary>
         /// Last non-interpolated position of each object.
@@ -73,33 +63,39 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// Parse an E-AC-3 decoder to a renderer.
         /// </summary>
-        public EnhancedAC3Renderer(EnhancedAC3Decoder stream) {
-            this.stream = stream;
-            if (hasObjects = stream.Extensions.HasObjects) {
+        public EnhancedAC3Renderer(EnhancedAC3Decoder stream) : base(stream) {
+            // Object-based rendering
+            if (HasObjects = stream.Extensions.HasObjects) {
                 ObjectAudioMetadata oamd = stream.Extensions.OAMD;
                 JointObjectCoding joc = stream.Extensions.JOC;
-                objectSamples = new float[oamd.ObjectCount][];
+                DynamicObjects = joc.ObjectCount;
                 finalResult = new float[joc.ObjectCount][];
                 lastHoldPos = new Vector3[oamd.ObjectCount];
                 applier = new JointObjectCodingApplier(joc.ObjectCount, stream.FrameSize);
-                reader = new StreamMaster(GetNextObjectSamples);
-                for (int obj = 0; obj < oamd.ObjectCount; ++obj)
-                    objects.Add(new StreamMasterSource(reader, obj));
-                reader.SetupSources(objects, stream.SampleRate);
+                SetupObjects(oamd.ObjectCount);
+            }
+            // Channel-based rendering
+            else {
+                ReferenceChannel[] channels = stream.GetChannels();
+                for (int channel = 0; channel < channels.Length; ++channel) {
+                    Source source = new StreamMasterSource(reader, channel) {
+                        Position = channelPositions[(int)channels[channel]] * Listener.EnvironmentSize
+                    };
+                    objects.Add(source);
+                }
+                FinishSetup(channels.Length);
             }
         }
 
         /// <summary>
-        /// Update the objects and get the samples they need to render.
+        /// Get the bed channels.
         /// </summary>
-        public float[][] GetNextObjectSamples(int samples) {
-            Update(samples);
-            return objectSamples;
-        }
+        public override ReferenceChannel[] GetChannels() => ((EnhancedAC3Decoder)stream).GetChannels();
 
         /// <summary>
         /// Read the next <paramref name="samples"/> and update the objects.
         /// </summary>
+        /// <param name="samples">Samples per channel</param>
         public override void Update(int samples) {
             if (lfeResult.Length != samples) {
                 for (int obj = 0; obj < finalResult.Length; ++obj)
@@ -107,7 +103,8 @@ namespace Cavern.Format.Renderers {
                 lfeResult = new float[samples];
             }
 
-            if (hasObjects) {
+            // Object-based rendering
+            if (HasObjects) {
                 int pointer = 0;
                 while (pointer < samples) {
                     if (timeslotPosition == 0)
@@ -124,7 +121,7 @@ namespace Cavern.Format.Renderers {
                         timeslotPosition = 0;
                 }
 
-                int lfe = stream.Extensions.OAMD.GetLFEPosition();
+                int lfe = ((EnhancedAC3Decoder)stream).Extensions.OAMD.GetLFEPosition();
                 if (lfe != -1) {
                     for (int obj = 0; obj < lfe; ++obj)
                         objectSamples[obj] = finalResult[obj];
@@ -140,7 +137,9 @@ namespace Cavern.Format.Renderers {
                 } else
                     for (int obj = 0; obj < objectSamples.Length; ++obj)
                         objectSamples[obj] = finalResult[obj];
-            } else
+            }
+            // Channel-based rendering
+            else
                 for (int obj = 0; obj < objectSamples.Length; ++obj)
                     Array.Clear(objectSamples[obj] = finalResult[obj], 0, samples);
         }
@@ -156,8 +155,10 @@ namespace Cavern.Format.Renderers {
             float[][] grouped = WaveformUtils.InterlacedToMultichannel(input, stream.ChannelCount);
 
             ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
-            if (hasObjects) { // Objects can be rendered
-                stream.Extensions.OAMD.UpdateSources(stream.LastFetchStart, objects, lastHoldPos);
+            // Object-based rendering
+            if (HasObjects) {
+                EnhancedAC3Decoder decoder = (EnhancedAC3Decoder)stream;
+                decoder.Extensions.OAMD.UpdateSources(decoder.LastFetchStart, objects, lastHoldPos);
 
                 float[][] sources = new float[JointObjectCodingTables.inputMatrix.Length][];
                 for (int i = 0; i < sources.Length; ++i) {
@@ -173,8 +174,10 @@ namespace Cavern.Format.Renderers {
                     if (matrix[i] == ReferenceChannel.ScreenLFE)
                         lfeTimeslot = grouped[i];
 
-                timeslotResult = applier.Apply(sources, stream.Extensions.JOC);
-            } else { // Channel-based stream or decoder error fallback to channels
+                timeslotResult = applier.Apply(sources, decoder.Extensions.JOC);
+            }
+            // Channel-based rendering or fallback to it when OAMD or JOC can't be decoded correctly
+            else {
                 for (int i = 0; i < matrix.Length; ++i) {
                     timeslotResult[i] = grouped[i];
                     ChannelPrototype prototype = ChannelPrototype.Mapping[(int)matrix[i]];

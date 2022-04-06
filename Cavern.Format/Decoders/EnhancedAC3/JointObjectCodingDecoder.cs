@@ -118,7 +118,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Get the object mixing matrices.
         /// </summary>
         /// <param name="frameSize">Length of the entire time window of all time slots</param>
-        /// <param name="prevMatrix">Cache array for last interpolation results</param>
         public float[][][][] GetMixingMatrices(int frameSize) {
             for (int obj = 0; obj < ObjectCount; ++obj) {
                 if (b_joc_sparse[obj])

@@ -11,11 +11,6 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         ReferenceChannel[] channels;
 
-        /// <summary>
-        /// Number of total output channels.
-        /// </summary>
-        public int ChannelCount => outputs.Count;
-
 #pragma warning disable IDE0052 // Remove unread private members
         bool ahte;
         bool baie;
@@ -66,7 +61,6 @@ namespace Cavern.Format.Decoders {
         ExpStrat[][] chexpstr;
         int blkfsnroffst;
         int blkstrtinfo;
-        int chanmap;
         int convsnroffst;
         int cplabsexp;
         int cplahtinu;

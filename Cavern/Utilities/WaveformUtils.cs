@@ -225,6 +225,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Convert an interlaced waveform to a multichannel waveform in different arrays.
         /// </summary>
+        // TODO: remove everywhere, use cached version
         public static float[][] InterlacedToMultichannel(float[] source, int channels) {
             float[][] result = new float[channels][];
             long perChannel = source.Length / channels;
@@ -234,6 +235,17 @@ namespace Cavern.Utilities {
                     result[channel][sample] = source[channel + channels * sample];
             }
             return result;
+        }
+
+        /// <summary>
+        /// Convert an interlaced multichannel waveform to separate arrays.
+        /// </summary>
+        public static void InterlacedToMultichannel(float[] source, float[][] target) {
+            int channels = target.Length,
+                perChannel = target[0].Length;
+            for (int channel = 0; channel < channels; ++channel)
+                for (long sample = 0; sample < perChannel; ++sample)
+                    target[channel][sample] = source[channel + channels * sample];
         }
 
         /// <summary>
@@ -268,19 +280,9 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Convert a multichannel waveform in different arrays to an interlaced waveform.
-        /// </summary>
-        public static float[] MultichannelToInterlaced(float[][] source) {
-            float[] result = new float[source.Length * source[0].Length];
-            for (int channel = 0; channel < source.Length; ++channel)
-                for (long sample = 0; sample < source[channel].LongLength; ++sample)
-                    result[sample * source.Length + channel] = source[channel][sample];
-            return result;
-        }
-
-        /// <summary>
         /// Convert part of a multichannel waveform in different arrays to an interlaced waveform.
         /// </summary>
+        // TODO: remove everywhere, use cached version
         public static float[] MultichannelToInterlaced(float[][] source, long from, long to) {
             float[] result = new float[source.Length * source[0].Length];
             to -= from;

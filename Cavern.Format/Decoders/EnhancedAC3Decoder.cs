@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.Format.Common;
 using Cavern.Format.Decoders.EnhancedAC3;
 using Cavern.Format.InOut;
 using Cavern.Format.Utilities;
@@ -13,9 +14,19 @@ namespace Cavern.Format.Decoders {
     /// </summary>
     public partial class EnhancedAC3Decoder : FrameBasedDecoder {
         /// <summary>
+        /// Number of total output channels.
+        /// </summary>
+        public override int ChannelCount => outputs.Count;
+
+        /// <summary>
+        /// Content length in samples for a single channel.
+        /// </summary>
+        public override long Length => throw new RealtimeLengthException();
+
+        /// <summary>
         /// Content sample rate.
         /// </summary>
-        public int SampleRate => header.SampleRate;
+        public override int SampleRate => header.SampleRate;
 
         /// <summary>
         /// Samples in each decoded frame
@@ -28,6 +39,11 @@ namespace Cavern.Format.Decoders {
         readonly EnhancedAC3Header header = new EnhancedAC3Header();
 
         /// <summary>
+        /// Rendered samples for each channel.
+        /// </summary>
+        readonly Dictionary<ReferenceChannel, float[]> outputs = new Dictionary<ReferenceChannel, float[]>();
+
+        /// <summary>
         /// Auxillary metadata parsed for the last decoded frame.
         /// </summary>
         internal ExtensibleMetadataDecoder Extensions { get; private set; } = new ExtensibleMetadataDecoder();
@@ -38,11 +54,6 @@ namespace Cavern.Format.Decoders {
         BitExtractor extractor;
 
         /// <summary>
-        /// Rendered samples for each channel.
-        /// </summary>
-        Dictionary<ReferenceChannel, float[]> outputs = new Dictionary<ReferenceChannel, float[]>();
-
-        /// <summary>
         /// Reusable output sample array.
         /// </summary>
         float[] outCache = new float[0];
@@ -51,6 +62,15 @@ namespace Cavern.Format.Decoders {
         /// Converts an Enhanced AC-3 bitstream to raw samples.
         /// </summary>
         public EnhancedAC3Decoder(BlockBuffer<byte> reader) : base(reader) { }
+
+        /// <summary>
+        /// Get the bed channels.
+        /// </summary>
+        public ReferenceChannel[] GetChannels() {
+            ReferenceChannel[] result = new ReferenceChannel[outputs.Count];
+            outputs.Keys.CopyTo(result, 0);
+            return result;
+        }
 
         /// <summary>
         /// Decode a new frame if the cached samples are already fetched.

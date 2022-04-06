@@ -62,8 +62,8 @@ namespace Cavern.Format.InOut {
             new ReferenceChannel[] { ReferenceChannel.ScreenLFE },
             new ReferenceChannel[] { ReferenceChannel.ScreenLFE },
             new ReferenceChannel[] { ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight },
-            new ReferenceChannel[] { ReferenceChannel.Unused }, // front height center
-            new ReferenceChannel[] { ReferenceChannel.Unused, ReferenceChannel.Unused }, // front height LR
+            new ReferenceChannel[] { ReferenceChannel.TopFrontCenter },
+            new ReferenceChannel[] { ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight },
             new ReferenceChannel[] { ReferenceChannel.WideLeft, ReferenceChannel.WideRight },
             new ReferenceChannel[] { ReferenceChannel.SideLeft, ReferenceChannel.SideRight },
             new ReferenceChannel[] { ReferenceChannel.GodsVoice },

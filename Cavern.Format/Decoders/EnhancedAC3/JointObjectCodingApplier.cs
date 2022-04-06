@@ -44,7 +44,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         float[][][][] mixMatrix;
 
         /// <summary>
-        /// Next timeslot to read in the <see cref="current"/> JOC.
+        /// Next timeslot to read in the current JOC.
         /// </summary>
         int timeslot;
 

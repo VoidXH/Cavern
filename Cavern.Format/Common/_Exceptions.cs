@@ -50,6 +50,18 @@ namespace Cavern.Format.Common {
     }
 
     /// <summary>
+    /// Tells that a decoder which can process an infinite stream is not able to return content length.
+    /// </summary>
+    public class RealtimeLengthException : Exception {
+        const string message = "This is an infinite decoder. Content lenth is not readable from the bitstream.";
+
+        /// <summary>
+        /// Tells that a decoder which can process an infinite stream is not able to return content length.
+        /// </summary>
+        public RealtimeLengthException() : base(message) { }
+    }
+
+    /// <summary>
     /// Tells if a decoded value is reserved. This could mark a transport error.
     /// </summary>
     public class ReservedValueException : Exception {

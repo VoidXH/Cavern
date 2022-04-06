@@ -222,6 +222,11 @@ namespace Cavern {
         }
 
         /// <summary>
+        /// Detach all sources from this listener.
+        /// </summary>
+        public void DetachAllSources() => activeSources.Clear();
+
+        /// <summary>
         /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
         /// </summary>
         /// <param name="loadGlobals">Load the global settings for all listeners. This should be false for listeners created

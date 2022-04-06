@@ -2,6 +2,7 @@
 using System.IO;
 
 using Cavern.Format.Common;
+using Cavern.Format.Renderers;
 
 namespace Cavern.Format {
     /// <summary>
@@ -197,6 +198,13 @@ namespace Cavern.Format {
                     copiedSamples = 0;
                 from += toProcess;
             }
+        }
+
+        /// <summary>
+        /// Get an object-based renderer for this audio file.
+        /// </summary>
+        public override Renderer GetRenderer() {
+            throw new NotImplementedException();
         }
     }
 }

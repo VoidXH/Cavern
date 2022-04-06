@@ -15,6 +15,27 @@ namespace Cavern.Format.Decoders {
         public DTSCoherentAcousticsDecoder(BlockBuffer<byte> reader) : base(reader) { }
 
         /// <summary>
+        /// Content channel count.
+        /// </summary>
+        public override int ChannelCount => channels.Length + 1;
+
+        /// <summary>
+        /// Content length in samples for a single channel.
+        /// </summary>
+        public override long Length => throw new RealtimeLengthException();
+
+        /// <summary>
+        /// Bitstream sample rate.
+        /// </summary>
+        public override int SampleRate => sampleRate;
+        int sampleRate;
+
+        /// <summary>
+        /// Main channel layout, without LFE.
+        /// </summary>
+        ChannelPrototype[] channels;
+
+        /// <summary>
         /// Decode a new frame if the cached samples are already fetched.
         /// </summary>
         protected override float[] DecodeFrame() {
@@ -46,11 +67,11 @@ namespace Cavern.Format.Decoders {
             int channelArrangement = extractor.Read(6);
             if (channelArrangement >= coreChannelArrangements.Length)
                 throw new ArgumentOutOfRangeException("channel layout");
-            ChannelPrototype[] channels = ChannelPrototype.Get(coreChannelArrangements[channelArrangement]);
+            channels = ChannelPrototype.Get(coreChannelArrangements[channelArrangement]);
             if (channels.Length > 5)
                 throw new UnsupportedFeatureException(">5.1 core"); // This would require splitting the frames between channels
 
-            ushort sampleRate = sampleRates[extractor.Read(4)];
+            sampleRate = sampleRates[extractor.Read(4)];
             if (sampleRate == 0)
                 throw new ArgumentOutOfRangeException("sample rate");
 

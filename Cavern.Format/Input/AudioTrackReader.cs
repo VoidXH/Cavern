@@ -15,7 +15,7 @@ namespace Cavern.Format {
         readonly ContainerReader source;
 
         /// <summary>
-        /// Not the unique <see cref="Track.ID"/>, but its position in <see cref="source.Tracks"/>.
+        /// Not the unique <see cref="Track.ID"/>, but its position in the <see cref="source"/>'s list of tracks.
         /// </summary>
         readonly int track;
 
@@ -76,7 +76,7 @@ namespace Cavern.Format {
                     break;
                 case Codec.PCM_LE:
                 case Codec.PCM_Float:
-                    decoder = new RIFFWaveDecoder(new BlockBuffer<byte>(ReadNextBlock), Bits);
+                    decoder = new RIFFWaveDecoder(new BlockBuffer<byte>(ReadNextBlock), ChannelCount, Length, SampleRate, Bits);
                     break;
                 default:
                     throw new UnsupportedCodecException(true, selected.Format);
@@ -86,7 +86,11 @@ namespace Cavern.Format {
         /// <summary>
         /// If the stream can be rendered in 3D by Cavern, return a renderer.
         /// </summary>
-        public Renderer GetRenderer() {
+        public override Renderer GetRenderer() {
+            if (decoder == null)
+                ReadHeader();
+            if (decoder is RIFFWaveDecoder wav)
+                return new RIFFWaveRenderer(wav);
             if (decoder is EnhancedAC3Decoder eac3)
                 return new EnhancedAC3Renderer(eac3);
             return null;
@@ -98,7 +102,8 @@ namespace Cavern.Format {
         /// <param name="samples">Input array</param>
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
-        /// <remarks>The next to - from samples will be read from the file. Samples are counted for all channels.</remarks>
+        /// <remarks>The next to - from samples will be read from the file.
+        /// All samples are counted, not just a single channel.</remarks>
         public override void ReadBlock(float[] samples, long from, long to) => decoder.DecodeBlock(samples, from, to - from);
 
         /// <summary>

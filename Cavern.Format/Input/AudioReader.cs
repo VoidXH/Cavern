@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Renderers;
+using Cavern.Remapping;
+
 namespace Cavern.Format {
     /// <summary>
     /// Abstract audio file reader.
@@ -42,6 +45,11 @@ namespace Cavern.Format {
         /// </summary>
         /// <param name="path">Input file name</param>
         public AudioReader(string path) => reader = new BinaryReader(File.OpenRead(path));
+
+        /// <summary>
+        /// Get an object-based renderer for this audio file.
+        /// </summary>
+        public abstract Renderer GetRenderer();
 
         /// <summary>
         /// Read the file header.
