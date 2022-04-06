@@ -61,7 +61,8 @@ namespace CavernizeGUI {
             ffmpeg = new(render, status, Settings.Default.ffmpegLocation);
             listener = new() { // Create a listener, which triggers the loading of saved environment settings
                 UpdateRate = 64,
-                AudioQuality = QualityModes.Perfect
+                AudioQuality = QualityModes.Perfect,
+                LFESeparation = true
             };
             layout.Text = "Cavern driver set to: " + Listener.GetLayoutName();
             renderTarget.ItemsSource = RenderTarget.Targets;
@@ -132,10 +133,6 @@ namespace CavernizeGUI {
                 trackInfo.Text = ((Track)tracks.SelectedItem).Details;
         }
 
-        void RenderTask() {
-            // TODO: move Cavernize from Unity to Cavern and do this
-        }
-
         /// <summary>
         /// Prompt the user to select FFmpeg's installation folder.
         /// </summary>
@@ -145,7 +142,54 @@ namespace CavernizeGUI {
         /// Start the rendering process.
         /// </summary>
         void Render(object _, RoutedEventArgs e) {
-            taskEngine.Run(RenderTask);
+            if (tracks.SelectedItem == null) {
+                Error("Please load a source file for rendering.");
+                return;
+            }
+            Track target = (Track)tracks.SelectedItem;
+            if (!target.Supported) {
+                Error("The selected track is not supported for rendering.");
+                return;
+            }
+            target.Attach(listener);
+            taskEngine.Run(() => RenderTask(target));
         }
+
+        /// <summary>
+        /// The running render process.
+        /// </summary>
+        // TODO: temporarily use an external WAV source
+        void RenderTask(Track target) {
+            taskEngine.UpdateStatus("Starting render...");
+            taskEngine.UpdateProgressBar(0);
+            const long updateInterval = 10000;
+            long rendered = 0;
+            long untilUpdate = updateInterval;
+            double samplesToProgress = 1.0 / target.Length;
+            double samplesToSeconds = 1.0 / listener.SampleRate;
+            DateTime start = DateTime.Now;
+
+            while (rendered < target.Length) {
+                float[] result = listener.Render();
+                // TODO: save to file if set, cut last samples on overflow
+                rendered += listener.UpdateRate;
+
+                if ((untilUpdate -= listener.UpdateRate) <= 0) {
+                    double progress = rendered * samplesToProgress;
+                    double performance = rendered * samplesToSeconds / (DateTime.Now - start).TotalSeconds;
+                    taskEngine.UpdateStatusLazy($"Rendering... ({progress:0.00%}, {performance:0.00}x real-time)");
+                    taskEngine.UpdateProgressBar(progress);
+                }
+            }
+
+            taskEngine.UpdateStatus("Finished!");
+            taskEngine.UpdateProgressBar(1);
+        }
+
+        /// <summary>
+        /// Displays an error message.
+        /// </summary>
+        /// <param name="error"></param>
+        static void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 }

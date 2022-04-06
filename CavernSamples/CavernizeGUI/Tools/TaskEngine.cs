@@ -46,7 +46,8 @@ namespace VoidX.WPF {
         }
 
         /// <summary>
-        /// Set the status text label, if it's given. The label is only updated if the last update was <see cref="lazyStatusDelta"/> ago.
+        /// Set the status text label, if it's given. The label is only updated if
+        /// the last update was <see cref="lazyStatusDelta"/> ago.
         /// </summary>
         public void UpdateStatusLazy(string text) {
             DateTime now = DateTime.Now;
@@ -64,6 +65,8 @@ namespace VoidX.WPF {
                 MessageBox.Show("Another operation is already running.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
+            if (operation != null)
+                operation.Dispose();
             operation = new Task(task);
             operation.Start();
             return true;

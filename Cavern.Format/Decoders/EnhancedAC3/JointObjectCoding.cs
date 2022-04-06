@@ -7,6 +7,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// </summary>
     partial class JointObjectCoding {
         /// <summary>
+        /// The object is active and will have rendered audio data.
+        /// </summary>
+        // TODO: mute inactive objects
+        public bool[] ObjectActive = new bool[0];
+
+        /// <summary>
         /// Number of full bandwidth input channels.
         /// </summary>
         public int ChannelCount { get; private set; }
@@ -40,7 +46,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             joc_clipgain_y_bits = extractor.Read(5);
             joc_seq_count_bits = extractor.Read(10);
             for (int obj = 0; obj < ObjectCount; ++obj) {
-                if (objectActive[obj] = extractor.ReadBit()) {
+                if (ObjectActive[obj] = extractor.ReadBit()) {
                     joc_num_bands[obj] = JointObjectCodingTables.joc_num_bands[extractor.Read(3)];
                     b_joc_sparse[obj] = extractor.ReadBit();
                     joc_num_quant_idx[obj] = extractor.ReadBit();
@@ -57,7 +63,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
         void DecodeData(BitExtractor extractor) {
             for (int obj = 0; obj < ObjectCount; ++obj) {
-                if (objectActive[obj]) {
+                if (ObjectActive[obj]) {
                     for (int dp = 0; dp < dataPoints[obj]; ++dp) {
                         int[][] joc_huff_code;
                         if (b_joc_sparse[obj]) {

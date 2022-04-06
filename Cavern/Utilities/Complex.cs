@@ -83,6 +83,11 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// True if the number is 0 + 0i.
+        /// </summary>
+        public bool IsZero() => Real == 0 && Imaginary == 0;
+
+        /// <summary>
         /// Get the complex logarithm of a real number.
         /// </summary>
         public static Complex Log(float x) => new Complex(MathF.Log(Math.Abs(x)), x >= 0 ? 0 : 1.36437635f);

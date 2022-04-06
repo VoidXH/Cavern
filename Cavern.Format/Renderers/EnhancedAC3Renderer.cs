@@ -18,7 +18,7 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// The stream is object-based.
         /// </summary>
-        public bool HasObjects { get; }
+        public bool HasObjects { get; private set; }
 
         /// <summary>
         /// Count of free-floating objects.
@@ -83,6 +83,7 @@ namespace Cavern.Format.Renderers {
                     };
                     objects.Add(source);
                 }
+                finalResult = new float[channels.Length][];
                 FinishSetup(channels.Length);
             }
         }
@@ -103,45 +104,38 @@ namespace Cavern.Format.Renderers {
                 lfeResult = new float[samples];
             }
 
-            // Object-based rendering
-            if (HasObjects) {
-                int pointer = 0;
-                while (pointer < samples) {
-                    if (timeslotPosition == 0)
-                        RenderNextTimeslot();
-                    int next = Math.Min(samples - pointer, QuadratureMirrorFilterBank.subbands - timeslotPosition);
-                    for (int obj = 0; obj < finalResult.Length; ++obj)
-                        for (int i = 0; i < next; ++i)
-                            finalResult[obj][pointer + i] = timeslotResult[obj][timeslotPosition + i];
+            int pointer = 0;
+            while (pointer < samples) {
+                if (timeslotPosition == 0)
+                    RenderNextTimeslot();
+                int next = Math.Min(samples - pointer, QuadratureMirrorFilterBank.subbands - timeslotPosition);
+                for (int obj = 0; obj < finalResult.Length; ++obj)
                     for (int i = 0; i < next; ++i)
-                        lfeResult[pointer + i] = lfeTimeslot[timeslotPosition + i];
-                    pointer += next;
-                    timeslotPosition += next;
-                    if (timeslotPosition == QuadratureMirrorFilterBank.subbands)
-                        timeslotPosition = 0;
-                }
-
-                int lfe = ((EnhancedAC3Decoder)stream).Extensions.OAMD.GetLFEPosition();
-                if (lfe != -1) {
-                    for (int obj = 0; obj < lfe; ++obj)
-                        objectSamples[obj] = finalResult[obj];
-                    ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
-                    for (int i = 0; i < matrix.Length; ++i) {
-                        if (matrix[i] == ReferenceChannel.ScreenLFE) {
-                            objectSamples[lfe] = lfeResult;
-                            break;
-                        }
-                    }
-                    for (int obj = lfe + 1; obj < objectSamples.Length; ++obj)
-                        objectSamples[obj] = finalResult[obj - 1];
-                } else
-                    for (int obj = 0; obj < objectSamples.Length; ++obj)
-                        objectSamples[obj] = finalResult[obj];
+                        finalResult[obj][pointer + i] = timeslotResult[obj][timeslotPosition + i];
+                for (int i = 0; i < next; ++i)
+                    lfeResult[pointer + i] = lfeTimeslot[timeslotPosition + i];
+                pointer += next;
+                timeslotPosition += next;
+                if (timeslotPosition == QuadratureMirrorFilterBank.subbands)
+                    timeslotPosition = 0;
             }
-            // Channel-based rendering
-            else
+
+            int lfe = ((EnhancedAC3Decoder)stream).Extensions.OAMD.GetLFEPosition();
+            if (lfe != -1) {
+                for (int obj = 0; obj < lfe; ++obj)
+                    objectSamples[obj] = finalResult[obj];
+                ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
+                for (int i = 0; i < matrix.Length; ++i) {
+                    if (matrix[i] == ReferenceChannel.ScreenLFE) {
+                        objectSamples[lfe] = lfeResult;
+                        break;
+                    }
+                }
+                for (int obj = lfe + 1; obj < objectSamples.Length; ++obj)
+                    objectSamples[obj] = finalResult[obj - 1];
+            } else
                 for (int obj = 0; obj < objectSamples.Length; ++obj)
-                    Array.Clear(objectSamples[obj] = finalResult[obj], 0, samples);
+                    objectSamples[obj] = finalResult[obj];
         }
 
         /// <summary>
@@ -155,9 +149,9 @@ namespace Cavern.Format.Renderers {
             float[][] grouped = WaveformUtils.InterlacedToMultichannel(input, stream.ChannelCount);
 
             ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
+            EnhancedAC3Decoder decoder = (EnhancedAC3Decoder)stream;
             // Object-based rendering
-            if (HasObjects) {
-                EnhancedAC3Decoder decoder = (EnhancedAC3Decoder)stream;
+            if (HasObjects = decoder.Extensions.HasObjects) {
                 decoder.Extensions.OAMD.UpdateSources(decoder.LastFetchStart, objects, lastHoldPos);
 
                 float[][] sources = new float[JointObjectCodingTables.inputMatrix.Length][];
@@ -180,10 +174,11 @@ namespace Cavern.Format.Renderers {
             else {
                 for (int i = 0; i < matrix.Length; ++i) {
                     timeslotResult[i] = grouped[i];
-                    ChannelPrototype prototype = ChannelPrototype.Mapping[(int)matrix[i]];
-                    objects[i].Mute = false;
-                    objects[i].Position = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube() * Listener.EnvironmentSize;
-                    objects[i].LFE = prototype.LFE;
+                    objects[i].Position = channelPositions[(int)matrix[i]] * Listener.EnvironmentSize;
+                    if (ChannelPrototype.Mapping[(int)matrix[i]].LFE) { // LFE is handled elsewhere
+                        objects[i].Position = default;
+                        Array.Clear(timeslotResult[i], 0, timeslotResult[i].Length);
+                    }
                 }
                 for (int i = matrix.Length; i < timeslotResult.Length; ++i) {
                     objects[i].Position = default;

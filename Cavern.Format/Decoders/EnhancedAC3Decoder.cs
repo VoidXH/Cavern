@@ -14,6 +14,11 @@ namespace Cavern.Format.Decoders {
     /// </summary>
     public partial class EnhancedAC3Decoder : FrameBasedDecoder {
         /// <summary>
+        /// True if the stream has reached its end.
+        /// </summary>
+        public bool Finished { get; private set; }
+
+        /// <summary>
         /// Number of total output channels.
         /// </summary>
         public override int ChannelCount => outputs.Count;
@@ -80,6 +85,11 @@ namespace Cavern.Format.Decoders {
                 ReadHeader();
 
             do {
+                if (Finished) {
+                    Array.Clear(outCache, 0, outCache.Length);
+                    return outCache;
+                }
+
                 // Create or reuse per-channel outputs
                 for (int i = 0; i < channels.Length; ++i) {
                     if (outputs.ContainsKey(channels[i]) && outputs[channels[i]].Length == FrameSize)
@@ -115,10 +125,13 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         /// <remarks>This decoder has to read the beginning of the next frame to know if it's a beginning.</remarks>
         void ReadHeader() {
-            extractor = header.Decode(reader);
-            channels = header.GetChannelArrangement();
-            CreateCacheTables(header.Blocks, channels.Length);
-            AudioFrame();
+            if (reader.Readable) {
+                extractor = header.Decode(reader);
+                channels = header.GetChannelArrangement();
+                CreateCacheTables(header.Blocks, channels.Length);
+                AudioFrame();
+            } else
+                Finished = true;
         }
     }
 }

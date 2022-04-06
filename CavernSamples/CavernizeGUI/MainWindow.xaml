@@ -14,28 +14,28 @@
                 <TextBlock x:Name="layout" HorizontalAlignment="Left" Margin="10,10,0,0" Text="Cavern driver set to: 5.1" TextWrapping="Wrap" VerticalAlignment="Top"/>
                 <TextBlock HorizontalAlignment="Left" Margin="10,34,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
                 <ComboBox x:Name="renderTarget" Margin="94,31,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
-                <Canvas Margin="10,58,10,10">
-                    <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="20" Stroke="Black"/>
-                    <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="50"/>
-                    <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="50"/>
-                    <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="50"/>
-                    <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="25"/>
-                    <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="25"/>
-                    <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="25"/>
-                    <Line X1="46" Y1="20" X2="14" Y2="93" Stroke="Gray"/>
-                    <Line X1="122" Y1="20" X2="154" Y2="93" Stroke="Gray"/>
-                    <Line X1="46" Y1="70" X2="14" Y2="178" Stroke="Gray"/>
-                    <Line X1="122" Y1="70" X2="154" Y2="178" Stroke="Gray"/>
-                    <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="60"/>
-                    <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="60"/>
-                    <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="111"/>
-                    <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="111"/>
-                    <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="82"/>
-                    <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="77"/>
-                    <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="82"/>
-                    <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="93" Stroke="Gray"/>
-                    <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="138"/>
-                    <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="138"/>
+                <Canvas Margin="10,58,10,0" Height="160" VerticalAlignment="Top">
+                    <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="Black"/>
+                    <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
+                    <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
+                    <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="30"/>
+                    <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="5"/>
+                    <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="5"/>
+                    <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="5"/>
+                    <Line X1="46" Y1="0" X2="14" Y2="73" Stroke="Gray"/>
+                    <Line X1="122" Y1="0" X2="154" Y2="73" Stroke="Gray"/>
+                    <Line X1="46" Y1="50" X2="14" Y2="158" Stroke="Gray"/>
+                    <Line X1="122" Y1="50" X2="154" Y2="158" Stroke="Gray"/>
+                    <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="40"/>
+                    <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="40"/>
+                    <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="91"/>
+                    <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="91"/>
+                    <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
+                    <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="57"/>
+                    <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
+                    <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
+                    <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
+                    <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
                 </Canvas>
             </Grid>
         </GroupBox>
@@ -53,7 +53,7 @@
         <Button Content="Locate FFmpeg" Margin="0,0,85,30" HorizontalAlignment="Right" Width="120" Height="20" VerticalAlignment="Bottom" Click="LocateFFmpeg"/>
         <Button x:Name="render" Content="Render" Margin="0,0,10,30" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70" Click="Render"/>
         <StatusBar Height="25" VerticalAlignment="Bottom" Padding="10,0,0,0">
-            <ProgressBar x:Name="progress" Height="10" Width="100"/>
+            <ProgressBar x:Name="progress" Height="10" Width="100" Maximum="1"/>
             <TextBlock x:Name="status" Text="" TextWrapping="Wrap"/>
         </StatusBar>
         <TextBlock HorizontalAlignment="Left" Margin="10,0,0,32" TextWrapping="Wrap" Text="Rendering mode:" Height="16" VerticalAlignment="Bottom"/>

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Threading;
 
 using Cavern.Utilities;
 
@@ -76,8 +76,37 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public float[][] Apply(float[][] input, JointObjectCoding actual) {
             if (timeslot == 0)
                 mixMatrix = actual.GetMixingMatrices(frameSize);
-            Parallel.For(0, actual.ChannelCount, ch => results[ch] = converters[ch].ProcessForward(input[ch]));
-            Parallel.For(0, objects, obj => ProcessObject(actual.ChannelCount, obj, mixMatrix[obj][timeslot]));
+
+            // Forward transformations
+            int runs = actual.ChannelCount;
+            using (ManualResetEvent reset = new ManualResetEvent(false)) {
+                for (int ch = 0; ch < actual.ChannelCount; ++ch) {
+                    ThreadPool.QueueUserWorkItem(
+                       new WaitCallback(channel => {
+                           int ch = (int)channel;
+                           results[ch] = converters[ch].ProcessForward(input[ch]);
+                           if (Interlocked.Decrement(ref runs) == 0)
+                               reset.Set();
+                       }), ch);
+                }
+                reset.WaitOne();
+            }
+
+            // Inverse transformations
+            runs = objects;
+            using (ManualResetEvent reset = new ManualResetEvent(false)) {
+                for (int obj = 0; obj < objects; ++obj) {
+                    ThreadPool.QueueUserWorkItem(
+                       new WaitCallback(objectId => {
+                           int obj = (int)objectId;
+                           ProcessObject(actual, obj, mixMatrix[obj][timeslot]);
+                           if (Interlocked.Decrement(ref runs) == 0)
+                               reset.Set();
+                       }), obj);
+                }
+                reset.WaitOne();
+            }
+
             if (++timeslot == input.Length)
                 timeslot = 0;
             return timeslotCache;
@@ -86,12 +115,20 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Mixes channel-based samples by a matrix to the objects.
         /// </summary>
-        void ProcessObject(int channels, int obj, float[][] mixMatrix) {
-            Array.Clear(qmfbCache[obj], 0, QuadratureMirrorFilterBank.subbands);
-            for (int ch = 0; ch < channels; ++ch)
-                for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
-                    qmfbCache[obj][sb] += results[ch][sb] * mixMatrix[ch][sb];
-            converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
+        void ProcessObject(JointObjectCoding joc, int obj, float[][] mixMatrix) {
+            if (joc.ObjectActive[obj]) {
+                Array.Clear(qmfbCache[obj], 0, QuadratureMirrorFilterBank.subbands);
+                for (int ch = 0; ch < joc.ChannelCount; ++ch)
+                    for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
+                        qmfbCache[obj][sb] += results[ch][sb] * mixMatrix[ch][sb];
+                for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                    if (!qmfbCache[obj][sb].IsZero()) { // Only render when there's anything to render
+                        converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
+                        return;
+                    }
+                }
+            }
+            Array.Clear(timeslotCache[obj], 0, QuadratureMirrorFilterBank.subbands);
         }
     }
 }

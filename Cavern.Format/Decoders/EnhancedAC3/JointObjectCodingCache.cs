@@ -12,11 +12,6 @@
         readonly float[][][] prevMatrix;
 
         /// <summary>
-        /// The object is active and will have rendered audio data.
-        /// </summary>
-        bool[] objectActive = new bool[0]; // TODO: mute inactive objects
-
-        /// <summary>
         /// Number of processed bands of each object.
         /// </summary>
         byte[] joc_num_bands;
@@ -53,10 +48,10 @@
         /// Checks if the cache is ready for the given number of objects and channels, and fixes if it's not.
         /// </summary>
         public void UpdateCache() {
-            if (objectActive.Length == ObjectCount && joc_mtx[0][0].Length == ChannelCount)
+            if (ObjectActive.Length == ObjectCount && joc_mtx[0][0].Length == ChannelCount)
                 return;
 
-            objectActive = new bool[ObjectCount];
+            ObjectActive = new bool[ObjectCount];
             joc_num_bands = new byte[ObjectCount];
             b_joc_sparse = new bool[ObjectCount];
             joc_num_quant_idx = new bool[ObjectCount];

@@ -7,6 +7,11 @@ namespace Cavern.Format.Utilities {
     /// </summary>
     public sealed class BlockBuffer<T> {
         /// <summary>
+        /// True if there's more data to read.
+        /// </summary>
+        public bool Readable => LastFetch != null;
+
+        /// <summary>
         /// Indicates that the <see cref="LastFetch"/> was not yet read from.
         /// </summary>
         public bool FreshFetch => lastFetchPosition == 0;
@@ -59,6 +64,8 @@ namespace Cavern.Format.Utilities {
             LastFetchStart = lastFetchPosition;
             if (result.Length != elements)
                 result = new T[elements];
+            if (LastFetch == null)
+                return null;
             int pointer = 0;
             while (pointer < elements) {
                 int next = Math.Min(elements - pointer, LastFetch.Length - lastFetchPosition);

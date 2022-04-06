@@ -1,4 +1,5 @@
-﻿using Cavern.Format;
+﻿using Cavern;
+using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
@@ -16,6 +17,11 @@ namespace CavernizeGUI {
         public bool Supported { get; }
 
         /// <summary>
+        /// Number of samples to render by the <see cref="Listener"/> to reach the end of the stream.
+        /// </summary>
+        public long Length { get; }
+
+        /// <summary>
         /// Text to display about this track.
         /// </summary>
         public string Details { get; private set; }
@@ -31,6 +37,11 @@ namespace CavernizeGUI {
         readonly Codec codec;
 
         /// <summary>
+        /// The renderer starting at the first sample of the track after construction.
+        /// </summary>
+        readonly Renderer renderer;
+
+        /// <summary>
         /// Language code.
         /// </summary>
         readonly string language;
@@ -44,7 +55,8 @@ namespace CavernizeGUI {
             this.language = language;
 
             StringBuilder builder = new();
-            Renderer renderer = reader.GetRenderer();
+            renderer = reader.GetRenderer();
+            Length = reader.Length;
             Supported = renderer != null;
             if (!Supported)
                 builder.AppendLine("Format unsupported by Cavern");
@@ -67,6 +79,15 @@ namespace CavernizeGUI {
             builder.Append("Length: ").AppendLine(TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString());
             builder.Append("Sample rate: ").Append(reader.SampleRate).AppendLine("Hz");
             Details = builder.ToString();
+        }
+
+        /// <summary>
+        /// Attach this track to a rendering environment.
+        /// </summary>
+        public void Attach(Listener listener) {
+            listener.SampleRate = reader.SampleRate;
+            for (int i = 0; i < renderer.Objects.Count; ++i)
+                listener.AttachSource(renderer.Objects[i]);
         }
 
         /// <summary>
