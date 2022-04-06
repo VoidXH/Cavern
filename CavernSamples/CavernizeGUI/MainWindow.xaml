@@ -5,21 +5,59 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CavernizeGUI"
         mc:Ignorable="d"
-        Title="CavernizeGUI" Height="400" Width="800">
+        Title="Cavernize" Height="400" Width="600">
     <Grid>
         <Button Content="Open file" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="80" Click="OpenFile"/>
-        <TextBlock x:Name="fileName" HorizontalAlignment="Left" Margin="95,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MaxWidth="210"/>
-        <Button Content="Set save path" HorizontalAlignment="Left" Margin="310,10,0,0" VerticalAlignment="Top" Width="80"/>
-        <TextBlock x:Name="savePath" HorizontalAlignment="Left" Margin="395,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <GroupBox Header="Rendering settings" Margin="10,35,0,30" HorizontalAlignment="Left" Width="300">
+        <TextBlock x:Name="fileName" HorizontalAlignment="Left" Margin="95,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <GroupBox Header="Rendering settings" Margin="10,35,0,55" HorizontalAlignment="Left" Width="200">
             <Grid>
-                <TextBlock x:Name="layout" HorizontalAlignment="Left" Margin="10,10,0,0" Text="Loaded layout: 5.1.2" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="layout" HorizontalAlignment="Left" Margin="10,10,0,0" Text="Cavern driver set to: 5.1" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock HorizontalAlignment="Left" Margin="10,34,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
+                <ComboBox x:Name="renderTarget" Margin="94,31,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
+                <Canvas Margin="10,58,10,10">
+                    <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="20" Stroke="Black"/>
+                    <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="50"/>
+                    <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="50"/>
+                    <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="50"/>
+                    <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="25"/>
+                    <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="25"/>
+                    <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="25"/>
+                    <Line X1="46" Y1="20" X2="14" Y2="93" Stroke="Gray"/>
+                    <Line X1="122" Y1="20" X2="154" Y2="93" Stroke="Gray"/>
+                    <Line X1="46" Y1="70" X2="14" Y2="178" Stroke="Gray"/>
+                    <Line X1="122" Y1="70" X2="154" Y2="178" Stroke="Gray"/>
+                    <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="60"/>
+                    <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="60"/>
+                    <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="111"/>
+                    <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="111"/>
+                    <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="82"/>
+                    <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="77"/>
+                    <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="82"/>
+                    <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="93" Stroke="Gray"/>
+                    <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="138"/>
+                    <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="138"/>
+                </Canvas>
             </Grid>
         </GroupBox>
-        <Button Content="Render" Margin="0,0,10,30" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70" Click="Render"/>
-        <StatusBar Height="25" VerticalAlignment="Bottom">
+        <GroupBox Header="Track selection" Margin="215,35,10,0" Height="175" VerticalAlignment="Top">
+            <Grid>
+                <ComboBox x:Name="tracks" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" SelectionChanged="OnTrackSelected"/>
+                <TextBlock x:Name="trackInfo" Margin="10,37,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Post-render report" Margin="215,215,10,55">
+            <Grid>
+                <TextBlock x:Name="report" Margin="10,10,10,0" Text="After rendering has finished, more track information will appear here, like true object usage statistics." TextWrapping="Wrap" VerticalAlignment="Top"/>
+            </Grid>
+        </GroupBox>
+        <Button Content="Locate FFmpeg" Margin="0,0,85,30" HorizontalAlignment="Right" Width="120" Height="20" VerticalAlignment="Bottom" Click="LocateFFmpeg"/>
+        <Button x:Name="render" Content="Render" Margin="0,0,10,30" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70" Click="Render"/>
+        <StatusBar Height="25" VerticalAlignment="Bottom" Padding="10,0,0,0">
             <ProgressBar x:Name="progress" Height="10" Width="100"/>
             <TextBlock x:Name="status" Text="" TextWrapping="Wrap"/>
         </StatusBar>
+        <TextBlock HorizontalAlignment="Left" Margin="10,0,0,32" TextWrapping="Wrap" Text="Rendering mode:" Height="16" VerticalAlignment="Bottom"/>
+        <RadioButton x:Name="renderOnly" Content="Report generation only" HorizontalAlignment="Left" Margin="106,0,0,32" Height="15" VerticalAlignment="Bottom"/>
+        <RadioButton x:Name="renderToFile" Content="Export to file" HorizontalAlignment="Left" Margin="252,0,0,32" Height="15" VerticalAlignment="Bottom" IsChecked="True"/>
     </Grid>
 </Window>

@@ -10,9 +10,10 @@ namespace VoidX.WPF {
     public class TaskEngine {
         static readonly TimeSpan lazyStatusDelta = new TimeSpan(0, 0, 1);
 
+        readonly ProgressBar progressBar;
+        readonly TextBlock progressLabel;
+
         Task operation;
-        ProgressBar progressBar;
-        TextBlock progressLabel;
         DateTime lastLazyStatus = DateTime.MinValue;
 
         /// <summary>
