@@ -28,7 +28,7 @@ namespace Cavern.Utilities {
         public RenderStats(Listener listener) => this.listener = listener;
 
         /// <summary>
-        /// Combines <see cref="GetSemiStaticPositions"/> and <see cref="GetStaticPositions"/>.
+        /// Gets positions where any static or semi-static source was located.
         /// </summary>
         public Vector3[] GetStaticOrSemiStaticPositions() =>
             stats.Where(x => x.Value.Static || x.Value.SemiStatic).Select(x => x.Value.LastPosition).Distinct().ToArray();
@@ -65,7 +65,7 @@ namespace Cavern.Utilities {
             /// <summary>
             /// The source has moved some positions, but less times than the <see cref="SemiStaticLimit"/>.
             /// </summary>
-            public bool SemiStatic => Positions.Count <= SemiStaticLimit;
+            public bool SemiStatic => Positions.Count < SemiStaticLimit;
 
             /// <summary>
             /// False if the source was ever moved from its position.
@@ -94,7 +94,7 @@ namespace Cavern.Utilities {
                         else
                             SuperStatic = false;
                         lastPosition = value;
-                        if (Positions.Count < SemiStaticLimit)
+                        if (Positions.Count <= SemiStaticLimit)
                             Positions.Add(value);
                     }
                 }

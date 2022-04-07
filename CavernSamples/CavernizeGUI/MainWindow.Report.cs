@@ -25,11 +25,15 @@ namespace CavernizeGUI {
                 channels.Add(ReferenceChannel.ScreenLFE);
             channels.Sort();
 
+            int unused = total - dynamic - channels.Count;
+            if (unused < 0)
+                unused = 0;
+
             builder.Append("Actually present bed channels: ").Append(channels.Count);
             if (channels.Count != 0)
                 builder.Append(" (").Append(string.Join(", ", channels)).AppendLine(")");
             builder.Append("Actually present dynamic objects: ").AppendLine(dynamic.ToString())
-                .Append("Unused (fake) rendering targets: ").AppendLine((total - dynamic - channels.Count).ToString());
+                .Append("Unused (fake) rendering targets: ").AppendLine(unused.ToString());
             report.Dispatcher.Invoke(() => report.Text = builder.ToString());
         } 
     }
