@@ -17,7 +17,7 @@
         FrontRightCenter,
         HearingImpaired,
         VisuallyImpaired,
-        Unused,
+        Unknown,
         MotionData,
         ExternalData,
         TopFrontLeft,

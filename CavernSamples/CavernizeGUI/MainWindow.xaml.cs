@@ -8,6 +8,7 @@ using System.Windows.Shapes;
 
 using Cavern;
 using Cavern.Remapping;
+using Cavern.Utilities;
 using VoidX.WPF;
 
 using Path = System.IO.Path;
@@ -162,6 +163,7 @@ namespace CavernizeGUI {
         void RenderTask(Track target) {
             taskEngine.UpdateStatus("Starting render...");
             taskEngine.UpdateProgressBar(0);
+            RenderStats stats = new(listener);
             const long updateInterval = 10000;
             long rendered = 0;
             long untilUpdate = updateInterval;
@@ -171,6 +173,8 @@ namespace CavernizeGUI {
 
             while (rendered < target.Length) {
                 float[] result = listener.Render();
+                stats.Update();
+
                 // TODO: save to file if set, cut last samples on overflow
                 rendered += listener.UpdateRate;
 
@@ -182,6 +186,7 @@ namespace CavernizeGUI {
                 }
             }
 
+            UpdatePostRenderReport(stats);
             taskEngine.UpdateStatus("Finished!");
             taskEngine.UpdateProgressBar(1);
         }

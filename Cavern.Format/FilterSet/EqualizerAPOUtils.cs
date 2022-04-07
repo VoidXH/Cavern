@@ -26,7 +26,7 @@ namespace Cavern.Format.FilterSet {
             rearRight => ReferenceChannel.RearRight,
             sideLeft => ReferenceChannel.SideLeft,
             sideRight => ReferenceChannel.SideRight,
-            _ => ReferenceChannel.Unused,
+            _ => ReferenceChannel.Unknown,
         };
     }
 }

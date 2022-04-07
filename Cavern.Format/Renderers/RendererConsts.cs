@@ -23,7 +23,7 @@ namespace Cavern.Format.Renderers {
             new Vector3(.5f, 0, 1), // FrontRightCenter,
             new Vector3(0, 0, 1), // HearingImpaired,
             new Vector3(0, 0, 1), // VisuallyImpaired,
-            new Vector3(0, 0, 1), // Unused,
+            new Vector3(0, 0, 1), // Unknown,
             new Vector3(0, 0, 1), // MotionData,
             new Vector3(0, 0, 1), // ExternalData,
             new Vector3(-1, 1, 1), // TopFrontLeft,

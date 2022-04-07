@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CavernizeGUI"
         mc:Ignorable="d"
-        Title="Cavernize" Height="400" Width="600">
+        Title="Cavernize" Height="430" Width="600">
     <Grid>
         <Button Content="Open file" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="80" Click="OpenFile"/>
         <TextBlock x:Name="fileName" HorizontalAlignment="Left" Margin="95,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
@@ -14,7 +14,7 @@
                 <TextBlock x:Name="layout" HorizontalAlignment="Left" Margin="10,10,0,0" Text="Cavern driver set to: 5.1" TextWrapping="Wrap" VerticalAlignment="Top"/>
                 <TextBlock HorizontalAlignment="Left" Margin="10,34,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
                 <ComboBox x:Name="renderTarget" Margin="94,31,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
-                <Canvas Margin="10,58,10,0" Height="160" VerticalAlignment="Top">
+                <Canvas Margin="10,68,10,0" Height="160" VerticalAlignment="Top">
                     <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="Black"/>
                     <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
                     <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
