@@ -20,14 +20,19 @@ namespace CavernizeGUI {
                     if (scaled == Renderer.channelPositions[i])
                         return (ReferenceChannel)i;
                 return ReferenceChannel.Unknown;
-            }).ToList(); ;
-            if (listener.ActiveSources.Any(source => source.LFE))
+            }).ToList();
+
+            bool hasLFE = listener.ActiveSources.Any(source => source.LFE);
+            if (hasLFE)
                 channels.Add(ReferenceChannel.ScreenLFE);
             channels.Sort();
 
             int unused = total - dynamic - channels.Count;
-            if (unused < 0)
+            if (unused < 0) {
+                if (hasLFE)
+                    channels.Remove(ReferenceChannel.FrontCenter);
                 unused = 0;
+            }
 
             builder.Append("Actually present bed channels: ").Append(channels.Count);
             if (channels.Count != 0)
