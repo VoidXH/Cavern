@@ -14,8 +14,13 @@
         public const long syncWord2 = 0x20746D6645564157;
 
         /// <summary>
-        /// Data header marker.
+        /// Data header marker (big-endian).
         /// </summary>
-        public const int syncWord3 = 0x64617461;
+        public const int syncWord3BE = 0x64617461;
+
+        /// <summary>
+        /// Data header marker (little-endian).
+        /// </summary>
+        public const int syncWord3LE = 0x61746164;
     }
 }

@@ -51,7 +51,7 @@ namespace Cavern.Format {
             writer.Write(BitConverter.GetBytes((short)Bits)); // Bit depth
 
             // Data header
-            writer.Write(RIFFWaveUtils.syncWord3);
+            writer.Write(RIFFWaveUtils.syncWord3LE);
             writer.Write(BitConverter.GetBytes(dataLength)); // Data length
         }
 
