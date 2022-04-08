@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="CavLo">Cavern driver is set to {0}.</system:String>
+    <system:String x:Key="ImFmt">All supported formats|*.mkv;*.mka;*.wav;*.laf|Matroska (*.mkv, *.mka)|*.mkv;*.mka|RIFF
+        WAVE (*.wav)|*.wav|Limitless Audio Format (*.laf)|*.laf</system:String>
+    <system:String x:Key="LdSrc">Please load a source file with at least 1 supported track for rendering.</system:String>
+    <system:String x:Key="UnTrk">The selected track is not supported for rendering.</system:String>
+    <system:String x:Key="ExFmt">RIFF WAVE (*.wav)|*.wav|Limitless Audio Format (*.laf)|*.laf</system:String>
+    <system:String x:Key="UnExt">The file name had an unsupported extension.</system:String>
+</ResourceDictionary>

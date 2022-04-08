@@ -61,6 +61,22 @@ namespace Cavern.Format {
             this(new BinaryWriter(File.OpenWrite(path)), channelCount, length, sampleRate, bits) { }
 
         /// <summary>
+        /// Create an <see cref="AudioWriter"/> that matches the output file name.
+        /// </summary>
+        /// <remarks>When creating a .LAF file, the active environment's channels will be used.</remarks>
+        /// <param name="path">Output file name</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="length">Output length in samples per channel</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static AudioWriter Create(string path, int channelCount, long length, int sampleRate, BitDepth bits) =>
+            path[^3..] switch {
+                "laf" => new LimitlessAudioFormatWriter(path, length, sampleRate, bits, Listener.Channels),
+                "wav" => new RIFFWaveWriter(path, channelCount, length, sampleRate, bits),
+                _ => null,
+            };
+
+        /// <summary>
         /// Create the file header.
         /// </summary>
         public abstract void WriteHeader();

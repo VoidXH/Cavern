@@ -19,7 +19,12 @@ namespace CavernizeGUI {
         /// <summary>
         /// Number of samples to render by the <see cref="Listener"/> to reach the end of the stream.
         /// </summary>
-        public long Length { get; }
+        public long Length => reader.Length;
+
+        /// <summary>
+        /// Sampling rate of the track.
+        /// </summary>
+        public int SampleRate => reader.SampleRate;
 
         /// <summary>
         /// Text to display about this track.
@@ -56,7 +61,6 @@ namespace CavernizeGUI {
 
             StringBuilder builder = new();
             renderer = reader.GetRenderer();
-            Length = reader.Length;
             Supported = renderer != null;
             if (!Supported)
                 builder.AppendLine("Format unsupported by Cavern");
@@ -88,6 +92,18 @@ namespace CavernizeGUI {
             listener.SampleRate = reader.SampleRate;
             for (int i = 0; i < renderer.Objects.Count; ++i)
                 listener.AttachSource(renderer.Objects[i]);
+        }
+
+        /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
+        public void SetRendererSource(AudioReader reader) {
+            if (renderer is EnhancedAC3Renderer eac3)
+                eac3.Source = reader;
+        }
+
+        /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
+        public void SetupForExport() {
+            if (renderer is EnhancedAC3Renderer eac3)
+                eac3.Source.Reset();
         }
 
         /// <summary>

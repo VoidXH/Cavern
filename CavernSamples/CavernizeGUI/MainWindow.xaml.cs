@@ -1,12 +1,15 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
 using Cavern;
+using Cavern.Format;
+using Cavern.Format.Renderers;
 using Cavern.Remapping;
 using Cavern.Utilities;
 using VoidX.WPF;
@@ -29,6 +32,11 @@ namespace CavernizeGUI {
         /// Playback environment used for rendering.
         /// </summary>
         readonly Listener listener;
+
+        /// <summary>
+        /// Source of language strings.
+        /// </summary>
+        readonly ResourceDictionary language = new ResourceDictionary();
 
         /// <summary>
         /// Runs the process in the background.
@@ -59,13 +67,16 @@ namespace CavernizeGUI {
                 [ReferenceChannel.TopSideRight] = topSideRight,
                 [ReferenceChannel.GodsVoice] = godsVoice
             };
+
             ffmpeg = new(render, status, Settings.Default.ffmpegLocation);
             listener = new() { // Create a listener, which triggers the loading of saved environment settings
                 UpdateRate = 64,
                 AudioQuality = QualityModes.Perfect,
                 LFESeparation = true
             };
-            layout.Text = "Cavern driver set to: " + Listener.GetLayoutName();
+
+            language.Source = new Uri(";component/Resources/Strings.xaml", UriKind.RelativeOrAbsolute);
+            layout.Text = string.Format(string.Format((string)language["CavLo"], Listener.GetLayoutName()));
             renderTarget.ItemsSource = RenderTarget.Targets;
             renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget), RenderTarget.Targets.Length - 1);
             taskEngine = new(progress, status);
@@ -97,10 +108,7 @@ namespace CavernizeGUI {
         /// </summary>
         void OpenFile(object _, RoutedEventArgs e) {
             OpenFileDialog dialog = new() {
-                Filter = "All supported formats|*.mkv;*.mka;*.wav;*.laf|" +
-                "Matroska (*.mkv, *.mka)|*.mkv;*.mka|" +
-                "RIFF WAVE (*.wav)|*.wav|" +
-                "Limitless Audio Format (*.laf)|*.laf"
+                Filter = (string)language["ImFmt"]
             };
             if (dialog.ShowDialog().Value) {
                 Reset();
@@ -109,6 +117,14 @@ namespace CavernizeGUI {
                 tracks.ItemsSource = file.Tracks;
                 if (file.Tracks.Count != 0)
                     tracks.SelectedIndex = 0;
+
+                // TODO: TEMPORARY, REMOVE WHEN AC-3 CAN BE DECODED
+                string decode = dialog.FileName[..dialog.FileName.LastIndexOf('.')] + ".wav";
+                if (System.IO.File.Exists(decode)) {
+                    RIFFWaveReader reader = new RIFFWaveReader(decode);
+                    for (int i = 0; i < file.Tracks.Count; ++i)
+                        file.Tracks[i].SetRendererSource(reader);
+                }
             }
         }
 
@@ -151,23 +167,41 @@ namespace CavernizeGUI {
         /// </summary>
         void Render(object _, RoutedEventArgs e) {
             if (tracks.SelectedItem == null) {
-                Error("Please load a source file for rendering.");
+                Error((string)language["LdSrc"]);
                 return;
             }
             Track target = (Track)tracks.SelectedItem;
+            target.SetupForExport();
             if (!target.Supported) {
-                Error("The selected track is not supported for rendering.");
+                Error((string)language["UnTrk"]);
                 return;
             }
             target.Attach(listener);
-            taskEngine.Run(() => RenderTask(target));
+
+            AudioWriter writer = null;
+            if (renderToFile.IsChecked.Value) {
+                SaveFileDialog dialog = new() {
+                    Filter = (string)language["ExFmt"]
+                };
+                if (dialog.ShowDialog().Value) {
+                    writer = AudioWriter.Create(dialog.FileName, Listener.Channels.Length, target.Length, target.SampleRate,
+                        BitDepth.Int16); // TODO: ability to change
+                    if (writer == null) {
+                        Error((string)language["UnExt"]);
+                        return;
+                    }
+                    writer.WriteHeader();
+                } else // Cancel
+                    return;
+            }
+
+            taskEngine.Run(() => RenderTask(target, writer));
         }
 
         /// <summary>
         /// The running render process.
         /// </summary>
-        // TODO: temporarily use an external WAV source
-        void RenderTask(Track target) {
+        void RenderTask(Track target, AudioWriter writer) {
             taskEngine.UpdateStatus("Starting render...");
             taskEngine.UpdateProgressBar(0);
             RenderStats stats = new(listener);
@@ -180,19 +214,26 @@ namespace CavernizeGUI {
 
             while (rendered < target.Length) {
                 float[] result = listener.Render();
+                if (target.Length - rendered < listener.UpdateRate)
+                    Array.Resize(ref result, (int)(target.Length - rendered));
+                if (writer != null)
+                    writer.WriteBlock(result, 0, result.LongLength);
                 stats.Update();
 
-                // TODO: save to file if set, cut last samples on overflow
                 rendered += listener.UpdateRate;
 
                 if ((untilUpdate -= listener.UpdateRate) <= 0) {
                     double progress = rendered * samplesToProgress;
-                    double performance = rendered * samplesToSeconds / (DateTime.Now - start).TotalSeconds;
-                    taskEngine.UpdateStatusLazy($"Rendering... ({progress:0.00%}, {performance:0.00}x real-time)");
+                    double speed = rendered * samplesToSeconds / (DateTime.Now - start).TotalSeconds;
+                    taskEngine.UpdateStatusLazy($"Rendering... ({progress:0.00%}, speed: {speed:0.00}x)");
                     taskEngine.UpdateProgressBar(progress);
                 }
             }
 
+            if (writer != null) {
+                writer.Dispose();
+                writer = null;
+            }
             UpdatePostRenderReport(stats);
             taskEngine.UpdateStatus("Finished!");
             taskEngine.UpdateProgressBar(1);
