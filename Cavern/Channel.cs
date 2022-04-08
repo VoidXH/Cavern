@@ -61,14 +61,14 @@ namespace Cavern {
         bool lowFrequency = false;
 
         /// <summary>
-        /// Constructor for a channel with given rotation values.
+        /// Constructs a channel with given rotation values.
         /// </summary>
         /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
         /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         public Channel(float x, float y) => SetPosition(x, y);
 
         /// <summary>
-        /// Constructor for a channel with given rotation values and LFE status.
+        /// Constructs a channel with given rotation values and LFE status.
         /// </summary>
         /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
         /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
@@ -76,6 +76,28 @@ namespace Cavern {
         public Channel(float x, float y, bool LFE) {
             lowFrequency = LFE;
             SetPosition(x, y);
+        }
+
+        /// <summary>
+        /// Constructs a channel that is placed in the same direction as the given position.
+        /// </summary>
+        /// <remarks>The <paramref name="location"/> is not scaled with <see cref="Listener.EnvironmentSize"/>.</remarks>
+        /// <param name="location">Spatial position of the channel</param>
+        /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
+        public Channel(Vector3 location, bool LFE) {
+            lowFrequency = LFE;
+            if (location.Z == 0)
+                SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg,
+                    location.X < 0 ? -90 : 90);
+            else {
+                float y = MathF.Atan(location.X / location.Z) * VectorExtensions.Rad2Deg;
+                if (location.Z < 0)
+                    y += 180;
+                if (location.Y == 0)
+                    SetPosition(0, y);
+                else
+                    SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg, y);
+            }
         }
 
         /// <summary>
@@ -191,5 +213,10 @@ namespace Cavern {
             else
                 return channel == 3;
         }
+
+        /// <summary>
+        /// Display channel position when converted to string.
+        /// </summary>
+        public override string ToString() => $"X: {X}, Y: {Y}, {SpatialPos}";
     }
 }

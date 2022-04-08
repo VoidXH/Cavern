@@ -119,11 +119,18 @@ namespace CavernizeGUI {
             SolidColorBrush green = new SolidColorBrush(Colors.Green),
                 red = new SolidColorBrush(Colors.Red);
             ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).Channels;
+
+            Channel[] systemChannels = new Channel[channels.Length];
+            for (int ch = 0; ch < channels.Length; ++ch)
+                systemChannels[ch] =
+                    new Channel(Renderer.channelPositions[(int)channels[ch]], channels[ch] == ReferenceChannel.ScreenLFE);
+            Listener.ReplaceChannels(systemChannels);
+
             foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay)
                 pair.Value.Fill = red;
-            for (int i = 0; i < channels.Length; ++i)
-                if (channelDisplay.ContainsKey(channels[i]))
-                    channelDisplay[channels[i]].Fill = green;
+            for (int ch = 0; ch < channels.Length; ++ch)
+                if (channelDisplay.ContainsKey(channels[ch]))
+                    channelDisplay[channels[ch]].Fill = green;
         }
 
         /// <summary>
