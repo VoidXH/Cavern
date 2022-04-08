@@ -10,7 +10,7 @@ namespace Cavern.Format.Container {
     /// Reads EBML, a kind of binary XML format that is used by Matroska.
     /// </summary>
     /// <see href="https://www.matroska.org/files/matroska_file_format_alexander_noe.pdf"/>
-    public class MatroskaReader : ContainerReader { // TODO: lazy chunk loading
+    public class MatroskaReader : ContainerReader {
         /// <summary>
         /// Nanoseconds to seconds.
         /// </summary>
@@ -24,7 +24,7 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Stream metadata and readers to the data.
         /// </summary>
-        readonly List<Cluster> clusters = new List<Cluster>();
+        readonly List<MatroskaTree> clusters = new List<MatroskaTree>();
 
         /// <summary>
         /// Matroska codec ID mapping to the <see cref="Codec"/> enum.
@@ -63,7 +63,8 @@ namespace Cavern.Format.Container {
         public override byte[] ReadNextBlock(int track) {
             MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
             while (trackData.lastCluster < clusters.Count) {
-                IReadOnlyList<Block> blocks = clusters[trackData.lastCluster].Blocks;
+                Cluster data = new Cluster(reader, clusters[trackData.lastCluster]);
+                IReadOnlyList<Block> blocks = data.Blocks;
                 while (trackData.lastBlock < blocks.Count) {
                     Block block = blocks[trackData.lastBlock++];
                     if (block.Track == trackData.ID)
@@ -93,10 +94,7 @@ namespace Cavern.Format.Container {
                     MatroskaTree tracklist = contents[i].GetChild(MatroskaTree.Segment_Tracks);
                     if (Tracks == null && tracklist != null)
                         ReadTracks(tracklist);
-
-                    MatroskaTree[] blockClusters = contents[i].GetChildren(MatroskaTree.Segment_Cluster);
-                    for (int cluster = 0; cluster < blockClusters.Length; ++cluster)
-                        clusters.Add(new Cluster(reader, blockClusters[cluster]));
+                    clusters.AddRange(contents[i].GetChildren(MatroskaTree.Segment_Cluster));
                 }
             }
             Duration = QMath.Sum(blockLengths) * nsToS;
