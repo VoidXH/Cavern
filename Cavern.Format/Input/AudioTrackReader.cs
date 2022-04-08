@@ -79,7 +79,8 @@ namespace Cavern.Format {
                     decoder = new RIFFWaveDecoder(new BlockBuffer<byte>(ReadNextBlock), ChannelCount, Length, SampleRate, Bits);
                     break;
                 default:
-                    throw new UnsupportedCodecException(true, selected.Format);
+                    decoder = new DummyDecoder(selected.Format, ChannelCount, Length, SampleRate);
+                    break;
             }
         }
 

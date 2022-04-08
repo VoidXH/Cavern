@@ -109,6 +109,14 @@ namespace Cavern.Format {
         }
 
         /// <summary>
+        /// Goes back to a state where the first sample can be read.
+        /// </summary>
+        public void Reset() {
+            reader.BaseStream.Position = 0;
+            ReadHeader();
+        }
+
+        /// <summary>
         /// Tests if the next rolling byte block is as expected, if not, it advances by 1 byte.
         /// </summary>
         protected bool RollingBlockCheck(byte[] cache, byte[] block) {
