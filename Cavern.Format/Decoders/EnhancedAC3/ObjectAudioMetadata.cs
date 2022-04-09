@@ -48,6 +48,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         int offset;
 
         /// <summary>
+        /// Last decoded precise object update positions.
+        /// </summary>
+        Vector3[] lastPrecisePositions = new Vector3[0];
+
+        /// <summary>
         /// Decodes a OAMD frame from an EMDF payload.
         /// </summary>
         public void Decode(BitExtractor extractor, int offset) {
@@ -70,9 +75,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int bedOrISFObjects = beds;
             if (isfInUse)
                 bedOrISFObjects += isfObjectCount[isfIndex];
+
+            if (lastPrecisePositions.Length != ObjectCount)
+                lastPrecisePositions = new Vector3[ObjectCount];
+
             elements.Clear();
             for (int i = 0; i < elementCount; ++i)
-                elements.Add(new OAElementMD(extractor, alternateObjectPresent, ObjectCount, bedOrISFObjects));
+                elements.Add(
+                    new OAElementMD(extractor, alternateObjectPresent, ObjectCount, bedOrISFObjects, lastPrecisePositions));
         }
 
         /// <summary>

@@ -23,7 +23,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Last decoded precise object update positions.
         /// </summary>
-        static Vector3[] lastPrecisePositions;
+        readonly Vector3[] lastPrecisePositions;
 
         /// <summary>
         /// Global sample offset, applied to all info blocks.
@@ -50,9 +50,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Decodes an object audio element metadata block.
         /// </summary>
-        public OAElementMD(BitExtractor extractor, bool alternateObjectPresent, int objectCount, int bedOrISFObjects) {
-            if (lastPrecisePositions == null)
-                lastPrecisePositions = new Vector3[objectCount];
+        public OAElementMD(BitExtractor extractor, bool alternateObjectPresent, int objectCount, int bedOrISFObjects,
+            Vector3[] lastPrecisePositions) {
+            this.lastPrecisePositions = lastPrecisePositions;
             int elementIndex = extractor.Read(4);
             int endPos = extractor.Position + VariableBitsMax(extractor, 4, 4) + 1;
             extractor.Skip(alternateObjectPresent ? 5 : 1);

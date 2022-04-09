@@ -64,7 +64,7 @@ namespace Cavern.Format.Utilities {
             LastFetchStart = lastFetchPosition;
             if (result.Length != elements)
                 result = new T[elements];
-            if (LastFetch == null)
+            if (LastFetch == null || LastFetch.Length == 0)
                 return null;
             int pointer = 0;
             while (pointer < elements) {
@@ -76,8 +76,8 @@ namespace Cavern.Format.Utilities {
                 lastFetchPosition += next;
                 if (lastFetchPosition == LastFetch.Length) {
                     LastFetch = Fetcher();
-                    if (LastFetch == null) {
-                        Array.Resize(ref result, pointer);
+                    if (LastFetch == null || LastFetch.Length == 0) {
+                        Array.Clear(result, pointer, result.Length - pointer);
                         return result;
                     }
                     LastFetchStart = 0;

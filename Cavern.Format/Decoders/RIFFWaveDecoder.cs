@@ -106,7 +106,10 @@ namespace Cavern.Format.Decoders {
             }
 
             byte[] source = reader.Read((int)(to - from) * ((int)Bits >> 3));
-            DecodeLittleEndianBlock(source, target, from, Bits);
+            if (source != null)
+                DecodeLittleEndianBlock(source, target, from, Bits);
+            else
+                Array.Clear(target, (int)from, (int)(to - from));
         }
 
         /// <summary>
