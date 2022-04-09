@@ -12,7 +12,7 @@ namespace Cavern.Format.InOut {
         int mixlevel;
         int roomtyp;
         bool adconvtyp;
-        bool audprodie2;
+        bool audprodi2e;
         int mixlevel2;
         int roomtyp2;
         bool adconvtyp2;
@@ -40,7 +40,7 @@ namespace Cavern.Format.InOut {
                 adconvtyp = extractor.ReadBit();
             }
             if (ChannelMode == 0) {
-                if (audprodie2 = extractor.ReadBit()) {
+                if (audprodi2e = extractor.ReadBit()) {
                     mixlevel2 = extractor.Read(5);
                     roomtyp2 = extractor.Read(2);
                     adconvtyp2 = extractor.ReadBit();

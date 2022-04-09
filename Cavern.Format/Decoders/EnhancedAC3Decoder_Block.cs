@@ -7,6 +7,8 @@ namespace Cavern.Format.Decoders {
     // Block decoder of E-AC-3
     partial class EnhancedAC3Decoder {
         void AudioBlock(int block) {
+            bool eac3 = header.Decoder == InOut.EnhancedAC3.Decoders.EAC3;
+
             if (blkswe)
                 for (int channel = 0; channel < channels.Length; ++channel)
                     blksw[channel] = extractor.ReadBit();
@@ -22,63 +24,19 @@ namespace Cavern.Format.Decoders {
             if (header.ChannelMode == 0 && (dynrng2e = extractor.ReadBit()))
                 dynrng2 = extractor.Read(8);
 
-            // Spectral extension strategy information
-            if (spxstre = block == 0 || extractor.ReadBit()) {
-                if (spxinu = extractor.ReadBit()) {
-                    if (header.ChannelMode == 1)
-                        chinspx[0] = true;
-                    else
-                        for (int channel = 0; channel < channels.Length; ++channel)
-                            chinspx[channel] = extractor.ReadBit();
-                    spxstrtf = extractor.Read(2);
-                    spxbegf = extractor.Read(3);
-                    spxendf = extractor.Read(3);
-                    spx_begin_subbnd = spxbegf < 6 ? spxbegf + 2 : (spxbegf * 2 - 3);
-                    spx_end_subbnd = spxendf < 3 ? spxendf + 5 : (spxendf * 2 + 3);
-                    spxbndstrce = extractor.ReadBit();
-                    if (spxbndstrce) {
-                        spxbndstrc = new bool[spx_end_subbnd];
-                        for (int band = spx_begin_subbnd + 1; band < spx_end_subbnd; ++band)
-                            spxbndstrc[band] = extractor.ReadBit();
-                    }
-
-                    ParseSPX();
-                } else {
-                    for (int channel = 0; channel < channels.Length; ++channel) {
-                        chinspx[channel] = false;
-                        firstspxcos[channel] = true;
-                    }
-                }
-            }
-
-            // Spectral extension strategy coordinates
-            if (spxinu) {
-                for (int channel = 0; channel < channels.Length; ++channel) {
-                    if (chinspx[channel]) {
-                        if (firstspxcos[channel]) {
-                            spxcoe[channel] = true;
-                            firstspxcos[channel] = false;
-                        } else
-                            spxcoe[channel] = extractor.ReadBit();
-
-                        if (spxcoe[channel]) {
-                            spxblnd[channel] = extractor.Read(5);
-                            mstrspxco[channel] = extractor.Read(2);
-                            for (int band = 0; band < nspxbnds; ++band) {
-                                spxcoexp[channel][band] = extractor.Read(4);
-                                spxcomant[channel][band] = extractor.Read(2);
-                            }
-                        }
-                    } else
-                        firstspxcos[channel] = true;
-                }
-            }
+            if (eac3)
+                ReadSPX(block);
+            else
+                ClearSPX();
 
             // (Enhanced) coupling strategy information
+            if (!eac3 && (cplstre[block] = extractor.ReadBit()))
+                cplinu[block] = extractor.ReadBit();
+
             if (cplstre[block]) {
                 if (cplinu[block]) {
-                    ecplinu = extractor.ReadBit();
-                    if (header.ChannelMode == 2)
+                    ecplinu = eac3 && extractor.ReadBit();
+                    if (eac3 && header.ChannelMode == 2)
                         chincpl[0] = chincpl[1] = true;
                     else
                         for (int channel = 0; channel < channels.Length; ++channel)
@@ -91,8 +49,10 @@ namespace Cavern.Format.Decoders {
                             cplendf = extractor.Read(4);
                         else
                             cplendf = spxbegf < 6 ? spxbegf - 2 : (spxbegf * 2 - 7);
-                        if (cplbndstrce = extractor.ReadBit()) {
+                        if (cplbndstrce = !eac3 || extractor.ReadBit()) {
                             ncplsubnd = 3 + cplendf - cplbegf;
+                            if (ncplsubnd < 1)
+                                throw new DecoderException(3);
                             cplbndstrc = new bool[ncplsubnd];
                             ncplbnd = 0;
                             for (int band = 1; band < ncplsubnd; ++band)
@@ -119,7 +79,7 @@ namespace Cavern.Format.Decoders {
                                 ecplbndstrc[sbnd] = extractor.ReadBit();
                         }
                     }
-                } else {
+                } else if (eac3) {
                     for (int channel = 0; channel < channels.Length; ++channel) {
                         chincpl[channel] = false;
                         firstcplcos[channel] = true;
@@ -130,12 +90,12 @@ namespace Cavern.Format.Decoders {
                 }
             }
 
-            // Coupling coordinates
+            // Coupling coordinates, phase flags
             if (cplinu[block]) {
                 if (!ecplinu) { // Standard coupling
                     for (int channel = 0; channel < channels.Length; ++channel) {
                         if (chincpl[channel]) {
-                            if (firstcplcos[channel]) {
+                            if (eac3 && firstcplcos[channel]) {
                                 cplcoe[channel] = true;
                                 firstcplcos[channel] = false;
                             } else
@@ -159,6 +119,16 @@ namespace Cavern.Format.Decoders {
 
             if (header.ChannelMode == 2)
                 throw new UnsupportedFeatureException("stereo");
+
+            // Exponent strategy
+            if (!eac3) {
+                if (cplinu[block])
+                    cplexpstr[block] = (ExpStrat)extractor.Read(2);
+                for (int channel = 0; channel < channels.Length; ++channel)
+                    chexpstr[block][channel] = (ExpStrat)extractor.Read(2);
+                if (header.LFE)
+                    lfeexpstr[block] = extractor.ReadBit();
+            }
 
             // Channel bandwidth code
             for (int channel = 0; channel < channels.Length; ++channel)
@@ -224,9 +194,11 @@ namespace Cavern.Format.Decoders {
                 if (header.LFE)
                     lfefsnroffst = frmfsnroffst;
             } else {
-                if (snroffste = block == 0 || extractor.ReadBit()) {
+                if (snroffste = (eac3 && block == 0) || extractor.ReadBit()) {
                     csnroffst = extractor.Read(6);
-                    if (snroffststr == 1) {
+                    if (!eac3) {
+                        // TODO
+                    } else if (snroffststr == 1) {
                         blkfsnroffst = extractor.Read(4);
                         cplfsnroffst = blkfsnroffst;
                         for (int channel = 0; channel < channels.Length; ++channel)
@@ -243,27 +215,28 @@ namespace Cavern.Format.Decoders {
                 }
             }
 
-            if (fgaincode = frmfgaincode && extractor.ReadBit()) {
-                if (cplinu[block])
-                    cplfgaincod = extractor.Read(3);
-                for (int channel = 0; channel < channels.Length; ++channel)
-                    fgaincod[channel] = extractor.Read(3);
-                if (header.LFE)
-                    lfefgaincod = extractor.Read(3);
-            } else {
-                if (cplinu[block])
-                    cplfgaincod = 4;
-                for (int channel = 0; channel < channels.Length; ++channel)
-                    fgaincod[channel] = 4;
-                if (header.LFE)
-                    lfefgaincod = 4;
+            if (eac3) {
+                if (fgaincode = frmfgaincode && extractor.ReadBit()) {
+                    if (cplinu[block])
+                        cplfgaincod = extractor.Read(3);
+                    for (int channel = 0; channel < channels.Length; ++channel)
+                        fgaincod[channel] = extractor.Read(3);
+                    if (header.LFE)
+                        lfefgaincod = extractor.Read(3);
+                } else {
+                    if (cplinu[block])
+                        cplfgaincod = 4;
+                    for (int channel = 0; channel < channels.Length; ++channel)
+                        fgaincod[channel] = 4;
+                    if (header.LFE)
+                        lfefgaincod = 4;
+                }
+
+                if (header.StreamType == StreamTypes.Independent && (convsnroffste = extractor.ReadBit()))
+                    convsnroffst = extractor.Read(10);
             }
 
-            if (header.StreamType == StreamTypes.Independent && (convsnroffste = extractor.ReadBit()))
-                convsnroffst = extractor.Read(10);
-
             if (cplinu[block]) {
-                // TODO
                 bool cplleake;
                 if (firstcplleak) {
                     cplleake = true;
@@ -275,9 +248,12 @@ namespace Cavern.Format.Decoders {
                     cplsleak = extractor.Read(3);
                 }
             }
+
             // Delta bit allocation
-            if (dbaflde)
-                throw new UnsupportedFeatureException("dbaflde");
+            if (dbaflde || !eac3) {
+                if (extractor.ReadBit())
+                    throw new UnsupportedFeatureException("dbaflde");
+            }
 
             // Error checks
             if (block == 0) {
@@ -317,7 +293,9 @@ namespace Cavern.Format.Decoders {
 
                 if (cplinu[block] && chincpl[channel] && !got_cplchan) {
                     if (cplahtinu == 0) {
-                        for (int bin = 0, ncplmant = 12 * ncplsubnd; bin < ncplmant; ++bin)
+                        int ncplmant = 12 * ncplsubnd;
+                        cplmant = new int[ncplmant];
+                        for (int bin = 0; bin < ncplmant; ++bin)
                             cplmant[bin] = extractor.Read(cplbap[bin]);
                         got_cplchan = true;
                     } else

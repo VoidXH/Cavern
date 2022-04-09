@@ -44,9 +44,14 @@ namespace Cavern.Format.InOut {
         const int channelMappingBits = 16;
 
         /// <summary>
-        /// Enable the use of <see cref="channelMapping"/> (chanmape).
+        /// Used decoder type.
         /// </summary>
-        bool channelMappingEnabled;
+        public EnhancedAC3.Decoders Decoder { get; private set; }
+
+        /// <summary>
+        /// Type of the last decoded substream.
+        /// </summary>
+        public StreamTypes StreamType { get; private set; }
 
         /// <summary>
         /// Bitstream mode, information about the type of the contained audio data.
@@ -56,7 +61,8 @@ namespace Cavern.Format.InOut {
         /// <summary>
         /// One bit for each active channel, the channels are in <see cref="channelMappingTargets"/> (chanmap).
         /// </summary>
-        int channelMapping;
+        /// <remarks>Null, if channel mapping is disabled (chanmape).</remarks>
+        int? channelMapping;
 
         /// <summary>
         /// AC-3 frame size code.
@@ -67,16 +73,6 @@ namespace Cavern.Format.InOut {
         /// Number of the substream. 0 marks the beginning of a new timeslot, incremented values overwrite previous frames.
         /// </summary>
         int substreamid;
-
-        /// <summary>
-        /// Type of the last decoded substream.
-        /// </summary>
-        public StreamTypes StreamType { get; private set; }
-
-        /// <summary>
-        /// Used decoder type.
-        /// </summary>
-        EnhancedAC3.Decoders decoder;
 
         /// <summary>
         /// Reads an E-AC-3 header from a bitstream.
@@ -95,9 +91,9 @@ namespace Cavern.Format.InOut {
             Blocks = numberOfBlocks[extractor.Read(2)];
             ChannelMode = extractor.Read(3);
             LFE = extractor.ReadBit();
-            decoder = ParseDecoder(extractor.Read(5));
+            Decoder = ParseDecoder(extractor.Read(5));
 
-            if (decoder != EnhancedAC3.Decoders.EAC3) {
+            if (Decoder != EnhancedAC3.Decoders.EAC3) {
                 StreamType = StreamTypes.Repackaged;
                 Blocks = 6;
                 SampleRateCode = extractor[4] >> 6;
@@ -120,14 +116,15 @@ namespace Cavern.Format.InOut {
                 throw new ReservedValueException("fscod");
             SampleRate = sampleRates[SampleRateCode];
 
-            switch (decoder) {
+            channelMapping = null;
+            switch (Decoder) {
                 case EnhancedAC3.Decoders.AlternateAC3:
-                    HeaderAlternativeAC3(extractor);
+                    AlternateBitStreamInformation(extractor);
                     break;
                 case EnhancedAC3.Decoders.AC3:
                     throw new UnsupportedFeatureException("legacy");
                 case EnhancedAC3.Decoders.EAC3:
-                    HeaderEAC3(extractor);
+                    BitStreamInformationEAC3(extractor);
                     break;
             }
 
@@ -139,7 +136,7 @@ namespace Cavern.Format.InOut {
         /// </summary>
         public ReferenceChannel[] GetChannelArrangement() {
             ReferenceChannel[] channels = (ReferenceChannel[])channelArrangements[ChannelMode].Clone();
-            if (channelMappingEnabled) {
+            if (channelMapping.HasValue) {
                 int channel = 0;
                 for (int i = channelMappingBits - 1; i > 0; --i) {
                     if (((channelMapping >> i) & 1) == 1) {
@@ -152,63 +149,6 @@ namespace Cavern.Format.InOut {
                 }
             }
             return channels;
-        }
-
-        int dialnorm;
-        bool compre;
-        int compr;
-        int dialnorm2;
-        bool compr2e;
-        int compr2;
-
-        int cmixlev;
-        int surmixlev;
-
-        /// <summary>
-        /// Decodes the alternative AC-3 header after the ID of the decoder.
-        /// </summary>
-        void HeaderAlternativeAC3(BitExtractor extractor) {
-            if ((ChannelMode & 0x1) != 0 && (ChannelMode != 0x1)) // 3 fronts exist
-                cmixlev = extractor.Read(2);
-            if ((ChannelMode & 0x4) != 0) // Surrounds exist
-                surmixlev = extractor.Read(2);
-            if (ChannelMode == 0x2) // Stereo
-                dsurmod = extractor.Read(2);
-            LFE = extractor.ReadBit();
-            dialnorm = extractor.Read(5);
-            if (compre = extractor.ReadBit())
-                compr = extractor.Read(8);
-            // TODO
-        }
-
-        bool blkid;
-        bool convsync;
-
-        /// <summary>
-        /// Decodes the E-AC-3 header after the ID of the decoder.
-        /// </summary>
-        void HeaderEAC3(BitExtractor extractor) {
-            dialnorm = extractor.Read(5);
-            if (compre = extractor.ReadBit())
-                compr = extractor.Read(8);
-
-            if (ChannelMode == 0) {
-                dialnorm2 = extractor.Read(5);
-                if (compr2e = extractor.ReadBit())
-                    compr2 = extractor.Read(8);
-            }
-
-            if (StreamType == StreamTypes.Dependent && (channelMappingEnabled = extractor.ReadBit()))
-                channelMapping = extractor.Read(channelMappingBits);
-            ReadMixingMetadata(extractor);
-            ReadInfoMetadata(extractor);
-            if (StreamType == StreamTypes.Independent && Blocks != 6)
-                convsync = extractor.ReadBit();
-            if (StreamType == StreamTypes.Repackaged && (blkid = Blocks == 6 || extractor.ReadBit()))
-                frmsizecod = extractor.Read(6);
-
-            if (extractor.ReadBit()) // Additional bit stream information (addbsie, omitted)
-                extractor.Skip((extractor.Read(6) + 1) * 8);
         }
 
         /// <summary>

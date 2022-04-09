@@ -53,7 +53,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Check the next bits without advancing the position.
         /// </summary>
-        public int Peek(byte bits) {
+        public int Peek(int bits) {
             int result = Read(bits);
             Position -= bits;
             return result;
@@ -62,7 +62,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read the next custom length unsigned word.
         /// </summary>
-        public int Read(byte bits) {
+        public int Read(int bits) {
             int result = 0;
             while (bits > 0) {
                 int removedLeft = Position & 7;
@@ -72,16 +72,26 @@ namespace Cavern.Format.Utilities {
                 int shiftBack = removedLeft + removedRight;
                 int readBits = 8 - shiftBack;
                 result = (result << readBits) + (((source[Position / 8] << removedLeft) & 0xFF) >> shiftBack);
-                bits -= (byte)readBits;
+                bits -= readBits;
                 Position += readBits;
             }
             return result;
         }
 
         /// <summary>
+        /// Read the next custom length unsigned word, if a flag is set before it.
+        /// </summary>
+        public int? ReadConditional(int bits) {
+            int value = Read(bits + 1);
+            if ((value & (1 << bits)) != 0)
+                return value ^ (1 << bits);
+            return null;
+        }
+
+        /// <summary>
         /// Read the next custom length signed word.
         /// </summary>
-        public int ReadSigned(byte bits) {
+        public int ReadSigned(int bits) {
             int value = Read(bits);
             int sign = value & (1 << bits);
             return sign << (31 - bits) + value - sign;

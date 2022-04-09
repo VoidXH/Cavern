@@ -105,9 +105,8 @@ namespace Cavern.Format.Decoders {
                         outputs[ReferenceChannel.ScreenLFE] = new float[FrameSize];
                 }
 
-                // TODO: decode actual audio data
-                //for (int block = 0; block < blocks; ++block)
-                //    AudioBlock(block);
+                for (int block = 0; block < cplstre.Length; ++block)
+                    AudioBlock(block);
 
                 Extensions.Decode(extractor);
                 ReadHeader();
@@ -121,7 +120,7 @@ namespace Cavern.Format.Decoders {
         }
 
         /// <summary>
-        /// Reads all metadata for the next frame.
+        /// Reads all metadata for the next frame and prepares audio decoding.
         /// </summary>
         /// <remarks>This decoder has to read the beginning of the next frame to know if it's a beginning.</remarks>
         void ReadHeader() {
@@ -129,7 +128,20 @@ namespace Cavern.Format.Decoders {
                 extractor = header.Decode(reader);
                 channels = header.GetChannelArrangement();
                 CreateCacheTables(header.Blocks, channels.Length);
-                AudioFrame();
+                if (header.Decoder == InOut.EnhancedAC3.Decoders.EAC3)
+                    AudioFrame();
+                else {
+                    blkswe = true;
+                    dithflage = true;
+                    bamode = true;
+                    snroffststr = -1;
+                    firstcplleak = false;
+                    // TODO: disable AHT when it's implemented
+                }
+
+                // Clear per-frame reusable data
+                Array.Clear(bap, 0, bap.Length);
+                lfebap = null;
             } else
                 Finished = true;
         }

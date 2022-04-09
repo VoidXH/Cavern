@@ -1,6 +1,4 @@
-﻿using System;
-
-using Cavern.Format.Common;
+﻿using Cavern.Format.Common;
 using Cavern.Utilities;
 using static Cavern.Format.InOut.EnhancedAC3;
 
@@ -8,12 +6,8 @@ namespace Cavern.Format.Decoders {
     // Audio frame header parsing for E-AC-3
     partial class EnhancedAC3Decoder {
         void AudioFrame() {
-            expstre = true;
-            if (header.Blocks == 6) {
-                expstre = extractor.ReadBit();
-                ahte = extractor.ReadBit();
-            }
-
+            expstre = header.Blocks != 6 || extractor.ReadBit();
+            ahte = header.Blocks == 6 && extractor.ReadBit();
             snroffststr = extractor.Read(2);
             transproce = extractor.ReadBit();
             blkswe = extractor.ReadBit();
@@ -28,13 +22,14 @@ namespace Cavern.Format.Decoders {
                 cplstre[0] = true;
                 cplinu[0] = extractor.ReadBit();
                 for (int block = 1; block < cplstre.Length; ++block) {
-                    cplstre[block] = extractor.ReadBit();
-                    if (cplstre[block])
+                    if (cplstre[block] = extractor.ReadBit())
                         cplinu[block] = extractor.ReadBit();
                     else
                         cplinu[block] = cplinu[block - 1];
                 }
-            }
+            } else
+                for (int block = 1; block < cplstre.Length; ++block)
+                    cplinu[block] = false;
 
             // Exponent strategy data init
             if (expstre) {
@@ -97,10 +92,9 @@ namespace Cavern.Format.Decoders {
                     if (chinspxatten[ch] = extractor.ReadBit())
                         spxattencod[ch] = extractor.Read(5);
 
-            blkstrtinfoe = header.Blocks != 1 && extractor.ReadBit();
-            if (blkstrtinfoe) {
+            if (blkstrtinfoe = header.Blocks != 1 && extractor.ReadBit()) {
                 int nblkstrtbits = (header.Blocks - 1) * (4 + QMath.Log2Ceil(header.WordsPerSyncframe));
-                blkstrtinfo = extractor.Read((byte)nblkstrtbits);
+                blkstrtinfo = extractor.Read(nblkstrtbits);
             }
 
             // Syntax state init
@@ -109,10 +103,6 @@ namespace Cavern.Format.Decoders {
                 firstcplcos[channel] = true;
             }
             firstcplleak = true;
-
-            // Clear per-frame reuse data
-            Array.Clear(bap, 0, bap.Length);
-            lfebap = null;
         }
     }
 }
