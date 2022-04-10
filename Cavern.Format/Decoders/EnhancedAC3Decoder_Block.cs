@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Format.Common;
+using Cavern.Format.Decoders.EnhancedAC3;
 using static Cavern.Format.InOut.EnhancedAC3;
 
 namespace Cavern.Format.Decoders {
@@ -101,6 +102,8 @@ namespace Cavern.Format.Decoders {
                             } else
                                 cplcoe[channel] = extractor.ReadBit();
                             if (cplcoe[channel]) {
+                                cplcoexp[channel] = new int[ncplbnd];
+                                cplcomant[channel] = new int[ncplbnd];
                                 mstrcplco[channel] = extractor.Read(2);
                                 for (int band = 0; band < ncplbnd; ++band) {
                                     cplcoexp[channel][band] = extractor.Read(4);
@@ -197,7 +200,7 @@ namespace Cavern.Format.Decoders {
                 if (snroffste = (eac3 && block == 0) || extractor.ReadBit()) {
                     csnroffst = extractor.Read(6);
                     if (!eac3) {
-                        // TODO
+                        throw new UnsupportedFeatureException("ac3");
                     } else if (snroffststr == 1) {
                         blkfsnroffst = extractor.Read(4);
                         cplfsnroffst = blkfsnroffst;
@@ -250,9 +253,16 @@ namespace Cavern.Format.Decoders {
             }
 
             // Delta bit allocation
-            if (dbaflde || !eac3) {
-                if (extractor.ReadBit())
-                    throw new UnsupportedFeatureException("dbaflde");
+            if ((dbaflde || !eac3) && (deltbaie = extractor.ReadBit())) {
+                if (cplinu[block])
+                    cpldeltba.enabled = (DeltaBitAllocationMode)extractor.Read(2);
+                for (int channel = 0; channel < channels.Length; ++channel)
+                    deltba[channel].enabled = (DeltaBitAllocationMode)extractor.Read(2);
+                if (cplinu[block] && cpldeltba.enabled == DeltaBitAllocationMode.NewInfoFollows)
+                    cpldeltba.Read(extractor);
+                for (int channel = 0; channel < channels.Length; ++channel)
+                    if (deltba[channel].enabled == DeltaBitAllocationMode.NewInfoFollows)
+                        deltba[channel].Read(extractor);
             }
 
             // Error checks

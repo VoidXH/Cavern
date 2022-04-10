@@ -82,9 +82,8 @@ namespace Cavern.Format.Utilities {
         /// Read the next custom length unsigned word, if a flag is set before it.
         /// </summary>
         public int? ReadConditional(int bits) {
-            int value = Read(bits + 1);
-            if ((value & (1 << bits)) != 0)
-                return value ^ (1 << bits);
+            if (((source[Position / 8] >> (7 - Position++ % 8)) & 1) != 0)
+                return Read(bits);
             return null;
         }
 

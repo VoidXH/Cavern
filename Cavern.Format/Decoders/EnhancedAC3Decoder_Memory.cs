@@ -1,4 +1,5 @@
-﻿using Cavern.Remapping;
+﻿using Cavern.Format.Decoders.EnhancedAC3;
+using Cavern.Remapping;
 
 namespace Cavern.Format.Decoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
@@ -11,6 +12,21 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         ReferenceChannel[] channels;
 
+        /// <summary>
+        /// Per-channel bit allocation data.
+        /// </summary>
+        Allocation[] allocation;
+
+        /// <summary>
+        /// Coupling channel bit allocation data.
+        /// </summary>
+        Allocation couplingAllocation;
+
+        /// <summary>
+        /// LFE channel bit allocation data.
+        /// </summary>
+        Allocation lfeAllocation;
+
 #pragma warning disable IDE0052 // Remove unread private members
         bool ahte;
         bool baie;
@@ -21,6 +37,7 @@ namespace Cavern.Format.Decoders {
         bool convsnroffste;
         bool cplbndstrce;
         bool dbaflde;
+        bool deltbaie;
         bool dithflage;
         bool dynrng2e;
         bool dynrnge;
@@ -57,6 +74,9 @@ namespace Cavern.Format.Decoders {
         byte[] cplbap;
         byte[] lfebap;
         byte[][] bap;
+        DeltaBitAllocation cpldeltba;
+        DeltaBitAllocation lfedeltba;
+        DeltaBitAllocation[] deltba;
         ExpStrat[] cplexpstr;
         ExpStrat[][] chexpstr;
         int blkfsnroffst;
@@ -148,6 +168,7 @@ namespace Cavern.Format.Decoders {
             cplexpstr = new ExpStrat[blocks];
             cplinu = new bool[blocks];
             cplstre = new bool[blocks];
+            deltba = new DeltaBitAllocation[channels];
             dithflag = new bool[channels];
             endmant = new int[channels];
             exps = new int[channels][];
@@ -175,6 +196,18 @@ namespace Cavern.Format.Decoders {
 
             for (int block = 0; block < blocks; ++block) {
                 chexpstr[block] = new ExpStrat[channels];
+            }
+
+            const int maxAllocationSize = 384;
+
+            allocation = new Allocation[channels];
+            couplingAllocation = new Allocation(maxAllocationSize);
+            lfeAllocation = new Allocation(maxAllocationSize);
+            cpldeltba.Reset();
+            lfedeltba.Reset();
+            for (int channel = 0; channel < channels; ++channel) {
+                allocation[channel] = new Allocation(maxAllocationSize);
+                deltba[channel].Reset();
             }
         }
     }
