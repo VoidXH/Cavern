@@ -27,6 +27,13 @@
         /// Set endmant and nchgrps.
         /// </summary>
         void ParseParametricBitAllocation(int block) {
+            if (cplinu[block]) {
+                cplstrtmant = 37 + 12 * cplbegf;
+                cplendmant = 37 + 12 * (cplendf + 3);
+                if (cplexpstr[block] != ExpStrat.Reuse)
+                    ncplgrps = (cplendmant - cplstrtmant) / groupDiv[(int)cplexpstr[block] - 1];
+            }
+
             for (int channel = 0; channel < channels.Length; ++channel) {
                 strtmant[channel] = 0;
                 if (ecplinu)
@@ -35,7 +42,7 @@
                     if (spxinu && !cplinu[block])
                         endmant[channel] = ParseSpxbandtable(spx_begin_subbnd);
                     else if (cplinu[block])
-                        endmant[channel] = cplbegf * 12 + 37;
+                        endmant[channel] = cplstrtmant;
                     else
                         endmant[channel] = (chbwcod[channel] + 12) * 3 + 37;
                 }
@@ -45,20 +52,15 @@
                         nchgrps[channel] = (endmant[channel] - 1) / 3;
                         break;
                     case ExpStrat.D25:
-                        nchgrps[channel] = (endmant[channel] - 1 + 3) / 6;
+                        nchgrps[channel] = (endmant[channel] + 2) / 6;
                         break;
                     case ExpStrat.D45:
-                        nchgrps[channel] = (endmant[channel] - 1 + 9) / 12;
+                        nchgrps[channel] = (endmant[channel] + 8) / 12;
                         break;
                     default:
                         break;
                 }
             }
-
-            cplstrtmant = 37 + 12 * cplbegf;
-            cplendmant = 37 + 12 * (cplendf + 3);
-            if (cplexpstr[block] != ExpStrat.Reuse)
-                ncplgrps = (cplendmant - cplstrtmant) / groupDiv[(int)cplexpstr[block] - 1];
         }
 
         /// <summary>

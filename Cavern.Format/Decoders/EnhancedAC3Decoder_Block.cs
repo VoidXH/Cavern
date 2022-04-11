@@ -158,7 +158,7 @@ namespace Cavern.Format.Decoders {
                     if (exps[channel] == null || exps[channel].Length != expl)
                         exps[channel] = new int[expl];
                     exps[channel][0] = extractor.Read(4);
-                    for (int group = 1; group <= nchgrps[channel]; ++group)
+                    for (int group = 1; group < expl; ++group)
                         exps[channel][group] = extractor.Read(7);
                     gainrng[channel] = extractor.Read(2);
                 }
@@ -286,28 +286,24 @@ namespace Cavern.Format.Decoders {
             }
 
             // Quantized mantissa values
+            Allocation.ResetBlock();
             if (cplinu[block] && cplexpstr[block] != ExpStrat.Reuse)
-                cplbap = AllocateCoupling(cplexpstr[block]);
+                AllocateCoupling(cplexpstr[block]);
 
             bool got_cplchan = false;
             for (int channel = 0; channel < channels.Length; ++channel) {
                 if (chahtinu[channel] == 0) {
-                    chmant[channel] = new int[nchmant[channel]];
+                    chmant[channel] = new int[endmant[channel]];
                     if (chexpstr[block][channel] != ExpStrat.Reuse)
-                        bap[channel] = Allocate(channel, exps[channel], chexpstr[block][channel]);
-                    if (bap[channel] == null)
-                        throw new DecoderException(-1);
-                    for (int bin = 0; bin < nchmant[channel]; ++bin)
-                        chmant[channel][bin] = extractor.Read(bap[channel][bin]);
+                        Allocate(channel, exps[channel], chexpstr[block][channel]);
+                    allocation[channel].ReadMantissa(extractor, chmant[channel], endmant[channel]);
                 } else
                     throw new UnsupportedFeatureException("AHT");
 
                 if (cplinu[block] && chincpl[channel] && !got_cplchan) {
                     if (cplahtinu == 0) {
-                        int ncplmant = 12 * ncplsubnd;
-                        cplmant = new int[ncplmant];
-                        for (int bin = 0; bin < ncplmant; ++bin)
-                            cplmant[bin] = extractor.Read(cplbap[bin]);
+                        cplmant = new int[12 * ncplsubnd];
+                        couplingAllocation.ReadMantissa(extractor, cplmant, 12 * ncplsubnd);
                         got_cplchan = true;
                     } else
                         throw new UnsupportedFeatureException("AHT");
@@ -317,11 +313,8 @@ namespace Cavern.Format.Decoders {
             if (header.LFE) {
                 if (lfeahtinu == 0) {
                     if (lfeexpstr[block])
-                        lfebap = AllocateLFE(lfeexps, ExpStrat.D15);
-                    if (lfebap == null)
-                        throw new DecoderException(-1);
-                    for (int bin = 0; bin < nlfemant; ++bin)
-                        lfemant[bin] = extractor.Read(lfebap[bin]);
+                        AllocateLFE(lfeexps, ExpStrat.D15);
+                    lfeAllocation.ReadMantissa(extractor, lfemant, nlfemant);
                 } else
                     throw new UnsupportedFeatureException("AHT");
             }

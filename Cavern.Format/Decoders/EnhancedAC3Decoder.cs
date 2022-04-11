@@ -138,10 +138,6 @@ namespace Cavern.Format.Decoders {
                     firstcplleak = false;
                     // TODO: disable AHT when it's implemented
                 }
-
-                // Clear per-frame reusable data
-                Array.Clear(bap, 0, bap.Length);
-                lfebap = null;
             } else
                 Finished = true;
         }

@@ -234,5 +234,10 @@
             14, 14, 14, 14, 14, 15, 15, 15, 15, 15,
             15, 15, 15, 15
         };
+
+        /// <summary>
+        /// Number of bits to read. Corresponds to each value of a BAP table.
+        /// </summary>
+        static readonly byte[] bitsToRead = { 0, 5, 7, 3, 7, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16 };
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Format.Decoders.EnhancedAC3;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {
     partial class EnhancedAC3Decoder {
@@ -14,6 +15,10 @@ namespace Cavern.Format.Decoders {
             public int[] mask;
             public byte[] bap;
 
+            static int bap1Bits;
+            static int bap2Bits;
+            static int bap4Bits;
+
             public Allocation(int maxLength) {
                 dexp = new int[maxLength];
                 aexp = new int[maxLength];
@@ -24,38 +29,75 @@ namespace Cavern.Format.Decoders {
                 mask = new int[maxLength];
                 bap = new byte[maxLength];
             }
+
+            public static void ResetBlock() {
+                bap1Bits = 0;
+                bap2Bits = 0;
+                bap4Bits = 0;
+            }
+
+            public void ReadMantissa(BitExtractor extractor, int[] target, int count) {
+                for (int bin = 0; bin < count; ++bin) {
+                    switch (bap[bin]) {
+                        case 1:
+                            if (bap1Bits == 0) {
+                                bap1Bits = 3;
+                                extractor.Skip(bitsToRead[1]); // TODO: temp
+                            } else
+                                --bap1Bits;
+                            break;
+                        case 2:
+                            if (bap2Bits == 0) {
+                                bap2Bits = 3;
+                                extractor.Skip(bitsToRead[2]); // TODO: temp
+                            } else
+                                --bap2Bits;
+                            break;
+                        case 4:
+                            if (bap4Bits == 0) {
+                                bap4Bits = 3;
+                                extractor.Skip(bitsToRead[4]); // TODO: temp
+                            } else
+                                --bap4Bits;
+                            break;
+                        default:
+                            target[bin] = extractor.Read(bitsToRead[bap[bin]]);
+                            break;
+                    }
+                }
+            }
         }
 
-        byte[] Allocate(int channel, int[] gexp, ExpStrat expstr) {
+        void Allocate(int channel, int[] gexp, ExpStrat expstr) {
             int start = strtmant[channel];
             int end = endmant[channel];
             int fgain = fastgain[fgaincod[channel]];
             if (csnroffst == 0 && fsnroffst[channel] == 0)
-                return new byte[nchmant[channel]];
+                Array.Clear(allocation[channel].bap, 0, allocation[channel].bap.Length);
             int snroffset = (csnroffst - 15) << 4 + fsnroffst[channel] << 2;
-            return Allocate(start, end, fgain, snroffset, gexp, nchgrps[channel], exps[channel][0],
+            Allocate(start, end, fgain, snroffset, gexp, nchgrps[channel], exps[channel][0],
                 expstr, allocation[channel], deltba[channel]);
         }
 
-        byte[] AllocateCoupling(ExpStrat expstr) {
+        void AllocateCoupling(ExpStrat expstr) {
             int fgain = fastgain[cplfgaincod];
             if (csnroffst == 0 && lfefsnroffst == 0)
-                return new byte[nlfemant];
+                Array.Clear(couplingAllocation.bap, 0, couplingAllocation.bap.Length);
             int snroffset = (csnroffst - 15) << 4 + cplfsnroffst << 2;
-            return Allocate(cplstrtmant, cplendmant, fgain, snroffset, cplexps, ncplgrps, cplabsexp,
+            Allocate(cplstrtmant, cplendmant, fgain, snroffset, cplexps, ncplgrps, cplabsexp,
                 expstr, couplingAllocation, cpldeltba, (cplfleak << 8) + 768, (cplsleak << 8) + 768);
         }
 
-        byte[] AllocateLFE(int[] gexp, ExpStrat expstr) {
+        void AllocateLFE(int[] gexp, ExpStrat expstr) {
             int fgain = fastgain[lfefgaincod];
             if (csnroffst == 0 && lfefsnroffst == 0)
-                return new byte[nlfemant];
+                Array.Clear(lfeAllocation.bap, 0, lfeAllocation.bap.Length);
             int snroffset = (csnroffst - 15) << 4 + lfefsnroffst << 2;
-            return Allocate(lfestrtmant, lfeendmant, fgain, snroffset, gexp, nlfegrps, lfeexps[0],
+            Allocate(lfestrtmant, lfeendmant, fgain, snroffset, gexp, nlfegrps, lfeexps[0],
                 expstr, lfeAllocation, lfedeltba);
         }
 
-        byte[] Allocate(int start, int end, int fgain, int snroffset, int[] gexp, int ngrps, int absexp,
+        void Allocate(int start, int end, int fgain, int snroffset, int[] gexp, int ngrps, int absexp,
             ExpStrat expstr, Allocation allocation, DeltaBitAllocation dba, int fastleak = 0, int slowleak = 0) {
             // Unpack the mapped values
             int[] dexp = allocation.dexp;
@@ -211,7 +253,7 @@ namespace Cavern.Format.Decoders {
                 j++;
             }
             while (end > lastbin);
-            return bap;
+            Array.Clear(bap, i, bap.Length - i);
         }
 
         int LogAdd(int a, int b) {
