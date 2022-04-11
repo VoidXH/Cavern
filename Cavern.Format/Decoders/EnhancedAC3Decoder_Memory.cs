@@ -39,8 +39,6 @@ namespace Cavern.Format.Decoders {
         bool dbaflde;
         bool deltbaie;
         bool dithflage;
-        bool dynrng2e;
-        bool dynrnge;
         bool ecplbndstrce;
         bool ecplinu;
         bool expstre;
@@ -60,7 +58,8 @@ namespace Cavern.Format.Decoders {
         bool[] chinspx;
         bool[] chinspxatten;
         bool[] chintransproc;
-        bool[] cplbndstrc;
+        bool[] cplbndstrc = { false, false, false, false, false, false, false, false, true, false,
+            true, true, false, true, true, true, true, true }; // defcplbndstrc
         bool[] cplcoe;
         bool[] cplinu;
         bool[] cplstre;
@@ -94,8 +93,6 @@ namespace Cavern.Format.Decoders {
         int cplstrtmant;
         int csnroffst;
         int dbpbcod;
-        int dynrng;
-        int dynrng2;
         int ecpl_begin_subbnd;
         int ecpl_end_subbnd;
         int ecplbegf;
@@ -120,6 +117,8 @@ namespace Cavern.Format.Decoders {
         int spxbegf;
         int spxendf;
         int spxstrtf;
+        int? dynrng;
+        int? dynrng2;
         int[] chahtinu;
         int[] chbwcod;
         int[] convexpstr;
@@ -207,6 +206,8 @@ namespace Cavern.Format.Decoders {
             lfedeltba.Reset();
             for (int channel = 0; channel < channels; ++channel) {
                 allocation[channel] = new Allocation(maxAllocationSize);
+                cplcoexp[channel] = new int[cplbndstrc.Length];
+                cplcomant[channel] = new int[cplbndstrc.Length];
                 deltba[channel].Reset();
             }
         }

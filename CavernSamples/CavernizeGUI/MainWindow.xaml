@@ -11,7 +11,7 @@
         <TextBlock x:Name="fileName" HorizontalAlignment="Left" Margin="95,12,0,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <GroupBox Header="Rendering settings" Margin="10,35,0,55" HorizontalAlignment="Left" Width="200">
             <Grid>
-                <TextBlock x:Name="layout" HorizontalAlignment="Left" Margin="10,10,0,0" Text="Cavern driver set to: 5.1" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                <TextBlock x:Name="layout" HorizontalAlignment="Left" Margin="10,10,0,0" Text="Driver set to: 5.1" VerticalAlignment="Top"/>
                 <TextBlock HorizontalAlignment="Left" Margin="10,34,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
                 <ComboBox x:Name="renderTarget" Margin="94,31,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
                 <Canvas Margin="10,68,10,0" Height="160" VerticalAlignment="Top">

@@ -55,10 +55,10 @@
                 }
             }
 
-            if (cplexpstr[block] != ExpStrat.Reuse)
-                ncplgrps = (cplendmant - cplstrtmant) / groupDiv[(int)cplexpstr[block] - 1];
             cplstrtmant = 37 + 12 * cplbegf;
             cplendmant = 37 + 12 * (cplendf + 3);
+            if (cplexpstr[block] != ExpStrat.Reuse)
+                ncplgrps = (cplendmant - cplstrtmant) / groupDiv[(int)cplexpstr[block] - 1];
         }
 
         /// <summary>

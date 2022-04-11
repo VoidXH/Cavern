@@ -13,6 +13,9 @@ namespace Cavern.Format.Decoders {
             if (blkswe)
                 for (int channel = 0; channel < channels.Length; ++channel)
                     blksw[channel] = extractor.ReadBit();
+            else
+                for (int channel = 0; channel < channels.Length; ++channel)
+                    blksw[channel] = false;
             if (dithflage)
                 for (int channel = 0; channel < channels.Length; ++channel)
                     dithflag[channel] = extractor.ReadBit();
@@ -20,10 +23,9 @@ namespace Cavern.Format.Decoders {
                 for (int channel = 0; channel < channels.Length; ++channel)
                     dithflag[channel] = true;
 
-            if (dynrnge = extractor.ReadBit())
-                dynrng = extractor.Read(8);
-            if (header.ChannelMode == 0 && (dynrng2e = extractor.ReadBit()))
-                dynrng2 = extractor.Read(8);
+            dynrng = extractor.ReadConditional(8);
+            if (header.ChannelMode == 0)
+                dynrng2 = extractor.ReadConditional(8);
 
             if (eac3)
                 ReadSPX(block);
@@ -50,17 +52,12 @@ namespace Cavern.Format.Decoders {
                             cplendf = extractor.Read(4);
                         else
                             cplendf = spxbegf < 6 ? spxbegf - 2 : (spxbegf * 2 - 7);
-                        if (cplbndstrce = !eac3 || extractor.ReadBit()) {
-                            ncplsubnd = 3 + cplendf - cplbegf;
-                            if (ncplsubnd < 1)
-                                throw new DecoderException(3);
-                            cplbndstrc = new bool[ncplsubnd];
-                            ncplbnd = 0;
+                        ncplsubnd = 3 + cplendf - cplbegf;
+                        if (ncplsubnd < 1)
+                            throw new DecoderException(3);
+                        if (cplbndstrce = !eac3 || extractor.ReadBit())
                             for (int band = 1; band < ncplsubnd; ++band)
-                                if (cplbndstrc[band] = extractor.ReadBit())
-                                    ++ncplbnd;
-                            ncplbnd = ncplsubnd - ncplbnd;
-                        }
+                                cplbndstrc[band] = extractor.ReadBit();
                     } else { // Enhanced coupling
                         ecplbegf = extractor.Read(4);
                         if (ecplbegf < 3)
@@ -89,6 +86,12 @@ namespace Cavern.Format.Decoders {
                     phsflginu = false;
                     ecplinu = false;
                 }
+
+                ncplbnd = 0;
+                for (int band = 1; band < ncplsubnd; ++band)
+                    if (cplbndstrc[band])
+                        ++ncplbnd;
+                ncplbnd = ncplsubnd - ncplbnd;
             }
 
             // Coupling coordinates, phase flags
@@ -102,8 +105,6 @@ namespace Cavern.Format.Decoders {
                             } else
                                 cplcoe[channel] = extractor.ReadBit();
                             if (cplcoe[channel]) {
-                                cplcoexp[channel] = new int[ncplbnd];
-                                cplcomant[channel] = new int[ncplbnd];
                                 mstrcplco[channel] = extractor.Read(2);
                                 for (int band = 0; band < ncplbnd; ++band) {
                                     cplcoexp[channel][band] = extractor.Read(4);
