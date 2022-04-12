@@ -1,4 +1,4 @@
-﻿namespace Cavern.Format.InOut {
+﻿namespace Cavern.Format.Transcoders {
     static partial class EnhancedAC3 {
         /// <summary>
         /// Supported decoder versions.

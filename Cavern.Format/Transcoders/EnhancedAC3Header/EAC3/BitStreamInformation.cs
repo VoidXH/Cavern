@@ -1,7 +1,7 @@
 ﻿using Cavern.Format.Utilities;
-using static Cavern.Format.InOut.EnhancedAC3;
+using static Cavern.Format.Transcoders.EnhancedAC3;
 
-namespace Cavern.Format.InOut {
+namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Header {
         int dialnorm;
         int? compr;

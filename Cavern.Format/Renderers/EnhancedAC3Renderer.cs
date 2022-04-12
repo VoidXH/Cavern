@@ -124,7 +124,7 @@ namespace Cavern.Format.Renderers {
             if (lfe != -1) {
                 for (int obj = 0; obj < lfe; ++obj)
                     objectSamples[obj] = finalResult[obj];
-                ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
+                ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
                 for (int i = 0; i < matrix.Length; ++i) {
                     if (matrix[i] == ReferenceChannel.ScreenLFE) {
                         objectSamples[lfe] = lfeResult;
@@ -148,7 +148,7 @@ namespace Cavern.Format.Renderers {
                 Source.ReadBlock(input, 0, input.LongLength);
             float[][] grouped = WaveformUtils.InterlacedToMultichannel(input, stream.ChannelCount);
 
-            ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[stream.ChannelCount];
+            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
             EnhancedAC3Decoder decoder = (EnhancedAC3Decoder)stream;
             // Object-based rendering
             if (HasObjects = decoder.Extensions.HasObjects) {

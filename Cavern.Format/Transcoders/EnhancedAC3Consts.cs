@@ -1,6 +1,6 @@
 ﻿using Cavern.Remapping;
 
-namespace Cavern.Format.InOut {
+namespace Cavern.Format.Transcoders {
     static partial class EnhancedAC3 {
         /// <summary>
         /// First word of all AC-3 frames.

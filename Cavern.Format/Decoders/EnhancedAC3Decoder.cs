@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 using Cavern.Format.Common;
 using Cavern.Format.Decoders.EnhancedAC3;
-using Cavern.Format.InOut;
+using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
 using Cavern.Remapping;
-using static Cavern.Format.InOut.EnhancedAC3;
+using static Cavern.Format.Transcoders.EnhancedAC3;
 
 namespace Cavern.Format.Decoders {
     /// <summary>
@@ -128,7 +128,7 @@ namespace Cavern.Format.Decoders {
                 extractor = header.Decode(reader);
                 channels = header.GetChannelArrangement();
                 CreateCacheTables(header.Blocks, channels.Length);
-                if (header.Decoder == InOut.EnhancedAC3.Decoders.EAC3)
+                if (header.Decoder == Transcoders.EnhancedAC3.Decoders.EAC3)
                     AudioFrame();
                 else {
                     blkswe = true;

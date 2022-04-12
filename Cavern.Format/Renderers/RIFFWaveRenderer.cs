@@ -1,5 +1,4 @@
 ﻿using Cavern.Format.Decoders;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Renderers {

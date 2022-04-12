@@ -29,8 +29,6 @@ namespace Cavern.Format {
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {
-            if (decoder != null)
-                return; // Header was already read
             decoder = new RIFFWaveDecoder(reader);
             ChannelCount = decoder.ChannelCount;
             Length = decoder.Length;

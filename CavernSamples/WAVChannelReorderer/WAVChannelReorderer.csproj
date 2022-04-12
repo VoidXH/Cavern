@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <Copyright>Copyright © VoidX 2022</Copyright>
+    <Description>Changes the channel order in WAV files for players that don't conform to standards.</Description>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <DebugType>full</DebugType>
+    <Authors>VoidX</Authors>
+    <Product>WAV Channel Reorderer</Product>
+    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+    <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+  </ItemGroup>
+</Project>

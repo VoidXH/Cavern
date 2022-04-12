@@ -68,13 +68,13 @@ namespace Cavern.Cavernize {
         /// used by the <see cref="source"/>.
         /// </summary>
         void Init() {
-            ReferenceChannel[] layout = ChannelPrototype.StandardMatrix[8];
+            ReferenceChannel[] layout = ChannelPrototype.GetStandardMatrix(8);
             output = new ChannelData[layout.Length];
             for (int channel = 0; channel < layout.Length; ++channel)
                 output[channel].target = layout[channel];
             output[0].lastSamples = new float[0]; // To skip null check in GenerateSamples
 
-            layout = ChannelPrototype.StandardMatrix[source.Channels];
+            layout = ChannelPrototype.GetStandardMatrix(source.Channels);
             List<ReferenceChannel> missing = new List<ReferenceChannel>();
             for (int channel = 0; channel < layout.Length; ++channel) {
                 if (!output.Has(entry => entry.target == layout[channel]))
@@ -132,7 +132,7 @@ namespace Cavern.Cavernize {
         /// </summary>
         public void GenerateSamples(int samples) {
             // Preparations
-            ReferenceChannel[] layout = ChannelPrototype.StandardMatrix[source.Channels];
+            ReferenceChannel[] layout = ChannelPrototype.GetStandardMatrix(source.Channels);
             if (output[0].lastSamples.Length != samples) {
                 for (int channel = 0; channel < output.Length; ++channel)
                     output[channel].lastSamples = null;

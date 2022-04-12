@@ -1,6 +1,6 @@
 ﻿using Cavern.Format.Common;
 using Cavern.Utilities;
-using static Cavern.Format.InOut.EnhancedAC3;
+using static Cavern.Format.Transcoders.EnhancedAC3;
 
 namespace Cavern.Format.Decoders {
     // Audio frame header parsing for E-AC-3

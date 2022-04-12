@@ -1,9 +1,9 @@
 ﻿using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 using Cavern.Remapping;
-using static Cavern.Format.InOut.EnhancedAC3;
+using static Cavern.Format.Transcoders.EnhancedAC3;
 
-namespace Cavern.Format.InOut {
+namespace Cavern.Format.Transcoders {
     /// <summary>
     /// Read or write an E-AC-3 header.
     /// </summary>

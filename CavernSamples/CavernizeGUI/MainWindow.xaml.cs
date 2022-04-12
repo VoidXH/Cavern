@@ -205,11 +205,11 @@ namespace CavernizeGUI {
             taskEngine.UpdateStatus("Starting render...");
             taskEngine.UpdateProgressBar(0);
             RenderStats stats = new(listener);
-            const long updateInterval = 10000;
-            long rendered = 0;
-            long untilUpdate = updateInterval;
-            double samplesToProgress = 1.0 / target.Length;
-            double samplesToSeconds = 1.0 / listener.SampleRate;
+            const long updateInterval = 50000;
+            long rendered = 0,
+                untilUpdate = updateInterval;
+            double samplesToProgress = 1.0 / target.Length,
+                samplesToSeconds = 1.0 / listener.SampleRate;
             DateTime start = DateTime.Now;
 
             while (rendered < target.Length) {
@@ -227,13 +227,12 @@ namespace CavernizeGUI {
                     double speed = rendered * samplesToSeconds / (DateTime.Now - start).TotalSeconds;
                     taskEngine.UpdateStatusLazy($"Rendering... ({progress:0.00%}, speed: {speed:0.00}x)");
                     taskEngine.UpdateProgressBar(progress);
+                    untilUpdate = updateInterval;
                 }
             }
 
-            if (writer != null) {
+            if (writer != null)
                 writer.Dispose();
-                writer = null;
-            }
             UpdatePostRenderReport(stats);
             taskEngine.UpdateStatus("Finished!");
             taskEngine.UpdateProgressBar(1);

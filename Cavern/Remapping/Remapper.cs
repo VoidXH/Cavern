@@ -40,10 +40,11 @@ namespace Cavern.Remapping {
             listener.UpdateRate = this.updateRate = updateRate;
             clips = new RemappedChannel[listener.MaximumSources = this.channels = channels];
             sources = new Source[channels];
+            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
             for (int channel = 0; channel < channels; ++channel) {
                 Source source = sources[channel] = new Source();
                 listener.AttachSource(source);
-                ChannelPrototype prototype = ChannelPrototype.Mapping[(int)ChannelPrototype.StandardMatrix[channels][channel]];
+                ChannelPrototype prototype = ChannelPrototype.Mapping[(int)matrix[channel]];
                 source.Clip = clips[channel] = new RemappedChannel(updateRate);
                 source.Loop = true;
                 source.LFE = prototype.LFE;

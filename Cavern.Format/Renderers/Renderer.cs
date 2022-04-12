@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Format.Decoders;
 using Cavern.Remapping;
@@ -45,7 +46,7 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// Get the bed channels.
         /// </summary>
-        public virtual ReferenceChannel[] GetChannels() => ChannelPrototype.StandardMatrix[stream.ChannelCount];
+        public virtual ReferenceChannel[] GetChannels() => ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
 
         /// <summary>
         /// Read the next <paramref name="samples"/> and update the <see cref="objects"/>.
@@ -74,7 +75,7 @@ namespace Cavern.Format.Renderers {
         /// Set up the renderer for a number of standard channels.
         /// </summary>
         protected void SetupChannels(int count) {
-            ReferenceChannel[] matrix = ChannelPrototype.StandardMatrix[count];
+            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(count);
             for (int channel = 0; channel < count; ++channel) {
                 Source source = new StreamMasterSource(reader, channel) {
                     Position = channelPositions[(int)matrix[channel]] * Listener.EnvironmentSize

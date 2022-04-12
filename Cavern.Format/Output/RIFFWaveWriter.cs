@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using Cavern.Format.InOut;
+using Cavern.Format.Transcoders;
 
 namespace Cavern.Format {
     /// <summary>
@@ -35,12 +35,12 @@ namespace Cavern.Format {
         /// </summary>
         public override void WriteHeader() {
             // RIFF header
-            writer.Write(RIFFWaveUtils.syncWord1);
+            writer.Write(RIFFWave.syncWord1);
             int dataLength = (int)(Length * ChannelCount * ((int)Bits / 8));
             writer.Write(BitConverter.GetBytes(36 + dataLength)); // File length
 
             // Format header
-            writer.Write(RIFFWaveUtils.syncWord2);
+            writer.Write(RIFFWave.syncWord2);
             writer.Write(new byte[] { 16, 0, 0, 0 }); // FMT header size
             writer.Write(new byte[] { Bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
             writer.Write(BitConverter.GetBytes((short)ChannelCount)); // Audio channels
@@ -51,7 +51,7 @@ namespace Cavern.Format {
             writer.Write(BitConverter.GetBytes((short)Bits)); // Bit depth
 
             // Data header
-            writer.Write(RIFFWaveUtils.syncWord3LE);
+            writer.Write(RIFFWave.syncWord3LE);
             writer.Write(BitConverter.GetBytes(dataLength)); // Data length
         }
 

@@ -2,7 +2,7 @@
 using System.IO;
 
 using Cavern.Format.Common;
-using Cavern.Format.InOut;
+using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {
@@ -48,12 +48,12 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         public RIFFWaveDecoder(BinaryReader reader) {
             // RIFF header
-            if (reader.ReadInt32() != RIFFWaveUtils.syncWord1)
+            if (reader.ReadInt32() != RIFFWave.syncWord1)
                 throw new SyncException();
             reader.BaseStream.Position += 4; // File length
 
             // Format header
-            if (reader.ReadInt64() != RIFFWaveUtils.syncWord2)
+            if (reader.ReadInt64() != RIFFWave.syncWord2)
                 throw new SyncException();
             reader.BaseStream.Position += 4; // Format header length
             short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVE EX
@@ -84,7 +84,7 @@ namespace Cavern.Format.Decoders {
             int header = 0;
             do
                 header = (header << 8) | reader.ReadByte();
-            while (header != RIFFWaveUtils.syncWord3BE && reader.BaseStream.Position < reader.BaseStream.Length);
+            while (header != RIFFWave.syncWord3BE && reader.BaseStream.Position < reader.BaseStream.Length);
             length = reader.ReadInt32() * 8 / (int)Bits / ChannelCount;
             this.reader = BlockBuffer<byte>.Create(reader);
         }

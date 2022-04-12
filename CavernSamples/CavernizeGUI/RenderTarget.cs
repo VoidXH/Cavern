@@ -32,7 +32,7 @@ namespace CavernizeGUI {
         /// Default render targets.
         /// </summary>
         public static readonly RenderTarget[] Targets = {
-            new RenderTarget("5.1 side", ChannelPrototype.StandardMatrix[6]),
+            new RenderTarget("5.1 side", ChannelPrototype.GetStandardMatrix(6)),
             new RenderTarget("5.1 rear", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight
@@ -59,8 +59,8 @@ namespace CavernizeGUI {
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter,
                 ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight, ReferenceChannel.GodsVoice
             }),
-            new RenderTarget("7.1", ChannelPrototype.StandardMatrix[8]),
-            new RenderTarget("7.1.2 front", ChannelPrototype.StandardMatrix[10]),
+            new RenderTarget("7.1", ChannelPrototype.GetStandardMatrix(8)),
+            new RenderTarget("7.1.2 front", ChannelPrototype.GetStandardMatrix(10)),
             new RenderTarget("7.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,

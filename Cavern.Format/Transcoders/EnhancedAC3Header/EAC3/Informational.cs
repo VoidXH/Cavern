@@ -1,6 +1,6 @@
 ﻿using Cavern.Format.Utilities;
 
-namespace Cavern.Format.InOut {
+namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Header {
         bool infomdate;
         bool copyrightb;

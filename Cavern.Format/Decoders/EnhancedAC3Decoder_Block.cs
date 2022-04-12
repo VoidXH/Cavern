@@ -2,13 +2,13 @@
 
 using Cavern.Format.Common;
 using Cavern.Format.Decoders.EnhancedAC3;
-using static Cavern.Format.InOut.EnhancedAC3;
+using static Cavern.Format.Transcoders.EnhancedAC3;
 
 namespace Cavern.Format.Decoders {
     // Block decoder of E-AC-3
     partial class EnhancedAC3Decoder {
         void AudioBlock(int block) {
-            bool eac3 = header.Decoder == InOut.EnhancedAC3.Decoders.EAC3;
+            bool eac3 = header.Decoder == Transcoders.EnhancedAC3.Decoders.EAC3;
 
             if (blkswe)
                 for (int channel = 0; channel < channels.Length; ++channel)

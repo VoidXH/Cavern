@@ -50,14 +50,14 @@
                 <TextBlock x:Name="report" Margin="10,10,10,0" Text="After rendering has finished, more track information will appear here, like true object usage statistics." TextWrapping="Wrap" VerticalAlignment="Top"/>
             </Grid>
         </GroupBox>
+        <TextBlock HorizontalAlignment="Left" Margin="10,0,0,32" TextWrapping="Wrap" Text="Rendering mode:" Height="16" VerticalAlignment="Bottom"/>
+        <RadioButton x:Name="renderOnly" Content="Report generation only" HorizontalAlignment="Left" Margin="106,0,0,32" Height="15" VerticalAlignment="Bottom"/>
+        <RadioButton x:Name="renderToFile" Content="Export to file" HorizontalAlignment="Left" Margin="252,0,0,32" Height="15" VerticalAlignment="Bottom" IsChecked="True"/>
         <Button Content="Locate FFmpeg" Margin="0,0,85,30" HorizontalAlignment="Right" Width="120" Height="20" VerticalAlignment="Bottom" Click="LocateFFmpeg"/>
         <Button x:Name="render" Content="Render" Margin="0,0,10,30" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70" Click="Render"/>
         <StatusBar Height="25" VerticalAlignment="Bottom" Padding="10,0,0,0">
             <ProgressBar x:Name="progress" Height="10" Width="100" Maximum="1"/>
             <TextBlock x:Name="status" Text="" TextWrapping="Wrap"/>
         </StatusBar>
-        <TextBlock HorizontalAlignment="Left" Margin="10,0,0,32" TextWrapping="Wrap" Text="Rendering mode:" Height="16" VerticalAlignment="Bottom"/>
-        <RadioButton x:Name="renderOnly" Content="Report generation only" HorizontalAlignment="Left" Margin="106,0,0,32" Height="15" VerticalAlignment="Bottom"/>
-        <RadioButton x:Name="renderToFile" Content="Export to file" HorizontalAlignment="Left" Margin="252,0,0,32" Height="15" VerticalAlignment="Bottom" IsChecked="True"/>
     </Grid>
 </Window>

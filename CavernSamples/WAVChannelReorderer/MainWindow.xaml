@@ -1,0 +1,57 @@
+﻿<Window x:Class="WAVChannelReorderer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WAVChannelReorderer"
+        xmlns:vdx="clr-namespace:VoidX.WPF"
+        mc:Ignorable="d"
+        Title="WAV Channel Reorderer" Height="400" Width="600">
+    <Window.Resources>
+        <vdx:EnumToTitleCase x:Key="EnumToTitleCase"/>
+        <DataTemplate x:Key="ConvertEnum">
+            <TextBlock Text="{Binding Converter={StaticResource EnumToTitleCase}}"/>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <GroupBox Header="Input" HorizontalAlignment="Left" Width="270" Margin="10,10,0,30">
+            <Grid>
+                <ListBox x:Name="sourceChannels" Margin="10,35,10,37" ItemTemplate="{StaticResource ConvertEnum}"
+                         SelectionChanged="SourceChannelSelected"/>
+                <TextBlock Height="16" Margin="10,0,0,13" TextWrapping="Wrap" Text="Selected channel:"
+                           HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <local:ChannelComboBox x:Name="sourceChannel" Height="22" Margin="107,0,10,10" IsEnabled="False"
+                                       VerticalAlignment="Bottom" ItemTemplate="{StaticResource ConvertEnum}"
+                                       SelectionChanged="SourceChannelChanged"/>
+                <Button Content="Open file" Width="70" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Click="OpenFile"/>
+                <TextBlock x:Name="fileName" Margin="85,12,0,0" TextWrapping="Wrap" Text="Open a file to edit its channels."
+                           HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Output" Margin="285,10,10,30">
+            <Grid>
+                <TextBlock Margin="10,12,0,0" TextWrapping="Wrap" Text="Preset layout:"
+                           HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Button Content="Standard" Width="60" Margin="86,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Click="StandardTarget"/>
+                <Button Content="Dune HD" Width="60" Margin="151,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Click="DuneTarget"/>
+                <ListBox x:Name="targetChannels" Margin="10,35,10,37" ItemTemplate="{StaticResource ConvertEnum}"
+                         SelectionChanged="TargetChannelSelected"/>
+                <TextBlock Height="16" Margin="10,0,0,13" TextWrapping="Wrap" Text="Selected channel:"
+                           HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <local:ChannelComboBox x:Name="targetChannel" Height="22" Margin="107,0,10,10" IsEnabled="False"
+                                       VerticalAlignment="Bottom" ItemTemplate="{StaticResource ConvertEnum}"
+                                       SelectionChanged="TargetChannelChanged"/>
+            </Grid>
+        </GroupBox>
+        <StatusBar Height="25" VerticalAlignment="Bottom" Padding="10,0,0,0">
+            <ProgressBar x:Name="progress" Height="10" Width="100" Maximum="1"/>
+            <TextBlock x:Name="status" Text="" TextWrapping="Wrap"/>
+            <StatusBarItem HorizontalAlignment="Right">
+                <Button x:Name="export" Width="60" Padding="0" Content="Export" IsEnabled="False" Click="Export"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

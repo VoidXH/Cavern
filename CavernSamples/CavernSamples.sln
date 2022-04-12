@@ -11,24 +11,26 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.Filters", "..\Cavern
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.Format", "..\Cavern.Format\Cavern.Format.csproj", "{E87A8995-3B65-497B-A808-4DDED25D2ADE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImpulseFlattener", "ImpulseFlattener\ImpulseFlattener.csproj", "{55CF3028-6E8B-4320-B3AF-5D9229FF8BEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImpulseFlattener", "ImpulseFlattener\ImpulseFlattener.csproj", "{55CF3028-6E8B-4320-B3AF-5D9229FF8BEC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.QuickEQ", "..\Cavern.QuickEQ\Cavern.QuickEQ.csproj", "{B657F4AC-A378-486F-9355-937499DDD335}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRTFSetImporter", "HRTFSetImporter\HRTFSetImporter.csproj", "{E9B783E0-314F-461A-B959-BA459EA53BB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HRTFSetImporter", "HRTFSetImporter\HRTFSetImporter.csproj", "{E9B783E0-314F-461A-B959-BA459EA53BB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deconvolver", "Deconvolver\Deconvolver.csproj", "{BBF0C06D-880A-480F-BFA1-23041F574578}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deconvolver", "Deconvolver\Deconvolver.csproj", "{BBF0C06D-880A-480F-BFA1-23041F574578}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRTFSetStatista", "HRTFSetStatista\HRTFSetStatista.csproj", "{08435591-B0BA-4A24-B785-1136B0DFC97D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HRTFSetStatista", "HRTFSetStatista\HRTFSetStatista.csproj", "{08435591-B0BA-4A24-B785-1136B0DFC97D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{48FD3823-A0AC-4A0F-9000-CA31DD29727F}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WavefrontSimulator", "WavefrontSimulator\WavefrontSimulator.csproj", "{6CE3E39D-348C-443C-8909-E7F6A965D51E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WavefrontSimulator", "WavefrontSimulator\WavefrontSimulator.csproj", "{6CE3E39D-348C-443C-8909-E7F6A965D51E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WAVChannelReorderer", "WAVChannelReorderer\WAVChannelReorderer.csproj", "{042B52BE-0680-45A1-8845-8BACA075B7EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,6 +78,10 @@ Global
 		{6CE3E39D-348C-443C-8909-E7F6A965D51E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CE3E39D-348C-443C-8909-E7F6A965D51E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CE3E39D-348C-443C-8909-E7F6A965D51E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{042B52BE-0680-45A1-8845-8BACA075B7EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{042B52BE-0680-45A1-8845-8BACA075B7EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{042B52BE-0680-45A1-8845-8BACA075B7EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{042B52BE-0680-45A1-8845-8BACA075B7EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

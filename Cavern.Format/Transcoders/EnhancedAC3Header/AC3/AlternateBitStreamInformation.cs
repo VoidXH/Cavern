@@ -1,6 +1,6 @@
 ﻿using Cavern.Format.Utilities;
 
-namespace Cavern.Format.InOut {
+namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Header {
         int? langcod;
         int? langcod2;

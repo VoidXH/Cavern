@@ -90,7 +90,8 @@ namespace Cavern.Remapping {
             WideLeft = new ChannelPrototype(-70, "Wide left"),
             WideRight = new ChannelPrototype(70, "Wide right"),
             TopRearLeft = new ChannelPrototype(-160, -45, "Top rear left"),
-            TopRearRight = new ChannelPrototype(160, -45, "Top rear right");
+            TopRearRight = new ChannelPrototype(160, -45, "Top rear right"),
+            TopRearCenter = new ChannelPrototype(180, -45, "Top rear center");
 
         const string frontLeftMark = "L",
             frontRightMark = "R",
@@ -136,7 +137,7 @@ namespace Cavern.Remapping {
             FrontLeft, FrontRight, FrontCenter, ScreenLFE, RearLeft, RearRight, SideLeft, SideRight,
             FrontLeftCenter, FrontRightCenter, HearingImpaired, VisuallyImpaired, Unused, MotionData, ExternalData,
             TopFrontLeft, TopFrontRight, TopSideLeft, TopSideRight, SignLanguage, BottomSurround, TopFrontCenter,
-            GodsVoice, RearCenter, WideLeft, WideRight, TopRearLeft, TopRearRight
+            GodsVoice, RearCenter, WideLeft, WideRight, TopRearLeft, TopRearRight, TopRearCenter
         };
 
         /// <summary>
@@ -144,7 +145,7 @@ namespace Cavern.Remapping {
         /// </summary>
         /// <remarks>Matrices with 8+ channels are DCP orders, with messy standardization, and are unused in commercial applications.
         /// Manual revision before each workflow is recommended when working with non-5.1 DCPs or content with 8+ channels.</remarks>
-        public static readonly ReferenceChannel[][] StandardMatrix = {
+        static readonly ReferenceChannel[][] StandardMatrix = {
             new ReferenceChannel[0],
             // 1CH: 1.0 (C)
             new ReferenceChannel[] { ReferenceChannel.FrontCenter},
@@ -230,6 +231,22 @@ namespace Cavern.Remapping {
                 ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage, ReferenceChannel.BottomSurround
             }
         };
+
+        /// <summary>
+        /// Gets an industry standard channel matrix for a given channel count.
+        /// </summary>
+        /// <remarks>If the channel count is larger than the largest supported layout, it will be filled with
+        /// <see cref="ReferenceChannel.Unknown"/>.</remarks>
+        public static ReferenceChannel[] GetStandardMatrix(int count) {
+            int subcount = Math.Min(count, StandardMatrix.Length);
+            ReferenceChannel[] matrix = StandardMatrix[count];
+            if (subcount != count) {
+                Array.Resize(ref matrix, count);
+                for (int i = subcount; i < count; ++i)
+                    matrix[i] = ReferenceChannel.Unknown;
+            }
+            return matrix;
+        }
 
         /// <summary>
         /// Get a <paramref name="channel"/>'s <see cref="ChannelPrototype"/> of the standard layout

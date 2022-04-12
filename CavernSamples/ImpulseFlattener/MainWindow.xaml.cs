@@ -109,12 +109,12 @@ namespace ImpulseFlattener {
 
                 int targetLen = QMath.Base2Ceil((int)reader.Length);
                 if (separateExport.IsChecked.Value) {
-                    ReferenceChannel[] channels = ChannelPrototype.StandardMatrix[reader.ChannelCount];
+                    ReferenceChannel[] channels = ChannelPrototype.GetStandardMatrix(reader.ChannelCount);
                     for (int ch = 0; ch < reader.ChannelCount; ++ch) {
                         string exportName = Path.GetFileName(browser.FileName);
                         int idx = exportName.LastIndexOf('.');
                         string channelName = ChannelPrototype.Mapping[(int)channels[ch]].Name;
-                        exporter.FileName = $"{exportName.Substring(0, idx)} - {channelName}{exportName.Substring(idx)}";
+                        exporter.FileName = $"{exportName[..idx]} - {channelName}{exportName[idx..]}";
 
                         if (exporter.ShowDialog().Value) {
                             float[] channel = new float[targetLen * 2];

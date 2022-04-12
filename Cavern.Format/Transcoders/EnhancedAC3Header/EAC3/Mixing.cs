@@ -1,8 +1,8 @@
 ﻿using Cavern.Format.Common;
 using Cavern.Format.Utilities;
-using static Cavern.Format.InOut.EnhancedAC3;
+using static Cavern.Format.Transcoders.EnhancedAC3;
 
-namespace Cavern.Format.InOut {
+namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Header {
         /// <summary>
         /// Mixing metadata is present and should be used (mixmdate).

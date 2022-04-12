@@ -25,6 +25,8 @@ CavernSamples/HRTFSetStatista/bin/
 CavernSamples/HRTFSetStatista/obj/
 CavernSamples/ImpulseFlattener/bin/
 CavernSamples/ImpulseFlattener/obj/
+CavernSamples/WAVChannelReorderer/bin/
+CavernSamples/WAVChannelReorderer/obj/
 CavernSamples/WavefrontSimulator/bin/
 CavernSamples/WavefrontSimulator/obj/
 CavernUnity DLL/bin/
