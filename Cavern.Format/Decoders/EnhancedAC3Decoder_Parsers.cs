@@ -35,14 +35,13 @@
             }
 
             for (int channel = 0; channel < channels.Length; ++channel) {
-                strtmant[channel] = 0;
                 if (ecplinu)
                     endmant[channel] = ecplsubbndtab[ecpl_begin_subbnd];
                 else {
                     if (spxinu && !cplinu[block])
                         endmant[channel] = ParseSpxbandtable(spx_begin_subbnd);
-                    else if (cplinu[block])
-                        endmant[channel] = cplstrtmant;
+                    else if (chincpl[block])
+                        endmant[channel] = 37 + 12 * cplbegf; // TODO: same as cplstrtmant?
                     else
                         endmant[channel] = (chbwcod[channel] + 12) * 3 + 37;
                 }

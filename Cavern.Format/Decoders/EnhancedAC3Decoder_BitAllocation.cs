@@ -55,7 +55,7 @@ namespace Cavern.Format.Decoders {
                             break;
                         case 4:
                             if (bap4Bits == 0) {
-                                bap4Bits = 3;
+                                bap4Bits = 2;
                                 extractor.Skip(bitsToRead[4]); // TODO: temp
                             } else
                                 --bap4Bits;
@@ -69,22 +69,21 @@ namespace Cavern.Format.Decoders {
         }
 
         void Allocate(int channel, int[] gexp, ExpStrat expstr) {
-            int start = strtmant[channel];
             int end = endmant[channel];
             int fgain = fastgain[fgaincod[channel]];
             if (csnroffst == 0 && fsnroffst[channel] == 0)
                 Array.Clear(allocation[channel].bap, 0, allocation[channel].bap.Length);
             int snroffset = (csnroffst - 15) << 4 + fsnroffst[channel] << 2;
-            Allocate(start, end, fgain, snroffset, gexp, nchgrps[channel], exps[channel][0],
+            Allocate(0, end, fgain, snroffset, gexp, nchgrps[channel], exps[channel][0],
                 expstr, allocation[channel], deltba[channel]);
         }
 
         void AllocateCoupling(ExpStrat expstr) {
             int fgain = fastgain[cplfgaincod];
-            if (csnroffst == 0 && lfefsnroffst == 0)
+            if (csnroffst == 0 && cplfsnroffst == 0)
                 Array.Clear(couplingAllocation.bap, 0, couplingAllocation.bap.Length);
             int snroffset = (csnroffst - 15) << 4 + cplfsnroffst << 2;
-            Allocate(cplstrtmant, cplendmant, fgain, snroffset, cplexps, ncplgrps, cplabsexp,
+            Allocate(cplstrtmant, cplendmant, fgain, snroffset, cplexps, ncplgrps, cplabsexp << 1,
                 expstr, couplingAllocation, cpldeltba, (cplfleak << 8) + 768, (cplsleak << 8) + 768);
         }
 
@@ -112,7 +111,7 @@ namespace Cavern.Format.Decoders {
 
             // Unbiased mapped values
             for (int grp = 0; grp < ngrps * 3; ++grp)
-                dexp[grp] = dexp[grp] - 2;
+                dexp[grp] -= 2;
 
             // Convert from differentials to absolutes
             int i, j;
@@ -167,8 +166,8 @@ namespace Cavern.Format.Decoders {
             int bndstrt = masktab[start];
             int bndend = masktab[end - 1] + 1;
             int begin;
-            int lowcomp = 0;
             if (bndstrt == 0) { // For full bandwidth and LFE channels
+                int lowcomp = 0;
                 lowcomp = CalcLowcomp(lowcomp, bndpsd[0], bndpsd[1], 0);
                 excite[0] = bndpsd[0] - fgain - lowcomp;
                 lowcomp = CalcLowcomp(lowcomp, bndpsd[1], bndpsd[2], 1);
@@ -197,7 +196,7 @@ namespace Cavern.Format.Decoders {
                     excite[bin] = Math.Max(fastleak - lowcomp, slowleak);
                 }
                 begin = 22;
-            } else /* For coupling channel */
+            } else // For coupling channel
                 begin = bndstrt;
             for (int bin = begin; bin < bndend; ++bin) {
                 fastleak -= fdecay;
@@ -217,17 +216,14 @@ namespace Cavern.Format.Decoders {
 
             // Apply delta bit allocation
             if (dba.enabled == DeltaBitAllocationMode.Reuse || dba.enabled == DeltaBitAllocationMode.NewInfoFollows) {
-                int band = 0;
                 int[] offset = dba.Offset;
                 int[] length = dba.Length;
                 int[] bitAllocation = dba.BitAllocation;
-                for (int seg = 0; seg < offset.Length; ++seg) {
+                for (int band = bndstrt, seg = 0; seg < offset.Length; ++seg) {
                     band += offset[seg];
                     int delta = bitAllocation[seg] >= 4 ? (bitAllocation[seg] - 3) << 7 : ((bitAllocation[seg] - 4) << 7);
-                    for (k = 0; k < length[seg]; ++k) {
-                        mask[band] += delta;
-                        ++band;
-                    }
+                    for (k = 0; k < length[seg]; ++k)
+                        mask[band++] += delta;
                 }
             }
 

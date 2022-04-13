@@ -99,8 +99,10 @@ namespace Cavern.Format.Renderers {
         /// <param name="samples">Samples per channel</param>
         public override void Update(int samples) {
             if (lfeResult.Length != samples) {
+                timeslotResult = new float[finalResult.Length][];
                 for (int obj = 0; obj < finalResult.Length; ++obj)
                     finalResult[obj] = new float[samples];
+                lfeTimeslot = new float[samples];
                 lfeResult = new float[samples];
             }
 

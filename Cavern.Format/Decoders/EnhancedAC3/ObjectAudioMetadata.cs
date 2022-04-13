@@ -25,7 +25,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Bed channels used. The first dimension is the element ID, the second is one bit for each channel,
         /// in the order of <see cref="bedChannels"/>.
         /// </summary>
-        bool[][] bedAssignment;
+        bool[][] bedAssignment = new bool[0][];
 
         /// <summary>
         /// Count of bed channels.

@@ -134,7 +134,6 @@ namespace Cavern.Format.Decoders {
         int[] spxattencod;
         int[] spxblnd;
         int[] spxbndsztab;
-        int[] strtmant;
         int[] transproclen;
         int[] transprocloc;
         int[][] chmant;
@@ -183,7 +182,6 @@ namespace Cavern.Format.Decoders {
             spxcoe = new bool[channels];
             spxcoexp = new int[channels][];
             spxcomant = new int[channels][];
-            strtmant = new int[channels];
             transproclen = new int[channels];
             transprocloc = new int[channels];
 
