@@ -34,6 +34,12 @@ namespace Cavern.Format.Transcoders {
         public int SampleRateCode { get; private set; }
 
         /// <summary>
+        /// Number of the substream (substreamid).
+        /// 0 marks the beginning of a new timeslot, incremented values overwrite previous frames.
+        /// </summary>
+        public int SubstreamID { get; private set; }
+
+        /// <summary>
         /// Number of 16-bit words in this frame (words_per_syncframe).
         /// </summary>
         public int WordsPerSyncframe { get; private set; }
@@ -70,11 +76,6 @@ namespace Cavern.Format.Transcoders {
         int frmsizecod;
 
         /// <summary>
-        /// Number of the substream. 0 marks the beginning of a new timeslot, incremented values overwrite previous frames.
-        /// </summary>
-        int substreamid;
-
-        /// <summary>
         /// Reads an E-AC-3 header from a bitstream.
         /// </summary>
         /// <remarks>Has to read a calculated number of bytes from the source stream.</remarks>
@@ -85,7 +86,7 @@ namespace Cavern.Format.Transcoders {
                 throw new SyncException();
 
             StreamType = (StreamTypes)extractor.Read(2);
-            substreamid = extractor.Read(3);
+            SubstreamID = extractor.Read(3);
             WordsPerSyncframe = extractor.Read(11) + 1;
             SampleRateCode = extractor.Read(2);
             Blocks = numberOfBlocks[extractor.Read(2)];
@@ -95,6 +96,7 @@ namespace Cavern.Format.Transcoders {
 
             if (Decoder != EnhancedAC3.Decoders.EAC3) {
                 StreamType = StreamTypes.Repackaged;
+                SubstreamID = 0;
                 Blocks = 6;
                 SampleRateCode = extractor[4] >> 6;
                 frmsizecod = extractor[4] & 63;

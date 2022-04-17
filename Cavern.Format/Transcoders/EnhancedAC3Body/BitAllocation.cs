@@ -1,10 +1,9 @@
 ﻿using System;
 
-using Cavern.Format.Decoders.EnhancedAC3;
 using Cavern.Format.Utilities;
 
-namespace Cavern.Format.Decoders {
-    partial class EnhancedAC3Decoder {
+namespace Cavern.Format.Transcoders {
+    partial class EnhancedAC3Body {
         struct Allocation {
             public int[] dexp;
             public int[] exp;
@@ -34,8 +33,8 @@ namespace Cavern.Format.Decoders {
                 bap4Bits = 0;
             }
 
-            public void ReadMantissa(BitExtractor extractor, int[] target, int count) {
-                for (int bin = 0; bin < count; ++bin) {
+            public void ReadMantissa(BitExtractor extractor, int[] target, int start, int end) {
+                for (int bin = start; bin < end; ++bin) {
                     switch (bap[bin]) {
                         case 1:
                             if (bap1Bits == 0) {
@@ -114,11 +113,11 @@ namespace Cavern.Format.Decoders {
             int grpsize = expstr != ExpStrat.D45 ? (int)expstr : 4;
             int[] exp = allocation.exp;
             exp[0] = absexp;
-            int expOffset = 0;
+            int expOffset = start == 0 ? 1 : start;
             for (i = 0; i < (ngrps * 3); ++i) {
                 absexp += dexp[i] - 2; // Convert from differentials to absolutes using unbiased mapped values
                 for (j = 0; j < grpsize; ++j)
-                    exp[++expOffset] = absexp;
+                    exp[expOffset++] = absexp;
             }
 
             // Initialization
@@ -144,31 +143,28 @@ namespace Cavern.Format.Decoders {
                 for (i = j; i < lastbin; ++i, ++j)
                     bndpsd[k] = LogAdd(bndpsd[k], psd[j]);
                 ++k;
-            }
-            while (end > lastbin);
+            } while (end > lastbin);
 
             // Compute excitation function
             int[] excite = allocation.excite;
             int bndstrt = masktab[start];
             int bndend = masktab[end - 1] + 1;
             int begin;
-            if (bndstrt == 0) { // For full bandwidth and LFE channels
+            if (bndstrt == 0) { // Full bandwidth and LFE channels
                 int lowcomp = CalcLowcomp(0, bndpsd[0], bndpsd[1], 0);
                 excite[0] = bndpsd[0] - fgain - lowcomp;
                 lowcomp = CalcLowcomp(lowcomp, bndpsd[1], bndpsd[2], 1);
                 excite[1] = bndpsd[1] - fgain - lowcomp;
                 begin = 7;
                 for (int bin = 2; bin < 7; ++bin) {
-                    if ((bndend != 7) || (bin != 6))
+                    if ((bndend != 7 || bin != 6))
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
                     fastleak = bndpsd[bin] - fgain;
                     slowleak = bndpsd[bin] - sgain;
                     excite[bin] = fastleak - lowcomp;
-                    if ((bndend != 7) || (bin != 6)) {
-                        if (bndpsd[bin] <= bndpsd[bin + 1]) {
-                            begin = bin + 1;
-                            break;
-                        }
+                    if ((bndend != 7 || bin != 6) && bndpsd[bin] <= bndpsd[bin + 1]) {
+                        begin = bin + 1;
+                        break;
                     }
                 }
                 for (int bin = begin; bin < Math.Min(bndend, 22); ++bin) {
@@ -179,13 +175,11 @@ namespace Cavern.Format.Decoders {
                     excite[bin] = Math.Max(fastleak - lowcomp, slowleak);
                 }
                 begin = 22;
-            } else // For coupling channel
+            } else // Coupling channel
                 begin = bndstrt;
             for (int bin = begin; bin < bndend; ++bin) {
-                fastleak -= fdecay;
-                fastleak = Math.Max(fastleak, bndpsd[bin] - fgain);
-                slowleak -= sdecay;
-                slowleak = Math.Max(slowleak, bndpsd[bin] - sgain);
+                fastleak = Math.Max(fastleak - fdecay, bndpsd[bin] - fgain);
+                slowleak = Math.Max(slowleak - sdecay, bndpsd[bin] - sgain);
                 excite[bin] = Math.Max(fastleak, slowleak);
             }
 

@@ -1,17 +1,11 @@
-﻿using Cavern.Format.Decoders.EnhancedAC3;
-using Cavern.Remapping;
+﻿using Cavern.Remapping;
 
-namespace Cavern.Format.Decoders {
+namespace Cavern.Format.Transcoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
-    partial class EnhancedAC3Decoder {
+    partial class EnhancedAC3Body {
         const int maxAllocationSize = 256;
         const int lfestrtmant = 0;
         const int lfeendmant = 7;
-
-        /// <summary>
-        /// Used full bandwidth channels.
-        /// </summary>
-        ReferenceChannel[] channels;
 
         /// <summary>
         /// Per-channel bit allocation data.

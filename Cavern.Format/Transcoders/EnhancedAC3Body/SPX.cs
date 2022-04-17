@@ -1,5 +1,5 @@
-﻿namespace Cavern.Format.Decoders {
-    partial class EnhancedAC3Decoder {
+﻿namespace Cavern.Format.Transcoders {
+    partial class EnhancedAC3Body {
         /// <summary>
         /// Read spectral extension metadata for a given <paramref name="block"/>.
         /// </summary>
@@ -53,6 +53,9 @@
             }
         }
 
+        /// <summary>
+        /// Set up SPX as unused.
+        /// </summary>
         void ClearSPX() {
             spxinu = false;
             for (int channel = 0; channel < channels.Length; ++channel) {

@@ -12,7 +12,7 @@ namespace Cavern.Format.Decoders {
     /// <summary>
     /// Converts an Enhanced AC-3 bitstream to raw samples.
     /// </summary>
-    public partial class EnhancedAC3Decoder : FrameBasedDecoder {
+    public class EnhancedAC3Decoder : FrameBasedDecoder {
         /// <summary>
         /// True if the stream has reached its end.
         /// </summary>
@@ -42,6 +42,11 @@ namespace Cavern.Format.Decoders {
         /// Header data container and reader.
         /// </summary>
         readonly EnhancedAC3Header header = new EnhancedAC3Header();
+
+        /// <summary>
+        /// Independently decoded substreams.
+        /// </summary>
+        readonly Dictionary<int, EnhancedAC3Body> bodies = new Dictionary<int, EnhancedAC3Body>();
 
         /// <summary>
         /// Rendered samples for each channel.
@@ -81,7 +86,7 @@ namespace Cavern.Format.Decoders {
         /// Decode a new frame if the cached samples are already fetched.
         /// </summary>
         protected override float[] DecodeFrame() {
-            if (channels == null)
+            if (outputs.Count == 0)
                 ReadHeader();
 
             do {
@@ -90,23 +95,12 @@ namespace Cavern.Format.Decoders {
                     return outCache;
                 }
 
-                // Create or reuse per-channel outputs
-                for (int i = 0; i < channels.Length; ++i) {
-                    if (outputs.ContainsKey(channels[i]) && outputs[channels[i]].Length == FrameSize)
-                        Array.Clear(outputs[channels[i]], 0, FrameSize);
-                    else
-                        outputs[channels[i]] = new float[FrameSize];
-                }
-                if (header.LFE) {
-                    if (outputs.ContainsKey(ReferenceChannel.ScreenLFE) &&
-                        outputs[ReferenceChannel.ScreenLFE].Length == FrameSize)
-                        Array.Clear(outputs[ReferenceChannel.ScreenLFE], 0, FrameSize);
-                    else
-                        outputs[ReferenceChannel.ScreenLFE] = new float[FrameSize];
-                }
-
-                for (int block = 0; block < cplstre.Length; ++block)
-                    AudioBlock(block);
+                EnhancedAC3Body body = bodies[header.SubstreamID];
+                body.Update();
+                for (int i = 0, end = body.Channels.Count; i < end; ++i)
+                    outputs[body.Channels[i]] = body.FrameResult[i];
+                if (header.LFE)
+                    outputs[ReferenceChannel.ScreenLFE] = body.LFEResult;
 
                 Extensions.Decode(extractor);
                 ReadHeader();
@@ -126,18 +120,9 @@ namespace Cavern.Format.Decoders {
         void ReadHeader() {
             if (reader.Readable) {
                 extractor = header.Decode(reader);
-                channels = header.GetChannelArrangement();
-                CreateCacheTables(header.Blocks, channels.Length);
-                if (header.Decoder == Transcoders.EnhancedAC3.Decoders.EAC3)
-                    AudioFrame();
-                else {
-                    blkswe = true;
-                    dithflage = true;
-                    bamode = true;
-                    snroffststr = -1;
-                    firstcplleak = false;
-                    // TODO: disable AHT when it's implemented
-                }
+                if (!bodies.ContainsKey(header.SubstreamID))
+                    bodies[header.SubstreamID] = new EnhancedAC3Body(header);
+                bodies[header.SubstreamID].PrepareUpdate(extractor);
             } else
                 Finished = true;
         }

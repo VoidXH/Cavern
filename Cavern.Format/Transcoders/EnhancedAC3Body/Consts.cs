@@ -1,5 +1,5 @@
-﻿namespace Cavern.Format.Decoders {
-    partial class EnhancedAC3Decoder {
+﻿namespace Cavern.Format.Transcoders {
+    partial class EnhancedAC3Body {
         /// <summary>
         /// Meaning of values for chexpstr[ch], cplexpstr, and lfeexpstr.
         /// </summary>

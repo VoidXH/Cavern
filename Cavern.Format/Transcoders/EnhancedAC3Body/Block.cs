@@ -1,14 +1,16 @@
 ﻿using System;
 
 using Cavern.Format.Common;
-using Cavern.Format.Decoders.EnhancedAC3;
 using static Cavern.Format.Transcoders.EnhancedAC3;
 
-namespace Cavern.Format.Decoders {
-    // Block decoder of E-AC-3
-    partial class EnhancedAC3Decoder {
+namespace Cavern.Format.Transcoders {
+    partial class EnhancedAC3Body {
+        /// <summary>
+        /// Decode an (E-)AC-3 audio block.
+        /// </summary>
+        /// <param name="block">Number of the block in the currently decoded syncframe</param>
         void AudioBlock(int block) {
-            bool eac3 = header.Decoder == Transcoders.EnhancedAC3.Decoders.EAC3;
+            bool eac3 = header.Decoder == EnhancedAC3.Decoders.EAC3;
 
             if (blkswe)
                 for (int channel = 0; channel < channels.Length; ++channel)
@@ -302,13 +304,13 @@ namespace Cavern.Format.Decoders {
                 if (chahtinu[channel] == 0) {
                     if (chexpstr[block][channel] != ExpStrat.Reuse)
                         Allocate(channel, exps[channel], chexpstr[block][channel]);
-                    allocation[channel].ReadMantissa(extractor, chmant[channel], endmant[channel]);
+                    allocation[channel].ReadMantissa(extractor, chmant[channel], 0, endmant[channel]);
                 } else
                     throw new UnsupportedFeatureException("AHT");
 
                 if (cplinu[block] && chincpl[channel] && !got_cplchan) {
                     if (cplahtinu == 0) {
-                        couplingAllocation.ReadMantissa(extractor, cplmant, 12 * ncplsubnd);
+                        couplingAllocation.ReadMantissa(extractor, cplmant, cplstrtmant, cplendmant);
                         got_cplchan = true;
                     } else
                         throw new UnsupportedFeatureException("AHT");
@@ -319,7 +321,7 @@ namespace Cavern.Format.Decoders {
                 if (lfeahtinu == 0) {
                     if (lfeexpstr[block])
                         AllocateLFE(lfeexps, ExpStrat.D15);
-                    lfeAllocation.ReadMantissa(extractor, lfemant, nlfemant);
+                    lfeAllocation.ReadMantissa(extractor, lfemant, lfestrtmant, lfeendmant);
                 } else
                     throw new UnsupportedFeatureException("AHT");
             }

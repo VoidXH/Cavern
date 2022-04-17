@@ -2,9 +2,11 @@
 using Cavern.Utilities;
 using static Cavern.Format.Transcoders.EnhancedAC3;
 
-namespace Cavern.Format.Decoders {
-    // Audio frame header parsing for E-AC-3
-    partial class EnhancedAC3Decoder {
+namespace Cavern.Format.Transcoders {
+    partial class EnhancedAC3Body {
+        /// <summary>
+        /// For E-AC-3, data for multiple blocks is included in an audio frame header.
+        /// </summary>
         void AudioFrame() {
             expstre = header.Blocks != 6 || extractor.ReadBit();
             ahte = header.Blocks == 6 && extractor.ReadBit();

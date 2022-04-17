@@ -1,5 +1,5 @@
-﻿namespace Cavern.Format.Decoders {
-    partial class EnhancedAC3Decoder {
+﻿namespace Cavern.Format.Transcoders {
+    partial class EnhancedAC3Body {
         /// <summary>
         /// Parse spectral extension data.
         /// </summary>
@@ -54,7 +54,7 @@
 
                 int strat = (int)chexpstr[block][channel];
                 if (strat != 0)
-                    nchgrps[channel] = (endmant[channel] - groupAdd[strat - 1]) / groupDiv[strat - 1];
+                    nchgrps[channel] = (endmant[channel] + groupAdd[strat - 1]) / groupDiv[strat - 1];
             }
         }
 
