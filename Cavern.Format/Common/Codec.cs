@@ -18,6 +18,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         HEVC,
         /// <summary>
+        /// AC-3 (Dolby Digital), audio.
+        /// </summary>
+        AC3,
+        /// <summary>
         /// DTS, could be any DTS format, audio.
         /// </summary>
         DTS,
@@ -50,7 +54,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
-        static readonly Codec[] audioCodecs = { Codec.DTS, Codec.DTS_HD, Codec.EnhancedAC3,
+        static readonly Codec[] audioCodecs = { Codec.AC3, Codec.DTS, Codec.DTS_HD, Codec.EnhancedAC3,
             Codec.Opus, Codec.PCM_Float, Codec.PCM_LE };
 
         /// <summary>

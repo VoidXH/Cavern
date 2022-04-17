@@ -8,17 +8,19 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Additional downmixing information (dmixmod, ltrtcmixlev, ltrtsurmixlev, lorocmixlev, lorosurmixlev).
         /// </summary>
+        /// <remarks>Contains timecod1, if the header is not alternative.</remarks>
         int? additionalDownmixInfo;
 
         /// <summary>
         /// Additional mixing information (dsurexmod, dheadphonmod, adconvtyp, xbsi2, encinfo).
         /// </summary>
+        /// <remarks>Contains timecod2, if the header is not alternative.</remarks>
         int? additionalMixInfo;
 
         /// <summary>
-        /// Decodes the alternative AC-3 header after the ID of the decoder.
+        /// Decodes the legacy or alternative AC-3 header after the ID of the decoder.
         /// </summary>
-        void AlternateBitStreamInformation(BitExtractor extractor) {
+        void BitStreamInformation(BitExtractor extractor) {
             if ((ChannelMode & 0x1) != 0 && (ChannelMode != 0x1)) // 3 fronts exist
                 centerDownmix = extractor.Read(2);
             if ((ChannelMode & 0x4) != 0) // Surrounds exist

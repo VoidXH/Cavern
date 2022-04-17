@@ -119,10 +119,9 @@ namespace Cavern.Format.Transcoders {
             channelMapping = null;
             switch (Decoder) {
                 case EnhancedAC3.Decoders.AlternateAC3:
-                    AlternateBitStreamInformation(extractor);
-                    break;
                 case EnhancedAC3.Decoders.AC3:
-                    throw new UnsupportedFeatureException("legacy");
+                    BitStreamInformation(extractor);
+                    break;
                 case EnhancedAC3.Decoders.EAC3:
                     BitStreamInformationEAC3(extractor);
                     break;

@@ -53,11 +53,13 @@ namespace Cavern.Format.Decoders {
                         else
                             cplendf = spxbegf < 6 ? spxbegf - 2 : (spxbegf * 2 - 7);
                         ncplsubnd = 3 + cplendf - cplbegf;
+                        ncplbnd = ncplsubnd;
                         if (ncplsubnd < 1)
                             throw new DecoderException(3);
                         if (cplbndstrce = !eac3 || extractor.ReadBit())
                             for (int band = 1; band < ncplsubnd; ++band)
-                                cplbndstrc[band] = extractor.ReadBit();
+                                if (cplbndstrc[band] = extractor.ReadBit())
+                                    --ncplbnd;
                     } else { // Enhanced coupling
                         ecplbegf = extractor.Read(4);
                         if (ecplbegf < 3)
@@ -86,12 +88,6 @@ namespace Cavern.Format.Decoders {
                     phsflginu = false;
                     ecplinu = false;
                 }
-
-                ncplbnd = 0;
-                for (int band = 1; band < ncplsubnd; ++band)
-                    if (cplbndstrc[band])
-                        ++ncplbnd;
-                ncplbnd = ncplsubnd - ncplbnd;
             }
 
             // Coupling coordinates, phase flags
@@ -201,7 +197,18 @@ namespace Cavern.Format.Decoders {
                 if (snroffste = (eac3 && block == 0) || extractor.ReadBit()) {
                     csnroffst = extractor.Read(6);
                     if (!eac3) {
-                        throw new UnsupportedFeatureException("ac3");
+                        if (cplinu[block]) {
+                            cplfsnroffst = extractor.Read(4);
+                            cplfgaincod = extractor.Read(3);
+                        }
+                        for (int channel = 0; channel < channels.Length; ++channel) {
+                            fsnroffst[channel] = extractor.Read(4);
+                            fgaincod[channel] = extractor.Read(3);
+                        }
+                        if (header.LFE) {
+                            lfefsnroffst = extractor.Read(4);
+                            lfefgaincod = extractor.Read(3);
+                        }
                     } else if (snroffststr == 1) {
                         blkfsnroffst = extractor.Read(4);
                         cplfsnroffst = blkfsnroffst;
@@ -293,7 +300,6 @@ namespace Cavern.Format.Decoders {
             bool got_cplchan = false;
             for (int channel = 0; channel < channels.Length; ++channel) {
                 if (chahtinu[channel] == 0) {
-                    chmant[channel] = new int[endmant[channel]];
                     if (chexpstr[block][channel] != ExpStrat.Reuse)
                         Allocate(channel, exps[channel], chexpstr[block][channel]);
                     allocation[channel].ReadMantissa(extractor, chmant[channel], endmant[channel]);
@@ -302,7 +308,6 @@ namespace Cavern.Format.Decoders {
 
                 if (cplinu[block] && chincpl[channel] && !got_cplchan) {
                     if (cplahtinu == 0) {
-                        cplmant = new int[12 * ncplsubnd];
                         couplingAllocation.ReadMantissa(extractor, cplmant, 12 * ncplsubnd);
                         got_cplchan = true;
                     } else

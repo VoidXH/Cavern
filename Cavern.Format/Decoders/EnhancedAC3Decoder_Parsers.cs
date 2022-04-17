@@ -30,8 +30,14 @@
             if (cplinu[block]) {
                 cplstrtmant = 37 + 12 * cplbegf;
                 cplendmant = 37 + 12 * (cplendf + 3);
-                if (cplexpstr[block] != ExpStrat.Reuse)
-                    ncplgrps = (cplendmant - cplstrtmant) / groupDiv[(int)cplexpstr[block] - 1];
+                if (cplexpstr[block] != ExpStrat.Reuse) {
+                    if (ecplinu) {
+                        ecplstartmant = ecplsubbndtab[ecpl_begin_subbnd];
+                        ecplendmant = ecplsubbndtab[ecpl_end_subbnd];
+                        ncplgrps = (ecplendmant - ecplstartmant) / groupDiv[(int)cplexpstr[block] - 1];
+                    } else
+                        ncplgrps = (cplendmant - cplstrtmant) / groupDiv[(int)cplexpstr[block] - 1];
+                }
             }
 
             for (int channel = 0; channel < channels.Length; ++channel) {
@@ -40,30 +46,25 @@
                 else {
                     if (spxinu && !cplinu[block])
                         endmant[channel] = ParseSpxbandtable(spx_begin_subbnd);
-                    else if (chincpl[block])
-                        endmant[channel] = 37 + 12 * cplbegf; // TODO: same as cplstrtmant?
+                    else if (chincpl[channel])
+                        endmant[channel] = cplstrtmant;
                     else
                         endmant[channel] = (chbwcod[channel] + 12) * 3 + 37;
                 }
 
-                switch (chexpstr[block][channel]) {
-                    case ExpStrat.D15:
-                        nchgrps[channel] = (endmant[channel] - 1) / 3;
-                        break;
-                    case ExpStrat.D25:
-                        nchgrps[channel] = (endmant[channel] + 2) / 6;
-                        break;
-                    case ExpStrat.D45:
-                        nchgrps[channel] = (endmant[channel] + 8) / 12;
-                        break;
-                    default:
-                        break;
-                }
+                int strat = (int)chexpstr[block][channel];
+                if (strat != 0)
+                    nchgrps[channel] = (endmant[channel] - groupAdd[strat - 1]) / groupDiv[strat - 1];
             }
         }
 
         /// <summary>
-        /// Divider of each <see cref="ExpStrat"/> for <see cref="ncplgrps"/>.
+        /// Addition for each <see cref="ExpStrat"/> to calculate group sizes.
+        /// </summary>
+        static readonly sbyte[] groupAdd = { -1, 2, 8 };
+
+        /// <summary>
+        /// Divider of each <see cref="ExpStrat"/> to calculate group sizes.
         /// </summary>
         static readonly byte[] groupDiv = { 3, 6, 12 };
     }

@@ -4,6 +4,7 @@ using Cavern.Remapping;
 namespace Cavern.Format.Decoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
     partial class EnhancedAC3Decoder {
+        const int maxAllocationSize = 256;
         const int lfestrtmant = 0;
         const int lfeendmant = 7;
 
@@ -94,6 +95,8 @@ namespace Cavern.Format.Decoders {
         int ecpl_end_subbnd;
         int ecplbegf;
         int ecplendf;
+        int ecplendmant;
+        int ecplstartmant;
         int fdcycod;
         int floorcod;
         int frmcplexpstr;
@@ -120,7 +123,7 @@ namespace Cavern.Format.Decoders {
         int[] chbwcod;
         int[] convexpstr;
         int[] cplexps;
-        int[] cplmant;
+        int[] cplmant = new int[maxAllocationSize];
         int[] endmant;
         int[] fgaincod;
         int[] frmchexpstr;
@@ -189,8 +192,6 @@ namespace Cavern.Format.Decoders {
                 chexpstr[block] = new ExpStrat[channels];
             }
 
-            const int maxAllocationSize = 384;
-
             allocation = new Allocation[channels];
             couplingAllocation = new Allocation(maxAllocationSize);
             lfeAllocation = new Allocation(maxAllocationSize);
@@ -198,6 +199,7 @@ namespace Cavern.Format.Decoders {
             lfedeltba.Reset();
             for (int channel = 0; channel < channels; ++channel) {
                 allocation[channel] = new Allocation(maxAllocationSize);
+                chmant[channel] = new int[maxAllocationSize];
                 cplcoexp[channel] = new int[cplbndstrc.Length];
                 cplcomant[channel] = new int[cplbndstrc.Length];
                 deltba[channel].Reset();

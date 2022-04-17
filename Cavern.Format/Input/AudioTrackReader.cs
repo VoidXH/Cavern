@@ -71,6 +71,7 @@ namespace Cavern.Format {
                 case Codec.DTS:
                     decoder = new DTSCoherentAcousticsDecoder(new BlockBuffer<byte>(ReadNextBlock));
                     break;
+                case Codec.AC3:
                 case Codec.EnhancedAC3:
                     decoder = new EnhancedAC3Decoder(new BlockBuffer<byte>(ReadNextBlock));
                     break;

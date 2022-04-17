@@ -43,14 +43,6 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
-        /// Gets the number of additional bytes required if <paramref name="forBits"/> has to be read.
-        /// </summary>
-        public int NeededBytes(int forBits) {
-            int partial = Position + forBits - source.Length * 8;
-            return (partial >> 3) + (partial % 8 != 0 ? 1 : 0);
-        }
-
-        /// <summary>
         /// Check the next bits without advancing the position.
         /// </summary>
         public int Peek(int bits) {
@@ -135,10 +127,6 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read the next bit and advance the position.
         /// </summary>
-        int NextBit() {
-            int result = (source[Position / 8] >> (7 - Position % 8)) & 1;
-            ++Position;
-            return result;
-        }
+        int NextBit() => (source[Position / 8] >> (7 - Position++ % 8)) & 1;
     }
 }

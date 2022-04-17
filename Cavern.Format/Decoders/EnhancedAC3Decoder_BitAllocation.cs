@@ -7,7 +7,6 @@ namespace Cavern.Format.Decoders {
     partial class EnhancedAC3Decoder {
         struct Allocation {
             public int[] dexp;
-            public int[] aexp;
             public int[] exp;
             public int[] psd;
             public int[] bndpsd;
@@ -21,7 +20,6 @@ namespace Cavern.Format.Decoders {
 
             public Allocation(int maxLength) {
                 dexp = new int[maxLength];
-                aexp = new int[maxLength];
                 exp = new int[maxLength];
                 psd = new int[maxLength];
                 bndpsd = new int[maxLength];
@@ -69,30 +67,32 @@ namespace Cavern.Format.Decoders {
         }
 
         void Allocate(int channel, int[] gexp, ExpStrat expstr) {
-            int end = endmant[channel];
-            int fgain = fastgain[fgaincod[channel]];
-            if (csnroffst == 0 && fsnroffst[channel] == 0)
+            if (csnroffst == 0 && fsnroffst[channel] == 0) {
                 Array.Clear(allocation[channel].bap, 0, allocation[channel].bap.Length);
-            int snroffset = (csnroffst - 15) << 4 + fsnroffst[channel] << 2;
-            Allocate(0, end, fgain, snroffset, gexp, nchgrps[channel], exps[channel][0],
+                return;
+            }
+            int snroffset = (((csnroffst - 15) << 4) + fsnroffst[channel]) << 2;
+            Allocate(0, endmant[channel], fastgain[fgaincod[channel]], snroffset, gexp, nchgrps[channel], exps[channel][0],
                 expstr, allocation[channel], deltba[channel]);
         }
 
         void AllocateCoupling(ExpStrat expstr) {
-            int fgain = fastgain[cplfgaincod];
-            if (csnroffst == 0 && cplfsnroffst == 0)
+            if (csnroffst == 0 && cplfsnroffst == 0) {
                 Array.Clear(couplingAllocation.bap, 0, couplingAllocation.bap.Length);
-            int snroffset = (csnroffst - 15) << 4 + cplfsnroffst << 2;
-            Allocate(cplstrtmant, cplendmant, fgain, snroffset, cplexps, ncplgrps, cplabsexp << 1,
+                return;
+            }
+            int snroffset = (((csnroffst - 15) << 4) + cplfsnroffst) << 2;
+            Allocate(cplstrtmant, cplendmant, fastgain[cplfgaincod], snroffset, cplexps, ncplgrps, cplabsexp << 1,
                 expstr, couplingAllocation, cpldeltba, (cplfleak << 8) + 768, (cplsleak << 8) + 768);
         }
 
         void AllocateLFE(int[] gexp, ExpStrat expstr) {
-            int fgain = fastgain[lfefgaincod];
-            if (csnroffst == 0 && lfefsnroffst == 0)
+            if (csnroffst == 0 && lfefsnroffst == 0) {
                 Array.Clear(lfeAllocation.bap, 0, lfeAllocation.bap.Length);
-            int snroffset = (csnroffst - 15) << 4 + lfefsnroffst << 2;
-            Allocate(lfestrtmant, lfeendmant, fgain, snroffset, gexp, nlfegrps, lfeexps[0],
+                return;
+            }
+            int snroffset = (((csnroffst - 15) << 4) + lfefsnroffst) << 2;
+            Allocate(lfestrtmant, lfeendmant, fastgain[lfefgaincod], snroffset, gexp, nlfegrps, lfeexps[0],
                 expstr, lfeAllocation, lfedeltba);
         }
 
@@ -109,28 +109,17 @@ namespace Cavern.Format.Decoders {
                 dexp[grp * 3 + 2] = expacc;
             }
 
-            // Unbiased mapped values
-            for (int grp = 0; grp < ngrps * 3; ++grp)
-                dexp[grp] -= 2;
-
-            // Convert from differentials to absolutes
+            // Expand to full absolute exponent array
             int i, j;
-            int[] aexp = allocation.aexp;
-            int prevexp = absexp;
-            for (i = 0; i < (ngrps * 3); ++i) {
-                aexp[i] = prevexp + dexp[i];
-                prevexp = aexp[i];
-            }
-
-            // Expand to full absolute exponent array, using grpsize
-            int grpsize = (int)expstr;
-            if (grpsize == (int)ExpStrat.D45)
-                grpsize = 4;
+            int grpsize = expstr != ExpStrat.D45 ? (int)expstr : 4;
             int[] exp = allocation.exp;
             exp[0] = absexp;
-            for (i = 0; i < (ngrps * 3); ++i)
+            int expOffset = 0;
+            for (i = 0; i < (ngrps * 3); ++i) {
+                absexp += dexp[i] - 2; // Convert from differentials to absolutes using unbiased mapped values
                 for (j = 0; j < grpsize; ++j)
-                    exp[i * grpsize + j + 1] = aexp[i];
+                    exp[++expOffset] = absexp;
+            }
 
             // Initialization
             int sdecay = slowdec[sdcycod];
@@ -151,12 +140,9 @@ namespace Cavern.Format.Decoders {
             int lastbin;
             do {
                 lastbin = Math.Min(bndtab[k] + bndsz[k], end);
-                bndpsd[k] = psd[j];
-                ++j;
-                for (i = j; i < lastbin; ++i) {
+                bndpsd[k] = psd[j++];
+                for (i = j; i < lastbin; ++i, ++j)
                     bndpsd[k] = LogAdd(bndpsd[k], psd[j]);
-                    ++j;
-                }
                 ++k;
             }
             while (end > lastbin);
@@ -167,8 +153,7 @@ namespace Cavern.Format.Decoders {
             int bndend = masktab[end - 1] + 1;
             int begin;
             if (bndstrt == 0) { // For full bandwidth and LFE channels
-                int lowcomp = 0;
-                lowcomp = CalcLowcomp(lowcomp, bndpsd[0], bndpsd[1], 0);
+                int lowcomp = CalcLowcomp(0, bndpsd[0], bndpsd[1], 0);
                 excite[0] = bndpsd[0] - fgain - lowcomp;
                 lowcomp = CalcLowcomp(lowcomp, bndpsd[1], bndpsd[2], 1);
                 excite[1] = bndpsd[1] - fgain - lowcomp;
@@ -189,10 +174,8 @@ namespace Cavern.Format.Decoders {
                 for (int bin = begin; bin < Math.Min(bndend, 22); ++bin) {
                     if ((bndend != 7) || (bin != 6))
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
-                    fastleak -= fdecay;
-                    fastleak = Math.Max(fastleak, bndpsd[bin] - fgain);
-                    slowleak -= sdecay;
-                    slowleak = Math.Max(slowleak, bndpsd[bin] - sgain);
+                    fastleak = Math.Max(fastleak - fdecay, bndpsd[bin] - fgain);
+                    slowleak = Math.Max(slowleak - sdecay, bndpsd[bin] - sgain);
                     excite[bin] = Math.Max(fastleak - lowcomp, slowleak);
                 }
                 begin = 22;
@@ -233,18 +216,14 @@ namespace Cavern.Format.Decoders {
             j = masktab[start];
             do {
                 lastbin = Math.Min(bndtab[j] + bndsz[j], end);
-                mask[j] -= snroffset;
-                mask[j] -= floor;
-                if (mask[j] < 0) {
+                mask[j] -= snroffset + floor;
+                if (mask[j] < 0)
                     mask[j] = 0;
-                }
-                mask[j] &= 0x1fe0;
-                mask[j] += floor;
+                mask[j] = (mask[j] & 0x1fe0) + floor;
                 for (k = i; k < lastbin; k++) {
                     int address = (psd[i] - mask[j]) >> 5;
                     address = Math.Min(63, Math.Max(0, address));
-                    bap[i] = baptab[address];
-                    i++;
+                    bap[i++] = baptab[address];
                 }
                 j++;
             }

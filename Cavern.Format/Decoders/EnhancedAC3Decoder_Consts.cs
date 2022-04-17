@@ -67,12 +67,12 @@
         /// <summary>
         /// Slow decay table.
         /// </summary>
-        static readonly int[] slowdec = new int[4] { 0x0f, 0x11, 0x13, 0x15 };
+        static readonly byte[] slowdec = new byte[4] { 0x0f, 0x11, 0x13, 0x15 };
 
         /// <summary>
         /// Fast decay table.
         /// </summary>
-        static readonly int[] fastdec = new int[4] { 0x3f, 0x53, 0x67, 0x7b };
+        static readonly byte[] fastdec = new byte[4] { 0x3f, 0x53, 0x67, 0x7b };
 
         /// <summary>
         /// Slow gain table.
@@ -97,7 +97,7 @@
         /// <summary>
         /// Banding structure tables.
         /// </summary>
-        static readonly int[] bndtab = new int[50] {
+        static readonly byte[] bndtab = new byte[50] {
             0,   1,  2,   3,   4,   5,   6,   7,   8,   9,
             10, 11, 12,  13,  14,  15,  16,  17,  18,  19,
             20, 21, 22,  23,  24,  25,  26,  27,  28,  31,
@@ -108,7 +108,7 @@
         /// <summary>
         /// Banding structure tables.
         /// </summary>
-        static readonly int[] bndsz = new int[50] {
+        static readonly byte[] bndsz = new byte[50] {
             1, 1,  1,  1,  1,  1,  1,  1,  1,  1,
             1, 1,  1,  1,  1,  1,  1,  1,  1,  1,
             1, 1,  1,  1,  1,  1,  1,  1,  3,  3,
@@ -119,7 +119,7 @@
         /// <summary>
         /// Bin number to band number table.
         /// </summary>
-        static readonly int[] masktab = new int[256] {
+        static readonly byte[] masktab = new byte[256] {
             0,   1,  2,  3,  4,  5,  6,  7,  8,  9,
             10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
             20, 21, 22, 23, 24, 25, 26, 27, 28, 28,
@@ -151,7 +151,7 @@
         /// <summary>
         /// Log-addition table.
         /// </summary>
-        static readonly int[] latab = new int[260] {
+        static readonly byte[] latab = new byte[256] {
             0x40, 0x3f, 0x3e, 0x3d, 0x3c, 0x3b, 0x3a, 0x39, 0x38, 0x37,
             0x36, 0x35, 0x34, 0x34, 0x33, 0x32, 0x31, 0x30, 0x2f, 0x2f,
             0x2e, 0x2d, 0x2c, 0x2c, 0x2b, 0x2a, 0x29, 0x29, 0x28, 0x27,
@@ -177,7 +177,7 @@
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         };
 
         /// <summary>
