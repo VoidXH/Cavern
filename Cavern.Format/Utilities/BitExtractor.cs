@@ -21,12 +21,22 @@ namespace Cavern.Format.Utilities {
         byte[] source;
 
         /// <summary>
+        /// Construct an empty extractor to be expanded.
+        /// </summary>
+        public BitExtractor() => source = new byte[0];
+
+        /// <summary>
         /// Construct an extractor to a bitstream.
         /// </summary>
         public BitExtractor(byte[] source) {
             this.source = source;
             BackPosition = source.Length * 8;
         }
+
+        /// <summary>
+        /// Make sure the next expansion will replace all data.
+        /// </summary>
+        public void Clear() => Position = BackPosition;
 
         /// <summary>
         /// Add more bytes to the read queue.

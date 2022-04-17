@@ -112,6 +112,8 @@ namespace Cavern.Format.Transcoders {
             }
             extractor.Expand(reader.Read(WordsPerSyncframe * 2 - mustDecode));
 
+            if (StreamType == StreamTypes.Dependent)
+                SubstreamID += 8; // There can be 8 dependent and independent substreams, both start at 0
             if (StreamType == StreamTypes.Reserved)
                 throw new ReservedValueException("strmtyp");
             if (SampleRateCode == 3)

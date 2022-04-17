@@ -45,7 +45,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             while (extractor.Position < extractor.BackPosition - 32) {
                 int syncword = extractor.Peek(16);
                 if (syncword == syncWord && DecodeBlock(extractor))
-                    HasObjects = true;
+                    break;
                 ++extractor.Position;
             }
         }

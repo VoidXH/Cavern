@@ -39,6 +39,11 @@ namespace Cavern.Format.Decoders {
         public int FrameSize => header.Blocks * 256;
 
         /// <summary>
+        /// Auxillary data bytes which might contain object-based extensions.
+        /// </summary>
+        readonly BitExtractor aux = new BitExtractor();
+
+        /// <summary>
         /// Header data container and reader.
         /// </summary>
         readonly EnhancedAC3Header header = new EnhancedAC3Header();
@@ -96,7 +101,8 @@ namespace Cavern.Format.Decoders {
                 }
 
                 EnhancedAC3Body body = bodies[header.SubstreamID];
-                body.Update();
+                aux.Clear(); // TODO: fill with skipfields
+                //body.Update();
                 for (int i = 0, end = body.Channels.Count; i < end; ++i)
                     outputs[body.Channels[i]] = body.FrameResult[i];
                 if (header.LFE)
@@ -104,7 +110,7 @@ namespace Cavern.Format.Decoders {
 
                 Extensions.Decode(extractor);
                 ReadHeader();
-            } while (header.StreamType == StreamTypes.Dependent);
+            } while (header.SubstreamID != 0);
 
             int outLength = outputs.Count * FrameSize;
             if (outCache.Length != outLength)
