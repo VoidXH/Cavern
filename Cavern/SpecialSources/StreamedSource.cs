@@ -13,7 +13,7 @@
         }
 
         /// <summary>
-        /// Indicates that the source meets rendering requirements, and <see cref="GetSamples"/> won't fail.
+        /// Indicates that the source meets rendering requirements, and <see cref="Source.GetSamples"/> won't fail.
         /// </summary>
         protected internal override bool Renderable => IsPlaying;
     }

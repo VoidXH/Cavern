@@ -66,7 +66,8 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Fills an array with sample data from the clip. Clip data overflows, and free samples are filled with the beginning of the Clip.
+        /// Fills an array with sample data from the clip.
+        /// Clip data overflows, and free samples are filled with the beginning of the Clip.
         /// </summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
@@ -84,7 +85,8 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Fills an array with sample data from the clip. Clip data doesn't overflow and free samples are filled with zeros.
+        /// Fills an array with sample data from the clip.
+        /// Clip data doesn't overflow and free samples are filled with zeros.
         /// </summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
@@ -105,7 +107,8 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Fills an array with sample data from the clip. Clip data overflows, and free samples are filled with the beginning of the Clip.
+        /// Fills an array with sample data from the clip.
+        /// Clip data overflows, and free samples are filled with the beginning of the Clip.
         /// </summary>
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
@@ -120,6 +123,25 @@ namespace Cavern {
                     data[dataPos + channel] = this.data[channel][offset];
                 dataPos += this.data.Length;
                 ++offset;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Fills an array with a single channel's sample data from the clip.
+        /// Clip data overflows, and free samples are filled with the beginning of the Clip.
+        /// </summary>
+        /// <param name="data">Audio data cache</param>
+        /// <param name="channel">Channel ID to get samples from</param>
+        /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
+        public bool GetData(float[] data, int channel, int offset) {
+            if (data.Length % this.data.Length != 0)
+                return false; // Channel count doesn't match
+            int dataPos = 0;
+            while (dataPos < data.Length) {
+                if (offset >= this.data[0].Length)
+                    offset %= this.data[0].Length; // TODO: same as above
+                data[dataPos++] = this.data[channel][offset++];
             }
             return true;
         }
