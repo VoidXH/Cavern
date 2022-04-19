@@ -129,6 +129,11 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
+        /// Closes the main window, thus the application.
+        /// </summary>
+        void CloseWindow(object _, RoutedEventArgs e) => Close();
+
+        /// <summary>
         /// Display the selected render target's active channels.
         /// </summary>
         void OnRenderTargetSelected(object _, SelectionChangedEventArgs e) {
