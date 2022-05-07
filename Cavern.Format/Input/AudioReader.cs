@@ -85,7 +85,14 @@ namespace Cavern.Format {
         /// Read the entire file, including the header, and get the data.
         /// </summary>
         public float[] Read() {
-            ReadHeader();
+            Reset();
+            return ReadAfterHeader();
+        }
+
+        /// <summary>
+        /// Read the entire file, and get the data. The header should have been read before.
+        /// </summary>
+        public float[] ReadAfterHeader() {
             float[] samples = new float[Length * ChannelCount];
             ReadBlock(samples, 0, samples.Length);
             Dispose();
@@ -93,13 +100,30 @@ namespace Cavern.Format {
         }
 
         /// <summary>
-        /// Read the entire file and pack it in a <see cref="Clip"/>.
+        /// Read the entire file, including the header, and pack it in a <see cref="Clip"/>.
         /// </summary>
-        public Clip ReadClip() => new Clip(Read(), ChannelCount, SampleRate);
+        public Clip ReadClip() {
+            Reset();
+            return ReadClipAfterHeader();
+        }
 
-        /// <summary>Read the entire file.</summary>
+        /// <summary>
+        /// Read the entire file and pack it in a <see cref="Clip"/>. The header should have been read before.
+        /// </summary>
+        public Clip ReadClipAfterHeader() => new Clip(ReadAfterHeader(), ChannelCount, SampleRate);
+
+        /// <summary>
+        /// Read the entire file, including the header.
+        /// </summary>
         public float[][] ReadMultichannel() {
-            ReadHeader();
+            Reset();
+            return ReadMultichannelAfterHeader();
+        }
+
+        /// <summary>
+        /// Read the entire file. The header should have been read before.
+        /// </summary>
+        public float[][] ReadMultichannelAfterHeader() {
             float[][] samples = new float[ChannelCount][];
             for (int channel = 0; channel < ChannelCount; ++channel)
                 samples[channel] = new float[Length];

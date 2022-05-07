@@ -6,7 +6,6 @@ using Cavern.Format.Decoders.EnhancedAC3;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
 using Cavern.Remapping;
-using static Cavern.Format.Transcoders.EnhancedAC3;
 
 namespace Cavern.Format.Decoders {
     /// <summary>

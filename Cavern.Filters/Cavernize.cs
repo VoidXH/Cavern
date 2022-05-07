@@ -72,7 +72,7 @@ namespace Cavern.Filters {
         /// <param name="sampleRate">Clip sample rate</param>
         /// <param name="smoothness">Smoothness from 0 to 1</param>
         public void CalculateSmoothingFactor(int updateRate, int sampleRate, double smoothness = .8) =>
-            SmoothFactor = (updateRate + (float)((sampleRate - updateRate) * Math.Pow(smoothness, .1))) / sampleRate * .999f;
+            SmoothFactor = 1f - (updateRate + (float)((sampleRate - updateRate) * Math.Pow(smoothness, .1))) / sampleRate * .999f;
 
         /// <summary>
         /// Cavernize an array of samples. One filter should be applied to only one continuous stream of samples.

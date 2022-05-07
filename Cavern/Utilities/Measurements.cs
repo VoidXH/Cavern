@@ -192,7 +192,7 @@ namespace Cavern.Utilities {
                 CavernAmp.InPlaceIFFT(samples);
             } else {
                 using FFTCache cache = new FFTCache(samples.Length);
-                samples.IFFT(cache);
+                samples.InPlaceIFFT(cache);
             }
             return samples;
         }
