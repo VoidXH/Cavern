@@ -28,6 +28,25 @@ namespace Cavern.Helpers {
         public bool mute;
 
         /// <summary>
+        /// Sphere color for unmuted objects.
+        /// </summary>
+        [Header("Colors")]
+        [Tooltip("Sphere color for unmuted objects.")]
+        public Color normalColor = Color.cyan;
+
+        /// <summary>
+        /// Sphere color for unmuted and screen locked objects.
+        /// </summary>
+        [Tooltip("Sphere color for unmuted and screen locked objects.")]
+        public Color screenLockedColor = Color.magenta;
+
+        /// <summary>
+        /// Sphere color when the source is muted.
+        /// </summary>
+        [Tooltip("Sphere color when the source is muted.")]
+        public Color muteColor = Color.red;
+
+        /// <summary>
         /// Access to material properties.
         /// </summary>
         new Renderer renderer;
@@ -64,10 +83,14 @@ namespace Cavern.Helpers {
             if (target != null) {
                 Transform listenerTransform = AudioListener3D.Current.transform;
                 transform.position = listenerTransform.position + listenerTransform.rotation * target.Position.VectorMatch();
-                target.Mute = mute;
-                Color newColor = mute ? Color.red : Color.white;
+
+                Color newColor = normalColor;
+                if (target.Mute = mute)
+                    newColor = muteColor;
+                else if (target.screenLocked)
+                    newColor = screenLockedColor;
                 if (renderer.material.color != newColor)
-                renderer.material.color = newColor;
+                    renderer.material.color = newColor;
             }
         }
     }

@@ -78,9 +78,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         QMath.Clamp(lastPrecise.Y + position.Y, 0, 1),
                         QMath.Clamp(lastPrecise.Z + position.Z, 0, 1)
                     );
-                else
+                else {
                     source.Position = position;
-                lastPrecise = source.Position;
+                    lastPrecise = source.Position;
+                }
 
                 switch (anchor) {
                     case ObjectAnchor.Room:
@@ -89,6 +90,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                             float distanceFactor = intersect.Length() / distance;
                             source.Position = distanceFactor * intersect + (1 - distanceFactor) * roomCenter;
                         }
+                        source.screenLocked = false;
                         break;
                     case ObjectAnchor.Screen:
                         Vector3 reference =
@@ -101,6 +103,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         Vector3 depthFactorMultiplier = new Vector3(depth, 1, depth);
                         source.Position = depthFactorMultiplier * (screenFactorMultiplier * source.Position + reference -
                             screenFactorMultiplier * reference) + reference - depthFactorMultiplier * reference;
+                        source.screenLocked = true;
                         break;
                 }
 
@@ -122,7 +125,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 gain = gainHelper switch {
                     0 => 1,
                     1 => 0,
-                    2 => (gainHelper = extractor.Read(6)) < 15 ? QMath.DbToGain(15 - gainHelper) : QMath.DbToGain(14 - gainHelper),
+                    2 => (gainHelper = extractor.Read(6)) < 15 ?
+                        QMath.DbToGain(15 - gainHelper) : QMath.DbToGain(14 - gainHelper),
                     _ => -1,
                 };
             }
@@ -147,12 +151,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 else {
                     int posX = extractor.Read(6);
                     int posY = extractor.Read(6);
-                    bool signZ = extractor.ReadBit();
-                    int posZ = extractor.Read(4);
+                    int posZ = ((extractor.ReadBitInt() << 1) - 1) * extractor.Read(4);
                     position = new Vector3(
                         Math.Min(1, posX * xyScale),
                         Math.Min(1, posY * xyScale),
-                        Math.Min(1, (signZ ? 1 : -1) * posZ * zScale)
+                        Math.Min(1, posZ * zScale)
                     );
                 }
                 if (extractor.ReadBit()) { // Distance specified

@@ -101,7 +101,12 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read the next single bit as a flag.
         /// </summary>
-        public bool ReadBit() => NextBit() == 1;
+        public bool ReadBit() => ReadBitInt() == 1;
+
+        /// <summary>
+        /// Read the next bit and advance the position.
+        /// </summary>
+        public int ReadBitInt() => (source[Position / 8] >> (7 - Position++ % 8)) & 1;
 
         /// <summary>
         /// Read the next masked flag value as an array.
@@ -133,10 +138,5 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         /// <remarks><see cref="Expand(byte[])"/> can remove bytes from the beginning of the cache.</remarks>
         public byte this[int index] => source[index];
-
-        /// <summary>
-        /// Read the next bit and advance the position.
-        /// </summary>
-        int NextBit() => (source[Position / 8] >> (7 - Position++ % 8)) & 1;
     }
 }

@@ -35,6 +35,12 @@ namespace Cavern {
         /// </summary>
         public bool LFE = false;
 
+        /// <summary>
+        /// The object position is relative to the screen and scales with screen size.
+        /// </summary>
+        /// <remarks>TODO: implement this</remarks>
+        public bool screenLocked = false;
+
         // ------------------------------------------------------------------
         // 1D processing
         // ------------------------------------------------------------------

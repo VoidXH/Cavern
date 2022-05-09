@@ -16,6 +16,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         const int objectElementIndex = 1;
 
         /// <summary>
+        /// Marks a precise object positioning frame.
+        /// </summary>
+        const int extendedObjectElementIndex = 5;
+
+        /// <summary>
         /// Gets the timecode of the first update in this block.
         /// </summary>
         public short MinOffset => blockOffsetFactor[0];
@@ -56,11 +61,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int elementIndex = extractor.Read(4);
             int endPos = extractor.Position + VariableBitsMax(extractor, 4, 4) + 1;
             extractor.Skip(alternateObjectPresent ? 5 : 1);
-            if (elementIndex == objectElementIndex)
-                ObjectElement(extractor, objectCount, bedOrISFObjects);
-            else
-                blockOffsetFactor = new short[] { -1 };
-            // TODO: support other element types
+            switch (elementIndex) {
+                case objectElementIndex:
+                    ObjectElement(extractor, objectCount, bedOrISFObjects);
+                    break;
+                case extendedObjectElementIndex:
+                // TODO: support other element types
+                default:
+                    blockOffsetFactor = new short[] { -1 };
+                    break;
+            }
             extractor.Position = endPos; // Padding
         }
 
@@ -84,8 +94,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     if (timecode > blockOffsetFactor[blk]) {
                         float t = (timecode - blockOffsetFactor[blk]) / (float)rampDuration[blk];
                         sources[obj].Position = Vector3.Lerp(lastHoldPos[obj], sources[obj].Position, Math.Min(t, 1));
-                        lastHoldPos[obj] = sources[obj].Position;
-                        break;
                     }
                     lastHoldPos[obj] = sources[obj].Position;
                 }
