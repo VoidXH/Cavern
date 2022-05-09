@@ -80,8 +80,8 @@ namespace Cavern.Remapping {
             ExternalData = new ChannelPrototype(0, "External sync signal", false, true),
             TopFrontLeft = new ChannelPrototype(-70, -45, "Top front left"),
             TopFrontRight = new ChannelPrototype(70, -45, "Top front right"),
-            TopSideLeft = new ChannelPrototype(-130, -45, "Top side left"),
-            TopSideRight = new ChannelPrototype(130, -45, "Top side right"),
+            TopSideLeft = new ChannelPrototype(-110, -45, "Top side left"),
+            TopSideRight = new ChannelPrototype(110, -45, "Top side right"),
             SignLanguage = new ChannelPrototype(0, "Sign language video", false, true),
             BottomSurround = new ChannelPrototype(0, 90, "Bottom surround"),
             TopFrontCenter = new ChannelPrototype(0, -45, "Top front center"),
@@ -89,8 +89,8 @@ namespace Cavern.Remapping {
             RearCenter = new ChannelPrototype(180, "Rear center"),
             WideLeft = new ChannelPrototype(-70, "Wide left"),
             WideRight = new ChannelPrototype(70, "Wide right"),
-            TopRearLeft = new ChannelPrototype(-160, -45, "Top rear left"),
-            TopRearRight = new ChannelPrototype(160, -45, "Top rear right"),
+            TopRearLeft = new ChannelPrototype(-150, -45, "Top rear left"),
+            TopRearRight = new ChannelPrototype(150, -45, "Top rear right"),
             TopRearCenter = new ChannelPrototype(180, -45, "Top rear center");
 
         const string frontLeftMark = "L",
