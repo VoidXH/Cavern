@@ -200,35 +200,41 @@ namespace Cavern.Remapping {
             new ReferenceChannel[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice,
+                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             },
             // 13CH: 12-Track (L, R, C, LFE, RL, RR, TFC, SL, SR, TFL, TFR, TSL, TSR)
             new ReferenceChannel[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.TopFrontCenter,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             },
             // 14CH: 13.1 (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
             new ReferenceChannel[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice,
                 ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             },
             // 15CH: Cavern DCP (L, R, C, LFE, SL, SR, HI, VI, TFL, TFR, RL, RR, MD, ES, SL)
             new ReferenceChannel[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage
             },
             // 16CH: Cavern XL DCP (L, R, C, LFE, SL, SR, HI, VI, TL, TR, RL, RR, MD, ES, SL, BS)
             new ReferenceChannel[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage, ReferenceChannel.BottomSurround
+                ReferenceChannel.MotionData, ReferenceChannel.ExternalData,
+                ReferenceChannel.SignLanguage, ReferenceChannel.BottomSurround
             }
         };
 
@@ -271,6 +277,21 @@ namespace Cavern.Remapping {
         /// Check if two channel prototypes are the same.
         /// </summary>
         public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
+
+        /// <summary>
+        /// Convert a prototype array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
+        /// </summary>
+        public static Channel[] ToLayout(ChannelPrototype[] source) {
+            Channel[] result = new Channel[source.Length];
+            for (int channel = 0; channel < source.Length; ++channel)
+                result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE);
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a reference array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
+        /// </summary>
+        public static Channel[] ToLayout(ReferenceChannel[] source) => ToLayout(Get(source));
 
         /// <summary>
         /// Human-readable channel prototype data.
