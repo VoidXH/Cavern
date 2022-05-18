@@ -20,7 +20,12 @@ namespace Cavern.Debug {
         /// Normalize size to this by local scale if not 0.
         /// </summary>
         [Tooltip("Normalize size to this by local scale if not 0.")]
-        public float AutoScale = 0;
+        public float autoScale = 0;
+
+        /// <summary>
+        /// Use a different listener other than the scene's <see cref="AudioListener3D"/>.
+        /// </summary>
+        public Listener listenerOverride;
 
         /// <summary>
         /// Alias for <see cref="limitBounds"/> to be used with Unity Events.
@@ -93,9 +98,9 @@ namespace Cavern.Debug {
             if (!VectorUtils.VectorCompare(Listener.EnvironmentSize, roomScale))
                 SetRoomScale();
             Vector3 objScale = new Vector3(.5f, .5f, .5f);
-            if (AutoScale != 0) {
+            if (autoScale != 0) {
                 float scale = Mathf.Max(roomScale.x, roomScale.y, roomScale.z);
-                float invScale = AutoScale / scale;
+                float invScale = autoScale / scale;
                 scale *= .05f;
                 objScale = new Vector3(scale, scale, scale);
                 transform.localScale = new Vector3(invScale, invScale, invScale);
@@ -111,15 +116,16 @@ namespace Cavern.Debug {
             }));
 
             // Add not visualized sources, update visualized sources
-            IEnumerator<Visualized> vis;
             Quaternion inverseListenerRot = Quaternion.Inverse(AudioListener3D.Current.transform.rotation);
-            IEnumerator<Source> source = AudioListener3D.cavernListener.ActiveSources.GetEnumerator();
+            Listener parent = listenerOverride ?? AudioListener3D.cavernListener;
+            IEnumerator<Source> source = parent.ActiveSources.GetEnumerator();
+
             while (source.MoveNext()) {
                 Source current = source.Current;
                 if (!current.IsPlaying || current.Mute)
                     continue;
                 Visualized target = null;
-                vis = objects.GetEnumerator();
+                IEnumerator<Visualized> vis = objects.GetEnumerator();
                 while (vis.MoveNext()) {
                     if (vis.Current.Target == current) {
                         target = vis.Current;
@@ -132,7 +138,8 @@ namespace Cavern.Debug {
                     obj.transform.localScale = objScale;
                     objects.Add(target = new Visualized(obj, current));
                 }
-                Vector3 pos = inverseListenerRot * (VectorUtils.VectorMatch(target.Target.Position) - AudioListener3D.Current.transform.position);
+                Vector3 pos = inverseListenerRot *
+                    (VectorUtils.VectorMatch(target.Target.Position) - AudioListener3D.Current.transform.position);
                 if (LimitBounds)
                     pos = new Vector3(Mathf.Clamp(pos.x, -roomScale.x, roomScale.x), Mathf.Clamp(pos.y, -roomScale.y, roomScale.y),
                         Mathf.Clamp(pos.z, -roomScale.z, roomScale.z));
