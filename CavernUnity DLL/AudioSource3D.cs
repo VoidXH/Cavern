@@ -326,7 +326,24 @@ namespace Cavern {
         /// Copy the settings of another <see cref="AudioSource3D"/>.
         /// </summary>
         /// <param name="from">Target source</param>
-        public void CopySettings(AudioSource3D from) => cavernSource.CopySettings(from.cavernSource);
+        public void CopySettings(AudioSource3D from) {
+            Clip = from.Clip;
+            Clip3D = from.Clip3D;
+            IsPlaying = from.IsPlaying;
+            Loop = from.Loop;
+            Mute = from.Mute;
+            LFE = from.LFE;
+            Volume = from.Volume;
+            Pitch = from.Pitch;
+            StereoPan = from.StereoPan;
+            SpatialBlend = from.SpatialBlend;
+            Size = from.Size;
+            DopplerLevel = from.DopplerLevel;
+            VolumeRolloff = from.VolumeRolloff;
+            SpatialFilter = from.SpatialFilter;
+            DistanceSimulation = from.DistanceSimulation;
+            timeSamples = from.timeSamples;
+        }
 
         /// <summary>
         /// Add a new <see cref="SpatialFilter"/> to this source.

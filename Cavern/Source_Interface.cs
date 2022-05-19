@@ -175,12 +175,17 @@ namespace Cavern {
             Loop = from.Loop;
             Mute = from.Mute;
             LFE = from.LFE;
+            screenLocked = from.screenLocked;
             Volume = from.Volume;
             Pitch = from.Pitch;
             stereoPan = from.stereoPan;
             SpatialBlend = from.SpatialBlend;
+            Size = from.Size;
             DopplerLevel = from.DopplerLevel;
             VolumeRolloff = from.VolumeRolloff;
+            SpatialFilter = from.SpatialFilter;
+            DistanceSimulation = from.DistanceSimulation;
+            TimeSamples = from.TimeSamples;
         }
 
         /// <summary>
