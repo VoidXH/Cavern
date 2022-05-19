@@ -6,112 +6,87 @@ namespace Cavern.Filters {
     /// <summary>
     /// Performs an optimized convolution.
     /// </summary>
-    /// <remarks>This filter adds delay, which is the smallest power of 2 larger than the length of the <see cref="Impulse"/>.</remarks>
+    /// <remarks>This filter is using the overlap and add method using FFTs.</remarks>
     public class FastConvolver : Filter {
         /// <summary>
-        /// Impulse response to convolve with.
+        /// Created convolution filter in Fourier-space.
         /// </summary>
-        public float[] Impulse {
-            get => impulse;
-            set {
-                if (impulse.Length != value.Length) {
-                    int filterSize = 2 << QMath.Log2(value.Length * 2) << shiftFactor;
-                    transferFunction = new Complex[filterSize];
-                    cache = new FFTCache(filterSize);
-                    unprocessed = new float[filterSize];
-                    processed = new float[filterSize];
-                    position = 0;
-                }
-                impulse = value;
-                for (int i = 0; i < impulse.Length; ++i)
-                    transferFunction[i].Real = impulse[i];
-                Array.Clear(transferFunction, impulse.Length, transferFunction.Length - impulse.Length);
-                transferFunction.InPlaceFFT(cache);
-            }
-        }
-        float[] impulse = new float[0];
+        readonly Complex[] filter;
 
         /// <summary>
-        /// FFT size shift. This increases delay, decreases CPU use.
+        /// Cache to perform the FFT in.
         /// </summary>
-        readonly int shiftFactor;
+        readonly Complex[] present;
 
         /// <summary>
-        /// Padded FFT of <see cref="Impulse"/>.
+        /// Overlap samples from previous runs.
         /// </summary>
-        Complex[] transferFunction;
+        readonly float[] future;
 
         /// <summary>
         /// FFT optimization.
         /// </summary>
-        FFTCache cache;
+        readonly FFTCache cache;
 
         /// <summary>
-        /// Cached samples for the next frame.
+        /// Delay applied with the convolution.
         /// </summary>
-        float[] unprocessed;
+        readonly int delay;
 
         /// <summary>
-        /// Buffer for samples that can be written to the output.
+        /// Constructs an optimized convolution.
         /// </summary>
-        float[] processed;
-
-        /// <summary>
-        /// Last handled sample in <see cref="unprocessed"/> and <see cref="processed"/>.
-        /// </summary>
-        int position;
-
-        /// <summary>
-        /// Construct a convolver for a target impulse response.
-        /// </summary>
-        public FastConvolver(float[] impulse) => Impulse = impulse;
-
-        /// <summary>
-        /// Construct a convolver for a target impulse response with increased FFT factor.
-        /// </summary>
-        public FastConvolver(float[] impulse, int shiftFactor) {
-            this.shiftFactor = shiftFactor;
-            Impulse = impulse;
-        }
-
-        /// <summary>
-        /// Processes a ready set of the <see cref="unprocessed"/>.
-        /// </summary>
-        /// <remarks>Use the <see cref="unprocessed"/> array such as the next samples are in the first half only,
-        /// the second half should be silent.</remarks>
-        void ProcessFrame() {
-            Complex[] result = unprocessed.FFT(cache);
-            result.Convolve(transferFunction);
-            result.InPlaceIFFT(cache);
-            for (int i = 0; i < result.Length; ++i)
-                processed[i] += result[i].Real;
+        public FastConvolver(float[] impulse, int delay = 0) {
+            int fftSize = 2 << QMath.Log2Ceil(impulse.Length); // Zero padding for the falloff to have space
+            cache = new FFTCache(fftSize);
+            Array.Resize(ref impulse, fftSize);
+            filter = Measurements.FFT(impulse, cache);
+            present = new Complex[fftSize];
+            future = new float[fftSize + delay];
+            this.delay = delay;
         }
 
         /// <summary>
         /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
         /// </summary>
         public override void Process(float[] samples) {
-            for (int sample = 0, step = processed.Length >> 1; sample < samples.Length; sample += step) {
-                int remainingSamples = Math.Min(step, samples.Length - sample),
-                    firstPass = Math.Min(step - position /* samples until frame processing */, remainingSamples);
-                Array.Copy(samples, sample, unprocessed, position, firstPass);
-                Array.Copy(processed, position, samples, sample, firstPass);
-                position += firstPass;
-                if (position == step) {
-                    Array.Copy(processed, position, processed, 0, step);
-                    Array.Clear(processed, position, step);
-                    ProcessFrame();
-                    position = remainingSamples - firstPass;
-                    Array.Copy(samples, sample + firstPass, unprocessed, 0, position);
-                    Array.Copy(processed, 0, samples, sample + firstPass, position);
-                }
-            }
+            int start = 0;
+            while (start < samples.Length)
+                ProcessTimeslot(samples, start, Math.Min(samples.Length, start += filter.Length));
+        }
+
+        /// <summary>
+        /// In case there are more input samples than the size of the filter, split it in parts.
+        /// </summary>
+        void ProcessTimeslot(float[] samples, int from, int to) {
+            // Move samples and pad present
+            for (int i = from; i < to; ++i)
+                present[i - from] = new Complex(samples[i]);
+            for (int i = to - from; i < present.Length; ++i)
+                present[i].Clear();
+
+            // Perform the convolution
+            present.InPlaceFFT(cache);
+            present.Convolve(filter);
+            present.InPlaceIFFT(cache);
+
+            // Append the result to the future
+            for (int i = 0; i < present.Length; ++i)
+                future[i + delay] += present[i].Real;
+
+            // Write the output and remove those samples from the future
+            to -= from;
+            for (int i = 0; i < to; ++i)
+                samples[from + i] = future[i];
+            Array.Copy(future, to, future, 0, future.Length - to);
+            Array.Clear(future, future.Length - to, to);
         }
 
         /// <summary>
         /// Performs the convolution of two real signals. The FFT of the result is returned.
         /// </summary>
-        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/> to match in a length of a power of 2.</remarks>
+        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/>
+        /// to match in a length of a power of 2.</remarks>
         public static Complex[] ConvolveFourier(float[] excitation, float[] impulse) {
             using FFTCache cache = new FFTCache(excitation.Length);
             Complex[] excitationFFT = excitation.FFT(cache);
@@ -122,7 +97,8 @@ namespace Cavern.Filters {
         /// <summary>
         /// Performs the convolution of two real signals. The FFT of the result is returned.
         /// </summary>
-        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/> to match in a length of a power of 2.</remarks>
+        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/>
+        /// to match in a length of a power of 2.</remarks>
         public static Complex[] ConvolveFourier(float[] excitation, float[] impulse, FFTCache cache) {
             Complex[] excitationFFT = excitation.FFT(cache);
             excitationFFT.Convolve(impulse.FFT(cache));
@@ -132,7 +108,8 @@ namespace Cavern.Filters {
         /// <summary>
         /// Performs the convolution of two real signals. The real result is returned.
         /// </summary>
-        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/> to match in a length of a power of 2.</remarks>
+        /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/>
+        /// to match in a length of a power of 2.</remarks>
         public static float[] Convolve(float[] excitation, float[] impulse, FFTCache cache = null) {
             Complex[] result = cache != null?
                 ConvolveFourier(excitation, impulse, cache) :

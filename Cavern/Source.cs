@@ -324,10 +324,18 @@ namespace Cavern {
                     if (SpatialFilter != null)
                         SpatialFilter.Process(samples);
 
+                    // Distance simulation for HRTF
+                    // TODO: gain correction for this in both engines
+                    if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
+                        if (distancer == null)
+                            distancer = new Distancer(this);
+                        distancer.Generate(direction.X > 0, samples);
+                    }
+
                     // ------------------------------------------------------------------
                     // Balance-based engine for symmetrical layouts
                     // ------------------------------------------------------------------
-                    if (Listener.IsSymmetric && !DistanceSimulation) {
+                    if (Listener.IsSymmetric) {
                         float volume3D = Volume * rolloffDistance * SpatialBlend;
                         if (!LFE) {
                             // Find a bounding box
@@ -366,7 +374,8 @@ namespace Cavern {
                                     Vector3 channelPos = Listener.Channels[channel].CubicalPos;
                                     if (channelPos.Y == closestBottom) // Bottom layer
                                         AssignHorizontalLayer(channel, ref bottomFrontLeft, ref bottomFrontRight,
-                                            ref bottomRearLeft, ref bottomRearRight, ref closestBF, ref closestBR, direction, channelPos);
+                                            ref bottomRearLeft, ref bottomRearRight, ref closestBF, ref closestBR,
+                                            direction, channelPos);
                                     if (channelPos.Y == closestTop) // Top layer
                                         AssignHorizontalLayer(channel, ref topFrontLeft, ref topFrontRight,
                                             ref topRearLeft, ref topRearRight, ref closestTF, ref closestTR, direction, channelPos);
@@ -496,21 +505,6 @@ namespace Cavern {
                         for (int channel = 0; channel < channels; ++channel)
                             totalAngleMatch += angleMatches[channel] * angleMatches[channel];
                         totalAngleMatch = (float)Math.Sqrt(totalAngleMatch);
-
-                        // Distance simulation for HRTF
-                        if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
-                            if (distancer == null)
-                                distancer = new Distancer(this);
-                            distancer.Generate(direction.X > 0, samples);
-                            for (int channel = 0; channel < channels; ++channel) {
-                                if (Listener.Channels[channel].LFE)
-                                    continue;
-                                if (Listener.Channels[channel].Y < 0 && distancer.LeftGain != 1)
-                                    angleMatches[channel] *= distancer.LeftGain;
-                                else if (Listener.Channels[channel].Y % 180 > 0 && distancer.RightGain != 1)
-                                    angleMatches[channel] *= distancer.RightGain;
-                            }
-                        }
 
                         // Place in sphere, write data to output channels
                         float volume3D = Volume * rolloffDistance * SpatialBlend / totalAngleMatch;

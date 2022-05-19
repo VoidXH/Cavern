@@ -23,10 +23,11 @@ namespace Cavern.QuickEQ.Equalization {
         static NumberFormatInfo numberFormat;
 
         /// <summary>
-        /// Generate an equalizer setting to flatten the processed response of <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.
+        /// Generate an equalizer setting to flatten the processed response of
+        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.
         /// </summary>
-        /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is
-        /// strongly recommended</param>
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing
+        /// (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is strongly recommended</param>
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
         /// <param name="endFreq">Frequency at the end of the graph</param>
         /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
@@ -57,15 +58,15 @@ namespace Cavern.QuickEQ.Equalization {
         /// Generate a precise equalizer setting to flatten the processed response of
         /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.
         /// </summary>
-        /// <param name="graph">Graph to equalize, a pre-applied smoothing (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is
-        /// strongly recommended</param>
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing
+        /// (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is strongly recommended</param>
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
         /// <param name="endFreq">Frequency at the end of the graph</param>
         /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
         /// <param name="targetGain">Target EQ level</param>
         /// <param name="maxGain">Maximum gain of any generated band</param>
-        public static Equalizer AutoCorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
-            float maxGain = 6) {
+        public static Equalizer AutoCorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve,
+            float targetGain, float maxGain = 6) {
             List<Band> bands = new List<Band>();
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length;
             List<int> windowEdges = new List<int>(new int[] { 0 });
@@ -102,7 +103,8 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="gain">Signal voltage multiplier</param>
         /// <param name="initial">Custom initial spectrum to apply the EQ on - phases will be corrected, this is not convolved,
         /// and has to be twice the size of <paramref name="length"/></param>
-        public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length = 1024, float gain = 1, Complex[] initial = null) {
+        public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length = 1024, float gain = 1,
+            Complex[] initial = null) {
             length <<= 1;
             Complex[] filter = new Complex[length];
             if (initial == null)
@@ -162,8 +164,8 @@ namespace Cavern.QuickEQ.Equalization {
                         bands[band + 1].Frequency) * qMul, bands[band].Gain * gainMul);
                 }
                 freq = bands[end].Frequency;
-                result[end] = new PeakingEQ(sampleRate, freq, QFactor.FromBandwidth(freq, (freq - bands[end - 1].Frequency) * 2) * qMul,
-                    bands[end].Gain * gainMul);
+                result[end] = new PeakingEQ(sampleRate, freq,
+                    QFactor.FromBandwidth(freq, (freq - bands[end - 1].Frequency) * 2) * qMul, bands[end].Gain * gainMul);
             } else if (result.Length == 1)
                 result[0] = new PeakingEQ(sampleRate, freq, .001f, bands[0].Gain);
             return result;

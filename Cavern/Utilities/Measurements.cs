@@ -256,10 +256,9 @@ namespace Cavern.Utilities {
             else
                 response.InPlaceIFFT(cache);
             for (int i = 1; i < halfLength; ++i) {
-                response[i].Real += response[response.Length - i].Real;
-                response[i].Imaginary -= response[response.Length - i].Imaginary;
-                response[response.Length - i].Real = 0;
-                response[response.Length - i].Imaginary = 0;
+                response[i].Real += response[^i].Real;
+                response[i].Imaginary -= response[^i].Imaginary;
+                response[^i].Clear();
             }
             response[halfLength].Imaginary = -response[halfLength].Imaginary;
             if (CavernAmp.Available)
@@ -285,11 +284,11 @@ namespace Cavern.Utilities {
             samples[0] *= gain;
             for (int i = 1; i < startPos; ++i) {
                 samples[i] *= gain;
-                samples[samples.Length - i] *= gain;
+                samples[^i] *= gain;
             }
             for (int i = endPos + 1, half = samples.Length / 2; i <= half; ++i) {
                 samples[i] *= gain;
-                samples[samples.Length - i] *= gain;
+                samples[^i] *= gain;
             }
         }
 
