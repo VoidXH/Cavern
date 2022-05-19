@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -221,8 +222,20 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Parse a float value regardless of the system's culture.
+        /// </summary>
+        public static float ParseFloat(string s) {
+            char separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
+            int idx = s.IndexOf(separator);
+            if (idx >= 0)
+                return Convert.ToSingle(s);
+            return Convert.ToSingle(s.Replace(separator == '.' ? ',' : '.', separator));
+        }
+
+        /// <summary>
         /// Reverse the bit order in a byte.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte Revert(this byte b) => (byte)((b * 0x0202020202 & 0x010884422010) % 1023);
 
         /// <summary>

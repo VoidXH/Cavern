@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 using Cavern.Filters;
+using Cavern.Remapping;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
@@ -237,21 +238,22 @@ namespace Cavern {
             string fileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
             if (File.Exists(fileName)) {
                 string[] save = File.ReadAllLines(fileName);
-                int savePos = 1;
-                Channels = new Channel[Convert.ToInt32(save[0])];
-                NumberFormatInfo format = new NumberFormatInfo {
-                    NumberDecimalSeparator = ","
-                };
-                for (int i = 0; i < Channels.Length; ++i)
-                    Channels[i] = new Channel(Convert.ToSingle(save[savePos++], format), Convert.ToSingle(save[savePos++], format),
-                        Convert.ToBoolean(save[savePos++]));
-                EnvironmentType = (Environments)Convert.ToInt32(save[savePos++], format);
-                EnvironmentSize = new Vector3(Convert.ToSingle(save[savePos++], format), Convert.ToSingle(save[savePos++], format),
-                    Convert.ToSingle(save[savePos++], format));
-                HeadphoneVirtualizer = save.Length > savePos && Convert.ToBoolean(save[savePos++]); // Added: 2016.04.24.
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
-                ++savePos; // Environment compensation (bool), added: 2017.06.18, removed: 2019.06.06.
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
+                try {
+                    int savePos = 1;
+                    Channels = new Channel[Convert.ToInt32(save[0])];
+                    for (int i = 0; i < Channels.Length; ++i)
+                        Channels[i] = new Channel(QMath.ParseFloat(save[savePos++]), QMath.ParseFloat(save[savePos++]),
+                            Convert.ToBoolean(save[savePos++]));
+                    EnvironmentType = (Environments)Convert.ToInt32(save[savePos++]);
+                    EnvironmentSize = new Vector3(QMath.ParseFloat(save[savePos++]), QMath.ParseFloat(save[savePos++]),
+                        QMath.ParseFloat(save[savePos++]));
+                    HeadphoneVirtualizer = save.Length > savePos && Convert.ToBoolean(save[savePos++]); // Added: 2016.04.24.
+                    ++savePos; // Environment compensation (bool), added: 2017.06.18, removed: 2019.06.06.
+                } catch {
+                    Channels = ChannelPrototype.ToLayout(ChannelPrototype.GetStandardMatrix(6));
+                    EnvironmentType = Environments.Home;
+                    EnvironmentSize = new Vector3(10, 7, 10);
+                }
             }
         }
 
