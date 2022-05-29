@@ -8,29 +8,39 @@
     <AssemblyVersion></AssemblyVersion>
     <FileVersion></FileVersion>
     <NeutralLanguage>en</NeutralLanguage>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>Resources\README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
-    <Copyright>Copyright © Bence Sgánetz 2016-2021</Copyright>
+    <Copyright>Copyright © Bence Sgánetz 2016-2022</Copyright>
     <Description>Object-based 3D audio renderer.</Description>
     <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
     <Company>$(Authors)</Company>
     <Version>1.5</Version>
-    <Authors>Bence Sgánetz</Authors>
+    <Authors>VoidX</Authors>
+    <Nullable>disable</Nullable>
+    <PackageIcon>Resources\CavernLogo.png</PackageIcon>
+    <PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>Resources\LICENCE.md</PackageLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <DocumentationFile>bin\Release\Cavern.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
+    <None Include="..\README.md" Pack="true" PackagePath="Resources\README.md"/>
+    <None Include="..\LICENCE.md" Pack="true" PackagePath="Resources\LICENCE.md"/>
+    <None Include="Resources\CavernLogo.png" Pack="true" PackagePath="Resources\CavernLogo.png"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Resources\CavernLogo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll bin\Release\CavernAmp.dll" IgnoreExitCode="true" />

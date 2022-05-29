@@ -21,13 +21,16 @@
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <Version>1.5</Version>
+    <Authors>VoidX</Authors>
     <Description>Unity wrappers for the Cavern spatial audio engine.</Description>
-    <Copyright>Copyright © Bence Sgánetz 2016-2021</Copyright>
+    <Copyright>Copyright © Bence Sgánetz 2016-2022</Copyright>
     <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
     <NeutralLanguage>en</NeutralLanguage>
+    <Nullable>disable</Nullable>
+    <PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj" />
