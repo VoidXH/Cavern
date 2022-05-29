@@ -17,7 +17,6 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Cavern.Filters\Cavern.Filters.csproj" />
     <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
     <ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
     <ProjectReference Include="..\..\Cavern\Cavern.csproj" />

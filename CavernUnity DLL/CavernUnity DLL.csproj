@@ -30,19 +30,9 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cavern.Filters\Cavern.Filters.csproj" />
     <ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj" />
     <ProjectReference Include="..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
     <ProjectReference Include="..\Cavern\Cavern.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.261602">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEditor">
