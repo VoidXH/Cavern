@@ -1,8 +1,9 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Common;
+using Cavern.Format.Consts;
 using Cavern.Format.Renderers;
-using Cavern.Remapping;
 
 namespace Cavern.Format {
     /// <summary>
@@ -170,5 +171,33 @@ namespace Cavern.Format {
             if (reader != null)
                 reader.Close();
         }
+
+        /// <summary>
+        /// Open an audio stream for reading. The format will be detected automatically.
+        /// </summary>
+        public static AudioReader Open(BinaryReader reader) {
+            int syncWord = reader.ReadInt32();
+            reader.BaseStream.Position = 0;
+            return syncWord switch {
+                RIFFWave.syncWord1 => new RIFFWaveReader(reader),
+                LimitlessAudioFormat.syncWord => new LimitlessAudioFormatReader(reader),
+                _ => throw new UnsupportedFormatException(),
+            };
+        }
+
+        /// <summary>
+        /// Open an audio file for reading by file name. The format will be detected automatically.
+        /// </summary>
+        public static AudioReader Open(string path) => Open(new BinaryReader(File.OpenRead(path)));
+
+        /// <summary>
+        /// Open an audio clip from a stream. The format will be detected automatically.
+        /// </summary>
+        public static Clip ReadClip(BinaryReader reader) => Open(reader).ReadClip();
+
+        /// <summary>
+        /// Open an audio clip by file name. The format will be detected automatically.
+        /// </summary>
+        public static Clip ReadClip(string path) => Open(path).ReadClip();
     }
 }

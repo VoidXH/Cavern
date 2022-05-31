@@ -13,9 +13,10 @@
     <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
     <NeutralLanguage>en</NeutralLanguage>
     <Nullable>disable</Nullable>
-    <PackageLicenseFile>Resources\LICENCE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENCE.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageIcon>Resources\CavernLogo.png</PackageIcon>
+    <PackageIcon>CavernLogo.png</PackageIcon>
     <PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -23,15 +24,18 @@
     <DocumentationFile>bin\Release\Cavern.Format.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="Resources\README.md" />
-    <None Include="..\LICENCE.md" Pack="true" PackagePath="Resources\LICENCE.md" />
-    <None Include="Resources\CavernLogo.png" Pack="true" PackagePath="Resources\CavernLogo.png" />
+    <None Include="..\docs\NuGet Readme.md" Pack="true" PackagePath="README.md" Link="Resources\NuGet Readme.md" />
+    <None Include="..\docs\NuGet Licence.md" Pack="true" PackagePath="LICENCE.md" Link="Resources\NuGet Licence.md" />
+    <None Include="..\Cavern\Resources\CavernLogo.png" Pack="true" PackagePath="CavernLogo.png" Link="Resources\CavernLogo.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cavern\Cavern.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <None Update="CavernLogo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll bin\Release\CavernAmp.dll" IgnoreExitCode="true" />

@@ -1,6 +1,6 @@
 ﻿using Cavern.Remapping;
 
-namespace Cavern.Format.Transcoders {
+namespace Cavern.Format.Consts {
     /// <summary>
     /// Used for both <see cref="RIFFWaveReader"/> and <see cref="RIFFWaveWriter"/>.
     /// </summary>

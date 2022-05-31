@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
 namespace Cavern.Utilities {
@@ -7,7 +6,7 @@ namespace Cavern.Utilities {
     /// Marks a relationship between two arrays that are not merged in a struct for better performance.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
-    public class Linked : ValidationAttribute {
+    public class Linked : Attribute {
         /// <summary>
         /// The other field linked with this field.
         /// </summary>
@@ -21,7 +20,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Checks if a linking is valid in an object.
         /// </summary>
-        public override bool IsValid(object value) {
+        public bool IsValid(object value) {
             FieldInfo[] fields = value.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic);
             for (int field = 0; field < fields.Length; ++field)
                 if (fields[field].Name.Equals(targetField))

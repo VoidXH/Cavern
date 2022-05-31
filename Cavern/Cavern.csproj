@@ -3,41 +3,33 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyVersion></AssemblyVersion>
-    <FileVersion></FileVersion>
-    <NeutralLanguage>en</NeutralLanguage>
-    <PackageReadmeFile>Resources\README.md</PackageReadmeFile>
+    <Version>1.5.0.1</Version>
+    <Authors>VoidX</Authors>
+    <Description>Object-based 3D audio rendering and (up)mixing engine.</Description>
+    <Copyright>Copyright © Bence Sgánetz 2016-2022</Copyright>
+    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
-    <Copyright>Copyright © Bence Sgánetz 2016-2022</Copyright>
-    <Description>Object-based 3D audio renderer.</Description>
     <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
-    <Company>$(Authors)</Company>
-    <Version>1.5</Version>
-    <Authors>VoidX</Authors>
+    <NeutralLanguage>en</NeutralLanguage>
     <Nullable>disable</Nullable>
-    <PackageIcon>Resources\CavernLogo.png</PackageIcon>
-    <PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENCE.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageLicenseFile>Resources\LICENCE.md</PackageLicenseFile>
+    <PackageIcon>CavernLogo.png</PackageIcon>
+    <PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <DocumentationFile>bin\Release\Cavern.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="Resources\README.md"/>
-    <None Include="..\LICENCE.md" Pack="true" PackagePath="Resources\LICENCE.md"/>
-    <None Include="Resources\CavernLogo.png" Pack="true" PackagePath="Resources\CavernLogo.png"/>
+    <None Include="..\docs\NuGet Readme.md" Pack="true" PackagePath="README.md" Link="Resources\NuGet Readme.md" />
+    <None Include="..\docs\NuGet Licence.md" Pack="true" PackagePath="LICENCE.md" Link="Resources\NuGet Licence.md" />
+    <None Include="Resources\CavernLogo.png" Pack="true" PackagePath="CavernLogo.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Resources\CavernLogo.png">
+    <None Update="CavernLogo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

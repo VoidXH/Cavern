@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using Cavern.Format.Common;
+using Cavern.Format.Consts;
 
 namespace Cavern.Format {
     /// <summary>
@@ -60,9 +60,9 @@ namespace Cavern.Format {
         /// Create the file header.
         /// </summary>
         public override void WriteHeader() {
-            writer.Write(LimitlessAudioFormatUtils.limitless); // Limitless marker
+            writer.Write(LimitlessAudioFormat.limitless); // Limitless marker
             // No custom headers
-            writer.Write(LimitlessAudioFormatUtils.head); // Main header marker
+            writer.Write(LimitlessAudioFormat.head); // Main header marker
             byte qualityByte = Bits switch {
                 BitDepth.Int8 => (byte)LAFMode.Int8,
                 BitDepth.Int16 => (byte)LAFMode.Int16,

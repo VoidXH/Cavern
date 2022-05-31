@@ -112,4 +112,16 @@ namespace Cavern.Format.Common {
         /// </summary>
         public UnsupportedFeatureException(string featureName) : base(message + featureName) { }
     }
+
+    /// <summary>
+    /// Tells if no supported file format was detected.
+    /// </summary>
+    public class UnsupportedFormatException : Exception {
+        const string message = "No supported file format was detected.";
+
+        /// <summary>
+        /// Tells if no supported file format was detected.
+        /// </summary>
+        public UnsupportedFormatException() : base(message) { }
+    }
 }

@@ -28,7 +28,8 @@ namespace Cavern.Remapping {
         /// <summary>
         /// Mute status.
         /// </summary>
-        /// <remarks>Some channels should not be played back on the spatial master, like hearing/visually impaired tracks.</remarks>
+        /// <remarks>Some channels should not be played back on the spatial master,
+        /// like hearing/visually impaired tracks.</remarks>
         public readonly bool Muted;
 
         /// <summary>
@@ -143,8 +144,9 @@ namespace Cavern.Remapping {
         /// <summary>
         /// Industry standard channel orders for each input channel count.
         /// </summary>
-        /// <remarks>Matrices with 8+ channels are DCP orders, with messy standardization, and are unused in commercial applications.
-        /// Manual revision before each workflow is recommended when working with non-5.1 DCPs or content with 8+ channels.</remarks>
+        /// <remarks>Matrices with 8+ channels are DCP orders, with messy standardization, and are
+        /// unused in commercial applications. Manual revision before each workflow is recommended
+        /// when working with non-5.1 DCPs or content with 8+ channels.</remarks>
         static readonly ReferenceChannel[][] StandardMatrix = {
             new ReferenceChannel[0],
             // 1CH: 1.0 (C)
@@ -165,7 +167,8 @@ namespace Cavern.Remapping {
             },
             // 6CH: 5.1 (L, R, C, LFE, SL, SR)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight
             },
             // 7CH: 7.0 (L, R, C, RL, RR, SL, SR)
@@ -175,37 +178,44 @@ namespace Cavern.Remapping {
             },
             // 8CH: 7.1 (L, R, C, LFE, RL, RR, SL, SR)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
             },
             // 9CH: 8.1 (not used) (L, R, C, LFE, RL, RR, SL, SR, RC)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.RearCenter
             },
             // 10CH: 7.1.2 (out-of-order Cavern DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
             },
             // 11CH: 7.1.2.1 (out-of-order Cavern XL DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, BS)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.BottomSurround
             },
             // 12CH: 11.1 (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice,
                 ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             },
             // 13CH: 12-Track (L, R, C, LFE, RL, RR, TFC, SL, SR, TFL, TFR, TSL, TSR)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.TopFrontCenter,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
@@ -213,7 +223,8 @@ namespace Cavern.Remapping {
             },
             // 14CH: 13.1 (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice,
@@ -221,18 +232,22 @@ namespace Cavern.Remapping {
             },
             // 15CH: Cavern DCP (L, R, C, LFE, SL, SR, HI, VI, TFL, TFR, RL, RR, MD, ES, SL)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage
             },
             // 16CH: Cavern XL DCP (L, R, C, LFE, SL, SR, HI, VI, TL, TR, RL, RR, MD, ES, SL, BS)
             new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.MotionData, ReferenceChannel.ExternalData,
                 ReferenceChannel.SignLanguage, ReferenceChannel.BottomSurround
             }

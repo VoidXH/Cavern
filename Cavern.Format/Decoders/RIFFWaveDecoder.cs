@@ -2,7 +2,7 @@
 using System.IO;
 
 using Cavern.Format.Common;
-using Cavern.Format.Transcoders;
+using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {

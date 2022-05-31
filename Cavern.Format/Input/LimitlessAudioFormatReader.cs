@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using Cavern.Format.Common;
+using Cavern.Format.Consts;
 using Cavern.Format.Renderers;
 
 namespace Cavern.Format {
@@ -40,9 +40,9 @@ namespace Cavern.Format {
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {
-            BlockTest(LimitlessAudioFormatUtils.limitless); // Find Limitless marker
-            byte[] cache = new byte[LimitlessAudioFormatUtils.head.Length];
-            while (!RollingBlockCheck(cache, LimitlessAudioFormatUtils.head)) ; // Find header marker, skip metadata
+            BlockTest(LimitlessAudioFormat.limitless); // Find Limitless marker
+            byte[] cache = new byte[LimitlessAudioFormat.head.Length];
+            while (!RollingBlockCheck(cache, LimitlessAudioFormat.head)) ; // Find header marker, skip metadata
 
             Bits = reader.ReadByte() switch {
                 (byte)LAFMode.Int8 => BitDepth.Int8,

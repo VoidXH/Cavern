@@ -105,17 +105,18 @@ namespace Cavern {
         public static bool IsSymmetric { get; internal set; } = true;
 
         /// <summary>
-        /// The single most important variable defining sound space in symmetric mode, the environment scaling. Originally set by the
-        /// user and applied when a <see cref="Listener"/> is created, however, overriding it in specific applications can make a huge
-        /// difference. Objects inside a box this size are positioned inside the room, and defines the range of balance between
-        /// left/right, front/rear, and top/bottom speakers. Does not effect directional rendering. The user's settings should be
+        /// The single most important variable defining sound space in symmetric mode, the environment scaling.
+        /// Originally set by the user and applied when a <see cref="Listener"/> is created, however, overriding
+        /// it in specific applications can make a huge difference. Objects inside a box this size are positioned
+        /// inside the room, and defines the range of balance between left/right, front/rear, and top/bottom speakers.
+        /// Does not effect directional rendering. The user's settings should be
         /// respected, thus this vector should be scaled, not completely overridden.
         /// </summary>
         public static Vector3 EnvironmentSize = new Vector3(10, 7, 10);
 
         /// <summary>
-        /// Relative size of the screen to the front wall's width. Used for rendering screen-anchored objects. The user's settings
-        /// should be respected, thus this vector should not be overridden without good reason.
+        /// Relative size of the screen to the front wall's width. Used for rendering screen-anchored objects.
+        /// The user's settings should be respected, thus this vector should not be overridden without good reason.
         /// </summary>
         public static Vector2 ScreenSize = new Vector2(.9f, .486f);
 
@@ -167,7 +168,8 @@ namespace Cavern {
         public int SampleRate = defaultSampleRate;
 
         /// <summary>
-        /// Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.
+        /// Update interval in audio samples (min. 16).
+        /// Lower values mean better interpolation, but require more processing power.
         /// </summary>
         public int UpdateRate = 240;
 
@@ -328,6 +330,16 @@ namespace Cavern {
             Channels = channels;
             Channel.SymmetryCheck();
         }
+
+        /// <summary>
+        /// Replace the channel layout with a standard of a given channel count.
+        /// The <see cref="Listener"/> will set up itself automatically with the user's saved configuration.
+        /// The used audio channels can be queried through <see cref="Channels"/>, which should be respected,
+        /// and the output audio channel count should be set to its length. If this is not possible,
+        /// the layout could be set to a standard by the number of channels with this function.
+        /// </summary>
+        public static void ReplaceChannels(int channelCount) =>
+            ReplaceChannels(ChannelPrototype.ToLayout(ChannelPrototype.GetStandardMatrix(channelCount)));
 
         /// <summary>
         /// Implicit null check.
