@@ -100,8 +100,7 @@ namespace Cavern.Virtualizer {
                 rightSplit[channel] = new float[blockSize];
             leftSplit[channel] = lowCrossover.HighOutput;
             Array.Copy(leftSplit[channel], rightSplit[channel], blockSize);
-            spatialChannels[channel].LeftFilter.Process(leftSplit[channel]);
-            spatialChannels[channel].RightFilter.Process(rightSplit[channel]);
+            spatialChannels[channel].Filter.Process(leftSplit[channel], rightSplit[channel]);
         }
 
         /// <summary>

@@ -34,14 +34,9 @@ namespace Cavern.Virtualizer {
             public float[] RightEarIR;
 
             /// <summary>
-            /// Convolution filter for spatial placement on the left ear.
+            /// Convolution filter for spatial placement on both ears.
             /// </summary>
-            Filter leftFilter;
-
-            /// <summary>
-            /// Convolution filter for spatial placement on the right ear.
-            /// </summary>
-            Filter rightFilter;
+            DualConvolver filter;
 
             /// <summary>
             /// Get the secondary ear's delay by angle of attack.
@@ -49,25 +44,9 @@ namespace Cavern.Virtualizer {
             /// <remarks>This formula is based on measurements and the sine wave's usability was disproven.</remarks>
             static int GetDelay(float angle) => (int)((90 - Math.Abs(angle - 90)) / 2.7f);
 
-            public Filter LeftFilter {
-                get {
-                    if (leftFilter != null)
-                        return leftFilter;
-                    return leftFilter = Y % 180 > 0 ? // The source is on the right
-                        new Convolver(LeftEarIR, GetDelay(Y % 180)) :
-                        new Convolver(LeftEarIR, 0);
-                }
-            }
-
-            public Filter RightFilter {
-                get {
-                    if (rightFilter != null)
-                        return rightFilter;
-                    return rightFilter = Y < 0 ? // The source is on the left
-                        new Convolver(RightEarIR, GetDelay(-Y)) :
-                        new Convolver(RightEarIR, 0);
-                }
-            }
+            public DualConvolver Filter => filter ??= new DualConvolver(LeftEarIR, RightEarIR,
+                Y % 180 > 0 ? GetDelay(Y % 180) : 0,
+                Y < 0 ? GetDelay(-Y) : 0);
 
             /// <summary>
             /// Low frequency crossover filter for retaining bass outside the usable impulse response frequency range.

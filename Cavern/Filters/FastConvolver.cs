@@ -39,8 +39,10 @@ namespace Cavern.Filters {
         public FastConvolver(float[] impulse, int delay = 0) {
             int fftSize = 2 << QMath.Log2Ceil(impulse.Length); // Zero padding for the falloff to have space
             cache = new FFTCache(fftSize);
-            Array.Resize(ref impulse, fftSize);
-            filter = Measurements.FFT(impulse, cache);
+            filter = new Complex[fftSize];
+            for (int sample = 0; sample < impulse.Length; ++sample)
+                filter[sample].Real = impulse[sample];
+            filter.InPlaceFFT(cache);
             present = new Complex[fftSize];
             future = new float[fftSize + delay];
             this.delay = delay;
@@ -52,7 +54,7 @@ namespace Cavern.Filters {
         public override void Process(float[] samples) {
             int start = 0;
             while (start < samples.Length)
-                ProcessTimeslot(samples, start, Math.Min(samples.Length, start += filter.Length));
+                ProcessTimeslot(samples, start, Math.Min(samples.Length, start += filter.Length >> 1));
         }
 
         /// <summary>
