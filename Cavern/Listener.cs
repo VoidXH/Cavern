@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -18,16 +16,10 @@ namespace Cavern {
     /// </summary>
     public sealed class Listener {
         /// <summary>
-        /// Cached version name.
-        /// </summary>
-        static string info;
-
-        /// <summary>
         /// Version and creator information.
         /// </summary>
-        public static string Info => info ??= "Cavern v" +
-            FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).FileVersion +
-            " by VoidX (cavern.sbence.hu)";
+        /// <remarks>Hardcoded, because version reading is unsupported for .NET Standard projects</remarks>
+        public static string Info => "Cavern v1.5 by VoidX (cavern.sbence.hu)";
 
         /// <summary>
         /// Default sample rate.
