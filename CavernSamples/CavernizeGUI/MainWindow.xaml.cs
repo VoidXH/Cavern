@@ -121,7 +121,7 @@ namespace CavernizeGUI {
                 // TODO: TEMPORARY, REMOVE WHEN AC-3 CAN BE DECODED
                 string decode = dialog.FileName[..dialog.FileName.LastIndexOf('.')] + ".wav";
                 if (System.IO.File.Exists(decode)) {
-                    RIFFWaveReader reader = new RIFFWaveReader(decode);
+                    AudioReader reader = AudioReader.Open(decode);
                     for (int i = 0; i < file.Tracks.Count; ++i)
                         file.Tracks[i].SetRendererSource(reader);
                 }

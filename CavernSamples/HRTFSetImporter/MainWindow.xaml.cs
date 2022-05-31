@@ -42,8 +42,7 @@ namespace HRTFSetImporter {
                     int.TryParse(match.Groups["param2"].Value, out int distance)) {
                     if (!data.ContainsKey(angle))
                         data.Add(angle, new Dictionary<int, float[][]>());
-                    RIFFWaveReader reader = new RIFFWaveReader(new BinaryReader(File.OpenRead(folders[file])));
-                    data[angle][distance] = reader.ReadMultichannel();
+                    data[angle][distance] = AudioReader.Open(folders[file]).ReadMultichannel();
                 }
             }
             return data;

@@ -74,7 +74,7 @@ namespace WavefrontSimulator {
                 Filter = "RIFF WAVE files (*.wav)|*.wav"
             };
             if (dialog.ShowDialog() == true) {
-                RIFFWaveReader reader = new RIFFWaveReader(dialog.FileName);
+                AudioReader reader = AudioReader.Open(dialog.FileName);
                 float[] samples = reader.Read();
                 int cut1 = dialog.FileName.IndexOf('_'), cut2 = dialog.FileName.IndexOf('.');
                 string channelName = dialog.FileName[(cut1 + 1)..cut2];

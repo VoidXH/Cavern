@@ -41,7 +41,7 @@ namespace ImpulseFlattener {
             return new Convolver(filterSamples, 0);
         }
 
-        void ProcessPerChannel(RIFFWaveReader reader, ref float[] impulse) {
+        void ProcessPerChannel(AudioReader reader, ref float[] impulse) {
             int targetLen = QMath.Base2Ceil((int)reader.Length) << 1;
             Convolver[] filters = new Convolver[reader.ChannelCount];
             FFTCache cache = new FFTCache(targetLen);
@@ -61,7 +61,7 @@ namespace ImpulseFlattener {
                 filters[ch].Process(impulse, ch, reader.ChannelCount);
         }
 
-        void ProcessCommon(RIFFWaveReader reader, ref float[] impulse) {
+        void ProcessCommon(AudioReader reader, ref float[] impulse) {
             int targetLen = QMath.Base2Ceil((int)reader.Length) << 1;
             Complex[] commonSpectrum = new Complex[targetLen];
             FFTCache cache = new FFTCache(targetLen);
@@ -88,8 +88,7 @@ namespace ImpulseFlattener {
 
         void ProcessImpulse(object sender, RoutedEventArgs e) {
             if (browser.ShowDialog().Value) {
-                BinaryReader stream = new BinaryReader(File.OpenRead(browser.FileName));
-                RIFFWaveReader reader = new RIFFWaveReader(stream);
+                AudioReader reader = AudioReader.Open(browser.FileName);
                 float[] impulse = reader.Read();
                 float gain = 1;
                 if (keepGain.IsChecked.Value)

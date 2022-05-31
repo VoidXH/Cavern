@@ -22,22 +22,20 @@ namespace Deconvolver {
             padding.IsChecked = Settings.Default.Padding;
         }
 
-        RIFFWaveReader Import(string fileName) {
+        AudioReader Import(string fileName) {
             browser.FileName = fileName;
-            if (browser.ShowDialog().Value) {
-                BinaryReader reader = new BinaryReader(File.OpenRead(browser.FileName));
-                return new RIFFWaveReader(reader);
-            }
+            if (browser.ShowDialog().Value)
+                return AudioReader.Open(browser.FileName);
             return null;
         }
 
         static void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         private void LoadFiles(object sender, RoutedEventArgs e) {
-            RIFFWaveReader responseReader = Import("Response.wav");
+            AudioReader responseReader = Import("Response.wav");
             if (responseReader == null)
                 return;
-            RIFFWaveReader impulseReader = Import("Impulse.wav");
+            AudioReader impulseReader = Import("Impulse.wav");
             if (impulseReader == null)
                 return;
 
