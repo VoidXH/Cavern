@@ -77,22 +77,22 @@
         /// <summary>
         /// Slow gain table.
         /// </summary>
-        static readonly int[] slowgain = new int[4] { 0x540, 0x4d8, 0x478, 0x410 };
+        static readonly short[] slowgain = new short[4] { 0x540, 0x4d8, 0x478, 0x410 };
 
         /// <summary>
         /// dB/bit table.
         /// </summary>
-        static readonly int[] dbpbtab = new int[4] { 0x000, 0x700, 0x900, 0xb00 };
+        static readonly short[] dbpbtab = new short[4] { 0x000, 0x700, 0x900, 0xb00 };
 
         /// <summary>
         /// Floor table.
         /// </summary>
-        static readonly int[] floortab = new int[8] { 0x2f0, 0x2b0, 0x270, 0x230, 0x1f0, 0x170, 0x0f0, 0xf800 };
+        static readonly short[] floortab = new short[8] { 0x2f0, 0x2b0, 0x270, 0x230, 0x1f0, 0x170, 0x0f0, -2048 };
 
         /// <summary>
         /// Fast gain table.
         /// </summary>
-        static readonly int[] fastgain = new int[8] { 0x080, 0x100, 0x180, 0x200, 0x280, 0x300, 0x380, 0x400 };
+        static readonly short[] fastgain = new short[8] { 0x080, 0x100, 0x180, 0x200, 0x280, 0x300, 0x380, 0x400 };
 
         /// <summary>
         /// Banding structure tables.

@@ -56,13 +56,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         bool DecodeBlock(BitExtractor extractor) {
             if (extractor.Read(16) != syncWord)
                 return false;
-            extractor.Position -= 16 + 9;
-            int skipl = extractor.Read(9);
-            extractor.Position += 16;
             int length = extractor.Read(16);
             const int emdfSyncBytes = 4;
-            if (length + emdfSyncBytes != skipl)
-                return false; // TODO: handle multipart EMDFs
+            if (length + emdfSyncBytes != extractor.BackPosition / 8)
+                return false;
             int frameEndPos = extractor.Position + length * 8;
             if (frameEndPos > extractor.BackPosition)
                 return false;

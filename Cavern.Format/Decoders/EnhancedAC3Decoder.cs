@@ -101,13 +101,13 @@ namespace Cavern.Format.Decoders {
 
                 EnhancedAC3Body body = bodies[header.SubstreamID];
                 aux.Clear(); // TODO: fill with skipfields
-                //body.Update();
+                body.Update();
                 for (int i = 0, end = body.Channels.Count; i < end; ++i)
                     outputs[body.Channels[i]] = body.FrameResult[i];
                 if (header.LFE)
                     outputs[ReferenceChannel.ScreenLFE] = body.LFEResult;
 
-                Extensions.Decode(extractor);
+                Extensions.Decode(body.GetAuxData());
                 ReadHeader();
             } while (header.SubstreamID != 0);
 

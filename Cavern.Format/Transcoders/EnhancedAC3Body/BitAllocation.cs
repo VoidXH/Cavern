@@ -38,21 +38,21 @@ namespace Cavern.Format.Transcoders {
                     switch (bap[bin]) {
                         case 1:
                             if (bap1Bits == 0) {
-                                bap1Bits = 3;
+                                bap1Bits = 2;
                                 extractor.Skip(bitsToRead[1]); // TODO: temp
                             } else
                                 --bap1Bits;
                             break;
                         case 2:
                             if (bap2Bits == 0) {
-                                bap2Bits = 3;
+                                bap2Bits = 2;
                                 extractor.Skip(bitsToRead[2]); // TODO: temp
                             } else
                                 --bap2Bits;
                             break;
                         case 4:
                             if (bap4Bits == 0) {
-                                bap4Bits = 2;
+                                bap4Bits = 1;
                                 extractor.Skip(bitsToRead[4]); // TODO: temp
                             } else
                                 --bap4Bits;
@@ -100,7 +100,7 @@ namespace Cavern.Format.Transcoders {
             // Unpack the mapped values
             int[] dexp = allocation.dexp;
             for (int grp = 0; grp < ngrps; ++grp) {
-                int expacc = gexp[grp];
+                int expacc = gexp[grp + 1];
                 dexp[grp * 3] = expacc / 25;
                 expacc -= 25 * dexp[grp * 3];
                 dexp[grp * 3 + 1] = expacc / 5;
@@ -210,11 +210,11 @@ namespace Cavern.Format.Transcoders {
             j = masktab[start];
             do {
                 lastbin = Math.Min(bndtab[j] + bndsz[j], end);
-                int masked = mask[j] - snroffset + floor;
+                int masked = mask[j] - snroffset - floor;
                 if (masked < 0)
                     masked = 0;
                 masked = (masked & 0x1fe0) + floor;
-                for (k = i; k < lastbin; k++) {
+                while (i < lastbin) {
                     int address = (psd[i] - masked) >> 5;
                     address = Math.Min(63, Math.Max(0, address));
                     bap[i++] = baptab[address];

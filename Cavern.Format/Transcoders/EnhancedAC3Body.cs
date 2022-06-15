@@ -1,6 +1,7 @@
 ﻿using Cavern.Format.Utilities;
 using Cavern.Remapping;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Format.Transcoders {
     /// <summary>
@@ -64,10 +65,30 @@ namespace Cavern.Format.Transcoders {
             }
         }
 
+        /// <summary>
+        /// Combine the found auxillary data.
+        /// </summary>
+        public BitExtractor GetAuxData() => new BitExtractor(auxData, auxDataPos);
+
+        /// <summary>
+        /// Create or reuse per-channel outputs and separate auxillary bitstream.
+        /// </summary>
         public void Update() {
-            // Create or reuse per-channel outputs
+            auxDataPos = 0;
             for (int block = 0; block < header.Blocks; ++block)
                 AudioBlock(block);
+            ReadAux();
+        }
+
+        /// <summary>
+        /// Read the auxillary data field and add it to <see cref="auxData"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void ReadAux() {
+            extractor.Position = extractor.BackPosition - 32;
+            int auxLength = extractor.Read(14);
+            if (extractor.ReadBit()) // Auxillary data present
+                extractor.ReadInto(ref auxData, ref auxDataPos, auxLength);
         }
     }
 }

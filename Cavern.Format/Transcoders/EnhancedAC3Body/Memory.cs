@@ -1,6 +1,4 @@
-﻿using Cavern.Remapping;
-
-namespace Cavern.Format.Transcoders {
+﻿namespace Cavern.Format.Transcoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
     partial class EnhancedAC3Body {
         const int maxAllocationSize = 256;
@@ -21,6 +19,16 @@ namespace Cavern.Format.Transcoders {
         /// LFE channel bit allocation data.
         /// </summary>
         Allocation lfeAllocation;
+
+        /// <summary>
+        /// Unprocessed auxillary data fields are added here.
+        /// </summary>
+        byte[] auxData = new byte[0];
+
+        /// <summary>
+        /// Last written byte in <see cref="auxData"/>.
+        /// </summary>
+        int auxDataPos;
 
 #pragma warning disable IDE0052 // Remove unread private members
         bool ahte;

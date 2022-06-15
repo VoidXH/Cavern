@@ -13,7 +13,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Next bit to read from the back.
         /// </summary>
-        public int BackPosition { get; set; }
+        public int BackPosition { get; private set; }
 
         /// <summary>
         /// Bytestream to get the data from.
@@ -31,6 +31,14 @@ namespace Cavern.Format.Utilities {
         public BitExtractor(byte[] source) {
             this.source = source;
             BackPosition = source.Length * 8;
+        }
+
+        /// <summary>
+        /// Construct an extractor to a bitstream with a truncated length of the <paramref name="source"/>.
+        /// </summary>
+        public BitExtractor(byte[] source, int lastByte) {
+            this.source = source;
+            BackPosition = lastByte * 8;
         }
 
         /// <summary>
@@ -126,6 +134,16 @@ namespace Cavern.Format.Utilities {
             for (int i = 0; i < count; ++i)
                 result[i] = (byte)Read(8);
             return result;
+        }
+
+        /// <summary>
+        /// Append <paramref name="count"/> bytes to the <paramref name="buffer"/>.
+        /// </summary>
+        public void ReadInto(ref byte[] buffer, ref int offset, int count) {
+            if (offset + count > buffer.Length)
+                Array.Resize(ref buffer, offset + count);
+            while (count-- > 0)
+                buffer[offset++] = (byte)Read(8);
         }
 
         /// <summary>

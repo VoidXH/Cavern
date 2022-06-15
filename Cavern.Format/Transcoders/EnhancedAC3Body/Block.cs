@@ -189,6 +189,7 @@ namespace Cavern.Format.Transcoders {
             }
 
             if (snroffststr == 0) {
+                csnroffst = frmcsnroffst;
                 if (cplinu[block])
                     cplfsnroffst = frmfsnroffst;
                 for (int channel = 0; channel < channels.Length; ++channel)
@@ -289,10 +290,9 @@ namespace Cavern.Format.Transcoders {
                     throw new DecoderException(11);
             }
 
-            // Unused dummy data
-            if (skipflde && extractor.ReadBit()) {
-                extractor.Skip(extractor.Read(9) * 8); // TODO: merge
-            }
+            // "Unused dummy data" that might just be used to transport objects
+            if (skipflde && extractor.ReadBit())
+                extractor.ReadInto(ref auxData, ref auxDataPos, extractor.Read(9));
 
             // Quantized mantissa values
             Allocation.ResetBlock();
