@@ -102,7 +102,7 @@ namespace CavernizeGUI {
 
         /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
         public void SetupForExport() {
-            if (renderer is EnhancedAC3Renderer eac3)
+            if (renderer is EnhancedAC3Renderer eac3 && eac3.Source != null)
                 eac3.Source.Reset();
         }
 
