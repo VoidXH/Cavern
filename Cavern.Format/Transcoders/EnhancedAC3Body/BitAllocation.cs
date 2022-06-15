@@ -167,7 +167,7 @@ namespace Cavern.Format.Transcoders {
                         break;
                     }
                 }
-                for (int bin = begin; bin < Math.Min(bndend, 22); ++bin) {
+                for (int bin = begin, bins = Math.Min(bndend, 22); bin < bins; ++bin) {
                     if ((bndend != 7) || (bin != 6))
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
                     fastleak = Math.Max(fastleak - fdecay, bndpsd[bin] - fgain);
@@ -210,12 +210,12 @@ namespace Cavern.Format.Transcoders {
             j = masktab[start];
             do {
                 lastbin = Math.Min(bndtab[j] + bndsz[j], end);
-                mask[j] -= snroffset + floor;
-                if (mask[j] < 0)
-                    mask[j] = 0;
-                mask[j] = (mask[j] & 0x1fe0) + floor;
+                int masked = mask[j] - snroffset + floor;
+                if (masked < 0)
+                    masked = 0;
+                masked = (masked & 0x1fe0) + floor;
                 for (k = i; k < lastbin; k++) {
-                    int address = (psd[i] - mask[j]) >> 5;
+                    int address = (psd[i] - masked) >> 5;
                     address = Math.Min(63, Math.Max(0, address));
                     bap[i++] = baptab[address];
                 }

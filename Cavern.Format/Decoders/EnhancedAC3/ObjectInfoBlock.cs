@@ -65,7 +65,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 anchor = ObjectAnchor.Speaker;
         }
 
-        public void UpdateSource(Source source, ref Vector3 lastPrecise) {
+        /// <summary>
+        /// Sets the properties of the block, returns if the position was updated.
+        /// </summary>
+        public bool UpdateSource(Source source, ref Vector3 lastPrecise) {
             if (gain >= 0)
                 source.Volume = gain;
             if (size >= 0)
@@ -113,7 +116,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     source.Position.Z,
                     source.Position.Y * -2 + 1
                 );
+                return true;
             }
+            return false;
         }
 
         void ObjectBasicInfo(BitExtractor extractor, bool readAllBlocks) {

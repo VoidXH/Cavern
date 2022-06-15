@@ -82,20 +82,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <param name="lastHoldPos">A helper array for each object, holding the last non-ramped position</param>
         public void UpdateSources(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
             for (int blk = 0; blk < infoBlocks[0].Length; ++blk) {
-                if (timecode > blockOffsetFactor[blk] + rampDuration[blk]) {
-                    if (blk == 0)
-                        for (int obj = 0; obj < infoBlocks.Length; ++obj)
-                            sources[obj].Position = lastHoldPos[obj];
-                    break;
-                }
+                if (timecode > blockOffsetFactor[blk] + rampDuration[blk])
+                    continue;
 
                 for (int obj = 0; obj < infoBlocks.Length; ++obj) {
-                    infoBlocks[obj][blk].UpdateSource(sources[obj], ref lastPrecisePositions[obj]);
-                    if (timecode > blockOffsetFactor[blk]) {
+                    if (timecode > blockOffsetFactor[blk] &&
+                        infoBlocks[obj][blk].UpdateSource(sources[obj], ref lastPrecisePositions[obj])) {
                         float t = (timecode - blockOffsetFactor[blk]) / (float)rampDuration[blk];
-                        sources[obj].Position = Vector3.Lerp(lastHoldPos[obj], sources[obj].Position, Math.Min(t, 1));
+                        lastHoldPos[obj] = sources[obj].Position =
+                            Vector3.Lerp(lastHoldPos[obj], sources[obj].Position, Math.Min(t, 1));
                     }
-                    lastHoldPos[obj] = sources[obj].Position;
                 }
             }
         }
