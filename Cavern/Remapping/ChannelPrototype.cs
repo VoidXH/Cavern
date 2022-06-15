@@ -221,14 +221,15 @@ namespace Cavern.Remapping {
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             },
-            // 14CH: 13.1 (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
+            // 14CH: 11.1 + MD/ES (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR, MD, ES)
             new ReferenceChannel[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
                 ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight,
+                ReferenceChannel.MotionData, ReferenceChannel.ExternalData
             },
             // 15CH: Cavern DCP (L, R, C, LFE, SL, SR, HI, VI, TFL, TFR, RL, RR, MD, ES, SL)
             new ReferenceChannel[] {
