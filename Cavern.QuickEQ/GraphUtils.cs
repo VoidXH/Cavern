@@ -59,7 +59,7 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>
-        /// Convert a response to logarithmically scaled cut frequency range.
+        /// Convert a response to logarithmically scaled frequency range.
         /// </summary>
         /// <param name="response">Source response</param>
         /// <param name="startFreq">Frequency at the first position of the output</param>
@@ -85,6 +85,8 @@ namespace Cavern.QuickEQ {
         /// <param name="endFreq">Frequency at the last position of the output</param>
         /// <param name="sampleRate">Sample rate of the measurement that generated the curve</param>
         /// <param name="resultSize">Length of the resulting array</param>
+        /// <remarks>Requires a response that is half the FFT size (only extends to <paramref name="sampleRate"/> Hz),
+        /// for example the result of <see cref="Measurements.GetSpectrum(Complex[])"/>.</remarks>
         public static float[] ConvertToGraph(float[] response, double startFreq, double endFreq, int sampleRate, int resultSize) {
             float[] graph = new float[resultSize];
             double step = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (graph.Length - 1)),
@@ -123,7 +125,8 @@ namespace Cavern.QuickEQ {
             float[] result = new float[newLength];
             float scale = (sourceEnd - sourceStart) / (float)newLength--;
             for (int pos = 0; pos < newLength; ++pos)
-                result[pos] = WaveformUtils.GetPeakSigned(source, sourceStart + (int)(pos * scale), sourceStart + (int)((pos + 1) * scale));
+                result[pos] =
+                    WaveformUtils.GetPeakSigned(source, sourceStart + (int)(pos * scale), sourceStart + (int)((pos + 1) * scale));
             return result;
         }
 
@@ -166,7 +169,8 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>
-        /// Apply variable smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
+        /// Apply variable smoothing (in octaves) on a graph drawn with
+        /// <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
         /// </summary>
         public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float startOctave, float endOctave) {
             float[] startGraph = SmoothGraph(samples, startFreq, endFreq, startOctave),
