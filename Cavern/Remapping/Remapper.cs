@@ -27,7 +27,7 @@ namespace Cavern.Remapping {
 
         int updateRate;
 
-        readonly Listener listener = new Listener(false);
+        readonly Listener listener;
         readonly RemappedChannel[] clips;
         readonly Source[] sources;
 
@@ -36,8 +36,11 @@ namespace Cavern.Remapping {
         /// </summary>
         /// <param name="channels">Channels to remap</param>
         /// <param name="updateRate">Remapping update rate</param>
-        public Remapper(int channels, int updateRate) {
-            listener.UpdateRate = this.updateRate = updateRate;
+        /// <param name="loadCavernSettings">Load user settings including the Cavern channel layout</param>
+        public Remapper(int channels, int updateRate, bool loadCavernSettings = false) {
+            listener = new Listener(loadCavernSettings) {
+                UpdateRate = this.updateRate = updateRate
+            };
             clips = new RemappedChannel[listener.MaximumSources = this.channels = channels];
             sources = new Source[channels];
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
@@ -46,6 +49,7 @@ namespace Cavern.Remapping {
                 listener.AttachSource(source);
                 ChannelPrototype prototype = ChannelPrototype.Mapping[(int)matrix[channel]];
                 source.Clip = clips[channel] = new RemappedChannel(updateRate);
+                source.Mute = prototype.Muted;
                 source.Loop = true;
                 source.LFE = prototype.LFE;
                 source.Position = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube();
