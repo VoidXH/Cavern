@@ -14,5 +14,13 @@ namespace Cavern.Format.Container.Matroska {
         /// Last read block in the current cluster.
         /// </summary>
         internal int lastBlock;
+
+        /// <summary>
+        /// Create a track to be placed in the list of a container's tracks.
+        /// </summary>
+        /// <param name="source">The container containing this track.</param>
+        /// <param name="trackNumber">The position of the track in the container's list of tracks.</param>
+        /// <remarks>The <paramref name="trackNumber"/> required for reading from the container.</remarks>
+        internal MatroskaTrack(ContainerReader source, int trackNumber) : base(source, trackNumber) { }
     }
 }

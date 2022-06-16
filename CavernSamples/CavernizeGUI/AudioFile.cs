@@ -43,7 +43,7 @@ namespace CavernizeGUI {
                     MatroskaReader mkvReader = new(path);
                     for (int i = 0; i < mkvReader.Tracks.Length; ++i)
                         if (mkvReader.Tracks[i].Format.IsAudio())
-                            tracks.Add(new Track(new AudioTrackReader(mkvReader, i), mkvReader.Tracks[i].Format,
+                            tracks.Add(new Track(new AudioTrackReader(mkvReader.Tracks[i]), mkvReader.Tracks[i].Format,
                                 mkvReader.Tracks[i].Language));
                     break;
                 case "wav":

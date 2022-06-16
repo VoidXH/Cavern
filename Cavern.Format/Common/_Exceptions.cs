@@ -38,18 +38,6 @@ namespace Cavern.Format.Common {
     }
 
     /// <summary>
-    /// Tells if the selected track had an invalid ID.
-    /// </summary>
-    public class InvalidTrackException : Exception {
-        const string message = "Invalid track: {0} of {1}";
-
-        /// <summary>
-        /// Tells if the selected track had an invalid ID.
-        /// </summary>
-        public InvalidTrackException(int id, int tracks) : base(string.Format(message, id, tracks)) { }
-    }
-
-    /// <summary>
     /// Tells that a decoder which can process an infinite stream is not able to return content length.
     /// </summary>
     public class RealtimeLengthException : Exception {

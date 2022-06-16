@@ -1,5 +1,4 @@
 ﻿using Cavern.Format.Common;
-using Cavern.Format.Container;
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers;
 using Cavern.Format.Utilities;
@@ -10,77 +9,62 @@ namespace Cavern.Format {
     /// </summary>
     public class AudioTrackReader : AudioReader {
         /// <summary>
-        /// Container to read the track from.
-        /// </summary>
-        readonly ContainerReader source;
-
-        /// <summary>
-        /// Not the unique <see cref="Track.ID"/>, but its position in the <see cref="source"/>'s list of tracks.
-        /// </summary>
-        readonly int track;
-
-        /// <summary>
         /// Decoder based on the <see cref="Codec"/> of the selected stream.
         /// </summary>
         Decoder decoder;
 
         /// <summary>
-        /// Reads an audio track from a container.
+        /// If this track reader was created without keeping the reference to the container,
+        /// the container is disposed with this track.
         /// </summary>
-        /// <param name="source">Container to fetch the tracklist from</param>
-        /// <param name="track">Not the unique <see cref="Track.ID"/>,
-        /// but its position in <see cref="ContainerReader.Tracks"/>.</param>
-        public AudioTrackReader(ContainerReader source, int track) : base(source.reader) {
-            this.source = source;
-            this.track = track;
-        }
+        readonly bool disposeSource;
+
+        /// <summary>
+        /// The referenced track from a container.
+        /// </summary>
+        readonly Track track;
 
         /// <summary>
         /// Reads an audio track from a container.
         /// </summary>
-        /// <param name="source">Container to fetch the tracklist from</param>
-        /// <param name="codec">Select a track of this codec or throw an exception if it doesn't exist</param>
-        public AudioTrackReader(ContainerReader source, Codec codec) : base(source.reader) {
-            this.source = source;
-            for (int track = 0; track < source.Tracks.Length; ++track) {
-                if (source.Tracks[track].Format == codec) {
-                    this.track = track;
-                    return;
-                }
-            }
-            throw new CodecNotFoundException(codec);
+        public AudioTrackReader(Track track) : base(track.Source.reader) {
+            if (!track.Format.IsAudio())
+                throw new UnsupportedCodecException(true, track.Format);
+            this.track = track;
+        }
+
+        /// <summary>
+        /// Reads an audio track from a container and disposes the container after the reading was done.
+        /// </summary>
+        internal AudioTrackReader(Track track, bool disposeSource) : this(track) {
+            this.disposeSource = disposeSource;
         }
 
         /// <summary>
         /// Fill the file metadata from the selected track.
         /// </summary>
         public override void ReadHeader() {
-            if (track >= source.Tracks.Length)
-                throw new InvalidTrackException(track, source.Tracks.Length);
-            Track selected = source.Tracks[track];
-            if (!selected.Format.IsAudio())
-                throw new UnsupportedCodecException(true, selected.Format);
-
-            TrackExtraAudio info = selected.Extra as TrackExtraAudio;
+            TrackExtraAudio info = track.Extra as TrackExtraAudio;
             ChannelCount = info.ChannelCount;
-            Length = (long)(info.SampleRate * source.Duration);
+            Length = (long)(info.SampleRate * track.Source.Duration);
             SampleRate = (int)info.SampleRate;
             Bits = info.Bits;
 
-            switch (selected.Format) {
+            switch (track.Format) {
                 case Codec.DTS:
-                    decoder = new DTSCoherentAcousticsDecoder(new BlockBuffer<byte>(ReadNextBlock));
+                    decoder = new DTSCoherentAcousticsDecoder(new BlockBuffer<byte>(track.ReadNextBlock));
                     break;
                 case Codec.AC3:
                 case Codec.EnhancedAC3:
-                    decoder = new EnhancedAC3Decoder(new BlockBuffer<byte>(ReadNextBlock));
+                    decoder = new EnhancedAC3Decoder(new BlockBuffer<byte>(track.ReadNextBlock));
                     break;
                 case Codec.PCM_LE:
                 case Codec.PCM_Float:
-                    decoder = new RIFFWaveDecoder(new BlockBuffer<byte>(ReadNextBlock), ChannelCount, Length, SampleRate, Bits);
+                    decoder = new RIFFWaveDecoder(new BlockBuffer<byte>(track.ReadNextBlock),
+                        ChannelCount, Length, SampleRate, Bits);
                     break;
                 default:
-                    decoder = new DummyDecoder(selected.Format, ChannelCount, Length, SampleRate);
+                    decoder = new DummyDecoder(track.Format, ChannelCount, Length, SampleRate);
                     break;
             }
         }
@@ -109,8 +93,11 @@ namespace Cavern.Format {
         public override void ReadBlock(float[] samples, long from, long to) => decoder.DecodeBlock(samples, from, to - from);
 
         /// <summary>
-        /// Gets the next block from the streamed track.
+        /// Close the reader if it surely can't be used anywhere else.
         /// </summary>
-        byte[] ReadNextBlock() => source.ReadNextBlock(track);
+        public override void Dispose() {
+            if (disposeSource && reader != null)
+                reader.Close();
+        }
     }
 }

@@ -108,7 +108,7 @@ namespace Cavern.Format.Container {
             MatroskaTree[] entries = tracklist.GetChildren(MatroskaTree.Segment_Tracks_TrackEntry);
             Tracks = new Track[entries.Length];
             for (int track = 0; track < entries.Length; ++track) {
-                MatroskaTrack entry = new MatroskaTrack();
+                MatroskaTrack entry = new MatroskaTrack(this, track);
                 Tracks[track] = entry;
 
                 MatroskaTree source = entries[track];

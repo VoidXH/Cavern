@@ -3,6 +3,8 @@ using System.IO;
 
 using Cavern.Format.Common;
 using Cavern.Format.Consts;
+using Cavern.Format.Container;
+using Cavern.Format.Container.Matroska;
 using Cavern.Format.Renderers;
 
 namespace Cavern.Format {
@@ -167,7 +169,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Close the reader.
         /// </summary>
-        public void Dispose() {
+        public virtual void Dispose() {
             if (reader != null)
                 reader.Close();
         }
@@ -181,6 +183,7 @@ namespace Cavern.Format {
             return syncWord switch {
                 RIFFWave.syncWord1 => new RIFFWaveReader(reader),
                 LimitlessAudioFormat.syncWord => new LimitlessAudioFormatReader(reader),
+                MatroskaTree.EBML => new AudioTrackReader(new MatroskaReader(reader).GetFirstAudioTrack(), true),
                 _ => throw new UnsupportedFormatException(),
             };
         }

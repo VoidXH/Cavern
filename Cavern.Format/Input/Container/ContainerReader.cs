@@ -1,5 +1,5 @@
 ﻿using System.IO;
-
+using System.Linq;
 using Cavern.Format.Common;
 
 namespace Cavern.Format.Container {
@@ -39,5 +39,10 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the <see cref="Tracks"/> array.</param>
         public abstract byte[] ReadNextBlock(int track);
+
+        /// <summary>
+        /// Get the main audio track from the container.
+        /// </summary>
+        public Track GetFirstAudioTrack() => Tracks.FirstOrDefault(x => x.Format.IsAudio());
     }
 }
