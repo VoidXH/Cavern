@@ -57,13 +57,15 @@ namespace Cavern {
         /// Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.
         /// </summary>
         [Header("Advanced")]
-        [Tooltip("Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.")]
+        [Tooltip("Project sample rate (min. 44100). " +
+            "It's best to have all your audio clips in this sample rate for maximum performance.")]
         public int SampleRate = 48000;
 
         /// <summary>
         /// Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.
         /// </summary>
-        [Tooltip("Update interval in audio samples (min. 16). Lower values mean better interpolation, but require more processing power.")]
+        [Tooltip("Update interval in audio samples (min. 16). " +
+            "Lower values mean better interpolation, but require more processing power.")]
         public int UpdateRate = 240;
 
         /// <summary>
@@ -93,7 +95,8 @@ namespace Cavern {
         /// <summary>
         /// Save performance by not remapping Unity's output to the user layout and only rendering Cavern sources.
         /// </summary>
-        /// <remarks>You should still use Unity's render engine for non-decompressed clips like background music to save memory.</remarks>
+        /// <remarks>You should still use Unity's render engine
+        /// for non-decompressed clips like background music to save memory.</remarks>
         [Tooltip("Save performance by not remapping Unity's output to the user layout and only rendering Cavern sources.")]
         public bool DisableUnityAudio = false;
 
@@ -272,7 +275,7 @@ namespace Cavern {
                 if (channels != unityChannels) {
                     downmix = new float[renderBuffer.Length / channels * unityChannels];
                     if (renderBuffer.Length * unityChannels == downmix.Length * channels)
-                        WaveformUtils.Downmix(renderBuffer, channels, downmix, unityChannels);
+                        WaveformUtils.Downmix(renderBuffer, downmix, unityChannels);
                     else
                         Array.Clear(downmix, 0, downmix.Length);
                     if (SystemSampleRate != cachedSampleRate) // Resample output for system sample rate
@@ -296,7 +299,7 @@ namespace Cavern {
                 float[] remapped = remapper.Update(unityBuffer, unityChannels);
                 Array.Clear(unityBuffer, 0, unityBuffer.Length);
                 Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
-                WaveformUtils.Downmix(remapped, channels, unityBuffer, unityChannels); // Output remapped Unity audio
+                WaveformUtils.Downmix(remapped, unityBuffer, unityChannels); // Output remapped Unity audio
             } else
                 Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
 

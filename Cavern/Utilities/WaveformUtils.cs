@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cavern.Remapping;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -42,7 +43,7 @@ namespace Cavern.Utilities {
             for (int i = 1; i < signal.Length / 2; ++i) {
                 float phase = cycle * i;
                 signal[i].Rotate(-phase);
-                signal[signal.Length - i].Rotate(phase);
+                signal[^i].Rotate(phase);
             }
         }
 
@@ -63,8 +64,13 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Downmix audio for a lesser channel count with limited knowledge of the target system's channel locations.
         /// </summary>
-        public static void Downmix(float[] from, int fromChannels, float[] to, int toChannels) {
-            int samplesPerChannel = to.Length / toChannels;
+        /// <param name="from">The output of a <see cref="Listener"/> or an audio signal
+        /// that matches the renderer's channel count.</param>
+        /// <param name="to">Output array</param>
+        /// <param name="toChannels">Output channel count</param>
+        public static void Downmix(float[] from, float[] to, int toChannels) {
+            int samplesPerChannel = to.Length / toChannels,
+                fromChannels = Listener.Channels.Length;
             for (int channel = 0; channel < fromChannels; ++channel) {
                 if (toChannels > 4 || (Listener.Channels[channel].Y != 0 && !Listener.Channels[channel].LFE))
                     for (int sample = 0, overflow = channel % toChannels; sample < samplesPerChannel; ++sample)
@@ -75,6 +81,18 @@ namespace Cavern.Utilities {
                         to[sample * toChannels] += copySample;
                         to[sample * toChannels + 1] += copySample;
                     }
+                }
+            }
+
+            // Quadro surrounds have the IDs of center/LFE, move them to their correct locations
+            if (fromChannels == 4 && toChannels > 5) {
+                int sl, sr;
+                (sl, sr) = toChannels > 7 ? (6, 7) : (4, 5);
+                for (int sample = 0; sample < to.Length; sample += toChannels) {
+                    to[sample + sl] = to[sample + 2];
+                    to[sample + sr] = to[sample + 3];
+                    to[sample + 2] = 0;
+                    to[sample + 3] = 0;
                 }
             }
         }
