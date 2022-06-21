@@ -99,8 +99,8 @@ namespace Cavern.Format.Transcoders {
             ExpStrat expstr, Allocation allocation, DeltaBitAllocation dba, int fastleak = 0, int slowleak = 0) {
             // Unpack the mapped values
             int[] dexp = allocation.dexp;
-            for (int grp = 0; grp < ngrps; ++grp) {
-                int expacc = gexp[grp + 1];
+            for (int grp = 0, offset = gexp.Length == ngrps ? 0 : 1; grp < ngrps; ++grp) {
+                int expacc = gexp[grp + offset];
                 dexp[grp * 3] = expacc / 25;
                 expacc -= 25 * dexp[grp * 3];
                 dexp[grp * 3 + 1] = expacc / 5;

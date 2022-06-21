@@ -58,9 +58,13 @@ namespace Cavern.Format.Transcoders {
                         ncplbnd = ncplsubnd;
                         if (ncplsubnd < 1)
                             throw new DecoderException(3);
-                        if (cplbndstrce = !eac3 || extractor.ReadBit())
+                        if (cplbndstrce = !eac3 || extractor.ReadBit()) {
                             for (int band = 1; band < ncplsubnd; ++band)
-                                if (cplbndstrc[band] = extractor.ReadBit())
+                                if (cplbndstrc[cplbegf + band] = extractor.ReadBit())
+                                    --ncplbnd;
+                        } else
+                            for (int band = 1; band < ncplsubnd; ++band)
+                                if (cplbndstrc[cplbegf + band])
                                     --ncplbnd;
                     } else { // Enhanced coupling
                         ecplbegf = extractor.Read(4);
