@@ -67,7 +67,8 @@
         bool[] cplinu;
         bool[] cplstre;
         bool[] dithflag;
-        bool[] ecplbndstrc;
+        bool[] ecplbndstrc = { false, false, false, false, false, false, false, false, true, false,
+            true, false, true, false, true, true, true, false, true, true, true }; // defecplbndstrc
         bool[] firstcplcos;
         bool[] firstspxcos;
         bool[] lfeexpstr;
