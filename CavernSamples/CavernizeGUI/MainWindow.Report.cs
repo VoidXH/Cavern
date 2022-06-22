@@ -36,10 +36,10 @@ namespace CavernizeGUI {
 
             builder.Append("Actually present bed channels: ").Append(channels.Count);
             if (channels.Count != 0)
-                builder.Append(" (").Append(string.Join(", ", channels)).AppendLine(")");
-            builder.Append("Actually present dynamic objects: ").AppendLine(dynamic.ToString())
+                builder.Append(" (").Append(string.Join(", ", channels)).Append(')');
+            builder.AppendLine().Append("Actually present dynamic objects: ").AppendLine(dynamic.ToString())
                 .Append("Unused (fake) rendering targets: ").AppendLine(unused.ToString());
             report.Dispatcher.Invoke(() => report.Text = builder.ToString());
-        } 
+        }
     }
 }

@@ -38,6 +38,10 @@ namespace CavernizeGUI {
         public void Reset() {
             tracks.Clear();
             switch (path[^3..]) {
+                case "ac3":
+                    EnhancedAC3Reader ac3Reader = new(path);
+                    tracks.Add(new Track(ac3Reader, Codec.EnhancedAC3));
+                    break;
                 case "mkv":
                 case "mka":
                     MatroskaReader mkvReader = new(path);
