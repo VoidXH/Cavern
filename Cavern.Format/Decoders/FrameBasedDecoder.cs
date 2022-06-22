@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {
@@ -33,7 +34,7 @@ namespace Cavern.Format.Decoders {
         /// <remarks>The next to - from samples will be read from the file.
         /// All samples are counted, not just a single channel.</remarks>
         public override void DecodeBlock(float[] target, long from, long to) {
-            const long skip = 10 * 1024 * 1024 / sizeof(float); // 10 MB source splits at max to optimize for both memory and IO
+            const long skip = FormatConsts.blockSize / sizeof(float); // source split optimization for both memory and IO
             if (to - from > skip) {
                 for (; from < to; from += skip)
                     DecodeBlock(target, from, Math.Min(to, from + skip));

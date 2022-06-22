@@ -52,7 +52,7 @@ namespace Cavern.Format.Transcoders {
             if (LFEResult == null && header.LFE)
                 LFEResult = new float[header.Blocks * 256];
 
-            CreateCacheTables(header.Blocks, channels.Length);
+            CreateCacheTables(header.Blocks, channels.Length); // TODO: reuse
             if (header.Decoder == EnhancedAC3.Decoders.EAC3)
                 AudioFrame();
             else {
@@ -60,7 +60,10 @@ namespace Cavern.Format.Transcoders {
                 dithflage = true;
                 bamode = true;
                 snroffststr = -1;
+                frmfgaincode = false;
                 firstcplleak = false;
+                dbaflde = true;
+                skipflde = true;
                 // TODO: disable AHT when it's implemented
             }
         }

@@ -156,12 +156,11 @@ namespace Cavern.Format.Transcoders {
             // Exponents for full bandwidth channels
             for (int channel = 0; channel < channels.Length; ++channel) {
                 if (chexpstr[block][channel] != ExpStrat.Reuse) {
-                    int expl = nchgrps[channel] + 1;
-                    if (exps[channel] == null || exps[channel].Length != expl)
-                        exps[channel] = new int[expl];
+                    if (exps[channel] == null || exps[channel].Length != nchgrps[channel] + 1) // TODO: make it not null
+                        exps[channel] = new int[nchgrps[channel] + 1];
                     exps[channel][0] = extractor.Read(4);
-                    for (int group = 1; group < expl; ++group)
-                        exps[channel][group] = extractor.Read(7);
+                    for (int group = 0; group < nchgrps[channel];)
+                        exps[channel][++group] = extractor.Read(7);
                     gainrng[channel] = extractor.Read(2);
                 }
             }
