@@ -23,104 +23,93 @@
         /// <summary>
         /// Sub-band transform start coefficients.
         /// </summary>
-        static readonly int[] ecplsubbndtab = new int[23]
+        static readonly int[] ecplsubbndtab =
             { 13, 19, 25, 31, 37, 49, 61, 73, 85, 97, 109, 121, 133, 145, 157, 169, 181, 193, 205, 217, 229, 241, 253 };
 
         /// <summary>
         /// Frame exponent strategy combinations.
         /// </summary>
-        static readonly ExpStrat[][] frmcplexpstr_tbl = new ExpStrat[32][] {
-            new ExpStrat[6] { ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse},
-            new ExpStrat[6] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45},
+        static readonly ExpStrat[][] frmcplexpstr_tbl = {
+            new ExpStrat[] { ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D15, ExpStrat.Reuse, ExpStrat.Reuse, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D25, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse,   ExpStrat.D45},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D25, ExpStrat.Reuse},
+            new ExpStrat[] { ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45,   ExpStrat.D45},
         };
 
         /// <summary>
         /// Slow decay table.
         /// </summary>
-        static readonly byte[] slowdec = new byte[4] { 0x0f, 0x11, 0x13, 0x15 };
+        static readonly byte[] slowdec = { 0x0f, 0x11, 0x13, 0x15 };
 
         /// <summary>
         /// Fast decay table.
         /// </summary>
-        static readonly byte[] fastdec = new byte[4] { 0x3f, 0x53, 0x67, 0x7b };
+        static readonly byte[] fastdec = { 0x3f, 0x53, 0x67, 0x7b };
 
         /// <summary>
         /// Slow gain table.
         /// </summary>
-        static readonly short[] slowgain = new short[4] { 0x540, 0x4d8, 0x478, 0x410 };
+        static readonly short[] slowgain = { 0x540, 0x4d8, 0x478, 0x410 };
 
         /// <summary>
         /// dB/bit table.
         /// </summary>
-        static readonly short[] dbpbtab = new short[4] { 0x000, 0x700, 0x900, 0xb00 };
+        static readonly short[] dbpbtab = { 0x000, 0x700, 0x900, 0xb00 };
 
         /// <summary>
         /// Floor table.
         /// </summary>
-        static readonly short[] floortab = new short[8] { 0x2f0, 0x2b0, 0x270, 0x230, 0x1f0, 0x170, 0x0f0, -2048 };
+        static readonly short[] floortab = { 0x2f0, 0x2b0, 0x270, 0x230, 0x1f0, 0x170, 0x0f0, -2048 };
 
         /// <summary>
         /// Fast gain table.
         /// </summary>
-        static readonly short[] fastgain = new short[8] { 0x080, 0x100, 0x180, 0x200, 0x280, 0x300, 0x380, 0x400 };
+        static readonly short[] fastgain = { 0x080, 0x100, 0x180, 0x200, 0x280, 0x300, 0x380, 0x400 };
 
         /// <summary>
         /// Banding structure tables.
         /// </summary>
-        static readonly byte[] bndtab = new byte[50] {
-            0,   1,  2,   3,   4,   5,   6,   7,   8,   9,
-            10, 11, 12,  13,  14,  15,  16,  17,  18,  19,
-            20, 21, 22,  23,  24,  25,  26,  27,  28,  31,
-            34, 37, 40,  43,  46,  49,  55,  61,  67,  73,
-            79, 85, 97, 109, 121, 133, 157, 181, 205, 229
-        };
-
-        /// <summary>
-        /// Banding structure tables.
-        /// </summary>
-        static readonly byte[] bndsz = new byte[50] {
-            1, 1,  1,  1,  1,  1,  1,  1,  1,  1,
-            1, 1,  1,  1,  1,  1,  1,  1,  1,  1,
-            1, 1,  1,  1,  1,  1,  1,  1,  3,  3,
-            3, 3,  3,  3,  3,  6,  6,  6,  6,  6,
-            6, 12, 12, 12, 12, 24, 24, 24, 24, 24
+        static readonly byte[] bndtab = {
+             1,  2,  3,   4,   5,   6,   7,   8,   9,  10,
+            11, 12, 13,  14,  15,  16,  17,  18,  19,  20,
+            21, 22, 23,  24,  25,  26,  27,  28,  31,  34,
+            37, 40, 43,  46,  49,  55,  61,  67,  73,  79,
+            85, 97, 109, 121, 133, 157, 181, 205, 229, 253
         };
 
         /// <summary>
         /// Bin number to band number table.
         /// </summary>
-        static readonly byte[] masktab = new byte[256] {
-            0,   1,  2,  3,  4,  5,  6,  7,  8,  9,
+        static readonly byte[] masktab = {
+             0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
             10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
             20, 21, 22, 23, 24, 25, 26, 27, 28, 28,
             28, 29, 29, 29, 30, 30, 30, 31, 31, 31,
@@ -151,7 +140,7 @@
         /// <summary>
         /// Log-addition table.
         /// </summary>
-        static readonly byte[] latab = new byte[256] {
+        static readonly byte[] latab = {
             0x40, 0x3f, 0x3e, 0x3d, 0x3c, 0x3b, 0x3a, 0x39, 0x38, 0x37,
             0x36, 0x35, 0x34, 0x34, 0x33, 0x32, 0x31, 0x30, 0x2f, 0x2f,
             0x2e, 0x2d, 0x2c, 0x2c, 0x2b, 0x2a, 0x29, 0x29, 0x28, 0x27,
@@ -183,8 +172,8 @@
         /// <summary>
         /// Hearing threshold table.
         /// </summary>
-        static readonly int[][] hth = new int[3][] {
-            new int[50] {
+        static readonly int[][] hth = {
+            new int[] {
                 0x04d0, 0x04d0, 0x0440, 0x0400, 0x03e0,
                 0x03c0, 0x03b0, 0x03b0, 0x03a0, 0x03a0,
                 0x03a0, 0x03a0, 0x03a0, 0x0390, 0x0390,
@@ -196,7 +185,7 @@
                 0x0460, 0x0490, 0x04a0, 0x0460, 0x0440,
                 0x0440, 0x0520, 0x0800, 0x0840, 0x0840
             },
-            new int[50] {
+            new int[] {
                 0x04f0, 0x04f0, 0x0460, 0x0410, 0x03e0,
                 0x03d0, 0x03c0, 0x03b0, 0x03b0, 0x03a0,
                 0x03a0, 0x03a0, 0x03a0, 0x03a0, 0x0390,
@@ -208,7 +197,7 @@
                 0x0420, 0x0450, 0x04a0, 0x0490, 0x0460,
                 0x0440, 0x0480, 0x0630, 0x0840, 0x0840
             },
-            new int[50] {
+            new int[] {
                 0x0580, 0x0580, 0x04b0, 0x0450, 0x0420,
                 0x03f0, 0x03e0, 0x03d0, 0x03c0, 0x03b0,
                 0x03b0, 0x03b0, 0x03a0, 0x03a0, 0x03a0,
@@ -226,10 +215,10 @@
         /// Bit allocation pointer table.
         /// </summary>
         static readonly byte[] baptab = {
-            0,  1,  1,  1,  1,  1,  2,  2,  3,  3,
-            3,  4,  4,  5,  5,  6,  6,  6,  6,  7,
-            7,  7,  7,  8,  8,  8,  8,  9,  9,  9,
-            9,  10, 10, 10, 10, 11, 11, 11, 11, 12,
+             0,  1,  1,  1,  1,  1,  2,  2,  3,  3,
+             3,  4,  4,  5,  5,  6,  6,  6,  6,  7,
+             7,  7,  7,  8,  8,  8,  8,  9,  9,  9,
+             9, 10, 10, 10, 10, 11, 11, 11, 11, 12,
             12, 12, 12, 13, 13, 13, 13, 14, 14, 14,
             14, 14, 14, 14, 14, 15, 15, 15, 15, 15,
             15, 15, 15, 15

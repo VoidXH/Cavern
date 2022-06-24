@@ -21,8 +21,6 @@
             }
         }
 
-        int ParseSpxbandtable(int band) => band * 12 + 25;
-
         /// <summary>
         /// Set endmant and nchgrps.
         /// </summary>
@@ -45,7 +43,7 @@
                     endmant[channel] = ecplsubbndtab[ecpl_begin_subbnd];
                 else {
                     if (spxinu && !cplinu[block])
-                        endmant[channel] = ParseSpxbandtable(spx_begin_subbnd);
+                        endmant[channel] = spx_begin_subbnd * 12 + 25;
                     else if (chincpl[channel])
                         endmant[channel] = cplstrtmant;
                     else

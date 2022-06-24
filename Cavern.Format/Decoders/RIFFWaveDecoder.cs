@@ -86,7 +86,7 @@ namespace Cavern.Format.Decoders {
                 header = (header << 8) | reader.ReadByte();
             while (header != RIFFWave.syncWord3BE && reader.BaseStream.Position < reader.BaseStream.Length);
             length = reader.ReadUInt32() * 8L / (long)Bits / ChannelCount;
-            this.reader = BlockBuffer<byte>.Create(reader);
+            this.reader = BlockBuffer<byte>.Create(reader, FormatConsts.blockSize);
         }
 
         /// <summary>

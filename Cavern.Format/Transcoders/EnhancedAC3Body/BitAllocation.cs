@@ -138,7 +138,7 @@ namespace Cavern.Format.Transcoders {
             int k = masktab[start];
             int lastbin;
             do {
-                lastbin = Math.Min(bndtab[k] + bndsz[k], end);
+                lastbin = Math.Min(bndtab[k], end);
                 bndpsd[k] = psd[j++];
                 for (i = j; i < lastbin; ++i, ++j)
                     bndpsd[k] = LogAdd(bndpsd[k], psd[j]);
@@ -209,7 +209,7 @@ namespace Cavern.Format.Transcoders {
             i = start;
             j = masktab[start];
             do {
-                lastbin = Math.Min(bndtab[j] + bndsz[j], end);
+                lastbin = Math.Min(bndtab[j], end);
                 int masked = mask[j] - snroffset - floor;
                 if (masked < 0)
                     masked = 0;

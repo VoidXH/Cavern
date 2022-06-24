@@ -38,7 +38,7 @@ namespace Cavern.Format.Transcoders {
             if (!eac3 && (cplstre[block] = extractor.ReadBit()))
                 cplinu[block] = extractor.ReadBit();
 
-            if (cplstre[block]) {
+            if (cplstre[block] || !eac3) {
                 if (cplinu[block]) {
                     ecplinu = eac3 && extractor.ReadBit();
                     if (eac3 && header.ChannelMode == 2)
@@ -147,7 +147,6 @@ namespace Cavern.Format.Transcoders {
             if (cplinu[block]) {
                 if (cplexpstr[block] != ExpStrat.Reuse) {
                     cplabsexp = extractor.Read(4);
-                    cplexps = new int[ncplgrps];
                     for (int group = 0; group < ncplgrps; ++group)
                         cplexps[group] = extractor.Read(7);
                 }
@@ -156,8 +155,6 @@ namespace Cavern.Format.Transcoders {
             // Exponents for full bandwidth channels
             for (int channel = 0; channel < channels.Length; ++channel) {
                 if (chexpstr[block][channel] != ExpStrat.Reuse) {
-                    if (exps[channel] == null || exps[channel].Length != nchgrps[channel] + 1) // TODO: make it not null
-                        exps[channel] = new int[nchgrps[channel] + 1];
                     exps[channel][0] = extractor.Read(4);
                     for (int group = 0; group < nchgrps[channel];)
                         exps[channel][++group] = extractor.Read(7);
@@ -299,13 +296,14 @@ namespace Cavern.Format.Transcoders {
 
             // Quantized mantissa values
             Allocation.ResetBlock();
-            if (cplinu[block] && cplexpstr[block] != ExpStrat.Reuse)
+            // TODO: optimize for reallocation - currently it doesn't reallocate all the time when needed
+            if (cplinu[block])// && cplexpstr[block] != ExpStrat.Reuse)
                 AllocateCoupling(cplexpstr[block]);
 
             bool got_cplchan = false;
             for (int channel = 0; channel < channels.Length; ++channel) {
                 if (chahtinu[channel] == 0) {
-                    if (chexpstr[block][channel] != ExpStrat.Reuse)
+                    //if (chexpstr[block][channel] != ExpStrat.Reuse)
                         Allocate(channel, exps[channel], chexpstr[block][channel]);
                     allocation[channel].ReadMantissa(extractor, chmant[channel], 0, endmant[channel]);
                 } else

@@ -164,6 +164,7 @@
             cplcoe = new bool[channels];
             cplcoexp = new int[channels][];
             cplcomant = new int[channels][];
+            cplexps = new int[maxAllocationSize];
             cplexpstr = new ExpStrat[blocks];
             cplinu = new bool[blocks];
             cplstre = new bool[blocks];
@@ -206,6 +207,7 @@
                 cplcoexp[channel] = new int[cplbndstrc.Length];
                 cplcomant[channel] = new int[cplbndstrc.Length];
                 deltba[channel].Reset();
+                exps[channel] = new int[maxAllocationSize];
             }
         }
     }

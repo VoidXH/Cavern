@@ -52,7 +52,8 @@ namespace Cavern.Format.Transcoders {
             if (LFEResult == null && header.LFE)
                 LFEResult = new float[header.Blocks * 256];
 
-            CreateCacheTables(header.Blocks, channels.Length); // TODO: reuse
+            if (exps == null) // If caches don't exist, create them
+                CreateCacheTables(header.Blocks, channels.Length);
             if (header.Decoder == EnhancedAC3.Decoders.EAC3)
                 AudioFrame();
             else {
