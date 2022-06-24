@@ -82,7 +82,6 @@
         int blkfsnroffst;
         int blkstrtinfo;
         int convsnroffst;
-        int cplabsexp;
         int cplahtinu;
         int cplbegf;
         int cplendf;

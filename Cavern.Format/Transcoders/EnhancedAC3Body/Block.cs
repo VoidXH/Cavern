@@ -146,9 +146,9 @@ namespace Cavern.Format.Transcoders {
             ParseParametricBitAllocation(block);
             if (cplinu[block]) {
                 if (cplexpstr[block] != ExpStrat.Reuse) {
-                    cplabsexp = extractor.Read(4);
-                    for (int group = 0; group < ncplgrps; ++group)
-                        cplexps[group] = extractor.Read(7);
+                    cplexps[0] = extractor.Read(4);
+                    for (int group = 0; group < ncplgrps;)
+                        cplexps[++group] = extractor.Read(7);
                 }
             }
 
@@ -304,7 +304,7 @@ namespace Cavern.Format.Transcoders {
             for (int channel = 0; channel < channels.Length; ++channel) {
                 if (chahtinu[channel] == 0) {
                     //if (chexpstr[block][channel] != ExpStrat.Reuse)
-                        Allocate(channel, exps[channel], chexpstr[block][channel]);
+                        Allocate(channel, chexpstr[block][channel]);
                     allocation[channel].ReadMantissa(extractor, chmant[channel], 0, endmant[channel]);
                 } else
                     throw new UnsupportedFeatureException("AHT");
@@ -320,8 +320,8 @@ namespace Cavern.Format.Transcoders {
 
             if (header.LFE) {
                 if (lfeahtinu == 0) {
-                    if (lfeexpstr[block])
-                        AllocateLFE(lfeexps, ExpStrat.D15);
+                    //if (lfeexpstr[block])
+                        AllocateLFE();
                     lfeAllocation.ReadMantissa(extractor, lfemant, lfestrtmant, lfeendmant);
                 } else
                     throw new UnsupportedFeatureException("AHT");
