@@ -48,11 +48,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         int offset;
 
         /// <summary>
-        /// Last decoded precise object update positions.
-        /// </summary>
-        Vector3[] lastPrecisePositions = new Vector3[0];
-
-        /// <summary>
         /// Decodes a OAMD frame from an EMDF payload.
         /// </summary>
         public void Decode(BitExtractor extractor, int offset) {
@@ -76,13 +71,13 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (isfInUse)
                 bedOrISFObjects += isfObjectCount[isfIndex];
 
-            if (lastPrecisePositions.Length != ObjectCount)
-                lastPrecisePositions = new Vector3[ObjectCount];
-
-            elements.Clear();
+            if (elements.Count != elementCount) {
+                elements.Clear();
+                for (int i = 0; i < elementCount; ++i)
+                    elements.Add(new OAElementMD());
+            }
             for (int i = 0; i < elementCount; ++i)
-                elements.Add(
-                    new OAElementMD(extractor, alternateObjectPresent, ObjectCount, bedOrISFObjects, lastPrecisePositions));
+                elements[i].Read(extractor, alternateObjectPresent, ObjectCount, bedOrISFObjects);
         }
 
         /// <summary>
@@ -107,8 +102,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         /// <param name="timecode">Samples since the beginning of the audio frame</param>
         /// <param name="sources">The sources used for rendering this track</param>
-        /// <param name="lastHoldPos">A helper array the size of <see cref="ObjectCount"/></param>
-        public void UpdateSources(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
+        public void UpdateSources(int timecode, IReadOnlyList<Source> sources) {
             timecode -= offset;
             int element = 0;
             for (int i = elements.Count - 1; i >= 0; --i) {
@@ -120,7 +114,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
-            elements[element].UpdateSources(timecode, sources, lastHoldPos);
+            elements[element].UpdateSources(timecode, sources);
             int checkedBed = 0;
             int checkedBedInstance = 0;
             for (int i = 0; i < beds; ++i) {

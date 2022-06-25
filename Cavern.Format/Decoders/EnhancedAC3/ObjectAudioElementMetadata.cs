@@ -26,9 +26,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public short MinOffset => blockOffsetFactor[0];
 
         /// <summary>
-        /// Last decoded precise object update positions.
+        /// The movement data of the next block was already set to motion.
         /// </summary>
-        readonly Vector3[] lastPrecisePositions;
+        bool[] blockUsed = new bool[0];
 
         /// <summary>
         /// Global sample offset, applied to all info blocks.
@@ -50,14 +50,22 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Rendering info for each object's updates. The first dimension is the object, the second is the info block.
         /// </summary>
         /// <remarks>Can be null if the element is not an object element.</remarks>
-        ObjectInfoBlock[][] infoBlocks;
+        ObjectInfoBlock[][] infoBlocks = new ObjectInfoBlock[0][];
+
+        /// <summary>
+        /// The position of each object to move to.
+        /// </summary>
+        Vector3[] future;
+
+        /// <summary>
+        /// Samples until reaching the <see cref="future"/>.
+        /// </summary>
+        int futureDistance;
 
         /// <summary>
         /// Decodes an object audio element metadata block.
         /// </summary>
-        public OAElementMD(BitExtractor extractor, bool alternateObjectPresent, int objectCount, int bedOrISFObjects,
-            Vector3[] lastPrecisePositions) {
-            this.lastPrecisePositions = lastPrecisePositions;
+        public void Read(BitExtractor extractor, bool alternateObjectPresent, int objectCount, int bedOrISFObjects) {
             int elementIndex = extractor.Read(4);
             int endPos = extractor.Position + VariableBitsMax(extractor, 4, 4) + 1;
             extractor.Skip(alternateObjectPresent ? 5 : 1);
@@ -79,20 +87,24 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         /// <param name="timecode">Samples since the beginning of the audio frame</param>
         /// <param name="sources">The sources used for rendering this track</param>
-        /// <param name="lastHoldPos">A helper array for each object, holding the last non-ramped position</param>
-        public void UpdateSources(int timecode, IReadOnlyList<Source> sources, Vector3[] lastHoldPos) {
+        public void UpdateSources(int timecode, IReadOnlyList<Source> sources) {
             for (int blk = 0; blk < infoBlocks[0].Length; ++blk) {
-                if (timecode > blockOffsetFactor[blk] + rampDuration[blk])
+                if (blockUsed[blk])
                     continue;
 
-                for (int obj = 0; obj < infoBlocks.Length; ++obj) {
-                    if (timecode > blockOffsetFactor[blk] &&
-                        infoBlocks[obj][blk].UpdateSource(sources[obj], ref lastPrecisePositions[obj])) {
-                        float t = (timecode - blockOffsetFactor[blk]) / (float)rampDuration[blk];
-                        lastHoldPos[obj] = sources[obj].Position =
-                            Vector3.Lerp(lastHoldPos[obj], sources[obj].Position, Math.Min(t, 1));
-                    }
+                if (timecode > blockOffsetFactor[blk]) {
+                    blockUsed[blk] = true;
+                    futureDistance = rampDuration[blk] - (timecode - blockOffsetFactor[blk]);
+                    for (int obj = 0; obj < infoBlocks.Length; ++obj)
+                        future[obj] = infoBlocks[obj][blk].UpdateSource(sources[obj]);
                 }
+            }
+
+            if (futureDistance > 0) {
+                float t = Math.Min(QuadratureMirrorFilterBank.subbands / (float)futureDistance, 1);
+                for (int obj = 0; obj < infoBlocks.Length; ++obj)
+                    sources[obj].Position = Vector3.Lerp(sources[obj].Position, future[obj], t);
+                futureDistance -= QuadratureMirrorFilterBank.subbands;
             }
         }
 
@@ -101,12 +113,21 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (!extractor.ReadBit()) // Reserved
                 extractor.Skip(5);
 
-            infoBlocks = new ObjectInfoBlock[objectCount][];
-            for (int obj = 0; obj < objectCount; ++obj) {
-                infoBlocks[obj] = new ObjectInfoBlock[rampDuration.Length];
-                for (int blk = 0; blk < infoBlocks[obj].Length; ++blk)
-                    infoBlocks[obj][blk] = new ObjectInfoBlock(extractor, blk, obj < bedOrISFObjects);
+            if (blockUsed.Length != rampDuration.Length || infoBlocks.Length != objectCount) {
+                blockUsed = new bool[rampDuration.Length];
+                infoBlocks = new ObjectInfoBlock[objectCount][];
+                for (int obj = 0; obj < objectCount; ++obj) {
+                    infoBlocks[obj] = new ObjectInfoBlock[rampDuration.Length];
+                    for (int blk = 0; blk < infoBlocks[obj].Length; ++blk)
+                        infoBlocks[obj][blk] = new ObjectInfoBlock();
+                }
+                future = new Vector3[objectCount];
             }
+
+            Array.Clear(blockUsed, 0, blockUsed.Length);
+            for (int obj = 0; obj < objectCount; ++obj)
+                for (int blk = 0; blk < infoBlocks[obj].Length; ++blk)
+                    infoBlocks[obj][blk].Update(extractor, blk, obj < bedOrISFObjects);
         }
 
         void MDUpdateInfo(BitExtractor extractor) {

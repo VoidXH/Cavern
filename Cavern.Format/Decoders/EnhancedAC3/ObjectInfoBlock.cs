@@ -46,7 +46,15 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         Vector3 position;
 
-        public ObjectInfoBlock(BitExtractor extractor, int blk, bool bedOrISFObject) {
+        /// <summary>
+        /// Last fully transmitted position to add delta positions to.
+        /// </summary>
+        Vector3 lastPrecise;
+
+        /// <summary>
+        /// Read new information for this block.
+        /// </summary>
+        public void Update(BitExtractor extractor, int blk, bool bedOrISFObject) {
             bool inactive = extractor.ReadBit();
             int basicInfoStatus = inactive ? 0 : (blk == 0 ? 1 : extractor.Read(2));
             if ((basicInfoStatus == 1) || (basicInfoStatus == 3))
@@ -66,9 +74,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         /// <summary>
-        /// Sets the properties of the block, returns if the position was updated.
+        /// Sets the properties of the block, returns the final target position.
+        /// The position shouldn't be updated immediately, it might have a ramp.
         /// </summary>
-        public bool UpdateSource(Source source, ref Vector3 lastPrecise) {
+        public Vector3 UpdateSource(Source source) {
             if (gain >= 0)
                 source.Volume = gain;
             if (size >= 0)
@@ -76,49 +85,45 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
             if (validPosition && anchor != ObjectAnchor.Speaker) {
                 if (differentialPosition)
-                    source.Position = new Vector3(
+                    position = new Vector3(
                         QMath.Clamp(lastPrecise.X + position.X, 0, 1),
                         QMath.Clamp(lastPrecise.Y + position.Y, 0, 1),
                         QMath.Clamp(lastPrecise.Z + position.Z, 0, 1)
                     );
-                else {
-                    source.Position = position;
-                    lastPrecise = source.Position;
-                }
+                else
+                    lastPrecise = position;
 
                 switch (anchor) {
                     case ObjectAnchor.Room:
                         if (!float.IsNaN(distance)) {
-                            Vector3 intersect = source.Position.MapToCube();
+                            Vector3 intersect = position.MapToCube();
                             float distanceFactor = intersect.Length() / distance;
-                            source.Position = distanceFactor * intersect + (1 - distanceFactor) * roomCenter;
+                            position = distanceFactor * intersect + (1 - distanceFactor) * roomCenter;
                         }
                         source.screenLocked = false;
                         break;
                     case ObjectAnchor.Screen:
                         Vector3 reference =
-                            new Vector3((source.Position.X - .5f) * Listener.ScreenSize.X + .5f,
-                            source.Position.Y,
-                            (source.Position.Z + 1) * Listener.ScreenSize.Y
+                            new Vector3((position.X - .5f) * Listener.ScreenSize.X + .5f,
+                            position.Y,
+                            (position.Z + 1) * Listener.ScreenSize.Y
                         );
                         Vector3 screenFactorMultiplier = new Vector3(screenFactor, 1, screenFactor);
-                        float depth = MathF.Pow(source.Position.Y, depthFactor);
+                        float depth = MathF.Pow(position.Y, depthFactor);
                         Vector3 depthFactorMultiplier = new Vector3(depth, 1, depth);
-                        source.Position = depthFactorMultiplier * (screenFactorMultiplier * source.Position + reference -
+                        position = depthFactorMultiplier * (screenFactorMultiplier * position + reference -
                             screenFactorMultiplier * reference) + reference - depthFactorMultiplier * reference;
                         source.screenLocked = true;
                         break;
                 }
-
-                // Convert to Cavern coordinate space
-                source.Position = Listener.EnvironmentSize * new Vector3(
-                    source.Position.X * 2 - 1,
-                    source.Position.Z,
-                    source.Position.Y * -2 + 1
-                );
-                return true;
             }
-            return false;
+
+            // Convert to Cavern coordinate space
+            return Listener.EnvironmentSize * new Vector3(
+                position.X * 2 - 1,
+                position.Z,
+                position.Y * -2 + 1
+            );
         }
 
         void ObjectBasicInfo(BitExtractor extractor, bool readAllBlocks) {

@@ -36,11 +36,6 @@ namespace Cavern.Format.Renderers {
         readonly JointObjectCodingApplier applier;
 
         /// <summary>
-        /// Last non-interpolated position of each object.
-        /// </summary>
-        readonly Vector3[] lastHoldPos;
-
-        /// <summary>
         /// LFE channel samples from the last timeslot.
         /// </summary>
         float[] lfeTimeslot;
@@ -70,7 +65,6 @@ namespace Cavern.Format.Renderers {
                 JointObjectCoding joc = stream.Extensions.JOC;
                 DynamicObjects = joc.ObjectCount;
                 finalResult = new float[joc.ObjectCount][];
-                lastHoldPos = new Vector3[oamd.ObjectCount];
                 applier = new JointObjectCodingApplier(joc.ObjectCount, stream.FrameSize);
                 SetupObjects(oamd.ObjectCount);
             }
@@ -154,7 +148,7 @@ namespace Cavern.Format.Renderers {
             EnhancedAC3Decoder decoder = (EnhancedAC3Decoder)stream;
             // Object-based rendering
             if (HasObjects = decoder.Extensions.HasObjects) {
-                decoder.Extensions.OAMD.UpdateSources(decoder.LastFetchStart / stream.ChannelCount, objects, lastHoldPos);
+                decoder.Extensions.OAMD.UpdateSources(decoder.LastFetchStart / stream.ChannelCount, objects);
 
                 float[][] sources = new float[JointObjectCodingTables.inputMatrix.Length][];
                 for (int i = 0; i < sources.Length; ++i) {
