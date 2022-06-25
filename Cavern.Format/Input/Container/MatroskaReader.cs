@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Format.Common;
@@ -17,6 +18,11 @@ namespace Cavern.Format.Container {
         const double nsToS = 1.0 / 1000000000;
 
         /// <summary>
+        /// Seconds to nanoseconds.
+        /// </summary>
+        const double sToNs = 1000000000;
+
+        /// <summary>
         /// All headers and segments of the file.
         /// </summary>
         readonly List<MatroskaTree> contents = new List<MatroskaTree>();
@@ -25,6 +31,16 @@ namespace Cavern.Format.Container {
         /// Stream metadata and readers to the data.
         /// </summary>
         readonly List<MatroskaTree> clusters = new List<MatroskaTree>();
+
+        /// <summary>
+        /// Clusters are large and should be cached, but only to a certain limit to prevent leaking.
+        /// The limit is the size of this array. Use <see cref="GetCluster(int)"/> to read a cluster,
+        /// it checks the cache before trying to read it.
+        /// </summary>
+        Tuple<int, Cluster>[] cachedClusters = new Tuple<int, Cluster>[] {
+            new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null),
+            new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null) // Still better than null checks
+        };
 
         /// <summary>
         /// Matroska codec ID mapping to the <see cref="Codec"/> enum.
@@ -64,7 +80,7 @@ namespace Cavern.Format.Container {
         public override byte[] ReadNextBlock(int track) {
             MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
             while (trackData.lastCluster < clusters.Count) {
-                Cluster data = new Cluster(reader, clusters[trackData.lastCluster]);
+                Cluster data = GetCluster(trackData.lastCluster);
                 IReadOnlyList<Block> blocks = data.Blocks;
                 while (trackData.lastBlock < blocks.Count) {
                     Block block = blocks[trackData.lastBlock++];
@@ -75,6 +91,54 @@ namespace Cavern.Format.Container {
                 ++trackData.lastCluster;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Start the following reads from the selected timestamp.
+        /// Seeks all tracks to the block before the position given in seconds.
+        /// </summary>
+        public override void Seek(double position) {
+            long targetTime = (long)(position * sToNs / timestampScale);
+            Cluster cluster = null;
+            int clusterId = 0;
+            long clusterTimeStamp = 0;
+            for (int c = clusters.Count; clusterId < c; ++clusterId) {
+                cluster = GetCluster(clusterId);
+                long timeStamp = cluster.TimeStamp;
+                if (clusterTimeStamp + timeStamp > targetTime)
+                    break;
+                clusterTimeStamp += timeStamp;
+            }
+            IReadOnlyList<Block> blocks = cluster.Blocks;
+
+            for (int track = 0; track < Tracks.Length; ++track) {
+                MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
+                trackData.lastCluster = clusterId;
+                trackData.lastBlock = 0;
+                long trackTimeStamp = clusterTimeStamp;
+                while (trackData.lastBlock < blocks.Count) {
+                    if (blocks[trackData.lastBlock].Track == trackData.ID) {
+                        if (trackTimeStamp + blocks[trackData.lastBlock].TimeStamp > targetTime)
+                            break;
+                        trackTimeStamp += blocks[trackData.lastBlock].TimeStamp;
+                        ++trackData.lastBlock;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Read a <see cref="Cluster"/> from the cache, or if it's not cached, from the file.
+        /// </summary>
+        Cluster GetCluster(int id) {
+            for (int i = 0; i < cachedClusters.Length; ++i) {
+                if (cachedClusters[i].Item1 == id)
+                    return cachedClusters[i].Item2;
+            }
+            Array.Copy(cachedClusters, 1, cachedClusters, 0, cachedClusters.Length - 1);
+            Cluster newCluster = new Cluster(reader, clusters[id]);
+            cachedClusters[^1] = new Tuple<int, Cluster>(id, newCluster);
+            return newCluster;
         }
 
         /// <summary>

@@ -56,6 +56,15 @@ namespace Cavern.Format.Utilities {
             new BlockBuffer<byte>(() => reader.ReadBytes(blockSize));
 
         /// <summary>
+        /// Flush the current cache and read a new block. This should be called when a stream position changes.
+        /// </summary>
+        public void Clear() {
+            LastFetch = Fetcher();
+            LastFetchStart = 0;
+            lastFetchPosition = 0;
+        }
+
+        /// <summary>
         /// Read the next fixed number of elements from the stream.
         /// </summary>
         /// <remarks>The returned array can have a smaller length than <paramref name="elements"/>

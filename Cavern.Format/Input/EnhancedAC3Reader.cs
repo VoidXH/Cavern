@@ -53,5 +53,10 @@ namespace Cavern.Format {
                 ReadHeader();
             return new EnhancedAC3Renderer(decoder);
         }
+
+        /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        public override void Seek(long sample) => decoder.Seek(sample);
     }
 }

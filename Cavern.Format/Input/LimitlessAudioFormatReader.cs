@@ -206,5 +206,12 @@ namespace Cavern.Format {
         public override Renderer GetRenderer() {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        public override void Seek(long sample) {
+            throw new NotImplementedException();
+        }
     }
 }

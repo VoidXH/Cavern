@@ -101,7 +101,7 @@ namespace Cavern.Format {
         }
 
         /// <summary>
-        /// Write the entire mono file.
+        /// Write the entire mono file, including the header.
         /// </summary>
         /// <param name="samples">All input samples</param>
         public void Write(float[] samples) {

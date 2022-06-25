@@ -47,6 +47,15 @@ namespace Cavern.Format {
         public override void ReadBlock(float[] samples, long from, long to) => decoder.DecodeBlock(samples, from, to - from);
 
         /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        public override void Seek(long sample) {
+            if (decoder == null)
+                ReadHeader();
+            decoder.Seek(sample);
+        }
+
+        /// <summary>
         /// Get an object-based renderer for this audio file.
         /// </summary>
         public override Renderer GetRenderer() {

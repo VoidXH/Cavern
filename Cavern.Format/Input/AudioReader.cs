@@ -60,6 +60,11 @@ namespace Cavern.Format {
         public abstract void ReadHeader();
 
         /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        public abstract void Seek(long sample);
+
+        /// <summary>
         /// Read a block of samples.
         /// </summary>
         /// <param name="samples">Input array</param>

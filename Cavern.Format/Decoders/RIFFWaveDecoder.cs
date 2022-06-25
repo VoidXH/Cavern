@@ -34,9 +34,21 @@ namespace Cavern.Format.Decoders {
         readonly int sampleRate;
 
         /// <summary>
+        /// The location of the first sample in the file stream. Knowing this allows seeking.
+        /// </summary>
+        readonly long dataStart;
+
+        /// <summary>
+        /// Input stream when reading from a WAV file. If the stream is null, then only a block buffer is available,
+        /// whose parent has to be seeked.
+        /// </summary>
+        readonly Stream stream;
+
+        /// <summary>
         /// Converts a RIFF WAVE bitstream to raw samples.
         /// </summary>
-        public RIFFWaveDecoder(BlockBuffer<byte> reader, int channelCount, long length, int sampleRate, BitDepth bits) : base(reader) {
+        public RIFFWaveDecoder(BlockBuffer<byte> reader, int channelCount, long length, int sampleRate, BitDepth bits) :
+            base(reader) {
             this.channelCount = channelCount;
             this.length = length;
             this.sampleRate = sampleRate;
@@ -50,23 +62,24 @@ namespace Cavern.Format.Decoders {
             // RIFF header
             if (reader.ReadInt32() != RIFFWave.syncWord1)
                 throw new SyncException();
-            reader.BaseStream.Position += 4; // File length
+            stream = reader.BaseStream;
+            stream.Position += 4; // File length
 
             // Format header
             if (reader.ReadInt64() != RIFFWave.syncWord2)
                 throw new SyncException();
-            reader.BaseStream.Position += 4; // Format header length
+            stream.Position += 4; // Format header length
             short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVE EX
             channelCount = reader.ReadInt16();
             sampleRate = reader.ReadInt32();
-            reader.BaseStream.Position += 4; // Bytes/sec
-            reader.BaseStream.Position += 2; // Block size in bytes
+            stream.Position += 4; // Bytes/sec
+            stream.Position += 2; // Block size in bytes
             short bitDepth = reader.ReadInt16();
             if (sampleFormat == -2) {
                 // Extension size (22) - 2 bytes, valid bits per sample - 2 bytes, channel mask - 4 bytes
-                reader.BaseStream.Position += 8;
+                stream.Position += 8;
                 sampleFormat = reader.ReadInt16();
-                reader.BaseStream.Position += 15; // Skip the rest of the sub format GUID
+                stream.Position += 15; // Skip the rest of the sub format GUID
             }
             if (sampleFormat == 1) {
                 Bits = bitDepth switch {
@@ -84,8 +97,9 @@ namespace Cavern.Format.Decoders {
             int header = 0;
             do
                 header = (header << 8) | reader.ReadByte();
-            while (header != RIFFWave.syncWord3BE && reader.BaseStream.Position < reader.BaseStream.Length);
+            while (header != RIFFWave.syncWord3BE && stream.Position < stream.Length);
             length = reader.ReadUInt32() * 8L / (long)Bits / ChannelCount;
+            dataStart = stream.Position;
             this.reader = BlockBuffer<byte>.Create(reader, FormatConsts.blockSize);
         }
 
@@ -141,6 +155,16 @@ namespace Cavern.Format.Decoders {
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        public override void Seek(long sample) {
+            if (stream == null)
+                throw new StreamingException();
+            stream.Position = dataStart;
+            reader.Clear();
         }
     }
 }

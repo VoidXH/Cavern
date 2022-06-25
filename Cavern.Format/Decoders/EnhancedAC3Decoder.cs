@@ -38,11 +38,6 @@ namespace Cavern.Format.Decoders {
         public int FrameSize => header.Blocks * 256;
 
         /// <summary>
-        /// Auxillary data bytes which might contain object-based extensions.
-        /// </summary>
-        readonly BitExtractor aux = new BitExtractor();
-
-        /// <summary>
         /// Header data container and reader.
         /// </summary>
         readonly EnhancedAC3Header header = new EnhancedAC3Header();
@@ -100,7 +95,6 @@ namespace Cavern.Format.Decoders {
                 }
 
                 EnhancedAC3Body body = bodies[header.SubstreamID];
-                aux.Clear(); // TODO: fill with skipfields
                 body.Update();
                 for (int i = 0, end = body.Channels.Count; i < end; ++i)
                     outputs[body.Channels[i]] = body.FrameResult[i];
@@ -130,6 +124,13 @@ namespace Cavern.Format.Decoders {
                 bodies[header.SubstreamID].PrepareUpdate(extractor);
             } else
                 Finished = true;
+        }
+
+        /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        public override void Seek(long sample) {
+            throw new NotImplementedException();
         }
     }
 }

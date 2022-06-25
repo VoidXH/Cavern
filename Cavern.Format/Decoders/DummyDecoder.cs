@@ -40,5 +40,10 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         public override void DecodeBlock(float[] target, long from, long to) =>
             throw new UnsupportedCodecException(true, format);
+
+        /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        public override void Seek(long sample) => throw new UnsupportedCodecException(true, format);
     }
 }

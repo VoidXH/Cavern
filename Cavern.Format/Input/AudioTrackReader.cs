@@ -96,5 +96,10 @@ namespace Cavern.Format {
             if (disposeSource && reader != null)
                 reader.Close();
         }
+
+        /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        public override void Seek(long sample) => throw new StreamingException();
     }
 }

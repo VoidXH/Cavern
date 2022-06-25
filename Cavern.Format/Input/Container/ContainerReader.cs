@@ -41,6 +41,11 @@ namespace Cavern.Format.Container {
         public abstract byte[] ReadNextBlock(int track);
 
         /// <summary>
+        /// Start the following reads from the selected timestamp.
+        /// </summary>
+        public abstract void Seek(double position);
+
+        /// <summary>
         /// Get the main audio track from the container.
         /// </summary>
         public Track GetFirstAudioTrack() => Tracks.FirstOrDefault(x => x.Format.IsAudio());
