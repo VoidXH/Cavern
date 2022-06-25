@@ -51,9 +51,6 @@ namespace Cavern.Format {
             Bits = info.Bits;
 
             switch (track.Format) {
-                case Codec.DTS:
-                    decoder = new DTSCoherentAcousticsDecoder(new BlockBuffer<byte>(track.ReadNextBlock));
-                    break;
                 case Codec.AC3:
                 case Codec.EnhancedAC3:
                     decoder = new EnhancedAC3Decoder(new BlockBuffer<byte>(track.ReadNextBlock));
