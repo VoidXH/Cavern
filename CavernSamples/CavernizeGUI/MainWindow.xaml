@@ -11,6 +11,11 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Normal"/>
         </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+        </Style>
         <Style TargetType="GridSplitter">
             <Setter Property="Background" Value="#AEAEAE"/>
         </Style>
@@ -80,6 +85,8 @@
                             <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
                             <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
                         </Canvas>
+                        <CheckBox x:Name="dynamicOnly" Content="Mute bed channels" HorizontalAlignment="Left" Margin="10,243,0,0" VerticalAlignment="Top"/>
+                        <CheckBox x:Name="heightOnly" Content="Mute ground layer" HorizontalAlignment="Left" Margin="10,263,0,0" VerticalAlignment="Top"/>
                     </Grid>
                 </GroupBox>
                 <GridSplitter Grid.Column="1" Width="5" Height="200" HorizontalAlignment="Stretch"/>

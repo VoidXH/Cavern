@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -17,6 +18,11 @@ using Path = System.IO.Path;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
+        /// <summary>
+        /// The OAMD objects need this many samples at max to move to their initial position.
+        /// </summary>
+        const int firstFrame = 1536;
+
         /// <summary>
         /// The matching displayed dot for each supported channel.
         /// </summary>
@@ -100,6 +106,7 @@ namespace CavernizeGUI {
                 file.Dispose();
             tracks.ItemsSource = null;
             trackInfo.Text = string.Empty;
+            report.Text = string.Empty;
         }
 
         /// <summary>
@@ -199,13 +206,15 @@ namespace CavernizeGUI {
                     return;
             }
 
-            taskEngine.Run(() => RenderTask(target, writer));
+            bool dynamic = dynamicOnly.IsChecked.Value;
+            bool height = heightOnly.IsChecked.Value;
+            taskEngine.Run(() => RenderTask(target, writer, dynamic, height));
         }
 
         /// <summary>
         /// The running render process.
         /// </summary>
-        void RenderTask(Track target, AudioWriter writer) {
+        void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly) {
             taskEngine.UpdateStatus("Starting render...");
             taskEngine.UpdateProgressBar(0);
             RenderStats stats = new(listener);
@@ -214,6 +223,7 @@ namespace CavernizeGUI {
                 untilUpdate = updateInterval;
             double samplesToProgress = 1.0 / target.Length,
                 samplesToSeconds = 1.0 / listener.SampleRate;
+            bool customMuting = dynamicOnly || heightOnly;
             DateTime start = DateTime.Now;
 
             while (rendered < target.Length) {
@@ -222,10 +232,21 @@ namespace CavernizeGUI {
                     Array.Resize(ref result, (int)(target.Length - rendered));
                 if (writer != null)
                     writer.WriteBlock(result, 0, result.LongLength);
-                stats.Update();
+                if (rendered > firstFrame)
+                    stats.Update();
+
+                if (customMuting) {
+                    IReadOnlyList<Source> objects = target.Renderer.Objects;
+                    for (int i = 0, c = objects.Count; i < c; ++i) {
+                        Vector3 rawPos = objects[i].Position / Listener.EnvironmentSize;
+                        objects[i].Mute =
+                            (dynamicOnly && MathF.Abs(rawPos.X) % 1 < .01f &&
+                            MathF.Abs(rawPos.Y) % 1 < .01f && MathF.Abs(rawPos.Z % 1) < .01f) ||
+                            (heightOnly && rawPos.Y == 0);
+                    }
+                }
 
                 rendered += listener.UpdateRate;
-
                 if ((untilUpdate -= listener.UpdateRate) <= 0) {
                     double progress = rendered * samplesToProgress;
                     double speed = rendered * samplesToSeconds / (DateTime.Now - start).TotalSeconds;

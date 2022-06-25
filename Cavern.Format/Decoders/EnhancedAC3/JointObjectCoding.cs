@@ -1,4 +1,6 @@
-﻿using Cavern.Format.Common;
+﻿using System;
+
+using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
@@ -9,7 +11,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// The object is active and will have rendered audio data.
         /// </summary>
-        // TODO: mute inactive objects
         public bool[] ObjectActive = new bool[0];
 
         /// <summary>
@@ -83,6 +84,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                                     joc_mtx[obj][dp][ch][pb] = HuffmanDecode(joc_huff_code, extractor);
                         }
                     }
+                } else {
+                    for (int dp = 0; dp < dataPoints[obj]; ++dp)
+                        for (int ch = 0; ch < ChannelCount; ++ch)
+                            Array.Clear(joc_mtx[obj][dp][ch], 0, joc_num_bands[obj]);
                 }
             }
         }

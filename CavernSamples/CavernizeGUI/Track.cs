@@ -17,6 +17,11 @@ namespace CavernizeGUI {
         public bool Supported { get; }
 
         /// <summary>
+        /// The renderer starting at the first sample of the track after construction.
+        /// </summary>
+        public Renderer Renderer { get; }
+
+        /// <summary>
         /// Number of samples to render by the <see cref="Listener"/> to reach the end of the stream.
         /// </summary>
         public long Length => reader.Length;
@@ -42,11 +47,6 @@ namespace CavernizeGUI {
         readonly Codec codec;
 
         /// <summary>
-        /// The renderer starting at the first sample of the track after construction.
-        /// </summary>
-        readonly Renderer renderer;
-
-        /// <summary>
         /// Language code.
         /// </summary>
         readonly string language;
@@ -60,11 +60,11 @@ namespace CavernizeGUI {
             this.language = language;
 
             StringBuilder builder = new();
-            renderer = reader.GetRenderer();
-            Supported = renderer != null;
+            Renderer = reader.GetRenderer();
+            Supported = Renderer != null;
             if (!Supported)
                 builder.AppendLine("Format unsupported by Cavern");
-            else if (renderer is EnhancedAC3Renderer eac3)
+            else if (Renderer is EnhancedAC3Renderer eac3)
                 if (eac3.HasObjects)
                     builder.AppendLine("Enhanced AC-3 with Joint Object Coding")
                         .Append("Number of bed channels: ").AppendLine((eac3.Objects.Count - eac3.DynamicObjects).ToString())
@@ -74,7 +74,7 @@ namespace CavernizeGUI {
             else
                 builder.AppendLine("Channel-based audio track");
 
-            ReferenceChannel[] beds = renderer != null ? renderer.GetChannels() : Array.Empty<ReferenceChannel>();
+            ReferenceChannel[] beds = Renderer != null ? Renderer.GetChannels() : Array.Empty<ReferenceChannel>();
             if (beds.Length > 0)
                 builder.Append("Source channels (").Append(reader.ChannelCount).Append("): ")
                     .AppendLine(string.Join(", ", beds));
@@ -90,19 +90,19 @@ namespace CavernizeGUI {
         /// </summary>
         public void Attach(Listener listener) {
             listener.SampleRate = reader.SampleRate;
-            for (int i = 0; i < renderer.Objects.Count; ++i)
-                listener.AttachSource(renderer.Objects[i]);
+            for (int i = 0; i < Renderer.Objects.Count; ++i)
+                listener.AttachSource(Renderer.Objects[i]);
         }
 
         /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
         public void SetRendererSource(AudioReader reader) {
-            if (renderer is EnhancedAC3Renderer eac3)
+            if (Renderer is EnhancedAC3Renderer eac3)
                 eac3.Source = reader;
         }
 
         /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
         public void SetupForExport() {
-            if (renderer is EnhancedAC3Renderer eac3 && eac3.Source != null)
+            if (Renderer is EnhancedAC3Renderer eac3 && eac3.Source != null)
                 eac3.Source.Reset();
         }
 
