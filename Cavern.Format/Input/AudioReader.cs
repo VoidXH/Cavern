@@ -174,10 +174,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Close the reader.
         /// </summary>
-        public virtual void Dispose() {
-            if (reader != null)
-                reader.Close();
-        }
+        public virtual void Dispose() => reader?.Close();
 
         /// <summary>
         /// Open an audio stream for reading. The format will be detected automatically.

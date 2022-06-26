@@ -97,34 +97,35 @@ namespace Cavern.Format.Container {
         /// Start the following reads from the selected timestamp.
         /// Seeks all tracks to the block before the position given in seconds.
         /// </summary>
-        public override void Seek(double position) {
+        /// <returns>Position that was actually possible to seek to or -1 if the position didn't change.</returns>
+        public override double Seek(double position) {
             long targetTime = (long)(position * sToNs / timestampScale);
-            Cluster cluster = null;
             int clusterId = 0;
-            long clusterTimeStamp = 0;
-            for (int c = clusters.Count; clusterId < c; ++clusterId) {
-                cluster = GetCluster(clusterId);
-                long timeStamp = cluster.TimeStamp;
-                if (clusterTimeStamp + timeStamp > targetTime)
+            for (int c = clusters.Count; clusterId < c; ++clusterId)
+                if (GetCluster(clusterId).TimeStamp > targetTime)
                     break;
-                clusterTimeStamp += timeStamp;
-            }
+            Cluster cluster = GetCluster(--clusterId);
             IReadOnlyList<Block> blocks = cluster.Blocks;
 
+            long trackTimeStamp = -1;
+            targetTime -= cluster.TimeStamp;
             for (int track = 0; track < Tracks.Length; ++track) {
                 MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
                 trackData.lastCluster = clusterId;
+                trackTimeStamp = cluster.TimeStamp;
                 trackData.lastBlock = 0;
-                long trackTimeStamp = clusterTimeStamp;
                 while (trackData.lastBlock < blocks.Count) {
                     if (blocks[trackData.lastBlock].Track == trackData.ID) {
-                        if (trackTimeStamp + blocks[trackData.lastBlock].TimeStamp > targetTime)
+                        if (blocks[trackData.lastBlock].TimeStamp > targetTime) {
+                            --trackData.lastBlock;
+                            trackTimeStamp = cluster.TimeStamp + blocks[trackData.lastBlock].TimeStamp;
                             break;
-                        trackTimeStamp += blocks[trackData.lastBlock].TimeStamp;
-                        ++trackData.lastBlock;
+                        }
                     }
+                    ++trackData.lastBlock;
                 }
             }
+            return trackTimeStamp * timestampScale * nsToS;
         }
 
         /// <summary>

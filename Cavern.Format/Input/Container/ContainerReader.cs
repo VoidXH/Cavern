@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using Cavern.Format.Common;
 
@@ -6,7 +7,7 @@ namespace Cavern.Format.Container {
     /// <summary>
     /// Multimedia container reader base class.
     /// </summary>
-    public abstract class ContainerReader {
+    public abstract class ContainerReader : IDisposable {
         /// <summary>
         /// Content length in seconds.
         /// </summary>
@@ -43,11 +44,17 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Start the following reads from the selected timestamp.
         /// </summary>
-        public abstract void Seek(double position);
+        /// <returns>Position that was actually possible to seek to or -1 if the position didn't change.</returns>
+        public abstract double Seek(double position);
 
         /// <summary>
         /// Get the main audio track from the container.
         /// </summary>
         public Track GetFirstAudioTrack() => Tracks.FirstOrDefault(x => x.Format.IsAudio());
+
+        /// <summary>
+        /// Close the reader.
+        /// </summary>
+        public void Dispose() => reader?.Close();
     }
 }

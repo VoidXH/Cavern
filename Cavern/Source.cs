@@ -178,9 +178,9 @@ namespace Cavern {
                     else {
                         float dopplerTarget = Pitch + lastDoppler * // c / (c - dv), dv = ds / dt
                             (SpeedOfSound / (SpeedOfSound - (lastDistance - distance) / listener.pulseDelta) - 1);
-                        lastDoppler = QMath.Clamp(QMath.Lerp(lastDoppler, dopplerTarget,
+                        lastDoppler = Math.Clamp(QMath.Lerp(lastDoppler, dopplerTarget,
                             10 * listener.UpdateRate / (float)listener.SampleRate), 0, DopplerLevel);
-                        calculatedPitch = QMath.Clamp(lastDoppler, .5f, 3f);
+                        calculatedPitch = Math.Clamp(lastDoppler, .5f, 3f);
                     }
                 } else
                     calculatedPitch = 1; // Disable any pitch change on low quality

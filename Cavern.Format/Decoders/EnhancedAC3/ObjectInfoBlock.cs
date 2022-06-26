@@ -86,9 +86,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (validPosition && anchor != ObjectAnchor.Speaker) {
                 if (differentialPosition)
                     position = new Vector3(
-                        QMath.Clamp(lastPrecise.X + position.X, 0, 1),
-                        QMath.Clamp(lastPrecise.Y + position.Y, 0, 1),
-                        QMath.Clamp(lastPrecise.Z + position.Z, 0, 1)
+                        Math.Clamp(lastPrecise.X + position.X, 0, 1),
+                        Math.Clamp(lastPrecise.Y + position.Y, 0, 1),
+                        Math.Clamp(lastPrecise.Z + position.Z, 0, 1)
                     );
                 else
                     lastPrecise = position;

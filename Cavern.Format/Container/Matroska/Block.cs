@@ -92,7 +92,7 @@ namespace Cavern.Format.Container.Matroska {
             source.Position(reader);
             long start = reader.BaseStream.Position;
             Track = VarInt.ReadValue(reader);
-            TimeStamp = reader.ReadInt16();
+            TimeStamp = reader.ReadInt16BE();
             flags = reader.ReadByte();
 
             Lacing lacing = LacingType;

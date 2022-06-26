@@ -107,9 +107,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
 
             Array.Clear(outCache, 0, outCache.Length);
-            for (int sb = 0; sb < subbands; ++sb)
-                for (int j = 0; j < doubleLength; ++j)
-                    outCache[sb] += new Complex(grouping[j] * cosCacheFwd[sb][j], grouping[j] * sinCacheFwd[sb][j]);
+            for (int sb = 0; sb < subbands; ++sb) {
+                float real = 0, imaginary = 0;
+                for (int j = 0; j < doubleLength; ++j) {
+                    real += grouping[j] * cosCacheFwd[sb][j];
+                    imaginary += grouping[j] * sinCacheFwd[sb][j];
+                }
+                outCache[sb] = new Complex(real, imaginary);
+            }
             return outCache;
         }
 
@@ -122,10 +127,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
             Array.Copy(inputStreamInverse, 0, inputStreamInverse, doubleLength, inputStreamInverse.Length - doubleLength);
             for (int j = 0; j < doubleLength; ++j) {
-                inputStreamInverse[j] = 0;
+                float sum = 0;
                 for (int sb = 0; sb < subbands; ++sb)
-                    inputStreamInverse[j] += (input[sb].Real * cosCacheInv[sb][j] -
-                        input[sb].Imaginary * sinCacheInv[sb][j]) * subbandDiv;
+                    sum += input[sb].Real * cosCacheInv[sb][j] - input[sb].Imaginary * sinCacheInv[sb][j];
+                inputStreamInverse[j] = sum * subbandDiv;
             }
 
             for (int j = 0, end = coeffs.Length / doubleLength; j < end; ++j) {

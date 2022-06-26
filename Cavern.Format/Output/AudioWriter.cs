@@ -158,9 +158,6 @@ namespace Cavern.Format {
         /// <summary>
         /// Close the writer.
         /// </summary>
-        public void Dispose() {
-            if (writer != null)
-                writer.Close();
-        }
+        public void Dispose() => writer?.Close();
     }
 }

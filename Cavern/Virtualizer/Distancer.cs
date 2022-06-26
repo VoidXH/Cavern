@@ -89,7 +89,8 @@ namespace Cavern.Virtualizer {
             int largerDistance = smallerDistance + 1;
             if (largerDistance == distances.Length)
                 largerDistance = distances.Length - 1;
-            float distanceRatio = QMath.Clamp(QMath.LerpInverse(distances[smallerDistance], distances[largerDistance], distance), 0, 1);
+            float distanceRatio =
+                Math.Clamp(QMath.LerpInverse(distances[smallerDistance], distances[largerDistance], distance), 0, 1);
 
             // Find impulse candidates and their weight
             float[][] candidates = new float[4][] {

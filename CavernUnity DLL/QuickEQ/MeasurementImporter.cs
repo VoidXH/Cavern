@@ -205,7 +205,7 @@ namespace Cavern.QuickEQ {
             int offset = Math.Max(ramps[0].position - FFTSize / 2 - blockSize, 0),
                 end = Math.Min(ramps[^1].position + FFTSize, data.Length);
             Channels = (end - offset) / samplesPerCh;
-            offset = QMath.Clamp(offset, 0, data.Length - Channels * samplesPerCh);
+            offset = Math.Clamp(offset, 0, data.Length - Channels * samplesPerCh);
 
             sweeper.OverwriteSweeper(Channels, FFTSize);
             Status = MeasurementImporterStatus.Processing;

@@ -116,19 +116,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Mixes channel-based samples by a matrix to the objects.
         /// </summary>
         void ProcessObject(JointObjectCoding joc, int obj, float[][] mixMatrix) {
-            if (joc.ObjectActive[obj]) {
-                Array.Clear(qmfbCache[obj], 0, QuadratureMirrorFilterBank.subbands);
-                for (int ch = 0; ch < joc.ChannelCount; ++ch)
-                    for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
-                        qmfbCache[obj][sb] += results[ch][sb] * mixMatrix[ch][sb];
-                for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
-                    if (!qmfbCache[obj][sb].IsZero()) { // Only render when there's anything to render
-                        converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
-                        return;
-                    }
-                }
-            }
-            Array.Clear(timeslotCache[obj], 0, QuadratureMirrorFilterBank.subbands);
+            Array.Clear(qmfbCache[obj], 0, QuadratureMirrorFilterBank.subbands);
+            for (int ch = 0; ch < joc.ChannelCount; ++ch)
+                for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
+                    qmfbCache[obj][sb] += results[ch][sb] * mixMatrix[ch][sb];
+            converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
         }
     }
 }

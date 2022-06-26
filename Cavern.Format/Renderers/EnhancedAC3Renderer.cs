@@ -150,8 +150,7 @@ namespace Cavern.Format.Renderers {
         void RenderNextTimeslot() {
             float[] input = new float[QuadratureMirrorFilterBank.subbands * stream.ChannelCount];
             stream.DecodeBlock(input, 0, input.LongLength);
-            if (Source != null)
-                Source.ReadBlock(input, 0, input.LongLength);
+            Source?.ReadBlock(input, 0, input.LongLength);
             WaveformUtils.InterlacedToMultichannel(input, inputData);
 
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);

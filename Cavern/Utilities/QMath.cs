@@ -91,7 +91,7 @@ namespace Cavern.Utilities {
             x |= x >> 4;
             x |= x >> 8;
             x |= x >> 16;
-            return bitsAfterMSBHack[(((x * 0x07C4ACDD) >> 27) + 32) % 32];
+            return bitsAfterMSBHack[(((x * 0x07C4ACDD) >> 27) + 32) & 0x1F];
         }
         static readonly byte[] bitsAfterMSBHack = new byte[32] { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,
                                                                8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
@@ -111,30 +111,6 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Clamp(double value, double min, double max) {
-            if (value < min)
-                return min;
-            if (value > max)
-                return max;
-            return value;
-        }
-
-        /// <summary>
-        /// Clamp a float between limits.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Clamp(float value, float min, float max) {
-            if (value < min)
-                return min;
-            if (value > max)
-                return max;
-            return value;
-        }
-
-        /// <summary>
-        /// Clamp an int between limits.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Clamp(int value, int min, int max) {
             if (value < min)
                 return min;
             if (value > max)
