@@ -48,7 +48,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             joc_seq_count_bits = extractor.Read(10);
             for (int obj = 0; obj < ObjectCount; ++obj) {
                 if (ObjectActive[obj] = extractor.ReadBit()) {
-                    joc_num_bands[obj] = JointObjectCodingTables.joc_num_bands[extractor.Read(3)];
+                    joc_num_bands_idx[obj] = (byte)extractor.Read(3);
+                    joc_num_bands[obj] = JointObjectCodingTables.joc_num_bands[joc_num_bands_idx[obj]];
                     b_joc_sparse[obj] = extractor.ReadBit();
                     joc_num_quant_idx[obj] = extractor.ReadBit();
 
@@ -84,10 +85,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                                     joc_mtx[obj][dp][ch][pb] = HuffmanDecode(joc_huff_code, extractor);
                         }
                     }
-                } else {
-                    for (int dp = 0; dp < dataPoints[obj]; ++dp)
-                        for (int ch = 0; ch < ChannelCount; ++ch)
-                            Array.Clear(joc_mtx[obj][dp][ch], 0, joc_num_bands[obj]);
                 }
             }
         }

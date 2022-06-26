@@ -244,7 +244,7 @@ namespace CavernizeGUI {
             if (finalName[^4..].ToLower().Equals(".mkv")) {
                 taskEngine.UpdateStatus("Converting to final format...");
                 string exportName = finalName[..^4] + ".wav";
-                if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -c:v copy -c:a {2} \"{3}\"",
+                if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -c:v copy -c:a {2} -y \"{3}\"",
                     filePath, exportName, codec, finalName)) ||
                     !File.Exists(finalName)) {
                     taskEngine.UpdateStatus("Failed to create the final file. " +

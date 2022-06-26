@@ -46,6 +46,11 @@ namespace Cavern.Format.Renderers {
         float[] lfeResult = new float[0];
 
         /// <summary>
+        /// Cache for the decoded bed data.
+        /// </summary>
+        float[][] inputData = new float[0][];
+
+        /// <summary>
         /// Object samples for the last rendered timeslot.
         /// </summary>
         float[][] timeslotResult;
@@ -99,6 +104,11 @@ namespace Cavern.Format.Renderers {
                 lfeTimeslot = new float[samples];
                 lfeResult = new float[samples];
             }
+            if (inputData.Length != stream.ChannelCount) {
+                inputData = new float[stream.ChannelCount][];
+                for (int channel = 0; channel < inputData.Length; ++channel)
+                    inputData[channel] = new float[QuadratureMirrorFilterBank.subbands];
+            }
 
             int pointer = 0;
             while (pointer < samples) {
@@ -142,7 +152,7 @@ namespace Cavern.Format.Renderers {
             stream.DecodeBlock(input, 0, input.LongLength);
             if (Source != null)
                 Source.ReadBlock(input, 0, input.LongLength);
-            float[][] grouped = WaveformUtils.InterlacedToMultichannel(input, stream.ChannelCount);
+            WaveformUtils.InterlacedToMultichannel(input, inputData);
 
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
             EnhancedAC3Decoder decoder = (EnhancedAC3Decoder)stream;
@@ -154,7 +164,7 @@ namespace Cavern.Format.Renderers {
                 for (int i = 0; i < sources.Length; ++i) {
                     for (int j = 0; j < matrix.Length; ++j) {
                         if (JointObjectCodingTables.inputMatrix[i] == matrix[j]) {
-                            sources[i] = grouped[j];
+                            sources[i] = inputData[j];
                             break;
                         }
                     }
@@ -162,14 +172,14 @@ namespace Cavern.Format.Renderers {
 
                 for (int i = 0; i < matrix.Length; ++i)
                     if (matrix[i] == ReferenceChannel.ScreenLFE)
-                        lfeTimeslot = grouped[i];
+                        lfeTimeslot = inputData[i];
 
                 timeslotResult = applier.Apply(sources, decoder.Extensions.JOC);
             }
             // Channel-based rendering or fallback to it when OAMD or JOC can't be decoded correctly
             else {
                 for (int i = 0; i < matrix.Length; ++i) {
-                    timeslotResult[i] = grouped[i];
+                    timeslotResult[i] = inputData[i];
                     objects[i].Position = channelPositions[(int)matrix[i]] * Listener.EnvironmentSize;
                     if (ChannelPrototype.Mapping[(int)matrix[i]].LFE) { // LFE is handled elsewhere
                         objects[i].Position = default;

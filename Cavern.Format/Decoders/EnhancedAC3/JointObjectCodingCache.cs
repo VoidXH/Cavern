@@ -1,4 +1,6 @@
-﻿namespace Cavern.Format.Decoders.EnhancedAC3 {
+﻿using System;
+
+namespace Cavern.Format.Decoders.EnhancedAC3 {
     // Reusable arrays
     partial class JointObjectCoding {
         /// <summary>
@@ -10,6 +12,11 @@
         /// Previous JOC mixing matrix values.
         /// </summary>
         readonly float[][][] prevMatrix;
+
+        /// <summary>
+        /// Indexing value for given <see cref="joc_num_bands"/> values in cache tables.
+        /// </summary>
+        byte[] joc_num_bands_idx;
 
         /// <summary>
         /// Number of processed bands of each object.
@@ -51,7 +58,11 @@
             if (ObjectActive.Length == ObjectCount && joc_mtx[0][0].Length == ChannelCount)
                 return;
 
+            if (JointObjectCodingTables.parameterBandMapping[0].Length == 1)
+                SetupStaticCache();
+
             ObjectActive = new bool[ObjectCount];
+            joc_num_bands_idx = new byte[ObjectCount];
             joc_num_bands = new byte[ObjectCount];
             b_joc_sparse = new bool[ObjectCount];
             joc_num_quant_idx = new bool[ObjectCount];
@@ -89,6 +100,23 @@
                     for (int ch = 0; ch < ChannelCount; ++ch)
                         joc_mix_mtx_interp[obj][ts][ch] = new float[QuadratureMirrorFilterBank.subbands];
                 }
+            }
+        }
+
+        /// <summary>
+        /// Create fast LUTs from compressed data.
+        /// </summary>
+        static void SetupStaticCache() {
+            byte[][] mapping = JointObjectCodingTables.parameterBandMapping;
+            for (int i = 0; i < mapping.Length; ++i) {
+                byte[] expanded = new byte[QuadratureMirrorFilterBank.subbands];
+                for (byte sb = 0; sb < expanded.Length; ++sb) {
+                    int pb = Array.BinarySearch(mapping[i], sb);
+                    if (pb < 0)
+                        pb = ~pb - 1;
+                    expanded[sb] = (byte)pb;
+                }
+                mapping[i] = expanded;
             }
         }
     }

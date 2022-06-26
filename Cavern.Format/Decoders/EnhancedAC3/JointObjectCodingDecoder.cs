@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cavern.Format.Decoders.EnhancedAC3 {
+﻿namespace Cavern.Format.Decoders.EnhancedAC3 {
     partial class JointObjectCoding {
         void DecodeSparse(int obj) {
             if (ObjectActive[obj]) {
@@ -47,12 +45,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
         void DecodeSideInfo() {
             for (int obj = 0; obj < ObjectCount; ++obj) {
-                int nquant = joc_num_quant_idx[obj] ? 192 : 96;
+                int hnquant = joc_num_quant_idx[obj] ? 96 : 48;
+                float mul = 820f / (joc_num_quant_idx[obj] ? 8192 : 4096);
                 for (int dp = 0; dp < dataPoints[obj]; ++dp)
                     for (int ch = 0; ch < ChannelCount; ++ch)
                         for (int pb = 0; pb < joc_num_bands[obj]; ++pb)
-                            joc_mix_mtx[obj][dp][ch][pb] = (joc_mix_mtx[obj][dp][ch][pb] - nquant / 2) *
-                                820f / (4096 * (joc_num_quant_idx[obj] ? 2 : 1));
+                            joc_mix_mtx[obj][dp][ch][pb] = (joc_mix_mtx[obj][dp][ch][pb] - hnquant) * mul;
             }
         }
 
@@ -67,35 +65,23 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
                 for (int ch = 0; ch < ChannelCount; ++ch) {
                     for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
-                        // TODO: sb to pb by LUT
-                        int id = Array.BinarySearch(JointObjectCodingTables.joc_num_bands, joc_num_bands[obj]);
-                        if (id < 0)
-                            id = ~id - 1;
-                        int pb = Array.BinarySearch(JointObjectCodingTables.parameterBandMapping[id], sb);
-                        if (pb < 0)
-                            pb = ~pb - 1;
+                        int pb = JointObjectCodingTables.parameterBandMapping[joc_num_bands_idx[obj]][sb];
                         for (int ts = 0; ts < num_qmf_timeslots; ++ts) {
                             if (joc_slope_idx[obj]) {
-                                if (dataPoints[obj] == 1) {
-                                    if (ts < joc_offset_ts[obj][0])
-                                        joc_mix_mtx_interp[obj][ts][ch][sb] = prevMatrix[obj][ch][sb];
-                                    else
-                                        joc_mix_mtx_interp[obj][ts][ch][sb] = joc_mix_mtx[obj][0][ch][sb];
-                                } else {
-                                    if (ts < joc_offset_ts[obj][0])
-                                        joc_mix_mtx_interp[obj][ts][ch][sb] = prevMatrix[obj][ch][sb];
-                                    else if (ts < joc_offset_ts[obj][1])
-                                        joc_mix_mtx_interp[obj][ts][ch][sb] = joc_mix_mtx[obj][0][ch][sb];
-                                    else
-                                        joc_mix_mtx_interp[obj][ts][ch][sb] = joc_mix_mtx[obj][1][ch][sb];
-                                }
+                                if (ts < joc_offset_ts[obj][0])
+                                    joc_mix_mtx_interp[obj][ts][ch][sb] = prevMatrix[obj][ch][sb];
+                                else if (dataPoints[obj] == 1)
+                                    joc_mix_mtx_interp[obj][ts][ch][sb] = joc_mix_mtx[obj][0][ch][sb];
+                                else
+                                    joc_mix_mtx_interp[obj][ts][ch][sb] =
+                                        joc_mix_mtx[obj][ts < joc_offset_ts[obj][1] ? 1 : 0][ch][sb];
                             } else {
                                 if (dataPoints[obj] == 1) {
                                     float delta = joc_mix_mtx[obj][0][ch][pb] - prevMatrix[obj][ch][sb];
                                     joc_mix_mtx_interp[obj][ts][ch][sb] = prevMatrix[obj][ch][sb] +
                                         (ts + 1) * delta / num_qmf_timeslots;
                                 } else {
-                                    int ts_2 = num_qmf_timeslots / 2;
+                                    int ts_2 = num_qmf_timeslots >> 1;
                                     if (ts < ts_2) {
                                         float delta = joc_mix_mtx[obj][0][ch][pb] - prevMatrix[obj][ch][sb];
                                         joc_mix_mtx_interp[obj][ts][ch][sb] = prevMatrix[obj][ch][sb] +

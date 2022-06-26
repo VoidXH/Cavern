@@ -40,8 +40,8 @@ namespace Cavern.Format.Decoders {
         /// Read and decode a given number of samples.
         /// </summary>
         /// <param name="target">Array to decode data into</param>
-        /// <param name="from">Start position in the input array (inclusive)</param>
-        /// <param name="to">End position in the input array (exclusive)</param>
+        /// <param name="from">Start position in the target array (inclusive)</param>
+        /// <param name="to">End position in the target array (exclusive)</param>
         /// <remarks>The next to - from samples will be read from the file.
         /// All samples are counted, not just a single channel.</remarks>
         public abstract void DecodeBlock(float[] target, long from, long to);
