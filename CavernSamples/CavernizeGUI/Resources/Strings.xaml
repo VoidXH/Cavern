@@ -6,6 +6,7 @@
         (*.mkv, *.mka)|*.mkv;*.mka|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format (*.laf)|*.laf</system:String>
     <system:String x:Key="LdSrc">Please load a source file with at least 1 supported track for rendering.</system:String>
     <system:String x:Key="UnTrk">The selected track is not supported for rendering.</system:String>
-    <system:String x:Key="ExFmt">RIFF WAVE (*.wav)|*.wav|Limitless Audio Format (*.laf)|*.laf</system:String>
+    <system:String x:Key="ExFmt">Matroska (*.mkv)|*.mkv|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format
+        (*.laf)|*.laf</system:String>
     <system:String x:Key="UnExt">The file name had an unsupported extension.</system:String>
 </ResourceDictionary>

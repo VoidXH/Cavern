@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -18,11 +18,6 @@ using Path = System.IO.Path;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
-        /// <summary>
-        /// The OAMD objects need this many samples at max to move to their initial position.
-        /// </summary>
-        const int firstFrame = 1536;
-
         /// <summary>
         /// The matching displayed dot for each supported channel.
         /// </summary>
@@ -49,6 +44,11 @@ namespace CavernizeGUI {
         readonly TaskEngine taskEngine;
 
         AudioFile file;
+
+        string filePath;
+
+        // TODO: settable codec
+        string codec = "libopus";
 
         /// <summary>
         /// Initialize the window and load last settings.
@@ -119,7 +119,7 @@ namespace CavernizeGUI {
             if (dialog.ShowDialog().Value) {
                 Reset();
                 fileName.Text = Path.GetFileName(dialog.FileName);
-                file = new(dialog.FileName);
+                file = new(filePath = dialog.FileName);
                 tracks.ItemsSource = file.Tracks;
                 if (file.Tracks.Count != 0)
                     tracks.SelectedIndex = 0;
@@ -190,13 +190,17 @@ namespace CavernizeGUI {
             target.Attach(listener);
 
             AudioWriter writer = null;
+            string exportName; // Rendered by Cavern
+            string finalName = null; // Packed by FFmpeg
             if (renderToFile.IsChecked.Value) {
                 SaveFileDialog dialog = new() {
                     Filter = (string)language["ExFmt"]
                 };
                 if (dialog.ShowDialog().Value) {
-                    writer = AudioWriter.Create(dialog.FileName, Listener.Channels.Length, target.Length, target.SampleRate,
-                        BitDepth.Int16); // TODO: ability to change
+                    finalName = dialog.FileName;
+                    exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + ".wav" : finalName;
+                    writer = AudioWriter.Create(exportName, Listener.Channels.Length, target.Length, target.SampleRate,
+                        BitDepth.Int16);
                     if (writer == null) {
                         Error((string)language["UnExt"]);
                         return;
@@ -208,57 +212,48 @@ namespace CavernizeGUI {
 
             bool dynamic = dynamicOnly.IsChecked.Value;
             bool height = heightOnly.IsChecked.Value;
-            taskEngine.Run(() => RenderTask(target, writer, dynamic, height));
+            taskEngine.Run(() => RenderTask(target, writer, dynamic, height, finalName));
         }
 
         /// <summary>
-        /// The running render process.
+        /// Perform rendering.
         /// </summary>
-        void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly) {
-            taskEngine.UpdateStatus("Starting render...");
+        void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
-            RenderStats stats = new(listener);
-            const long updateInterval = 50000;
-            long rendered = 0,
-                untilUpdate = updateInterval;
-            double samplesToProgress = 1.0 / target.Length,
-                samplesToSeconds = 1.0 / listener.SampleRate;
-            bool customMuting = dynamicOnly || heightOnly;
-            DateTime start = DateTime.Now;
-
-            while (rendered < target.Length) {
-                float[] result = listener.Render();
-                if (target.Length - rendered < listener.UpdateRate)
-                    Array.Resize(ref result, (int)(target.Length - rendered));
-                if (writer != null)
-                    writer.WriteBlock(result, 0, result.LongLength);
-                if (rendered > firstFrame)
-                    stats.Update();
-
-                if (customMuting) {
-                    IReadOnlyList<Source> objects = target.Renderer.Objects;
-                    for (int i = 0, c = objects.Count; i < c; ++i) {
-                        Vector3 rawPos = objects[i].Position / Listener.EnvironmentSize;
-                        objects[i].Mute =
-                            (dynamicOnly && MathF.Abs(rawPos.X) % 1 < .01f &&
-                            MathF.Abs(rawPos.Y) % 1 < .01f && MathF.Abs(rawPos.Z % 1) < .01f) ||
-                            (heightOnly && rawPos.Y == 0);
-                    }
-                }
-
-                rendered += listener.UpdateRate;
-                if ((untilUpdate -= listener.UpdateRate) <= 0) {
-                    double progress = rendered * samplesToProgress;
-                    double speed = rendered * samplesToSeconds / (DateTime.Now - start).TotalSeconds;
-                    taskEngine.UpdateStatusLazy($"Rendering... ({progress:0.00%}, speed: {speed:0.00}x)");
-                    taskEngine.UpdateProgressBar(progress);
-                    untilUpdate = updateInterval;
+            // TODO: TEMPORARY, REMOVE WHEN AC-3 CAN BE DECODED - decode with FFmpeg
+            string tempName = filePath[..^4] + ".wav";
+            if (!File.Exists(tempName)) {
+                taskEngine.UpdateStatus("Decoding bed audio...");
+                if (ffmpeg.Launch(string.Format("-i \"{0}\" \"{1}\"", filePath, tempName)) &&
+                    File.Exists(tempName)) {
+                    target.SetRendererSource(AudioReader.Open(tempName));
+                    target.SetupForExport();
+                } else {
+                    if (File.Exists(tempName))
+                        File.Delete(tempName);
+                    taskEngine.UpdateStatus("Failed to decode bed audio. " +
+                        "Are your permissions sufficient in the source's folder?");
+                    return;
                 }
             }
 
-            if (writer != null)
-                writer.Dispose();
+            taskEngine.UpdateStatus("Starting render...");
+            RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly);
             UpdatePostRenderReport(stats);
+
+            if (finalName[^4..].ToLower().Equals(".mkv")) {
+                taskEngine.UpdateStatus("Converting to final format...");
+                string exportName = finalName[..^4] + ".wav";
+                if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -c:v copy -c:a {2} \"{3}\"",
+                    filePath, exportName, codec, finalName)) ||
+                    !File.Exists(finalName)) {
+                    taskEngine.UpdateStatus("Failed to create the final file. " +
+                        "Are your permissions sufficient in the export folder?");
+                    return;
+                }
+                File.Delete(exportName);
+            }
+
             taskEngine.UpdateStatus("Finished!");
             taskEngine.UpdateProgressBar(1);
         }
@@ -266,7 +261,6 @@ namespace CavernizeGUI {
         /// <summary>
         /// Displays an error message.
         /// </summary>
-        /// <param name="error"></param>
         static void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 }

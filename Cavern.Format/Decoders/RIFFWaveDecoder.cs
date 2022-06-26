@@ -163,7 +163,7 @@ namespace Cavern.Format.Decoders {
         public override void Seek(long sample) {
             if (stream == null)
                 throw new StreamingException();
-            stream.Position = dataStart;
+            stream.Position = dataStart + sample;
             reader.Clear();
         }
     }

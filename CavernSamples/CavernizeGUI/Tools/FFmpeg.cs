@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows.Controls;
 using System.Windows.Forms;
 
@@ -47,6 +48,23 @@ namespace VoidX.WPF {
             this.statusText = statusText;
             Location = lastLocation;
             CheckFFmpeg();
+        }
+
+        /// <summary>
+        /// Launch the FFmpeg to process a file with the given arguments.
+        /// </summary>
+        public bool Launch(string arguments) {
+            ProcessStartInfo start = new() {
+                Arguments = arguments,
+                FileName = Path.Combine(Location, exeName)
+            };
+            try {
+                using Process proc = Process.Start(start);
+                proc.WaitForExit();
+                return proc.ExitCode == 0;
+            } catch {
+                return false;
+            }
         }
 
         /// <summary>
