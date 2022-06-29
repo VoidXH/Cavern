@@ -32,6 +32,11 @@ namespace CavernizeGUI {
         public int SampleRate => reader.SampleRate;
 
         /// <summary>
+        /// Order in the tracks of the input container.
+        /// </summary>
+        public int Index { get; }
+
+        /// <summary>
         /// Text to display about this track.
         /// </summary>
         public string Details { get; private set; }
@@ -54,9 +59,10 @@ namespace CavernizeGUI {
         /// <summary>
         /// Reads information from a track's renderer.
         /// </summary>
-        public Track(AudioReader reader, Codec codec, string language = null) {
+        public Track(AudioReader reader, Codec codec, int index, string language = null) {
             this.reader = reader;
             this.codec = codec;
+            Index = index;
             this.language = language;
 
             StringBuilder builder = new();
@@ -104,6 +110,12 @@ namespace CavernizeGUI {
         public void SetupForExport() {
             if (Renderer is EnhancedAC3Renderer eac3 && eac3.Source != null)
                 eac3.Source.Reset();
+        }
+
+        /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
+        public void DisposeRendererSource() {
+            if (Renderer is EnhancedAC3Renderer eac3 && eac3.Source != null)
+                eac3.Source.Dispose();
         }
 
         /// <summary>

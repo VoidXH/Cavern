@@ -40,19 +40,20 @@ namespace CavernizeGUI {
             switch (path[^3..]) {
                 case "ac3":
                     EnhancedAC3Reader ac3Reader = new(path);
-                    tracks.Add(new Track(ac3Reader, Codec.EnhancedAC3));
+                    tracks.Add(new Track(ac3Reader, Codec.EnhancedAC3, 0));
                     break;
                 case "mkv":
                 case "mka":
                     MatroskaReader mkvReader = new(path);
+                    int trackId = 0;
                     for (int i = 0; i < mkvReader.Tracks.Length; ++i)
                         if (mkvReader.Tracks[i].Format.IsAudio())
                             tracks.Add(new Track(new AudioTrackReader(mkvReader.Tracks[i]), mkvReader.Tracks[i].Format,
-                                mkvReader.Tracks[i].Language));
+                                trackId++, mkvReader.Tracks[i].Language));
                     break;
                 case "wav":
                     RIFFWaveReader wavReader = new(path);
-                    tracks.Add(new Track(wavReader, wavReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE));
+                    tracks.Add(new Track(wavReader, wavReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE, 0));
                     break;
                 case "laf":
                     throw new NotSupportedException();

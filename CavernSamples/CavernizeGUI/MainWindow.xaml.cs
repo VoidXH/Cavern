@@ -184,11 +184,11 @@ namespace CavernizeGUI {
                 return;
             }
             Track target = (Track)tracks.SelectedItem;
-            target.SetupForExport();
             if (!target.Supported) {
                 Error((string)language["UnTrk"]);
                 return;
             }
+            listener.DetachAllSources();
             target.Attach(listener);
 
             AudioWriter writer = null;
@@ -222,38 +222,84 @@ namespace CavernizeGUI {
         /// </summary>
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
-            // TODO: TEMPORARY, REMOVE WHEN AC-3 CAN BE DECODED - decode with FFmpeg
-            string tempName = filePath[..^4] + ".wav";
-            if (!File.Exists(tempName)) {
-                taskEngine.UpdateStatus("Decoding bed audio...");
-                if (ffmpeg.Launch(string.Format("-i \"{0}\" \"{1}\"", filePath, tempName)) &&
-                    File.Exists(tempName)) {
-                    target.SetRendererSource(AudioReader.Open(tempName));
+            #region TODO: TEMPORARY, REMOVE WHEN AC-3 AND MKV CAN BE FULLY DECODED - decode with FFmpeg until then
+            bool isMKA = filePath[^4..].Equals(".mka");
+            string tempRAW = filePath[..^4] + ".mka";
+            bool isWAV = filePath[^4..].Equals(".wav");
+            string tempWAV = filePath[..^4] + ".wav";
+            Cavern.Format.Container.MatroskaReader rawReader = null;
+            AudioReader wavReader = null;
+
+            if (writer != null) {
+                if (!isMKA && target.Renderer is EnhancedAC3Renderer) {
+                    if (!File.Exists(tempRAW)) {
+                        taskEngine.UpdateStatus("Separating bitstream...");
+                        if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -c copy \"{2}\"",
+                            filePath, target.Index, tempRAW)) || !File.Exists(tempRAW)) {
+                            if (File.Exists(tempRAW))
+                                File.Delete(tempRAW);
+                            taskEngine.UpdateStatus("Failed to export bitstream. " +
+                                "Are your permissions sufficient in the source's folder?");
+                            return;
+                        }
+                    }
+
+                    listener.DetachAllSources();
+                    rawReader = new(tempRAW);
+                    target.DisposeRendererSource();
+                    target = new Track(new AudioTrackReader(rawReader.Tracks[0]), Cavern.Format.Common.Codec.EnhancedAC3, 0);
+                    target.Attach(listener);
+                }
+
+                if (!isWAV) {
+                    if (!File.Exists(tempWAV)) {
+                        taskEngine.UpdateStatus("Decoding bed audio...");
+                        if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -c copy \"{2}\"", filePath, target.Index, tempWAV)) ||
+                            !File.Exists(tempWAV)) {
+                            if (File.Exists(tempWAV))
+                                File.Delete(tempWAV);
+                            taskEngine.UpdateStatus("Failed to decode bed audio. " +
+                                "Are your permissions sufficient in the source's folder?");
+                            return;
+                        }
+                    }
+                    target.SetRendererSource(wavReader = AudioReader.Open(tempWAV));
                     target.SetupForExport();
-                } else {
-                    if (File.Exists(tempName))
-                        File.Delete(tempName);
-                    taskEngine.UpdateStatus("Failed to decode bed audio. " +
-                        "Are your permissions sufficient in the source's folder?");
-                    return;
                 }
             }
+            #endregion
 
             taskEngine.UpdateStatus("Starting render...");
             RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly);
             UpdatePostRenderReport(stats);
 
-            if (finalName[^4..].ToLower().Equals(".mkv")) {
-                taskEngine.UpdateStatus("Converting to final format...");
-                string exportName = finalName[..^4] + ".wav";
-                if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -c:v copy -c:a {2} -y \"{3}\"",
-                    filePath, exportName, codec, finalName)) ||
-                    !File.Exists(finalName)) {
-                    taskEngine.UpdateStatus("Failed to create the final file. " +
-                        "Are your permissions sufficient in the export folder?");
-                    return;
+            if (writer != null) {
+                if (finalName[^4..].ToLower().Equals(".mkv")) {
+                    taskEngine.UpdateStatus("Converting to final format...");
+                    string exportName = finalName[..^4] + ".wav";
+                    string layout = null;
+                    Dispatcher.Invoke(() => layout = ((RenderTarget)renderTarget.SelectedItem).Name);
+                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -c:v copy -c:a {2} -y " +
+                        "-metadata:s:a:0 title=\"Cavern {3} render\" \"{4}\"",
+                        filePath, exportName, codec, layout, finalName)) ||
+                        !File.Exists(finalName)) {
+                        taskEngine.UpdateStatus("Failed to create the final file. " +
+                            "Are your permissions sufficient in the export folder?");
+                        return;
+                    }
+                    File.Delete(exportName);
                 }
-                File.Delete(exportName);
+
+                #region TODO: same
+                if (rawReader != null) {
+                    rawReader.Dispose();
+                    File.Delete(tempRAW);
+                }
+                if (wavReader != null) {
+                    wavReader.Dispose();
+                    File.Delete(tempWAV);
+                }
+                #endregion
             }
 
             taskEngine.UpdateStatus("Finished!");
