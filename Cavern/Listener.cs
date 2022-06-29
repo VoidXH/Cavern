@@ -219,7 +219,12 @@ namespace Cavern {
         /// <summary>
         /// Detach all sources from this listener.
         /// </summary>
-        public void DetachAllSources() => activeSources.Clear();
+        public void DetachAllSources() {
+            for (int i = 0, c = activeSources.Count; i < c; ++i) {
+                activeSources.First.Value.listener = null;
+                activeSources.RemoveFirst();
+            }
+        }
 
         /// <summary>
         /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
