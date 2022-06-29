@@ -254,7 +254,7 @@ namespace CavernizeGUI {
                 if (!isWAV) {
                     if (!File.Exists(tempWAV)) {
                         taskEngine.UpdateStatus("Decoding bed audio...");
-                        if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -c copy \"{2}\"", filePath, target.Index, tempWAV)) ||
+                        if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} \"{2}\"", filePath, target.Index, tempWAV)) ||
                             !File.Exists(tempWAV)) {
                             if (File.Exists(tempWAV))
                                 File.Delete(tempWAV);
