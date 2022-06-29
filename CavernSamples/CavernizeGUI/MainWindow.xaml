@@ -58,11 +58,10 @@
                 </Grid.ColumnDefinitions>
                 <GroupBox Header="Rendering settings">
                     <Grid>
-                        <TextBlock x:Name="layout" HorizontalAlignment="Left" Margin="10,10,0,0" Text="Driver set to: 5.1" VerticalAlignment="Top"/>
-                        <TextBlock HorizontalAlignment="Left" Margin="10,34,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
+                        <TextBlock HorizontalAlignment="Left" Margin="10,13,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
                         <ComboBox x:Name="renderTarget" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                              Margin="90,31,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
-                        <Canvas Margin="10,68,10,0" Height="160" VerticalAlignment="Top">
+                              Margin="90,10,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
+                        <Canvas Margin="10,40,10,0" Height="160" VerticalAlignment="Top">
                             <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
                             <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
                             <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
@@ -85,8 +84,10 @@
                             <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
                             <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
                         </Canvas>
-                        <CheckBox x:Name="dynamicOnly" Content="Mute bed channels" HorizontalAlignment="Left" Margin="10,243,0,0" VerticalAlignment="Top"/>
-                        <CheckBox x:Name="heightOnly" Content="Mute ground layer" HorizontalAlignment="Left" Margin="10,263,0,0" VerticalAlignment="Top"/>
+                        <CheckBox x:Name="dynamicOnly" Content="Mute bed channels" HorizontalAlignment="Left" Margin="10,205,0,0" VerticalAlignment="Top"
+                                  ToolTip="Only render objects that are not fixed in position, but move around."/>
+                        <CheckBox x:Name="heightOnly" Content="Mute ground layer" HorizontalAlignment="Left" Margin="10,225,0,0" VerticalAlignment="Top"
+                                  ToolTip="Any sound that only comes from the ground speakers will be muted."/>
                     </Grid>
                 </GroupBox>
                 <GridSplitter Grid.Column="1" Width="5" Height="200" HorizontalAlignment="Stretch"/>

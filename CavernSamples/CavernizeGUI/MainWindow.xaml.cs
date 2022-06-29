@@ -81,7 +81,6 @@ namespace CavernizeGUI {
             };
 
             language.Source = new Uri(";component/Resources/Strings.xaml", UriKind.RelativeOrAbsolute);
-            layout.Text = string.Format(string.Format((string)language["CavLo"], Listener.GetLayoutName()));
             renderTarget.ItemsSource = RenderTarget.Targets;
             renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget), RenderTarget.Targets.Length - 1);
             taskEngine = new(progress, status);
@@ -118,6 +117,9 @@ namespace CavernizeGUI {
             };
             if (dialog.ShowDialog().Value) {
                 Reset();
+                ffmpeg.CheckFFmpeg();
+                taskEngine.UpdateProgressBar(0);
+
                 fileName.Text = Path.GetFileName(dialog.FileName);
                 file = new(filePath = dialog.FileName);
                 tracks.ItemsSource = file.Tracks;
@@ -126,7 +128,7 @@ namespace CavernizeGUI {
 
                 // TODO: TEMPORARY, REMOVE WHEN AC-3 CAN BE DECODED
                 string decode = dialog.FileName[..dialog.FileName.LastIndexOf('.')] + ".wav";
-                if (System.IO.File.Exists(decode)) {
+                if (File.Exists(decode)) {
                     AudioReader reader = AudioReader.Open(decode);
                     for (int i = 0; i < file.Tracks.Count; ++i)
                         file.Tracks[i].SetRendererSource(reader);

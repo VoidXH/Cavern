@@ -31,9 +31,10 @@ namespace Cavern.Format.Container.Matroska {
             List<MatroskaTree> blocksSource =
                 source.GetChildrenByPath(MatroskaTree.Segment_Cluster_BlockGroup, MatroskaTree.Segment_Cluster_BlockGroup_Block);
             if (blocksSource.Count != 0) {
-                blocks = new Block[blocksSource.Count];
-                for (int i = 0, c = blocksSource.Count; i < c; ++i)
-                    blocks[i] = new Block(reader, blocksSource[i]);
+                blocks = new Block[0]; // TODO: this doesn't work, but it's for subtitles anyway... right?
+                //blocks = new Block[blocksSource.Count];
+                //for (int i = 0, c = blocksSource.Count; i < c; ++i)
+                //    blocks[i] = new Block(reader, blocksSource[i]);
             }
 
             // Simple blocks (Matroska v2)

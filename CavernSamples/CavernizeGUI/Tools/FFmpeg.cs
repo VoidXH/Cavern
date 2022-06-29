@@ -81,7 +81,7 @@ namespace VoidX.WPF {
         /// <summary>
         /// Checks if FFmpeg's executable is located at the selected directory and update the UI accordingly.
         /// </summary>
-        bool CheckFFmpeg() {
+        public bool CheckFFmpeg() {
             bool found = start.IsEnabled = !string.IsNullOrEmpty(Location) && File.Exists(Path.Combine(Location, exeName));
             if (found)
                 statusText.Text = readyText;

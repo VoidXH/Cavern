@@ -73,7 +73,7 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Number of frames contained in this block.
         /// </summary>
-        readonly byte frameCount;
+        readonly int frameCount;
 
         /// <summary>
         /// Length of each frame's raw data.
@@ -97,21 +97,25 @@ namespace Cavern.Format.Container.Matroska {
 
             Lacing lacing = LacingType;
             if (lacing != Lacing.None) {
-                frameCount = (byte)(reader.ReadByte() + 1);
+                int x = reader.ReadByte();
+                frameCount = x + 1;
                 frameSizes = new int[frameCount];
                 firstFrame = reader.BaseStream.Position;
                 switch (lacing) {
                     case Lacing.Xiph:
                         byte frame = 0;
-                        while (frame < frameCount) {
+                        long totalSize = 0;
+                        while (frame < frameCount - 1) {
                             byte value;
                             int sum = 0;
                             do {
                                 value = reader.ReadByte();
                                 sum += value;
                             } while (value == 255);
+                            totalSize += sum;
                             frameSizes[frame++] = sum;
                         }
+                        frameSizes[frame] = (int)(source.Length - (reader.BaseStream.Position - start) - totalSize);
                         break;
                     case Lacing.FixedSize:
                         int step = (int)((source.Length - (firstFrame - start)) / frameCount);
@@ -120,10 +124,12 @@ namespace Cavern.Format.Container.Matroska {
                         break;
                     case Lacing.EBML:
                         frameSizes[0] = (int)VarInt.ReadValue(reader);
-                        for (byte i = 1; i < frameCount; ++i)
-                            frameSizes[i] = (int)VarInt.ReadSignedValue(reader);
-                        for (byte i = (byte)(frameCount - 1); i > 0; --i)
-                            frameSizes[i] -= frameSizes[i - 1];
+                        long last = -frameSizes[0];
+                        for (int i = 1; i < frameCount - 1; ++i) {
+                            frameSizes[i] = frameSizes[i - 1] + (int)VarInt.ReadSignedValue(reader);
+                            last -= frameSizes[i];
+                        }
+                        frameSizes[frameCount - 1] = (int)(last + source.Length - (reader.BaseStream.Position - start));
                         break;
                     default:
                         break;

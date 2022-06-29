@@ -80,9 +80,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     float exp = MathF.PI * (sb + .5f) * (j - .5f) * subbandDiv;
                     sinCacheFwd[sb][j] = MathF.Sin(exp);
                     cosCacheFwd[sb][j] = MathF.Cos(exp);
-                    exp = MathF.PI / (doubleLength * 2) * (2 * sb + 1) * (2 * j - doubleLength - 1);
-                    sinCacheInv[sb][j] = MathF.Sin(exp);
-                    cosCacheInv[sb][j] = MathF.Cos(exp);
+                    exp = MathF.PI * (sb + .5f) * (j - doubleLength + .5f) * subbandDiv;
+                    sinCacheInv[sb][j] = MathF.Sin(exp) * subbandDiv;
+                    cosCacheInv[sb][j] = MathF.Cos(exp) * subbandDiv;
                 }
             }
         }
@@ -130,7 +130,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 float sum = 0;
                 for (int sb = 0; sb < subbands; ++sb)
                     sum += input[sb].Real * cosCacheInv[sb][j] - input[sb].Imaginary * sinCacheInv[sb][j];
-                inputStreamInverse[j] = sum * subbandDiv;
+                inputStreamInverse[j] = sum;
             }
 
             for (int j = 0, end = coeffs.Length / doubleLength; j < end; ++j) {

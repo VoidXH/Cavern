@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
 using Cavern.Format.Common;
 using Cavern.Format.Container.Matroska;
 using Cavern.Utilities;
@@ -37,7 +36,7 @@ namespace Cavern.Format.Container {
         /// The limit is the size of this array. Use <see cref="GetCluster(int)"/> to read a cluster,
         /// it checks the cache before trying to read it.
         /// </summary>
-        Tuple<int, Cluster>[] cachedClusters = new Tuple<int, Cluster>[] {
+        readonly Tuple<int, Cluster>[] cachedClusters = new Tuple<int, Cluster>[] {
             new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null),
             new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null) // Still better than null checks
         };
@@ -104,28 +103,39 @@ namespace Cavern.Format.Container {
             for (int c = clusters.Count; clusterId < c; ++clusterId)
                 if (GetCluster(clusterId).TimeStamp > targetTime)
                     break;
-            Cluster cluster = GetCluster(--clusterId);
-            IReadOnlyList<Block> blocks = cluster.Blocks;
+            --clusterId;
 
-            long trackTimeStamp = -1;
-            targetTime -= cluster.TimeStamp;
-            for (int track = 0; track < Tracks.Length; ++track) {
-                MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
-                trackData.lastCluster = clusterId;
-                trackTimeStamp = cluster.TimeStamp;
-                trackData.lastBlock = 0;
-                while (trackData.lastBlock < blocks.Count) {
-                    if (blocks[trackData.lastBlock].Track == trackData.ID) {
-                        if (blocks[trackData.lastBlock].TimeStamp > targetTime) {
-                            --trackData.lastBlock;
-                            trackTimeStamp = cluster.TimeStamp + blocks[trackData.lastBlock].TimeStamp;
-                            break;
-                        }
+            bool[] trackSet = new bool[Tracks.Length];
+            int tracksSet = 0;
+            long audioTime = long.MaxValue, minTime = long.MaxValue;
+            while (clusterId >= 0 && tracksSet != trackSet.Length) {
+                Cluster cluster = GetCluster(clusterId);
+                IReadOnlyList<Block> blocks = cluster.Blocks;
+                for (int block = blocks.Count - 1; block >= 0; --block) {
+                    long trackId = Tracks.GetIndexByID(blocks[block].Track);
+                    if (trackId == -1 || trackSet[trackId])
+                        continue;
+                    long time = cluster.TimeStamp + blocks[block].TimeStamp;
+                    if (time <= targetTime) {
+                        MatroskaTrack trackData = Tracks[trackId] as MatroskaTrack;
+                        trackData.lastCluster = clusterId;
+                        trackData.lastBlock = block;
+                        if (minTime > time)
+                            minTime = time;
+                        if (trackData.Format.IsAudio() && audioTime > targetTime)
+                            audioTime = time;
+                        trackSet[trackId] = true;
+                        ++tracksSet;
                     }
-                    ++trackData.lastBlock;
                 }
+                --clusterId;
             }
-            return trackTimeStamp * timestampScale * nsToS;
+
+            if (audioTime != long.MaxValue)
+                return audioTime * timestampScale * nsToS;
+            if (minTime != long.MaxValue)
+                return minTime * timestampScale * nsToS;
+            return -1;
         }
 
         /// <summary>

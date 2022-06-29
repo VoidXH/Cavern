@@ -39,13 +39,13 @@ namespace Cavern.Format.Container.Matroska {
             Segment_Cluster = 0x1F43B675;
 
         /// <summary>
-        /// Tags which have metadata in their children.
+        /// Tags which have metadata in their children. They are parsed when the MKV file is read.
         /// </summary>
         /// <remarks>They have to be in ascending order for the binary search to work.</remarks>
         internal static readonly int[] hasChildren = new int[] {
             Segment_Cluster_BlockGroup, Segment_Tracks_TrackEntry, Segment_Tracks_TrackEntry_Audio, Segment_SeekHead_Seek,
             Segment_Info_ChapterTranslate, Segment_SeekHead, Segment_Info, Segment_Tracks, Segment, EBML, Segment_Cues,
-            Segment_Cluster
+            Segment_Cluster // TODO: lazy reading of clusters (only read the next when needed, not when the file opens)
         };
 
         /// <summary>
