@@ -49,6 +49,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Start the following reads from the selected sample.
         /// </summary>
+        /// <param name="sample">The selected sample, for a single channel</param>
         public abstract void Seek(long sample);
     }
 }

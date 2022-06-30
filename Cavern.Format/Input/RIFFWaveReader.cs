@@ -29,11 +29,13 @@ namespace Cavern.Format {
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {
-            decoder = new RIFFWaveDecoder(reader);
-            ChannelCount = decoder.ChannelCount;
-            Length = decoder.Length;
-            SampleRate = decoder.SampleRate;
-            Bits = decoder.Bits;
+            if (decoder == null) {
+                decoder = new RIFFWaveDecoder(reader);
+                ChannelCount = decoder.ChannelCount;
+                Length = decoder.Length;
+                SampleRate = decoder.SampleRate;
+                Bits = decoder.Bits;
+            }
         }
 
         /// <summary>
@@ -44,11 +46,12 @@ namespace Cavern.Format {
         /// <param name="to">End position in the input array (exclusive)</param>
         /// <remarks>The next to - from samples will be read from the file.
         /// All samples are counted, not just a single channel.</remarks>
-        public override void ReadBlock(float[] samples, long from, long to) => decoder.DecodeBlock(samples, from, to - from);
+        public override void ReadBlock(float[] samples, long from, long to) => decoder.DecodeBlock(samples, from, to);
 
         /// <summary>
         /// Start the following reads from the selected sample.
         /// </summary>
+        /// <param name="sample">The selected sample, for a single channel</param>
         public override void Seek(long sample) {
             if (decoder == null)
                 ReadHeader();

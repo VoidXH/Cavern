@@ -82,7 +82,7 @@ namespace Cavern.Format {
         public abstract void WriteHeader();
 
         /// <summary>
-        /// Write a block of mono samples.
+        /// Write a block of mono or interlaced samples.
         /// </summary>
         /// <param name="samples">Samples to write</param>
         /// <param name="from">Start position in the input array (inclusive)</param>
@@ -158,6 +158,6 @@ namespace Cavern.Format {
         /// <summary>
         /// Close the writer.
         /// </summary>
-        public void Dispose() => writer?.Close();
+        public virtual void Dispose() => writer?.Close();
     }
 }

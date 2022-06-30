@@ -8,6 +8,11 @@ namespace Cavern.Format.Transcoders {
         public const int syncWord = 0x0B77;
 
         /// <summary>
+        /// First word of all AC-3 frames in little-endian order.
+        /// </summary>
+        public const int syncWordLE = 0x770B;
+
+        /// <summary>
         /// Bytes that must be read before determining the frame size.
         /// </summary>
         public const int mustDecode = 7;

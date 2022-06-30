@@ -4,9 +4,14 @@
     <system:String x:Key="CavLo">Driver is set to {0}.</system:String>
     <system:String x:Key="ImFmt">All supported formats|*.ac3;*.mkv;*.mka;*.wav;*.laf|(Enhanced) AC-3 (*.ac3)|*.ac3|Matroska
         (*.mkv, *.mka)|*.mkv;*.mka|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format (*.laf)|*.laf</system:String>
+    <system:String x:Key="OpRun">An operation is already running, please wait for it to finish.</system:String>
     <system:String x:Key="LdSrc">Please load a source file with at least 1 supported track for rendering.</system:String>
     <system:String x:Key="UnTrk">The selected track is not supported for rendering.</system:String>
     <system:String x:Key="ExFmt">Matroska (*.mkv)|*.mkv|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format
         (*.laf)|*.laf</system:String>
     <system:String x:Key="UnExt">The file name had an unsupported extension.</system:String>
+    <system:String x:Key="WrGui">Wiring guide</system:String>
+    <system:String x:Key="ChCon">Connect the {0} channel to your system's {1} output.</system:String>
+    <system:String x:Key="ExpOk">Finished!</system:String>
+    <system:String x:Key="Error">Error</system:String>
 </ResourceDictionary>

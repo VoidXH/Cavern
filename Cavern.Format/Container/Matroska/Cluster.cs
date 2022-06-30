@@ -27,6 +27,7 @@ namespace Cavern.Format.Container.Matroska {
         public Cluster(BinaryReader reader, MatroskaTree source) {
             TimeStamp = source.GetChildValue(reader, MatroskaTree.Segment_Cluster_Timestamp);
 
+            // TODO: only load blocks when the array is first read
             // Block groups (Matroska v1)
             List<MatroskaTree> blocksSource =
                 source.GetChildrenByPath(MatroskaTree.Segment_Cluster_BlockGroup, MatroskaTree.Segment_Cluster_BlockGroup_Block);

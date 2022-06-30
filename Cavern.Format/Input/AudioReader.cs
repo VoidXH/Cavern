@@ -6,6 +6,7 @@ using Cavern.Format.Consts;
 using Cavern.Format.Container;
 using Cavern.Format.Container.Matroska;
 using Cavern.Format.Renderers;
+using Cavern.Format.Transcoders;
 
 namespace Cavern.Format {
     /// <summary>
@@ -143,7 +144,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Goes back to a state where the first sample can be read.
         /// </summary>
-        public void Reset() {
+        public virtual void Reset() {
             reader.BaseStream.Position = 0;
             ReadHeader();
         }
@@ -182,6 +183,8 @@ namespace Cavern.Format {
         public static AudioReader Open(BinaryReader reader) {
             int syncWord = reader.ReadInt32();
             reader.BaseStream.Position = 0;
+            if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE)
+                return new EnhancedAC3Reader(reader);
             return syncWord switch {
                 RIFFWave.syncWord1 => new RIFFWaveReader(reader),
                 LimitlessAudioFormat.syncWord => new LimitlessAudioFormatReader(reader),

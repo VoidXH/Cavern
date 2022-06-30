@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,6 +10,7 @@ using System.Windows.Shapes;
 
 using Cavern;
 using Cavern.Format;
+using Cavern.Format.Common;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
 using Cavern.Utilities;
@@ -103,15 +105,34 @@ namespace CavernizeGUI {
             listener.DetachAllSources();
             if (file != null)
                 file.Dispose();
+            tracks.Visibility = Visibility.Hidden;
             tracks.ItemsSource = null;
             trackInfo.Text = string.Empty;
             report.Text = string.Empty;
         }
 
         /// <summary>
+        /// Shows a popup about what channel should be wired to which output.
+        /// </summary>
+        void DisplayWiring(object _, RoutedEventArgs e) {
+            ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).Channels;
+            ChannelPrototype[] prototypes = ChannelPrototype.Get(channels);
+            StringBuilder output = new StringBuilder();
+            for (int i = 0; i < prototypes.Length; ++i)
+                output.AppendLine(string.Format((string)language["ChCon"], prototypes[i].Name,
+                    ChannelPrototype.Get(i, prototypes.Length).Name));
+            MessageBox.Show(output.ToString(), (string)language["WrGui"]);
+        }
+
+        /// <summary>
         /// Open file button event; loads a WAV file to <see cref="reader"/>.
         /// </summary>
         void OpenFile(object _, RoutedEventArgs e) {
+            if (taskEngine.IsOperationRunning) {
+                Error((string)language["OpRun"]);
+                return;
+            }
+
             OpenFileDialog dialog = new() {
                 Filter = (string)language["ImFmt"]
             };
@@ -122,9 +143,18 @@ namespace CavernizeGUI {
 
                 fileName.Text = Path.GetFileName(dialog.FileName);
                 file = new(filePath = dialog.FileName);
-                tracks.ItemsSource = file.Tracks;
-                if (file.Tracks.Count != 0)
+                if (file.Tracks.Count != 0) {
+                    tracks.Visibility = Visibility.Visible;
+                    tracks.ItemsSource = file.Tracks;
                     tracks.SelectedIndex = 0;
+                    // Prioritize spatial codecs
+                    for (int i = 0, c = file.Tracks.Count; i < c; ++i) {
+                        if (file.Tracks[i].Codec == Codec.EnhancedAC3) {
+                            tracks.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                }
 
                 // TODO: TEMPORARY, REMOVE WHEN AC-3 CAN BE DECODED
                 string decode = dialog.FileName[..dialog.FileName.LastIndexOf('.')] + ".wav";
@@ -135,11 +165,6 @@ namespace CavernizeGUI {
                 }
             }
         }
-
-        /// <summary>
-        /// Closes the main window, thus the application.
-        /// </summary>
-        void CloseWindow(object _, RoutedEventArgs e) => Close();
 
         /// <summary>
         /// Display the selected render target's active channels.
@@ -173,12 +198,23 @@ namespace CavernizeGUI {
         /// <summary>
         /// Prompt the user to select FFmpeg's installation folder.
         /// </summary>
-        void LocateFFmpeg(object _, RoutedEventArgs e) => ffmpeg.Locate();
+        void LocateFFmpeg(object _, RoutedEventArgs e) {
+            if (taskEngine.IsOperationRunning) {
+                Error((string)language["OpRun"]);
+                return;
+            }
+
+            ffmpeg.Locate();
+        }
 
         /// <summary>
         /// Start the rendering process.
         /// </summary>
         void Render(object _, RoutedEventArgs e) {
+            if (taskEngine.IsOperationRunning) {
+                Error((string)language["OpRun"]);
+                return;
+            }
             if (tracks.SelectedItem == null) {
                 Error((string)language["LdSrc"]);
                 return;
@@ -200,9 +236,9 @@ namespace CavernizeGUI {
                 };
                 if (dialog.ShowDialog().Value) {
                     finalName = dialog.FileName;
-                    exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + ".wav" : finalName;
-                    writer = AudioWriter.Create(exportName, Listener.Channels.Length, target.Length, target.SampleRate,
-                        BitDepth.Int16);
+                    exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + "{0}.wav" : finalName;
+                    writer = new Cavern.Format.Output.SegmentedAudioWriter(exportName, Listener.Channels.Length,
+                        target.Length, target.SampleRate * 30 * 60, target.SampleRate, BitDepth.Int16);
                     if (writer == null) {
                         Error((string)language["UnExt"]);
                         return;
@@ -226,9 +262,10 @@ namespace CavernizeGUI {
             bool isMKA = filePath[^4..].Equals(".mka");
             string tempRAW = filePath[..^4] + ".mka";
             bool isWAV = filePath[^4..].Equals(".wav");
-            string tempWAV = filePath[..^4] + ".wav";
+            string tempWAV = filePath[..^4] + "{0}.wav";
+            string firstWAV = string.Format(tempWAV, "0");
             Cavern.Format.Container.MatroskaReader rawReader = null;
-            AudioReader wavReader = null;
+            Cavern.Format.Input.SegmentedAudioReader wavReader = null;
 
             if (writer != null) {
                 if (!isMKA && target.Renderer is EnhancedAC3Renderer) {
@@ -247,23 +284,24 @@ namespace CavernizeGUI {
                     listener.DetachAllSources();
                     rawReader = new(tempRAW);
                     target.DisposeRendererSource();
-                    target = new Track(new AudioTrackReader(rawReader.Tracks[0]), Cavern.Format.Common.Codec.EnhancedAC3, 0);
+                    target = new Track(new AudioTrackReader(rawReader.Tracks[0]), Codec.EnhancedAC3, 0);
                     target.Attach(listener);
                 }
 
                 if (!isWAV) {
-                    if (!File.Exists(tempWAV)) {
+                    if (!File.Exists(firstWAV)) {
                         taskEngine.UpdateStatus("Decoding bed audio...");
-                        if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} \"{2}\"", filePath, target.Index, tempWAV)) ||
-                            !File.Exists(tempWAV)) {
-                            if (File.Exists(tempWAV))
-                                File.Delete(tempWAV);
+                        if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -f segment -segment_time 30:00 \"{2}\"",
+                            filePath, target.Index, string.Format(tempWAV, "%d"))) ||
+                            !File.Exists(firstWAV)) {
+                            if (File.Exists(firstWAV))
+                                File.Delete(firstWAV); // only the first determines if it should be rendered
                             taskEngine.UpdateStatus("Failed to decode bed audio. " +
                                 "Are your permissions sufficient in the source's folder?");
                             return;
                         }
                     }
-                    target.SetRendererSource(wavReader = AudioReader.Open(tempWAV));
+                    target.SetRendererSource(wavReader = new Cavern.Format.Input.SegmentedAudioReader(tempWAV));
                     target.SetupForExport();
                 }
             }
@@ -274,20 +312,39 @@ namespace CavernizeGUI {
             UpdatePostRenderReport(stats);
 
             if (writer != null) {
+                #region TODO: same
+                string[] toConcat = wavReader.GetSegmentFiles();
+                for (int i = 0; i < toConcat.Length; ++i)
+                    toConcat[i] = $"file \'{toConcat[i]}\'";
+                string concatList = finalName[..^4] + ".txt";
+                string concatTarget = finalName[..^4] + "_tmp.mkv";
+                File.WriteAllLines(concatList, toConcat);
+                taskEngine.UpdateStatus("Encoding render...");
+                if (!ffmpeg.Launch($"-f concat -safe 0 -i \"{concatList}\" -c {codec} \"{concatTarget}\"")) {
+                    taskEngine.UpdateStatus("Failed to create the encoded render. " +
+                        "Are your permissions sufficient in the export folder?");
+                    return;
+                }
+                #endregion
+
                 if (finalName[^4..].ToLower().Equals(".mkv")) {
-                    taskEngine.UpdateStatus("Converting to final format...");
-                    string exportName = finalName[..^4] + ".wav";
+                    taskEngine.UpdateStatus("Merging to final container...");
                     string layout = null;
                     Dispatcher.Invoke(() => layout = ((RenderTarget)renderTarget.SelectedItem).Name);
-                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -c:v copy -c:a {2} -y " +
-                        "-metadata:s:a:0 title=\"Cavern {3} render\" \"{4}\"",
-                        filePath, exportName, codec, layout, finalName)) ||
+                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -c copy -y " +
+                        "-metadata:s:a:0 title=\"Cavern {2} render\" \"{3}\"",
+                        filePath, concatTarget, layout, finalName)) ||
                         !File.Exists(finalName)) {
                         taskEngine.UpdateStatus("Failed to create the final file. " +
                             "Are your permissions sufficient in the export folder?");
                         return;
                     }
-                    File.Delete(exportName);
+                    writer.Dispose();
+                    toConcat = ((Cavern.Format.Output.SegmentedAudioWriter)writer).GetSegmentFiles();
+                    for (int i = 0; i < toConcat.Length; ++i)
+                        File.Delete(toConcat[i]);
+                    File.Delete(concatList);
+                    File.Delete(concatTarget);
                 }
 
                 #region TODO: same
@@ -297,18 +354,23 @@ namespace CavernizeGUI {
                 }
                 if (wavReader != null) {
                     wavReader.Dispose();
-                    File.Delete(tempWAV);
+                    int index = 0;
+                    do {
+                        File.Delete(firstWAV);
+                        firstWAV = string.Format(tempWAV, ++index);
+                    } while (File.Exists(firstWAV));
                 }
                 #endregion
             }
 
-            taskEngine.UpdateStatus("Finished!");
+            taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.UpdateProgressBar(1);
         }
 
         /// <summary>
         /// Displays an error message.
         /// </summary>
-        static void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        void Error(string error) =>
+            MessageBox.Show(error, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
     }
 }

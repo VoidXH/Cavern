@@ -4,6 +4,7 @@ using Cavern.Format.Common;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace CavernizeGUI {
@@ -11,10 +12,23 @@ namespace CavernizeGUI {
     /// Represents an audio track of an audio file.
     /// </summary>
     class Track : IDisposable {
+        readonly static Dictionary<Codec, string> formatNames = new() {
+            [Codec.DTS] = "DTS Coherent Acoustics",
+            [Codec.DTS_HD] = "DTS-HD",
+            [Codec.EnhancedAC3] = "Enhanced AC-3",
+            [Codec.PCM_Float] = "PCM (floating point)",
+            [Codec.PCM_LE] = "PCM (integer)"
+        };
+
         /// <summary>
         /// This track can be rendered.
         /// </summary>
         public bool Supported { get; }
+
+        /// <summary>
+        /// Track audio coding type.
+        /// </summary>
+        public Codec Codec { get; }
 
         /// <summary>
         /// The renderer starting at the first sample of the track after construction.
@@ -47,11 +61,6 @@ namespace CavernizeGUI {
         readonly AudioReader reader;
 
         /// <summary>
-        /// Track audio coding type.
-        /// </summary>
-        readonly Codec codec;
-
-        /// <summary>
         /// Language code.
         /// </summary>
         readonly string language;
@@ -61,7 +70,7 @@ namespace CavernizeGUI {
         /// </summary>
         public Track(AudioReader reader, Codec codec, int index, string language = null) {
             this.reader = reader;
-            this.codec = codec;
+            this.Codec = codec;
             Index = index;
             this.language = language;
 
@@ -83,7 +92,7 @@ namespace CavernizeGUI {
             ReferenceChannel[] beds = Renderer != null ? Renderer.GetChannels() : Array.Empty<ReferenceChannel>();
             if (beds.Length > 0)
                 builder.Append("Source channels (").Append(reader.ChannelCount).Append("): ")
-                    .AppendLine(string.Join(", ", beds));
+                    .AppendLine(string.Join(", ", ChannelPrototype.GetNames(beds)));
             else
                 builder.Append("Source stream count: ").AppendLine(reader.ChannelCount.ToString());
             builder.Append("Length: ").AppendLine(TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString());
@@ -126,6 +135,9 @@ namespace CavernizeGUI {
         /// <summary>
         /// Very short track information for the dropdown.
         /// </summary>
-        public override string ToString() => string.IsNullOrEmpty(language) ? codec.ToString() : $"{codec} ({language})";
+        public override string ToString() {
+            string codecName = formatNames.ContainsKey(Codec) ? formatNames[Codec] : Codec.ToString();
+            return string.IsNullOrEmpty(language) ? codecName : $"{codecName} ({language})";
+        }
     }
 }

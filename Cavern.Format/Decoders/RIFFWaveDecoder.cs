@@ -160,10 +160,11 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Start the following reads from the selected sample.
         /// </summary>
+        /// <param name="sample">The selected sample, for a single channel</param>
         public override void Seek(long sample) {
             if (stream == null)
                 throw new StreamingException();
-            stream.Position = dataStart + sample * (int)Bits;
+            stream.Position = dataStart + sample * channelCount * (int)Bits;
             reader.Clear();
         }
     }

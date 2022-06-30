@@ -290,6 +290,16 @@ namespace Cavern.Remapping {
         }
 
         /// <summary>
+        /// Convert a mapping of <see cref="ReferenceChannel"/>s to the names of the channels.
+        /// </summary>
+        public static string[] GetNames(ReferenceChannel[] source) {
+            string[] result = new string[source.Length];
+            for (int i = 0; i < source.Length; ++i)
+                result[i] = Mapping[(int)source[i]].Name;
+            return result;
+        }
+
+        /// <summary>
         /// Check if two channel prototypes are the same.
         /// </summary>
         public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
