@@ -237,7 +237,7 @@ namespace CavernizeGUI {
                 if (dialog.ShowDialog().Value) {
                     finalName = dialog.FileName;
                     exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + "{0}.wav" : finalName;
-                    writer = new Cavern.Format.Output.SegmentedAudioWriter(exportName, Listener.Channels.Length,
+                    writer = new SegmentedAudioWriter(exportName, Listener.Channels.Length,
                         target.Length, target.SampleRate * 30 * 60, target.SampleRate, BitDepth.Int16);
                     if (writer == null) {
                         Error((string)language["UnExt"]);
@@ -265,7 +265,7 @@ namespace CavernizeGUI {
             string tempWAV = filePath[..^4] + "{0}.wav";
             string firstWAV = string.Format(tempWAV, "0");
             Cavern.Format.Container.MatroskaReader rawReader = null;
-            Cavern.Format.Input.SegmentedAudioReader wavReader = null;
+            SegmentedAudioReader wavReader = null;
 
             if (writer != null) {
                 if (!isMKA && target.Renderer is EnhancedAC3Renderer) {
@@ -301,7 +301,7 @@ namespace CavernizeGUI {
                             return;
                         }
                     }
-                    target.SetRendererSource(wavReader = new Cavern.Format.Input.SegmentedAudioReader(tempWAV));
+                    target.SetRendererSource(wavReader = new SegmentedAudioReader(tempWAV));
                     target.SetupForExport();
                 }
             }
@@ -313,7 +313,7 @@ namespace CavernizeGUI {
 
             if (writer != null) {
                 #region TODO: same
-                string[] toConcat = ((Cavern.Format.Output.SegmentedAudioWriter)writer).GetSegmentFiles();
+                string[] toConcat = ((SegmentedAudioWriter)writer).GetSegmentFiles();
                 for (int i = 0; i < toConcat.Length; ++i)
                     toConcat[i] = $"file \'{toConcat[i]}\'";
                 string concatList = finalName[..^4] + ".txt";
@@ -340,7 +340,7 @@ namespace CavernizeGUI {
                         return;
                     }
                     writer.Dispose();
-                    toConcat = ((Cavern.Format.Output.SegmentedAudioWriter)writer).GetSegmentFiles();
+                    toConcat = ((SegmentedAudioWriter)writer).GetSegmentFiles();
                     for (int i = 0; i < toConcat.Length; ++i)
                         File.Delete(toConcat[i]);
                     File.Delete(concatList);

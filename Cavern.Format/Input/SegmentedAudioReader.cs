@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Cavern.Format.Input {
+namespace Cavern.Format {
     /// <summary>
     /// Reads audio files from multiple segments.
     /// </summary>
@@ -24,7 +24,7 @@ namespace Cavern.Format.Input {
         int segment;
 
         /// <summary>
-        /// The next sample to read from the current <see cref="segment"/>.
+        /// The next sample to read from the current <see cref="segment"/>, for a single channel.
         /// </summary>
         long segmentPosition;
 
@@ -64,7 +64,7 @@ namespace Cavern.Format.Input {
         /// </summary>
         public override void ReadHeader() {
             for (int i = 0, c = segments.Count; i < c; ++i)
-                segments[i].ReadHeader();
+                segments[i].Reset();
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Cavern.Format.Input {
             if (segment == segments.Count)
                 return;
             long fromCurrent = (to - from) / ChannelCount,
-                remainingInSegment = (segments[segment].Length - segmentPosition) / ChannelCount;
+                remainingInSegment = segments[segment].Length - segmentPosition;
             if (fromCurrent <= remainingInSegment) {
                 segments[segment].ReadBlock(samples, from, to);
                 segmentPosition += fromCurrent;

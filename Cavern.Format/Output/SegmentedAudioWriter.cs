@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Cavern.Format.Output {
+namespace Cavern.Format {
     /// <summary>
     /// Writes audio files with the selected encoder in multiple segments
     /// </summary>
@@ -22,7 +22,7 @@ namespace Cavern.Format.Output {
         int segment;
 
         /// <summary>
-        /// The next sample to read from the current <see cref="segment"/>.
+        /// The next sample to read from the current <see cref="segment"/>, for a single channel.
         /// </summary>
         long segmentPosition;
 
@@ -75,7 +75,7 @@ namespace Cavern.Format.Output {
             if (segment == segments.Length)
                 return;
             long fromCurrent = (to - from) / ChannelCount,
-                remainingInSegment = (segments[segment].Length - segmentPosition) / ChannelCount;
+                remainingInSegment = segments[segment].Length - segmentPosition;
             if (fromCurrent <= remainingInSegment) {
                 segments[segment].WriteBlock(samples, from, to);
                 segmentPosition += fromCurrent;

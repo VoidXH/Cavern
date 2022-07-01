@@ -59,6 +59,15 @@ namespace Cavern.Format {
         }
 
         /// <summary>
+        /// Goes back to a state where the first sample can be read.
+        /// </summary>
+        public override void Reset() {
+            if (decoder == null)
+                ReadHeader();
+            decoder.Seek(0);
+        }
+
+        /// <summary>
         /// Get an object-based renderer for this audio file.
         /// </summary>
         public override Renderer GetRenderer() {

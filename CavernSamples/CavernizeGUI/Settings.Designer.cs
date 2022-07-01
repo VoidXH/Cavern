@@ -37,7 +37,7 @@ namespace CavernizeGUI {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
         public int renderTarget {
             get {
                 return ((int)(this["renderTarget"]));
