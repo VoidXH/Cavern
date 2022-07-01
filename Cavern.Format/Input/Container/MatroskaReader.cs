@@ -22,14 +22,9 @@ namespace Cavern.Format.Container {
         const double sToNs = 1000000000;
 
         /// <summary>
-        /// All headers and segments of the file.
+        /// A Matroska track's default language.
         /// </summary>
-        readonly List<MatroskaTree> contents = new List<MatroskaTree>();
-
-        /// <summary>
-        /// Stream metadata and readers to the data.
-        /// </summary>
-        readonly List<MatroskaTree> clusters = new List<MatroskaTree>();
+        const string defaultLanguage = "eng";
 
         /// <summary>
         /// Clusters are large and should be cached, but only to a certain limit to prevent leaking.
@@ -57,6 +52,11 @@ namespace Cavern.Format.Container {
         };
 
         /// <summary>
+        /// All segments of the file.
+        /// </summary>
+        MatroskaTree[] segments;
+
+        /// <summary>
         /// Multiplier for all timestamps in <see cref="clusters"/>.
         /// </summary>
         long timestampScale;
@@ -78,8 +78,10 @@ namespace Cavern.Format.Container {
         /// <see cref="ContainerReader.Tracks"/> array.</param>
         public override byte[] ReadNextBlock(int track) {
             MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
-            while (trackData.lastCluster < clusters.Count) {
+            while (true) {
                 Cluster data = GetCluster(trackData.lastCluster);
+                if (data == null)
+                    return null;
                 IReadOnlyList<Block> blocks = data.Blocks;
                 while (trackData.lastBlock < blocks.Count) {
                     Block block = blocks[trackData.lastBlock++];
@@ -89,7 +91,6 @@ namespace Cavern.Format.Container {
                 trackData.lastBlock = 0;
                 ++trackData.lastCluster;
             }
-            return null;
         }
 
         /// <summary>
@@ -98,7 +99,9 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <returns>Position that was actually possible to seek to or -1 if the position didn't change.</returns>
         public override double Seek(double position) {
-            long targetTime = (long)(position * sToNs / timestampScale);
+            return -1;
+            // TODO
+            /*long targetTime = (long)(position * sToNs / timestampScale);
             int clusterId = 0;
             for (int c = clusters.Count; clusterId < c; ++clusterId)
                 if (GetCluster(clusterId).TimeStamp > targetTime)
@@ -135,43 +138,54 @@ namespace Cavern.Format.Container {
                 return audioTime * timestampScale * nsToS;
             if (minTime != long.MaxValue)
                 return minTime * timestampScale * nsToS;
-            return -1;
+            return -1;*/
         }
 
         /// <summary>
         /// Read a <see cref="Cluster"/> from the cache, or if it's not cached, from the file.
         /// </summary>
-        Cluster GetCluster(int id) {
+        Cluster GetCluster(int index) {
             for (int i = 0; i < cachedClusters.Length; ++i) {
-                if (cachedClusters[i].Item1 == id)
+                if (cachedClusters[i].Item1 == index)
                     return cachedClusters[i].Item2;
             }
-            Array.Copy(cachedClusters, 1, cachedClusters, 0, cachedClusters.Length - 1);
-            Cluster newCluster = new Cluster(reader, clusters[id]);
-            cachedClusters[^1] = new Tuple<int, Cluster>(id, newCluster);
-            return newCluster;
+
+            for (int i = 0; i < segments.Length; ++i) {
+                MatroskaTree cluster = segments[i].GetChild(reader, MatroskaTree.Segment_Cluster, index);
+                if (cluster != null) {
+                    Array.Copy(cachedClusters, 1, cachedClusters, 0, cachedClusters.Length - 1);
+                    Cluster newCluster = new Cluster(reader, cluster);
+                    cachedClusters[^1] = new Tuple<int, Cluster>(index, newCluster);
+                    return newCluster;
+                }
+            }
+            return null;
         }
 
         /// <summary>
         /// Read the metadata and basic block structure of the file.
         /// </summary>
         void ReadSkeleton() {
-            while (reader.BaseStream.Position < reader.BaseStream.Length)
-                contents.Add(new MatroskaTree(reader));
+            List<MatroskaTree> segmentSource = new List<MatroskaTree>();
+            while (reader.BaseStream.Position < reader.BaseStream.Length) {
+                MatroskaTree content = new MatroskaTree(reader);
+                long next = reader.BaseStream.Position;
+                if (content.Tag == MatroskaTree.Segment)
+                    segmentSource.Add(content);
+                reader.BaseStream.Position = next;
+            }
+            segments = segmentSource.ToArray();
 
             List<double> blockLengths = new List<double>();
-            for (int i = 0, c = contents.Count; i < c; ++i) {
-                if (contents[i].Tag == MatroskaTree.Segment) {
-                    MatroskaTree segmentInfo = contents[i].GetChild(MatroskaTree.Segment_Info);
-                    double length = segmentInfo.GetChild(MatroskaTree.Segment_Info_Duration).GetFloatBE(reader);
-                    timestampScale = segmentInfo.GetChild(MatroskaTree.Segment_Info_TimestampScale).GetValue(reader);
-                    blockLengths.Add(length * timestampScale);
+            for (int i = 0; i < segments.Length; ++i) {
+                MatroskaTree segmentInfo = segments[i].GetChild(reader, MatroskaTree.Segment_Info);
+                double length = segmentInfo.GetChild(reader, MatroskaTree.Segment_Info_Duration).GetFloatBE(reader);
+                timestampScale = segmentInfo.GetChild(reader, MatroskaTree.Segment_Info_TimestampScale).GetValue(reader);
+                blockLengths.Add(length * timestampScale);
 
-                    MatroskaTree tracklist = contents[i].GetChild(MatroskaTree.Segment_Tracks);
-                    if (Tracks == null && tracklist != null)
-                        ReadTracks(tracklist);
-                    clusters.AddRange(contents[i].GetChildren(MatroskaTree.Segment_Cluster));
-                }
+                MatroskaTree tracklist = segments[i].GetChild(reader, MatroskaTree.Segment_Tracks);
+                if (Tracks == null && tracklist != null)
+                    ReadTracks(tracklist);
             }
             Duration = QMath.Sum(blockLengths) * nsToS;
         }
@@ -180,7 +194,7 @@ namespace Cavern.Format.Container {
         /// Read track information metadata.
         /// </summary>
         void ReadTracks(MatroskaTree tracklist) {
-            MatroskaTree[] entries = tracklist.GetChildren(MatroskaTree.Segment_Tracks_TrackEntry);
+            MatroskaTree[] entries = tracklist.GetChildren(reader, MatroskaTree.Segment_Tracks_TrackEntry);
             Tracks = new Track[entries.Length];
             for (int track = 0; track < entries.Length; ++track) {
                 MatroskaTrack entry = new MatroskaTrack(this, track);
@@ -190,11 +204,13 @@ namespace Cavern.Format.Container {
                 entry.ID = source.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_TrackNumber);
                 entry.Name = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_Name);
                 entry.Language = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_Language);
+                if (string.IsNullOrEmpty(entry.Language))
+                    entry.Language = defaultLanguage;
                 string codec = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_CodecID);
                 if (codecNames.ContainsKey(codec))
                     entry.Format = codecNames[codec];
 
-                MatroskaTree audioData = source.GetChild(MatroskaTree.Segment_Tracks_TrackEntry_Audio);
+                MatroskaTree audioData = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Audio);
                 if (audioData != null)
                     entry.Extra = new TrackExtraAudio {
                         SampleRate = audioData.GetChildFloatBE(reader,

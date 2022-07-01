@@ -2,7 +2,7 @@
 
 namespace Cavern.Format.Common {
     /// <summary>
-    /// Contains meatadata of a track in a container.
+    /// Metadata and continuous reading handler of a track.
     /// </summary>
     public class Track {
         /// <summary>

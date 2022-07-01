@@ -45,66 +45,132 @@ namespace Cavern.Format.Container.Matroska {
         internal static readonly int[] hasChildren = new int[] {
             Segment_Cluster_BlockGroup, Segment_Tracks_TrackEntry, Segment_Tracks_TrackEntry_Audio, Segment_SeekHead_Seek,
             Segment_Info_ChapterTranslate, Segment_SeekHead, Segment_Info, Segment_Tracks, Segment, EBML, Segment_Cues,
-            Segment_Cluster // TODO: lazy reading of clusters (only read the next when needed, not when the file opens)
+            Segment_Cluster
         };
 
         /// <summary>
         /// The contained subtree.
         /// </summary>
-        readonly List<MatroskaTree> children;
+        readonly List<MatroskaTree> children = new List<MatroskaTree>();
+
+        /// <summary>
+        /// Last byte (exclusive) of the file that is a tag in this element.
+        /// </summary>
+        readonly long end;
+
+        /// <summary>
+        /// Cache for <see cref="GetChild(BinaryReader, int, int)"/>, contains which the indices of
+        /// already read <see cref="children"/> are for a given tag (key).
+        /// </summary>
+        Dictionary<int, List<int>> childIndices;
+
+        /// <summary>
+        /// Location in the file where the next child should be read from.
+        /// </summary>
+        long nextTag;
 
         /// <summary>
         /// Build the next KLV subtree.
         /// </summary>
         public MatroskaTree(BinaryReader reader) : base(reader) {
-            if (Array.BinarySearch(hasChildren, Tag) < 0) {
-                Skip(reader);
-                return;
-            }
-
-            children = new List<MatroskaTree>();
-            long end = reader.BaseStream.Position + Length;
-            while (reader.BaseStream.Position < end) {
-                MatroskaTree subtree = new MatroskaTree(reader);
-                children.Add(subtree);
-            }
+            nextTag = reader.BaseStream.Position;
+            end = nextTag + Length;
+            reader.BaseStream.Position = end;
         }
 
         /// <summary>
         /// Fetch the first child of a tag if it exists.
         /// </summary>
-        public MatroskaTree GetChild(int tag) {
+        public MatroskaTree GetChild(BinaryReader reader, int tag) {
             for (int i = 0, c = children.Count; i < c; ++i)
                 if (children[i].Tag == tag)
                     return children[i];
+            reader.BaseStream.Position = nextTag;
+
+            while (reader.BaseStream.Position < end) {
+                MatroskaTree subtree = new MatroskaTree(reader);
+                children.Add(subtree);
+                if (subtree.Tag == tag)
+                    return subtree;
+                nextTag = reader.BaseStream.Position;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Get a specific child by its order of the same kind of children.
+        /// </summary>
+        public MatroskaTree GetChild(BinaryReader reader, int tag, int index) {
+            if (childIndices == null)
+                childIndices = new Dictionary<int, List<int>>();
+            List<int> indices;
+            if (childIndices.ContainsKey(tag))
+                indices = childIndices[tag];
+            else
+                indices = childIndices[tag] = new List<int>();
+
+            int c = indices.Count;
+            if (index < indices.Count)
+                return children[indices[index]];
+
+            int lastChild = 0;
+            if (c != 0)
+                lastChild = indices[c - 1];
+            for (int i = lastChild; i < c; ++i) {
+                if (children[i].Tag == tag) {
+                    indices.Add(i);
+                    if (c++ == index)
+                        return children[i];
+                }
+            }
+
+            while (reader.BaseStream.Position < end) {
+                MatroskaTree subtree = new MatroskaTree(reader);
+                children.Add(subtree);
+                if (subtree.Tag == tag) {
+                    indices.Add(c);
+                    if (c++ == index)
+                        return subtree;
+                }
+                nextTag = reader.BaseStream.Position;
+            }
             return null;
         }
 
         /// <summary>
         /// Fetch all child instances of a tag.
         /// </summary>
-        public MatroskaTree[] GetChildren(int tag) {
+        public MatroskaTree[] GetChildren(BinaryReader reader, int tag) {
             int tags = 0;
-            for (int i = 0, c = this.children.Count; i < c; ++i)
-                if (this.children[i].Tag == tag)
+            for (int i = 0, c = children.Count; i < c; ++i)
+                if (children[i].Tag == tag)
                     ++tags;
-            MatroskaTree[] children = new MatroskaTree[tags];
-            for (int i = 0, c = this.children.Count; i < c; ++i) {
-                if (this.children[i].Tag == tag) {
-                    children[^tags] = this.children[i];
+            reader.BaseStream.Position = nextTag;
+            while (reader.BaseStream.Position < end) {
+                MatroskaTree subtree = new MatroskaTree(reader);
+                children.Add(subtree);
+                if (subtree.Tag == tag)
+                    ++tags;
+            }
+            nextTag = end;
+
+            MatroskaTree[] result = new MatroskaTree[tags];
+            for (int i = 0, c = children.Count; i < c; ++i) {
+                if (children[i].Tag == tag) {
+                    result[^tags] = children[i];
                     --tags;
                 }
             }
-            return children;
+            return result;
         }
 
         /// <summary>
         /// Fetch the first child by a tag path if it exists.
         /// </summary>
-        public MatroskaTree GetChildByPath(params int[] path) {
+        public MatroskaTree GetChildByPath(BinaryReader reader, params int[] path) {
             MatroskaTree result = this;
             for (int depth = 0; depth < path.Length; ++depth) {
-                result = result.GetChild(path[depth]);
+                result = result.GetChild(reader, path[depth]);
                 if (result == null)
                     return null;
             }
@@ -114,12 +180,12 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Fetch all child instances which have a given path.
         /// </summary>
-        public List<MatroskaTree> GetChildrenByPath(params int[] path) {
+        public List<MatroskaTree> GetChildrenByPath(BinaryReader reader, params int[] path) {
             List<MatroskaTree> check = new List<MatroskaTree>() { this },
                 queue = new List<MatroskaTree>();
             for (int depth = 0; depth < path.Length; ++depth) {
                 for (int i = 0, c = check.Count; i < c; ++i)
-                    queue.AddRange(check[i].GetChildren(path[depth]));
+                    queue.AddRange(check[i].GetChildren(reader, path[depth]));
                 check = queue;
             }
             return check;
@@ -129,7 +195,7 @@ namespace Cavern.Format.Container.Matroska {
         /// Get the first found child's big-endian floating point value by tag if it exists.
         /// </summary>
         public double GetChildFloatBE(BinaryReader reader, int tag) {
-            MatroskaTree child = GetChild(tag);
+            MatroskaTree child = GetChild(reader, tag);
             if (child != null)
                 return child.GetFloatBE(reader);
             return -1;
@@ -139,7 +205,7 @@ namespace Cavern.Format.Container.Matroska {
         /// Get the first found child's UTF-8 value by tag if it exists.
         /// </summary>
         public string GetChildUTF8(BinaryReader reader, int tag) {
-            MatroskaTree child = GetChild(tag);
+            MatroskaTree child = GetChild(reader, tag);
             if (child != null)
                 return child.GetUTF8(reader);
             return string.Empty;
@@ -149,7 +215,7 @@ namespace Cavern.Format.Container.Matroska {
         /// Get the first found child's <see cref="VarInt"/> value by tag if it exists.
         /// </summary>
         public long GetChildValue(BinaryReader reader, int tag) {
-            MatroskaTree child = GetChild(tag);
+            MatroskaTree child = GetChild(reader, tag);
             if (child != null)
                 return child.GetValue(reader);
             return -1;

@@ -36,6 +36,7 @@ namespace CavernizeGUI {
         /// Reloads the tracklist to be able to start reading from the beginning.
         /// </summary>
         public void Reset() {
+            Dispose();
             tracks.Clear();
             switch (path[^3..]) {
                 case "ac3":
