@@ -313,7 +313,7 @@ namespace CavernizeGUI {
 
             if (writer != null) {
                 #region TODO: same
-                string[] toConcat = wavReader.GetSegmentFiles();
+                string[] toConcat = ((Cavern.Format.Output.SegmentedAudioWriter)writer).GetSegmentFiles();
                 for (int i = 0; i < toConcat.Length; ++i)
                     toConcat[i] = $"file \'{toConcat[i]}\'";
                 string concatList = finalName[..^4] + ".txt";
