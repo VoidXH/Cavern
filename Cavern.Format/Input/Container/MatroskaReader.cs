@@ -57,7 +57,7 @@ namespace Cavern.Format.Container {
         MatroskaTree[] segments;
 
         /// <summary>
-        /// Multiplier for all timestamps in <see cref="clusters"/>.
+        /// Multiplier for all timestamps in clusters.
         /// </summary>
         long timestampScale;
 
@@ -99,14 +99,19 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <returns>Position that was actually possible to seek to or -1 if the position didn't change.</returns>
         public override double Seek(double position) {
-            return -1;
-            // TODO
-            /*long targetTime = (long)(position * sToNs / timestampScale);
+            long targetTime = (long)(position * sToNs / timestampScale);
             int clusterId = 0;
-            for (int c = clusters.Count; clusterId < c; ++clusterId)
-                if (GetCluster(clusterId).TimeStamp > targetTime)
+            while (true) {
+                Cluster cluster = GetCluster(clusterId++);
+                if (cluster == null)
                     break;
-            --clusterId;
+                if (cluster.TimeStamp > targetTime) {
+                    --clusterId;
+                    break;
+                }
+            }
+            if (clusterId == -1)
+                return -1;
 
             bool[] trackSet = new bool[Tracks.Length];
             int tracksSet = 0;
@@ -138,7 +143,7 @@ namespace Cavern.Format.Container {
                 return audioTime * timestampScale * nsToS;
             if (minTime != long.MaxValue)
                 return minTime * timestampScale * nsToS;
-            return -1;*/
+            return -1;
         }
 
         /// <summary>
