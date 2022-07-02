@@ -17,9 +17,15 @@ using Cavern.Utilities;
 using VoidX.WPF;
 
 using Path = System.IO.Path;
+using System.Diagnostics;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
+        /// <summary>
+        /// This option allows FFmpeg to encode up to 255 channels in select codecs.
+        /// </summary>
+        const string massivelyMultichannel = " -mapping_family 255";
+
         /// <summary>
         /// The matching displayed dot for each supported channel.
         /// </summary>
@@ -237,6 +243,7 @@ namespace CavernizeGUI {
                 if (dialog.ShowDialog().Value) {
                     finalName = dialog.FileName;
                     exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + "{0}.wav" : finalName;
+                    exportName = exportName.Replace("'", ""); // This character cannot be escaped in concat TXTs
                     writer = new SegmentedAudioWriter(exportName, Listener.Channels.Length,
                         target.Length, target.SampleRate * 30 * 60, target.SampleRate, BitDepth.Int16);
                     if (writer == null) {
@@ -311,6 +318,10 @@ namespace CavernizeGUI {
             RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly);
             UpdatePostRenderReport(stats);
 
+            string targetCodec = codec;
+            if (Listener.Channels.Length > 8)
+                targetCodec += massivelyMultichannel;
+
             if (writer != null) {
                 #region TODO: same
                 string[] toConcat = ((SegmentedAudioWriter)writer).GetSegmentFiles();
@@ -320,7 +331,7 @@ namespace CavernizeGUI {
                 string concatTarget = finalName[..^4] + "_tmp.mkv";
                 File.WriteAllLines(concatList, toConcat);
                 taskEngine.UpdateStatus("Encoding render...");
-                if (!ffmpeg.Launch($"-f concat -safe 0 -i \"{concatList}\" -c {codec} \"{concatTarget}\"")) {
+                if (!ffmpeg.Launch($"-f concat -safe 0 -i \"{concatList}\" -c {targetCodec} \"{concatTarget}\"")) {
                     taskEngine.UpdateStatus("Failed to create the encoded render. " +
                         "Are your permissions sufficient in the export folder?");
                     return;
@@ -366,6 +377,14 @@ namespace CavernizeGUI {
             taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.UpdateProgressBar(1);
         }
+
+        /// <summary>
+        /// Open Cavern's website.
+        /// </summary>
+        void Ad(object _, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
+            FileName = "http://cavern.sbence.hu",
+            UseShellExecute = true
+        });
 
         /// <summary>
         /// Displays an error message.

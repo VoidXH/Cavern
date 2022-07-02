@@ -116,7 +116,7 @@ namespace Cavern.Format.Container.Matroska {
             int lastChild = 0;
             if (c != 0)
                 lastChild = indices[c - 1];
-            for (int i = lastChild; i < c; ++i) {
+            for (int i = lastChild + 1; i < c; ++i) {
                 if (children[i].Tag == tag) {
                     indices.Add(i);
                     if (c++ == index)

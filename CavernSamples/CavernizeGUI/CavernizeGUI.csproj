@@ -20,12 +20,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\CavernLogo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
     <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\CavernLogo.png" />
   </ItemGroup>
 
   <ItemGroup>
