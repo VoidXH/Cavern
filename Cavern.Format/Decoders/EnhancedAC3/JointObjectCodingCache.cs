@@ -14,6 +14,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         readonly float[][][] prevMatrix;
 
         /// <summary>
+        /// If true, the temporal extension transition will not be linearly interpolated, only stepped.
+        /// </summary>
+        bool[] steepSlope;
+
+        /// <summary>
         /// Indexing value for given <see cref="joc_num_bands"/> values in cache tables.
         /// </summary>
         byte[] joc_num_bands_idx;
@@ -24,13 +29,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         byte[] joc_num_bands;
 
         /// <summary>
+        /// Index of the used quantization table for each object.
+        /// </summary>
+        byte[] joc_num_quant_idx;
+
+        /// <summary>
         /// Number of data points for each object.
         /// </summary>
         int[] dataPoints;
 
         bool[] b_joc_sparse;
-        bool[] joc_num_quant_idx;
-        bool[] joc_slope_idx;
         float[][][][] joc_mix_mtx;
         float[][][][] joc_mix_mtx_interp;
         int[][] joc_offset_ts;
@@ -65,8 +73,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             joc_num_bands_idx = new byte[ObjectCount];
             joc_num_bands = new byte[ObjectCount];
             b_joc_sparse = new bool[ObjectCount];
-            joc_num_quant_idx = new bool[ObjectCount];
-            joc_slope_idx = new bool[ObjectCount];
+            joc_num_quant_idx = new byte[ObjectCount];
+            steepSlope = new bool[ObjectCount];
             joc_mix_mtx = new float[ObjectCount][][][];
             joc_mix_mtx_interp = new float[ObjectCount][][][];
             dataPoints = new int[ObjectCount];

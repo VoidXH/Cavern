@@ -64,7 +64,7 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Minimal EBML reader.
         /// </summary>
-        public MatroskaReader(BinaryReader reader) : base(reader) { ReadSkeleton(); }
+        public MatroskaReader(Stream reader) : base(reader) { ReadSkeleton(); }
 
         /// <summary>
         /// Minimal EBML reader.
@@ -82,11 +82,12 @@ namespace Cavern.Format.Container {
                 Cluster data = GetCluster(trackData.lastCluster);
                 if (data == null)
                     return null;
-                IReadOnlyList<Block> blocks = data.Blocks;
-                while (trackData.lastBlock < blocks.Count) {
+                IReadOnlyList<Block> blocks = data.GetBlocks(reader);
+                int count = blocks.Count;
+                while (trackData.lastBlock < count) {
                     Block block = blocks[trackData.lastBlock++];
                     if (block.Track == trackData.ID)
-                        return block.GetData(reader);
+                        return block.GetData();
                 }
                 trackData.lastBlock = 0;
                 ++trackData.lastCluster;
@@ -118,7 +119,7 @@ namespace Cavern.Format.Container {
             long audioTime = long.MaxValue, minTime = long.MaxValue;
             while (clusterId >= 0 && tracksSet != trackSet.Length) {
                 Cluster cluster = GetCluster(clusterId);
-                IReadOnlyList<Block> blocks = cluster.Blocks;
+                IReadOnlyList<Block> blocks = cluster.GetBlocks(reader);
                 for (int block = blocks.Count - 1; block >= 0; --block) {
                     long trackId = Tracks.GetIndexByID(blocks[block].Track);
                     if (trackId == -1 || trackSet[trackId])
@@ -172,12 +173,12 @@ namespace Cavern.Format.Container {
         /// </summary>
         void ReadSkeleton() {
             List<MatroskaTree> segmentSource = new List<MatroskaTree>();
-            while (reader.BaseStream.Position < reader.BaseStream.Length) {
+            while (reader.Position < reader.Length) {
                 MatroskaTree content = new MatroskaTree(reader);
-                long next = reader.BaseStream.Position;
+                long next = reader.Position;
                 if (content.Tag == MatroskaTree.Segment)
                     segmentSource.Add(content);
-                reader.BaseStream.Position = next;
+                reader.Position = next;
             }
             segments = segmentSource.ToArray();
 

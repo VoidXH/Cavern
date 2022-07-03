@@ -86,21 +86,27 @@ namespace Cavern.Format.Container.Matroska {
         readonly long firstFrame;
 
         /// <summary>
+        /// Source stream of the block, which might be a <see cref="MemoryStream"/>.
+        /// </summary>
+        readonly Stream reader;
+
+        /// <summary>
         /// Parse the metadata of a data block.
         /// </summary>
-        public Block(BinaryReader reader, MatroskaTree source) {
+        public Block(Stream reader, MatroskaTree source) {
             source.Position(reader);
-            long start = reader.BaseStream.Position;
+            this.reader = reader;
+            long start = reader.Position;
             Track = VarInt.ReadValue(reader);
             TimeStamp = reader.ReadInt16BE();
-            flags = reader.ReadByte();
+            flags = (byte)reader.ReadByte();
 
             Lacing lacing = LacingType;
             if (lacing != Lacing.None) {
                 int x = reader.ReadByte();
                 frameCount = x + 1;
                 frameSizes = new int[frameCount];
-                firstFrame = reader.BaseStream.Position;
+                firstFrame = reader.Position;
                 switch (lacing) {
                     case Lacing.Xiph:
                         byte frame = 0;
@@ -109,13 +115,13 @@ namespace Cavern.Format.Container.Matroska {
                             byte value;
                             int sum = 0;
                             do {
-                                value = reader.ReadByte();
+                                value = (byte)reader.ReadByte();
                                 sum += value;
                             } while (value == 255);
                             totalSize += sum;
                             frameSizes[frame++] = sum;
                         }
-                        frameSizes[frame] = (int)(source.Length - (reader.BaseStream.Position - start) - totalSize);
+                        frameSizes[frame] = (int)(source.Length - (reader.Position - start) - totalSize);
                         break;
                     case Lacing.FixedSize:
                         int step = (int)((source.Length - (firstFrame - start)) / frameCount);
@@ -129,13 +135,13 @@ namespace Cavern.Format.Container.Matroska {
                             frameSizes[i] = frameSizes[i - 1] + (int)VarInt.ReadSignedValue(reader);
                             last -= frameSizes[i];
                         }
-                        frameSizes[frameCount - 1] = (int)(last + source.Length - (reader.BaseStream.Position - start));
+                        frameSizes[frameCount - 1] = (int)(last + source.Length - (reader.Position - start));
                         break;
                     default:
                         break;
                 }
             } else {
-                firstFrame = reader.BaseStream.Position;
+                firstFrame = reader.Position;
                 frameCount = 1;
                 frameSizes = new int[1] { (int)(source.Length - (firstFrame - start)) };
             }
@@ -144,8 +150,8 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Read all stream data from this block, without separating frames.
         /// </summary>
-        public byte[] GetData(BinaryReader reader) {
-            reader.BaseStream.Position = firstFrame;
+        public byte[] GetData() {
+            reader.Position = firstFrame;
             int length = QMath.Sum(frameSizes);
             return reader.ReadBytes(length);
         }
@@ -153,8 +159,8 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Get the raw stream bytes for each frame contained in this block.
         /// </summary>
-        public byte[][] GetFrames(BinaryReader reader) {
-            reader.BaseStream.Position = firstFrame;
+        public byte[][] GetFrames() {
+            reader.Position = firstFrame;
             byte[][] result = new byte[frameCount][];
             for (byte frame = 0; frame < frameCount; ++frame)
                 result[frame] = reader.ReadBytes(frameSizes[frame]);

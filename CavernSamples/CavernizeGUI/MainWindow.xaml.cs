@@ -266,51 +266,26 @@ namespace CavernizeGUI {
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
             #region TODO: TEMPORARY, REMOVE WHEN AC-3 AND MKV CAN BE FULLY DECODED - decode with FFmpeg until then
-            bool isMKA = filePath[^4..].Equals(".mka");
-            string tempRAW = filePath[..^4] + ".mka";
             bool isWAV = filePath[^4..].Equals(".wav");
             string tempWAV = filePath[..^4] + "{0}.wav";
             string firstWAV = string.Format(tempWAV, "0");
-            Cavern.Format.Container.MatroskaReader rawReader = null;
             SegmentedAudioReader wavReader = null;
 
-            if (writer != null) {
-                if (!isMKA && target.Renderer is EnhancedAC3Renderer) {
-                    if (!File.Exists(tempRAW)) {
-                        taskEngine.UpdateStatus("Separating bitstream...");
-                        if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -c copy \"{2}\"",
-                            filePath, target.Index, tempRAW)) || !File.Exists(tempRAW)) {
-                            if (File.Exists(tempRAW))
-                                File.Delete(tempRAW);
-                            taskEngine.UpdateStatus("Failed to export bitstream. " +
-                                "Are your permissions sufficient in the source's folder?");
-                            return;
-                        }
+            if (writer != null && !isWAV) {
+                if (!File.Exists(firstWAV)) {
+                    taskEngine.UpdateStatus("Decoding bed audio...");
+                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -f segment -segment_time 30:00 \"{2}\"",
+                        filePath, target.Index, string.Format(tempWAV, "%d"))) ||
+                        !File.Exists(firstWAV)) {
+                        if (File.Exists(firstWAV))
+                            File.Delete(firstWAV); // only the first determines if it should be rendered
+                        taskEngine.UpdateStatus("Failed to decode bed audio. " +
+                            "Are your permissions sufficient in the source's folder?");
+                        return;
                     }
-
-                    listener.DetachAllSources();
-                    rawReader = new(tempRAW);
-                    target.DisposeRendererSource();
-                    target = new Track(new AudioTrackReader(rawReader.Tracks[0]), Codec.EnhancedAC3, 0);
-                    target.Attach(listener);
                 }
-
-                if (!isWAV) {
-                    if (!File.Exists(firstWAV)) {
-                        taskEngine.UpdateStatus("Decoding bed audio...");
-                        if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -f segment -segment_time 30:00 \"{2}\"",
-                            filePath, target.Index, string.Format(tempWAV, "%d"))) ||
-                            !File.Exists(firstWAV)) {
-                            if (File.Exists(firstWAV))
-                                File.Delete(firstWAV); // only the first determines if it should be rendered
-                            taskEngine.UpdateStatus("Failed to decode bed audio. " +
-                                "Are your permissions sufficient in the source's folder?");
-                            return;
-                        }
-                    }
-                    target.SetRendererSource(wavReader = new SegmentedAudioReader(tempWAV));
-                    target.SetupForExport();
-                }
+                target.SetRendererSource(wavReader = new SegmentedAudioReader(tempWAV));
+                target.SetupForExport();
             }
             #endregion
 
@@ -359,10 +334,6 @@ namespace CavernizeGUI {
                 }
 
                 #region TODO: same
-                if (rawReader != null) {
-                    rawReader.Dispose();
-                    File.Delete(tempRAW);
-                }
                 if (wavReader != null) {
                     wavReader.Dispose();
                     int index = 0;

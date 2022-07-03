@@ -72,27 +72,27 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Build the next KLV subtree.
         /// </summary>
-        public MatroskaTree(BinaryReader reader) : base(reader) {
-            nextTag = reader.BaseStream.Position;
+        public MatroskaTree(Stream reader) : base(reader) {
+            nextTag = reader.Position;
             end = nextTag + Length;
-            reader.BaseStream.Position = end;
+            reader.Position = end;
         }
 
         /// <summary>
         /// Fetch the first child of a tag if it exists.
         /// </summary>
-        public MatroskaTree GetChild(BinaryReader reader, int tag) {
+        public MatroskaTree GetChild(Stream reader, int tag) {
             for (int i = 0, c = children.Count; i < c; ++i)
                 if (children[i].Tag == tag)
                     return children[i];
-            reader.BaseStream.Position = nextTag;
+            reader.Position = nextTag;
 
-            while (reader.BaseStream.Position < end) {
+            while (nextTag < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
                 children.Add(subtree);
                 if (subtree.Tag == tag)
                     return subtree;
-                nextTag = reader.BaseStream.Position;
+                nextTag = reader.Position;
             }
             return null;
         }
@@ -100,7 +100,7 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Get a specific child by its order of the same kind of children.
         /// </summary>
-        public MatroskaTree GetChild(BinaryReader reader, int tag, int index) {
+        public MatroskaTree GetChild(Stream reader, int tag, int index) {
             if (childIndices == null)
                 childIndices = new Dictionary<int, List<int>>();
             List<int> indices;
@@ -124,7 +124,7 @@ namespace Cavern.Format.Container.Matroska {
                 }
             }
 
-            while (reader.BaseStream.Position < end) {
+            while (nextTag < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
                 children.Add(subtree);
                 if (subtree.Tag == tag) {
@@ -132,7 +132,7 @@ namespace Cavern.Format.Container.Matroska {
                     if (c++ == index)
                         return subtree;
                 }
-                nextTag = reader.BaseStream.Position;
+                nextTag = reader.Position;
             }
             return null;
         }
@@ -140,13 +140,13 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Fetch all child instances of a tag.
         /// </summary>
-        public MatroskaTree[] GetChildren(BinaryReader reader, int tag) {
+        public MatroskaTree[] GetChildren(Stream reader, int tag) {
             int tags = 0;
             for (int i = 0, c = children.Count; i < c; ++i)
                 if (children[i].Tag == tag)
                     ++tags;
-            reader.BaseStream.Position = nextTag;
-            while (reader.BaseStream.Position < end) {
+            reader.Position = nextTag;
+            while (reader.Position < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
                 children.Add(subtree);
                 if (subtree.Tag == tag)
@@ -167,7 +167,7 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Fetch the first child by a tag path if it exists.
         /// </summary>
-        public MatroskaTree GetChildByPath(BinaryReader reader, params int[] path) {
+        public MatroskaTree GetChildByPath(Stream reader, params int[] path) {
             MatroskaTree result = this;
             for (int depth = 0; depth < path.Length; ++depth) {
                 result = result.GetChild(reader, path[depth]);
@@ -180,13 +180,14 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Fetch all child instances which have a given path.
         /// </summary>
-        public List<MatroskaTree> GetChildrenByPath(BinaryReader reader, params int[] path) {
+        public List<MatroskaTree> GetChildrenByPath(Stream reader, params int[] path) {
             List<MatroskaTree> check = new List<MatroskaTree>() { this },
                 queue = new List<MatroskaTree>();
             for (int depth = 0; depth < path.Length; ++depth) {
+                queue.Clear();
                 for (int i = 0, c = check.Count; i < c; ++i)
                     queue.AddRange(check[i].GetChildren(reader, path[depth]));
-                check = queue;
+                (check, queue) = (queue, check);
             }
             return check;
         }
@@ -194,7 +195,7 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Get the first found child's big-endian floating point value by tag if it exists.
         /// </summary>
-        public double GetChildFloatBE(BinaryReader reader, int tag) {
+        public double GetChildFloatBE(Stream reader, int tag) {
             MatroskaTree child = GetChild(reader, tag);
             if (child != null)
                 return child.GetFloatBE(reader);
@@ -204,7 +205,7 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Get the first found child's UTF-8 value by tag if it exists.
         /// </summary>
-        public string GetChildUTF8(BinaryReader reader, int tag) {
+        public string GetChildUTF8(Stream reader, int tag) {
             MatroskaTree child = GetChild(reader, tag);
             if (child != null)
                 return child.GetUTF8(reader);
@@ -214,11 +215,21 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Get the first found child's <see cref="VarInt"/> value by tag if it exists.
         /// </summary>
-        public long GetChildValue(BinaryReader reader, int tag) {
+        public long GetChildValue(Stream reader, int tag) {
             MatroskaTree child = GetChild(reader, tag);
             if (child != null)
                 return child.GetValue(reader);
             return -1;
+        }
+
+        /// <summary>
+        /// Read the remainder of the value of this element to a byte array.
+        /// </summary>
+        public byte[] GetRawData(Stream reader) {
+            reader.Position = nextTag;
+            byte[] result = new byte[end - nextTag];
+            reader.Read(result);
+            return result;
         }
     }
 }

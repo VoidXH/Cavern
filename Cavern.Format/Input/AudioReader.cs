@@ -188,7 +188,7 @@ namespace Cavern.Format {
             return syncWord switch {
                 RIFFWave.syncWord1 => new RIFFWaveReader(reader),
                 LimitlessAudioFormat.syncWord => new LimitlessAudioFormatReader(reader),
-                MatroskaTree.EBML => new AudioTrackReader(new MatroskaReader(reader).GetFirstAudioTrack(), true),
+                MatroskaTree.EBML => new AudioTrackReader(new MatroskaReader(reader.BaseStream).GetFirstAudioTrack(), true),
                 _ => throw new UnsupportedFormatException(),
             };
         }

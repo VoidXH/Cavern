@@ -131,10 +131,10 @@ namespace Cavern.Utilities {
         public static float GainToDb(float gain) => 20 * MathF.Log10(gain);
 
         /// <summary>
-        /// Counts the leading zeros in a byte.
+        /// Counts the leading zeros in a byte. The byte is contained in an integer, but in byte limits.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int LeadingZeros(byte x) => 7 - BitsAfterMSB(x);
+        public static int LeadingZerosInByte(int x) => 7 - BitsAfterMSB(x);
 
         /// <summary>
         /// Counts the leading zeros in an integer.

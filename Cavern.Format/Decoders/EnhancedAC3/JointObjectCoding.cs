@@ -51,12 +51,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     joc_num_bands_idx[obj] = (byte)extractor.Read(3);
                     joc_num_bands[obj] = JointObjectCodingTables.joc_num_bands[joc_num_bands_idx[obj]];
                     b_joc_sparse[obj] = extractor.ReadBit();
-                    joc_num_quant_idx[obj] = extractor.ReadBit();
+                    joc_num_quant_idx[obj] = (byte)extractor.ReadBitInt();
 
                     // joc_data_point_info
-                    joc_slope_idx[obj] = extractor.ReadBit();
+                    steepSlope[obj] = extractor.ReadBit();
                     dataPoints[obj] = extractor.Read(1) + 1;
-                    if (joc_slope_idx[obj])
+                    if (steepSlope[obj])
                         for (int dp = 0; dp < dataPoints[obj]; ++dp)
                             joc_offset_ts[obj][dp] = extractor.Read(5) + 1;
                 }
@@ -74,11 +74,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                             for (int pb = 1; pb < joc_num_bands[obj]; ++pb)
                                 joc_channel_idx[obj][dp][pb] = HuffmanDecode(joc_huff_code, extractor);
                             joc_huff_code =
-                                JointObjectCodingTables.GetHuffCodeTable(joc_num_quant_idx[obj] ? 1 : 0, HuffmanType.VEC);
+                                JointObjectCodingTables.GetHuffCodeTable(joc_num_quant_idx[obj], HuffmanType.VEC);
                             for (int pb = 0; pb < joc_num_bands[obj]; ++pb)
                                 joc_vec[obj][dp][pb] = HuffmanDecode(joc_huff_code, extractor);
                         } else {
-                            joc_huff_code = JointObjectCodingTables.GetHuffCodeTable(joc_num_quant_idx[obj] ? 1 : 0,
+                            joc_huff_code = JointObjectCodingTables.GetHuffCodeTable(joc_num_quant_idx[obj],
                                 HuffmanType.MTX);
                             for (int ch = 0; ch < ChannelCount; ++ch)
                                 for (int pb = 0; pb < joc_num_bands[obj]; ++pb)

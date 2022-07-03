@@ -21,19 +21,19 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// File reader object.
         /// </summary>
-        internal protected BinaryReader reader;
+        internal protected Stream reader;
 
         /// <summary>
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public ContainerReader(BinaryReader reader) => this.reader = reader;
+        public ContainerReader(Stream reader) => this.reader = reader;
 
         /// <summary>
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="path">Input file name</param>
-        public ContainerReader(string path) => reader = new BinaryReader(File.OpenRead(path));
+        public ContainerReader(string path) => reader = File.OpenRead(path);
 
         /// <summary>
         /// Continue reading a given track.

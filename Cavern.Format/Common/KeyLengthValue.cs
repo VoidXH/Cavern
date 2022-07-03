@@ -27,26 +27,26 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Read the metadata of a KLV.
         /// </summary>
-        public KeyLengthValue(BinaryReader reader) {
+        public KeyLengthValue(Stream reader) {
             Tag = (int)VarInt.ReadTag(reader);
             Length = VarInt.ReadValue(reader);
             if (Length < 0)
                 Length = 0;
-            position = reader.BaseStream.Position;
+            position = reader.Position;
         }
 
         /// <summary>
         /// Read the raw bytes of the value.
         /// </summary>
-        public byte[] GetBytes(BinaryReader reader) {
-            reader.BaseStream.Position = position;
+        public byte[] GetBytes(Stream reader) {
+            reader.Position = position;
             return reader.ReadBytes((int)Length);
         }
 
         /// <summary>
         /// Read the value as a big-endian float.
         /// </summary>
-        public double GetFloatBE(BinaryReader reader) {
+        public double GetFloatBE(Stream reader) {
             byte[] bytes = GetBytes(reader);
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(bytes);
@@ -58,19 +58,19 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Read the value as an UTF-8 string.
         /// </summary>
-        public string GetUTF8(BinaryReader reader) => Encoding.UTF8.GetString(GetBytes(reader));
+        public string GetUTF8(Stream reader) => Encoding.UTF8.GetString(GetBytes(reader));
 
         /// <summary>
         /// Read the value as <see cref="VarInt"/>.
         /// </summary>
-        public long GetValue(BinaryReader reader) {
-            reader.BaseStream.Position = position;
+        public long GetValue(Stream reader) {
+            reader.Position = position;
             return VarInt.ReadValue(reader, (int)Length);
         }
 
         /// <summary>
         /// Move a <see cref="BinaryReader"/>'s position to the start of the value.
         /// </summary>
-        public void Position(BinaryReader reader) => reader.BaseStream.Position = position;
+        public void Position(Stream reader) => reader.Position = position;
     }
 }

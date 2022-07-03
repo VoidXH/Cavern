@@ -12,40 +12,51 @@ namespace Cavern.Format.Container.Matroska {
         public long TimeStamp { get; private set; }
 
         /// <summary>
-        /// All blocks of the cluster, in order.
+        /// Element to read the cluster from.
         /// </summary>
-        public IReadOnlyList<Block> Blocks => blocks;
+        readonly MatroskaTree source;
 
         /// <summary>
         /// All blocks of the cluster, in order.
         /// </summary>
-        readonly Block[] blocks;
+        List<Block> blocks;
 
         /// <summary>
         /// Parse metadata from a cluster.
         /// </summary>
-        public Cluster(BinaryReader reader, MatroskaTree source) {
+        public Cluster(Stream reader, MatroskaTree source) {
+            this.source = source;
             TimeStamp = source.GetChildValue(reader, MatroskaTree.Segment_Cluster_Timestamp);
+        }
 
-            // TODO: only load blocks when the array is first read
-            // Block groups (Matroska v1)
-            List<MatroskaTree> blocksSource =
-                source.GetChildrenByPath(reader,
-                MatroskaTree.Segment_Cluster_BlockGroup, MatroskaTree.Segment_Cluster_BlockGroup_Block);
-            if (blocksSource.Count != 0) {
-                blocks = new Block[0]; // TODO: this doesn't work, but it's for subtitles anyway... right?
-                //blocks = new Block[blocksSource.Count];
-                //for (int i = 0, c = blocksSource.Count; i < c; ++i)
-                //    blocks[i] = new Block(reader, blocksSource[i]);
+        /// <summary>
+        /// All blocks of the cluster, in order.
+        /// </summary>
+        public IReadOnlyList<Block> GetBlocks(Stream reader) {
+            if (blocks != null)
+                return blocks;
+            MemoryStream stream = new MemoryStream(source.GetRawData(reader));
+            blocks = new List<Block>();
+            long end = stream.Length;
+            while (stream.Position < end) {
+                MatroskaTree child = new MatroskaTree(stream);
+                long continueFrom = stream.Position;
+
+                // Block groups (Matroska v1)
+                if (child.Tag == MatroskaTree.Segment_Cluster_BlockGroup) {
+                    MatroskaTree[] blocksHere = child.GetChildren(stream, MatroskaTree.Segment_Cluster_BlockGroup_Block);
+                    for (int i = 0; i < blocksHere.Length; ++i)
+                        blocks.Add(new Block(stream, blocksHere[i]));
+                }
+
+                // Simple blocks (Matroska v2)
+                else if (child.Tag == MatroskaTree.Segment_Cluster_SimpleBlock)
+                    blocks.Add(new Block(stream, child));
+
+                stream.Position = continueFrom;
             }
 
-            // Simple blocks (Matroska v2)
-            else {
-                MatroskaTree[] simpleSource = source.GetChildren(reader, MatroskaTree.Segment_Cluster_SimpleBlock);
-                blocks = new Block[simpleSource.Length];
-                for (int i = 0; i < simpleSource.Length; ++i)
-                    blocks[i] = new Block(reader, simpleSource[i]);
-            }
+            return blocks;
         }
     }
 }
