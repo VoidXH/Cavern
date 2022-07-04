@@ -82,6 +82,8 @@ namespace Cavern.Format.Transcoders {
         /// <returns>A <see cref="BitExtractor"/> that continues at the beginning of the audio frame.</returns>
         public BitExtractor Decode(BlockBuffer<byte> reader) {
             BitExtractor extractor = new BitExtractor(reader.Read(mustDecode));
+            if (!extractor.Readable)
+                return extractor;
             if (extractor.Read(16) != syncWord)
                 throw new SyncException();
 

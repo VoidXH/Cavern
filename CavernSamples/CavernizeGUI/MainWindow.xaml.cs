@@ -317,7 +317,7 @@ namespace CavernizeGUI {
                     taskEngine.UpdateStatus("Merging to final container...");
                     string layout = null;
                     Dispatcher.Invoke(() => layout = ((RenderTarget)renderTarget.SelectedItem).Name);
-                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -c copy -y " +
+                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c copy -y " +
                         "-metadata:s:a:0 title=\"Cavern {2} render\" \"{3}\"",
                         filePath, concatTarget, layout, finalName)) ||
                         !File.Exists(finalName)) {

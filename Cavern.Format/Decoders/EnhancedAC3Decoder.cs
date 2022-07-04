@@ -13,6 +13,11 @@ namespace Cavern.Format.Decoders {
     /// </summary>
     public class EnhancedAC3Decoder : FrameBasedDecoder {
         /// <summary>
+        /// The stream is coded in the Enhanced version of AC-3.
+        /// </summary>
+        public bool Enhanced => header.Decoder == Transcoders.EnhancedAC3.Decoders.EAC3;
+
+        /// <summary>
         /// True if the stream has reached its end.
         /// </summary>
         public bool Finished { get; private set; }
@@ -25,7 +30,14 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Content length in samples for a single channel.
         /// </summary>
-        public override long Length => throw new RealtimeLengthException();
+        public override long Length {
+            get {
+                if (fileSize != -1)
+                    return fileSize * outCache.Length / (frameSize * ChannelCount);
+                else
+                    throw new RealtimeLengthException();
+            }
+        }
 
         /// <summary>
         /// Content sample rate.
@@ -53,6 +65,16 @@ namespace Cavern.Format.Decoders {
         readonly Dictionary<ReferenceChannel, float[]> outputs = new Dictionary<ReferenceChannel, float[]>();
 
         /// <summary>
+        /// File size to calculate the content length from, assuming AC-3 is constant bitrate.
+        /// </summary>
+        readonly long fileSize;
+
+        /// <summary>
+        /// Bytes per audio frame.
+        /// </summary>
+        long frameSize;
+
+        /// <summary>
         /// Auxillary metadata parsed for the last decoded frame.
         /// </summary>
         internal ExtensibleMetadataDecoder Extensions { get; private set; } = new ExtensibleMetadataDecoder();
@@ -70,7 +92,13 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Converts an Enhanced AC-3 bitstream to raw samples.
         /// </summary>
-        public EnhancedAC3Decoder(BlockBuffer<byte> reader) : base(reader) { }
+        public EnhancedAC3Decoder(BlockBuffer<byte> reader) : base(reader) => fileSize = -1;
+
+        /// <summary>
+        /// Converts an Enhanced AC-3 bitstream to raw samples. When the file size is known, the length can be calculated
+        /// from the bitrate assuming AC-3 is constant bitrate.
+        /// </summary>
+        public EnhancedAC3Decoder(BlockBuffer<byte> reader, long fileSize) : base(reader) => this.fileSize = fileSize;
 
         /// <summary>
         /// Get the bed channels.
@@ -88,6 +116,7 @@ namespace Cavern.Format.Decoders {
             if (outputs.Count == 0)
                 ReadHeader();
 
+            long frameStart = reader.LastFetchStart;
             do {
                 if (Finished) {
                     Array.Clear(outCache, 0, outCache.Length);
@@ -109,6 +138,9 @@ namespace Cavern.Format.Decoders {
             if (outCache.Length != outLength)
                 outCache = new float[outputs.Count * FrameSize];
             // TODO: interlace channels by a standard matrix
+
+            if (frameStart < reader.LastFetchStart)
+                frameSize = reader.LastFetchStart - frameStart;
             return outCache;
         }
 
@@ -119,6 +151,10 @@ namespace Cavern.Format.Decoders {
         void ReadHeader() {
             if (reader.Readable) {
                 extractor = header.Decode(reader);
+                if (!extractor.Readable) {
+                    Finished = true;
+                    return;
+                }
                 if (!bodies.ContainsKey(header.SubstreamID))
                     bodies[header.SubstreamID] = new EnhancedAC3Body(header);
                 bodies[header.SubstreamID].PrepareUpdate(extractor);

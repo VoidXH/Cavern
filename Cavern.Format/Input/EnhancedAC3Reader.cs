@@ -10,6 +10,11 @@ namespace Cavern.Format {
     /// </summary>
     public class EnhancedAC3Reader : AudioReader {
         /// <summary>
+        /// File size to calculate the content length from, assuming AC-3 is constant bitrate.
+        /// </summary>
+        readonly long fileSize;
+
+        /// <summary>
         /// Bitsteam interpreter.
         /// </summary>
         EnhancedAC3Decoder decoder;
@@ -18,20 +23,21 @@ namespace Cavern.Format {
         /// Enhanced AC-3 file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public EnhancedAC3Reader(BinaryReader reader) : base(reader) { }
+        public EnhancedAC3Reader(BinaryReader reader) : base(reader) => fileSize = reader.BaseStream.Length;
 
         /// <summary>
         /// Enhanced AC-3 file reader.
         /// </summary>
         /// <param name="path">Input file name</param>
-        public EnhancedAC3Reader(string path) : base(path) { }
+        public EnhancedAC3Reader(string path) : base(path) => fileSize = reader.BaseStream.Length;
 
         /// <summary>
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {
-            decoder = new EnhancedAC3Decoder(new BlockBuffer<byte>(() => reader.ReadBytes(FormatConsts.blockSize)));
+            decoder = new EnhancedAC3Decoder(new BlockBuffer<byte>(() => reader.ReadBytes(FormatConsts.blockSize)), fileSize);
             ChannelCount = decoder.ChannelCount;
+            Length = decoder.Length;
             SampleRate = decoder.SampleRate;
         }
 

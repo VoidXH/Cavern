@@ -34,7 +34,7 @@ namespace Cavern.Format.Common {
         /// </summary>
         EnhancedAC3,
         /// <summary>
-        /// Opus, audio.
+        /// Xiph Opus, audio.
         /// </summary>
         Opus,
         /// <summary>
@@ -44,7 +44,11 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Pulse Code Modulation, little-endian integer, audio.
         /// </summary>
-        PCM_LE
+        PCM_LE,
+        /// <summary>
+        /// Dolby TrueHD (Meridian Lossless Packaging), audio.
+        /// </summary>
+        TrueHD,
     }
 
     /// <summary>
@@ -55,7 +59,7 @@ namespace Cavern.Format.Common {
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
         static readonly Codec[] audioCodecs = { Codec.AC3, Codec.DTS, Codec.DTS_HD, Codec.EnhancedAC3,
-            Codec.Opus, Codec.PCM_Float, Codec.PCM_LE };
+            Codec.Opus, Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD };
 
         /// <summary>
         /// Checks if a codec is used for audio only.

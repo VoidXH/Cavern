@@ -11,12 +11,17 @@ namespace Cavern.Format.Renderers {
     /// </summary>
     public abstract partial class Renderer {
         /// <summary>
-        /// Rendered spatial objects.
+        /// The stream is object-based.
+        /// </summary>
+        public bool HasObjects { get; protected set; }
+
+        /// <summary>
+        /// Rendered Cavern objects. Might not be dynamic, channels are rendered as stationary objects.
         /// </summary>
         public IReadOnlyList<Source> Objects => objects;
 
         /// <summary>
-        /// Rendered spatial objects.
+        /// Rendered Cavern objects. Might not be dynamic, channels are rendered as stationary objects.
         /// </summary>
         protected readonly List<Source> objects = new List<Source>();
 

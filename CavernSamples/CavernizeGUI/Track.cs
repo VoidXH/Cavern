@@ -17,7 +17,7 @@ namespace CavernizeGUI {
             [Codec.DTS_HD] = "DTS-HD",
             [Codec.EnhancedAC3] = "Enhanced AC-3",
             [Codec.PCM_Float] = "PCM (floating point)",
-            [Codec.PCM_LE] = "PCM (integer)"
+            [Codec.PCM_LE] = "PCM (integer)",
         };
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace CavernizeGUI {
         /// </summary>
         public Track(AudioReader reader, Codec codec, int index, string language = null) {
             this.reader = reader;
-            this.Codec = codec;
+            Codec = codec;
             Index = index;
             this.language = language;
 
@@ -85,7 +85,7 @@ namespace CavernizeGUI {
                         .Append("Number of bed channels: ").AppendLine((eac3.Objects.Count - eac3.DynamicObjects).ToString())
                         .Append("Number of dynamic objects: ").AppendLine(eac3.DynamicObjects.ToString());
                 else
-                    builder.AppendLine("Enhanced AC-3");
+                    builder.AppendLine(eac3.Enhanced ? "Enhanced AC-3" : "AC-3");
             else
                 builder.AppendLine("Channel-based audio track");
 
@@ -94,7 +94,7 @@ namespace CavernizeGUI {
                 builder.Append("Source channels (").Append(reader.ChannelCount).Append("): ")
                     .AppendLine(string.Join(", ", ChannelPrototype.GetNames(beds)));
             else
-                builder.Append("Source stream count: ").AppendLine(reader.ChannelCount.ToString());
+                builder.Append("Source channel count: ").AppendLine(reader.ChannelCount.ToString());
             builder.Append("Length: ").AppendLine(TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString());
             builder.Append("Sample rate: ").Append(reader.SampleRate).AppendLine("Hz");
             Details = builder.ToString();
@@ -137,7 +137,8 @@ namespace CavernizeGUI {
         /// </summary>
         public override string ToString() {
             string codecName = formatNames.ContainsKey(Codec) ? formatNames[Codec] : Codec.ToString();
-            return string.IsNullOrEmpty(language) ? codecName : $"{codecName} ({language})";
+            string objects = Renderer != null && Renderer.HasObjects ? " with objects" : string.Empty;
+            return string.IsNullOrEmpty(language) ? codecName : $"{codecName}{objects} ({language})";
         }
     }
 }

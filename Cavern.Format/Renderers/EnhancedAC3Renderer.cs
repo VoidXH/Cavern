@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 
 using Cavern.Format.Decoders;
 using Cavern.Format.Decoders.EnhancedAC3;
@@ -12,13 +11,13 @@ namespace Cavern.Format.Renderers {
     /// Renders a decoded E-AC-3 stream with Cavern.
     /// </summary>
     public class EnhancedAC3Renderer : Renderer {
+        /// <summary>
+        /// The stream is coded in the Enhanced version of AC-3.
+        /// </summary>
+        public bool Enhanced => ((EnhancedAC3Decoder)stream).Enhanced;
+
         /// <summary>TODO: TEMPORARY UNTIL THE DECODER IS IMPLEMENTED!</summary>
         public AudioReader Source { get; set; }
-
-        /// <summary>
-        /// The stream is object-based.
-        /// </summary>
-        public bool HasObjects { get; private set; }
 
         /// <summary>
         /// Count of free-floating objects.

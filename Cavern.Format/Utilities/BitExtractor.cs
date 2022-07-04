@@ -16,6 +16,11 @@ namespace Cavern.Format.Utilities {
         public int BackPosition { get; private set; }
 
         /// <summary>
+        /// New bits can be extracted.
+        /// </summary>
+        public bool Readable => source != null;
+
+        /// <summary>
         /// Bytestream to get the data from.
         /// </summary>
         byte[] source;
@@ -30,7 +35,8 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         public BitExtractor(byte[] source) {
             this.source = source;
-            BackPosition = source.Length * 8;
+            if (source != null)
+                BackPosition = source.Length * 8;
         }
 
         /// <summary>
