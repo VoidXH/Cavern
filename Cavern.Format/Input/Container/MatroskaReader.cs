@@ -103,23 +103,23 @@ namespace Cavern.Format.Container {
         public override double Seek(double position) {
             long targetTime = (long)(position * sToNs / timestampScale);
             int clusterId = 0;
+            Cluster cluster;
             while (true) {
-                Cluster cluster = GetCluster(clusterId++);
+                cluster = GetCluster(clusterId++);
                 if (cluster == null)
                     break;
-                if (cluster.TimeStamp > targetTime) {
-                    --clusterId;
+                if (cluster.TimeStamp > targetTime)
                     break;
-                }
             }
-            if (clusterId == -1)
+            if (cluster == null)
                 return -1;
+            --clusterId;
 
             bool[] trackSet = new bool[Tracks.Length];
             int tracksSet = 0;
             long audioTime = long.MaxValue, minTime = long.MaxValue;
             while (clusterId >= 0 && tracksSet != trackSet.Length) {
-                Cluster cluster = GetCluster(clusterId);
+                cluster = GetCluster(clusterId);
                 IReadOnlyList<Block> blocks = cluster.GetBlocks(reader);
                 for (int block = blocks.Count - 1; block >= 0; --block) {
                     long trackId = Tracks.GetIndexByID(blocks[block].Track);

@@ -37,7 +37,7 @@ namespace Cavern.Format.Container.Matroska {
                 return blocks;
             MemoryStream stream = new MemoryStream(source.GetRawData(reader));
             blocks = new List<Block>();
-            long end = stream.Length;
+            long end = stream.Length - 2; // Safety barrier, a byte might remain, but a 2 byte child is impossible
             while (stream.Position < end) {
                 MatroskaTree child = new MatroskaTree(stream);
                 long continueFrom = stream.Position;

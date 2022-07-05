@@ -166,5 +166,10 @@ namespace Cavern.Format.Container.Matroska {
                 result[frame] = reader.ReadBytes(frameSizes[frame]);
             return result;
         }
+
+        /// <summary>
+        /// Provides basic information about the block.
+        /// </summary>
+        public override string ToString() => $"Matroska block, track {Track}, relative time: {TimeStamp}";
     }
 }

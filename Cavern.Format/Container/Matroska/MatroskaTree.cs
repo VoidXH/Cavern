@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Format.Common;
@@ -59,7 +58,7 @@ namespace Cavern.Format.Container.Matroska {
         readonly long end;
 
         /// <summary>
-        /// Cache for <see cref="GetChild(BinaryReader, int, int)"/>, contains which the indices of
+        /// Cache for <see cref="GetChild(Stream, int, int)"/>, contains which the indices of
         /// already read <see cref="children"/> are for a given tag (key).
         /// </summary>
         Dictionary<int, List<int>> childIndices;
@@ -85,8 +84,8 @@ namespace Cavern.Format.Container.Matroska {
             for (int i = 0, c = children.Count; i < c; ++i)
                 if (children[i].Tag == tag)
                     return children[i];
-            reader.Position = nextTag;
 
+            reader.Position = nextTag;
             while (nextTag < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
                 children.Add(subtree);
@@ -124,16 +123,21 @@ namespace Cavern.Format.Container.Matroska {
                 }
             }
 
+            int tagIndex = children.Count;
+            reader.Position = nextTag;
             while (nextTag < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
                 children.Add(subtree);
                 if (subtree.Tag == tag) {
-                    indices.Add(c);
-                    if (c++ == index)
+                    indices.Add(tagIndex);
+                    if (c++ == index) {
+                        nextTag = reader.Position;
                         return subtree;
+                    }
                 }
-                nextTag = reader.Position;
+                ++tagIndex;
             }
+            nextTag = reader.Position;
             return null;
         }
 
@@ -145,6 +149,7 @@ namespace Cavern.Format.Container.Matroska {
             for (int i = 0, c = children.Count; i < c; ++i)
                 if (children[i].Tag == tag)
                     ++tags;
+
             reader.Position = nextTag;
             while (reader.Position < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
@@ -162,34 +167,6 @@ namespace Cavern.Format.Container.Matroska {
                 }
             }
             return result;
-        }
-
-        /// <summary>
-        /// Fetch the first child by a tag path if it exists.
-        /// </summary>
-        public MatroskaTree GetChildByPath(Stream reader, params int[] path) {
-            MatroskaTree result = this;
-            for (int depth = 0; depth < path.Length; ++depth) {
-                result = result.GetChild(reader, path[depth]);
-                if (result == null)
-                    return null;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Fetch all child instances which have a given path.
-        /// </summary>
-        public List<MatroskaTree> GetChildrenByPath(Stream reader, params int[] path) {
-            List<MatroskaTree> check = new List<MatroskaTree>() { this },
-                queue = new List<MatroskaTree>();
-            for (int depth = 0; depth < path.Length; ++depth) {
-                queue.Clear();
-                for (int i = 0, c = check.Count; i < c; ++i)
-                    queue.AddRange(check[i].GetChildren(reader, path[depth]));
-                (check, queue) = (queue, check);
-            }
-            return check;
         }
 
         /// <summary>
