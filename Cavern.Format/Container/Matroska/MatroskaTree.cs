@@ -18,12 +18,18 @@ namespace Cavern.Format.Container.Matroska {
             Segment_Cluster_BlockGroup_Block = 0xA1,
             Segment_Cluster_SimpleBlock = 0xA3,
             Segment_Tracks_TrackEntry = 0xAE,
+            Segment_Cues_CuePoint_CueTime = 0xB3,
             Segment_Tracks_TrackEntry_Audio_SamplingFrequency = 0xB5,
+            Segment_Cues_CuePoint_CueTrackPositions = 0xB7,
+            Segment_Cues_CuePoint = 0xBB,
             Segment_Tracks_TrackEntry_TrackNumber = 0xD7,
             Segment_Tracks_TrackEntry_Audio = 0xE1,
             Segment_Cluster_Timestamp = 0xE7,
+            Segment_Cues_CuePoint_CueTrackPositions_CueClusterPosition = 0xF1,
+            Segment_Cues_CuePoint_CueTrackPositions_CueTrack = 0xF7,
             Segment_Info_Duration = 0x4489,
             Segment_SeekHead_Seek = 0x4DBB,
+            Segment_SeekHead_Seek_SeekPosition = 0x53AC,
             Segment_Tracks_TrackEntry_Name = 0x536E,
             Segment_Tracks_TrackEntry_Audio_BitDepth = 0x6264,
             Segment_Info_ChapterTranslate = 0x6924,
@@ -36,16 +42,6 @@ namespace Cavern.Format.Container.Matroska {
             EBML = 0x1A45DFA3,
             Segment_Cues = 0x1C53BB6B,
             Segment_Cluster = 0x1F43B675;
-
-        /// <summary>
-        /// Tags which have metadata in their children. They are parsed when the MKV file is read.
-        /// </summary>
-        /// <remarks>They have to be in ascending order for the binary search to work.</remarks>
-        internal static readonly int[] hasChildren = new int[] {
-            Segment_Cluster_BlockGroup, Segment_Tracks_TrackEntry, Segment_Tracks_TrackEntry_Audio, Segment_SeekHead_Seek,
-            Segment_Info_ChapterTranslate, Segment_SeekHead, Segment_Info, Segment_Tracks, Segment, EBML, Segment_Cues,
-            Segment_Cluster
-        };
 
         /// <summary>
         /// The contained subtree.
@@ -115,7 +111,7 @@ namespace Cavern.Format.Container.Matroska {
             int lastChild = 0;
             if (c != 0)
                 lastChild = indices[c - 1] + 1;
-            for (int i = lastChild; i < c; ++i) {
+            for (int i = lastChild, childCount = children.Count; i < childCount; ++i) {
                 if (children[i].Tag == tag) {
                     indices.Add(i);
                     if (c++ == index)
@@ -197,6 +193,27 @@ namespace Cavern.Format.Container.Matroska {
             if (child != null)
                 return child.GetValue(reader);
             return -1;
+        }
+
+        /// <summary>
+        /// Get the index of a child for <see cref="GetChild(Stream, int, int)"/> by its position in the file stream.
+        /// </summary>
+        /// <remarks>This <paramref name="position"/> is not the same as <see cref="KeyLengthValue.position"/>, that
+        /// has to be matched first by reading the metadata for the element.</remarks>
+        public int GetIndexByPosition(Stream reader, int tag, long position) {
+            reader.Position = position;
+            MatroskaTree element = new MatroskaTree(reader);
+            position = element.position;
+
+            int result = 0;
+            while (true) {
+                MatroskaTree child = GetChild(reader, tag, result);
+                if (child == null)
+                    return -1;
+                if (child.position == position)
+                    return result;
+                ++result;
+            }
         }
 
         /// <summary>

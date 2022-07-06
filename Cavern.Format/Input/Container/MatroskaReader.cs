@@ -58,6 +58,11 @@ namespace Cavern.Format.Container {
         MatroskaTree[] segments;
 
         /// <summary>
+        /// Seek-aiding metadata.
+        /// </summary>
+        Cue[] cues;
+
+        /// <summary>
         /// Multiplier for all timestamps in clusters.
         /// </summary>
         long timestampScale;
@@ -102,18 +107,24 @@ namespace Cavern.Format.Container {
         /// <returns>Position that was actually possible to seek to or -1 if the position didn't change.</returns>
         public override double Seek(double position) {
             long targetTime = (long)(position * sToNs / timestampScale);
+            Cue cue = Cue.Find(cues, targetTime);
             int clusterId = 0;
             Cluster cluster;
-            while (true) {
-                cluster = GetCluster(clusterId++);
+
+            if (cue != null)
+                clusterId = segments[0].GetIndexByPosition(reader, MatroskaTree.Segment_Cluster, cue.Position);
+            if (clusterId == -1) {
+                while (true) {
+                    cluster = GetCluster(clusterId++);
+                    if (cluster == null)
+                        break;
+                    if (cluster.TimeStamp > targetTime)
+                        break;
+                }
                 if (cluster == null)
-                    break;
-                if (cluster.TimeStamp > targetTime)
-                    break;
+                    return -1;
+                --clusterId;
             }
-            if (cluster == null)
-                return -1;
-            --clusterId;
 
             bool[] trackSet = new bool[Tracks.Length];
             int tracksSet = 0;
@@ -187,9 +198,10 @@ namespace Cavern.Format.Container {
             for (int i = 0; i < segments.Length; ++i) {
                 MatroskaTree segmentInfo = segments[i].GetChild(reader, MatroskaTree.Segment_Info);
                 double length = segmentInfo.GetChild(reader, MatroskaTree.Segment_Info_Duration).GetFloatBE(reader);
-                timestampScale = segmentInfo.GetChild(reader, MatroskaTree.Segment_Info_TimestampScale).GetValue(reader);
+                timestampScale = segmentInfo.GetChildValue(reader, MatroskaTree.Segment_Info_TimestampScale);
                 blockLengths.Add(length * timestampScale);
 
+                cues = Cue.GetCues(segments[i], reader);
                 MatroskaTree tracklist = segments[i].GetChild(reader, MatroskaTree.Segment_Tracks);
                 if (Tracks == null && tracklist != null)
                     ReadTracks(tracklist);
