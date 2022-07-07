@@ -14,12 +14,14 @@ This repository features a Unity plugin and a standalone converter in C++.
 * Advanced self-calibration with a microphone
 	* Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
 	* Uniformity can be achieved without a calibration file
-* Real-time upconversion of regular surround sound mixes to 3D
-* Direction and distance virtualization for headphones
 * Audio transcoder library with a custom spatial format
-	* Supported containers: .wav, .laf, .mkv, .mka
-	* Fully supported codecs: RIFF WAVE, Limitless Audio Format
-	* Partially supported codecs: E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
+	* Supported codecs:
+	  * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
+	  * Limitless Audio Format
+	  * RIFF WAVE
+	* Supported containers: .ac3, .laf, .mka, .mkv, .wav
+* Direction and distance virtualization for headphones
+* Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats
 * Seat movement generation
 * Unity-like listener and source functionality
@@ -29,6 +31,8 @@ This repository features a Unity plugin and a standalone converter in C++.
 User documentation can be found at the [Cavern documentation webpage](http://cavern.sbence.hu/cavern/doc.php).
 Please go to this page for basic setup, in-depth QuickEQ tutorials, and
 command-line arguments.
+
+The full list of changes for each version can be found in [CHANGELOG.md](./CHANGELOG.md).
 
 ## How to build
 ### Cavern
