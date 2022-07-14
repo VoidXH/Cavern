@@ -74,19 +74,44 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
+        /// Build the next KLV subtree while checking if it's in range of the file (<paramref name="valid"/>) or not.
+        /// </summary>
+        MatroskaTree(Stream reader, long endPosition, out bool valid) : base(reader) {
+            nextTag = reader.Position;
+            end = nextTag + Length;
+            valid = end < endPosition;
+            if (valid) {
+                reader.Position = end;
+            }
+        }
+
+        /// <summary>
+        /// Parses a tree item if possible, returns null if not.
+        /// </summary>
+        /// <param name="reader">Matroska stream to read from</param>
+        /// <param name="endPosition">Location of the final byte in the stream (exclusive).</param>
+        public static MatroskaTree TryCreate(Stream reader, long endPosition) {
+            MatroskaTree result = new MatroskaTree(reader, endPosition, out bool valid);
+            return valid ? result : null;
+        }
+
+        /// <summary>
         /// Fetch the first child of a tag if it exists.
         /// </summary>
         public MatroskaTree GetChild(Stream reader, int tag) {
-            for (int i = 0, c = children.Count; i < c; ++i)
-                if (children[i].Tag == tag)
+            for (int i = 0, c = children.Count; i < c; ++i) {
+                if (children[i].Tag == tag) {
                     return children[i];
+                }
+            }
 
             reader.Position = nextTag;
             while (nextTag < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
                 children.Add(subtree);
-                if (subtree.Tag == tag)
+                if (subtree.Tag == tag) {
                     return subtree;
+                }
                 nextTag = reader.Position;
             }
             return null;
@@ -96,33 +121,43 @@ namespace Cavern.Format.Container.Matroska {
         /// Get a specific child by its order of the same kind of children.
         /// </summary>
         public MatroskaTree GetChild(Stream reader, int tag, int index) {
-            if (childIndices == null)
+            if (childIndices == null) {
                 childIndices = new Dictionary<int, List<int>>();
+            }
             List<int> indices;
-            if (childIndices.ContainsKey(tag))
+            if (childIndices.ContainsKey(tag)) {
                 indices = childIndices[tag];
-            else
+            } else {
                 indices = childIndices[tag] = new List<int>();
+            }
 
             int c = indices.Count;
-            if (index < indices.Count)
+            if (index < indices.Count) {
                 return children[indices[index]];
+            }
 
             int lastChild = 0;
-            if (c != 0)
+            if (c != 0) {
                 lastChild = indices[c - 1] + 1;
+            }
             for (int i = lastChild, childCount = children.Count; i < childCount; ++i) {
                 if (children[i].Tag == tag) {
                     indices.Add(i);
-                    if (c++ == index)
+                    if (c++ == index) {
                         return children[i];
+                    }
                 }
             }
 
             int tagIndex = children.Count;
             reader.Position = nextTag;
             while (nextTag < end) {
-                MatroskaTree subtree = new MatroskaTree(reader);
+                MatroskaTree subtree = TryCreate(reader, end);
+                if (subtree == null) {
+                    nextTag = end;
+                    return null;
+                }
+
                 children.Add(subtree);
                 if (subtree.Tag == tag) {
                     indices.Add(tagIndex);
@@ -142,16 +177,19 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public MatroskaTree[] GetChildren(Stream reader, int tag) {
             int tags = 0;
-            for (int i = 0, c = children.Count; i < c; ++i)
-                if (children[i].Tag == tag)
+            for (int i = 0, c = children.Count; i < c; ++i) {
+                if (children[i].Tag == tag) {
                     ++tags;
+                }
+            }
 
             reader.Position = nextTag;
             while (reader.Position < end) {
                 MatroskaTree subtree = new MatroskaTree(reader);
                 children.Add(subtree);
-                if (subtree.Tag == tag)
+                if (subtree.Tag == tag) {
                     ++tags;
+                }
             }
             nextTag = end;
 
@@ -170,9 +208,7 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public double GetChildFloatBE(Stream reader, int tag) {
             MatroskaTree child = GetChild(reader, tag);
-            if (child != null)
-                return child.GetFloatBE(reader);
-            return -1;
+            return child != null ? child.GetFloatBE(reader) : -1;
         }
 
         /// <summary>
@@ -180,9 +216,7 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public string GetChildUTF8(Stream reader, int tag) {
             MatroskaTree child = GetChild(reader, tag);
-            if (child != null)
-                return child.GetUTF8(reader);
-            return string.Empty;
+            return child != null ? child.GetUTF8(reader) : string.Empty;
         }
 
         /// <summary>
@@ -190,9 +224,7 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public long GetChildValue(Stream reader, int tag) {
             MatroskaTree child = GetChild(reader, tag);
-            if (child != null)
-                return child.GetValue(reader);
-            return -1;
+            return child != null ? child.GetValue(reader) : -1;
         }
 
         /// <summary>
@@ -208,10 +240,12 @@ namespace Cavern.Format.Container.Matroska {
             int result = 0;
             while (true) {
                 MatroskaTree child = GetChild(reader, tag, result);
-                if (child == null)
+                if (child == null) {
                     return -1;
-                if (child.position == position)
+                }
+                if (child.position == position) {
                     return result;
+                }
                 ++result;
             }
         }
