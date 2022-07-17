@@ -33,8 +33,9 @@ namespace Cavern.Format.Container.Matroska {
         /// All blocks of the cluster, in order.
         /// </summary>
         public IReadOnlyList<Block> GetBlocks(Stream reader) {
-            if (blocks != null)
+            if (blocks != null) {
                 return blocks;
+            }
             MemoryStream stream = new MemoryStream(source.GetRawData(reader));
             blocks = new List<Block>();
             long end = stream.Length - 2; // Safety barrier, a byte might remain, but a 2 byte child is impossible
@@ -45,13 +46,15 @@ namespace Cavern.Format.Container.Matroska {
                 // Block groups (Matroska v1)
                 if (child.Tag == MatroskaTree.Segment_Cluster_BlockGroup) {
                     MatroskaTree[] blocksHere = child.GetChildren(stream, MatroskaTree.Segment_Cluster_BlockGroup_Block);
-                    for (int i = 0; i < blocksHere.Length; ++i)
+                    for (int i = 0; i < blocksHere.Length; ++i) {
                         blocks.Add(new Block(stream, blocksHere[i]));
+                    }
                 }
 
                 // Simple blocks (Matroska v2)
-                else if (child.Tag == MatroskaTree.Segment_Cluster_SimpleBlock)
+                else if (child.Tag == MatroskaTree.Segment_Cluster_SimpleBlock) {
                     blocks.Add(new Block(stream, child));
+                }
 
                 stream.Position = continueFrom;
             }

@@ -56,7 +56,7 @@ namespace Cavern.Virtualizer {
             bool setAgain = centerDelay == null;
             if (Listener.Channels.Length == spatialChannels.Length) {
                 for (int channel = 0; channel < spatialChannels.Length; ++channel) {
-                    if (Listener.Channels[channel].X != spatialChannels[channel].X || Listener.Channels[channel].Y != spatialChannels[channel].Y) {
+                    if (Listener.Channels[channel].X != spatialChannels[channel].x || Listener.Channels[channel].Y != spatialChannels[channel].y) {
                         setAgain = true;
                         break;
                     }
@@ -68,13 +68,13 @@ namespace Cavern.Virtualizer {
             centerDelay = new Delay(.0075f, filterSampleRate);
             Channel[] newChannels = new Channel[spatialChannels.Length];
             for (int channel = 0; channel < spatialChannels.Length; ++channel) {
-                newChannels[channel] = new Channel(spatialChannels[channel].X, spatialChannels[channel].Y);
-                if (spatialChannels[channel].X == 0) {
-                    if (spatialChannels[channel].Y == 0)
+                newChannels[channel] = new Channel(spatialChannels[channel].x, spatialChannels[channel].y);
+                if (spatialChannels[channel].x == 0) {
+                    if (spatialChannels[channel].y == 0)
                         center = channel;
-                    else if (spatialChannels[channel].Y == -45)
+                    else if (spatialChannels[channel].y == -45)
                         left = channel;
-                    else if (spatialChannels[channel].Y == 45)
+                    else if (spatialChannels[channel].y == 45)
                         right = channel;
                 }
             }

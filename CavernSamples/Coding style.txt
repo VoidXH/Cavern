@@ -1,0 +1,31 @@
+0. Performance before readability.
+1. Functions and properties are PascalCase.
+2. Variables are camelCase.
+3. Braces always present, starting braces are never in new line.
+4. Summaries are mandatory.
+
+Ordering:
+* Classes, structs
+* Enums
+* Events
+* Public static properties
+* Public static variables
+* Protected static properties
+* Protected static variables
+* Private static properties
+* Private static variables
+* Public properties
+* Public variables
+* Protected properties
+* Protected variables
+* Private properties
+* Private readonly variables
+* Private variables
+* Constructors
+* Public static functions
+* Internal static functions
+* Private static functions
+* Public functions
+* Internal functions
+* Private functions
+* Constants

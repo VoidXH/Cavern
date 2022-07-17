@@ -13,10 +13,10 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddSorted<T>(this List<T> source, T value) where T : IComparable<T> {
             int index = source.BinarySearch(value);
-            if (index < 0)
-                source.Insert(~index, value);
-            else
-                source.Insert(index, value);
+            if (index < 0) {
+                index = ~index;
+            }
+            source.Insert(index, value);
         }
 
         /// <summary>
@@ -25,8 +25,9 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddSortedDistinct<T>(this List<T> source, T value) where T : IComparable<T> {
             int index = source.BinarySearch(value);
-            if (index < 0)
+            if (index < 0) {
                 source.Insert(~index, value);
+            }
         }
 
         /// <summary>
@@ -34,8 +35,9 @@ namespace Cavern.Utilities {
         /// </summary>
         public static void RemoveSorted<T>(this List<T> source, T value) where T : IComparable<T> {
             int index = source.BinarySearch(value);
-            if (index >= 0)
+            if (index >= 0) {
                 source.RemoveAt(index);
+            }
         }
     }
 }

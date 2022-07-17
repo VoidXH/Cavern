@@ -12,21 +12,6 @@ namespace Cavern.Format.Container {
     /// <see href="https://www.matroska.org/files/matroska_file_format_alexander_noe.pdf"/>
     public class MatroskaReader : ContainerReader {
         /// <summary>
-        /// Nanoseconds to seconds.
-        /// </summary>
-        const double nsToS = 1.0 / 1000000000;
-
-        /// <summary>
-        /// Seconds to nanoseconds.
-        /// </summary>
-        const double sToNs = 1000000000;
-
-        /// <summary>
-        /// A Matroska track's default language.
-        /// </summary>
-        const string defaultLanguage = "eng";
-
-        /// <summary>
         /// Clusters are large and should be cached, but only to a certain limit to prevent leaking.
         /// The limit is the size of this array. Use <see cref="GetCluster(int)"/> to read a cluster,
         /// it checks the cache before trying to read it.
@@ -37,25 +22,9 @@ namespace Cavern.Format.Container {
         };
 
         /// <summary>
-        /// Matroska codec ID mapping to the <see cref="Codec"/> enum.
-        /// </summary>
-        static readonly Dictionary<string, Codec> codecNames = new Dictionary<string, Codec>() {
-            ["V_MPEG4/ISO/AVC"] = Codec.AVC,
-            ["V_MPEGH/ISO/HEVC"] = Codec.HEVC,
-            ["A_DTS"] = Codec.DTS,
-            ["A_DTS/LOSSLESS"] = Codec.DTS_HD,
-            ["A_AC3"] = Codec.AC3,
-            ["A_EAC3"] = Codec.EnhancedAC3,
-            ["A_PCM/FLOAT/IEEE"] = Codec.PCM_Float,
-            ["A_PCM/INT/LIT"] = Codec.PCM_LE,
-            ["A_OPUS"] = Codec.Opus,
-            ["A_TRUEHD"] = Codec.TrueHD,
-        };
-
-        /// <summary>
         /// All segments of the file.
         /// </summary>
-        MatroskaTree[] segments;
+        MatroskaSegment[] segments;
 
         /// <summary>
         /// Seek-aiding metadata.
@@ -86,14 +55,16 @@ namespace Cavern.Format.Container {
             MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
             while (true) {
                 Cluster data = GetCluster(trackData.lastCluster);
-                if (data == null)
+                if (data == null) {
                     return null;
+                }
                 IReadOnlyList<Block> blocks = data.GetBlocks(reader);
                 int count = blocks.Count;
                 while (trackData.lastBlock < count) {
                     Block block = blocks[trackData.lastBlock++];
-                    if (block.Track == trackData.ID)
+                    if (block.Track == trackData.ID) {
                         return block.GetData();
+                    }
                 }
                 trackData.lastBlock = 0;
                 ++trackData.lastCluster;
@@ -111,18 +82,22 @@ namespace Cavern.Format.Container {
             int clusterId = 0;
             Cluster cluster;
 
-            if (cue != null)
+            if (cue != null) {
                 clusterId = segments[0].GetIndexByPosition(reader, MatroskaTree.Segment_Cluster, cue.Position);
+            }
             if (clusterId == -1) {
                 while (true) {
                     cluster = GetCluster(clusterId++);
-                    if (cluster == null)
+                    if (cluster == null) {
                         break;
-                    if (cluster.TimeStamp > targetTime)
+                    }
+                    if (cluster.TimeStamp > targetTime) {
                         break;
+                    }
                 }
-                if (cluster == null)
+                if (cluster == null) {
                     return -1;
+                }
                 --clusterId;
             }
 
@@ -134,17 +109,20 @@ namespace Cavern.Format.Container {
                 IReadOnlyList<Block> blocks = cluster.GetBlocks(reader);
                 for (int block = blocks.Count - 1; block >= 0; --block) {
                     long trackId = Tracks.GetIndexByID(blocks[block].Track);
-                    if (trackId == -1 || trackSet[trackId])
+                    if (trackId == -1 || trackSet[trackId]) {
                         continue;
+                    }
                     long time = cluster.TimeStamp + blocks[block].TimeStamp;
                     if (time <= targetTime) {
                         MatroskaTrack trackData = Tracks[trackId] as MatroskaTrack;
                         trackData.lastCluster = clusterId;
                         trackData.lastBlock = block;
-                        if (minTime > time)
+                        if (minTime > time) {
                             minTime = time;
-                        if (trackData.Format.IsAudio() && audioTime > targetTime)
+                        }
+                        if (trackData.Format.IsAudio() && audioTime > targetTime) {
                             audioTime = time;
+                        }
                         trackSet[trackId] = true;
                         ++tracksSet;
                     }
@@ -152,10 +130,12 @@ namespace Cavern.Format.Container {
                 --clusterId;
             }
 
-            if (audioTime != long.MaxValue)
+            if (audioTime != long.MaxValue) {
                 return audioTime * timestampScale * nsToS;
-            if (minTime != long.MaxValue)
+            }
+            if (minTime != long.MaxValue) {
                 return minTime * timestampScale * nsToS;
+            }
             return -1;
         }
 
@@ -164,8 +144,9 @@ namespace Cavern.Format.Container {
         /// </summary>
         Cluster GetCluster(int index) {
             for (int i = 0; i < cachedClusters.Length; ++i) {
-                if (cachedClusters[i].Item1 == index)
+                if (cachedClusters[i].Item1 == index) {
                     return cachedClusters[i].Item2;
+                }
             }
 
             for (int i = 0; i < segments.Length; ++i) {
@@ -184,13 +165,14 @@ namespace Cavern.Format.Container {
         /// Read the metadata and basic block structure of the file.
         /// </summary>
         void ReadSkeleton() {
-            List<MatroskaTree> segmentSource = new List<MatroskaTree>();
+            List<MatroskaSegment> segmentSource = new List<MatroskaSegment>();
+            new MatroskaTree(reader); // Skip EBML header
             while (reader.Position < reader.Length) {
-                MatroskaTree content = new MatroskaTree(reader);
-                long next = reader.Position;
-                if (content.Tag == MatroskaTree.Segment)
-                    segmentSource.Add(content);
-                reader.Position = next;
+                MatroskaSegment segment = new MatroskaSegment(reader);
+                if (segment.Tag != MatroskaTree.Segment) {
+                    continue;
+                }
+                segmentSource.Add(segment);
             }
             segments = segmentSource.ToArray();
 
@@ -203,8 +185,9 @@ namespace Cavern.Format.Container {
 
                 cues = Cue.GetCues(segments[i], reader);
                 MatroskaTree tracklist = segments[i].GetChild(reader, MatroskaTree.Segment_Tracks);
-                if (Tracks == null && tracklist != null)
+                if (Tracks == null && tracklist != null) {
                     ReadTracks(tracklist);
+                }
             }
             Duration = QMath.Sum(blockLengths) * nsToS;
         }
@@ -223,14 +206,16 @@ namespace Cavern.Format.Container {
                 entry.ID = source.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_TrackNumber);
                 entry.Name = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_Name);
                 entry.Language = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_Language);
-                if (string.IsNullOrEmpty(entry.Language))
+                if (string.IsNullOrEmpty(entry.Language)) {
                     entry.Language = defaultLanguage;
+                }
                 string codec = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_CodecID);
-                if (codecNames.ContainsKey(codec))
+                if (codecNames.ContainsKey(codec)) {
                     entry.Format = codecNames[codec];
+                }
 
                 MatroskaTree audioData = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Audio);
-                if (audioData != null)
+                if (audioData != null) {
                     entry.Extra = new TrackExtraAudio {
                         SampleRate = audioData.GetChildFloatBE(reader,
                             MatroskaTree.Segment_Tracks_TrackEntry_Audio_SamplingFrequency),
@@ -239,7 +224,39 @@ namespace Cavern.Format.Container {
                         Bits = (BitDepth)audioData.GetChildValue(reader,
                             MatroskaTree.Segment_Tracks_TrackEntry_Audio_BitDepth)
                     };
+                }
             }
         }
+
+        /// <summary>
+        /// Nanoseconds to seconds.
+        /// </summary>
+        const double nsToS = 1.0 / 1000000000;
+
+        /// <summary>
+        /// Seconds to nanoseconds.
+        /// </summary>
+        const double sToNs = 1000000000;
+
+        /// <summary>
+        /// A Matroska track's default language.
+        /// </summary>
+        const string defaultLanguage = "eng";
+
+        /// <summary>
+        /// Matroska codec ID mapping to the <see cref="Codec"/> enum.
+        /// </summary>
+        readonly static Dictionary<string, Codec> codecNames = new Dictionary<string, Codec>() {
+            ["V_MPEG4/ISO/AVC"] = Codec.AVC,
+            ["V_MPEGH/ISO/HEVC"] = Codec.HEVC,
+            ["A_DTS"] = Codec.DTS,
+            ["A_DTS/LOSSLESS"] = Codec.DTS_HD,
+            ["A_AC3"] = Codec.AC3,
+            ["A_EAC3"] = Codec.EnhancedAC3,
+            ["A_PCM/FLOAT/IEEE"] = Codec.PCM_Float,
+            ["A_PCM/INT/LIT"] = Codec.PCM_LE,
+            ["A_OPUS"] = Codec.Opus,
+            ["A_TRUEHD"] = Codec.TrueHD,
+        };
     }
 }

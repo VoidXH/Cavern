@@ -7,8 +7,9 @@ namespace Cavern {
         /// Logarithmic rolloff by distance.
         /// </summary>
         float RolloffLogarithmic() {
-            if (distance > 1)
+            if (distance > 1) {
                 return 1 / (1 + (float)Math.Log(distance));
+            }
             return 1;
         }
 
@@ -21,8 +22,9 @@ namespace Cavern {
         /// Physically correct rolloff by distance.
         /// </summary>
         float RolloffReal() {
-            if (distance > 1)
+            if (distance > 1) {
                 return 1 / distance;
+            }
             return 1;
         }
 
@@ -63,8 +65,9 @@ namespace Cavern {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         float GetRolloff() {
-            if (LastRolloff != VolumeRolloff)
+            if (LastRolloff != VolumeRolloff) {
                 SetRolloff();
+            }
             return UsedRolloffFunc.Invoke();
         }
     }

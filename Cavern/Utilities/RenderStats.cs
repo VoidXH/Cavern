@@ -8,6 +8,52 @@ namespace Cavern.Utilities {
     /// </summary>
     public class RenderStats {
         /// <summary>
+        /// Recorded stats about a <see cref="Source"/>.
+        /// </summary>
+        class StatHolder {
+            /// <summary>
+            /// The source has moved some positions, but less times than the <see cref="SemiStaticLimit"/>.
+            /// </summary>
+            public bool SemiStatic => Positions.Count < SemiStaticLimit;
+
+            /// <summary>
+            /// False if the source was ever moved from its position.
+            /// </summary>
+            public bool Static { get; private set; } = true;
+
+            /// <summary>
+            /// False if the source was ever set to a position.
+            /// </summary>
+            public bool SuperStatic { get; private set; } = true;
+
+            /// <summary>
+            /// Positions this source was placed on. The size of this set is limited to <see cref="SemiStaticLimit"/>.
+            /// </summary>
+            public HashSet<Vector3> Positions = new HashSet<Vector3>();
+
+            /// <summary>
+            /// Last location of the source.
+            /// </summary>
+            public Vector3 LastPosition {
+                get => lastPosition;
+                set {
+                    if (value != Vector3.Zero) {
+                        if (value != lastPosition && lastPosition != Vector3.Zero) {
+                            Static = false;
+                        } else {
+                            SuperStatic = false;
+                        }
+                        lastPosition = value;
+                        if (Positions.Count <= SemiStaticLimit) {
+                            Positions.Add(value);
+                        }
+                    }
+                }
+            }
+            Vector3 lastPosition;
+        }
+
+        /// <summary>
         /// Number of new positions required to consider a source dynamic.
         /// </summary>
         public static int SemiStaticLimit { get; set; } = 16;
@@ -49,57 +95,14 @@ namespace Cavern.Utilities {
         public void Update() {
             foreach (Source source in listener.ActiveSources) {
                 StatHolder holder;
-                if (!stats.ContainsKey(source))
+                if (!stats.ContainsKey(source)) {
                     stats.Add(source, holder = new StatHolder());
-                else
+                } else {
                     holder = stats[source];
+                }
 
                 holder.LastPosition = source.Position;
             }
-        }
-
-        /// <summary>
-        /// Recorded stats about a <see cref="Source"/>.
-        /// </summary>
-        class StatHolder {
-            /// <summary>
-            /// The source has moved some positions, but less times than the <see cref="SemiStaticLimit"/>.
-            /// </summary>
-            public bool SemiStatic => Positions.Count < SemiStaticLimit;
-
-            /// <summary>
-            /// False if the source was ever moved from its position.
-            /// </summary>
-            public bool Static { get; private set; } = true;
-
-            /// <summary>
-            /// False if the source was ever set to a position.
-            /// </summary>
-            public bool SuperStatic { get; private set; } = true;
-
-            /// <summary>
-            /// Positions this source was placed on. The size of this set is limited to <see cref="SemiStaticLimit"/>.
-            /// </summary>
-            public HashSet<Vector3> Positions = new HashSet<Vector3>();
-
-            /// <summary>
-            /// Last location of the source.
-            /// </summary>
-            public Vector3 LastPosition {
-                get => lastPosition;
-                set {
-                    if (value != Vector3.Zero) {
-                        if (value != lastPosition && lastPosition != Vector3.Zero)
-                            Static = false;
-                        else
-                            SuperStatic = false;
-                        lastPosition = value;
-                        if (Positions.Count <= SemiStaticLimit)
-                            Positions.Add(value);
-                    }
-                }
-            }
-            Vector3 lastPosition;
         }
     }
 }

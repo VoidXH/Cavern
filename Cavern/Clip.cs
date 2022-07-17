@@ -8,7 +8,7 @@ namespace Cavern {
         /// <summary>
         /// Name of the clip.
         /// </summary>
-        public string Name;
+        public string Name { get; set; }
 
         /// <summary>
         /// Channel count for the clip.
@@ -60,10 +60,16 @@ namespace Cavern {
             this.data = new float[channels][];
             for (int channel = 0; channel < channels; ++channel) {
                 float[] targetArray = this.data[channel] = new float[sampleCount];
-                for (int sample = 0; sample < sampleCount; ++sample)
+                for (int sample = 0; sample < sampleCount; ++sample) {
                     targetArray[sample] = data[sample * channels + channel];
+                }
             }
         }
+
+        /// <summary>
+        /// Implicit null check.
+        /// </summary>
+        public static implicit operator bool(Clip clip) => clip != null;
 
         /// <summary>
         /// Fills an array with sample data from the clip.
@@ -72,13 +78,17 @@ namespace Cavern {
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[][] data, int offset) {
-            if (data.Length != this.data.Length)
+            if (data.Length != this.data.Length) {
                 return false; // Channel count doesn't match
+            }
+
             for (int dataPos = 0; dataPos < data[0].Length; ++dataPos) {
-                if (offset >= this.data[0].Length)
+                if (offset >= this.data[0].Length) {
                     offset %= this.data[0].Length; // TODO: just don't
-                for (int channel = 0; channel < this.data.Length; ++channel)
+                }
+                for (int channel = 0; channel < this.data.Length; ++channel) {
                     data[channel][dataPos] = this.data[channel][offset];
+                }
                 ++offset;
             }
             return true;
@@ -91,18 +101,23 @@ namespace Cavern {
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetDataNonLooping(float[][] data, int offset) {
-            if (data.Length != this.data.Length)
+            if (data.Length != this.data.Length) {
                 return false; // Channel count doesn't match
-            int dataPos = 0, endPos = this.data[0].Length - offset;
+            }
+
+            int dataPos = 0,
+                endPos = this.data[0].Length - offset;
             if (endPos > data[0].Length)
                 endPos = data[0].Length;
             for (; dataPos < endPos; ++dataPos) {
-                for (int channel = 0; channel < this.data.Length; ++channel)
+                for (int channel = 0; channel < this.data.Length; ++channel) {
                     data[channel][dataPos] = this.data[channel][offset];
+                }
                 ++offset;
             }
-            for (int channel = 0; channel < this.data.Length; ++channel)
+            for (int channel = 0; channel < this.data.Length; ++channel) {
                 Array.Clear(data[channel], dataPos, data[0].Length - dataPos);
+            }
             return true;
         }
 
@@ -113,14 +128,18 @@ namespace Cavern {
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[] data, int offset) {
-            if (data.Length % this.data.Length != 0)
+            if (data.Length % this.data.Length != 0) {
                 return false; // Channel count doesn't match
+            }
+
             int dataPos = 0;
             while (dataPos < data.Length) {
-                if (offset >= this.data[0].Length)
+                if (offset >= this.data[0].Length) {
                     offset %= this.data[0].Length; // TODO: same as above
-                for (int channel = 0; channel < this.data.Length; ++channel)
+                }
+                for (int channel = 0; channel < this.data.Length; ++channel) {
                     data[dataPos + channel] = this.data[channel][offset];
+                }
                 dataPos += this.data.Length;
                 ++offset;
             }
@@ -135,12 +154,15 @@ namespace Cavern {
         /// <param name="channel">Channel ID to get samples from</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetData(float[] data, int channel, int offset) {
-            if (data.Length % this.data.Length != 0)
+            if (data.Length % this.data.Length != 0) {
                 return false; // Channel count doesn't match
+            }
+
             int dataPos = 0;
             while (dataPos < data.Length) {
-                if (offset >= this.data[0].Length)
+                if (offset >= this.data[0].Length) {
                     offset %= this.data[0].Length; // TODO: same as above
+                }
                 data[dataPos++] = this.data[channel][offset++];
             }
             return true;
@@ -152,14 +174,19 @@ namespace Cavern {
         /// <param name="data">Audio data cache</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool GetDataNonLooping(float[] data, int offset) {
-            if (data.Length != this.data.Length)
+            if (data.Length != this.data.Length) {
                 return false; // Channel count doesn't match
-            int dataPos = 0, endPos = this.data[0].Length - offset;
-            if (endPos > data.Length)
+            }
+
+            int dataPos = 0,
+                endPos = this.data[0].Length - offset;
+            if (endPos > data.Length) {
                 endPos = data.Length;
+            }
             while (dataPos < endPos) {
-                for (int channel = 0; channel < this.data.Length; ++channel)
+                for (int channel = 0; channel < this.data.Length; ++channel) {
                     data[channel + dataPos] = this.data[channel][offset];
+                }
                 dataPos += this.data.Length;
                 ++offset;
             }
@@ -173,13 +200,17 @@ namespace Cavern {
         /// <param name="data">Data source</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool SetData(float[][] data, int offset) {
-            if (data.Length != this.data.Length)
-                return false;
+            if (data.Length != this.data.Length) {
+                return false; // Channel count doesn't match
+            }
+
             for (int dataPos = 0; dataPos < data[0].Length; ++dataPos) {
-                if (offset >= this.data[0].Length)
+                if (offset >= this.data[0].Length) {
                     offset %= this.data[0].Length;
-                for (int channel = 0; channel < this.data.Length; ++channel)
+                }
+                for (int channel = 0; channel < this.data.Length; ++channel) {
                     this.data[channel][offset] = data[channel][dataPos];
+                }
                 ++offset;
             }
             return true;
@@ -191,23 +222,22 @@ namespace Cavern {
         /// <param name="data">Data source</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         public bool SetData(float[] data, int offset) {
-            if (data.Length % this.data.Length != 0)
-                return false;
+            if (data.Length != this.data.Length) {
+                return false; // Channel count doesn't match
+            }
+
             int dataPos = 0;
             while (dataPos < data.Length) {
-                if (offset >= this.data[0].Length)
+                if (offset >= this.data[0].Length) {
                     offset %= this.data[0].Length;
-                for (int channel = 0; channel < this.data.Length; ++channel)
+                }
+                for (int channel = 0; channel < this.data.Length; ++channel) {
                     this.data[channel][offset] = data[dataPos + channel];
+                }
                 dataPos += this.data.Length;
                 ++offset;
             }
             return true;
         }
-
-        /// <summary>
-        /// Implicit null check.
-        /// </summary>
-        public static implicit operator bool(Clip clip) => clip != null;
     }
 }

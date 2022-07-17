@@ -23,6 +23,7 @@ namespace Cavern.Remapping {
         /// <param name="stream">Source stream</param>
         /// <param name="channel">Target channel</param>
         /// <param name="channels">Source channel count</param>
-        public void Update(float[] stream, int channel, int channels) => WaveformUtils.ExtractChannel(stream, data[0], channel, channels);
+        public void Update(float[] stream, int channel, int channels) =>
+            WaveformUtils.ExtractChannel(stream, data[0], channel, channels);
     }
 }

@@ -61,7 +61,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         PeakingEQ BruteForceQ(ref float[] target, double freq, double gain) {
             double q = StartQ, qStep = q * .5;
-            gain = Math.Round(-QMath.Clamp(gain, MinGain, MaxGain) / GainPrecision) * GainPrecision;
+            gain = Math.Round(-Math.Clamp(gain, MinGain, MaxGain) / GainPrecision) * GainPrecision;
             float targetSum = QMath.SumAbs(target);
             float[] targetSource = target.FastClone();
             for (int i = 0; i < Iterations; ++i) {

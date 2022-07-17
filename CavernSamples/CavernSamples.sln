@@ -24,6 +24,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{48FD3823-A0AC-4A0F-9000-CA31DD29727F}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		Coding style.txt = Coding style.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WavefrontSimulator", "WavefrontSimulator\WavefrontSimulator.csproj", "{6CE3E39D-348C-443C-8909-E7F6A965D51E}"

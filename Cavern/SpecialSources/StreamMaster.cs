@@ -46,10 +46,12 @@ namespace Cavern.SpecialSources {
         /// Get the samples for a given source, fetch new samples when needed.
         /// </summary>
         internal float[] Update(int source, int samples) {
-            if (updates == 0)
+            if (updates == 0) {
                 nextSamples = getter(samples);
-            if (++updates == nextSamples.Length)
+            }
+            if (++updates == nextSamples.Length) {
                 updates = 0;
+            }
             return nextSamples[source];
         }
     }

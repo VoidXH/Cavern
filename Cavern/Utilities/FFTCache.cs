@@ -8,16 +8,6 @@ namespace Cavern.Utilities {
     /// </remarks>
     public class FFTCache : IDisposable {
         /// <summary>
-        /// Cached cosines for each FFT band.
-        /// </summary>
-        internal float[] cos;
-
-        /// <summary>
-        /// Cached sines for each FFT band.
-        /// </summary>
-        internal float[] sin;
-
-        /// <summary>
         /// Preallocated even split arrays. Globally cached in single-threaded applications.
         /// </summary>
         internal virtual Complex[][] Even => globalEven;
@@ -31,6 +21,16 @@ namespace Cavern.Utilities {
         /// Preallocated recursion arrays. Shared between all caches, their sizes are 2^i.
         /// </summary>
         static readonly Complex[][] globalEven = new Complex[30][], globalOdd = new Complex[30][];
+
+        /// <summary>
+        /// Cached cosines for each FFT band.
+        /// </summary>
+        internal float[] cos;
+
+        /// <summary>
+        /// Cached sines for each FFT band.
+        /// </summary>
+        internal float[] sin;
 
         /// <summary>
         /// C++ FFT cache class memory address to be passed to <see cref="CavernAmp"/>.
@@ -67,8 +67,9 @@ namespace Cavern.Utilities {
         /// Free all used resources if there is any.
         /// </summary>
         public void Dispose() {
-            if (Native.ToInt64() != 0)
+            if (Native.ToInt64() != 0) {
                 CavernAmp.FFTCache_Dispose(Native);
+            }
         }
     }
 

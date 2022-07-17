@@ -1,107 +1,135 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     partial class JointObjectCoding {
-        void DecodeSparse(int obj, float[][][] mixMatrix, int nquant) {
-            int offset = joc_num_quant_idx[obj] * 50 + 50;
-            int[][] sourceMatrix = joc_vec[obj];
-            int[][] inputChannel = joc_channel_idx[obj];
-            int bands = joc_num_bands[obj];
+        /// <summary>
+        /// Decode a JOC matrix around a <paramref name="center"/> value in a coding where each object only takes one
+        /// channel's data. In this step, the values are positive integers.
+        /// </summary>
+        // TODO: fix this, the standard code is wrong
+        void DecodeSparse(int obj, float[][][] mixMatrix, int center) {
+            int max = center * 2;
+            int[][] sourceVector = jocVector[obj];
+            int[][] inputChannel = jocChannel[obj];
+            int bands = this.bands[obj];
             for (int dp = 0; dp < dataPoints[obj]; ++dp) {
                 float[][] dpMatrix = mixMatrix[dp];
-                int[] dpInput = inputChannel[dp];
-                int joc_channel_idx_mod = dpInput[0];
+                int[] dpVector = sourceVector[dp];
+                int[] dpChannel = inputChannel[dp];
                 for (int ch = 0; ch < ChannelCount; ++ch) {
-                    if (ch == joc_channel_idx_mod)
-                        dpMatrix[ch][0] = (offset + sourceMatrix[dp][0]) % nquant;
-                    else
-                        dpMatrix[ch][0] = offset;
+                    float[] chMatrix = dpMatrix[ch];
+                    for (int pb = 0; pb < bands; ++pb) {
+                        chMatrix[pb] = center;
+                    }
                 }
 
+                int rollingChannel = dpChannel[0];
+                int rollingVector = (center + dpVector[0]) % max;
+                dpMatrix[rollingChannel][0] = rollingVector;
                 for (int pb = 1; pb < bands; ++pb) {
-                    joc_channel_idx_mod = (dpInput[pb - 1] + dpInput[pb]) % ChannelCount;
-                    for (int ch = 0; ch < ChannelCount; ++ch) {
-                        if (ch == joc_channel_idx_mod)
-                            dpMatrix[ch][pb] = (dpMatrix[ch][pb - 1] + sourceMatrix[dp][pb]) % nquant;
-                        else
-                            dpMatrix[ch][pb] = offset;
-                    }
+                    rollingChannel = (dpChannel[pb - 1] + dpChannel[pb]) % ChannelCount;
+                    rollingVector = (rollingVector + dpVector[pb]) % max;
+                    dpMatrix[rollingChannel][pb] = rollingVector;
+                    // standard: dpMatrix[rollingChannel][pb] = (dpMatrix[rollingChannel][pb - 1] + dpVector[pb]) % max;
                 }
             }
         }
 
-        void DecodeCoarse(int obj, float[][][] mixMatrix, int hnquant) {
-            int nquant = hnquant * 2;
-            int bands = joc_num_bands[obj];
-            int[][][] sourceMatrix = joc_mtx[obj];
+        /// <summary>
+        /// Decode a complete JOC matrix around a <paramref name="center"/> value.
+        /// In this step, the values are positive integers in a simple differential coding.
+        /// </summary>
+        void DecodeCoarse(int obj, float[][][] mixMatrix, int center) {
+            int max = center * 2;
+            int bands = this.bands[obj];
+            int[][][] sourceMatrix = jocMatrix[obj];
             for (int dp = 0; dp < dataPoints[obj]; ++dp) {
                 float[][] dpMatrix = mixMatrix[dp];
                 int[][] dpSource = sourceMatrix[dp];
                 for (int ch = 0; ch < ChannelCount; ++ch) {
                     float[] chMatrix = dpMatrix[ch];
                     int[] chSource = dpSource[ch];
-                    chMatrix[0] = (hnquant + chSource[0]) % nquant;
-                    for (int pb = 1; pb < bands; ++pb)
-                        chMatrix[pb] = (chMatrix[pb - 1] + chSource[pb]) % nquant;
+                    chMatrix[0] = (center + chSource[0]) % max;
+                    for (int pb = 1; pb < bands; ++pb) {
+                        chMatrix[pb] = (chMatrix[pb - 1] + chSource[pb]) % max;
+                    }
                 }
             }
         }
 
-        void DecodeObjectSideInfo(int obj, float[][][] mixMatrix, int hnquant, float mul) {
+        /// <summary>
+        /// Convert the values of the decoded JOC matrix to the mixing range.
+        /// </summary>
+        void Dequantize(int obj, float[][][] mixMatrix, int center, float gainStep) {
             for (int dp = 0; dp < dataPoints[obj]; ++dp) {
                 float[][] dpMix = mixMatrix[dp];
                 for (int ch = 0; ch < ChannelCount; ++ch) {
                     float[] chMix = dpMix[ch];
-                    for (int pb = 0; pb < joc_num_bands[obj]; ++pb)
-                        chMix[pb] = (chMix[pb] - hnquant) * mul;
+                    for (int pb = 0; pb < bands[obj]; ++pb) {
+                        chMix[pb] = (chMix[pb] - center) * gainStep;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handle mixing of a timeslot with steep slope when the number of data points is 1
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SteepSingleDataPointTimeslot(int ts, float[][][] interpolationMatrix, float[][] source) {
+            float[][] timeslotInterp = interpolationMatrix[ts];
+            for (int ch = 0; ch < ChannelCount; ++ch) {
+                float[] channelInterp = timeslotInterp[ch];
+                float[] sourceChannel = source[ch];
+                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                    channelInterp[sb] = sourceChannel[sb];
                 }
             }
         }
 
         void GetMixingMatrices(int obj, int timeslots, float[][][] mixMatrix,
             float[][][] interpolationMatrix, float[][] prevMatrix) {
-            int hnquant = joc_num_quant_idx[obj] * 48 + 48;
+            int hnquant = quantizationTable[obj] * 48 + 48;
             if (ObjectActive[obj]) {
-                if (b_joc_sparse[obj])
-                    DecodeSparse(obj, mixMatrix, hnquant * 2);
-                else
+                if (sparseCoded[obj]) {
+                    DecodeSparse(obj, mixMatrix, hnquant);
+                } else {
                     DecodeCoarse(obj, mixMatrix, hnquant);
+                }
             }
-            DecodeObjectSideInfo(obj, mixMatrix, hnquant, .2f - joc_num_quant_idx[obj] * .1f);
+            Dequantize(obj, mixMatrix, hnquant, .2f - quantizationTable[obj] * .1f);
 
             // Side info interpolation below
             if (!ObjectActive[obj]) {
-                for (int ts = 0; ts < timeslots; ++ts)
-                    for (int ch = 0; ch < ChannelCount; ++ch)
+                for (int ts = 0; ts < timeslots; ++ts) {
+                    for (int ch = 0; ch < ChannelCount; ++ch) {
                         Array.Clear(interpolationMatrix[ts][ch], 0, QuadratureMirrorFilterBank.subbands);
+                    }
+                }
                 return;
             }
 
+            byte[] pbMapping = JointObjectCodingTables.parameterBandMapping[bandsIndex[obj]];
             if (dataPoints[obj] == 1) {
                 if (steepSlope[obj]) {
-                    for (int ts = 0; ts < timeslots; ++ts) {
-                        float[][] timeslotInterp = interpolationMatrix[ts];
-                        float[][] source =
-                            ts < joc_offset_ts[obj][0] ? prevMatrix : mixMatrix[ts < joc_offset_ts[obj][1] ? 1 : 0];
-                        for (int ch = 0; ch < ChannelCount; ++ch) {
-                            float[] channelInterp = timeslotInterp[ch];
-                            float[] sourceChannel = source[ch];
-                            for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
-                                channelInterp[sb] = sourceChannel[sb];
-                        }
+                    int splitPoint = timeslotOffsets[obj][0];
+                    for (int ts = 0; ts < splitPoint; ++ts) {
+                        SteepSingleDataPointTimeslot(ts, interpolationMatrix, prevMatrix);
+                    }
+                    for (int ts = splitPoint; ts < timeslots; ++ts) {
+                        SteepSingleDataPointTimeslot(ts, interpolationMatrix, mixMatrix[ts < timeslotOffsets[obj][1] ? 1 : 0]);
                     }
                 } else {
-                    for (int ts = 0; ts < timeslots;) {
-                        float[][] timeslotInterp = interpolationMatrix[ts];
-                        float lerp = ++ts / timeslots;
-                        for (int ch = 0; ch < ChannelCount; ++ch) {
-                            float[] channelInterp = timeslotInterp[ch];
-                            float[] channelPrev = prevMatrix[ch];
-                            float[] mix = mixMatrix[0][ch];
-                            for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
-                                int pb = JointObjectCodingTables.parameterBandMapping[joc_num_bands_idx[obj]][sb];
-                                channelInterp[sb] = channelPrev[sb] + (mix[pb] - channelPrev[sb]) * lerp;
+                    for (int ch = 0; ch < ChannelCount; ++ch) {
+                        float[] channelPrev = prevMatrix[ch];
+                        float[] mix = mixMatrix[0][ch];
+                        for (int ts = 0; ts < timeslots;) {
+                            float[] channelInterp = interpolationMatrix[ts][ch];
+                            float lerp = ++ts / timeslots;
+                            for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                                channelInterp[sb] = channelPrev[sb] + (mix[pbMapping[sb]] - channelPrev[sb]) * lerp;
                             }
                         }
                     }
@@ -110,12 +138,13 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 if (steepSlope[obj]) {
                     for (int ts = 0; ts < timeslots;) {
                         float[][] timeslotInterp = interpolationMatrix[ts++];
-                        float[][] source = ts < joc_offset_ts[obj][0] ? prevMatrix : mixMatrix[0];
+                        float[][] source = ts < timeslotOffsets[obj][0] ? prevMatrix : mixMatrix[0];
                         for (int ch = 0; ch < ChannelCount; ++ch) {
                             float[] channelInterp = timeslotInterp[ch];
                             float[] sourceChannel = source[ch];
-                            for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
+                            for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
                                 channelInterp[sb] = sourceChannel[sb];
+                            }
                         }
                     }
                 } else {
@@ -139,11 +168,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                             float[] channelFrom = from[ch];
                             float[] channelTo = to[ch];
                             if (ts <= ts_2) {
-                                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb)
+                                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
                                     channelInterp[sb] = channelFrom[sb] + (channelTo[sb] - channelFrom[sb]) * lerp;
+                                }
                             } else {
                                 for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
-                                    int pb = JointObjectCodingTables.parameterBandMapping[joc_num_bands_idx[obj]][sb];
+                                    int pb = JointObjectCodingTables.parameterBandMapping[bandsIndex[obj]][sb];
                                     channelInterp[sb] = channelFrom[pb] + (channelTo[pb] - channelFrom[pb]) * lerp;
                                 }
                             }
@@ -157,8 +187,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     float[] channelPrev = prevMatrix[ch];
                     float[] mixSource = mixMatrix[dataPoints[obj] - 1][ch];
                     for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
-                        int pb = JointObjectCodingTables.parameterBandMapping[joc_num_bands_idx[obj]][sb];
-                        channelPrev[sb] = mixSource[pb];
+                        channelPrev[sb] = mixSource[pbMapping[sb]];
                     }
                 }
             }
@@ -171,10 +200,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 ThreadPool.QueueUserWorkItem(
                    new WaitCallback(objIndex => {
                        int obj = (int)objIndex;
-                       GetMixingMatrices(obj, num_qmf_timeslots, joc_mix_mtx[obj],
-                           joc_mix_mtx_interp[obj], prevMatrix[obj]);
-                       if (Interlocked.Decrement(ref runs) == 0)
+                       GetMixingMatrices(obj, num_qmf_timeslots, mixMatrix[obj],
+                           interpolatedMatrix[obj], prevMatrix[obj]);
+                       if (Interlocked.Decrement(ref runs) == 0) {
                            reset.Set();
+                       }
                    }), obj);
             }
             reset.WaitOne();
@@ -185,9 +215,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         /// <param name="frameSize">Length of the entire time window of all time slots</param>
         public float[][][][] GetMixingMatrices(int frameSize) {
-            int num_qmf_timeslots = frameSize / QuadratureMirrorFilterBank.subbands;
-            GetMixingMatrices(num_qmf_timeslots, prevMatrix);
-            return joc_mix_mtx_interp;
+            int qmfTimeslots = frameSize / QuadratureMirrorFilterBank.subbands;
+            GetMixingMatrices(qmfTimeslots, prevMatrix);
+            return interpolatedMatrix;
         }
     }
 }

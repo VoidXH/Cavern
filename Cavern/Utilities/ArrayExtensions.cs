@@ -7,6 +7,22 @@ namespace Cavern.Utilities {
     /// </summary>
     public static class ArrayExtensions {
         /// <summary>
+        /// Quickly checks if a value is in an array.
+        /// </summary>
+        /// <param name="target">Array reference</param>
+        /// <param name="value">Value to check</param>
+        /// <returns>If an array contains the value</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Contains(this float[] target, float value) {
+            for (int entry = 0; entry < target.Length; ++entry) {
+                if (target[entry] == value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Clones an array about twice as fast as <see cref="Array.Clone"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -21,9 +37,11 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has<T>(this T[] source, Func<T, bool> predicate) {
-            for (int i = 0; i < source.Length; ++i)
-                if (predicate(source[i]))
+            for (int i = 0; i < source.Length; ++i) {
+                if (predicate(source[i])) {
                     return true;
+                }
+            }
             return false;
         }
     }

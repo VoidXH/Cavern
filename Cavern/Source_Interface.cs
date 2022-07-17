@@ -122,6 +122,11 @@ namespace Cavern {
         // Public functions
         // ------------------------------------------------------------------
         /// <summary>
+        /// Implicit null check.
+        /// </summary>
+        public static implicit operator bool(Source source) => source != null;
+
+        /// <summary>
         /// Start playback from the beginning of the <see cref="Clip"/>.
         /// </summary>
         /// <param name="delaySamples">Optional delay in samples</param>
@@ -192,9 +197,9 @@ namespace Cavern {
         /// Add a new <see cref="SpatialFilter"/> to this source.
         /// </summary>
         public void AddFilter(Filter target) {
-            if (SpatialFilter == null)
+            if (SpatialFilter == null) {
                 SpatialFilter = target;
-            else {
+            } else {
                 if (!(SpatialFilter is ComplexFilter)) {
                     Filter old = SpatialFilter;
                     SpatialFilter = new ComplexFilter();
@@ -208,20 +213,16 @@ namespace Cavern {
         /// Remove a <see cref="SpatialFilter"/> from this source.
         /// </summary>
         public void RemoveFilter(Filter target) {
-            if (SpatialFilter == target)
+            if (SpatialFilter == target) {
                 SpatialFilter = null;
-            else {
+            } else {
                 ComplexFilter complex = (ComplexFilter)SpatialFilter;
-                if (complex.Filters.Count == 1 && complex.Filters[0] == target)
+                if (complex.Filters.Count == 1 && complex.Filters[0] == target) {
                     SpatialFilter = null;
-                else
+                } else {
                     complex.Filters.Remove(target);
+                }
             }
         }
-
-        /// <summary>
-        /// Implicit null check.
-        /// </summary>
-        public static implicit operator bool(Source source) => source != null;
     }
 }

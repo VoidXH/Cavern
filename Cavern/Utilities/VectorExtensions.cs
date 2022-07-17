@@ -47,10 +47,11 @@ namespace Cavern.Utilities {
                 cosX = (float)Math.Cos(xRad),
                 sinY = (float)Math.Sin(yRad),
                 cosY = (float)Math.Cos(yRad);
-            if (Math.Abs(sinY) > Math.Abs(cosY))
+            if (Math.Abs(sinY) > Math.Abs(cosY)) {
                 sinY = Math.Sign(sinY) * Sqrt2p2;
-            else
+            } else {
                 cosY = Math.Sign(cosY) * Sqrt2p2;
+            }
             sinY /= Sqrt2p2;
             cosY /= Sqrt2p2;
             if (Math.Abs(sinX) >= Sqrt2p2) {
@@ -77,8 +78,9 @@ namespace Cavern.Utilities {
         /// To get the actual wall position, scale with <see cref="Listener.EnvironmentSize"/>.
         /// </summary>
         public static Vector3 PlaceOnRoom(this Vector3 angles) {
-            if (Listener.IsSpherical)
+            if (Listener.IsSpherical) {
                 return PlaceInSphere(angles);
+            }
             return PlaceInCube(angles);
         }
 
@@ -87,8 +89,9 @@ namespace Cavern.Utilities {
         /// To get the actual wall position, scale with <see cref="Listener.EnvironmentSize"/>.
         /// </summary>
         public static Vector3 PlaceNormalOnRoom(this Vector3 normal) {
-            if (Listener.IsSpherical)
+            if (Listener.IsSpherical) {
                 return normal;
+            }
             return normal.WarpNormalToCube();
         }
 

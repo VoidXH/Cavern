@@ -7,6 +7,11 @@ namespace Cavern.Filters {
     /// <remarks>The feedback comb filter is called <see cref="Echo"/>.</remarks>
     public class Comb : Filter {
         /// <summary>
+        /// Wet mix multiplier.
+        /// </summary>
+        public double Alpha { get; set; }
+
+        /// <summary>
         /// Delay in samples.
         /// </summary>
         public int K {
@@ -21,11 +26,6 @@ namespace Cavern.Filters {
             get => sampleRate * .5 / K;
             set => K = (int)(.5 / (value / sampleRate) + 1);
         }
-
-        /// <summary>
-        /// Wet mix multiplier.
-        /// </summary>
-        public double Alpha;
 
         /// <summary>
         /// Delay filter generating the samples fed forward.
@@ -70,13 +70,16 @@ namespace Cavern.Filters {
         /// Apply comb on an array of samples. One filter should be applied to only one continuous stream of samples.
         /// </summary>
         public override void Process(float[] samples) {
-            if (cache.Length != samples.Length)
+            if (cache.Length != samples.Length) {
                 cache = new float[samples.Length];
+            }
             Array.Copy(samples, cache, samples.Length);
             delay.Process(cache);
-            float divisor = (float)(1 / (1 + Alpha)), alpha = (float)Alpha;
-            for (int sample = 0; sample < samples.Length; ++sample)
+            float alpha = (float)Alpha,
+                divisor = 1 / (1 + alpha);
+            for (int sample = 0; sample < samples.Length; ++sample) {
                 samples[sample] = (samples[sample] + cache[sample] * alpha) * divisor;
+            }
         }
     }
 }

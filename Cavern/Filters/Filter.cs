@@ -18,11 +18,13 @@
         public virtual void Process(float[] samples, int channel, int channels) {
             int channelSize = samples.Length / channels;
             float[] singleChannel = new float[channelSize];
-            for (int sample = 0; sample < channelSize; ++sample)
+            for (int sample = 0; sample < channelSize; ++sample) {
                 singleChannel[sample] = samples[sample * channels + channel];
+            }
             Process(singleChannel);
-            for (int sample = 0; sample < channelSize; ++sample)
+            for (int sample = 0; sample < channelSize; ++sample) {
                 samples[sample * channels + channel] = singleChannel[sample];
+            }
         }
     }
 }

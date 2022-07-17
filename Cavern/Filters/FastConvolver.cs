@@ -40,8 +40,9 @@ namespace Cavern.Filters {
             int fftSize = 2 << QMath.Log2Ceil(impulse.Length); // Zero padding for the falloff to have space
             cache = new FFTCache(fftSize);
             filter = new Complex[fftSize];
-            for (int sample = 0; sample < impulse.Length; ++sample)
+            for (int sample = 0; sample < impulse.Length; ++sample) {
                 filter[sample].Real = impulse[sample];
+            }
             filter.InPlaceFFT(cache);
             present = new Complex[fftSize];
             future = new float[fftSize + delay];
@@ -53,35 +54,9 @@ namespace Cavern.Filters {
         /// </summary>
         public override void Process(float[] samples) {
             int start = 0;
-            while (start < samples.Length)
+            while (start < samples.Length) {
                 ProcessTimeslot(samples, start, Math.Min(samples.Length, start += filter.Length >> 1));
-        }
-
-        /// <summary>
-        /// In case there are more input samples than the size of the filter, split it in parts.
-        /// </summary>
-        void ProcessTimeslot(float[] samples, int from, int to) {
-            // Move samples and pad present
-            for (int i = from; i < to; ++i)
-                present[i - from] = new Complex(samples[i]);
-            for (int i = to - from; i < present.Length; ++i)
-                present[i].Clear();
-
-            // Perform the convolution
-            present.InPlaceFFT(cache);
-            present.Convolve(filter);
-            present.InPlaceIFFT(cache);
-
-            // Append the result to the future
-            for (int i = 0; i < present.Length; ++i)
-                future[i + delay] += present[i].Real;
-
-            // Write the output and remove those samples from the future
-            to -= from;
-            for (int i = 0; i < to; ++i)
-                samples[from + i] = future[i];
-            Array.Copy(future, to, future, 0, future.Length - to);
-            Array.Clear(future, future.Length - to, to);
+            }
         }
 
         /// <summary>
@@ -118,6 +93,37 @@ namespace Cavern.Filters {
                 ConvolveFourier(excitation, impulse);
             result.InPlaceIFFT();
             return Measurements.GetRealPart(result);
+        }
+
+        /// <summary>
+        /// In case there are more input samples than the size of the filter, split it in parts.
+        /// </summary>
+        void ProcessTimeslot(float[] samples, int from, int to) {
+            // Move samples and pad present
+            for (int i = from; i < to; ++i) {
+                present[i - from] = new Complex(samples[i]);
+            }
+            for (int i = to - from; i < present.Length; ++i) {
+                present[i].Clear();
+            }
+
+            // Perform the convolution
+            present.InPlaceFFT(cache);
+            present.Convolve(filter);
+            present.InPlaceIFFT(cache);
+
+            // Append the result to the future
+            for (int i = 0; i < present.Length; ++i) {
+                future[i + delay] += present[i].Real;
+            }
+
+            // Write the output and remove those samples from the future
+            to -= from;
+            for (int i = 0; i < to; ++i) {
+                samples[from + i] = future[i];
+            }
+            Array.Copy(future, to, future, 0, future.Length - to);
+            Array.Clear(future, future.Length - to, to);
         }
     }
 }

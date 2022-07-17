@@ -29,31 +29,6 @@ namespace Cavern.Filters {
             set => Reset(centerFreq, q, value);
         }
 
-        /// <summary>
-        /// Center frequency (-3 dB point) of the filter.
-        /// </summary>
-        protected double centerFreq;
-
-        /// <summary>
-        /// Q-factor of the filter.
-        /// </summary>
-        protected double q;
-
-        /// <summary>
-        /// Gain of the filter in decibels.
-        /// </summary>
-        protected double gain;
-
-        /// <summary>
-        /// Cached sample rate.
-        /// </summary>
-        protected int sampleRate;
-
-        /// <summary>
-        /// History sample.
-        /// </summary>
-        protected float x1, x2, y1, y2;
-
 #pragma warning disable IDE1006 // Naming Styles
         /// <summary>
         /// Transfer function variable.
@@ -80,6 +55,31 @@ namespace Cavern.Filters {
         /// </summary>
         public float b2 { get; protected set; }
 #pragma warning restore IDE1006 // Naming Styles
+
+        /// <summary>
+        /// Center frequency (-3 dB point) of the filter.
+        /// </summary>
+        protected double centerFreq;
+
+        /// <summary>
+        /// Q-factor of the filter.
+        /// </summary>
+        protected double q;
+
+        /// <summary>
+        /// Gain of the filter in decibels.
+        /// </summary>
+        protected double gain;
+
+        /// <summary>
+        /// Cached sample rate.
+        /// </summary>
+        protected int sampleRate;
+
+        /// <summary>
+        /// History sample.
+        /// </summary>
+        protected float x1, x2, y1, y2;
 
         /// <summary>
         /// Simple first-order biquad filter.

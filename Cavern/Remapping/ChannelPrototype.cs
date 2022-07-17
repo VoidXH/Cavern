@@ -94,16 +94,6 @@ namespace Cavern.Remapping {
             TopRearRight = new ChannelPrototype(150, -45, "Top rear right"),
             TopRearCenter = new ChannelPrototype(180, -45, "Top rear center");
 
-        const string frontLeftMark = "L",
-            frontRightMark = "R",
-            frontCenterMark = "C",
-            screenLFEMark = "LFE",
-            subwooferMark = "SUB",
-            rearLeftMark = "RL",
-            rearRightMark = "RR",
-            sideLeftMark = "SL",
-            sideRightMark = "SR";
-
         /// <summary>
         /// Converts a standard channel shorthand to a <see cref="ChannelPrototype"/>.
         /// </summary>
@@ -264,8 +254,9 @@ namespace Cavern.Remapping {
             ReferenceChannel[] matrix = StandardMatrix[count];
             if (subcount != count) {
                 Array.Resize(ref matrix, count);
-                for (int i = subcount; i < count; ++i)
+                for (int i = subcount; i < count; ++i) {
                     matrix[i] = ReferenceChannel.Unknown;
+                }
             }
             return matrix;
         }
@@ -284,8 +275,9 @@ namespace Cavern.Remapping {
         /// </summary>
         public static ChannelPrototype[] Get(ReferenceChannel[] source) {
             ChannelPrototype[] result = new ChannelPrototype[source.Length];
-            for (int i = 0; i < source.Length; ++i)
+            for (int i = 0; i < source.Length; ++i) {
                 result[i] = Mapping[(int)source[i]];
+            }
             return result;
         }
 
@@ -294,23 +286,20 @@ namespace Cavern.Remapping {
         /// </summary>
         public static string[] GetNames(ReferenceChannel[] source) {
             string[] result = new string[source.Length];
-            for (int i = 0; i < source.Length; ++i)
+            for (int i = 0; i < source.Length; ++i) {
                 result[i] = Mapping[(int)source[i]].Name;
+            }
             return result;
         }
-
-        /// <summary>
-        /// Check if two channel prototypes are the same.
-        /// </summary>
-        public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
 
         /// <summary>
         /// Convert a prototype array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
         /// </summary>
         public static Channel[] ToLayout(ChannelPrototype[] source) {
             Channel[] result = new Channel[source.Length];
-            for (int channel = 0; channel < source.Length; ++channel)
+            for (int channel = 0; channel < source.Length; ++channel) {
                 result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE);
+            }
             return result;
         }
 
@@ -320,13 +309,32 @@ namespace Cavern.Remapping {
         public static Channel[] ToLayout(ReferenceChannel[] source) => ToLayout(Get(source));
 
         /// <summary>
+        /// Check if two channel prototypes are the same.
+        /// </summary>
+        public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
+
+        /// <summary>
         /// Human-readable channel prototype data.
         /// </summary>
         public override string ToString() {
             string basic = $"{(LFE ? Name + "(LFE)" : Name)} ({X}; {Y})";
-            if (Muted)
+            if (Muted) {
                 return basic + " (muted)";
+            }
             return basic;
         }
+
+        /// <summary>
+        /// Semi-standard (Equalizer APO) channel names.
+        /// </summary>
+        const string frontLeftMark = "L",
+            frontRightMark = "R",
+            frontCenterMark = "C",
+            screenLFEMark = "LFE",
+            subwooferMark = "SUB",
+            rearLeftMark = "RL",
+            rearRightMark = "RR",
+            sideLeftMark = "SL",
+            sideRightMark = "SR";
     }
 }

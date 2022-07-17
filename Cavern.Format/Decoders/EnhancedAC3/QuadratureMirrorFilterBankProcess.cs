@@ -1,5 +1,5 @@
-﻿using Cavern.Utilities;
-using System;
+﻿using System;
+using System.Numerics;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
@@ -7,9 +7,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// </summary>
     partial class QuadratureMirrorFilterBank {
         /// <summary>
-        /// 1 / <see cref="subbands"/>.
+        /// Forward transformation cache of rotation cosines and sines. Vectors are used for their SIMD properties.
         /// </summary>
-        const float subbandDiv = 1f / subbands;
+        static Vector2[][] forwardCache;
+
+        /// <summary>
+        /// Inverse transformation cache of rotation cosines and sines. Vectors are used for their SIMD properties.
+        /// </summary>
+        static Vector2[][] inverseCache;
 
         /// <summary>
         /// Input sample cache for forward transformations.
@@ -34,27 +39,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Output cache.
         /// </summary>
-        readonly Complex[] outCache;
-
-        /// <summary>
-        /// Forward transformation cache of rotation sines.
-        /// </summary>
-        readonly float[][] sinCacheFwd;
-
-        /// <summary>
-        /// Forward transformation cache of rotation cosines.
-        /// </summary>
-        readonly float[][] cosCacheFwd;
-
-        /// <summary>
-        /// Inverse transformation cache of rotation sines.
-        /// </summary>
-        readonly float[][] sinCacheInv;
-
-        /// <summary>
-        /// Inverse transformation cache of rotation cosines.
-        /// </summary>
-        readonly float[][] cosCacheInv;
+        readonly Vector2[] outCache;
 
         /// <summary>
         /// Converts a PCM stream to a quadrature mirror filter bank and back.
@@ -65,24 +50,20 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             inputStreamInverse = new float[coeffs.Length * 2];
             window = new float[coeffs.Length];
             grouping = new float[doubleLength];
-            outCache = new Complex[subbands];
+            outCache = new Vector2[subbands];
 
-            sinCacheFwd = new float[subbands][];
-            cosCacheFwd = new float[subbands][];
-            sinCacheInv = new float[subbands][];
-            cosCacheInv = new float[subbands][];
-            for (int sb = 0; sb < subbands; ++sb) {
-                sinCacheFwd[sb] = new float[doubleLength];
-                cosCacheFwd[sb] = new float[doubleLength];
-                sinCacheInv[sb] = new float[doubleLength];
-                cosCacheInv[sb] = new float[doubleLength];
-                for (int j = 0; j < doubleLength; ++j) {
-                    float exp = MathF.PI * (sb + .5f) * (j - .5f) * subbandDiv;
-                    sinCacheFwd[sb][j] = MathF.Sin(exp);
-                    cosCacheFwd[sb][j] = MathF.Cos(exp);
-                    exp = MathF.PI * (sb + .5f) * (j - doubleLength + .5f) * subbandDiv;
-                    sinCacheInv[sb][j] = MathF.Sin(exp) * subbandDiv;
-                    cosCacheInv[sb][j] = MathF.Cos(exp) * subbandDiv;
+            if (forwardCache == null) {
+                forwardCache = new Vector2[subbands][];
+                inverseCache = new Vector2[subbands][];
+                for (int sb = 0; sb < subbands; ++sb) {
+                    forwardCache[sb] = new Vector2[doubleLength];
+                    inverseCache[sb] = new Vector2[doubleLength];
+                    for (int j = 0; j < doubleLength; ++j) {
+                        float exp = MathF.PI * (sb + .5f) * (j - .5f) * subbandDiv;
+                        forwardCache[sb][j] = new Vector2(MathF.Cos(exp), MathF.Sin(exp));
+                        exp = MathF.PI * (sb + .5f) * (j - doubleLength + .5f) * subbandDiv;
+                        inverseCache[sb][j] = new Vector2(MathF.Cos(exp), MathF.Sin(exp)) * subbandDiv;
+                    }
                 }
             }
         }
@@ -90,30 +71,33 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Convert a timeslot of real <see cref="subbands"/> to QMFB.
         /// </summary>
-        public Complex[] ProcessForward(float[] input) {
+        public Vector2[] ProcessForward(float[] input) {
             Array.Copy(inputStreamForward, 0, inputStreamForward, subbands, coeffs.Length - subbands);
-            for (int sample = 0; sample < subbands; ++sample)
+            for (int sample = 0; sample < subbands; ++sample) {
                 inputStreamForward[sample] = input[subbands - sample - 1];
+            }
 
-            for (int sample = 0; sample < window.Length; ++sample)
+            for (int sample = 0; sample < window.Length; ++sample) {
                 window[sample] = inputStreamForward[sample] * coeffs[sample];
+            }
 
             int doubleLength = subbands * 2;
             for (int j = 0, end = coeffs.Length / doubleLength; j < doubleLength; ++j) {
                 float groupingValue = 0;
-                for (int k = 0; k < end; ++k)
+                for (int k = 0; k < end; ++k) {
                     groupingValue += window[j + k * doubleLength];
+                }
                 grouping[j] = groupingValue;
             }
 
             Array.Clear(outCache, 0, outCache.Length);
             for (int sb = 0; sb < subbands; ++sb) {
-                float real = 0, imaginary = 0;
+                Vector2 result = new Vector2();
+                Vector2[] cache = forwardCache[sb];
                 for (int j = 0; j < doubleLength; ++j) {
-                    real += grouping[j] * cosCacheFwd[sb][j];
-                    imaginary += grouping[j] * sinCacheFwd[sb][j];
+                    result += cache[j] * grouping[j];
                 }
-                outCache[sb] = new Complex(real, imaginary);
+                outCache[sb] = result;
             }
             return outCache;
         }
@@ -121,16 +105,19 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Convert a timeslot of QMFB <see cref="subbands"/> to PCM samples.
         /// </summary>
-        public void ProcessInverse(Complex[] input, float[] output) {
+        public void ProcessInverse(Vector2[] input, float[] output) {
             int doubleLength = subbands * 2;
             int quadrupleLength = subbands * 4;
 
             Array.Copy(inputStreamInverse, 0, inputStreamInverse, doubleLength, inputStreamInverse.Length - doubleLength);
-            for (int j = 0; j < doubleLength; ++j) {
-                float sum = 0;
-                for (int sb = 0; sb < subbands; ++sb)
-                    sum += input[sb].Real * cosCacheInv[sb][j] - input[sb].Imaginary * sinCacheInv[sb][j];
-                inputStreamInverse[j] = sum;
+            Array.Clear(inputStreamInverse, 0, doubleLength);
+            for (int sb = 0; sb < subbands; ++sb) {
+                Vector2[] cache = inverseCache[sb];
+                Vector2 mul = input[sb];
+                for (int j = 0; j < doubleLength; ++j) {
+                    Vector2 result = cache[j] * mul;
+                    inputStreamInverse[j] += result.X - result.Y;
+                }
             }
 
             for (int j = 0, end = coeffs.Length / doubleLength; j < end; ++j) {
@@ -142,15 +129,22 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
-            for (int j = 0; j < window.Length; ++j)
+            for (int j = 0; j < window.Length; ++j) {
                 window[j] *= coeffs[j];
+            }
 
             for (int ts = 0; ts < subbands; ++ts) {
                 float outSample = 0;
-                for (int j = 0, end = coeffs.Length / subbands; j < end; ++j)
+                for (int j = 0, end = coeffs.Length / subbands; j < end; ++j) {
                     outSample += window[subbands * j + ts];
+                }
                 output[ts] = outSample;
             }
         }
+
+        /// <summary>
+        /// 1 / <see cref="subbands"/>.
+        /// </summary>
+        const float subbandDiv = 1f / subbands;
     }
 }

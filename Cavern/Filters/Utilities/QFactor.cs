@@ -6,11 +6,6 @@ namespace Cavern.Filters.Utilities {
     /// </summary>
     public static class QFactor {
         /// <summary>
-        /// Sqrt(2)/2, the reference Q factor.
-        /// </summary>
-        public const double reference = .7071067811865475;
-
-        /// <summary>
         /// Convert bandwidth to Q-factor.
         /// </summary>
         public static double FromBandwidth(double centerFreq, double startFreq, double endFreq) => centerFreq / (endFreq - startFreq);
@@ -47,5 +42,10 @@ namespace Cavern.Filters.Utilities {
             double a = Math.Pow(10, gain * .05f);
             return 1.0 / Math.Sqrt((a + 1 / a) * (1 / Math.Abs(slope / gain) - 1) + 2);
         }
+
+        /// <summary>
+        /// Sqrt(2)/2, the reference Q factor.
+        /// </summary>
+        public const double reference = .7071067811865475;
     }
 }

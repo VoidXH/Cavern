@@ -25,11 +25,25 @@ namespace Cavern.Remapping {
             }
         }
 
-        int updateRate;
-
+        /// <summary>
+        /// Cavern rendering environment to upscale to.
+        /// </summary>
         readonly Listener listener;
+
+        /// <summary>
+        /// Easily editable <see cref="Clip"/>s for channel spoofing.
+        /// </summary>
         readonly RemappedChannel[] clips;
+
+        /// <summary>
+        /// Sources representing each source channel.
+        /// </summary>
         readonly Source[] sources;
+
+        /// <summary>
+        /// Source update rate.
+        /// </summary>
+        int updateRate;
 
         /// <summary>
         /// Convert any standard multichannel audio stream to the channel layout set for Cavern.
@@ -66,12 +80,14 @@ namespace Cavern.Remapping {
         public float[] Update(float[] stream, int channels) {
             int actualRate = stream.Length / channels;
             if (updateRate != actualRate) {
-                for (int channel = 0; channel < channels; ++channel)
+                for (int channel = 0; channel < channels; ++channel) {
                     clips[channel].Remake(actualRate);
+                }
                 listener.UpdateRate = updateRate = actualRate;
             }
-            for (int channel = 0; channel < channels; ++channel)
+            for (int channel = 0; channel < channels; ++channel) {
                 clips[channel].Update(stream, channel, channels);
+            }
             return listener.Render();
         }
 
@@ -79,8 +95,9 @@ namespace Cavern.Remapping {
         /// Remove the created sources from the listener.
         /// </summary>
         public void Dispose() {
-            for (int channel = 0; channel < channels; ++channel)
+            for (int channel = 0; channel < channels; ++channel) {
                 listener.DetachSource(sources[channel]);
+            }
         }
     }
 }

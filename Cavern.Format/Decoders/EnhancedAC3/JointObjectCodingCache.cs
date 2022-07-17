@@ -4,11 +4,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     // Reusable arrays
     partial class JointObjectCoding {
         /// <summary>
-        /// Maximum number of objects to render.
-        /// </summary>
-        const int maxObjects = 64;
-
-        /// <summary>
         /// Previous JOC mixing matrix values.
         /// </summary>
         readonly float[][][] prevMatrix;
@@ -19,32 +14,61 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         bool[] steepSlope;
 
         /// <summary>
-        /// Indexing value for given <see cref="joc_num_bands"/> values in cache tables.
+        /// Indexing value for given <see cref="bands"/> values in cache tables.
         /// </summary>
-        byte[] joc_num_bands_idx;
+        byte[] bandsIndex;
 
         /// <summary>
         /// Number of processed bands of each object.
         /// </summary>
-        byte[] joc_num_bands;
+        byte[] bands;
 
         /// <summary>
         /// Index of the used quantization table for each object.
         /// </summary>
-        byte[] joc_num_quant_idx;
+        byte[] quantizationTable;
 
         /// <summary>
         /// Number of data points for each object.
         /// </summary>
         int[] dataPoints;
 
-        bool[] b_joc_sparse;
-        float[][][][] joc_mix_mtx;
-        float[][][][] joc_mix_mtx_interp;
-        int[][] joc_offset_ts;
-        int[][][] joc_channel_idx;
-        int[][][] joc_vec;
-        int[][][][] joc_mtx;
+        /// <summary>
+        /// The given object is using sparse coding (<see cref="jocChannel"/> and <see cref="jocVector"/>) instead
+        /// of a fully encoded matrix (<see cref="jocMatrix"/>).
+        /// </summary>
+        bool[] sparseCoded;
+
+        /// <summary>
+        /// Source channel indexes in sparse mode (one object is only sourced from one channel).
+        /// </summary>
+        int[][][] jocChannel;
+
+        /// <summary>
+        /// Quantized data for each source marked by <see cref="jocChannel"/>.
+        /// </summary>
+        int[][][] jocVector;
+
+        /// <summary>
+        /// Quantized and differentially coded JOC mixing matrix.
+        /// </summary>
+        int[][][][] jocMatrix;
+
+        /// <summary>
+        /// Decoded JOC matrix.
+        /// </summary>
+        float[][][][] mixMatrix;
+
+        /// <summary>
+        /// Decoded JOC matrix with fading.
+        /// </summary>
+        float[][][][] interpolatedMatrix;
+
+        /// <summary>
+        /// Timeslot indexes where the source matrix changes for specific encodings
+        /// (like when steep slopes switch between previous and current matrices).
+        /// </summary>
+        int[][] timeslotOffsets;
 
         /// <summary>
         /// Create a JOC decoder. Always reuse a previous one as history data is required for decoding.
@@ -54,8 +78,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             prevMatrix = new float[maxObjects][][];
             for (int obj = 0; obj < maxObjects; ++obj) {
                 prevMatrix[obj] = new float[maxChannels][];
-                for (int ch = 0; ch < maxChannels; ++ch)
+                for (int ch = 0; ch < maxChannels; ++ch) {
                     prevMatrix[obj][ch] = new float[QuadratureMirrorFilterBank.subbands];
+                }
             }
         }
 
@@ -63,50 +88,53 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Checks if the cache is ready for the given number of objects and channels, and fixes if it's not.
         /// </summary>
         public void UpdateCache() {
-            if (ObjectActive.Length == ObjectCount && joc_mtx[0][0].Length == ChannelCount)
+            if (ObjectActive.Length == ObjectCount && jocMatrix[0][0].Length == ChannelCount) {
                 return;
+            }
 
-            if (JointObjectCodingTables.parameterBandMapping[0].Length == 1)
+            if (JointObjectCodingTables.parameterBandMapping[0].Length == 1) {
                 SetupStaticCache();
+            }
 
             ObjectActive = new bool[ObjectCount];
-            joc_num_bands_idx = new byte[ObjectCount];
-            joc_num_bands = new byte[ObjectCount];
-            b_joc_sparse = new bool[ObjectCount];
-            joc_num_quant_idx = new byte[ObjectCount];
+            bandsIndex = new byte[ObjectCount];
+            bands = new byte[ObjectCount];
+            sparseCoded = new bool[ObjectCount];
+            quantizationTable = new byte[ObjectCount];
             steepSlope = new bool[ObjectCount];
-            joc_mix_mtx = new float[ObjectCount][][][];
-            joc_mix_mtx_interp = new float[ObjectCount][][][];
+            mixMatrix = new float[ObjectCount][][][];
+            interpolatedMatrix = new float[ObjectCount][][][];
             dataPoints = new int[ObjectCount];
-            joc_offset_ts = new int[ObjectCount][];
-            joc_channel_idx = new int[ObjectCount][][];
-            joc_vec = new int[ObjectCount][][];
-            joc_mtx = new int[ObjectCount][][][];
+            timeslotOffsets = new int[ObjectCount][];
+            jocChannel = new int[ObjectCount][][];
+            jocVector = new int[ObjectCount][][];
+            jocMatrix = new int[ObjectCount][][][];
 
             int maxBands = JointObjectCodingTables.joc_num_bands[^1];
             const int maxDataPoints = 2;
             const int maxTimeslots = 1536 / QuadratureMirrorFilterBank.subbands;
             for (int obj = 0; obj < ObjectCount; ++obj) {
-                joc_mix_mtx[obj] = new float[maxDataPoints][][];
-                joc_mix_mtx_interp[obj] = new float[maxTimeslots][][];
-                joc_offset_ts[obj] = new int[maxDataPoints];
-                joc_channel_idx[obj] = new int[maxDataPoints][];
-                joc_vec[obj] = new int[maxDataPoints][];
-                joc_mtx[obj] = new int[maxDataPoints][][];
+                mixMatrix[obj] = new float[maxDataPoints][][];
+                interpolatedMatrix[obj] = new float[maxTimeslots][][];
+                timeslotOffsets[obj] = new int[maxDataPoints];
+                jocChannel[obj] = new int[maxDataPoints][];
+                jocVector[obj] = new int[maxDataPoints][];
+                jocMatrix[obj] = new int[maxDataPoints][][];
                 for (int dp = 0; dp < maxDataPoints; ++dp) {
-                    joc_mix_mtx[obj][dp] = new float[ChannelCount][];
-                    joc_channel_idx[obj][dp] = new int[maxBands];
-                    joc_vec[obj][dp] = new int[maxBands];
-                    joc_mtx[obj][dp] = new int[ChannelCount][];
+                    mixMatrix[obj][dp] = new float[ChannelCount][];
+                    jocChannel[obj][dp] = new int[maxBands];
+                    jocVector[obj][dp] = new int[maxBands];
+                    jocMatrix[obj][dp] = new int[ChannelCount][];
                     for (int ch = 0; ch < ChannelCount; ++ch) {
-                        joc_mix_mtx[obj][dp][ch] = new float[QuadratureMirrorFilterBank.subbands];
-                        joc_mtx[obj][dp][ch] = new int[maxBands];
+                        mixMatrix[obj][dp][ch] = new float[QuadratureMirrorFilterBank.subbands];
+                        jocMatrix[obj][dp][ch] = new int[maxBands];
                     }
                 }
                 for (int ts = 0; ts < maxTimeslots; ++ts) {
-                    joc_mix_mtx_interp[obj][ts] = new float[ChannelCount][];
-                    for (int ch = 0; ch < ChannelCount; ++ch)
-                        joc_mix_mtx_interp[obj][ts][ch] = new float[QuadratureMirrorFilterBank.subbands];
+                    interpolatedMatrix[obj][ts] = new float[ChannelCount][];
+                    for (int ch = 0; ch < ChannelCount; ++ch) {
+                        interpolatedMatrix[obj][ts][ch] = new float[QuadratureMirrorFilterBank.subbands];
+                    }
                 }
             }
         }
@@ -120,12 +148,18 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 byte[] expanded = new byte[QuadratureMirrorFilterBank.subbands];
                 for (byte sb = 0; sb < expanded.Length; ++sb) {
                     int pb = Array.BinarySearch(mapping[i], sb);
-                    if (pb < 0)
+                    if (pb < 0) {
                         pb = ~pb - 1;
+                    }
                     expanded[sb] = (byte)pb;
                 }
                 mapping[i] = expanded;
             }
         }
+
+        /// <summary>
+        /// Maximum number of objects to render.
+        /// </summary>
+        const int maxObjects = 64;
     }
 }

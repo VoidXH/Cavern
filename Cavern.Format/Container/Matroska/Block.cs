@@ -16,26 +16,6 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
-        /// Flag mask for <see cref="IsKeyframe"/>.
-        /// </summary>
-        const byte keyframeFlag = 0x80;
-
-        /// <summary>
-        /// Flag mask for <see cref="IsInvisible"/>.
-        /// </summary>
-        const byte invisibleFlag = 0x08;
-
-        /// <summary>
-        /// Flag mask for <see cref="LacingType"/>.
-        /// </summary>
-        const byte lacingFlags = 0x06;
-
-        /// <summary>
-        /// Flag mask for <see cref="IsDiscardable"/>.
-        /// </summary>
-        const byte discardableFlag = 0x01;
-
-        /// <summary>
         /// The frame itself doesn't reference any other frames and no frame after this can reference any frame before this.
         /// </summary>
         public bool IsKeyframe => (flags & keyframeFlag) != 0;
@@ -125,8 +105,9 @@ namespace Cavern.Format.Container.Matroska {
                         break;
                     case Lacing.FixedSize:
                         int step = (int)((source.Length - (firstFrame - start)) / frameCount);
-                        for (byte i = 0; i < frameCount; ++i)
+                        for (byte i = 0; i < frameCount; ++i) {
                             frameSizes[i] = step;
+                        }
                         break;
                     case Lacing.EBML:
                         frameSizes[0] = (int)VarInt.ReadValue(reader);
@@ -162,8 +143,9 @@ namespace Cavern.Format.Container.Matroska {
         public byte[][] GetFrames() {
             reader.Position = firstFrame;
             byte[][] result = new byte[frameCount][];
-            for (byte frame = 0; frame < frameCount; ++frame)
+            for (byte frame = 0; frame < frameCount; ++frame) {
                 result[frame] = reader.ReadBytes(frameSizes[frame]);
+            }
             return result;
         }
 
@@ -171,5 +153,25 @@ namespace Cavern.Format.Container.Matroska {
         /// Provides basic information about the block.
         /// </summary>
         public override string ToString() => $"Matroska block, track {Track}, relative time: {TimeStamp}";
+
+        /// <summary>
+        /// Flag mask for <see cref="IsKeyframe"/>.
+        /// </summary>
+        const byte keyframeFlag = 0x80;
+
+        /// <summary>
+        /// Flag mask for <see cref="IsInvisible"/>.
+        /// </summary>
+        const byte invisibleFlag = 0x08;
+
+        /// <summary>
+        /// Flag mask for <see cref="LacingType"/>.
+        /// </summary>
+        const byte lacingFlags = 0x06;
+
+        /// <summary>
+        /// Flag mask for <see cref="IsDiscardable"/>.
+        /// </summary>
+        const byte discardableFlag = 0x01;
     }
 }

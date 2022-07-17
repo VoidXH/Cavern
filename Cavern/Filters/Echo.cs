@@ -25,6 +25,11 @@
         }
 
         /// <summary>
+        /// Cached audio sample rate.
+        /// </summary>
+        readonly int sampleRate;
+
+        /// <summary>
         /// Samples to mix back to the next block.
         /// </summary>
         float[] cache;
@@ -38,11 +43,6 @@
         /// Delay between echoes in samples.
         /// </summary>
         int delay;
-
-        /// <summary>
-        /// Cached audio sample rate.
-        /// </summary>
-        readonly int sampleRate;
 
         /// <summary>
         /// Create an echo filter.
@@ -61,7 +61,8 @@
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="strength">Effect strength</param>
         /// <param name="delay">Delay between echoes in seconds</param>
-        public Echo(int sampleRate, double strength = .25f, double delay = .1f) => Reset(strength, (int)(delay * (this.sampleRate = sampleRate)));
+        public Echo(int sampleRate, double strength = .25f, double delay = .1f) =>
+            Reset(strength, (int)(delay * (this.sampleRate = sampleRate)));
 
         /// <summary>
         /// Reset filter settings.
@@ -89,8 +90,9 @@
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
-            if (delay <= 0)
+            if (delay <= 0) {
                 return;
+            }
             float gain = (float)(1 / (1 + Strength)), strength = (float)Strength;
             for (int sample = channel; sample < samples.Length; sample += channels) {
                 samples[sample] = (samples[sample] + cache[cachePos]) * gain;

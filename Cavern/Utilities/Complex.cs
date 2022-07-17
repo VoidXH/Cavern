@@ -9,20 +9,12 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Real part of the complex number.
         /// </summary>
-        public float Real;
+        public float Real { get; set; }
 
         /// <summary>
         /// Imaginary part of the complex number.
         /// </summary>
-        public float Imaginary;
-
-        /// <summary>
-        /// Constructor from coordinates.
-        /// </summary>
-        public Complex(float real = 0, float imaginary = 0) {
-            Real = real;
-            Imaginary = imaginary;
-        }
+        public float Imaginary { get; set; }
 
         /// <summary>
         /// Magnitude of the complex number (spectrum for FFT).
@@ -38,14 +30,24 @@ namespace Cavern.Utilities {
         public float Phase => MathF.Atan2(Imaginary, Real);
 
         /// <summary>
+        /// Constructor from coordinates.
+        /// </summary>
+        public Complex(float real = 0, float imaginary = 0) {
+            Real = real;
+            Imaginary = imaginary;
+        }
+
+        /// <summary>
         /// Complex addition.
         /// </summary>
-        public static Complex operator +(Complex lhs, Complex rhs) => new Complex(lhs.Real + rhs.Real, lhs.Imaginary + rhs.Imaginary);
+        public static Complex operator +(Complex lhs, Complex rhs) =>
+            new Complex(lhs.Real + rhs.Real, lhs.Imaginary + rhs.Imaginary);
 
         /// <summary>
         /// Complex substraction.
         /// </summary>
-        public static Complex operator -(Complex lhs, Complex rhs) => new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);
+        public static Complex operator -(Complex lhs, Complex rhs) =>
+            new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);
 
         /// <summary>
         /// Complex negation.
@@ -56,7 +58,8 @@ namespace Cavern.Utilities {
         /// Complex multiplication.
         /// </summary>
         public static Complex operator *(Complex lhs, Complex rhs) =>
-            new Complex(lhs.Real * rhs.Real - lhs.Imaginary * rhs.Imaginary, lhs.Real * rhs.Imaginary + lhs.Imaginary * rhs.Real);
+            new Complex(lhs.Real * rhs.Real - lhs.Imaginary * rhs.Imaginary,
+                lhs.Real * rhs.Imaginary + lhs.Imaginary * rhs.Real);
 
         /// <summary>
         /// Scalar complex multiplication.
@@ -77,8 +80,9 @@ namespace Cavern.Utilities {
         /// </summary>
         public static Complex[] Parse(float[] source) {
             Complex[] result = new Complex[source.Length];
-            for (int i = 0; i < source.Length; ++i)
+            for (int i = 0; i < source.Length; ++i) {
                 result[i].Real = source[i];
+            }
             return result;
         }
 
@@ -163,11 +167,6 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Display the complex number.
         /// </summary>
-        public override string ToString() {
-            if (Imaginary >= 0)
-                return string.Format("{0}+{1}i", Real, Imaginary);
-            else
-                return string.Format("{0}{1}i", Real, Imaginary);
-        }
+        public override string ToString() => string.Format(Imaginary >= 0 ? "{0}+{1}i" : "{0}{1}i", Real, Imaginary);
     }
 }

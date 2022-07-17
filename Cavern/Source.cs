@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
 using Cavern.Virtualizer;
@@ -9,12 +8,13 @@ using Cavern.Virtualizer;
 namespace Cavern {
     public partial class Source {
         // ------------------------------------------------------------------
-        // Constants
+        // Protected properties
         // ------------------------------------------------------------------
         /// <summary>
-        /// Reference sound velocity in m/s (dry air, 25.4 degrees Celsius).
+        /// Samples required to match the listener's update rate after pitch changes.
+        /// This is the number of samples that has to be rendered.
         /// </summary>
-        public const float SpeedOfSound = 346.74f;
+        protected int PitchedUpdateRate { get; private set; }
 
         // ------------------------------------------------------------------
         // Internal helpers
@@ -28,15 +28,6 @@ namespace Cavern {
         /// Cached node from <see cref="Listener.activeSources"/> for faster detach.
         /// </summary>
         internal LinkedListNode<Source> listenerNode;
-
-        // ------------------------------------------------------------------
-        // Protected properties
-        // ------------------------------------------------------------------
-        /// <summary>
-        /// Samples required to match the listener's update rate after pitch changes.
-        /// This is the number of samples that has to be rendered.
-        /// </summary>
-        protected int PitchedUpdateRate { get; private set; }
 
         // ------------------------------------------------------------------
         // Private vars
@@ -102,115 +93,6 @@ namespace Cavern {
         long delay = 0;
 
         /// <summary>
-        /// Keeps a value in the given array, if it's smaller than any of its contents.
-        /// </summary>
-        /// <param name="target">Array reference</param>
-        /// <param name="value">Value to insert</param>
-        static void BottomlistHandler(float[] target, float value) {
-            int replace = -1;
-            for (int record = 0; record < target.Length; ++record)
-                if (target[record] > value)
-                    replace = replace == -1 ? record : (target[record] > target[replace] ? record : replace);
-            if (replace != -1)
-                target[replace] = value;
-        }
-
-        /// <summary>
-        /// Calculate distance from the <see cref="Listener"/> and choose the closest sources to play.
-        /// </summary>
-        internal void Precalculate() {
-            if (Renderable) {
-                lastDistance = distance;
-                distance = Vector3.Distance(Position, listener.Position);
-                if (float.IsNaN(lastDistance))
-                    lastDistance = distance;
-                BottomlistHandler(listener.sourceDistances, distance);
-            } else
-                distance = float.NaN;
-        }
-
-        /// <summary>
-        /// Get the next samples in the audio stream.
-        /// </summary>
-        protected internal virtual float[][] GetSamples() {
-            int channels = Clip.Channels;
-            if (Rendered == null || Rendered.Length != channels) {
-                Rendered = new float[channels][];
-                Rendered[0] = new float[0];
-            }
-            if (Rendered[0].Length != PitchedUpdateRate)
-                for (int channel = 0; channel < channels; ++channel)
-                    Rendered[channel] = new float[PitchedUpdateRate];
-            if (Loop)
-                Clip.GetData(Rendered, TimeSamples);
-            else
-                Clip.GetDataNonLooping(Rendered, TimeSamples);
-            return Rendered;
-        }
-
-        /// <summary>
-        /// Quickly checks if a value is in an array.
-        /// </summary>
-        /// <param name="target">Array reference</param>
-        /// <param name="value">Value to check</param>
-        /// <returns>If an array contains the value</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool ArrayContains(float[] target, float value) {
-            for (int entry = 0; entry < target.Length; ++entry)
-                if (target[entry] == value)
-                    return true;
-            return false;
-        }
-
-        /// <summary>
-        /// Cache the samples if the source should be rendered. This wouldn't be thread safe.
-        /// </summary>
-        /// <returns>The collection should be performed, as all requirements are met</returns>
-        protected internal virtual bool Precollect() {
-            if (delay > 0) {
-                delay -= listener.UpdateRate;
-                return false;
-            }
-            if (ArrayContains(listener.sourceDistances, distance)) {
-                if (listener.AudioQuality != QualityModes.Low) {
-                    if (DopplerLevel == 0)
-                        calculatedPitch = Pitch;
-                    else {
-                        float dopplerTarget = Pitch + lastDoppler * // c / (c - dv), dv = ds / dt
-                            (SpeedOfSound / (SpeedOfSound - (lastDistance - distance) / listener.pulseDelta) - 1);
-                        lastDoppler = Math.Clamp(QMath.Lerp(lastDoppler, dopplerTarget,
-                            10 * listener.UpdateRate / (float)listener.SampleRate), 0, DopplerLevel);
-                        calculatedPitch = Math.Clamp(lastDoppler, .5f, 3f);
-                    }
-                } else
-                    calculatedPitch = 1; // Disable any pitch change on low quality
-                if (listener.SampleRate != Clip.SampleRate)
-                    resampleMult = (float)Clip.SampleRate / listener.SampleRate;
-                else
-                    resampleMult = 1;
-                baseUpdateRate = (int)(listener.UpdateRate * calculatedPitch);
-                PitchedUpdateRate = (int)(baseUpdateRate * resampleMult);
-                if (samples.Length != PitchedUpdateRate)
-                    samples = new float[PitchedUpdateRate];
-                if (Clip.Channels == 2 && leftSamples.Length != PitchedUpdateRate) {
-                    leftSamples = new float[PitchedUpdateRate];
-                    rightSamples = new float[PitchedUpdateRate];
-                }
-                Rendered = GetSamples();
-                if (rendered.Length != Listener.Channels.Length * listener.UpdateRate)
-                    rendered = new float[Listener.Channels.Length * listener.UpdateRate];
-                return true;
-            }
-            Rendered = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Makes sure if <see cref="Precollect"/> is called immediatly after this function, it will return true.
-        /// </summary>
-        protected void ForcePrecollect() => listener.sourceDistances[0] = distance;
-
-        /// <summary>
         /// Output samples to a multichannel array. Automatically applies constant power mixing.
         /// </summary>
         /// <param name="samples">Samples to write</param>
@@ -222,8 +104,9 @@ namespace Cavern {
         /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
         internal static void WriteOutput(float[] samples, float[] target, float gain, int channel, int channels) {
             gain = (float)Math.Sqrt(gain);
-            for (int from = 0, to = channel; from < samples.Length; ++from, to += channels)
+            for (int from = 0, to = channel; from < samples.Length; ++from, to += channels) {
                 target[to] += samples[from] * gain;
+            }
         }
 
         /// <summary>
@@ -237,39 +120,94 @@ namespace Cavern {
         /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
         internal static void WriteOutput(float[] samples, float[] target, float gain, int channels) {
             gain /= channels;
-            for (int channel = 0; channel < channels; ++channel)
-                for (int from = 0, to = channel; from < samples.Length; ++from, to += channels)
+            for (int channel = 0; channel < channels; ++channel) {
+                for (int from = 0, to = channel; from < samples.Length; ++from, to += channels) {
                     target[to] = samples[from] * gain;
+                }
+            }
         }
 
         /// <summary>
-        /// Render the stereo side mix.
+        /// Keeps a value in the given array, if it's smaller than any of its contents.
         /// </summary>
-        void Stereo1DMix(float volume1D) {
-            float leftVolume = volume1D / Listener.LeftChannels,
-                rightVolume = volume1D / Listener.RightChannels;
-            if (stereoPan < 0)
-                rightVolume *= -stereoPan * stereoPan + 1;
-            else if (stereoPan > 0)
-                leftVolume *= 1 - stereoPan * stereoPan;
-            float halfVolume1D = volume1D * .5f;
-            int actualSample = 0;
-            for (int sample = 0; sample < listener.UpdateRate; ++sample) {
-                float leftSample = leftSamples[sample], rightSample = rightSamples[sample],
-                    leftGained = leftSample * leftVolume, rightGained = rightSample * rightVolume;
-                for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
-                    if (Listener.Channels[channel].LFE) {
-                        if (!listener.LFESeparation || LFE)
-                            rendered[actualSample] += (leftSample + rightSample) * halfVolume1D;
-                    } else if (!LFE) {
-                        if (Listener.Channels[channel].Y < 0)
-                            rendered[actualSample] += leftGained;
-                        else if (Listener.Channels[channel].Y > 0)
-                            rendered[actualSample] += rightGained;
-                    }
-                    ++actualSample;
+        /// <param name="target">Array reference</param>
+        /// <param name="value">Value to insert</param>
+        static void BottomlistHandler(float[] target, float value) {
+            int replace = -1;
+            for (int record = 0; record < target.Length; ++record) {
+                if (target[record] > value) {
+                    replace = replace == -1 ? record : (target[record] > target[replace] ? record : replace);
                 }
             }
+            if (replace != -1) {
+                target[replace] = value;
+            }
+        }
+
+        /// <summary>
+        /// Get the next samples in the audio stream.
+        /// </summary>
+        protected internal virtual float[][] GetSamples() {
+            int channels = Clip.Channels;
+            if (Rendered == null || Rendered.Length != channels) {
+                Rendered = new float[channels][];
+                Rendered[0] = new float[0];
+            }
+            if (Rendered[0].Length != PitchedUpdateRate) {
+                for (int channel = 0; channel < channels; ++channel) {
+                    Rendered[channel] = new float[PitchedUpdateRate];
+                }
+            }
+            if (Loop) {
+                Clip.GetData(Rendered, TimeSamples);
+            } else {
+                Clip.GetDataNonLooping(Rendered, TimeSamples);
+            }
+            return Rendered;
+        }
+
+        /// <summary>
+        /// Cache the samples if the source should be rendered. This wouldn't be thread safe.
+        /// </summary>
+        /// <returns>The collection should be performed, as all requirements are met</returns>
+        protected internal virtual bool Precollect() {
+            if (delay > 0) {
+                delay -= listener.UpdateRate;
+                return false;
+            }
+            if (listener.sourceDistances.Contains(distance)) {
+                if (listener.AudioQuality != QualityModes.Low) {
+                    if (DopplerLevel == 0) {
+                        calculatedPitch = Pitch;
+                    } else {
+                        float dopplerTarget = Pitch + lastDoppler * // c / (c - dv), dv = ds / dt
+                            (SpeedOfSound / (SpeedOfSound - (lastDistance - distance) / listener.pulseDelta) - 1);
+                        lastDoppler = Math.Clamp(QMath.Lerp(lastDoppler, dopplerTarget,
+                            10 * listener.UpdateRate / (float)listener.SampleRate), 0, DopplerLevel);
+                        calculatedPitch = Math.Clamp(lastDoppler, .5f, 3f);
+                    }
+                } else {
+                    calculatedPitch = 1; // Disable any pitch change on low quality
+                }
+
+                resampleMult = listener.SampleRate != Clip.SampleRate ? (float)Clip.SampleRate / listener.SampleRate : 1;
+                baseUpdateRate = (int)(listener.UpdateRate * calculatedPitch);
+                PitchedUpdateRate = (int)(baseUpdateRate * resampleMult);
+                if (samples.Length != PitchedUpdateRate) {
+                    samples = new float[PitchedUpdateRate];
+                }
+                if (Clip.Channels == 2 && leftSamples.Length != PitchedUpdateRate) {
+                    leftSamples = new float[PitchedUpdateRate];
+                    rightSamples = new float[PitchedUpdateRate];
+                }
+                Rendered = GetSamples();
+                if (rendered.Length != Listener.Channels.Length * listener.UpdateRate) {
+                    rendered = new float[Listener.Channels.Length * listener.UpdateRate];
+                }
+                return true;
+            }
+            Rendered = null;
+            return false;
         }
 
         /// <summary>
@@ -286,14 +224,16 @@ namespace Cavern {
                 int clipChannels = Clip.Channels;
 
                 // 3D renderer preprocessing
-                if (SpatialBlend != 0)
+                if (SpatialBlend != 0) {
                     if (listener.AudioQuality >= QualityModes.High && clipChannels != 1) { // Mono downmix above medium quality
                         Array.Clear(samples, 0, PitchedUpdateRate);
                         for (int channel = 0; channel < clipChannels; ++channel)
                             WaveformUtils.Mix(Rendered[channel], samples);
                         WaveformUtils.Gain(samples, 1f / clipChannels);
-                    } else // First channel only otherwise
+                    } else { // First channel only otherwise
                         Array.Copy(Rendered[0], samples, PitchedUpdateRate);
+                    }
+                }
 
                 // 1D renderer
                 if (SpatialBlend != 1) {
@@ -321,14 +261,16 @@ namespace Cavern {
                     samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
                     baseUpdateRate = samples.Length;
                     // Apply filter if set
-                    if (SpatialFilter != null)
+                    if (SpatialFilter != null) {
                         SpatialFilter.Process(samples);
+                    }
 
                     // Distance simulation for HRTF
                     // TODO: gain correction for this in both engines
                     if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
-                        if (distancer == null)
+                        if (distancer == null) {
                             distancer = new Distancer(this);
+                        }
                         distancer.Generate(direction.X > 0, samples);
                     }
 
@@ -355,45 +297,54 @@ namespace Cavern {
                                 closestBF = 75,
                                 closestBR = -69;
                             // Find closest horizontal layers
-                            if (Listener.HeadphoneVirtualizer)
+                            if (Listener.HeadphoneVirtualizer) {
                                 direction = direction.WarpToCube() / Listener.EnvironmentSize;
-                            else
+                            } else {
                                 direction /= Listener.EnvironmentSize;
+                            }
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE) {
                                     float channelY = Listener.Channels[channel].CubicalPos.Y;
                                     if (channelY < direction.Y) {
-                                        if (channelY > closestBottom)
+                                        if (channelY > closestBottom) {
                                             closestBottom = channelY;
-                                    } else if (channelY < closestTop)
+                                        }
+                                    } else if (channelY < closestTop) {
                                         closestTop = channelY;
+                                    }
                                 }
                             }
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE) {
                                     Vector3 channelPos = Listener.Channels[channel].CubicalPos;
-                                    if (channelPos.Y == closestBottom) // Bottom layer
+                                    if (channelPos.Y == closestBottom) { // Bottom layer
                                         AssignHorizontalLayer(channel, ref bottomFrontLeft, ref bottomFrontRight,
                                             ref bottomRearLeft, ref bottomRearRight, ref closestBF, ref closestBR,
                                             direction, channelPos);
-                                    if (channelPos.Y == closestTop) // Top layer
+                                    }
+                                    if (channelPos.Y == closestTop) { // Top layer
                                         AssignHorizontalLayer(channel, ref topFrontLeft, ref topFrontRight,
-                                            ref topRearLeft, ref topRearRight, ref closestTF, ref closestTR, direction, channelPos);
+                                            ref topRearLeft, ref topRearRight,
+                                            ref closestTF, ref closestTR, direction, channelPos);
+                                    }
                                 }
                             }
                             // Fix incomplete top layer
                             FixIncompleteLayer(ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight);
 
                             // When the bottom layer is completely empty (= the source is below all channels), copy the top layer
-                            if (bottomFrontLeft == -1 && bottomFrontRight == -1 && bottomRearLeft == -1 && bottomRearRight == -1) {
+                            if (bottomFrontLeft == -1 && bottomFrontRight == -1 &&
+                                bottomRearLeft == -1 && bottomRearRight == -1) {
                                 bottomFrontLeft = topFrontLeft;
                                 bottomFrontRight = topFrontRight;
                                 bottomRearLeft = topRearLeft;
                                 bottomRearRight = topRearRight;
                             }
                             // Fix incomplete bottom layer
-                            else
-                                FixIncompleteLayer(ref bottomFrontLeft, ref bottomFrontRight, ref bottomRearLeft, ref bottomRearRight);
+                            else {
+                                FixIncompleteLayer(ref bottomFrontLeft, ref bottomFrontRight,
+                                    ref bottomRearLeft, ref bottomRearRight);
+                            }
 
                             // When the top layer is completely empty (= the source is above all channels), copy the bottom layer
                             if (topFrontLeft == -1 || topFrontRight == -1 || topRearLeft == -1 || topRearRight == -1) {
@@ -428,8 +379,9 @@ namespace Cavern {
                                 TRRVol = QMath.Lerp(TRRVol, .5f, Size);
                                 innerVolume3D *= 1f - Size;
                                 float extraChannelVolume = volume3D * Size / channels;
-                                for (int channel = 0; channel < channels; ++channel)
+                                for (int channel = 0; channel < channels; ++channel) {
                                     WriteOutput(samples, rendered, extraChannelVolume, channel, channels);
+                                }
                             }
 
                             // Spatial mix gain finalization
@@ -447,10 +399,13 @@ namespace Cavern {
                             WriteOutput(samples, rendered, rearVol.Y * TRRVol, topRearRight, channels);
                         }
                         // LFE mix
-                        if (!listener.LFESeparation || LFE)
-                            for (int channel = 0; channel < channels; ++channel)
-                                if (Listener.Channels[channel].LFE)
+                        if (!listener.LFESeparation || LFE) {
+                            for (int channel = 0; channel < channels; ++channel) {
+                                if (Listener.Channels[channel].LFE) {
                                     WriteOutput(samples, rendered, volume3D, channel, channels);
+                                }
+                            }
+                        }
                     }
 
                     // ------------------------------------------------------------------
@@ -460,23 +415,22 @@ namespace Cavern {
                         // Angle match calculations
                         float[] angleMatches;
                         if (listener.AudioQuality >= QualityModes.High) {
-                            if (Listener.EnvironmentType == Environments.Theatre)
-                                angleMatches = CalculateAngleMatches(channels, direction, PowTo16);
-                            else
-                                angleMatches = CalculateAngleMatches(channels, direction, PowTo8);
-                        } else if (Listener.EnvironmentType == Environments.Theatre)
-                            angleMatches = LinearizeAngleMatches(channels, direction, PowTo16);
-                        else
-                            angleMatches = LinearizeAngleMatches(channels, direction, PowTo8);
+                            angleMatches = CalculateAngleMatches(channels, direction);
+                        } else {
+                            angleMatches = LinearizeAngleMatches(channels, direction);
+                        }
 
                         // Object size extension
                         if (Size != 0) {
                             float maxAngleMatch = angleMatches[0];
-                            for (int channel = 1; channel < channels; ++channel)
-                                if (maxAngleMatch < angleMatches[channel])
+                            for (int channel = 1; channel < channels; ++channel) {
+                                if (maxAngleMatch < angleMatches[channel]) {
                                     maxAngleMatch = angleMatches[channel];
-                            for (int channel = 0; channel < channels; ++channel)
+                                }
+                            }
+                            for (int channel = 0; channel < channels; ++channel) {
                                 angleMatches[channel] = QMath.Lerp(angleMatches[channel], maxAngleMatch, Size);
+                            }
                         }
 
                         // Only use the closest 3 speakers on non-Perfect qualities or in Theatre mode
@@ -492,28 +446,35 @@ namespace Cavern {
                                     } else if (top1 < match) {
                                         top2 = top1;
                                         top1 = match;
-                                    } else if (top2 < match)
+                                    } else if (top2 < match) {
                                         top2 = match;
+                                    }
                                 }
                             }
-                            for (int channel = 0; channel < channels; ++channel)
+                            for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE &&
-                                    angleMatches[channel] != top0 && angleMatches[channel] != top1 && angleMatches[channel] != top2)
+                                    angleMatches[channel] != top0 && angleMatches[channel] != top1 &&
+                                    angleMatches[channel] != top2) {
                                     angleMatches[channel] = 0;
+                                }
+                            }
                         }
                         float totalAngleMatch = 0;
-                        for (int channel = 0; channel < channels; ++channel)
+                        for (int channel = 0; channel < channels; ++channel) {
                             totalAngleMatch += angleMatches[channel] * angleMatches[channel];
+                        }
                         totalAngleMatch = (float)Math.Sqrt(totalAngleMatch);
 
                         // Place in sphere, write data to output channels
                         float volume3D = Volume * rolloffDistance * SpatialBlend / totalAngleMatch;
                         for (int channel = 0; channel < channels; ++channel) {
                             if (Listener.Channels[channel].LFE) {
-                                if (!listener.LFESeparation || LFE)
+                                if (!listener.LFESeparation || LFE) {
                                     WriteOutput(samples, rendered, volume3D * totalAngleMatch, channel, channels);
-                            } else if (!LFE && angleMatches[channel] != 0)
+                                }
+                            } else if (!LFE && angleMatches[channel] != 0) {
                                 WriteOutput(samples, rendered, volume3D * angleMatches[channel], channel, channels);
+                            }
                         }
                     }
                 }
@@ -522,14 +483,73 @@ namespace Cavern {
             // Timing
             TimeSamples += PitchedUpdateRate;
             if (TimeSamples >= Clip.Samples) {
-                if (Loop)
+                if (Loop) {
                     TimeSamples %= Clip.Samples;
-                else {
+                } else {
                     TimeSamples = 0;
                     IsPlaying = false;
                 }
             }
             return rendered;
         }
+
+        /// <summary>
+        /// Makes sure if <see cref="Precollect"/> is called immediatly after this function, it will return true.
+        /// </summary>
+        protected void ForcePrecollect() => listener.sourceDistances[0] = distance;
+
+        /// <summary>
+        /// Calculate distance from the <see cref="Listener"/> and choose the closest sources to play.
+        /// </summary>
+        internal void Precalculate() {
+            if (Renderable) {
+                lastDistance = distance;
+                distance = Vector3.Distance(Position, listener.Position);
+                if (float.IsNaN(lastDistance)) {
+                    lastDistance = distance;
+                }
+                BottomlistHandler(listener.sourceDistances, distance);
+            } else {
+                distance = float.NaN;
+            }
+        }
+
+        /// <summary>
+        /// Render the stereo side mix.
+        /// </summary>
+        void Stereo1DMix(float volume1D) {
+            float leftVolume = volume1D / Listener.leftChannels,
+                rightVolume = volume1D / Listener.rightChannels;
+            if (stereoPan < 0) {
+                rightVolume *= 1 - stereoPan * stereoPan;
+            } else if (stereoPan > 0) {
+                leftVolume *= 1 - stereoPan * stereoPan;
+            }
+            float halfVolume1D = volume1D * .5f;
+            int actualSample = 0;
+            for (int sample = 0; sample < listener.UpdateRate; ++sample) { // TODO: needs some optimization
+                float leftSample = leftSamples[sample], rightSample = rightSamples[sample],
+                    leftGained = leftSample * leftVolume, rightGained = rightSample * rightVolume;
+                for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
+                    if (Listener.Channels[channel].LFE) {
+                        if (!listener.LFESeparation || LFE) {
+                            rendered[actualSample] += (leftSample + rightSample) * halfVolume1D;
+                        }
+                    } else if (!LFE) {
+                        if (Listener.Channels[channel].Y < 0) {
+                            rendered[actualSample] += leftGained;
+                        } else if (Listener.Channels[channel].Y > 0) {
+                            rendered[actualSample] += rightGained;
+                        }
+                    }
+                    ++actualSample;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reference sound velocity in m/s (dry air, 25.4 degrees Celsius).
+        /// </summary>
+        public const float SpeedOfSound = 346.74f;
     }
 }

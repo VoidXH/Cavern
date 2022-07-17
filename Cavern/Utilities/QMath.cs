@@ -76,8 +76,9 @@ namespace Cavern.Utilities {
                 asFloat = val
             };
             int result = 1 << (((a.asInt >> 23) + 1) & 0x1F);
-            if (result != val)
+            if (result != val) {
                 return result * 2;
+            }
             return result;
         }
 
@@ -93,29 +94,16 @@ namespace Cavern.Utilities {
             x |= x >> 16;
             return bitsAfterMSBHack[(((x * 0x07C4ACDD) >> 27) + 32) & 0x1F];
         }
-        static readonly byte[] bitsAfterMSBHack = new byte[32] { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,
-                                                               8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
 
         /// <summary>
         /// Count the number of bits after the most significant bit. 1 less than the MSB's position.
         /// </summary>
         public static int BitsAfterMSB(long x) {
             int front = (int)(x >> 32);
-            if (front != 0)
+            if (front != 0) {
                 return BitsAfterMSB(front) + 32;
+            }
             return BitsAfterMSB((int)x);
-        }
-
-        /// <summary>
-        /// Clamp a double between limits.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Clamp(double value, double min, double max) {
-            if (value < min)
-                return min;
-            if (value > max)
-                return max;
-            return value;
         }
 
         /// <summary>
@@ -192,8 +180,9 @@ namespace Cavern.Utilities {
                 asFloat = val
             };
             int log = (((a.asInt >> 23) + 1) & 0x1F);
-            if ((1 << log) != val)
+            if ((1 << log) != val) {
                 return log + 1;
+            }
             return log;
         }
 
@@ -203,8 +192,9 @@ namespace Cavern.Utilities {
         public static float ParseFloat(string s) {
             char separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
             int idx = s.IndexOf(separator);
-            if (idx >= 0)
+            if (idx >= 0) {
                 return Convert.ToSingle(s);
+            }
             return Convert.ToSingle(s.Replace(separator == '.' ? ',' : '.', separator));
         }
 
@@ -239,8 +229,9 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Sum(float[] array, int from, int to) {
             float sum = 0;
-            for (int i = from; i < to; ++i)
+            for (int i = from; i < to; ++i) {
                 sum += array[i];
+            }
             return sum;
         }
 
@@ -262,8 +253,9 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Sum(int[] array, int from, int to) {
             int sum = 0;
-            for (int i = from; i < to; ++i)
+            for (int i = from; i < to; ++i) {
                 sum += array[i];
+            }
             return sum;
         }
 
@@ -273,8 +265,9 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Sum(IReadOnlyList<double> list) {
             double sum = 0;
-            for (int i = 0, to = list.Count; i < to; ++i)
+            for (int i = 0, to = list.Count; i < to; ++i) {
                 sum += list[i];
+            }
             return sum;
         }
 
@@ -297,8 +290,9 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float SumAbs(float[] array, int from, int to) {
             float sum = 0;
-            for (int i = from; i < to; ++i)
+            for (int i = from; i < to; ++i) {
                 sum += Math.Abs(array[i]);
+            }
             return sum;
         }
 
@@ -333,5 +327,11 @@ namespace Cavern.Utilities {
             }
             return sum;
         }
+
+        /// <summary>
+        /// Conversion array for <see cref="BitsAfterMSB(int)"/>.
+        /// </summary>
+        static readonly byte[] bitsAfterMSBHack = new byte[32] { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,
+                                                                 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
     }
 }

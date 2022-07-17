@@ -20,8 +20,9 @@ namespace Cavern.Filters {
         public float[] Impulse {
             get => impulse;
             set {
-                if (future.Length != (impulse = value).Length)
+                if (future.Length != (impulse = value).Length) {
                     future = new float[value.Length + delay];
+                }
             }
         }
 
@@ -49,40 +50,16 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
-        /// Output the result and handle the future.
-        /// </summary>
-        protected void Finalize(float[] samples, float[] convolved) {
-            int delayedImpulse = impulse.Length + delay;
-            if (samples.Length > delayedImpulse) {
-                // Drain cache
-                Array.Copy(convolved, 0, samples, 0, samples.Length);
-                for (int sample = 0; sample < delayedImpulse; ++sample)
-                    samples[sample] += future[sample];
-                // Fill cache
-                Array.Copy(convolved, samples.Length, future, 0, delayedImpulse);
-            } else {
-                // Drain cache
-                for (int sample = 0; sample < samples.Length; ++sample)
-                    samples[sample] = convolved[sample] + future[sample];
-                // Move cache
-                int futureEnd = delayedImpulse - samples.Length;
-                Array.Copy(future, samples.Length, future, 0, futureEnd);
-                Array.Clear(future, futureEnd, samples.Length);
-                // Merge cache
-                for (int sample = 0; sample < delayedImpulse; ++sample)
-                    future[sample] += convolved[sample + samples.Length];
-            }
-        }
-
-        /// <summary>
         /// Perform a convolution.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] Convolve(float[] a, float[] b) {
             float[] convolved = new float[a.Length + b.Length];
-            for (int i = 0; i < a.Length; ++i)
-                for (int j = 0; j < b.Length; ++j)
+            for (int i = 0; i < a.Length; ++i) {
+                for (int j = 0; j < b.Length; ++j) {
                     convolved[i + j] += a[i] * b[j];
+                }
+            }
             return convolved;
         }
 
@@ -92,9 +69,11 @@ namespace Cavern.Filters {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] Convolve(float[] a, float[] b, int delay) {
             float[] convolved = new float[a.Length + b.Length + delay];
-            for (int i = 0; i < a.Length; ++i)
-                for (int j = 0; j < b.Length; ++j)
+            for (int i = 0; i < a.Length; ++i) {
+                for (int j = 0; j < b.Length; ++j) {
                     convolved[i + j + delay] += a[i] * b[j];
+                }
+            }
             return convolved;
         }
 
@@ -103,11 +82,41 @@ namespace Cavern.Filters {
         /// </summary>
         public override void Process(float[] samples) {
             float[] convolved;
-            if (delay == 0)
+            if (delay == 0) {
                 convolved = Convolve(samples, impulse);
-            else
+            } else {
                 convolved = Convolve(samples, impulse, delay);
+            }
             Finalize(samples, convolved);
+        }
+
+        /// <summary>
+        /// Output the result and handle the future.
+        /// </summary>
+        protected void Finalize(float[] samples, float[] convolved) {
+            int delayedImpulse = impulse.Length + delay;
+            if (samples.Length > delayedImpulse) {
+                // Drain cache
+                Array.Copy(convolved, 0, samples, 0, samples.Length);
+                for (int sample = 0; sample < delayedImpulse; ++sample) {
+                    samples[sample] += future[sample];
+                }
+                // Fill cache
+                Array.Copy(convolved, samples.Length, future, 0, delayedImpulse);
+            } else {
+                // Drain cache
+                for (int sample = 0; sample < samples.Length; ++sample) {
+                    samples[sample] = convolved[sample] + future[sample];
+                }
+                // Move cache
+                int futureEnd = delayedImpulse - samples.Length;
+                Array.Copy(future, samples.Length, future, 0, futureEnd);
+                Array.Clear(future, futureEnd, samples.Length);
+                // Merge cache
+                for (int sample = 0; sample < delayedImpulse; ++sample) {
+                    future[sample] += convolved[sample + samples.Length];
+                }
+            }
         }
     }
 }

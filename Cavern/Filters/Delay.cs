@@ -11,8 +11,9 @@ namespace Cavern.Filters {
         public int DelaySamples {
             get => cache[0].Length;
             set {
-                if (cache[0].Length != value)
+                if (cache[0].Length != value) {
                     RecreateCaches(value);
+                }
             }
         }
 
@@ -47,16 +48,20 @@ namespace Cavern.Filters {
         public override void Process(float[] samples) {
             int delaySamples = cache[0].Length;
             float[] cacheToFill = cache[1 - usedCache], cacheToDrain = cache[usedCache];
-            if (delaySamples <= samples.Length) { // Sample array can hold the cache
+            // Sample array can hold the cache
+            if (delaySamples <= samples.Length) {
                 // Fill cache
                 Array.Copy(samples, samples.Length - delaySamples, cacheToFill, 0, delaySamples);
                 // Move self
-                for (int sample = samples.Length - 1; sample >= delaySamples; --sample)
+                for (int sample = samples.Length - 1; sample >= delaySamples; --sample) {
                     samples[sample] = samples[sample - delaySamples];
+                }
                 // Drain cache
                 Array.Copy(cacheToDrain, samples, delaySamples);
                 usedCache = 1 - usedCache; // Switch caches
-            } else { // Cache can hold the sample array
+            }
+            // Cache can hold the sample array
+            else {
                 // Fill cache
                 Array.Copy(samples, cacheToFill, samples.Length);
                 // Drain cache

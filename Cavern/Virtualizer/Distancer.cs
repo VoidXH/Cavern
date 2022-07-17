@@ -10,11 +10,6 @@ namespace Cavern.Virtualizer {
     /// </summary>
     public class Distancer {
         /// <summary>
-        /// Decreases real distances by this factor to shrink the environment's scale.
-        /// </summary>
-        public float distanceFactor = 10f; // TODO: by environment size
-
-        /// <summary>
         /// The left ear's gain that corresponds to the <see cref="source"/>'s distance.
         /// </summary>
         public float LeftGain { get; private set; }
@@ -23,6 +18,11 @@ namespace Cavern.Virtualizer {
         /// The left ear's gain that corresponds to the <see cref="source"/>'s distance.
         /// </summary>
         public float RightGain { get; private set; }
+
+        /// <summary>
+        /// Decreases real distances by this factor to shrink the environment's scale.
+        /// </summary>
+        public float distanceFactor = 10f; // TODO: by environment size
 
         /// <summary>
         /// The filtered source.
@@ -46,10 +46,13 @@ namespace Cavern.Virtualizer {
         public Distancer(Source source) {
             this.source = source;
             source.VolumeRolloff = Rolloffs.Disabled;
-            for (int i = 0; i < impulses.Length; ++i)
-                for (int j = 0; j < impulses[i].Length; ++j)
-                    if (filterSize < impulses[i][j].Length)
+            for (int i = 0; i < impulses.Length; ++i) {
+                for (int j = 0; j < impulses[i].Length; ++j) {
+                    if (filterSize < impulses[i][j].Length) {
                         filterSize = impulses[i][j].Length;
+                    }
+                }
+            }
             filter = new SpikeConvolver(new float[filterSize], 0);
         }
 
@@ -60,8 +63,9 @@ namespace Cavern.Virtualizer {
         /// <param name="samples">Single-channel downmixed samples to process</param>
         public void Generate(bool right, float[] samples) {
             float dirMul = -90;
-            if (right)
+            if (right) {
                 dirMul = 90;
+            }
             Vector3 sourceForward = new Vector3(0, dirMul, 0).RotateInverse(source.listener.Rotation).PlaceInSphere(),
                 dir = source.Position - source.listener.Position;
             float distance = dir.Length(),
@@ -71,21 +75,26 @@ namespace Cavern.Virtualizer {
 
             // Find bounding angles with discrete impulses
             int smallerAngle = 0;
-            while (smallerAngle < angles.Length && angles[smallerAngle] < angle)
+            while (smallerAngle < angles.Length && angles[smallerAngle] < angle) {
                 ++smallerAngle;
-            if (smallerAngle != 0)
+            }
+            if (smallerAngle != 0) {
                 --smallerAngle;
+            }
             int largerAngle = smallerAngle + 1;
-            if (largerAngle == angles.Length)
+            if (largerAngle == angles.Length) {
                 largerAngle = angles.Length - 1;
+            }
             float angleRatio = Math.Min(QMath.LerpInverse(angles[smallerAngle], angles[largerAngle], angle), 1);
 
             // Find bounding distances with discrete impulses
             int smallerDistance = 0;
-            while (smallerDistance < distances.Length && distances[smallerDistance] < distance)
+            while (smallerDistance < distances.Length && distances[smallerDistance] < distance) {
                 ++smallerDistance;
-            if (smallerDistance != 0)
+            }
+            if (smallerDistance != 0) {
                 --smallerDistance;
+            }
             int largerDistance = smallerDistance + 1;
             if (largerDistance == distances.Length)
                 largerDistance = distances.Length - 1;
@@ -108,8 +117,9 @@ namespace Cavern.Virtualizer {
 
             // Apply the ear canal's response
             Array.Clear(filter.Impulse, 0, filterSize);
-            for (int candidate = 0; candidate < candidates.Length; ++candidate)
+            for (int candidate = 0; candidate < candidates.Length; ++candidate) {
                 WaveformUtils.Mix(candidates[candidate], filter.Impulse, gains[candidate]);
+            }
             filter.Process(samples);
 
             // Apply gains
@@ -118,15 +128,17 @@ namespace Cavern.Virtualizer {
                              ((distance - angleDiff) * (VirtualizerFilter.referenceDistance + angleDiff));
             ratioDiff *= ratioDiff;
             if (right) {
-                if (ratioDiff < 1)
+                if (ratioDiff < 1) {
                     RightGain = ratioDiff;
-                else
+                } else {
                     LeftGain = 1 / ratioDiff;
+                }
             } else {
-                if (ratioDiff < 1)
+                if (ratioDiff < 1) {
                     LeftGain = ratioDiff;
-                else
+                } else {
                     RightGain = 1 / ratioDiff;
+                }
             }
         }
 

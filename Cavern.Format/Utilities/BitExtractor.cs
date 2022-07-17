@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Format.Utilities {
     /// <summary>
@@ -64,15 +65,6 @@ namespace Cavern.Format.Utilities {
             this.source = newSource;
             Position -= skip * 8;
             BackPosition = this.source.Length * 8;
-        }
-
-        /// <summary>
-        /// Check the next bits without advancing the position.
-        /// </summary>
-        public int Peek(int bits) {
-            int result = Read(bits);
-            Position -= bits;
-            return result;
         }
 
         /// <summary>
@@ -155,6 +147,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Skip some bits.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Skip(int count) => Position += count;
 
         /// <summary>

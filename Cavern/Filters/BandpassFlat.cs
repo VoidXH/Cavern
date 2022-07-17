@@ -18,7 +18,8 @@ namespace Cavern.Filters {
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="order">Each order increases the slope with 6 dB/octave</param>
         /// <param name="gain">Filter gain</param>
-        public BandpassFlat(double lowFreq, double highFreq, int sampleRate, double q = QFactor.reference, int order = 4, double gain = 0) {
+        public BandpassFlat(double lowFreq, double highFreq, int sampleRate,
+            double q = QFactor.reference, int order = 4, double gain = 0) {
             this.order = order;
             lowpasses = new Lowpass[order];
             highpasses = new Highpass[order];

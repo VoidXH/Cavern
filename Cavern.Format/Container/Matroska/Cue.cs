@@ -32,10 +32,11 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Read the cues from the root cue node.
         /// </summary>
-        public static Cue[] GetCues(MatroskaTree segment, Stream reader) {
-            MatroskaTree cues = segment.GetChild(reader, MatroskaTree.Segment_Cues);
-            if (cues == null)
+        public static Cue[] GetCues(MatroskaSegment segment, Stream reader) {
+            MatroskaTree cues = segment.GetChildFromSeek(reader, MatroskaTree.Segment_Cues);
+            if (cues == null) {
                 return new Cue[0];
+            }
 
             segment.Position(reader);
             long offset = reader.Position;
@@ -58,12 +59,14 @@ namespace Cavern.Format.Container.Matroska {
         /// Get the cue that holds info for the timestamp to seek to.
         /// </summary>
         public static Cue Find(Cue[] cues, long targetTime) {
-            if (cues == null)
+            if (cues == null) {
                 return null;
+            }
             int result = 0;
             while (result < cues.Length) {
-                if (cues[result].Time > targetTime)
+                if (cues[result].Time > targetTime) {
                     break;
+                }
                 ++result;
             }
             --result;

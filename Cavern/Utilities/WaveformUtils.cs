@@ -31,8 +31,9 @@ namespace Cavern.Utilities {
             fft.InPlaceFFT(cache);
             Delay(signal, samples, cache);
             fft.InPlaceIFFT(cache);
-            for (int i = 0; i < signal.Length; ++i)
+            for (int i = 0; i < signal.Length; ++i) {
                 signal[i] = fft[i].Real;
+            }
         }
 
         /// <summary>
@@ -55,9 +56,11 @@ namespace Cavern.Utilities {
         public static float[] Downmix(float[] source, int channels) {
             int length = source.Length / channels;
             float[] target = new float[length];
-            for (int sample = 0; sample < length; ++sample)
-                for (int channel = 0; channel < channels; ++channel)
+            for (int sample = 0; sample < length; ++sample) {
+                for (int channel = 0; channel < channels; ++channel) {
                     target[sample] = source[channels * sample + channel];
+                }
+            }
             return target;
         }
 
@@ -72,10 +75,11 @@ namespace Cavern.Utilities {
             int samplesPerChannel = to.Length / toChannels,
                 fromChannels = Listener.Channels.Length;
             for (int channel = 0; channel < fromChannels; ++channel) {
-                if (toChannels > 4 || (Listener.Channels[channel].Y != 0 && !Listener.Channels[channel].LFE))
-                    for (int sample = 0, overflow = channel % toChannels; sample < samplesPerChannel; ++sample)
+                if (toChannels > 4 || (Listener.Channels[channel].Y != 0 && !Listener.Channels[channel].LFE)) {
+                    for (int sample = 0, overflow = channel % toChannels; sample < samplesPerChannel; ++sample) {
                         to[sample * toChannels + overflow] += from[sample * fromChannels + channel];
-                else {
+                    }
+                } else {
                     for (int sample = 0; sample < samplesPerChannel; ++sample) {
                         float copySample = from[sample * fromChannels + channel];
                         to[sample * toChannels] += copySample;
@@ -106,8 +110,9 @@ namespace Cavern.Utilities {
         /// <param name="channels">Channel count</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ExtractChannel(float[] from, float[] to, int channel, int channels) {
-            for (int sample = 0, samples = from.Length / channels; sample < samples; ++sample)
+            for (int sample = 0, samples = from.Length / channels; sample < samples; ++sample) {
                 to[sample] = from[sample * channels + channel];
+            }
         }
 
         /// <summary>
@@ -117,8 +122,9 @@ namespace Cavern.Utilities {
         /// <param name="value">Multiplier</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Gain(float[] target, float value) {
-            for (int i = 0; i < target.Length; ++i)
+            for (int i = 0; i < target.Length; ++i) {
                 target[i] *= value;
+            }
         }
 
         /// <summary>
@@ -130,8 +136,9 @@ namespace Cavern.Utilities {
         /// <param name="channels">Channel count</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Gain(float[] target, float gain, int channel, int channels) {
-            for (int sample = channel; sample < target.Length; sample += channels)
+            for (int sample = channel; sample < target.Length; sample += channels) {
                 target[sample] *= gain;
+            }
         }
 
         /// <summary>
@@ -144,8 +151,9 @@ namespace Cavern.Utilities {
             float max = Math.Abs(target[0]), absSample;
             for (int sample = 1; sample < target.Length; ++sample) {
                 absSample = Math.Abs(target[sample]);
-                if (max < absSample)
+                if (max < absSample) {
                     max = absSample;
+                }
             }
             return max;
         }
@@ -162,8 +170,9 @@ namespace Cavern.Utilities {
             float max = Math.Abs(target[from++]), absSample;
             for (; from < to; ++from) {
                 absSample = Math.Abs(target[from]);
-                if (max < absSample)
+                if (max < absSample) {
                     max = absSample;
+                }
             }
             return max;
         }
@@ -181,8 +190,9 @@ namespace Cavern.Utilities {
             float max = 0, absSample;
             for (int sample = channel, end = samples * channels; sample < end; sample += channels) {
                 absSample = Math.Abs(target[sample]);
-                if (max < absSample)
+                if (max < absSample) {
                     max = absSample;
+                }
             }
             return max;
         }
@@ -235,8 +245,9 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetRMS(float[] target) {
             float sum = 0;
-            for (int sample = 0; sample < target.Length; ++sample)
+            for (int sample = 0; sample < target.Length; ++sample) {
                 sum += target[sample] * target[sample];
+            }
             return (float)Math.Sqrt(sum / target.Length);
         }
 
@@ -246,17 +257,21 @@ namespace Cavern.Utilities {
         public static void InterlacedToMultichannel(float[] source, float[][] target) {
             int channels = target.Length,
                 perChannel = target[0].Length;
-            for (int channel = 0; channel < channels; ++channel)
-                for (long sample = 0; sample < perChannel; ++sample)
-                    target[channel][sample] = source[channel + channels * sample];
+            for (int channel = 0; channel < channels; ++channel) {
+                float[] targetChannel = target[channel];
+                for (long sample = 0; sample < perChannel; ++sample) {
+                    targetChannel[sample] = source[channel + channels * sample];
+                }
+            }
         }
 
         /// <summary>
         /// Invert an audio signal.
         /// </summary>
         public static void Invert(float[] target) {
-            for (int i = 0; i < target.Length; ++i)
+            for (int i = 0; i < target.Length; ++i) {
                 target[i] = -target[i];
+            }
         }
 
         /// <summary>
@@ -266,8 +281,9 @@ namespace Cavern.Utilities {
         /// <param name="destination">Destination stream</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Mix(float[] source, float[] destination) {
-            for (int i = 0; i < source.Length; ++i)
+            for (int i = 0; i < source.Length; ++i) {
                 destination[i] += source[i];
+            }
         }
 
         /// <summary>
@@ -278,8 +294,9 @@ namespace Cavern.Utilities {
         /// <param name="gain">Linear amplification of the <paramref name="source"/> track</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Mix(float[] source, float[] destination, float gain) {
-            for (int i = 0; i < source.Length; ++i)
+            for (int i = 0; i < source.Length; ++i) {
                 destination[i] += source[i] * gain;
+            }
         }
 
         /// <summary>
@@ -289,9 +306,12 @@ namespace Cavern.Utilities {
         public static float[] MultichannelToInterlaced(float[][] source, long from, long to) {
             float[] result = new float[source.Length * source[0].Length];
             to -= from;
-            for (int channel = 0; channel < source.Length; ++channel)
-                for (long sample = 0; sample < to; ++sample)
-                    result[sample * source.Length + channel] = source[channel][from + sample];
+            for (int channel = 0; channel < source.Length; ++channel) {
+                float[] sourceChannel = source[channel];
+                for (long sample = 0; sample < to; ++sample) {
+                    result[sample * source.Length + channel] = sourceChannel[from + sample];
+                }
+            }
             return result;
         }
 
@@ -300,22 +320,25 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <param name="target">Samples to normalize</param>
         /// <param name="decayFactor">Gain increment per frame, should be decay rate * update rate / sample rate</param>
-        /// <param name="lastGain">Last normalizer gain (a reserved float with a default of 1 to always pass to this function)</param>
+        /// <param name="lastGain">Last normalizer gain (a reserved float with a default of 1 to
+        /// always pass to this function)</param>
         /// <param name="limiterOnly">Don't go over 0 dB gain</param>
         public static void Normalize(ref float[] target, float decayFactor, ref float lastGain, bool limiterOnly) {
             float max = Math.Abs(target[0]), absSample;
             for (int sample = 1; sample < target.Length; ++sample) {
                 absSample = Math.Abs(target[sample]);
-                if (max < absSample)
+                if (max < absSample) {
                     max = absSample;
+                }
             }
             if (max * lastGain > 1) // Attack
                 lastGain = .9f / max;
             Gain(target, lastGain); // Normalize last samples
             // Decay
             lastGain += decayFactor;
-            if (limiterOnly && lastGain > 1)
+            if (limiterOnly && lastGain > 1) {
                 lastGain = 1;
+            }
         }
     }
 }

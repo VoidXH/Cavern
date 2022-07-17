@@ -16,8 +16,9 @@
         /// </summary>
         public override void Process(float[] samples) {
             base.Process(samples);
-            for (int i = 0; i < samples.Length; ++i)
+            for (int i = 0; i < samples.Length; ++i) {
                 samples[i] = LowOutput[i] + HighOutput[i];
+            }
         }
 
         /// <summary>
@@ -28,8 +29,9 @@
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
             base.Process(samples, channel, channels);
-            for (int sample = channel; sample < samples.Length; sample += channels)
+            for (int sample = channel; sample < samples.Length; sample += channels) {
                 samples[sample] = LowOutput[sample] + HighOutput[sample];
+            }
         }
     }
 }

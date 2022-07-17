@@ -11,12 +11,13 @@
         /// <param name="quality">Listener audio quality</param>
         /// <returns>Resampled version of the input channel</returns>
         public static float[] Adaptive(float[] samples, int to, QualityModes quality) {
-            if (quality < QualityModes.High)
+            if (quality < QualityModes.High) {
                 return NearestNeighbour(samples, to);
-            else if (quality < QualityModes.Perfect)
+            } else if (quality < QualityModes.Perfect) {
                 return Lerp(samples, to);
-            else
+            } else {
                 return CatmullRom(samples, to);
+            }
         }
 
         /// <summary>
@@ -30,18 +31,24 @@
         public static float[] Adaptive(float[] samples, int to, int channels, QualityModes quality) {
             float[][] channelSplit = new float[channels][];
             int splitSize = samples.Length / channels;
-            for (int channel = 0; channel < channels; ++channel)
+            for (int channel = 0; channel < channels; ++channel) {
                 channelSplit[channel] = new float[splitSize];
-            for (int sample = 0, outSample = 0; sample < splitSize; ++sample)
-                for (int channel = 0; channel < channels; ++channel, ++outSample)
+            }
+            for (int sample = 0, outSample = 0; sample < splitSize; ++sample) {
+                for (int channel = 0; channel < channels; ++channel, ++outSample) {
                     channelSplit[channel][sample] = samples[outSample];
-            for (int channel = 0; channel < channels; ++channel)
+                }
+            }
+            for (int channel = 0; channel < channels; ++channel) {
                 channelSplit[channel] = Adaptive(channelSplit[channel], to, quality);
+            }
             int newUpdateRate = channelSplit[0].Length;
             samples = new float[channels * newUpdateRate];
-            for (int sample = 0, outSample = 0; sample < newUpdateRate; ++sample)
-                for (int channel = 0; channel < channels; ++channel, ++outSample)
+            for (int sample = 0, outSample = 0; sample < newUpdateRate; ++sample) {
+                for (int channel = 0; channel < channels; ++channel, ++outSample) {
                     samples[outSample] = channelSplit[channel][sample];
+                }
+            }
             return samples;
         }
 
@@ -52,12 +59,14 @@
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
         public static float[] NearestNeighbour(float[] samples, int to) {
-            if (samples.Length == to)
+            if (samples.Length == to) {
                 return samples;
+            }
             float[] output = new float[to];
             float ratio = samples.Length / (float)to;
-            for (int i = 0; i < to; ++i)
+            for (int i = 0; i < to; ++i) {
                 output[i] = samples[(int)(i * ratio)];
+            }
             return output;
         }
 
@@ -68,17 +77,18 @@
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
         public static float[] Lerp(float[] samples, int to) {
-            if (samples.Length == to)
+            if (samples.Length == to) {
                 return samples;
+            }
             float[] output = new float[to];
             float ratio = samples.Length / (float)to;
-            int end = samples.Length - 1;
-            for (int i = 0; i < to; ++i) {
+            int lerpUntil = (int)((samples.Length - 1) / ratio); // Halving point where i * ratio would be over the array
+            for (int i = 0; i < lerpUntil; ++i) {
                 int sample = (int)(i * ratio);
-                if (sample < end)
-                    output[i] = QMath.Lerp(samples[sample], samples[++sample], i * ratio % 1);
-                else
-                    output[i] = samples[sample];
+                output[i] = QMath.Lerp(samples[sample], samples[sample + 1], i * ratio % 1);
+            }
+            for (int i = lerpUntil; i < to; ++i) {
+                output[i] = samples[(int)(i * ratio)];
             }
             return output;
         }
@@ -90,8 +100,9 @@
         /// <param name="to">New sample count</param>
         /// <returns>Returns a resampled version of the given array</returns>
         public static float[] CatmullRom(float[] samples, int to) {
-            if (samples.Length == to)
+            if (samples.Length == to) {
                 return samples;
+            }
             float[] output = new float[to];
             float ratio = samples.Length / (float)to;
             int start = (int)(1 / ratio + 1), end = samples.Length - 3;
@@ -104,8 +115,9 @@
                     float p0 = samples[sample - 1], p1 = samples[sample], p2 = samples[sample + 1], p3 = samples[sample + 2];
                     output[i] = ((p1 * 2) + (p2 - p0) * t + (p0 * 2 - p1 * 5 + p2 * 4 - p3) * t * t +
                         (3 * p1 - p0 - 3 * p2 + p3) * t * t * t) * .5f;
-                } else
+                } else {
                     output[i] = samples[sample];
+                }
             }
             return output;
         }

@@ -11,8 +11,9 @@ namespace Cavern.Filters {
         public double Frequency {
             get => lowpasses[0].CenterFreq;
             set {
-                for (int i = 0; i < lowpasses.Length; ++i)
+                for (int i = 0; i < lowpasses.Length; ++i) {
                     lowpasses[i].CenterFreq = highpasses[i].CenterFreq = value;
+                }
             }
         }
 
@@ -75,6 +76,14 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
+        /// Create empty outputs for a given <paramref name="updateRate"/>> in case they are used before processing. This optimizes zero checks.
+        /// </summary>
+        public void PresetOutput(int updateRate) {
+            LowOutput = new float[updateRate];
+            HighOutput = new float[updateRate];
+        }
+
+        /// <summary>
         /// Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.
         /// </summary>
         /// <param name="samples">Input samples</param>
@@ -118,14 +127,6 @@ namespace Cavern.Filters {
             Process(samples, channel, channels);
             lows = LowOutput;
             highs = HighOutput;
-        }
-
-        /// <summary>
-        /// Create empty outputs for a given <paramref name="updateRate"/>> in case they are used before processing. This optimizes zero checks.
-        /// </summary>
-        public void PresetOutput(int updateRate) {
-            LowOutput = new float[updateRate];
-            HighOutput = new float[updateRate];
         }
     }
 }

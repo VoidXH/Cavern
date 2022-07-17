@@ -24,6 +24,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public int ObjectCount { get; private set; }
 
         /// <summary>
+        /// Multiplier for the output signal's amplitude.
+        /// </summary>
+        public float Gain { get; private set; }
+
+        /// <summary>
         /// Decodes a JOC frame from an EMDF payload.
         /// </summary>
         public void Decode(BitExtractor extractor) {
@@ -34,8 +39,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
         void DecodeHeader(BitExtractor extractor) {
             joc_dmx_config_idx = extractor.Read(3);
-            if (joc_dmx_config_idx > 4)
+            if (joc_dmx_config_idx > 2) {
                 throw new UnsupportedFeatureException("DMXconfig");
+            }
             ChannelCount = (joc_dmx_config_idx == 0 || joc_dmx_config_idx == 3) ? 5 : 7;
             ObjectCount = extractor.Read(6) + 1;
             UpdateCache();
@@ -43,22 +49,24 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         void DecodeInfo(BitExtractor extractor) {
-            joc_clipgain_x_bits = extractor.Read(3);
-            joc_clipgain_y_bits = extractor.Read(5);
-            joc_seq_count_bits = extractor.Read(10);
+            int gainPower = extractor.Read(3);
+            Gain = 1 + (extractor.Read(5) / 32f) * MathF.Pow(2, gainPower - 4);
+            extractor.Skip(10); // Sequence counter
             for (int obj = 0; obj < ObjectCount; ++obj) {
                 if (ObjectActive[obj] = extractor.ReadBit()) {
-                    joc_num_bands_idx[obj] = (byte)extractor.Read(3);
-                    joc_num_bands[obj] = JointObjectCodingTables.joc_num_bands[joc_num_bands_idx[obj]];
-                    b_joc_sparse[obj] = extractor.ReadBit();
-                    joc_num_quant_idx[obj] = (byte)extractor.ReadBitInt();
+                    bandsIndex[obj] = (byte)extractor.Read(3);
+                    bands[obj] = JointObjectCodingTables.joc_num_bands[bandsIndex[obj]];
+                    sparseCoded[obj] = extractor.ReadBit();
+                    quantizationTable[obj] = (byte)extractor.ReadBitInt();
 
                     // joc_data_point_info
                     steepSlope[obj] = extractor.ReadBit();
                     dataPoints[obj] = extractor.Read(1) + 1;
-                    if (steepSlope[obj])
-                        for (int dp = 0; dp < dataPoints[obj]; ++dp)
-                            joc_offset_ts[obj][dp] = extractor.Read(5) + 1;
+                    if (steepSlope[obj]) {
+                        for (int dp = 0; dp < dataPoints[obj]; ++dp) {
+                            timeslotOffsets[obj][dp] = extractor.Read(5) + 1;
+                        }
+                    }
                 }
             }
         }
@@ -67,22 +75,26 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             for (int obj = 0; obj < ObjectCount; ++obj) {
                 if (ObjectActive[obj]) {
                     for (int dp = 0; dp < dataPoints[obj]; ++dp) {
-                        int[][] joc_huff_code;
-                        if (b_joc_sparse[obj]) {
-                            joc_channel_idx[obj][dp][0] = extractor.Read(3);
-                            joc_huff_code = JointObjectCodingTables.GetHuffCodeTable(ChannelCount, HuffmanType.IDX);
-                            for (int pb = 1; pb < joc_num_bands[obj]; ++pb)
-                                joc_channel_idx[obj][dp][pb] = HuffmanDecode(joc_huff_code, extractor);
-                            joc_huff_code =
-                                JointObjectCodingTables.GetHuffCodeTable(joc_num_quant_idx[obj], HuffmanType.VEC);
-                            for (int pb = 0; pb < joc_num_bands[obj]; ++pb)
-                                joc_vec[obj][dp][pb] = HuffmanDecode(joc_huff_code, extractor);
+                        int[][] codeTable;
+                        if (sparseCoded[obj]) {
+                            jocChannel[obj][dp][0] = extractor.Read(3);
+                            codeTable = JointObjectCodingTables.GetHuffCodeTable(ChannelCount, HuffmanType.IDX);
+                            for (int pb = 1; pb < bands[obj]; ++pb) {
+                                jocChannel[obj][dp][pb] = HuffmanDecode(codeTable, extractor);
+                            }
+                            codeTable =
+                                JointObjectCodingTables.GetHuffCodeTable(quantizationTable[obj], HuffmanType.VEC);
+                            for (int pb = 0; pb < bands[obj]; ++pb) {
+                                jocVector[obj][dp][pb] = HuffmanDecode(codeTable, extractor);
+                            }
                         } else {
-                            joc_huff_code = JointObjectCodingTables.GetHuffCodeTable(joc_num_quant_idx[obj],
+                            codeTable = JointObjectCodingTables.GetHuffCodeTable(quantizationTable[obj],
                                 HuffmanType.MTX);
-                            for (int ch = 0; ch < ChannelCount; ++ch)
-                                for (int pb = 0; pb < joc_num_bands[obj]; ++pb)
-                                    joc_mtx[obj][dp][ch][pb] = HuffmanDecode(joc_huff_code, extractor);
+                            for (int ch = 0; ch < ChannelCount; ++ch) {
+                                for (int pb = 0; pb < bands[obj]; ++pb) {
+                                    jocMatrix[obj][dp][ch][pb] = HuffmanDecode(codeTable, extractor);
+                                }
+                            }
                         }
                     }
                 }
@@ -100,9 +112,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 #pragma warning disable IDE0052 // Remove unread private members
         int joc_dmx_config_idx;
         int joc_ext_config_idx;
-        int joc_clipgain_x_bits;
-        int joc_clipgain_y_bits;
-        int joc_seq_count_bits;
 #pragma warning restore IDE0052 // Remove unread private members
     }
 }

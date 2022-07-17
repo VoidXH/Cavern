@@ -33,6 +33,11 @@ namespace CavernizeGUI {
 
             while (rendered < target.Length) {
                 float[] result = listener.Render();
+
+#if DEBUG
+                if (rendered > 2500000 && WaveformUtils.GetPeakSigned(result) > .5f)
+                    ; // TODO: debug, Amaze will follow with a heavy gain frame and then a normal frame after this detection
+#endif
                 if (target.Length - rendered < listener.UpdateRate)
                     Array.Resize(ref result, (int)(target.Length - rendered));
                 if (writer != null)

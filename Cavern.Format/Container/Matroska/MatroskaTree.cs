@@ -10,38 +10,9 @@ namespace Cavern.Format.Container.Matroska {
     /// <see href="https://github.com/ietf-wg-cellar/matroska-specification/blob/master/ebml_matroska.xml"/>
     internal class MatroskaTree : KeyLengthValue {
         /// <summary>
-        /// EBML tag IDs.
+        /// Last byte (exclusive) of the file that is a tag in this element.
         /// </summary>
-        internal const int Segment_Tracks_TrackEntry_CodecID = 0x86,
-            Segment_Tracks_TrackEntry_Audio_Channels = 0x9F,
-            Segment_Cluster_BlockGroup = 0xA0,
-            Segment_Cluster_BlockGroup_Block = 0xA1,
-            Segment_Cluster_SimpleBlock = 0xA3,
-            Segment_Tracks_TrackEntry = 0xAE,
-            Segment_Cues_CuePoint_CueTime = 0xB3,
-            Segment_Tracks_TrackEntry_Audio_SamplingFrequency = 0xB5,
-            Segment_Cues_CuePoint_CueTrackPositions = 0xB7,
-            Segment_Cues_CuePoint = 0xBB,
-            Segment_Tracks_TrackEntry_TrackNumber = 0xD7,
-            Segment_Tracks_TrackEntry_Audio = 0xE1,
-            Segment_Cluster_Timestamp = 0xE7,
-            Segment_Cues_CuePoint_CueTrackPositions_CueClusterPosition = 0xF1,
-            Segment_Cues_CuePoint_CueTrackPositions_CueTrack = 0xF7,
-            Segment_Info_Duration = 0x4489,
-            Segment_SeekHead_Seek = 0x4DBB,
-            Segment_SeekHead_Seek_SeekPosition = 0x53AC,
-            Segment_Tracks_TrackEntry_Name = 0x536E,
-            Segment_Tracks_TrackEntry_Audio_BitDepth = 0x6264,
-            Segment_Info_ChapterTranslate = 0x6924,
-            Segment_Tracks_TrackEntry_Language = 0x22B59C,
-            Segment_Info_TimestampScale = 0x2AD7B1,
-            Segment_SeekHead = 0x114D9B74,
-            Segment_Info = 0x1549A966,
-            Segment_Tracks = 0x1654AE6B,
-            Segment = 0x18538067,
-            EBML = 0x1A45DFA3,
-            Segment_Cues = 0x1C53BB6B,
-            Segment_Cluster = 0x1F43B675;
+        protected readonly long end;
 
         /// <summary>
         /// The contained subtree.
@@ -49,20 +20,15 @@ namespace Cavern.Format.Container.Matroska {
         readonly List<MatroskaTree> children = new List<MatroskaTree>();
 
         /// <summary>
-        /// Last byte (exclusive) of the file that is a tag in this element.
+        /// Location in the file where the next child should be read from.
         /// </summary>
-        readonly long end;
+        long nextTag;
 
         /// <summary>
         /// Cache for <see cref="GetChild(Stream, int, int)"/>, contains which the indices of
         /// already read <see cref="children"/> are for a given tag (key).
         /// </summary>
         Dictionary<int, List<int>> childIndices;
-
-        /// <summary>
-        /// Location in the file where the next child should be read from.
-        /// </summary>
-        long nextTag;
 
         /// <summary>
         /// Build the next KLV subtree.
@@ -259,5 +225,40 @@ namespace Cavern.Format.Container.Matroska {
             reader.Read(result);
             return result;
         }
+
+        /// <summary>
+        /// EBML tag IDs.
+        /// </summary>
+        internal const int Segment_Tracks_TrackEntry_CodecID = 0x86,
+            Segment_Tracks_TrackEntry_Audio_Channels = 0x9F,
+            Segment_Cluster_BlockGroup = 0xA0,
+            Segment_Cluster_BlockGroup_Block = 0xA1,
+            Segment_Cluster_SimpleBlock = 0xA3,
+            Segment_Tracks_TrackEntry = 0xAE,
+            Segment_Cues_CuePoint_CueTime = 0xB3,
+            Segment_Tracks_TrackEntry_Audio_SamplingFrequency = 0xB5,
+            Segment_Cues_CuePoint_CueTrackPositions = 0xB7,
+            Segment_Cues_CuePoint = 0xBB,
+            Segment_Tracks_TrackEntry_TrackNumber = 0xD7,
+            Segment_Tracks_TrackEntry_Audio = 0xE1,
+            Segment_Cluster_Timestamp = 0xE7,
+            Segment_Cues_CuePoint_CueTrackPositions_CueClusterPosition = 0xF1,
+            Segment_Cues_CuePoint_CueTrackPositions_CueTrack = 0xF7,
+            Segment_Info_Duration = 0x4489,
+            Segment_SeekHead_Seek = 0x4DBB,
+            Segment_SeekHead_Seek_SeekID = 0x53AB,
+            Segment_SeekHead_Seek_SeekPosition = 0x53AC,
+            Segment_Tracks_TrackEntry_Name = 0x536E,
+            Segment_Tracks_TrackEntry_Audio_BitDepth = 0x6264,
+            Segment_Info_ChapterTranslate = 0x6924,
+            Segment_Tracks_TrackEntry_Language = 0x22B59C,
+            Segment_Info_TimestampScale = 0x2AD7B1,
+            Segment_SeekHead = 0x114D9B74,
+            Segment_Info = 0x1549A966,
+            Segment_Tracks = 0x1654AE6B,
+            Segment = 0x18538067,
+            EBML = 0x1A45DFA3,
+            Segment_Cues = 0x1C53BB6B,
+            Segment_Cluster = 0x1F43B675;
     }
 }

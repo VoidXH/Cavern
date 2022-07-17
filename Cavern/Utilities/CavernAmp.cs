@@ -10,6 +10,28 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Is the CavernAmp DLL present and the platform is correct?
         /// </summary>
+        public static bool Available {
+            get {
+                if (tested) {
+                    return available;
+                }
+
+                if (bypass) {
+                    return available = false;
+                }
+                try {
+                    available = IsAvailable();
+                } catch {
+                    available = false;
+                }
+                tested = true;
+                return available;
+            }
+        }
+
+        /// <summary>
+        /// Is the CavernAmp DLL present and the platform is correct?
+        /// </summary>
         static bool available;
 
         /// <summary>
@@ -23,35 +45,17 @@ namespace Cavern.Utilities {
         static bool tested = false;
 
         /// <summary>
-        /// Is the CavernAmp DLL present and the platform is correct?
-        /// </summary>
-        public static bool Available {
-            get {
-                if (tested)
-                    return available;
-
-                if (bypass)
-                    return available = false;
-                try {
-                    available = IsAvailable();
-                } catch {
-                    available = false;
-                }
-                tested = true;
-                return available;
-            }
-        }
-
-        /// <summary>
         /// Force disable CavernAmp for performance benchmarks.
         /// </summary>
         public static bool Bypass {
             set {
                 bypass = value;
-                if (available)
+                if (available) {
                     available = false;
-                if (!bypass)
+                }
+                if (!bypass) {
                     tested = false;
+                }
             }
         }
 
@@ -102,12 +106,8 @@ namespace Cavern.Utilities {
         /// Fast Fourier transform a 2D signal while keeping the source array allocation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InPlaceFFT(Complex[] samples, FFTCache cache = null) {
-            if (cache == null)
-                InPlaceFFTCall(samples, samples.Length, IntPtr.Zero);
-            else
-                InPlaceFFTCall(samples, samples.Length, cache.Native);
-        }
+        internal static void InPlaceFFT(Complex[] samples, FFTCache cache = null) =>
+            InPlaceFFTCall(samples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
 
         /// <summary>
         /// Spectrum of a signal's FFT while keeping the source array allocation.
@@ -119,12 +119,8 @@ namespace Cavern.Utilities {
         /// Spectrum of a signal's FFT while keeping the source array allocation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InPlaceFFT(float[] samples, FFTCache cache = null) {
-            if (cache == null)
-                InPlaceFFTCall(samples, samples.Length, IntPtr.Zero);
-            else
-                InPlaceFFTCall(samples, samples.Length, cache.Native);
-        }
+        internal static void InPlaceFFT(float[] samples, FFTCache cache = null) =>
+            InPlaceFFTCall(samples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
 
         /// <summary>
         /// Outputs IFFT(X) * N.
@@ -142,12 +138,8 @@ namespace Cavern.Utilities {
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InPlaceIFFT(Complex[] samples, FFTCache cache = null) {
-            if (cache == null)
-                InPlaceIFFTCall(samples, samples.Length, IntPtr.Zero);
-            else
-                InPlaceIFFTCall(samples, samples.Length, cache.Native);
-        }
+        internal static void InPlaceIFFT(Complex[] samples, FFTCache cache = null) =>
+            InPlaceIFFTCall(samples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
         #endregion
     }
 }

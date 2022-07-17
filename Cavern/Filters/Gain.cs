@@ -28,8 +28,9 @@ namespace Cavern.Filters {
         /// Apply gain on an array of samples. This filter can be used on multiple streams.
         /// </summary>
         public override void Process(float[] samples) {
-            for (int sample = 0; sample < samples.Length; ++sample)
+            for (int sample = 0; sample < samples.Length; ++sample) {
                 samples[sample] *= gainValue;
+            }
         }
 
         /// <summary>
@@ -39,8 +40,9 @@ namespace Cavern.Filters {
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
-            for (int sample = channel; sample < samples.Length; sample += channels)
+            for (int sample = channel; sample < samples.Length; sample += channels) {
                 samples[sample] *= gainValue;
+            }
         }
     }
 }

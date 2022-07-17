@@ -86,17 +86,69 @@ namespace Cavern {
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(Vector3 location, bool LFE) {
             lowFrequency = LFE;
-            if (location.Z == 0)
+            if (location.Z == 0) {
                 SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg,
                     location.X < 0 ? -90 : 90);
-            else {
+            } else {
                 float y = MathF.Atan(location.X / location.Z) * VectorExtensions.Rad2Deg;
-                if (location.Z < 0)
+                if (location.Z < 0) {
                     y += 180;
-                if (location.Y == 0)
-                    SetPosition(0, y);
-                else
-                    SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg, y);
+                }
+                SetPosition(location.Y == 0 ? 0 : (-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg),
+                            y);
+            }
+        }
+
+        /// <summary>
+        /// Get if a channel is LFE for a given channel count.
+        /// If <paramref name="channels"/> == -1, the current layout will be used.
+        /// </summary>
+        public static bool IsLFE(int channel, int channels = -1) =>
+            channels == -1 ? Listener.Channels[channel].lowFrequency : (channels >= 6 & channel == 3);
+
+        /// <summary>
+        /// Recalculates symmetry when a channel's position is changed.
+        /// </summary>
+        internal static void SymmetryCheck() {
+            if (Listener.Channels == null) {
+                return;
+            }
+            Listener.IsSymmetric = true;
+            int channelCount = Listener.Channels.Length;
+            if (channelCount % 2 == 1) { // If there is an unpaired channel, it must be on the center circle
+                --channelCount;
+                Listener.IsSymmetric = Listener.Channels[channelCount].Y % 180 == 0;
+            }
+            Listener.leftChannels = Listener.rightChannels = 0; // Count left and right side channels anyway for 1D mixing gains
+            for (int i = 0; i < channelCount; ++i) {
+                Channel current = Listener.Channels[i];
+                if (current == null) {
+                    continue;
+                }
+                if (!current.lowFrequency) {
+                    if (current.Y < 0) {
+                        ++Listener.leftChannels;
+                    } else if (current.Y > 0) {
+                        ++Listener.rightChannels;
+                    }
+                }
+                if (i % 2 == 1) {
+                    continue;
+                }
+                Channel next = Listener.Channels[i + 1];
+                if (i + 1 != channelCount && next != null) {
+                    Listener.IsSymmetric &=
+                        current.lowFrequency ? next.Y % 180 == 0 || next.lowFrequency :
+                        next.lowFrequency ? current.Y % 180 == 0 || current.lowFrequency :
+                        (current.X == next.X ? current.Y % 180 == -next.Y % 180 : current.Y % 180 == 0 && next.Y % 180 == 0);
+                }
+            }
+
+            if (Listener.leftChannels == 0) {
+                Listener.leftChannels = 1;
+            }
+            if (Listener.rightChannels == 0) {
+                Listener.rightChannels = 1;
             }
         }
 
@@ -118,14 +170,14 @@ namespace Cavern {
         public void Rotate(float x, float y) => Move(X + x, Y + y);
 
         /// <summary>
-        /// Set the position of the channel and do all neccessary processing.
+        /// Check if two channels are the same.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void SetPosition(float x, float y) {
-            X = x;
-            Y = y;
-            Recalculate();
-        }
+        public bool Equals(Channel other) => X == other.X && Y == other.Y && lowFrequency == other.lowFrequency;
+
+        /// <summary>
+        /// Display channel position when converted to string.
+        /// </summary>
+        public override string ToString() => $"X: {X}, Y: {Y}, {SpatialPos}";
 
         /// <summary>
         /// Recalculates properties.
@@ -138,10 +190,11 @@ namespace Cavern {
                 sinY = (float)Math.Sin(yRad),
                 cosY = (float)Math.Cos(yRad);
             SphericalPos = new Vector3(sinY * cosX, -sinX, cosY * cosX);
-            if (Math.Abs(sinY) > Math.Abs(cosY))
+            if (Math.Abs(sinY) > Math.Abs(cosY)) {
                 sinY = Math.Sign(sinY) * VectorExtensions.Sqrt2p2;
-            else
+            } else {
                 cosY = Math.Sign(cosY) * VectorExtensions.Sqrt2p2;
+            }
             sinY /= VectorExtensions.Sqrt2p2;
             cosY /= VectorExtensions.Sqrt2p2;
             if (Math.Abs(sinX) >= VectorExtensions.Sqrt2p2) {
@@ -152,72 +205,18 @@ namespace Cavern {
             }
             sinX /= VectorExtensions.Sqrt2p2;
             CubicalPos = new Vector3(sinY, -sinX, cosY);
-            if (Listener.IsSpherical)
-                SpatialPos = SphericalPos;
-            else
-                SpatialPos = CubicalPos;
+            SpatialPos = Listener.IsSpherical ? SphericalPos : CubicalPos;
             Distance = SpatialPos.Length();
         }
 
         /// <summary>
-        /// Recalculates symmetry when a channel's position is changed.
+        /// Set the position of the channel and do all neccessary processing.
         /// </summary>
-        internal static void SymmetryCheck() {
-            if (Listener.Channels == null)
-                return;
-            Listener.IsSymmetric = true;
-            int channelCount = Listener.Channels.Length;
-            if (channelCount % 2 == 1) { // If there is an unpaired channel, it must be on the center circle
-                --channelCount;
-                Listener.IsSymmetric = Listener.Channels[channelCount].Y % 180 == 0;
-            }
-            Listener.LeftChannels = Listener.RightChannels = 0; // Count left and right side channels anyway for 1D mixing gains
-            for (int i = 0; i < channelCount; ++i) {
-                Channel current = Listener.Channels[i];
-                if (current == null)
-                    continue;
-                if (!current.lowFrequency) {
-                    if (current.Y < 0)
-                        ++Listener.LeftChannels;
-                    else if (current.Y > 0)
-                        ++Listener.RightChannels;
-                }
-                if (i % 2 == 1)
-                    continue;
-                Channel next = Listener.Channels[i + 1];
-                if (i + 1 != channelCount && next != null)
-                    Listener.IsSymmetric &=
-                        current.lowFrequency ? next.Y % 180 == 0 || next.lowFrequency :
-                        next.lowFrequency ? current.Y % 180 == 0 || current.lowFrequency :
-                        (current.X == next.X ? current.Y % 180 == -next.Y % 180 : current.Y % 180 == 0 && next.Y % 180 == 0);
-            }
-            if (Listener.LeftChannels == 0)
-                Listener.LeftChannels = 1;
-            if (Listener.RightChannels == 0)
-                Listener.RightChannels = 1;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SetPosition(float x, float y) {
+            X = x;
+            Y = y;
+            Recalculate();
         }
-
-        /// <summary>
-        /// Check if two channels are the same.
-        /// </summary>
-        public bool Equals(Channel other) => X == other.X && Y == other.Y && lowFrequency == other.lowFrequency;
-
-        /// <summary>
-        /// Get if a channel is LFE for a given channel count.
-        /// If <paramref name="channels"/> == -1, the current layout will be used.
-        /// </summary>
-        public static bool IsLFE(int channel, int channels = -1) {
-            if (channels == -1)
-                return Listener.Channels[channel].lowFrequency;
-            else if (channels < 6)
-                return false;
-            else
-                return channel == 3;
-        }
-
-        /// <summary>
-        /// Display channel position when converted to string.
-        /// </summary>
-        public override string ToString() => $"X: {X}, Y: {Y}, {SpatialPos}";
     }
 }

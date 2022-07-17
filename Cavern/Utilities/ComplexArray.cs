@@ -31,8 +31,9 @@
         /// </summary>
         public static Complex[] ParseForFFT(this float[] source) {
             Complex[] result = new Complex[QMath.Base2Ceil(source.Length)];
-            for (int i = 0; i < source.Length; ++i)
+            for (int i = 0; i < source.Length; ++i) {
                 result[i].Real = source[i];
+            }
             return result;
         }
     }

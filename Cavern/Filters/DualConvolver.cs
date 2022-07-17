@@ -46,10 +46,12 @@ namespace Cavern.Filters {
             int fftSize = 2 << QMath.Log2Ceil(impulseLength); // Zero padding for the falloff to have space
             cache = new FFTCache(fftSize);
             filter = new Complex[fftSize];
-            for (int sample = 0; sample < impulse1.Length; ++sample)
+            for (int sample = 0; sample < impulse1.Length; ++sample) {
                 filter[sample].Real = impulse1[sample];
-            for (int sample = 0; sample < impulse2.Length; ++sample)
+            }
+            for (int sample = 0; sample < impulse2.Length; ++sample) {
                 filter[sample].Imaginary = impulse2[sample];
+            }
             filter.InPlaceFFT(cache);
             present = new Complex[fftSize];
             future = new Complex[fftSize + Math.Max(delay1, delay2)];
@@ -65,8 +67,9 @@ namespace Cavern.Filters {
         /// <remarks>The length of both arrays must match.</remarks>
         public void Process(float[] samplesInOut, float[] samplesOut) {
             int start = 0;
-            while (start < samplesOut.Length)
+            while (start < samplesOut.Length) {
                 ProcessTimeslot(samplesInOut, samplesOut, start, Math.Min(samplesOut.Length, start += filter.Length >> 1));
+            }
         }
 
         /// <summary>
@@ -74,10 +77,12 @@ namespace Cavern.Filters {
         /// </summary>
         void ProcessTimeslot(float[] samplesInOut, float[] samplesOut, int from, int to) {
             // Move samples and pad present
-            for (int i = from; i < to; ++i)
+            for (int i = from; i < to; ++i) {
                 present[i - from] = new Complex(samplesInOut[i], 0);
-            for (int i = to - from; i < present.Length; ++i)
+            }
+            for (int i = to - from; i < present.Length; ++i) {
                 present[i].Clear();
+            }
 
             // Perform the convolution
             present.InPlaceFFT(cache);

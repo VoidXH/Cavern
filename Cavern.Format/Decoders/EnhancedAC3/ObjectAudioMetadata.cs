@@ -14,12 +14,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Number of audio objects in the stream.
         /// </summary>
-        public byte ObjectCount { get; private set; }
+        public int ObjectCount { get; private set; }
 
         /// <summary>
         /// Decoded object audio element metadata.
         /// </summary>
-        readonly List<OAElementMD> elements = new List<OAElementMD>();
+        OAElementMD[] elements = new OAElementMD[0];
 
         /// <summary>
         /// Bed channels used. The first dimension is the element ID, the second is one bit for each channel,
@@ -53,31 +53,37 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public void Decode(BitExtractor extractor, int offset) {
             this.offset = offset;
             int versionNumber = extractor.Read(2);
-            if (versionNumber == 3)
+            if (versionNumber == 3) {
                 versionNumber += extractor.Read(3);
-            if (versionNumber != 0)
+            }
+            if (versionNumber != 0) {
                 throw new UnsupportedFeatureException("OAver");
-            ObjectCount = (byte)extractor.Read(5);
-            if (ObjectCount == 31)
-                ObjectCount += (byte)extractor.Read(7);
-            ++ObjectCount;
+            }
+            ObjectCount = extractor.Read(5) + 1;
+            if (ObjectCount == 32) {
+                ObjectCount += extractor.Read(7);
+            }
             ProgramAssignment(extractor);
             bool alternateObjectPresent = extractor.ReadBit();
             int elementCount = extractor.Read(4);
-            if (elementCount == 15)
+            if (elementCount == 15) {
                 elementCount += extractor.Read(5);
+            }
 
             int bedOrISFObjects = beds;
-            if (isfInUse)
+            if (isfInUse) {
                 bedOrISFObjects += isfObjectCount[isfIndex];
-
-            if (elements.Count != elementCount) {
-                elements.Clear();
-                for (int i = 0; i < elementCount; ++i)
-                    elements.Add(new OAElementMD());
             }
-            for (int i = 0; i < elementCount; ++i)
+
+            if (elements.Length != elementCount) {
+                elements = new OAElementMD[elementCount];
+                for (int i = 0; i < elementCount; ++i) {
+                    elements[i] = new OAElementMD();
+                }
+            }
+            for (int i = 0; i < elementCount; ++i) {
                 elements[i].Read(extractor, alternateObjectPresent, ObjectCount, bedOrISFObjects);
+            }
         }
 
         /// <summary>
@@ -88,8 +94,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             for (int bed = 0; bed < bedAssignment.Length; ++bed) {
                 for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i) {
                     if (bedAssignment[bed][i]) {
-                        if (i == (int)NonStandardBedChannel.LowFrequencyEffects)
+                        if (i == (int)NonStandardBedChannel.LowFrequencyEffects) {
                             return beds;
+                        }
                         ++beds;
                     }
                 }
@@ -105,9 +112,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public void UpdateSources(int timecode, IReadOnlyList<Source> sources) {
             timecode -= offset;
             int element = 0;
-            for (int i = elements.Count - 1; i >= 0; --i) {
-                if (elements[i].MinOffset < 0)
+            for (int i = elements.Length - 1; i >= 0; --i) {
+                if (elements[i].MinOffset < 0) {
                     continue;
+                }
                 if (elements[i].MinOffset <= timecode) {
                     element = i;
                     break;
@@ -119,9 +127,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int checkedBedInstance = 0;
             for (int i = 0; i < beds; ++i) {
                 while (!bedAssignment[checkedBedInstance][checkedBed]) {
-                    ++checkedBed;
-                    if (checkedBed == (int)NonStandardBedChannel.Max)
+                    if (++checkedBed == (int)NonStandardBedChannel.Max) {
                         ++checkedBedInstance;
+                    }
                 }
                 ChannelPrototype prototype = ChannelPrototype.Mapping[(int)bedChannels[checkedBed]];
                 sources[i].Position = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube() * Listener.EnvironmentSize;
@@ -150,11 +158,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         } else {
                             if (extractor.ReadBit()) { // Standard bed assignment
                                 bool[] standardAssignment = extractor.ReadBits(10);
-                                for (int i = 0; i < standardAssignment.Length; ++i)
-                                    for (int j = 0; j < standardBedChannels[i].Length; ++j)
+                                for (int i = 0; i < standardAssignment.Length; ++i) {
+                                    for (int j = 0; j < standardBedChannels[i].Length; ++j) {
                                         bedAssignment[bed][standardBedChannels[i][j]] = standardAssignment[i];
-                            } else
+                                    }
+                                }
+                            } else {
                                 bedAssignment[bed] = extractor.ReadBits((int)NonStandardBedChannel.Max);
+                            }
                         }
                     }
                 }
@@ -162,25 +173,32 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 // Intermediate spatial format (ISF)
                 if (isfInUse = (contentDescription & 4) != 0) {
                     isfIndex = (byte)extractor.Read(3);
-                    if (isfIndex >= isfObjectCount.Length)
+                    if (isfIndex >= isfObjectCount.Length) {
                         throw new UnsupportedFeatureException("ISF");
+                    }
                 }
 
                 // Object(s) with room-anchored or screen-anchored coordinates
-                if ((contentDescription & 2) != 0) // This is useless, same as ObjectCount - bedOrISFObjects, also found in JOC
-                    if (extractor.Read(5) == 31)
+                if ((contentDescription & 2) != 0) { // This is useless, same as ObjectCount - bedOrISFObjects, also found in JOC
+                    if (extractor.Read(5) == 31) {
                         extractor.Skip(7);
+                    }
+                }
 
                 // Reserved
-                if ((contentDescription & 1) != 0)
+                if ((contentDescription & 1) != 0) {
                     extractor.Skip((extractor.Read(4) + 1) * 8);
+                }
             }
 
             beds = 0;
-            for (int bed = 0; bed < bedAssignment.Length; ++bed)
-                for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i)
-                    if (bedAssignment[bed][i])
+            for (int bed = 0; bed < bedAssignment.Length; ++bed) {
+                for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i) {
+                    if (bedAssignment[bed][i]) {
                         ++beds;
+                    }
+                }
+            }
         }
 
         static readonly byte[] isfObjectCount = { 4, 8, 10, 14, 15, 30 };

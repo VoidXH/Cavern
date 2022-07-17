@@ -14,8 +14,9 @@ namespace Cavern {
         /// <param name="pos">Point X position</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float WidthRatio(int left, int right, float pos) {
-            if (left == right)
+            if (left == right) {
                 return .5f;
+            }
             float leftX = Listener.Channels[left].CubicalPos.X;
             return (pos - leftX) / (Listener.Channels[right].CubicalPos.X - leftX);
         }
@@ -28,8 +29,9 @@ namespace Cavern {
         /// <param name="pos">Point Z position</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float LengthRatio(int rear, int front, float pos) {
-            if (rear == front)
+            if (rear == front) {
                 return .5f;
+            }
             float rearZ = Listener.Channels[rear].CubicalPos.Z;
             return (pos - rearZ) / (Listener.Channels[front].CubicalPos.Z - rearZ);
         }
@@ -48,10 +50,12 @@ namespace Cavern {
                 left = channel;
                 right = channel;
             } else if (channelX < posX) { // Left
-                if (left == -1 || Listener.Channels[left].CubicalPos.X < channelX)
+                if (left == -1 || Listener.Channels[left].CubicalPos.X < channelX) {
                     left = channel;
-            } else if (right == -1 || Listener.Channels[right].CubicalPos.X > channelX) // Right
+                }
+            } else if (right == -1 || Listener.Channels[right].CubicalPos.X > channelX) { // Right
                 right = channel;
+            }
         }
 
         /// <summary>
@@ -67,21 +71,24 @@ namespace Cavern {
         /// <param name="position">Reference position</param>
         /// <param name="channelPos">Currently checked channel position</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void AssignHorizontalLayer(int channel, ref int frontLeft, ref int frontRight, ref int rearLeft, ref int rearRight,
-            ref float closestFront, ref float closestRear, Vector3 position, Vector3 channelPos) {
+        static void AssignHorizontalLayer(int channel, ref int frontLeft, ref int frontRight,
+            ref int rearLeft, ref int rearRight, ref float closestFront, ref float closestRear,
+            Vector3 position, Vector3 channelPos) {
             if (channelPos.Z > position.Z) { // Front
                 if (channelPos.Z < closestFront) { // Front layer selection
                     closestFront = channelPos.Z;
                     frontLeft = frontRight = -1;
                 }
-                if (channelPos.Z == closestFront)
+                if (channelPos.Z == closestFront) {
                     AssignLR(channel, ref frontLeft, ref frontRight, position.X, channelPos.X);
+                }
             } else { // Rear
                 if (channelPos.Z > closestRear) { // Rear layer selection
                     closestRear = channelPos.Z; rearLeft = rearRight = -1;
                 }
-                if (channelPos.Z == closestRear)
+                if (channelPos.Z == closestRear) {
                     AssignLR(channel, ref rearLeft, ref rearRight, position.X, channelPos.X);
+                }
             }
         }
 
@@ -94,26 +101,28 @@ namespace Cavern {
         /// <param name="rearRight">Rear right ID</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void FixIncompleteLayer(ref int frontLeft, ref int frontRight, ref int rearLeft, ref int rearRight) {
-            if (frontLeft == -1 || frontRight == -1 || rearLeft == -1 || rearRight == -1) {
-                if (frontLeft != -1 || frontRight != -1) {
-                    if (frontLeft == -1)
-                        frontLeft = frontRight;
-                    if (frontRight == -1)
-                        frontRight = frontLeft;
-                    if (rearLeft == -1 && rearRight == -1) {
-                        rearLeft = frontLeft;
-                        rearRight = frontRight;
-                    }
+            if (frontLeft != -1 || frontRight != -1) {
+                if (frontLeft == -1) {
+                    frontLeft = frontRight;
                 }
-                if (rearLeft != -1 || rearRight != -1) {
-                    if (rearLeft == -1)
-                        rearLeft = rearRight;
-                    if (rearRight == -1)
-                        rearRight = rearLeft;
-                    if (frontLeft == -1 && frontRight == -1) {
-                        frontLeft = rearLeft;
-                        frontRight = rearRight;
-                    }
+                if (frontRight == -1) {
+                    frontRight = frontLeft;
+                }
+                if (rearLeft == -1 && rearRight == -1) {
+                    rearLeft = frontLeft;
+                    rearRight = frontRight;
+                }
+            }
+            if (rearLeft != -1 || rearRight != -1) {
+                if (rearLeft == -1) {
+                    rearLeft = rearRight;
+                }
+                if (rearRight == -1) {
+                    rearRight = rearLeft;
+                }
+                if (frontLeft == -1 && frontRight == -1) {
+                    frontLeft = rearLeft;
+                    frontRight = rearRight;
                 }
             }
         }

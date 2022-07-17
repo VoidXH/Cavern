@@ -57,20 +57,25 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public void Update(BitExtractor extractor, int blk, bool bedOrISFObject) {
             bool inactive = extractor.ReadBit();
             int basicInfoStatus = inactive ? 0 : (blk == 0 ? 1 : extractor.Read(2));
-            if ((basicInfoStatus == 1) || (basicInfoStatus == 3))
+            if ((basicInfoStatus & 1) == 1) {
                 ObjectBasicInfo(extractor, basicInfoStatus == 1);
+            }
 
             int renderInfoStatus = 0;
-            if (!inactive && !bedOrISFObject)
+            if (!inactive && !bedOrISFObject) {
                 renderInfoStatus = blk == 0 ? 1 : extractor.Read(2);
-            if ((renderInfoStatus == 1) || (renderInfoStatus == 3))
+            }
+            if ((renderInfoStatus & 1) == 1) {
                 ObjectRenderInfo(extractor, blk, renderInfoStatus == 1);
+            }
 
-            if (extractor.ReadBit()) // Additional table data
+            if (extractor.ReadBit()) { // Additional table data
                 extractor.Skip((extractor.Read(4) + 1) * 8);
+            }
 
-            if (bedOrISFObject)
+            if (bedOrISFObject) {
                 anchor = ObjectAnchor.Speaker;
+            }
         }
 
         /// <summary>
@@ -78,20 +83,23 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// The position shouldn't be updated immediately, it might have a ramp.
         /// </summary>
         public Vector3 UpdateSource(Source source) {
-            if (gain >= 0)
+            if (gain >= 0) {
                 source.Volume = gain;
-            if (size >= 0)
+            }
+            if (size >= 0) {
                 source.Size = size;
+            }
 
             if (validPosition && anchor != ObjectAnchor.Speaker) {
-                if (differentialPosition)
+                if (differentialPosition) {
                     position = new Vector3(
                         Math.Clamp(lastPrecise.X + position.X, 0, 1),
                         Math.Clamp(lastPrecise.Y + position.Y, 0, 1),
                         Math.Clamp(lastPrecise.Z + position.Z, 0, 1)
                     );
-                else
+                } else {
                     lastPrecise = position;
+                }
 
                 switch (anchor) {
                     case ObjectAnchor.Room:
@@ -142,8 +150,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
 
             // Priority - unneccessary, everything's rendered
-            if ((blocks & 1) != 0 && !extractor.ReadBit())
+            if ((blocks & 1) != 0 && !extractor.ReadBit()) {
                 extractor.Skip(5);
+            }
         }
 
         void ObjectRenderInfo(BitExtractor extractor, int blk, bool readAllBlocks) {
@@ -152,13 +161,13 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             // Spatial position
             if (validPosition = (blocks & 8) != 0) {
                 differentialPosition = blk != 0 && extractor.ReadBit();
-                if (differentialPosition)
+                if (differentialPosition) {
                     position = new Vector3(
                         extractor.ReadSigned(3) * xyScale,
                         extractor.ReadSigned(3) * xyScale,
                         extractor.ReadSigned(3) * zScale
                     );
-                else {
+                } else {
                     int posX = extractor.Read(6);
                     int posY = extractor.Read(6);
                     int posZ = ((extractor.ReadBitInt() << 1) - 1) * extractor.Read(4);
@@ -169,26 +178,30 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     );
                 }
                 if (extractor.ReadBit()) { // Distance specified
-                    if (extractor.ReadBit()) // Infinite distance
+                    if (extractor.ReadBit()) { // Infinite distance
                         distance = 100; // Close enough
-                    else
+                    } else {
                         distance = distanceFactors[extractor.Read(4)];
-                } else
+                    }
+                } else {
                     distance = float.NaN;
+                }
             }
 
             // Zone constraints - the renderer is not prepared for zoning
-            if ((blocks & 4) != 0)
+            if ((blocks & 4) != 0) {
                 extractor.Skip(4);
+            }
 
             // Scaling
-            if ((blocks & 2) != 0)
+            if ((blocks & 2) != 0) {
                 size = extractor.Read(2) switch {
                     0 => 0,
                     1 => extractor.Read(5) * sizeScale,
                     2 => (new Vector3(extractor.Read(5), extractor.Read(5), extractor.Read(5)) * sizeScale).Length(),
                     _ => -1,
                 };
+            }
 
             // Screen anchoring
             if ((blocks & 1) != 0 && extractor.ReadBit()) {
