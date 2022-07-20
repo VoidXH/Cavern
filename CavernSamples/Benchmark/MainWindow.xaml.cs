@@ -34,7 +34,7 @@ namespace Benchmark {
                     runner.UpdateProgressBar(1 - (endTime - now).TotalSeconds / secs);
                 }
                 MessageBox.Show($"Performed {steps} steps in {secs} seconds. " +
-                    $"Performance: {steps / (float)secs:0.0} operations/second.", "Benchmark finished");
+                    $"Performance: {benchmark.ToString(steps, secs)}.", "Benchmark finished");
             });
         }
 

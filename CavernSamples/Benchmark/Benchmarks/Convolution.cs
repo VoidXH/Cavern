@@ -17,8 +17,14 @@ namespace Benchmark.Benchmarks {
         }
 
         /// <summary>
-        /// Performs one round of the benchmark. Results should be displayed in actions/second.
+        /// Performs one round of the benchmark.
         /// </summary>
         public override void Step() => filter.Process(new float[length]);
+
+        /// <summary>
+        /// Displays the result of the benchmark in a relevant metric.
+        /// </summary>
+        public override string ToString(int steps, int seconds) =>
+            $"{steps * length / (float)(seconds * 48000):0.0} seconds of audio processed every second at 48 kHz";
     }
 }
