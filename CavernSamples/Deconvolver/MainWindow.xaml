@@ -5,10 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Deconvolver"
         mc:Ignorable="d"
-        Title="Deconvolver" Height="125" Width="300">
+        Title="De/convolver" Height="150" Width="300">
     <Grid>
-        <CheckBox x:Name="padding" Content="Padding" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="Double the length of the output with front room." VerticalAlignment="Top"/>
-        <Button Content="Load files" HorizontalAlignment="Left" Margin="10,51,0,0" VerticalAlignment="Top" Width="75" Click="LoadFiles"/>
+        <RadioButton x:Name="convolve" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Content="Convolution"/>
+        <RadioButton x:Name="deconvolve" HorizontalAlignment="Left" Margin="150,10,0,0" VerticalAlignment="Top"
+                     Content="Deconvolution"/>
+        <CheckBox x:Name="padding" HorizontalAlignment="Left" Margin="10,30,0,0" VerticalAlignment="Top"
+                  Content="Front padding (deconvolution only)"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,50,0,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                   Text="Double the length of the output with front room."/>
+        <Button HorizontalAlignment="Left" Margin="10,71,0,0" VerticalAlignment="Top" Width="75" Click="LoadFiles"
+                Content="Load files"/>
     </Grid>
 </Window>
