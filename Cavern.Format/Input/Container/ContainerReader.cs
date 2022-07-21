@@ -48,9 +48,19 @@ namespace Cavern.Format.Container {
         public abstract double Seek(double position);
 
         /// <summary>
-        /// Get the main audio track from the container.
+        /// Get the first of the highest available quality audio tracks from the container.
         /// </summary>
-        public Track GetFirstAudioTrack() => Tracks.FirstOrDefault(x => x.Format.IsAudio());
+        public Track GetMainAudioTrack() {
+            Track result = null;
+            for (int i = 0; i < Tracks.Length; i++) {
+                if (Tracks[i].Format.IsAudio()) {
+                    if (result == null || Tracks[i].Format <= result.Format) {
+                        result = Tracks[i];
+                    }
+                }
+            }
+            return result;
+        }
 
         /// <summary>
         /// Close the reader.
