@@ -128,6 +128,7 @@
                             <TextBlock x:Name="report" Margin="10,10,10,0" Text="After rendering has finished, more track information will appear here, like true object usage statistics." TextWrapping="Wrap" VerticalAlignment="Top"/>
                         </Grid>
                     </GroupBox>
+                    <Button Content="User guide" HorizontalAlignment="Left" Margin="0,23,0,0" VerticalAlignment="Top" Width="80" Click="Guide"/>
                 </Grid>
             </Grid>
         </Grid>
