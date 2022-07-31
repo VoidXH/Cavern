@@ -11,10 +11,11 @@ namespace Cavern.Utilities {
     /// </summary>
     public static class QMath {
         /// <summary>
-        /// Hack for <see cref="Log2(int)"/> to use in-CPU float conversion as log2 by shifting the exponent.
+        /// Converts the bytes of an int to a float or vice versa.
+        /// In this class: hack for <see cref="Log2(int)"/> to use in-CPU float conversion as log2 by shifting the exponent.
         /// </summary>
         [StructLayout(LayoutKind.Explicit)]
-        struct ConverterStruct {
+        public struct ConverterStruct {
             /// <summary>
             /// Get the contained 4 bytes as an integer.
             /// </summary>

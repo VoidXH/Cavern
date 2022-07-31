@@ -28,7 +28,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Reads an audio track from a container.
         /// </summary>
-        public AudioTrackReader(Track track) : base(new BinaryReader(track.Source.reader)) {
+        public AudioTrackReader(Track track) : base(track.Source.reader) {
             if (!track.Format.IsAudio())
                 throw new UnsupportedCodecException(true, track.Format);
             this.track = track;

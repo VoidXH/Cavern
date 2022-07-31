@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Renderers;
 
@@ -28,7 +29,7 @@ namespace Cavern.Format {
         /// Minimal Limitless Audio Format file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public LimitlessAudioFormatReader(BinaryReader reader) : base(reader) { }
+        public LimitlessAudioFormatReader(Stream reader) : base(reader) { }
 
         /// <summary>
         /// Minimal Limitless Audio Format file reader.

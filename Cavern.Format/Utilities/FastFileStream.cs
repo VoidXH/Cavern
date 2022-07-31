@@ -4,10 +4,10 @@ using System.IO;
 namespace Cavern.Format.Utilities {
     /// <summary>
     /// TODO: make and use this
-    /// Like <see cref="BinaryReader"/>, but faster. Caches multiple segments, expands read sizes exponentially
+    /// Like <see cref="Stream"/>, but faster. Caches multiple segments, expands read sizes exponentially
     /// to support both small and large chunks, collects garbage like a CPU cache.
     /// </summary>
-    internal class FileReader : IDisposable {
+    internal class FastFileStream : IDisposable {
         /// <summary>
         /// The smallest number of bytes to read. This is the size of the smallest possible read from a disk.
         /// </summary>
@@ -28,7 +28,7 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         /// <param name="fileName">Path to open the file from</param>
         /// <param name="maxCacheSize">Number of bytes to cache at max (default: 50 MB)</param>
-        public FileReader(string fileName, long maxCacheSize = 50 * 1024 * 1024) {
+        public FastFileStream(string fileName, long maxCacheSize = 50 * 1024 * 1024) {
             stream = File.OpenRead(fileName);
             this.maxCacheSize = maxCacheSize;
         }

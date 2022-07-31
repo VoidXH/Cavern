@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Common;
+
 namespace Cavern.Format.Utilities {
     /// <summary>
     /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.
@@ -52,7 +54,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Converts a stream reader to a block buffer of fixed size.
         /// </summary>
-        public static BlockBuffer<byte> Create(BinaryReader reader, int blockSize = 4096) =>
+        public static BlockBuffer<byte> Create(Stream reader, int blockSize = 4096) =>
             new BlockBuffer<byte>(() => reader.ReadBytes(blockSize));
 
         /// <summary>

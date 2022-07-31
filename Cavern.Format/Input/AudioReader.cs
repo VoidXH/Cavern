@@ -36,19 +36,19 @@ namespace Cavern.Format {
         /// <summary>
         /// File reader object.
         /// </summary>
-        protected BinaryReader reader;
+        protected Stream reader;
 
         /// <summary>
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public AudioReader(BinaryReader reader) => this.reader = reader;
+        public AudioReader(Stream reader) => this.reader = reader;
 
         /// <summary>
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="path">Input file name</param>
-        public AudioReader(string path) => reader = new BinaryReader(File.OpenRead(path));
+        public AudioReader(string path) => reader = File.OpenRead(path);
 
         /// <summary>
         /// Get an object-based renderer for this audio file.
@@ -145,7 +145,7 @@ namespace Cavern.Format {
         /// Goes back to a state where the first sample can be read.
         /// </summary>
         public virtual void Reset() {
-            reader.BaseStream.Position = 0;
+            reader.Position = 0;
             ReadHeader();
         }
 
@@ -155,7 +155,7 @@ namespace Cavern.Format {
         protected bool RollingBlockCheck(byte[] cache, byte[] block) {
             for (int i = 1; i < cache.Length; ++i)
                 cache[i - 1] = cache[i];
-            cache[^1] = reader.ReadByte();
+            cache[^1] = (byte)reader.ReadByte();
             for (int i = 0; i < block.Length; ++i)
                 if (cache[i] != block[i])
                     return false;
@@ -180,15 +180,15 @@ namespace Cavern.Format {
         /// <summary>
         /// Open an audio stream for reading. The format will be detected automatically.
         /// </summary>
-        public static AudioReader Open(BinaryReader reader) {
+        public static AudioReader Open(Stream reader) {
             int syncWord = reader.ReadInt32();
-            reader.BaseStream.Position = 0;
+            reader.Position = 0;
             if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE)
                 return new EnhancedAC3Reader(reader);
             return syncWord switch {
                 RIFFWave.syncWord1 => new RIFFWaveReader(reader),
                 LimitlessAudioFormat.syncWord => new LimitlessAudioFormatReader(reader),
-                MatroskaTree.EBML => new AudioTrackReader(new MatroskaReader(reader.BaseStream).GetMainAudioTrack(), true),
+                MatroskaTree.EBML => new AudioTrackReader(new MatroskaReader(reader).GetMainAudioTrack(), true),
                 _ => throw new UnsupportedFormatException(),
             };
         }
@@ -196,12 +196,12 @@ namespace Cavern.Format {
         /// <summary>
         /// Open an audio file for reading by file name. The format will be detected automatically.
         /// </summary>
-        public static AudioReader Open(string path) => Open(new BinaryReader(File.OpenRead(path)));
+        public static AudioReader Open(string path) => Open(File.OpenRead(path));
 
         /// <summary>
         /// Open an audio clip from a stream. The format will be detected automatically.
         /// </summary>
-        public static Clip ReadClip(BinaryReader reader) => Open(reader).ReadClip();
+        public static Clip ReadClip(Stream reader) => Open(reader).ReadClip();
 
         /// <summary>
         /// Open an audio clip by file name. The format will be detected automatically.

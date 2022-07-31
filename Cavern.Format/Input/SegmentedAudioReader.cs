@@ -32,7 +32,7 @@ namespace Cavern.Format {
         /// Reads audio files from multiple segments.
         /// </summary>
         /// <param name="path">A C# format string compliant path, where {0} will be the index</param>
-        public SegmentedAudioReader(string path) : base((BinaryReader)null) {
+        public SegmentedAudioReader(string path) : base((Stream)null) {
             this.path = path;
             while (true) {
                 string segment = string.Format(path, segments.Count);

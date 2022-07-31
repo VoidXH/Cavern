@@ -17,7 +17,7 @@ namespace Cavern.Format {
         /// Minimal RIFF wave file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public RIFFWaveReader(BinaryReader reader) : base(reader) { }
+        public RIFFWaveReader(Stream reader) : base(reader) { }
 
         /// <summary>
         /// Minimal RIFF wave file reader.

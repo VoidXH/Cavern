@@ -39,23 +39,23 @@ namespace CavernizeGUI {
             }),
             new RenderTarget("5.1.2 front", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
             }),
             new RenderTarget("5.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             }),
             new RenderTarget("5.1.4", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             }),
             new RenderTarget("5.1.6", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter,
                 ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             }),

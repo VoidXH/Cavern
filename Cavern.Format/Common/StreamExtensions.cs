@@ -2,9 +2,11 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 
+using static Cavern.Utilities.QMath;
+
 namespace Cavern.Format.Common {
     /// <summary>
-    /// Stream reading extension functions.
+    /// Stream reading extension functions. Provides functionality similar to <see cref="BinaryReader"/> with better performance.
     /// </summary>
     public static class StreamExtensions {
         /// <summary>
@@ -18,14 +20,44 @@ namespace Cavern.Format.Common {
         }
 
         /// <summary>
-        /// Read a big endian 16-bit signed integer from a stream.
+        /// Read a 16-bit signed integer from the stream.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static short ReadInt16(this Stream reader) => (short)(reader.ReadByte() | (reader.ReadByte() << 8));
+
+        /// <summary>
+        /// Read a big endian 16-bit signed integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static short ReadInt16BE(this Stream reader) {
-            byte[] raw = new byte[2];
-            reader.Read(raw);
-            if (BitConverter.IsLittleEndian)
-                (raw[0], raw[1]) = (raw[1], raw[0]);
-            return BitConverter.ToInt16(raw);
+            int a = reader.ReadByte(), b = reader.ReadByte();
+            return (short)(BitConverter.IsLittleEndian ? (a << 8) + b : ((b << 8) + a));
         }
+
+        /// <summary>
+        /// Read a 32-bit signed integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ReadInt32(this Stream reader) =>
+            reader.ReadByte() | (reader.ReadByte() << 8) | (reader.ReadByte() << 16) | (reader.ReadByte() << 24);
+
+        /// <summary>
+        /// Read a 32-bit signed integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ReadInt64(this Stream reader) => BitConverter.ToInt64(reader.ReadBytes(8));
+
+        /// <summary>
+        /// Read a 32-bit unsigned integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ReadUInt32(this Stream reader) => (uint)reader.ReadInt32();
+
+        /// <summary>
+        /// Read a 32-bit floating point number from the stream.
+        /// </summary>
+        public static float ReadSingle(this Stream reader) => new ConverterStruct() {
+            asInt = reader.ReadInt32()
+        }.asFloat;
     }
 }

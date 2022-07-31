@@ -1,4 +1,6 @@
 ﻿using System.IO;
+
+using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers;
@@ -23,13 +25,13 @@ namespace Cavern.Format {
         /// Enhanced AC-3 file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public EnhancedAC3Reader(BinaryReader reader) : base(reader) => fileSize = reader.BaseStream.Length;
+        public EnhancedAC3Reader(Stream reader) : base(reader) => fileSize = reader.Length;
 
         /// <summary>
         /// Enhanced AC-3 file reader.
         /// </summary>
         /// <param name="path">Input file name</param>
-        public EnhancedAC3Reader(string path) : base(path) => fileSize = reader.BaseStream.Length;
+        public EnhancedAC3Reader(string path) : base(path) => fileSize = reader.Length;
 
         /// <summary>
         /// Read the file header.

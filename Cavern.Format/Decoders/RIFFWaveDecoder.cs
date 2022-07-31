@@ -58,11 +58,11 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Converts a RIFF WAVE bitstream with header to raw samples.
         /// </summary>
-        public RIFFWaveDecoder(BinaryReader reader) {
+        public RIFFWaveDecoder(Stream reader) {
             // RIFF header
             if (reader.ReadInt32() != RIFFWave.syncWord1)
                 throw new SyncException();
-            stream = reader.BaseStream;
+            stream = reader;
             stream.Position += 4; // File length
 
             // Format header
