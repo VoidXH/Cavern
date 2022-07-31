@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Cavern.Utilities;
-
 namespace Cavern.QuickEQ {
     /// <summary>
     /// Status indicator for <see cref="MeasurementImporter"/>.
