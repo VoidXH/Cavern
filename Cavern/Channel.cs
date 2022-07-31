@@ -86,7 +86,9 @@ namespace Cavern {
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(Vector3 location, bool LFE) {
             lowFrequency = LFE;
-            if (location.Z == 0) {
+            if (location.X == 0) {
+                SetPosition(-MathF.Abs(MathF.Atan(location.Z / location.Y)) * VectorExtensions.Rad2Deg, 0);
+            } else if (location.Z == 0) {
                 SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg,
                     location.X < 0 ? -90 : 90);
             } else {
@@ -140,7 +142,7 @@ namespace Cavern {
                     Listener.IsSymmetric &=
                         current.lowFrequency ? next.Y % 180 == 0 || next.lowFrequency :
                         next.lowFrequency ? current.Y % 180 == 0 || current.lowFrequency :
-                        (current.X == next.X ? current.Y % 180 == -next.Y % 180 : current.Y % 180 == 0 && next.Y % 180 == 0);
+                        MathF.Abs(current.X == next.X ? current.Y + next.Y : (current.Y - next.Y)) % 360 == 0;
                 }
             }
 
