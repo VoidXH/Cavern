@@ -305,7 +305,7 @@ namespace Cavern {
                             for (int channel = 0; channel < channels; ++channel) {
                                 if (!Listener.Channels[channel].LFE) {
                                     float channelY = Listener.Channels[channel].CubicalPos.Y;
-                                    if (channelY < direction.Y) {
+                                    if (channelY <= direction.Y) {
                                         if (channelY > closestBottom) {
                                             closestBottom = channelY;
                                         }

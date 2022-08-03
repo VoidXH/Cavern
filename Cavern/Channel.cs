@@ -86,19 +86,21 @@ namespace Cavern {
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(Vector3 location, bool LFE) {
             lowFrequency = LFE;
-            if (location.X == 0) {
-                SetPosition(-MathF.Abs(MathF.Atan(location.Z / location.Y)) * VectorExtensions.Rad2Deg, 0);
-            } else if (location.Z == 0) {
-                SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg,
-                    location.X < 0 ? -90 : 90);
-            } else {
-                float y = MathF.Atan(location.X / location.Z) * VectorExtensions.Rad2Deg;
-                if (location.Z < 0) {
-                    y += 180;
+            if (location.Y != 0) {
+                if (location.X == 0) {
+                    SetPosition(-MathF.Abs(MathF.Atan(location.Z / location.Y)) * VectorExtensions.Rad2Deg, 0);
+                    return;
+                } else if (location.Z == 0) {
+                    SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg,
+                        location.X < 0 ? -90 : 90);
+                    return;
                 }
-                SetPosition(location.Y == 0 ? 0 : (-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg),
-                            y);
             }
+            float y = MathF.Atan(location.X / location.Z) * VectorExtensions.Rad2Deg;
+            if (location.Z < 0) {
+                y += 180;
+            }
+            SetPosition(location.Y == 0 ? 0 : (-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg), y);
         }
 
         /// <summary>

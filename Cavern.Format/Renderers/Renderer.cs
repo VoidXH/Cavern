@@ -93,6 +93,9 @@ namespace Cavern.Format.Renderers {
         /// Finishing steps of creating a layout.
         /// </summary>
         protected void FinishSetup(int count) {
+            for (int obj = 0; obj < count; ++obj) {
+                objects[obj].VolumeRolloff = Rolloffs.Disabled;
+            }
             reader.SetupSources(objects, stream.SampleRate);
             objectSamples = new float[count][];
         }
