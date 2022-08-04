@@ -109,8 +109,11 @@ namespace CavernizeGUI {
         /// </summary>
         void Reset() {
             listener.DetachAllSources();
-            if (file != null)
+            if (file != null) {
                 file.Dispose();
+                file = null;
+            }
+            fileName.Text = string.Empty;
             tracks.Visibility = Visibility.Hidden;
             tracks.ItemsSource = null;
             trackInfo.Text = string.Empty;
@@ -148,7 +151,13 @@ namespace CavernizeGUI {
                 taskEngine.UpdateProgressBar(0);
 
                 fileName.Text = Path.GetFileName(dialog.FileName);
-                file = new(filePath = dialog.FileName);
+                try {
+                    file = new(filePath = dialog.FileName);
+                } catch (Exception ex) {
+                    Reset();
+                    Error($"{ex.Message} {(string)language["Later"]}");
+                    return;
+                }
                 if (file.Tracks.Count != 0) {
                     tracks.Visibility = Visibility.Visible;
                     tracks.ItemsSource = file.Tracks;

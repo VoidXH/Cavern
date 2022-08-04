@@ -14,4 +14,6 @@
     <system:String x:Key="ChCon">Connect the {0} channel to your system's {1} output.</system:String>
     <system:String x:Key="ExpOk">Finished!</system:String>
     <system:String x:Key="Error">Error</system:String>
+    <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize GUI,
+        and if the problem persists with the latest version, contact the developer at www.sbence.hu.</system:String>
 </ResourceDictionary>
