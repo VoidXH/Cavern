@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -17,7 +18,6 @@ using Cavern.Utilities;
 using VoidX.WPF;
 
 using Path = System.IO.Path;
-using System.Diagnostics;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
@@ -55,9 +55,6 @@ namespace CavernizeGUI {
 
         string filePath;
 
-        // TODO: settable codec
-        string codec = "libopus";
-
         /// <summary>
         /// Initialize the window and load last settings.
         /// </summary>
@@ -81,6 +78,13 @@ namespace CavernizeGUI {
                 [ReferenceChannel.GodsVoice] = godsVoice
             };
 
+            audio.ItemsSource = new ExportFormat[] {
+                new ExportFormat(Codec.Opus, "libopus", "Opus (transparent, small size)"),
+                new ExportFormat(Codec.PCM_LE, "pcm_s16le", "PCM integer (lossless, large size)"),
+                new ExportFormat(Codec.PCM_Float, "pcm_f32le", "PCM float (needless, largest size)")
+            };
+            audio.SelectedIndex = Settings.Default.outputCodec;
+
             ffmpeg = new(render, status, Settings.Default.ffmpegLocation);
             listener = new() { // Create a listener, which triggers the loading of saved environment settings
                 UpdateRate = 64,
@@ -92,6 +96,7 @@ namespace CavernizeGUI {
             renderTarget.ItemsSource = RenderTarget.Targets;
             renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget), RenderTarget.Targets.Length - 1);
             taskEngine = new(progress, status);
+            Reset();
         }
 
         /// <summary>
@@ -100,6 +105,7 @@ namespace CavernizeGUI {
         protected override void OnClosed(EventArgs e) {
             Settings.Default.ffmpegLocation = ffmpeg.Location;
             Settings.Default.renderTarget = renderTarget.SelectedIndex;
+            Settings.Default.outputCodec = audio.SelectedIndex;
             Settings.Default.Save();
             base.OnClosed(e);
         }
@@ -114,10 +120,10 @@ namespace CavernizeGUI {
                 file = null;
             }
             fileName.Text = string.Empty;
-            tracks.Visibility = Visibility.Hidden;
+            trackControls.Visibility = Visibility.Hidden;
             tracks.ItemsSource = null;
             trackInfo.Text = string.Empty;
-            report.Text = string.Empty;
+            report.Text = (string)language["Reprt"];
         }
 
         /// <summary>
@@ -127,9 +133,10 @@ namespace CavernizeGUI {
             ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).Channels;
             ChannelPrototype[] prototypes = ChannelPrototype.Get(channels);
             StringBuilder output = new StringBuilder();
-            for (int i = 0; i < prototypes.Length; ++i)
+            for (int i = 0; i < prototypes.Length; ++i) {
                 output.AppendLine(string.Format((string)language["ChCon"], prototypes[i].Name,
                     ChannelPrototype.Get(i, prototypes.Length).Name));
+            }
             MessageBox.Show(output.ToString(), (string)language["WrGui"]);
         }
 
@@ -159,7 +166,7 @@ namespace CavernizeGUI {
                     return;
                 }
                 if (file.Tracks.Count != 0) {
-                    tracks.Visibility = Visibility.Visible;
+                    trackControls.Visibility = Visibility.Visible;
                     tracks.ItemsSource = file.Tracks;
                     tracks.SelectedIndex = 0;
                     // Prioritize spatial codecs
@@ -169,14 +176,6 @@ namespace CavernizeGUI {
                             break;
                         }
                     }
-                }
-
-                // TODO: TEMPORARY, REMOVE WHEN AC-3 CAN BE DECODED
-                string decode = dialog.FileName[..dialog.FileName.LastIndexOf('.')] + ".wav";
-                if (File.Exists(decode)) {
-                    AudioReader reader = AudioReader.Open(decode);
-                    for (int i = 0; i < file.Tracks.Count; ++i)
-                        file.Tracks[i].SetRendererSource(reader);
                 }
             }
         }
@@ -190,24 +189,29 @@ namespace CavernizeGUI {
             ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).Channels;
 
             Channel[] systemChannels = new Channel[channels.Length];
-            for (int ch = 0; ch < channels.Length; ++ch)
+            for (int ch = 0; ch < channels.Length; ++ch) {
                 systemChannels[ch] =
                     new Channel(Renderer.channelPositions[(int)channels[ch]], channels[ch] == ReferenceChannel.ScreenLFE);
+            }
             Listener.ReplaceChannels(systemChannels);
 
-            foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay)
+            foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
                 pair.Value.Fill = red;
-            for (int ch = 0; ch < channels.Length; ++ch)
-                if (channelDisplay.ContainsKey(channels[ch]))
+            }
+            for (int ch = 0; ch < channels.Length; ++ch) {
+                if (channelDisplay.ContainsKey(channels[ch])) {
                     channelDisplay[channels[ch]].Fill = green;
+                }
+            }
         }
 
         /// <summary>
         /// Display track metadata on track selection.
         /// </summary>
         void OnTrackSelected(object _, SelectionChangedEventArgs e) {
-            if (tracks.SelectedItem != null)
+            if (tracks.SelectedItem != null) {
                 trackInfo.Text = ((Track)tracks.SelectedItem).Details;
+            }
         }
 
         /// <summary>
@@ -260,8 +264,9 @@ namespace CavernizeGUI {
                         return;
                     }
                     writer.WriteHeader();
-                } else // Cancel
+                } else { // Cancel
                     return;
+                }
             }
 
             bool dynamic = dynamicOnly.IsChecked.Value;
@@ -302,9 +307,11 @@ namespace CavernizeGUI {
             RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly);
             UpdatePostRenderReport(stats);
 
-            string targetCodec = codec;
-            if (Listener.Channels.Length > 8)
+            string targetCodec = null;
+            audio.Dispatcher.Invoke(() => targetCodec = ((ExportFormat)audio.SelectedItem).FFName);
+            if (Listener.Channels.Length > 8) {
                 targetCodec += massivelyMultichannel;
+            }
 
             if (writer != null) {
                 #region TODO: same
@@ -336,8 +343,9 @@ namespace CavernizeGUI {
                     }
                     writer.Dispose();
                     toConcat = ((SegmentedAudioWriter)writer).GetSegmentFiles();
-                    for (int i = 0; i < toConcat.Length; ++i)
+                    for (int i = 0; i < toConcat.Length; ++i) {
                         File.Delete(toConcat[i]);
+                    }
                     File.Delete(concatList);
                     File.Delete(concatTarget);
                 }

@@ -46,5 +46,17 @@ namespace CavernizeGUI {
                 this["renderTarget"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int outputCodec {
+            get {
+                return ((int)(this["outputCodec"]));
+            }
+            set {
+                this["outputCodec"] = value;
+            }
+        }
     }
 }

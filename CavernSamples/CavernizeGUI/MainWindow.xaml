@@ -5,18 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CavernizeGUI"
         mc:Ignorable="d"
-        Title="Cavernize" Height="520" Width="900" Background="#696969">
+        Title="Cavernize" Height="530" Width="900" Background="#696969">
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Normal"/>
         </Style>
-        <Style TargetType="ComboBox">
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Normal"/>
         </Style>
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="White"/>
+        <Style TargetType="ComboBox">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Normal"/>
         </Style>
@@ -112,9 +112,15 @@
                         <Grid>
                             <Button Content="Open content" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Click="OpenFile"/>
                             <TextBlock x:Name="fileName" Margin="115,12,10,0" TextWrapping="NoWrap" VerticalAlignment="Top"/>
-                            <ComboBox x:Name="tracks" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                                  Margin="10,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="OnTrackSelected" Visibility="Hidden"/>
-                            <TextBlock x:Name="trackInfo" Margin="10,62,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <Grid x:Name="trackControls">
+                                <TextBlock Text="Track:" Margin="10,38,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                <ComboBox x:Name="tracks" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
+                                      Margin="45,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="OnTrackSelected"/>
+                                <TextBlock Text="Output:" Margin="10,65,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                                <ComboBox x:Name="audio" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
+                                          Margin="55,62,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="213"/>
+                            </Grid>
+                            <TextBlock x:Name="trackInfo" Margin="10,89,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
                             <Button x:Name="render" Content="Render" Margin="0,0,10,10" HorizontalAlignment="Right" Width="70" Click="Render"
                                     Background="Green" Foreground="White" VerticalAlignment="Bottom"/>
                         </Grid>
@@ -125,7 +131,7 @@
                     <TextBlock Text="by VoidX (cavern.sbence.hu)" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,27,0,0"/>
                     <GroupBox Header="Post-render report" Margin="0,43,0,0">
                         <Grid>
-                            <TextBlock x:Name="report" Margin="10,10,10,0" Text="After rendering has finished, more track information will appear here, like true object usage statistics." TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <TextBlock x:Name="report" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
                         </Grid>
                     </GroupBox>
                     <Button Content="User guide" HorizontalAlignment="Left" Margin="0,23,0,0" VerticalAlignment="Top" Width="80" Click="Guide"/>

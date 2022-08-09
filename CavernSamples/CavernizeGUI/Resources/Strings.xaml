@@ -16,4 +16,6 @@
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize GUI,
         and if the problem persists with the latest version, contact the developer at www.sbence.hu.</system:String>
+    <system:String x:Key="Reprt">After rendering has finished, more track information will appear here,
+        like true object usage statistics.</system:String>
 </ResourceDictionary>
