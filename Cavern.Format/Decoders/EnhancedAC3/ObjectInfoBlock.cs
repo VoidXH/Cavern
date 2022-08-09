@@ -7,9 +7,9 @@ using Cavern.Utilities;
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     class ObjectInfoBlock {
         /// <summary>
-        /// This block contained position information.
+        /// This block contained a position information update.
         /// </summary>
-        bool validPosition;
+        public bool ValidPosition { get; private set; }
 
         /// <summary>
         /// This frame contains the difference from the last object position instead of an exact position.
@@ -90,7 +90,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 source.Size = size;
             }
 
-            if (validPosition && anchor != ObjectAnchor.Speaker) {
+            if (ValidPosition && anchor != ObjectAnchor.Speaker) {
                 if (differentialPosition) {
                     position = new Vector3(
                         Math.Clamp(lastPrecise.X + position.X, 0, 1),
@@ -159,7 +159,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int blocks = readAllBlocks ? 15 : extractor.Read(4);
 
             // Spatial position
-            if (validPosition = (blocks & 8) != 0) {
+            if (ValidPosition = (blocks & 8) != 0) {
                 differentialPosition = blk != 0 && extractor.ReadBit();
                 if (differentialPosition) {
                     position = new Vector3(

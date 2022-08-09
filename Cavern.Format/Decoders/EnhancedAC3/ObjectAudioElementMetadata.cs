@@ -21,6 +21,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         bool[] blockUsed = new bool[0];
 
         /// <summary>
+        /// The object at index had a valid position in the last frame.
+        /// </summary>
+        bool[] updateLast;
+
+        /// <summary>
+        /// The object at index has a valid position in the current frame.
+        /// </summary>
+        bool[] updateNow;
+
+        /// <summary>
         /// Global sample offset, applied to all info blocks.
         /// </summary>
         byte sampleOffset;
@@ -40,7 +50,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Rendering info for each object's updates. The first dimension is the object, the second is the info block.
         /// </summary>
         /// <remarks>Can be null if the element is not an object element.</remarks>
-        ObjectInfoBlock[][] infoBlocks = new ObjectInfoBlock[0][];
+        ObjectInfoBlock[][] infoBlocks;
 
         /// <summary>
         /// The position of each object to move to.
@@ -78,7 +88,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <param name="timecode">Samples since the beginning of the audio frame</param>
         /// <param name="sources">The sources used for rendering this track</param>
         public void UpdateSources(int timecode, IReadOnlyList<Source> sources) {
-            for (int blk = 0; blk < infoBlocks[0].Length; ++blk) {
+            Array.Copy(updateNow, updateLast, updateNow.Length);
+
+            for (int blk = 0; blk < blockUsed.Length; ++blk) {
                 if (blockUsed[blk]) {
                     continue;
                 }
@@ -87,7 +99,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     blockUsed[blk] = true;
                     futureDistance = rampDuration[blk] - (timecode - blockOffsetFactor[blk]);
                     for (int obj = 0; obj < infoBlocks.Length; ++obj) {
-                        future[obj] = infoBlocks[obj][blk].UpdateSource(sources[obj]);
+                        ObjectInfoBlock[] block = infoBlocks[obj];
+                        updateNow[obj] = block[blk].ValidPosition;
+                        future[obj] = block[blk].UpdateSource(sources[obj]);
                     }
                 }
             }
@@ -95,7 +109,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (futureDistance > 0) {
                 float t = Math.Min(QuadratureMirrorFilterBank.subbands / (float)futureDistance, 1);
                 for (int obj = 0; obj < infoBlocks.Length; ++obj) {
-                    sources[obj].Position = Vector3.Lerp(sources[obj].Position, future[obj], t);
+                    if (updateNow[obj]) {
+                        sources[obj].Position = updateLast[obj] ?
+                            Vector3.Lerp(sources[obj].Position, future[obj], t) : future[obj];
+                    }
                 }
                 futureDistance -= QuadratureMirrorFilterBank.subbands;
             }
@@ -109,6 +126,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
             if (blockUsed.Length != rampDuration.Length || infoBlocks.Length != objectCount) {
                 blockUsed = new bool[rampDuration.Length];
+                updateLast = new bool[objectCount];
+                updateNow = new bool[objectCount];
                 infoBlocks = new ObjectInfoBlock[objectCount][];
                 for (int obj = 0; obj < objectCount; ++obj) {
                     infoBlocks[obj] = new ObjectInfoBlock[rampDuration.Length];
