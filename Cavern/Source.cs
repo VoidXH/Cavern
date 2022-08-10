@@ -98,7 +98,7 @@ namespace Cavern {
         /// <param name="samples">Samples to write</param>
         /// <param name="target">Channel array to write to</param>
         /// <param name="gain">Source gain</param>
-        /// <param name="channel">Channel ID</param>
+        /// <param name="channel">Channel index</param>
         /// <param name="channels">Total channels</param>
         /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
         /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>

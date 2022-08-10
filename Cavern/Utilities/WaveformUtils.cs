@@ -252,6 +252,21 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Sets a channel to a signal in a multichannel waveform.
+        /// </summary>
+        /// <param name="samples">Samples of the given <paramref name="channel"/></param>
+        /// <param name="target">Channel array to write to</param>
+        /// <param name="channel">Channel index</param>
+        /// <param name="channels">Total channels</param>
+        /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
+        /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
+        public static void Insert(float[] samples, float[] target, int channel, int channels) {
+            for (int from = 0, to = channel; from < samples.Length; ++from, to += channels) {
+                target[to] = samples[from];
+            }
+        }
+
+        /// <summary>
         /// Convert an interlaced multichannel waveform to separate arrays.
         /// </summary>
         public static void InterlacedToMultichannel(float[] source, float[][] target) {

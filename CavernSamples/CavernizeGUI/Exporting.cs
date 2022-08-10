@@ -38,10 +38,21 @@ namespace CavernizeGUI {
                 if (rendered > 2500000 && WaveformUtils.GetPeakSigned(result) > .5f)
                     ; // TODO: debug, Amaze will follow with a heavy gain frame and then a normal frame after this detection
 #endif
+                // Alignment of split parts
                 if (target.Length - rendered < listener.UpdateRate)
-                    Array.Resize(ref result, (int)(target.Length - rendered));
-                if (writer != null)
-                    writer.WriteBlock(result, 0, result.LongLength);
+                    Array.Resize(ref result, (int)((target.Length - rendered) * Listener.Channels.Length));
+
+                // Raw object export
+                if (Listener.Channels.Length == 2) {
+                    IReadOnlyList<Source> objects = target.Renderer.Objects;
+                    int objectCount = objects.Count;
+                    result = new float[listener.UpdateRate * objectCount];
+                    for (int i = 0; i < objectCount; i++) {
+                        WaveformUtils.Insert(objects[i].Rendered[0], result, i, objectCount);
+                    }
+                }
+
+                writer?.WriteBlock(result, 0, result.LongLength);
                 if (rendered > firstFrame)
                     stats.Update();
 

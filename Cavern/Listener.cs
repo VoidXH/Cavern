@@ -113,12 +113,12 @@ namespace Cavern {
         public Vector3 Rotation { get; set; }
 
         /// <summary>
-        /// Global playback volume.
+        /// Global playback amplitude multiplier.
         /// </summary>
         public float Volume { get; set; } = 1;
 
         /// <summary>
-        /// LFE channels' volume.
+        /// LFE channels' amplitude multiplier.
         /// </summary>
         public float LFEVolume { get; set; } = 1;
 

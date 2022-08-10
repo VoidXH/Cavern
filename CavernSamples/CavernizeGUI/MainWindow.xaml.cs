@@ -246,6 +246,11 @@ namespace CavernizeGUI {
             listener.DetachAllSources();
             target.Attach(listener);
 
+            if (target.Codec == Codec.EnhancedAC3) {
+                listener.Volume = .5f; // Master volume of most E-AC-3 files is -6 dB, not yet applied from the stream
+                listener.LFEVolume = 2;
+            }
+
             AudioWriter writer = null;
             string exportName; // Rendered by Cavern
             string finalName = null; // Packed by FFmpeg
@@ -257,7 +262,9 @@ namespace CavernizeGUI {
                     finalName = dialog.FileName;
                     exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + "{0}.wav" : finalName;
                     exportName = exportName.Replace("'", ""); // This character cannot be escaped in concat TXTs
-                    writer = new SegmentedAudioWriter(exportName, Listener.Channels.Length,
+                    bool render = Listener.Channels.Length > 2; // This is only stereo for raw object exports
+                    writer = new SegmentedAudioWriter(exportName,
+                        render ? Listener.Channels.Length : target.Renderer.Objects.Count,
                         target.Length, target.SampleRate * 30 * 60, target.SampleRate, BitDepth.Int16);
                     if (writer == null) {
                         Error((string)language["UnExt"]);
@@ -309,7 +316,7 @@ namespace CavernizeGUI {
 
             string targetCodec = null;
             audio.Dispatcher.Invoke(() => targetCodec = ((ExportFormat)audio.SelectedItem).FFName);
-            if (Listener.Channels.Length > 8) {
+            if (writer.ChannelCount > 8) {
                 targetCodec += massivelyMultichannel;
             }
 
