@@ -11,9 +11,24 @@ namespace Cavern.Format.Consts {
         public const int syncWord1 = 0x46464952;
 
         /// <summary>
-        /// WAVE and fmt sync word, header marker.
+        /// WAVE sync word, specific header section marker.
         /// </summary>
-        public const long syncWord2 = 0x20746D6645564157;
+        public const int syncWord2 = 0x45564157;
+
+        /// <summary>
+        /// fmt sync word, standard header marker.
+        /// </summary>
+        public const int formatSync = 0x20746D66;
+
+        /// <summary>
+        /// JUNK sync word, ADM BWF header marker.
+        /// </summary>
+        public const int junkSync = 0x4B4E554A;
+
+        /// <summary>
+        /// axml sync word, ADM XML metadata marker.
+        /// </summary>
+        public const int axmlSync = 0x6C6D7861;
 
         /// <summary>
         /// Data header marker (big-endian).

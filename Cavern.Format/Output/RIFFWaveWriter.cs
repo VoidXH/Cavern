@@ -41,6 +41,7 @@ namespace Cavern.Format {
 
             // Format header
             writer.Write(RIFFWave.syncWord2);
+            writer.Write(RIFFWave.formatSync);
             writer.Write(new byte[] { 16, 0, 0, 0 }); // FMT header size
             writer.Write(new byte[] { Bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
             writer.Write(BitConverter.GetBytes((short)ChannelCount)); // Audio channels

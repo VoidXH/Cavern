@@ -3,6 +3,7 @@ using System.IO;
 
 using Cavern.Format.Common;
 using Cavern.Format.Consts;
+using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {
@@ -10,6 +11,11 @@ namespace Cavern.Format.Decoders {
     /// Converts a RIFF WAVE bitstream to raw samples.
     /// </summary>
     public class RIFFWaveDecoder : Decoder {
+        /// <summary>
+        /// Object metadata for Broadcast Wave Files.
+        /// </summary>
+        public AudioDefinitionModel ADM { get; private set; }
+
         /// <summary>
         /// Bit depth of the WAVE file.
         /// </summary>
@@ -19,7 +25,7 @@ namespace Cavern.Format.Decoders {
         /// Content channel count.
         /// </summary>
         public override int ChannelCount => channelCount;
-        readonly int channelCount;
+        int channelCount;
 
         /// <summary>
         /// Content length in samples for a single channel.
@@ -31,7 +37,7 @@ namespace Cavern.Format.Decoders {
         /// Bitstream sample rate.
         /// </summary>
         public override int SampleRate => sampleRate;
-        readonly int sampleRate;
+        int sampleRate;
 
         /// <summary>
         /// The location of the first sample in the file stream. Knowing this allows seeking.
@@ -64,43 +70,50 @@ namespace Cavern.Format.Decoders {
                 throw new SyncException();
             stream = reader;
             stream.Position += 4; // File length
-
-            // Format header
-            if (reader.ReadInt64() != RIFFWave.syncWord2)
+            if (reader.ReadInt32() != RIFFWave.syncWord2)
                 throw new SyncException();
-            stream.Position += 4; // Format header length
-            short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVE EX
-            channelCount = reader.ReadInt16();
-            sampleRate = reader.ReadInt32();
-            stream.Position += 4; // Bytes/sec
-            stream.Position += 2; // Block size in bytes
-            short bitDepth = reader.ReadInt16();
-            if (sampleFormat == -2) {
-                // Extension size (22) - 2 bytes, valid bits per sample - 2 bytes, channel mask - 4 bytes
-                stream.Position += 8;
-                sampleFormat = reader.ReadInt16();
-                stream.Position += 15; // Skip the rest of the sub format GUID
-            }
-            if (sampleFormat == 1) {
-                Bits = bitDepth switch {
-                    8 => BitDepth.Int8,
-                    16 => BitDepth.Int16,
-                    24 => BitDepth.Int24,
-                    _ => throw new IOException($"Unsupported bit depth for signed little endian integer: {bitDepth}.")
-                };
-            } else if (sampleFormat == 3 && bitDepth == 32)
-                Bits = BitDepth.Float32;
-            else
-                throw new IOException($"Unsupported bit depth ({bitDepth}) for sample format {sampleFormat}.");
 
-            // Data header
+            // Specific headers
+            bool readHeaders = true;
+            bool bwfNeedingHeader = false; // Is this a Broadcast Wave File with the ADM headers after sample data
+            while (readHeaders) {
+                int headerID = reader.ReadInt32();
+                int headerSize = reader.ReadInt32();
+                switch (headerID) {
+                    case RIFFWave.formatSync:
+                        ParseFormatHeader(reader);
+                        readHeaders = false;
+                        break;
+                    case RIFFWave.junkSync:
+                        stream.Position += headerSize;
+                        bwfNeedingHeader = ADM == null;
+                        break;
+                    case RIFFWave.axmlSync:
+                        ADM = new AudioDefinitionModel(reader, headerSize);
+                        bwfNeedingHeader = false;
+                        break;
+                    default:
+                        throw new SyncException();
+                }
+            }
+
+            // Find where data starts
             int header = 0;
             do
                 header = (header << 8) | reader.ReadByte();
             while (header != RIFFWave.syncWord3BE && stream.Position < stream.Length);
-            length = reader.ReadUInt32() * 8L / (long)Bits / ChannelCount;
+            uint dataSize = reader.ReadUInt32();
+            length = dataSize * 8L / (long)Bits / ChannelCount;
             dataStart = stream.Position;
             this.reader = BlockBuffer<byte>.Create(reader, FormatConsts.blockSize);
+
+            if (bwfNeedingHeader) {
+                stream.Position = dataStart + dataSize;
+                if (reader.ReadInt32() == RIFFWave.axmlSync) {
+                    ADM = new AudioDefinitionModel(stream, reader.ReadInt32());
+                    stream.Position = dataStart;
+                }
+            }
         }
 
         /// <summary>
@@ -166,6 +179,35 @@ namespace Cavern.Format.Decoders {
                 throw new StreamingException();
             stream.Position = dataStart + sample * channelCount * ((int)Bits >> 3);
             reader.Clear();
+        }
+
+        /// <summary>
+        /// Read the main RIFF WAVE header.
+        /// </summary>
+        void ParseFormatHeader(Stream reader) {
+            short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVE EX
+            channelCount = reader.ReadInt16();
+            sampleRate = reader.ReadInt32();
+            stream.Position += 4; // Bytes/sec
+            stream.Position += 2; // Block size in bytes
+            short bitDepth = reader.ReadInt16();
+            if (sampleFormat == -2) {
+                // Extension size (22) - 2 bytes, valid bits per sample - 2 bytes, channel mask - 4 bytes
+                stream.Position += 8;
+                sampleFormat = reader.ReadInt16();
+                stream.Position += 15; // Skip the rest of the sub format GUID
+            }
+            if (sampleFormat == 1) {
+                Bits = bitDepth switch {
+                    8 => BitDepth.Int8,
+                    16 => BitDepth.Int16,
+                    24 => BitDepth.Int24,
+                    _ => throw new IOException($"Unsupported bit depth for signed little endian integer: {bitDepth}.")
+                };
+            } else if (sampleFormat == 3 && bitDepth == 32)
+                Bits = BitDepth.Float32;
+            else
+                throw new IOException($"Unsupported bit depth ({bitDepth}) for sample format {sampleFormat}.");
         }
     }
 }
