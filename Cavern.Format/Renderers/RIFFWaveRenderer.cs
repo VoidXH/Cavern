@@ -15,7 +15,11 @@ namespace Cavern.Format.Renderers {
         /// Renders a decoded RIFF WAVE stream.
         /// </summary>
         public RIFFWaveRenderer(RIFFWaveDecoder stream) : base(stream) {
-            SetupChannels(stream.ChannelCount);
+            if (stream.ADM == null) {
+                SetupChannels(stream.ChannelCount);
+            } else {
+                SetupObjects(stream.ChannelCount);
+            }
             objectSamples[0] = new float[0];
         }
 

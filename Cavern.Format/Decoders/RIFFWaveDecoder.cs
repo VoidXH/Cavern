@@ -69,7 +69,7 @@ namespace Cavern.Format.Decoders {
             if (reader.ReadInt32() != RIFFWave.syncWord1)
                 throw new SyncException();
             stream = reader;
-            stream.Position += 4; // File length
+            reader.Position += 4; // File length
             if (reader.ReadInt32() != RIFFWave.syncWord2)
                 throw new SyncException();
 
@@ -85,11 +85,11 @@ namespace Cavern.Format.Decoders {
                         readHeaders = false;
                         break;
                     case RIFFWave.junkSync:
-                        stream.Position += headerSize;
+                        reader.Position += headerSize;
                         bwfNeedingHeader = ADM == null;
                         break;
                     case RIFFWave.axmlSync:
-                        ADM = new AudioDefinitionModel(reader, headerSize);
+                        ADM = new AudioDefinitionModel(reader, headerSize, sampleRate);
                         bwfNeedingHeader = false;
                         break;
                     default:
@@ -101,19 +101,21 @@ namespace Cavern.Format.Decoders {
             int header = 0;
             do
                 header = (header << 8) | reader.ReadByte();
-            while (header != RIFFWave.syncWord3BE && stream.Position < stream.Length);
+            while (header != RIFFWave.syncWord3BE && reader.Position < reader.Length);
             uint dataSize = reader.ReadUInt32();
             length = dataSize * 8L / (long)Bits / ChannelCount;
-            dataStart = stream.Position;
-            this.reader = BlockBuffer<byte>.Create(reader, FormatConsts.blockSize);
+            dataStart = reader.Position;
 
             if (bwfNeedingHeader) {
-                stream.Position = dataStart + dataSize;
+                reader.Position += dataSize;
                 if (reader.ReadInt32() == RIFFWave.axmlSync) {
-                    ADM = new AudioDefinitionModel(stream, reader.ReadInt32());
-                    stream.Position = dataStart;
+                    ADM = new AudioDefinitionModel(reader, reader.ReadInt32(), sampleRate);
+                    reader.Position = dataStart;
                 }
             }
+
+            reader.Position = dataStart;
+            this.reader = BlockBuffer<byte>.Create(reader, FormatConsts.blockSize);
         }
 
         /// <summary>
