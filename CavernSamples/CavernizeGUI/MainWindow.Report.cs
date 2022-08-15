@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
+
 using Cavern;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
@@ -14,13 +14,8 @@ namespace CavernizeGUI {
             int total = listener.ActiveSources.Count;
             int dynamic = total - stats.GetSemiStaticCount() - stats.GetSuperStaticCount();
 
-            List<ReferenceChannel> channels = stats.GetStaticOrSemiStaticPositions().Select(x => {
-                Vector3 scaled = x / Listener.EnvironmentSize;
-                for (int i = 0; i < Renderer.channelPositions.Length; ++i)
-                    if (scaled == Renderer.channelPositions[i])
-                        return (ReferenceChannel)i;
-                return ReferenceChannel.Unknown;
-            }).ToList();
+            List<ReferenceChannel> channels = stats.GetStaticOrSemiStaticPositions()
+                .Select(x => Renderer.ChannelFromPosition(x / Listener.EnvironmentSize)).ToList();
 
             bool hasLFE = listener.ActiveSources.Any(source => source.LFE);
             if (hasLFE)

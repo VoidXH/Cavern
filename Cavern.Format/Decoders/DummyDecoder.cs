@@ -11,6 +11,11 @@ namespace Cavern.Format.Decoders {
         public override int ChannelCount { get; }
 
         /// <summary>
+        /// Location in the stream in samples. Unsupported for this codec.
+        /// </summary>
+        public override long Position => -1;
+
+        /// <summary>
         /// Content length in samples for a single channel.
         /// </summary>
         public override long Length { get; }

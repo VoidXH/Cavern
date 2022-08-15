@@ -108,6 +108,19 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Clamps the value between 0 and 1.
+        /// </summary>
+        public static float Clamp01(float x) {
+            if (x < 0) {
+                return 0;
+            }
+            if (x > 1) {
+                return 1;
+            }
+            return x;
+        }
+
+        /// <summary>
         /// Convert decibels to voltage gain.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

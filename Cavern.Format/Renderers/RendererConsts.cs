@@ -10,11 +10,12 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// Rendering positions of standard channels, indexed by <see cref="ReferenceChannel"/>s.
         /// </summary>
+        /// <remarks>Internal Cavern channel positions are not the same.</remarks>
         public static readonly Vector3[] channelPositions = {
             new Vector3(-1, 0, 1), // FrontLeft
             new Vector3(1, 0, 1), // FrontRight
             new Vector3(0, 0, 1), // FrontCenter
-            new Vector3(0, 0, 1), // ScreenLFE
+            new Vector3(-1, -1, 1), // ScreenLFE
             new Vector3(-1, 0, -1), // RearLeft
             new Vector3(1, 0, -1), // RearRight
             new Vector3(-1, 0, 0), // SideLeft
@@ -41,5 +42,18 @@ namespace Cavern.Format.Renderers {
             new Vector3(-1, 1, 1), // TopRearRight
             new Vector3(-1, 1, 0) // TopRearCenter
         };
+
+        /// <summary>
+        /// Get which standard renderer position corresponds to which channel.
+        /// </summary>
+        /// <remarks>Internal Cavern channel positions are not the same.</remarks>
+        public static ReferenceChannel ChannelFromPosition(Vector3 position) {
+            for (int i = 0; i < channelPositions.Length; ++i) {
+                if (position == channelPositions[i]) {
+                    return (ReferenceChannel)i;
+                }
+            }
+            return ReferenceChannel.Unknown;
+        }
     }
 }

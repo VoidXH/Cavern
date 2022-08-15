@@ -77,24 +77,42 @@ namespace CavernizeGUI {
             StringBuilder builder = new();
             Renderer = reader.GetRenderer();
             Supported = Renderer != null;
-            if (!Supported)
+            EnhancedAC3Renderer eac3 = Renderer as EnhancedAC3Renderer;
+
+            if (!Supported) {
                 builder.AppendLine("Format unsupported by Cavern");
-            else if (Renderer is EnhancedAC3Renderer eac3)
-                if (eac3.HasObjects)
-                    builder.AppendLine("Enhanced AC-3 with Joint Object Coding")
-                        .Append("Number of bed channels: ").AppendLine((eac3.Objects.Count - eac3.DynamicObjects).ToString())
-                        .Append("Number of dynamic objects: ").AppendLine(eac3.DynamicObjects.ToString());
-                else
+            } else if (eac3 != null) {
+                if (eac3.HasObjects) {
+                    builder.AppendLine("Enhanced AC-3 with Joint Object Coding");
+                } else {
                     builder.AppendLine(eac3.Enhanced ? "Enhanced AC-3" : "AC-3");
-            else
-                builder.AppendLine("Channel-based audio track");
+                }
+            } else {
+                if (Renderer.HasObjects) {
+                    builder.Append("Object");
+                } else {
+                    builder.Append("Channel");
+                }
+                builder.AppendLine("-based audio track");
+            }
 
             ReferenceChannel[] beds = Renderer != null ? Renderer.GetChannels() : Array.Empty<ReferenceChannel>();
-            if (beds.Length > 0)
-                builder.Append("Source channels (").Append(reader.ChannelCount).Append("): ")
-                    .AppendLine(string.Join(", ", ChannelPrototype.GetNames(beds)));
-            else
-                builder.Append("Source channel count: ").AppendLine(reader.ChannelCount.ToString());
+            string bedList = string.Join(", ", ChannelPrototype.GetNames(beds));
+            if (eac3 != null && eac3.HasObjects) {
+                builder.Append("Source channels (").Append(reader.ChannelCount).Append("): ").AppendLine(bedList)
+                    .Append("Matrixed bed channels: ").AppendLine((eac3.Objects.Count - eac3.DynamicObjects).ToString())
+                    .Append("Matrixed dynamic objects: ").AppendLine(eac3.DynamicObjects.ToString()); ;
+            } else if (beds.Length > 0) {
+                if (Renderer != null && beds.Length != Renderer.Objects.Count) {
+                    builder.Append("Bed channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
+                    builder.Append("Dynamic objects: ").AppendLine((Renderer.Objects.Count - beds.Length).ToString());
+                } else {
+                    builder.Append("Channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
+                }
+            } else {
+                builder.Append("Channel count: ").AppendLine(reader.ChannelCount.ToString());
+            }
+
             builder.Append("Length: ").AppendLine(TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString());
             builder.Append("Sample rate: ").Append(reader.SampleRate).AppendLine("Hz");
             Details = builder.ToString();

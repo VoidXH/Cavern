@@ -1,14 +1,19 @@
 ﻿using Cavern.Format.Common;
+using Cavern.Format.Container;
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers;
 using Cavern.Format.Utilities;
-using System.IO;
 
 namespace Cavern.Format {
     /// <summary>
     /// Reads an audio track from a container.
     /// </summary>
     public class AudioTrackReader : AudioReader {
+        /// <summary>
+        /// Get the container that contains this track.
+        /// </summary>
+        public ContainerReader Source => track.Source;
+
         /// <summary>
         /// Decoder based on the <see cref="Codec"/> of the selected stream.
         /// </summary>

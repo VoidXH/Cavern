@@ -61,7 +61,21 @@ namespace Cavern.Helpers {
             follower.target = target;
             follower.attach = attach;
             follower.renderer = obj.GetComponent<Renderer>();
+            MakeTransparent(follower.renderer.material);
             return follower;
+        }
+
+        /// <summary>
+        /// Applies the Transparent rendering mode on a material which has the Standard Shader.
+        /// </summary>
+        static void MakeTransparent(Material mat) {
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.DisableKeyword("_ALPHATEST_ON");
+            mat.DisableKeyword("_ALPHABLEND_ON");
+            mat.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+            mat.renderQueue = 3000;
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
@@ -89,6 +103,15 @@ namespace Cavern.Helpers {
                     newColor = muteColor;
                 else if (target.screenLocked)
                     newColor = screenLockedColor;
+
+                newColor.a = .125f;
+                float[] samples = target.Rendered[0];
+                for (int i = 0; i < samples.Length; i++) {
+                    if (samples[i] != 0) {
+                        newColor.a = 1;
+                    }
+                }
+
                 if (renderer.material.color != newColor)
                     renderer.material.color = newColor;
             }

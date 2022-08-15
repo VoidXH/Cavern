@@ -10,6 +10,11 @@ namespace Cavern.Format.Decoders {
     /// </summary>
     public abstract class FrameBasedDecoder : Decoder {
         /// <summary>
+        /// Location in the stream in samples. Unsupported for this codec.
+        /// </summary>
+        public override long Position => -1;
+
+        /// <summary>
         /// The position of the first sample of the last exported block in the buffer.
         /// </summary>
         public int LastFetchStart => decoder.LastFetchStart;

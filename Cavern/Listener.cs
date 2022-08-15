@@ -198,6 +198,11 @@ namespace Cavern {
         readonly LinkedList<Source> activeSources = new LinkedList<Source>();
 
         /// <summary>
+        /// All sources from the last frame, rendered to the active <see cref="Channels"/>.
+        /// </summary>
+        readonly List<float[]> results = new List<float[]>();
+
+        /// <summary>
         /// Position between the last and current game frame's playback position.
         /// </summary>
         internal float pulseDelta;
@@ -421,7 +426,7 @@ namespace Cavern {
 
             // Collect audio data from sources
             LinkedListNode<Source> node = activeSources.First;
-            List<float[]> results = new List<float[]>();
+            results.Clear();
             while (node != null) {
                 if (node.Value.Precollect())
                     results.Add(node.Value.Collect()); // TODO: Parallel, but not for Precollect

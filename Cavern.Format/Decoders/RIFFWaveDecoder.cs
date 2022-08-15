@@ -28,6 +28,12 @@ namespace Cavern.Format.Decoders {
         int channelCount;
 
         /// <summary>
+        /// Location in the stream in samples.
+        /// </summary>
+        public override long Position => position;
+        long position;
+
+        /// <summary>
         /// Content length in samples for a single channel.
         /// </summary>
         public override long Length => length;
@@ -139,12 +145,13 @@ namespace Cavern.Format.Decoders {
                 DecodeLittleEndianBlock(source, target, from, Bits);
             else
                 Array.Clear(target, (int)from, (int)(to - from));
+            position += (to - from) / channelCount;
         }
 
         /// <summary>
         /// Decode a block of RIFF WAVE data.
         /// </summary>
-        public static void DecodeLittleEndianBlock(byte[] source, float[] target, long targetOffset, BitDepth bits) {
+        static void DecodeLittleEndianBlock(byte[] source, float[] target, long targetOffset, BitDepth bits) {
             switch (bits) {
                 case BitDepth.Int8: {
                     for (int i = 0; i < source.Length; ++i)
@@ -180,6 +187,7 @@ namespace Cavern.Format.Decoders {
             if (stream == null)
                 throw new StreamingException();
             stream.Position = dataStart + sample * channelCount * ((int)Bits >> 3);
+            position = sample;
             reader.Clear();
         }
 

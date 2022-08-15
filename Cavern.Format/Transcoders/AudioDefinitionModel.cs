@@ -20,7 +20,13 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Programs contained in the ADM descriptor.
         /// </summary>
-        public List<ADMProgramme> Programs { get; set; }
+        public IReadOnlyList<ADMProgramme> Programs { get; private set; }
+
+        /// <summary>
+        /// Positional data for all channels/objects.
+        /// </summary>
+        public IReadOnlyList<ADMChannelFormat> Movements => movements;
+        readonly List<ADMChannelFormat> movements = new List<ADMChannelFormat>();
 
         /// <summary>
         /// Sample rate of the described content.
@@ -48,7 +54,7 @@ namespace Cavern.Format.Transcoders {
         /// Writes the ADM metadata to an XML file.
         /// </summary>
         public void WriteXml(XmlWriter writer) {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public XmlSchema GetSchema() => null;
@@ -57,15 +63,16 @@ namespace Cavern.Format.Transcoders {
         /// Read all programs from an XML file.
         /// </summary>
         void ParsePrograms(XDocument data) {
-            Programs = new List<ADMProgramme>();
+            List<ADMProgramme> result = new List<ADMProgramme>();
             IEnumerable<XElement> programs = data.AllDescendants(ADMTags.programTag);
             foreach (XElement program in programs) {
-                Programs.Add(new ADMProgramme() {
+                result.Add(new ADMProgramme() {
                     ID = program.GetAttribute(ADMTags.programIDAttribute),
                     Name = program.GetAttribute(ADMTags.programNameAttribute),
                     Contents = ParseContents(data, program)
                 });
             }
+            Programs = result;
         }
 
         /// <summary>
@@ -116,26 +123,28 @@ namespace Cavern.Format.Transcoders {
                 ID = pack.Current.Value,
                 Name = node.GetAttribute(ADMTags.packFormatNameAttribute),
                 Type = (ADMPackType)int.Parse(node.GetAttribute(ADMTags.packFormatTypeAttribute)),
-                ChannelFormat = ParseChannelFormat(data, node)
+                ChannelFormats = ParseChannelFormats(data, node)
             };
         }
 
         /// <summary>
         /// Read the pack format of an object.
         /// </summary>
-        ADMChannelFormat ParseChannelFormat(XDocument data, XElement parent) {
-            IEnumerable<XElement> refs = parent.AllDescendants(ADMTags.channelFormatRefTag);
-            using IEnumerator<XElement> format = refs.GetEnumerator();
-            if (!format.MoveNext()) {
-                return null;
+        List<ADMChannelFormat> ParseChannelFormats(XDocument data, XElement pack) {
+            List<ADMChannelFormat> result = new List<ADMChannelFormat>();
+            IEnumerable<XElement> channels = pack.AllDescendants(ADMTags.channelFormatRefTag);
+            foreach (XElement channel in channels) {
+                XElement channelElement =
+                    data.GetWithAttribute(ADMTags.channelFormatTag, ADMTags.channelFormatIDAttribute, channel.Value);
+                ADMChannelFormat parsed = new ADMChannelFormat() {
+                    ID = channel.Value,
+                    Name = channelElement.GetAttribute(ADMTags.channelFormatNameAttribute),
+                    Blocks = ParseBlockFormats(channelElement)
+                };
+                result.Add(parsed);
+                movements.Add(parsed);
             }
-            XElement node =
-                data.GetWithAttribute(ADMTags.channelFormatTag, ADMTags.channelFormatIDAttribute, format.Current.Value);
-            return new ADMChannelFormat() {
-                ID = format.Current.Value,
-                Name = node.GetAttribute(ADMTags.channelFormatNameAttribute),
-                Blocks = ParseBlockFormats(node)
-            };
+            return result;
         }
 
         /// <summary>
@@ -162,10 +171,10 @@ namespace Cavern.Format.Transcoders {
                                     x = value;
                                     break;
                                 case 'Y':
-                                    y = value;
+                                    z = value;
                                     break;
                                 case 'Z':
-                                    z = value;
+                                    y = value;
                                     break;
                                 default:
                                     throw new CorruptionException(block.GetAttribute(ADMTags.blockIDAttribute));

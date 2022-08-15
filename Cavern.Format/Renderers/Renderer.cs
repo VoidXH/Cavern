@@ -73,6 +73,7 @@ namespace Cavern.Format.Renderers {
             for (int obj = 0; obj < count; ++obj)
                 objects.Add(new StreamMasterSource(reader, obj));
             FinishSetup(count);
+            HasObjects = true;
         }
 
         /// <summary>

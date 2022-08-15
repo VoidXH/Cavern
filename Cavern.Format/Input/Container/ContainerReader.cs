@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using Cavern.Format.Common;
 
 namespace Cavern.Format.Container {

@@ -11,6 +11,11 @@ namespace Cavern.Format.Decoders {
         public abstract int ChannelCount { get; }
 
         /// <summary>
+        /// Location in the stream in samples. Formats that don't support this feature return -1.
+        /// </summary>
+        public abstract long Position { get; }
+
+        /// <summary>
         /// Content length in samples for a single channel.
         /// </summary>
         public abstract long Length { get; }

@@ -158,13 +158,19 @@ namespace CavernizeGUI {
                 taskEngine.UpdateProgressBar(0);
 
                 fileName.Text = Path.GetFileName(dialog.FileName);
+
+#if !DEBUG
                 try {
+#endif
                     file = new(filePath = dialog.FileName);
+#if !DEBUG
                 } catch (Exception ex) {
                     Reset();
                     Error($"{ex.Message} {(string)language["Later"]}");
                     return;
                 }
+#endif
+
                 if (file.Tracks.Count != 0) {
                     trackControls.Visibility = Visibility.Visible;
                     tracks.ItemsSource = file.Tracks;
@@ -286,7 +292,7 @@ namespace CavernizeGUI {
         /// </summary>
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
-            #region TODO: TEMPORARY, REMOVE WHEN AC-3 AND MKV CAN BE FULLY DECODED - decode with FFmpeg until then
+#region TODO: TEMPORARY, REMOVE WHEN AC-3 AND MKV CAN BE FULLY DECODED - decode with FFmpeg until then
             bool isWAV = filePath[^4..].Equals(".wav");
             string tempWAV = filePath[..^4] + "{0}.wav";
             string firstWAV = string.Format(tempWAV, "0");
@@ -308,7 +314,7 @@ namespace CavernizeGUI {
                 target.SetRendererSource(wavReader = new SegmentedAudioReader(tempWAV));
                 target.SetupForExport();
             }
-            #endregion
+#endregion
 
             taskEngine.UpdateStatus("Starting render...");
             RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly);
@@ -321,7 +327,7 @@ namespace CavernizeGUI {
             }
 
             if (writer != null) {
-                #region TODO: same
+#region TODO: same
                 string[] toConcat = ((SegmentedAudioWriter)writer).GetSegmentFiles();
                 for (int i = 0; i < toConcat.Length; ++i)
                     toConcat[i] = $"file \'{toConcat[i]}\'";
@@ -334,7 +340,7 @@ namespace CavernizeGUI {
                         "Are your permissions sufficient in the export folder?");
                     return;
                 }
-                #endregion
+#endregion
 
                 if (finalName[^4..].ToLower().Equals(".mkv")) {
                     taskEngine.UpdateStatus("Merging to final container...");
@@ -357,7 +363,7 @@ namespace CavernizeGUI {
                     File.Delete(concatTarget);
                 }
 
-                #region TODO: same
+#region TODO: same
                 if (wavReader != null) {
                     wavReader.Dispose();
                     int index = 0;
@@ -366,7 +372,7 @@ namespace CavernizeGUI {
                         firstWAV = string.Format(tempWAV, ++index);
                     } while (File.Exists(firstWAV));
                 }
-                #endregion
+#endregion
             }
 
             taskEngine.UpdateStatus((string)language["ExpOk"]);
