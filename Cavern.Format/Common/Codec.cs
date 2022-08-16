@@ -19,6 +19,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         AVC,
         /// <summary>
+        /// Audio Definition Model Broadcast Wave Format, audio.
+        /// </summary>
+        ADM_BWF,
+        /// <summary>
         /// Enhanced AC-3 (Dolby Digital Plus), audio.
         /// </summary>
         EnhancedAC3,
@@ -60,13 +64,14 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
-        static readonly Codec[] audioCodecs = { Codec.EnhancedAC3, Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD,
+        static readonly Codec[] audioCodecs = { Codec.ADM_BWF, Codec.EnhancedAC3, Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD,
             Codec.DTS_HD, Codec.Opus, Codec.DTS, Codec.AC3 };
 
         /// <summary>
         /// List of supported audio codecs.
         /// </summary>
-        static readonly Codec[] supportedAudioCodecs = { Codec.EnhancedAC3, Codec.PCM_Float, Codec.PCM_LE, Codec.AC3 };
+        static readonly Codec[] supportedAudioCodecs = { Codec.ADM_BWF, Codec.EnhancedAC3,
+            Codec.PCM_Float, Codec.PCM_LE, Codec.AC3 };
 
         /// <summary>
         /// Checks if a codec is used for audio only.

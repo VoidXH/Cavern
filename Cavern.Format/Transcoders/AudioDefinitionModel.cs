@@ -45,6 +45,14 @@ namespace Cavern.Format.Transcoders {
         }
 
         /// <summary>
+        /// Creates an ADM for export by a program list created in code.
+        /// </summary>
+        public AudioDefinitionModel(List<ADMProgramme> programs, int sampleRate) {
+            Programs = programs;
+            this.sampleRate = sampleRate;
+        }
+
+        /// <summary>
         /// Extracts the ADM metadata from an XML file.
         /// </summary>
         /// <param name="reader"></param>

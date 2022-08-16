@@ -12,6 +12,7 @@ using System.Windows.Shapes;
 using Cavern;
 using Cavern.Format;
 using Cavern.Format.Common;
+using Cavern.Format.Environment;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
 using Cavern.Utilities;
@@ -81,7 +82,8 @@ namespace CavernizeGUI {
             audio.ItemsSource = new ExportFormat[] {
                 new ExportFormat(Codec.Opus, "libopus", "Opus (transparent, small size)"),
                 new ExportFormat(Codec.PCM_LE, "pcm_s16le", "PCM integer (lossless, large size)"),
-                new ExportFormat(Codec.PCM_Float, "pcm_f32le", "PCM float (needless, largest size)")
+                new ExportFormat(Codec.PCM_Float, "pcm_f32le", "PCM float (needless, largest size)"),
+                new ExportFormat(Codec.ADM_BWF, string.Empty, "ADM Broadcast Wave Format (studio)")
             };
             audio.SelectedIndex = Settings.Default.outputCodec;
 
@@ -249,6 +251,7 @@ namespace CavernizeGUI {
                 Error((string)language["UnTrk"]);
                 return;
             }
+            listener.SampleRate = target.SampleRate;
             listener.DetachAllSources();
             target.Attach(listener);
 
@@ -258,6 +261,7 @@ namespace CavernizeGUI {
             }
 
             AudioWriter writer = null;
+            EnvironmentWriter transcoder = null;
             string exportName; // Rendered by Cavern
             string finalName = null; // Packed by FFmpeg
             if (renderToFile.IsChecked.Value) {
@@ -265,30 +269,38 @@ namespace CavernizeGUI {
                     Filter = (string)language["ExFmt"]
                 };
                 if (dialog.ShowDialog().Value) {
-                    finalName = dialog.FileName;
-                    exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + "{0}.wav" : finalName;
-                    exportName = exportName.Replace("'", ""); // This character cannot be escaped in concat TXTs
-                    bool render = Listener.Channels.Length > 2; // This is only stereo for raw object exports
-                    writer = new SegmentedAudioWriter(exportName,
-                        render ? Listener.Channels.Length : target.Renderer.Objects.Count,
-                        target.Length, target.SampleRate * 30 * 60, target.SampleRate, BitDepth.Int16);
-                    if (writer == null) {
-                        Error((string)language["UnExt"]);
-                        return;
+                    if (((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF) {
+                        finalName = dialog.FileName;
+                        exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + "{0}.wav" : finalName;
+                        exportName = exportName.Replace("'", ""); // This character cannot be escaped in concat TXTs
+                        bool render = Listener.Channels.Length > 2; // This is only stereo for raw object exports
+                        writer = new SegmentedAudioWriter(exportName,
+                            render ? Listener.Channels.Length : target.Renderer.Objects.Count,
+                            target.Length, target.SampleRate * 30 * 60, target.SampleRate, BitDepth.Int16);
+                        if (writer == null) {
+                            Error((string)language["UnExt"]);
+                            return;
+                        }
+                        writer.WriteHeader();
+                    } else {
+                        transcoder = new BroadcastWaveFormatWriter(dialog.FileName, listener, target.Length, BitDepth.Int24);
                     }
-                    writer.WriteHeader();
                 } else { // Cancel
                     return;
                 }
             }
 
-            bool dynamic = dynamicOnly.IsChecked.Value;
-            bool height = heightOnly.IsChecked.Value;
-            taskEngine.Run(() => RenderTask(target, writer, dynamic, height, finalName));
+            if (transcoder == null) {
+                bool dynamic = dynamicOnly.IsChecked.Value;
+                bool height = heightOnly.IsChecked.Value;
+                taskEngine.Run(() => RenderTask(target, writer, dynamic, height, finalName));
+            } else {
+                taskEngine.Run(() => TranscodeTask(target, transcoder));
+            }
         }
 
         /// <summary>
-        /// Perform rendering.
+        /// Render the content and export it to a channel-based format.
         /// </summary>
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
@@ -316,7 +328,7 @@ namespace CavernizeGUI {
             }
 #endregion
 
-            taskEngine.UpdateStatus("Starting render...");
+            taskEngine.UpdateStatus((string)language["Start"]);
             RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly);
             UpdatePostRenderReport(stats);
 
@@ -354,7 +366,6 @@ namespace CavernizeGUI {
                             "Are your permissions sufficient in the export folder?");
                         return;
                     }
-                    writer.Dispose();
                     toConcat = ((SegmentedAudioWriter)writer).GetSegmentFiles();
                     for (int i = 0; i < toConcat.Length; ++i) {
                         File.Delete(toConcat[i]);
@@ -377,6 +388,50 @@ namespace CavernizeGUI {
 
             taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.UpdateProgressBar(1);
+        }
+
+        /// <summary>
+        /// Decode the source and export it to an object-based format.
+        /// </summary>
+        void TranscodeTask(Track target, EnvironmentWriter writer) {
+            taskEngine.UpdateProgressBar(0);
+
+#region TODO: TEMPORARY, REMOVE WHEN AC-3 AND MKV CAN BE FULLY DECODED - decode with FFmpeg until then
+            SegmentedAudioReader wavReader = null;
+            string tempWAV = filePath[..^4] + "{0}.wav";
+            string firstWAV = string.Format(tempWAV, "0");
+            if ((target.Codec == Codec.AC3 || target.Codec == Codec.EnhancedAC3) && !File.Exists(firstWAV)) {
+                taskEngine.UpdateStatus("Decoding bed audio...");
+                if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -f segment -segment_time 30:00 \"{2}\"",
+                    filePath, target.Index, string.Format(tempWAV, "%d"))) ||
+                    !File.Exists(firstWAV)) {
+                    if (File.Exists(firstWAV))
+                        File.Delete(firstWAV); // only the first determines if it should be rendered
+                    taskEngine.UpdateStatus("Failed to decode bed audio. " +
+                        "Are your permissions sufficient in the source's folder?");
+                    return;
+                }
+                target.SetRendererSource(wavReader = new SegmentedAudioReader(tempWAV));
+                target.SetupForExport();
+            }
+#endregion
+
+            taskEngine.UpdateStatus((string)language["Start"]);
+            RenderStats stats = Exporting.WriteTranscode(listener, target, writer, taskEngine);
+            UpdatePostRenderReport(stats);
+            taskEngine.UpdateStatus((string)language["ExpOk"]);
+            taskEngine.UpdateProgressBar(1);
+
+#region TODO: same
+            if (wavReader != null) {
+                wavReader.Dispose();
+                int index = 0;
+                do {
+                    File.Delete(firstWAV);
+                    firstWAV = string.Format(tempWAV, ++index);
+                } while (File.Exists(firstWAV));
+            }
+#endregion
         }
 
         /// <summary>

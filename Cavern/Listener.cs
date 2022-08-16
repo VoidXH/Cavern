@@ -85,8 +85,8 @@ namespace Cavern {
         /// How many sources can be played at the same time.
         /// </summary>
         public int MaximumSources {
-            get => sourceLimit;
-            set => sourceDistances = new float[sourceLimit = value];
+            get => sourceDistances.Length;
+            set => sourceDistances = new float[value];
         }
 
         /// <summary>
@@ -211,11 +211,6 @@ namespace Cavern {
         /// Distances of sources from the listener.
         /// </summary>
         internal float[] sourceDistances = new float[defaultSourceLimit];
-
-        /// <summary>
-        /// The cached length of the <see cref="sourceDistances"/> array.
-        /// </summary>
-        internal int sourceLimit = defaultSourceLimit;
 
         /// <summary>
         /// Listener normalizer gain.
@@ -368,13 +363,26 @@ namespace Cavern {
         }
 
         /// <summary>
+        /// Perform an update on all objects without rendering anything to the listener's output.
+        /// </summary>
+        public void Ping() {
+            LinkedListNode<Source> node = activeSources.First;
+            while (node != null) {
+                sourceDistances[0] = Range;
+                node.Value.Precalculate();
+                node.Value.Precollect();
+                node = node.Next;
+            }
+        }
+
+        /// <summary>
         /// Ask for update ticks.
         /// </summary>
         public float[] Render(int frames = 1) {
             if (SampleRate < 44100 || UpdateRate < 16) { // Don't work with wrong settings
                 return null;
             }
-            for (int source = 0; source < sourceLimit; ++source) {
+            for (int source = 0; source < sourceDistances.Length; ++source) {
                 sourceDistances[source] = Range;
             }
             pulseDelta = (frames * UpdateRate) / (float)SampleRate;
@@ -464,7 +472,7 @@ namespace Cavern {
         public const int defaultSampleRate = 48000;
 
         /// <summary>
-        /// Default value of <see cref="sourceLimit"/> and <see cref="MaximumSources"/>.
+        /// Default value of <see cref="MaximumSources"/>.
         /// </summary>
         const int defaultSourceLimit = 128;
     }

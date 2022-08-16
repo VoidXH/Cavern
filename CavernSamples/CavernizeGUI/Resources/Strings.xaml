@@ -12,6 +12,7 @@
     <system:String x:Key="UnExt">The file name had an unsupported extension.</system:String>
     <system:String x:Key="WrGui">Wiring guide</system:String>
     <system:String x:Key="ChCon">Connect the {0} channel to your system's {1} output.</system:String>
+    <system:String x:Key="Start">Starting render...</system:String>
     <system:String x:Key="ExpOk">Finished!</system:String>
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize GUI,
