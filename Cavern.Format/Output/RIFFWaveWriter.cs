@@ -31,6 +31,61 @@ namespace Cavern.Format {
             base(path, channelCount, length, sampleRate, bits) { }
 
         /// <summary>
+        /// Export an array of samples to an audio file.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static void Write(string path, float[] data, int channelCount, int sampleRate, BitDepth bits) {
+            RIFFWaveWriter writer = new RIFFWaveWriter(path, channelCount, data.LongLength / channelCount, sampleRate, bits);
+            writer.Write(data);
+            writer.Dispose();
+        }
+
+        /// <summary>
+        /// Export an array of multichannel samples to an audio file.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static void Write(string path, float[][] data, int sampleRate, BitDepth bits) {
+            RIFFWaveWriter writer = new RIFFWaveWriter(path, data.Length, data[0].LongLength, sampleRate, bits);
+            writer.Write(data);
+            writer.Dispose();
+        }
+
+        /// <summary>
+        /// Export an audio file to be played back channel after channel.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        /// <param name="period">Channels separated by this many channels are played simultaneously</param>
+        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, int period = -1) {
+            RIFFWaveWriter writer = new RIFFWaveWriter(path, data.Length, data[0].LongLength, sampleRate, bits);
+            writer.WriteOffset(data, period);
+            writer.Dispose();
+        }
+
+        /// <summary>
+        /// Export an audio file to be played back channel after channel.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static void WriteForEachChannel(string path, float[] data, int channelCount, int sampleRate, BitDepth bits) {
+            RIFFWaveWriter writer = new RIFFWaveWriter(path, channelCount, data.LongLength / channelCount, sampleRate, bits);
+            writer.WriteForEachChannel(data, channelCount);
+            writer.Dispose();
+        }
+
+        /// <summary>
         /// Create the file header.
         /// </summary>
         public override void WriteHeader() {
@@ -131,58 +186,16 @@ namespace Cavern.Format {
         }
 
         /// <summary>
-        /// Export an array of samples to an audio file.
+        /// Append an extra chunk to the file.
         /// </summary>
-        /// <param name="path">Output file name</param>
-        /// <param name="data">Samples to write in the file</param>
-        /// <param name="channelCount">Output channel count</param>
-        /// <param name="sampleRate">Output sample rate</param>
-        /// <param name="bits">Output bit depth</param>
-        public static void Write(string path, float[] data, int channelCount, int sampleRate, BitDepth bits) {
-            RIFFWaveWriter writer = new RIFFWaveWriter(path, channelCount, data.LongLength / channelCount, sampleRate, bits);
+        /// <param name="id">4 byte identifier of the chunk</param>
+        /// <param name="data">Raw data of the chunk</param>
+        /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
+        /// refer to <see cref="RIFFWave"/> for samples.</remarks>
+        public void WriteChunk(int id, byte[] data) {
+            writer.Write(id);
+            writer.Write(data.Length);
             writer.Write(data);
-            writer.Dispose();
-        }
-
-        /// <summary>
-        /// Export an array of multichannel samples to an audio file.
-        /// </summary>
-        /// <param name="path">Output file name</param>
-        /// <param name="data">Samples to write in the file</param>
-        /// <param name="sampleRate">Output sample rate</param>
-        /// <param name="bits">Output bit depth</param>
-        public static void Write(string path, float[][] data, int sampleRate, BitDepth bits) {
-            RIFFWaveWriter writer = new RIFFWaveWriter(path, data.Length, data[0].LongLength, sampleRate, bits);
-            writer.Write(data);
-            writer.Dispose();
-        }
-
-        /// <summary>
-        /// Export an audio file to be played back channel after channel.
-        /// </summary>
-        /// <param name="path">Output file name</param>
-        /// <param name="data">Samples to write in the file</param>
-        /// <param name="sampleRate">Output sample rate</param>
-        /// <param name="bits">Output bit depth</param>
-        /// <param name="period">Channels separated by this many channels are played simultaneously</param>
-        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, int period = -1) {
-            RIFFWaveWriter writer = new RIFFWaveWriter(path, data.Length, data[0].LongLength, sampleRate, bits);
-            writer.WriteOffset(data, period);
-            writer.Dispose();
-        }
-
-        /// <summary>
-        /// Export an audio file to be played back channel after channel.
-        /// </summary>
-        /// <param name="path">Output file name</param>
-        /// <param name="data">Samples to write in the file</param>
-        /// <param name="channelCount">Output channel count</param>
-        /// <param name="sampleRate">Output sample rate</param>
-        /// <param name="bits">Output bit depth</param>
-        public static void WriteForEachChannel(string path, float[] data, int channelCount, int sampleRate, BitDepth bits) {
-            RIFFWaveWriter writer = new RIFFWaveWriter(path, channelCount, data.LongLength / channelCount, sampleRate, bits);
-            writer.WriteForEachChannel(data, channelCount);
-            writer.Dispose();
         }
     }
 }

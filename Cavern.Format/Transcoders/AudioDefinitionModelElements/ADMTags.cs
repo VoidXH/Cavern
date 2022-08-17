@@ -12,6 +12,51 @@
     /// </summary>
     static class ADMTags {
         /// <summary>
+        /// Root element of an ADM metadata XML.
+        /// </summary>
+        public const string rootTag = "ebuCoreMain";
+
+        /// <summary>
+        /// The XML namespace of an ADM XML.
+        /// </summary>
+        public const string rootNamespace = "urn:ebu:metadata-schema:ebuCore_2016";
+
+        /// <summary>
+        /// Sub-namespace of the root element.
+        /// </summary>
+        public const string instanceNamespaceAttribute = "xsi";
+
+        /// <summary>
+        /// Value for the sub-namespace of the root element.
+        /// </summary>
+        public const string instanceNamespace = "http://www.w3.org/2001/XMLSchema-instance";
+
+        /// <summary>
+        /// ADM XML schema location URI attribute.
+        /// </summary>
+        public const string schemaLocationAttribute = "schemaLocation";
+
+        /// <summary>
+        /// ADM XML schema location URI. Appended to <see cref="rootNamespace"/>.
+        /// </summary>
+        public const string schemaLocation = " ebucore.xsd";
+
+        /// <summary>
+        /// Attribute to set the language of the ADM XML.
+        /// </summary>
+        public const string languageAttribute = "lang";
+
+        /// <summary>
+        /// Language of the ADM XML.
+        /// </summary>
+        public const string language = "en";
+
+        /// <summary>
+        /// Required tags before actual content.
+        /// </summary>
+        public static readonly string[] subTags = { "coreMetadata", "format", "audioFormatExtended" };
+
+        /// <summary>
         /// Root element of the model's contained program.
         /// </summary>
         public const string programTag = "audioProgramme";
@@ -25,6 +70,16 @@
         /// Name of a program's name attribute.
         /// </summary>
         public const string programNameAttribute = "audioProgrammeName";
+
+        /// <summary>
+        /// Beginning timestamp of a program or object.
+        /// </summary>
+        public const string startAttribute = "start";
+
+        /// <summary>
+        /// End timestamp of a program. Must be start + length.
+        /// </summary>
+        public const string programEndAttribute = "end";
 
         /// <summary>
         /// Reference to a group of objects by ID.
@@ -45,6 +100,11 @@
         /// Name of a content's name attribute.
         /// </summary>
         public const string contentNameAttribute = "audioContentName";
+
+        /// <summary>
+        /// Dialog mixing method descriptor tag.
+        /// </summary>
+        public const string contentDialogueTag = "dialogue";
 
         /// <summary>
         /// Reference to a single audio object by ID.
@@ -92,6 +152,11 @@
         public const string packFormatTypeAttribute = "typeLabel";
 
         /// <summary>
+        /// Redundant string version of <see cref="packFormatTypeAttribute"/>.
+        /// </summary>
+        public const string packFormatTypeStringAttribute = "typeDefinition";
+
+        /// <summary>
         /// Reference to positional data by ID.
         /// </summary>
         public const string channelFormatRefTag = "audioChannelFormatIDRef";
@@ -127,9 +192,9 @@
         public const string blockOffsetAttribute = "rtime";
 
         /// <summary>
-        /// Length timestamp of a block.
+        /// Length timestamp of a block or an object.
         /// </summary>
-        public const string blockDurationAttribute = "duration";
+        public const string durationAttribute = "duration";
 
         /// <summary>
         /// A block's coordinates are stored as cartesian coordinates.

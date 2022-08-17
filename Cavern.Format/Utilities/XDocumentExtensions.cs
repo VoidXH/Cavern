@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace Cavern.Format.Utilities {
@@ -37,5 +38,10 @@ namespace Cavern.Format.Utilities {
             }
             return null;
         }
+
+        /// <summary>
+        /// Get a time span in a standard timestamp format.
+        /// </summary>
+        public static string GetTimestamp(this TimeSpan stamp) => stamp.ToString("G").Replace(',', '.');
     }
 }

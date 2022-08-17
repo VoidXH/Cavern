@@ -1,5 +1,46 @@
 ﻿namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
+    /// Supported dialogue mixing methods.
+    /// </summary>
+    public enum ADMDialogueType {
+        nonDialogueContentKind,
+        dialogueContentKind,
+        mixedContentKind
+    }
+
+    /// <summary>
+    /// Supported values for the <see cref="ADMDialogueType.nonDialogueContentKind"/> dialogue mixing method.
+    /// </summary>
+    public enum NonDialogueContentKind {
+        Undefined,
+        Music,
+        Effect
+    }
+
+    /// <summary>
+    /// Supported values for the <see cref="ADMDialogueType.dialogueContentKind"/> dialogue mixing method.
+    /// </summary>
+    public enum DialogueContentKind {
+        Undefined,
+        StorylineDialogue,
+        Voiceover,
+        SpokenSubtitle,
+        VisuallyImpaired,
+        Commentary,
+        Emergency
+    }
+
+    /// <summary>
+    /// Supported values for the <see cref="ADMDialogueType.mixedContentKind"/> dialogue mixing method.
+    /// </summary>
+    public enum MixedContentKind {
+        Undefined,
+        CompleteMain,
+        Mixed,
+        HearingImpaired
+    }
+
+    /// <summary>
     /// Supported <see cref="ADMPackFormat"/> types.
     /// </summary>
     public enum ADMPackType {

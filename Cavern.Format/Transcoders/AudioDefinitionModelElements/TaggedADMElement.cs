@@ -2,7 +2,7 @@
     /// <summary>
     /// An ADM element with an ID and a name.
     /// </summary>
-    public class TaggedADMElement {
+    public abstract class TaggedADMElement {
         /// <summary>
         /// Identifier of the element.
         /// </summary>

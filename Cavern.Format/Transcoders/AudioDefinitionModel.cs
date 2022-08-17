@@ -62,7 +62,22 @@ namespace Cavern.Format.Transcoders {
         /// Writes the ADM metadata to an XML file.
         /// </summary>
         public void WriteXml(XmlWriter writer) {
-            throw new NotImplementedException();
+            XNamespace xmlns = XNamespace.Get(ADMTags.rootNamespace);
+            XNamespace xsi = XNamespace.Get(ADMTags.instanceNamespace);
+            XElement root = new XElement(xmlns + ADMTags.rootTag,
+                new XAttribute(XNamespace.Xmlns + ADMTags.instanceNamespaceAttribute, xsi),
+                new XAttribute(xsi + ADMTags.schemaLocationAttribute, ADMTags.rootNamespace + ADMTags.schemaLocation),
+                new XAttribute(XNamespace.Xml + ADMTags.languageAttribute, ADMTags.language));
+            XDocument doc = new XDocument(root);
+            for (int i = 0; i < ADMTags.subTags.Length; i++) {
+                XElement subTag = new XElement(xmlns + ADMTags.subTags[i]);
+                root.Add(subTag);
+                root = subTag;
+            }
+            foreach (ADMProgramme program in Programs) {
+                program.Serialize(root);
+            }
+            doc.WriteTo(writer);
         }
 
         public XmlSchema GetSchema() => null;
@@ -74,9 +89,8 @@ namespace Cavern.Format.Transcoders {
             List<ADMProgramme> result = new List<ADMProgramme>();
             IEnumerable<XElement> programs = data.AllDescendants(ADMTags.programTag);
             foreach (XElement program in programs) {
-                result.Add(new ADMProgramme() {
-                    ID = program.GetAttribute(ADMTags.programIDAttribute),
-                    Name = program.GetAttribute(ADMTags.programNameAttribute),
+                result.Add(new ADMProgramme(program.GetAttribute(ADMTags.programIDAttribute),
+                    program.GetAttribute(ADMTags.programNameAttribute), 0) {
                     Contents = ParseContents(data, program)
                 });
             }
@@ -108,9 +122,9 @@ namespace Cavern.Format.Transcoders {
             IEnumerable<XElement> objects = content.AllDescendants(ADMTags.objectRefTag);
             foreach (XElement obj in objects) {
                 XElement objectElement = data.GetWithAttribute(ADMTags.objectTag, ADMTags.objectIDAttribute, obj.Value);
-                result.Add(new ADMObject() {
-                    ID = obj.Value,
-                    Name = objectElement.GetAttribute(ADMTags.objectNameAttribute),
+                result.Add(new ADMObject(obj.Value, objectElement.GetAttribute(ADMTags.objectNameAttribute),
+                    ParseTimestamp(obj.Attribute(ADMTags.startAttribute)),
+                    ParseTimestamp(obj.Attribute(ADMTags.durationAttribute))) {
                     PackFormat = ParsePackFormat(data, objectElement)
                 });
             }
@@ -164,7 +178,7 @@ namespace Cavern.Format.Transcoders {
             foreach (XElement block in blocks) {
                 bool cartesian = false;
                 float x = 0, y = 0, z = 0;
-                long duration = ParseTimestamp(block.Attribute(ADMTags.blockDurationAttribute)),
+                long duration = ParseTimestamp(block.Attribute(ADMTags.durationAttribute)),
                     interpolation = duration;
                 IEnumerable<XElement> children = block.Descendants();
                 foreach (XElement child in children) {
