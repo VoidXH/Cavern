@@ -19,6 +19,7 @@ This repository features a Unity plugin and a standalone converter in C++.
 	  * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
 	  * Limitless Audio Format
 	  * RIFF WAVE
+	  * Audio Definition Model Broadcast Wave Format
 	* Supported containers: .ac3, .laf, .mka, .mkv, .wav
 * Direction and distance virtualization for headphones
 * Real-time upconversion of regular surround sound mixes to 3D
