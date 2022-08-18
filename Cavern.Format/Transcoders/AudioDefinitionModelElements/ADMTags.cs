@@ -6,9 +6,9 @@
     /// --- <see cref="ADMObject"/>s<br/>
     /// ---- <see cref="ADMPackFormat"/><br/>
     /// ----- <see cref="ADMChannelFormat"/><br/>
-    /// ---- Tracks (redundant - found in WAV header)<br/>
-    /// ----- Track format (redundant - found in WAV header)<br/>
-    /// ------ StreamFormat (redundant by standard)
+    /// ---- <see cref="ADMTrack"/><br/>
+    /// ----- Track format<br/>
+    /// ------ Stream format (redundant)
     /// </summary>
     static class ADMTags {
         /// <summary>
@@ -149,12 +149,12 @@
         /// <summary>
         /// Channel/object selector attribute for both pack formats and redundantly by standard in channel formats.
         /// </summary>
-        public const string packFormatTypeAttribute = "typeLabel";
+        public const string typeAttribute = "typeLabel";
 
         /// <summary>
-        /// Redundant string version of <see cref="packFormatTypeAttribute"/>.
+        /// Redundant string version of <see cref="typeAttribute"/>.
         /// </summary>
-        public const string packFormatTypeStringAttribute = "typeDefinition";
+        public const string typeStringAttribute = "typeDefinition";
 
         /// <summary>
         /// Reference to positional data by ID.
@@ -220,5 +220,70 @@
         /// Axis of a positional data.
         /// </summary>
         public const string blockCoordinateAttribute = "coordinate";
+
+        /// <summary>
+        /// Reference to a track by ID.
+        /// </summary>
+        public const string trackRefTag = "audioTrackUIDRef";
+
+        /// <summary>
+        /// Track coding information.
+        /// </summary>
+        public const string trackTag = "audioTrackUID";
+
+        /// <summary>
+        /// Name of a track's ID attribute.
+        /// </summary>
+        public const string trackIDAttribute = "UID";
+
+        /// <summary>
+        /// <see cref="BitDepth"/> of a track.
+        /// </summary>
+        public const string trackBitDepthAttribute = "bitDepth";
+
+        /// <summary>
+        /// Sample rate of a track.
+        /// </summary>
+        public const string trackSampleRateAttribute = "sampleRate";
+
+        /// <summary>
+        /// Reference to a track format by ID.
+        /// </summary>
+        public const string trackFormatRefTag = "audioTrackFormatIDRef";
+
+        /// <summary>
+        /// Track and format information.
+        /// </summary>
+        public const string trackFormatTag = "audioTrackFormat";
+
+        /// <summary>
+        /// Name of a track format's ID attribute.
+        /// </summary>
+        public const string trackFormatIDAttribute = "audioTrackFormatID";
+
+        /// <summary>
+        /// Name of a track format's name attribute.
+        /// </summary>
+        public const string trackFormatNameAttribute = "audioTrackFormatName";
+
+        /// <summary>
+        /// Reference to a stream format by ID.
+        /// </summary>
+        public const string streamFormatRefTag = "audioStreamFormatIDRef";
+
+        /// <summary>
+        /// Channel/pack/track format grouping.
+        /// </summary>
+        public const string streamFormatTag = "audioStreamFormat";
+
+        /// <summary>
+        /// Name of a stream format's ID attribute.
+        /// </summary>
+        public const string streamFormatIDAttribute = "audioStreamFormatID";
+
+        /// <summary>
+        /// Name of a stream format's name attribute.
+        /// </summary>
+        public const string streamFormatNameAttribute = "audioStreamFormatName";
     }
 }

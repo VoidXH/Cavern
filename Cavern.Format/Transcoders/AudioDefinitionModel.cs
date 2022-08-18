@@ -29,15 +29,11 @@ namespace Cavern.Format.Transcoders {
         readonly List<ADMChannelFormat> movements = new List<ADMChannelFormat>();
 
         /// <summary>
-        /// Sample rate of the described content.
-        /// </summary>
-        readonly int sampleRate;
-
-        /// <summary>
         /// Parses an XML file with channel and object information.
         /// </summary>
-        public AudioDefinitionModel(Stream reader, int length, int sampleRate) {
-            this.sampleRate = sampleRate;
+        /// <param name="reader">Stream to read the AXML from</param>
+        /// <param name="length">Length of the AXML stream in bytes</param>
+        public AudioDefinitionModel(Stream reader, int length) {
             byte[] data = new byte[length];
             reader.Read(data, 0, length);
             using XmlReader xmlReader = XmlReader.Create(new MemoryStream(data));
@@ -47,15 +43,14 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Creates an ADM for export by a program list created in code.
         /// </summary>
-        public AudioDefinitionModel(List<ADMProgramme> programs, int sampleRate) {
+        public AudioDefinitionModel(List<ADMProgramme> programs) {
             Programs = programs;
-            this.sampleRate = sampleRate;
         }
 
         /// <summary>
         /// Extracts the ADM metadata from an XML file.
         /// </summary>
-        /// <param name="reader"></param>
+        // TODO: Iterate through the tags, group them to lists for later quick search, check existence before reading anything
         public void ReadXml(XmlReader reader) => ParsePrograms(XDocument.Load(reader));
 
         /// <summary>
@@ -122,11 +117,12 @@ namespace Cavern.Format.Transcoders {
             IEnumerable<XElement> objects = content.AllDescendants(ADMTags.objectRefTag);
             foreach (XElement obj in objects) {
                 XElement objectElement = data.GetWithAttribute(ADMTags.objectTag, ADMTags.objectIDAttribute, obj.Value);
-                result.Add(new ADMObject(obj.Value, objectElement.GetAttribute(ADMTags.objectNameAttribute),
-                    ParseTimestamp(obj.Attribute(ADMTags.startAttribute)),
-                    ParseTimestamp(obj.Attribute(ADMTags.durationAttribute))) {
-                    PackFormat = ParsePackFormat(data, objectElement)
-                });
+                ADMObject entry = new ADMObject(obj.Value, objectElement.GetAttribute(ADMTags.objectNameAttribute));
+                entry.Track = ParseTrack(data, objectElement, entry);
+                entry.Offset = ParseTimestamp(obj.Attribute(ADMTags.startAttribute), entry.Track.SampleRate);
+                entry.Length = ParseTimestamp(obj.Attribute(ADMTags.durationAttribute), entry.Track.SampleRate);
+                result.Add(entry);
+                ParsePackFormat(data, objectElement, entry);
             }
             return result;
         }
@@ -134,34 +130,31 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Read the pack format of an object.
         /// </summary>
-        ADMPackFormat ParsePackFormat(XDocument data, XElement parent) {
+        ADMPackFormat ParsePackFormat(XDocument data, XElement parent, ADMObject parentObject) {
             IEnumerable<XElement> refs = parent.AllDescendants(ADMTags.packFormatRefTag);
             using IEnumerator<XElement> pack = refs.GetEnumerator();
             if (!pack.MoveNext()) {
                 return null;
             }
             XElement node = data.GetWithAttribute(ADMTags.packFormatTag, ADMTags.packFormatIDAttribute, pack.Current.Value);
-            return new ADMPackFormat() {
-                ID = pack.Current.Value,
-                Name = node.GetAttribute(ADMTags.packFormatNameAttribute),
-                Type = (ADMPackType)int.Parse(node.GetAttribute(ADMTags.packFormatTypeAttribute)),
-                ChannelFormats = ParseChannelFormats(data, node)
-            };
+            ADMPackFormat entry = new ADMPackFormat(pack.Current.Value, node.GetAttribute(ADMTags.packFormatNameAttribute),
+                (ADMPackType)int.Parse(node.GetAttribute(ADMTags.typeAttribute)), parentObject);
+            entry.ChannelFormats = ParseChannelFormats(data, node, entry);
+            return entry;
         }
 
         /// <summary>
         /// Read the pack format of an object.
         /// </summary>
-        List<ADMChannelFormat> ParseChannelFormats(XDocument data, XElement pack) {
+        List<ADMChannelFormat> ParseChannelFormats(XDocument data, XElement pack, ADMPackFormat packObject) {
             List<ADMChannelFormat> result = new List<ADMChannelFormat>();
             IEnumerable<XElement> channels = pack.AllDescendants(ADMTags.channelFormatRefTag);
             foreach (XElement channel in channels) {
                 XElement channelElement =
                     data.GetWithAttribute(ADMTags.channelFormatTag, ADMTags.channelFormatIDAttribute, channel.Value);
-                ADMChannelFormat parsed = new ADMChannelFormat() {
-                    ID = channel.Value,
-                    Name = channelElement.GetAttribute(ADMTags.channelFormatNameAttribute),
-                    Blocks = ParseBlockFormats(channelElement)
+                ADMChannelFormat parsed = new ADMChannelFormat(channel.Value,
+                    channelElement.GetAttribute(ADMTags.channelFormatNameAttribute), packObject) {
+                    Blocks = ParseBlockFormats(channelElement, packObject.Object.Track.SampleRate)
                 };
                 result.Add(parsed);
                 movements.Add(parsed);
@@ -172,13 +165,13 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Read the movement of an object.
         /// </summary>
-        List<ADMBlockFormat> ParseBlockFormats(XElement channel) {
+        List<ADMBlockFormat> ParseBlockFormats(XElement channel, int sampleRate) {
             List<ADMBlockFormat> result = new List<ADMBlockFormat>();
             IEnumerable<XElement> blocks = channel.AllDescendants(ADMTags.blockTag);
             foreach (XElement block in blocks) {
                 bool cartesian = false;
                 float x = 0, y = 0, z = 0;
-                long duration = ParseTimestamp(block.Attribute(ADMTags.durationAttribute)),
+                long duration = ParseTimestamp(block.Attribute(ADMTags.durationAttribute), sampleRate),
                     interpolation = duration;
                 IEnumerable<XElement> children = block.Descendants();
                 foreach (XElement child in children) {
@@ -216,7 +209,7 @@ namespace Cavern.Format.Transcoders {
                     throw new UnsupportedFeatureException("polar");
                 }
                 result.Add(new ADMBlockFormat() {
-                    Offset = ParseTimestamp(block.Attribute(ADMTags.blockOffsetAttribute)),
+                    Offset = ParseTimestamp(block.Attribute(ADMTags.blockOffsetAttribute), sampleRate),
                     Duration = duration,
                     Position = new Vector3(x, y, z),
                     Interpolation = interpolation
@@ -226,9 +219,23 @@ namespace Cavern.Format.Transcoders {
         }
 
         /// <summary>
+        /// Read the track of an object.
+        /// </summary>
+        ADMTrack ParseTrack(XDocument data, XElement parent, ADMObject parentObj) {
+            IEnumerable<XElement> refs = parent.AllDescendants(ADMTags.trackRefTag);
+            using IEnumerator<XElement> track = refs.GetEnumerator();
+            if (!track.MoveNext()) {
+                return null;
+            }
+            XElement node = data.GetWithAttribute(ADMTags.trackTag, ADMTags.trackIDAttribute, track.Current.Value);
+            return new ADMTrack(track.Current.Value, (BitDepth)int.Parse(node.GetAttribute(ADMTags.trackBitDepthAttribute)),
+                int.Parse(node.GetAttribute(ADMTags.trackSampleRateAttribute)), parentObj);
+        }
+
+        /// <summary>
         /// Convert a timestamp to samples if its attribute is present.
         /// </summary>
-        long ParseTimestamp(XAttribute attribute) => attribute != null ?
+        long ParseTimestamp(XAttribute attribute, int sampleRate) => attribute != null ?
             (long)(TimeSpan.Parse(attribute.Value).TotalSeconds * sampleRate) : 0;
     }
 }

@@ -81,7 +81,6 @@ namespace Cavern.Format.Decoders {
 
             // Specific headers
             bool readHeaders = true;
-            bool bwfNeedingHeader = false; // Is this a Broadcast Wave File with the ADM headers after sample data
             while (readHeaders) {
                 int headerID = reader.ReadInt32();
                 int headerSize = reader.ReadInt32();
@@ -92,11 +91,9 @@ namespace Cavern.Format.Decoders {
                         break;
                     case RIFFWave.junkSync:
                         reader.Position += headerSize;
-                        bwfNeedingHeader = ADM == null;
                         break;
                     case RIFFWave.axmlSync:
-                        ADM = new AudioDefinitionModel(reader, headerSize, sampleRate);
-                        bwfNeedingHeader = false;
+                        ADM = new AudioDefinitionModel(reader, headerSize);
                         break;
                     default:
                         throw new SyncException();
@@ -112,10 +109,10 @@ namespace Cavern.Format.Decoders {
             length = dataSize * 8L / (long)Bits / ChannelCount;
             dataStart = reader.Position;
 
-            if (bwfNeedingHeader) {
+            if (dataStart + dataSize + 4 < reader.Length) { // Sometimes ADM is after data
                 reader.Position += dataSize;
                 if (reader.ReadInt32() == RIFFWave.axmlSync) {
-                    ADM = new AudioDefinitionModel(reader, reader.ReadInt32(), sampleRate);
+                    ADM = new AudioDefinitionModel(reader, reader.ReadInt32());
                     reader.Position = dataStart;
                 }
             }

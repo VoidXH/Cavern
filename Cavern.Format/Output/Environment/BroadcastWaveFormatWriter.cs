@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text;
 using System.Xml;
 
@@ -30,7 +32,6 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Total samples written to the export file.
         /// </summary>
-        // TODO: don't allow writing over wav tag limits, check last frame size
         long samplesWritten;
 
         /// <summary>
@@ -50,21 +51,18 @@ namespace Cavern.Format.Environment {
             List<ADMObject> objects = new List<ADMObject>();
             int sourceIndex = 0;
             foreach (Source audioSource in source.ActiveSources) {
-                string id = (0x1000 + ++sourceIndex).ToString("X4");
-                objects.Add(new ADMObject("AO_" + id, "Audio Object " + sourceIndex, 0, contentLength) {
-                    PackFormat = new ADMPackFormat() {
-                        ID = "AP_0003" + id,
-                        Name = "Cavern_Obj_" + sourceIndex,
-                        Type = ADMPackType.Objects,
-                        ChannelFormats = new List<ADMChannelFormat> {
-                            new ADMChannelFormat() {
-                                ID = "AC_0003" + id,
-                                Name = "Cavern_Obj_" + sourceIndex,
-                                Blocks = movements[sourceIndex - 1]
-                            }
-                        }
+                string id = (0x1000 + ++sourceIndex).ToString("x4");
+                ADMPackFormat packFormat = new ADMPackFormat("AP_0003" + id, "Cavern_Obj_" + sourceIndex,
+                    ADMPackType.Objects, new ADMObject("AO_" + id, "Audio Object " + sourceIndex) {
+                        Length = contentLength
+                    });
+                packFormat.Object.Track = new ADMTrack("ATU_0000" + id, bits, source.SampleRate, packFormat.Object);
+                packFormat.ChannelFormats = new List<ADMChannelFormat> {
+                    new ADMChannelFormat("AC_0003" + id, "Cavern_Obj_" + sourceIndex, packFormat) {
+                        Blocks = movements[sourceIndex - 1]
                     }
-                });
+                };
+                objects.Add(packFormat.Object);
             }
 
             adm = new AudioDefinitionModel(new List<ADMProgramme> {
@@ -77,7 +75,7 @@ namespace Cavern.Format.Environment {
                         }
                     }
                 }
-            }, source.SampleRate);
+            });
         }
 
         /// <summary>
@@ -91,13 +89,19 @@ namespace Cavern.Format.Environment {
         /// </summary>
         public override void WriteNextFrame() {
             float[] result = GetInterlacedPCMOutput();
-            output.WriteBlock(result, 0, result.Length);
+            long writable = output.Length - samplesWritten;
+            if (writable > 0) {
+                output.WriteBlock(result, 0, Math.Min(Source.UpdateRate, writable) * output.ChannelCount);
+            }
+            Vector3 scaling = new Vector3(1) / Listener.EnvironmentSize;
             int sourceIndex = 0;
             foreach (Source source in Source.ActiveSources) {
+                // TODO: detect and filter linear movement
                 int size = movements[sourceIndex].Count;
-                if (size == 0 || movements[sourceIndex][size - 1].Position != source.Position) {
+                Vector3 scaledPosition = source.Position * scaling;
+                if (size == 0 || movements[sourceIndex][size - 1].Position != scaledPosition) {
                     movements[sourceIndex].Add(new ADMBlockFormat() {
-                        Position = source.Position,
+                        Position = scaledPosition,
                         Offset = samplesWritten,
                         Duration = Source.UpdateRate,
                         Interpolation = Source.UpdateRate
@@ -115,9 +119,10 @@ namespace Cavern.Format.Environment {
         /// </summary>
         public override void Dispose() {
             StringBuilder builder = new StringBuilder();
-            using XmlWriter exporter = XmlWriter.Create(builder);
-            adm.WriteXml(exporter);
-            output.WriteChunk(RIFFWave.axmlSync, Encoding.UTF8.GetBytes(builder.ToString()));
+            using (XmlWriter exporter = XmlWriter.Create(builder)) {
+                adm.WriteXml(exporter);
+            }
+            output.WriteChunk(RIFFWave.axmlSync, Encoding.UTF8.GetBytes(builder.ToString().Replace("utf-16", "utf-8")));
             output.Dispose();
         }
     }

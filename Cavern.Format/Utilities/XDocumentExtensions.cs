@@ -42,6 +42,6 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Get a time span in a standard timestamp format.
         /// </summary>
-        public static string GetTimestamp(this TimeSpan stamp) => stamp.ToString("G").Replace(',', '.');
+        public static string GetTimestamp(this TimeSpan stamp) => stamp.ToString("c").Replace(',', '.');
     }
 }

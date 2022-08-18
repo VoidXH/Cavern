@@ -400,16 +400,18 @@ namespace CavernizeGUI {
             SegmentedAudioReader wavReader = null;
             string tempWAV = filePath[..^4] + "{0}.wav";
             string firstWAV = string.Format(tempWAV, "0");
-            if ((target.Codec == Codec.AC3 || target.Codec == Codec.EnhancedAC3) && !File.Exists(firstWAV)) {
-                taskEngine.UpdateStatus("Decoding bed audio...");
-                if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -f segment -segment_time 30:00 \"{2}\"",
-                    filePath, target.Index, string.Format(tempWAV, "%d"))) ||
-                    !File.Exists(firstWAV)) {
-                    if (File.Exists(firstWAV))
-                        File.Delete(firstWAV); // only the first determines if it should be rendered
-                    taskEngine.UpdateStatus("Failed to decode bed audio. " +
-                        "Are your permissions sufficient in the source's folder?");
-                    return;
+            if (target.Codec == Codec.AC3 || target.Codec == Codec.EnhancedAC3) {
+                if (!File.Exists(firstWAV)) {
+                    taskEngine.UpdateStatus("Decoding bed audio...");
+                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -f segment -segment_time 30:00 \"{2}\"",
+                        filePath, target.Index, string.Format(tempWAV, "%d"))) ||
+                        !File.Exists(firstWAV)) {
+                        if (File.Exists(firstWAV))
+                            File.Delete(firstWAV); // only the first determines if it should be rendered
+                        taskEngine.UpdateStatus("Failed to decode bed audio. " +
+                            "Are your permissions sufficient in the source's folder?");
+                        return;
+                    }
                 }
                 target.SetRendererSource(wavReader = new SegmentedAudioReader(tempWAV));
                 target.SetupForExport();

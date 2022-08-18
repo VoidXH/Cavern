@@ -102,15 +102,17 @@ namespace CavernizeGUI {
                 builder.Append("Source channels (").Append(reader.ChannelCount).Append("): ").AppendLine(bedList)
                     .Append("Matrixed bed channels: ").AppendLine((eac3.Objects.Count - eac3.DynamicObjects).ToString())
                     .Append("Matrixed dynamic objects: ").AppendLine(eac3.DynamicObjects.ToString()); ;
-            } else if (beds.Length > 0) {
+            } else {
                 if (Renderer != null && beds.Length != Renderer.Objects.Count) {
-                    builder.Append("Bed channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
+                    if (beds.Length > 0) {
+                        builder.Append("Bed channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
+                    }
                     builder.Append("Dynamic objects: ").AppendLine((Renderer.Objects.Count - beds.Length).ToString());
+                } else if(beds.Length > 0) {
+                    builder.Append("Channel count: ").AppendLine(reader.ChannelCount.ToString());
                 } else {
                     builder.Append("Channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
                 }
-            } else {
-                builder.Append("Channel count: ").AppendLine(reader.ChannelCount.ToString());
             }
 
             builder.Append("Length: ").AppendLine(TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString());
