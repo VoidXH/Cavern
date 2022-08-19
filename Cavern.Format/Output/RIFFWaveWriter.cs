@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Format.Consts;
@@ -8,6 +9,21 @@ namespace Cavern.Format {
     /// Minimal RIFF wave file writer.
     /// </summary>
     public class RIFFWaveWriter : AudioWriter {
+        /// <summary>
+        /// The maximum number of additionally needed chunks that could surpass 4 GB.
+        /// </summary>
+        public int MaxLargeChunks { get; set; }
+
+        /// <summary>
+        /// Sizes of chunks larger than 4 GB.
+        /// </summary>
+        List<Tuple<int, long>> largeChunkSizes;
+
+        /// <summary>
+        /// Bytes used for the actual PCM data.
+        /// </summary>
+        long DataLength => Length * ChannelCount * ((int)Bits / 8);
+
         /// <summary>
         /// Minimal RIFF wave file writer.
         /// </summary>
@@ -89,13 +105,24 @@ namespace Cavern.Format {
         /// Create the file header.
         /// </summary>
         public override void WriteHeader() {
-            // RIFF header
+            // RIFF header with file length
             writer.Write(RIFFWave.syncWord1);
-            int dataLength = (int)(Length * ChannelCount * ((int)Bits / 8));
-            writer.Write(BitConverter.GetBytes(36 + dataLength)); // File length
+            bool inConstraints = fmtSize + (uint)DataLength < uint.MaxValue;
+            if (inConstraints && MaxLargeChunks == 0) {
+                writer.Write(fmtSize + (uint)DataLength);
+                writer.Write(RIFFWave.syncWord2);
+            } else {
+                writer.Write(inConstraints ? fmtSize + (uint)DataLength : 0xFFFFFFFF);
+                writer.Write(RIFFWave.syncWord2);
+                if (!inConstraints || MaxLargeChunks != 0) {
+                    writer.Write(RIFFWave.junkSync);
+                    int junkLength = junkBaseSize + MaxLargeChunks * junkExtraSize;
+                    writer.Write(junkLength);
+                    writer.Write(new byte[junkLength]);
+                }
+            }
 
             // Format header
-            writer.Write(RIFFWave.syncWord2);
             writer.Write(RIFFWave.formatSync);
             writer.Write(new byte[] { 16, 0, 0, 0 }); // FMT header size
             writer.Write(new byte[] { Bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
@@ -107,8 +134,8 @@ namespace Cavern.Format {
             writer.Write(BitConverter.GetBytes((short)Bits)); // Bit depth
 
             // Data header
-            writer.Write(RIFFWave.syncWord3LE);
-            writer.Write(BitConverter.GetBytes(dataLength)); // Data length
+            writer.Write(RIFFWave.dataSync);
+            writer.Write(BitConverter.GetBytes((uint)DataLength));
         }
 
         /// <summary>
@@ -193,9 +220,69 @@ namespace Cavern.Format {
         /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
         /// refer to <see cref="RIFFWave"/> for samples.</remarks>
         public void WriteChunk(int id, byte[] data) {
+            if (data.LongLength > uint.MaxValue) {
+                if (largeChunkSizes == null) {
+                    largeChunkSizes = new List<Tuple<int, long>>();
+                }
+                largeChunkSizes.Add(new Tuple<int, long>(id, data.LongLength));
+            }
+
             writer.Write(id);
             writer.Write(data.Length);
             writer.Write(data);
         }
+
+        /// <summary>
+        /// Update 64-bit size information when needed before closing the file.
+        /// </summary>
+        public override void Dispose() {
+            long contentSize = writer.BaseStream.Position - 8;
+            if (contentSize > uint.MaxValue || MaxLargeChunks != 0) {
+                // 64-bit sync word
+                writer.BaseStream.Position = 0;
+                writer.Write(RIFFWave.syncWord1_64);
+
+                // 64-bit format header
+                writer.BaseStream.Position = junkExtraSize;
+                writer.Write(RIFFWave.ds64Sync);
+                writer.BaseStream.Position += 4;
+
+                // Mandatory sizes
+                writer.Write(contentSize);
+                writer.Write(DataLength);
+                writer.Write(Length);
+
+                // Large chunk sizes
+                int c = largeChunkSizes.Count;
+                writer.Write(c);
+                for (int i = 0; i < c; ++i) {
+                    writer.Write(largeChunkSizes[i].Item1);
+                    writer.Write(largeChunkSizes[i].Item2);
+                }
+
+                // Fill the unused space with junk
+                int emptyBytes = (MaxLargeChunks - c) * junkExtraSize;
+                if (emptyBytes != 0) {
+                    writer.Write(RIFFWave.junkSync);
+                    writer.Write(emptyBytes - 8);
+                }
+            }
+            base.Dispose();
+        }
+
+        /// <summary>
+        /// Size of the format header.
+        /// </summary>
+        const uint fmtSize = 36;
+
+        /// <summary>
+        /// Minimum size of the temporary header that could be replaced with a size header.
+        /// </summary>
+        const int junkBaseSize = 28;
+
+        /// <summary>
+        /// Size for one extra header information in the temporary header. This is also the offset of the JUNK header.
+        /// </summary>
+        const int junkExtraSize = 12;
     }
 }

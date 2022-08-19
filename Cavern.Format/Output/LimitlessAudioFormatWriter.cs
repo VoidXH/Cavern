@@ -88,26 +88,34 @@ namespace Cavern.Format {
         /// <param name="until">Samples to dump from the <see cref="cache"/></param>
         void DumpBlock(long until) {
             bool[] toWrite = new bool[ChannelCount];
-            for (int channel = 0; channel < ChannelCount; ++channel)
-                for (int sample = channel; !toWrite[channel] && sample < cache.Length; sample += ChannelCount)
-                    if (cache[sample] != 0)
+            for (int channel = 0; channel < ChannelCount; ++channel) {
+                for (int sample = channel; !toWrite[channel] && sample < cache.Length; sample += ChannelCount) {
+                    if (cache[sample] != 0) {
                         toWrite[channel] = true;
+                    }
+                }
+            }
             byte[] layoutBytes = new byte[ChannelCount % 8 == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1)];
             for (int channel = 0; channel < ChannelCount; ++channel) {
-                if (toWrite[channel])
+                if (toWrite[channel]) {
                     layoutBytes[channel >> 3] += (byte)(1 << (channel % 8));
+                }
             }
             writer.Write(layoutBytes);
             switch (Bits) {
                 case BitDepth.Int8:
-                    for (int sample = 0; sample < until; ++sample)
-                        if (toWrite[sample % ChannelCount])
+                    for (int sample = 0; sample < until; ++sample) {
+                        if (toWrite[sample % ChannelCount]) {
                             writer.Write((sbyte)(cache[sample] * sbyte.MaxValue));
+                        }
+                    }
                     break;
                 case BitDepth.Int16:
-                    for (int sample = 0; sample < until; ++sample)
-                        if (toWrite[sample % ChannelCount])
+                    for (int sample = 0; sample < until; ++sample) {
+                        if (toWrite[sample % ChannelCount]) {
                             writer.Write((short)(cache[sample] * short.MaxValue));
+                        }
+                    }
                     break;
                 case BitDepth.Int24:
                     for (int sample = 0; sample < until; ++sample) {
@@ -120,9 +128,11 @@ namespace Cavern.Format {
                     }
                     break;
                 case BitDepth.Float32:
-                    for (int sample = 0; sample < until; ++sample)
-                        if (toWrite[sample % ChannelCount])
+                    for (int sample = 0; sample < until; ++sample) {
+                        if (toWrite[sample % ChannelCount]) {
                             writer.Write(BitConverter.GetBytes(cache[sample]));
+                        }
+                    }
                     break;
             }
             cachePosition = 0;
@@ -137,13 +147,16 @@ namespace Cavern.Format {
         public override void WriteBlock(float[] samples, long from, long to) {
             long dumpLength = to - from;
             while (from < to) {
-                for (; from < to && cachePosition < cache.Length; ++from)
+                for (; from < to && cachePosition < cache.Length; ++from) {
                     cache[cachePosition++] = samples[from];
-                if (cachePosition == cache.Length)
+                }
+                if (cachePosition == cache.Length) {
                     DumpBlock(cache.Length);
+                }
             }
-            if ((totalWritten += dumpLength) == Length * ChannelCount)
+            if ((totalWritten += dumpLength) == Length * ChannelCount) {
                 DumpBlock(cachePosition);
+            }
         }
 
         /// <summary>

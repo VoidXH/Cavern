@@ -33,7 +33,7 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         /// <param name="reader">Stream to read the AXML from</param>
         /// <param name="length">Length of the AXML stream in bytes</param>
-        public AudioDefinitionModel(Stream reader, int length) {
+        public AudioDefinitionModel(Stream reader, long length) {
             byte[] data = new byte[length];
             reader.Read(data, 0, length);
             using XmlReader xmlReader = XmlReader.Create(new MemoryStream(data));

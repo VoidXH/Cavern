@@ -129,15 +129,17 @@ namespace Cavern.Format {
         /// <param name="period">Channels separated by this many channels are played simultaneously</param>
         public void WriteOffset(float[][] samples, int period = -1) {
             ChannelCount = samples.Length;
-            if (period == -1)
+            if (period == -1) {
                 period = ChannelCount;
+            }
             Length = period * samples[0].Length;
             float[] empty = new float[samples[0].Length];
             float[][] holder = new float[samples.Length][];
             WriteHeader();
             for (int curPeriod = 0; curPeriod < period; ++curPeriod) {
-                for (int channel = 0; channel < holder.Length; ++channel)
+                for (int channel = 0; channel < holder.Length; ++channel) {
                     holder[channel] = channel % period == curPeriod ? samples[channel] : empty;
+                }
                 WriteBlock(holder, 0, holder[0].Length);
             }
             writer.Dispose();
@@ -150,8 +152,9 @@ namespace Cavern.Format {
         /// <param name="channelCount">Output channel count</param>
         public void WriteForEachChannel(float[] samples, int channelCount) {
             float[][] holder = new float[channelCount][];
-            for (int channel = 0; channel < channelCount; ++channel)
+            for (int channel = 0; channel < channelCount; ++channel) {
                 holder[channel] = samples;
+            }
             WriteOffset(holder);
         }
 

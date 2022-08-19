@@ -11,6 +11,11 @@ namespace Cavern.Format.Consts {
         public const int syncWord1 = 0x46464952;
 
         /// <summary>
+        /// RF64 sync word, 64-bit stream marker.
+        /// </summary>
+        public const int syncWord1_64 = 0x34364652;
+
+        /// <summary>
         /// WAVE sync word, specific header section marker.
         /// </summary>
         public const int syncWord2 = 0x45564157;
@@ -26,19 +31,19 @@ namespace Cavern.Format.Consts {
         public const int junkSync = 0x4B4E554A;
 
         /// <summary>
+        /// ds64 sync word, contains 64-bit lengths.
+        /// </summary>
+        public const int ds64Sync = 0x34367364;
+
+        /// <summary>
         /// axml sync word, ADM XML metadata marker.
         /// </summary>
         public const int axmlSync = 0x6C6D7861;
 
         /// <summary>
-        /// Data header marker (big-endian).
+        /// Data header marker.
         /// </summary>
-        public const int syncWord3BE = 0x64617461;
-
-        /// <summary>
-        /// Data header marker (little-endian).
-        /// </summary>
-        public const int syncWord3LE = 0x61746164;
+        public const int dataSync = 0x61746164;
 
         /// <summary>
         /// Meaning of each bit in WAVEFORMATEXTENSIBLE's channel mask.

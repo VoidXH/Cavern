@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Format.Common;
@@ -72,53 +73,62 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         public RIFFWaveDecoder(Stream reader) {
             // RIFF header
-            if (reader.ReadInt32() != RIFFWave.syncWord1)
+            int sync = reader.ReadInt32();
+            if (sync != RIFFWave.syncWord1 && sync != RIFFWave.syncWord1_64) {
                 throw new SyncException();
+            }
             stream = reader;
             reader.Position += 4; // File length
-            if (reader.ReadInt32() != RIFFWave.syncWord2)
+            if (reader.ReadInt32() != RIFFWave.syncWord2) {
                 throw new SyncException();
+            }
 
-            // Specific headers
-            bool readHeaders = true;
-            while (readHeaders) {
+            // Subchunks
+            Dictionary<int, long> sizeOverrides = null;
+            while (reader.Position < reader.Length) {
                 int headerID = reader.ReadInt32();
-                int headerSize = reader.ReadInt32();
+                long headerSize = (uint)reader.ReadInt32();
+                if (sizeOverrides != null && sizeOverrides.ContainsKey(headerID)) {
+                    headerSize = sizeOverrides[headerID];
+                }
+
                 switch (headerID) {
                     case RIFFWave.formatSync:
+                        long headerEnd = reader.Position + headerSize;
                         ParseFormatHeader(reader);
-                        readHeaders = false;
+                        reader.Position = headerEnd;
                         break;
-                    case RIFFWave.junkSync:
-                        reader.Position += headerSize;
+                    case RIFFWave.ds64Sync:
+                        sizeOverrides = new Dictionary<int, long>() {
+                            [RIFFWave.syncWord1_64] = reader.ReadInt64(),
+                            [RIFFWave.dataSync] = reader.ReadInt64()
+                        };
+                        reader.Position += 8; // Sample count, redundant
+                        int additionalSizes = reader.ReadInt32();
+                        for (int i = 0; i < additionalSizes; i++) {
+                            headerID = reader.ReadInt32();
+                            sizeOverrides[headerID] = reader.ReadInt64();
+                        }
                         break;
                     case RIFFWave.axmlSync:
                         ADM = new AudioDefinitionModel(reader, headerSize);
                         break;
-                    default:
-                        throw new SyncException();
+                    case RIFFWave.dataSync:
+                        length = (uint)headerSize * 8L / (long)Bits / ChannelCount;
+                        dataStart = reader.Position;
+                        if (dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags
+                            reader.Position = dataStart + headerSize;
+                        } else {
+                            Finalize(reader);
+                            return;
+                        }
+                        break;
+                    default: // Skip unknown headers
+                        reader.Position += headerSize;
+                        break;
                 }
             }
-
-            // Find where data starts
-            int header = 0;
-            do
-                header = (header << 8) | reader.ReadByte();
-            while (header != RIFFWave.syncWord3BE && reader.Position < reader.Length);
-            uint dataSize = reader.ReadUInt32();
-            length = dataSize * 8L / (long)Bits / ChannelCount;
-            dataStart = reader.Position;
-
-            if (dataStart + dataSize + 4 < reader.Length) { // Sometimes ADM is after data
-                reader.Position += dataSize;
-                if (reader.ReadInt32() == RIFFWave.axmlSync) {
-                    ADM = new AudioDefinitionModel(reader, reader.ReadInt32());
-                    reader.Position = dataStart;
-                }
-            }
-
-            reader.Position = dataStart;
-            this.reader = BlockBuffer<byte>.Create(reader, FormatConsts.blockSize);
+            Finalize(reader);
         }
 
         /// <summary>
@@ -130,18 +140,20 @@ namespace Cavern.Format.Decoders {
         /// <remarks>The next to - from samples will be read from the file.
         /// All samples are counted, not just a single channel.</remarks>
         public override void DecodeBlock(float[] target, long from, long to) {
-            const long skip = FormatConsts.blockSize / sizeof(float); // source split optimization for both memory and IO
+            const long skip = FormatConsts.blockSize / sizeof(float); // Source split optimization for both memory and IO
             if (to - from > skip) {
-                for (; from < to; from += skip)
+                for (; from < to; from += skip) {
                     DecodeBlock(target, from, Math.Min(to, from + skip));
+                }
                 return;
             }
 
             byte[] source = reader.Read((int)(to - from) * ((int)Bits >> 3));
-            if (source != null)
+            if (source != null) {
                 DecodeLittleEndianBlock(source, target, from, Bits);
-            else
+            } else {
                 Array.Clear(target, (int)from, (int)(to - from));
+            }
             position += (to - from) / channelCount;
         }
 
@@ -151,26 +163,30 @@ namespace Cavern.Format.Decoders {
         static void DecodeLittleEndianBlock(byte[] source, float[] target, long targetOffset, BitDepth bits) {
             switch (bits) {
                 case BitDepth.Int8: {
-                    for (int i = 0; i < source.Length; ++i)
+                    for (int i = 0; i < source.Length; ++i) {
                         target[targetOffset++] = source[i] * BitConversions.fromInt8;
+                    }
                     break;
                 }
                 case BitDepth.Int16: {
-                    for (int i = 0; i < source.Length;)
+                    for (int i = 0; i < source.Length;) {
                         target[targetOffset++] = (short)(source[i++] | source[i++] << 8) * BitConversions.fromInt16;
+                    }
                     break;
                 }
                 case BitDepth.Int24: {
-                    for (int i = 0; i < source.Length;)
+                    for (int i = 0; i < source.Length;) {
                         target[targetOffset++] = ((source[i++] << 8 | source[i++] << 16 | source[i++] << 24) >> 8) *
                             BitConversions.fromInt24; // This needs to be shifted into overflow for correct sign
+                    }
                     break;
                 }
                 case BitDepth.Float32: {
-                    if (targetOffset < int.MaxValue / sizeof(float))
+                    if (targetOffset < int.MaxValue / sizeof(float)) {
                         Buffer.BlockCopy(source, 0, target, (int)targetOffset * sizeof(float), source.Length);
-                    else for (int i = 0; i < source.Length; ++i)
+                    } else for (int i = 0; i < source.Length; ++i) {
                         target[targetOffset++] = BitConverter.ToSingle(source, i * sizeof(float));
+                    }
                     break;
                 }
             }
@@ -181,11 +197,20 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         /// <param name="sample">The selected sample, for a single channel</param>
         public override void Seek(long sample) {
-            if (stream == null)
+            if (stream == null) {
                 throw new StreamingException();
+            }
             stream.Position = dataStart + sample * channelCount * ((int)Bits >> 3);
             position = sample;
             reader.Clear();
+        }
+
+        /// <summary>
+        /// Finish header reading, start data reading.
+        /// </summary>
+        void Finalize(Stream reader) {
+            reader.Position = dataStart;
+            this.reader = BlockBuffer<byte>.Create(reader, FormatConsts.blockSize);
         }
 
         /// <summary>
@@ -211,10 +236,11 @@ namespace Cavern.Format.Decoders {
                     24 => BitDepth.Int24,
                     _ => throw new IOException($"Unsupported bit depth for signed little endian integer: {bitDepth}.")
                 };
-            } else if (sampleFormat == 3 && bitDepth == 32)
+            } else if (sampleFormat == 3 && bitDepth == 32) {
                 Bits = BitDepth.Float32;
-            else
+            } else {
                 throw new IOException($"Unsupported bit depth ({bitDepth}) for sample format {sampleFormat}.");
+            }
         }
     }
 }

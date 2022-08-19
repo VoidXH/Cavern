@@ -73,15 +73,18 @@ namespace Cavern.Format.Utilities {
         /// if there's no more data to be fetched.</remarks>
         public T[] Read(int elements) {
             LastFetchStart = lastFetchPosition;
-            if (result.Length != elements)
+            if (result.Length != elements) {
                 result = new T[elements];
-            if (LastFetch == null || LastFetch.Length == 0)
+            }
+            if (LastFetch == null || LastFetch.Length == 0) {
                 return null;
+            }
             int pointer = 0;
             while (pointer < elements) {
                 int next = Math.Min(elements - pointer, LastFetch.Length - lastFetchPosition);
-                for (int i = 0; i < next; ++i)
+                for (int i = 0; i < next; ++i) {
                     result[pointer + i] = LastFetch[lastFetchPosition + i];
+                }
 
                 pointer += next;
                 lastFetchPosition += next;

@@ -10,6 +10,19 @@ namespace Cavern.Format.Common {
     /// </summary>
     public static class StreamExtensions {
         /// <summary>
+        /// Read more than 2 GB into a buffer.
+        /// </summary>
+        public static void Read(this Stream reader, byte[] buffer, long start, long length) {
+            long position = start;
+            length += start;
+            while (position != length) {
+                int step = (int)Math.Min(length - position, int.MaxValue);
+                reader.Read(buffer, 0, step);
+                position += step;
+            }
+        }
+
+        /// <summary>
         /// Read a number of bytes from the stream.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

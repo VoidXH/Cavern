@@ -271,12 +271,11 @@ namespace CavernizeGUI {
                 if (dialog.ShowDialog().Value) {
                     if (((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF) {
                         finalName = dialog.FileName;
-                        exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + "{0}.wav" : finalName;
-                        exportName = exportName.Replace("'", ""); // This character cannot be escaped in concat TXTs
+                        exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + ".wav" : finalName;
                         bool render = Listener.Channels.Length > 2; // This is only stereo for raw object exports
-                        writer = new SegmentedAudioWriter(exportName,
+                        writer = new RIFFWaveWriter(exportName,
                             render ? Listener.Channels.Length : target.Renderer.Objects.Count,
-                            target.Length, target.SampleRate * 30 * 60, target.SampleRate, BitDepth.Int16);
+                            target.Length, target.SampleRate, BitDepth.Int16);
                         if (writer == null) {
                             Error((string)language["UnExt"]);
                             return;
@@ -339,39 +338,20 @@ namespace CavernizeGUI {
             }
 
             if (writer != null) {
-#region TODO: same
-                string[] toConcat = ((SegmentedAudioWriter)writer).GetSegmentFiles();
-                for (int i = 0; i < toConcat.Length; ++i)
-                    toConcat[i] = $"file \'{toConcat[i]}\'";
-                string concatList = finalName[..^4] + ".txt";
-                string concatTarget = finalName[..^4] + "_tmp.mkv";
-                File.WriteAllLines(concatList, toConcat);
-                taskEngine.UpdateStatus("Encoding render...");
-                if (!ffmpeg.Launch($"-f concat -safe 0 -i \"{concatList}\" -c {targetCodec} \"{concatTarget}\"")) {
-                    taskEngine.UpdateStatus("Failed to create the encoded render. " +
-                        "Are your permissions sufficient in the export folder?");
-                    return;
-                }
-#endregion
-
                 if (finalName[^4..].ToLower().Equals(".mkv")) {
+                    string exportedAudio = finalName[..^4] + ".wav";
                     taskEngine.UpdateStatus("Merging to final container...");
                     string layout = null;
                     Dispatcher.Invoke(() => layout = ((RenderTarget)renderTarget.SelectedItem).Name);
                     if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c copy -y " +
                         "-metadata:s:a:0 title=\"Cavern {2} render\" \"{3}\"",
-                        filePath, concatTarget, layout, finalName)) ||
+                        filePath, exportedAudio, layout, finalName)) ||
                         !File.Exists(finalName)) {
                         taskEngine.UpdateStatus("Failed to create the final file. " +
                             "Are your permissions sufficient in the export folder?");
                         return;
                     }
-                    toConcat = ((SegmentedAudioWriter)writer).GetSegmentFiles();
-                    for (int i = 0; i < toConcat.Length; ++i) {
-                        File.Delete(toConcat[i]);
-                    }
-                    File.Delete(concatList);
-                    File.Delete(concatTarget);
+                    File.Delete(exportedAudio);
                 }
 
 #region TODO: same
