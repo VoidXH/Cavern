@@ -238,14 +238,19 @@ namespace Cavern.Format {
         public override void Dispose() {
             long contentSize = writer.BaseStream.Position - 8;
             if (contentSize > uint.MaxValue || MaxLargeChunks != 0) {
+                int largeChunks = 0;
+                if (largeChunkSizes != null)
+                    largeChunks = largeChunkSizes.Count;
+
                 // 64-bit sync word
                 writer.BaseStream.Position = 0;
                 writer.Write(RIFFWave.syncWord1_64);
+                writer.Write(0xFFFFFFFF);
+                writer.BaseStream.Position += 4;
 
                 // 64-bit format header
-                writer.BaseStream.Position = junkExtraSize;
                 writer.Write(RIFFWave.ds64Sync);
-                writer.BaseStream.Position += 4;
+                writer.Write(junkBaseSize + largeChunks * junkExtraSize);
 
                 // Mandatory sizes
                 writer.Write(contentSize);
@@ -253,15 +258,18 @@ namespace Cavern.Format {
                 writer.Write(Length);
 
                 // Large chunk sizes
-                int c = largeChunkSizes.Count;
-                writer.Write(c);
-                for (int i = 0; i < c; ++i) {
-                    writer.Write(largeChunkSizes[i].Item1);
-                    writer.Write(largeChunkSizes[i].Item2);
+                if (largeChunkSizes != null) {
+                    writer.Write(largeChunks);
+                    for (int i = 0; i < largeChunks; ++i) {
+                        writer.Write(largeChunkSizes[i].Item1);
+                        writer.Write(largeChunkSizes[i].Item2);
+                    }
+                } else {
+                    writer.Write(0);
                 }
 
                 // Fill the unused space with junk
-                int emptyBytes = (MaxLargeChunks - c) * junkExtraSize;
+                int emptyBytes = (MaxLargeChunks - largeChunks) * junkExtraSize;
                 if (emptyBytes != 0) {
                     writer.Write(RIFFWave.junkSync);
                     writer.Write(emptyBytes - 8);
@@ -281,7 +289,7 @@ namespace Cavern.Format {
         const int junkBaseSize = 28;
 
         /// <summary>
-        /// Size for one extra header information in the temporary header. This is also the offset of the JUNK header.
+        /// Size for one extra header information in the temporary header.
         /// </summary>
         const int junkExtraSize = 12;
     }

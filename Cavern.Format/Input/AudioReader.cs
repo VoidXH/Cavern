@@ -185,12 +185,18 @@ namespace Cavern.Format {
             reader.Position = 0;
             if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE)
                 return new EnhancedAC3Reader(reader);
-            return syncWord switch {
-                RIFFWave.syncWord1 => new RIFFWaveReader(reader),
-                LimitlessAudioFormat.syncWord => new LimitlessAudioFormatReader(reader),
-                MatroskaTree.EBML => new AudioTrackReader(new MatroskaReader(reader).GetMainAudioTrack(), true),
-                _ => throw new UnsupportedFormatException(),
-            };
+
+            switch (syncWord) {
+                case RIFFWave.syncWord1:
+                case RIFFWave.syncWord1_64:
+                    return new RIFFWaveReader(reader);
+                case LimitlessAudioFormat.syncWord:
+                    return new LimitlessAudioFormatReader(reader);
+                case MatroskaTree.EBML:
+                    return new AudioTrackReader(new MatroskaReader(reader).GetMainAudioTrack(), true);
+                default:
+                    throw new UnsupportedFormatException();
+            }
         }
 
         /// <summary>

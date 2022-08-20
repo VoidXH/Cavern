@@ -264,12 +264,13 @@ namespace CavernizeGUI {
             EnvironmentWriter transcoder = null;
             string exportName; // Rendered by Cavern
             string finalName = null; // Packed by FFmpeg
+            bool isBWF = ((ExportFormat)audio.SelectedItem).Codec == Codec.ADM_BWF;
             if (renderToFile.IsChecked.Value) {
                 SaveFileDialog dialog = new() {
-                    Filter = (string)language["ExFmt"]
+                    Filter = !isBWF ? (string)language["ExFmt"] : (string)language["ExBWF"]
                 };
                 if (dialog.ShowDialog().Value) {
-                    if (((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF) {
+                    if (!isBWF) {
                         finalName = dialog.FileName;
                         exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + ".wav" : finalName;
                         bool render = Listener.Channels.Length > 2; // This is only stereo for raw object exports

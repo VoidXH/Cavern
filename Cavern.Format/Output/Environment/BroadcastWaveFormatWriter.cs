@@ -39,7 +39,9 @@ namespace Cavern.Format.Environment {
         /// </summary>
         public BroadcastWaveFormatWriter(BinaryWriter writer, Listener source, long length, BitDepth bits) :
             base(writer, source) {
-            output = new RIFFWaveWriter(writer, source.ActiveSources.Count, length, source.SampleRate, bits);
+            output = new RIFFWaveWriter(writer, source.ActiveSources.Count, length, source.SampleRate, bits) {
+                MaxLargeChunks = 1
+            };
             output.WriteHeader();
 
             movements = new List<ADMBlockFormat>[output.ChannelCount];
