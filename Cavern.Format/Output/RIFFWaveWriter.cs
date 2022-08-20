@@ -107,7 +107,7 @@ namespace Cavern.Format {
         public override void WriteHeader() {
             // RIFF header with file length
             writer.Write(RIFFWave.syncWord1);
-            bool inConstraints = fmtSize + (uint)DataLength < uint.MaxValue;
+            bool inConstraints = fmtSize + DataLength < uint.MaxValue;
             if (inConstraints && MaxLargeChunks == 0) {
                 writer.Write(fmtSize + (uint)DataLength);
                 writer.Write(RIFFWave.syncWord2);
