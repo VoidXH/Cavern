@@ -41,6 +41,11 @@ namespace Cavern.Format.Consts {
         public const int axmlSync = 0x6C6D7861;
 
         /// <summary>
+        /// chna sync word, channel assignment to the AXML.
+        /// </summary>
+        public const int chnaSync = 0x616E6863;
+
+        /// <summary>
         /// Data header marker.
         /// </summary>
         public const int dataSync = 0x61746164;

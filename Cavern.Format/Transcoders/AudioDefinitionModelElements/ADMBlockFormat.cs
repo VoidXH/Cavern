@@ -1,10 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
     /// One position of an object's movement.
     /// </summary>
-    public class ADMBlockFormat {
+    public sealed class ADMBlockFormat {
         /// <summary>
         /// Position in this timeslot.
         /// </summary>
@@ -12,19 +13,19 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         public Vector3 Position { get; set; }
 
         /// <summary>
-        /// Timeslot offset in samples.
+        /// Timeslot offset.
         /// </summary>
-        public long Offset { get; set; }
+        public TimeSpan Offset { get; set; }
 
         /// <summary>
-        /// Length of the timeslot in samples.
+        /// Length of the timeslot.
         /// </summary>
-        public long Duration { get; set; }
+        public TimeSpan Duration { get; set; }
 
         /// <summary>
-        /// Number of samples to take to fade to the next position.
+        /// Time to take to fade to the next position.
         /// </summary>
-        public long Interpolation { get; set; }
+        public TimeSpan Interpolation { get; set; }
 
         /// <summary>
         /// Display block information on string conversion.

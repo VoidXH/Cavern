@@ -258,14 +258,12 @@ namespace Cavern.Format {
                 writer.Write(Length);
 
                 // Large chunk sizes
+                writer.Write(largeChunks);
                 if (largeChunkSizes != null) {
-                    writer.Write(largeChunks);
                     for (int i = 0; i < largeChunks; ++i) {
                         writer.Write(largeChunkSizes[i].Item1);
                         writer.Write(largeChunkSizes[i].Item2);
                     }
-                } else {
-                    writer.Write(0);
                 }
 
                 // Fill the unused space with junk
@@ -281,16 +279,16 @@ namespace Cavern.Format {
         /// <summary>
         /// Size of the format header.
         /// </summary>
-        const uint fmtSize = 36;
+        const byte fmtSize = 36;
 
         /// <summary>
         /// Minimum size of the temporary header that could be replaced with a size header.
         /// </summary>
-        const int junkBaseSize = 28;
+        const byte junkBaseSize = 28;
 
         /// <summary>
         /// Size for one extra header information in the temporary header.
         /// </summary>
-        const int junkExtraSize = 12;
+        const byte junkExtraSize = 12;
     }
 }

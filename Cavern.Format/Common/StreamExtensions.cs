@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 using static Cavern.Utilities.QMath;
 
@@ -30,6 +32,22 @@ namespace Cavern.Format.Common {
             byte[] bytes = new byte[length];
             reader.Read(bytes);
             return bytes;
+        }
+
+        /// <summary>
+        /// Reads an ASCII string with a closing 0.
+        /// </summary>
+        public static string ReadCString(this Stream reader) {
+            List<byte> result = new List<byte>();
+            while (true) {
+                int read = reader.ReadByte();
+                if (read > 0) {
+                    result.Add((byte)read);
+                } else {
+                    break;
+                }
+            }
+            return Encoding.ASCII.GetString(result.ToArray());
         }
 
         /// <summary>

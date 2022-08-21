@@ -7,11 +7,21 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
     /// Contains a group of objects of an ADM program.
     /// </summary>
-    public class ADMContent : TaggedADMElement, IXDocumentSerializable {
+    public sealed class ADMContent : TaggedADMElement, IXDocumentSerializable {
         /// <summary>
         /// Audio objects that are part of this content.
         /// </summary>
         public List<ADMObject> Objects { get; set; }
+
+        /// <summary>
+        /// Contains a group of objects of an ADM program.
+        /// </summary>
+        public ADMContent(string id, string name) : base(id, name) { }
+
+        /// <summary>
+        /// Constructs a content from an XML element.
+        /// </summary>
+        public ADMContent(XElement source) => Deserialize(source);
 
         /// <summary>
         /// Create an XML element added to a <paramref name="parent"/>.
@@ -28,6 +38,15 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             root.Add(new XElement(parent.Name.Namespace + ADMTags.contentDialogueTag,
                 (int)ADMDialogueType.mixedContentKind,
                 new XAttribute(ADMDialogueType.mixedContentKind.ToString(), (int)MixedContentKind.Undefined)));
+        }
+
+        /// <summary>
+        /// Read the values of an XML element into this object.
+        /// </summary>
+        public void Deserialize(XElement source) {
+            ID = source.GetAttribute(ADMTags.contentIDAttribute);
+            Name = source.GetAttribute(ADMTags.contentNameAttribute);
+            // TODO: object references
         }
     }
 }

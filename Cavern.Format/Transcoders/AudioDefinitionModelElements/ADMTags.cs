@@ -1,14 +1,6 @@
 ﻿namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
-    /// Contains tags that describe an ADM metadata. The structure is the following:<br/>
-    /// - <see cref="ADMProgramme"/>s<br/>
-    /// -- <see cref="ADMContent"/>s<br/>
-    /// --- <see cref="ADMObject"/>s<br/>
-    /// ---- <see cref="ADMPackFormat"/><br/>
-    /// ----- <see cref="ADMChannelFormat"/><br/>
-    /// ---- <see cref="ADMTrack"/><br/>
-    /// ----- Track format<br/>
-    /// ------ Stream format (redundant)
+    /// Contains tags that describe an ADM metadata.
     /// </summary>
     static class ADMTags {
         /// <summary>

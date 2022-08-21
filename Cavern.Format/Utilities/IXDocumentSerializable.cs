@@ -9,5 +9,10 @@ namespace Cavern.Format.Utilities {
         /// Create an XML element added to a <paramref name="parent"/>.
         /// </summary>
         void Serialize(XElement parent);
+
+        /// <summary>
+        /// Read the values of an XML element into this object.
+        /// </summary>
+        void Deserialize(XElement source);
     }
 }

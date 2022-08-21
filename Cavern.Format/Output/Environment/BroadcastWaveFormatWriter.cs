@@ -56,9 +56,11 @@ namespace Cavern.Format.Environment {
                 string id = (0x1000 + ++sourceIndex).ToString("x4");
                 ADMPackFormat packFormat = new ADMPackFormat("AP_0003" + id, "Cavern_Obj_" + sourceIndex,
                     ADMPackType.Objects, new ADMObject("AO_" + id, "Audio Object " + sourceIndex) {
-                        Length = contentLength
+                        Length = TimeSpan.FromSeconds(contentLength)
                     });
-                packFormat.Object.Track = new ADMTrack("ATU_0000" + id, bits, source.SampleRate, packFormat.Object);
+                packFormat.Object.Tracks = new List<ADMTrack> {
+                    new ADMTrack("ATU_0000" + id, bits, source.SampleRate, packFormat.Object)
+                };
                 packFormat.ChannelFormats = new List<ADMChannelFormat> {
                     new ADMChannelFormat("AC_0003" + id, "Cavern_Obj_" + sourceIndex, packFormat) {
                         Blocks = movements[sourceIndex - 1]
@@ -68,14 +70,10 @@ namespace Cavern.Format.Environment {
             }
 
             adm = new AudioDefinitionModel(new List<ADMProgramme> {
-                new ADMProgramme("APR_1001", "Cavern_Export", contentLength) {
-                    Contents = new List<ADMContent> {
-                        new ADMContent() {
-                            ID = "ACO_1001",
-                            Name = "Objects",
-                            Objects = objects
-                        }
-                    }
+                new ADMProgramme("APR_1001", "Cavern_Export", contentLength)
+            }, new List<ADMContent> {
+                new ADMContent("ACO_1001", "Objects") {
+                    Objects = objects
                 }
             });
         }
@@ -96,6 +94,9 @@ namespace Cavern.Format.Environment {
                 output.WriteBlock(result, 0, Math.Min(Source.UpdateRate, writable) * output.ChannelCount);
             }
             Vector3 scaling = new Vector3(1) / Listener.EnvironmentSize;
+            double timeScaling = 1.0 / Source.SampleRate;
+            TimeSpan updateTime = TimeSpan.FromSeconds(Source.UpdateRate * timeScaling);
+
             int sourceIndex = 0;
             foreach (Source source in Source.ActiveSources) {
                 // TODO: detect and filter linear movement
@@ -104,12 +105,12 @@ namespace Cavern.Format.Environment {
                 if (size == 0 || movements[sourceIndex][size - 1].Position != scaledPosition) {
                     movements[sourceIndex].Add(new ADMBlockFormat() {
                         Position = scaledPosition,
-                        Offset = samplesWritten,
-                        Duration = Source.UpdateRate,
-                        Interpolation = Source.UpdateRate
+                        Offset = TimeSpan.FromSeconds(samplesWritten * timeScaling),
+                        Duration = updateTime,
+                        Interpolation = updateTime
                     });
                 } else {
-                    movements[sourceIndex][size - 1].Duration += Source.UpdateRate;
+                    movements[sourceIndex][size - 1].Duration += updateTime;
                 }
                 ++sourceIndex;
             }

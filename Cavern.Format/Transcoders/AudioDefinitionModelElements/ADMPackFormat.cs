@@ -7,7 +7,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
     /// Contains position/movement data for each channel contained in an object.
     /// </summary>
-    public class ADMPackFormat : TaggedADMElement, IXDocumentSerializable {
+    public sealed class ADMPackFormat : TaggedADMElement, IXDocumentSerializable {
         /// <summary>
         /// Type of the contained tracks (channels, objects, etc.).
         /// </summary>
@@ -30,6 +30,11 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         }
 
         /// <summary>
+        /// Constructs a pack format from an XML element.
+        /// </summary>
+        public ADMPackFormat(XElement source) => Deserialize(source);
+
+        /// <summary>
         /// Positional data of the channels related to this object.
         /// </summary>
         public List<ADMChannelFormat> ChannelFormats { get; set; }
@@ -48,6 +53,15 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                 root.Add(new XElement(parent.Name.Namespace + ADMTags.channelFormatRefTag, channel.ID));
                 channel.Serialize(parent);
             }
+        }
+
+        /// <summary>
+        /// Read the values of an XML element into this object.
+        /// </summary>
+        public void Deserialize(XElement source) {
+            ID = source.GetAttribute(ADMTags.packFormatIDAttribute);
+            Name = source.GetAttribute(ADMTags.packFormatNameAttribute);
+            Type = (ADMPackType)int.Parse(source.GetAttribute(ADMTags.typeAttribute));
         }
     }
 }

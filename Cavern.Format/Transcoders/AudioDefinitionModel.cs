@@ -16,17 +16,42 @@ namespace Cavern.Format.Transcoders {
     /// <summary>
     /// An XML file with channel and object information.
     /// </summary>
-    public class AudioDefinitionModel : IXmlSerializable {
+    public sealed class AudioDefinitionModel : IXmlSerializable {
         /// <summary>
-        /// Programs contained in the ADM descriptor.
+        /// Complete presentations.
         /// </summary>
         public IReadOnlyList<ADMProgramme> Programs { get; private set; }
+
+        /// <summary>
+        /// Object groupings.
+        /// </summary>
+        public IReadOnlyList<ADMContent> Contents { get; private set; }
+
+        /// <summary>
+        /// Single/multitrack object roots.
+        /// </summary>
+        public IReadOnlyList<ADMObject> Objects { get; private set; }
+
+        /// <summary>
+        /// Object categorizers.
+        /// </summary>
+        public IReadOnlyList<ADMPackFormat> PackFormats { get; private set; }
+
+        /// <summary>
+        /// Channel positions and object movements.
+        /// </summary>
+        public IReadOnlyList<ADMChannelFormat> ChannelFormats { get; private set; }
+
+        /// <summary>
+        /// Format information of each discrete audio source.
+        /// </summary>
+        public IReadOnlyList<ADMTrack> Tracks { get; private set; }
 
         /// <summary>
         /// Positional data for all channels/objects.
         /// </summary>
         public IReadOnlyList<ADMChannelFormat> Movements => movements;
-        readonly List<ADMChannelFormat> movements = new List<ADMChannelFormat>();
+        List<ADMChannelFormat> movements = new List<ADMChannelFormat>();
 
         /// <summary>
         /// Parses an XML file with channel and object information.
@@ -43,15 +68,66 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Creates an ADM for export by a program list created in code.
         /// </summary>
-        public AudioDefinitionModel(List<ADMProgramme> programs) {
+        public AudioDefinitionModel(IReadOnlyList<ADMProgramme> programs, IReadOnlyList<ADMContent> contents) {
             Programs = programs;
+            Contents = contents;
+            // TODO: all groups
+        }
+
+        /// <summary>
+        /// Change object order to reference the BWF file's correct channels.
+        /// </summary>
+        // TODO: let's just keep this one as API until parsing only parses by groups
+        public void Assign(ChannelAssignment chna) {
         }
 
         /// <summary>
         /// Extracts the ADM metadata from an XML file.
         /// </summary>
         // TODO: Iterate through the tags, group them to lists for later quick search, check existence before reading anything
-        public void ReadXml(XmlReader reader) => ParsePrograms(XDocument.Load(reader));
+        public void ReadXml(XmlReader reader) {
+            List<ADMProgramme> programs = new List<ADMProgramme>();
+            List<ADMContent> contents = new List<ADMContent>();
+            List<ADMObject> objects = new List<ADMObject>();
+            List<ADMPackFormat> packFormats = new List<ADMPackFormat>();
+            List<ADMChannelFormat> channelFormats = new List<ADMChannelFormat>();
+            List<ADMTrack> tracks = new List<ADMTrack>();
+            Programs = programs;
+            Contents = contents;
+            Objects = objects;
+            PackFormats = packFormats;
+            ChannelFormats = channelFormats;
+            Tracks = tracks;
+            movements = channelFormats;
+
+            XDocument doc = XDocument.Load(reader);
+            IEnumerable<XElement> descendants = doc.Descendants();
+            using IEnumerator<XElement> enumerator = descendants.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                switch (enumerator.Current.Name.LocalName) {
+                    case ADMTags.programTag:
+                        programs.Add(new ADMProgramme(enumerator.Current));
+                        break;
+                    case ADMTags.contentTag:
+                        contents.Add(new ADMContent(enumerator.Current));
+                        break;
+                    case ADMTags.objectTag:
+                        objects.Add(new ADMObject(enumerator.Current));
+                        break;
+                    case ADMTags.packFormatTag:
+                        packFormats.Add(new ADMPackFormat(enumerator.Current));
+                        break;
+                    case ADMTags.channelFormatTag:
+                        channelFormats.Add(new ADMChannelFormat(enumerator.Current));
+                        break;
+                    case ADMTags.trackTag:
+                        tracks.Add(new ADMTrack(enumerator.Current));
+                        break;
+                }
+            }
+
+            // TODO: read references as strings as they are only needed once, update export accordingly
+        }
 
         /// <summary>
         /// Writes the ADM metadata to an XML file.
@@ -76,166 +152,5 @@ namespace Cavern.Format.Transcoders {
         }
 
         public XmlSchema GetSchema() => null;
-
-        /// <summary>
-        /// Read all programs from an XML file.
-        /// </summary>
-        void ParsePrograms(XDocument data) {
-            List<ADMProgramme> result = new List<ADMProgramme>();
-            IEnumerable<XElement> programs = data.AllDescendants(ADMTags.programTag);
-            foreach (XElement program in programs) {
-                result.Add(new ADMProgramme(program.GetAttribute(ADMTags.programIDAttribute),
-                    program.GetAttribute(ADMTags.programNameAttribute), 0) {
-                    Contents = ParseContents(data, program)
-                });
-            }
-            Programs = result;
-        }
-
-        /// <summary>
-        /// Read all contents for a single program.
-        /// </summary>
-        List<ADMContent> ParseContents(XDocument data, XElement program) {
-            List<ADMContent> result = new List<ADMContent>();
-            IEnumerable<XElement> contents = program.AllDescendants(ADMTags.contentRefTag);
-            foreach (XElement content in contents) {
-                XElement contentElement = data.GetWithAttribute(ADMTags.contentTag, ADMTags.contentIDAttribute, content.Value);
-                result.Add(new ADMContent() {
-                    ID = content.Value,
-                    Name = contentElement.GetAttribute(ADMTags.contentNameAttribute),
-                    Objects = ParseObjects(data, contentElement)
-                });
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Read all objects for a single content.
-        /// </summary>
-        List<ADMObject> ParseObjects(XDocument data, XElement content) {
-            List<ADMObject> result = new List<ADMObject>();
-            IEnumerable<XElement> objects = content.AllDescendants(ADMTags.objectRefTag);
-            foreach (XElement obj in objects) {
-                XElement objectElement = data.GetWithAttribute(ADMTags.objectTag, ADMTags.objectIDAttribute, obj.Value);
-                ADMObject entry = new ADMObject(obj.Value, objectElement.GetAttribute(ADMTags.objectNameAttribute));
-                entry.Track = ParseTrack(data, objectElement, entry);
-                entry.Offset = ParseTimestamp(obj.Attribute(ADMTags.startAttribute), entry.Track.SampleRate);
-                entry.Length = ParseTimestamp(obj.Attribute(ADMTags.durationAttribute), entry.Track.SampleRate);
-                result.Add(entry);
-                ParsePackFormat(data, objectElement, entry);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Read the pack format of an object.
-        /// </summary>
-        ADMPackFormat ParsePackFormat(XDocument data, XElement parent, ADMObject parentObject) {
-            IEnumerable<XElement> refs = parent.AllDescendants(ADMTags.packFormatRefTag);
-            using IEnumerator<XElement> pack = refs.GetEnumerator();
-            if (!pack.MoveNext()) {
-                return null;
-            }
-            XElement node = data.GetWithAttribute(ADMTags.packFormatTag, ADMTags.packFormatIDAttribute, pack.Current.Value);
-            ADMPackFormat entry = new ADMPackFormat(pack.Current.Value, node.GetAttribute(ADMTags.packFormatNameAttribute),
-                (ADMPackType)int.Parse(node.GetAttribute(ADMTags.typeAttribute)), parentObject);
-            entry.ChannelFormats = ParseChannelFormats(data, node, entry);
-            return entry;
-        }
-
-        /// <summary>
-        /// Read the pack format of an object.
-        /// </summary>
-        List<ADMChannelFormat> ParseChannelFormats(XDocument data, XElement pack, ADMPackFormat packObject) {
-            List<ADMChannelFormat> result = new List<ADMChannelFormat>();
-            IEnumerable<XElement> channels = pack.AllDescendants(ADMTags.channelFormatRefTag);
-            foreach (XElement channel in channels) {
-                XElement channelElement =
-                    data.GetWithAttribute(ADMTags.channelFormatTag, ADMTags.channelFormatIDAttribute, channel.Value);
-                ADMChannelFormat parsed = new ADMChannelFormat(channel.Value,
-                    channelElement.GetAttribute(ADMTags.channelFormatNameAttribute), packObject) {
-                    Blocks = ParseBlockFormats(channelElement, packObject.Object.Track.SampleRate)
-                };
-                result.Add(parsed);
-                movements.Add(parsed);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Read the movement of an object.
-        /// </summary>
-        List<ADMBlockFormat> ParseBlockFormats(XElement channel, int sampleRate) {
-            List<ADMBlockFormat> result = new List<ADMBlockFormat>();
-            IEnumerable<XElement> blocks = channel.AllDescendants(ADMTags.blockTag);
-            foreach (XElement block in blocks) {
-                bool cartesian = false;
-                float x = 0, y = 0, z = 0;
-                long duration = ParseTimestamp(block.Attribute(ADMTags.durationAttribute), sampleRate),
-                    interpolation = duration;
-                IEnumerable<XElement> children = block.Descendants();
-                foreach (XElement child in children) {
-                    switch (child.Name.LocalName) {
-                        case ADMTags.blockCartesianTag:
-                            cartesian = child.Value[0] == '1';
-                            break;
-                        case ADMTags.blockPositionTag:
-                            float value = QMath.ParseFloat(child.Value);
-                            switch (child.GetAttribute(ADMTags.blockCoordinateAttribute)[0]) {
-                                case 'X':
-                                    x = value;
-                                    break;
-                                case 'Y':
-                                    z = value;
-                                    break;
-                                case 'Z':
-                                    y = value;
-                                    break;
-                                default:
-                                    throw new CorruptionException(block.GetAttribute(ADMTags.blockIDAttribute));
-                            }
-                            break;
-                        case ADMTags.blockJumpTag:
-                            if (child.Value[0] == '1') {
-                                XAttribute length = child.Attribute(ADMTags.blockJumpLengthAttribute);
-                                interpolation = length != null ? (long)(QMath.ParseFloat(length.Value) * sampleRate) : 0;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                if (!cartesian) {
-                    throw new UnsupportedFeatureException("polar");
-                }
-                result.Add(new ADMBlockFormat() {
-                    Offset = ParseTimestamp(block.Attribute(ADMTags.blockOffsetAttribute), sampleRate),
-                    Duration = duration,
-                    Position = new Vector3(x, y, z),
-                    Interpolation = interpolation
-                });
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Read the track of an object.
-        /// </summary>
-        ADMTrack ParseTrack(XDocument data, XElement parent, ADMObject parentObj) {
-            IEnumerable<XElement> refs = parent.AllDescendants(ADMTags.trackRefTag);
-            using IEnumerator<XElement> track = refs.GetEnumerator();
-            if (!track.MoveNext()) {
-                return null;
-            }
-            XElement node = data.GetWithAttribute(ADMTags.trackTag, ADMTags.trackIDAttribute, track.Current.Value);
-            return new ADMTrack(track.Current.Value, (BitDepth)int.Parse(node.GetAttribute(ADMTags.trackBitDepthAttribute)),
-                int.Parse(node.GetAttribute(ADMTags.trackSampleRateAttribute)), parentObj);
-        }
-
-        /// <summary>
-        /// Convert a timestamp to samples if its attribute is present.
-        /// </summary>
-        long ParseTimestamp(XAttribute attribute, int sampleRate) => attribute != null ?
-            (long)(TimeSpan.Parse(attribute.Value).TotalSeconds * sampleRate) : 0;
     }
 }

@@ -5,6 +5,7 @@ using System.IO;
 using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Transcoders;
+using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {
@@ -85,6 +86,7 @@ namespace Cavern.Format.Decoders {
 
             // Subchunks
             Dictionary<int, long> sizeOverrides = null;
+            ChannelAssignment chna = null;
             while (reader.Position < reader.Length) {
                 int headerID = reader.ReadInt32();
                 long headerSize = (uint)reader.ReadInt32();
@@ -113,6 +115,9 @@ namespace Cavern.Format.Decoders {
                     case RIFFWave.axmlSync:
                         ADM = new AudioDefinitionModel(reader, headerSize);
                         break;
+                    case RIFFWave.chnaSync:
+                        chna = new ChannelAssignment(reader);
+                        break;
                     case RIFFWave.dataSync:
                         length = (uint)headerSize * 8L / (long)Bits / ChannelCount;
                         dataStart = reader.Position;
@@ -127,6 +132,10 @@ namespace Cavern.Format.Decoders {
                         reader.Position += headerSize;
                         break;
                 }
+            }
+
+            if (ADM != null && chna != null) {
+                ADM.Assign(chna);
             }
             Finalize(reader);
         }

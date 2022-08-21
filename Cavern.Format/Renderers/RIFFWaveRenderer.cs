@@ -51,7 +51,7 @@ namespace Cavern.Format.Renderers {
             } else {
                 List<ReferenceChannel> channels = new List<ReferenceChannel>();
                 for (int i = 0, c = adm.Movements.Count; i < c; i++) {
-                    if (adm.Movements[i].Blocks.Count == 1 && adm.Movements[i].Blocks[0].Duration == 0) {
+                    if (adm.Movements[i].Blocks.Count == 1 && adm.Movements[i].Blocks[0].Duration.Ticks == 0) {
                         channels.Add(ChannelFromPosition(adm.Movements[i].Blocks[0].Position));
                     }
                 }
@@ -76,17 +76,20 @@ namespace Cavern.Format.Renderers {
             stream.DecodeBlock(render, 0, render.LongLength);
             WaveformUtils.InterlacedToMultichannel(render, objectSamples);
 
+            double timeScale = 1.0 / stream.SampleRate;
             if (adm != null) {
                 for (int i = 0; i < objectSamples.Length; i++) {
                     List<ADMBlockFormat> blocks = adm.Movements[i].Blocks;
-                    while (admBlocks[i] < blocks.Count - 1 && blocks[admBlocks[i] + 1].Offset < stream.Position) {
+                    while (admBlocks[i] < blocks.Count - 1 &&
+                        blocks[admBlocks[i] + 1].Offset.TotalSeconds * timeScale < stream.Position) {
                         ++admBlocks[i];
                     }
                     ADMBlockFormat current = blocks[admBlocks[i]],
                         previous = admBlocks[i] != 0 ? blocks[admBlocks[i] - 1] : current;
                     float fade = 1;
-                    if (current.Offset != 0) {
-                        fade = QMath.LerpInverse(current.Offset, current.Offset + current.Interpolation, stream.Position);
+                    if (current.Offset.Ticks != 0) {
+                        fade = QMath.LerpInverse((float)(current.Offset.TotalSeconds * timeScale),
+                            (float)((current.Offset + current.Interpolation).TotalSeconds * timeScale), stream.Position);
                     }
                     objects[i].Position =
                         Vector3.Lerp(previous.Position, current.Position, QMath.Clamp01(fade)) * Listener.EnvironmentSize;
