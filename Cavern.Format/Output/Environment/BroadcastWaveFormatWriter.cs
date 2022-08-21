@@ -8,6 +8,7 @@ using System.Xml;
 using Cavern.Format.Consts;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
+using Cavern.Utilities;
 
 namespace Cavern.Format.Environment {
     /// <summary>
@@ -74,6 +75,7 @@ namespace Cavern.Format.Environment {
             int sourceIndex = 0;
             foreach (Source audioSource in source.ActiveSources) {
                 string id = (0x1000 + ++sourceIndex).ToString("x4"),
+                    objectID = "AO_" + id,
                     objectName = "Cavern_Obj_" + sourceIndex,
                     packFormatID = "AP_0003" + id,
                     channelFormatID = "AC_0003" + id,
@@ -81,7 +83,10 @@ namespace Cavern.Format.Environment {
                     trackFormatID = $"AT_0003{id}_01",
                     streamFormatID = "AS_0003" + id;
 
-                objects.Add(new ADMObject("AO_" + id, "Audio Object " + sourceIndex, default, contentTime, packFormatID));
+                objectIDs.Add(objectID);
+                objects.Add(new ADMObject(objectID, "Audio Object " + sourceIndex, default, contentTime, packFormatID) {
+                    Tracks = new List<string>() { trackID }
+                });
                 packFormats.Add(new ADMPackFormat(packFormatID, objectName, ADMPackType.Objects) {
                     ChannelFormats = new List<string>() { channelFormatID }
                 });
@@ -115,22 +120,42 @@ namespace Cavern.Format.Environment {
             }
             Vector3 scaling = new Vector3(1) / Listener.EnvironmentSize;
             double timeScaling = 1.0 / Source.SampleRate;
-            TimeSpan updateTime = TimeSpan.FromSeconds(Source.UpdateRate * timeScaling);
+            TimeSpan updateTime = TimeSpan.FromSeconds(Source.UpdateRate * timeScaling),
+                newOffset = TimeSpan.FromSeconds(samplesWritten * timeScaling);
 
             int sourceIndex = 0;
             foreach (Source source in Source.ActiveSources) {
-                // TODO: detect and filter linear movement
-                int size = movements[sourceIndex].Count;
+                List<ADMBlockFormat> movement = movements[sourceIndex];
+                int size = movement.Count;
                 Vector3 scaledPosition = source.Position * scaling;
-                if (size == 0 || movements[sourceIndex][size - 1].Position != scaledPosition) {
-                    movements[sourceIndex].Add(new ADMBlockFormat() {
-                        Position = scaledPosition,
-                        Offset = TimeSpan.FromSeconds(samplesWritten * timeScaling),
-                        Duration = updateTime,
-                        Interpolation = updateTime
-                    });
+                if (size == 0 || movement[size - 1].Position != scaledPosition) {
+                    bool replace = false;
+                    if (size > 1) {
+                        float t =
+                            (float)QMath.LerpInverse(movement[size - 2].Offset, newOffset, movement[size - 1].Offset);
+                        Vector3 inBetween = QMath.Lerp(movement[size - 2].Position, scaledPosition, t),
+                            diff = inBetween - movement[size - 1].Position;
+                        float delta = diff.LengthSquared();
+                        if (delta < 0.0001f) {
+                            replace = true;
+                        }
+                    }
+
+                    if (replace) {
+                        ADMBlockFormat prev = movement[size - 1];
+                        prev.Position = scaledPosition;
+                        prev.Duration += updateTime;
+                        prev.Interpolation += updateTime;
+                    } else {
+                        movement.Add(new ADMBlockFormat() {
+                            Position = scaledPosition,
+                            Offset = newOffset,
+                            Duration = updateTime,
+                            Interpolation = updateTime
+                        });
+                    }
                 } else {
-                    movements[sourceIndex][size - 1].Duration += updateTime;
+                    movement[size - 1].Duration += updateTime;
                 }
                 ++sourceIndex;
             }

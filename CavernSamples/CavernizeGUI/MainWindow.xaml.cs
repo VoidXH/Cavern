@@ -317,7 +317,7 @@ namespace CavernizeGUI {
                         filePath, target.Index, string.Format(tempWAV, "%d"))) ||
                         !File.Exists(firstWAV)) {
                         if (File.Exists(firstWAV))
-                            File.Delete(firstWAV); // only the first determines if it should be rendered
+                            File.Delete(firstWAV); // Only the first determines if it should be rendered
                         taskEngine.UpdateStatus("Failed to decode bed audio. " +
                             "Are your permissions sufficient in the source's folder?");
                         return;
@@ -334,19 +334,20 @@ namespace CavernizeGUI {
 
             string targetCodec = null;
             audio.Dispatcher.Invoke(() => targetCodec = ((ExportFormat)audio.SelectedItem).FFName);
-            if (writer.ChannelCount > 8) {
-                targetCodec += massivelyMultichannel;
-            }
 
             if (writer != null) {
+                if (writer.ChannelCount > 8) {
+                    targetCodec += massivelyMultichannel;
+                }
+
                 if (finalName[^4..].ToLower().Equals(".mkv")) {
                     string exportedAudio = finalName[..^4] + ".wav";
                     taskEngine.UpdateStatus("Merging to final container...");
                     string layout = null;
                     Dispatcher.Invoke(() => layout = ((RenderTarget)renderTarget.SelectedItem).Name);
-                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c copy -y " +
-                        "-metadata:s:a:0 title=\"Cavern {2} render\" \"{3}\"",
-                        filePath, exportedAudio, layout, finalName)) ||
+                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c:v copy -c:a {2} " +
+                        "-y -metadata:s:a:0 title=\"Cavern {3} render\" \"{4}\"",
+                        filePath, exportedAudio, targetCodec, layout, finalName)) ||
                         !File.Exists(finalName)) {
                         taskEngine.UpdateStatus("Failed to create the final file. " +
                             "Are your permissions sufficient in the export folder?");

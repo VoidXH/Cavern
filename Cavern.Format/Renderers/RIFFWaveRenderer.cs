@@ -76,20 +76,19 @@ namespace Cavern.Format.Renderers {
             stream.DecodeBlock(render, 0, render.LongLength);
             WaveformUtils.InterlacedToMultichannel(render, objectSamples);
 
-            double timeScale = 1.0 / stream.SampleRate;
             if (adm != null) {
                 for (int i = 0; i < objectSamples.Length; i++) {
                     List<ADMBlockFormat> blocks = adm.Movements[i].Blocks;
                     while (admBlocks[i] < blocks.Count - 1 &&
-                        blocks[admBlocks[i] + 1].Offset.TotalSeconds * timeScale < stream.Position) {
+                        blocks[admBlocks[i] + 1].Offset.TotalSeconds * stream.SampleRate < stream.Position) {
                         ++admBlocks[i];
                     }
                     ADMBlockFormat current = blocks[admBlocks[i]],
                         previous = admBlocks[i] != 0 ? blocks[admBlocks[i] - 1] : current;
                     float fade = 1;
                     if (current.Offset.Ticks != 0) {
-                        fade = QMath.LerpInverse((float)(current.Offset.TotalSeconds * timeScale),
-                            (float)((current.Offset + current.Interpolation).TotalSeconds * timeScale), stream.Position);
+                        fade = (float)QMath.LerpInverse(current.Offset.TotalSeconds * stream.SampleRate,
+                            (current.Offset + current.Interpolation).TotalSeconds * stream.SampleRate, stream.Position);
                     }
                     objects[i].Position =
                         Vector3.Lerp(previous.Position, current.Position, QMath.Clamp01(fade)) * Listener.EnvironmentSize;

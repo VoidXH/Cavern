@@ -163,6 +163,12 @@ namespace Cavern.Utilities {
         public static Vector2 Lerp(Vector2 from, Vector2 to, float t) => (to - from) * t + from;
 
         /// <summary>
+        /// Unclamped linear interpolation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 Lerp(Vector3 from, Vector3 to, float t) => (to - from) * t + from;
+
+        /// <summary>
         /// Gets t for linear interpolation for a given value.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -173,6 +179,12 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double LerpInverse(double from, double to, double value) => (value - from) / (to - from);
+
+        /// <summary>
+        /// Gets t for linear interpolation for a given value.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double LerpInverse(TimeSpan from, TimeSpan to, TimeSpan value) => (value - from) / (to - from);
 
         /// <summary>
         /// Compute the base 2 logarithm of a number faster than a generic Log function.
