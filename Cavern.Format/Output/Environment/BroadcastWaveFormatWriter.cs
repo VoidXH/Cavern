@@ -171,6 +171,7 @@ namespace Cavern.Format.Environment {
                 adm.WriteXml(exporter);
             }
             output.WriteChunk(RIFFWave.axmlSync, Encoding.UTF8.GetBytes(builder.ToString().Replace("utf-16", "utf-8")));
+            output.WriteChunk(RIFFWave.chnaSync, ChannelAssignment.GetChunk(adm));
             output.Dispose();
         }
     }
