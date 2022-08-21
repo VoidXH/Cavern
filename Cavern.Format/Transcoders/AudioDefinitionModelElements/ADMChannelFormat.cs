@@ -11,11 +11,11 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
     /// Positional data of a channel/object.
     /// </summary>
-    public sealed class ADMChannelFormat : TaggedADMElement, IXDocumentSerializable {
+    public sealed class ADMChannelFormat : TaggedADMElement {
         /// <summary>
-        /// The parent pack format.
+        /// Type of the contained tracks (channels, objects, etc.).
         /// </summary>
-        public ADMPackFormat PackFormat { get; set; }
+        public ADMPackType Type { get; private set; }
 
         /// <summary>
         /// Positional data for each timeslot.
@@ -25,57 +25,57 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Positional data of a channel/object.
         /// </summary>
-        public ADMChannelFormat(string id, string name, ADMPackFormat packFormat) {
+        public ADMChannelFormat(string id, string name, ADMPackType type) {
             ID = id;
             Name = name;
-            PackFormat = packFormat;
+            Type = type;
         }
 
         /// <summary>
         /// Constructs a channel format from an XML element.
         /// </summary>
-        public ADMChannelFormat(XElement source) => Deserialize(source);
+        public ADMChannelFormat(XElement source) : base(source) { }
 
         /// <summary>
-        /// Create an XML element added to a <paramref name="parent"/>.
+        /// Create an XML element about this object.
         /// </summary>
-        public void Serialize(XElement parent) {
-            XElement root = new XElement(parent.Name.Namespace + ADMTags.channelFormatTag,
+        public override XElement Serialize(XNamespace ns) {
+            XElement root = new XElement(ns + ADMTags.channelFormatTag,
                 new XAttribute(ADMTags.channelFormatIDAttribute, ID),
                 new XAttribute(ADMTags.channelFormatNameAttribute, Name),
-                new XAttribute(ADMTags.typeStringAttribute, PackFormat.Type),
-                new XAttribute(ADMTags.typeAttribute, ((int)PackFormat.Type).ToString("x4")));
-            parent.Add(root);
+                new XAttribute(ADMTags.typeStringAttribute, Type),
+                new XAttribute(ADMTags.typeAttribute, ((int)Type).ToString("x4")));
             string namePrefix = $"AB_{ID[3..]}_";
             int index = 0;
-            double samplesToTime = 1.0 / PackFormat.Object.Tracks[0].SampleRate;
             foreach (ADMBlockFormat block in Blocks) {
-                var newBlock = new XElement(parent.Name.Namespace + ADMTags.blockTag);
+                var newBlock = new XElement(ns + ADMTags.blockTag);
                 newBlock.Add(new XAttribute(ADMTags.blockIDAttribute, namePrefix + (++index).ToString("x8")),
                     new XAttribute(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp()),
                     new XAttribute(ADMTags.durationAttribute, block.Duration.GetTimestamp()),
-                    new XElement(parent.Name.Namespace + ADMTags.blockCartesianTag, 1),
-                    new XElement(parent.Name.Namespace + ADMTags.blockPositionTag, block.Position.X,
+                    new XElement(ns + ADMTags.blockCartesianTag, 1),
+                    new XElement(ns + ADMTags.blockPositionTag, block.Position.X,
                         new XAttribute(ADMTags.blockCoordinateAttribute, 'X')),
-                    new XElement(parent.Name.Namespace + ADMTags.blockPositionTag, block.Position.Z,
+                    new XElement(ns + ADMTags.blockPositionTag, block.Position.Z,
                         new XAttribute(ADMTags.blockCoordinateAttribute, 'Y')));
                 if (block.Position.Y != 0) {
-                    newBlock.Add(new XElement(parent.Name.Namespace + ADMTags.blockPositionTag, block.Position.Y,
+                    newBlock.Add(new XElement(ns + ADMTags.blockPositionTag, block.Position.Y,
                         new XAttribute(ADMTags.blockCoordinateAttribute, 'Z')));
                 }
-                newBlock.Add(new XElement(parent.Name.Namespace + ADMTags.blockJumpTag, 1,
+                newBlock.Add(new XElement(ns + ADMTags.blockJumpTag, 1,
                     new XAttribute(ADMTags.blockJumpLengthAttribute,
-                        (block.Interpolation * samplesToTime).ToString("0.000000").Replace(',', '.'))));
+                        block.Interpolation.TotalSeconds.ToString("0.000000").Replace(',', '.'))));
                 root.Add(newBlock);
             }
+            return root;
         }
 
         /// <summary>
         /// Read the values of an XML element into this object.
         /// </summary>
-        public void Deserialize(XElement source) {
+        public override void Deserialize(XElement source) {
             ID = source.GetAttribute(ADMTags.channelFormatIDAttribute);
             Name = source.GetAttribute(ADMTags.channelFormatNameAttribute);
+            Type = (ADMPackType)int.Parse(source.GetAttribute(ADMTags.typeAttribute));
             Blocks = ParseBlockFormats(source);
         }
 

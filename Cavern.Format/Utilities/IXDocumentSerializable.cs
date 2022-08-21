@@ -6,9 +6,9 @@ namespace Cavern.Format.Utilities {
     /// </summary>
     public interface IXDocumentSerializable {
         /// <summary>
-        /// Create an XML element added to a <paramref name="parent"/>.
+        /// Create an XML element about this object.
         /// </summary>
-        void Serialize(XElement parent);
+        XElement Serialize(XNamespace ns);
 
         /// <summary>
         /// Read the values of an XML element into this object.

@@ -65,4 +65,11 @@
         /// </summary>
         Binaural
     }
+
+    /// <summary>
+    /// Known encodings of ADM tracks.
+    /// </summary>
+    public enum ADMTrackCodec {
+        PCM = 1
+    }
 }

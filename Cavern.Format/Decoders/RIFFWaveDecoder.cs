@@ -113,7 +113,7 @@ namespace Cavern.Format.Decoders {
                         }
                         break;
                     case RIFFWave.axmlSync:
-                        ADM = new AudioDefinitionModel(reader, headerSize);
+                        ADM = new AudioDefinitionModel(reader, headerSize, true);
                         break;
                     case RIFFWave.chnaSync:
                         chna = new ChannelAssignment(reader);

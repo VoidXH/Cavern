@@ -22,18 +22,24 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         public int SampleRate { get; private set; }
 
         /// <summary>
-        /// Parent object that this pack format describes.
+        /// Reference to track format by ID.
         /// </summary>
-        public ADMObject Object { get; private set; }
+        public string TrackFormat { get; private set; }
+
+        /// <summary>
+        /// Reference to pack format by ID.
+        /// </summary>
+        public string PackFormat { get; private set; }
 
         /// <summary>
         /// Coding information of an ADM's track.
         /// </summary>
-        public ADMTrack(string id, BitDepth bitDepth, int sampleRate, ADMObject obj) {
+        public ADMTrack(string id, BitDepth bitDepth, int sampleRate, string trackFormat, string packFormat) {
             ID = id;
             Bits = bitDepth;
             SampleRate = sampleRate;
-            Object = obj;
+            TrackFormat = trackFormat;
+            PackFormat = packFormat;
         }
 
         /// <summary>
@@ -42,27 +48,15 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         public ADMTrack(XElement source) => Deserialize(source);
 
         /// <summary>
-        /// Create an XML element added to a <paramref name="parent"/>.
+        /// Create an XML element about this object.
         /// </summary>
-        public void Serialize(XElement parent) {
-            string trackFormatID = $"AT_{Object.PackFormat.ID[3..]}_01";
-            string streamFormatID = $"AS_{Object.PackFormat.ID[3..]}";
-            parent.Add(new XElement(parent.Name.Namespace + ADMTags.trackTag,
+        public XElement Serialize(XNamespace ns) {
+            return new XElement(ns + ADMTags.trackTag,
                 new XAttribute(ADMTags.trackIDAttribute, ID),
                 new XAttribute(ADMTags.trackBitDepthAttribute, (int)Bits),
                 new XAttribute(ADMTags.trackSampleRateAttribute, SampleRate),
-                new XElement(parent.Name.Namespace + ADMTags.packFormatRefTag, Object.PackFormat.ID),
-                new XElement(parent.Name.Namespace + ADMTags.trackFormatRefTag, trackFormatID)));
-            parent.Add(new XElement(parent.Name.Namespace + ADMTags.trackFormatTag,
-                new XAttribute(ADMTags.trackFormatIDAttribute, trackFormatID),
-                new XAttribute(ADMTags.trackFormatNameAttribute, "Cavern_Obj_" + Object.PackFormat.ID[7..]),
-                new XElement(parent.Name.Namespace + ADMTags.streamFormatRefTag, streamFormatID)));
-            parent.Add(new XElement(parent.Name.Namespace + ADMTags.streamFormatTag,
-                new XAttribute(ADMTags.streamFormatIDAttribute, streamFormatID),
-                new XAttribute(ADMTags.streamFormatNameAttribute, "PCM_Cavern_Obj_" + Object.PackFormat.ID[7..]),
-                new XElement(parent.Name.Namespace + ADMTags.channelFormatRefTag, Object.PackFormat.ChannelFormats[0].ID),
-                new XElement(parent.Name.Namespace + ADMTags.packFormatRefTag, Object.PackFormat.ID),
-                new XElement(parent.Name.Namespace + ADMTags.trackFormatRefTag, trackFormatID)));
+                new XElement(ns + ADMTags.trackFormatRefTag, TrackFormat),
+                new XElement(ns + ADMTags.packFormatRefTag, PackFormat));
         }
 
         /// <summary>
@@ -72,6 +66,8 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             ID = source.GetAttribute(ADMTags.trackIDAttribute);
             Bits = (BitDepth)int.Parse(source.GetAttribute(ADMTags.trackBitDepthAttribute));
             SampleRate = int.Parse(source.GetAttribute(ADMTags.trackSampleRateAttribute));
+            TrackFormat = source.GetElement(ADMTags.trackFormatRefTag);
+            PackFormat = source.GetElement(ADMTags.packFormatRefTag);
         }
     }
 }

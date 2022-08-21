@@ -8,16 +8,16 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
     /// Root element of the model's contained program.
     /// </summary>
-    public sealed class ADMProgramme : TaggedADMElement, IXDocumentSerializable {
+    public sealed class ADMProgramme : TaggedADMElement {
         /// <summary>
         /// Length of the program in seconds.
         /// </summary>
         readonly double length;
 
         /// <summary>
-        /// Groups of contained objects.
+        /// ID references of contained <see cref="ADMObject"/>s.
         /// </summary>
-        public List<ADMContent> Contents { get; set; }
+        public List<string> Contents { get; set; }
 
         /// <summary>
         /// Constructs a program of <paramref name="length"/> in seconds.
@@ -27,31 +27,28 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Constructs a program from an XML element.
         /// </summary>
-        public ADMProgramme(XElement source) => Deserialize(source);
+        public ADMProgramme(XElement source) : base(source) { }
 
         /// <summary>
-        /// Create an XML element added to a <paramref name="parent"/>.
+        /// Create an XML element about this object.
         /// </summary>
-        public void Serialize(XElement parent) {
-            XElement root = new XElement(parent.Name.Namespace + ADMTags.programTag,
+        public override XElement Serialize(XNamespace ns) {
+            XElement root = new XElement(ns + ADMTags.programTag,
                 new XAttribute(ADMTags.programIDAttribute, ID),
                 new XAttribute(ADMTags.programNameAttribute, Name),
                 new XAttribute(ADMTags.startAttribute, new TimeSpan().GetTimestamp()),
                 new XAttribute(ADMTags.programEndAttribute, TimeSpan.FromSeconds(length).GetTimestamp()));
-            parent.Add(root);
-            foreach (ADMContent content in Contents) {
-                root.Add(new XElement(parent.Name.Namespace + ADMTags.contentRefTag, content.ID));
-                content.Serialize(parent);
-            }
+            SerializeStrings(Contents, root, ADMTags.contentRefTag);
+            return root;
         }
 
         /// <summary>
         /// Read the values of an XML element into this object.
         /// </summary>
-        public void Deserialize(XElement source) {
+        public override void Deserialize(XElement source) {
             ID = source.GetAttribute(ADMTags.programIDAttribute);
             Name = source.GetAttribute(ADMTags.programNameAttribute);
-            // TODO: content references
+            Contents = ParseStrings(source, ADMTags.contentRefTag);
         }
     }
 }

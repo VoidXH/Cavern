@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -10,7 +9,6 @@ using System.Xml.Serialization;
 using Cavern.Format.Common;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.Format.Utilities;
-using Cavern.Utilities;
 
 namespace Cavern.Format.Transcoders {
     /// <summary>
@@ -48,17 +46,35 @@ namespace Cavern.Format.Transcoders {
         public IReadOnlyList<ADMTrack> Tracks { get; private set; }
 
         /// <summary>
+        /// Coding information of each discrete audio source.
+        /// </summary>
+        public IReadOnlyList<ADMTrackFormat> TrackFormats { get; private set; }
+
+        /// <summary>
+        /// Merging of format information elements.
+        /// </summary>
+        public IReadOnlyList<ADMStreamFormat> StreamFormats { get; private set; }
+
+        /// <summary>
         /// Positional data for all channels/objects.
         /// </summary>
         public IReadOnlyList<ADMChannelFormat> Movements => movements;
-        List<ADMChannelFormat> movements = new List<ADMChannelFormat>();
+        IReadOnlyList<ADMChannelFormat> movements = new List<ADMChannelFormat>();
+
+        /// <summary>
+        /// Only read what's absolutely needed for rendering, optimizing memory use but breaking transcodability.
+        /// </summary>
+        readonly bool minimal;
 
         /// <summary>
         /// Parses an XML file with channel and object information.
         /// </summary>
         /// <param name="reader">Stream to read the AXML from</param>
         /// <param name="length">Length of the AXML stream in bytes</param>
-        public AudioDefinitionModel(Stream reader, long length) {
+        /// <param name="minimal">Only read what's absolutely needed for rendering,
+        /// optimizing memory use but breaking transcodability</param>
+        public AudioDefinitionModel(Stream reader, long length, bool minimal) {
+            this.minimal = minimal;
             byte[] data = new byte[length];
             reader.Read(data, 0, length);
             using XmlReader xmlReader = XmlReader.Create(new MemoryStream(data));
@@ -68,23 +84,48 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Creates an ADM for export by a program list created in code.
         /// </summary>
-        public AudioDefinitionModel(IReadOnlyList<ADMProgramme> programs, IReadOnlyList<ADMContent> contents) {
+        /// <param name="programs">Complete presentations</param>
+        /// <param name="contents">Object groupings</param>
+        /// <param name="objects">Single/multitrack object roots</param>
+        /// <param name="packFormats">Object categorizers</param>
+        /// <param name="channelFormats">Channel positions and object movements in the order of the source tracks</param>
+        /// <param name="tracks">Format information of each discrete audio source</param>
+        public AudioDefinitionModel(IReadOnlyList<ADMProgramme> programs, IReadOnlyList<ADMContent> contents,
+            IReadOnlyList<ADMObject> objects, IReadOnlyList<ADMPackFormat> packFormats,
+            IReadOnlyList<ADMChannelFormat> channelFormats, IReadOnlyList<ADMTrack> tracks,
+            IReadOnlyList<ADMTrackFormat> trackFormats, IReadOnlyList<ADMStreamFormat> streamFormats) {
             Programs = programs;
             Contents = contents;
-            // TODO: all groups
+            Objects = objects;
+            PackFormats = packFormats;
+            ChannelFormats = channelFormats;
+            Tracks = tracks;
+            TrackFormats = trackFormats;
+            StreamFormats = streamFormats;
+            movements = channelFormats;
         }
 
         /// <summary>
         /// Change object order to reference the BWF file's correct channels.
         /// </summary>
-        // TODO: let's just keep this one as API until parsing only parses by groups
         public void Assign(ChannelAssignment chna) {
+            List<ADMChannelFormat> assignment = new List<ADMChannelFormat>(movements.Count);
+            for (int i = 0; i < chna.Assignment.Length; i++) {
+                ADMChannelFormat part = FindMovement(chna.Assignment[i]);
+                if (part != null) {
+                    assignment.Add(part);
+                } else {
+                    return;
+                }
+            }
+            if (movements.Count == assignment.Count) {
+                movements = assignment;
+            }
         }
 
         /// <summary>
         /// Extracts the ADM metadata from an XML file.
         /// </summary>
-        // TODO: Iterate through the tags, group them to lists for later quick search, check existence before reading anything
         public void ReadXml(XmlReader reader) {
             List<ADMProgramme> programs = new List<ADMProgramme>();
             List<ADMContent> contents = new List<ADMContent>();
@@ -92,17 +133,36 @@ namespace Cavern.Format.Transcoders {
             List<ADMPackFormat> packFormats = new List<ADMPackFormat>();
             List<ADMChannelFormat> channelFormats = new List<ADMChannelFormat>();
             List<ADMTrack> tracks = new List<ADMTrack>();
+            List<ADMTrackFormat> trackFormats = new List<ADMTrackFormat>();
+            List<ADMStreamFormat> streamFormats = new List<ADMStreamFormat>();
             Programs = programs;
             Contents = contents;
             Objects = objects;
             PackFormats = packFormats;
             ChannelFormats = channelFormats;
             Tracks = tracks;
+            TrackFormats = trackFormats;
+            StreamFormats = streamFormats;
             movements = channelFormats;
 
             XDocument doc = XDocument.Load(reader);
             IEnumerable<XElement> descendants = doc.Descendants();
             using IEnumerator<XElement> enumerator = descendants.GetEnumerator();
+
+            if (minimal) {
+                while (enumerator.MoveNext()) {
+                    switch (enumerator.Current.Name.LocalName) {
+                        case ADMTags.channelFormatTag:
+                            channelFormats.Add(new ADMChannelFormat(enumerator.Current));
+                            break;
+                        case ADMTags.streamFormatTag:
+                            streamFormats.Add(new ADMStreamFormat(enumerator.Current));
+                            break;
+                    }
+                }
+                return;
+            }
+
             while (enumerator.MoveNext()) {
                 switch (enumerator.Current.Name.LocalName) {
                     case ADMTags.programTag:
@@ -123,10 +183,14 @@ namespace Cavern.Format.Transcoders {
                     case ADMTags.trackTag:
                         tracks.Add(new ADMTrack(enumerator.Current));
                         break;
+                    case ADMTags.trackFormatTag:
+                        trackFormats.Add(new ADMTrackFormat(enumerator.Current));
+                        break;
+                    case ADMTags.streamFormatTag:
+                        streamFormats.Add(new ADMStreamFormat(enumerator.Current));
+                        break;
                 }
             }
-
-            // TODO: read references as strings as they are only needed once, update export accordingly
         }
 
         /// <summary>
@@ -145,12 +209,49 @@ namespace Cavern.Format.Transcoders {
                 root.Add(subTag);
                 root = subTag;
             }
-            foreach (ADMProgramme program in Programs) {
-                program.Serialize(root);
-            }
+
+            SerializeGroup(Programs, root);
+            SerializeGroup(Contents, root);
+            SerializeGroup(Objects, root);
+            SerializeGroup(PackFormats, root);
+            SerializeGroup(ChannelFormats, root);
+            SerializeGroup(Tracks, root);
+            SerializeGroup(TrackFormats, root);
+            SerializeGroup(StreamFormats, root);
+
             doc.WriteTo(writer);
         }
 
+        /// <summary>
+        /// Null by definition.
+        /// </summary>
         public XmlSchema GetSchema() => null;
+
+        /// <summary>
+        /// Find a movement information by channel assignment data.
+        /// </summary>
+        ADMChannelFormat FindMovement(Tuple<short, string> assignment) {
+            for (int i = 0, c = StreamFormats.Count; i < c; i++) {
+                if (assignment.Item2.Contains(StreamFormats[i].TrackFormat + StreamFormats[i].PackFormat)) {
+                    for (int j = 0, c2 = ChannelFormats.Count; j < c2; j++) {
+                        if (ChannelFormats[j].ID.Equals(StreamFormats[i].ChannelFormat)) {
+                            return ChannelFormats[j];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Exports all elements of a group.
+        /// </summary>
+        void SerializeGroup(IReadOnlyList<IXDocumentSerializable> from, XElement to) {
+            XNamespace ns = to.Name.Namespace;
+            IEnumerator<IXDocumentSerializable> enumerator = from.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                to.Add(enumerator.Current.Serialize(ns));
+            }
+        }
     }
 }

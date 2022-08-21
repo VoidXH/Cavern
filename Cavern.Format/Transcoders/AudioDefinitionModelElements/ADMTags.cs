@@ -259,6 +259,16 @@
         public const string trackFormatNameAttribute = "audioTrackFormatName";
 
         /// <summary>
+        /// Attribute containing the encoding format of a track or a stream.
+        /// </summary>
+        public const string formatDefinitionAttribute = "formatDefinition";
+
+        /// <summary>
+        /// The ID of <see cref="formatDefinitionAttribute"/>.
+        /// </summary>
+        public const string formatLabelAttribute = "formatLabel";
+
+        /// <summary>
         /// Reference to a stream format by ID.
         /// </summary>
         public const string streamFormatRefTag = "audioStreamFormatIDRef";
