@@ -4,7 +4,8 @@ namespace Cavern.Utilities {
     /// <summary>
     /// Precalculated constants and preallocated recursion arrays for a given FFT size.
     /// </summary>
-    /// <remarks>Avoid simultaneously calculating two FFTs (since the split arrays are shared), unless you use <see cref="ThreadSafeFFTCache"/>.
+    /// <remarks>Avoid simultaneously calculating two FFTs (since the split arrays are shared),
+    /// unless you use <see cref="ThreadSafeFFTCache"/>.
     /// </remarks>
     public class FFTCache : IDisposable {
         /// <summary>
@@ -55,12 +56,18 @@ namespace Cavern.Utilities {
                 cos[i] = (float)Math.Cos(rotation);
                 sin[i] = (float)Math.Sin(rotation);
             }
-            for (int depth = 0, maxDepth = QMath.Log2(size); depth < maxDepth; ++depth) {
-                if (Even[depth] == null) {
-                    Even[depth] = new Complex[1 << depth];
-                    Odd[depth] = new Complex[1 << depth];
-                }
-            }
+
+            CreateCacheArrays(size);
+        }
+
+        /// <summary>
+        /// Construct an FFT cache with custom look-up tables.
+        /// </summary>
+        /// <remarks>Caches created this way can't be accelerated with CavernAmp.</remarks>
+        public FFTCache(int size, float[] cos, float[] sin) {
+            this.cos = cos;
+            this.sin = sin;
+            CreateCacheArrays(size);
         }
 
         /// <summary>
@@ -69,6 +76,18 @@ namespace Cavern.Utilities {
         public void Dispose() {
             if (Native.ToInt64() != 0) {
                 CavernAmp.FFTCache_Dispose(Native);
+            }
+        }
+
+        /// <summary>
+        /// Create the arrays where the even-odd splits will be placed.
+        /// </summary>
+        void CreateCacheArrays(int size) {
+            for (int depth = 0, maxDepth = QMath.Log2(size); depth < maxDepth; ++depth) {
+                if (Even[depth] == null) {
+                    Even[depth] = new Complex[1 << depth];
+                    Odd[depth] = new Complex[1 << depth];
+                }
             }
         }
     }
@@ -92,5 +111,11 @@ namespace Cavern.Utilities {
         /// Thread-safe <see cref="FFTCache"/> constructor. Does not reference shared split arrays.
         /// </summary>
         public ThreadSafeFFTCache(int size) : base(size) { }
+
+        /// <summary>
+        /// Construct a thread-safe <see cref="FFTCache"/> with custom look-up tables.
+        /// </summary>
+        /// <remarks>Caches created this way can't be accelerated with CavernAmp.</remarks>
+        public ThreadSafeFFTCache(int size, float[] cos, float[] sin) : base(size, cos, sin) { }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Cavern.Remapping;
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -20,7 +19,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static void Delay(float[] signal, float samples) {
             using FFTCache cache = new FFTCache(QMath.Base2Ceil(signal.Length));
-            Delay(signal, samples);
+            Delay(signal, samples, cache);
         }
 
         /// <summary>

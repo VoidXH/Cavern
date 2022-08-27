@@ -36,5 +36,15 @@
             }
             return result;
         }
+
+        /// <summary>
+        /// Move the waveform to a complex array before it's Fourier-transformed.
+        /// </summary>
+        /// <remarks>This function clears the imaginary part, allowing the use of reusable arrays.</remarks>
+        public static void ParseForFFT(this float[] source, Complex[] target) {
+            for (int i = 0; i < source.Length; ++i) {
+                target[i] = new Complex(source[i]);
+            }
+        }
     }
 }

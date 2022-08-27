@@ -69,7 +69,7 @@ namespace Cavern.Format.Renderers {
                 JointObjectCoding joc = stream.Extensions.JOC;
                 DynamicObjects = joc.ObjectCount;
                 finalResult = new float[joc.ObjectCount][];
-                applier = new JointObjectCodingApplier(joc.ObjectCount, stream.FrameSize);
+                applier = new JointObjectCodingApplier(joc, stream.FrameSize);
                 SetupObjects(oamd.ObjectCount);
             }
             // Channel-based rendering
@@ -98,15 +98,17 @@ namespace Cavern.Format.Renderers {
         public override void Update(int samples) {
             if (lfeResult.Length != samples) {
                 timeslotResult = new float[finalResult.Length][];
-                for (int obj = 0; obj < finalResult.Length; ++obj)
+                for (int obj = 0; obj < finalResult.Length; ++obj) {
                     finalResult[obj] = new float[samples];
+                }
                 lfeTimeslot = new float[samples];
                 lfeResult = new float[samples];
             }
             if (inputData.Length != stream.ChannelCount) {
                 inputData = new float[stream.ChannelCount][];
-                for (int channel = 0; channel < inputData.Length; ++channel)
+                for (int channel = 0; channel < inputData.Length; ++channel) {
                     inputData[channel] = new float[QuadratureMirrorFilterBank.subbands];
+                }
             }
 
             int pointer = 0;
@@ -114,21 +116,24 @@ namespace Cavern.Format.Renderers {
                 if (timeslotPosition == 0)
                     RenderNextTimeslot();
                 int next = Math.Min(samples - pointer, QuadratureMirrorFilterBank.subbands - timeslotPosition);
-                for (int obj = 0; obj < finalResult.Length; ++obj)
-                    for (int i = 0; i < next; ++i)
+                for (int obj = 0; obj < finalResult.Length; ++obj) {
+                    for (int i = 0; i < next; ++i) {
                         finalResult[obj][pointer + i] = timeslotResult[obj][timeslotPosition + i];
-                for (int i = 0; i < next; ++i)
+                    }
+                }
+                for (int i = 0; i < next; ++i) {
                     lfeResult[pointer + i] = lfeTimeslot[timeslotPosition + i];
+                }
                 pointer += next;
                 timeslotPosition += next;
-                if (timeslotPosition == QuadratureMirrorFilterBank.subbands)
+                if (timeslotPosition == QuadratureMirrorFilterBank.subbands) {
                     timeslotPosition = 0;
+                }
             }
 
             int lfe = ((EnhancedAC3Decoder)stream).Extensions.OAMD.GetLFEPosition();
             if (lfe != -1) {
-                for (int obj = 0; obj < lfe; ++obj)
-                    objectSamples[obj] = finalResult[obj];
+                Array.Copy(finalResult, objectSamples, lfe);
                 ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
                 for (int i = 0; i < matrix.Length; ++i) {
                     if (matrix[i] == ReferenceChannel.ScreenLFE) {
@@ -136,11 +141,10 @@ namespace Cavern.Format.Renderers {
                         break;
                     }
                 }
-                for (int obj = lfe + 1; obj < objectSamples.Length; ++obj)
-                    objectSamples[obj] = finalResult[obj - 1];
-            } else
-                for (int obj = 0; obj < objectSamples.Length; ++obj)
-                    objectSamples[obj] = finalResult[obj];
+                Array.Copy(finalResult, lfe, objectSamples, lfe + 1, objectSamples.Length - lfe - 1);
+            } else {
+                Array.Copy(finalResult, objectSamples, objectSamples.Length);
+            }
         }
 
         /// <summary>
@@ -168,9 +172,11 @@ namespace Cavern.Format.Renderers {
                     }
                 }
 
-                for (int i = 0; i < matrix.Length; ++i)
-                    if (matrix[i] == ReferenceChannel.ScreenLFE)
+                for (int i = 0; i < matrix.Length; ++i) {
+                    if (matrix[i] == ReferenceChannel.ScreenLFE) {
                         lfeTimeslot = inputData[i];
+                    }
+                }
 
                 timeslotResult = applier.Apply(sources, decoder.Extensions.JOC);
             }

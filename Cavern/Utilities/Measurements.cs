@@ -334,9 +334,11 @@ namespace Cavern.Utilities {
             ProcessFFT(even, cache, --depth);
             ProcessFFT(odd, cache, depth);
             int stepMul = cache.cos.Length / halfLength;
+            float[] cosCache = cache.cos,
+                sinCache = cache.sin;
             for (int i = 0; i < halfLength; ++i) {
-                float oddReal = odd[i].Real * cache.cos[i * stepMul] - odd[i].Imaginary * cache.sin[i * stepMul],
-                    oddImag = odd[i].Real * cache.sin[i * stepMul] + odd[i].Imaginary * cache.cos[i * stepMul];
+                float oddReal = odd[i].Real * cosCache[i * stepMul] - odd[i].Imaginary * sinCache[i * stepMul],
+                    oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul];
                 samples[i].Real = even[i].Real + oddReal;
                 samples[i].Imaginary = even[i].Imaginary + oddImag;
                 samples[i + halfLength].Real = even[i].Real - oddReal;
@@ -360,9 +362,11 @@ namespace Cavern.Utilities {
             ProcessFFT(even, cache, --depth);
             ProcessFFT(odd, cache, depth);
             int stepMul = cache.cos.Length / halfLength;
+            float[] cosCache = cache.cos,
+                sinCache = cache.sin;
             for (int i = 0; i < halfLength; ++i) {
-                float oddReal = odd[i].Real * cache.cos[i * stepMul] - odd[i].Imaginary * cache.sin[i * stepMul],
-                    oddImag = odd[i].Real * cache.sin[i * stepMul] + odd[i].Imaginary * cache.cos[i * stepMul];
+                float oddReal = odd[i].Real * cosCache[i * stepMul] - odd[i].Imaginary * sinCache[i * stepMul],
+                    oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul];
                 float real = even[i].Real + oddReal, imaginary = even[i].Imaginary + oddImag;
                 samples[i] = (float)Math.Sqrt(real * real + imaginary * imaginary);
                 real = even[i].Real - oddReal;
@@ -387,9 +391,11 @@ namespace Cavern.Utilities {
             ProcessIFFT(even, cache, --depth);
             ProcessIFFT(odd, cache, depth);
             int stepMul = cache.cos.Length / halfLength;
+            float[] cosCache = cache.cos,
+                sinCache = cache.sin;
             for (int i = 0; i < halfLength; ++i) {
-                float oddReal = odd[i].Real * cache.cos[i * stepMul] + odd[i].Imaginary * cache.sin[i * stepMul],
-                    oddImag = odd[i].Imaginary * cache.cos[i * stepMul] - odd[i].Real * cache.sin[i * stepMul];
+                float oddReal = odd[i].Real * cosCache[i * stepMul] + odd[i].Imaginary * sinCache[i * stepMul],
+                    oddImag = odd[i].Imaginary * cosCache[i * stepMul] - odd[i].Real * sinCache[i * stepMul];
                 samples[i].Real = even[i].Real + oddReal;
                 samples[i].Imaginary = even[i].Imaginary + oddImag;
                 samples[i + halfLength].Real = even[i].Real - oddReal;

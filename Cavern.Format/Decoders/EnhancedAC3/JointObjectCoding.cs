@@ -38,14 +38,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         void DecodeHeader(BitExtractor extractor) {
-            joc_dmx_config_idx = extractor.Read(3);
-            if (joc_dmx_config_idx > 2) {
-                throw new UnsupportedFeatureException("DMXconfig");
+            int downmixConfig = extractor.Read(3);
+            if (downmixConfig > 4) {
+                throw new UnsupportedFeatureException("joc_dmx_config_idx");
             }
-            ChannelCount = (joc_dmx_config_idx == 0 || joc_dmx_config_idx == 3) ? 5 : 7;
+            ChannelCount = (downmixConfig == 0 || downmixConfig == 3) ? 5 : 7;
             ObjectCount = extractor.Read(6) + 1;
             UpdateCache();
-            joc_ext_config_idx = extractor.Read(3);
+            if (extractor.Read(3) != 0) {
+                throw new UnsupportedFeatureException("joc_ext_config_idx");
+            }
         }
 
         void DecodeInfo(BitExtractor extractor) {
@@ -88,8 +90,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                                 jocVector[obj][dp][pb] = HuffmanDecode(codeTable, extractor);
                             }
                         } else {
-                            codeTable = JointObjectCodingTables.GetHuffCodeTable(quantizationTable[obj],
-                                HuffmanType.MTX);
+                            codeTable = JointObjectCodingTables.GetHuffCodeTable(quantizationTable[obj], HuffmanType.MTX);
                             for (int ch = 0; ch < ChannelCount; ++ch) {
                                 for (int pb = 0; pb < bands[obj]; ++pb) {
                                     jocMatrix[obj][dp][ch][pb] = HuffmanDecode(codeTable, extractor);
@@ -101,17 +102,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
         }
 
-        int HuffmanDecode(int[][] joc_huff_code, BitExtractor extractor) {
+        int HuffmanDecode(int[][] codeTable, BitExtractor extractor) {
             int node = 0;
             do {
-                node = joc_huff_code[node][extractor.ReadBit() ? 1 : 0];
+                node = codeTable[node][extractor.ReadBit() ? 1 : 0];
             } while (node > 0);
             return -1 - node;
         }
-
-#pragma warning disable IDE0052 // Remove unread private members
-        int joc_dmx_config_idx;
-        int joc_ext_config_idx;
-#pragma warning restore IDE0052 // Remove unread private members
     }
 }

@@ -184,6 +184,15 @@ namespace Cavern.Utilities {
         /// Gets t for linear interpolation for a given value.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float LerpInverse(Complex from, Complex to, Complex value) {
+            float fromPhase = from.Phase;
+            return (value.Phase - fromPhase) / (to.Phase - fromPhase);
+        }
+
+        /// <summary>
+        /// Gets t for linear interpolation for a given value.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double LerpInverse(TimeSpan from, TimeSpan to, TimeSpan value) => (value - from) / (to - from);
 
         /// <summary>
@@ -205,7 +214,7 @@ namespace Cavern.Utilities {
             ConverterStruct a = new ConverterStruct {
                 asFloat = val
             };
-            int log = (((a.asInt >> 23) + 1) & 0x1F);
+            int log = ((a.asInt >> 23) + 1) & 0x1F;
             if ((1 << log) != val) {
                 return log + 1;
             }

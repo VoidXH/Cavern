@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
+using Cavern.Filters;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
@@ -10,11 +11,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// Converts a channel-based audio stream and JOC to object output samples.
     /// </summary>
     class JointObjectCodingApplier {
-        /// <summary>
-        /// Output object count.
-        /// </summary>
-        readonly int objects;
-
         /// <summary>
         /// Length of an AC-3 frame.
         /// </summary>
@@ -53,9 +49,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Creates a converter from a channel-based audio stream and JOC to object output samples.
         /// </summary>
-        public JointObjectCodingApplier(int objects, int frameSize) {
+        public JointObjectCodingApplier(JointObjectCoding joc, int frameSize) {
             int maxChannels = JointObjectCodingTables.inputMatrix.Length;
-            this.objects = objects;
+            int objects = joc.ObjectCount;
             this.frameSize = frameSize;
 
             timeslotCache = new float[objects][];
@@ -76,15 +72,15 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Gets the audio samples of each object for the next timeslot.
         /// </summary>
-        public float[][] Apply(float[][] input, JointObjectCoding actual) {
+        public float[][] Apply(float[][] input, JointObjectCoding joc) {
             if (timeslot == 0) {
-                mixMatrix = actual.GetMixingMatrices(frameSize);
+                mixMatrix = joc.GetMixingMatrices(frameSize);
             }
 
             // Forward transformations
-            int runs = actual.ChannelCount;
+            int runs = joc.ChannelCount;
             using (ManualResetEvent reset = new ManualResetEvent(false)) {
-                for (int ch = 0; ch < actual.ChannelCount; ++ch) {
+                for (int ch = 0; ch < joc.ChannelCount; ++ch) {
                     ThreadPool.QueueUserWorkItem(
                        new WaitCallback(channel => {
                            int ch = (int)channel;
@@ -98,13 +94,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
 
             // Inverse transformations
+            int objects = joc.ObjectCount;
             runs = objects;
             using (ManualResetEvent reset = new ManualResetEvent(false)) {
                 for (int obj = 0; obj < objects; ++obj) {
                     ThreadPool.QueueUserWorkItem(
                        new WaitCallback(objectId => {
                            int obj = (int)objectId;
-                           ProcessObject(actual, obj, mixMatrix[obj][timeslot], actual.Gain);
+                           ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
                            if (Interlocked.Decrement(ref runs) == 0) {
                                reset.Set();
                            }
