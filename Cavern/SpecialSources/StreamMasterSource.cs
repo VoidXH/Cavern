@@ -9,23 +9,23 @@
         readonly StreamMaster master;
 
         /// <summary>
-        /// Source ID used by the <see cref="master"/>.
+        /// Source index used by the <see cref="master"/>.
         /// </summary>
-        readonly int source;
+        readonly int sourceIndex;
 
         /// <summary>
         /// A streamed source that uses a <see cref="StreamMaster"/> to fetch new samples from.
         /// </summary>
         /// <param name="master">The supplier of samples</param>
-        /// <param name="source">Source ID used by the <see cref="master"/></param>
-        public StreamMasterSource(StreamMaster master, int source) {
+        /// <param name="sourceIndex">Source index used by the <see cref="master"/></param>
+        public StreamMasterSource(StreamMaster master, int sourceIndex) {
             this.master = master;
-            this.source = source;
+            this.sourceIndex = sourceIndex;
         }
 
         /// <summary>
         /// Get the next samples in the audio stream.
         /// </summary>
-        protected internal override float[][] GetSamples() => new float[1][] { master.Update(source, PitchedUpdateRate) };
+        protected internal override float[][] GetSamples() => new float[1][] { master.Update(sourceIndex, PitchedUpdateRate) };
     }
 }

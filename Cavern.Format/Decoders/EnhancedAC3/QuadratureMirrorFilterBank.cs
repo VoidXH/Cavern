@@ -170,5 +170,15 @@
             +5.464958142195282e-004f, +5.012680176678405e-004f, +4.546408052001889e-004f, +4.058915811480806e-004f,
             +3.548460080857985e-004f, +3.021769445225078e-004f, +2.494762615491542e-004f, +1.990318758627504e-004f
         };
+
+        /// <summary>
+        /// 1 / <see cref="subbands"/>.
+        /// </summary>
+        const float subbandDiv = 1f / subbands;
+
+        /// <summary>
+        /// Mask to mix samples to the <see cref="grouping"/>.
+        /// </summary>
+        const int groupingMask = subbands * 2 - 1;
     }
 }

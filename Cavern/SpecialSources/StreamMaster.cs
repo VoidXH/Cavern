@@ -8,7 +8,7 @@ namespace Cavern.SpecialSources {
         /// <summary>
         /// Gets the next block of rendered samples.
         /// </summary>
-        public delegate float[][] GetNextSampleBlock(int samplesPerObject);
+        public delegate float[][] GetNextSampleBlock(int samplesPerSource);
 
         /// <summary>
         /// Gets the next block of rendered samples.

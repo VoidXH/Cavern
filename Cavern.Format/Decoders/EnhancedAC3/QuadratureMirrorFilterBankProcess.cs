@@ -72,22 +72,17 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Convert a timeslot of real <see cref="subbands"/> to QMFB.
         /// </summary>
         public Vector2[] ProcessForward(float[] input) {
+            // This could be further optimized by copying to a rolling buffer of samples
+            // -> current index subtracted, new samples added
             Array.Copy(inputStreamForward, 0, inputStreamForward, subbands, coeffs.Length - subbands);
             for (int sample = 0; sample < subbands; ++sample) {
                 inputStreamForward[sample] = input[subbands - sample - 1];
             }
 
-            for (int sample = 0; sample < window.Length; ++sample) {
-                window[sample] = inputStreamForward[sample] * coeffs[sample];
-            }
-
             int doubleLength = subbands * 2;
-            for (int j = 0, end = coeffs.Length / doubleLength; j < doubleLength; ++j) {
-                float groupingValue = 0;
-                for (int k = 0; k < end; ++k) {
-                    groupingValue += window[j + k * doubleLength];
-                }
-                grouping[j] = groupingValue;
+            Array.Clear(grouping, 0, doubleLength);
+            for (int sample = 0; sample < window.Length; ++sample) {
+                grouping[sample & groupingMask] += inputStreamForward[sample] * coeffs[sample];
             }
 
             Array.Clear(outCache, 0, outCache.Length);
@@ -120,31 +115,17 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
+            Array.Clear(output, 0, subbands);
             for (int j = 0, end = coeffs.Length / doubleLength; j < end; ++j) {
                 int timeSlot = quadrupleLength * j;
+                int coeffSlot = doubleLength * j;
                 int pair = timeSlot + subbands * 3;
+                int coeffPair = doubleLength * j + subbands;
                 for (int sb = 0; sb < subbands; ++sb) {
-                    window[doubleLength * j + sb] = inputStreamInverse[timeSlot + sb];
-                    window[doubleLength * j + subbands + sb] = inputStreamInverse[pair + sb];
+                    output[sb] += inputStreamInverse[timeSlot + sb] * coeffs[coeffSlot + sb] +
+                        inputStreamInverse[pair + sb] * coeffs[coeffPair + sb];
                 }
-            }
-
-            for (int j = 0; j < window.Length; ++j) {
-                window[j] *= coeffs[j];
-            }
-
-            for (int ts = 0; ts < subbands; ++ts) {
-                float outSample = 0;
-                for (int j = 0, end = coeffs.Length / subbands; j < end; ++j) {
-                    outSample += window[subbands * j + ts];
-                }
-                output[ts] = outSample;
             }
         }
-
-        /// <summary>
-        /// 1 / <see cref="subbands"/>.
-        /// </summary>
-        const float subbandDiv = 1f / subbands;
     }
 }
