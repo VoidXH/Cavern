@@ -102,7 +102,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         public void ProcessInverse(Vector2[] input, float[] output) {
             int doubleLength = subbands * 2;
-            int quadrupleLength = subbands * 4;
 
             Array.Copy(inputStreamInverse, 0, inputStreamInverse, doubleLength, inputStreamInverse.Length - doubleLength);
             Array.Clear(inputStreamInverse, 0, doubleLength);
@@ -117,10 +116,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
             Array.Clear(output, 0, subbands);
             for (int j = 0, end = coeffs.Length / doubleLength; j < end; ++j) {
-                int timeSlot = quadrupleLength * j;
+                int timeSlot = subbands * 4 * j;
                 int coeffSlot = doubleLength * j;
                 int pair = timeSlot + subbands * 3;
-                int coeffPair = doubleLength * j + subbands;
+                int coeffPair = coeffSlot + subbands;
                 for (int sb = 0; sb < subbands; ++sb) {
                     output[sb] += inputStreamInverse[timeSlot + sb] * coeffs[coeffSlot + sb] +
                         inputStreamInverse[pair + sb] * coeffs[coeffPair + sb];
