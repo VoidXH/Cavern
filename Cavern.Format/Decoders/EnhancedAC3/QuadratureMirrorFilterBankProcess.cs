@@ -72,8 +72,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Convert a timeslot of real <see cref="subbands"/> to QMFB.
         /// </summary>
         public Vector2[] ProcessForward(float[] input) {
-            // This could be further optimized by copying to a rolling buffer of samples
-            // -> current index subtracted, new samples added
             Array.Copy(inputStreamForward, 0, inputStreamForward, subbands, coeffs.Length - subbands);
             for (int sample = 0; sample < subbands; ++sample) {
                 inputStreamForward[sample] = input[subbands - sample - 1];
