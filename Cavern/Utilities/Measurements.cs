@@ -333,9 +333,9 @@ namespace Cavern.Utilities {
             }
             ProcessFFT(even, cache, --depth);
             ProcessFFT(odd, cache, depth);
-            int stepMul = cache.cos.Length / halfLength;
             float[] cosCache = cache.cos,
                 sinCache = cache.sin;
+            int stepMul = cosCache.Length / halfLength;
             for (int i = 0; i < halfLength; ++i) {
                 float oddReal = odd[i].Real * cosCache[i * stepMul] - odd[i].Imaginary * sinCache[i * stepMul],
                     oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul];
@@ -361,9 +361,9 @@ namespace Cavern.Utilities {
             }
             ProcessFFT(even, cache, --depth);
             ProcessFFT(odd, cache, depth);
-            int stepMul = cache.cos.Length / halfLength;
             float[] cosCache = cache.cos,
                 sinCache = cache.sin;
+            int stepMul = cosCache.Length / halfLength;
             for (int i = 0; i < halfLength; ++i) {
                 float oddReal = odd[i].Real * cosCache[i * stepMul] - odd[i].Imaginary * sinCache[i * stepMul],
                     oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul];

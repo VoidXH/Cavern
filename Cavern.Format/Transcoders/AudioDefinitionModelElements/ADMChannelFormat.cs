@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Xml.Linq;
 
 using Cavern.Format.Common;
+using Cavern.Format.Renderers;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
@@ -46,25 +47,17 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                 new XAttribute(ADMTags.typeStringAttribute, Type),
                 new XAttribute(ADMTags.typeAttribute, ((int)Type).ToString("x4")));
             string namePrefix = $"AB_{ID[3..]}_";
-            int index = 0;
-            foreach (ADMBlockFormat block in Blocks) {
-                var newBlock = new XElement(ns + ADMTags.blockTag);
-                newBlock.Add(new XAttribute(ADMTags.blockIDAttribute, namePrefix + (++index).ToString("x8")),
-                    new XAttribute(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp()),
-                    new XAttribute(ADMTags.durationAttribute, block.Duration.GetTimestamp()),
-                    new XElement(ns + ADMTags.blockCartesianTag, 1),
-                    new XElement(ns + ADMTags.blockPositionTag, block.Position.X,
-                        new XAttribute(ADMTags.blockCoordinateAttribute, 'X')),
-                    new XElement(ns + ADMTags.blockPositionTag, block.Position.Z,
-                        new XAttribute(ADMTags.blockCoordinateAttribute, 'Y')));
-                if (block.Position.Y != 0) {
-                    newBlock.Add(new XElement(ns + ADMTags.blockPositionTag, block.Position.Y,
-                        new XAttribute(ADMTags.blockCoordinateAttribute, 'Z')));
+
+            if (Type == ADMPackType.Objects || Blocks.Count != 1) {
+                int index = 0;
+                foreach (ADMBlockFormat block in Blocks) {
+                    root.Add(SerializeBlock(ns, block, namePrefix, ++index));
                 }
-                newBlock.Add(new XElement(ns + ADMTags.blockJumpTag, 1,
-                    new XAttribute(ADMTags.blockJumpLengthAttribute,
-                        block.Interpolation.TotalSeconds.ToString("0.000000").Replace(',', '.'))));
-                root.Add(newBlock);
+            } else {
+                XElement block = SerializeBlock(ns, Blocks[0], namePrefix, 1);
+                block.Add(new XElement(ns + ADMTags.blockLabelAttribute,
+                    ADMConsts.channelLabels[(int)Renderer.ChannelFromPosition(Blocks[0].Position)]));
+                root.Add(block);
             }
             return root;
         }
@@ -77,6 +70,26 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             Name = source.GetAttribute(ADMTags.channelFormatNameAttribute);
             Type = (ADMPackType)int.Parse(source.GetAttribute(ADMTags.typeAttribute));
             Blocks = ParseBlockFormats(source);
+        }
+
+        XElement SerializeBlock(XNamespace ns, ADMBlockFormat block, string namePrefix, int index) {
+            XElement newBlock = new XElement(ns + ADMTags.blockTag);
+            newBlock.Add(new XAttribute(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8")),
+                new XAttribute(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp()),
+                new XAttribute(ADMTags.durationAttribute, block.Duration.GetTimestamp()),
+                new XElement(ns + ADMTags.blockCartesianTag, 1),
+                new XElement(ns + ADMTags.blockPositionTag, block.Position.X,
+                    new XAttribute(ADMTags.blockCoordinateAttribute, 'X')),
+                new XElement(ns + ADMTags.blockPositionTag, block.Position.Z,
+                    new XAttribute(ADMTags.blockCoordinateAttribute, 'Y')));
+            if (block.Position.Y != 0) {
+                newBlock.Add(new XElement(ns + ADMTags.blockPositionTag, block.Position.Y,
+                    new XAttribute(ADMTags.blockCoordinateAttribute, 'Z')));
+            }
+            newBlock.Add(new XElement(ns + ADMTags.blockJumpTag, 1,
+                new XAttribute(ADMTags.blockJumpLengthAttribute,
+                    block.Interpolation.TotalSeconds.ToString("0.000000").Replace(',', '.'))));
+            return newBlock;
         }
 
         /// <summary>

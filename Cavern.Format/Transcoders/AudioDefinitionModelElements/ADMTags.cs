@@ -189,6 +189,11 @@
         public const string durationAttribute = "duration";
 
         /// <summary>
+        /// Speaker label for an audio block.
+        /// </summary>
+        public const string blockLabelAttribute = "speakerLabel";
+
+        /// <summary>
         /// A block's coordinates are stored as cartesian coordinates.
         /// </summary>
         public const string blockCartesianTag = "cartesian";

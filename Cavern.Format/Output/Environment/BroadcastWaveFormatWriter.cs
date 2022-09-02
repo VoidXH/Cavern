@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml;
 
 using Cavern.Format.Consts;
+using Cavern.Format.Renderers;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.Utilities;
@@ -19,11 +20,6 @@ namespace Cavern.Format.Environment {
         /// The main PCM exporter.
         /// </summary>
         readonly RIFFWaveWriter output;
-
-        /// <summary>
-        /// Metadata of rendered sources to export to the end of the file.
-        /// </summary>
-        readonly AudioDefinitionModel adm;
 
         /// <summary>
         /// Recorded movement path of all sources.
@@ -49,58 +45,6 @@ namespace Cavern.Format.Environment {
             for (int i = 0; i < output.ChannelCount; i++) {
                 movements[i] = new List<ADMBlockFormat>();
             }
-
-            double contentLength = length / (double)source.SampleRate;
-            TimeSpan contentTime = TimeSpan.FromSeconds(contentLength);
-            string contentID = "ACO_1001";
-            List<string> objectIDs = new List<string>();
-
-            List<ADMProgramme> programs = new List<ADMProgramme> {
-                new ADMProgramme("APR_1001", "Cavern_Export", contentLength) {
-                    Contents = new List<string>() { contentID }
-                }
-            };
-            List<ADMContent> contents = new List<ADMContent> {
-                new ADMContent(contentID, "Objects") {
-                    Objects = objectIDs
-                }
-            };
-            List<ADMObject> objects = new List<ADMObject>();
-            List<ADMPackFormat> packFormats = new List<ADMPackFormat>();
-            List<ADMChannelFormat> channelFormats = new List<ADMChannelFormat>();
-            List<ADMTrack> tracks = new List<ADMTrack>();
-            List<ADMTrackFormat> trackFormats = new List<ADMTrackFormat>();
-            List<ADMStreamFormat> streamFormats = new List<ADMStreamFormat>();
-
-            int sourceIndex = 0;
-            foreach (Source audioSource in source.ActiveSources) {
-                string id = (0x1000 + ++sourceIndex).ToString("x4"),
-                    objectID = "AO_" + id,
-                    objectName = "Cavern_Obj_" + sourceIndex,
-                    packFormatID = "AP_0003" + id,
-                    channelFormatID = "AC_0003" + id,
-                    trackID = "ATU_0000" + id,
-                    trackFormatID = $"AT_0003{id}_01",
-                    streamFormatID = "AS_0003" + id;
-
-                objectIDs.Add(objectID);
-                objects.Add(new ADMObject(objectID, "Audio Object " + sourceIndex, default, contentTime, packFormatID) {
-                    Tracks = new List<string>() { trackID }
-                });
-                packFormats.Add(new ADMPackFormat(packFormatID, objectName, ADMPackType.Objects) {
-                    ChannelFormats = new List<string>() { channelFormatID }
-                });
-                channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, ADMPackType.Objects) {
-                    Blocks = movements[sourceIndex - 1]
-                });
-                tracks.Add(new ADMTrack(trackID, bits, source.SampleRate, trackFormatID, packFormatID));
-                trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));
-                streamFormats.Add(new ADMStreamFormat(streamFormatID, "PCM_" + objectName, ADMTrackCodec.PCM,
-                    channelFormatID, packFormatID, trackFormatID));
-            }
-
-            adm = new AudioDefinitionModel(programs, contents, objects, packFormats, channelFormats,
-                tracks, trackFormats, streamFormats);
         }
 
         /// <summary>
@@ -166,6 +110,7 @@ namespace Cavern.Format.Environment {
         /// Close the writer and export movement metadata.
         /// </summary>
         public override void Dispose() {
+            AudioDefinitionModel adm = CreateModel();
             StringBuilder builder = new StringBuilder();
             using (XmlWriter exporter = XmlWriter.Create(builder)) {
                 adm.WriteXml(exporter);
@@ -173,6 +118,81 @@ namespace Cavern.Format.Environment {
             output.WriteChunk(RIFFWave.axmlSync, Encoding.UTF8.GetBytes(builder.ToString().Replace("utf-16", "utf-8")));
             output.WriteChunk(RIFFWave.chnaSync, ChannelAssignment.GetChunk(adm));
             output.Dispose();
+        }
+
+        /// <summary>
+        /// Generates the ADM structure from the recorded movement.
+        /// </summary>
+        AudioDefinitionModel CreateModel() {
+            double contentLength = output.Length / (double)output.SampleRate;
+            TimeSpan contentTime = TimeSpan.FromSeconds(contentLength);
+            string channelContentID = "ACO_1001",
+                objectContentID = "ACO_1002";
+            List<string> channelIDs = new List<string>();
+            List<string> objectIDs = new List<string>();
+
+            List<ADMProgramme> programs = new List<ADMProgramme> {
+                new ADMProgramme("APR_1001", "Cavern_Export", contentLength) {
+                    Contents = new List<string>() { channelContentID, objectContentID }
+                }
+            };
+            List<ADMContent> contents = new List<ADMContent> {
+                new ADMContent(channelContentID, "Channels") {
+                    Objects = channelIDs
+                },
+                new ADMContent(objectContentID, "Objects") {
+                    Objects = objectIDs
+                }
+            };
+            List<ADMObject> objects = new List<ADMObject>();
+            List<ADMPackFormat> packFormats = new List<ADMPackFormat>();
+            List<ADMChannelFormat> channelFormats = new List<ADMChannelFormat>();
+            List<ADMTrack> tracks = new List<ADMTrack>();
+            List<ADMTrackFormat> trackFormats = new List<ADMTrackFormat>();
+            List<ADMStreamFormat> streamFormats = new List<ADMStreamFormat>();
+
+            int channelIndex = 0, objectIndex = 0;
+            for (int i = 0; i < movements.Length; ++i) {
+                bool isDynamic = movements[i].Count != 1;
+                ADMPackType packType = isDynamic ? ADMPackType.Objects : ADMPackType.DirectSpeakers;
+                string id = (0x1000 + (isDynamic ? ++objectIndex : ++channelIndex)).ToString("x4"),
+                    totalId = (0x1001 + i).ToString("x4"),
+                    packHex = ((int)packType).ToString("x4"),
+                    objectID = "AO_" + totalId,
+                    objectName = isDynamic ? "Cavern_Obj_" + objectIndex :
+                        ADMConsts.channelNames[(int)Renderer.ChannelFromPosition(movements[i][0].Position)],
+                    packFormatID = $"AP_{packHex}{id}",
+                    channelFormatID = $"AC_{packHex}{id}",
+                    trackID = "ATU_0000" + totalId,
+                    trackFormatID = $"AT_{packHex}{id}_01",
+                    streamFormatID = $"AS_{packHex}{id}";
+
+                if (isDynamic) {
+                    objectIDs.Add(objectID);
+                } else {
+                    channelIDs.Add(objectID);
+                }
+
+                objects.Add(new ADMObject(objectID, isDynamic ? "Audio Object " + objectIndex : objectName,
+                    default, contentTime, packFormatID) {
+                    Tracks = new List<string>() { trackID }
+                });
+                packFormats.Add(new ADMPackFormat(packFormatID, objectName, packType) {
+                    ChannelFormats = new List<string>() { channelFormatID }
+                });
+                channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, packType) {
+                    Blocks = movements[i]
+                });
+                tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, packFormatID));
+                trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));
+                streamFormats.Add(new ADMStreamFormat(streamFormatID, "PCM_" + objectName, ADMTrackCodec.PCM,
+                    channelFormatID, packFormatID, trackFormatID));
+            }
+
+            contents.RemoveAll(content => content.Objects.Count == 0);
+
+            return new AudioDefinitionModel(programs, contents, objects, packFormats, channelFormats,
+                tracks, trackFormats, streamFormats);
         }
     }
 }
