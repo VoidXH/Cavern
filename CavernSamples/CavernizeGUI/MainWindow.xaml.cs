@@ -23,6 +23,11 @@ using Path = System.IO.Path;
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
         /// <summary>
+        /// Latest stable software version of Cavernize GUI.
+        /// </summary>
+        const string version = "1.5";
+
+        /// <summary>
         /// This option allows FFmpeg to encode up to 255 channels in select codecs.
         /// </summary>
         const string massivelyMultichannel = " -mapping_family 255";
@@ -61,6 +66,7 @@ namespace CavernizeGUI {
         /// </summary>
         public MainWindow() {
             InitializeComponent();
+            ad.Text = $"v{version} {ad.Text}";
             channelDisplay = new() {
                 [ReferenceChannel.FrontLeft] = frontLeft,
                 [ReferenceChannel.FrontCenter] = frontCenter,
@@ -161,17 +167,17 @@ namespace CavernizeGUI {
 
                 fileName.Text = Path.GetFileName(dialog.FileName);
 
-#if !DEBUG
                 try {
-#endif
                     file = new(filePath = dialog.FileName);
-#if !DEBUG
                 } catch (Exception ex) {
                     Reset();
-                    Error($"{ex.Message} {(string)language["Later"]}");
+                    if (ex is IOException) {
+                        Error(ex.Message);
+                    } else {
+                        Error($"{ex.Message} {(string)language["Later"]}");
+                    }
                     return;
                 }
-#endif
 
                 if (file.Tracks.Count != 0) {
                     trackControls.Visibility = Visibility.Visible;

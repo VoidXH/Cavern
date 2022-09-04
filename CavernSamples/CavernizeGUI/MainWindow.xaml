@@ -128,7 +128,7 @@
                 </Grid>
                 <Grid Grid.Column="2" Margin="10,0,0,0">
                     <Image Source="{StaticResource Logo}" MouseDown="Ad" HorizontalAlignment="Right" VerticalAlignment="Top" Width="169"/>
-                    <TextBlock Text="by VoidX (cavern.sbence.hu)" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,27,0,0"/>
+                    <TextBlock x:Name="ad" Text="by VoidX (cavern.sbence.hu)" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,27,0,0"/>
                     <GroupBox Header="Post-render report" Margin="0,43,0,0">
                         <Grid>
                             <TextBlock x:Name="report" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
