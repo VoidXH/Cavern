@@ -79,13 +79,21 @@ namespace Cavern.Format.Transcoders {
         /// Reads an E-AC-3 header from a bitstream.
         /// </summary>
         /// <remarks>Has to read a calculated number of bytes from the source stream.</remarks>
-        /// <returns>A <see cref="BitExtractor"/> that continues at the beginning of the audio frame.</returns>
+        /// <returns>A <see cref="BitExtractor"/> that continues at the beginning of the audio frame
+        /// or null if the frame is invalid or the end of stream is reached.</returns>
         public BitExtractor Decode(BlockBuffer<byte> reader) {
             BitExtractor extractor = new BitExtractor(reader.Read(mustDecode));
-            if (!extractor.Readable)
-                return extractor;
-            if (extractor.Read(16) != syncWord)
+            if (!extractor.Readable) {
+                return null;
+            }
+
+            int readSyncWord = extractor.Read(16);
+            if (readSyncWord != syncWord) {
+                if (readSyncWord == 0) {
+                    return null;
+                }
                 throw new SyncException();
+            }
 
             StreamType = (StreamTypes)extractor.Read(2);
             SubstreamID = extractor.Read(3);
@@ -105,21 +113,26 @@ namespace Cavern.Format.Transcoders {
                 WordsPerSyncframe = frameSizes[frmsizecod >> 1];
                 if (SampleRateCode == 1) { // 44.1 kHz
                     WordsPerSyncframe = WordsPerSyncframe * 1393 / 1280;
-                    if ((frmsizecod & 1) == 1)
+                    if ((frmsizecod & 1) == 1) {
                         ++WordsPerSyncframe;
-                } else if (SampleRateCode == 2)
+                    }
+                } else if (SampleRateCode == 2) {
                     WordsPerSyncframe = WordsPerSyncframe * 3 / 2;
+                }
                 bsmod = extractor.Read(3);
                 ChannelMode = extractor.Read(3);
             }
             extractor.Expand(reader.Read(WordsPerSyncframe * 2 - mustDecode));
 
-            if (StreamType == StreamTypes.Dependent)
+            if (StreamType == StreamTypes.Dependent) {
                 SubstreamID += 8; // There can be 8 dependent and independent substreams, both start at 0
-            if (StreamType == StreamTypes.Reserved)
+            }
+            if (StreamType == StreamTypes.Reserved) {
                 throw new ReservedValueException("strmtyp");
-            if (SampleRateCode == 3)
+            }
+            if (SampleRateCode == 3) {
                 throw new ReservedValueException("fscod");
+            }
             SampleRate = sampleRates[SampleRateCode];
 
             channelMapping = null;
@@ -146,8 +159,9 @@ namespace Cavern.Format.Transcoders {
                 for (int i = channelMappingBits - 1; i > 0; --i) {
                     if (((channelMapping >> i) & 1) == 1) {
                         for (int j = 0; j < channelMappingTargets[i].Length; ++j) {
-                            if (channel == channels.Length)
+                            if (channel == channels.Length) {
                                 throw new CorruptionException("chanmap");
+                            }
                             channels[channel++] = channelMappingTargets[i][j];
                         }
                     }
@@ -160,14 +174,17 @@ namespace Cavern.Format.Transcoders {
         /// Decoder version check.
         /// </summary>
         static EnhancedAC3.Decoders ParseDecoder(int bsid) {
-            if (bsid == (int)EnhancedAC3.Decoders.AlternateAC3)
+            if (bsid == (int)EnhancedAC3.Decoders.AlternateAC3) {
                 return EnhancedAC3.Decoders.AlternateAC3;
-            if (bsid <= (int)EnhancedAC3.Decoders.AC3)
+            }
+            if (bsid <= (int)EnhancedAC3.Decoders.AC3) {
                 return EnhancedAC3.Decoders.AC3;
-            if (bsid == (int)EnhancedAC3.Decoders.EAC3)
+            }
+            if (bsid == (int)EnhancedAC3.Decoders.EAC3) {
                 return EnhancedAC3.Decoders.EAC3;
-            else
+            } else {
                 throw new UnsupportedFeatureException("decoder " + bsid);
+            }
         }
     }
 }

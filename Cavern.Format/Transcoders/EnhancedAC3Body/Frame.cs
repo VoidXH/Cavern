@@ -24,53 +24,68 @@ namespace Cavern.Format.Transcoders {
                 cplstre[0] = true;
                 cplinu[0] = extractor.ReadBit();
                 for (int block = 1; block < cplstre.Length; ++block) {
-                    if (cplstre[block] = extractor.ReadBit())
+                    if (cplstre[block] = extractor.ReadBit()) {
                         cplinu[block] = extractor.ReadBit();
-                    else
+                    } else {
                         cplinu[block] = cplinu[block - 1];
+                    }
                 }
-            } else
-                for (int block = 1; block < cplstre.Length; ++block)
+            } else {
+                for (int block = 1; block < cplstre.Length; ++block) {
                     cplinu[block] = false;
+                }
+            }
 
             // Exponent strategy data init
             if (expstre) {
                 for (int block = 0; block < cplexpstr.Length; ++block) {
-                    if (cplinu[block])
+                    if (cplinu[block]) {
                         cplexpstr[block] = (ExpStrat)extractor.Read(2);
-                    for (int channel = 0; channel < channels.Length; ++channel)
+                    }
+                    for (int channel = 0; channel < channels.Length; ++channel) {
                         chexpstr[block][channel] = (ExpStrat)extractor.Read(2);
+                    }
                 }
             } else {
                 int ncplblks = 0;
-                for (int block = 0; block < cplinu.Length; ++block)
-                    if (cplinu[block])
+                for (int block = 0; block < cplinu.Length; ++block) {
+                    if (cplinu[block]) {
                         ++ncplblks;
-                if (header.ChannelMode > 1 && ncplblks > 0)
+                    }
+                }
+                if (header.ChannelMode > 1 && ncplblks > 0) {
                     frmcplexpstr = extractor.Read(5);
-                for (int channel = 0; channel < channels.Length; ++channel)
+                }
+                for (int channel = 0; channel < channels.Length; ++channel) {
                     frmchexpstr[channel] = extractor.Read(5);
+                }
 
                 for (int block = 0; block < cplexpstr.Length; ++block) {
                     cplexpstr[block] = frmcplexpstr_tbl[frmcplexpstr][block];
-                    for (int channel = 0; channel < channels.Length; ++channel)
+                    for (int channel = 0; channel < channels.Length; ++channel) {
                         chexpstr[block][channel] = frmcplexpstr_tbl[frmchexpstr[channel]][block];
+                    }
                 }
             }
 
-            if (header.LFE)
-                for (int block = 0; block < lfeexpstr.Length; ++block)
+            if (header.LFE) {
+                for (int block = 0; block < lfeexpstr.Length; ++block) {
                     lfeexpstr[block] = extractor.ReadBit();
+                }
+            }
 
             // Converter exponent strategy data
             if (header.StreamType == StreamTypes.Independent &&
-                (convexpstre = header.Blocks == 6 || extractor.ReadBit()))
-                for (int channel = 0; channel < channels.Length; ++channel)
+                (convexpstre = header.Blocks == 6 || extractor.ReadBit())) {
+                for (int channel = 0; channel < channels.Length; ++channel) {
                     convexpstr[channel] = extractor.Read(5);
+                }
+            }
 
             // AHT data
-            if (ahte)
+            if (ahte) {
                 throw new UnsupportedFeatureException("AHT");
+            }
 
             // Audio frame SNR offset data
             if (snroffststr == 0) {
@@ -89,10 +104,13 @@ namespace Cavern.Format.Transcoders {
             }
 
             // Spectral extension attenuation data
-            if (spxattene)
-                for (int ch = 0; ch < channels.Length; ++ch)
-                    if (chinspxatten[ch] = extractor.ReadBit())
+            if (spxattene) {
+                for (int ch = 0; ch < channels.Length; ++ch) {
+                    if (chinspxatten[ch] = extractor.ReadBit()) {
                         spxattencod[ch] = extractor.Read(5);
+                    }
+                }
+            }
 
             if (blkstrtinfoe = header.Blocks != 1 && extractor.ReadBit()) {
                 int nblkstrtbits = (header.Blocks - 1) * (4 + QMath.Log2Ceil(header.WordsPerSyncframe));

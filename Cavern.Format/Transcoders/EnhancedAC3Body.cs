@@ -46,17 +46,20 @@ namespace Cavern.Format.Transcoders {
             channels = header.GetChannelArrangement();
             if (FrameResult == null || FrameResult.Length != channels.Length) {
                 FrameResult = new float[channels.Length][];
-                for (int i = 0; i < channels.Length; ++i)
+                for (int i = 0; i < channels.Length; ++i) {
                     FrameResult[i] = new float[header.Blocks * 256];
+                }
             }
-            if (LFEResult == null && header.LFE)
+            if (LFEResult == null && header.LFE) {
                 LFEResult = new float[header.Blocks * 256];
+            }
 
-            if (exps == null) // If caches don't exist, create them
+            if (exps == null) { // If caches don't exist, create them
                 CreateCacheTables(header.Blocks, channels.Length);
-            if (header.Decoder == EnhancedAC3.Decoders.EAC3)
+            }
+            if (header.Decoder == EnhancedAC3.Decoders.EAC3) {
                 AudioFrame();
-            else {
+            } else {
                 blkswe = true;
                 dithflage = true;
                 bamode = true;
@@ -79,8 +82,9 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         public void Update() {
             auxDataPos = 0;
-            for (int block = 0; block < header.Blocks; ++block)
+            for (int block = 0; block < header.Blocks; ++block) {
                 AudioBlock(block);
+            }
             ReadAux();
         }
 
@@ -91,8 +95,9 @@ namespace Cavern.Format.Transcoders {
         void ReadAux() {
             extractor.Position = extractor.BackPosition - 32;
             int auxLength = extractor.Read(14);
-            if (extractor.ReadBit()) // Auxillary data present
+            if (extractor.ReadBit()) { // Auxillary data present
                 extractor.ReadInto(ref auxData, ref auxDataPos, auxLength);
+            }
         }
     }
 }

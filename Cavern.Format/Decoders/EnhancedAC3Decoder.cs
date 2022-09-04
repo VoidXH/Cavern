@@ -151,12 +151,13 @@ namespace Cavern.Format.Decoders {
         void ReadHeader() {
             if (reader.Readable) {
                 extractor = header.Decode(reader);
-                if (!extractor.Readable) {
+                if (extractor == null || !extractor.Readable) {
                     Finished = true;
                     return;
                 }
-                if (!bodies.ContainsKey(header.SubstreamID))
+                if (!bodies.ContainsKey(header.SubstreamID)) {
                     bodies[header.SubstreamID] = new EnhancedAC3Body(header);
+                }
                 bodies[header.SubstreamID].PrepareUpdate(extractor);
             } else
                 Finished = true;
