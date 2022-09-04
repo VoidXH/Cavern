@@ -35,7 +35,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Exports a listener environment with all its objects, including movement data.
         /// </summary>
-        public EnvironmentWriter(string path, Listener source) : this(new BinaryWriter(File.OpenWrite(path)), source) { }
+        public EnvironmentWriter(string path, Listener source) : this(new BinaryWriter(AudioWriter.Open(path)), source) { }
 
         /// <summary>
         /// Export the next frame of the <see cref="Source"/>.

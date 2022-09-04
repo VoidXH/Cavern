@@ -58,7 +58,7 @@ namespace Cavern.Format {
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         public AudioWriter(string path, int channelCount, long length, int sampleRate, BitDepth bits) :
-            this(new BinaryWriter(File.OpenWrite(path)), channelCount, length, sampleRate, bits) { }
+            this(new BinaryWriter(Open(path)), channelCount, length, sampleRate, bits) { }
 
         /// <summary>
         /// Create an <see cref="AudioWriter"/> that matches the output file name.
@@ -75,6 +75,12 @@ namespace Cavern.Format {
                 "wav" => new RIFFWaveWriter(path, channelCount, length, sampleRate, bits),
                 _ => null,
             };
+
+        /// <summary>
+        /// Open a file stream optimized for sequential writing.
+        /// </summary>
+        public static Stream Open(string path) =>
+            new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.SequentialScan);
 
         /// <summary>
         /// Create the file header.

@@ -27,15 +27,26 @@ namespace Cavern.Format.Environment {
         readonly List<ADMBlockFormat>[] movements;
 
         /// <summary>
+        /// When not null, writes the AXML to this separate file.
+        /// </summary>
+        readonly BinaryWriter admWriter;
+
+        /// <summary>
         /// Total samples written to the export file.
         /// </summary>
         long samplesWritten;
 
         /// <summary>
         /// Object-based exporter of a listening environment to Audio Definition Model Broadcast Wave Format.
+        /// When an XML path is received, the waveform and the ADM will be written to separate files.
         /// </summary>
         public BroadcastWaveFormatWriter(BinaryWriter writer, Listener source, long length, BitDepth bits) :
             base(writer, source) {
+            if (writer.BaseStream is FileStream fs && fs.Name.EndsWith(".xml")) {
+                admWriter = writer;
+                writer = new BinaryWriter(AudioWriter.Open(fs.Name[..^3] + "wav"));
+            }
+
             output = new RIFFWaveWriter(writer, source.ActiveSources.Count, length, source.SampleRate, bits) {
                 MaxLargeChunks = 1
             };
@@ -49,9 +60,10 @@ namespace Cavern.Format.Environment {
 
         /// <summary>
         /// Object-based exporter of a listening environment to Audio Definition Model Broadcast Wave Format.
+        /// When an XML path is received, the waveform and the ADM will be written to separate files.
         /// </summary>
         public BroadcastWaveFormatWriter(string path, Listener source, long length, BitDepth bits) :
-            this(new BinaryWriter(File.OpenWrite(path)), source, length, bits) { }
+            this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits) { }
 
         /// <summary>
         /// Export the next frame of the <see cref="Source"/>.
@@ -75,8 +87,7 @@ namespace Cavern.Format.Environment {
                 if (size == 0 || movement[size - 1].Position != scaledPosition) {
                     bool replace = false;
                     if (size > 1) {
-                        float t =
-                            (float)QMath.LerpInverse(movement[size - 2].Offset, newOffset, movement[size - 1].Offset);
+                        float t = (float)QMath.LerpInverse(movement[size - 2].Offset, newOffset, movement[size - 1].Offset);
                         Vector3 inBetween = QMath.Lerp(movement[size - 2].Position, scaledPosition, t),
                             diff = inBetween - movement[size - 1].Position;
                         float delta = diff.LengthSquared();
@@ -112,11 +123,22 @@ namespace Cavern.Format.Environment {
         public override void Dispose() {
             AudioDefinitionModel adm = CreateModel();
             StringBuilder builder = new StringBuilder();
-            using (XmlWriter exporter = XmlWriter.Create(builder)) {
+            XmlWriterSettings settings = new XmlWriterSettings();
+            if (admWriter != null) {
+                settings.Indent = true;
+            }
+            using (XmlWriter exporter = XmlWriter.Create(builder, settings)) {
                 adm.WriteXml(exporter);
             }
-            output.WriteChunk(RIFFWave.axmlSync, Encoding.UTF8.GetBytes(builder.ToString().Replace("utf-16", "utf-8")));
-            output.WriteChunk(RIFFWave.chnaSync, ChannelAssignment.GetChunk(adm));
+
+            byte[] axml = Encoding.UTF8.GetBytes(builder.ToString().Replace("utf-16", "utf-8"));
+            if (admWriter == null) {
+                output.WriteChunk(RIFFWave.axmlSync, axml);
+                output.WriteChunk(RIFFWave.chnaSync, ChannelAssignment.GetChunk(adm));
+            } else {
+                admWriter.Write(axml);
+                admWriter.Dispose();
+            }
             output.Dispose();
         }
 

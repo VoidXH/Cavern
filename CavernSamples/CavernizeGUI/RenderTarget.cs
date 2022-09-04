@@ -116,8 +116,7 @@ namespace CavernizeGUI {
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter,
                 ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
-            }),
-            new RenderTarget("Raw object data", new[] { ReferenceChannel.Unknown, ReferenceChannel.Unknown })
+            })
         };
     }
 }

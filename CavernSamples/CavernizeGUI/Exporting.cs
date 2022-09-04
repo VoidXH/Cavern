@@ -98,16 +98,6 @@ namespace CavernizeGUI {
                     Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
                 }
 
-                // Raw object export
-                if (Listener.Channels.Length == 2) {
-                    IReadOnlyList<Source> objects = target.Renderer.Objects;
-                    int objectCount = objects.Count;
-                    result = new float[listener.UpdateRate * objectCount];
-                    for (int i = 0; i < objectCount; i++) {
-                        WaveformUtils.Insert(objects[i].Rendered[0], result, i, objectCount);
-                    }
-                }
-
                 writer?.WriteBlock(result, 0, result.LongLength);
                 if (progressor.Rendered > firstFrame) {
                     stats.Update();

@@ -279,9 +279,7 @@ namespace CavernizeGUI {
                     if (!isBWF) {
                         finalName = dialog.FileName;
                         exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + ".wav" : finalName;
-                        bool render = Listener.Channels.Length > 2; // This is only stereo for raw object exports
-                        writer = new RIFFWaveWriter(exportName,
-                            render ? Listener.Channels.Length : target.Renderer.Objects.Count,
+                        writer = new RIFFWaveWriter(exportName, Listener.Channels.Length,
                             target.Length, target.SampleRate, BitDepth.Int16);
                         if (writer == null) {
                             Error((string)language["UnExt"]);
