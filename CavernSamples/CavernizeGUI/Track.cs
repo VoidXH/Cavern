@@ -33,7 +33,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// The renderer starting at the first sample of the track after construction.
         /// </summary>
-        public Renderer Renderer { get; }
+        public Renderer Renderer { get; private set; }
 
         /// <summary>
         /// Number of samples to render by the <see cref="Listener"/> to reach the end of the stream.
@@ -121,9 +121,11 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
-        /// Attach this track to a rendering environment.
+        /// Attach this track to a rendering environment and start from the beginning.
         /// </summary>
         public void Attach(Listener listener) {
+            reader.Reset();
+            Renderer = reader.GetRenderer();
             listener.SampleRate = reader.SampleRate;
             for (int i = 0; i < Renderer.Objects.Count; ++i)
                 listener.AttachSource(Renderer.Objects[i]);

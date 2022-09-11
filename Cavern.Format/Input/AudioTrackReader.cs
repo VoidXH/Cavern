@@ -34,8 +34,9 @@ namespace Cavern.Format {
         /// Reads an audio track from a container.
         /// </summary>
         public AudioTrackReader(Track track) : base(track.Source.reader) {
-            if (!track.Format.IsAudio())
+            if (!track.Format.IsAudio()) {
                 throw new UnsupportedCodecException(true, track.Format);
+            }
             this.track = track;
         }
 
@@ -76,12 +77,15 @@ namespace Cavern.Format {
         /// If the stream can be rendered in 3D by Cavern, return a renderer.
         /// </summary>
         public override Renderer GetRenderer() {
-            if (decoder == null)
+            if (decoder == null) {
                 ReadHeader();
-            if (decoder is RIFFWaveDecoder wav)
+            }
+            if (decoder is RIFFWaveDecoder wav) {
                 return new RIFFWaveRenderer(wav);
-            if (decoder is EnhancedAC3Decoder eac3)
+            }
+            if (decoder is EnhancedAC3Decoder eac3) {
                 return new EnhancedAC3Renderer(eac3);
+            }
             return null;
         }
 
@@ -96,11 +100,20 @@ namespace Cavern.Format {
         public override void ReadBlock(float[] samples, long from, long to) => decoder.DecodeBlock(samples, from, to - from);
 
         /// <summary>
+        /// Goes back to a state where the first sample can be read.
+        /// </summary>
+        public override void Reset() {
+            Source.Seek(0);
+            ReadHeader();
+        }
+
+        /// <summary>
         /// Close the reader if it surely can't be used anywhere else.
         /// </summary>
         public override void Dispose() {
-            if (disposeSource && reader != null)
+            if (disposeSource && reader != null) {
                 reader.Close();
+            }
         }
 
         /// <summary>
