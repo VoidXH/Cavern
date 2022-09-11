@@ -317,7 +317,8 @@ namespace CavernizeGUI {
             if (writer != null && !isWAV) {
                 if (!File.Exists(firstWAV)) {
                     taskEngine.UpdateStatus("Decoding bed audio...");
-                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -map 0:a:{1} -f segment -segment_time 30:00 \"{2}\"",
+                    if (!ffmpeg.Launch(string.Format("-drc_scale 0 -i \"{0}\" -map 0:a:{1} -c:a pcm_s24le " +
+                        "-f segment -segment_time 30:00 \"{2}\"",
                         filePath, target.Index, string.Format(tempWAV, "%d"))) ||
                         !File.Exists(firstWAV)) {
                         if (File.Exists(firstWAV))
