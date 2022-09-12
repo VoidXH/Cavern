@@ -24,8 +24,7 @@ namespace CavernizeGUI {
 
             int unused = total - dynamic - channels.Count;
             if (unused < 0) {
-                if (hasLFE)
-                    channels.Remove(ReferenceChannel.FrontCenter);
+                dynamic += unused;
                 unused = 0;
             }
 

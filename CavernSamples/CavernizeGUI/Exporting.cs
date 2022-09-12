@@ -99,7 +99,7 @@ namespace CavernizeGUI {
                 }
 
                 writer?.WriteBlock(result, 0, result.LongLength);
-                if (progressor.Rendered > firstFrame) {
+                if (progressor.Rendered > secondFrame) {
                     stats.Update();
                 }
 
@@ -146,6 +146,6 @@ namespace CavernizeGUI {
         /// <summary>
         /// The OAMD objects need this many samples at max to move to their initial position.
         /// </summary>
-        const int firstFrame = 1536;
+        const int secondFrame = 2 * 1536;
     }
 }
