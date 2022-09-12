@@ -121,8 +121,8 @@
                                           Margin="55,62,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="213"/>
                             </Grid>
                             <TextBlock x:Name="trackInfo" Margin="10,89,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Button x:Name="render" Content="Render" Margin="0,0,10,10" HorizontalAlignment="Right" Width="70" Click="Render"
-                                    Background="Green" Foreground="White" VerticalAlignment="Bottom"/>
+                            <Button x:Name="render" Template="{DynamicResource renderButton}" Content="Render" Click="Render"
+                                    Width="70" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                         </Grid>
                     </GroupBox>
                 </Grid>
