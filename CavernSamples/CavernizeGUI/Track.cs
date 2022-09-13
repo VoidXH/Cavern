@@ -51,6 +51,11 @@ namespace CavernizeGUI {
         public int Index { get; }
 
         /// <summary>
+        /// Language code.
+        /// </summary>
+        public string Language { get; private set; }
+
+        /// <summary>
         /// Text to display about this track.
         /// </summary>
         public string Details { get; private set; }
@@ -61,22 +66,17 @@ namespace CavernizeGUI {
         readonly AudioReader reader;
 
         /// <summary>
-        /// Language code.
-        /// </summary>
-        readonly string language;
-
-        /// <summary>
         /// Reads information from a track's renderer.
         /// </summary>
         public Track(AudioReader reader, Codec codec, int index, string language = null) {
             this.reader = reader;
             Codec = codec;
             Index = index;
-            this.language = language;
+            Language = language;
 
             StringBuilder builder = new();
             Renderer = reader.GetRenderer();
-            Supported = Renderer != null;
+            Supported = Renderer is not DummyRenderer;
             EnhancedAC3Renderer eac3 = Renderer as EnhancedAC3Renderer;
 
             if (!Supported) {
@@ -108,7 +108,7 @@ namespace CavernizeGUI {
                         builder.Append("Bed channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
                     }
                     builder.Append("Dynamic objects: ").AppendLine((Renderer.Objects.Count - beds.Length).ToString());
-                } else if(beds.Length > 0) {
+                } else if (beds.Length > 0) {
                     builder.Append("Channel count: ").AppendLine(reader.ChannelCount.ToString());
                 } else {
                     builder.Append("Channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
@@ -160,7 +160,7 @@ namespace CavernizeGUI {
         public override string ToString() {
             string codecName = formatNames.ContainsKey(Codec) ? formatNames[Codec] : Codec.ToString();
             string objects = Renderer != null && Renderer.HasObjects ? " with objects" : string.Empty;
-            return string.IsNullOrEmpty(language) ? codecName : $"{codecName}{objects} ({language})";
+            return string.IsNullOrEmpty(Language) ? codecName : $"{codecName}{objects} ({Language})";
         }
     }
 }

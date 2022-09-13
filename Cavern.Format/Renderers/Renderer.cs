@@ -15,6 +15,11 @@ namespace Cavern.Format.Renderers {
         public bool HasObjects { get; protected set; }
 
         /// <summary>
+        /// Content channel count.
+        /// </summary>
+        public int Channels => stream.ChannelCount;
+
+        /// <summary>
         /// Rendered Cavern objects. Might not be dynamic, channels are rendered as stationary objects.
         /// </summary>
         public IReadOnlyList<Source> Objects => objects;

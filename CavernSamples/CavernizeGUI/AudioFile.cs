@@ -65,6 +65,23 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
+        /// Get the index of a track that is the same as the selected index, but in better quality.
+        /// This feature can use a better codec's waveform with a worse but known codec's spatial metadata.
+        /// </summary>
+        public int TryForBetterQuality(Track than) {
+            if (than.Codec == Codec.EnhancedAC3 && than.Renderer.HasObjects) {
+                for (int i = 0, c = tracks.Count; i < c; i++) {
+                    Track target = tracks[i];
+                    if (target.Codec == Codec.TrueHD && than.Index - 2 <= target.Index && target.Index < than.Index &&
+                        than.Language.Equals(target.Language) && than.Renderer.Channels == target.Renderer.Channels) {
+                        return target.Index;
+                    }
+                }
+            }
+            return than.Index;
+        }
+
+        /// <summary>
         /// Free up resources.
         /// </summary>
         public void Dispose() {

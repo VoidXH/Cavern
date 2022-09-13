@@ -86,6 +86,9 @@ namespace Cavern.Format {
             if (decoder is EnhancedAC3Decoder eac3) {
                 return new EnhancedAC3Renderer(eac3);
             }
+            if (decoder is DummyDecoder dummy) {
+                return new DummyRenderer(dummy);
+            }
             return null;
         }
 

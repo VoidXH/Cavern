@@ -319,7 +319,7 @@ namespace CavernizeGUI {
                     taskEngine.UpdateStatus("Decoding bed audio...");
                     if (!ffmpeg.Launch(string.Format("-drc_scale 0 -i \"{0}\" -map 0:a:{1} -c:a pcm_s24le " +
                         "-f segment -segment_time 30:00 \"{2}\"",
-                        filePath, target.Index, string.Format(tempWAV, "%d"))) ||
+                        filePath, file.TryForBetterQuality(target), string.Format(tempWAV, "%d"))) ||
                         !File.Exists(firstWAV)) {
                         if (File.Exists(firstWAV))
                             File.Delete(firstWAV); // Only the first determines if it should be rendered
@@ -392,7 +392,7 @@ namespace CavernizeGUI {
                     taskEngine.UpdateStatus("Decoding bed audio...");
                     if (!ffmpeg.Launch(string.Format("-drc_scale 0 -i \"{0}\" -map 0:a:{1} -c:a pcm_s24le " +
                         "-f segment -segment_time 30:00 \"{2}\"",
-                        filePath, target.Index, string.Format(tempWAV, "%d"))) ||
+                        filePath, file.TryForBetterQuality(target), string.Format(tempWAV, "%d"))) ||
                         !File.Exists(firstWAV)) {
                         if (File.Exists(firstWAV))
                             File.Delete(firstWAV); // only the first determines if it should be rendered
