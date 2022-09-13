@@ -48,10 +48,12 @@ namespace CavernizeGUI {
                 case "mka":
                     MatroskaReader mkvReader = new(path);
                     int trackId = 0;
-                    for (int i = 0; i < mkvReader.Tracks.Length; ++i)
-                        if (mkvReader.Tracks[i].Format.IsAudio())
+                    for (int i = 0; i < mkvReader.Tracks.Length; i++) {
+                        if (mkvReader.Tracks[i].Format.IsAudio()) {
                             tracks.Add(new Track(new AudioTrackReader(mkvReader.Tracks[i]), mkvReader.Tracks[i].Format,
                                 trackId++, mkvReader.Tracks[i].Language));
+                        }
+                    }
                     break;
                 case "wav":
                     RIFFWaveReader wavReader = new(path);
@@ -85,8 +87,9 @@ namespace CavernizeGUI {
         /// Free up resources.
         /// </summary>
         public void Dispose() {
-            for (int i = 0; i < tracks.Count; ++i)
+            for (int i = 0; i < tracks.Count; ++i) {
                 tracks[i].Dispose();
+            }
         }
     }
 }

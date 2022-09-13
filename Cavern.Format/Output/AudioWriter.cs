@@ -79,8 +79,8 @@ namespace Cavern.Format {
         /// <summary>
         /// Open a file stream optimized for sequential writing.
         /// </summary>
-        public static Stream Open(string path) =>
-            new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read, 1024 * 1024, FileOptions.SequentialScan);
+        internal static Stream Open(string path) =>
+            new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read, 10 * 1024 * 1024, FileOptions.SequentialScan);
 
         /// <summary>
         /// Create the file header.

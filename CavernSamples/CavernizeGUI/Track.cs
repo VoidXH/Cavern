@@ -127,8 +127,9 @@ namespace CavernizeGUI {
             reader.Reset();
             Renderer = reader.GetRenderer();
             listener.SampleRate = reader.SampleRate;
-            for (int i = 0; i < Renderer.Objects.Count; ++i)
+            for (int i = 0; i < Renderer.Objects.Count; ++i) {
                 listener.AttachSource(Renderer.Objects[i]);
+            }
         }
 
         /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
@@ -152,7 +153,12 @@ namespace CavernizeGUI {
         /// <summary>
         /// Free up resources.
         /// </summary>
-        public void Dispose() => reader.Dispose();
+        public void Dispose() {
+            if (reader is AudioTrackReader track) {
+                track.Source.Dispose();
+            }
+            reader.Dispose();
+        }
 
         /// <summary>
         /// Very short track information for the dropdown.

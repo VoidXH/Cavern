@@ -48,7 +48,51 @@ namespace Cavern.Format {
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="path">Input file name</param>
-        public AudioReader(string path) => reader = File.OpenRead(path);
+        public AudioReader(string path) => reader = OpenSequentialStream(path);
+
+        /// <summary>
+        /// Open an audio stream for reading. The format will be detected automatically.
+        /// </summary>
+        public static AudioReader Open(Stream reader) {
+            int syncWord = reader.ReadInt32();
+            reader.Position = 0;
+            if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE) {
+                return new EnhancedAC3Reader(reader);
+            }
+
+            switch (syncWord) {
+                case RIFFWave.syncWord1:
+                case RIFFWave.syncWord1_64:
+                    return new RIFFWaveReader(reader);
+                case LimitlessAudioFormat.syncWord:
+                    return new LimitlessAudioFormatReader(reader);
+                case MatroskaTree.EBML:
+                    return new AudioTrackReader(new MatroskaReader(reader).GetMainAudioTrack(), true);
+                default:
+                    throw new UnsupportedFormatException();
+            }
+        }
+
+        /// <summary>
+        /// Open an audio file for reading by file name. The format will be detected automatically.
+        /// </summary>
+        public static AudioReader Open(string path) => Open(OpenSequentialStream(path));
+
+        /// <summary>
+        /// Open an audio clip from a stream. The format will be detected automatically.
+        /// </summary>
+        public static Clip ReadClip(Stream reader) => Open(reader).ReadClip();
+
+        /// <summary>
+        /// Open an audio clip by file name. The format will be detected automatically.
+        /// </summary>
+        public static Clip ReadClip(string path) => Open(path).ReadClip();
+
+        /// <summary>
+        /// Open a file stream optimized for sequential reading.
+        /// </summary>
+        internal static Stream OpenSequentialStream(string path) =>
+            new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 10 * 1024 * 1024, FileOptions.SequentialScan);
 
         /// <summary>
         /// Get an object-based renderer for this audio file.
@@ -85,9 +129,11 @@ namespace Cavern.Format {
             long perChannel = to - from, sampleCount = perChannel * samples.LongLength;
             float[] source = new float[sampleCount];
             ReadBlock(source, 0, sampleCount);
-            for (long position = 0, sample = 0; sample < perChannel; ++sample)
-                for (long channel = 0; channel < samples.LongLength; ++channel)
+            for (long position = 0, sample = 0; sample < perChannel; ++sample) {
+                for (long channel = 0; channel < samples.LongLength; ++channel) {
                     samples[channel][sample] = source[position++];
+                }
+            }
         }
 
         /// <summary>
@@ -134,8 +180,9 @@ namespace Cavern.Format {
         /// </summary>
         public float[][] ReadMultichannelAfterHeader() {
             float[][] samples = new float[ChannelCount][];
-            for (int channel = 0; channel < ChannelCount; ++channel)
+            for (int channel = 0; channel < ChannelCount; ++channel) {
                 samples[channel] = new float[Length];
+            }
             ReadBlock(samples, 0, Length);
             Dispose();
             return samples;
@@ -150,15 +197,23 @@ namespace Cavern.Format {
         }
 
         /// <summary>
+        /// Close the reader.
+        /// </summary>
+        public virtual void Dispose() => reader?.Close();
+
+        /// <summary>
         /// Tests if the next rolling byte block is as expected, if not, it advances by 1 byte.
         /// </summary>
         protected bool RollingBlockCheck(byte[] cache, byte[] block) {
-            for (int i = 1; i < cache.Length; ++i)
+            for (int i = 1; i < cache.Length; ++i) {
                 cache[i - 1] = cache[i];
+            }
             cache[^1] = (byte)reader.ReadByte();
-            for (int i = 0; i < block.Length; ++i)
-                if (cache[i] != block[i])
+            for (int i = 0; i < block.Length; ++i) {
+                if (cache[i] != block[i]) {
                     return false;
+                }
+            }
             return true;
         }
 
@@ -167,51 +222,11 @@ namespace Cavern.Format {
         /// </summary>
         protected void BlockTest(byte[] block) {
             byte[] input = reader.ReadBytes(block.Length);
-            for (int i = 0; i < block.Length; ++i)
-                if (input[i] != block[i])
+            for (int i = 0; i < block.Length; ++i) {
+                if (input[i] != block[i]) {
                     throw new IOException("Format mismatch.");
-        }
-
-        /// <summary>
-        /// Close the reader.
-        /// </summary>
-        public virtual void Dispose() => reader?.Close();
-
-        /// <summary>
-        /// Open an audio stream for reading. The format will be detected automatically.
-        /// </summary>
-        public static AudioReader Open(Stream reader) {
-            int syncWord = reader.ReadInt32();
-            reader.Position = 0;
-            if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE)
-                return new EnhancedAC3Reader(reader);
-
-            switch (syncWord) {
-                case RIFFWave.syncWord1:
-                case RIFFWave.syncWord1_64:
-                    return new RIFFWaveReader(reader);
-                case LimitlessAudioFormat.syncWord:
-                    return new LimitlessAudioFormatReader(reader);
-                case MatroskaTree.EBML:
-                    return new AudioTrackReader(new MatroskaReader(reader).GetMainAudioTrack(), true);
-                default:
-                    throw new UnsupportedFormatException();
+                }
             }
         }
-
-        /// <summary>
-        /// Open an audio file for reading by file name. The format will be detected automatically.
-        /// </summary>
-        public static AudioReader Open(string path) => Open(File.OpenRead(path));
-
-        /// <summary>
-        /// Open an audio clip from a stream. The format will be detected automatically.
-        /// </summary>
-        public static Clip ReadClip(Stream reader) => Open(reader).ReadClip();
-
-        /// <summary>
-        /// Open an audio clip by file name. The format will be detected automatically.
-        /// </summary>
-        public static Clip ReadClip(string path) => Open(path).ReadClip();
     }
 }
