@@ -115,6 +115,13 @@ float[] output = listener.Render();
 ```
 The length of this array is `listener.UpdateRate * Listener.Channels.Length`.
 
+## Unity quick start
+Cavern works exactly the same way as Unity's audio engine, only the names are
+different. For `AudioSource`, there's `AudioSource3D`, and for `AudioListener`,
+there's `AudioListener3D`, and so on. You will find all Cavern components in the
+component browser, under audio, and they will automatically add all their Unity
+dependencies.
+
 ## Development documents
 * [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes.
 * [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
