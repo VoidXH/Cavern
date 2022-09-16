@@ -44,7 +44,7 @@ namespace Cavern.Filters {
         public DualConvolver(float[] impulse1, float[] impulse2, int delay1 = 0, int delay2 = 0) {
             int impulseLength = Math.Max(impulse1.Length, impulse2.Length);
             int fftSize = 2 << QMath.Log2Ceil(impulseLength); // Zero padding for the falloff to have space
-            cache = new FFTCache(fftSize);
+            cache = new ThreadSafeFFTCache(fftSize);
             filter = new Complex[fftSize];
             for (int sample = 0; sample < impulse1.Length; ++sample) {
                 filter[sample].Real = impulse1[sample];
