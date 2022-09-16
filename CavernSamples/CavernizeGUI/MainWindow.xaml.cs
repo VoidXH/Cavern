@@ -57,6 +57,11 @@ namespace CavernizeGUI {
         /// </summary>
         readonly TaskEngine taskEngine;
 
+        /// <summary>
+        /// Used to check if an ADM export will take place. In that case, render settings should be greyed out.
+        /// </summary>
+        readonly ExportFormat adm;
+
         AudioFile file;
 
         string filePath;
@@ -89,7 +94,7 @@ namespace CavernizeGUI {
                 new ExportFormat(Codec.Opus, "libopus", "Opus (transparent, small size)"),
                 new ExportFormat(Codec.PCM_LE, "pcm_s16le", "PCM integer (lossless, large size)"),
                 new ExportFormat(Codec.PCM_Float, "pcm_f32le", "PCM float (needless, largest size)"),
-                new ExportFormat(Codec.ADM_BWF, string.Empty, "ADM Broadcast Wave Format (studio)")
+                adm = new ExportFormat(Codec.ADM_BWF, string.Empty, "ADM Broadcast Wave Format (studio)")
             };
             audio.SelectedIndex = Settings.Default.outputCodec;
 
@@ -103,6 +108,7 @@ namespace CavernizeGUI {
             language.Source = new Uri(";component/Resources/Strings.xaml", UriKind.RelativeOrAbsolute);
             renderTarget.ItemsSource = RenderTarget.Targets;
             renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget), RenderTarget.Targets.Length - 1);
+            renderSettings.IsEnabled = true; // Don't grey out initially
             taskEngine = new(progress, status);
             Reset();
         }
@@ -166,6 +172,7 @@ namespace CavernizeGUI {
                 taskEngine.UpdateProgressBar(0);
 
                 fileName.Text = Path.GetFileName(dialog.FileName);
+                OnOutputSelected(null, null);
 
                 try {
                     file = new(filePath = dialog.FileName);
@@ -227,6 +234,12 @@ namespace CavernizeGUI {
                 trackInfo.Text = ((Track)tracks.SelectedItem).Details;
             }
         }
+
+        /// <summary>
+        /// Grey out renderer settings when it's not applicable.
+        /// </summary>
+        void OnOutputSelected(object _, SelectionChangedEventArgs e) =>
+            renderSettings.IsEnabled = audio.SelectedItem != adm;
 
         /// <summary>
         /// Prompt the user to select FFmpeg's installation folder.

@@ -59,45 +59,46 @@
                 </Grid.ColumnDefinitions>
                 <GroupBox Header="Step 1: System setup">
                     <Grid>
-                        <TextBlock Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="208"
-                                   Text="Choose a layout, and place your speakers accordingly. Click the &quot;Display wiring&quot; button to see which output will change to which actual channel. For maximum audio quality, calibrate your system with QuickEQ."/>
-                        <TextBlock HorizontalAlignment="Left" Margin="10,114,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
-                        <ComboBox x:Name="renderTarget" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                              Margin="90,111,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
-                        <Canvas Margin="0,140,0,0" Height="160" VerticalAlignment="Top" HorizontalAlignment="Center" Width="170">
-                            <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
-                            <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
-                            <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
-                            <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="30"/>
-                            <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="5"/>
-                            <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="5"/>
-                            <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="5"/>
-                            <Line X1="46" Y1="0" X2="14" Y2="73" Stroke="Gray"/>
-                            <Line X1="122" Y1="0" X2="154" Y2="73" Stroke="Gray"/>
-                            <Line X1="46" Y1="50" X2="14" Y2="158" Stroke="Gray"/>
-                            <Line X1="122" Y1="50" X2="154" Y2="158" Stroke="Gray"/>
-                            <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="40"/>
-                            <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="40"/>
-                            <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="91"/>
-                            <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="91"/>
-                            <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
-                            <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="57"/>
-                            <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
-                            <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
-                            <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
-                            <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
-                        </Canvas>
-                        <Button Content="Display wiring" HorizontalAlignment="Left" Margin="10,305,0,0" VerticalAlignment="Top" Width="100" Click="DisplayWiring"/>
-                        <CheckBox x:Name="dynamicOnly" Content="Mute bed" HorizontalAlignment="Left" Margin="10,330,0,0" VerticalAlignment="Top"
-                                  ToolTip="Only render objects that are not fixed in position, but move around."/>
-                        <CheckBox x:Name="heightOnly" Content="Mute ground" Margin="0,330,24,0" VerticalAlignment="Top"
-                                  ToolTip="Any sound that only comes from the ground speakers will be muted." HorizontalAlignment="Right"/>
-
-                        <TextBlock HorizontalAlignment="Left" Margin="10,350,0,0" TextWrapping="Wrap" Text="Rendering mode:" Height="16" VerticalAlignment="Top"/>
-                        <RadioButton x:Name="renderToFile" Content="Export" HorizontalAlignment="Left" Margin="10,371,0,0" IsChecked="True" Height="15" VerticalAlignment="Top"
-                                     ToolTip="Render the result to a file for later playback."/>
-                        <RadioButton x:Name="renderOnly" Content="Report" Margin="0,371,60,0" Height="15" VerticalAlignment="Top"
-                                     ToolTip="To only check if a content is truly object-based or not, choose this option. This option won't write anything to the disk." HorizontalAlignment="Right"/>
+                        <Grid x:Name="renderSettings">
+                            <TextBlock Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="208"
+                                       Text="Choose a layout, and place your speakers accordingly. Click the &quot;Display wiring&quot; button to see which output will change to which actual channel. For maximum audio quality, calibrate your system with QuickEQ."/>
+                            <TextBlock HorizontalAlignment="Left" Margin="10,114,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="renderTarget" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
+                                  Margin="90,111,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
+                            <Canvas Margin="0,140,0,0" Height="160" VerticalAlignment="Top" HorizontalAlignment="Center" Width="170">
+                                <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
+                                <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
+                                <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
+                                <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="30"/>
+                                <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="5"/>
+                                <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="5"/>
+                                <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="5"/>
+                                <Line X1="46" Y1="0" X2="14" Y2="73" Stroke="Gray"/>
+                                <Line X1="122" Y1="0" X2="154" Y2="73" Stroke="Gray"/>
+                                <Line X1="46" Y1="50" X2="14" Y2="158" Stroke="Gray"/>
+                                <Line X1="122" Y1="50" X2="154" Y2="158" Stroke="Gray"/>
+                                <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="40"/>
+                                <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="40"/>
+                                <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="91"/>
+                                <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="91"/>
+                                <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
+                                <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="57"/>
+                                <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
+                                <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
+                                <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
+                                <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
+                            </Canvas>
+                            <Button Content="Display wiring" HorizontalAlignment="Left" Margin="10,305,0,0" VerticalAlignment="Top" Width="100" Click="DisplayWiring"/>
+                            <CheckBox x:Name="dynamicOnly" Content="Mute bed" HorizontalAlignment="Left" Margin="10,330,0,0" VerticalAlignment="Top"
+                                      ToolTip="Only render objects that are not fixed in position, but move around."/>
+                            <CheckBox x:Name="heightOnly" Content="Mute ground" Margin="0,330,24,0" VerticalAlignment="Top"
+                                      ToolTip="Any sound that only comes from the ground speakers will be muted." HorizontalAlignment="Right"/>
+                            <TextBlock HorizontalAlignment="Left" Margin="10,350,0,0" TextWrapping="Wrap" Text="Rendering mode:" Height="16" VerticalAlignment="Top"/>
+                        </Grid>
+                        <RadioButton x:Name="renderToFile" Content="Export" HorizontalAlignment="Left" Margin="10,371,0,0" IsChecked="True" Height="15"
+                                     VerticalAlignment="Top" ToolTip="Render the result to a file for later playback."/>
+                        <RadioButton x:Name="renderOnly" Content="Report" Margin="0,371,60,0" Height="15" VerticalAlignment="Top" HorizontalAlignment="Right"
+                                     ToolTip="To only check if a content is truly object-based or not, choose this option. This option won't write anything to the disk."/>
                     </Grid>
                 </GroupBox>
                 <Grid Grid.Column="1" Margin="10,0,0,0">
@@ -118,7 +119,7 @@
                                       Margin="45,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="OnTrackSelected"/>
                                 <TextBlock Text="Output:" Margin="10,65,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Left"/>
                                 <ComboBox x:Name="audio" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                                          Margin="55,62,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="213"/>
+                                          Margin="55,62,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="213" SelectionChanged="OnOutputSelected"/>
                             </Grid>
                             <TextBlock x:Name="trackInfo" Margin="10,89,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
                             <Button x:Name="render" Template="{DynamicResource renderButton}" Content="Render" Click="Render"
