@@ -104,6 +104,7 @@ namespace CavernizeGUI {
                 AudioQuality = QualityModes.Perfect,
                 LFESeparation = true
             };
+            Listener.HeadphoneVirtualizer = false;
 
             language.Source = new Uri(";component/Resources/Strings.xaml", UriKind.RelativeOrAbsolute);
             renderTarget.ItemsSource = RenderTarget.Targets;
@@ -292,7 +293,7 @@ namespace CavernizeGUI {
                     if (!isBWF) {
                         finalName = dialog.FileName;
                         exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + ".wav" : finalName;
-                        writer = new RIFFWaveWriter(exportName, Listener.Channels.Length,
+                        writer = AudioWriter.Create(exportName, Listener.Channels.Length,
                             target.Length, target.SampleRate, BitDepth.Int16);
                         if (writer == null) {
                             Error((string)language["UnExt"]);

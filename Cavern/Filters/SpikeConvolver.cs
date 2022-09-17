@@ -48,9 +48,9 @@ namespace Cavern.Filters {
         public override void Process(float[] samples) {
             float[] convolved;
             if (delay == 0) {
-                convolved = SpikeConvolve(samples, impulse);
+                convolved = SpikeConvolve(impulse, samples);
             } else {
-                convolved = SpikeConvolve(samples, impulse, delay);
+                convolved = SpikeConvolve(impulse, samples, delay);
             }
             Finalize(samples, convolved);
         }

@@ -71,7 +71,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// the latter should return this for increased performance.
         /// </summary>
         protected float[] GenerateLinearCurveOptimized(int sampleRate, int length, float gain) {
-            float[] curve = GenerateLinearCurve(length, sampleRate);
+            float[] curve = GenerateLinearCurve(sampleRate, length);
             for (int pos = 0; pos < length; ++pos)
                 curve[pos] += gain;
             return curve;

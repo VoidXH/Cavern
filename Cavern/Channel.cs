@@ -143,7 +143,7 @@ namespace Cavern {
                 if (i + 1 != channelCount && next != null) {
                     Listener.IsSymmetric &=
                         current.lowFrequency ? next.Y % 180 == 0 || next.lowFrequency :
-                        next.lowFrequency ? current.Y % 180 == 0 || current.lowFrequency :
+                        next.lowFrequency ? current.Y % 180 == 0 :
                         MathF.Abs(current.X == next.X ? current.Y + next.Y : (current.Y - next.Y)) % 360 == 0;
                 }
             }

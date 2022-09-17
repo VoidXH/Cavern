@@ -54,16 +54,21 @@ namespace Cavern.Format.FilterSet {
         /// Translates Cavern filter classes to MultEQ-X filter IDs.
         /// </summary>
         static int FilterTypeID(BiquadFilter filter) {
-            if (filter is Highpass)
+            if (filter is Highpass) {
                 return highpassEQType;
-            if (filter is HighShelf)
+            }
+            if (filter is HighShelf) {
                 return highShelfEQType;
-            if (filter is Lowpass)
+            }
+            if (filter is Lowpass) {
                 return lowpassEQType;
-            if (filter is LowShelf)
+            }
+            if (filter is LowShelf) {
                 return lowShelfEQType;
-            if (filter is PeakingEQ)
+            }
+            if (filter is PeakingEQ) {
                 return peakingEQType;
+            }
             throw new UnsupportedFilterException();
         }
 
@@ -92,16 +97,17 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public MultEQXpander(string path) {
             fileContents = File.ReadAllText(path);
-            int pos = fileContents.IndexOf(channelList) + channelList.Length;
-            int endPos = 0;
-            if (pos != -1)
-                endPos = fileContents.IndexOf(']', pos);
-            if (pos == -1 || endPos == 1) {
+            int pos = fileContents.IndexOf(channelList),
+                endPos = -1;
+            if (pos != -1) {
+                endPos = fileContents.IndexOf(']', pos += channelList.Length);
+            }
+            if (endPos == -1) {
                 Valid = false;
                 return;
             }
 
-            guids = fileContents.Substring(pos, endPos - pos).Split(',');
+            guids = fileContents[pos..endPos].Split(',');
             filters = new BiquadFilter[guids.Length][];
             for (int guid = 0; guid < guids.Length; ++guid) {
                 pos = guids[guid].IndexOf('"') + 1;
@@ -110,7 +116,7 @@ namespace Cavern.Format.FilterSet {
                     Valid = false;
                     return;
                 }
-                guids[guid] = guids[guid].Substring(pos, endPos - pos);
+                guids[guid] = guids[guid][pos..endPos];
             }
         }
 
@@ -118,9 +124,11 @@ namespace Cavern.Format.FilterSet {
         /// Apply a filter set on the target system's selected channel.
         /// </summary>
         public void SetFilters(ReferenceChannel channel, BiquadFilter[] filterSet) {
-            for (int i = 0; i < guids.Length; ++i)
-                if (MultEQMatrix[guids.Length][i] == channel)
+            for (int i = 0; i < guids.Length; ++i) {
+                if (MultEQMatrix[guids.Length][i] == channel) {
                     filters[i] = filterSet;
+                }
+            }
         }
 
         /// <summary>
@@ -133,17 +141,19 @@ namespace Cavern.Format.FilterSet {
             int level = 0;
             while (level != -1) {
                 ++pos;
-                if (fileContents[pos] == '[')
+                if (fileContents[pos] == '[') {
                     ++level;
-                else if (fileContents[pos] == ']')
+                } else if (fileContents[pos] == ']') {
                     --level;
+                }
             }
             pos = fileContents.LastIndexOf('}', pos) + 1;
 
-            StringBuilder builder = new StringBuilder(fileContents.Substring(0, pos));
+            StringBuilder builder = new StringBuilder(fileContents[..pos]);
             for (int channel = 0; channel < guids.Length; ++channel) {
-                if (filters[channel] == null)
+                if (filters[channel] == null) {
                     continue;
+                }
                 for (int filter = 0; filter < filters[channel].Length; ++filter) {
                     builder.Append(string.Format(entry,
                         filters[channel][filter].CenterFreq.ToString().Replace(',', '.'),
@@ -154,7 +164,7 @@ namespace Cavern.Format.FilterSet {
                     ));
                 }
             }
-            builder.Append(fileContents.Substring(pos));
+            builder.Append(fileContents[pos..]);
             File.WriteAllText(path, builder.ToString());
         }
     }
