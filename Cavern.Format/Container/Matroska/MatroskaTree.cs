@@ -257,7 +257,7 @@ namespace Cavern.Format.Container.Matroska {
             Segment_Info = 0x1549A966,
             Segment_Tracks = 0x1654AE6B,
             Segment = 0x18538067,
-            EBML = 0x1A45DFA3,
+            EBML = unchecked((int)0xA3DF451A),
             Segment_Cues = 0x1C53BB6B,
             Segment_Cluster = 0x1F43B675;
     }
