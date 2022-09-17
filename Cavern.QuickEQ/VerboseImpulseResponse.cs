@@ -13,8 +13,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public Complex[] ComplexResponse {
             get {
-                if (complexResponse != null)
+                if (complexResponse != null) {
                     return complexResponse;
+                }
                 return complexResponse = Complex.Parse(response);
             }
         }
@@ -25,8 +26,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public float[] Response {
             get {
-                if (response != null)
+                if (response != null) {
                     return response;
+                }
                 return response = Measurements.GetRealPart(ComplexResponse);
             }
         }
@@ -37,8 +39,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public bool Polarity {
             get {
-                if (Delay >= 0)
+                if (Delay >= 0) {
                     return Response[delay] >= 0;
+                }
                 return true;
             }
         }
@@ -48,10 +51,12 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public double Phase {
             get {
-                if (!double.IsNaN(phase))
+                if (!double.IsNaN(phase)) {
                     return phase;
-                if (Delay < 0)
+                }
+                if (Delay < 0) {
                     return double.NaN;
+                }
                 float reference = Response[delay], other;
                 int otherPos = delay;
                 if (reference < 0) {
@@ -71,13 +76,15 @@ namespace Cavern.QuickEQ {
                         }
                     }
                 }
-                if (other == 0)
+                if (other == 0) {
                     return phase = 0;
+                }
                 phase = otherPos < delay ? -1 : 1;
-                if (reference >= 0)
+                if (reference >= 0) {
                     return phase *= Math.Asin(-other / reference);
-                else
+                } else {
                     return phase *= Math.PI * 0.5 - Math.Asin(other / reference);
+                }
             }
         }
         double phase = double.NaN;
@@ -87,15 +94,19 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public double Impulseness {
             get {
-                if (!double.IsNaN(impulseness))
+                if (!double.IsNaN(impulseness)) {
                     return impulseness;
-                if (Delay < 0)
+                }
+                if (Delay < 0) {
                     return double.NaN;
+                }
                 float peak = Math.Abs(Response[delay]) * .1f;
                 int below = 0;
-                for (int i = 0; i < response.Length; ++i)
-                    if (Math.Abs(response[i]) < peak)
+                for (int i = 0; i < response.Length; ++i) {
+                    if (Math.Abs(response[i]) < peak) {
                         ++below;
+                    }
+                }
                 return impulseness = below / (double)response.Length;
             }
         }
@@ -106,8 +117,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public int Delay {
             get {
-                if (delay != -1)
+                if (delay != -1) {
                     return delay;
+                }
                 float absPeak = float.NegativeInfinity, absHere;
                 for (int pos = 0; pos < Response.Length; ++pos) {
                     absHere = Math.Abs(response[pos]);
@@ -126,14 +138,17 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public int RT60 {
             get {
-                if (rt60 != -1)
+                if (rt60 != -1) {
                     return rt60;
-                if (Delay < 0)
+                }
+                if (Delay < 0) {
                     return 0;
+                }
                 float target = Math.Abs(Response[delay] * .001f);
                 float[] abs = new float[rt60 = response.Length];
-                for (int i = 0; i < rt60; ++i)
+                for (int i = 0; i < rt60; ++i) {
                     abs[i] = Math.Abs(response[i]);
+                }
                 float[] smoothed = GraphUtils.SmoothGraph(abs, 20, 20000, .1f);
                 while (smoothed[--rt60] < target && rt60 > delay) ;
                 return rt60 -= delay;
@@ -207,8 +222,9 @@ namespace Cavern.QuickEQ {
                 float last = Math.Abs(response[0]), abs = Math.Abs(response[1]);
                 for (int pos = 2; pos < response.Length; ++pos) {
                     float next = Math.Abs(response[pos]);
-                    if (abs > last && abs > next)
+                    if (abs > last && abs > next) {
                         peakList.Add(new Peak(pos - 1, abs));
+                    }
                     last = abs;
                     abs = next;
                 }

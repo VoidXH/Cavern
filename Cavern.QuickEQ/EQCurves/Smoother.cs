@@ -15,12 +15,15 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         static Equalizer MakeCurve(float[][] sourceFrequencyResponses, int sampleRate) {
             float[] target = new float[sourceFrequencyResponses[0].Length];
-            for (int i = 0; i < sourceFrequencyResponses.Length; ++i)
-                for (int sample = 0; sample < sourceFrequencyResponses[i].Length; ++sample)
+            for (int i = 0; i < sourceFrequencyResponses.Length; ++i) {
+                for (int sample = 0; sample < sourceFrequencyResponses[i].Length; ++sample) {
                     target[sample] += sourceFrequencyResponses[i][sample];
+                }
+            }
             float gain = 1 / (float)sourceFrequencyResponses.Length;
-            for (int sample = 0; sample < target.Length; ++sample)
+            for (int sample = 0; sample < target.Length; ++sample) {
                 target[sample] *= gain;
+            }
 
             const float startFreq = 20,
                 endFreq = 20000,

@@ -18,8 +18,9 @@ namespace Cavern.QuickEQ {
             get => resolution;
             set {
                 if (resolution != value) {
-                    if (cache != null)
+                    if (cache != null) {
                         Dispose();
+                    }
                     cache = null;
                     resolution = value;
                 }
@@ -37,12 +38,15 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public float Gain {
             get {
-                if (!float.IsNaN(gain))
+                if (!float.IsNaN(gain)) {
                     return gain;
+                }
                 gain = Spectrum[0];
-                for (int i = 1; i < spectrum.Length; ++i)
-                    if (gain < spectrum[i])
+                for (int i = 1; i < spectrum.Length; ++i) {
+                    if (gain < spectrum[i]) {
                         gain = spectrum[i];
+                    }
+                }
                 return gain;
             }
         }
@@ -53,8 +57,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         FFTCache Cache {
             get {
-                if (cache == null)
+                if (cache == null) {
                     return cache = new FFTCache(Resolution);
+                }
                 return cache;
             }
         }
@@ -65,8 +70,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         float[] ImpulseReference {
             get {
-                if (impulseReference != null)
+                if (impulseReference != null) {
                     return impulseReference;
+                }
                 impulseReference = new float[Resolution];
                 impulseReference[0] = 1;
                 return impulseReference;
@@ -79,8 +85,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         internal Complex[] FrequencyResponse {
             get {
-                if (frequencyResponse == null)
+                if (frequencyResponse == null) {
                     return frequencyResponse = ImpulseResponse.FFT(Cache);
+                }
                 return frequencyResponse;
             }
         }
@@ -91,8 +98,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         internal float[] Spectrum {
             get {
-                if (spectrum == null)
+                if (spectrum == null) {
                     return spectrum = Measurements.GetSpectrum(FrequencyResponse);
+                }
                 return spectrum;
             }
         }
@@ -147,7 +155,8 @@ namespace Cavern.QuickEQ {
         /// Copy a filter for measurements.
         /// </summary>
         /// <param name="filter">Filter to measure</param>
-        /// <param name="sampleRate">Sample rate used for measurements and in <paramref name="filter"/> if it's sample rate-dependent</param>
+        /// <param name="sampleRate">Sample rate used for measurements and in <paramref name="filter"/>
+        /// if it's sample rate-dependent</param>
         public FilterAnalyzer(Filter filter, int sampleRate) {
             this.filter = filter;
             SampleRate = sampleRate;
@@ -169,8 +178,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public void Reset(Filter filter, int sampleRate) {
             Reset(filter);
-            if (SampleRate != sampleRate)
+            if (SampleRate != sampleRate) {
                 SampleRate = sampleRate;
+            }
         }
 
         /// <summary>
@@ -206,8 +216,9 @@ namespace Cavern.QuickEQ {
             double startPow = Math.Log10(startFreq), powRange = (Math.Log10(endFreq) - startPow) / graph.Length,
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2);
             int windowSize = (int)(graph.Length / (octaveRange / resolution + 1));
-            for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize)
+            for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
                 bands.Add(new Band(Math.Pow(10, startPow + powRange * pos), 20 * Math.Log10(graph[pos])));
+            }
             bands.Reverse();
             return new Equalizer(bands);
         }
@@ -216,8 +227,9 @@ namespace Cavern.QuickEQ {
         /// Free the resources used by this analyzer.
         /// </summary>
         public void Dispose() {
-            if (CavernAmp.Available && cache != null)
+            if (CavernAmp.Available && cache != null) {
                 cache.Dispose();
+            }
         }
     }
 }

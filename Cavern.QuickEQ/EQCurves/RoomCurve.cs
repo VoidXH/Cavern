@@ -35,10 +35,12 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         public override double this[double frequency] {
             get {
-                if (frequency < 200)
+                if (frequency < 200) {
                     return -3 * (Math.Log10(frequency) - log10_200);
-                if (frequency < 1000)
+                }
+                if (frequency < 1000) {
                     return 0;
+                }
                 return -3 * (Math.Log10(frequency) - log10_1000) * highMul;
             }
         }
@@ -52,20 +54,24 @@ namespace Cavern.QuickEQ.EQCurves {
             int lowKnee = length * 200 / sampleRate, highKnee = length * 1000 / sampleRate;
             if (lowKnee < 0) {
                 lowKnee = 0;
-                if (highKnee < 0)
+                if (highKnee < 0) {
                     highKnee = 0;
+                }
             }
             if (highKnee > length) {
                 highKnee = length;
-                if (lowKnee > length)
+                if (lowKnee > length) {
                     lowKnee = length;
+                }
             }
             float[] curve = new float[length];
             float positioner = sampleRate * .5f / length;
-            for (int pos = 0; pos < lowKnee; ++pos)
+            for (int pos = 0; pos < lowKnee; ++pos) {
                 curve[pos] = -3 / 180f * (pos * positioner - 200);
-            for (int pos = highKnee; pos < length; ++pos)
+            }
+            for (int pos = highKnee; pos < length; ++pos) {
                 curve[pos] = -3 / 19000f * (pos * positioner - 1000);
+            }
             return curve;
         }
 
@@ -80,22 +86,27 @@ namespace Cavern.QuickEQ.EQCurves {
             int lowKnee = length * 200 / sampleRate, highKnee = length * 1000 / sampleRate;
             if (lowKnee < 0) {
                 lowKnee = 0;
-                if (highKnee < 0)
+                if (highKnee < 0) {
                     highKnee = 0;
+                }
             }
             if (highKnee > length) {
                 highKnee = length;
-                if (lowKnee > length)
+                if (lowKnee > length) {
                     lowKnee = length;
+                }
             }
             float[] curve = new float[length];
             float positioner = sampleRate * .5f / length;
-            for (int pos = 0; pos < lowKnee; ++pos)
+            for (int pos = 0; pos < lowKnee; ++pos) {
                 curve[pos] = -3 / 180f * (pos * positioner - 200) + gain;
-            for (int pos = lowKnee; pos < highKnee; ++pos)
+            }
+            for (int pos = lowKnee; pos < highKnee; ++pos) {
                 curve[pos] = gain;
-            for (int pos = highKnee; pos < length; ++pos)
+            }
+            for (int pos = highKnee; pos < length; ++pos) {
                 curve[pos] = -3 / 19000f * (pos * positioner - 1000) + gain;
+            }
             return curve;
         }
 
@@ -111,19 +122,24 @@ namespace Cavern.QuickEQ.EQCurves {
             int lowKnee = (int)((log10_200 - powerMin) * powerRange), highKnee = (int)((log10_1000 - powerMin) * powerRange);
             if (lowKnee < 0) {
                 lowKnee = 0;
-                if (highKnee < 0)
+                if (highKnee < 0) {
                     highKnee = 0;
+                }
             }
-            if (highKnee > length)
+            if (highKnee > length) {
                 highKnee = length;
-            if (lowKnee > length)
+            }
+            if (lowKnee > length) {
                 lowKnee = length;
+            }
             float positioner = (float)(1.0 / (lowKnee - (log10_20 - powerMin) * powerRange));
-            for (int pos = 0; pos < lowKnee; ++pos)
+            for (int pos = 0; pos < lowKnee; ++pos) {
                 curve[pos] = -3 * (pos - lowKnee) * positioner;
+            }
             positioner = (float)(1.0 / ((log10_20000 - powerMin) * powerRange - highKnee));
-            for (int pos = highKnee; pos < length; ++pos)
+            for (int pos = highKnee; pos < length; ++pos) {
                 curve[pos] = -3 * (pos - highKnee) * positioner;
+            }
             return curve;
         }
 
@@ -141,19 +157,24 @@ namespace Cavern.QuickEQ.EQCurves {
             int lowKnee = (int)((log10_200 - powerMin) * powerRange), highKnee = (int)((log10_1000 - powerMin) * powerRange);
             if (lowKnee < 0) {
                 lowKnee = 0;
-                if (highKnee < 0)
+                if (highKnee < 0) {
                     highKnee = 0;
+                }
             }
-            if (highKnee > length)
+            if (highKnee > length) {
                 highKnee = length;
-            if (lowKnee > length)
+            }
+            if (lowKnee > length) {
                 lowKnee = length;
+            }
             float positioner = (float)(1.0 / (lowKnee - (log10_20 - powerMin) * powerRange));
-            for (int pos = 0; pos < lowKnee; ++pos)
+            for (int pos = 0; pos < lowKnee; ++pos) {
                 curve[pos] = -3 * (pos - lowKnee) * positioner + gain;
+            }
             positioner = (float)(1.0 / ((log10_20000 - powerMin) * powerRange - highKnee));
-            for (int pos = highKnee; pos < length; ++pos)
+            for (int pos = highKnee; pos < length; ++pos) {
                 curve[pos] = -3 * (pos - highKnee) * positioner + gain;
+            }
             return curve;
         }
     }

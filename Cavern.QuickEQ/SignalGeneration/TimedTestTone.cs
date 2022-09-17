@@ -39,8 +39,9 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// Creates a cache and always marks this source for playback.
         /// </summary>
         protected override bool Precollect() {
-            if (rendered.Length != Listener.Channels.Length * listener.UpdateRate)
+            if (rendered.Length != Listener.Channels.Length * listener.UpdateRate) {
                 rendered = new float[Listener.Channels.Length * listener.UpdateRate];
+            }
             return true;
         }
 
@@ -50,13 +51,18 @@ namespace Cavern.QuickEQ.SignalGeneration {
         protected override float[] Collect() {
             Array.Clear(rendered, 0, rendered.Length);
             if (IsPlaying && !Mute && testTone != null) {
-                int delay = delayChannel * testTone.Length, channels = Listener.Channels.Length;
-                int pos = TimeSamples - delay;
-                for (int sample = channel; sample < rendered.Length; sample += channels) {
-                    if (pos < 0) {
-                        ++pos; // TODO: optimize
-                        continue;
+                int delay = delayChannel * testTone.Length, channels = Listener.Channels.Length,
+                    pos = TimeSamples - delay,
+                    sample = channel;
+                if (pos < 0) {
+                    sample -= pos * channels;
+                    if (sample < rendered.Length) {
+                        pos = 0;
+                    } else {
+                        pos += rendered.Length / channels;
                     }
+                }
+                for (; sample < rendered.Length; sample += channels) {
                     if (pos >= testTone.Length) {
                         Array.Clear(rendered, sample, rendered.Length - sample);
                         IsPlaying = false;

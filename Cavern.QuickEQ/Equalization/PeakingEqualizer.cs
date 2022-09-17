@@ -113,8 +113,9 @@ namespace Cavern.QuickEQ.Equalization {
         public PeakingEQ[] GetPeakingEQ(int sampleRate, int bands) {
             PeakingEQ[] result = new PeakingEQ[bands];
             if (source.Bands.Count == 0) {
-                for (int band = 0; band < bands; ++band)
+                for (int band = 0; band < bands; ++band) {
                     result[band] = new PeakingEQ(sampleRate, 20);
+                }
                 return result;
             }
 
@@ -122,13 +123,16 @@ namespace Cavern.QuickEQ.Equalization {
             double powRange = Math.Log10(sampleRate * .5f) - log10_20, bandRange = target.Length / powRange;
             int startPos = (int)((Math.Log10(source.Bands[0].Frequency) - log10_20) * bandRange),
                 stopPos = (int)((Math.Log10(source.Bands[source.Bands.Count - 1].Frequency) - log10_20) * bandRange);
-            if (startPos < 0)
+            if (startPos < 0) {
                 startPos = 0;
-            if (stopPos >= target.Length)
+            }
+            if (stopPos >= target.Length) {
                 stopPos = target.Length - 1;
+            }
 
             if (CavernAmp.Available) {
-                IntPtr extAnalyzer = CavernQuickEQAmp.FilterAnalyzer_Create(sampleRate, MaxGain, MinGain, GainPrecision, StartQ, Iterations);
+                IntPtr extAnalyzer =
+                    CavernQuickEQAmp.FilterAnalyzer_Create(sampleRate, MaxGain, MinGain, GainPrecision, StartQ, Iterations);
                 for (int band = 0; band < bands; ++band) {
                     CavernAmpPeakingEQ newBand = CavernQuickEQAmp.BruteForceBand(target, target.Length, extAnalyzer, startPos, stopPos);
                     result[band] = new PeakingEQ(sampleRate, newBand.centerFreq, newBand.q, newBand.gain);
@@ -136,8 +140,9 @@ namespace Cavern.QuickEQ.Equalization {
                 CavernQuickEQAmp.FilterAnalyzer_Dispose(extAnalyzer);
             } else {
                 analyzer = new FilterAnalyzer(null, sampleRate);
-                for (int band = 0; band < bands; ++band)
+                for (int band = 0; band < bands; ++band) {
                     result[band] = BruteForceBand(ref target, analyzer, startPos, stopPos);
+                }
                 analyzer.Dispose();
             }
             return result;
@@ -150,12 +155,16 @@ namespace Cavern.QuickEQ.Equalization {
             float[] target = source.Visualize(20, sampleRate * .5f, 1024);
             PeakingEQ[] result = new PeakingEQ[source.Bands.Count];
             analyzer = new FilterAnalyzer(null, sampleRate);
-            for (int band = 0, bandc = source.Bands.Count; band < bandc; ++band)
+            for (int band = 0, bandc = source.Bands.Count; band < bandc; ++band) {
                 result[band] = BruteForceQ(ref target, source.Bands[band].Frequency, source.Bands[band].Gain);
+            }
             analyzer.Dispose();
             return result;
         }
 
+        /// <summary>
+        /// Precalculated value of log10(20).
+        /// </summary>
         const double log10_20 = 1.3010299956639811952137388947245;
     }
 }

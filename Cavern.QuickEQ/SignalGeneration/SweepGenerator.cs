@@ -24,8 +24,9 @@ namespace Cavern.QuickEQ.SignalGeneration {
         public static float[] LinearFreqs(double startFreq, double endFreq, int samples) {
             float[] result = new float[samples];
             double step = (endFreq - startFreq) / (samples - 1);
-            for (int entry = 0; entry < samples; ++entry)
+            for (int entry = 0; entry < samples; ++entry) {
                 result[entry] = (float)(startFreq + step * entry);
+            }
             return result;
         }
 
@@ -36,8 +37,9 @@ namespace Cavern.QuickEQ.SignalGeneration {
             float[] output = new float[samples];
             double chirpyness = Math.Pow(endFreq / startFreq, sampleRate / (double)samples), mul = 1.0 / sampleRate,
                 logChirpyness = Math.Log(chirpyness), sinConst = 2 * Math.PI * startFreq;
-            for (int sample = 0; sample < samples; ++sample)
+            for (int sample = 0; sample < samples; ++sample) {
                 output[sample] = (float)Math.Sin(sinConst * (Math.Pow(chirpyness, sample * mul) - 1) / logChirpyness);
+            }
             return output;
         }
 
@@ -59,8 +61,10 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// </summary>
         public static float[] Frame(float[] sweep) {
             float[] result = new float[sweep.Length * 2];
-            for (int initialSilence = sweep.Length / 4, sample = initialSilence, end = sweep.Length + initialSilence; sample < end; ++sample)
+            int initialSilence = sweep.Length / 4;
+            for (int sample = initialSilence, end = sweep.Length + initialSilence; sample < end; ++sample) {
                 result[sample] = sweep[sample - initialSilence];
+            }
             return result;
         }
     }

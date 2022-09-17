@@ -72,15 +72,18 @@ namespace Cavern.QuickEQ {
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
                 Array.Clear(samples, 0, start);
-                for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; ++sample)
+                for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; ++sample) {
                     samples[sample] *= leftFunc((sample - start) * leftSpanDiv);
+                }
             }
             if (right != Window.Disabled) {
-                if (end < 0)
+                if (end < 0) {
                     end = 0;
+                }
                 WindowFunction rightFunc = GetWindowFunction(right);
-                for (int sample = posSplitter, actEnd = Math.Min(end, samples.Length); sample < actEnd; ++sample)
+                for (int sample = posSplitter, actEnd = Math.Min(end, samples.Length); sample < actEnd; ++sample) {
                     samples[sample] *= rightFunc((sample - endMirror) * rightSpanDiv);
+                }
                 Array.Clear(samples, end, samples.Length - end);
             }
         }
@@ -105,15 +108,18 @@ namespace Cavern.QuickEQ {
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
                 Array.Clear(samples, 0, start);
-                for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; ++sample)
+                for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; ++sample) {
                     samples[sample] *= leftFunc((sample - start) / channels * leftSpanDiv);
+                }
             }
             if (right != Window.Disabled) {
-                if (end < 0)
+                if (end < 0) {
                     end = 0;
+                }
                 WindowFunction rightFunc = GetWindowFunction(right);
-                for (int sample = posSplitter, actEnd = Math.Min(end, samples.Length); sample < actEnd; ++sample)
+                for (int sample = posSplitter, actEnd = Math.Min(end, samples.Length); sample < actEnd; ++sample) {
                     samples[sample] *= rightFunc((sample - endMirror) / channels * rightSpanDiv);
+                }
                 Array.Clear(samples, end, samples.Length - end);
             }
         }
@@ -144,8 +150,9 @@ namespace Cavern.QuickEQ {
                 rightSpanDiv = 2 * (float)Math.PI / (rightSpan * 2);
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
-                for (int sample = 0; sample < start; ++sample)
+                for (int sample = 0; sample < start; ++sample) {
                     samples[sample] = new Complex();
+                }
                 for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; ++sample) {
                     float mul = leftFunc((sample - start) * leftSpanDiv);
                     samples[sample].Real *= mul;
@@ -160,8 +167,9 @@ namespace Cavern.QuickEQ {
                     samples[sample].Real *= mul;
                     samples[sample].Imaginary *= mul;
                 }
-                for (int sample = posEnd, actEnd = samples.Length; sample < actEnd; ++sample)
+                for (int sample = posEnd, actEnd = samples.Length; sample < actEnd; ++sample) {
                     samples[sample] = new Complex();
+                }
             }
         }
 
@@ -220,12 +228,13 @@ namespace Cavern.QuickEQ {
             const double alpha = .25, positioner = 1 / alpha,
                 flatLeft = Math.PI * alpha,
                 flatRight = Math.PI * (2 - alpha);
-            if (x < flatLeft)
+            if (x < flatLeft) {
                 return (float)(Math.Cos(x * positioner - Math.PI) + 1) * .5f;
-            else if (x > flatRight)
+            } else if (x > flatRight) {
                 return (float)(Math.Cos((2 * Math.PI - x) * positioner - Math.PI) + 1) * .5f;
-            else
+            } else {
                 return 1;
+            }
         }
     }
 }

@@ -15,8 +15,9 @@ namespace Cavern.QuickEQ.Equalization {
     public static class EQGenerator {
         static NumberFormatInfo NumberFormat {
             get {
-                if (numberFormat == null)
+                if (numberFormat == null) {
                     numberFormat = new NumberFormatInfo { NumberDecimalSeparator = "," };
+                }
                 return numberFormat;
             }
         }
@@ -40,15 +41,20 @@ namespace Cavern.QuickEQ.Equalization {
             double startPow = Math.Log10(startFreq), powRange = (Math.Log10(endFreq) - startPow) / graph.Length,
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2);
             int windowSize = graph.Length / (int)(octaveRange / resolution + 1), windowEdge = windowSize / 2;
+            if (windowEdge == 0) {
+                windowEdge = 1;
+            }
             float[] refGain = targetCurve.GenerateLogCurve(startFreq, endFreq, graph.Length);
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
                 float centerFreq = (float)Math.Pow(10, startPow + powRange * pos), average = 0;
                 int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, graph.Length);
-                for (int sample = start; sample < end; ++sample)
+                for (int sample = start; sample < end; ++sample) {
                     average += graph[sample];
+                }
                 float addition = refGain[pos] + targetGain - average / (end - start);
-                if (addition <= maxGain)
+                if (addition <= maxGain) {
                     bands.Add(new Band(centerFreq, addition));
+                }
             }
             bands.Reverse();
             return new Equalizer(bands);
@@ -70,15 +76,18 @@ namespace Cavern.QuickEQ.Equalization {
             List<Band> bands = new List<Band>();
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length;
             List<int> windowEdges = new List<int>(new int[] { 0 });
-            for (int sample = 1, end = graph.Length - 1; sample < end; ++sample)
+            for (int sample = 1, end = graph.Length - 1; sample < end; ++sample) {
                 if ((graph[sample - 1] < graph[sample] && graph[sample + 1] > graph[sample]) ||
-                    (graph[sample - 1] > graph[sample] && graph[sample + 1] < graph[sample]))
+                    (graph[sample - 1] > graph[sample] && graph[sample + 1] < graph[sample])) {
                     windowEdges.Add(sample);
+                }
+            }
             float[] refGain = targetCurve.GenerateLogCurve(startFreq, endFreq, graph.Length, targetGain);
             for (int sample = 0, end = windowEdges.Count - 1; sample < end; ++sample) {
                 int windowPos = windowEdges[sample];
-                if (graph[windowPos] > refGain[windowPos] - maxGain)
+                if (graph[windowPos] > refGain[windowPos] - maxGain) {
                     bands.Add(new Band((float)Math.Pow(10, startPow + powRange * windowPos), refGain[windowPos] - graph[windowPos]));
+                }
             }
             return new Equalizer(bands);
         }
@@ -89,8 +98,9 @@ namespace Cavern.QuickEQ.Equalization {
         public static Equalizer FlattenSpectrum(Complex[] spectrum, int sampleRate) {
             double step = sampleRate / spectrum.Length;
             List<Band> bands = new List<Band>(spectrum.Length >> 1);
-            for (int i = 0; i < spectrum.Length >> 1; ++i)
+            for (int i = 0; i < spectrum.Length >> 1; ++i) {
                 bands.Add(new Band(i * step, -20 * Math.Log10(spectrum[i].Magnitude)));
+            }
             return new Equalizer(bands);
         }
 
@@ -107,12 +117,15 @@ namespace Cavern.QuickEQ.Equalization {
             Complex[] initial = null) {
             length <<= 1;
             Complex[] filter = new Complex[length];
-            if (initial == null)
-                for (int i = 0; i < length; ++i)
+            if (initial == null) {
+                for (int i = 0; i < length; ++i) {
                     filter[i].Real = gain; // FFT of DiracDelta(x)
-            else
-                for (int i = 0; i < length; ++i)
+                }
+            } else {
+                for (int i = 0; i < length; ++i) {
                     filter[i].Real = initial[i].Magnitude * gain;
+                }
+            }
             eq.Apply(filter, sampleRate);
             using (FFTCache cache = new FFTCache(length)) {
                 Measurements.MinimumPhaseSpectrum(filter, cache);
@@ -133,12 +146,15 @@ namespace Cavern.QuickEQ.Equalization {
         public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length = 1024, float gain = 1,
             Complex[] initial = null) {
             Complex[] filter = new Complex[length];
-            if (initial == null)
-                for (int i = 0; i < length; ++i)
+            if (initial == null) {
+                for (int i = 0; i < length; ++i) {
                     filter[i].Real = i % 2 == 0 ? gain : -gain; // FFT of DiracDelta(x - length/2)
-            else
-                for (int i = 0; i < length; ++i)
+                }
+            } else {
+                for (int i = 0; i < length; ++i) {
                     filter[i].Real = initial[i].Magnitude * (i % 2 == 0 ? gain : -gain);
+                }
+            }
             eq.Apply(filter, sampleRate);
             filter.InPlaceIFFT();
             return Measurements.GetRealPart(filter);
@@ -166,8 +182,9 @@ namespace Cavern.QuickEQ.Equalization {
                 freq = bands[end].Frequency;
                 result[end] = new PeakingEQ(sampleRate, freq,
                     QFactor.FromBandwidth(freq, (freq - bands[end - 1].Frequency) * 2) * qMul, bands[end].Gain * gainMul);
-            } else if (result.Length == 1)
+            } else if (result.Length == 1) {
                 result[0] = new PeakingEQ(sampleRate, freq, .001f, bands[0].Gain);
+            }
             return result;
         }
 
@@ -176,9 +193,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         public static Equalizer FromGraph(float[] source, float startFreq, float endFreq) {
             List<Band> bands = new List<Band>();
-            GraphUtils.ForEachLog(source, startFreq, endFreq, (double freq, ref float gain) => {
-                bands.Add(new Band(freq, gain));
-            });
+            GraphUtils.ForEachLog(source, startFreq, endFreq, (double freq, ref float gain) => bands.Add(new Band(freq, gain)));
             return new Equalizer(bands);
         }
 
@@ -187,8 +202,9 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         public static Equalizer FromCalibration(float[] source) {
             List<Band> bands = new List<Band>();
-            for (int band = 0; band < source.Length; band += 2)
+            for (int band = 0; band < source.Length; band += 2) {
                 bands.Add(new Band(source[band], source[band + 1]));
+            }
             bands.Sort();
             return new Equalizer(bands);
         }
@@ -202,8 +218,9 @@ namespace Cavern.QuickEQ.Equalization {
             for (int line = 0; line < lines.Length; ++line) {
                 string[] nums = lines[line].Trim().Split(' ', '\t');
                 if (nums.Length > 1 && double.TryParse(nums[0].Replace(',', '.'), NumberStyles.Any, NumberFormat, out double freq) &&
-                    double.TryParse(nums[1].Replace(',', '.'), NumberStyles.Any, NumberFormat, out double gain))
+                    double.TryParse(nums[1].Replace(',', '.'), NumberStyles.Any, NumberFormat, out double gain)) {
                     bands.Add(new Band(freq, gain));
+                }
             }
             bands.Sort();
             return new Equalizer(bands);

@@ -23,8 +23,9 @@
         /// <param name="gain">Curve reference level</param>
         public override float[] GenerateLinearCurve(int sampleRate, int length, float gain) {
             float[] curve = new float[length];
-            for (int pos = 0; pos < length; ++pos)
+            for (int pos = 0; pos < length; ++pos) {
                 curve[pos] = gain;
+            }
             return curve;
         }
 
@@ -45,8 +46,9 @@
         /// <param name="gain">Curve reference level</param>
         public override float[] GenerateLogCurve(double startFreq, double endFreq, int length, float gain) {
             float[] curve = new float[length];
-            for (int pos = 0; pos < length; ++pos)
+            for (int pos = 0; pos < length; ++pos) {
                 curve[pos] = gain;
+            }
             return curve;
         }
     }

@@ -30,8 +30,9 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         public override double this[double frequency] {
             get {
-                if (frequency > 120)
+                if (frequency > 120) {
                     return 0;
+                }
                 return (1 - Math.Cos(2 * Math.PI / 120 * frequency)) * Gain;
             }
         }
@@ -45,10 +46,12 @@ namespace Cavern.QuickEQ.EQCurves {
             float[] curve = new float[length];
             float positioner = sampleRate * .5f / length;
             int at120 = (int)(length * 240f / sampleRate);
-            if (at120 > length)
+            if (at120 > length) {
                 at120 = length;
-            for (int pos = 0; pos < at120; ++pos)
+            }
+            for (int pos = 0; pos < at120; ++pos) {
                 curve[pos] = (float)((1 - Math.Cos(2 * Math.PI / 120 * pos * positioner)) * Gain);
+            }
             return curve;
         }
 
@@ -63,12 +66,15 @@ namespace Cavern.QuickEQ.EQCurves {
             float[] curve = new float[length];
             float positioner = sampleRate * .5f / length;
             int at120 = (int)(length * 240f / sampleRate);
-            if (at120 > length)
+            if (at120 > length) {
                 at120 = length;
-            for (int pos = 0; pos < at120; ++pos)
+            }
+            for (int pos = 0; pos < at120; ++pos) {
                 curve[pos] = gain + (float)((1 - Math.Cos(2 * Math.PI / 120 * pos * positioner)) * Gain);
-            for (int pos = at120; pos < length; ++pos)
+            }
+            for (int pos = at120; pos < length; ++pos) {
                 curve[pos] = gain;
+            }
             return curve;
         }
 
@@ -107,8 +113,9 @@ namespace Cavern.QuickEQ.EQCurves {
                 curve[pos] = (float)((1 - Math.Cos(2 * Math.PI / 120 * freqHere)) * Gain) + gain;
                 freqHere *= multiplier;
             }
-            for (int pos = at120; pos < length; ++pos)
+            for (int pos = at120; pos < length; ++pos) {
                 curve[pos] = gain;
+            }
             return curve;
         }
     }

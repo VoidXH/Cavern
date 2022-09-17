@@ -20,8 +20,9 @@ namespace Cavern.QuickEQ {
         /// <param name="action">Performed action</param>
         public static void ForEachLin<T>(T[] source, double startFreq, double endFreq, FrequencyFunction<T> action) {
             double step = (endFreq - startFreq) / (source.Length - 1);
-            for (int entry = 0; entry < source.Length; ++entry)
+            for (int entry = 0; entry < source.Length; ++entry) {
                 action(startFreq + step * entry, ref source[entry]);
+            }
         }
 
         /// <summary>
@@ -43,8 +44,9 @@ namespace Cavern.QuickEQ {
         /// Convert a response curve back from decibel scale.
         /// </summary>
         public static void ConvertFromDecibels(float[] curve) {
-            for (int i = 0; i < curve.Length; ++i)
+            for (int i = 0; i < curve.Length; ++i) {
                 curve[i] = (float)Math.Pow(10, curve[i] * .05f);
+            }
         }
 
         /// <summary>
@@ -53,8 +55,9 @@ namespace Cavern.QuickEQ {
         public static void ConvertToDecibels(float[] curve, float minimum = -100) {
             for (int i = 0; i < curve.Length; ++i) {
                 curve[i] = 20 * (float)Math.Log10(curve[i]);
-                if (curve[i] < minimum) // this is also true if curve[i] == 0
+                if (curve[i] < minimum) { // this is also true if curve[i] == 0
                     curve[i] = minimum;
+                }
             }
         }
 
@@ -103,8 +106,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public static void Normalize(float[] graph) {
             float avg = QMath.Average(graph);
-            for (int i = 0; i < graph.Length; ++i)
+            for (int i = 0; i < graph.Length; ++i) {
                 graph[i] -= avg;
+            }
         }
 
         /// <summary>
@@ -113,8 +117,9 @@ namespace Cavern.QuickEQ {
         public static float[] Scale(float[] source, int newLength) {
             float[] result = new float[newLength];
             float scale = source.Length / (float)newLength--;
-            for (int pos = 0; pos < newLength; ++pos)
+            for (int pos = 0; pos < newLength; ++pos) {
                 result[pos] = WaveformUtils.GetPeakSigned(source, (int)(pos * scale), (int)((pos + 1) * scale));
+            }
             return result;
         }
 
@@ -124,9 +129,10 @@ namespace Cavern.QuickEQ {
         public static float[] Scale(float[] source, int newLength, int sourceStart, int sourceEnd) {
             float[] result = new float[newLength];
             float scale = (sourceEnd - sourceStart) / (float)newLength--;
-            for (int pos = 0; pos < newLength; ++pos)
+            for (int pos = 0; pos < newLength; ++pos) {
                 result[pos] =
                     WaveformUtils.GetPeakSigned(source, sourceStart + (int)(pos * scale), sourceStart + (int)((pos + 1) * scale));
+            }
             return result;
         }
 
@@ -138,8 +144,9 @@ namespace Cavern.QuickEQ {
                 lastBlock = length - windowSize;
             float[] smoothed = new float[length--];
             float average = 0;
-            for (int sample = 0; sample < windowSize; ++sample)
+            for (int sample = 0; sample < windowSize; ++sample) {
                 average += source[sample];
+            }
             for (int sample = 0; sample < windowSize; ++sample) {
                 smoothed[sample] = average / (sample + windowSize);
                 average += source[sample + windowSize];
@@ -159,11 +166,13 @@ namespace Cavern.QuickEQ {
         /// Apply smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
         /// </summary>
         public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float octave = 1 / 3f) {
-            if (octave == 0)
+            if (octave == 0) {
                 return samples.FastClone();
+            }
             double octaveRange = Math.Log(endFreq, 2);
-            if (startFreq != 0)
+            if (startFreq != 0) {
                 octaveRange -= Math.Log(startFreq, 2);
+            }
             int windowSize = (int)(samples.Length * octave / octaveRange);
             return SmoothUniform(samples, windowSize);
         }
@@ -177,8 +186,9 @@ namespace Cavern.QuickEQ {
                 endGraph = SmoothGraph(samples, startFreq, endFreq, endOctave),
                 output = new float[samples.Length];
             float positioner = 1f / samples.Length;
-            for (int i = 0; i < samples.Length; ++i)
+            for (int i = 0; i < samples.Length; ++i) {
                 output[i] = QMath.Lerp(startGraph[i], endGraph[i], i * positioner);
+            }
             return output;
         }
     }

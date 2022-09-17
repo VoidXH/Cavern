@@ -45,8 +45,9 @@ namespace Cavern.QuickEQ.EQCurves {
         public virtual float[] GenerateLinearCurve(int sampleRate, int length) {
             float[] curve = new float[length];
             double positioner = sampleRate * .5 / length;
-            for (int pos = 0; pos < length; ++pos)
+            for (int pos = 0; pos < length; ++pos) {
                 curve[pos] = (float)this[pos * positioner];
+            }
             return curve;
         }
 
@@ -60,8 +61,9 @@ namespace Cavern.QuickEQ.EQCurves {
         public virtual float[] GenerateLinearCurve(int sampleRate, int length, float gain) {
             float[] curve = new float[length];
             double positioner = sampleRate * .5 / length;
-            for (int pos = 0; pos < length; ++pos)
+            for (int pos = 0; pos < length; ++pos) {
                 curve[pos] = gain + (float)this[pos * positioner];
+            }
             return curve;
         }
 
@@ -72,8 +74,9 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         protected float[] GenerateLinearCurveOptimized(int sampleRate, int length, float gain) {
             float[] curve = GenerateLinearCurve(sampleRate, length);
-            for (int pos = 0; pos < length; ++pos)
+            for (int pos = 0; pos < length; ++pos) {
                 curve[pos] += gain;
+            }
             return curve;
         }
 
@@ -120,8 +123,9 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         protected float[] GenerateLogCurveOptimized(double startFreq, double endFreq, int length, float gain) {
             float[] curve = GenerateLogCurve(startFreq, endFreq, length);
-            for (int pos = 0; pos < length; ++pos)
+            for (int pos = 0; pos < length; ++pos) {
                 curve[pos] += gain;
+            }
             return curve;
         }
     }

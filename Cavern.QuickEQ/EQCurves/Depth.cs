@@ -15,8 +15,9 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         public override double this[double frequency] {
             get {
-                if (frequency > 60)
+                if (frequency > 60) {
                     return 0;
+                }
                 return 12.0 / 60 * (60 - frequency);
             }
         }
@@ -30,10 +31,12 @@ namespace Cavern.QuickEQ.EQCurves {
             float[] curve = new float[length];
             float positioner = 12f / 60 * sampleRate * .5f / length;
             int at60 = (int)(length * 120f / sampleRate);
-            if (at60 > length)
+            if (at60 > length) {
                 at60 = length;
-            for (int pos = 0; pos < at60; ++pos)
+            }
+            for (int pos = 0; pos < at60; ++pos) {
                 curve[pos] = 12 - pos * positioner;
+            }
             return curve;
         }
 
@@ -48,13 +51,16 @@ namespace Cavern.QuickEQ.EQCurves {
             float[] curve = new float[length];
             float positioner = 12f / 60 * sampleRate * .5f / length;
             int at60 = (int)(length * 120f / sampleRate);
-            if (at60 > length)
+            if (at60 > length) {
                 at60 = length;
+            }
             gain += 12;
-            for (int pos = 0; pos < at60; ++pos)
+            for (int pos = 0; pos < at60; ++pos) {
                 curve[pos] = gain - pos * positioner;
-            for (int pos = at60; pos < length; ++pos)
+            }
+            for (int pos = at60; pos < length; ++pos) {
                 curve[pos] = gain;
+            }
             return curve;
         }
 
@@ -68,11 +74,13 @@ namespace Cavern.QuickEQ.EQCurves {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = (Math.Log10(endFreq) - powerMin) / length;
             int at60 = (int)((log10_60 - powerMin) / powerRange);
-            if (at60 > length)
+            if (at60 > length) {
                 at60 = length;
+            }
             double startGain = this[startFreq], positioner = startGain / at60;
-            for (int pos = 0; pos < at60; ++pos)
+            for (int pos = 0; pos < at60; ++pos) {
                 curve[pos] = (float)(startGain - pos * positioner);
+            }
             return curve;
         }
 
@@ -88,13 +96,16 @@ namespace Cavern.QuickEQ.EQCurves {
             float[] curve = new float[length];
             double powerMin = Math.Log10(startFreq), powerRange = (Math.Log10(endFreq) - powerMin) / length;
             int at60 = (int)((log10_60 - powerMin) / powerRange);
-            if (at60 > length)
+            if (at60 > length) {
                 at60 = length;
+            }
             double startGain = this[startFreq], positioner = startGain / at60;
-            for (int pos = 0; pos < at60; ++pos)
+            for (int pos = 0; pos < at60; ++pos) {
                 curve[pos] = (float)(startGain - pos * positioner + gain);
-            for (int pos = at60; pos < length; ++pos)
+            }
+            for (int pos = at60; pos < length; ++pos) {
                 curve[pos] = gain;
+            }
             return curve;
         }
     }
