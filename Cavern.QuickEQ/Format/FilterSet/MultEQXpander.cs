@@ -112,7 +112,7 @@ namespace Cavern.Format.FilterSet {
             for (int guid = 0; guid < guids.Length; ++guid) {
                 pos = guids[guid].IndexOf('"') + 1;
                 endPos = guids[guid].LastIndexOf('"');
-                if (pos == -1 || endPos == -1 || pos >= endPos) {
+                if (pos == 0 || endPos == -1 || pos >= endPos) {
                     Valid = false;
                     return;
                 }
