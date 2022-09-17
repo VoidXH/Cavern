@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Cavern.Remapping {
     /// <summary>
@@ -288,6 +289,18 @@ namespace Cavern.Remapping {
             string[] result = new string[source.Length];
             for (int i = 0; i < source.Length; ++i) {
                 result[i] = Mapping[(int)source[i]].Name;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a prototype array to their corresponding positions in the current environment.
+        /// </summary>
+        public static Vector3[] ToPositions(ChannelPrototype[] source) {
+            Vector3[] result = new Vector3[source.Length];
+            for (int channel = 0; channel < source.Length; ++channel) {
+                result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE).SpatialPos *
+                    Listener.EnvironmentSize;
             }
             return result;
         }

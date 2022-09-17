@@ -251,6 +251,19 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Sets a track to a stream with a set gain.
+        /// </summary>
+        /// <param name="source">Source track</param>
+        /// <param name="destination">Destination stream</param>
+        /// <param name="gain">Multiplier of signal amplitude</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Insert(float[] source, float[] destination, float gain) {
+            for (int i = 0; i < source.Length; ++i) {
+                destination[i] = source[i] * gain;
+            }
+        }
+
+        /// <summary>
         /// Sets a channel to a signal in a multichannel waveform.
         /// </summary>
         /// <param name="samples">Samples of the given <paramref name="channel"/></param>
