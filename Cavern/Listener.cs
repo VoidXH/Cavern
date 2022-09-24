@@ -73,7 +73,13 @@ namespace Cavern {
         /// Does not effect directional rendering. The user's settings should be
         /// respected, thus this vector should be scaled, not completely overridden.
         /// </summary>
-        public static Vector3 EnvironmentSize { get; set; } = new Vector3(10, 7, 10);
+        public static Vector3 EnvironmentSize {
+            get => environmentSize;
+            set {
+                environmentSize = value;
+                EnvironmentSizeInverse = new Vector3(1) / value;
+            }
+        }
 
         /// <summary>
         /// Relative size of the screen to the front wall's width. Used for rendering screen-anchored objects.
@@ -98,6 +104,11 @@ namespace Cavern {
         /// Channel count on the right side of the room, but 1 if there's none, as it's used for volume division.
         /// </summary>
         internal static int rightChannels = 2;
+
+        /// <summary>
+        /// 1 / <see cref="EnvironmentSize"/> on each axis. Cached optimization value for when a division is needed.
+        /// </summary>
+        internal static Vector3 EnvironmentSizeInverse { get; private set; } = new Vector3(1 / 10f, 1 / 7f, 1 / 10f);
 
         // ------------------------------------------------------------------
         // Listener settings
@@ -191,6 +202,11 @@ namespace Cavern {
         /// 3D environment type.
         /// </summary>
         static Environments environmentType = Environments.Home;
+
+        /// <summary>
+        /// Value of <see cref="EnvironmentSize"/>.
+        /// </summary>
+        static Vector3 environmentSize = new Vector3(10, 7, 10);
 
         /// <summary>
         /// Attached <see cref="Source"/>s.

@@ -93,7 +93,7 @@ namespace Cavern {
         long delay = 0;
 
         /// <summary>
-        /// Output samples to a multichannel array. Automatically applies constant power mixing.
+        /// Output samples to a multichannel array.
         /// </summary>
         /// <param name="samples">Samples to write</param>
         /// <param name="target">Channel array to write to</param>
@@ -103,7 +103,6 @@ namespace Cavern {
         /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
         /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
         internal static void WriteOutput(float[] samples, float[] target, float gain, int channel, int channels) {
-            gain = (float)Math.Sqrt(gain);
             for (int from = 0, to = channel; from < samples.Length; ++from, to += channels) {
                 target[to] += samples[from] * gain;
             }
@@ -215,8 +214,8 @@ namespace Cavern {
         /// </summary>
         protected internal virtual float[] Collect() {
             // Preparations, clean environment
-            int channels = Listener.Channels.Length,
-                updateRate = listener.UpdateRate;
+            Channel[] channels = Listener.Channels;
+            int updateRate = listener.UpdateRate;
             Array.Clear(rendered, 0, rendered.Length);
 
             // Render audio if not muted
@@ -241,7 +240,7 @@ namespace Cavern {
                     // 1:1 mix for non-stereo sources
                     if (clipChannels != 2) {
                         samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
-                        WriteOutput(samples, rendered, volume1D, channels);
+                        WriteOutput(samples, rendered, volume1D, channels.Length);
                     }
 
                     // Full side mix for stereo sources
@@ -296,39 +295,72 @@ namespace Cavern {
                                 closestTR = -73,
                                 closestBF = 75,
                                 closestBR = -69;
+
                             // Find closest horizontal layers
                             if (Listener.HeadphoneVirtualizer) {
-                                direction = direction.WarpToCube() / Listener.EnvironmentSize;
+                                direction = direction.WarpToCube() * Listener.EnvironmentSizeInverse;
                             } else {
-                                direction /= Listener.EnvironmentSize;
+                                direction *= Listener.EnvironmentSizeInverse;
                             }
-                            for (int channel = 0; channel < channels; ++channel) {
-                                if (!Listener.Channels[channel].LFE) {
-                                    float channelY = Listener.Channels[channel].CubicalPos.Y;
+                            for (int channel = 0; channel < channels.Length; ++channel) {
+                                if (!channels[channel].LFE) {
+                                    float channelY = channels[channel].CubicalPos.Y;
+                                    float channelZ = channels[channel].CubicalPos.Z;
                                     if (channelY <= direction.Y) {
-                                        if (channelY > closestBottom) {
+                                        if (closestBottom < channelY) {
                                             closestBottom = channelY;
+                                            closestBF = float.PositiveInfinity;
+                                            closestBR = float.NegativeInfinity;
                                         }
-                                    } else if (channelY < closestTop) {
-                                        closestTop = channelY;
+                                        if (closestBottom == channelY) {
+                                            if (channelZ <= direction.Z) {
+                                                if (closestBR < channelZ) {
+                                                    closestBR = channelZ;
+                                                }
+                                            } else if (closestBF > channelZ) {
+                                                closestBF = channelZ;
+                                            }
+                                        }
+                                    } else {
+                                        if (closestTop > channelY) {
+                                            closestTop = channelY;
+                                            closestTF = float.PositiveInfinity;
+                                            closestTR = float.NegativeInfinity;
+                                        }
+                                        if (closestTop == channelY) {
+                                            if (channelZ <= direction.Z) {
+                                                if (closestTR < channelZ) {
+                                                    closestTR = channelZ;
+                                                }
+                                            } else if (closestTF > channelZ) {
+                                                closestTF = channelZ;
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            for (int channel = 0; channel < channels; ++channel) {
-                                if (!Listener.Channels[channel].LFE) {
-                                    Vector3 channelPos = Listener.Channels[channel].CubicalPos;
+                            for (int channel = 0; channel < channels.Length; ++channel) {
+                                if (!channels[channel].LFE) {
+                                    Vector3 channelPos = channels[channel].CubicalPos;
                                     if (channelPos.Y == closestBottom) { // Bottom layer
-                                        AssignHorizontalLayer(channel, ref bottomFrontLeft, ref bottomFrontRight,
-                                            ref bottomRearLeft, ref bottomRearRight, ref closestBF, ref closestBR,
-                                            direction, channelPos);
+                                        if (channelPos.Z == closestBF) {
+                                            AssignLR(channel, ref bottomFrontLeft, ref bottomFrontRight, direction.X, channelPos.X);
+                                        }
+                                        if (channelPos.Z == closestBR) {
+                                            AssignLR(channel, ref bottomRearLeft, ref bottomRearRight, direction.X, channelPos.X);
+                                        }
                                     }
                                     if (channelPos.Y == closestTop) { // Top layer
-                                        AssignHorizontalLayer(channel, ref topFrontLeft, ref topFrontRight,
-                                            ref topRearLeft, ref topRearRight,
-                                            ref closestTF, ref closestTR, direction, channelPos);
+                                        if (channelPos.Z == closestTF) {
+                                            AssignLR(channel, ref topFrontLeft, ref topFrontRight, direction.X, channelPos.X);
+                                        }
+                                        if (channelPos.Z == closestTR) {
+                                            AssignLR(channel, ref topRearLeft, ref topRearRight, direction.X, channelPos.X);
+                                        }
                                     }
                                 }
                             }
+
                             // Fix incomplete top layer
                             FixIncompleteLayer(ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight);
 
@@ -355,54 +387,71 @@ namespace Cavern {
                             }
 
                             // Spatial mix gain precalculation
-                            Vector2 layerVol = new Vector2(.5f); // (bottom; top)
+                            Vector2 layerVol = new Vector2(1, 0); // (bottom; top)
                             if (topFrontLeft != bottomFrontLeft) { // Height ratio calculation
-                                float bottomY = Listener.Channels[bottomFrontLeft].CubicalPos.Y;
-                                layerVol.Y = (direction.Y - bottomY) / (Listener.Channels[topFrontLeft].CubicalPos.Y - bottomY);
+                                float bottomY = channels[bottomFrontLeft].CubicalPos.Y;
+                                layerVol.Y = (direction.Y - bottomY) / (channels[topFrontLeft].CubicalPos.Y - bottomY);
                                 layerVol.X = 1f - layerVol.Y;
                             }
 
                             // Length ratios (bottom; top)
-                            Vector2 frontVol = new Vector2(LengthRatio(bottomRearLeft, bottomFrontLeft, direction.Z),
-                                LengthRatio(topRearLeft, topFrontLeft, direction.Z));
-                            // Width ratios
-                            float BFRVol = WidthRatio(bottomFrontLeft, bottomFrontRight, direction.X),
-                                BRRVol = WidthRatio(bottomRearLeft, bottomRearRight, direction.X),
-                                TFRVol = WidthRatio(topFrontLeft, topFrontRight, direction.X),
-                                TRRVol = WidthRatio(topRearLeft, topRearRight, direction.X),
-                                innerVolume3D = volume3D;
+                            Vector2 frontVol = new Vector2(Ratio(channels[bottomRearLeft].CubicalPos.Z,
+                                                           channels[bottomFrontLeft].CubicalPos.Z, direction.Z),
+                                Ratio(channels[topRearLeft].CubicalPos.Z, channels[topFrontLeft].CubicalPos.Z, direction.Z));
+
+                            // Size extension
+                            float innerVolume3D = volume3D;
                             if (Size != 0) {
-                                frontVol = QMath.Lerp(frontVol, new Vector2(.5f), Size);
-                                BFRVol = QMath.Lerp(BFRVol, .5f, Size);
-                                BRRVol = QMath.Lerp(BRRVol, .5f, Size);
-                                TFRVol = QMath.Lerp(TFRVol, .5f, Size);
-                                TRRVol = QMath.Lerp(TRRVol, .5f, Size);
                                 innerVolume3D *= 1f - Size;
-                                float extraChannelVolume = volume3D * Size / channels;
-                                for (int channel = 0; channel < channels; ++channel) {
-                                    WriteOutput(samples, rendered, extraChannelVolume, channel, channels);
+                                float extraChannelVolume = volume3D * MathF.Sqrt(Size / channels.Length);
+                                for (int channel = 0; channel < channels.Length; ++channel) {
+                                    if (!channels[channel].LFE) {
+                                        WriteOutput(samples, rendered, extraChannelVolume, channel, channels.Length);
+                                    }
                                 }
                             }
 
-                            // Spatial mix gain finalization
+                            // Spatial mix output
                             Vector2 rearVol = new Vector2(1) - frontVol;
                             layerVol *= innerVolume3D;
                             frontVol *= layerVol;
                             rearVol *= layerVol;
-                            WriteOutput(samples, rendered, frontVol.X * (1f - BFRVol), bottomFrontLeft, channels);
-                            WriteOutput(samples, rendered, frontVol.X * BFRVol, bottomFrontRight, channels);
-                            WriteOutput(samples, rendered, rearVol.X * (1f - BRRVol), bottomRearLeft, channels);
-                            WriteOutput(samples, rendered, rearVol.X * BRRVol, bottomRearRight, channels);
-                            WriteOutput(samples, rendered, frontVol.Y * (1f - TFRVol), topFrontLeft, channels);
-                            WriteOutput(samples, rendered, frontVol.Y * TFRVol, topFrontRight, channels);
-                            WriteOutput(samples, rendered, rearVol.Y * (1f - TRRVol), topRearLeft, channels);
-                            WriteOutput(samples, rendered, rearVol.Y * TRRVol, topRearRight, channels);
+                            float ratio;
+                            if (frontVol.X != 0) {
+                                ratio = Ratio(channels[bottomFrontLeft].CubicalPos.X,
+                                    channels[bottomFrontRight].CubicalPos.X, direction.X);
+                                WriteOutput(samples, rendered, MathF.Sqrt(frontVol.X * (1f - ratio)),
+                                    bottomFrontLeft, channels.Length);
+                                WriteOutput(samples, rendered, MathF.Sqrt(frontVol.X * ratio), bottomFrontRight, channels.Length);
+                            }
+                            if (rearVol.X != 0) {
+                                ratio = Ratio(channels[bottomRearLeft].CubicalPos.X,
+                                    channels[bottomRearRight].CubicalPos.X, direction.X);
+                                WriteOutput(samples, rendered, MathF.Sqrt(rearVol.X * (1f - ratio)),
+                                    bottomRearLeft, channels.Length);
+                                WriteOutput(samples, rendered, MathF.Sqrt(rearVol.X * ratio), bottomRearRight, channels.Length);
+                            }
+                            if (frontVol.Y != 0) {
+                                ratio = Ratio(channels[topFrontLeft].CubicalPos.X,
+                                    channels[topFrontRight].CubicalPos.X, direction.X);
+                                WriteOutput(samples, rendered, MathF.Sqrt(frontVol.Y * (1f - ratio)),
+                                    topFrontLeft, channels.Length);
+                                WriteOutput(samples, rendered, MathF.Sqrt(frontVol.Y * ratio), topFrontRight, channels.Length);
+                            }
+                            if (rearVol.Y != 0) {
+                                ratio = Ratio(channels[topRearLeft].CubicalPos.X,
+                                    channels[topRearRight].CubicalPos.X, direction.X);
+                                WriteOutput(samples, rendered, MathF.Sqrt(rearVol.Y * (1f - ratio)),
+                                    topRearLeft, channels.Length);
+                                WriteOutput(samples, rendered, MathF.Sqrt(rearVol.Y * ratio), topRearRight, channels.Length);
+                            }
                         }
+
                         // LFE mix
                         if (!listener.LFESeparation || LFE) {
-                            for (int channel = 0; channel < channels; ++channel) {
-                                if (Listener.Channels[channel].LFE) {
-                                    WriteOutput(samples, rendered, volume3D, channel, channels);
+                            for (int channel = 0; channel < channels.Length; ++channel) {
+                                if (channels[channel].LFE) {
+                                    WriteOutput(samples, rendered, volume3D, channel, channels.Length);
                                 }
                             }
                         }
@@ -415,20 +464,20 @@ namespace Cavern {
                         // Angle match calculations
                         float[] angleMatches;
                         if (listener.AudioQuality >= QualityModes.High) {
-                            angleMatches = CalculateAngleMatches(channels, direction);
+                            angleMatches = CalculateAngleMatches(channels.Length, direction);
                         } else {
-                            angleMatches = LinearizeAngleMatches(channels, direction);
+                            angleMatches = LinearizeAngleMatches(channels.Length, direction);
                         }
 
                         // Object size extension
                         if (Size != 0) {
                             float maxAngleMatch = angleMatches[0];
-                            for (int channel = 1; channel < channels; ++channel) {
+                            for (int channel = 1; channel < channels.Length; ++channel) {
                                 if (maxAngleMatch < angleMatches[channel]) {
                                     maxAngleMatch = angleMatches[channel];
                                 }
                             }
-                            for (int channel = 0; channel < channels; ++channel) {
+                            for (int channel = 0; channel < channels.Length; ++channel) {
                                 angleMatches[channel] = QMath.Lerp(angleMatches[channel], maxAngleMatch, Size);
                             }
                         }
@@ -436,8 +485,8 @@ namespace Cavern {
                         // Only use the closest 3 speakers on non-Perfect qualities or in Theatre mode
                         if (listener.AudioQuality != QualityModes.Perfect || Listener.EnvironmentType == Environments.Theatre) {
                             float top0 = 0, top1 = 0, top2 = 0;
-                            for (int channel = 0; channel < channels; ++channel) {
-                                if (!Listener.Channels[channel].LFE) {
+                            for (int channel = 0; channel < channels.Length; ++channel) {
+                                if (!channels[channel].LFE) {
                                     float match = angleMatches[channel];
                                     if (top0 < match) {
                                         top2 = top1;
@@ -451,8 +500,8 @@ namespace Cavern {
                                     }
                                 }
                             }
-                            for (int channel = 0; channel < channels; ++channel) {
-                                if (!Listener.Channels[channel].LFE &&
+                            for (int channel = 0; channel < channels.Length; ++channel) {
+                                if (!channels[channel].LFE &&
                                     angleMatches[channel] != top0 && angleMatches[channel] != top1 &&
                                     angleMatches[channel] != top2) {
                                     angleMatches[channel] = 0;
@@ -460,20 +509,20 @@ namespace Cavern {
                             }
                         }
                         float totalAngleMatch = 0;
-                        for (int channel = 0; channel < channels; ++channel) {
+                        for (int channel = 0; channel < channels.Length; ++channel) {
                             totalAngleMatch += angleMatches[channel] * angleMatches[channel];
                         }
-                        totalAngleMatch = (float)Math.Sqrt(totalAngleMatch);
+                        totalAngleMatch = MathF.Sqrt(totalAngleMatch);
 
                         // Place in sphere, write data to output channels
                         float volume3D = Volume * rolloffDistance * SpatialBlend / totalAngleMatch;
-                        for (int channel = 0; channel < channels; ++channel) {
-                            if (Listener.Channels[channel].LFE) {
+                        for (int channel = 0; channel < channels.Length; ++channel) {
+                            if (channels[channel].LFE) {
                                 if (!listener.LFESeparation || LFE) {
-                                    WriteOutput(samples, rendered, volume3D * totalAngleMatch, channel, channels);
+                                    WriteOutput(samples, rendered, volume3D * totalAngleMatch, channel, channels.Length);
                                 }
                             } else if (!LFE && angleMatches[channel] != 0) {
-                                WriteOutput(samples, rendered, volume3D * angleMatches[channel], channel, channels);
+                                WriteOutput(samples, rendered, volume3D * angleMatches[channel], channel, channels.Length);
                             }
                         }
                     }

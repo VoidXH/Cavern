@@ -20,7 +20,7 @@ This repository features a Unity plugin and a standalone converter in C++.
 	  * Limitless Audio Format
 	  * RIFF WAVE
 	  * Audio Definition Model Broadcast Wave Format
-	* Supported containers: .ac3, .laf, .mka, .mkv, .wav
+	* Supported containers: .ac3, .ec3, .laf, .mka, .mkv, .wav
 * Direction and distance virtualization for headphones
 * Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats

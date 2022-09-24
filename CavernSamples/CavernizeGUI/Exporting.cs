@@ -89,10 +89,6 @@ namespace CavernizeGUI {
             while (progressor.Rendered < target.Length) {
                 float[] result = listener.Render();
 
-#if DEBUG
-                if (progressor.Rendered > 2500000 && WaveformUtils.GetPeakSigned(result) > .5f)
-                    ; // TODO: debug, Amaze will follow with a heavy gain frame and then a normal frame after this detection
-#endif
                 // Alignment of split parts
                 if (target.Length - progressor.Rendered < listener.UpdateRate) {
                     Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
