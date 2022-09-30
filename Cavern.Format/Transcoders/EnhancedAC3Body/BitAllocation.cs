@@ -4,15 +4,19 @@ using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Body {
-        struct Allocation {
-            public int[] dexp;
-            public int[] exp;
-            public int[] psd;
-            public int[] bndpsd;
-            public int[] excite;
-            public int[] mask;
-            public byte[] bap;
+        class Allocation {
+            public readonly int[] dexp;
+            public readonly int[] exp;
+            public readonly int[] psd;
+            public readonly int[] bndpsd;
+            public readonly int[] excite;
+            public readonly int[] mask;
+            public readonly byte[] bap;
 
+            int mantissaBits;
+            byte[] rawMantissa = new byte[0];
+
+            // TODO: these shouldn't be static, just once per transcoder
             static int bap1Bits;
             static int bap2Bits;
             static int bap4Bits;
@@ -33,35 +37,44 @@ namespace Cavern.Format.Transcoders {
                 bap4Bits = 0;
             }
 
+            /// <summary>
+            /// Read the encoded mantissa values into the <paramref name="target"/> array.
+            /// </summary>
             public void ReadMantissa(BitExtractor extractor, int[] target, int start, int end) {
+                mantissaBits = 0; // Temporiraly just keep in a byte array to make transcoding possible.
                 for (int bin = start; bin < end; ++bin) {
                     switch (bap[bin]) {
                         case 1:
                             if (bap1Bits == 0) {
                                 bap1Bits = 2;
-                                extractor.Skip(bitsToRead[1]); // TODO: temp
+                                mantissaBits += bitsToRead[1];
+                                //extractor.Skip(bitsToRead[1]); // TODO: temp
                             } else
                                 --bap1Bits;
                             break;
                         case 2:
                             if (bap2Bits == 0) {
                                 bap2Bits = 2;
-                                extractor.Skip(bitsToRead[2]); // TODO: temp
+                                mantissaBits += bitsToRead[2];
+                                //extractor.Skip(bitsToRead[2]); // TODO: temp
                             } else
                                 --bap2Bits;
                             break;
                         case 4:
                             if (bap4Bits == 0) {
                                 bap4Bits = 1;
-                                extractor.Skip(bitsToRead[4]); // TODO: temp
+                                mantissaBits += bitsToRead[4];
+                                //extractor.Skip(bitsToRead[4]); // TODO: temp
                             } else
                                 --bap4Bits;
                             break;
                         default:
-                            target[bin] = extractor.Read(bitsToRead[bap[bin]]);
+                            mantissaBits += bitsToRead[bap[bin]];
+                            //target[bin] = extractor.Read(bitsToRead[bap[bin]]);
                             break;
                     }
                 }
+                extractor.ReadBitsInto(ref rawMantissa, mantissaBits);
             }
         }
 
@@ -117,8 +130,9 @@ namespace Cavern.Format.Transcoders {
             int expOffset = coupling ? start : (start + 1);
             for (i = 0; i < (ngrps * 3); ++i) {
                 absexp += dexp[i] - 2; // Convert from differentials to absolutes using unbiased mapped values
-                for (j = 0; j < grpsize; ++j)
+                for (j = 0; j < grpsize; ++j) {
                     exp[expOffset++] = absexp;
+                }
             }
 
             // Initialization
@@ -130,8 +144,9 @@ namespace Cavern.Format.Transcoders {
 
             // Exponent mapping into psd
             int[] psd = allocation.psd;
-            for (int bin = start; bin < end; ++bin)
+            for (int bin = start; bin < end; ++bin) {
                 psd[bin] = 3072 - (exp[bin] << 7);
+            }
 
             // psd integration
             int[] bndpsd = allocation.bndpsd;
@@ -141,8 +156,9 @@ namespace Cavern.Format.Transcoders {
             do {
                 lastbin = Math.Min(bndtab[k], end);
                 bndpsd[k] = psd[j++];
-                for (i = j; i < lastbin; ++i, ++j)
+                for (i = j; i < lastbin; ++i, ++j) {
                     bndpsd[k] = LogAdd(bndpsd[k], psd[j]);
+                }
                 ++k;
             } while (end > lastbin);
 
@@ -158,8 +174,9 @@ namespace Cavern.Format.Transcoders {
                 excite[1] = bndpsd[1] - fgain - lowcomp;
                 begin = 7;
                 for (int bin = 2; bin < 7; ++bin) {
-                    if (bndend != 7 || bin != 6)
+                    if (bndend != 7 || bin != 6) {
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
+                    }
                     fastleak = bndpsd[bin] - fgain;
                     slowleak = bndpsd[bin] - sgain;
                     excite[bin] = fastleak - lowcomp;
@@ -169,8 +186,9 @@ namespace Cavern.Format.Transcoders {
                     }
                 }
                 for (int bin = begin, bins = Math.Min(bndend, 22); bin < bins; ++bin) {
-                    if (bndend != 7 || bin != 6)
+                    if (bndend != 7 || bin != 6) {
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
+                    }
                     fastleak = Math.Max(fastleak - fdecay, bndpsd[bin] - fgain);
                     slowleak = Math.Max(slowleak - sdecay, bndpsd[bin] - sgain);
                     excite[bin] = Math.Max(fastleak - lowcomp, slowleak);
@@ -187,8 +205,9 @@ namespace Cavern.Format.Transcoders {
             // Compute masking curve
             int[] mask = allocation.mask;
             for (int bin = bndstrt; bin < bndend; ++bin) {
-                if (bndpsd[bin] < dbknee)
+                if (bndpsd[bin] < dbknee) {
                     excite[bin] += (dbknee - bndpsd[bin]) >> 2;
+                }
                 mask[bin] = Math.Max(excite[bin], hth[header.SampleRateCode][bin]);
             }
 
@@ -200,8 +219,9 @@ namespace Cavern.Format.Transcoders {
                 for (int band = bndstrt, seg = 0; seg < offset.Length; ++seg) {
                     band += offset[seg];
                     int delta = bitAllocation[seg] >= 4 ? (bitAllocation[seg] - 3) << 7 : ((bitAllocation[seg] - 4) << 7);
-                    for (k = 0; k < length[seg]; ++k)
+                    for (k = 0; k < length[seg]; ++k) {
                         mask[band++] += delta;
+                    }
                 }
             }
 
@@ -212,8 +232,9 @@ namespace Cavern.Format.Transcoders {
             do {
                 lastbin = Math.Min(bndtab[j], end);
                 int masked = mask[j] - snroffset - floor;
-                if (masked < 0)
+                if (masked < 0) {
                     masked = 0;
+                }
                 masked = (masked & 0x1fe0) + floor;
                 while (i < lastbin) {
                     int address = (psd[i] - masked) >> 5;
@@ -229,24 +250,28 @@ namespace Cavern.Format.Transcoders {
         int LogAdd(int a, int b) {
             int c = a - b;
             int address = Math.Min(Math.Abs(c) >> 1, 255);
-            if (c >= 0)
+            if (c >= 0) {
                 return a + latab[address];
+            }
             return b + latab[address];
         }
 
         int CalcLowcomp(int a, int b0, int b1, int bin) {
             if (bin < 7) {
-                if (b0 + 256 == b1)
+                if (b0 + 256 == b1) {
                     return 384;
-                else if (b0 > b1)
+                } else if (b0 > b1) {
                     return Math.Max(0, a - 64);
+                }
             } else if (bin < 20) {
-                if (b0 + 256 == b1)
+                if (b0 + 256 == b1) {
                     return 320;
-                else if (b0 > b1)
+                } else if (b0 > b1) {
                     return Math.Max(0, a - 64);
-            } else
+                }
+            } else {
                 return Math.Max(0, a - 128);
+            }
             return a;
         }
     }

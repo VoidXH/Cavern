@@ -292,7 +292,7 @@ namespace Cavern.Format.Transcoders {
 
             // "Unused dummy data" that might just be used to transport objects
             if (skipflde && extractor.ReadBit())
-                extractor.ReadInto(ref auxData, ref auxDataPos, extractor.Read(9));
+                extractor.ReadBytesInto(ref auxData, ref auxDataPos, extractor.Read(9));
 
             // Quantized mantissa values
             Allocation.ResetBlock();

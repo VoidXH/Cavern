@@ -117,7 +117,7 @@ namespace Cavern.Format.Transcoders {
                         ++WordsPerSyncframe;
                     }
                 } else if (SampleRateCode == 2) {
-                    WordsPerSyncframe = WordsPerSyncframe * 3 / 2;
+                    WordsPerSyncframe += WordsPerSyncframe >> 1;
                 }
                 bsmod = extractor.Read(3);
                 ChannelMode = extractor.Read(3);
@@ -139,10 +139,10 @@ namespace Cavern.Format.Transcoders {
             switch (Decoder) {
                 case EnhancedAC3.Decoders.AlternateAC3:
                 case EnhancedAC3.Decoders.AC3:
-                    BitStreamInformation(extractor);
+                    ReadBitStreamInformation(extractor);
                     break;
                 case EnhancedAC3.Decoders.EAC3:
-                    BitStreamInformationEAC3(extractor);
+                    ReadBitStreamInformationEAC3(extractor);
                     break;
             }
 
@@ -182,9 +182,8 @@ namespace Cavern.Format.Transcoders {
             }
             if (bsid == (int)EnhancedAC3.Decoders.EAC3) {
                 return EnhancedAC3.Decoders.EAC3;
-            } else {
-                throw new UnsupportedFeatureException("decoder " + bsid);
             }
+            throw new UnsupportedFeatureException("decoder " + bsid);
         }
     }
 }

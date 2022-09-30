@@ -36,8 +36,9 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         public BitExtractor(byte[] source) {
             this.source = source;
-            if (source != null)
+            if (source != null) {
                 BackPosition = source.Length * 8;
+            }
         }
 
         /// <summary>
@@ -75,8 +76,9 @@ namespace Cavern.Format.Utilities {
             while (bits > 0) {
                 int removedLeft = Position & 7;
                 int removedRight = 0;
-                if (removedLeft + bits < 8)
+                if (removedLeft + bits < 8) {
                     removedRight = 8 - removedLeft - bits;
+                }
                 int shiftBack = removedLeft + removedRight;
                 int readBits = 8 - shiftBack;
                 result = (result << readBits) + (((source[Position / 8] << removedLeft) & 0xFF) >> shiftBack);
@@ -90,8 +92,9 @@ namespace Cavern.Format.Utilities {
         /// Read the next custom length unsigned word, if a flag is set before it.
         /// </summary>
         public int? ReadConditional(int bits) {
-            if (((source[Position / 8] >> (7 - Position++ % 8)) & 1) != 0)
+            if (((source[Position / 8] >> (7 - Position++ % 8)) & 1) != 0) {
                 return Read(bits);
+            }
             return null;
         }
 
@@ -119,29 +122,40 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         public bool[] ReadBits(int bits) {
             bool[] result = new bool[bits];
-            while (bits-- > 0)
+            while (bits-- > 0) {
                 result[bits] = ReadBit();
+            }
             return result;
         }
 
         /// <summary>
-        /// Read a byte array, even if it's offset from byte borders.
+        /// Append <paramref name="count"/> bits to the <paramref name="buffer"/>.
         /// </summary>
-        public byte[] ReadBytes(int count) {
-            byte[] result = new byte[count];
-            for (int i = 0; i < count; ++i)
-                result[i] = (byte)Read(8);
-            return result;
+        public void ReadBitsInto(ref byte[] buffer, int count) {
+            int fullBytes = count >> 3,
+                remainder = count & 7,
+                bytesNeeded = fullBytes + (remainder != 0 ? 1 : 0);
+            if (bytesNeeded > buffer.Length) {
+                Array.Resize(ref buffer, bytesNeeded);
+            }
+            for (int i = 0; i < fullBytes; ++i) {
+                buffer[i] = (byte)Read(8);
+            }
+            if (remainder != 0) {
+                buffer[fullBytes] = (byte)(Read(remainder) << (8 - remainder));
+            }
         }
 
         /// <summary>
         /// Append <paramref name="count"/> bytes to the <paramref name="buffer"/>.
         /// </summary>
-        public void ReadInto(ref byte[] buffer, ref int offset, int count) {
-            if (offset + count > buffer.Length)
+        public void ReadBytesInto(ref byte[] buffer, ref int offset, int count) {
+            if (offset + count > buffer.Length) {
                 Array.Resize(ref buffer, offset + count);
-            while (count-- > 0)
+            }
+            while (count-- > 0) {
                 buffer[offset++] = (byte)Read(8);
+            }
         }
 
         /// <summary>
