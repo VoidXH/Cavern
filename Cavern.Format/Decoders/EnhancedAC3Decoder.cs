@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Cavern.Format.Common;
 using Cavern.Format.Decoders.EnhancedAC3;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
 using Cavern.Remapping;
+using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders {
     /// <summary>
@@ -125,7 +127,7 @@ namespace Cavern.Format.Decoders {
 
                 EnhancedAC3Body body = bodies[header.SubstreamID];
                 body.Update();
-                for (int i = 0, end = body.Channels.Count; i < end; ++i)
+                for (int i = 0, c = body.Channels.Count; i < c; ++i)
                     outputs[body.Channels[i]] = body.FrameResult[i];
                 if (header.LFE)
                     outputs[ReferenceChannel.ScreenLFE] = body.LFEResult;
@@ -137,7 +139,12 @@ namespace Cavern.Format.Decoders {
             int outLength = outputs.Count * FrameSize;
             if (outCache.Length != outLength)
                 outCache = new float[outputs.Count * FrameSize];
-            // TODO: interlace channels by a standard matrix
+
+            int channelIndex = 0;
+            IOrderedEnumerable<KeyValuePair<ReferenceChannel, float[]>> orderedChannels = outputs.OrderBy(x => x.Key);
+            foreach (KeyValuePair<ReferenceChannel, float[]> channel in orderedChannels) {
+                WaveformUtils.Insert(channel.Value, outCache, channelIndex++, outputs.Count);
+            }
 
             if (frameStart < reader.LastFetchStart)
                 frameSize = reader.LastFetchStart - frameStart;

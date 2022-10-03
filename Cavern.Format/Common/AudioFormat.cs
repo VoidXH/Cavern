@@ -60,6 +60,7 @@
     internal static class BitConversions {
         public const float fromInt8 = 1 / (float)sbyte.MaxValue;
         public const float fromInt16 = 1 / (float)short.MaxValue;
-        public const float fromInt24 = 1 / 8388608f;
+        public const float fromInt24 = 1 / 8388607f;
+        public const int int24Max = 8388607;
     }
 }

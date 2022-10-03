@@ -9,12 +9,12 @@ namespace Cavern.Format.Transcoders {
     /// </summary>
     partial class EnhancedAC3Body {
         /// <summary>
-        /// Used full bandwidth channels.
+        /// Used full bandwidth channels. Maps the channel indexes to actual contained channels.
         /// </summary>
         public IReadOnlyList<ReferenceChannel> Channels => channels;
 
         /// <summary>
-        /// Used full bandwidth channels.
+        /// Used full bandwidth channels. Maps the channel indexes to actual contained channels.
         /// </summary>
         ReferenceChannel[] channels;
 

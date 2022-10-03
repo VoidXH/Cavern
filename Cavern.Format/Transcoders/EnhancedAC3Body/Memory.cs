@@ -30,7 +30,6 @@
         /// </summary>
         int auxDataPos;
 
-#pragma warning disable IDE0052 // Remove unread private members
         bool ahte;
         bool baie;
         bool bamode;
@@ -125,14 +124,12 @@
         int[] chbwcod;
         int[] convexpstr;
         int[] cplexps;
-        int[] cplmant = new int[maxAllocationSize];
         int[] endmant;
         int[] fgaincod;
         int[] frmchexpstr;
         int[] fsnroffst;
         int[] gainrng;
         int[] lfeexps;
-        int[] lfemant;
         int[] mstrcplco;
         int[] mstrspxco;
         int[] nchgrps;
@@ -141,13 +138,26 @@
         int[] spxbndsztab;
         int[] transproclen;
         int[] transprocloc;
-        int[][] chmant;
         int[][] cplcoexp;
         int[][] cplcomant;
         int[][] exps;
         int[][] spxcoexp;
         int[][] spxcomant;
-#pragma warning restore IDE0052 // Remove unread private members
+
+        /// <summary>
+        /// PCM output data of each channel.
+        /// </summary>
+        float[][] channelOutput;
+
+        /// <summary>
+        /// Transform coefficients for the coupling channel's last read audio block.
+        /// </summary>
+        readonly float[] couplingTransformCoeffs = new float[maxAllocationSize];
+
+        /// <summary>
+        /// Transform coefficients for the LFE channel's last read audio block.
+        /// </summary>
+        readonly float[] lfeTransformCoeffs = new float[nlfemant];
 
         void CreateCacheTables(int blocks, int channels) {
             blksw = new bool[channels];
@@ -158,7 +168,7 @@
             chinspx = new bool[channels];
             chinspxatten = new bool[channels];
             chintransproc = new bool[channels];
-            chmant = new int[channels][];
+            channelOutput = new float[channels][];
             convexpstr = new int[channels];
             cplcoe = new bool[channels];
             cplcoexp = new int[channels][];
@@ -179,7 +189,6 @@
             gainrng = new int[channels];
             lfeexps = new int[nlfegrps + 1];
             lfeexpstr = new bool[blocks];
-            lfemant = new int[nlfemant];
             mstrcplco = new int[channels];
             mstrspxco = new int[channels];
             nchgrps = new int[channels];
@@ -202,7 +211,7 @@
             lfedeltba.Reset();
             for (int channel = 0; channel < channels; ++channel) {
                 allocation[channel] = new Allocation(maxAllocationSize);
-                chmant[channel] = new int[maxAllocationSize];
+                channelOutput[channel] = new float[maxAllocationSize];
                 cplcoexp[channel] = new int[cplbndstrc.Length];
                 cplcomant[channel] = new int[cplbndstrc.Length];
                 deltba[channel].Reset();

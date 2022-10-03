@@ -114,8 +114,8 @@ namespace Cavern.Utilities {
         /// Inverse Fast Fourier Transform of a transformed signal.
         /// </summary>
         public static Complex[] IFFT(this Complex[] samples) {
+            samples = samples.FastClone();
             if (CavernAmp.Available) {
-                samples = samples.FastClone();
                 CavernAmp.InPlaceIFFT(samples);
             } else {
                 using FFTCache cache = new FFTCache(samples.Length);

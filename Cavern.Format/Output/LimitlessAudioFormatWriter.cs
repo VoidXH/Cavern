@@ -120,7 +120,7 @@ namespace Cavern.Format {
                 case BitDepth.Int24:
                     for (int sample = 0; sample < until; ++sample) {
                         if (toWrite[sample % ChannelCount]) {
-                            int src = (int)(cache[sample] * 8388607f);
+                            int src = (int)(cache[sample] * BitConversions.int24Max);
                             writer.Write((byte)src);
                             writer.Write((byte)(src >> 8));
                             writer.Write((byte)(src >> 16));

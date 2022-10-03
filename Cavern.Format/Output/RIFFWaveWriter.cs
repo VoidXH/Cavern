@@ -156,7 +156,7 @@ namespace Cavern.Format {
                     break;
                 case BitDepth.Int24:
                     while (from < to) {
-                        int src = (int)(samples[from++] * 8388607f);
+                        int src = (int)(samples[from++] * BitConversions.int24Max);
                         writer.Write((byte)src);
                         writer.Write((byte)(src >> 8));
                         writer.Write((byte)(src >> 16));
@@ -194,7 +194,7 @@ namespace Cavern.Format {
                 case BitDepth.Int24:
                     while (from < to) {
                         for (int channel = 0; channel < samples.Length; ++channel) {
-                            int src = (int)(samples[channel][from] * 8388607f);
+                            int src = (int)(samples[channel][from] * BitConversions.int24Max);
                             writer.Write((byte)src);
                             writer.Write((byte)(src >> 8));
                             writer.Write((byte)(src >> 16));

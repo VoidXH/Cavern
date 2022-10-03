@@ -305,13 +305,13 @@ namespace Cavern.Format.Transcoders {
                 if (chahtinu[channel] == 0) {
                     //if (chexpstr[block][channel] != ExpStrat.Reuse)
                         Allocate(channel, chexpstr[block][channel]);
-                    allocation[channel].ReadMantissa(extractor, chmant[channel], 0, endmant[channel]);
+                    allocation[channel].ReadTransformCoeffs(extractor, channelOutput[channel], 0, endmant[channel]);
                 } else
                     throw new UnsupportedFeatureException("AHT");
 
                 if (cplinu[block] && chincpl[channel] && !got_cplchan) {
                     if (cplahtinu == 0) {
-                        couplingAllocation.ReadMantissa(extractor, cplmant, cplstrtmant, cplendmant);
+                        couplingAllocation.ReadTransformCoeffs(extractor, couplingTransformCoeffs, cplstrtmant, cplendmant);
                         got_cplchan = true;
                     } else
                         throw new UnsupportedFeatureException("AHT");
@@ -322,9 +322,19 @@ namespace Cavern.Format.Transcoders {
                 if (lfeahtinu == 0) {
                     //if (lfeexpstr[block])
                         AllocateLFE();
-                    lfeAllocation.ReadMantissa(extractor, lfemant, lfestrtmant, lfeendmant);
+                    lfeAllocation.ReadTransformCoeffs(extractor, lfeTransformCoeffs, lfestrtmant, lfeendmant);
                 } else
                     throw new UnsupportedFeatureException("AHT");
+            }
+
+            // Output
+            for (int channel = 0; channel < channels.Length; ++channel) {
+                if (blksw[channel]) {
+                    allocation[channel].IMDCT256(channelOutput[channel]);
+                } else {
+                    allocation[channel].IMDCT512(channelOutput[channel]);
+                }
+                Array.Copy(channelOutput[channel], 0, FrameResult[channel], block * 256, 256);
             }
         }
     }
