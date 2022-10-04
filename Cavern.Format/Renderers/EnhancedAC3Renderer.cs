@@ -16,9 +16,6 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         public bool Enhanced => ((EnhancedAC3Decoder)stream).Enhanced;
 
-        /// <summary>TODO: TEMPORARY UNTIL THE DECODER IS IMPLEMENTED!</summary>
-        public AudioReader Source { get; set; }
-
         /// <summary>
         /// Count of free-floating objects.
         /// </summary>
@@ -153,7 +150,6 @@ namespace Cavern.Format.Renderers {
         void RenderNextTimeslot() {
             float[] input = new float[QuadratureMirrorFilterBank.subbands * stream.ChannelCount];
             stream.DecodeBlock(input, 0, input.LongLength);
-            Source?.ReadBlock(input, 0, input.LongLength);
             WaveformUtils.InterlacedToMultichannel(input, inputData);
 
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);

@@ -318,23 +318,27 @@ namespace Cavern.Format.Transcoders {
                 }
             }
 
-            if (header.LFE) {
-                if (lfeahtinu == 0) {
-                    //if (lfeexpstr[block])
-                        AllocateLFE();
-                    lfeAllocation.ReadTransformCoeffs(extractor, lfeTransformCoeffs, lfestrtmant, lfeendmant);
-                } else
-                    throw new UnsupportedFeatureException("AHT");
-            }
-
             // Output
             for (int channel = 0; channel < channels.Length; ++channel) {
+                Array.Copy(couplingTransformCoeffs, cplstrtmant, channelOutput[channel], cplstrtmant, cplendmant - cplstrtmant);
                 if (blksw[channel]) {
                     allocation[channel].IMDCT256(channelOutput[channel]);
                 } else {
                     allocation[channel].IMDCT512(channelOutput[channel]);
                 }
                 Array.Copy(channelOutput[channel], 0, FrameResult[channel], block * 256, 256);
+            }
+
+            // Combined mantissa and output handling for LFE
+            if (header.LFE) {
+                if (lfeahtinu == 0) {
+                    //if (lfeexpstr[block])
+                    AllocateLFE();
+                    lfeAllocation.ReadTransformCoeffs(extractor, lfeOutput, lfestrtmant, lfeendmant);
+                    lfeAllocation.IMDCT512(lfeOutput);
+                    Array.Copy(lfeOutput, 0, LFEResult, block * 256, 256);
+                } else
+                    throw new UnsupportedFeatureException("AHT");
             }
         }
     }

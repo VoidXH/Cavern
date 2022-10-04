@@ -322,31 +322,6 @@ namespace CavernizeGUI {
         /// </summary>
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
-#region TODO: TEMPORARY, REMOVE WHEN AC-3 AND MKV CAN BE FULLY DECODED - decode with FFmpeg until then
-            bool isWAV = filePath[^4..].Equals(".wav");
-            string tempWAV = filePath[..^4] + "{0}.wav";
-            string firstWAV = string.Format(tempWAV, "0");
-            SegmentedAudioReader wavReader = null;
-
-            if (writer != null && !isWAV) {
-                if (!File.Exists(firstWAV)) {
-                    taskEngine.UpdateStatus("Decoding bed audio...");
-                    if (!ffmpeg.Launch(string.Format("-drc_scale 0 -i \"{0}\" -map 0:a:{1} -c:a pcm_s24le " +
-                        "-f segment -segment_time 30:00 \"{2}\"",
-                        filePath, file.TryForBetterQuality(target), string.Format(tempWAV, "%d"))) ||
-                        !File.Exists(firstWAV)) {
-                        if (File.Exists(firstWAV))
-                            File.Delete(firstWAV); // Only the first determines if it should be rendered
-                        taskEngine.UpdateStatus("Failed to decode bed audio. " +
-                            "Are your permissions sufficient in the source's folder?");
-                        return;
-                    }
-                }
-                target.SetRendererSource(wavReader = new SegmentedAudioReader(tempWAV));
-                target.SetupForExport();
-            }
-#endregion
-
             taskEngine.UpdateStatus((string)language["Start"]);
             RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly);
             UpdatePostRenderReport(stats);
@@ -374,17 +349,6 @@ namespace CavernizeGUI {
                     }
                     File.Delete(exportedAudio);
                 }
-
-#region TODO: same
-                if (wavReader != null) {
-                    wavReader.Dispose();
-                    int index = 0;
-                    do {
-                        File.Delete(firstWAV);
-                        firstWAV = string.Format(tempWAV, ++index);
-                    } while (File.Exists(firstWAV));
-                }
-#endregion
             }
 
             taskEngine.UpdateStatus((string)language["ExpOk"]);
@@ -396,46 +360,11 @@ namespace CavernizeGUI {
         /// </summary>
         void TranscodeTask(Track target, EnvironmentWriter writer) {
             taskEngine.UpdateProgressBar(0);
-
-#region TODO: TEMPORARY, REMOVE WHEN AC-3 AND MKV CAN BE FULLY DECODED - decode with FFmpeg until then
-            SegmentedAudioReader wavReader = null;
-            string tempWAV = filePath[..^4] + "{0}.wav";
-            string firstWAV = string.Format(tempWAV, "0");
-            if (target.Codec == Codec.AC3 || target.Codec == Codec.EnhancedAC3) {
-                if (!File.Exists(firstWAV)) {
-                    taskEngine.UpdateStatus("Decoding bed audio...");
-                    if (!ffmpeg.Launch(string.Format("-drc_scale 0 -i \"{0}\" -map 0:a:{1} -c:a pcm_s24le " +
-                        "-f segment -segment_time 30:00 \"{2}\"",
-                        filePath, file.TryForBetterQuality(target), string.Format(tempWAV, "%d"))) ||
-                        !File.Exists(firstWAV)) {
-                        if (File.Exists(firstWAV))
-                            File.Delete(firstWAV); // only the first determines if it should be rendered
-                        taskEngine.UpdateStatus("Failed to decode bed audio. " +
-                            "Are your permissions sufficient in the source's folder?");
-                        return;
-                    }
-                }
-                target.SetRendererSource(wavReader = new SegmentedAudioReader(tempWAV));
-                target.SetupForExport();
-            }
-#endregion
-
             taskEngine.UpdateStatus((string)language["Start"]);
             RenderStats stats = Exporting.WriteTranscode(listener, target, writer, taskEngine);
             UpdatePostRenderReport(stats);
             taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.UpdateProgressBar(1);
-
-#region TODO: same
-            if (wavReader != null) {
-                wavReader.Dispose();
-                int index = 0;
-                do {
-                    File.Delete(firstWAV);
-                    firstWAV = string.Format(tempWAV, ++index);
-                } while (File.Exists(firstWAV));
-            }
-#endregion
         }
 
         /// <summary>

@@ -132,24 +132,6 @@ namespace CavernizeGUI {
             }
         }
 
-        /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
-        public void SetRendererSource(AudioReader reader) {
-            if (Renderer is EnhancedAC3Renderer eac3)
-                eac3.Source = reader;
-        }
-
-        /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
-        public void SetupForExport() {
-            if (Renderer is EnhancedAC3Renderer eac3 && eac3.Source != null)
-                eac3.Source.Reset();
-        }
-
-        /// <summary>TODO: THIS IS TEMPORARY, REMOVE WHEN AC3 IS DECODABLE</summary>
-        public void DisposeRendererSource() {
-            if (Renderer is EnhancedAC3Renderer eac3 && eac3.Source != null)
-                eac3.Source.Dispose();
-        }
-
         /// <summary>
         /// Free up resources.
         /// </summary>

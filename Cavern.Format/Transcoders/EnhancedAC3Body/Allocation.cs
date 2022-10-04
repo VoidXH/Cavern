@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Numerics;
 
-using Cavern.Format.Common;
 using Cavern.Format.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Body {
@@ -26,17 +25,17 @@ namespace Cavern.Format.Transcoders {
             /// <summary>
             /// Next mantissa values in case the bap is 1.
             /// </summary>
-            static float[] bap1Next;
+            static int[] bap1Next;
 
             /// <summary>
             /// Next mantissa values in case the bap is 2.
             /// </summary>
-            static float[] bap2Next;
+            static int[] bap2Next;
 
             /// <summary>
             /// Next mantissa values in case the bap is 4.
             /// </summary>
-            static float[] bap4Next;
+            static int[] bap4Next;
 
             /// <summary>
             /// A copy of the mantissa stream to be able to quickly transcode the block without re-encoding.
@@ -71,9 +70,11 @@ namespace Cavern.Format.Transcoders {
                     (bap1Pos + (bapReads & 0xFF)) / 3 * bitsToRead[1] +
                     (bap2Pos + ((bapReads >> 8) & 0xFF)) / 3 * bitsToRead[2] +
                     ((bapReads >> 16) & 0xFF) * bitsToRead[3] +
-                    ((bap4Pos + (bapReads >> 24)) / 2) * bitsToRead[4];
+                    (bap4Pos + (bapReads >> 24)) / 2 * bitsToRead[4];
                 extractor.ReadBitsInto(ref rawMantissa, mantissaBits);
                 DecodeTransformCoeffs(new BitExtractor(rawMantissa), target, start, end);
+                Array.Clear(target, 0, start);
+                Array.Clear(target, end, target.Length - end);
             }
 
 
@@ -88,30 +89,26 @@ namespace Cavern.Format.Transcoders {
                 }
 
                 // IFFT
-                for (int i = 0; i < y.Length; i++) {
-                    Complex result = 0;
-                    for (int j = 0; j < y.Length; j++) {
-                        float phi = 8 * MathF.PI / IMDCTSize * i * j;
-                        result += new Complex(Z[i].Real * MathF.Cos(phi), Z[i].Imaginary * MathF.Sin(phi));
-                    }
-                    y[i] = result;
-                }
+                Z.InPlaceIFFTUnscaled(ifftCache);
 
                 // Post-IFFT
-                for (int i = 0; i < y.Length; i++) {
-                    y[i] *= x512[i];
+                for (int i = 0; i < Z.Length; i++) {
+                    Z[i] *= x512[i];
                 }
 
                 // Windowing and de-interleaving
                 for (int i = 0; i < IMDCTSize / 8; i++) {
-                    x[2 * i] = (float)-y[IMDCTSize / 8 + i].Imaginary * IMDCTWindow[2 * i];
-                    x[2 * i + 1] = (float)y[IMDCTSize / 8 - i - 1].Real * IMDCTWindow[2 * i + 1];
-                    x[IMDCTSize / 4 + 2 * i] = (float)-y[i].Real * IMDCTWindow[IMDCTSize / 4 + 2 * i];
-                    x[IMDCTSize / 4 + 2 * i + 1] = (float)y[IMDCTSize / 4 - 1 - i].Imaginary * IMDCTWindow[IMDCTSize / 4 + 1 + 2 * i];
-                    x[IMDCTSize / 2 + 2 * i] = (float)-y[IMDCTSize / 8 + i].Real * IMDCTWindow[IMDCTSize / 2 - 1 - 2 * i];
-                    x[IMDCTSize / 2 + 2 * i + 1] = (float)y[IMDCTSize / 8 - 1 - i].Imaginary * IMDCTWindow[IMDCTSize / 2 - 2 - 2 * i];
-                    x[3 * IMDCTSize / 4 + 2 * i] = (float)y[i].Imaginary * IMDCTWindow[IMDCTSize / 4 - 1 - 2 * i];
-                    x[3 * IMDCTSize / 4 + 2 * i + 1] = (float)-y[IMDCTSize / 4 - 1 - i].Real * IMDCTWindow[IMDCTSize / 4 - 2 - 2 * i];
+                    x[2 * i] = (float)-Z[IMDCTSize / 8 + i].Imaginary * IMDCTWindow[2 * i];
+                    x[2 * i + 1] = (float)Z[IMDCTSize / 8 - i - 1].Real * IMDCTWindow[2 * i + 1];
+                    x[IMDCTSize / 4 + 2 * i] = (float)-Z[i].Real * IMDCTWindow[IMDCTSize / 4 + 2 * i];
+                    x[IMDCTSize / 4 + 1 + 2 * i] = (float)Z[IMDCTSize / 4 - 1 - i].Imaginary *
+                        IMDCTWindow[IMDCTSize / 4 + 1 + 2 * i];
+                    x[IMDCTSize / 2 + 2 * i] = (float)-Z[IMDCTSize / 8 + i].Real * IMDCTWindow[IMDCTSize / 2 - 1 - 2 * i];
+                    x[IMDCTSize / 2 + 1 + 2 * i] = (float)Z[IMDCTSize / 8 - 1 - i].Imaginary *
+                        IMDCTWindow[IMDCTSize / 2 - 2 - 2 * i];
+                    x[3 * IMDCTSize / 4 + 2 * i] = (float)Z[i].Imaginary * IMDCTWindow[IMDCTSize / 4 - 1 - 2 * i];
+                    x[3 * IMDCTSize / 4 + 1 + 2 * i] = (float)-Z[IMDCTSize / 4 - 1 - i].Real *
+                        IMDCTWindow[IMDCTSize / 4 - 2 - 2 * i];
                 }
 
                 // Overlap-and-add
@@ -141,31 +138,31 @@ namespace Cavern.Format.Transcoders {
                                 bap1Next = bap1[extractor.Read(bitsToRead[1])];
                                 bap1Pos = 0;
                             }
-                            target[bin] = bap1Next[bap1Pos];
+                            target[bin] = (bap1Next[bap1Pos] >> exp[bin]) * BitConversions.fromInt24;
                             break;
                         case 2:
                             if (++bap2Pos == 3) {
                                 bap2Next = bap2[extractor.Read(bitsToRead[2])];
                                 bap2Pos = 0;
                             }
-                            target[bin] = bap2Next[bap2Pos];
+                            target[bin] = (bap2Next[bap2Pos] >> exp[bin]) * BitConversions.fromInt24;
                             break;
                         case 3:
-                            target[bin] = bap3[extractor.Read(bitsToRead[3])];
+                            target[bin] = (bap3[extractor.Read(bitsToRead[3])] >> exp[bin]) * BitConversions.fromInt24;
                             break;
                         case 4:
                             if (++bap4Pos == 2) {
                                 bap4Next = bap4[extractor.Read(bitsToRead[4])];
                                 bap4Pos = 0;
                             }
-                            target[bin] = bap4Next[bap4Pos];
+                            target[bin] = (bap4Next[bap4Pos] >> exp[bin]) * BitConversions.fromInt24;
                             break;
                         case 5:
-                            target[bin] = bap5[extractor.Read(bitsToRead[5])];
+                            target[bin] = (bap5[extractor.Read(bitsToRead[5])] >> exp[bin]) * BitConversions.fromInt24;
                             break;
                         default: // Asymmetric quantization
-                            target[bin] = ((extractor.Read(bitsToRead[bap[bin]]) << (32 - bitsToRead[bap[bin]])) >> (8 + exp[bin]))
-                                * BitConversions.fromInt24;
+                            target[bin] = ((extractor.Read(bitsToRead[bap[bin]]) << (32 - bitsToRead[bap[bin]])) >> exp[bin])
+                                * BitConversions.fromInt32;
                             break;
                     }
                 }

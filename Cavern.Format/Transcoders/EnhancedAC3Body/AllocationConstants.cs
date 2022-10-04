@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Numerics;
+
+using Cavern.Utilities;
 
 namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Body {
@@ -13,29 +14,34 @@ namespace Cavern.Format.Transcoders {
             public readonly byte[] bap;
 
             /// <summary>
+            /// Precalculated values for the IMDCT's IFFT.
+            /// </summary>
+            static FFTCache ifftCache;
+
+            /// <summary>
             /// Grouped mantissas for bap = 1 (3-level) quantization.
             /// </summary>
-            static float[][] bap1;
+            static int[][] bap1;
 
             /// <summary>
             /// Grouped mantissas for bap = 2 (5-level) quantization.
             /// </summary>
-            static float[][] bap2;
+            static int[][] bap2;
 
             /// <summary>
             /// Mantissas for bap = 3 (7-level) quantization.
             /// </summary>
-            static float[] bap3;
+            static int[] bap3;
 
             /// <summary>
             /// Grouped mantissas for bap = 4 (11-level) quantization.
             /// </summary>
-            static float[][] bap4;
+            static int[][] bap4;
 
             /// <summary>
             /// Mantissas for bap = 5 (15-level) quantization.
             /// </summary>
-            static float[] bap5;
+            static int[] bap5;
 
             /// <summary>
             /// Complex multiplication cache for 512-sample IMDCT.
@@ -46,11 +52,6 @@ namespace Cavern.Format.Transcoders {
             /// Intermediate IMDCT array, before IFFT.
             /// </summary>
             readonly Complex[] Z;
-
-            /// <summary>
-            /// Intermediate IMDCT array, after IFFT.
-            /// </summary>
-            readonly Complex[] y;
 
             /// <summary>
             /// Windowed time-domain samples after IMDCT.
@@ -71,11 +72,8 @@ namespace Cavern.Format.Transcoders {
                 mask = new int[maxLength];
                 bap = new byte[maxLength];
 
-                Z = new Complex[IMDCTSize / 4];
-                y = new Complex[IMDCTSize / 4];
-                x = new float[IMDCTSize];
-                delay = new float[IMDCTSize / 2];
-                if (bap1 == null) {
+                if (ifftCache == null) {
+                    ifftCache = new FFTCache(IMDCTSize / 4);
                     bap1 = GenerateGroupedQuantization(3, 3, 5);
                     bap2 = GenerateGroupedQuantization(5, 3, 7);
                     bap3 = GenerateQuantization(7);
@@ -88,17 +86,21 @@ namespace Cavern.Format.Transcoders {
                         x512[i] = new Complex(-MathF.Cos(phi), -MathF.Sin(phi));
                     }
                 }
+
+                Z = new Complex[IMDCTSize / 4];
+                x = new float[IMDCTSize];
+                delay = new float[IMDCTSize / 2];
             }
 
             /// <summary>
             /// Generate the quantized values for a given symmetric quantizer (bap 1 to 5, by number of levels).
             /// </summary>
             /// <param name="levels">Number of quantized values</param>
-            static float[] GenerateQuantization(int levels) {
-                float[] result = new float[levels];
+            static int[] GenerateQuantization(int levels) {
+                int[] result = new int[levels];
                 int numerator = -1 - levels;
                 for (int i = 0; i < levels; i++) {
-                    result[i] = (numerator += 2) / (float)levels;
+                    result[i] = BitConversions.int24Max * (numerator += 2) / levels;
                 }
                 return result;
             }
@@ -109,11 +111,11 @@ namespace Cavern.Format.Transcoders {
             /// <param name="levels">Number of quantized values</param>
             /// <param name="groups">Number of values grouped per written mantissa group</param>
             /// <param name="groupBits">Bits used by a mantissa group</param>
-            static float[][] GenerateGroupedQuantization(int levels, int groups, int groupBits) {
-                float[] source = GenerateQuantization(levels);
-                float[][] result = new float[1 << groupBits][];
+            static int[][] GenerateGroupedQuantization(int levels, int groups, int groupBits) {
+                int[] source = GenerateQuantization(levels);
+                int[][] result = new int[1 << groupBits][];
                 for (int i = 0; i < result.Length; i++) {
-                    result[i] = new float[groups];
+                    result[i] = new int[groups];
                     int groupCode = i;
                     for (int j = groups - 1; j >= 0; j--) {
                         result[i][j] = source[groupCode % levels];

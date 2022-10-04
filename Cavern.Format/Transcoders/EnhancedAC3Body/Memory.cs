@@ -155,9 +155,9 @@
         readonly float[] couplingTransformCoeffs = new float[maxAllocationSize];
 
         /// <summary>
-        /// Transform coefficients for the LFE channel's last read audio block.
+        /// PCM output data for the LFE channel's last read audio block.
         /// </summary>
-        readonly float[] lfeTransformCoeffs = new float[nlfemant];
+        readonly float[] lfeOutput = new float[maxAllocationSize];
 
         void CreateCacheTables(int blocks, int channels) {
             blksw = new bool[channels];

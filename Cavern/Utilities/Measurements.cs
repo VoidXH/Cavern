@@ -166,6 +166,22 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation, without a
+        /// division with the number of elements. This is the definition of IFFT, but unsuitable for measurement use.
+        /// </summary>
+        public static void InPlaceIFFTUnscaled(this Complex[] samples, FFTCache cache) {
+            if (CavernAmp.Available) {
+                CavernAmp.InPlaceIFFT(samples, cache);
+                for (int i = 0; i < samples.Length; ++i) {
+                    samples[i].Real *= samples.Length;
+                    samples[i].Imaginary *= samples.Length;
+                }
+                return;
+            }
+            ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+        }
+
+        /// <summary>
         /// Minimizes the phase of a spectrum.
         /// </summary>
         /// <remarks>This function does not handle zeros in the spectrum.
