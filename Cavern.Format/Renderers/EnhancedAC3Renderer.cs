@@ -32,6 +32,11 @@ namespace Cavern.Format.Renderers {
         readonly JointObjectCodingApplier applier;
 
         /// <summary>
+        /// Result of the last decoded block (interlaced samples).
+        /// </summary>
+        float[] decodedBlock;
+
+        /// <summary>
         /// LFE channel samples from the last timeslot.
         /// </summary>
         float[] lfeTimeslot;
@@ -102,6 +107,7 @@ namespace Cavern.Format.Renderers {
                 lfeResult = new float[samples];
             }
             if (inputData.Length != stream.ChannelCount) {
+                decodedBlock = new float[QuadratureMirrorFilterBank.subbands * stream.ChannelCount];
                 inputData = new float[stream.ChannelCount][];
                 for (int channel = 0; channel < inputData.Length; ++channel) {
                     inputData[channel] = new float[QuadratureMirrorFilterBank.subbands];
@@ -148,9 +154,8 @@ namespace Cavern.Format.Renderers {
         /// Render new object samples for the next timeslot
         /// </summary>
         void RenderNextTimeslot() {
-            float[] input = new float[QuadratureMirrorFilterBank.subbands * stream.ChannelCount];
-            stream.DecodeBlock(input, 0, input.LongLength);
-            WaveformUtils.InterlacedToMultichannel(input, inputData);
+            stream.DecodeBlock(decodedBlock, 0, decodedBlock.LongLength);
+            WaveformUtils.InterlacedToMultichannel(decodedBlock, inputData);
 
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
             EnhancedAC3Decoder decoder = (EnhancedAC3Decoder)stream;
