@@ -84,45 +84,83 @@ namespace Cavern.Format.Transcoders {
             /// </summary>
             public void IMDCT512(float[] coeffs) {
                 // Pre-IFFT
-                for (int i = 0; i < Z.Length; i++) {
-                    Z[i] = new Complex(coeffs[IMDCTSize / 2 - 1 - 2 * i], coeffs[2 * i]) * x512[i];
+                for (int i = 0; i < intermediate.Length; i++) {
+                    intermediate[i] = new Complex(coeffs[IMDCTSize / 2 - 1 - 2 * i], coeffs[2 * i]) * x512[i];
                 }
 
                 // IFFT
-                Z.InPlaceIFFTUnscaled(ifftCache);
+                intermediate.InPlaceIFFTUnscaled(cache512);
 
                 // Post-IFFT
-                for (int i = 0; i < Z.Length; i++) {
-                    Z[i] *= x512[i];
-                }
+                intermediate.Convolve(x512);
 
                 // Windowing and de-interleaving
                 for (int i = 0; i < IMDCTSize / 8; i++) {
-                    x[2 * i] = (float)-Z[IMDCTSize / 8 + i].Imaginary * IMDCTWindow[2 * i];
-                    x[2 * i + 1] = (float)Z[IMDCTSize / 8 - i - 1].Real * IMDCTWindow[2 * i + 1];
-                    x[IMDCTSize / 4 + 2 * i] = (float)-Z[i].Real * IMDCTWindow[IMDCTSize / 4 + 2 * i];
-                    x[IMDCTSize / 4 + 1 + 2 * i] = (float)Z[IMDCTSize / 4 - 1 - i].Imaginary *
-                        IMDCTWindow[IMDCTSize / 4 + 1 + 2 * i];
-                    x[IMDCTSize / 2 + 2 * i] = (float)-Z[IMDCTSize / 8 + i].Real * IMDCTWindow[IMDCTSize / 2 - 1 - 2 * i];
-                    x[IMDCTSize / 2 + 1 + 2 * i] = (float)Z[IMDCTSize / 8 - 1 - i].Imaginary *
-                        IMDCTWindow[IMDCTSize / 2 - 2 - 2 * i];
-                    x[3 * IMDCTSize / 4 + 2 * i] = (float)Z[i].Imaginary * IMDCTWindow[IMDCTSize / 4 - 1 - 2 * i];
-                    x[3 * IMDCTSize / 4 + 1 + 2 * i] = (float)-Z[IMDCTSize / 4 - 1 - i].Real *
-                        IMDCTWindow[IMDCTSize / 4 - 2 - 2 * i];
+                    const int n8 = IMDCTSize / 8,
+                        n4 = IMDCTSize / 4,
+                        n2 = IMDCTSize / 2;
+                    output[2 * i] = (float)-intermediate[n8 + i].Imaginary * window[2 * i];
+                    output[2 * i + 1] = (float)intermediate[n8 - 1 - i].Real * window[2 * i + 1];
+                    output[n4 + 2 * i] = (float)-intermediate[i].Real * window[n4 + 2 * i];
+                    output[n4 + 1 + 2 * i] = (float)intermediate[n4 - 1 - i].Imaginary * window[n4 + 1 + 2 * i];
+                    output[n2 + 2 * i] = (float)-intermediate[n8 + i].Real * window[n2 - 1 - 2 * i];
+                    output[n2 + 1 + 2 * i] = (float)intermediate[n8 - 1 - i].Imaginary * window[n2 - 2 - 2 * i];
+                    output[3 * n4 + 2 * i] = (float)intermediate[i].Imaginary * window[n4 - 1 - 2 * i];
+                    output[3 * n4 + 1 + 2 * i] = (float)-intermediate[n4 - 1 - i].Real * window[n4 - 2 - 2 * i];
                 }
 
                 // Overlap-and-add
                 for (int i = 0; i < delay.Length; i++) {
-                    coeffs[i] = 2 * (x[i] + delay[i]);
+                    coeffs[i] = 2 * (output[i] + delay[i]);
                 }
-                Array.Copy(x, delay.Length, delay, 0, delay.Length);
+                Array.Copy(output, delay.Length, delay, 0, delay.Length);
             }
 
             /// <summary>
             /// Performs a 256-sample inverse modified discrete cosine transform in-place.
             /// </summary>
             public void IMDCT256(float[] coeffs) {
-                throw new UnsupportedFeatureException("blksw");
+                for (int i = 0; i < coeffSplit1.Length; i++) {
+                    coeffSplit1[i] = coeffs[2 * i];
+                    coeffSplit2[i] = coeffs[2 * i + 1];
+                }
+
+                // Pre-IFFT
+                for (int i = 0; i < intermediate1.Length; i++) {
+                    intermediate1[i] = new Complex(coeffSplit1[IMDCTSize / 4 - 1 - 2 * i], coeffs[2 * i]) * x256[i];
+                }
+                for (int i = 0; i < intermediate2.Length; i++) {
+                    intermediate2[i] = new Complex(coeffSplit2[IMDCTSize / 4 - 1 - 2 * i], coeffs[2 * i]) * x256[i];
+                }
+
+                // IFFT
+                intermediate1.InPlaceIFFTUnscaled(cache256);
+                intermediate2.InPlaceIFFTUnscaled(cache256);
+
+                // Post-IFFT
+                intermediate1.Convolve(x256);
+                intermediate2.Convolve(x256);
+
+                // Windowing and de-interleaving
+                for (int i = 0; i < IMDCTSize / 8; i++) {
+                    const int n8 = IMDCTSize / 8,
+                        n4 = IMDCTSize / 4,
+                        n2 = IMDCTSize / 2;
+                    output[2 * i] = -intermediate1[i].Imaginary * window[2 * i];
+                    output[2 * i + 1] = intermediate1[n8 - 1 - i].Real * window[2 * i + 1];
+                    output[n4 + 2 * i] = -intermediate1[i].Real * window[n4 + 2 * i];
+                    output[n4 + 1 + 2 * i] = intermediate1[n8 - 1 - i].Imaginary * window[n4 + 1 + 2 * i];
+                    output[n2 + 2 * i] = -intermediate2[i].Real * window[n2 - 1 - 2 * i];
+                    output[n2 + 1 + 2 * i] = intermediate2[n8 - 1 - i].Imaginary * window[n2 - 2 - 2 * i];
+                    output[3 * n4 + 2 * i] = intermediate2[i].Imaginary * window[n4 - 1 - 2 * i];
+                    output[3 * n4 + 1 + 2 * i] = -intermediate2[n8 - 1 - i].Real * window[n4 - 2 - 2 * i];
+                }
+
+                // Overlap-and-add
+                for (int i = 0; i < delay.Length; i++) {
+                    coeffs[i] = 2 * (output[i] + delay[i]);
+                }
+                Array.Copy(output, delay.Length, delay, 0, delay.Length);
             }
 
             /// <summary>

@@ -14,9 +14,14 @@ namespace Cavern.Format.Transcoders {
             public readonly byte[] bap;
 
             /// <summary>
-            /// Precalculated values for the IMDCT's IFFT.
+            /// Precalculated values for the 512-sample IMDCT's IFFT.
             /// </summary>
-            static FFTCache ifftCache;
+            static FFTCache cache512;
+
+            /// <summary>
+            /// Precalculated values for the 256-sample IMDCT's IFFT.
+            /// </summary>
+            static FFTCache cache256;
 
             /// <summary>
             /// Grouped mantissas for bap = 1 (3-level) quantization.
@@ -49,19 +54,44 @@ namespace Cavern.Format.Transcoders {
             static Complex[] x512;
 
             /// <summary>
-            /// Intermediate IMDCT array, before IFFT.
+            /// Complex multiplication cache for 256-sample IMDCT.
             /// </summary>
-            readonly Complex[] Z;
+            static Complex[] x256;
+
+            /// <summary>
+            /// Intermediate IMDCT array for 512-sample IMDCT.
+            /// </summary>
+            readonly Complex[] intermediate;
+
+            /// <summary>
+            /// Intermediate IMDCT array for even 256-sample IMDCT.
+            /// </summary>
+            readonly Complex[] intermediate1;
+
+            /// <summary>
+            /// Intermediate IMDCT array for odd 256-sample IMDCT.
+            /// </summary>
+            readonly Complex[] intermediate2;
 
             /// <summary>
             /// Windowed time-domain samples after IMDCT.
             /// </summary>
-            readonly float[] x;
+            readonly float[] output;
 
             /// <summary>
             /// Cache array for overlap-and-add.
             /// </summary>
             readonly float[] delay;
+
+            /// <summary>
+            /// Even coefficients in 256-sample IMDCT mode.
+            /// </summary>
+            readonly float[] coeffSplit1;
+
+            /// <summary>
+            /// Odd coefficients in 256-sample IMDCT mode.
+            /// </summary>
+            readonly float[] coeffSplit2;
 
             public Allocation(int maxLength) {
                 dexp = new int[maxLength];
@@ -72,24 +102,39 @@ namespace Cavern.Format.Transcoders {
                 mask = new int[maxLength];
                 bap = new byte[maxLength];
 
-                if (ifftCache == null) {
-                    ifftCache = new FFTCache(IMDCTSize / 4);
+                if (cache512 == null) {
+                    cache512 = new FFTCache(IMDCTSize / 4);
+                    cache256 = new FFTCache(IMDCTSize / 8);
+
                     bap1 = GenerateGroupedQuantization(3, 3, 5);
                     bap2 = GenerateGroupedQuantization(5, 3, 7);
                     bap3 = GenerateQuantization(7);
                     bap4 = GenerateGroupedQuantization(11, 2, 7);
                     bap5 = GenerateQuantization(15);
+
                     x512 = new Complex[IMDCTSize / 4];
                     for (int i = 0; i < x512.Length; i++) {
                         const float mul = 2 * MathF.PI / (8 * IMDCTSize);
                         float phi = mul * (8 * i + 1);
                         x512[i] = new Complex(-MathF.Cos(phi), -MathF.Sin(phi));
                     }
+
+                    x256 = new Complex[IMDCTSize / 8];
+                    for (int i = 0; i < x256.Length; i++) {
+                        const float mul = 2 * MathF.PI / (4 * IMDCTSize);
+                        float phi = mul * (8 * i + 1);
+                        x256[i] = new Complex(-MathF.Cos(phi), -MathF.Sin(phi));
+                    }
                 }
 
-                Z = new Complex[IMDCTSize / 4];
-                x = new float[IMDCTSize];
+                intermediate = new Complex[IMDCTSize / 4];
+                output = new float[IMDCTSize];
                 delay = new float[IMDCTSize / 2];
+
+                coeffSplit1 = new float[IMDCTSize / 4];
+                coeffSplit2 = new float[IMDCTSize / 4];
+                intermediate1 = new Complex[IMDCTSize / 8];
+                intermediate2 = new Complex[IMDCTSize / 8];
             }
 
             /// <summary>
@@ -133,7 +178,7 @@ namespace Cavern.Format.Transcoders {
             /// <summary>
             /// Windowing function for the IMDCT transformations.
             /// </summary>
-            static readonly float[] IMDCTWindow = new float[IMDCTSize / 2] {
+            static readonly float[] window = new float[IMDCTSize / 2] {
                 0.00014f, 0.00024f, 0.00037f, 0.00051f, 0.00067f, 0.00086f, 0.00107f, 0.00130f, 0.00157f, 0.00187f,
                 0.00220f, 0.00256f, 0.00297f, 0.00341f, 0.00390f, 0.00443f, 0.00501f, 0.00564f, 0.00632f, 0.00706f,
                 0.00785f, 0.00871f, 0.00962f, 0.01061f, 0.01166f, 0.01279f, 0.01399f, 0.01526f, 0.01662f, 0.01806f,
