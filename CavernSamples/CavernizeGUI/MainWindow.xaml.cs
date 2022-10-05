@@ -115,6 +115,43 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
+        /// Loads a content file into the application for processing.
+        /// </summary>
+        public void OpenContent(string path) {
+            Reset();
+            ffmpeg.CheckFFmpeg();
+            taskEngine.UpdateProgressBar(0);
+
+            fileName.Text = Path.GetFileName(path);
+            OnOutputSelected(null, null);
+
+            try {
+                file = new(filePath = path);
+            } catch (Exception ex) {
+                Reset();
+                if (ex is IOException) {
+                    Error(ex.Message);
+                } else {
+                    Error($"{ex.Message} {(string)language["Later"]}");
+                }
+                return;
+            }
+
+            if (file.Tracks.Count != 0) {
+                trackControls.Visibility = Visibility.Visible;
+                tracks.ItemsSource = file.Tracks;
+                tracks.SelectedIndex = 0;
+                // Prioritize spatial codecs
+                for (int i = 0, c = file.Tracks.Count; i < c; ++i) {
+                    if (file.Tracks[i].Codec == Codec.EnhancedAC3) {
+                        tracks.SelectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Save persistent settings on quit.
         /// </summary>
         protected override void OnClosed(EventArgs e) {
@@ -168,37 +205,7 @@ namespace CavernizeGUI {
                 Filter = (string)language["ImFmt"]
             };
             if (dialog.ShowDialog().Value) {
-                Reset();
-                ffmpeg.CheckFFmpeg();
-                taskEngine.UpdateProgressBar(0);
-
-                fileName.Text = Path.GetFileName(dialog.FileName);
-                OnOutputSelected(null, null);
-
-                try {
-                    file = new(filePath = dialog.FileName);
-                } catch (Exception ex) {
-                    Reset();
-                    if (ex is IOException) {
-                        Error(ex.Message);
-                    } else {
-                        Error($"{ex.Message} {(string)language["Later"]}");
-                    }
-                    return;
-                }
-
-                if (file.Tracks.Count != 0) {
-                    trackControls.Visibility = Visibility.Visible;
-                    tracks.ItemsSource = file.Tracks;
-                    tracks.SelectedIndex = 0;
-                    // Prioritize spatial codecs
-                    for (int i = 0, c = file.Tracks.Count; i < c; ++i) {
-                        if (file.Tracks[i].Codec == Codec.EnhancedAC3) {
-                            tracks.SelectedIndex = i;
-                            break;
-                        }
-                    }
-                }
+                OpenContent(dialog.FileName);
             }
         }
 
