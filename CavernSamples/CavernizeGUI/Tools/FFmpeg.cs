@@ -3,6 +3,8 @@ using System.IO;
 using System.Windows.Controls;
 using System.Windows.Forms;
 
+using CavernizeGUI;
+
 using Button = System.Windows.Controls.Button;
 
 namespace VoidX.WPF {
@@ -56,7 +58,8 @@ namespace VoidX.WPF {
         public bool Launch(string arguments) {
             ProcessStartInfo start = new() {
                 Arguments = arguments,
-                FileName = Path.Combine(Location, exeName)
+                FileName = Path.Combine(Location, exeName),
+                UseShellExecute = !Program.ConsoleMode
             };
             try {
                 using Process proc = Process.Start(start);

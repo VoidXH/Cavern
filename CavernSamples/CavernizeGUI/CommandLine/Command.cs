@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace CavernizeGUI.CommandLine {
+﻿namespace CavernizeGUI.CommandLine {
     /// <summary>
     /// Abstract command line parameter.
     /// </summary>
@@ -15,6 +13,9 @@ namespace CavernizeGUI.CommandLine {
                         new FormatCommand(),
                         new HelpCommand(),
                         new InputCommand(),
+                        new MuteBedCommand(),
+                        new MuteGroundCommand(),
+                        new OutputCommand(),
                         new TargetCommand(),
                     };
                 }

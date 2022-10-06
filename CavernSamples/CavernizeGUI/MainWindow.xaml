@@ -105,7 +105,7 @@
                     <GroupBox Header="Step 2: FFmpeg" Height="171" VerticalAlignment="Top">
                         <Grid>
                             <TextBlock Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="262"
-                                Text="Locate FFmpeg with this button. Download it and select the folder which contains ffmpeg.exe. Cavernize will use FFmpeg for decoding and re-encoding. This temporary workaround uses a lot of space, because of which, 20 GB of free space is recommended for a 2-hour movie."/>
+                                Text="Locate FFmpeg with this button. Download it and select the folder which contains ffmpeg.exe. Cavernize will use FFmpeg for re-encoding. This temporary workaround uses a lot of space, because of which, 10 GB of free space is recommended for a 2-hour movie."/>
                             <Button Content="Locate FFmpeg" HorizontalAlignment="Center" Width="120" Height="20" VerticalAlignment="Top" Click="LocateFFmpeg" Margin="0,111,0,0"/>
                         </Grid>
                     </GroupBox>

@@ -6,9 +6,12 @@ using CavernizeGUI.CommandLine;
 
 namespace CavernizeGUI {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Windows application handler.
     /// </summary>
     public partial class App : Application {
+        /// <summary>
+        /// Windows application entry point that also handles console commands.
+        /// </summary>
         void Main(object _, StartupEventArgs e) {
             MainWindow app = new MainWindow();
             string[] args = e.Args;
@@ -21,26 +24,33 @@ namespace CavernizeGUI {
                 for (int i = start; i < args.Length;) {
                     Command command = Command.GetCommandByArgument(args[i]);
                     if (command == null) {
-                        MessageBox.Show($"Invalid command ({args[i]}), try using -help.");
+                        Console.WriteLine($"Invalid command ({args[i]}), try using -help.");
+                        app.IsEnabled = false;
                         break;
                     } else {
                         if (i + command.Parameters >= args.Length) {
-                            MessageBox.Show($"Too few arguments for {args[i]}.", "Error",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            Console.WriteLine($"Too few arguments for {args[i]}.");
+                            app.IsEnabled = false;
                             break;
                         }
 
                         try {
                             command.Execute(args, ++i, app);
                         } catch (Exception exception) {
-                            MessageBox.Show(exception.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            Console.Error.WriteLine(exception.Message);
+                            app.IsEnabled = false;
                             break;
                         }
                         i += command.Parameters;
                     }
                 }
             }
-            app.Show();
+
+            if (app.IsEnabled) { // Marks to continue with launch or not - commands might disable it
+                app.Show();
+            } else {
+                app.Close();
+            }
         }
     }
 }

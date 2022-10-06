@@ -57,11 +57,6 @@ namespace CavernizeGUI {
         /// </summary>
         readonly TaskEngine taskEngine;
 
-        /// <summary>
-        /// Used to check if an ADM export will take place. In that case, render settings should be greyed out.
-        /// </summary>
-        readonly ExportFormat adm;
-
         AudioFile file;
 
         string filePath;
@@ -90,12 +85,7 @@ namespace CavernizeGUI {
                 [ReferenceChannel.GodsVoice] = godsVoice
             };
 
-            audio.ItemsSource = new ExportFormat[] {
-                new ExportFormat(Codec.Opus, "libopus", "Opus (transparent, small size)"),
-                new ExportFormat(Codec.PCM_LE, "pcm_s16le", "PCM integer (lossless, large size)"),
-                new ExportFormat(Codec.PCM_Float, "pcm_f32le", "PCM float (needless, largest size)"),
-                adm = new ExportFormat(Codec.ADM_BWF, string.Empty, "ADM Broadcast Wave Format (studio)")
-            };
+            audio.ItemsSource = ExportFormat.Formats;
             audio.SelectedIndex = Settings.Default.outputCodec;
 
             ffmpeg = new(render, status, Settings.Default.ffmpegLocation);
@@ -148,6 +138,15 @@ namespace CavernizeGUI {
                         break;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Start rendering to a target file.
+        /// </summary>
+        public void RenderContent(string path) {
+            if (PreRender()) {
+                Render(path);
             }
         }
 
@@ -247,7 +246,7 @@ namespace CavernizeGUI {
         /// Grey out renderer settings when it's not applicable.
         /// </summary>
         void OnOutputSelected(object _, SelectionChangedEventArgs e) =>
-            renderSettings.IsEnabled = audio.SelectedItem != adm;
+            renderSettings.IsEnabled = ((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF;
 
         /// <summary>
         /// Prompt the user to select FFmpeg's installation folder.
@@ -262,65 +261,78 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
-        /// Start the rendering process.
+        /// Prepare the renderer for export.
         /// </summary>
-        void Render(object _, RoutedEventArgs e) {
+        /// <returns>All checks succeeded and rendering can start.</returns>
+        bool PreRender() {
             if (taskEngine.IsOperationRunning) {
                 Error((string)language["OpRun"]);
-                return;
+                return false;
             }
             if (tracks.SelectedItem == null) {
                 Error((string)language["LdSrc"]);
-                return;
+                return false;
             }
             Track target = (Track)tracks.SelectedItem;
             if (!target.Supported) {
                 Error((string)language["UnTrk"]);
-                return;
+                return false;
             }
+
             listener.SampleRate = target.SampleRate;
             listener.DetachAllSources();
             target.Attach(listener);
-
             if (target.Codec == Codec.EnhancedAC3) {
                 listener.Volume = .5f; // Master volume of most E-AC-3 files is -6 dB, not yet applied from the stream
                 listener.LFEVolume = 2;
             }
 
-            AudioWriter writer = null;
-            EnvironmentWriter transcoder = null;
-            string exportName; // Rendered by Cavern
-            string finalName = null; // Packed by FFmpeg
-            bool isBWF = ((ExportFormat)audio.SelectedItem).Codec == Codec.ADM_BWF;
-            if (renderToFile.IsChecked.Value) {
-                SaveFileDialog dialog = new() {
-                    Filter = !isBWF ? (string)language["ExFmt"] : (string)language["ExBWF"]
-                };
-                if (dialog.ShowDialog().Value) {
-                    if (!isBWF) {
-                        finalName = dialog.FileName;
-                        exportName = finalName[^4..].ToLower().Equals(".mkv") ? finalName[..^4] + ".wav" : finalName;
-                        writer = AudioWriter.Create(exportName, Listener.Channels.Length,
-                            target.Length, target.SampleRate, BitDepth.Int16);
-                        if (writer == null) {
-                            Error((string)language["UnExt"]);
-                            return;
-                        }
-                        writer.WriteHeader();
-                    } else {
-                        transcoder = new BroadcastWaveFormatWriter(dialog.FileName, listener, target.Length, BitDepth.Int24);
-                    }
-                } else { // Cancel
+            return true;
+        }
+
+        /// <summary>
+        /// Start rendering to a target <paramref name="path"/>.
+        /// </summary>
+        void Render(string path) {
+            Track target = (Track)tracks.SelectedItem;
+            if (((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF) {
+                string exportName = path[^4..].ToLower().Equals(".mkv") ? path[..^4] + ".wav" : path;
+                AudioWriter writer = AudioWriter.Create(exportName, Listener.Channels.Length,
+                    target.Length, target.SampleRate, BitDepth.Int16);
+                if (writer == null) {
+                    Error((string)language["UnExt"]);
                     return;
                 }
-            }
-
-            if (transcoder == null) {
+                writer.WriteHeader();
                 bool dynamic = dynamicOnly.IsChecked.Value;
                 bool height = heightOnly.IsChecked.Value;
-                taskEngine.Run(() => RenderTask(target, writer, dynamic, height, finalName));
+                taskEngine.Run(() => RenderTask(target, writer, dynamic, height, path));
             } else {
+                EnvironmentWriter transcoder =
+                    new BroadcastWaveFormatWriter(path, listener, target.Length, BitDepth.Int24);
                 taskEngine.Run(() => TranscodeTask(target, transcoder));
+            }
+        }
+
+        /// <summary>
+        /// Start the rendering process.
+        /// </summary>
+        void Render(object _, RoutedEventArgs e) {
+            if (!PreRender()) {
+                return;
+            }
+
+            if (renderToFile.IsChecked.Value) {
+                SaveFileDialog dialog = new() {
+                    Filter = ((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF ?
+                        (string)language["ExFmt"] : (string)language["ExBWF"]
+                };
+                if (dialog.ShowDialog().Value) {
+                    Render(dialog.FileName);
+                }
+            } else {
+                Track target = (Track)tracks.SelectedItem;
+                taskEngine.Run(() => RenderTask(target, null, false, false, null));
             }
         }
 
@@ -360,6 +372,10 @@ namespace CavernizeGUI {
 
             taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.UpdateProgressBar(1);
+
+            if (Program.ConsoleMode) {
+                Dispatcher.Invoke(Close);
+            }
         }
 
         /// <summary>
