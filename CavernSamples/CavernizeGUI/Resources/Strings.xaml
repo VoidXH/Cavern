@@ -7,8 +7,8 @@
     <system:String x:Key="OpRun">An operation is already running, please wait for it to finish.</system:String>
     <system:String x:Key="LdSrc">Please load a source file with at least 1 supported track for rendering.</system:String>
     <system:String x:Key="UnTrk">The selected track is not supported for rendering.</system:String>
-    <system:String x:Key="ChCnt">The render target has a larger channel count than what the selected format can handle.
-        Please choose a different output format or render for less channels.</system:String>
+    <system:String x:Key="ChCnt">The render target has a larger channel count ({0}) than what the selected format can handle ({1}).
+        Please choose a different output format or set a render target with less channels.</system:String>
     <system:String x:Key="ExFmt">Matroska (*.mkv)|*.mkv|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format
         (*.laf)|*.laf</system:String>
     <system:String x:Key="ExBWF">ADM Broadcast Wave Format (*.wav)|*.wav|Separate waveform and metadata (*.xml)|*.xml</system:String>

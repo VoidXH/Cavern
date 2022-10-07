@@ -267,8 +267,9 @@ namespace CavernizeGUI {
             }
 
             ((RenderTarget)renderTarget.SelectedItem).Apply();
-            if (((ExportFormat)audio.SelectedItem).MaxChannels < Listener.Channels.Length) {
-                Error((string)language["ChCnt"]);
+            int maxChannels = ((ExportFormat)audio.SelectedItem).MaxChannels;
+            if (maxChannels < Listener.Channels.Length) {
+                Error(string.Format((string)language["ChCnt"], Listener.Channels.Length, maxChannels));
                 return false;
             }
 

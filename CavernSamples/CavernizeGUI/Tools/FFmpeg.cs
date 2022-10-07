@@ -71,10 +71,11 @@ namespace VoidX.WPF {
         /// </summary>
         public bool CheckFFmpeg() {
             bool found = start.IsEnabled = !string.IsNullOrEmpty(Location) && File.Exists(Path.Combine(Location, exeName));
-            if (found)
+            if (found) {
                 statusText.Text = readyText;
-            else
+            } else {
                 statusText.Text = notReadyText;
+            }
             return found;
         }
 
