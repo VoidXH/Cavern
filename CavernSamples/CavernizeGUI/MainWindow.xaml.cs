@@ -259,9 +259,16 @@ namespace CavernizeGUI {
                 Error((string)language["LdSrc"]);
                 return false;
             }
+
             Track target = (Track)tracks.SelectedItem;
             if (!target.Supported) {
                 Error((string)language["UnTrk"]);
+                return false;
+            }
+
+            ((RenderTarget)renderTarget.SelectedItem).Apply();
+            if (((ExportFormat)audio.SelectedItem).MaxChannels < Listener.Channels.Length) {
+                Error((string)language["ChCnt"]);
                 return false;
             }
 

@@ -12,10 +12,10 @@ namespace CavernizeGUI {
             get {
                 if (formats == null) {
                     formats = new ExportFormat[] {
-                        new ExportFormat(Codec.Opus, "libopus", "Opus (transparent, small size)"),
-                        new ExportFormat(Codec.PCM_LE, "pcm_s16le", "PCM integer (lossless, large size)"),
-                        new ExportFormat(Codec.PCM_Float, "pcm_f32le", "PCM float (needless, largest size)"),
-                        new ExportFormat(Codec.ADM_BWF, string.Empty, "ADM Broadcast Wave Format (studio)")
+                        new ExportFormat(Codec.Opus, "libopus", 64, "Opus (transparent, small size)"),
+                        new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, "PCM integer (lossless, large size)"),
+                        new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, "PCM float (needless, largest size)"),
+                        new ExportFormat(Codec.ADM_BWF, string.Empty, 128, "ADM Broadcast Wave Format (studio)")
                     };
                 }
                 return formats;
@@ -38,6 +38,11 @@ namespace CavernizeGUI {
         public string FFName { get; }
 
         /// <summary>
+        /// Maximum channel count of the format, either limited by the format itself or any first or third party integration.
+        /// </summary>
+        public int MaxChannels { get; }
+
+        /// <summary>
         /// Information about the format (full name, quality, size).
         /// </summary>
         public string Description { get; }
@@ -45,9 +50,10 @@ namespace CavernizeGUI {
         /// <summary>
         /// A supported export format with mapping to FFmpeg.
         /// </summary>
-        public ExportFormat(Codec codec, string ffName, string description) {
+        public ExportFormat(Codec codec, string ffName, int maxChannels, string description) {
             Codec = codec;
             FFName = ffName;
+            MaxChannels = maxChannels;
             Description = description;
         }
 
