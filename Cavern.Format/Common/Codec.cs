@@ -44,6 +44,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         DTS_HD,
         /// <summary>
+        /// Xiph Free Lossless Audio Codec, audio.
+        /// </summary>
+        FLAC,
+        /// <summary>
         /// Xiph Opus, audio.
         /// </summary>
         Opus,
@@ -65,7 +69,7 @@ namespace Cavern.Format.Common {
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
         static readonly Codec[] audioCodecs = { Codec.ADM_BWF, Codec.EnhancedAC3, Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD,
-            Codec.DTS_HD, Codec.Opus, Codec.DTS, Codec.AC3 };
+            Codec.DTS_HD, Codec.FLAC, Codec.Opus, Codec.DTS, Codec.AC3 };
 
         /// <summary>
         /// List of supported audio codecs.
