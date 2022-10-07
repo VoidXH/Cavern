@@ -18,21 +18,6 @@ namespace VoidX.WPF {
         public string Location { get; private set; }
 
         /// <summary>
-        /// Filename of the searched executable.
-        /// </summary>
-        const string exeName = "ffmpeg.exe";
-
-        /// <summary>
-        /// Displayed status message when FFmpeg was found.
-        /// </summary>
-        const string readyText = "Ready.";
-
-        /// <summary>
-        /// Displayed status message when FFmpeg was not found.
-        /// </summary>
-        const string notReadyText = "FFmpeg isn't found, please locate.";
-
-        /// <summary>
         /// The button that starts the process that requires FFmpeg.
         /// </summary>
         readonly Button start;
@@ -57,7 +42,7 @@ namespace VoidX.WPF {
         /// </summary>
         public bool Launch(string arguments) {
             ProcessStartInfo start = new() {
-                Arguments = arguments,
+                Arguments = Program.ConsoleMode ? arguments + lesserOutput : arguments,
                 FileName = Path.Combine(Location, exeName),
                 UseShellExecute = !Program.ConsoleMode
             };
@@ -92,5 +77,25 @@ namespace VoidX.WPF {
                 statusText.Text = notReadyText;
             return found;
         }
+
+        /// <summary>
+        /// Filename of the searched executable.
+        /// </summary>
+        const string exeName = "ffmpeg.exe";
+
+        /// <summary>
+        /// Displayed status message when FFmpeg was found.
+        /// </summary>
+        const string readyText = "Ready.";
+
+        /// <summary>
+        /// Displayed status message when FFmpeg was not found.
+        /// </summary>
+        const string notReadyText = "FFmpeg isn't found, please locate.";
+
+        /// <summary>
+        /// Arguments that limit the text FFmpeg writes to the console not to flood it in console mode.
+        /// </summary>
+        const string lesserOutput = " -v error -stats";
     }
 }
