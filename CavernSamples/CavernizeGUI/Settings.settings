@@ -11,5 +11,11 @@
     <Setting Name="outputCodec" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="lastUpdate" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)">1996-12-17</Value>
+    </Setting>
+    <Setting Name="checkUpdates" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -33,16 +33,18 @@ namespace VoidX.WPF {
         /// Set the progress on the progress bar if it's set.
         /// </summary>
         public void UpdateProgressBar(double progress) {
-            if (progressBar != null)
+            if (progressBar != null) {
                 progressBar.Dispatcher.Invoke(() => progressBar.Value = progress);
+            }
         }
 
         /// <summary>
         /// Set the status text label, if it's given.
         /// </summary>
         public void UpdateStatus(string text) {
-            if (progressLabel != null)
+            if (progressLabel != null) {
                 progressLabel.Dispatcher.Invoke(() => progressLabel.Text = text);
+            }
         }
 
         /// <summary>
@@ -65,8 +67,10 @@ namespace VoidX.WPF {
                 MessageBox.Show("Another operation is already running.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
-            if (operation != null)
+
+            if (operation != null) {
                 operation.Dispose();
+            }
             operation = new Task(task);
             operation.Start();
             return true;

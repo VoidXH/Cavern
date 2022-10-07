@@ -96,6 +96,11 @@ namespace CavernizeGUI {
             renderSettings.IsEnabled = true; // Don't grey out initially
             taskEngine = new(progress, status);
             Reset();
+
+            checkUpdates.IsChecked = Settings.Default.checkUpdates;
+            if (Settings.Default.checkUpdates && !Program.ConsoleMode) {
+                UpdateCheck.Perform(Settings.Default.lastUpdate, () => Settings.Default.lastUpdate = DateTime.Now);
+            }
         }
 
         /// <summary>
@@ -151,6 +156,7 @@ namespace CavernizeGUI {
             Settings.Default.ffmpegLocation = ffmpeg.Location;
             Settings.Default.renderTarget = renderTarget.SelectedIndex;
             Settings.Default.outputCodec = audio.SelectedIndex;
+            Settings.Default.checkUpdates = checkUpdates.IsChecked.Value;
             Settings.Default.Save();
             base.OnClosed(e);
         }

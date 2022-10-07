@@ -128,6 +128,9 @@
                     </GroupBox>
                 </Grid>
                 <Grid Grid.Column="2" Margin="10,0,0,0">
+                    <CheckBox x:Name="checkUpdates" Content="Check for updates" Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                              ToolTip="Periodically auto-check if a new update is available."/>
+                    <Button Content="User guide" HorizontalAlignment="Left" Margin="0,23,0,0" VerticalAlignment="Top" Width="80" Click="Guide"/>
                     <Image Source="{StaticResource Logo}" MouseDown="Ad" HorizontalAlignment="Right" VerticalAlignment="Top" Width="169"/>
                     <TextBlock x:Name="ad" Text="by VoidX (cavern.sbence.hu)" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,27,0,0"/>
                     <GroupBox Header="Post-render report" Margin="0,43,0,0">
@@ -135,7 +138,6 @@
                             <TextBlock x:Name="report" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
                         </Grid>
                     </GroupBox>
-                    <Button Content="User guide" HorizontalAlignment="Left" Margin="0,23,0,0" VerticalAlignment="Top" Width="80" Click="Guide"/>
                 </Grid>
             </Grid>
         </Grid>

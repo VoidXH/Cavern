@@ -58,5 +58,29 @@ namespace CavernizeGUI {
                 this["outputCodec"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1996-12-17")]
+        public global::System.DateTime lastUpdate {
+            get {
+                return ((global::System.DateTime)(this["lastUpdate"]));
+            }
+            set {
+                this["lastUpdate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool checkUpdates {
+            get {
+                return ((bool)(this["checkUpdates"]));
+            }
+            set {
+                this["checkUpdates"] = value;
+            }
+        }
     }
 }
