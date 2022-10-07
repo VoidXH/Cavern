@@ -33,6 +33,12 @@ namespace CavernizeGUI.CommandLine {
         /// <param name="offset">The index of the first argument that is a parameter of this command</param>
         /// <param name="app">Reference to the main window of the application - operations should be performed though the UI</param>
         public override void Execute(string[] args, int offset, MainWindow app) {
+            if (app.Rendering) {
+                Console.Error.WriteLine(string.Format(inProgress, "format"));
+                app.IsEnabled = false;
+                return;
+            }
+
             ExportFormat[] formats = ExportFormat.Formats;
             for (int i = 0; i < formats.Length; i++) {
                 if (args[offset].Equals(formats[i].Codec.ToString(), StringComparison.OrdinalIgnoreCase) ||

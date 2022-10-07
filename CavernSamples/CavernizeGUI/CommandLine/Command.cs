@@ -10,13 +10,13 @@
             get {
                 if (commandPool == null) {
                     commandPool = new Command[] {
-                        new FormatCommand(),
                         new HelpCommand(),
                         new InputCommand(),
+                        new FormatCommand(),
                         new MuteBedCommand(),
                         new MuteGroundCommand(),
-                        new OutputCommand(),
                         new TargetCommand(),
+                        new OutputCommand(),
                     };
                 }
                 return commandPool;
@@ -67,5 +67,11 @@
             }
             return null;
         }
+
+        /// <summary>
+        /// Error message when rendering is already in progress and the user is trying to change something.
+        /// </summary>
+        protected const string inProgress = "Rendering was already in progress, {0} can only be changed before the " +
+            "-output (-o) argument. The export was cancelled and temporary files should be removed manually.";
     }
 }

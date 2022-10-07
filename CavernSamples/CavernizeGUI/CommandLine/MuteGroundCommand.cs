@@ -1,4 +1,6 @@
-﻿namespace CavernizeGUI.CommandLine {
+﻿using System;
+
+namespace CavernizeGUI.CommandLine {
     /// <summary>
     /// Mutes objects that are not elevated.
     /// </summary>
@@ -29,6 +31,14 @@
         /// <param name="args">List of all calling arguments for the software</param>
         /// <param name="offset">The index of the first argument that is a parameter of this command</param>
         /// <param name="app">Reference to the main window of the application - operations should be performed though the UI</param>
-        public override void Execute(string[] args, int offset, MainWindow app) => app.heightOnly.IsChecked = true;
+        public override void Execute(string[] args, int offset, MainWindow app) {
+            if (app.Rendering) {
+                Console.Error.WriteLine(string.Format(inProgress, "muting"));
+                app.IsEnabled = false;
+                return;
+            }
+
+            app.heightOnly.IsChecked = true;
+        }
     }
 }

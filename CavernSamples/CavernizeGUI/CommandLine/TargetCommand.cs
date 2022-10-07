@@ -33,7 +33,7 @@ namespace CavernizeGUI.CommandLine {
         /// <param name="app">Reference to the main window of the application - operations should be performed though the UI</param>
         public override void Execute(string[] args, int offset, MainWindow app) {
             if (app.Rendering) {
-                Console.Error.WriteLine(inProgress);
+                Console.Error.WriteLine(string.Format(inProgress, "render target"));
                 app.IsEnabled = false;
                 return;
             }
@@ -64,11 +64,5 @@ namespace CavernizeGUI.CommandLine {
             string valids = string.Join<RenderTarget>(", ", RenderTarget.Targets);
             throw new CommandException($"Invalid rendering target ({args[offset]}). Valid options are: {valids}.");
         }
-
-        /// <summary>
-        /// Error message when rendering is already in progress and the user is trying to change the render target.
-        /// </summary>
-        const string inProgress = "Rendering was already in progress, the render target can only be changed before the " +
-            "-output (-o) argument. The export was cancelled and temporary files should be removed manually.";
     }
 }
