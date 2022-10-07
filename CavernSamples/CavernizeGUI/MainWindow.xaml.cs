@@ -13,7 +13,6 @@ using Cavern;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Environment;
-using Cavern.Format.Renderers;
 using Cavern.Remapping;
 using Cavern.Utilities;
 using VoidX.WPF;
@@ -23,14 +22,9 @@ using Path = System.IO.Path;
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
         /// <summary>
-        /// Latest stable software version of Cavernize GUI.
+        /// Tells if a rendering process is in progress.
         /// </summary>
-        const string version = "1.5";
-
-        /// <summary>
-        /// This option allows FFmpeg to encode up to 255 channels in select codecs.
-        /// </summary>
-        const string massivelyMultichannel = " -mapping_family 255";
+        public bool Rendering => taskEngine.IsOperationRunning;
 
         /// <summary>
         /// The matching displayed dot for each supported channel.
@@ -215,14 +209,6 @@ namespace CavernizeGUI {
             SolidColorBrush green = new SolidColorBrush(Colors.Green),
                 red = new SolidColorBrush(Colors.Red);
             ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).Channels;
-
-            Channel[] systemChannels = new Channel[channels.Length];
-            for (int ch = 0; ch < channels.Length; ++ch) {
-                systemChannels[ch] =
-                    new Channel(Renderer.channelPositions[(int)channels[ch]], channels[ch] == ReferenceChannel.ScreenLFE);
-            }
-            Listener.ReplaceChannels(systemChannels);
-
             foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
                 pair.Value.Fill = red;
             }
@@ -296,6 +282,7 @@ namespace CavernizeGUI {
         void Render(string path) {
             Track target = (Track)tracks.SelectedItem;
             if (((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF) {
+                ((RenderTarget)renderTarget.SelectedItem).Apply();
                 string exportName = path[^4..].ToLower().Equals(".mkv") ? path[..^4] + ".wav" : path;
                 AudioWriter writer = AudioWriter.Create(exportName, Listener.Channels.Length,
                     target.Length, target.SampleRate, BitDepth.Int16);
@@ -411,5 +398,15 @@ namespace CavernizeGUI {
         /// </summary>
         void Error(string error) =>
             MessageBox.Show(error, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+
+        /// <summary>
+        /// Latest stable software version of Cavernize GUI.
+        /// </summary>
+        const string version = "1.5";
+
+        /// <summary>
+        /// This option allows FFmpeg to encode up to 255 channels in select codecs.
+        /// </summary>
+        const string massivelyMultichannel = " -mapping_family 255";
     }
 }

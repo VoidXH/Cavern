@@ -1,4 +1,6 @@
-﻿namespace CavernizeGUI.CommandLine {
+﻿using System;
+
+namespace CavernizeGUI.CommandLine {
     /// <summary>
     /// Selects a standard channel layout.
     /// </summary>
@@ -21,7 +23,7 @@
         /// <summary>
         /// Description of the command that is displayed in the command list (help).
         /// </summary>
-        public override string Help => "Selects a standard channel layout.";
+        public override string Help => "Selects a standard channel layout (render target).";
 
         /// <summary>
         /// Execute the command.
@@ -30,6 +32,12 @@
         /// <param name="offset">The index of the first argument that is a parameter of this command</param>
         /// <param name="app">Reference to the main window of the application - operations should be performed though the UI</param>
         public override void Execute(string[] args, int offset, MainWindow app) {
+            if (app.Rendering) {
+                Console.Error.WriteLine(inProgress);
+                app.IsEnabled = false;
+                return;
+            }
+
             for (int i = RenderTarget.Targets.Length - 1; i >= 0; i--) { // Sides before fronts
                 string name = RenderTarget.Targets[i].Name;
                 if (args[offset].Equals(name)) {
@@ -44,17 +52,23 @@
                         app.renderTarget.SelectedItem = RenderTarget.Targets[i];
                         return;
                     }
+                }
 
-                    name = name.Replace(".", string.Empty);
-                    if (args[offset].Equals(name)) {
-                        app.renderTarget.SelectedItem = RenderTarget.Targets[i];
-                        return;
-                    }
+                name = name.Replace(".", string.Empty);
+                if (args[offset].Equals(name)) {
+                    app.renderTarget.SelectedItem = RenderTarget.Targets[i];
+                    return;
                 }
             }
 
             string valids = string.Join<RenderTarget>(", ", RenderTarget.Targets);
             throw new CommandException($"Invalid rendering target ({args[offset]}). Valid options are: {valids}.");
         }
+
+        /// <summary>
+        /// Error message when rendering is already in progress and the user is trying to change the render target.
+        /// </summary>
+        const string inProgress = "Rendering was already in progress, the render target can only be changed before the " +
+            "-output (-o) argument. The export was cancelled and temporary files should be removed manually.";
     }
 }

@@ -1,4 +1,6 @@
-﻿using Cavern.Remapping;
+﻿using Cavern;
+using Cavern.Format.Renderers;
+using Cavern.Remapping;
 
 namespace CavernizeGUI {
     /// <summary>
@@ -21,6 +23,18 @@ namespace CavernizeGUI {
         public RenderTarget(string name, ReferenceChannel[] channels) {
             Name = name;
             Channels = channels;
+        }
+
+        /// <summary>
+        /// Apply this render target on the system's output.
+        /// </summary>
+        public void Apply() {
+            Channel[] systemChannels = new Channel[Channels.Length];
+            for (int ch = 0; ch < Channels.Length; ++ch) {
+                bool lfe = Channels[ch] == ReferenceChannel.ScreenLFE;
+                systemChannels[ch] = new Channel(Renderer.channelPositions[(int)Channels[ch]], lfe);
+            }
+            Listener.ReplaceChannels(systemChannels);
         }
 
         /// <summary>
