@@ -49,7 +49,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Samples in each decoded frame
         /// </summary>
-        public int FrameSize => header.Blocks * 256;
+        public int FrameSize => header.Blocks * samplesPerBlock;
 
         /// <summary>
         /// Header data container and reader.
@@ -174,8 +174,25 @@ namespace Cavern.Format.Decoders {
         /// Start the following reads from the selected sample.
         /// </summary>
         /// <param name="sample">The selected sample, for a single channel</param>
+        /// <remarks>Assuming a constant bitrate, swapping to a frame is possible. Inter-frame seeking is not possible in this
+        /// implementation, this function shouldn't be used for alignment. For tracks, use the container's seek.</remarks>
         public override void Seek(long sample) {
-            throw new NotImplementedException();
+            if (fileSize == -1) {
+                throw new NotImplementedException(trackSeekError);
+            }
+
+            long targetFrame = sample / samplesPerBlock / header.Blocks;
+            reader.Seek(targetFrame * frameSize);
         }
+
+        /// <summary>
+        /// Each (E-)AC-3 block is 256 samples.
+        /// </summary>
+        const int samplesPerBlock = 256;
+
+        /// <summary>
+        /// Exception message when trying to seek a track.
+        /// </summary>
+        const string trackSeekError = "For seeking in an (E-)AC-3 track, use the container's Seek function.";
     }
 }

@@ -44,6 +44,11 @@ namespace Cavern.Format.Utilities {
         event Func<T[]> Fetcher;
 
         /// <summary>
+        /// Jumps to a position in the source stream if it's supported.
+        /// </summary>
+        event Action<long> Seeker;
+
+        /// <summary>
         /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.
         /// </summary>
         public BlockBuffer(Func<T[]> fetcher) {
@@ -52,10 +57,22 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.
+        /// </summary>
+        public BlockBuffer(Func<T[]> fetcher, Action<long> seeker) {
+            Fetcher = fetcher;
+            Seeker = seeker;
+            LastFetch = Fetcher();
+        }
+
+        /// <summary>
         /// Converts a stream reader to a block buffer of fixed size.
         /// </summary>
-        public static BlockBuffer<byte> Create(Stream reader, int blockSize = 4096) =>
-            new BlockBuffer<byte>(() => reader.ReadBytes(blockSize));
+        public static BlockBuffer<byte> Create(Stream reader, int blockSize = 4096) {
+            Stream readerCopy = reader;
+            int blockSizeCopy = blockSize;
+            return new BlockBuffer<byte>(() => reader.ReadBytes(blockSize), pos => readerCopy.Position = pos);
+        }
 
         /// <summary>
         /// Flush the current cache and read a new block. This should be called when a stream position changes.
@@ -114,6 +131,14 @@ namespace Cavern.Format.Utilities {
             LastFetchStart = 0;
             lastFetchPosition = 1;
             return LastFetch != null ? LastFetch[0] : default;
+        }
+
+        /// <summary>
+        /// Jumps to a position in the source stream if it's supported.
+        /// </summary>
+        public void Seek(long position) {
+            Seeker(position);
+            Clear();
         }
     }
 }
