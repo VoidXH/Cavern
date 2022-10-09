@@ -171,7 +171,6 @@ namespace Cavern.Format {
             LimitlessAudioFormatWriter writer =
                 new LimitlessAudioFormatWriter(path, data.Length / channels.Length, sampleRate, bits, channels);
             writer.Write(data);
-            writer.Dispose();
         }
 
         /// <summary>
@@ -185,7 +184,6 @@ namespace Cavern.Format {
         public static void Write(string path, float[][] data, int sampleRate, BitDepth bits, Channel[] channels) {
             LimitlessAudioFormatWriter writer = new LimitlessAudioFormatWriter(path, data[0].LongLength, sampleRate, bits, channels);
             writer.Write(data);
-            writer.Dispose();
         }
 
         /// <summary>
@@ -201,7 +199,6 @@ namespace Cavern.Format {
             int period = -1) {
             LimitlessAudioFormatWriter writer = new LimitlessAudioFormatWriter(path, data[0].LongLength, sampleRate, bits, channels);
             writer.WriteOffset(data, period);
-            writer.Dispose();
         }
     }
 }

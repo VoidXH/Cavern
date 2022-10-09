@@ -114,7 +114,7 @@ namespace Cavern.Format {
             Length = samples.LongLength / ChannelCount;
             WriteHeader();
             WriteBlock(samples, 0, samples.LongLength);
-            writer.Close();
+            Dispose();
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Cavern.Format {
             Length = samples[0].LongLength;
             WriteHeader();
             WriteBlock(samples, 0, samples[0].LongLength);
-            writer.Close();
+            Dispose();
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Cavern.Format {
                 }
                 WriteBlock(holder, 0, holder[0].Length);
             }
-            writer.Dispose();
+            Dispose();
         }
 
         /// <summary>
@@ -167,6 +167,11 @@ namespace Cavern.Format {
         /// <summary>
         /// Close the writer.
         /// </summary>
-        public virtual void Dispose() => writer?.Close();
+        public virtual void Dispose() {
+            if (writer != null) {
+                writer.Close();
+                writer = null;
+            }
+        }
     }
 }

@@ -57,7 +57,6 @@ namespace Cavern.Format {
         public static void Write(string path, float[] data, int channelCount, int sampleRate, BitDepth bits) {
             RIFFWaveWriter writer = new RIFFWaveWriter(path, channelCount, data.LongLength / channelCount, sampleRate, bits);
             writer.Write(data);
-            writer.Dispose();
         }
 
         /// <summary>
@@ -70,7 +69,6 @@ namespace Cavern.Format {
         public static void Write(string path, float[][] data, int sampleRate, BitDepth bits) {
             RIFFWaveWriter writer = new RIFFWaveWriter(path, data.Length, data[0].LongLength, sampleRate, bits);
             writer.Write(data);
-            writer.Dispose();
         }
 
         /// <summary>
@@ -84,7 +82,6 @@ namespace Cavern.Format {
         public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, int period = -1) {
             RIFFWaveWriter writer = new RIFFWaveWriter(path, data.Length, data[0].LongLength, sampleRate, bits);
             writer.WriteOffset(data, period);
-            writer.Dispose();
         }
 
         /// <summary>
@@ -236,6 +233,10 @@ namespace Cavern.Format {
         /// Update 64-bit size information when needed before closing the file.
         /// </summary>
         public override void Dispose() {
+            if (writer == null) {
+                return; // Already disposed
+            }
+
             long contentSize = writer.BaseStream.Position - 8;
             if (contentSize > uint.MaxValue || MaxLargeChunks != 0) {
                 int largeChunks = 0;
