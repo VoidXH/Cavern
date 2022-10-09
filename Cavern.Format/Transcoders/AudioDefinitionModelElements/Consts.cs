@@ -1,4 +1,6 @@
-﻿namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
+﻿using Cavern.Remapping;
+
+namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     static class ADMConsts {
         /// <summary>
         /// Standard ADM channel names indexed by <see cref="ReferenceChannel"/>s.

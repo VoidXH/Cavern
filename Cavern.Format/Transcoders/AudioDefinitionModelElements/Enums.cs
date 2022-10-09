@@ -3,8 +3,17 @@
     /// Supported dialogue mixing methods.
     /// </summary>
     public enum ADMDialogueType {
+        /// <summary>
+        /// One of the mixing methods in <see cref="NonDialogueContentKind"/>.
+        /// </summary>
         nonDialogueContentKind,
+        /// <summary>
+        /// One of the mixing methods in <see cref="DialogueContentKind"/>.
+        /// </summary>
         dialogueContentKind,
+        /// <summary>
+        /// One of the mixing methods in <see cref="MixedContentKind"/>.
+        /// </summary>
         mixedContentKind
     }
 
@@ -12,15 +21,18 @@
     /// Supported values for the <see cref="ADMDialogueType.nonDialogueContentKind"/> dialogue mixing method.
     /// </summary>
     public enum NonDialogueContentKind {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         Undefined,
         Music,
         Effect
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 
     /// <summary>
     /// Supported values for the <see cref="ADMDialogueType.dialogueContentKind"/> dialogue mixing method.
     /// </summary>
     public enum DialogueContentKind {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         Undefined,
         StorylineDialogue,
         Voiceover,
@@ -28,16 +40,19 @@
         VisuallyImpaired,
         Commentary,
         Emergency
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 
     /// <summary>
     /// Supported values for the <see cref="ADMDialogueType.mixedContentKind"/> dialogue mixing method.
     /// </summary>
     public enum MixedContentKind {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         Undefined,
         CompleteMain,
         Mixed,
         HearingImpaired
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 
     /// <summary>
@@ -70,6 +85,9 @@
     /// Known encodings of ADM tracks.
     /// </summary>
     public enum ADMTrackCodec {
+        /// <summary>
+        /// Pulse code modulation.
+        /// </summary>
         PCM = 1
     }
 }

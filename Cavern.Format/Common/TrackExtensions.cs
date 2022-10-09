@@ -1,4 +1,7 @@
 ﻿namespace Cavern.Format.Common {
+    /// <summary>
+    /// Extension methods for <see cref="Track"/>s.
+    /// </summary>
     public static class TrackExtensions {
         /// <summary>
         /// Find the first track with the given ID in the tracklist. If found, the index is returned, -1 otherwise.

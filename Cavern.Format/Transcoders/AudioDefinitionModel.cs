@@ -89,7 +89,9 @@ namespace Cavern.Format.Transcoders {
         /// <param name="objects">Single/multitrack object roots</param>
         /// <param name="packFormats">Object categorizers</param>
         /// <param name="channelFormats">Channel positions and object movements in the order of the source tracks</param>
-        /// <param name="tracks">Format information of each discrete audio source</param>
+        /// <param name="tracks">Coding information of a track</param>
+        /// <param name="trackFormats">Name, format, and reference information of a track</param>
+        /// <param name="streamFormats">Merging of format information elements</param>
         public AudioDefinitionModel(IReadOnlyList<ADMProgramme> programs, IReadOnlyList<ADMContent> contents,
             IReadOnlyList<ADMObject> objects, IReadOnlyList<ADMPackFormat> packFormats,
             IReadOnlyList<ADMChannelFormat> channelFormats, IReadOnlyList<ADMTrack> tracks,
