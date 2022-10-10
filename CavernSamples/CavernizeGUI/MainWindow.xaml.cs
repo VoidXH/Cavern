@@ -238,7 +238,7 @@ namespace CavernizeGUI {
         /// Grey out renderer settings when it's not applicable.
         /// </summary>
         void OnOutputSelected(object _, SelectionChangedEventArgs e) =>
-            renderSettings.IsEnabled = ((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF;
+            renderSettings.IsEnabled = !((ExportFormat)audio.SelectedItem).Codec.IsEnvironmental();
 
         /// <summary>
         /// Prompt the user to select FFmpeg's installation folder.
@@ -295,7 +295,8 @@ namespace CavernizeGUI {
         /// </summary>
         void Render(string path) {
             Track target = (Track)tracks.SelectedItem;
-            if (((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF) {
+            Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
+            if (!codec.IsEnvironmental()) {
                 ((RenderTarget)renderTarget.SelectedItem).Apply();
                 string exportName = path[^4..].ToLower().Equals(".mkv") ? path[..^4] + ".wav" : path;
                 AudioWriter writer = AudioWriter.Create(exportName, Listener.Channels.Length,
@@ -309,8 +310,18 @@ namespace CavernizeGUI {
                 bool height = heightOnly.IsChecked.Value;
                 taskEngine.Run(() => RenderTask(target, writer, dynamic, height, path));
             } else {
-                EnvironmentWriter transcoder =
-                    new BroadcastWaveFormatWriter(path, listener, target.Length, BitDepth.Int24);
+                EnvironmentWriter transcoder;
+                switch (codec) {
+                    case Codec.ADM_BWF:
+                        transcoder = new BroadcastWaveFormatWriter(path, listener, target.Length, BitDepth.Int24);
+                        break;
+                    case Codec.ADM_BWF_Atmos:
+                        transcoder = new DolbyAtmosBWFWriter(path, listener, target.Length, BitDepth.Int24);
+                        break;
+                    default:
+                        Error((string)language["UnCod"]);
+                        return;
+                }
                 taskEngine.Run(() => TranscodeTask(target, transcoder));
             }
         }
@@ -325,8 +336,8 @@ namespace CavernizeGUI {
 
             if (renderToFile.IsChecked.Value) {
                 SaveFileDialog dialog = new() {
-                    Filter = ((ExportFormat)audio.SelectedItem).Codec != Codec.ADM_BWF ?
-                        (string)language["ExFmt"] : (string)language["ExBWF"]
+                    Filter = ((ExportFormat)audio.SelectedItem).Codec.IsEnvironmental() ?
+                        (string)language["ExBWF"] : (string)language["ExFmt"]
                 };
                 if (dialog.ShowDialog().Value) {
                     Render(dialog.FileName);

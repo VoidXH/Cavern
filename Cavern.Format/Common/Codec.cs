@@ -23,6 +23,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         ADM_BWF,
         /// <summary>
+        /// Audio Definition Model Broadcast Wave Format - Dolby Atmos subset, audio.
+        /// </summary>
+        ADM_BWF_Atmos,
+        /// <summary>
         /// Enhanced AC-3 (Dolby Digital Plus), audio.
         /// </summary>
         EnhancedAC3,
@@ -68,14 +72,19 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
-        static readonly Codec[] audioCodecs = { Codec.ADM_BWF, Codec.EnhancedAC3, Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD,
-            Codec.DTS_HD, Codec.FLAC, Codec.Opus, Codec.DTS, Codec.AC3 };
+        static readonly Codec[] audioCodecs = { Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.EnhancedAC3,
+            Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD, Codec.DTS_HD, Codec.FLAC, Codec.Opus, Codec.DTS, Codec.AC3 };
 
         /// <summary>
         /// List of supported audio codecs.
         /// </summary>
-        static readonly Codec[] supportedAudioCodecs = { Codec.ADM_BWF, Codec.EnhancedAC3,
+        static readonly Codec[] supportedAudioCodecs = { Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.EnhancedAC3,
             Codec.PCM_Float, Codec.PCM_LE, Codec.AC3 };
+
+        /// <summary>
+        /// List of audio codecs that can export rendered audio environments.
+        /// </summary>
+        static readonly Codec[] environmentalAudioCodecs = { Codec.ADM_BWF, Codec.ADM_BWF_Atmos };
 
         /// <summary>
         /// Checks if a codec is used for audio only.
@@ -86,5 +95,10 @@ namespace Cavern.Format.Common {
         /// Checks if a codec is a supported audio codec.
         /// </summary>
         public static bool IsSupportedAudio(this Codec codec) => Array.BinarySearch(supportedAudioCodecs, codec) >= 0;
+
+        /// <summary>
+        /// Checks if a codec is able to export a rendered audio environment.
+        /// </summary>
+        public static bool IsEnvironmental(this Codec codec) => Array.BinarySearch(environmentalAudioCodecs, codec) >= 0;
     }
 }

@@ -1,7 +1,6 @@
 ﻿namespace Cavern.SpecialSources {
     /// <summary>
-    /// An always rendered object where only <see cref="Source.GetSamples"/> or
-    /// <see cref="Source.Collect"/> should be overridden.
+    /// An always rendered source where only <see cref="Source.GetSamples"/> or <see cref="Source.Collect"/> should be overridden.
     /// </summary>
     public class StreamedSource : Source {
         /// <summary>

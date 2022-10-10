@@ -19,12 +19,12 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// The main PCM exporter.
         /// </summary>
-        readonly RIFFWaveWriter output;
+        protected readonly RIFFWaveWriter output;
 
         /// <summary>
         /// Recorded movement path of all sources.
         /// </summary>
-        readonly List<ADMBlockFormat>[] movements;
+        protected readonly List<ADMBlockFormat>[] movements;
 
         /// <summary>
         /// When not null, writes the AXML to this separate file.
@@ -145,10 +145,10 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Generates the ADM structure from the recorded movement.
         /// </summary>
-        AudioDefinitionModel CreateModel() {
+        protected virtual AudioDefinitionModel CreateModel() {
             double contentLength = output.Length / (double)output.SampleRate;
             TimeSpan contentTime = TimeSpan.FromSeconds(contentLength);
-            string channelContentID = "ACO_1001",
+            const string channelContentID = "ACO_1001",
                 objectContentID = "ACO_1002";
             List<string> channelIDs = new List<string>();
             List<string> objectIDs = new List<string>();
@@ -185,7 +185,7 @@ namespace Cavern.Format.Environment {
                         ADMConsts.channelNames[(int)Renderer.ChannelFromPosition(movements[i][0].Position)],
                     packFormatID = $"AP_{packHex}{id}",
                     channelFormatID = $"AC_{packHex}{id}",
-                    trackID = "ATU_0000" + totalId,
+                    trackID = "ATU_0000" + (i + 1).ToString("x4"),
                     trackFormatID = $"AT_{packHex}{id}_01",
                     streamFormatID = $"AS_{packHex}{id}";
 

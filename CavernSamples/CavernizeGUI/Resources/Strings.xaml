@@ -13,6 +13,7 @@
         (*.laf)|*.laf</system:String>
     <system:String x:Key="ExBWF">ADM Broadcast Wave Format (*.wav)|*.wav|Separate waveform and metadata (*.xml)|*.xml</system:String>
     <system:String x:Key="UnExt">The file name had an unsupported extension.</system:String>
+    <system:String x:Key="UnCod">This codec is not supported for export.</system:String>
     <system:String x:Key="WrGui">Wiring guide</system:String>
     <system:String x:Key="ChCon">Connect the {0} channel to your system's {1} output.</system:String>
     <system:String x:Key="Start">Starting render...</system:String>

@@ -359,6 +359,17 @@ namespace Cavern {
         }
 
         /// <summary>
+        /// Attach a source to this listener, to the first place of the processing queue.
+        /// </summary>
+        public void AttachPrioritySource(Source source) {
+            if (source.listener) {
+                source.listener.DetachSource(source);
+            }
+            source.listenerNode = activeSources.AddFirst(source);
+            source.listener = this;
+        }
+
+        /// <summary>
         /// Detach a source from this listener.
         /// </summary>
         public void DetachSource(Source source) {

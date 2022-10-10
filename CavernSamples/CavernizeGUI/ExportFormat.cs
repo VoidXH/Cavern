@@ -16,7 +16,8 @@ namespace CavernizeGUI {
                         new ExportFormat(Codec.FLAC, "flac", 8, "FLAC (lossless, large size)"),
                         new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, "PCM integer (lossless, larger size)"),
                         new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, "PCM float (needless, largest size)"),
-                        new ExportFormat(Codec.ADM_BWF, string.Empty, 128, "ADM Broadcast Wave Format (studio)")
+                        new ExportFormat(Codec.ADM_BWF, string.Empty, 128, "ADM Broadcast Wave Format (compact)"),
+                        new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, "ADM Broadcast Wave Format (Dolby Atmos)"),
                     };
                 }
                 return formats;

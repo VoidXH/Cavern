@@ -72,6 +72,9 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             Blocks = ParseBlockFormats(source);
         }
 
+        /// <summary>
+        /// Serialization of a single position update block.
+        /// </summary>
         XElement SerializeBlock(XNamespace ns, ADMBlockFormat block, string namePrefix, int index) {
             XElement newBlock = new XElement(ns + ADMTags.blockTag);
             newBlock.Add(new XAttribute(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8")),
