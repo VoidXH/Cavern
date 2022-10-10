@@ -100,7 +100,7 @@ namespace Cavern.Format.Environment {
                     objectName = "Cavern_Obj_" + (i + 1),
                     packFormatID = $"AP_{packHex}{id}",
                     channelFormatID = $"AC_{packHex}{id}",
-                    trackID = "ATU_0000" + (i + 1).ToString("x4"),
+                    trackID = "ATU_0000" + (i + bedChannels.Length + 1).ToString("x4"),
                     trackFormatID = $"AT_{packHex}{id}_01",
                     streamFormatID = $"AS_{packHex}{id}";
 

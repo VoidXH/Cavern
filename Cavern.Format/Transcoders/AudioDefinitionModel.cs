@@ -77,7 +77,6 @@ namespace Cavern.Format.Transcoders {
             this.minimal = minimal;
             byte[] data = new byte[length];
             reader.Read(data, 0, length);
-            File.WriteAllBytes("X:\\xd.xml", data);
             using XmlReader xmlReader = XmlReader.Create(new MemoryStream(data));
             ReadXml(xmlReader);
         }
@@ -152,7 +151,7 @@ namespace Cavern.Format.Transcoders {
             IEnumerable<XElement> descendants = doc.Descendants();
             using IEnumerator<XElement> enumerator = descendants.GetEnumerator();
 
-            if (minimal &&false) {
+            if (minimal) {
                 while (enumerator.MoveNext()) {
                     switch (enumerator.Current.Name.LocalName) {
                         case ADMTags.channelFormatTag:
