@@ -11,7 +11,7 @@ namespace CavernizeGUI {
     /// <summary>
     /// Represents an audio track of an audio file.
     /// </summary>
-    class Track : IDisposable {
+    public class Track : IDisposable {
         readonly static Dictionary<Codec, string> formatNames = new() {
             [Codec.DTS] = "DTS Coherent Acoustics",
             [Codec.DTS_HD] = "DTS-HD",

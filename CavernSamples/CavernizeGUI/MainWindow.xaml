@@ -34,6 +34,9 @@
                 <Setter Property="FontWeight" Value="DemiBold"/>
                 <Setter Property="Foreground" Value="White"/>
             </Style>
+            <Style TargetType="ListBox">
+                <Setter Property="Background" Value="#303030"/>
+            </Style>
             <Style TargetType="RadioButton">
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="FontWeight" Value="Normal"/>
@@ -113,8 +116,7 @@
                 <Grid Grid.Column="1" Margin="10,0,0,0">
                     <GroupBox Header="{StaticResource Step2}" VerticalAlignment="Top" Height="171">
                         <Grid>
-                            <TextBlock Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="262"
-                                Text="{StaticResource FFDes}" TextWrapping="Wrap"/>
+                            <TextBlock Margin="10,10,10,0" VerticalAlignment="Top" Text="{StaticResource FFDes}" TextWrapping="Wrap"/>
                             <Button Margin="0,111,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="120" Height="20"
                                     Content="{StaticResource FFLoc}" Click="LocateFFmpeg"/>
                         </Grid>
@@ -138,7 +140,7 @@
                             </Grid>
                             <TextBlock x:Name="trackInfo" Margin="10,89,10,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
                             <Button x:Name="render" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                    Width="70" Template="{DynamicResource renderButton}"
+                                    MinWidth="70" Template="{DynamicResource renderButton}"
                                     Content="{StaticResource OpRnd}" Click="Render"/>
                         </Grid>
                     </GroupBox>
@@ -158,7 +160,17 @@
                         </Grid>
                     </GroupBox>
                     <GroupBox Header="{StaticResource Queue}" Margin="0,176,0,0">
-
+                        <Grid>
+                            <TextBlock Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275"
+                                       Text="{StaticResource QuDes}" TextWrapping="Wrap"/>
+                            <ListBox x:Name="queuedJobs" Margin="10,79,10,35" Template="{DynamicResource QueueListBox}"/>
+                            <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="70"
+                                    Content="{StaticResource QuAdd}" Click="Queue"/>
+                            <Button Margin="0,0,0,10" HorizontalAlignment="Center" VerticalAlignment="Bottom" MinWidth="70"
+                                    Content="{StaticResource QuRem}" Click="RemoveQueued"/>
+                            <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" MinWidth="70"
+                                    Content="{StaticResource QuSta}" Click="StartQueue"/>
+                        </Grid>
                     </GroupBox>
                 </Grid>
             </Grid>

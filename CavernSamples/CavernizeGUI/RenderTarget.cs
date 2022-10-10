@@ -6,7 +6,7 @@ namespace CavernizeGUI {
     /// <summary>
     /// Standard rendering channel layouts.
     /// </summary>
-    public class RenderTarget {
+    class RenderTarget {
         /// <summary>
         /// Layout name.
         /// </summary>

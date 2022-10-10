@@ -1,14 +1,20 @@
-﻿using Cavern.Format;
+﻿using System;
+using System.Collections.Generic;
+
+using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Container;
-using System;
-using System.Collections.Generic;
 
 namespace CavernizeGUI {
     /// <summary>
     /// Audio file parser and tracklist provider.
     /// </summary>
-    class AudioFile : IDisposable {
+    public class AudioFile : IDisposable {
+        /// <summary>
+        /// Path to the file.
+        /// </summary>
+        public string Path { get; private set; }
+
         /// <summary>
         /// Track handlers and info providers.
         /// </summary>
@@ -20,15 +26,10 @@ namespace CavernizeGUI {
         readonly List<Track> tracks = new List<Track>();
 
         /// <summary>
-        /// Path to the file.
-        /// </summary>
-        readonly string path;
-
-        /// <summary>
         /// Loads an audio file.
         /// </summary>
         public AudioFile(string path) {
-            this.path = path;
+            Path = path;
             Reset();
         }
 
@@ -38,15 +39,15 @@ namespace CavernizeGUI {
         public void Reset() {
             Dispose();
             tracks.Clear();
-            switch (path[^3..]) {
+            switch (Path[^3..]) {
                 case "ac3":
                 case "ec3":
-                    EnhancedAC3Reader ac3Reader = new(path);
+                    EnhancedAC3Reader ac3Reader = new(Path);
                     tracks.Add(new Track(ac3Reader, Codec.EnhancedAC3, 0));
                     break;
                 case "mkv":
                 case "mka":
-                    MatroskaReader mkvReader = new(path);
+                    MatroskaReader mkvReader = new(Path);
                     int trackId = 0;
                     for (int i = 0; i < mkvReader.Tracks.Length; i++) {
                         if (mkvReader.Tracks[i].Format.IsAudio()) {
@@ -56,7 +57,7 @@ namespace CavernizeGUI {
                     }
                     break;
                 case "wav":
-                    RIFFWaveReader wavReader = new(path);
+                    RIFFWaveReader wavReader = new(Path);
                     tracks.Add(new Track(wavReader, wavReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE, 0));
                     break;
                 case "laf":
@@ -91,5 +92,10 @@ namespace CavernizeGUI {
                 tracks[i].Dispose();
             }
         }
+
+        /// <summary>
+        /// Show the file's name.
+        /// </summary>
+        public override string ToString() => System.IO.Path.GetFileName(Path);
     }
 }

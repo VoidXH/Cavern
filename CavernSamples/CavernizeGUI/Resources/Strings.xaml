@@ -18,6 +18,28 @@
     <system:String x:Key="ReReC">Report</system:String>
     <system:String x:Key="ReReT">To only check if a content is truly object-based or not, choose this option.
         This option won't write anything to the disk.</system:String>
+    <system:String x:Key="Step2">Step 2: FFmpeg</system:String>
+    <system:String x:Key="FFDes">Locate FFmpeg with this button. Download it and select the folder which contains ffmpeg.exe.
+        Cavernize will use FFmpeg for re-encoding. This temporary workaround uses a lot of space, because of which, 10 GB of
+        free space is recommended for a 2-hour movie.</system:String>
+    <system:String x:Key="FFLoc">Locate FFmpeg</system:String>
+    <system:String x:Key="Step3">Step 3: Content processing</system:String>
+    <system:String x:Key="OpCnt">Open content</system:String>
+    <system:String x:Key="OpTrk">Track:</system:String>
+    <system:String x:Key="OpOut">Output:</system:String>
+    <system:String x:Key="OpRnd">Render</system:String>
+    <system:String x:Key="ChkUp">Check for updates</system:String>
+    <system:String x:Key="ChkTt">Periodically auto-check if a new update is available.</system:String>
+    <system:String x:Key="UsrGu">User guide</system:String>
+    <system:String x:Key="ByWho">by VoidX (cavern.sbence.hu)</system:String>
+    <system:String x:Key="PReRe">Post-render report</system:String>
+    <system:String x:Key="Queue">Queue</system:String>
+    <system:String x:Key="QuDes">Jobs can be queued after each other instead of manually rendering each one.
+        Click the &quot;Queue&quot; button to add a conversion to this queue, and click &quot;Start&quot;
+        to start rendering the queued contents.</system:String>
+    <system:String x:Key="QuAdd">Queue</system:String>
+    <system:String x:Key="QuRem">Remove</system:String>
+    <system:String x:Key="QuSta">Start</system:String>
     <!-- Code behind -->
     <system:String x:Key="CavLo">Driver is set to {0}.</system:String>
     <system:String x:Key="ImFmt">All supported formats|*.ac3;*.mkv;*.mka;*.wav;*.laf|(Enhanced) AC-3 (*.ac3)|*.ac3|Matroska

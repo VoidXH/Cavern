@@ -1,8 +1,10 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -42,9 +44,14 @@ namespace CavernizeGUI {
         readonly Listener listener;
 
         /// <summary>
+        /// Queued conversions.
+        /// </summary>
+        readonly ObservableCollection<QueuedJob> jobs = new();
+
+        /// <summary>
         /// Source of language strings.
         /// </summary>
-        readonly ResourceDictionary language = new ResourceDictionary();
+        readonly ResourceDictionary language = new();
 
         /// <summary>
         /// Runs the process in the background.
@@ -52,8 +59,6 @@ namespace CavernizeGUI {
         readonly TaskEngine taskEngine;
 
         AudioFile file;
-
-        string filePath;
 
         /// <summary>
         /// Initialize the window and load last settings.
@@ -94,6 +99,7 @@ namespace CavernizeGUI {
             renderTarget.ItemsSource = RenderTarget.Targets;
             renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget), RenderTarget.Targets.Length - 1);
             renderSettings.IsEnabled = true; // Don't grey out initially
+            queuedJobs.ItemsSource = jobs;
             taskEngine = new(progress, status);
             Reset();
 
@@ -110,12 +116,10 @@ namespace CavernizeGUI {
             Reset();
             ffmpeg.CheckFFmpeg();
             taskEngine.UpdateProgressBar(0);
-
-            fileName.Text = Path.GetFileName(path);
             OnOutputSelected(null, null);
 
             try {
-                file = new(filePath = path);
+                SetFile(new(path));
             } catch (Exception ex) {
                 Reset();
                 if (ex is IOException) {
@@ -125,7 +129,14 @@ namespace CavernizeGUI {
                 }
                 return;
             }
+        }
 
+        /// <summary>
+        /// Set up the window for an already loaded file.
+        /// </summary>
+        public void SetFile(AudioFile file) {
+            fileName.Text = Path.GetFileName(file.Path);
+            this.file = file;
             if (file.Tracks.Count != 0) {
                 trackControls.Visibility = Visibility.Visible;
                 tracks.ItemsSource = file.Tracks;
@@ -145,7 +156,10 @@ namespace CavernizeGUI {
         /// </summary>
         public void RenderContent(string path) {
             if (PreRender()) {
-                Render(path);
+                Action renderTask = Render(path);
+                if (renderTask != null) {
+                    taskEngine.Run(renderTask);
+                }
             }
         }
 
@@ -166,7 +180,7 @@ namespace CavernizeGUI {
         /// </summary>
         void Reset() {
             listener.DetachAllSources();
-            if (file != null) {
+            if (file != null && jobs.FirstOrDefault(x => x.IsUsingFile(file)) == null) {
                 file.Dispose();
                 file = null;
             }
@@ -266,8 +280,7 @@ namespace CavernizeGUI {
                 return false;
             }
 
-            Track target = (Track)tracks.SelectedItem;
-            if (!target.Supported) {
+            if (!((Track)tracks.SelectedItem).Supported) {
                 Error((string)language["UnTrk"]);
                 return false;
             }
@@ -279,21 +292,36 @@ namespace CavernizeGUI {
                 return false;
             }
 
+            SoftPreRender(false);
+            return true;
+        }
+
+        /// <summary>
+        /// Prepare the renderer for export, without safety checks.
+        /// </summary>
+        void SoftPreRender(bool applyTarget) {
+            if (applyTarget) {
+                ((RenderTarget)renderTarget.SelectedItem).Apply();
+            }
+
+            Track target = (Track)tracks.SelectedItem;
             listener.SampleRate = target.SampleRate;
             listener.DetachAllSources();
             target.Attach(listener);
             if (target.Codec == Codec.EnhancedAC3) {
                 listener.Volume = .5f; // Master volume of most E-AC-3 files is -6 dB, not yet applied from the stream
                 listener.LFEVolume = 2;
+            } else {
+                listener.Volume = 1;
+                listener.LFEVolume = 1;
             }
-
-            return true;
         }
 
         /// <summary>
         /// Start rendering to a target <paramref name="path"/>.
         /// </summary>
-        void Render(string path) {
+        /// <returns>A task for rendering or null when an error happened.</returns>
+        Action Render(string path) {
             Track target = (Track)tracks.SelectedItem;
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
             if (!codec.IsEnvironmental()) {
@@ -303,12 +331,12 @@ namespace CavernizeGUI {
                     target.Length, target.SampleRate, BitDepth.Int16);
                 if (writer == null) {
                     Error((string)language["UnExt"]);
-                    return;
+                    return null;
                 }
                 writer.WriteHeader();
                 bool dynamic = dynamicOnly.IsChecked.Value;
                 bool height = heightOnly.IsChecked.Value;
-                taskEngine.Run(() => RenderTask(target, writer, dynamic, height, path));
+                return () => RenderTask(target, writer, dynamic, height, path);
             } else {
                 EnvironmentWriter transcoder;
                 switch (codec) {
@@ -320,18 +348,19 @@ namespace CavernizeGUI {
                         break;
                     default:
                         Error((string)language["UnCod"]);
-                        return;
+                        return null;
                 }
-                taskEngine.Run(() => TranscodeTask(target, transcoder));
+                return () => TranscodeTask(target, transcoder);
             }
         }
 
         /// <summary>
-        /// Start the rendering process.
+        /// Get the render task after an output file was selected if export is selected.
         /// </summary>
-        void Render(object _, RoutedEventArgs e) {
+        /// <returns>A task for rendering or null when an error happened.</returns>
+        Action GetRenderTask() {
             if (!PreRender()) {
-                return;
+                return null;
             }
 
             if (renderToFile.IsChecked.Value) {
@@ -340,12 +369,68 @@ namespace CavernizeGUI {
                         (string)language["ExBWF"] : (string)language["ExFmt"]
                 };
                 if (dialog.ShowDialog().Value) {
-                    Render(dialog.FileName);
+                    return Render(dialog.FileName);
                 }
             } else {
                 Track target = (Track)tracks.SelectedItem;
-                taskEngine.Run(() => RenderTask(target, null, false, false, null));
+                return () => RenderTask(target, null, false, false, null);
             }
+            return null;
+        }
+
+        /// <summary>
+        /// Start the rendering process.
+        /// </summary>
+        void Render(object _, RoutedEventArgs e) {
+            Action renderTask = GetRenderTask();
+            if (renderTask != null) {
+                taskEngine.Run(renderTask);
+            }
+        }
+
+        /// <summary>
+        /// Queue a rendering process.
+        /// </summary>
+        void Queue(object _, RoutedEventArgs e) {
+            Action renderTask = GetRenderTask();
+            if (renderTask != null) {
+                jobs.Add(new QueuedJob(file, (Track)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
+                    (ExportFormat)audio.SelectedItem, renderTask));
+            }
+        }
+
+        /// <summary>
+        /// Removes a queued job.
+        /// </summary>
+        void RemoveQueued(object _, RoutedEventArgs e) {
+            if (!taskEngine.IsOperationRunning && queuedJobs.SelectedItem != null) {
+                jobs.RemoveAt(queuedJobs.SelectedIndex);
+            }
+        }
+
+        /// <summary>
+        /// Start processing the queue.
+        /// </summary>
+        void StartQueue(object _, RoutedEventArgs e) {
+            QueuedJob[] jobs = this.jobs.ToArray();
+            taskEngine.Run(() => QueueRunnerTask(jobs));
+        }
+
+        /// <summary>
+        /// Run all queued jobs one after another.
+        /// </summary>
+        void QueueRunnerTask(QueuedJob[] jobs) {
+            Dispatcher.Invoke(() => queuedJobs.IsEnabled = false);
+            for (int i = 0; i < jobs.Length; i++) {
+                QueuedJob job = jobs[i];
+                Dispatcher.Invoke(() => {
+                    job.Prepare(this);
+                    SoftPreRender(true);
+                });
+                job.Run();
+                Dispatcher.Invoke(() => this.jobs.Remove(job));
+            }
+            Dispatcher.Invoke(() => queuedJobs.IsEnabled = true);
         }
 
         /// <summary>
@@ -368,8 +453,12 @@ namespace CavernizeGUI {
                 if (finalName[^4..].ToLower().Equals(".mkv")) {
                     string exportedAudio = finalName[..^4] + ".wav";
                     taskEngine.UpdateStatus("Merging to final container...");
-                    string layout = null;
-                    Dispatcher.Invoke(() => layout = ((RenderTarget)renderTarget.SelectedItem).Name);
+                    string layout = null,
+                        filePath = null;
+                    Dispatcher.Invoke(() => {
+                        layout = ((RenderTarget)renderTarget.SelectedItem).Name;
+                        filePath = file.Path;
+                    });
                     if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c:v copy -c:a {2} " +
                         "-y -metadata:s:a:0 title=\"Cavern {3} render\" \"{4}\"",
                         filePath, exportedAudio, targetCodec, layout, finalName)) ||
