@@ -1,6 +1,24 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- UI -->
+    <system:String x:Key="Step1">Step 1: System setup</system:String>
+    <system:String x:Key="RSInf">Choose a layout, and place your speakers accordingly. Click the &quot;Display wiring&quot;
+        button to see which output will change to which actual channel.
+        For maximum audio quality, calibrate your system with QuickEQ.</system:String>
+    <system:String x:Key="RndTg">Render target:</system:String>
+    <system:String x:Key="DisWi">Display wiring</system:String>
+    <system:String x:Key="MuBeC">Mute bed</system:String>
+    <system:String x:Key="MuBeT">Only render objects that are not fixed in position, but move around.</system:String>
+    <system:String x:Key="MuGrC">Mute ground</system:String>
+    <system:String x:Key="MuGrT">Any sound that only comes from the ground speakers will be muted.</system:String>
+    <system:String x:Key="ReMod">Rendering mode:</system:String>
+    <system:String x:Key="ReExC">Export</system:String>
+    <system:String x:Key="ReExT">Render the result to a file for later playback.</system:String>
+    <system:String x:Key="ReReC">Report</system:String>
+    <system:String x:Key="ReReT">To only check if a content is truly object-based or not, choose this option.
+        This option won't write anything to the disk.</system:String>
+    <!-- Code behind -->
     <system:String x:Key="CavLo">Driver is set to {0}.</system:String>
     <system:String x:Key="ImFmt">All supported formats|*.ac3;*.mkv;*.mka;*.wav;*.laf|(Enhanced) AC-3 (*.ac3)|*.ac3|Matroska
         (*.mkv, *.mka)|*.mkv;*.mka|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format (*.laf)|*.laf</system:String>

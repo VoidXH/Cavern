@@ -7,43 +7,48 @@
         mc:Ignorable="d"
         Title="Cavernize" Height="530" Width="900" Background="#696969">
     <Window.Resources>
-        <Style TargetType="Button">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Normal"/>
-        </Style>
-        <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Normal"/>
-        </Style>
-        <Style TargetType="ComboBox">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Normal"/>
-        </Style>
-        <Style TargetType="GridSplitter">
-            <Setter Property="Background" Value="#AEAEAE"/>
-        </Style>
-        <Style TargetType="GroupBox">
-            <Setter Property="Background" Value="#222222"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="18" />
-            <Setter Property="FontWeight" Value="DemiBold"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style TargetType="RadioButton">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Normal"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style TargetType="StatusBar">
-            <Setter Property="Background" Value="#353535"/>
-        </Style>
-        <Style TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Normal"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <BitmapImage x:Key="Logo" UriSource="Resources\CavernLogo.png"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Strings.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="Button">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+            </Style>
+            <Style TargetType="CheckBox">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+            </Style>
+            <Style TargetType="ComboBox">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+            </Style>
+            <Style TargetType="GridSplitter">
+                <Setter Property="Background" Value="#AEAEAE"/>
+            </Style>
+            <Style TargetType="GroupBox">
+                <Setter Property="Background" Value="#222222"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontWeight" Value="DemiBold"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
+            <Style TargetType="RadioButton">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
+            <Style TargetType="StatusBar">
+                <Setter Property="Background" Value="#353535"/>
+            </Style>
+            <Style TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
+            <BitmapImage x:Key="Logo" UriSource="Resources\CavernLogo.png"/>
+        </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom" Height="40" Padding="10,0,0,0">
@@ -57,14 +62,16 @@
                     <ColumnDefinition Width="300" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <GroupBox Header="Step 1: System setup">
+                <GroupBox Header="{StaticResource Step1}">
                     <Grid>
                         <Grid x:Name="renderSettings">
-                            <TextBlock Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="208"
-                                       Text="Choose a layout, and place your speakers accordingly. Click the &quot;Display wiring&quot; button to see which output will change to which actual channel. For maximum audio quality, calibrate your system with QuickEQ."/>
-                            <TextBlock HorizontalAlignment="Left" Margin="10,114,0,0" TextWrapping="Wrap" Text="Render target:" VerticalAlignment="Top"/>
-                            <ComboBox x:Name="renderTarget" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                                  Margin="90,111,10,0" VerticalAlignment="Top" SelectionChanged="OnRenderTargetSelected"/>
+                            <TextBlock Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
+                                       Text="{StaticResource RSInf}"/>
+                            <TextBlock Margin="10,114,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                       Text="{StaticResource RndTg}"/>
+                            <ComboBox x:Name="renderTarget" Margin="90,111,10,0" VerticalAlignment="Top"
+                                      SelectionChanged="OnRenderTargetSelected" Template="{DynamicResource DarkComboBox}"
+                                      ItemContainerStyle="{DynamicResource DarkComboBoxItem}"/>
                             <Canvas Margin="0,140,0,0" Height="160" VerticalAlignment="Top" HorizontalAlignment="Center" Width="170">
                                 <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
                                 <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
@@ -88,55 +95,70 @@
                                 <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
                                 <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
                             </Canvas>
-                            <Button Content="Display wiring" HorizontalAlignment="Left" Margin="10,305,0,0" VerticalAlignment="Top" Width="100" Click="DisplayWiring"/>
-                            <CheckBox x:Name="dynamicOnly" Content="Mute bed" HorizontalAlignment="Left" Margin="10,330,0,0" VerticalAlignment="Top"
-                                      ToolTip="Only render objects that are not fixed in position, but move around."/>
-                            <CheckBox x:Name="heightOnly" Content="Mute ground" Margin="0,330,24,0" VerticalAlignment="Top"
-                                      ToolTip="Any sound that only comes from the ground speakers will be muted." HorizontalAlignment="Right"/>
-                            <TextBlock HorizontalAlignment="Left" Margin="10,350,0,0" TextWrapping="Wrap" Text="Rendering mode:" Height="16" VerticalAlignment="Top"/>
+                            <Button HorizontalAlignment="Left" Margin="10,305,0,0" VerticalAlignment="Top" Width="100"
+                                    Content="{StaticResource DisWi}" Click="DisplayWiring"/>
+                            <CheckBox x:Name="dynamicOnly" Margin="10,330,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                      Content="{StaticResource MuBeC}" ToolTip="{StaticResource MuBeT}"/>
+                            <CheckBox x:Name="heightOnly" Margin="0,330,24,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                      Content="{StaticResource MuGrC}" ToolTip="{StaticResource MuGrT}"/>
+                            <TextBlock Margin="10,350,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="16"
+                                       Text="{StaticResource ReMod}" TextWrapping="Wrap"/>
                         </Grid>
-                        <RadioButton x:Name="renderToFile" Content="Export" HorizontalAlignment="Left" Margin="10,371,0,0" IsChecked="True" Height="15"
-                                     VerticalAlignment="Top" ToolTip="Render the result to a file for later playback."/>
-                        <RadioButton x:Name="renderOnly" Content="Report" Margin="0,371,60,0" Height="15" VerticalAlignment="Top" HorizontalAlignment="Right"
-                                     ToolTip="To only check if a content is truly object-based or not, choose this option. This option won't write anything to the disk."/>
+                        <RadioButton x:Name="renderToFile" Margin="10,371,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                     Height="15" Content="{StaticResource ReExC}" ToolTip="{StaticResource ReExT}" IsChecked="True"/>
+                        <RadioButton x:Name="renderOnly" Margin="0,371,60,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                     Height="15" Content="{StaticResource ReReC}" ToolTip="{StaticResource ReReT}"/>
                     </Grid>
                 </GroupBox>
                 <Grid Grid.Column="1" Margin="10,0,0,0">
-                    <GroupBox Header="Step 2: FFmpeg" Height="171" VerticalAlignment="Top">
+                    <GroupBox Header="{StaticResource Step2}" VerticalAlignment="Top" Height="171">
                         <Grid>
-                            <TextBlock Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="262"
-                                Text="Locate FFmpeg with this button. Download it and select the folder which contains ffmpeg.exe. Cavernize will use FFmpeg for re-encoding. This temporary workaround uses a lot of space, because of which, 10 GB of free space is recommended for a 2-hour movie."/>
-                            <Button Content="Locate FFmpeg" HorizontalAlignment="Center" Width="120" Height="20" VerticalAlignment="Top" Click="LocateFFmpeg" Margin="0,111,0,0"/>
+                            <TextBlock Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="262"
+                                Text="{StaticResource FFDes}" TextWrapping="Wrap"/>
+                            <Button Margin="0,111,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="120" Height="20"
+                                    Content="{StaticResource FFLoc}" Click="LocateFFmpeg"/>
                         </Grid>
                     </GroupBox>
-                    <GroupBox Header="Step 3: Content processing" Margin="0,176,0,0">
+                    <GroupBox Header="{StaticResource Step3}" Margin="0,176,0,0">
                         <Grid>
-                            <Button Content="Open content" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Click="OpenFile"/>
-                            <TextBlock x:Name="fileName" Margin="115,12,10,0" TextWrapping="NoWrap" VerticalAlignment="Top"/>
+                            <Button Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100"
+                                    Content="{StaticResource OpCnt}" Click="OpenFile"/>
+                            <TextBlock x:Name="fileName" Margin="115,12,10,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
                             <Grid x:Name="trackControls">
-                                <TextBlock Text="Track:" Margin="10,38,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                                <ComboBox x:Name="tracks" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                                      Margin="45,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="OnTrackSelected"/>
-                                <TextBlock Text="Output:" Margin="10,65,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                                <ComboBox x:Name="audio" Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                                          Margin="55,62,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="213" SelectionChanged="OnOutputSelected"/>
+                                <TextBlock Margin="10,38,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                           Text="{StaticResource OpTrk}" TextWrapping="NoWrap"/>
+                                <ComboBox x:Name="tracks" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="45,35,0,0"
+                                          ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
+                                          Template="{DynamicResource DarkComboBox}" SelectionChanged="OnTrackSelected"/>
+                                <TextBlock Margin="10,65,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                           Text="{StaticResource OpOut}" TextWrapping="NoWrap"/>
+                                <ComboBox x:Name="audio" Margin="55,62,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                          MaxWidth="213" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
+                                          Template="{DynamicResource DarkComboBox}" SelectionChanged="OnOutputSelected"/>
                             </Grid>
-                            <TextBlock x:Name="trackInfo" Margin="10,89,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-                            <Button x:Name="render" Template="{DynamicResource renderButton}" Content="Render" Click="Render"
-                                    Width="70" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                            <TextBlock x:Name="trackInfo" Margin="10,89,10,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
+                            <Button x:Name="render" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                    Width="70" Template="{DynamicResource renderButton}"
+                                    Content="{StaticResource OpRnd}" Click="Render"/>
                         </Grid>
                     </GroupBox>
                 </Grid>
                 <Grid Grid.Column="2" Margin="10,0,0,0">
-                    <CheckBox x:Name="checkUpdates" Content="Check for updates" Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                              ToolTip="Periodically auto-check if a new update is available."/>
-                    <Button Content="User guide" HorizontalAlignment="Left" Margin="0,23,0,0" VerticalAlignment="Top" Width="80" Click="Guide"/>
-                    <Image Source="{StaticResource Logo}" MouseDown="Ad" HorizontalAlignment="Right" VerticalAlignment="Top" Width="169"/>
-                    <TextBlock x:Name="ad" Text="by VoidX (cavern.sbence.hu)" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,27,0,0"/>
-                    <GroupBox Header="Post-render report" Margin="0,43,0,0">
+                    <CheckBox x:Name="checkUpdates" Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                              Content="{StaticResource ChkUp}" ToolTip="{StaticResource ChkTt}"/>
+                    <Button Margin="0,23,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80"
+                            Content="{StaticResource UsrGu}" Click="Guide"/>
+                    <Image HorizontalAlignment="Right" VerticalAlignment="Top" Width="169" Source="{StaticResource Logo}"
+                           MouseDown="Ad"/>
+                    <TextBlock x:Name="ad" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,27,0,0"
+                               Text="{StaticResource ByWho}"/>
+                    <GroupBox Header="{StaticResource PReRe}" Margin="0,43,0,0" VerticalAlignment="Top" Height="128">
                         <Grid>
-                            <TextBlock x:Name="report" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+                            <TextBlock x:Name="report" Margin="10,10,10,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
                         </Grid>
+                    </GroupBox>
+                    <GroupBox Header="{StaticResource Queue}" Margin="0,176,0,0">
+
                     </GroupBox>
                 </Grid>
             </Grid>
