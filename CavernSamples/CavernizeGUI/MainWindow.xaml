@@ -80,45 +80,47 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <GroupBox>
-                    <Grid x:Name="renderSettings">
-                        <TextBlock Style="{StaticResource Header}" Text="{StaticResource SySet}"/>
-                        <Ellipse Margin="113,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20"
+                    <Grid>
+                        <Grid x:Name="renderSettings">
+                            <TextBlock Style="{StaticResource Header}" Text="{StaticResource SySet}"/>
+                            <Ellipse Margin="113,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20"
                                  Fill="{StaticResource InfoBlue}"/>
-                        <TextBlock Margin="113,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20"
+                            <TextBlock Margin="113,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20"
                                    Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
                                    ToolTip="{StaticResource RSInf}" ToolTipService.InitialShowDelay="0"/>
-                        <TextBlock Margin="10,37,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
+                            <TextBlock Margin="10,37,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
                                        Text="{StaticResource RndTg}"/>
-                        <ComboBox x:Name="renderTarget" Margin="90,34,10,0" VerticalAlignment="Top"
+                            <ComboBox x:Name="renderTarget" Margin="90,34,10,0" VerticalAlignment="Top"
                                       SelectionChanged="OnRenderTargetSelected" Template="{DynamicResource DarkComboBox}"
                                       ItemContainerStyle="{DynamicResource DarkComboBoxItem}"/>
-                        <Canvas Margin="29,66,29,0" VerticalAlignment="Top" Width="170" Height="160">
-                            <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
-                            <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
-                            <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
-                            <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="30"/>
-                            <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="5"/>
-                            <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="5"/>
-                            <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="5"/>
-                            <Line X1="46" Y1="0" X2="14" Y2="73" Stroke="Gray"/>
-                            <Line X1="122" Y1="0" X2="154" Y2="73" Stroke="Gray"/>
-                            <Line X1="46" Y1="50" X2="14" Y2="158" Stroke="Gray"/>
-                            <Line X1="122" Y1="50" X2="154" Y2="158" Stroke="Gray"/>
-                            <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="40"/>
-                            <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="40"/>
-                            <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="91"/>
-                            <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="91"/>
-                            <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
-                            <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="57"/>
-                            <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
-                            <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
-                            <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
-                            <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
-                        </Canvas>
-                        <Button Margin="40,231,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
+                            <Canvas Margin="29,66,29,0" VerticalAlignment="Top" Width="170" Height="160">
+                                <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
+                                <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
+                                <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
+                                <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="30"/>
+                                <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="5"/>
+                                <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="5"/>
+                                <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="5"/>
+                                <Line X1="46" Y1="0" X2="14" Y2="73" Stroke="Gray"/>
+                                <Line X1="122" Y1="0" X2="154" Y2="73" Stroke="Gray"/>
+                                <Line X1="46" Y1="50" X2="14" Y2="158" Stroke="Gray"/>
+                                <Line X1="122" Y1="50" X2="154" Y2="158" Stroke="Gray"/>
+                                <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="40"/>
+                                <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="40"/>
+                                <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="91"/>
+                                <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="91"/>
+                                <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
+                                <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="57"/>
+                                <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
+                                <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
+                                <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
+                                <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
+                            </Canvas>
+                            <Button Margin="40,231,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
                                     Content="{StaticResource DisWi}" Click="DisplayWiring"/>
+                        </Grid>
                         <Button Margin="40,266,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
-                                    Content="{StaticResource FFLoc}" Click="LocateFFmpeg"/>
+                                Content="{StaticResource FFLoc}" Click="LocateFFmpeg"/>
                         <Ellipse Margin="165,271,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
                                  Fill="{StaticResource InfoBlue}"/>
                         <TextBlock Margin="165,271,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
@@ -171,7 +173,7 @@
                             <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="100"
                                     Content="{StaticResource QuRem}" Click="RemoveQueued"/>
                             <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" MinWidth="100"
-                                    Content="{StaticResource QuSta}" Click="StartQueue"/>
+                                    Template="{DynamicResource renderButton}" Content="{StaticResource QuSta}" Click="StartQueue"/>
                         </Grid>
                     </GroupBox>
                 </Grid>
