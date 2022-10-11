@@ -1,5 +1,7 @@
 ﻿using System;
 
+using CavernizeGUI.Elements;
+
 namespace CavernizeGUI.CommandLine {
     /// <summary>
     /// Selects a standard channel layout.

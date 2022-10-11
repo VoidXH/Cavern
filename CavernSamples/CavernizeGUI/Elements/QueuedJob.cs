@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CavernizeGUI {
+namespace CavernizeGUI.Elements {
     /// <summary>
     /// A rendering job with all relevant settings.
     /// </summary>

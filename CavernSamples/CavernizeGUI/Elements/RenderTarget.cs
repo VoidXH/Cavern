@@ -2,7 +2,7 @@
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
 
-namespace CavernizeGUI {
+namespace CavernizeGUI.Elements {
     /// <summary>
     /// Standard rendering channel layouts.
     /// </summary>
@@ -28,7 +28,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Apply this render target on the system's output.
         /// </summary>
-        public void Apply() {
+        public virtual void Apply() {
             Channel[] systemChannels = new Channel[Channels.Length];
             for (int ch = 0; ch < Channels.Length; ++ch) {
                 bool lfe = Channels[ch] == ReferenceChannel.ScreenLFE;
@@ -130,7 +130,8 @@ namespace CavernizeGUI {
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter,
                 ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
-            })
+            }),
+            new DriverRenderTarget()
         };
     }
 }

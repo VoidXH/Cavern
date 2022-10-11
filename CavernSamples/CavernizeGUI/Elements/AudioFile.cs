@@ -5,7 +5,7 @@ using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Container;
 
-namespace CavernizeGUI {
+namespace CavernizeGUI.Elements {
     /// <summary>
     /// Audio file parser and tracklist provider.
     /// </summary>

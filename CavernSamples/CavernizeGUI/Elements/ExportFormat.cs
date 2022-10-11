@@ -1,6 +1,6 @@
 ﻿using Cavern.Format.Common;
 
-namespace CavernizeGUI {
+namespace CavernizeGUI.Elements {
     /// <summary>
     /// A supported export format with mapping to FFmpeg.
     /// </summary>
