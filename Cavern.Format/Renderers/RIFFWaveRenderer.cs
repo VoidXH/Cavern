@@ -79,10 +79,16 @@ namespace Cavern.Format.Renderers {
             if (adm != null) {
                 for (int i = 0; i < objectSamples.Length; i++) {
                     List<ADMBlockFormat> blocks = adm.Movements[i].Blocks;
+
+                    while (admBlocks[i] > 0 &&
+                        blocks[admBlocks[i] - 1].Offset.TotalSeconds * stream.SampleRate > stream.Position) {
+                        --admBlocks[i];
+                    }
                     while (admBlocks[i] < blocks.Count - 1 &&
                         blocks[admBlocks[i] + 1].Offset.TotalSeconds * stream.SampleRate < stream.Position) {
                         ++admBlocks[i];
                     }
+
                     ADMBlockFormat current = blocks[admBlocks[i]],
                         previous = admBlocks[i] != 0 ? blocks[admBlocks[i] - 1] : current;
                     float fade = 1;
