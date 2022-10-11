@@ -9,6 +9,14 @@ using Cavern.Utilities;
 
 namespace CavernizeGUI {
     partial class MainWindow {
+        /// <summary>
+        /// Holds the post-render report.
+        /// </summary>
+        string report;
+
+        /// <summary>
+        /// Extracts the <see cref="report"/> from a render.
+        /// </summary>
         void UpdatePostRenderReport(RenderStats stats) {
             StringBuilder builder = new();
             int total = listener.ActiveSources.Count;
@@ -33,7 +41,7 @@ namespace CavernizeGUI {
                 builder.Append(" (").Append(string.Join(", ", channels)).Append(')');
             builder.AppendLine().Append("Actually present dynamic objects: ").AppendLine(dynamic.ToString())
                 .Append("Unused (fake) rendering targets: ").AppendLine(unused.ToString());
-            report.Dispatcher.Invoke(() => report.Text = builder.ToString());
+            report = builder.ToString();
         }
     }
 }

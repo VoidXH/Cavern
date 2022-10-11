@@ -60,11 +60,20 @@ namespace CavernizeGUI {
         AudioFile file;
 
         /// <summary>
+        /// One-time UI transformations were applied.
+        /// </summary>
+        bool uiInitialized;
+
+        /// <summary>
+        /// Minimum window width that displays the queue. The window is resized to this width when a queue item is added.
+        /// </summary>
+        double minWidth;
+
+        /// <summary>
         /// Initialize the window and load last settings.
         /// </summary>
         public MainWindow() {
             InitializeComponent();
-            ad.Text = $"v{version} {ad.Text}";
             channelDisplay = new() {
                 [ReferenceChannel.FrontLeft] = frontLeft,
                 [ReferenceChannel.FrontCenter] = frontCenter,
@@ -86,7 +95,7 @@ namespace CavernizeGUI {
             audio.ItemsSource = ExportFormat.Formats;
             audio.SelectedIndex = Settings.Default.outputCodec;
 
-            ffmpeg = new(render, status, Settings.Default.ffmpegLocation);
+            ffmpeg = new(renderButtons, status, Settings.Default.ffmpegLocation);
             listener = new() { // Create a listener, which triggers the loading of saved environment settings
                 UpdateRate = 64,
                 AudioQuality = QualityModes.Perfect,
@@ -105,6 +114,17 @@ namespace CavernizeGUI {
             checkUpdates.IsChecked = Settings.Default.checkUpdates;
             if (Settings.Default.checkUpdates && !Program.ConsoleMode) {
                 UpdateCheck.Perform(Settings.Default.lastUpdate, () => Settings.Default.lastUpdate = DateTime.Now);
+            }
+        }
+
+        /// <summary>
+        /// Perform one-time UI updates after the window is initialized and displayed.
+        /// </summary>
+        protected override void OnActivated(EventArgs e) {
+            if (!uiInitialized) {
+                minWidth = Width;
+                Width = queuedJobs.TransformToAncestor(this).Transform(new Point()).X;
+                uiInitialized = true;
             }
         }
 
@@ -169,7 +189,7 @@ namespace CavernizeGUI {
             Settings.Default.ffmpegLocation = ffmpeg.Location;
             Settings.Default.renderTarget = renderTarget.SelectedIndex;
             Settings.Default.outputCodec = audio.SelectedIndex;
-            Settings.Default.checkUpdates = checkUpdates.IsChecked.Value;
+            Settings.Default.checkUpdates = checkUpdates.IsChecked;
             Settings.Default.Save();
             base.OnClosed(e);
         }
@@ -187,8 +207,13 @@ namespace CavernizeGUI {
             trackControls.Visibility = Visibility.Hidden;
             tracks.ItemsSource = null;
             trackInfo.Text = string.Empty;
-            report.Text = (string)language["Reprt"];
+            report = (string)language["Reprt"];
         }
+
+        /// <summary>
+        /// Show the post-render report in a popup.
+        /// </summary>
+        void ShowPostRenderReport(object _, RoutedEventArgs e) => MessageBox.Show(report, (string)language["PReRe"]);
 
         /// <summary>
         /// Shows a popup about what channel should be wired to which output.
@@ -288,6 +313,9 @@ namespace CavernizeGUI {
         void Queue(object _, RoutedEventArgs e) {
             Action renderTask = GetRenderTask();
             if (renderTask != null) {
+                if (Width < minWidth) {
+                    Width = minWidth;
+                }
                 jobs.Add(new QueuedJob(file, (Track)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
                     (ExportFormat)audio.SelectedItem, renderTask));
             }
@@ -319,10 +347,15 @@ namespace CavernizeGUI {
         /// <summary>
         /// Opens the software's documentation.
         /// </summary>
-        void Guide(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
+        void Guide(object _, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
             FileName = "http://cavern.sbence.hu/cavern/doc.php?p=CavernizeGUI",
             UseShellExecute = true
         });
+
+        /// <summary>
+        /// Shows information about the used Cavern library and its version.
+        /// </summary>
+        void About(object _, RoutedEventArgs e) => MessageBox.Show(Listener.Info);
 
         /// <summary>
         /// Open Cavern's website.
@@ -331,11 +364,6 @@ namespace CavernizeGUI {
             FileName = "http://cavern.sbence.hu",
             UseShellExecute = true
         });
-
-        /// <summary>
-        /// Latest stable software version of Cavernize GUI.
-        /// </summary>
-        const string version = "1.5";
 
         /// <summary>
         /// This option allows FFmpeg to encode up to 255 channels in select codecs.

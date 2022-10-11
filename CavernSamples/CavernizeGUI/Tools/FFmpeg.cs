@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 
 using CavernizeGUI;
-
-using Button = System.Windows.Controls.Button;
 
 namespace VoidX.WPF {
     /// <summary>
@@ -18,9 +17,9 @@ namespace VoidX.WPF {
         public string Location { get; private set; }
 
         /// <summary>
-        /// The button that starts the process that requires FFmpeg.
+        /// The buttons that start the process which requires FFmpeg.
         /// </summary>
-        readonly Button start;
+        readonly UIElement start;
 
         /// <summary>
         /// Status text display.
@@ -30,7 +29,7 @@ namespace VoidX.WPF {
         /// <summary>
         /// FFmpeg runner and locator.
         /// </summary>
-        public FFmpeg(Button start, TextBlock statusText, string lastLocation) {
+        public FFmpeg(UIElement start, TextBlock statusText, string lastLocation) {
             this.start = start;
             this.statusText = statusText;
             Location = lastLocation;
@@ -43,7 +42,7 @@ namespace VoidX.WPF {
         public bool Launch(string arguments) {
             ProcessStartInfo start = new() {
                 Arguments = Program.ConsoleMode ? arguments + lesserOutput : arguments,
-                FileName = Path.Combine(Location, exeName),
+                FileName = Location,
                 UseShellExecute = !Program.ConsoleMode
             };
             try {
@@ -59,9 +58,11 @@ namespace VoidX.WPF {
         /// Prompts the user to select FFmpeg's location.
         /// </summary>
         public void Locate() {
-            using var dialog = new FolderBrowserDialog();
+            using var dialog = new OpenFileDialog() {
+                Filter = filter
+            };
             if (dialog.ShowDialog() == DialogResult.OK) {
-                Location = dialog.SelectedPath;
+                Location = dialog.FileName;
                 CheckFFmpeg();
             }
         }
@@ -70,7 +71,7 @@ namespace VoidX.WPF {
         /// Checks if FFmpeg's executable is located at the selected directory and update the UI accordingly.
         /// </summary>
         public bool CheckFFmpeg() {
-            bool found = start.IsEnabled = !string.IsNullOrEmpty(Location) && File.Exists(Path.Combine(Location, exeName));
+            bool found = start.IsEnabled = !string.IsNullOrEmpty(Location) && File.Exists(Location);
             if (found) {
                 statusText.Text = readyText;
             } else {
@@ -78,6 +79,11 @@ namespace VoidX.WPF {
             }
             return found;
         }
+
+        /// <summary>
+        /// Open file dialog filter for selecting FFmpeg's binary.
+        /// </summary>
+        const string filter = "FFmpeg|" + exeName;
 
         /// <summary>
         /// Filename of the searched executable.

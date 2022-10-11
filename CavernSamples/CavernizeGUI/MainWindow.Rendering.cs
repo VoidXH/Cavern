@@ -80,8 +80,8 @@ namespace CavernizeGUI {
                     return null;
                 }
                 writer.WriteHeader();
-                bool dynamic = dynamicOnly.IsChecked.Value;
-                bool height = heightOnly.IsChecked.Value;
+                bool dynamic = dynamicOnly.IsChecked;
+                bool height = heightOnly.IsChecked;
                 return () => RenderTask(target, writer, dynamic, height, path);
             } else {
                 EnvironmentWriter transcoder;
@@ -109,7 +109,7 @@ namespace CavernizeGUI {
                 return null;
             }
 
-            if (renderToFile.IsChecked.Value) {
+            if (!reportMode.IsChecked) {
                 SaveFileDialog dialog = new() {
                     Filter = ((ExportFormat)audio.SelectedItem).Codec.IsEnvironmental() ?
                         (string)language["ExBWF"] : (string)language["ExFmt"]

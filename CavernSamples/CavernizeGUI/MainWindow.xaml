@@ -3,25 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CavernizeGUI"
         mc:Ignorable="d"
-        Title="Cavernize" Height="530" Width="900" Background="#696969">
+        Title="Cavernize" Height="455" Width="900" Background="#696969">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Strings.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="Button">
-                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="Height" Value="30"/>
                 <Setter Property="FontWeight" Value="Normal"/>
             </Style>
             <Style TargetType="CheckBox">
                 <Setter Property="Foreground" Value="White"/>
-                <Setter Property="FontSize" Value="12"/>
                 <Setter Property="FontWeight" Value="Normal"/>
             </Style>
             <Style TargetType="ComboBox">
-                <Setter Property="FontSize" Value="12"/>
                 <Setter Property="FontWeight" Value="Normal"/>
             </Style>
             <Style TargetType="GridSplitter">
@@ -30,15 +27,12 @@
             <Style TargetType="GroupBox">
                 <Setter Property="Background" Value="#222222"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="FontSize" Value="18" />
-                <Setter Property="FontWeight" Value="DemiBold"/>
                 <Setter Property="Foreground" Value="White"/>
             </Style>
             <Style TargetType="ListBox">
                 <Setter Property="Background" Value="#303030"/>
             </Style>
             <Style TargetType="RadioButton">
-                <Setter Property="FontSize" Value="12"/>
                 <Setter Property="FontWeight" Value="Normal"/>
                 <Setter Property="Foreground" Value="White"/>
             </Style>
@@ -46,14 +40,34 @@
                 <Setter Property="Background" Value="#353535"/>
             </Style>
             <Style TargetType="TextBlock">
-                <Setter Property="FontSize" Value="12"/>
                 <Setter Property="FontWeight" Value="Normal"/>
                 <Setter Property="Foreground" Value="White"/>
             </Style>
+            <Style TargetType="TextBlock" x:Key="Header">
+                <Setter Property="Margin" Value="0,5,0,0"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="VerticalAlignment" Value="Top"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontWeight" Value="DemiBold"/>
+            </Style>
             <BitmapImage x:Key="Logo" UriSource="Resources\CavernLogo.png"/>
+            <SolidColorBrush x:Key="InfoBlue">#3186CE</SolidColorBrush>
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
+        <Menu DockPanel.Dock="Top" Height="20">
+            <MenuItem Header="{StaticResource MenuR}">
+                <MenuItem x:Name="dynamicOnly" IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}"/>
+                <MenuItem x:Name="heightOnly" IsCheckable="True" Header="{StaticResource MuGrH}" ToolTip="{StaticResource MuGrT}"/>
+                <MenuItem x:Name="reportMode" IsCheckable="True" Header="{StaticResource ReMoH}" ToolTip="{StaticResource ReMoT}"/>
+                <MenuItem Header="{StaticResource PReSh}" Click="ShowPostRenderReport"/>
+            </MenuItem>
+            <MenuItem Header="{StaticResource MenuH}">
+                <MenuItem x:Name="checkUpdates" IsCheckable="True" Header="{StaticResource ChkUp}" ToolTip="{StaticResource ChkTt}"/>
+                <MenuItem Header="{StaticResource UsrGu}" Click="Guide"/>
+                <MenuItem Header="{StaticResource About}" Click="About"/>
+            </MenuItem>
+        </Menu>
         <StatusBar DockPanel.Dock="Bottom" Height="40" Padding="10,0,0,0">
             <ProgressBar x:Name="progress" Height="20" Width="250" Maximum="1"/>
             <TextBlock x:Name="status" FontSize="15" TextWrapping="Wrap"/>
@@ -61,114 +75,102 @@
         <Grid>
             <Grid Margin="10,10,10,10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="240" />
-                    <ColumnDefinition Width="300" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <GroupBox Header="{StaticResource Step1}">
-                    <Grid>
-                        <Grid x:Name="renderSettings">
-                            <TextBlock Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top"
-                                       Text="{StaticResource RSInf}"/>
-                            <TextBlock Margin="10,114,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
+                <GroupBox>
+                    <Grid x:Name="renderSettings">
+                        <TextBlock Style="{StaticResource Header}" Text="{StaticResource SySet}"/>
+                        <Ellipse Margin="113,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20"
+                                 Fill="{StaticResource InfoBlue}"/>
+                        <TextBlock Margin="113,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20"
+                                   Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
+                                   ToolTip="{StaticResource RSInf}" ToolTipService.InitialShowDelay="0"/>
+                        <TextBlock Margin="10,37,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
                                        Text="{StaticResource RndTg}"/>
-                            <ComboBox x:Name="renderTarget" Margin="90,111,10,0" VerticalAlignment="Top"
+                        <ComboBox x:Name="renderTarget" Margin="90,34,10,0" VerticalAlignment="Top"
                                       SelectionChanged="OnRenderTargetSelected" Template="{DynamicResource DarkComboBox}"
                                       ItemContainerStyle="{DynamicResource DarkComboBoxItem}"/>
-                            <Canvas Margin="0,140,0,0" Height="160" VerticalAlignment="Top" HorizontalAlignment="Center" Width="170">
-                                <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
-                                <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
-                                <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
-                                <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="30"/>
-                                <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="5"/>
-                                <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="5"/>
-                                <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="5"/>
-                                <Line X1="46" Y1="0" X2="14" Y2="73" Stroke="Gray"/>
-                                <Line X1="122" Y1="0" X2="154" Y2="73" Stroke="Gray"/>
-                                <Line X1="46" Y1="50" X2="14" Y2="158" Stroke="Gray"/>
-                                <Line X1="122" Y1="50" X2="154" Y2="158" Stroke="Gray"/>
-                                <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="40"/>
-                                <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="40"/>
-                                <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="91"/>
-                                <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="91"/>
-                                <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
-                                <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="57"/>
-                                <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
-                                <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
-                                <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
-                                <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
-                            </Canvas>
-                            <Button HorizontalAlignment="Left" Margin="10,305,0,0" VerticalAlignment="Top" Width="100"
+                        <Canvas Margin="29,66,29,0" VerticalAlignment="Top" Width="170" Height="160">
+                            <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
+                            <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
+                            <Ellipse x:Name="frontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="30"/>
+                            <Ellipse x:Name="frontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="30"/>
+                            <Ellipse x:Name="topFrontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="5"/>
+                            <Ellipse x:Name="topFrontCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="5"/>
+                            <Ellipse x:Name="topFrontRight"  Width="10" Height="10" Fill="Red" Canvas.Left="107" Canvas.Top="5"/>
+                            <Line X1="46" Y1="0" X2="14" Y2="73" Stroke="Gray"/>
+                            <Line X1="122" Y1="0" X2="154" Y2="73" Stroke="Gray"/>
+                            <Line X1="46" Y1="50" X2="14" Y2="158" Stroke="Gray"/>
+                            <Line X1="122" Y1="50" X2="154" Y2="158" Stroke="Gray"/>
+                            <Ellipse x:Name="wideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="36" Canvas.Top="40"/>
+                            <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="40"/>
+                            <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="91"/>
+                            <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="91"/>
+                            <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
+                            <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="57"/>
+                            <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
+                            <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
+                            <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
+                            <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
+                        </Canvas>
+                        <Button Margin="40,231,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
                                     Content="{StaticResource DisWi}" Click="DisplayWiring"/>
-                            <CheckBox x:Name="dynamicOnly" Margin="10,330,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                      Content="{StaticResource MuBeC}" ToolTip="{StaticResource MuBeT}"/>
-                            <CheckBox x:Name="heightOnly" Margin="0,330,24,0" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                      Content="{StaticResource MuGrC}" ToolTip="{StaticResource MuGrT}"/>
-                            <TextBlock Margin="10,350,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="16"
-                                       Text="{StaticResource ReMod}" TextWrapping="Wrap"/>
-                        </Grid>
-                        <RadioButton x:Name="renderToFile" Margin="10,371,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                     Height="15" Content="{StaticResource ReExC}" ToolTip="{StaticResource ReExT}" IsChecked="True"/>
-                        <RadioButton x:Name="renderOnly" Margin="0,371,60,0" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                     Height="15" Content="{StaticResource ReReC}" ToolTip="{StaticResource ReReT}"/>
+                        <Button Margin="40,266,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
+                                    Content="{StaticResource FFLoc}" Click="LocateFFmpeg"/>
+                        <Ellipse Margin="165,271,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
+                                 Fill="{StaticResource InfoBlue}"/>
+                        <TextBlock Margin="165,271,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
+                                   Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
+                                   ToolTip="{StaticResource FFDes}" ToolTipService.InitialShowDelay="0"/>
                     </Grid>
                 </GroupBox>
                 <Grid Grid.Column="1" Margin="10,0,0,0">
-                    <GroupBox Header="{StaticResource Step2}" VerticalAlignment="Top" Height="171">
+                    <Image Margin="1,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="169"
+                           Source="{StaticResource Logo}" MouseDown="Ad"/>
+                    <GroupBox Margin="0,32,0,0">
                         <Grid>
-                            <TextBlock Margin="10,10,10,0" VerticalAlignment="Top" Text="{StaticResource FFDes}" TextWrapping="Wrap"/>
-                            <Button Margin="0,111,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="120" Height="20"
-                                    Content="{StaticResource FFLoc}" Click="LocateFFmpeg"/>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="{StaticResource Step3}" Margin="0,176,0,0">
-                        <Grid>
-                            <Button Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100"
+                            <TextBlock Style="{StaticResource Header}" Text="{StaticResource CoPro}"/>
+                            <Button Margin="10,34,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100"
                                     Content="{StaticResource OpCnt}" Click="OpenFile"/>
-                            <TextBlock x:Name="fileName" Margin="115,12,10,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
-                            <Grid x:Name="trackControls">
-                                <TextBlock Margin="10,38,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                            <TextBlock x:Name="fileName" Margin="115,41,10,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
+                            <Grid x:Name="trackControls" Margin="10,69,10,10">
+                                <TextBlock Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                            Text="{StaticResource OpTrk}" TextWrapping="NoWrap"/>
-                                <ComboBox x:Name="tracks" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="45,35,0,0"
+                                <ComboBox x:Name="tracks" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="35,0,0,0"
                                           ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
                                           Template="{DynamicResource DarkComboBox}" SelectionChanged="OnTrackSelected"/>
-                                <TextBlock Margin="10,65,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                <TextBlock Margin="0,30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                            Text="{StaticResource OpOut}" TextWrapping="NoWrap"/>
-                                <ComboBox x:Name="audio" Margin="55,62,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                <ComboBox x:Name="audio" Margin="45,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                           MaxWidth="213" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
                                           Template="{DynamicResource DarkComboBox}" SelectionChanged="OnOutputSelected"/>
+                                <TextBlock x:Name="trackInfo" Margin="0,54,0,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
                             </Grid>
-                            <TextBlock x:Name="trackInfo" Margin="10,89,10,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
-                            <Button x:Name="render" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                    MinWidth="70" Template="{DynamicResource renderButton}"
+                            <Grid x:Name="renderButtons" Margin="10,0,10,10" VerticalAlignment="Bottom">
+                                <Button Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="100"
+                                    Content="{StaticResource QuAdd}" Click="Queue"/>
+                                <Button Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                    MinWidth="100" Template="{DynamicResource renderButton}"
                                     Content="{StaticResource OpRnd}" Click="Render"/>
+                            </Grid>
                         </Grid>
                     </GroupBox>
                 </Grid>
                 <Grid Grid.Column="2" Margin="10,0,0,0">
-                    <CheckBox x:Name="checkUpdates" Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                              Content="{StaticResource ChkUp}" ToolTip="{StaticResource ChkTt}"/>
-                    <Button Margin="0,23,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="80"
-                            Content="{StaticResource UsrGu}" Click="Guide"/>
-                    <Image HorizontalAlignment="Right" VerticalAlignment="Top" Width="169" Source="{StaticResource Logo}"
-                           MouseDown="Ad"/>
-                    <TextBlock x:Name="ad" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,27,0,0"
-                               Text="{StaticResource ByWho}"/>
-                    <GroupBox Header="{StaticResource PReRe}" Margin="0,43,0,0" VerticalAlignment="Top" Height="128">
+                    <GroupBox>
                         <Grid>
-                            <TextBlock x:Name="report" Margin="10,10,10,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
-                        </Grid>
-                    </GroupBox>
-                    <GroupBox Header="{StaticResource Queue}" Margin="0,176,0,0">
-                        <Grid>
-                            <TextBlock Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="275"
-                                       Text="{StaticResource QuDes}" TextWrapping="Wrap"/>
-                            <ListBox x:Name="queuedJobs" Margin="10,79,10,35" Template="{DynamicResource QueueListBox}"/>
-                            <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="70"
-                                    Content="{StaticResource QuAdd}" Click="Queue"/>
-                            <Button Margin="0,0,0,10" HorizontalAlignment="Center" VerticalAlignment="Bottom" MinWidth="70"
+                            <TextBlock Style="{StaticResource Header}" Text="{StaticResource Queue}"/>
+                            <Ellipse Margin="59,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
+                                 Fill="{StaticResource InfoBlue}"/>
+                            <TextBlock Margin="59,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
+                                   Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
+                                   ToolTip="{StaticResource QuDes}" ToolTipService.InitialShowDelay="0"/>
+                            <ListBox x:Name="queuedJobs" Margin="10,34,10,45" Template="{DynamicResource QueueListBox}"/>
+                            <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="100"
                                     Content="{StaticResource QuRem}" Click="RemoveQueued"/>
-                            <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" MinWidth="70"
+                            <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" MinWidth="100"
                                     Content="{StaticResource QuSta}" Click="StartQueue"/>
                         </Grid>
                     </GroupBox>
