@@ -15,31 +15,25 @@ namespace CavernizeGUI {
         /// <summary>
         /// Prepare the renderer for export.
         /// </summary>
-        /// <returns>All checks succeeded and rendering can start.</returns>
-        bool PreRender() {
+        void PreRender() {
             if (taskEngine.IsOperationRunning) {
-                Error((string)language["OpRun"]);
-                return false;
+                throw new Exception((string)language["OpRun"]);
             }
             if (tracks.SelectedItem == null) {
-                Error((string)language["LdSrc"]);
-                return false;
+                throw new Exception((string)language["LdSrc"]);
             }
 
             if (!((Track)tracks.SelectedItem).Supported) {
-                Error((string)language["UnTrk"]);
-                return false;
+                throw new Exception((string)language["UnTrk"]);
             }
 
             ((RenderTarget)renderTarget.SelectedItem).Apply();
             int maxChannels = ((ExportFormat)audio.SelectedItem).MaxChannels;
             if (maxChannels < Listener.Channels.Length) {
-                Error(string.Format((string)language["ChCnt"], Listener.Channels.Length, maxChannels));
-                return false;
+                throw new Exception(string.Format((string)language["ChCnt"], Listener.Channels.Length, maxChannels));
             }
 
             SoftPreRender(false);
-            return true;
         }
 
         /// <summary>
@@ -105,7 +99,10 @@ namespace CavernizeGUI {
         /// </summary>
         /// <returns>A task for rendering or null when an error happened.</returns>
         Action GetRenderTask() {
-            if (!PreRender()) {
+            try {
+                PreRender();
+            } catch (Exception e) {
+                Error(e.Message);
                 return null;
             }
 

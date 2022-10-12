@@ -10,7 +10,7 @@
     <system:String x:Key="ReMoH">_Report only mode</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
         report will be available after rendering without writing anything to the disk.</system:String>
-    <system:String x:Key="PReSh">Show post-render report</system:String>
+    <system:String x:Key="PReSh">_Show post-render report</system:String>
     <system:String x:Key="PReRe">Post-render report</system:String>
     <system:String x:Key="Reprt">After rendering has finished, more track information will appear here,
         like true object usage statistics.</system:String>

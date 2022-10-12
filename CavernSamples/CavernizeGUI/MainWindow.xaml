@@ -59,11 +59,13 @@
             <MenuItem Header="{StaticResource MenuR}">
                 <MenuItem x:Name="dynamicOnly" IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}"/>
                 <MenuItem x:Name="heightOnly" IsCheckable="True" Header="{StaticResource MuGrH}" ToolTip="{StaticResource MuGrT}"/>
+                <Separator/>
                 <MenuItem x:Name="reportMode" IsCheckable="True" Header="{StaticResource ReMoH}" ToolTip="{StaticResource ReMoT}"/>
                 <MenuItem Header="{StaticResource PReSh}" Click="ShowPostRenderReport"/>
             </MenuItem>
             <MenuItem Header="{StaticResource MenuH}">
                 <MenuItem x:Name="checkUpdates" IsCheckable="True" Header="{StaticResource ChkUp}" ToolTip="{StaticResource ChkTt}"/>
+                <Separator/>
                 <MenuItem Header="{StaticResource UsrGu}" Click="Guide"/>
                 <MenuItem Header="{StaticResource About}" Click="About"/>
             </MenuItem>

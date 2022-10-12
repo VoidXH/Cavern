@@ -139,14 +139,12 @@ namespace CavernizeGUI {
 
             try {
                 SetFile(new(path));
-            } catch (Exception ex) {
+            } catch (IOException e) {
                 Reset();
-                if (ex is IOException) {
-                    Error(ex.Message);
-                } else {
-                    Error($"{ex.Message} {(string)language["Later"]}");
-                }
-                return;
+                throw new Exception(e.Message);
+            } catch (Exception e) {
+                Reset();
+                throw new Exception($"{e.Message} {(string)language["Later"]}");
             }
         }
 
@@ -174,11 +172,15 @@ namespace CavernizeGUI {
         /// Start rendering to a target file.
         /// </summary>
         public void RenderContent(string path) {
-            if (PreRender()) {
-                Action renderTask = Render(path);
-                if (renderTask != null) {
-                    taskEngine.Run(renderTask);
-                }
+            try {
+                PreRender();
+            } catch (Exception e) {
+                Error(e.Message);
+                return;
+            }
+            Action renderTask = Render(path);
+            if (renderTask != null) {
+                taskEngine.Run(renderTask);
             }
         }
 
@@ -242,7 +244,11 @@ namespace CavernizeGUI {
                 Filter = (string)language["ImFmt"]
             };
             if (dialog.ShowDialog().Value) {
-                OpenContent(dialog.FileName);
+                try {
+                    OpenContent(dialog.FileName);
+                } catch (Exception ex) {
+                    Error(ex.Message);
+                }
             }
         }
 

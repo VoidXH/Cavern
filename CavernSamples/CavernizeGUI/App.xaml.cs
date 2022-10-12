@@ -18,7 +18,11 @@ namespace CavernizeGUI {
             if (args.Length != 0) {
                 int start = 0;
                 if (File.Exists(args[0])) {
-                    app.OpenContent(args[0]);
+                    try {
+                        app.OpenContent(args[0]);
+                    } catch (Exception ex) {
+                        Console.Error.WriteLine(ex.Message);
+                    }
                     start = 1;
                 }
                 for (int i = start; i < args.Length;) {
