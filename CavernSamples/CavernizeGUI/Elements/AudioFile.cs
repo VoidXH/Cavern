@@ -50,7 +50,7 @@ namespace CavernizeGUI.Elements {
                     MatroskaReader mkvReader = new(Path);
                     int trackId = 0;
                     for (int i = 0; i < mkvReader.Tracks.Length; i++) {
-                        if (mkvReader.Tracks[i].Format.IsAudio()) {
+                        if (mkvReader.Tracks[i].Extra is TrackExtraAudio) {
                             tracks.Add(new Track(new AudioTrackReader(mkvReader.Tracks[i]), mkvReader.Tracks[i].Format,
                                 trackId++, mkvReader.Tracks[i].Language));
                         }
