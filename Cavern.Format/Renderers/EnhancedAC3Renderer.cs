@@ -79,7 +79,7 @@ namespace Cavern.Format.Renderers {
                 ReferenceChannel[] channels = stream.GetChannels();
                 for (int channel = 0; channel < channels.Length; ++channel) {
                     Source source = new StreamMasterSource(reader, channel) {
-                        Position = channelPositions[(int)channels[channel]] * Listener.EnvironmentSize
+                        Position = ChannelPrototype.AlternativePositions[(int)channels[channel]] * Listener.EnvironmentSize
                     };
                     objects.Add(source);
                 }
@@ -185,15 +185,15 @@ namespace Cavern.Format.Renderers {
             else {
                 for (int i = 0; i < matrix.Length; ++i) {
                     timeslotResult[i] = inputData[i];
-                    objects[i].Position = channelPositions[(int)matrix[i]] * Listener.EnvironmentSize;
+                    objects[i].Position = ChannelPrototype.AlternativePositions[(int)matrix[i]] * Listener.EnvironmentSize;
                     if (ChannelPrototype.Mapping[(int)matrix[i]].LFE) { // LFE is handled elsewhere
                         objects[i].Position = default;
-                        Array.Clear(timeslotResult[i], 0, timeslotResult[i].Length);
+                        timeslotResult[i].Clear();
                     }
                 }
                 for (int i = matrix.Length; i < timeslotResult.Length; ++i) {
                     objects[i].Position = default;
-                    Array.Clear(timeslotResult[i], 0, timeslotResult[i].Length);
+                    timeslotResult[i].Clear();
                 }
             }
         }

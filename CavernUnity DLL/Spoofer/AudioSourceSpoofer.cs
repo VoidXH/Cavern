@@ -29,8 +29,9 @@ namespace Cavern.Spoofer {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void LateUpdate() {
             if (Source) {
-                if (!target)
+                if (!target) {
                     target = Source.gameObject.AddComponent<AudioSource3D>();
+                }
                 target.enabled = Source.enabled;
                 target.DopplerLevel = Source.dopplerLevel;
                 target.IsPlaying = Source.isPlaying;
@@ -41,17 +42,19 @@ namespace Cavern.Spoofer {
                 target.StereoPan = Source.panStereo;
                 if (target.Clip = Source.clip) {
                     bool decompressed = Source.clip.loadType == AudioClipLoadType.DecompressOnLoad;
-                    if (!duality)
+                    if (!duality) {
                         target.Volume = Source.volume;
-                    else if (decompressed && Source.volume != Mute) {
+                    } else if (decompressed && Source.volume != Mute) {
                         target.Volume = Source.volume;
                         Source.volume = Mute;
                     }
                     AudioSettings.GetDSPBufferSize(out int BufferSize, out int _);
-                    if (Math.Abs(target.timeSamples - Source.timeSamples) > BufferSize)
+                    if (Math.Abs(target.timeSamples - Source.timeSamples) > BufferSize) {
                         target.timeSamples = Source.timeSamples;
-                    if (!decompressed)
+                    }
+                    if (!decompressed) {
                         target.Clip = null;
+                    }
                 }
                 target.VolumeRolloff = Source.rolloffMode switch {
                     AudioRolloffMode.Linear => Rolloffs.Linear,
@@ -59,8 +62,9 @@ namespace Cavern.Spoofer {
                     _ => Rolloffs.Disabled,
                 };
             } else {
-                if (target)
+                if (target) {
                     Destroy(target);
+                }
                 Destroy(this);
             }
         }

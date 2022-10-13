@@ -25,13 +25,15 @@ namespace Cavern.Spoofer {
         /// </summary>
         /// <param name="debug">Display <see cref="Debug.Levels"/> in the application.</param>
         public static void CreateSpoofer(bool debug = false) {
-            if (!instance)
+            if (!instance) {
                 DontDestroyOnLoad(new GameObject("Auto Audio Engine Spoofer").AddComponent<AutoSpoofer>());
+            }
             Debug.Levels LevelsWindow = instance.GetComponent<Debug.Levels>();
-            if (debug && !LevelsWindow)
+            if (debug && !LevelsWindow) {
                 instance.gameObject.AddComponent<Debug.Levels>();
-            else if (!debug && LevelsWindow)
+            } else if (!debug && LevelsWindow) {
                 Destroy(LevelsWindow);
+            }
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]

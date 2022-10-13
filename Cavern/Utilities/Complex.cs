@@ -44,7 +44,7 @@ namespace Cavern.Utilities {
             new Complex(lhs.Real + rhs.Real, lhs.Imaginary + rhs.Imaginary);
 
         /// <summary>
-        /// Complex substraction.
+        /// Complex subtraction.
         /// </summary>
         public static Complex operator -(Complex lhs, Complex rhs) =>
             new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);

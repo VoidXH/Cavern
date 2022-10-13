@@ -102,8 +102,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public int SampleRate {
             get {
-                if (sampleRate != 0)
+                if (sampleRate != 0) {
                     return sampleRate;
+                }
                 return sampleRate = AudioListener3D.Current.SampleRate;
             }
             internal set => sampleRate = value;
@@ -115,10 +116,11 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public float Progress {
             get {
-                if (ResultAvailable)
+                if (ResultAvailable) {
                     return 1;
-                else if (!enabled || sweepers == null)
+                } else if (!enabled || sweepers == null) {
                     return 0;
+                }
                 int divisor = WarmUpMode ? Listener.Channels.Length + 1 : Listener.Channels.Length;
                 return (float)sweepers[Listener.Channels.Length - 1].timeSamples / SweepReference.Length / divisor;
             }
@@ -129,8 +131,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public string InputDevice {
             get {
-                if (inputDevice != null)
+                if (inputDevice != null) {
                     return inputDevice;
+                }
                 return InputDevice = string.Empty;
             }
             set {
@@ -142,13 +145,15 @@ namespace Cavern.QuickEQ {
                     SampleRate = AudioListener3D.Current.SampleRate;
                 } else {
                     Microphone.GetDeviceCaps(value, out int min, out _);
-                    if (min == 0)
+                    if (min == 0) {
                         SampleRate = 48000;
-                    else
+                    } else {
                         SampleRate = min;
+                    }
                 }
-                if (SampleRate != oldSampleRate)
+                if (SampleRate != oldSampleRate) {
                     RegenerateSweep();
+                }
                 inputDevice = value;
             }
         }
@@ -204,14 +209,16 @@ namespace Cavern.QuickEQ {
         /// Generate <see cref="SweepReference"/> and the related optimization values.
         /// </summary>
         public void RegenerateSweep() {
-            if (bypass == null)
+            if (bypass == null) {
                 SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
-            else
+            } else {
                 SweepReference = (float[])bypass.Clone();
+            }
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
-            if (sweepFFTCache != null)
+            if (sweepFFTCache != null) {
                 sweepFFTCache.Dispose();
+            }
             sweepFFT = SweepReference.FFT(sweepFFTCache = new FFTCache(SweepReference.Length));
             sweepFFTlow = sweepFFT.FastClone();
             Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, SampleRate, 100);
@@ -258,8 +265,9 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public void Overwrite(float[][] responses) {
             OverwriteSweeper(responses.Length, responses[0].Length >> 1);
-            for (int channel = 0; channel < responses.Length; ++channel)
+            for (int channel = 0; channel < responses.Length; ++channel) {
                 OverwriteChannel(channel, responses[channel]);
+            }
         }
 
         [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used by Unity lifecycle")]
@@ -296,8 +304,9 @@ namespace Cavern.QuickEQ {
                     sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * channels / SampleRate + 1, SampleRate);
                 }
             }
-            if (ResultAvailable)
+            if (ResultAvailable) {
                 return;
+            }
             if (!sweepers[Channel].IsPlaying) {
                 float[] result = new float[SweepReference.Length];
                 if (sweepResponse) {
@@ -309,20 +318,24 @@ namespace Cavern.QuickEQ {
                 workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(fft, sweepFFTCache, result));
                 workers[Channel].Start();
                 if (++Channel == Listener.Channels.Length) {
-                    for (int channel = 0; channel < Listener.Channels.Length; ++channel)
+                    for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                         while (workers[channel].Result.IsNull()) ;
+                    }
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                         FreqResponses[channel] = workers[channel].Result.FreqResponse;
                         ImpResponses[channel] = workers[channel].Result.ImpResponse;
                         Destroy(sweepers[channel]);
                     }
-                    for (int channel = 0; channel < Listener.Channels.Length; ++channel)
+                    for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                         workers[channel].Dispose();
+                    }
                     sweepers = null;
-                    if (Microphone.IsRecording(InputDevice))
+                    if (Microphone.IsRecording(InputDevice)) {
                         Microphone.End(InputDevice);
-                    if (sweepResponse)
+                    }
+                    if (sweepResponse) {
                         Destroy(sweepResponse);
+                    }
                     ResultAvailable = true;
                 }
             }
@@ -330,25 +343,29 @@ namespace Cavern.QuickEQ {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() {
-            if (sweepers != null && sweepers[0])
-                for (int channel = 0; channel < Listener.Channels.Length; ++channel)
+            if (sweepers != null && sweepers[0]) {
+                for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                     Destroy(sweepers[channel]);
+                }
+            }
             sweepers = null;
-            if (sweepResponse)
+            if (sweepResponse) {
                 Destroy(sweepResponse);
+            }
             AudioListener3D.Current.DirectLFE = oldDirectLFE;
             Listener.HeadphoneVirtualizer = oldVirtualizer;
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() => Dispose();
-        
+
         /// <summary>
         /// Free the resources used by this object.
         /// </summary>
         public void Dispose() {
-            if (sweepFFTCache != null)
+            if (sweepFFTCache != null) {
                 sweepFFTCache.Dispose();
+            }
         }
 
         struct WorkerResult {

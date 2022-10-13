@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ.SignalGeneration {
     /// <summary>
     /// Generates noise for a single channel.
@@ -35,7 +37,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// Generate noise on the target channel.
         /// </summary>
         protected override float[] Collect() {
-            Array.Clear(rendered, 0, rendered.Length);
+            rendered.Clear();
             if (IsPlaying && !Mute) {
                 if (channel < 0 || channel >= Listener.Channels.Length) {
                     return rendered;

@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 using Cavern.Helpers;
 using Cavern.Remapping;
@@ -104,7 +103,7 @@ namespace Cavern.Cavernize {
 
         public void Tick(float effect, float smoothFactor, float crossoverFreq, bool visualize) {
             if (!WrittenOutput)
-                Array.Clear(Output, 0, Output.Length);
+                Output.Clear();
             if (filter.GroundCrossover != crossoverFreq)
                 filter.GroundCrossover = crossoverFreq;
             this.visualize = visualize && WrittenOutput;

@@ -55,8 +55,9 @@ namespace Cavern {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() {
-            if (AudioListener3D.Current != null && Origin != null)
+            if (AudioListener3D.Current != null && Origin != null) {
                 AudioListener3D.Current.transform.position = Origin.position;
+            }
         }
     }
 }

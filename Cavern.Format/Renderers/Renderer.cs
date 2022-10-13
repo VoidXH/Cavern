@@ -88,7 +88,7 @@ namespace Cavern.Format.Renderers {
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(count);
             for (int channel = 0; channel < count; ++channel) {
                 Source source = new StreamMasterSource(reader, channel) {
-                    Position = channelPositions[(int)matrix[channel]] * Listener.EnvironmentSize
+                    Position = ChannelPrototype.AlternativePositions[(int)matrix[channel]] * Listener.EnvironmentSize
                 };
                 objects.Add(source);
             }

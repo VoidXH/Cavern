@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Numerics;
 
+using Cavern.Utilities;
+
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
     /// Converts a PCM stream to a quadrature mirror filter bank and back.
@@ -83,7 +85,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 grouping[sample & groupingMask] += inputStreamForward[sample] * coeffs[sample];
             }
 
-            Array.Clear(outCache, 0, outCache.Length);
+            outCache.Clear();
             for (int sb = 0; sb < subbands; ++sb) {
                 Vector2 result = new Vector2();
                 Vector2[] cache = forwardCache[sb];

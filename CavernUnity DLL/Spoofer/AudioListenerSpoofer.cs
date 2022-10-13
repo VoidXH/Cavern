@@ -25,19 +25,21 @@ namespace Cavern.Spoofer {
         void LateUpdate() {
             if (Source) {
                 AudioListener3D target = AudioListener3D.Current;
-                if (!target)
+                if (!target) {
                     target = Source.gameObject.AddComponent<AudioListener3D>();
+                }
                 target.enabled = Source.enabled;
                 target.Paused = AudioListener.pause;
-                if (duality)
+                if (duality) {
                     AudioListener3D.volume = AudioListener.volume;
-                else if (AudioListener.volume != AudioSourceSpoofer.Mute) {
+                } else if (AudioListener.volume != AudioSourceSpoofer.Mute) {
                     AudioListener3D.volume = AudioListener.volume;
                     AudioListener.volume = AudioSourceSpoofer.Mute;
                 }
             } else {
-                if (AudioListener3D.Current)
+                if (AudioListener3D.Current) {
                     Destroy(AudioListener3D.Current);
+                }
                 Destroy(this);
             }
         }

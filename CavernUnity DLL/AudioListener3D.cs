@@ -118,8 +118,9 @@ namespace Cavern {
         public static bool paused {
             get => Current.Paused;
             set {
-                if (Current.Paused = value)
+                if (Current.Paused = value) {
                     bufferPosition = 0;
+                }
             }
         }
 #pragma warning restore IDE1006 // Naming Styles
@@ -240,8 +241,9 @@ namespace Cavern {
         /// <param name="unityChannels">Output channel count</param>
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnAudioFilterRead(float[] unityBuffer, int unityChannels) {
-            if (startSkip || Paused || SystemSampleRate == 0)
+            if (startSkip || Paused || SystemSampleRate == 0) {
                 return;
+            }
             if (cachedSampleRate != SampleRate) {
                 cachedSampleRate = SampleRate;
                 bufferPosition = 0;
@@ -255,14 +257,16 @@ namespace Cavern {
 
             // Virtualizer pipeline: resample -> filter -> downmix
             if (Listener.HeadphoneVirtualizer) {
-                if (SystemSampleRate != cachedSampleRate) // Resample output for system sample rate
+                if (SystemSampleRate != cachedSampleRate) { // Resample output for system sample rate
                     renderBuffer = Resample.Adaptive(renderBuffer,
                         renderBuffer.Length / channels * SystemSampleRate / cachedSampleRate, channels, AudioQuality);
+                }
                 VirtualizerFilter.Process(renderBuffer, SystemSampleRate);
                 int end = filterOutput.Length,
                     altEnd = bufferPosition + renderBuffer.Length / channels * unityChannels;
-                if (end > altEnd)
+                if (end > altEnd) {
                     end = altEnd;
+                }
                 for (int renderPos = 0; bufferPosition < end; bufferPosition += unityChannels, renderPos += channels) {
                     filterOutput[bufferPosition] = renderBuffer[renderPos];
                     filterOutput[bufferPosition + 1] = renderBuffer[renderPos + 1];
@@ -274,17 +278,20 @@ namespace Cavern {
                 float[] downmix = renderBuffer;
                 if (channels != unityChannels) {
                     downmix = new float[renderBuffer.Length / channels * unityChannels];
-                    if (renderBuffer.Length * unityChannels == downmix.Length * channels)
+                    if (renderBuffer.Length * unityChannels == downmix.Length * channels) {
                         WaveformUtils.Downmix(renderBuffer, downmix, unityChannels);
-                    else
-                        Array.Clear(downmix, 0, downmix.Length);
-                    if (SystemSampleRate != cachedSampleRate) // Resample output for system sample rate
+                    } else {
+                        downmix.Clear();
+                    }
+                    if (SystemSampleRate != cachedSampleRate) { // Resample output for system sample rate
                         downmix = Resample.Adaptive(downmix,
                             downmix.Length / unityChannels * SystemSampleRate / cachedSampleRate, unityChannels, AudioQuality);
+                    }
                 }
                 int end = filterOutput.Length;
-                if (end > bufferPosition + downmix.Length)
+                if (end > bufferPosition + downmix.Length) {
                     end = bufferPosition + downmix.Length;
+                }
                 Array.Copy(downmix, 0, filterOutput, bufferPosition, end - bufferPosition);
                 bufferPosition = end;
             }
@@ -292,27 +299,32 @@ namespace Cavern {
             // If Unity has audio output and it's rendering is enabled, mix it for the user's layout
             if (!DisableUnityAudio) {
                 if (remapper == null || remapper.channels != unityChannels) {
-                    if (remapper != null)
+                    if (remapper != null) {
                         remapper.Dispose();
+                    }
                     remapper = new Remapper(unityChannels, unityBuffer.Length / unityChannels);
                 }
                 float[] remapped = remapper.Update(unityBuffer, unityChannels);
-                Array.Clear(unityBuffer, 0, unityBuffer.Length);
+                unityBuffer.Clear();
                 Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
                 WaveformUtils.Downmix(remapped, unityBuffer, unityChannels); // Output remapped Unity audio
-            } else
+            } else {
                 Array.Copy(filterOutput, unityBuffer, unityBuffer.Length);
+            }
 
             // Apply normalizer
-            if (Normalizer != 0)
+            if (Normalizer != 0) {
                 WaveformUtils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
+            }
 
             // Generate output from buffer
             int written = unityBuffer.Length;
-            if (written > bufferPosition)
+            if (written > bufferPosition) {
                 written = bufferPosition;
-            for (int bufferPos = written; bufferPos < bufferPosition; ++bufferPos)
+            }
+            for (int bufferPos = written; bufferPos < bufferPosition; ++bufferPos) {
                 filterOutput[bufferPos - written] = filterOutput[bufferPos];
+            }
             bufferPosition -= written;
         }
     }

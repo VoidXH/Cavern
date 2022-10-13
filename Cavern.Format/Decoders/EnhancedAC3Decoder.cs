@@ -121,7 +121,7 @@ namespace Cavern.Format.Decoders {
             long frameStart = reader.LastFetchStart;
             do {
                 if (Finished) {
-                    Array.Clear(outCache, 0, outCache.Length);
+                    outCache.Clear();
                     return outCache;
                 }
 

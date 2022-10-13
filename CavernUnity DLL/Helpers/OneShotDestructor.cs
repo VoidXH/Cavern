@@ -35,8 +35,9 @@ namespace Cavern.Helpers {
             if (!source.IsPlaying) {
                 Destroy(source);
                 Destroy(this);
-                if (destroyGameObject)
+                if (destroyGameObject) {
                     Destroy(gameObject);
+                }
             }
         }
     }

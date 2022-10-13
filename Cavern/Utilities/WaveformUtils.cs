@@ -367,5 +367,17 @@ namespace Cavern.Utilities {
                 lastGain = 1;
             }
         }
+
+        /// <summary>
+        /// Subtract a track from a stream.
+        /// </summary>
+        /// <param name="source">Track to subtract</param>
+        /// <param name="destination">Track to subtract from</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Subtract(float[] source, float[] destination) {
+            for (int i = 0; i < source.Length; ++i) {
+                destination[i] -= source[i];
+            }
+        }
     }
 }

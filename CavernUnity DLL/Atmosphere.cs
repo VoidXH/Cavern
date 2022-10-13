@@ -66,8 +66,9 @@ namespace Cavern {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDrawGizmosSelected() {
-            if (!gameObject.activeInHierarchy)
+            if (!gameObject.activeInHierarchy) {
                 return;
+            }
             if (Spherical) {
                 Gizmos.color = Color.green;
                 Gizmos.DrawWireSphere(transform.position, MinDistance);
@@ -90,10 +91,11 @@ namespace Cavern {
             float targetVolume = Volume / Sources;
             for (int source = 0; source < Sources; ++source) {
                 if (!objects[source].Object) {
-                    if (Visualize)
+                    if (Visualize) {
                         objects[source].Object = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    else
+                    } else {
                         objects[source].Object = new GameObject();
+                    }
                     GameObject creation = objects[source].Object;
 
                     // Position source
@@ -105,8 +107,9 @@ namespace Cavern {
                     AudioSource3D newSource = objects[source].Source = creation.AddComponent<AudioSource3D>();
                     newSource.Clip = Clips[(int)(Clips.Length * Random.value)];
                     newSource.Volume = targetVolume;
-                } else if (!objects[source].Source.IsPlaying)
+                } else if (!objects[source].Source.IsPlaying) {
                     Destroy(objects[source].Object);
+                }
             }
         }
     }

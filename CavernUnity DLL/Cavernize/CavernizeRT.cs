@@ -2,6 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
+using Cavern.Utilities;
+
 namespace Cavern {
     /// <summary>
     /// <see cref="Cavernize"/> on a single source with diverted direct audio output.
@@ -134,7 +136,7 @@ namespace Cavern {
                 lowerMix = Mathf.Sin(Mathf.PI / 2 * (1f - upperMix));
             upperMix = Mathf.Sin(Mathf.PI / 2 * upperMix);
             int outputPos = (int)Divert % channels - channels;
-            Array.Clear(data, 0, data.Length);
+            data.Clear();
             for (int sample = 0; sample < UpdateRate; ++sample) // Base channel
                 data[outputPos += channels] = monoMix[sample] * lowerMix;
             outputPos = ((int)HeightDivert + 1) % channels - channels;

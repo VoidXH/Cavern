@@ -87,14 +87,18 @@ namespace Cavern.Utilities {
         void OnGUI() {
             GUI.matrix = Matrix;
             Position = GUI.Window(ID, Position, Draw, title);
-            if (Position.x < 0)
+            if (Position.x < 0) {
                 Position.x = 0;
-            if (Position.y < 0)
+            }
+            if (Position.y < 0) {
                 Position.y = 0;
-            if (Position.x > Screen.width - Position.width)
+            }
+            if (Position.x > Screen.width - Position.width) {
                 Position.x = Screen.width - Position.width;
-            if (Position.y > Screen.height - Position.height)
+            }
+            if (Position.y > Screen.height - Position.height) {
                 Position.y = Screen.height - Position.height;
+            }
         }
     }
 }

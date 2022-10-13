@@ -193,14 +193,16 @@ namespace Cavern {
         /// </summary>
         public float time {
             get {
-                if (cavernSource.Clip)
+                if (cavernSource.Clip) {
                     return timeSamples / (float)cavernSource.Clip.SampleRate;
-                else
+                } else {
                     return 0;
+                }
             }
             set {
-                if (cavernSource.Clip)
+                if (cavernSource.Clip) {
                     timeSamples = (int)(value * cavernSource.Clip.SampleRate);
+                }
             }
         }
 
@@ -226,10 +228,12 @@ namespace Cavern {
         /// </summary>
         public int Samples {
             get {
-                if (Clip3D)
+                if (Clip3D) {
                     return Clip3D.Samples;
-                if (Clip)
+                }
+                if (Clip) {
                     return Clip.samples;
+                }
                 return -1;
             }
         }
@@ -239,10 +243,12 @@ namespace Cavern {
         /// </summary>
         public int SampleRate {
             get {
-                if (Clip3D)
+                if (Clip3D) {
                     return Clip3D.SampleRate;
-                if (Clip)
+                }
+                if (Clip) {
                     return Clip.frequency;
+                }
                 return -1;
             }
         }
@@ -311,8 +317,9 @@ namespace Cavern {
             if (isStatic) {
                 obj = new GameObject("Temporary Static Audio Source");
                 obj.transform.position = transform.position;
-            } else
+            } else {
                 obj = gameObject;
+            }
             AudioSource3D source = obj.AddComponent<AudioSource3D>();
             source.CopySettings(this);
             source.Clip = clip;
@@ -418,10 +425,11 @@ namespace Cavern {
         protected void SourceUpdate() {
             cavernSource.Position = VectorUtils.VectorMatch(transform.position);
             Tunneler.TunnelClips(ref cavernSource.Clip, Clip, Clip3D, ref lastClipHash);
-            if (cavernSource.IsPlaying == internalPlayState)
+            if (cavernSource.IsPlaying == internalPlayState) {
                 cavernSource.IsPlaying = IsPlaying;
-            else
+            } else {
                 internalPlayState = IsPlaying = cavernSource.IsPlaying;
+            }
             cavernSource.Loop = Loop;
             cavernSource.Mute = Mute;
             cavernSource.LFE = LFE;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Remapping {
     /// <summary>
@@ -94,6 +95,43 @@ namespace Cavern.Remapping {
             TopRearLeft = new ChannelPrototype(-150, -45, "Top rear left"),
             TopRearRight = new ChannelPrototype(150, -45, "Top rear right"),
             TopRearCenter = new ChannelPrototype(180, -45, "Top rear center");
+
+
+        /// <summary>
+        /// Rendering positions of standard channels in a non-standard cube's corners, indexed by <see cref="ReferenceChannel"/>s.
+        /// </summary>
+        /// <remarks>Internal Cavern channel positions are not the same.</remarks>
+        public static readonly Vector3[] AlternativePositions = {
+            new Vector3(-1, 0, 1), // FrontLeft
+            new Vector3(1, 0, 1), // FrontRight
+            new Vector3(0, 0, 1), // FrontCenter
+            new Vector3(-1, -1, 1), // ScreenLFE
+            new Vector3(-1, 0, -1), // RearLeft
+            new Vector3(1, 0, -1), // RearRight
+            new Vector3(-1, 0, 0), // SideLeft
+            new Vector3(1, 0, 0), // SideRight
+            new Vector3(-.5f, 0, 1), // FrontLeftCenter
+            new Vector3(.5f, 0, 1), // FrontRightCenter
+            new Vector3(0, 0, 1), // HearingImpaired
+            new Vector3(0, 0, 1), // VisuallyImpaired
+            new Vector3(0, 0, 1), // Unknown
+            new Vector3(0, 0, 1), // MotionData
+            new Vector3(0, 0, 1), // ExternalData
+            new Vector3(-1, 1, 1), // TopFrontLeft
+            new Vector3(1, 1, 1), // TopFrontRight
+            new Vector3(-1, 1, 0), // TopSideLeft
+            new Vector3(1, 1, 0), // TopSideRight
+            new Vector3(0, 0, 1), // SignLanguage
+            new Vector3(0, -1, 0), // BottomSurround
+            new Vector3(0, 1, 1), // TopFrontCenter
+            new Vector3(0, 1, 0), // GodsVoice
+            new Vector3(0, 0, -1), // RearCenter
+            new Vector3(-1, 0, .677419f), // WideLeft
+            new Vector3(1, 0, .677419f), // WideRight
+            new Vector3(-1, 1, -1), // TopRearLeft
+            new Vector3(-1, 1, 1), // TopRearRight
+            new Vector3(-1, 1, 0) // TopRearCenter
+        };
 
         /// <summary>
         /// Converts a standard channel shorthand to a <see cref="ChannelPrototype"/>.
@@ -294,6 +332,23 @@ namespace Cavern.Remapping {
         }
 
         /// <summary>
+        /// Convert a prototype array to their corresponding alternative positions in the current environment.
+        /// </summary>
+        public static Vector3[] ToAlternativePositions(ChannelPrototype[] source) {
+            Vector3[] result = new Vector3[source.Length];
+            for (int channel = 0; channel < source.Length; ++channel) {
+                result[channel] = AlternativePositions[channel] * Listener.EnvironmentSize;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a prototype array to their corresponding alternative positions in the current environment.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3[] ToAlternativePositions(ReferenceChannel[] source) => ToAlternativePositions(Get(source));
+
+        /// <summary>
         /// Convert a prototype array to their corresponding positions in the current environment.
         /// </summary>
         public static Vector3[] ToPositions(ChannelPrototype[] source) {
@@ -304,6 +359,12 @@ namespace Cavern.Remapping {
             }
             return result;
         }
+
+        /// <summary>
+        /// Convert a prototype array to their corresponding positions in the current environment.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3[] ToPositions(ReferenceChannel[] source) => ToPositions(Get(source));
 
         /// <summary>
         /// Convert a prototype array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.

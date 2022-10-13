@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ.SignalGeneration {
     /// <summary>
     /// Plays a test tone on a single channel, with a delay to let channels with a smaller ID play first.
@@ -49,7 +51,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// Generates the tone and returns a mix to be added to the output.
         /// </summary>
         protected override float[] Collect() {
-            Array.Clear(rendered, 0, rendered.Length);
+            rendered.Clear();
             if (IsPlaying && !Mute && testTone != null) {
                 int delay = delayChannel * testTone.Length, channels = Listener.Channels.Length,
                     pos = TimeSamples - delay,

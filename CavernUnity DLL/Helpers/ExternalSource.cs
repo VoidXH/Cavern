@@ -41,13 +41,15 @@ namespace Cavern.Helpers {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            if (!Source)
+            if (!Source) {
                 return;
+            }
             // Latency fix
             int micPos = Microphone.GetPosition(Source.clip.name);
             Latency = (micPos - Source.timeSamples + Source.clip.samples) % Source.clip.samples / (float)Source.clip.samples;
-            if (Latency > MaxLatency)
+            if (Latency > MaxLatency) {
                 Source.timeSamples = micPos - AudioSettings.GetConfiguration().dspBufferSize;
+            }
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]

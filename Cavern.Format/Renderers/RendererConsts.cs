@@ -8,48 +8,12 @@ namespace Cavern.Format.Renderers {
     /// </summary>
     partial class Renderer {
         /// <summary>
-        /// Rendering positions of standard channels, indexed by <see cref="ReferenceChannel"/>s.
-        /// </summary>
-        /// <remarks>Internal Cavern channel positions are not the same.</remarks>
-        public static readonly Vector3[] channelPositions = {
-            new Vector3(-1, 0, 1), // FrontLeft
-            new Vector3(1, 0, 1), // FrontRight
-            new Vector3(0, 0, 1), // FrontCenter
-            new Vector3(-1, -1, 1), // ScreenLFE
-            new Vector3(-1, 0, -1), // RearLeft
-            new Vector3(1, 0, -1), // RearRight
-            new Vector3(-1, 0, 0), // SideLeft
-            new Vector3(1, 0, 0), // SideRight
-            new Vector3(-.5f, 0, 1), // FrontLeftCenter
-            new Vector3(.5f, 0, 1), // FrontRightCenter
-            new Vector3(0, 0, 1), // HearingImpaired
-            new Vector3(0, 0, 1), // VisuallyImpaired
-            new Vector3(0, 0, 1), // Unknown
-            new Vector3(0, 0, 1), // MotionData
-            new Vector3(0, 0, 1), // ExternalData
-            new Vector3(-1, 1, 1), // TopFrontLeft
-            new Vector3(1, 1, 1), // TopFrontRight
-            new Vector3(-1, 1, 0), // TopSideLeft
-            new Vector3(1, 1, 0), // TopSideRight
-            new Vector3(0, 0, 1), // SignLanguage
-            new Vector3(0, -1, 0), // BottomSurround
-            new Vector3(0, 1, 1), // TopFrontCenter
-            new Vector3(0, 1, 0), // GodsVoice
-            new Vector3(0, 0, -1), // RearCenter
-            new Vector3(-1, 0, .677419f), // WideLeft
-            new Vector3(1, 0, .677419f), // WideRight
-            new Vector3(-1, 1, -1), // TopRearLeft
-            new Vector3(-1, 1, 1), // TopRearRight
-            new Vector3(-1, 1, 0) // TopRearCenter
-        };
-
-        /// <summary>
         /// Get which standard renderer position corresponds to which channel.
         /// </summary>
         /// <remarks>Internal Cavern channel positions are not the same.</remarks>
         public static ReferenceChannel ChannelFromPosition(Vector3 position) {
-            for (int i = 0; i < channelPositions.Length; ++i) {
-                if (position == channelPositions[i]) {
+            for (int i = 0; i < ChannelPrototype.AlternativePositions.Length; ++i) {
+                if (position == ChannelPrototype.AlternativePositions[i]) {
                     return (ReferenceChannel)i;
                 }
             }

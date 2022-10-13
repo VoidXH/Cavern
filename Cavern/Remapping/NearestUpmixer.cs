@@ -7,10 +7,14 @@ namespace Cavern.Remapping {
     /// <summary>
     /// Upmixes channels with interpolated positions between sources.
     /// </summary>
-    public class NearestUpmixer : Upmixer {
+    public class NearestUpmixer : PairBasedUpmixer {
         /// <summary>
         /// Upmixes channels with interpolated positions between sources.
         /// </summary>
+        /// <param name="positions">Location of the input channels in the environment</param>
+        /// <param name="pairs">Pairs of indices of later given inputs to recreate the space between</param>
+        /// <param name="intermediateSourceCount">Number of bands to separate</param>
+        /// <param name="sampleRate">Content sample rate</param>
         public NearestUpmixer(Vector3[] positions, (int, int)[] pairs, int intermediateSourceCount, int sampleRate) :
             base(positions, pairs, intermediateSourceCount, sampleRate) { }
 
@@ -19,7 +23,7 @@ namespace Cavern.Remapping {
         /// </summary>
         protected override float[][] UpdateSources(int samplesPerSource) {
             float[][] inputs = GetNewSamples(samplesPerSource);
-            int intermediateSourceCount = intermediateSources.Length / pairs.Length;
+            int intermediateSourceCount = IntermediateSources.Length / pairs.Length;
             int source = 0;
             for (int pair = 0; pair < pairs.Length; pair++) {
                 int pairA = pairs[pair].Item1,
@@ -32,7 +36,7 @@ namespace Cavern.Remapping {
                       pStep = 1f / (intermediateSourceCount - 1),
                       vTotalMul = pStep / vTotal;
                 for (int i = 0; i < intermediateSourceCount; i++) {
-                    intermediateSources[source].Position = Vector3.Lerp(positionA, positionB, p);
+                    IntermediateSources[source].Position = Vector3.Lerp(positionA, positionB, p);
                     WaveformUtils.Insert(inputA, output[source], MathF.Sqrt(p) * vTotalMul);
                     WaveformUtils.Mix(inputB, output[source++], MathF.Sqrt(1 - p) * vTotalMul);
                     p += pStep;

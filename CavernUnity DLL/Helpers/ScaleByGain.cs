@@ -52,10 +52,12 @@ namespace Cavern.Helpers {
                 float peakSize = float.NegativeInfinity;
                 for (int channel = 0; channel < samples.Length; ++channel) {
                     float channelSize = 20 * (float)Math.Log10(WaveformUtils.GetPeak(samples[channel]));
-                    if (channelSize < -600)
+                    if (channelSize < -600) {
                         channelSize = -600;
-                    if (peakSize < channelSize)
+                    }
+                    if (peakSize < channelSize) {
                         peakSize = channelSize;
+                    }
                 }
                 float size = Mathf.Clamp(peakSize / -DynamicRange + 1, 0, 1);
                 scale = QMath.Lerp(scale, (MaxSize - MinSize) * size + MinSize, 1 - Smoothing);

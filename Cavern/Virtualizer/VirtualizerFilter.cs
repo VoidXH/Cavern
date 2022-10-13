@@ -132,7 +132,7 @@ namespace Cavern.Virtualizer {
             Parallel.For(0, channels, ProcessChannel);
 
             // Stereo downmix
-            Array.Clear(output, 0, output.Length);
+            output.Clear();
             for (int sample = 0; sample < blockSize; ++sample) {
                 int leftOut = sample * channels, rightOut = leftOut + 1;
                 for (int channel = 0; channel < channels; ++channel) {

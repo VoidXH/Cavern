@@ -29,13 +29,15 @@ namespace Cavern.Utilities {
         /// </summary>
         public static Color GetChannelColor(int channel) {
             System.Numerics.Vector3 channelPos = Listener.Channels[channel].CubicalPos;
-            if (Listener.Channels[channel].LFE)
+            if (Listener.Channels[channel].LFE) {
                 return Color.black;
+            }
             float hue;
-            if (channelPos.Z % 1 == 0)
+            if (channelPos.Z % 1 == 0) {
                 hue = (channelPos.Y + 1f) * channelPos.Z * 45f + 180f;
-            else
+            } else {
                 hue = channelPos.X * (channelPos.Y + 1f) * 22.5f + 45f;
+            }
             Color targetColor = GetHueColor(hue);
             return new Color(targetColor.r * .75f + .25f, targetColor.g * .75f + .25f, targetColor.b * .75f + .25f);
         }
@@ -44,8 +46,9 @@ namespace Cavern.Utilities {
         /// Get the Cavern or Jack port color of a channel.
         /// </summary>
         public static Color GetChannelColor(int channel, bool jackColoring) {
-            if (jackColoring)
+            if (jackColoring) {
                 return GetJackColor(channel);
+            }
             return GetChannelColor(channel);
         }
 
@@ -55,19 +58,23 @@ namespace Cavern.Utilities {
         /// <param name="degrees">Hue value in degrees.</param>
         public static Color GetHueColor(float degrees) {
             degrees %= 360;
-            if (degrees < 0)
+            if (degrees < 0) {
                 degrees += 360f;
+            }
             if (degrees < 120) {
-                if (degrees < 60)
+                if (degrees < 60) {
                     return new Color(1f, degrees / 60f, 0f);
+                }
                 return new Color(1f - (degrees - 60f) / 60f, 1f, 0f);
             } else if (degrees < 240) {
-                if (degrees < 180)
+                if (degrees < 180) {
                     return new Color(0, 1f, (degrees - 120f) / 60f);
+                }
                 return new Color(0, 1f - (degrees - 180f) / 60f, 1f);
             } else {
-                if (degrees < 300)
+                if (degrees < 300) {
                     return new Color((degrees - 240f) / 60f, 0f, 1f);
+                }
                 return new Color(1f, 0f, 1f - (degrees - 300f) / 60f);
             }
         }

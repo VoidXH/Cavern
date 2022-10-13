@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Cavern.Format.Renderers;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
+using Cavern.Remapping;
 using Cavern.SpecialSources;
 
 namespace Cavern.Format.Environment {
@@ -85,7 +85,7 @@ namespace Cavern.Format.Environment {
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, channelName, ADMPackType.DirectSpeakers) {
                     Blocks = new List<ADMBlockFormat>() {
                         new ADMBlockFormat() {
-                            Position = Renderer.channelPositions[bedChannels[i - 1]]
+                            Position = ChannelPrototype.AlternativePositions[bedChannels[i - 1]]
                         }
                     }
                 });

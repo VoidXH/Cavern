@@ -82,14 +82,16 @@ namespace Cavern.Helpers {
         void Start() => OnEnable();
 
         void OnEnable() {
-            if (attach)
+            if (attach) {
                 AudioListener3D.cavernListener.AttachSource(target);
+            }
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() {
-            if (attach)
+            if (attach) {
                 AudioListener3D.cavernListener.DetachSource(target);
+            }
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
@@ -99,10 +101,11 @@ namespace Cavern.Helpers {
                 transform.position = listenerTransform.position + listenerTransform.rotation * target.Position.VectorMatch();
 
                 Color newColor = normalColor;
-                if (target.Mute = mute)
+                if (target.Mute = mute) {
                     newColor = muteColor;
-                else if (target.screenLocked)
+                } else if (target.screenLocked) {
                     newColor = screenLockedColor;
+                }
 
                 newColor.a = .125f;
                 float[] samples = target.Rendered[0];
@@ -112,8 +115,9 @@ namespace Cavern.Helpers {
                     }
                 }
 
-                if (renderer.material.color != newColor)
+                if (renderer.material.color != newColor) {
                     renderer.material.color = newColor;
+                }
             }
         }
     }

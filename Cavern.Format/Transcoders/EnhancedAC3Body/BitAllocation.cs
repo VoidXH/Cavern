@@ -1,10 +1,12 @@
 ﻿using System;
 
+using Cavern.Utilities;
+
 namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Body {
         void Allocate(int channel, ExpStrat expstr) {
             if (csnroffst == 0 && fsnroffst[channel] == 0) {
-                Array.Clear(allocation[channel].bap, 0, allocation[channel].bap.Length);
+                allocation[channel].bap.Clear();
                 return;
             }
             int snroffset = (((csnroffst - 15) << 4) + fsnroffst[channel]) << 2;
@@ -14,7 +16,7 @@ namespace Cavern.Format.Transcoders {
 
         void AllocateCoupling(ExpStrat expstr) {
             if (csnroffst == 0 && cplfsnroffst == 0) {
-                Array.Clear(couplingAllocation.bap, 0, couplingAllocation.bap.Length);
+                couplingAllocation.bap.Clear();
                 return;
             }
             int snroffset = (((csnroffst - 15) << 4) + cplfsnroffst) << 2;

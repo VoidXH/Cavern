@@ -4,6 +4,7 @@ using System.Numerics;
 
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
@@ -138,7 +139,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 future = new Vector3[objectCount];
             }
 
-            Array.Clear(blockUsed, 0, blockUsed.Length);
+            blockUsed.Clear();
             for (int obj = 0; obj < objectCount; ++obj) {
                 for (int blk = 0; blk < infoBlocks[obj].Length; ++blk) {
                     infoBlocks[obj][blk].Update(extractor, blk, obj < bedOrISFObjects);

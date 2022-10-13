@@ -106,6 +106,9 @@ namespace Cavern.QuickEQ {
             public bool rising;
             public int position;
 
+            /// <summary>
+            /// An edge in a signal.
+            /// </summary>
             public Ramp(bool rising, int position) {
                 this.rising = rising;
                 this.position = position;
@@ -120,13 +123,15 @@ namespace Cavern.QuickEQ {
             float[] RMSs = new float[blocks];
             for (int block = 0; block < blocks; ++block) {
                 float RMSHere = 0;
-                for (int pos = block * blockSize, end = pos + blockSize; pos < end; ++pos)
+                for (int pos = block * blockSize, end = pos + blockSize; pos < end; ++pos) {
                     RMSHere += data[pos] * data[pos];
+                }
                 RMSs[block] = (float)Math.Sqrt(RMSHere / blockSize);
             }
             --blocks;
-            for (int block = 1; block < blocks; ++block) // Ghetto smoothing
+            for (int block = 1; block < blocks; ++block) { // Ghetto smoothing
                 RMSs[block] = (RMSs[block - 1] + RMSs[block] + RMSs[block + 1]) * .33f;
+            }
             return RMSs;
         }
 
@@ -137,11 +142,12 @@ namespace Cavern.QuickEQ {
             int zeroBlocks = 0;
             float average = 0, peak = float.PositiveInfinity;
             for (int block = 0; block < rmsBlocks.Length; ++block) {
-                if (rmsBlocks[block] == 0)
+                if (rmsBlocks[block] == 0) {
                     ++zeroBlocks;
-                else {
-                    if (peak > rmsBlocks[block])
+                } else {
+                    if (peak > rmsBlocks[block]) {
                         peak = rmsBlocks[block];
+                    }
                     average += rmsBlocks[block];
                 }
             }
@@ -158,20 +164,26 @@ namespace Cavern.QuickEQ {
             bool lastRising = false;
             for (int sample = 0; sample < samples.Length; ++sample) {
                 if (samples[sample] <= highLevel) {
-                    if (lastRising)
+                    if (lastRising) {
                         ramps.Add(new Ramp(lastRising = false, sample * blockSize));
-                } else if (!lastRising)
+                    }
+                } else if (!lastRising) {
                     ramps.Add(new Ramp(lastRising = true, sample * blockSize));
+                }
             }
 
             // Remove wrongly detected (too short) ramps
             bool[] toRemove = new bool[ramps.Count];
-            for (int ramp = 1; ramp < ramps.Count; ramp += 2)
-                if (ramps[ramp].rising && ramps[ramp].position - ramps[ramp - 1].position < scrapSilence)
+            for (int ramp = 1; ramp < ramps.Count; ramp += 2) {
+                if (ramps[ramp].rising && ramps[ramp].position - ramps[ramp - 1].position < scrapSilence) {
                     toRemove[ramp] = toRemove[ramp - 1] = true;
-            for (int ramp = ramps.Count - 1; ramp >= 0; --ramp)
-                if (toRemove[ramp])
+                }
+            }
+            for (int ramp = ramps.Count - 1; ramp >= 0; --ramp) {
+                if (toRemove[ramp]) {
                     ramps.RemoveAt(ramp);
+                }
+            }
             return ramps;
         }
 
@@ -186,8 +198,9 @@ namespace Cavern.QuickEQ {
                 if (peakRampDist < rampDist) {
                     mainRampDist = peakRampDist;
                     peakRampDist = rampDist;
-                } else if (mainRampDist < rampDist)
+                } else if (mainRampDist < rampDist) {
                     mainRampDist = rampDist;
+                }
             }
             return 1 << (int)Math.Log(mainRampDist, 2); // The gap will always be larger than the FFT size as no response is perfect
         }
@@ -230,10 +243,12 @@ namespace Cavern.QuickEQ {
                     break;
                 }
             }
-            if (Channels == 0)
+            if (Channels == 0) {
                 Channels = data.Length;
-            if (Channels != data.Length)
+            }
+            if (Channels != data.Length) {
                 MultiMeasurement = true;
+            }
 
             int measurements = data.Length / Channels,
                 samplesPerCh = data[0].Length / Channels;
@@ -255,10 +270,11 @@ namespace Cavern.QuickEQ {
         /// Process the <see cref="data"/> and set up the <see cref="sweeper"/>.
         /// </summary>
         void Process() {
-            if (data.Length == 1)
+            if (data.Length == 1) {
                 ProcessRecording(data[0]);
-            else
+            } else {
                 ProcessExport();
+            }
             Status = MeasurementImporterStatus.Done;
         }
     }
