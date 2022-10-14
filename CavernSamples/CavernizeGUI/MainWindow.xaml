@@ -57,6 +57,8 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" Height="20">
             <MenuItem Header="{StaticResource MenuR}">
+                <MenuItem x:Name="matrixUpmix" IsCheckable="True" Header="{StaticResource MatrH}" ToolTip="{StaticResource MatrT}"/>
+                <Separator/>
                 <MenuItem x:Name="dynamicOnly" IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}"/>
                 <MenuItem x:Name="heightOnly" IsCheckable="True" Header="{StaticResource MuGrH}" ToolTip="{StaticResource MuGrT}"/>
                 <Separator/>

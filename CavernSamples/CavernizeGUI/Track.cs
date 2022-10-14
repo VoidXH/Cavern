@@ -1,11 +1,14 @@
-﻿using Cavern;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using Cavern;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Cavern.Utilities;
 
 namespace CavernizeGUI {
     /// <summary>
@@ -123,12 +126,26 @@ namespace CavernizeGUI {
         /// <summary>
         /// Attach this track to a rendering environment and start from the beginning.
         /// </summary>
-        public void Attach(Listener listener) {
+        public void Attach(Listener listener, bool matrixUpmix) {
             reader.Reset();
             Renderer = reader.GetRenderer();
             listener.SampleRate = reader.SampleRate;
-            for (int i = 0; i < Renderer.Objects.Count; ++i) {
-                listener.AttachSource(Renderer.Objects[i]);
+
+            if (matrixUpmix && !Renderer.HasObjects) {
+                ReferenceChannel[] channels = Renderer.GetChannels();
+                Upmixer upmixer = new SurroundUpmixer(channels, reader.SampleRate, false, true);
+                RunningChannelSeparator separator = new RunningChannelSeparator(channels.Length) {
+                    GetSamples = input => reader.ReadBlock(input, 0, input.Length)
+                };
+                upmixer.OnSamplesNeeded += updateRate => separator.Update(updateRate);
+
+                for (int i = 0; i < upmixer.IntermediateSources.Length; i++) {
+                    listener.AttachSource(upmixer.IntermediateSources[i]);
+                }
+            } else {
+                for (int i = 0, c = Renderer.Objects.Count; i < c; i++) {
+                    listener.AttachSource(Renderer.Objects[i]);
+                }
             }
         }
 

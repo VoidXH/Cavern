@@ -14,6 +14,11 @@ namespace Cavern.Remapping {
         readonly int[] sourceRouting;
 
         /// <summary>
+        /// The front channels are available and matrixing can commence.
+        /// </summary>
+        readonly bool frontsAvailable;
+
+        /// <summary>
         /// The center channel and LFE are available and no matrixing is needed for them.
         /// </summary>
         readonly bool centerAvailable;
@@ -42,27 +47,28 @@ namespace Cavern.Remapping {
         /// <param name="widen">Use the corners of the room for speaker placements</param>
         public SurroundUpmixer(ReferenceChannel[] sourceChannels, int sampleRate, bool mode51 = false, bool widen = false) :
             base(matrixSize, sampleRate) {
+            sourceRouting = new int[sourceChannels.Length];
             this.mode51 = mode51;
 
-            sourceRouting = new int[sourceChannels.Length];
+            bool[] bedAvailability = new bool[matrixSize];
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(matrixSize);
             for (int i = 0; i < sourceChannels.Length; i++) {
                 sourceRouting[i] = -1;
                 for (int j = 0; j < matrix.Length; j++) {
                     if (sourceChannels[i] == matrix[j]) {
-                        if (matrix[j] == ReferenceChannel.FrontCenter) {
-                            centerAvailable = true;
-                        } else if (matrix[j] == ReferenceChannel.SideLeft) {
-                            sidesAvailable = true;
-                        } else if (matrix[j] == ReferenceChannel.RearLeft) {
-                            rearsAvailable = true;
+                        if ((int)matrix[j] < matrixSize) {
+                            bedAvailability[(int)matrix[j]] = true;
                         }
-
                         sourceRouting[i] = j;
                         break;
                     }
                 }
             }
+
+            frontsAvailable = bedAvailability[(int)ReferenceChannel.FrontLeft] && bedAvailability[(int)ReferenceChannel.FrontRight];
+            centerAvailable = bedAvailability[(int)ReferenceChannel.FrontCenter] && bedAvailability[(int)ReferenceChannel.ScreenLFE];
+            sidesAvailable = bedAvailability[(int)ReferenceChannel.SideLeft] && bedAvailability[(int)ReferenceChannel.SideRight];
+            rearsAvailable = bedAvailability[(int)ReferenceChannel.RearLeft] && bedAvailability[(int)ReferenceChannel.RearRight];
 
             Vector3[] positions = widen ? ChannelPrototype.ToAlternativePositions(matrix) : ChannelPrototype.ToPositions(matrix);
             if (mode51) {
@@ -84,6 +90,10 @@ namespace Cavern.Remapping {
                 if (sourceRouting[i] != -1) {
                     Array.Copy(input[i], output[sourceRouting[i]], input[i].Length);
                 }
+            }
+
+            if (!frontsAvailable) {
+                return output;
             }
 
             if (!centerAvailable) {
@@ -132,6 +142,6 @@ namespace Cavern.Remapping {
         /// Number of output channels, the corresponding standard matrix will be used.
         /// </summary>
         /// <remarks>Some values are hardcoded, this must always be 8.</remarks>
-        const int matrixSize = 8;
+        public const int matrixSize = 8;
     }
 }
