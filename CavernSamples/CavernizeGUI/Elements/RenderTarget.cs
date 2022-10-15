@@ -32,7 +32,7 @@ namespace CavernizeGUI.Elements {
             Channel[] systemChannels = new Channel[Channels.Length];
             for (int ch = 0; ch < Channels.Length; ++ch) {
                 bool lfe = Channels[ch] == ReferenceChannel.ScreenLFE;
-                systemChannels[ch] = new Channel(Renderer.channelPositions[(int)Channels[ch]], lfe);
+                systemChannels[ch] = new Channel(ChannelPrototype.AlternativePositions[(int)Channels[ch]], lfe);
             }
             Listener.ReplaceChannels(systemChannels);
         }

@@ -38,17 +38,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Settings.Designer.cs">
+    <Compile Update="Resources\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Update="Resources\UpmixingSettings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UpmixingSettings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Settings.settings">
+    <None Update="Resources\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="Resources\UpmixingSettings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>UpmixingSettings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 

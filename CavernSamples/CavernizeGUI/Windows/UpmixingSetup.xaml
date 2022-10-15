@@ -1,0 +1,34 @@
+﻿<Window x:Class="CavernizeGUI.Windows.UpmixingSetup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Cavernize" Height="185" Width="300" Background="#222222">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Resources/UpmixingSetupStrings.xaml"/>
+                <ResourceDictionary Source="../Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <CheckBox x:Name="matrixUpmix" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                  Content="{StaticResource MatrC}" ToolTip="{StaticResource MatrT}"/>
+        <CheckBox x:Name="cavernize" Margin="10,30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                  Content="{StaticResource CazeC}" ToolTip="{StaticResource CazeT}"/>
+        <TextBlock Margin="10,51,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                   Text="{StaticResource Effec}" TextWrapping="Wrap"/>
+        <Slider x:Name="effect" Margin="135,50,10,0" VerticalAlignment="Top" Minimum="0" Value="75" Interval="1" Maximum="100"/>
+        <TextBlock Margin="10,74,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                   Text="{StaticResource Smoot}" TextWrapping="Wrap"/>
+        <Slider x:Name="smoothness" Margin="135,73,10,0" VerticalAlignment="Top" Minimum="0" Value="80" Interval="1" Maximum="100"/>
+        <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="80"
+                Content="{StaticResource BtnRs}" Click="Reset"/>
+        <Button Margin="0,0,95,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="80"
+                Content="{StaticResource BtnOk}" Click="Ok"/>
+        <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="80"
+                Content="{StaticResource BtnCn}" Click="Cancel"/>
+    </Grid>
+</Window>

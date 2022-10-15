@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="MatrC">Fill 7.1</system:String>
+    <system:String x:Key="MatrT">Use a matrix upmixer to create the full 7.1 bed for legacy channel-based content.</system:String>
+    <system:String x:Key="CazeC">Upconvert non-spatial content</system:String>
+    <system:String x:Key="CazeT">Tries to recreate height information for regular content up to 7.1.</system:String>
+    <system:String x:Key="Effec">Upmixing effect:</system:String>
+    <system:String x:Key="Smoot">Upmixing smoothness:</system:String>
+    <system:String x:Key="BtnRs">Reset</system:String>
+    <system:String x:Key="BtnOk">Ok</system:String>
+    <system:String x:Key="BtnCn">Cancel</system:String>
+</ResourceDictionary>

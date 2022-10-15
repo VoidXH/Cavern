@@ -3,6 +3,7 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- UI -->
     <system:String x:Key="MenuR">_Rendering</system:String>
+    <system:String x:Key="Upmix">_Upmixing setup</system:String>
     <system:String x:Key="MuBeH">Mute _bed</system:String>
     <system:String x:Key="MuBeT">Only render objects that are not fixed in position, but move around.</system:String>
     <system:String x:Key="MuGrH">Mute _ground</system:String>
@@ -43,6 +44,7 @@
     <system:String x:Key="QuRem">Remove selected</system:String>
     <system:String x:Key="QuSta">Process queue</system:String>
     <!-- Code behind -->
+    <system:String x:Key="UpmiW">_Upmixing setup</system:String>
     <system:String x:Key="CavLo">Driver is set to {0}.</system:String>
     <system:String x:Key="ImFmt">All supported formats|*.ac3;*.mkv;*.mka;*.wav;*.laf|(Enhanced) AC-3 (*.ac3)|*.ac3|Matroska
         (*.mkv, *.mka)|*.mkv;*.mka|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format (*.laf)|*.laf</system:String>

@@ -1,11 +1,15 @@
-﻿using Cavern;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using Cavern;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Cavern.Utilities;
+using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
     /// <summary>
@@ -126,9 +130,31 @@ namespace CavernizeGUI {
         public void Attach(Listener listener) {
             reader.Reset();
             Renderer = reader.GetRenderer();
-            listener.SampleRate = reader.SampleRate;
-            for (int i = 0; i < Renderer.Objects.Count; ++i) {
-                listener.AttachSource(Renderer.Objects[i]);
+            listener.SampleRate = SampleRate;
+
+            if (UpmixingSettings.Default.MatrixUpmix && !Renderer.HasObjects) {
+                ReferenceChannel[] channels = Renderer.GetChannels();
+                SurroundUpmixer upmixer = new SurroundUpmixer(channels, SampleRate, false, true);
+                RunningChannelSeparator separator = new RunningChannelSeparator(channels.Length) {
+                    GetSamples = input => reader.ReadBlock(input, 0, input.Length)
+                };
+                upmixer.OnSamplesNeeded += updateRate => separator.Update(updateRate);
+
+                Source[] attachables = upmixer.IntermediateSources;
+                if (UpmixingSettings.Default.Cavernize) {
+                    CavernizeUpmixer cavernizer = new CavernizeUpmixer(attachables, SampleRate) {
+                        Effect = UpmixingSettings.Default.Effect,
+                        Smoothness = UpmixingSettings.Default.Smoothness
+                    };
+                    attachables = cavernizer.IntermediateSources;
+                }
+                for (int i = 0; i < attachables.Length; i++) {
+                    listener.AttachSource(attachables[i]);
+                }
+            } else {
+                for (int i = 0, c = Renderer.Objects.Count; i < c; i++) {
+                    listener.AttachSource(Renderer.Objects[i]);
+                }
             }
         }
 
