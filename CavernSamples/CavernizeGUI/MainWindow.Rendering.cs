@@ -9,6 +9,7 @@ using Cavern.Format.Environment;
 using Cavern.Utilities;
 
 using CavernizeGUI.Elements;
+using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
     partial class MainWindow {
@@ -47,7 +48,7 @@ namespace CavernizeGUI {
             Track target = (Track)tracks.SelectedItem;
             listener.SampleRate = target.SampleRate;
             listener.DetachAllSources();
-            target.Attach(listener, matrixUpmix.IsChecked);
+            target.Attach(listener);
 
             if (target.Codec == Codec.EnhancedAC3) {
                 listener.Volume = .5f; // Master volume of most E-AC-3 files is -6 dB, not yet applied from the stream

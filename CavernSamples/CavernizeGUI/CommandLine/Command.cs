@@ -13,11 +13,12 @@
                         new HelpCommand(),
                         new InputCommand(),
                         new FormatCommand(),
-                        new MatrixCommand(),
-                        new MuteBedCommand(),
-                        new MuteGroundCommand(),
                         new TargetCommand(),
                         new OutputCommand(),
+                        new MuteBedCommand(),
+                        new MuteGroundCommand(),
+                        new MatrixCommand(),
+                        new CavernizeCommand(),
                     };
                 }
                 return commandPool;

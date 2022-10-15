@@ -8,56 +8,16 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Strings.xaml"/>
+                <ResourceDictionary Source="Resources/MainWindowStrings.xaml"/>
+                <ResourceDictionary Source="Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="Button">
-                <Setter Property="Height" Value="30"/>
-                <Setter Property="FontWeight" Value="Normal"/>
-            </Style>
-            <Style TargetType="CheckBox">
-                <Setter Property="Foreground" Value="White"/>
-                <Setter Property="FontWeight" Value="Normal"/>
-            </Style>
-            <Style TargetType="ComboBox">
-                <Setter Property="FontWeight" Value="Normal"/>
-            </Style>
-            <Style TargetType="GridSplitter">
-                <Setter Property="Background" Value="#AEAEAE"/>
-            </Style>
-            <Style TargetType="GroupBox">
-                <Setter Property="Background" Value="#222222"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Foreground" Value="White"/>
-            </Style>
-            <Style TargetType="ListBox">
-                <Setter Property="Background" Value="#303030"/>
-            </Style>
-            <Style TargetType="RadioButton">
-                <Setter Property="FontWeight" Value="Normal"/>
-                <Setter Property="Foreground" Value="White"/>
-            </Style>
-            <Style TargetType="StatusBar">
-                <Setter Property="Background" Value="#353535"/>
-            </Style>
-            <Style TargetType="TextBlock">
-                <Setter Property="FontWeight" Value="Normal"/>
-                <Setter Property="Foreground" Value="White"/>
-            </Style>
-            <Style TargetType="TextBlock" x:Key="Header">
-                <Setter Property="Margin" Value="0,5,0,0"/>
-                <Setter Property="HorizontalAlignment" Value="Left"/>
-                <Setter Property="VerticalAlignment" Value="Top"/>
-                <Setter Property="FontSize" Value="18"/>
-                <Setter Property="FontWeight" Value="DemiBold"/>
-            </Style>
             <BitmapImage x:Key="Logo" UriSource="Resources\CavernLogo.png"/>
-            <SolidColorBrush x:Key="InfoBlue">#3186CE</SolidColorBrush>
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top" Height="20">
             <MenuItem Header="{StaticResource MenuR}">
-                <MenuItem x:Name="matrixUpmix" IsCheckable="True" Header="{StaticResource MatrH}" ToolTip="{StaticResource MatrT}"/>
+                <MenuItem Header="{StaticResource Upmix}" Click="OpenUpmixSetup"/>
                 <Separator/>
                 <MenuItem x:Name="dynamicOnly" IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}"/>
                 <MenuItem x:Name="heightOnly" IsCheckable="True" Header="{StaticResource MuGrH}" ToolTip="{StaticResource MuGrT}"/>

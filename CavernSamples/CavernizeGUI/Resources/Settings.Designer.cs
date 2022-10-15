@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CavernizeGUI {
+namespace CavernizeGUI.Resources {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

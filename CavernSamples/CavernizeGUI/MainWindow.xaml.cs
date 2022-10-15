@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -16,6 +15,7 @@ using Cavern.Format.Common;
 using Cavern.Remapping;
 
 using CavernizeGUI.Elements;
+using CavernizeGUI.Resources;
 using VoidX.WPF;
 
 using Path = System.IO.Path;
@@ -103,7 +103,7 @@ namespace CavernizeGUI {
             };
             Listener.HeadphoneVirtualizer = false;
 
-            language.Source = new Uri(";component/Resources/Strings.xaml", UriKind.RelativeOrAbsolute);
+            language.Source = new Uri(";component/Resources/MainWindowStrings.xaml", UriKind.RelativeOrAbsolute);
             renderTarget.ItemsSource = RenderTarget.Targets;
             renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget), RenderTarget.Targets.Length - 1);
             renderSettings.IsEnabled = true; // Don't grey out initially
@@ -210,25 +210,6 @@ namespace CavernizeGUI {
             tracks.ItemsSource = null;
             trackInfo.Text = string.Empty;
             report = (string)language["Reprt"];
-        }
-
-        /// <summary>
-        /// Show the post-render report in a popup.
-        /// </summary>
-        void ShowPostRenderReport(object _, RoutedEventArgs e) => MessageBox.Show(report, (string)language["PReRe"]);
-
-        /// <summary>
-        /// Shows a popup about what channel should be wired to which output.
-        /// </summary>
-        void DisplayWiring(object _, RoutedEventArgs e) {
-            ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).Channels;
-            ChannelPrototype[] prototypes = ChannelPrototype.Get(channels);
-            StringBuilder output = new StringBuilder();
-            for (int i = 0; i < prototypes.Length; ++i) {
-                output.AppendLine(string.Format((string)language["ChCon"], prototypes[i].Name,
-                    ChannelPrototype.Get(i, prototypes.Length).Name));
-            }
-            MessageBox.Show(output.ToString(), (string)language["WrGui"]);
         }
 
         /// <summary>

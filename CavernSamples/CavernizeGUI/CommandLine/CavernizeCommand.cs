@@ -4,23 +4,23 @@ using CavernizeGUI.Resources;
 
 namespace CavernizeGUI.CommandLine {
     /// <summary>
-    /// Turns 7.1-creation from channel-based sources with less channels on or off.
+    /// Turns height generation from regular content on or off, up to 7.1.
     /// </summary>
-    class MatrixCommand : BooleanCommand {
+    class CavernizeCommand : BooleanCommand {
         /// <summary>
         /// Full name of the command, including a preceding character like '-' if exists.
         /// </summary>
-        public override string Name => "-matrix";
+        public override string Name => "-upconvert";
 
         /// <summary>
         /// Shorthand for <see cref="Name"/>.
         /// </summary>
-        public override string Alias => "-mx";
+        public override string Alias => "-uc";
 
         /// <summary>
         /// Description of the command that is displayed in the command list (help).
         /// </summary>
-        public override string Help => "Turns 7.1-creation from channel-based sources with less channels on or off.";
+        public override string Help => "Turns height generation from regular content on or off, up to 7.1.";
 
         /// <summary>
         /// Execute the command.
@@ -29,12 +29,12 @@ namespace CavernizeGUI.CommandLine {
         /// <param name="app">Reference to the main window of the application - operations should be performed though the UI</param>
         public override void Execute(bool value, MainWindow app) {
             if (app.Rendering) {
-                Console.Error.WriteLine(string.Format(inProgress, "matrixing"));
+                Console.Error.WriteLine(string.Format(inProgress, "upconversion"));
                 app.IsEnabled = false;
                 return;
             }
 
-            UpmixingSettings.Default.MatrixUpmix = value;
+            UpmixingSettings.Default.Cavernize = value;
         }
     }
 }

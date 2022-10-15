@@ -6,6 +6,11 @@ namespace Cavern.Filters {
     /// </summary>
     public class Crossover : Filter {
         /// <summary>
+        /// Cached filter sample rate.
+        /// </summary>
+        public int SampleRate { get; }
+
+        /// <summary>
         /// Crossover frequency.
         /// </summary>
         public double Frequency {
@@ -38,11 +43,6 @@ namespace Cavern.Filters {
         public float[] HighOutput { get; private set; } = new float[0];
 
         /// <summary>
-        /// Cached filter sample rate.
-        /// </summary>
-        readonly int sampleRate;
-
-        /// <summary>
         /// Lowpass filters for each pass.
         /// </summary>
         Lowpass[] lowpasses;
@@ -59,8 +59,8 @@ namespace Cavern.Filters {
             lowpasses = new Lowpass[order];
             highpasses = new Highpass[order];
             for (int i = 0; i < order; ++i) {
-                lowpasses[i] = new Lowpass(sampleRate, frequency);
-                highpasses[i] = new Highpass(sampleRate, frequency);
+                lowpasses[i] = new Lowpass(SampleRate, frequency);
+                highpasses[i] = new Highpass(SampleRate, frequency);
             }
         }
 
@@ -71,7 +71,7 @@ namespace Cavern.Filters {
         /// <param name="frequency">Crossover frequency</param>
         /// <param name="order">Number of filters per pass, 2 is recommended for mixing notch prevention</param>
         public Crossover(int sampleRate, double frequency, int order = 2) {
-            this.sampleRate = sampleRate;
+            this.SampleRate = sampleRate;
             RecreateFilters(frequency, order);
         }
 

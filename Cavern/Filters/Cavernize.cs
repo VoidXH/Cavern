@@ -6,13 +6,13 @@ namespace Cavern.Filters {
     /// </summary>
     public class Cavernize : Filter {
         /// <summary>
-        /// 3D audio effect strength.
+        /// Height separation effect strength.
         /// </summary>
         public float Effect { get; set; } = .75f;
 
         /// <summary>
         /// Ratio of the distance actually moved between calculated heights of ftames. Should be set with
-        /// <see cref="CalculateSmoothingFactor(int, int, double)"/>.
+        /// <see cref="CalculateSmoothingFactor(int, double)"/>.
         /// </summary>
         /// <remarks>The default value is calculated with 0.8 smoothness, with an update rate of 240 at
         /// 48 kHz sampling.</remarks>
@@ -64,6 +64,8 @@ namespace Cavern.Filters {
         /// <summary>
         /// Separates ground and height data for a channel of a regular surround mix.
         /// </summary>
+        /// <param name="sampleRate">Content sample rate</param>
+        /// <param name="crossoverFrequency">Keep sounds below this frequency on the ground layer</param>
         public Cavernize(int sampleRate, float crossoverFrequency = 250) =>
             crossover = new Crossover(sampleRate, crossoverFrequency, 2);
 
@@ -71,11 +73,10 @@ namespace Cavern.Filters {
         /// Generate the smoothing factor for a smoothness value.
         /// </summary>
         /// <param name="updateRate">Block size for processing</param>
-        /// <param name="sampleRate">Clip sample rate</param>
         /// <param name="smoothness">Smoothness from 0 to 1</param>
-        public void CalculateSmoothingFactor(int updateRate, int sampleRate, double smoothness = .8) =>
+        public void CalculateSmoothingFactor(int updateRate, double smoothness = .8) =>
             SmoothFactor =
-                1f - (updateRate + (float)((sampleRate - updateRate) * Math.Pow(smoothness, .1))) / sampleRate * .999f;
+                1.001f - (updateRate + (float)((crossover.SampleRate - updateRate) * Math.Pow(smoothness, .1))) / crossover.SampleRate;
 
         /// <summary>
         /// Cavernize an array of samples. One filter should be applied to only one continuous stream of samples.
