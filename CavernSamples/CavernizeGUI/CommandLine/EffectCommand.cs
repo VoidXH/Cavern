@@ -4,37 +4,37 @@ using CavernizeGUI.Resources;
 
 namespace CavernizeGUI.CommandLine {
     /// <summary>
-    /// Turns height generation from regular content on or off, up to 7.1.
+    /// Sets height generation effect strength for the upconverter.
     /// </summary>
-    class CavernizeCommand : BooleanCommand {
+    class EffectCommand : IntegerCommand {
         /// <summary>
         /// Full name of the command, including a preceding character like '-' if exists.
         /// </summary>
-        public override string Name => "-upconvert";
+        public override string Name => "-effect";
 
         /// <summary>
         /// Shorthand for <see cref="Name"/>.
         /// </summary>
-        public override string Alias => "-u";
+        public override string Alias => "-e";
 
         /// <summary>
         /// Description of the command that is displayed in the command list (help).
         /// </summary>
-        public override string Help => "Turns height generation from regular content on or off, up to 7.1.";
+        public override string Help => "Sets height generation effect strength for the upconverter.";
 
         /// <summary>
         /// Execute the command.
         /// </summary>
         /// <param name="value">The value supplied</param>
         /// <param name="app">Reference to the main window of the application - operations should be performed though the UI</param>
-        public override void Execute(bool value, MainWindow app) {
+        public override void Execute(int value, MainWindow app) {
             if (app.Rendering) {
-                Console.Error.WriteLine(string.Format(inProgress, "upconversion"));
+                Console.Error.WriteLine(string.Format(inProgress, "effect"));
                 app.IsEnabled = false;
                 return;
             }
 
-            UpmixingSettings.Default.Cavernize = value;
+            UpmixingSettings.Default.Effect = value * .01f;
         }
     }
 }

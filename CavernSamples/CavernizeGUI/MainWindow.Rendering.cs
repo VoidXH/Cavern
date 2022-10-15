@@ -9,7 +9,6 @@ using Cavern.Format.Environment;
 using Cavern.Utilities;
 
 using CavernizeGUI.Elements;
-using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
     partial class MainWindow {

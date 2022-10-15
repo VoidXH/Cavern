@@ -132,6 +132,8 @@ namespace CavernizeGUI {
             Renderer = reader.GetRenderer();
             listener.SampleRate = SampleRate;
 
+            Source[] attachables;
+
             if (UpmixingSettings.Default.MatrixUpmix && !Renderer.HasObjects) {
                 ReferenceChannel[] channels = Renderer.GetChannels();
                 SurroundUpmixer upmixer = new SurroundUpmixer(channels, SampleRate, false, true);
@@ -140,21 +142,21 @@ namespace CavernizeGUI {
                 };
                 upmixer.OnSamplesNeeded += updateRate => separator.Update(updateRate);
 
-                Source[] attachables = upmixer.IntermediateSources;
-                if (UpmixingSettings.Default.Cavernize) {
-                    CavernizeUpmixer cavernizer = new CavernizeUpmixer(attachables, SampleRate) {
-                        Effect = UpmixingSettings.Default.Effect,
-                        Smoothness = UpmixingSettings.Default.Smoothness
-                    };
-                    attachables = cavernizer.IntermediateSources;
-                }
-                for (int i = 0; i < attachables.Length; i++) {
-                    listener.AttachSource(attachables[i]);
-                }
+                attachables = upmixer.IntermediateSources;
             } else {
-                for (int i = 0, c = Renderer.Objects.Count; i < c; i++) {
-                    listener.AttachSource(Renderer.Objects[i]);
-                }
+                attachables = Renderer.Objects.ToArray();
+            }
+
+            if (UpmixingSettings.Default.Cavernize && !Renderer.HasObjects) {
+                CavernizeUpmixer cavernizer = new CavernizeUpmixer(attachables, SampleRate) {
+                    Effect = UpmixingSettings.Default.Effect,
+                    Smoothness = UpmixingSettings.Default.Smoothness
+                };
+                attachables = cavernizer.IntermediateSources;
+            }
+
+            for (int i = 0; i < attachables.Length; i++) {
+                listener.AttachSource(attachables[i]);
             }
         }
 

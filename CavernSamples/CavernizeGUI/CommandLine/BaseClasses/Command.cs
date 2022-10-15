@@ -19,6 +19,8 @@
                         new MuteGroundCommand(),
                         new MatrixCommand(),
                         new CavernizeCommand(),
+                        new EffectCommand(),
+                        new SmoothnessCommand(),
                     };
                 }
                 return commandPool;
