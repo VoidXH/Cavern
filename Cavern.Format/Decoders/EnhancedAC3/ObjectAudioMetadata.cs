@@ -12,7 +12,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// </summary>
     class ObjectAudioMetadata {
         /// <summary>
-        /// Number of audio objects in the stream.
+        /// Count of bed channels.
+        /// </summary>
+        public byte Beds { get; private set; }
+
+        /// <summary>
+        /// Number of audio objects in the stream. This includes both dynamic objects and <see cref="Beds"/>.
         /// </summary>
         public int ObjectCount { get; private set; }
 
@@ -26,11 +31,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// in the order of <see cref="bedChannels"/>.
         /// </summary>
         bool[][] bedAssignment = new bool[0][];
-
-        /// <summary>
-        /// Count of bed channels.
-        /// </summary>
-        byte beds;
 
         /// <summary>
         /// Use intermediate spatial format (ISF), which has a few fixed layouts.
@@ -70,7 +70,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 elementCount += extractor.Read(5);
             }
 
-            int bedOrISFObjects = beds;
+            int bedOrISFObjects = Beds;
             if (isfInUse) {
                 bedOrISFObjects += isfObjectCount[isfIndex];
             }
@@ -125,7 +125,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             elements[element].UpdateSources(timecode, sources);
             int checkedBed = 0;
             int checkedBedInstance = 0;
-            for (int i = 0; i < beds; ++i) {
+            for (int i = 0; i < Beds; ++i) {
                 while (!bedAssignment[checkedBedInstance][checkedBed]) {
                     if (++checkedBed == (int)NonStandardBedChannel.Max) {
                         ++checkedBedInstance;
@@ -194,11 +194,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
-            beds = 0;
+            Beds = 0;
             for (int bed = 0; bed < bedAssignment.Length; ++bed) {
                 for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i) {
                     if (bedAssignment[bed][i]) {
-                        ++beds;
+                        ++Beds;
                     }
                 }
             }

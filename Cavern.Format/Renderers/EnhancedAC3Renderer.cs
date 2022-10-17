@@ -69,7 +69,7 @@ namespace Cavern.Format.Renderers {
             if (HasObjects = stream.Extensions.HasObjects) {
                 ObjectAudioMetadata oamd = stream.Extensions.OAMD;
                 JointObjectCoding joc = stream.Extensions.JOC;
-                DynamicObjects = joc.ObjectCount;
+                DynamicObjects = oamd.ObjectCount - oamd.Beds;
                 finalResult = new float[joc.ObjectCount][];
                 applier = new JointObjectCodingApplier(joc, stream.FrameSize);
                 SetupObjects(oamd.ObjectCount);

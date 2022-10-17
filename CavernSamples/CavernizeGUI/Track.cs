@@ -105,7 +105,7 @@ namespace CavernizeGUI {
             if (eac3 != null && eac3.HasObjects) {
                 builder.Append("Source channels (").Append(reader.ChannelCount).Append("): ").AppendLine(bedList)
                     .Append("Matrixed bed channels: ").AppendLine((eac3.Objects.Count - eac3.DynamicObjects).ToString())
-                    .Append("Matrixed dynamic objects: ").AppendLine(eac3.DynamicObjects.ToString()); ;
+                    .Append("Matrixed dynamic objects: ").AppendLine(eac3.DynamicObjects.ToString());
             } else {
                 if (Renderer != null && beds.Length != Renderer.Objects.Count) {
                     if (beds.Length > 0) {
