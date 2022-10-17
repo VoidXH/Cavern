@@ -1,5 +1,7 @@
-﻿using Cavern.Format.Utilities;
+﻿using System.Xml;
 using System.Xml.Linq;
+
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
@@ -50,13 +52,14 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Create an XML element about this object.
         /// </summary>
-        public XElement Serialize(XNamespace ns) {
-            return new XElement(ns + ADMTags.trackTag,
-                new XAttribute(ADMTags.trackIDAttribute, ID),
-                new XAttribute(ADMTags.trackBitDepthAttribute, (int)Bits),
-                new XAttribute(ADMTags.trackSampleRateAttribute, SampleRate),
-                new XElement(ns + ADMTags.trackFormatRefTag, TrackFormat),
-                new XElement(ns + ADMTags.packFormatRefTag, PackFormat));
+        public void Serialize(XmlWriter writer) {
+            writer.WriteStartElement(ADMTags.trackTag);
+            writer.WriteAttributeString(ADMTags.trackIDAttribute, ID);
+            writer.WriteAttributeString(ADMTags.trackBitDepthAttribute, ((int)Bits).ToString());
+            writer.WriteAttributeString(ADMTags.trackSampleRateAttribute, SampleRate.ToString());
+            writer.WriteElementString(ADMTags.trackFormatRefTag, TrackFormat);
+            writer.WriteElementString(ADMTags.packFormatRefTag, PackFormat);
+            writer.WriteEndElement();
         }
 
         /// <summary>

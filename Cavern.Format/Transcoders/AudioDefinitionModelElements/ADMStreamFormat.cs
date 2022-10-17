@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Xml;
+using System.Xml.Linq;
 
 using Cavern.Format.Utilities;
 
@@ -48,15 +49,16 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Create an XML element about this object.
         /// </summary>
-        public override XElement Serialize(XNamespace ns) {
-            return new XElement(ns + ADMTags.streamFormatTag,
-                new XAttribute(ADMTags.streamFormatIDAttribute, ID),
-                new XAttribute(ADMTags.streamFormatNameAttribute, Name),
-                new XAttribute(ADMTags.formatDefinitionAttribute, Format),
-                new XAttribute(ADMTags.formatLabelAttribute, ((int)Format).ToString("x4")),
-                new XElement(ns + ADMTags.channelFormatRefTag, ChannelFormat),
-                new XElement(ns + ADMTags.packFormatRefTag, PackFormat),
-                new XElement(ns + ADMTags.trackFormatRefTag, TrackFormat));
+        public override void Serialize(XmlWriter writer) {
+            writer.WriteStartElement(ADMTags.streamFormatTag);
+            writer.WriteAttributeString(ADMTags.streamFormatIDAttribute, ID);
+            writer.WriteAttributeString(ADMTags.streamFormatNameAttribute, Name);
+            writer.WriteAttributeString(ADMTags.formatDefinitionAttribute, Format.ToString());
+            writer.WriteAttributeString(ADMTags.formatLabelAttribute, ((int)Format).ToString("x4"));
+            writer.WriteElementString(ADMTags.channelFormatRefTag, ChannelFormat);
+            writer.WriteElementString(ADMTags.packFormatRefTag, PackFormat);
+            writer.WriteElementString(ADMTags.trackFormatRefTag, TrackFormat);
+            writer.WriteEndElement();
         }
 
         /// <summary>

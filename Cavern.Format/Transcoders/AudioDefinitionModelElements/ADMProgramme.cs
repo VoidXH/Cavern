@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml;
 using System.Xml.Linq;
 
 using Cavern.Format.Utilities;
@@ -32,14 +33,14 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Create an XML element about this object.
         /// </summary>
-        public override XElement Serialize(XNamespace ns) {
-            XElement root = new XElement(ns + ADMTags.programTag,
-                new XAttribute(ADMTags.programIDAttribute, ID),
-                new XAttribute(ADMTags.programNameAttribute, Name),
-                new XAttribute(ADMTags.startAttribute, new TimeSpan().GetTimestamp()),
-                new XAttribute(ADMTags.programEndAttribute, TimeSpan.FromSeconds(length).GetTimestamp()));
-            SerializeStrings(Contents, root, ADMTags.contentRefTag);
-            return root;
+        public override void Serialize(XmlWriter writer) {
+            writer.WriteStartElement(ADMTags.programTag);
+            writer.WriteAttributeString(ADMTags.programIDAttribute, ID);
+            writer.WriteAttributeString(ADMTags.programNameAttribute, Name);
+            writer.WriteAttributeString(ADMTags.startAttribute, new TimeSpan().GetTimestamp());
+            writer.WriteAttributeString(ADMTags.programEndAttribute, TimeSpan.FromSeconds(length).GetTimestamp());
+            SerializeStrings(Contents, writer, ADMTags.contentRefTag);
+            writer.WriteEndElement();
         }
 
         /// <summary>

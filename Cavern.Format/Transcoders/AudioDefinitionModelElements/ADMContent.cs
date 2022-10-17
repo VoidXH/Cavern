@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml;
 using System.Xml.Linq;
 
 using Cavern.Format.Utilities;
@@ -26,15 +27,18 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Create an XML element about this object.
         /// </summary>
-        public override XElement Serialize(XNamespace ns) {
-            XElement root = new XElement(ns + ADMTags.contentTag,
-                new XAttribute(ADMTags.contentIDAttribute, ID),
-                new XAttribute(ADMTags.contentNameAttribute, Name));
-            SerializeStrings(Objects, root, ADMTags.objectRefTag);
-            root.Add(new XElement(ns + ADMTags.contentDialogueTag,
-                (int)ADMDialogueType.mixedContentKind,
-                new XAttribute(ADMDialogueType.mixedContentKind.ToString(), (int)MixedContentKind.Undefined)));
-            return root;
+        public override void Serialize(XmlWriter writer) {
+            writer.WriteStartElement(ADMTags.contentTag);
+            writer.WriteAttributeString(ADMTags.contentIDAttribute, ID);
+            writer.WriteAttributeString(ADMTags.contentNameAttribute, Name);
+            SerializeStrings(Objects, writer, ADMTags.objectRefTag);
+
+            writer.WriteStartElement(ADMTags.contentDialogueTag);
+            writer.WriteAttributeString(ADMDialogueType.mixedContentKind.ToString(), ((int)MixedContentKind.Undefined).ToString());
+            writer.WriteString(((int)ADMDialogueType.mixedContentKind).ToString());
+            writer.WriteEndElement();
+
+            writer.WriteEndElement();
         }
 
         /// <summary>

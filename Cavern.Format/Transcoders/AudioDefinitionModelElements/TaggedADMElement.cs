@@ -1,7 +1,9 @@
-﻿using Cavern.Format.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Xml;
 using System.Xml.Linq;
+
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
@@ -39,7 +41,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Create an XML element about this object.
         /// </summary>
-        public abstract XElement Serialize(XNamespace ns);
+        public abstract void Serialize(XmlWriter writer);
 
         /// <summary>
         /// Read the values of an XML element into this object.
@@ -55,16 +57,16 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// Export all elements from a list of strings to child elements with a given name.
         /// This is used for exporting multiple references by ID.
         /// </summary>
-        protected void SerializeStrings(List<string> from, XElement to, string elementName) {
+        protected static void SerializeStrings(List<string> from, XmlWriter to, string elementName) {
             for (int i = 0, c = from.Count; i < c; i++) {
-                to.Add(new XElement(to.Name.Namespace + elementName, from[i]));
+                to.WriteElementString(elementName, from[i]);
             }
         }
 
         /// <summary>
         /// Import all of the given element's instances' values to a list.
         /// </summary>
-        protected List<string> ParseStrings(XElement from, string what) {
+        protected static List<string> ParseStrings(XElement from, string what) {
             IEnumerable<XElement> children = from.AllDescendants(what);
             using IEnumerator<XElement> enumerator = children.GetEnumerator();
             List<string> result = new List<string>();

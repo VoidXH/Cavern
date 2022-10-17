@@ -9,6 +9,11 @@
         public const string rootTag = "ebuCoreMain";
 
         /// <summary>
+        /// Namespace attribute of the root element.
+        /// </summary>
+        public const string rootNamespaceAttribute = "xmlns";
+
+        /// <summary>
         /// The XML namespace of an ADM XML.
         /// </summary>
         public const string rootNamespace = "urn:ebu:metadata-schema:ebuCore_2016";

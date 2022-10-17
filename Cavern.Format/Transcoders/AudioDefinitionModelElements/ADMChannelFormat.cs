@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Xml;
 using System.Xml.Linq;
 
 using Cavern.Format.Common;
@@ -40,26 +41,24 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Create an XML element about this object.
         /// </summary>
-        public override XElement Serialize(XNamespace ns) {
-            XElement root = new XElement(ns + ADMTags.channelFormatTag,
-                new XAttribute(ADMTags.channelFormatIDAttribute, ID),
-                new XAttribute(ADMTags.channelFormatNameAttribute, Name),
-                new XAttribute(ADMTags.typeStringAttribute, Type),
-                new XAttribute(ADMTags.typeAttribute, ((int)Type).ToString("x4")));
+        public override void Serialize(XmlWriter writer) {
+            writer.WriteStartElement(ADMTags.channelFormatTag);
+            writer.WriteAttributeString(ADMTags.channelFormatIDAttribute, ID);
+            writer.WriteAttributeString(ADMTags.channelFormatNameAttribute, Name);
+            writer.WriteAttributeString(ADMTags.typeStringAttribute, Type.ToString());
+            writer.WriteAttributeString(ADMTags.typeAttribute, ((int)Type).ToString("x4"));
             string namePrefix = $"AB_{ID[3..]}_";
 
             if (Type == ADMPackType.Objects || Blocks.Count != 1) {
                 int index = 0;
                 foreach (ADMBlockFormat block in Blocks) {
-                    root.Add(SerializeBlock(ns, block, namePrefix, ++index));
+                    SerializeBlock(writer, block, namePrefix, ++index);
                 }
             } else {
-                XElement block = SerializeBlock(ns, Blocks[0], namePrefix, 1);
-                block.Add(new XElement(ns + ADMTags.blockLabelAttribute,
-                    ADMConsts.channelLabels[(int)Renderer.ChannelFromPosition(Blocks[0].Position)]));
-                root.Add(block);
+                SerializeOnlyBlock(writer, Blocks[0], namePrefix, 1);
             }
-            return root;
+
+            writer.WriteEndElement();
         }
 
         /// <summary>
@@ -75,24 +74,50 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Serialization of a single position update block.
         /// </summary>
-        XElement SerializeBlock(XNamespace ns, ADMBlockFormat block, string namePrefix, int index) {
-            XElement newBlock = new XElement(ns + ADMTags.blockTag);
-            newBlock.Add(new XAttribute(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8")),
-                new XAttribute(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp()),
-                new XAttribute(ADMTags.durationAttribute, block.Duration.GetTimestamp()),
-                new XElement(ns + ADMTags.blockCartesianTag, 1),
-                new XElement(ns + ADMTags.blockPositionTag, block.Position.X,
-                    new XAttribute(ADMTags.blockCoordinateAttribute, 'X')),
-                new XElement(ns + ADMTags.blockPositionTag, block.Position.Z,
-                    new XAttribute(ADMTags.blockCoordinateAttribute, 'Y')));
+        void SerializeBlock(XmlWriter writer, ADMBlockFormat block, string namePrefix, int index) {
+            writer.WriteStartElement(ADMTags.blockTag);
+            SerializeBlockMain(writer, block, namePrefix, index);
+            writer.WriteEndElement();
+        }
+
+        /// <summary>
+        /// Serialization of the only position update block.
+        /// </summary>
+        void SerializeOnlyBlock(XmlWriter writer, ADMBlockFormat block, string namePrefix, int index) {
+            writer.WriteStartElement(ADMTags.blockTag);
+            SerializeBlockMain(writer, block, namePrefix, index);
+            writer.WriteElementString(ADMTags.blockLabelAttribute,
+                ADMConsts.channelLabels[(int)Renderer.ChannelFromPosition(Blocks[0].Position)]);
+            writer.WriteEndElement();
+        }
+
+        /// <summary>
+        /// Inner serialization of a single block element without element start/end to be extensible.
+        /// </summary>
+        void SerializeBlockMain(XmlWriter writer, ADMBlockFormat block, string namePrefix, int index) {
+            writer.WriteAttributeString(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8"));
+            writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp());
+            writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.GetTimestamp());
+            writer.WriteElementString(ADMTags.blockCartesianTag, enabledValue);
+            writer.WriteStartElement(ADMTags.blockPositionTag);
+            writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, xAxis);
+            writer.WriteString(block.Position.X.ToString().Replace(',', '.'));
+            writer.WriteEndElement();
+            writer.WriteStartElement(ADMTags.blockPositionTag);
+            writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, yAxis);
+            writer.WriteString(block.Position.Z.ToString().Replace(',', '.'));
+            writer.WriteEndElement();
             if (block.Position.Y != 0) {
-                newBlock.Add(new XElement(ns + ADMTags.blockPositionTag, block.Position.Y,
-                    new XAttribute(ADMTags.blockCoordinateAttribute, 'Z')));
+                writer.WriteStartElement(ADMTags.blockPositionTag);
+                writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, zAxis);
+                writer.WriteString(block.Position.Y.ToString().Replace(',', '.'));
+                writer.WriteEndElement();
             }
-            newBlock.Add(new XElement(ns + ADMTags.blockJumpTag, 1,
-                new XAttribute(ADMTags.blockJumpLengthAttribute,
-                    block.Interpolation.TotalSeconds.ToString("0.000000").Replace(',', '.'))));
-            return newBlock;
+            writer.WriteStartElement(ADMTags.blockJumpTag);
+            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
+                block.Interpolation.TotalSeconds.ToString("0.000000").Replace(',', '.'));
+            writer.WriteString(enabledValue);
+            writer.WriteEndElement();
         }
 
         /// <summary>
@@ -150,5 +175,25 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             }
             return result;
         }
+
+        /// <summary>
+        /// Value that marks an enabled feature.
+        /// </summary>
+        const string enabledValue = "1";
+
+        /// <summary>
+        /// Value that marks the X axis position.
+        /// </summary>
+        const string xAxis = "X";
+
+        /// <summary>
+        /// Value that marks the X axis position.
+        /// </summary>
+        const string yAxis = "Y";
+
+        /// <summary>
+        /// Value that marks the X axis position.
+        /// </summary>
+        const string zAxis = "Z";
     }
 }

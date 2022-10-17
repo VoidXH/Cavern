@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Xml;
+using System.Xml.Linq;
 
 namespace Cavern.Format.Utilities {
     /// <summary>
@@ -8,7 +9,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Create an XML element about this object.
         /// </summary>
-        XElement Serialize(XNamespace ns);
+        void Serialize(XmlWriter writer);
 
         /// <summary>
         /// Read the values of an XML element into this object.

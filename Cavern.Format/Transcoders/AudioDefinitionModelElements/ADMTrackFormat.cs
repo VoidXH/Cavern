@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Xml;
+using System.Xml.Linq;
 
 using Cavern.Format.Utilities;
 
@@ -35,13 +36,14 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Create an XML element about this object.
         /// </summary>
-        public override XElement Serialize(XNamespace ns) {
-            return new XElement(ns + ADMTags.trackFormatTag,
-                new XAttribute(ADMTags.trackFormatIDAttribute, ID),
-                new XAttribute(ADMTags.trackFormatNameAttribute, Name),
-                new XAttribute(ADMTags.formatDefinitionAttribute, Format),
-                new XAttribute(ADMTags.formatLabelAttribute, ((int)Format).ToString("x4")),
-                new XElement(ns + ADMTags.streamFormatRefTag, StreamFormat));
+        public override void Serialize(XmlWriter writer) {
+            writer.WriteStartElement(ADMTags.trackFormatTag);
+            writer.WriteAttributeString(ADMTags.trackFormatIDAttribute, ID);
+            writer.WriteAttributeString(ADMTags.trackFormatNameAttribute, Name);
+            writer.WriteAttributeString(ADMTags.formatDefinitionAttribute, Format.ToString());
+            writer.WriteAttributeString(ADMTags.formatLabelAttribute, ((int)Format).ToString("x4"));
+            writer.WriteElementString(ADMTags.streamFormatRefTag, StreamFormat);
+            writer.WriteEndElement();
         }
 
         /// <summary>

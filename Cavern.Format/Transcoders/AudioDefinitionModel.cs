@@ -199,29 +199,29 @@ namespace Cavern.Format.Transcoders {
         /// Writes the ADM metadata to an XML file.
         /// </summary>
         public void WriteXml(XmlWriter writer) {
-            XNamespace xmlns = XNamespace.Get(ADMTags.rootNamespace);
-            XNamespace xsi = XNamespace.Get(ADMTags.instanceNamespace);
-            XElement root = new XElement(xmlns + ADMTags.rootTag,
-                new XAttribute(XNamespace.Xmlns + ADMTags.instanceNamespaceAttribute, xsi),
-                new XAttribute(xsi + ADMTags.schemaLocationAttribute, ADMTags.rootNamespace + ADMTags.schemaLocation),
-                new XAttribute(XNamespace.Xml + ADMTags.languageAttribute, ADMTags.language));
-            XDocument doc = new XDocument(root);
+            writer.WriteStartDocument();
+            writer.WriteStartElement(ADMTags.rootTag, ADMTags.rootNamespace);
+            writer.WriteAttributeString(ADMTags.instanceNamespaceAttribute, ADMTags.schemaLocationAttribute,
+                ADMTags.instanceNamespace, ADMTags.rootNamespace + ADMTags.schemaLocation);
+            writer.WriteAttributeString(ADMTags.languageAttribute, ADMTags.language);
+
             for (int i = 0; i < ADMTags.subTags.Length; i++) {
-                XElement subTag = new XElement(xmlns + ADMTags.subTags[i]);
-                root.Add(subTag);
-                root = subTag;
+                writer.WriteStartElement(ADMTags.subTags[i]);
             }
 
-            SerializeGroup(Programs, root);
-            SerializeGroup(Contents, root);
-            SerializeGroup(Objects, root);
-            SerializeGroup(PackFormats, root);
-            SerializeGroup(ChannelFormats, root);
-            SerializeGroup(Tracks, root);
-            SerializeGroup(TrackFormats, root);
-            SerializeGroup(StreamFormats, root);
+            SerializeGroup(Programs, writer);
+            SerializeGroup(Contents, writer);
+            SerializeGroup(Objects, writer);
+            SerializeGroup(PackFormats, writer);
+            SerializeGroup(ChannelFormats, writer);
+            SerializeGroup(Tracks, writer);
+            SerializeGroup(TrackFormats, writer);
+            SerializeGroup(StreamFormats, writer);
 
-            doc.WriteTo(writer);
+            for (int i = 0; i < ADMTags.subTags.Length; i++) {
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
         }
 
         /// <summary>
@@ -248,11 +248,10 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Exports all elements of a group.
         /// </summary>
-        void SerializeGroup(IReadOnlyList<IXDocumentSerializable> from, XElement to) {
-            XNamespace ns = to.Name.Namespace;
+        void SerializeGroup(IReadOnlyList<IXDocumentSerializable> from, XmlWriter to) {
             IEnumerator<IXDocumentSerializable> enumerator = from.GetEnumerator();
             while (enumerator.MoveNext()) {
-                to.Add(enumerator.Current.Serialize(ns));
+                enumerator.Current.Serialize(to);
             }
         }
     }
