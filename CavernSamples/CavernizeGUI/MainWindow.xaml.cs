@@ -137,8 +137,11 @@ namespace CavernizeGUI {
             taskEngine.UpdateProgressBar(0);
             OnOutputSelected(null, null);
 
+#if RELEASE
             try {
+#endif
                 SetFile(new(path));
+#if RELEASE
             } catch (IOException e) {
                 Reset();
                 throw new Exception(e.Message);
@@ -146,6 +149,7 @@ namespace CavernizeGUI {
                 Reset();
                 throw new Exception($"{e.Message} {(string)language["Later"]}");
             }
+#endif
         }
 
         /// <summary>
@@ -225,11 +229,15 @@ namespace CavernizeGUI {
                 Filter = (string)language["ImFmt"]
             };
             if (dialog.ShowDialog().Value) {
+#if RELEASE
                 try {
+#endif
                     OpenContent(dialog.FileName);
+#if RELEASE
                 } catch (Exception ex) {
                     Error(ex.Message);
                 }
+#endif
             }
         }
 
