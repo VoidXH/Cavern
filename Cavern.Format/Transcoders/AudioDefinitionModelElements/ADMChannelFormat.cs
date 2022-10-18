@@ -47,15 +47,48 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteAttributeString(ADMTags.channelFormatNameAttribute, Name);
             writer.WriteAttributeString(ADMTags.typeStringAttribute, Type.ToString());
             writer.WriteAttributeString(ADMTags.typeAttribute, ((int)Type).ToString("x4"));
-            string namePrefix = $"AB_{ID[3..]}_";
 
+            string namePrefix = $"AB_{ID[3..]}_";
             if (Type == ADMPackType.Objects || Blocks.Count != 1) {
-                int index = 0;
-                foreach (ADMBlockFormat block in Blocks) {
-                    SerializeBlock(writer, block, namePrefix, ++index);
+                for (int i = 0, c = Blocks.Count; i < c;) {
+                    SerializeBlock(writer, Blocks[i], namePrefix, ++i);
                 }
             } else {
                 SerializeOnlyBlock(writer, Blocks[0], namePrefix, 1);
+            }
+
+            writer.WriteEndElement();
+        }
+
+        /// <summary>
+        /// Create an XML element about this object, while reporting the percentage of completion as a <paramref name="feedback"/>.
+        /// </summary>
+        /// <param name="writer">XML stream access</param>
+        /// <param name="feedback">Called when the percentage changes in a fiftieth of a percent</param>
+        /// <param name="startPercentage">Already passed progress at the first element</param>
+        /// <param name="addedPercentage">Total percentage added to the total with this serialization</param>
+        public void Serialize(XmlWriter writer, Action<double> feedback, double startPercentage, double addedPercentage) {
+            writer.WriteStartElement(ADMTags.channelFormatTag);
+            writer.WriteAttributeString(ADMTags.channelFormatIDAttribute, ID);
+            writer.WriteAttributeString(ADMTags.channelFormatNameAttribute, Name);
+            writer.WriteAttributeString(ADMTags.typeStringAttribute, Type.ToString());
+            writer.WriteAttributeString(ADMTags.typeAttribute, ((int)Type).ToString("x4"));
+
+            string namePrefix = $"AB_{ID[3..]}_";
+            if (Type == ADMPackType.Objects || Blocks.Count != 1) {
+                double lastPercentage = startPercentage,
+                    mul = 1.0 / Blocks.Count;
+                for (int i = 0, c = Blocks.Count; i < c;) {
+                    SerializeBlock(writer, Blocks[i], namePrefix, ++i);
+                    double currentPercentage = startPercentage + addedPercentage * i * mul;
+                    if (currentPercentage - lastPercentage > .0002f) {
+                        lastPercentage = currentPercentage;
+                        feedback(currentPercentage);
+                    }
+                }
+            } else {
+                SerializeOnlyBlock(writer, Blocks[0], namePrefix, 1);
+                feedback(startPercentage + addedPercentage);
             }
 
             writer.WriteEndElement();

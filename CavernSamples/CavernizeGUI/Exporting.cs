@@ -75,6 +75,14 @@ namespace CavernizeGUI {
                     untilUpdate = updateInterval;
                 }
             }
+
+            /// <summary>
+            /// Report custom progress as finalization.
+            /// </summary>
+            public void Finalize(double progress) {
+                taskEngine.UpdateStatusLazy($"Finalizing... ({progress:0.00%})");
+                taskEngine.UpdateProgressBar(progress);
+            }
         }
 
         /// <summary>
@@ -135,6 +143,25 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
+        /// Transcodes from object-based tracks to ADM BWF, and returns some measurements of the render.
+        /// </summary>
+        public static RenderStats WriteTranscode(Listener listener, Track target, BroadcastWaveFormatWriter writer,
+            TaskEngine taskEngine) {
+            RenderStats stats = new(listener);
+            Progressor progressor = new Progressor((long)(target.Length / progressSplit), listener, taskEngine);
+
+            while (progressor.Rendered < target.Length) {
+                writer.WriteNextFrame();
+                progressor.Update();
+            }
+
+            writer.FinalFeedback = progressor.Finalize;
+            writer.FinalFeedbackStart = progressSplit;
+            writer.Dispose();
+            return stats;
+        }
+
+        /// <summary>
         /// Update the UI after this many samples have been rendered.
         /// </summary>
         const long updateInterval = 50000;
@@ -143,5 +170,10 @@ namespace CavernizeGUI {
         /// The OAMD objects need this many samples at max to move to their initial position.
         /// </summary>
         const int secondFrame = 2 * 1536;
+
+        /// <summary>
+        /// The export process exports PCM data until this percentage and extra metadata after that.
+        /// </summary>
+        const double progressSplit = .95;
     }
 }

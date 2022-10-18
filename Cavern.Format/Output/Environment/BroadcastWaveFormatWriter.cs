@@ -17,6 +17,16 @@ namespace Cavern.Format.Environment {
     /// </summary>
     public class BroadcastWaveFormatWriter : EnvironmentWriter {
         /// <summary>
+        /// Reports the progress of the final AXML export [0;1].
+        /// </summary>
+        public Action<double> FinalFeedback;
+
+        /// <summary>
+        /// <see cref="FinalFeedback"/> will report numbers from this to 1.
+        /// </summary>
+        public double FinalFeedbackStart;
+
+        /// <summary>
         /// The main PCM exporter.
         /// </summary>
         protected readonly RIFFWaveWriter output;
@@ -214,7 +224,10 @@ namespace Cavern.Format.Environment {
             contents.RemoveAll(content => content.Objects.Count == 0);
 
             return new AudioDefinitionModel(programs, contents, objects, packFormats, channelFormats,
-                tracks, trackFormats, streamFormats);
+                tracks, trackFormats, streamFormats) {
+                Feedback = FinalFeedback,
+                FeedbackStartPercentage = FinalFeedbackStart
+            };
         }
     }
 }

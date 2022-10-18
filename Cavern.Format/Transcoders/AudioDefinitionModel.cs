@@ -62,6 +62,16 @@ namespace Cavern.Format.Transcoders {
         IReadOnlyList<ADMChannelFormat> movements = new List<ADMChannelFormat>();
 
         /// <summary>
+        /// Reports the percentage of completion [0;1].
+        /// </summary>
+        public Action<double> Feedback { get; set; }
+
+        /// <summary>
+        /// Feedback starts from this ratio [0;1], ends at 1.
+        /// </summary>
+        public double FeedbackStartPercentage { get; set; }
+
+        /// <summary>
         /// Only read what's absolutely needed for rendering, optimizing memory use but breaking transcodability.
         /// </summary>
         readonly bool minimal;
@@ -209,14 +219,23 @@ namespace Cavern.Format.Transcoders {
                 writer.WriteStartElement(ADMTags.subTags[i]);
             }
 
-            SerializeGroup(Programs, writer);
-            SerializeGroup(Contents, writer);
-            SerializeGroup(Objects, writer);
-            SerializeGroup(PackFormats, writer);
-            SerializeGroup(ChannelFormats, writer);
-            SerializeGroup(Tracks, writer);
-            SerializeGroup(TrackFormats, writer);
-            SerializeGroup(StreamFormats, writer);
+            Programs.SerializeGroup(writer);
+            Contents.SerializeGroup(writer);
+            Objects.SerializeGroup(writer);
+            PackFormats.SerializeGroup(writer);
+
+            if (Feedback != null) { // Only this part makes any noticeable impact, the others are a few kBs of data
+                double percentPerFormat = (1 - FeedbackStartPercentage) / ChannelFormats.Count;
+                for (int i = 0, c = ChannelFormats.Count; i < c; i++) {
+                    ChannelFormats[i].Serialize(writer, Feedback, FeedbackStartPercentage + i * percentPerFormat, percentPerFormat);
+                }
+            } else {
+                ChannelFormats.SerializeGroup(writer);
+            }
+
+            Tracks.SerializeGroup(writer);
+            TrackFormats.SerializeGroup(writer);
+            StreamFormats.SerializeGroup(writer);
 
             for (int i = 0; i < ADMTags.subTags.Length; i++) {
                 writer.WriteEndElement();
@@ -243,16 +262,6 @@ namespace Cavern.Format.Transcoders {
                 }
             }
             return null;
-        }
-
-        /// <summary>
-        /// Exports all elements of a group.
-        /// </summary>
-        void SerializeGroup(IReadOnlyList<IXDocumentSerializable> from, XmlWriter to) {
-            IEnumerator<IXDocumentSerializable> enumerator = from.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                enumerator.Current.Serialize(to);
-            }
         }
     }
 }

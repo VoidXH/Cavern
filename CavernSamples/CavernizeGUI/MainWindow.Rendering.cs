@@ -191,8 +191,15 @@ namespace CavernizeGUI {
         void TranscodeTask(Track target, EnvironmentWriter writer) {
             taskEngine.UpdateProgressBar(0);
             taskEngine.UpdateStatus((string)language["Start"]);
-            RenderStats stats = Exporting.WriteTranscode(listener, target, writer, taskEngine);
+
+            RenderStats stats;
+            if (writer is BroadcastWaveFormatWriter bwf) {
+                stats = Exporting.WriteTranscode(listener, target, bwf, taskEngine);
+            } else {
+                stats = Exporting.WriteTranscode(listener, target, writer, taskEngine);
+            }
             UpdatePostRenderReport(stats);
+
             taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.UpdateProgressBar(1);
         }

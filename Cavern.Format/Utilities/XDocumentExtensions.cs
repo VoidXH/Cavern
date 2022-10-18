@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace Cavern.Format.Utilities {
@@ -29,5 +30,15 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         public static string GetTimestamp(this TimeSpan stamp) =>
             $"{stamp:hh\\:mm\\:ss}.{stamp.Ticks % TimeSpan.TicksPerSecond * 100000 / TimeSpan.TicksPerSecond:00000}";
+
+        /// <summary>
+        /// Exports all elements of a group.
+        /// </summary>
+        public static void SerializeGroup(this IReadOnlyList<IXDocumentSerializable> from, XmlWriter to) {
+            IEnumerator<IXDocumentSerializable> enumerator = from.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                enumerator.Current.Serialize(to);
+            }
+        }
     }
 }
