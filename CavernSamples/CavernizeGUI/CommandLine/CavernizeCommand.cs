@@ -20,7 +20,7 @@ namespace CavernizeGUI.CommandLine {
         /// <summary>
         /// Description of the command that is displayed in the command list (help).
         /// </summary>
-        public override string Help => "Turns height generation from regular content on or off, up to 7.1.";
+        public override string Help => "Turns height generation from regular content up to 7.1 on or off.";
 
         /// <summary>
         /// Execute the command.

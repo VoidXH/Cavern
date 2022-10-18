@@ -20,7 +20,7 @@ namespace CavernizeGUI.CommandLine {
         /// <summary>
         /// Description of the command that is displayed in the command list (help).
         /// </summary>
-        public override string Help => "Sets generated object movement smoothness for the upconverter.";
+        public override string Help => "Sets generated object movement smoothness for the upconverter in percent.";
 
         /// <summary>
         /// Execute the command.
