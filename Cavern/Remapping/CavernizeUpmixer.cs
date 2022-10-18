@@ -21,6 +21,11 @@ namespace Cavern.Remapping {
         public float Smoothness { get; set; } = .8f;
 
         /// <summary>
+        /// Keep the center channel from gaining height.
+        /// </summary>
+        public bool CenterStays = true;
+
+        /// <summary>
         /// Mono sources to upconvert. Don't attach these to a <see cref="Listener"/>.
         /// </summary>
         readonly Source[] sources;
@@ -64,8 +69,14 @@ namespace Cavern.Remapping {
         protected override float[][] UpdateSources(int samplesPerSource) {
             filters[0].Effect = Effect;
             filters[0].CalculateSmoothingFactor(samplesPerSource, Smoothness);
+            bool centerToStay = CenterStays;
             for (int i = 1; i < filters.Length; i++) {
-                filters[i].Effect = Effect;
+                if (centerToStay && sources[i].Position.X == 0 && sources[i].Position.Y == 0 && sources[i].Position.Z > 0) {
+                    filters[i].Effect = 0;
+                    centerToStay = false;
+                } else {
+                    filters[i].Effect = Effect;
+                }
                 filters[i].SmoothFactor = filters[0].SmoothFactor;
             }
 
