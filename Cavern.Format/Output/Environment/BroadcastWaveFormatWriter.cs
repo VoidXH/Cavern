@@ -145,6 +145,7 @@ namespace Cavern.Format.Environment {
             if (admWriter == null) {
                 output.WriteChunk(RIFFWave.axmlSync, axml);
                 output.WriteChunk(RIFFWave.chnaSync, ChannelAssignment.GetChunk(adm));
+                WriteAdditionalChunks();
             } else {
                 admWriter.Write(axml);
                 admWriter.Dispose();
@@ -229,5 +230,10 @@ namespace Cavern.Format.Environment {
                 FeedbackStartPercentage = FinalFeedbackStart
             };
         }
+
+        /// <summary>
+        /// Additional chunks to write to the BWF file.
+        /// </summary>
+        protected virtual void WriteAdditionalChunks() {}
     }
 }

@@ -10,7 +10,7 @@ namespace Cavern.Format.Common {
     /// <summary>
     /// Stream reading extension functions. Provides functionality similar to <see cref="BinaryReader"/> with better performance.
     /// </summary>
-    public static class StreamExtensions {
+    static class StreamExtensions {
         /// <summary>
         /// Read more than 2 GB into a buffer.
         /// </summary>
@@ -77,6 +77,12 @@ namespace Cavern.Format.Common {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long ReadInt64(this Stream reader) => BitConverter.ToInt64(reader.ReadBytes(8));
+
+        /// <summary>
+        /// Read a 16-bit signed integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ReadUInt16(this Stream reader) => (ushort)(reader.ReadByte() | (reader.ReadByte() << 8));
 
         /// <summary>
         /// Read a 32-bit unsigned integer from the stream.

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
+using Cavern.Format.Consts;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.Remapping;
@@ -24,6 +25,17 @@ namespace Cavern.Format.Environment {
         /// </summary>
         public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits) :
             this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits) { }
+
+        /// <summary>
+        /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.
+        /// </summary>
+        static Listener ExtendWithMuteTarget(Listener source) {
+            for (int i = 0; i < bedChannels.Length; i++) {
+                Source mute = new MuteSource(source);
+                source.AttachPrioritySource(mute);
+            }
+            return source;
+        }
 
         /// <summary>
         /// Generates the ADM structure from the recorded movement and wires the mute channel to beds.
@@ -127,15 +139,10 @@ namespace Cavern.Format.Environment {
         }
 
         /// <summary>
-        /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.
+        /// Add Dolby audio Metadata to Atmos BWF files.
         /// </summary>
-        static Listener ExtendWithMuteTarget(Listener source) {
-            for (int i = 0; i < bedChannels.Length; i++) {
-                Source mute = new MuteSource(source);
-                source.AttachPrioritySource(mute);
-            }
-            return source;
-        }
+        protected override void WriteAdditionalChunks() =>
+            output.WriteChunk(RIFFWave.dbmdSync, new DolbyMetadata((byte)output.ChannelCount).Serialize());
 
         /// <summary>
         /// Indexes of Dolby Atmos beds (7.1.2) in the <see cref="ADMConsts.channelNames"/> array.

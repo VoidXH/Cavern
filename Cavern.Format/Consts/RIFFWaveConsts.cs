@@ -51,6 +51,11 @@ namespace Cavern.Format.Consts {
         public const int dataSync = 0x61746164;
 
         /// <summary>
+        /// Dolby audio Metadata chunk marker.
+        /// </summary>
+        public const int dbmdSync = 0x646d6264;
+
+        /// <summary>
         /// Meaning of each bit in WAVEFORMATEXTENSIBLE's channel mask.
         /// </summary>
         public static readonly ReferenceChannel[] channelMask = {
