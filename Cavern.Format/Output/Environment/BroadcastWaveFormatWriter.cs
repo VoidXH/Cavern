@@ -93,7 +93,7 @@ namespace Cavern.Format.Environment {
             foreach (Source source in Source.ActiveSources) {
                 List<ADMBlockFormat> movement = movements[sourceIndex];
                 int size = movement.Count;
-                Vector3 scaledPosition = source.Position * scaling;
+                Vector3 scaledPosition = Vector3.Clamp(source.Position * scaling, minusOne, Vector3.One);
                 if (size == 0 || movement[size - 1].Position != scaledPosition) {
                     bool replace = false;
                     if (size > 1) {
@@ -115,7 +115,7 @@ namespace Cavern.Format.Environment {
                         movement.Add(new ADMBlockFormat() {
                             Position = scaledPosition,
                             Offset = newOffset,
-                            Duration = updateTime,
+                            Duration = size == 0 ? updateTime : newOffset - movement[size - 1].Offset,
                             Interpolation = updateTime
                         });
                     }
@@ -132,6 +132,7 @@ namespace Cavern.Format.Environment {
         /// </summary>
         public override void Dispose() {
             AudioDefinitionModel adm = CreateModel();
+
             StringBuilder builder = new StringBuilder();
             XmlWriterSettings settings = new XmlWriterSettings();
             if (admWriter != null) {
@@ -213,9 +214,12 @@ namespace Cavern.Format.Environment {
                 packFormats.Add(new ADMPackFormat(packFormatID, objectName, packType) {
                     ChannelFormats = new List<string>() { channelFormatID }
                 });
+
+                FixEndTimings(movements[i], contentTime);
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, packType) {
                     Blocks = movements[i]
                 });
+
                 tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, packFormatID));
                 trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));
                 streamFormats.Add(new ADMStreamFormat(streamFormatID, "PCM_" + objectName, ADMTrackCodec.PCM,
@@ -235,5 +239,24 @@ namespace Cavern.Format.Environment {
         /// Additional chunks to write to the BWF file.
         /// </summary>
         protected virtual void WriteAdditionalChunks() {}
+
+        /// <summary>
+        /// Makes sure the last block ends with the content.
+        /// </summary>
+        protected void FixEndTimings(List<ADMBlockFormat> blocks, TimeSpan contentLength) {
+            for (int j = 0, c = blocks.Count; j < c; j++) {
+                if (blocks.Count != 0) {
+                    ADMBlockFormat lastBlock = blocks[^1];
+                    if (lastBlock.Duration != TimeSpan.Zero && lastBlock.Offset + lastBlock.Duration != contentLength) {
+                        lastBlock.Duration = contentLength - lastBlock.Offset;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inverse of <see cref="Vector3.One"/> for clamping.
+        /// </summary>
+        static readonly Vector3 minusOne = -Vector3.One;
     }
 }

@@ -13,7 +13,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Length of the program in seconds.
         /// </summary>
-        readonly double length;
+        public double Length { get; }
 
         /// <summary>
         /// ID references of contained <see cref="ADMObject"/>s.
@@ -23,7 +23,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Constructs a program of <paramref name="length"/> in seconds.
         /// </summary>
-        public ADMProgramme(string id, string name, double length) : base(id, name) => this.length = length;
+        public ADMProgramme(string id, string name, double length) : base(id, name) => Length = length;
 
         /// <summary>
         /// Constructs a program from an XML element.
@@ -38,7 +38,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteAttributeString(ADMTags.programIDAttribute, ID);
             writer.WriteAttributeString(ADMTags.programNameAttribute, Name);
             writer.WriteAttributeString(ADMTags.startAttribute, new TimeSpan().GetTimestamp());
-            writer.WriteAttributeString(ADMTags.programEndAttribute, TimeSpan.FromSeconds(length).GetTimestamp());
+            writer.WriteAttributeString(ADMTags.programEndAttribute, TimeSpan.FromSeconds(Length).GetTimestamp());
             SerializeStrings(Contents, writer, ADMTags.contentRefTag);
             writer.WriteEndElement();
         }

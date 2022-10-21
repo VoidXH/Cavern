@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Cavern.Format.Common {
+namespace Cavern.Format.Utilities {
     /// <summary>
     /// Functions to read/write various data from/to cached bytestreams.
     /// </summary>

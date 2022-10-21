@@ -123,9 +123,12 @@ namespace Cavern.Format.Environment {
                 packFormats.Add(new ADMPackFormat(packFormatID, objectName, ADMPackType.Objects) {
                     ChannelFormats = new List<string>() { channelFormatID }
                 });
+
+                FixEndTimings(movements[i], contentTime);
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, ADMPackType.Objects) {
                     Blocks = movements[i + bedChannels.Length]
                 });
+
                 tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, packFormatID));
                 trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));
                 streamFormats.Add(new ADMStreamFormat(streamFormatID, "PCM_" + objectName, ADMTrackCodec.PCM,

@@ -7,6 +7,7 @@ using Cavern.Format.Container;
 using Cavern.Format.Container.Matroska;
 using Cavern.Format.Renderers;
 using Cavern.Format.Transcoders;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format {
     /// <summary>

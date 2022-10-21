@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using Cavern.Format.Common;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>

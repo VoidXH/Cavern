@@ -6,7 +6,7 @@ using System.Text;
 
 using static Cavern.Utilities.QMath;
 
-namespace Cavern.Format.Common {
+namespace Cavern.Format.Utilities {
     /// <summary>
     /// Stream reading extension functions. Provides functionality similar to <see cref="BinaryReader"/> with better performance.
     /// </summary>

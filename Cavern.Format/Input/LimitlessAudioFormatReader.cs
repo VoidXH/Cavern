@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Renderers;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format {
     /// <summary>

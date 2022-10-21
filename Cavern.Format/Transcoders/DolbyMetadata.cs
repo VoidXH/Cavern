@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 
 using Cavern.Format.Common;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Transcoders {
     /// <summary>
@@ -158,9 +159,9 @@ namespace Cavern.Format.Transcoders {
         const ushort DolbyAtmosMetadataLength = 248;
 
         /// <summary>
-        /// Creation info used for writing DBMDs.
+        /// Creation info used for writing DBMDs. This default value has to stay for the DMBD to be valid.
         /// </summary>
-        const string defaultCreationInfo = "Created with Cavern";
+        const string defaultCreationInfo = "Created using Dolby equipment";
 
         /// <summary>
         /// Maximum number of characters for each creation info entry.
