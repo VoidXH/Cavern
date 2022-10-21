@@ -2,6 +2,8 @@
 using System.IO;
 using System.Text;
 
+using Cavern.Format.Utilities;
+
 namespace Cavern.Format.Common {
     /// <summary>
     /// A tag and its data encoded in the format of a key, a length, and a value, most notably used in the EBML format.

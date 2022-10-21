@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 using Cavern.Format.Common;
+using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Container.Matroska {

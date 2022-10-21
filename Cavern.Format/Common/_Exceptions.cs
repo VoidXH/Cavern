@@ -38,6 +38,18 @@ namespace Cavern.Format.Common {
     }
 
     /// <summary>
+    /// Tells that no program was detected in the container/track.
+    /// </summary>
+    public class NoProgramException : Exception {
+        const string message = "No program was detected.";
+
+        /// <summary>
+        /// Tells that no program was detected in the container/track.
+        /// </summary>
+        public NoProgramException() : base(message) { }
+    }
+
+    /// <summary>
     /// Tells that a decoder which can process an infinite stream is not able to return content length.
     /// </summary>
     public class RealtimeLengthException : Exception {
