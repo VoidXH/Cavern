@@ -17,6 +17,80 @@ namespace Cavern.Format.Transcoders {
         public uint Version { get; }
 
         /// <summary>
+        /// Channel mode ID, determines the channel layout (acmod).
+        /// </summary>
+        public int ChannelMode {
+            get => programInfo & 0b111;
+            set {
+                if (value < (1 << 3)) {
+                    programInfo = (byte)((programInfo & ~0x7) + value);
+                } else {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Bitstream mode ID, determines the content type (bsmod).
+        /// </summary>
+        public int BitstreamMode {
+            get => (programInfo >> 3) & ((1 << 3) - 1);
+            set {
+                if (value < (1 << 3)) {
+                    programInfo = (byte)((programInfo & 0b11000111) + (value << 3));
+                } else {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        /// <summary>
+        /// LFE channel is active (lfeon).
+        /// </summary>
+        public bool LFE {
+            get => (programInfo & (1 << 6)) != 0;
+            set => programInfo = (byte)((programInfo & (~(1 << 6))) + (value ? (1 << 6) : 0));
+        }
+
+        /// <summary>
+        /// Language code is supplied (langcode).
+        /// </summary>
+        public bool LanguageCodeEnabled {
+            get => (dialnormInfo & (1 << 7)) != 0;
+            set => dialnormInfo = (byte)((dialnormInfo & (~(1 << 7))) + (value ? (1 << 7) : 0));
+        }
+
+        /// <summary>
+        /// The content is copyright-protected (copyrightb).
+        /// </summary>
+        public bool CopyrightBit {
+            get => (dialnormInfo & (1 << 6)) != 0;
+            set => dialnormInfo = (byte)((dialnormInfo & (~(1 << 6))) + (value ? (1 << 6) : 0));
+        }
+
+        /// <summary>
+        /// The content is the original bitstream (origbs).
+        /// </summary>
+        public bool OriginalBitstream {
+            get => (dialnormInfo & (1 << 5)) != 0;
+            set => dialnormInfo = (byte)((dialnormInfo & (~(1 << 5))) + (value ? (1 << 5) : 0));
+        }
+
+        /// <summary>
+        /// Apparent loudness of the content (dialnorm).
+        /// </summary>
+        public int DialogNormalization {
+            get => dialnormInfo & ((1 << 5) - 1);
+            set {
+                if (value < (1 << 5)) {
+                    dialnormInfo = (byte)((dialnormInfo & 0b11100000) + value);
+                } else {
+                    throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        /// <summary>
         /// Software used for creating this DBMD, 2 ASCII strings, 32 characters max.
         /// </summary>
         public string[] CreationInfo { get; } = new string[2];
@@ -30,6 +104,28 @@ namespace Cavern.Format.Transcoders {
         /// Number of audio objects present in the audio stream.
         /// </summary>
         public byte ObjectCount { get; }
+
+        /// <summary>
+        /// The program info field of DD+ metadata. Bits:<br />
+        /// - 6: <see cref="LFE"/><br />
+        /// - 5-3: <see cref="BitstreamMode"/><br />
+        /// - 2-0: <see cref="ChannelMode"/>
+        /// </summary>
+        byte programInfo;
+
+        /// <summary>
+        /// The dialog normalization field of DD+ metadata. Bits:<br />
+        /// - 7: <see cref="LanguageCodeEnabled"/><br />
+        /// - 6: <see cref="CopyrightBit"/><br />
+        /// - 5: <see cref="OriginalBitstream"/><br />
+        /// - 4-0: <see cref="DialogNormalization"/>
+        /// </summary>
+        byte dialnormInfo;
+
+        /// <summary>
+        /// Downmixing metadata (mode and gains).
+        /// </summary>
+        short downmixInfo;
 
         /// <summary>
         /// Reads a Dolby audio Metadata chunk from a stream.
@@ -56,6 +152,11 @@ namespace Cavern.Format.Transcoders {
                 }
 
                 switch (segmentID) {
+                    case DolbyDigitalPlusMetadata:
+                        programInfo = segment[1];
+                        dialnormInfo = segment[5];
+                        downmixInfo = (short)((segment[8] << 8) + segment[9]);
+                        break;
                     case DolbyAtmosMetadata:
                         CreationInfo[0] = segment.ReadCString(0, creationInfoFieldSize);
                         CreationInfo[1] = segment.ReadCString(creationInfoFieldSize, creationInfoFieldSize);
@@ -82,6 +183,9 @@ namespace Cavern.Format.Transcoders {
             CreationInfo[1] = Listener.Info[..(Listener.Info.IndexOf('(') - 1)];
             ObjectMetadataPreamble = objectMetadataPreamble;
             ObjectCount = objectCount;
+            programInfo = defaultProgramInfo;
+            dialnormInfo = defaultDialnormInfo;
+            downmixInfo = defaultDownmixInfo;
         }
 
         /// <summary>
@@ -99,7 +203,9 @@ namespace Cavern.Format.Transcoders {
         /// Create the output bytestream.
         /// </summary>
         public byte[] Serialize() {
-            Dictionary<byte, byte[]> segments = new Dictionary<byte, byte[]>();
+            Dictionary<byte, byte[]> segments = new Dictionary<byte, byte[]> {
+                { DolbyDigitalPlusMetadata, CreateDolbyDigitalPlusMetadata() }
+            };
             if (CreationInfo[0] != null) {
                 segments.Add(DolbyAtmosMetadata, CreateDolbyAtmosMetadata());
             }
@@ -117,6 +223,15 @@ namespace Cavern.Format.Transcoders {
                 offset += segment.Value.Length;
                 result[offset++] = CalculateChecksum(segment.Value, (ushort)segment.Value.Length);
             }
+            return result;
+        }
+
+        byte[] CreateDolbyDigitalPlusMetadata() {
+            byte[] result = new byte[DolbyDigitalPlusMetadataLength];
+            result[1] = programInfo;
+            result[5] = dialnormInfo;
+            result[8] = (byte)(downmixInfo >> 8);
+            result[9] = (byte)downmixInfo;
             return result;
         }
 
@@ -147,6 +262,31 @@ namespace Cavern.Format.Transcoders {
         /// Version used for writing DBMDs.
         /// </summary>
         const uint version = 0x01000006;
+
+        /// <summary>
+        /// Dolby Digital Plus metadata segment identifier.
+        /// </summary>
+        const byte DolbyDigitalPlusMetadata = 7;
+
+        /// <summary>
+        /// Default length of a <see cref="DolbyDigitalPlusMetadata"/> segment.
+        /// </summary>
+        const ushort DolbyDigitalPlusMetadataLength = 96;
+
+        /// <summary>
+        /// Default to 5.1 layout.
+        /// </summary>
+        const byte defaultProgramInfo = 0x47;
+
+        /// <summary>
+        /// If no information is provided about them, protection should be enabled and the content is marked as original.
+        /// </summary>
+        const byte defaultDialnormInfo = 0x60;
+
+        /// <summary>
+        /// Default downmix is -3 dB on each channel.
+        /// </summary>
+        const short defaultDownmixInfo = 0x2424;
 
         /// <summary>
         /// Dolby Atmos metadata segment identifier.
