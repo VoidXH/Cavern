@@ -159,7 +159,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int blocks = readAllBlocks ? 15 : extractor.Read(4);
 
             // Spatial position
-            if (ValidPosition = (blocks & 1) != 0) {
+            if (ValidPosition = (blocks & 8) != 0) {
                 differentialPosition = blk != 0 && extractor.ReadBit();
                 if (differentialPosition) {
                     position = new Vector3(
@@ -189,12 +189,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
 
             // Zone constraints - the renderer is not prepared for zoning
-            if ((blocks & 2) != 0) {
+            if ((blocks & 4) != 0) {
                 extractor.Skip(4);
             }
 
             // Scaling
-            if ((blocks & 4) != 0) {
+            if ((blocks & 2) != 0) {
                 size = extractor.Read(2) switch {
                     0 => 0,
                     1 => extractor.Read(5) * sizeScale,
@@ -204,7 +204,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
 
             // Screen anchoring
-            if ((blocks & 8) != 0 && extractor.ReadBit()) {
+            if ((blocks & 1) != 0 && extractor.ReadBit()) {
                 anchor = ObjectAnchor.Screen;
                 screenFactor = (extractor.Read(3) + 1) * .125f;
                 depthFactor = depthFactors[extractor.Read(2)];
