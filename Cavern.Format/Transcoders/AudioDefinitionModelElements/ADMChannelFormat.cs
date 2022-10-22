@@ -109,7 +109,15 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// </summary>
         void SerializeBlock(XmlWriter writer, ADMBlockFormat block, string namePrefix, int index) {
             writer.WriteStartElement(ADMTags.blockTag);
+            writer.WriteAttributeString(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8"));
+            writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp());
+            writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.GetTimestamp());
             SerializeBlockMain(writer, block, namePrefix, index);
+            writer.WriteStartElement(ADMTags.blockJumpTag);
+            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
+                block.Interpolation.TotalSeconds.ToString("0.000000").Replace(',', '.'));
+            writer.WriteString(enabledValue);
+            writer.WriteEndElement();
             writer.WriteEndElement();
         }
 
@@ -118,9 +126,16 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// </summary>
         void SerializeOnlyBlock(XmlWriter writer, ADMBlockFormat block, string namePrefix, int index) {
             writer.WriteStartElement(ADMTags.blockTag);
+            writer.WriteAttributeString(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8"));
+            if (Type != ADMPackType.DirectSpeakers) {
+                writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp());
+                writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.GetTimestamp());
+            }
             SerializeBlockMain(writer, block, namePrefix, index);
-            writer.WriteElementString(ADMTags.blockLabelAttribute,
-                ADMConsts.channelLabels[(int)Renderer.ChannelFromPosition(Blocks[0].Position)]);
+            if (Type == ADMPackType.DirectSpeakers) {
+                writer.WriteElementString(ADMTags.blockLabelAttribute,
+                    ADMConsts.channelLabels[(int)Renderer.ChannelFromPosition(Blocks[0].Position)]);
+            }
             writer.WriteEndElement();
         }
 
@@ -128,9 +143,6 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// Inner serialization of a single block element without element start/end to be extensible.
         /// </summary>
         void SerializeBlockMain(XmlWriter writer, ADMBlockFormat block, string namePrefix, int index) {
-            writer.WriteAttributeString(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8"));
-            writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp());
-            writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.GetTimestamp());
             writer.WriteElementString(ADMTags.blockCartesianTag, enabledValue);
             writer.WriteStartElement(ADMTags.blockPositionTag);
             writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, xAxis);
@@ -146,11 +158,6 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                 writer.WriteString(block.Position.Y.ToString().Replace(',', '.'));
                 writer.WriteEndElement();
             }
-            writer.WriteStartElement(ADMTags.blockJumpTag);
-            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
-                block.Interpolation.TotalSeconds.ToString("0.000000").Replace(',', '.'));
-            writer.WriteString(enabledValue);
-            writer.WriteEndElement();
         }
 
         /// <summary>
