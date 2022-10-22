@@ -6,6 +6,8 @@ using Cavern;
 using Cavern.Format;
 using Cavern.Format.Environment;
 using Cavern.Utilities;
+
+using CavernizeGUI.Elements;
 using VoidX.WPF;
 
 namespace CavernizeGUI {

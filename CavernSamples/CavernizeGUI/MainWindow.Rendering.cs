@@ -9,6 +9,7 @@ using Cavern.Format.Environment;
 using Cavern.Utilities;
 
 using CavernizeGUI.Elements;
+using Track = CavernizeGUI.Elements.Track;
 
 namespace CavernizeGUI {
     partial class MainWindow {

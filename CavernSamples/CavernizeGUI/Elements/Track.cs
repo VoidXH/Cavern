@@ -11,7 +11,7 @@ using Cavern.Remapping;
 using Cavern.Utilities;
 using CavernizeGUI.Resources;
 
-namespace CavernizeGUI {
+namespace CavernizeGUI.Elements {
     /// <summary>
     /// Represents an audio track of an audio file.
     /// </summary>

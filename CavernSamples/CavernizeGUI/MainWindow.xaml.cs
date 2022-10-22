@@ -19,6 +19,7 @@ using CavernizeGUI.Resources;
 using VoidX.WPF;
 
 using Path = System.IO.Path;
+using Track = CavernizeGUI.Elements.Track;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
@@ -247,12 +248,14 @@ namespace CavernizeGUI {
         void OnRenderTargetSelected(object _, SelectionChangedEventArgs e) {
             RenderTarget selected = (RenderTarget)renderTarget.SelectedItem;
             if (selected is DriverRenderTarget) {
+                wiring.IsEnabled = false;
                 foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
                     pair.Value.Fill = yellow;
                 }
                 return;
             }
 
+            wiring.IsEnabled = true;
             foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
                 pair.Value.Fill = red;
             }

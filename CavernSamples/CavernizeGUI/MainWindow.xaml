@@ -80,7 +80,7 @@
                                 <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
                                 <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
                             </Canvas>
-                            <Button Margin="40,231,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
+                            <Button x:Name="wiring" Margin="40,231,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
                                     Content="{StaticResource DisWi}" Click="DisplayWiring"/>
                         </Grid>
                         <Button Margin="40,266,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
