@@ -14,25 +14,30 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int[][] sourceVector = jocVector[obj];
             int[][] inputChannel = jocChannel[obj];
             int bands = this.bands[obj];
-            for (int dp = 0; dp < dataPoints[obj]; ++dp) {
+            for (int dp = 0; dp < dataPoints[obj]; dp++) {
                 float[][] dpMatrix = mixMatrix[dp];
                 int[] dpVector = sourceVector[dp];
                 int[] dpChannel = inputChannel[dp];
-                for (int ch = 0; ch < ChannelCount; ++ch) {
-                    float[] chMatrix = dpMatrix[ch];
-                    for (int pb = 0; pb < bands; ++pb) {
-                        chMatrix[pb] = center;
-                    }
-                }
 
-                int rollingChannel = dpChannel[0];
-                int rollingVector = (center + dpVector[0]) % max;
-                dpMatrix[rollingChannel][0] = rollingVector;
-                for (int pb = 1; pb < bands; ++pb) {
-                    rollingChannel = (dpChannel[pb - 1] + dpChannel[pb]) % ChannelCount;
-                    rollingVector = (rollingVector + dpVector[pb]) % max;
-                    dpMatrix[rollingChannel][pb] = rollingVector;
-                    // standard: dpMatrix[rollingChannel][pb] = (dpMatrix[rollingChannel][pb - 1] + dpVector[pb]) % max;
+                for (int pb = 0; pb < bands; pb++) {
+                    int channel;
+                    if (pb == 0) {
+                        channel = dpChannel[0];
+                    } else {
+                        channel = (dpChannel[pb - 1] + dpChannel[pb]) % ChannelCount;
+                    }
+
+                    for (int ch = 0; ch < ChannelCount; ch++) {
+                        if (ch == channel) {
+                            if (pb == 0) {
+                                dpMatrix[ch][pb] = (center + dpVector[pb]) % max;
+                            } else {
+                                dpMatrix[ch][pb] = (dpMatrix[ch][pb - 1] + dpVector[pb]) % max;
+                            }
+                        } else {
+                            dpMatrix[ch][pb] = center;
+                        }
+                    }
                 }
             }
         }
@@ -45,14 +50,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int max = center * 2;
             int bands = this.bands[obj];
             int[][][] sourceMatrix = jocMatrix[obj];
-            for (int dp = 0; dp < dataPoints[obj]; ++dp) {
+            for (int dp = 0; dp < dataPoints[obj]; dp++) {
                 float[][] dpMatrix = mixMatrix[dp];
                 int[][] dpSource = sourceMatrix[dp];
-                for (int ch = 0; ch < ChannelCount; ++ch) {
+                for (int ch = 0; ch < ChannelCount; ch++) {
                     float[] chMatrix = dpMatrix[ch];
                     int[] chSource = dpSource[ch];
                     chMatrix[0] = (center + chSource[0]) % max;
-                    for (int pb = 1; pb < bands; ++pb) {
+                    for (int pb = 1; pb < bands; pb++) {
                         chMatrix[pb] = (chMatrix[pb - 1] + chSource[pb]) % max;
                     }
                 }
@@ -63,11 +68,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Convert the values of the decoded JOC matrix to the mixing range.
         /// </summary>
         void Dequantize(int obj, float[][][] mixMatrix, int center, float gainStep) {
-            for (int dp = 0; dp < dataPoints[obj]; ++dp) {
+            for (int dp = 0; dp < dataPoints[obj]; dp++) {
                 float[][] dpMix = mixMatrix[dp];
-                for (int ch = 0; ch < ChannelCount; ++ch) {
+                for (int ch = 0; ch < ChannelCount; ch++) {
                     float[] chMix = dpMix[ch];
-                    for (int pb = 0; pb < bands[obj]; ++pb) {
+                    for (int pb = 0; pb < bands[obj]; pb++) {
                         chMix[pb] = (chMix[pb] - center) * gainStep;
                     }
                 }
@@ -80,10 +85,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SteepSingleDataPointTimeslot(int ts, float[][][] interpolationMatrix, float[][] source) {
             float[][] timeslotInterp = interpolationMatrix[ts];
-            for (int ch = 0; ch < ChannelCount; ++ch) {
+            for (int ch = 0; ch < ChannelCount; ch++) {
                 float[] channelInterp = timeslotInterp[ch];
                 float[] sourceChannel = source[ch];
-                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
                     channelInterp[sb] = sourceChannel[sb];
                 }
             }
@@ -103,8 +108,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
             // Side info interpolation below
             if (!ObjectActive[obj]) {
-                for (int ts = 0; ts < timeslots; ++ts) {
-                    for (int ch = 0; ch < ChannelCount; ++ch) {
+                for (int ts = 0; ts < timeslots; ts++) {
+                    for (int ch = 0; ch < ChannelCount; ch++) {
                         Array.Clear(interpolationMatrix[ts][ch], 0, QuadratureMirrorFilterBank.subbands);
                     }
                 }
@@ -115,20 +120,20 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (dataPoints[obj] == 1) {
                 if (steepSlope[obj]) {
                     int splitPoint = timeslotOffsets[obj][0];
-                    for (int ts = 0; ts < splitPoint; ++ts) {
+                    for (int ts = 0; ts < splitPoint; ts++) {
                         SteepSingleDataPointTimeslot(ts, interpolationMatrix, prevMatrix);
                     }
-                    for (int ts = splitPoint; ts < timeslots; ++ts) {
+                    for (int ts = splitPoint; ts < timeslots; ts++) {
                         SteepSingleDataPointTimeslot(ts, interpolationMatrix, mixMatrix[ts < timeslotOffsets[obj][1] ? 1 : 0]);
                     }
                 } else {
-                    for (int ch = 0; ch < ChannelCount; ++ch) {
+                    for (int ch = 0; ch < ChannelCount; ch++) {
                         float[] channelPrev = prevMatrix[ch];
                         float[] mix = mixMatrix[0][ch];
                         for (int ts = 0; ts < timeslots;) {
                             float[] channelInterp = interpolationMatrix[ts][ch];
                             float lerp = ++ts / timeslots;
-                            for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                            for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
                                 channelInterp[sb] = channelPrev[sb] + (mix[pbMapping[sb]] - channelPrev[sb]) * lerp;
                             }
                         }
@@ -139,10 +144,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     for (int ts = 0; ts < timeslots;) {
                         float[][] timeslotInterp = interpolationMatrix[ts++];
                         float[][] source = ts < timeslotOffsets[obj][0] ? prevMatrix : mixMatrix[0];
-                        for (int ch = 0; ch < ChannelCount; ++ch) {
+                        for (int ch = 0; ch < ChannelCount; ch++) {
                             float[] channelInterp = timeslotInterp[ch];
                             float[] sourceChannel = source[ch];
-                            for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                            for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
                                 channelInterp[sb] = sourceChannel[sb];
                             }
                         }
@@ -163,16 +168,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                             to = mixMatrix[1];
                         }
 
-                        for (int ch = 0; ch < ChannelCount; ++ch) {
+                        for (int ch = 0; ch < ChannelCount; ch++) {
                             float[] channelInterp = timeslotInterp[ch];
                             float[] channelFrom = from[ch];
                             float[] channelTo = to[ch];
                             if (ts <= ts_2) {
-                                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
                                     channelInterp[sb] = channelFrom[sb] + (channelTo[sb] - channelFrom[sb]) * lerp;
                                 }
                             } else {
-                                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
                                     int pb = JointObjectCodingTables.parameterBandMapping[bandsIndex[obj]][sb];
                                     channelInterp[sb] = channelFrom[pb] + (channelTo[pb] - channelFrom[pb]) * lerp;
                                 }
@@ -182,11 +187,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
 
-            for (int ts = 0; ts < timeslots; ++ts) {
-                for (int ch = 0; ch < ChannelCount; ++ch) {
+            for (int ts = 0; ts < timeslots; ts++) {
+                for (int ch = 0; ch < ChannelCount; ch++) {
                     float[] channelPrev = prevMatrix[ch];
                     float[] mixSource = mixMatrix[dataPoints[obj] - 1][ch];
-                    for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
+                    for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
                         channelPrev[sb] = mixSource[pbMapping[sb]];
                     }
                 }
@@ -196,7 +201,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         void GetMixingMatrices(int num_qmf_timeslots, float[][][] prevMatrix) {
             int runs = ObjectCount;
             using ManualResetEvent reset = new ManualResetEvent(false);
-            for (int obj = 0; obj < ObjectCount; ++obj) {
+            for (int obj = 0; obj < ObjectCount; obj++) {
                 ThreadPool.QueueUserWorkItem(
                    new WaitCallback(objIndex => {
                        int obj = (int)objIndex;
