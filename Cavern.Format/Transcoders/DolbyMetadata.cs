@@ -96,6 +96,16 @@ namespace Cavern.Format.Transcoders {
         public string[] CreationInfo { get; } = new string[2];
 
         /// <summary>
+        /// Major/minor/patch versions at the "Created with" field.
+        /// </summary>
+        public byte[] CreatedWithVersion { get; } = new byte[3];
+
+        /// <summary>
+        /// Identifier of content frame rate.
+        /// </summary>
+        public ushort FrameRateCode { get; set; }
+
+        /// <summary>
         /// Unknown metadata at the beginning of the <see cref="objectMetadata"/> segment.
         /// </summary>
         public uint ObjectMetadataPreamble { get; }
@@ -125,7 +135,7 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Downmixing metadata (mode and gains).
         /// </summary>
-        short downmixInfo;
+        ushort downmixInfo;
 
         /// <summary>
         /// Reads a Dolby audio Metadata chunk from a stream.
@@ -155,11 +165,15 @@ namespace Cavern.Format.Transcoders {
                     case DolbyDigitalPlusMetadata:
                         programInfo = segment[1];
                         dialnormInfo = segment[5];
-                        downmixInfo = (short)((segment[8] << 8) + segment[9]);
+                        downmixInfo = (ushort)((segment[8] << 8) + segment[9]);
                         break;
                     case DolbyAtmosMetadata:
                         CreationInfo[0] = segment.ReadCString(0, creationInfoFieldSize);
                         CreationInfo[1] = segment.ReadCString(creationInfoFieldSize, creationInfoFieldSize);
+                        for (int i = 0; i < CreatedWithVersion.Length; i++) {
+                            CreatedWithVersion[i] = segment[96 + i];
+                        }
+                        FrameRateCode = (ushort)((segment[111] << 8) + segment[112]);
                         // Find out the following bytes if needed
                         break;
                     case objectMetadata:
@@ -181,6 +195,17 @@ namespace Cavern.Format.Transcoders {
             Version = version;
             CreationInfo[0] = defaultCreationInfo;
             CreationInfo[1] = Listener.Info[..(Listener.Info.IndexOf('(') - 1)];
+
+            int dot = 0;
+            for (int i = 0; i < CreationInfo[1].Length; i++) {
+                if (CreationInfo[1][i] >= '0' && CreationInfo[1][i] <= '9') {
+                    CreatedWithVersion[dot] = (byte)(CreatedWithVersion[dot] * 10 + CreationInfo[1][i] - '0');
+                } else if (CreatedWithVersion[dot] != 0 && ++dot == CreatedWithVersion.Length) {
+                    break;
+                }
+            }
+
+            FrameRateCode = defaultFrameRateCode;
             ObjectMetadataPreamble = objectMetadataPreamble;
             ObjectCount = objectCount;
             programInfo = defaultProgramInfo;
@@ -242,6 +267,13 @@ namespace Cavern.Format.Transcoders {
             byte[] result = new byte[DolbyAtmosMetadataLength];
             result.WriteCString(CreationInfo[0], 0, creationInfoFieldSize);
             result.WriteCString(CreationInfo[1], creationInfoFieldSize, creationInfoFieldSize);
+            for (int i = 0; i < CreatedWithVersion.Length; i++) {
+                result[96 + i] = CreatedWithVersion[i];
+            }
+            result[103] = 0x03; // no idea
+            result[106] = 0x01; // no idea
+            result[111] = (byte)(FrameRateCode >> 8);
+            result[112] = (byte)FrameRateCode;
             return result;
         }
 
@@ -286,7 +318,7 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Default downmix is -3 dB on each channel.
         /// </summary>
-        const short defaultDownmixInfo = 0x2424;
+        const ushort defaultDownmixInfo = 0x2424;
 
         /// <summary>
         /// Dolby Atmos metadata segment identifier.
@@ -307,6 +339,11 @@ namespace Cavern.Format.Transcoders {
         /// Maximum number of characters for each creation info entry.
         /// </summary>
         const byte creationInfoFieldSize = 32;
+
+        /// <summary>
+        /// Default value of <see cref="FrameRateCode"/>.
+        /// </summary>
+        const ushort defaultFrameRateCode = 0x22FF;
 
         /// <summary>
         /// Object-related metadata.

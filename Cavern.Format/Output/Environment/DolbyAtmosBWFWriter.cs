@@ -41,8 +41,7 @@ namespace Cavern.Format.Environment {
         /// Generates the ADM structure from the recorded movement and wires the mute channel to beds.
         /// </summary>
         protected override AudioDefinitionModel CreateModel() {
-            double contentLength = output.Length / (double)output.SampleRate;
-            TimeSpan contentTime = TimeSpan.FromSeconds(contentLength);
+            TimeSpan contentLength = GetContentLength();
             const string bedContentID = "ACO_1001",
                 objectContentID = "ACO_1002",
                 bedObjectID = "AO_1001",
@@ -65,7 +64,7 @@ namespace Cavern.Format.Environment {
                 }
             };
 
-            ADMObject bedObject = new ADMObject(bedObjectID, "Bed", default, contentTime, bedPackFormatID) {
+            ADMObject bedObject = new ADMObject(bedObjectID, "Bed", default, contentLength, bedPackFormatID) {
                 Tracks = new List<string>()
             };
             List<ADMObject> objects = new List<ADMObject>() { bedObject };
@@ -117,14 +116,14 @@ namespace Cavern.Format.Environment {
                     streamFormatID = $"AS_{packHex}{id}";
 
                 objectIDs.Add(objectID);
-                objects.Add(new ADMObject(objectID, "Audio Object " + (i + 1), default, contentTime, packFormatID) {
+                objects.Add(new ADMObject(objectID, "Audio Object " + (i + 1), default, contentLength, packFormatID) {
                     Tracks = new List<string>() { trackID }
                 });
                 packFormats.Add(new ADMPackFormat(packFormatID, objectName, ADMPackType.Objects) {
                     ChannelFormats = new List<string>() { channelFormatID }
                 });
 
-                FixEndTimings(movements[i], contentTime);
+                FixEndTimings(movements[i], contentLength);
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, ADMPackType.Objects) {
                     Blocks = movements[i + bedChannels.Length]
                 });

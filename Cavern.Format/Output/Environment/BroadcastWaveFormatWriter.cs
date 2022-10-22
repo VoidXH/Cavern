@@ -112,11 +112,15 @@ namespace Cavern.Format.Environment {
                         prev.Duration += updateTime;
                         prev.Interpolation += updateTime;
                     } else {
+                        TimeSpan duration = updateTime;
+                        if (size != 0) {
+                            duration = newOffset - movement[size - 1].Offset;
+                        }
                         movement.Add(new ADMBlockFormat() {
                             Position = scaledPosition,
                             Offset = newOffset,
-                            Duration = size == 0 ? updateTime : newOffset - movement[size - 1].Offset,
-                            Interpolation = updateTime
+                            Duration = duration,
+                            Interpolation = duration
                         });
                     }
                 } else {
@@ -155,11 +159,15 @@ namespace Cavern.Format.Environment {
         }
 
         /// <summary>
+        /// Get the length of the environment recording.
+        /// </summary>
+        public TimeSpan GetContentLength() => TimeSpan.FromSeconds(output.Length / (double)output.SampleRate);
+
+        /// <summary>
         /// Generates the ADM structure from the recorded movement.
         /// </summary>
         protected virtual AudioDefinitionModel CreateModel() {
-            double contentLength = output.Length / (double)output.SampleRate;
-            TimeSpan contentTime = TimeSpan.FromSeconds(contentLength);
+            TimeSpan contentLength = GetContentLength();
             const string channelContentID = "ACO_1001",
                 objectContentID = "ACO_1002";
             List<string> channelIDs = new List<string>();
@@ -208,14 +216,14 @@ namespace Cavern.Format.Environment {
                 }
 
                 objects.Add(new ADMObject(objectID, isDynamic ? "Audio Object " + objectIndex : objectName,
-                    default, contentTime, packFormatID) {
+                    default, contentLength, packFormatID) {
                     Tracks = new List<string>() { trackID }
                 });
                 packFormats.Add(new ADMPackFormat(packFormatID, objectName, packType) {
                     ChannelFormats = new List<string>() { channelFormatID }
                 });
 
-                FixEndTimings(movements[i], contentTime);
+                FixEndTimings(movements[i], contentLength);
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, packType) {
                     Blocks = movements[i]
                 });

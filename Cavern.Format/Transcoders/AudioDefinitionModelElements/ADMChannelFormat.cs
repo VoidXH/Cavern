@@ -158,6 +158,12 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                 writer.WriteString(block.Position.Y.ToString().Replace(',', '.'));
                 writer.WriteEndElement();
             }
+
+#if DEBUG
+            if (block.Duration < TimeSpan.Zero) {
+                throw new ArgumentOutOfRangeException(nameof(block.Duration));
+            }
+#endif
         }
 
         /// <summary>
