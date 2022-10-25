@@ -41,6 +41,7 @@ namespace CavernizeGUI.Elements {
             tracks.Clear();
             switch (Path[^3..]) {
                 case "ac3":
+                case "eac3":
                 case "ec3":
                     EnhancedAC3Reader ac3Reader = new(Path);
                     tracks.Add(new Track(ac3Reader, Codec.EnhancedAC3, 0));
