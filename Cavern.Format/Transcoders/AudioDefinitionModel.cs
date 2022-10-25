@@ -256,7 +256,7 @@ namespace Cavern.Format.Transcoders {
                 List<ADMBlockFormat> blocks = ChannelFormats[ch].Blocks;
                 int lastBlock = blocks.Count - 1;
                 if (lastBlock == -1) {
-                    continue;
+                    return false;
                 }
 
                 if (blocks[0].Interpolation > blocks[0].Duration) {
