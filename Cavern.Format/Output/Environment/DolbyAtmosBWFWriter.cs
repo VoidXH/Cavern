@@ -41,7 +41,7 @@ namespace Cavern.Format.Environment {
         /// Generates the ADM structure from the recorded movement and wires the mute channel to beds.
         /// </summary>
         protected override AudioDefinitionModel CreateModel() {
-            TimeSpan contentLength = GetContentLength();
+            ADMTimeSpan contentLength = GetContentLength();
             const string bedContentID = "ACO_1001",
                 objectContentID = "ACO_1002",
                 bedObjectID = "AO_1001",

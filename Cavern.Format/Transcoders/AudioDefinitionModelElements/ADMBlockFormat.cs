@@ -15,17 +15,17 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Timeslot offset.
         /// </summary>
-        public TimeSpan Offset { get; set; }
+        public ADMTimeSpan Offset { get; set; }
 
         /// <summary>
         /// Length of the timeslot.
         /// </summary>
-        public TimeSpan Duration { get; set; }
+        public ADMTimeSpan Duration { get; set; }
 
         /// <summary>
         /// Time to take to fade to the next position.
         /// </summary>
-        public TimeSpan Interpolation { get; set; }
+        public ADMTimeSpan Interpolation { get; set; }
 
         /// <summary>
         /// Display block information on string conversion.

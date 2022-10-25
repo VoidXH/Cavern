@@ -86,8 +86,8 @@ namespace Cavern.Format.Environment {
             }
             Vector3 scaling = new Vector3(1) / Listener.EnvironmentSize;
             double timeScaling = 1.0 / Source.SampleRate;
-            TimeSpan updateTime = TimeSpan.FromSeconds(Source.UpdateRate * timeScaling),
-                newOffset = TimeSpan.FromSeconds(samplesWritten * timeScaling);
+            ADMTimeSpan updateTime = new ADMTimeSpan(Source.UpdateRate * timeScaling),
+                newOffset = new ADMTimeSpan(samplesWritten * timeScaling);
 
             int sourceIndex = 0;
             foreach (Source source in Source.ActiveSources) {
@@ -97,7 +97,8 @@ namespace Cavern.Format.Environment {
                 if (size == 0 || movement[size - 1].Position != scaledPosition) {
                     bool replace = false;
                     if (size > 1) {
-                        float t = (float)QMath.LerpInverse(movement[size - 2].Offset, newOffset, movement[size - 1].Offset);
+                        float t = (float)QMath.LerpInverse(movement[size - 2].Offset.TotalSeconds, newOffset.TotalSeconds,
+                            movement[size - 1].Offset.TotalSeconds);
                         Vector3 inBetween = QMath.Lerp(movement[size - 2].Position, scaledPosition, t),
                             diff = inBetween - movement[size - 1].Position;
                         float delta = diff.LengthSquared();
@@ -160,13 +161,13 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Get the length of the environment recording.
         /// </summary>
-        public TimeSpan GetContentLength() => TimeSpan.FromSeconds(output.Length / (double)output.SampleRate);
+        public ADMTimeSpan GetContentLength() => new ADMTimeSpan(output.Length / (double)output.SampleRate);
 
         /// <summary>
         /// Generates the ADM structure from the recorded movement.
         /// </summary>
         protected virtual AudioDefinitionModel CreateModel() {
-            TimeSpan contentLength = GetContentLength();
+            ADMTimeSpan contentLength = GetContentLength();
             const string channelContentID = "ACO_1001",
                 objectContentID = "ACO_1002";
             List<string> channelIDs = new List<string>();
@@ -250,19 +251,19 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Makes sure the last block ends with the content.
         /// </summary>
-        protected void FixEndTimings(List<ADMBlockFormat> blocks, TimeSpan contentLength) {
+        protected void FixEndTimings(List<ADMBlockFormat> blocks, ADMTimeSpan contentLength) {
             for (int j = 0, c = blocks.Count; j < c; j++) {
                 if (blocks.Count != 0) {
                     ADMBlockFormat lastBlock = blocks[^1];
-                    if (lastBlock.Duration != TimeSpan.Zero && lastBlock.Offset + lastBlock.Duration != contentLength) {
+                    if (lastBlock.Duration != ADMTimeSpan.Zero && lastBlock.Offset + lastBlock.Duration != contentLength) {
                         lastBlock.Duration = contentLength - lastBlock.Offset;
                         if (lastBlock.Interpolation > lastBlock.Duration) {
                             lastBlock.Interpolation = lastBlock.Duration;
                         }
                     }
                     ADMBlockFormat fistBlock = blocks[0];
-                    if (fistBlock.Interpolation != TimeSpan.Zero) {
-                        fistBlock.Interpolation = TimeSpan.Zero;
+                    if (fistBlock.Interpolation != ADMTimeSpan.Zero) {
+                        fistBlock.Interpolation = ADMTimeSpan.Zero;
                     }
                 }
             }

@@ -20,6 +20,7 @@ using VoidX.WPF;
 
 using Path = System.IO.Path;
 using Track = CavernizeGUI.Elements.Track;
+using System.Windows.Shell;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
@@ -74,6 +75,10 @@ namespace CavernizeGUI {
         /// Initialize the window and load last settings.
         /// </summary>
         public MainWindow() {
+            TaskbarItemInfo = new TaskbarItemInfo() {
+                ProgressState = TaskbarItemProgressState.Normal
+            };
+
             InitializeComponent();
             channelDisplay = new() {
                 [ReferenceChannel.FrontLeft] = frontLeft,
@@ -108,7 +113,7 @@ namespace CavernizeGUI {
             renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget), RenderTarget.Targets.Length - 1);
             renderSettings.IsEnabled = true; // Don't grey out initially
             queuedJobs.ItemsSource = jobs;
-            taskEngine = new(progress, status);
+            taskEngine = new(progress, TaskbarItemInfo, status);
             Reset();
 
             checkUpdates.IsChecked = Settings.Default.checkUpdates;

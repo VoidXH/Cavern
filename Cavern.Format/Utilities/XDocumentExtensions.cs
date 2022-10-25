@@ -26,12 +26,6 @@ namespace Cavern.Format.Utilities {
             element.Element(XName.Get(child, element.Name.NamespaceName)).Value;
 
         /// <summary>
-        /// Get a time span in a standard timestamp format.
-        /// </summary>
-        public static string GetTimestamp(this TimeSpan stamp) =>
-            $"{stamp:hh\\:mm\\:ss}.{stamp.Ticks % TimeSpan.TicksPerSecond * 100000 / TimeSpan.TicksPerSecond:00000}";
-
-        /// <summary>
         /// Exports all elements of a group.
         /// </summary>
         public static void SerializeGroup(this IReadOnlyList<IXDocumentSerializable> from, XmlWriter to) {

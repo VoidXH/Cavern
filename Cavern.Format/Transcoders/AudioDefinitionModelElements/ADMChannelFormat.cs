@@ -110,13 +110,14 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         void SerializeBlock(XmlWriter writer, ADMBlockFormat block, string namePrefix, int index) {
             writer.WriteStartElement(ADMTags.blockTag);
             writer.WriteAttributeString(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8"));
-            writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp());
-            writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.GetTimestamp());
+            writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.ToString());
+            writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.ToString());
             SerializeBlockMain(writer, block, namePrefix, index);
 
             writer.WriteStartElement(ADMTags.blockJumpTag);
-            double seconds = block.Interpolation.TotalSeconds;
-            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute, $"{(int)seconds}.{(int)(seconds % 1 * 100000):00000}");
+            const string positionDigits = "0.000000";
+            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
+                block.Interpolation.TotalSeconds.ToString(positionDigits).Replace(',', '.'));
             writer.WriteString(enabledValue);
             writer.WriteEndElement();
 
@@ -130,8 +131,8 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteStartElement(ADMTags.blockTag);
             writer.WriteAttributeString(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8"));
             if (Type != ADMPackType.DirectSpeakers) {
-                writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp());
-                writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.GetTimestamp());
+                writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.ToString());
+                writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.ToString());
             }
             SerializeBlockMain(writer, block, namePrefix, index);
             if (Type == ADMPackType.DirectSpeakers) {
@@ -145,24 +146,25 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// Inner serialization of a single block element without element start/end to be extensible.
         /// </summary>
         void SerializeBlockMain(XmlWriter writer, ADMBlockFormat block, string namePrefix, int index) {
+            const string positionDigits = "0.0000000000";
             writer.WriteElementString(ADMTags.blockCartesianTag, enabledValue);
             writer.WriteStartElement(ADMTags.blockPositionTag);
             writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, xAxis);
-            writer.WriteString(block.Position.X.ToString().Replace(',', '.'));
+            writer.WriteString(block.Position.X.ToString(positionDigits).Replace(',', '.'));
             writer.WriteEndElement();
             writer.WriteStartElement(ADMTags.blockPositionTag);
             writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, yAxis);
-            writer.WriteString(block.Position.Z.ToString().Replace(',', '.'));
+            writer.WriteString(block.Position.Z.ToString(positionDigits).Replace(',', '.'));
             writer.WriteEndElement();
             if (block.Position.Y != 0) {
                 writer.WriteStartElement(ADMTags.blockPositionTag);
                 writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, zAxis);
-                writer.WriteString(block.Position.Y.ToString().Replace(',', '.'));
+                writer.WriteString(block.Position.Y.ToString(positionDigits).Replace(',', '.'));
                 writer.WriteEndElement();
             }
 
 #if DEBUG
-            if (block.Duration < TimeSpan.Zero) {
+            if (block.Duration < ADMTimeSpan.Zero) {
                 throw new ArgumentOutOfRangeException(nameof(block.Duration));
             }
 #endif
@@ -177,7 +179,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             foreach (XElement block in blocks) {
                 bool cartesian = false;
                 float x = 0, y = 0, z = 0;
-                TimeSpan duration = ParseTimestamp(block.Attribute(ADMTags.durationAttribute)),
+                ADMTimeSpan duration = ParseTimestamp(block.Attribute(ADMTags.durationAttribute)),
                     interpolation = duration;
                 IEnumerable<XElement> children = block.Descendants();
                 foreach (XElement child in children) {
@@ -204,7 +206,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                         case ADMTags.blockJumpTag:
                             if (child.Value[0] == '1') {
                                 XAttribute length = child.Attribute(ADMTags.blockJumpLengthAttribute);
-                                interpolation = length != null ? TimeSpan.FromSeconds(QMath.ParseFloat(length.Value)) : default;
+                                interpolation = length != null ? new ADMTimeSpan(QMath.ParseFloat(length.Value)) : default;
                             }
                             break;
                         default:

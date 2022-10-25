@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -13,12 +12,12 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Start of the object's existence.
         /// </summary>
-        public TimeSpan Offset { get; set; }
+        public ADMTimeSpan Offset { get; set; }
 
         /// <summary>
         /// Length of the object's existence.
         /// </summary>
-        public TimeSpan Length { get; set; }
+        public ADMTimeSpan Length { get; set; }
 
         /// <summary>
         /// Referenced position/movement container by ID.
@@ -33,7 +32,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Contains a single ADM object with multiple possible tracks.
         /// </summary>
-        public ADMObject(string id, string name, TimeSpan offset, TimeSpan length, string packFormat) : base(id, name) {
+        public ADMObject(string id, string name, ADMTimeSpan offset, ADMTimeSpan length, string packFormat) : base(id, name) {
             Offset = offset;
             Length = length;
             PackFormat = packFormat;
@@ -51,8 +50,8 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteStartElement(ADMTags.objectTag);
             writer.WriteAttributeString(ADMTags.objectIDAttribute, ID);
             writer.WriteAttributeString(ADMTags.objectNameAttribute, Name);
-            writer.WriteAttributeString(ADMTags.startAttribute, Offset.GetTimestamp());
-            writer.WriteAttributeString(ADMTags.durationAttribute, Length.GetTimestamp());
+            writer.WriteAttributeString(ADMTags.startAttribute, Offset.ToString());
+            writer.WriteAttributeString(ADMTags.durationAttribute, Length.ToString());
             writer.WriteElementString(ADMTags.packFormatRefTag, PackFormat);
             SerializeStrings(Tracks, writer, ADMTags.trackRefTag);
             writer.WriteEndElement();

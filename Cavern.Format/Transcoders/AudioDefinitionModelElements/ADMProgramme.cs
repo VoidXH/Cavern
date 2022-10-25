@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -13,7 +12,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Length of the program.
         /// </summary>
-        public TimeSpan Length { get; }
+        public ADMTimeSpan Length { get; }
 
         /// <summary>
         /// ID references of contained <see cref="ADMObject"/>s.
@@ -23,7 +22,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Constructs a program of <paramref name="length"/> in seconds.
         /// </summary>
-        public ADMProgramme(string id, string name, TimeSpan length) : base(id, name) => Length = length;
+        public ADMProgramme(string id, string name, ADMTimeSpan length) : base(id, name) => Length = length;
 
         /// <summary>
         /// Constructs a program from an XML element.
@@ -37,8 +36,8 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteStartElement(ADMTags.programTag);
             writer.WriteAttributeString(ADMTags.programIDAttribute, ID);
             writer.WriteAttributeString(ADMTags.programNameAttribute, Name);
-            writer.WriteAttributeString(ADMTags.startAttribute, new TimeSpan().GetTimestamp());
-            writer.WriteAttributeString(ADMTags.programEndAttribute, Length.GetTimestamp());
+            writer.WriteAttributeString(ADMTags.startAttribute, ADMTimeSpan.Zero.ToString());
+            writer.WriteAttributeString(ADMTags.programEndAttribute, Length.ToString());
             SerializeStrings(Contents, writer, ADMTags.contentRefTag);
             writer.WriteEndElement();
         }

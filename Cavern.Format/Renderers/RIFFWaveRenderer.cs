@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+
 using Cavern.Format.Decoders;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
@@ -51,7 +52,7 @@ namespace Cavern.Format.Renderers {
             } else {
                 List<ReferenceChannel> channels = new List<ReferenceChannel>();
                 for (int i = 0, c = adm.Movements.Count; i < c; i++) {
-                    if (adm.Movements[i].Blocks.Count == 1 && adm.Movements[i].Blocks[0].Duration.Ticks == 0) {
+                    if (adm.Movements[i].Blocks.Count == 1 && adm.Movements[i].Blocks[0].Duration == ADMTimeSpan.Zero) {
                         channels.Add(ChannelFromPosition(adm.Movements[i].Blocks[0].Position));
                     }
                 }
@@ -92,7 +93,7 @@ namespace Cavern.Format.Renderers {
                     ADMBlockFormat current = blocks[admBlocks[i]],
                         previous = admBlocks[i] != 0 ? blocks[admBlocks[i] - 1] : current;
                     float fade = 1;
-                    if (current.Offset.Ticks != 0) {
+                    if (current.Offset != ADMTimeSpan.Zero) {
                         fade = (float)QMath.LerpInverse(current.Offset.TotalSeconds * stream.SampleRate,
                             (current.Offset + current.Interpolation).TotalSeconds * stream.SampleRate, stream.Position);
                     }

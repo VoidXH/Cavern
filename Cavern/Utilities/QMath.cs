@@ -190,12 +190,6 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Gets t for linear interpolation for a given value.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double LerpInverse(TimeSpan from, TimeSpan to, TimeSpan value) => (value - from) / (to - from);
-
-        /// <summary>
         /// Compute the base 2 logarithm of a number faster than a generic Log function.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

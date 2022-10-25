@@ -79,7 +79,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Convert a timestamp to samples if its attribute is present.
         /// </summary>
-        protected static TimeSpan ParseTimestamp(XAttribute attribute) =>
-            attribute != null ? TimeSpan.Parse(attribute.Value) : default;
+        protected static ADMTimeSpan ParseTimestamp(XAttribute attribute) =>
+            attribute != null ? new ADMTimeSpan(attribute.Value) : default;
     }
 }

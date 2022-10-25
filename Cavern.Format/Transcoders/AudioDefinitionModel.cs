@@ -249,6 +249,35 @@ namespace Cavern.Format.Transcoders {
         public XmlSchema GetSchema() => null;
 
         /// <summary>
+        /// Check if block timings are valid for this AXML.
+        /// </summary>
+        public bool Validate() {
+            for (int ch = 0, c = ChannelFormats.Count; ch < c; ch++) {
+                List<ADMBlockFormat> blocks = ChannelFormats[ch].Blocks;
+                int lastBlock = blocks.Count - 1;
+                if (lastBlock == -1) {
+                    continue;
+                }
+
+                if (blocks[0].Interpolation > blocks[0].Duration) {
+                    return false;
+                }
+                for (int block = 1; block < lastBlock; block++) {
+                    if (blocks[block - 1].Offset + blocks[block - 1].Duration != blocks[block].Offset) {
+                        return false;
+                    }
+                    if (blocks[block].Interpolation > blocks[block].Duration) {
+                        return false;
+                    }
+                }
+                if (Programs.Count != 0 && blocks[lastBlock].Offset + blocks[lastBlock].Duration != Programs[0].Length) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Find a movement information by channel assignment data.
         /// </summary>
         ADMChannelFormat FindMovement(Tuple<short, string> assignment) {
