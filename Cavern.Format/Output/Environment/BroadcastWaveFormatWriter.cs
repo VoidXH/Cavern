@@ -112,15 +112,14 @@ namespace Cavern.Format.Environment {
                         prev.Duration += updateTime;
                         prev.Interpolation += updateTime;
                     } else {
-                        TimeSpan duration = updateTime;
                         if (size != 0) {
-                            duration = newOffset - movement[size - 1].Offset;
+                            movement[size - 1].Duration = newOffset - movement[size - 1].Offset;
                         }
                         movement.Add(new ADMBlockFormat() {
                             Position = scaledPosition,
                             Offset = newOffset,
-                            Duration = duration,
-                            Interpolation = duration
+                            Duration = updateTime,
+                            Interpolation = updateTime
                         });
                     }
                 } else {

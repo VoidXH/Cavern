@@ -113,11 +113,13 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.GetTimestamp());
             writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.GetTimestamp());
             SerializeBlockMain(writer, block, namePrefix, index);
+
             writer.WriteStartElement(ADMTags.blockJumpTag);
-            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
-                block.Interpolation.TotalSeconds.ToString("0.000000").Replace(',', '.'));
+            double seconds = block.Interpolation.TotalSeconds;
+            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute, $"{(int)seconds}.{(int)(seconds % 1 * 100000):00000}");
             writer.WriteString(enabledValue);
             writer.WriteEndElement();
+
             writer.WriteEndElement();
         }
 
