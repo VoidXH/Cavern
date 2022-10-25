@@ -256,6 +256,13 @@ namespace Cavern.Format.Environment {
                     ADMBlockFormat lastBlock = blocks[^1];
                     if (lastBlock.Duration != TimeSpan.Zero && lastBlock.Offset + lastBlock.Duration != contentLength) {
                         lastBlock.Duration = contentLength - lastBlock.Offset;
+                        if (lastBlock.Interpolation > lastBlock.Duration) {
+                            lastBlock.Interpolation = lastBlock.Duration;
+                        }
+                    }
+                    ADMBlockFormat fistBlock = blocks[0];
+                    if (fistBlock.Interpolation != TimeSpan.Zero) {
+                        fistBlock.Interpolation = TimeSpan.Zero;
                     }
                 }
             }
