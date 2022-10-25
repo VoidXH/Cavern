@@ -575,23 +575,18 @@ namespace Cavern {
                 leftVolume *= 1 - stereoPan * stereoPan;
             }
             float halfVolume1D = volume1D * .5f;
-            int actualSample = 0;
-            for (int sample = 0; sample < listener.UpdateRate; ++sample) { // TODO: needs some optimization
-                float leftSample = leftSamples[sample], rightSample = rightSamples[sample],
-                    leftGained = leftSample * leftVolume, rightGained = rightSample * rightVolume;
-                for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
-                    if (Listener.Channels[channel].LFE) {
-                        if (!listener.LFESeparation || LFE) {
-                            rendered[actualSample] += (leftSample + rightSample) * halfVolume1D;
-                        }
-                    } else if (!LFE) {
-                        if (Listener.Channels[channel].Y < 0) {
-                            rendered[actualSample] += leftGained;
-                        } else if (Listener.Channels[channel].Y > 0) {
-                            rendered[actualSample] += rightGained;
-                        }
+            for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
+                if (Listener.Channels[channel].LFE) {
+                    if (!listener.LFESeparation || LFE) { // TODO: rendered is multichannel
+                        WaveformUtils.Mix(leftSamples, rendered, channel, Listener.Channels.Length, halfVolume1D);
+                        WaveformUtils.Mix(rightSamples, rendered, channel, Listener.Channels.Length, halfVolume1D);
                     }
-                    ++actualSample;
+                } else if (!LFE) {
+                    if (Listener.Channels[channel].Y < 0) {
+                        WaveformUtils.Mix(leftSamples, rendered, channel, Listener.Channels.Length, leftVolume);
+                    } else if (Listener.Channels[channel].Y > 0) {
+                        WaveformUtils.Mix(rightSamples, rendered, channel, Listener.Channels.Length, rightVolume);
+                    }
                 }
             }
         }

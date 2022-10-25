@@ -1,5 +1,4 @@
 ﻿using Cavern;
-using Cavern.Format.Renderers;
 using Cavern.Remapping;
 
 namespace CavernizeGUI.Elements {
@@ -34,6 +33,7 @@ namespace CavernizeGUI.Elements {
                 bool lfe = Channels[ch] == ReferenceChannel.ScreenLFE;
                 systemChannels[ch] = new Channel(ChannelPrototype.AlternativePositions[(int)Channels[ch]], lfe);
             }
+            Listener.HeadphoneVirtualizer = false;
             Listener.ReplaceChannels(systemChannels);
         }
 
@@ -131,7 +131,8 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter,
                 ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
             }),
-            new DriverRenderTarget()
+            new DriverRenderTarget(),
+            new VirtualizerRenderTarget()
         };
     }
 }

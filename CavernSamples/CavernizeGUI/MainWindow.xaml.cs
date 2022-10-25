@@ -102,7 +102,6 @@ namespace CavernizeGUI {
                 AudioQuality = QualityModes.Perfect,
                 LFESeparation = true
             };
-            Listener.HeadphoneVirtualizer = false;
 
             language.Source = new Uri(";component/Resources/MainWindowStrings.xaml", UriKind.RelativeOrAbsolute);
             renderTarget.ItemsSource = RenderTarget.Targets;
@@ -247,7 +246,7 @@ namespace CavernizeGUI {
         /// </summary>
         void OnRenderTargetSelected(object _, SelectionChangedEventArgs e) {
             RenderTarget selected = (RenderTarget)renderTarget.SelectedItem;
-            if (selected is DriverRenderTarget) {
+            if (selected is DriverRenderTarget || selected is VirtualizerRenderTarget) {
                 wiring.IsEnabled = false;
                 foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
                     pair.Value.Fill = yellow;

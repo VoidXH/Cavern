@@ -343,8 +343,9 @@ namespace Cavern {
         /// Recalculate the rendering environment.
         /// </summary>
         static void Recalculate() {
-            for (int channel = 0; channel < Channels.Length; ++channel)
+            for (int channel = 0; channel < Channels.Length; ++channel) {
                 Channels[channel].Recalculate();
+            }
         }
 
         /// <summary>
@@ -423,15 +424,22 @@ namespace Cavern {
 
             // Render the required number of frames
             if (frames == 1) {
-                return Frame();
+                float[] result = Frame();
+                if (headphoneVirtualizer) {
+                    VirtualizerFilter.Process(result, SampleRate);
+                }
+                return result;
             } else {
                 int sampleCount = frames * Channels.Length * UpdateRate;
-                if (multiframeBuffer.Length != sampleCount)
+                if (multiframeBuffer.Length != sampleCount) {
                     multiframeBuffer = new float[sampleCount];
+                }
                 for (int frame = 0; frame < frames; ++frame) {
                     float[] frameBuffer = Frame();
-                    for (int sample = 0, offset = frame * frameBuffer.Length; sample < frameBuffer.Length; ++sample)
-                        multiframeBuffer[sample + offset] = frameBuffer[sample];
+                    Array.Copy(frameBuffer, 0, multiframeBuffer, frame * frameBuffer.Length, frameBuffer.Length);
+                }
+                if (headphoneVirtualizer) {
+                    VirtualizerFilter.Process(multiframeBuffer, SampleRate);
                 }
                 return multiframeBuffer;
             }
@@ -446,44 +454,52 @@ namespace Cavern {
             lastUpdateRate = UpdateRate;
             renderBuffer = new float[channelCount * UpdateRate];
             lowpasses = new Lowpass[channelCount];
-            for (int i = 0; i < channelCount; ++i)
+            for (int i = 0; i < channelCount; ++i) {
                 lowpasses[i] = new Lowpass(SampleRate, 120);
+            }
         }
 
         /// <summary>
         /// A single update.
         /// </summary>
         float[] Frame() {
-            if (headphoneVirtualizer)
+            if (headphoneVirtualizer) {
                 VirtualizerFilter.SetLayout();
-            if (channelCount != Channels.Length || lastSampleRate != SampleRate || lastUpdateRate != UpdateRate)
+            }
+            if (channelCount != Channels.Length || lastSampleRate != SampleRate || lastUpdateRate != UpdateRate) {
                 Reoptimize();
+            }
 
             // Collect audio data from sources
             LinkedListNode<Source> node = activeSources.First;
             results.Clear();
             while (node != null) {
-                if (node.Value.Precollect())
-                    results.Add(node.Value.Collect()); // TODO: Parallel, but not for Precollect
+                if (node.Value.Precollect()) {
+                    results.Add(node.Value.Collect());
+                }
                 node = node.Next;
             }
 
             // Mix sources to output
             Array.Clear(renderBuffer, 0, renderBuffer.Length);
-            for (int result = 0; result < results.Count; ++result)
+            for (int result = 0; result < results.Count; ++result) {
                 WaveformUtils.Mix(results[result], renderBuffer);
+            }
 
             // Volume and subwoofers' lowpass
             for (int channel = 0; channel < channelCount; ++channel) {
                 if (Channels[channel].LFE) {
-                    if (!DirectLFE)
+                    if (!DirectLFE) {
                         lowpasses[channel].Process(renderBuffer, channel, channelCount);
+                    }
                     WaveformUtils.Gain(renderBuffer, LFEVolume * Volume, channel, channelCount); // LFE Volume
-                } else
+                } else {
                     WaveformUtils.Gain(renderBuffer, Volume, channel, channelCount);
+                }
             }
-            if (Normalizer != 0) // Normalize
-                WaveformUtils.Normalize(ref renderBuffer, Normalizer * UpdateRate / SampleRate, ref normalization, LimiterOnly);
+            if (Normalizer != 0) { // Normalize
+                WaveformUtils.Normalize(renderBuffer, Normalizer * UpdateRate / SampleRate, ref normalization, LimiterOnly);
+            }
             return renderBuffer;
         }
 

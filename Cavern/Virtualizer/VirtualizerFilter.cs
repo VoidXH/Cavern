@@ -10,16 +10,6 @@ namespace Cavern.Virtualizer {
     /// </summary>
     public static partial class VirtualizerFilter {
         /// <summary>
-        /// Sample rate of the recorded HRIR filters. Only this system sample rate is allowed for virtualization.
-        /// </summary>
-        const int filterSampleRate = 48000;
-
-        /// <summary>
-        /// Marker instead of a channel ID when a channel was not set.
-        /// </summary>
-        const int unassigned = -1;
-
-        /// <summary>
         /// Cache of each output channel.
         /// </summary>
         static float[][] originalSplit;
@@ -56,51 +46,41 @@ namespace Cavern.Virtualizer {
             bool setAgain = centerDelay == null;
             if (Listener.Channels.Length == spatialChannels.Length) {
                 for (int channel = 0; channel < spatialChannels.Length; ++channel) {
-                    if (Listener.Channels[channel].X != spatialChannels[channel].x || Listener.Channels[channel].Y != spatialChannels[channel].y) {
+                    if (Listener.Channels[channel].X != spatialChannels[channel].x ||
+                        Listener.Channels[channel].Y != spatialChannels[channel].y) {
                         setAgain = true;
                         break;
                     }
                 }
-            } else
+            } else {
                 setAgain = true;
-            if (!setAgain)
+            }
+            if (!setAgain) {
                 return;
+            }
+
             centerDelay = new Delay(.0075f, filterSampleRate);
             Channel[] newChannels = new Channel[spatialChannels.Length];
             for (int channel = 0; channel < spatialChannels.Length; ++channel) {
                 newChannels[channel] = new Channel(spatialChannels[channel].x, spatialChannels[channel].y);
                 if (spatialChannels[channel].x == 0) {
-                    if (spatialChannels[channel].y == 0)
+                    if (spatialChannels[channel].y == 0) {
                         center = channel;
-                    else if (spatialChannels[channel].y == -45)
+                    } else if (spatialChannels[channel].y == -45) {
                         left = channel;
-                    else if (spatialChannels[channel].y == 45)
+                    } else if (spatialChannels[channel].y == 45) {
                         right = channel;
+                    }
                 }
             }
             Listener.ReplaceChannels(newChannels);
             originalSplit = new float[spatialChannels.Length][];
             leftSplit = new float[spatialChannels.Length][];
             rightSplit = new float[spatialChannels.Length][];
-            for (int channel = 0; channel < spatialChannels.Length; ++channel)
+            for (int channel = 0; channel < spatialChannels.Length; ++channel) {
                 rightSplit[channel] = new float[0];
+            }
             originalSplit[0] = new float[0];
-        }
-
-        /// <summary>
-        /// Split and convolve a single channel by ID.
-        /// </summary>
-        static void ProcessChannel(int channel) {
-            // Select the retain range
-            Crossover lowCrossover = spatialChannels[channel].Crossover;
-            lowCrossover.Process(originalSplit[channel]);
-            originalSplit[channel] = lowCrossover.LowOutput;
-            // Select the impulse response frequency range
-            if (rightSplit[channel].Length != blockSize)
-                rightSplit[channel] = new float[blockSize];
-            leftSplit[channel] = lowCrossover.HighOutput;
-            Array.Copy(leftSplit[channel], rightSplit[channel], blockSize);
-            spatialChannels[channel].Filter.Process(leftSplit[channel], rightSplit[channel]);
         }
 
         /// <summary>
@@ -110,16 +90,23 @@ namespace Cavern.Virtualizer {
         public static void Process(float[] output, int sampleRate) {
             int channels = Listener.Channels.Length;
             blockSize = output.Length / channels;
-            if (originalSplit == null || sampleRate != filterSampleRate)
+            if (originalSplit == null || sampleRate != filterSampleRate) {
                 return;
+            }
+
             if (originalSplit[0].Length != blockSize) {
-                for (int channel = 0; channel < channels; ++channel)
+                for (int channel = 0; channel < channels; ++channel) {
                     originalSplit[channel] = new float[blockSize];
+                }
                 delayedCenter = new float[blockSize];
             }
-            for (int sample = 0, outSample = 0; sample < blockSize; ++sample)
-                for (int channel = 0; channel < channels; ++channel, ++outSample)
+
+            for (int sample = 0, outSample = 0; sample < blockSize; ++sample) {
+                for (int channel = 0; channel < channels; ++channel, ++outSample) {
                     originalSplit[channel][sample] = output[outSample];
+                }
+            }
+
             if (center != unassigned) {
                 Array.Copy(originalSplit[center], delayedCenter, blockSize);
                 centerDelay.Process(delayedCenter); // Add 7.5 ms delay
@@ -142,5 +129,34 @@ namespace Cavern.Virtualizer {
                 }
             }
         }
+
+        /// <summary>
+        /// Split and convolve a single channel by ID.
+        /// </summary>
+        static void ProcessChannel(int channel) {
+            // Select the retain range
+            Crossover lowCrossover = spatialChannels[channel].Crossover;
+            lowCrossover.Process(originalSplit[channel]);
+            originalSplit[channel] = lowCrossover.LowOutput;
+
+            // Select the impulse response frequency range
+            if (rightSplit[channel].Length != blockSize) {
+                rightSplit[channel] = new float[blockSize];
+            }
+            leftSplit[channel] = lowCrossover.HighOutput;
+            Array.Copy(leftSplit[channel], rightSplit[channel], blockSize);
+            spatialChannels[channel].Filter.Process(leftSplit[channel], rightSplit[channel]);
+        }
+
+
+        /// <summary>
+        /// Sample rate of the recorded HRIR filters. Only this system sample rate is allowed for virtualization.
+        /// </summary>
+        public const int filterSampleRate = 48000;
+
+        /// <summary>
+        /// Marker instead of a channel ID when a channel was not set.
+        /// </summary>
+        const int unassigned = -1;
     }
 }

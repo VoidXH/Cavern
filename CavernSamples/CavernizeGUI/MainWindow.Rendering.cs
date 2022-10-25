@@ -7,6 +7,7 @@ using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Environment;
 using Cavern.Utilities;
+using Cavern.Virtualizer;
 
 using CavernizeGUI.Elements;
 using Track = CavernizeGUI.Elements.Track;
@@ -41,12 +42,17 @@ namespace CavernizeGUI {
         /// Prepare the renderer for export, without safety checks.
         /// </summary>
         void SoftPreRender(bool applyTarget) {
+            Track target = (Track)tracks.SelectedItem;
+            RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
             if (applyTarget) {
-                ((RenderTarget)renderTarget.SelectedItem).Apply();
+                activeRenderTarget.Apply();
+            }
+            if (activeRenderTarget is VirtualizerRenderTarget) {
+                listener.SampleRate = VirtualizerFilter.filterSampleRate;
+            } else {
+                listener.SampleRate = target.SampleRate;
             }
 
-            Track target = (Track)tracks.SelectedItem;
-            listener.SampleRate = target.SampleRate;
             listener.DetachAllSources();
             target.Attach(listener);
 
@@ -67,10 +73,9 @@ namespace CavernizeGUI {
             Track target = (Track)tracks.SelectedItem;
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
             if (!codec.IsEnvironmental()) {
-                ((RenderTarget)renderTarget.SelectedItem).Apply();
                 string exportName = path[^4..].ToLower().Equals(".mkv") ? path[..^4] + ".wav" : path;
-                AudioWriter writer = AudioWriter.Create(exportName, Listener.Channels.Length,
-                    target.Length, target.SampleRate, BitDepth.Int16);
+                AudioWriter writer = AudioWriter.Create(exportName, ((RenderTarget)renderTarget.SelectedItem).Channels.Length,
+                    target.Length, listener.SampleRate, BitDepth.Int16);
                 if (writer == null) {
                     Error((string)language["UnExt"]);
                     return null;

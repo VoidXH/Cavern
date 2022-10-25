@@ -104,7 +104,13 @@ namespace CavernizeGUI {
                     Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
                 }
 
-                writer?.WriteBlock(result, 0, result.LongLength);
+                if (writer != null) {
+                    if (!Listener.HeadphoneVirtualizer) {
+                        writer.WriteBlock(result, 0, result.LongLength);
+                    } else {
+                        writer.WriteChannelLimitedBlock(result, 2, Listener.Channels.Length, 0, result.LongLength);
+                    }
+                }
                 if (progressor.Rendered > secondFrame) {
                     stats.Update();
                 }

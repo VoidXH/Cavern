@@ -107,6 +107,26 @@ namespace Cavern.Format {
         }
 
         /// <summary>
+        /// Write the first selected channels of a block of mono or interlaced samples.
+        /// </summary>
+        /// <param name="samples">Samples to write</param>
+        /// <param name="channelLimit">Allow only this many channels to be written</param>
+        /// <param name="channels">Channel count of the input array</param>
+        /// <param name="from">Start position in the input array (inclusive)</param>
+        /// <param name="to">End position in the input array (exclusive)</param>
+        /// <remarks>This function is destructive, <paramref name="samples"/> will be unusable after the operation.</remarks>
+        public virtual void WriteChannelLimitedBlock(float[] samples, int channelLimit, int channels, long from, long to) {
+            long targetSample = from;
+            for (long sourceSample = from; sourceSample < to; sourceSample += channels) {
+                for (int channel = 0; channel < channelLimit; channel++) {
+                    samples[targetSample++] = samples[sourceSample + channel];
+                }
+            }
+            to = from + (to - from) / channels * channelLimit;
+            WriteBlock(samples, from, to);
+        }
+
+        /// <summary>
         /// Write the entire mono file, including the header.
         /// </summary>
         /// <param name="samples">All input samples</param>

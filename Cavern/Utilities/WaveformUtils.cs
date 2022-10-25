@@ -302,10 +302,10 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Mix a track to a stream.
+        /// Mix a track to a mono stream.
         /// </summary>
         /// <param name="source">Source track</param>
-        /// <param name="destination">Destination stream</param>
+        /// <param name="destination">Mono destination stream</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Mix(float[] source, float[] destination) {
             for (int i = 0; i < source.Length; ++i) {
@@ -314,15 +314,30 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Mix a track to a stream with a given gain.
+        /// Mix a track to a mono stream with a given gain.
         /// </summary>
         /// <param name="source">Source track</param>
-        /// <param name="destination">Destination stream</param>
+        /// <param name="destination">Mono destination stream</param>
         /// <param name="gain">Linear amplification of the <paramref name="source"/> track</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Mix(float[] source, float[] destination, float gain) {
             for (int i = 0; i < source.Length; ++i) {
                 destination[i] += source[i] * gain;
+            }
+        }
+
+        /// <summary>
+        /// Mix a track to a stream' given channel with a given gain.
+        /// </summary>
+        /// <param name="source">Source track</param>
+        /// <param name="destination">Interlaced destination stream</param>
+        /// <param name="destinationChannel">Channel of the <paramref name="destination"/></param>
+        /// <param name="destinationChannels">Number of channels in the <paramref name="destination"/></param>
+        /// <param name="gain">Linear amplification of the <paramref name="source"/> track</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Mix(float[] source, float[] destination, int destinationChannel, int destinationChannels, float gain) {
+            for (int i = 0; i < source.Length; ++i) {
+                destination[i * destinationChannels + destinationChannel] += source[i] * gain;
             }
         }
 
@@ -350,7 +365,7 @@ namespace Cavern.Utilities {
         /// <param name="lastGain">Last normalizer gain (a reserved float with a default of 1 to
         /// always pass to this function)</param>
         /// <param name="limiterOnly">Don't go over 0 dB gain</param>
-        public static void Normalize(ref float[] target, float decayFactor, ref float lastGain, bool limiterOnly) {
+        public static void Normalize(float[] target, float decayFactor, ref float lastGain, bool limiterOnly) {
             float max = Math.Abs(target[0]), absSample;
             for (int sample = 1; sample < target.Length; ++sample) {
                 absSample = Math.Abs(target[sample]);
@@ -377,6 +392,20 @@ namespace Cavern.Utilities {
         public static void Subtract(float[] source, float[] destination) {
             for (int i = 0; i < source.Length; ++i) {
                 destination[i] -= source[i];
+            }
+        }
+
+        /// <summary>
+        /// Swap two channels in an interlaced block of samples.
+        /// </summary>
+        /// <param name="target">Interlaced block of samples</param>
+        /// <param name="channelA">First channel index</param>
+        /// <param name="channelB">Second channel index</param>
+        /// <param name="channels">Total channel count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SwapChannels(float[] target, int channelA, int channelB, int channels) {
+            for (int i = 0; i < target.Length; i += channels) {
+                (target[i + channelA], target[i + channelB]) = (target[i + channelB], target[i + channelA]);
             }
         }
     }

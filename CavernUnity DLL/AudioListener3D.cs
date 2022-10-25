@@ -260,8 +260,9 @@ namespace Cavern {
                 if (SystemSampleRate != cachedSampleRate) { // Resample output for system sample rate
                     renderBuffer = Resample.Adaptive(renderBuffer,
                         renderBuffer.Length / channels * SystemSampleRate / cachedSampleRate, channels, AudioQuality);
+                    // If the listener didn't perform virtualization for sample rate mismatch, do it here
+                    VirtualizerFilter.Process(renderBuffer, SystemSampleRate);
                 }
-                VirtualizerFilter.Process(renderBuffer, SystemSampleRate);
                 int end = filterOutput.Length,
                     altEnd = bufferPosition + renderBuffer.Length / channels * unityChannels;
                 if (end > altEnd) {
