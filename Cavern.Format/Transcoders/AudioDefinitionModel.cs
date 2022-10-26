@@ -249,7 +249,7 @@ namespace Cavern.Format.Transcoders {
         public XmlSchema GetSchema() => null;
 
         /// <summary>
-        /// Check if block timings are valid for this AXML.
+        /// Check if timings and positions are valid for this AXML.
         /// </summary>
         public bool Validate() {
             for (int ch = 0, c = ChannelFormats.Count; ch < c; ch++) {
@@ -259,14 +259,14 @@ namespace Cavern.Format.Transcoders {
                     return false;
                 }
 
-                if (blocks[0].Interpolation > blocks[0].Duration) {
+                if (!ValidateBlock(blocks[0])) {
                     return false;
                 }
                 for (int block = 1; block < lastBlock; block++) {
                     if (blocks[block - 1].Offset + blocks[block - 1].Duration != blocks[block].Offset) {
                         return false;
                     }
-                    if (blocks[block].Interpolation > blocks[block].Duration) {
+                    if (!ValidateBlock(blocks[block])) {
                         return false;
                     }
                 }
@@ -291,6 +291,19 @@ namespace Cavern.Format.Transcoders {
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Check if an <see cref="ADMBlockFormat"/> is valid.
+        /// </summary>
+        bool ValidateBlock(ADMBlockFormat block) {
+            if (block.Interpolation > block.Duration ||
+                block.Position.X < -1 || block.Position.X > 1 ||
+                block.Position.Y < -1 || block.Position.Y > 1 ||
+                block.Position.Z < -1 || block.Position.Z > 1) {
+                return false;
+            }
+            return true;
         }
     }
 }
