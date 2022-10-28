@@ -142,8 +142,10 @@ namespace CavernizeGUI.Elements {
                 };
                 upmixer.OnSamplesNeeded += updateRate => separator.Update(updateRate);
 
+                listener.LFESeparation = channels.Contains(ReferenceChannel.ScreenLFE); // Apply crossover if LFE is not present
                 attachables = upmixer.IntermediateSources;
             } else {
+                listener.LFESeparation = true;
                 attachables = Renderer.Objects.ToArray();
             }
 

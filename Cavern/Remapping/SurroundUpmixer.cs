@@ -6,7 +6,6 @@ namespace Cavern.Remapping {
     /// <summary>
     /// Creates 5.1 or 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels.
     /// </summary>
-    // TODO: add crossover for stereo/quadro
     public class SurroundUpmixer : Upmixer {
         /// <summary>
         /// Which input channel should be routed to which output without any modification.

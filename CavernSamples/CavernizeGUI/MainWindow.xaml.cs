@@ -104,8 +104,7 @@ namespace CavernizeGUI {
             ffmpeg = new(renderButtons, status, Settings.Default.ffmpegLocation);
             listener = new() { // Create a listener, which triggers the loading of saved environment settings
                 UpdateRate = 64,
-                AudioQuality = QualityModes.Perfect,
-                LFESeparation = true
+                AudioQuality = QualityModes.Perfect
             };
 
             language.Source = new Uri(";component/Resources/MainWindowStrings.xaml", UriKind.RelativeOrAbsolute);
