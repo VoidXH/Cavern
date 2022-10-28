@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="HRTFSetImporter.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="HRTFSetImporter" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="LastFolder" Type="System.String" Scope="User">
@@ -10,6 +10,9 @@
     </Setting>
     <Setting Name="AngleSetName" Type="System.String" Scope="User">
       <Value Profile="(Default)">AngleImpulse_{A}_D{D}.wav</Value>
+    </Setting>
+    <Setting Name="UseSpaces" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

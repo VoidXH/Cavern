@@ -17,17 +17,18 @@ namespace HRTFSetImporter {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        const bool useSpaces = true; // TODO: move to UI
         const string hMarker = "{Y}", wMarker = "{X}", angleMarker = "{A}", distanceMarker = "{D}";
 
         readonly FolderBrowserDialog importer = new FolderBrowserDialog();
 
         public MainWindow() {
             InitializeComponent();
-            if (!string.IsNullOrEmpty(Settings.Default.LastFolder) && Directory.Exists(Settings.Default.LastFolder))
+            if (!string.IsNullOrEmpty(Settings.Default.LastFolder) && Directory.Exists(Settings.Default.LastFolder)) {
                 importer.SelectedPath = Settings.Default.LastFolder;
+            }
             directionalSetName.Text = Settings.Default.DirectionalSetName;
             angleSetName.Text = Settings.Default.AngleSetName;
+            useSpaces.IsChecked = Settings.Default.UseSpaces;
         }
 
         static Dictionary<int, Dictionary<int, float[][]>> ImportImpulses(string path, Regex pattern) {
@@ -40,8 +41,9 @@ namespace HRTFSetImporter {
                 if (match.Success &&
                     int.TryParse(match.Groups["param1"].Value, out int angle) &&
                     int.TryParse(match.Groups["param2"].Value, out int distance)) {
-                    if (!data.ContainsKey(angle))
+                    if (!data.ContainsKey(angle)) {
                         data.Add(angle, new Dictionary<int, float[][]>());
+                    }
                     data[angle][distance] = AudioReader.Open(folders[file]).ReadMultichannel();
                 }
             }
@@ -50,12 +52,14 @@ namespace HRTFSetImporter {
 
         static bool WriteDirectionalChannel(StringBuilder builder, List<int> written, int h, int w, float[][] samples) {
             int hash = h * 1000 + w;
-            if (written.Contains(hash))
+            if (written.Contains(hash)) {
                 return false;
+            }
             written.Add(hash);
             int hValue = -h;
-            if (hValue <= -180)
+            if (hValue <= -180) {
                 hValue += 360;
+            }
             builder.AppendLine("\tnew SpatialChannel() {")
                 .Append("\t\tY = ").Append(hValue).Append(", X = ").Append(-w).AppendLine(",")
                 .Append("\t\tLeftEarIR = ").AppendArray(samples[0])
@@ -78,7 +82,8 @@ namespace HRTFSetImporter {
                     return;
                 }
                 if (data.First().Value.First().Value.Length != 2) {
-                    MessageBox.Show("Only stereo directional files are supported.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Only stereo directional files are supported.", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -89,16 +94,19 @@ namespace HRTFSetImporter {
                 foreach (KeyValuePair<int, Dictionary<int, float[][]>> hPoint in orderedH) {
                     IOrderedEnumerable<KeyValuePair<int, float[][]>> orderedW = hPoint.Value.OrderBy(entry => entry.Key);
                     foreach (KeyValuePair<int, float[][]> wPoint in orderedW) {
-                        if (!WriteDirectionalChannel(result, written, hPoint.Key, wPoint.Key, wPoint.Value))
+                        if (!WriteDirectionalChannel(result, written, hPoint.Key, wPoint.Key, wPoint.Value)) {
                             continue;
+                        }
                         int pair = 360 - hPoint.Key;
-                        if (data.ContainsKey(pair) && data[pair].ContainsKey(wPoint.Key))
+                        if (data.ContainsKey(pair) && data[pair].ContainsKey(wPoint.Key)) {
                             WriteDirectionalChannel(result, written, pair, wPoint.Key, data[pair][wPoint.Key]);
+                        }
                     }
                 }
                 result.Append("};");
-                if (useSpaces)
+                if (useSpaces.IsChecked.Value) {
                     result.Replace("\t", "    ");
+                }
                 Clipboard.SetText(result.ToString());
                 MessageBox.Show("Impulse response array successfully copied to clipboard.", "Success",
                     MessageBoxButton.OK, MessageBoxImage.Information);
@@ -111,10 +119,12 @@ namespace HRTFSetImporter {
                 foreach (KeyValuePair<int, float[][]> distance in angle.Value) {
                     float[] samples = distance.Value[0];
                     int zeros = 0;
-                    while (zeros < samples.Length && samples[zeros] == 0)
+                    while (zeros < samples.Length && samples[zeros] == 0) {
                         ++zeros;
-                    if (minLead > zeros)
+                    }
+                    if (minLead > zeros) {
                         minLead = zeros;
+                    }
                 }
             }
 
@@ -124,8 +134,9 @@ namespace HRTFSetImporter {
                 foreach (int distance in distances) {
                     float[] samples = data[angle][distance][0];
                     int newSize = samples.Length - minLead;
-                    for (int i = 0; i < newSize; ++i)
+                    for (int i = 0; i < newSize; ++i) {
                         samples[i] = samples[i + minLead];
+                    }
                     Array.Resize(ref samples, newSize);
                     data[angle][distance][0] = samples;
                 }
@@ -139,8 +150,9 @@ namespace HRTFSetImporter {
                 foreach (int distance in distances) {
                     float[] samples = data[angle][distance][0];
                     int clearUntil = samples.Length - 1;
-                    while (clearUntil >= 0 && samples[clearUntil] == 0)
+                    while (clearUntil >= 0 && samples[clearUntil] == 0) {
                         --clearUntil;
+                    }
                     Array.Resize(ref samples, clearUntil + 1);
                     data[angle][distance][0] = samples;
                 }
@@ -185,13 +197,15 @@ namespace HRTFSetImporter {
                 foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in orderedData) {
                     result.Append("\tnew float[").Append(angle.Value.Count).AppendLine("][] {");
                     IOrderedEnumerable<KeyValuePair<int, float[][]>> orderedDistances = angle.Value.OrderBy(entry => entry.Key);
-                    foreach (KeyValuePair<int, float[][]> distance in orderedDistances)
+                    foreach (KeyValuePair<int, float[][]> distance in orderedDistances) {
                         result.Append("\t\t").AppendArray(distance.Value[0]);
+                    }
                     result.AppendLine("\t},");
                 }
                 result.Append("};");
-                if (useSpaces)
+                if (useSpaces.IsChecked.Value) {
                     result.Replace("\t", "    ");
+                }
                 Clipboard.SetText(result.ToString());
                 MessageBox.Show("Impulse response array successfully copied to clipboard.", "Success",
                     MessageBoxButton.OK, MessageBoxImage.Information);
@@ -201,6 +215,7 @@ namespace HRTFSetImporter {
         protected override void OnClosed(EventArgs e) {
             Settings.Default.DirectionalSetName = directionalSetName.Text;
             Settings.Default.AngleSetName = angleSetName.Text;
+            Settings.Default.UseSpaces = useSpaces.IsChecked.Value;
             Settings.Default.Save();
             base.OnClosed(e);
         }

@@ -3,23 +3,30 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HRTFSetImporter"
         mc:Ignorable="d"
-        Title="HRTF Set Importer" Height="290" Width="335">
+        Title="HRTF Set Importer" Height="315" Width="335">
     <Grid>
         <GroupBox Header="Directional set" Height="112" Margin="10,10,10,0" VerticalAlignment="Top">
             <Grid>
-                <TextBlock Text="File name format ({Y}, {X}: rotations around axes):" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="directionalSetName" Height="23" Margin="10,31,10,0" TextWrapping="Wrap" Text="DirectionalImpulse_{Y}_{X}.wav" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
-                <Button Content="Import" Margin="0,0,10,10" HorizontalAlignment="Right" Width="75" Click="ImportDirectionalSet" Height="20" VerticalAlignment="Bottom"/>
+                <TextBlock Text="File name format ({Y}, {X}: rotations around axes):"
+                           Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <TextBox x:Name="directionalSetName" Margin="10,31,10,0" VerticalAlignment="Top" Height="23"
+                         VerticalContentAlignment="Center" Text="DirectionalImpulse_{Y}_{X}.wav" TextWrapping="Wrap"/>
+                <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Height="20"
+                        Content="Import" Click="ImportDirectionalSet"/>
             </Grid>
         </GroupBox>
         <GroupBox Header="Distance and angle set" Height="112" Margin="10,127,10,0" VerticalAlignment="Top">
             <Grid>
-                <TextBlock Text="File name format ({A}: angle, {D}: distance (cm)):" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="angleSetName" Height="23" Margin="10,31,10,0" TextWrapping="Wrap" Text="AngleImpulse_{A}_D{D}.wav" VerticalAlignment="Top" VerticalContentAlignment="Center"/>
-                <Button Content="Import" Margin="0,0,10,10" HorizontalAlignment="Right" Width="75" Click="ImportAngleSet" Height="20" VerticalAlignment="Bottom"/>
+                <TextBlock Text="File name format ({A}: angle, {D}: distance (cm)):"
+                           Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <TextBox x:Name="angleSetName" Margin="10,31,10,0" VerticalAlignment="Top" Height="23"
+                         VerticalContentAlignment="Center" Text="AngleImpulse_{A}_D{D}.wav" TextWrapping="Wrap"/>
+                <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Height="20"
+                        Content="Import" Click="ImportAngleSet"/>
             </Grid>
         </GroupBox>
+        <CheckBox x:Name="useSpaces" Margin="10,244,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                  Content="Indent with spaces instead of tabs" IsChecked="True"/>
     </Grid>
 </Window>
