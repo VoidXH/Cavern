@@ -73,9 +73,9 @@
                                 <Ellipse x:Name="wideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="126" Canvas.Top="40"/>
                                 <Ellipse x:Name="sideLeft"  Width="6" Height="10" Fill="Red" Canvas.Left="20" Canvas.Top="91"/>
                                 <Ellipse x:Name="sideRight"  Width="6" Height="10" Fill="Red" Canvas.Left="142" Canvas.Top="91"/>
-                                <Ellipse x:Name="topSideLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
-                                <Ellipse x:Name="godsVoice"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="57"/>
-                                <Ellipse x:Name="topSideRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
+                                <Ellipse x:Name="topRearLeft"  Width="10" Height="6" Fill="Red" Canvas.Left="46" Canvas.Top="62"/>
+                                <Ellipse x:Name="topRearCenter"  Width="10" Height="6" Fill="Red" Canvas.Left="79" Canvas.Top="62"/>
+                                <Ellipse x:Name="topRearRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
                                 <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
                                 <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
                                 <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>

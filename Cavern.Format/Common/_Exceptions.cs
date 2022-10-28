@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cavern.Remapping;
+
 namespace Cavern.Format.Common {
     /// <summary>
     /// Tells if no stream was present in the container with the selected codec.
@@ -35,6 +37,42 @@ namespace Cavern.Format.Common {
         /// Tells if the decoder ran into a predefined error code that is found in the decoder's documentation.
         /// </summary>
         public DecoderException(int errorCode) : base(string.Format(message, errorCode)) { }
+    }
+
+    /// <summary>
+    /// Tells if a single channel is present multiple times in a stream that doesn't support it.
+    /// </summary>
+    public class DuplicateChannelException : Exception {
+        const string message = "A single channel is present multiple times in a stream that doesn't support it.";
+
+        /// <summary>
+        /// Tells if a single channel is present multiple times in a stream that doesn't support it.
+        /// </summary>
+        public DuplicateChannelException() : base(message) { }
+    }
+
+    /// <summary>
+    /// Tells if some channels are not supported by the export format.
+    /// </summary>
+    public class InvalidChannelException : Exception {
+        const string message = "Some channels ({0}) are not supported by the export format.";
+
+        /// <summary>
+        /// Tells if some channels are not supported by the export format.
+        /// </summary>
+        public InvalidChannelException(ReferenceChannel[] channels) : base(string.Format(message, string.Join(", ", channels))) { }
+    }
+
+    /// <summary>
+    /// Tells if the channel order cannot be applied as it's invalid in an export format.
+    /// </summary>
+    public class InvalidChannelOrderException : Exception {
+        const string message = "The channel order cannot be applied as it's invalid in this export format.";
+
+        /// <summary>
+        /// Tells if the channel order cannot be applied as it's invalid in an export format.
+        /// </summary>
+        public InvalidChannelOrderException() : base(message) { }
     }
 
     /// <summary>

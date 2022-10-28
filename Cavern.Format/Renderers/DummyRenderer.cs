@@ -8,9 +8,7 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// Renders silence.
         /// </summary>
-        public DummyRenderer(Decoder stream) : base(stream) {
-            SetupChannels(stream.ChannelCount);
-        }
+        public DummyRenderer(Decoder stream) : base(stream) => SetupChannels();
 
         /// <summary>
         /// Renders silence.

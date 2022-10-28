@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Format.Consts;
+using Cavern.Remapping;
+
+using static Cavern.Format.Consts.RIFFWave;
 
 namespace Cavern.Format {
     /// <summary>
@@ -25,7 +28,12 @@ namespace Cavern.Format {
         long DataLength => Length * ChannelCount * ((int)Bits / 8);
 
         /// <summary>
-        /// Minimal RIFF wave file writer.
+        /// Channels present in the file, see <see cref="WaveExtensibleChannel"/>.
+        /// </summary>
+        int channelMask = -1;
+
+        /// <summary>
+        /// Minimal RIFF Wave file writer.
         /// </summary>
         /// <param name="writer">File writer object</param>
         /// <param name="channelCount">Output channel count</param>
@@ -33,10 +41,10 @@ namespace Cavern.Format {
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         public RIFFWaveWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) :
-            base(writer, channelCount, length, sampleRate, bits) {}
+            base(writer, channelCount, length, sampleRate, bits) { }
 
         /// <summary>
-        /// Minimal RIFF wave file writer.
+        /// Minimal RIFF Wave file writer.
         /// </summary>
         /// <param name="path">Output file name</param>
         /// <param name="channelCount">Output channel count</param>
@@ -45,6 +53,28 @@ namespace Cavern.Format {
         /// <param name="bits">Output bit depth</param>
         public RIFFWaveWriter(string path, int channelCount, long length, int sampleRate, BitDepth bits) :
             base(path, channelCount, length, sampleRate, bits) { }
+
+        /// <summary>
+        /// WAVEFORMATEXTENSIBLE file writer.
+        /// </summary>
+        /// <param name="writer">File writer object</param>
+        /// <param name="channels">Output channel mapping</param>
+        /// <param name="length">Output length in samples per channel</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public RIFFWaveWriter(BinaryWriter writer, ReferenceChannel[] channels, long length, int sampleRate, BitDepth bits) :
+            base(writer, channels.Length, length, sampleRate, bits) => channelMask = CreateChannelMask(channels);
+
+        /// <summary>
+        /// WAVEFORMATEXTENSIBLE file writer.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="channels">Output channel mapping</param>
+        /// <param name="length">Output length in samples per channel</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public RIFFWaveWriter(string path, ReferenceChannel[] channels, long length, int sampleRate, BitDepth bits) :
+            base(path, channels.Length, length, sampleRate, bits) => channelMask = CreateChannelMask(channels);
 
         /// <summary>
         /// Export an array of samples to an audio file.
@@ -103,16 +133,16 @@ namespace Cavern.Format {
         /// </summary>
         public override void WriteHeader() {
             // RIFF header with file length
-            writer.Write(RIFFWave.syncWord1);
+            writer.Write(syncWord1);
             bool inConstraints = fmtSize + DataLength < uint.MaxValue;
             if (inConstraints && MaxLargeChunks == 0) {
                 writer.Write(fmtSize + (uint)DataLength);
-                writer.Write(RIFFWave.syncWord2);
+                writer.Write(syncWord2);
             } else {
                 writer.Write(inConstraints ? fmtSize + (uint)DataLength : 0xFFFFFFFF);
-                writer.Write(RIFFWave.syncWord2);
+                writer.Write(syncWord2);
                 if (!inConstraints || MaxLargeChunks != 0) {
-                    writer.Write(RIFFWave.junkSync);
+                    writer.Write(junkSync);
                     int junkLength = junkBaseSize + MaxLargeChunks * junkExtraSize;
                     writer.Write(junkLength);
                     writer.Write(new byte[junkLength]);
@@ -120,9 +150,14 @@ namespace Cavern.Format {
             }
 
             // Format header
-            writer.Write(RIFFWave.formatSync);
-            writer.Write(new byte[] { 16, 0, 0, 0 }); // FMT header size
-            writer.Write(new byte[] { Bits == BitDepth.Float32 ? (byte)3 : (byte)1, 0 }); // Sample format
+            writer.Write(formatSync);
+            if (channelMask == -1) {
+                writer.Write(16); // FMT header size
+                writer.Write(Bits == BitDepth.Float32 ? (short)3 : (short)1); // Sample format...
+            } else {
+                writer.Write(16 + 24); // FMT + WAVEFORMATEXTENSIBLE header size
+                writer.Write(extensibleSampleFormat); // ...or that it will be in an extended header
+            }
             writer.Write(BitConverter.GetBytes((short)ChannelCount)); // Audio channels
             writer.Write(BitConverter.GetBytes(SampleRate)); // Sample rate
             int blockAlign = ChannelCount * ((int)Bits / 8), BPS = SampleRate * blockAlign;
@@ -130,8 +165,16 @@ namespace Cavern.Format {
             writer.Write(BitConverter.GetBytes((short)blockAlign)); // Block size in bytes
             writer.Write(BitConverter.GetBytes((short)Bits)); // Bit depth
 
+            if (channelMask != -1) { // Use WAVEFORMATEXTENSIBLE
+                writer.Write((short)22); // Extensible header size - 1
+                writer.Write((short)Bits); // Bit depth
+                writer.Write(channelMask); // Channel mask
+                writer.Write(Bits == BitDepth.Float32 ? (short)3 : (short)1); // Sample format
+                writer.Write(new byte[] { 0, 0, 0, 0, 16, 0, 128, 0, 0, 170, 0, 56, 155, 113 }); // SubFormat GUID
+            }
+
             // Data header
-            writer.Write(RIFFWave.dataSync);
+            writer.Write(dataSync);
             writer.Write(BitConverter.GetBytes((uint)DataLength));
         }
 
@@ -154,8 +197,7 @@ namespace Cavern.Format {
                 case BitDepth.Int24:
                     while (from < to) {
                         int src = (int)(samples[from++] * BitConversions.int24Max);
-                        writer.Write((byte)src);
-                        writer.Write((byte)(src >> 8));
+                        writer.Write((short)src);
                         writer.Write((byte)(src >> 16));
                     }
                     break;
@@ -192,8 +234,7 @@ namespace Cavern.Format {
                     while (from < to) {
                         for (int channel = 0; channel < samples.Length; ++channel) {
                             int src = (int)(samples[channel][from] * BitConversions.int24Max);
-                            writer.Write((byte)src);
-                            writer.Write((byte)(src >> 8));
+                            writer.Write((short)src);
                             writer.Write((byte)(src >> 16));
                         }
                         ++from;
@@ -245,12 +286,12 @@ namespace Cavern.Format {
 
                 // 64-bit sync word
                 writer.BaseStream.Position = 0;
-                writer.Write(RIFFWave.syncWord1_64);
+                writer.Write(syncWord1_64);
                 writer.Write(0xFFFFFFFF);
                 writer.BaseStream.Position += 4;
 
                 // 64-bit format header
-                writer.Write(RIFFWave.ds64Sync);
+                writer.Write(ds64Sync);
                 writer.Write(junkBaseSize + largeChunks * junkExtraSize);
 
                 // Mandatory sizes
@@ -270,7 +311,7 @@ namespace Cavern.Format {
                 // Fill the unused space with junk
                 int emptyBytes = (MaxLargeChunks - largeChunks) * junkExtraSize;
                 if (emptyBytes != 0) {
-                    writer.Write(RIFFWave.junkSync);
+                    writer.Write(junkSync);
                     writer.Write(emptyBytes - 8);
                 }
             }
@@ -291,5 +332,10 @@ namespace Cavern.Format {
         /// Size for one extra header information in the temporary header.
         /// </summary>
         const byte junkExtraSize = 12;
+
+        /// <summary>
+        /// Sample format identifier of WAVEFORMATEXTENSIBLE.
+        /// </summary>
+        const short extensibleSampleFormat = -2;
     }
 }

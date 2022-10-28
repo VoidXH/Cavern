@@ -228,6 +228,16 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Count the number of 1 bits in an int.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int PopulationCount(int num) {
+            num -= ((num >> 1) & 0x55555555);
+            num = (num & 0x33333333) + ((num >> 2) & 0x33333333);
+            return (((num + (num >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+        }
+
+        /// <summary>
         /// Reverse the bit order in a byte.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -7,6 +7,7 @@ using Cavern.Format.Consts;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.Format.Utilities;
+using Cavern.Remapping;
 
 namespace Cavern.Format.Decoders {
     /// <summary>
@@ -46,6 +47,11 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         public override int SampleRate => sampleRate;
         int sampleRate;
+
+        /// <summary>
+        /// WAVEFORMATEXTENSIBLE channel mask if available.
+        /// </summary>
+        int channelMask = -1;
 
         /// <summary>
         /// The location of the first sample in the file stream. Knowing this allows seeking.
@@ -141,6 +147,41 @@ namespace Cavern.Format.Decoders {
         }
 
         /// <summary>
+        /// Decode a block of RIFF WAVE data.
+        /// </summary>
+        static void DecodeLittleEndianBlock(byte[] source, float[] target, long targetOffset, BitDepth bits) {
+            switch (bits) {
+                case BitDepth.Int8: {
+                        for (int i = 0; i < source.Length; ++i) {
+                            target[targetOffset++] = source[i] * BitConversions.fromInt8;
+                        }
+                        break;
+                    }
+                case BitDepth.Int16: {
+                        for (int i = 0; i < source.Length;) {
+                            target[targetOffset++] = (short)(source[i++] | source[i++] << 8) * BitConversions.fromInt16;
+                        }
+                        break;
+                    }
+                case BitDepth.Int24: {
+                        for (int i = 0; i < source.Length;) {
+                            target[targetOffset++] = ((source[i++] << 8 | source[i++] << 16 | source[i++] << 24) >> 8) *
+                                BitConversions.fromInt24; // This needs to be shifted into overflow for correct sign
+                        }
+                        break;
+                    }
+                case BitDepth.Float32: {
+                        if (targetOffset < int.MaxValue / sizeof(float)) {
+                            Buffer.BlockCopy(source, 0, target, (int)targetOffset * sizeof(float), source.Length);
+                        } else for (int i = 0; i < source.Length; ++i) {
+                                target[targetOffset++] = BitConverter.ToSingle(source, i * sizeof(float));
+                            }
+                        break;
+                    }
+            }
+        }
+
+        /// <summary>
         /// Read and decode a given number of samples.
         /// </summary>
         /// <param name="target">Array to decode data into</param>
@@ -167,41 +208,6 @@ namespace Cavern.Format.Decoders {
         }
 
         /// <summary>
-        /// Decode a block of RIFF WAVE data.
-        /// </summary>
-        static void DecodeLittleEndianBlock(byte[] source, float[] target, long targetOffset, BitDepth bits) {
-            switch (bits) {
-                case BitDepth.Int8: {
-                    for (int i = 0; i < source.Length; ++i) {
-                        target[targetOffset++] = source[i] * BitConversions.fromInt8;
-                    }
-                    break;
-                }
-                case BitDepth.Int16: {
-                    for (int i = 0; i < source.Length;) {
-                        target[targetOffset++] = (short)(source[i++] | source[i++] << 8) * BitConversions.fromInt16;
-                    }
-                    break;
-                }
-                case BitDepth.Int24: {
-                    for (int i = 0; i < source.Length;) {
-                        target[targetOffset++] = ((source[i++] << 8 | source[i++] << 16 | source[i++] << 24) >> 8) *
-                            BitConversions.fromInt24; // This needs to be shifted into overflow for correct sign
-                    }
-                    break;
-                }
-                case BitDepth.Float32: {
-                    if (targetOffset < int.MaxValue / sizeof(float)) {
-                        Buffer.BlockCopy(source, 0, target, (int)targetOffset * sizeof(float), source.Length);
-                    } else for (int i = 0; i < source.Length; ++i) {
-                        target[targetOffset++] = BitConverter.ToSingle(source, i * sizeof(float));
-                    }
-                    break;
-                }
-            }
-        }
-
-        /// <summary>
         /// Start the following reads from the selected sample.
         /// </summary>
         /// <param name="sample">The selected sample, for a single channel</param>
@@ -212,6 +218,17 @@ namespace Cavern.Format.Decoders {
             stream.Position = dataStart + sample * channelCount * ((int)Bits >> 3);
             position = sample;
             reader.Clear();
+        }
+
+        /// <summary>
+        /// Get the custom channel layout or the standard layout corresponding to this file's channel count.
+        /// </summary>
+        public ReferenceChannel[] GetChannels() {
+            if (channelMask == -1) {
+                return ChannelPrototype.GetStandardMatrix(channelCount);
+            } else {
+                return RIFFWave.ParseChannelMask(channelMask);
+            }
         }
 
         /// <summary>
@@ -226,17 +243,19 @@ namespace Cavern.Format.Decoders {
         /// Read the main RIFF WAVE header.
         /// </summary>
         void ParseFormatHeader(Stream reader) {
-            short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVE EX
+            short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVEFORMATEXTENSIBLE
             channelCount = reader.ReadInt16();
             sampleRate = reader.ReadInt32();
             stream.Position += 4; // Bytes/sec
             stream.Position += 2; // Block size in bytes
             short bitDepth = reader.ReadInt16();
             if (sampleFormat == -2) {
-                // Extension size (22) - 2 bytes, valid bits per sample - 2 bytes, channel mask - 4 bytes
-                stream.Position += 8;
+                long endPosition = reader.ReadInt16() + reader.Position;
+                bitDepth = reader.ReadInt16();
+                channelMask = reader.ReadInt32();
                 sampleFormat = reader.ReadInt16();
-                stream.Position += 15; // Skip the rest of the sub format GUID
+                //byte[] subFormat = reader.ReadBytes((int)(endPosition - stream.Position));
+                stream.Position = endPosition;
             }
             if (sampleFormat == 1) {
                 Bits = bitDepth switch {

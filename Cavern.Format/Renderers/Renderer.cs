@@ -82,17 +82,17 @@ namespace Cavern.Format.Renderers {
         }
 
         /// <summary>
-        /// Set up the renderer for a number of standard channels.
+        /// Set up the renderer for the channel-based stream's channels.
         /// </summary>
-        protected void SetupChannels(int count) {
-            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(count);
-            for (int channel = 0; channel < count; ++channel) {
+        protected void SetupChannels() {
+            ReferenceChannel[] channels = GetChannels();
+            for (int channel = 0; channel < channels.Length; ++channel) {
                 Source source = new StreamMasterSource(reader, channel) {
-                    Position = ChannelPrototype.AlternativePositions[(int)matrix[channel]] * Listener.EnvironmentSize
+                    Position = ChannelPrototype.AlternativePositions[(int)channels[channel]] * Listener.EnvironmentSize
                 };
                 objects.Add(source);
             }
-            FinishSetup(count);
+            FinishSetup(channels.Length);
         }
 
         /// <summary>

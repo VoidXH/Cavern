@@ -45,6 +45,7 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Default render targets.
         /// </summary>
+        /// <remarks>Top rears are used instead of sides for smooth height transitions and WAVEFORMATEXTENSIBLE support.</remarks>
         public static readonly RenderTarget[] Targets = {
             new RenderTarget("5.1 side", ChannelPrototype.GetStandardMatrix(6)),
             new RenderTarget("5.1 rear", new[] {
@@ -59,19 +60,19 @@ namespace CavernizeGUI.Elements {
             new RenderTarget("5.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("5.1.4", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("5.1.6", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter,
-                ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("7.1", ChannelPrototype.GetStandardMatrix(8)),
             new RenderTarget("7.1.2 front", ChannelPrototype.GetStandardMatrix(10)),
@@ -79,21 +80,21 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("7.1.4", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("7.1.6", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter,
-                ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("9.1", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
@@ -113,7 +114,7 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("9.1.4", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
@@ -121,15 +122,15 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("9.1.6", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter,
-                ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
             }),
             new DriverRenderTarget(),
             new VirtualizerRenderTarget()

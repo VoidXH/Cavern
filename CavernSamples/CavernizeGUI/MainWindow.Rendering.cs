@@ -70,12 +70,20 @@ namespace CavernizeGUI {
         /// </summary>
         /// <returns>A task for rendering or null when an error happened.</returns>
         Action Render(string path) {
+            RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
             Track target = (Track)tracks.SelectedItem;
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
             if (!codec.IsEnvironmental()) {
-                string exportName = path[^4..].ToLower().Equals(".mkv") ? path[..^4] + ".wav" : path;
-                AudioWriter writer = AudioWriter.Create(exportName, ((RenderTarget)renderTarget.SelectedItem).Channels.Length,
-                    target.Length, listener.SampleRate, BitDepth.Int16);
+                string exportFormat = path[^4..].ToLower(),
+                    exportName = exportFormat.Equals(".mkv") ? path[..^4] + waveExtension : path;
+                AudioWriter writer;
+                if (exportFormat.Equals(waveExtension)) {
+                    writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels,
+                        target.Length, listener.SampleRate, BitDepth.Int16);
+                } else {
+                    writer = AudioWriter.Create(exportName, activeRenderTarget.Channels.Length,
+                        target.Length, listener.SampleRate, BitDepth.Int16);
+                }
                 if (writer == null) {
                     Error((string)language["UnExt"]);
                     return null;
@@ -119,11 +127,21 @@ namespace CavernizeGUI {
                         (string)language["ExBWF"] : (string)language["ExFmt"]
                 };
                 if (dialog.ShowDialog().Value) {
-                    return Render(dialog.FileName);
+                    try {
+                        return Render(dialog.FileName);
+                    } catch (Exception e) {
+                        Error(e.Message);
+                        return null;
+                    }
                 }
             } else {
                 Track target = (Track)tracks.SelectedItem;
-                return () => RenderTask(target, null, false, false, null);
+                try {
+                    return () => RenderTask(target, null, false, false, null);
+                } catch (Exception e) {
+                    Error(e.Message);
+                    return null;
+                }
             }
             return null;
         }
@@ -163,7 +181,7 @@ namespace CavernizeGUI {
                 }
 
                 if (finalName[^4..].ToLower().Equals(".mkv")) {
-                    string exportedAudio = finalName[..^4] + ".wav";
+                    string exportedAudio = finalName[..^4] + waveExtension;
                     taskEngine.UpdateStatus("Merging to final container...");
                     string layout = null,
                         filePath = null;
@@ -209,5 +227,10 @@ namespace CavernizeGUI {
             taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.UpdateProgressBar(1);
         }
+
+        /// <summary>
+        /// RIFF Wave file extension.
+        /// </summary>
+        const string waveExtension = ".wav";
     }
 }

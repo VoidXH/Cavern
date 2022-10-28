@@ -27,7 +27,7 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         public RIFFWaveRenderer(RIFFWaveDecoder stream) : base(stream) {
             if (stream.ADM == null) {
-                SetupChannels(stream.ChannelCount);
+                SetupChannels();
             } else {
                 SetupObjects(stream.ChannelCount);
                 admBlocks = new int[stream.ChannelCount];
@@ -46,9 +46,10 @@ namespace Cavern.Format.Renderers {
         /// Get the bed channels.
         /// </summary>
         public override ReferenceChannel[] GetChannels() {
-            AudioDefinitionModel adm = ((RIFFWaveDecoder)stream).ADM;
+            RIFFWaveDecoder decoder = (RIFFWaveDecoder)stream;
+            AudioDefinitionModel adm = decoder.ADM;
             if (adm == null) {
-                return base.GetChannels();
+                return decoder.GetChannels();
             } else {
                 List<ReferenceChannel> channels = new List<ReferenceChannel>();
                 for (int i = 0, c = adm.Movements.Count; i < c; i++) {

@@ -93,9 +93,9 @@ namespace CavernizeGUI {
                 [ReferenceChannel.TopFrontLeft] = topFrontLeft,
                 [ReferenceChannel.TopFrontCenter] = topFrontCenter,
                 [ReferenceChannel.TopFrontRight] = topFrontRight,
-                [ReferenceChannel.TopSideLeft] = topSideLeft,
-                [ReferenceChannel.TopSideRight] = topSideRight,
-                [ReferenceChannel.GodsVoice] = godsVoice
+                [ReferenceChannel.TopRearLeft] = topRearLeft,
+                [ReferenceChannel.TopRearCenter] = topRearCenter,
+                [ReferenceChannel.TopRearRight] = topRearRight
             };
 
             audio.ItemsSource = ExportFormat.Formats;
@@ -181,13 +181,14 @@ namespace CavernizeGUI {
         /// Start rendering to a target file.
         /// </summary>
         public void RenderContent(string path) {
+            Action renderTask;
             try {
                 PreRender();
+                renderTask = Render(path);
             } catch (Exception e) {
                 Error(e.Message);
                 return;
             }
-            Action renderTask = Render(path);
             if (renderTask != null) {
                 taskEngine.Run(renderTask);
             }

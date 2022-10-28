@@ -1,10 +1,99 @@
-﻿using Cavern.Remapping;
+﻿using System;
+using System.Collections.Generic;
+
+using Cavern.Format.Common;
+using Cavern.Remapping;
+using Cavern.Utilities;
 
 namespace Cavern.Format.Consts {
     /// <summary>
     /// Used for both <see cref="RIFFWaveReader"/> and <see cref="RIFFWaveWriter"/>.
     /// </summary>
     static class RIFFWave {
+        /// <summary>
+        /// Bit masks for channels present in a WAV file.
+        /// </summary>
+        public enum WaveExtensibleChannel {
+            /// <summary>
+            /// Marks a channel that can't be part of a channel mask.
+            /// </summary>
+            None,
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+            FrontLeft = 0x1,
+            FrontRight = 0x2,
+            FrontCenter = 0x4,
+            LowFrequencyEffects = 0x8,
+            BackLeft = 0x10,
+            BackRight = 0x20,
+            FrontLeftCenter = 0x40,
+            FrontRightCenter = 0x80,
+            BackCenter = 0x100,
+            SideLeft = 0x200,
+            SideRight = 0x400,
+            GodsVoice = 0x800,
+            TopFrontLeft = 0x1000,
+            TopFrontCenter = 0x2000,
+            TopFrontRight = 0x4000,
+            TopBackLeft = 0x8000,
+            TopBackCenter = 0x10000,
+            TopBackRight = 0x20000
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        }
+
+        /// <summary>
+        /// Assigns an array of <see cref="ReferenceChannel"/>s to a channel mask while checking for consistency.
+        /// </summary>
+        public static int CreateChannelMask(ReferenceChannel[] channels) {
+            int result = 0;
+            List<ReferenceChannel> illegalChannels = null;
+            for (int i = 0; i < channels.Length; i++) {
+                int mapped = (int)extensibleChannelMapping[(int)channels[i]];
+                if (mapped == (int)WaveExtensibleChannel.None) {
+                    if (illegalChannels == null) {
+                        illegalChannels = new List<ReferenceChannel>();
+                    }
+                    illegalChannels.Add(channels[i]);
+                }
+                if ((result & mapped) != 0) {
+                    throw new DuplicateChannelException();
+                }
+                result |= mapped;
+            }
+
+            if (illegalChannels != null) {
+                throw new InvalidChannelException(illegalChannels.ToArray());
+            }
+
+            for (int i = 1; i < channels.Length; i++) {
+                if (extensibleChannelMapping[(int)channels[i - 1]] > extensibleChannelMapping[(int)channels[i]]) {
+                    throw new InvalidChannelOrderException();
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets which channels and in what order are part of a WAVE file by channel mask.
+        /// </summary>
+        public static ReferenceChannel[] ParseChannelMask(int mask) {
+            ReferenceChannel[] result = new ReferenceChannel[QMath.PopulationCount(mask)];
+            Array supportedChannels = Enum.GetValues(typeof(WaveExtensibleChannel));
+            int channel = 0;
+            for (int ch = 0; ch < supportedChannels.Length; ch++) {
+                WaveExtensibleChannel checkedChannel = (WaveExtensibleChannel)supportedChannels.GetValue(ch);
+                if ((mask & (int)checkedChannel) != 0) {
+                    for (int j = 0; j < extensibleChannelMapping.Length; j++) {
+                        if (extensibleChannelMapping[j] == checkedChannel) {
+                            result[channel++] = (ReferenceChannel)j;
+                            break;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
         /// <summary>
         /// RIFF sync word, stream marker.
         /// </summary>
@@ -56,15 +145,38 @@ namespace Cavern.Format.Consts {
         public const int dbmdSync = 0x646d6264;
 
         /// <summary>
-        /// Meaning of each bit in WAVEFORMATEXTENSIBLE's channel mask.
+        /// Converts the <see cref="ReferenceChannel"/> values to a <see cref="WaveExtensibleChannel"/>.
         /// </summary>
-        public static readonly ReferenceChannel[] channelMask = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-            ReferenceChannel.FrontLeftCenter, ReferenceChannel.FrontRightCenter, ReferenceChannel.RearCenter,
-            ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.GodsVoice,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
+        public static readonly WaveExtensibleChannel[] extensibleChannelMapping = {
+            WaveExtensibleChannel.FrontLeft,
+            WaveExtensibleChannel.FrontRight,
+            WaveExtensibleChannel.FrontCenter,
+            WaveExtensibleChannel.LowFrequencyEffects,
+            WaveExtensibleChannel.BackLeft,
+            WaveExtensibleChannel.BackRight,
+            WaveExtensibleChannel.SideLeft,
+            WaveExtensibleChannel.SideRight,
+            WaveExtensibleChannel.FrontLeftCenter,
+            WaveExtensibleChannel.FrontRightCenter,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.TopFrontLeft,
+            WaveExtensibleChannel.TopFrontRight,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.TopFrontCenter,
+            WaveExtensibleChannel.GodsVoice,
+            WaveExtensibleChannel.BackCenter,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.TopBackLeft,
+            WaveExtensibleChannel.TopBackRight,
+            WaveExtensibleChannel.TopBackCenter
         };
     }
 }

@@ -113,9 +113,9 @@ namespace CavernizeGUI.Elements {
                     }
                     builder.Append("Dynamic objects: ").AppendLine((Renderer.Objects.Count - beds.Length).ToString());
                 } else if (beds.Length > 0) {
-                    builder.Append("Channel count: ").AppendLine(reader.ChannelCount.ToString());
-                } else {
                     builder.Append("Channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
+                } else {
+                    builder.Append("Channel count: ").AppendLine(reader.ChannelCount.ToString());
                 }
             }
 
