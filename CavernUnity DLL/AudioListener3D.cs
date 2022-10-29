@@ -315,7 +315,7 @@ namespace Cavern {
 
             // Apply normalizer
             if (Normalizer != 0) {
-                WaveformUtils.Normalize(ref unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
+                WaveformUtils.Normalize(unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
             }
 
             // Generate output from buffer

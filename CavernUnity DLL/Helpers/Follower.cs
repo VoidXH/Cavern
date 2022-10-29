@@ -115,7 +115,7 @@ namespace Cavern.Helpers {
                     }
                 }
 
-                if (renderer.material.color != newColor) {
+                if (renderer != null && renderer.material.color != newColor) {
                     renderer.material.color = newColor;
                 }
             }
