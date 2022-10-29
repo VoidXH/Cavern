@@ -92,7 +92,7 @@ namespace Cavern.Format.Utilities {
         readonly object blockLock = new object();
 
         /// <summary>
-        /// A read is in progress. Seeking is disabled until it's finished.
+        /// A read is in progress. Seeking is blocked until it's finished.
         /// </summary>
         readonly object readLock = new object();
 

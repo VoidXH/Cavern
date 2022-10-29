@@ -147,20 +147,6 @@ namespace Cavern {
         public static float[] Output { get; private set; } = new float[0];
 
         // ------------------------------------------------------------------
-        // Public functions
-        // ------------------------------------------------------------------
-        /// <summary>
-        /// Manually generate one frame.
-        /// </summary>
-        public void ManualUpdate() => Output = cavernListener.Render();
-
-        /// <summary>
-        /// Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;,
-        /// or simply "Virtualization".
-        /// </summary>
-        public static string GetLayoutName() => Listener.GetLayoutName();
-
-        // ------------------------------------------------------------------
         // Internal vars
         // ------------------------------------------------------------------
         /// <summary>
@@ -187,6 +173,34 @@ namespace Cavern {
         static int cachedSampleRate = -1;
 
         static Remapper remapper;
+
+        // ------------------------------------------------------------------
+        // Public functions
+        // ------------------------------------------------------------------
+        /// <summary>
+        /// Current speaker layout name in the format of &lt;main&gt;.&lt;LFE&gt;.&lt;height&gt;.&lt;floor&gt;,
+        /// or simply "Virtualization".
+        /// </summary>
+        public static string GetLayoutName() => Listener.GetLayoutName();
+
+        /// <summary>
+        /// Invoke an action when rendering is not in progress, making non-thread-safe Cavern calls (like seeking)
+        /// safe from another thread.
+        /// </summary>
+        public static void PerformSafely(Action action) {
+            lock (cavernListener) {
+                action.Invoke();
+            }
+        }
+
+        /// <summary>
+        /// Manually generate one frame.
+        /// </summary>
+        public void ManualUpdate() {
+            lock (cavernListener) {
+                Output = cavernListener.Render();
+            }
+        }
 
         // ------------------------------------------------------------------
         // Filter output
@@ -252,8 +266,11 @@ namespace Cavern {
 
             // Append new samples to the filter output buffer
             int channels = Listener.Channels.Length;
-            float[] renderBuffer = Output = cavernListener.Render((unityBuffer.Length - bufferPosition) / unityChannels *
-                cachedSampleRate / SystemSampleRate / UpdateRate + 1);
+            lock (cavernListener) {
+                Output = cavernListener.Render((unityBuffer.Length - bufferPosition) / unityChannels *
+                    cachedSampleRate / SystemSampleRate / UpdateRate + 1);
+            }
+            float[] renderBuffer = Output;
 
             // Virtualizer pipeline: resample -> filter -> downmix
             if (Listener.HeadphoneVirtualizer) {

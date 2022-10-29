@@ -93,8 +93,7 @@ namespace Cavern.Format {
         /// Open a file stream optimized for sequential reading.
         /// </summary>
         internal static Stream OpenSequentialStream(string path) =>
-            new BufferedInputStream(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read,
-                10 * 1024 * 1024, FileOptions.SequentialScan), 1024 * 1024, 10);
+            new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 10 * 1024 * 1024, FileOptions.SequentialScan);
 
         /// <summary>
         /// Get an object-based renderer for this audio file.
@@ -109,6 +108,8 @@ namespace Cavern.Format {
         /// <summary>
         /// Start the following reads from the selected sample.
         /// </summary>
+        /// <param name="sample">The selected sample, for a single channel</param>
+        /// <remarks>Seeking is not thread-safe.</remarks>
         public abstract void Seek(long sample);
 
         /// <summary>

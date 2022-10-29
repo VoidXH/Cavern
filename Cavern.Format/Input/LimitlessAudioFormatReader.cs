@@ -56,8 +56,9 @@ namespace Cavern.Format {
             ChannelCount = reader.ReadInt32();
             layoutByteCount = ChannelCount % 8 == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1);
             Channels = new Channel[ChannelCount];
-            for (int channel = 0; channel < ChannelCount; ++channel)
+            for (int channel = 0; channel < ChannelCount; ++channel) {
                 Channels[channel] = new Channel(reader.ReadSingle(), reader.ReadSingle(), reader.ReadByte() != 0);
+            }
             SampleRate = reader.ReadInt32();
             Length = reader.ReadInt64();
         }
@@ -82,22 +83,27 @@ namespace Cavern.Format {
         /// </summary>
         void ReadSecond() {
             if (lastReadSecond != null) {
-                for (int channel = 0; channel < ChannelCount; ++channel)
+                for (int channel = 0; channel < ChannelCount; ++channel) {
                     Array.Clear(lastReadSecond[channel], 0, SampleRate);
+                }
             } else {
                 lastReadSecond = new float[ChannelCount][];
-                for (int channel = 0; channel < ChannelCount; ++channel)
+                for (int channel = 0; channel < ChannelCount; ++channel) {
                     lastReadSecond[channel] = new float[SampleRate];
+                }
             }
 
             byte[] layoutBytes = reader.ReadBytes(layoutByteCount);
-            if (layoutBytes.Length == 0)
+            if (layoutBytes.Length == 0) {
                 return;
+            }
             bool[] writtenChannels = new bool[ChannelCount];
             int channelsToRead = 0;
-            for (int channel = 0; channel < ChannelCount; ++channel)
-                if (writtenChannels[channel] = (layoutBytes[channel >> 3] >> (channel % 8)) % 2 != 0)
+            for (int channel = 0; channel < ChannelCount; ++channel) {
+                if (writtenChannels[channel] = (layoutBytes[channel >> 3] >> (channel % 8)) % 2 != 0) {
                     ++channelsToRead;
+                }
+            }
 
             int samplesToRead = (int)Math.Min(Length - readSamples, SampleRate);
             int bytesToRead = samplesToRead * channelsToRead * ((int)Bits >> 3);
@@ -106,25 +112,34 @@ namespace Cavern.Format {
 
             switch (Bits) {
                 case BitDepth.Int8:
-                    for (int sample = 0; sample < samplesToRead; ++sample)
-                        for (int channel = 0; channel < ChannelCount; ++channel)
-                            if (writtenChannels[channel])
+                    for (int sample = 0; sample < samplesToRead; ++sample) {
+                        for (int channel = 0; channel < ChannelCount; ++channel) {
+                            if (writtenChannels[channel]) {
                                 lastReadSecond[channel][sample] = source[sourcePos++] * BitConversions.fromInt8;
+                            }
+                        }
+                    }
                     break;
                 case BitDepth.Int16:
-                    for (int sample = 0; sample < samplesToRead; ++sample)
-                        for (int channel = 0; channel < ChannelCount; ++channel)
-                            if (writtenChannels[channel])
+                    for (int sample = 0; sample < samplesToRead; ++sample) {
+                        for (int channel = 0; channel < ChannelCount; ++channel) {
+                            if (writtenChannels[channel]) {
                                 lastReadSecond[channel][sample] = (short)(source[sourcePos++] | source[sourcePos++] << 8) *
                                     BitConversions.fromInt16;
+                            }
+                        }
+                    }
                     break;
                 case BitDepth.Int24:
-                    for (int sample = 0; sample < samplesToRead; ++sample)
-                        for (int channel = 0; channel < ChannelCount; ++channel)
-                            if (writtenChannels[channel])
+                    for (int sample = 0; sample < samplesToRead; ++sample) {
+                        for (int channel = 0; channel < ChannelCount; ++channel) {
+                            if (writtenChannels[channel]) {
                                 lastReadSecond[channel][sample] = // This needs to be shifted into overflow for correct sign
                                     ((source[sourcePos++] << 8 | source[sourcePos++] << 16 | source[sourcePos++] << 24) >> 8) *
                                     BitConversions.fromInt24;
+                            }
+                        }
+                    }
                     break;
                 case BitDepth.Float32:
                     for (int sample = 0; sample < samplesToRead; ++sample) {
@@ -150,23 +165,28 @@ namespace Cavern.Format {
         /// <remarks>The next to - from samples will be read from the file. Samples are counted for all channels.</remarks>
         public override void ReadBlock(float[] samples, long from, long to) {
             if (to - from > skip) {
-                for (; from < to; from += skip)
+                for (; from < to; from += skip) {
                     ReadBlock(samples, from, Math.Min(to, from + skip));
+                }
                 return;
             }
 
             while (from < to) {
-                if (copiedSamples == 0)
+                if (copiedSamples == 0) {
                     ReadSecond();
+                }
                 int toProcess = (int)Math.Min((to - from) / ChannelCount, SampleRate - copiedSamples);
 
-                for (int sample = 0; sample < toProcess; ++sample)
-                    for (int channel = 0; channel < ChannelCount; ++channel)
+                for (int sample = 0; sample < toProcess; ++sample) {
+                    for (int channel = 0; channel < ChannelCount; ++channel) {
                         samples[from++] = lastReadSecond[channel][copiedSamples + sample];
+                    }
+                }
 
                 copiedSamples += toProcess;
-                if (copiedSamples == SampleRate)
+                if (copiedSamples == SampleRate) {
                     copiedSamples = 0;
+                }
                 from += toProcess * ChannelCount;
             }
         }
@@ -180,23 +200,28 @@ namespace Cavern.Format {
         /// <remarks>The next to - from samples will be read from the file. Samples counted for a single channel.</remarks>
         public override void ReadBlock(float[][] samples, long from, long to) {
             if (to - from > skip) {
-                for (; from < to; from += skip)
+                for (; from < to; from += skip) {
                     ReadBlock(samples, from, Math.Min(to, from + skip));
+                }
                 return;
             }
 
             while (from < to) {
-                if (copiedSamples == 0)
+                if (copiedSamples == 0) {
                     ReadSecond();
+                }
                 int toProcess = (int)Math.Min(to - from, SampleRate - copiedSamples);
 
-                for (int sample = 0; sample < toProcess; ++sample)
-                    for (int channel = 0; channel < ChannelCount; ++channel)
+                for (int sample = 0; sample < toProcess; ++sample) {
+                    for (int channel = 0; channel < ChannelCount; ++channel) {
                         samples[channel][from + sample] = lastReadSecond[channel][copiedSamples + sample];
+                    }
+                }
 
                 copiedSamples += toProcess;
-                if (copiedSamples == SampleRate)
+                if (copiedSamples == SampleRate) {
                     copiedSamples = 0;
+                }
                 from += toProcess;
             }
         }
@@ -212,6 +237,7 @@ namespace Cavern.Format {
         /// Start the following reads from the selected sample.
         /// </summary>
         /// <param name="sample">The selected sample, for a single channel</param>
+        /// <remarks>Seeking is not thread-safe.</remarks>
         public override void Seek(long sample) {
             throw new NotImplementedException();
         }

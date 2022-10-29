@@ -118,6 +118,7 @@ namespace Cavern.Format {
         /// Start the following reads from the selected sample.
         /// </summary>
         /// <param name="sample">The selected sample, for a single channel</param>
+        /// <remarks>Seeking is not thread-safe.</remarks>
         public override void Seek(long sample) => throw new StreamingException();
     }
 }

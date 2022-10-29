@@ -36,12 +36,15 @@ namespace Cavern.Format {
             this.path = path;
             while (true) {
                 string segment = string.Format(path, segments.Count);
-                if (!File.Exists(segment))
+                if (!File.Exists(segment)) {
                     break;
+                }
                 segments.Add(Open(segment));
             }
-            if (segments.Count == 0)
+            if (segments.Count == 0) {
                 throw new FileNotFoundException(path);
+            }
+
             segments[0].ReadHeader();
             ChannelCount = segments[0].ChannelCount;
             Length = segments.Sum(x => x.Length);
@@ -54,8 +57,9 @@ namespace Cavern.Format {
         /// </summary>
         public string[] GetSegmentFiles() {
             string[] files = new string[segments.Count];
-            for (int i = 0, c = segments.Count; i < c; ++i)
+            for (int i = 0, c = segments.Count; i < c; ++i) {
                 files[i] = string.Format(path, i);
+            }
             return files;
         }
 
@@ -63,8 +67,9 @@ namespace Cavern.Format {
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {
-            for (int i = 0, c = segments.Count; i < c; ++i)
+            for (int i = 0, c = segments.Count; i < c; ++i) {
                 segments[i].Reset();
+            }
         }
 
         /// <summary>
@@ -76,8 +81,9 @@ namespace Cavern.Format {
         /// <remarks>The next to - from samples will be read from the file.
         /// All samples are counted, not just a single channel.</remarks>
         public override void ReadBlock(float[] samples, long from, long to) {
-            if (segment == segments.Count)
+            if (segment == segments.Count) {
                 return;
+            }
             long fromCurrent = (to - from) / ChannelCount,
                 remainingInSegment = segments[segment].Length - segmentPosition;
             if (fromCurrent <= remainingInSegment) {
@@ -85,8 +91,9 @@ namespace Cavern.Format {
                 segmentPosition += fromCurrent;
             } else {
                 segments[segment++].ReadBlock(samples, from, from += remainingInSegment * ChannelCount);
-                if (segment != segments.Count)
+                if (segment != segments.Count) {
                     segments[segment].ReadBlock(samples, from, to);
+                }
                 segmentPosition = fromCurrent - remainingInSegment;
             }
         }
@@ -97,19 +104,22 @@ namespace Cavern.Format {
         public override void Reset() {
             segment = 0;
             segmentPosition = 0;
-            for (int i = 0, c = segments.Count; i < c; ++i)
+            for (int i = 0, c = segments.Count; i < c; ++i) {
                 segments[i].Reset();
+            }
         }
 
         /// <summary>
         /// Start the following reads from the selected sample.
         /// </summary>
         /// <param name="sample">The selected sample, for a single channel</param>
+        /// <remarks>Seeking is not thread-safe.</remarks>
         public override void Seek(long sample) {
             long start = 0;
             for (int i = 0, c = segments.Count; i < c; ++i) {
-                if (start > sample)
+                if (start > sample) {
                     segments[i].Seek(0);
+                }
                 if (start + segments[i].Length > sample) {
                     segment = i;
                     segmentPosition = sample - start;
@@ -127,8 +137,9 @@ namespace Cavern.Format {
         /// Close the files of the segments.
         /// </summary>
         public override void Dispose() {
-            for (int i = 0, c = segments.Count; i < c; ++i)
+            for (int i = 0, c = segments.Count; i < c; ++i) {
                 segments[i].Dispose();
+            }
         }
     }
 }

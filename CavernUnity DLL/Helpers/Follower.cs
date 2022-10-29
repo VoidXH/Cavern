@@ -96,7 +96,7 @@ namespace Cavern.Helpers {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            if (target != null) {
+            if (target != null && target.Rendered != null) {
                 Transform listenerTransform = AudioListener3D.Current.transform;
                 transform.position = listenerTransform.position + listenerTransform.rotation * target.Position.VectorMatch();
 
@@ -115,7 +115,7 @@ namespace Cavern.Helpers {
                     }
                 }
 
-                if (renderer != null && renderer.material.color != newColor) {
+                if (renderer.material.color != newColor) {
                     renderer.material.color = newColor;
                 }
             }

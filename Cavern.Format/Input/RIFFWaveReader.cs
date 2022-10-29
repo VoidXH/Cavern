@@ -52,9 +52,11 @@ namespace Cavern.Format {
         /// Start the following reads from the selected sample.
         /// </summary>
         /// <param name="sample">The selected sample, for a single channel</param>
+        /// <remarks>Seeking is not thread-safe.</remarks>
         public override void Seek(long sample) {
-            if (decoder == null)
+            if (decoder == null) {
                 ReadHeader();
+            }
             decoder.Seek(sample);
         }
 
@@ -62,8 +64,9 @@ namespace Cavern.Format {
         /// Goes back to a state where the first sample can be read.
         /// </summary>
         public override void Reset() {
-            if (decoder == null)
+            if (decoder == null) {
                 ReadHeader();
+            }
             decoder.Seek(0);
         }
 
@@ -71,8 +74,9 @@ namespace Cavern.Format {
         /// Get an object-based renderer for this audio file.
         /// </summary>
         public override Renderer GetRenderer() {
-            if (decoder == null)
+            if (decoder == null) {
                 ReadHeader();
+            }
             return new RIFFWaveRenderer(decoder);
         }
     }
