@@ -72,4 +72,6 @@
     <system:String x:Key="FiltN">Convolution EQ file for the {0} channel was not found in this export ({1}).</system:String>
     <system:String x:Key="FiltC">Conflicting sample rates: headphone virtualization and output filtering can only work
         together if their sample rates match. One of them has to go.</system:String>
+    <system:String x:Key="ProgP">Rendering... ({0}, speed: {1}x, remaining: {2})</system:String>
+    <system:String x:Key="FinaP">Finalizing... ({0})</system:String>
 </ResourceDictionary>

@@ -72,8 +72,22 @@ namespace CavernizeGUI {
                 Rendered += updateRate;
                 if ((untilUpdate -= updateRate) <= 0) {
                     double progress = Rendered * samplesToProgress;
-                    double speed = Rendered * samplesToSeconds / (DateTime.Now - start).TotalSeconds;
-                    taskEngine.UpdateStatusLazy($"Rendering... ({progress:0.00%}, speed: {speed:0.00}x)");
+                    TimeSpan elapsed = DateTime.Now - start, remaining = elapsed / progress - elapsed;
+                    double speed = Rendered * samplesToSeconds / elapsed.TotalSeconds;
+
+                    string remDisp;
+                    if (remaining.TotalDays < 1) {
+                        if (remaining.TotalHours < 1) {
+                            remDisp = remaining.ToString("mm':'ss");
+                        } else {
+                            remDisp = remaining.ToString("h':'mm':'ss");
+                        }
+                    } else {
+                        remDisp = remaining.ToString("d':'hh':'mm':'ss");
+                    }
+
+                    taskEngine.UpdateStatusLazy(string.Format((string)MainWindow.language["ProgP"],
+                        progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
                     taskEngine.UpdateProgressBar(progress);
                     untilUpdate = updateInterval;
                 }
@@ -83,7 +97,7 @@ namespace CavernizeGUI {
             /// Report custom progress as finalization.
             /// </summary>
             public void Finalize(double progress) {
-                taskEngine.UpdateStatusLazy($"Finalizing... ({progress:0.00%})");
+                taskEngine.UpdateStatusLazy(string.Format((string)MainWindow.language["FinaP"], progress.ToString("0.00%")));
                 taskEngine.UpdateProgressBar(progress);
             }
         }

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +23,11 @@ using System.Windows.Shell;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
+        /// <summary>
+        /// Source of language strings.
+        /// </summary>
+        public static readonly ResourceDictionary language = new();
+
         /// <summary>
         /// Tells if a rendering process is in progress.
         /// </summary>
@@ -48,11 +52,6 @@ namespace CavernizeGUI {
         /// Queued conversions.
         /// </summary>
         readonly ObservableCollection<QueuedJob> jobs = new();
-
-        /// <summary>
-        /// Source of language strings.
-        /// </summary>
-        readonly ResourceDictionary language = new();
 
         /// <summary>
         /// Runs the process in the background.

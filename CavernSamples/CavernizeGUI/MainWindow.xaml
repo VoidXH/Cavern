@@ -34,7 +34,7 @@
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom" Height="40" Padding="10,0,0,0">
-            <ProgressBar x:Name="progress" Height="20" Width="250" Maximum="1"/>
+            <ProgressBar x:Name="progress" Height="20" Width="150" Maximum="1"/>
             <TextBlock x:Name="status" FontSize="15" TextWrapping="Wrap"/>
         </StatusBar>
         <Grid>
