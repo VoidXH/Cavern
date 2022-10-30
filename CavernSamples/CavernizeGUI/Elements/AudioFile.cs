@@ -92,6 +92,7 @@ namespace CavernizeGUI.Elements {
             for (int i = 0; i < tracks.Count; ++i) {
                 tracks[i].Dispose();
             }
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>

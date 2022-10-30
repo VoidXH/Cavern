@@ -6,7 +6,8 @@ namespace Cavern.Filters {
     /// <summary>
     /// Performs an optimized convolution.
     /// </summary>
-    /// <remarks>This filter is using the overlap and add method using FFTs.</remarks>
+    /// <remarks>This filter is using the overlap and add method using FFTs, with non-thread-safe caches.
+    /// For a thread-safe fast convolver, use <see cref="ThreadSafeFastConvolver"/>.</remarks>
     public class FastConvolver : Filter {
         /// <summary>
         /// Created convolution filter in Fourier-space.
@@ -38,7 +39,7 @@ namespace Cavern.Filters {
         /// </summary>
         public FastConvolver(float[] impulse, int delay = 0) {
             int fftSize = 2 << QMath.Log2Ceil(impulse.Length); // Zero padding for the falloff to have space
-            cache = new FFTCache(fftSize);
+            cache = CreateCache(fftSize);
             filter = new Complex[fftSize];
             for (int sample = 0; sample < impulse.Length; ++sample) {
                 filter[sample].Real = impulse[sample];
@@ -48,6 +49,11 @@ namespace Cavern.Filters {
             future = new float[fftSize + delay];
             this.delay = delay;
         }
+
+        /// <summary>
+        /// Create the FFT cache used for accelerating the convolution in Fourier-space.
+        /// </summary>
+        public virtual FFTCache CreateCache(int fftSize) => new FFTCache(fftSize);
 
         /// <summary>
         /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.

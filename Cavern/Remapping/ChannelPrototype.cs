@@ -63,6 +63,148 @@ namespace Cavern.Remapping {
         }
 
         /// <summary>
+        /// Converts a standard channel shorthand to a <see cref="ChannelPrototype"/>.
+        /// </summary>
+        public static ChannelPrototype FromStandardName(string name) {
+            switch (name) {
+                case frontLeftMark:
+                    return FrontLeft;
+                case frontRightMark:
+                    return FrontRight;
+                case frontCenterMark:
+                    return FrontCenter;
+                case screenLFEMark:
+                case subwooferMark:
+                    return ScreenLFE;
+                case rearLeftMark:
+                    return RearLeft;
+                case rearRightMark:
+                    return RearRight;
+                case sideLeftMark:
+                    return SideLeft;
+                case sideRightMark:
+                    return SideRight;
+                default:
+                    return Unused;
+            }
+        }
+
+        /// <summary>
+        /// Gets an industry standard channel matrix for a given channel count.
+        /// </summary>
+        /// <remarks>If the channel count is larger than the largest supported layout, it will be filled with
+        /// <see cref="ReferenceChannel.Unknown"/>.</remarks>
+        public static ReferenceChannel[] GetStandardMatrix(int count) {
+            int subcount = Math.Min(count, StandardMatrix.Length);
+            ReferenceChannel[] matrix = StandardMatrix[count];
+            if (subcount != count) {
+                Array.Resize(ref matrix, count);
+                for (int i = subcount; i < count; ++i) {
+                    matrix[i] = ReferenceChannel.Unknown;
+                }
+            }
+            return matrix;
+        }
+
+        /// <summary>
+        /// Get a <paramref name="channel"/>'s <see cref="ChannelPrototype"/> of the standard layout
+        /// with a given number of <paramref name="channels"/>.
+        /// </summary>
+        public static ChannelPrototype Get(int channel, int channels) {
+            int prototypeID = (int)StandardMatrix[channels][channel];
+            return Mapping[prototypeID];
+        }
+
+        /// <summary>
+        /// Convert a mapping of <see cref="ReferenceChannel"/>s to <see cref="ChannelPrototype"/>s.
+        /// </summary>
+        public static ChannelPrototype[] Get(ReferenceChannel[] source) {
+            ChannelPrototype[] result = new ChannelPrototype[source.Length];
+            for (int i = 0; i < source.Length; ++i) {
+                result[i] = Mapping[(int)source[i]];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a mapping of <see cref="ReferenceChannel"/>s to the names of the channels.
+        /// </summary>
+        public static string[] GetNames(ReferenceChannel[] source) {
+            string[] result = new string[source.Length];
+            for (int i = 0; i < source.Length; ++i) {
+                result[i] = Mapping[(int)source[i]].Name;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a prototype array to their corresponding alternative positions in the current environment.
+        /// </summary>
+        public static Vector3[] ToAlternativePositions(ChannelPrototype[] source) {
+            Vector3[] result = new Vector3[source.Length];
+            for (int channel = 0; channel < source.Length; ++channel) {
+                result[channel] = AlternativePositions[channel] * Listener.EnvironmentSize;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a prototype array to their corresponding alternative positions in the current environment.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3[] ToAlternativePositions(ReferenceChannel[] source) => ToAlternativePositions(Get(source));
+
+        /// <summary>
+        /// Convert a prototype array to their corresponding positions in the current environment.
+        /// </summary>
+        public static Vector3[] ToPositions(ChannelPrototype[] source) {
+            Vector3[] result = new Vector3[source.Length];
+            for (int channel = 0; channel < source.Length; ++channel) {
+                result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE).SpatialPos *
+                    Listener.EnvironmentSize;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a prototype array to their corresponding positions in the current environment.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3[] ToPositions(ReferenceChannel[] source) => ToPositions(Get(source));
+
+        /// <summary>
+        /// Convert a prototype array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
+        /// </summary>
+        public static Channel[] ToLayout(ChannelPrototype[] source) {
+            Channel[] result = new Channel[source.Length];
+            for (int channel = 0; channel < source.Length; ++channel) {
+                result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Convert a reference array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
+        /// </summary>
+        public static Channel[] ToLayout(ReferenceChannel[] source) => ToLayout(Get(source));
+
+        /// <summary>
+        /// Check if two channel prototypes are the same.
+        /// </summary>
+        public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
+
+        /// <summary>
+        /// Human-readable channel prototype data.
+        /// </summary>
+        public override string ToString() {
+            string basic = $"{(LFE ? Name + "(LFE)" : Name)} ({X}; {Y})";
+            if (Muted) {
+                return basic + " (muted)";
+            }
+            return basic;
+        }
+
+        /// <summary>
         /// Possible channels to use in layouts.
         /// </summary>
         public static readonly ChannelPrototype
@@ -132,33 +274,6 @@ namespace Cavern.Remapping {
             new Vector3(-1, 1, 1), // TopRearRight
             new Vector3(-1, 1, 0) // TopRearCenter
         };
-
-        /// <summary>
-        /// Converts a standard channel shorthand to a <see cref="ChannelPrototype"/>.
-        /// </summary>
-        public static ChannelPrototype FromStandardName(string name) {
-            switch (name) {
-                case frontLeftMark:
-                    return FrontLeft;
-                case frontRightMark:
-                    return FrontRight;
-                case frontCenterMark:
-                    return FrontCenter;
-                case screenLFEMark:
-                case subwooferMark:
-                    return ScreenLFE;
-                case rearLeftMark:
-                    return RearLeft;
-                case rearRightMark:
-                    return RearRight;
-                case sideLeftMark:
-                    return SideLeft;
-                case sideRightMark:
-                    return SideRight;
-                default:
-                    return Unused;
-            }
-        }
 
         /// <summary>
         /// Converts the <see cref="ReferenceChannel"/> values to a <see cref="ChannelPrototype"/>.
@@ -282,121 +397,6 @@ namespace Cavern.Remapping {
                 ReferenceChannel.SignLanguage, ReferenceChannel.BottomSurround
             }
         };
-
-        /// <summary>
-        /// Gets an industry standard channel matrix for a given channel count.
-        /// </summary>
-        /// <remarks>If the channel count is larger than the largest supported layout, it will be filled with
-        /// <see cref="ReferenceChannel.Unknown"/>.</remarks>
-        public static ReferenceChannel[] GetStandardMatrix(int count) {
-            int subcount = Math.Min(count, StandardMatrix.Length);
-            ReferenceChannel[] matrix = StandardMatrix[count];
-            if (subcount != count) {
-                Array.Resize(ref matrix, count);
-                for (int i = subcount; i < count; ++i) {
-                    matrix[i] = ReferenceChannel.Unknown;
-                }
-            }
-            return matrix;
-        }
-
-        /// <summary>
-        /// Get a <paramref name="channel"/>'s <see cref="ChannelPrototype"/> of the standard layout
-        /// with a given number of <paramref name="channels"/>.
-        /// </summary>
-        public static ChannelPrototype Get(int channel, int channels) {
-            int prototypeID = (int)StandardMatrix[channels][channel];
-            return Mapping[prototypeID];
-        }
-
-        /// <summary>
-        /// Convert a mapping of <see cref="ReferenceChannel"/>s to <see cref="ChannelPrototype"/>s.
-        /// </summary>
-        public static ChannelPrototype[] Get(ReferenceChannel[] source) {
-            ChannelPrototype[] result = new ChannelPrototype[source.Length];
-            for (int i = 0; i < source.Length; ++i) {
-                result[i] = Mapping[(int)source[i]];
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Convert a mapping of <see cref="ReferenceChannel"/>s to the names of the channels.
-        /// </summary>
-        public static string[] GetNames(ReferenceChannel[] source) {
-            string[] result = new string[source.Length];
-            for (int i = 0; i < source.Length; ++i) {
-                result[i] = Mapping[(int)source[i]].Name;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Convert a prototype array to their corresponding alternative positions in the current environment.
-        /// </summary>
-        public static Vector3[] ToAlternativePositions(ChannelPrototype[] source) {
-            Vector3[] result = new Vector3[source.Length];
-            for (int channel = 0; channel < source.Length; ++channel) {
-                result[channel] = AlternativePositions[channel] * Listener.EnvironmentSize;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Convert a prototype array to their corresponding alternative positions in the current environment.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3[] ToAlternativePositions(ReferenceChannel[] source) => ToAlternativePositions(Get(source));
-
-        /// <summary>
-        /// Convert a prototype array to their corresponding positions in the current environment.
-        /// </summary>
-        public static Vector3[] ToPositions(ChannelPrototype[] source) {
-            Vector3[] result = new Vector3[source.Length];
-            for (int channel = 0; channel < source.Length; ++channel) {
-                result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE).SpatialPos *
-                    Listener.EnvironmentSize;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Convert a prototype array to their corresponding positions in the current environment.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3[] ToPositions(ReferenceChannel[] source) => ToPositions(Get(source));
-
-        /// <summary>
-        /// Convert a prototype array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
-        /// </summary>
-        public static Channel[] ToLayout(ChannelPrototype[] source) {
-            Channel[] result = new Channel[source.Length];
-            for (int channel = 0; channel < source.Length; ++channel) {
-                result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Convert a reference array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
-        /// </summary>
-        public static Channel[] ToLayout(ReferenceChannel[] source) => ToLayout(Get(source));
-
-        /// <summary>
-        /// Check if two channel prototypes are the same.
-        /// </summary>
-        public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
-
-        /// <summary>
-        /// Human-readable channel prototype data.
-        /// </summary>
-        public override string ToString() {
-            string basic = $"{(LFE ? Name + "(LFE)" : Name)} ({X}; {Y})";
-            if (Muted) {
-                return basic + " (muted)";
-            }
-            return basic;
-        }
 
         /// <summary>
         /// Semi-standard (Equalizer APO) channel names.

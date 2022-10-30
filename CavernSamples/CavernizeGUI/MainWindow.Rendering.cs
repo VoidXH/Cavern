@@ -48,9 +48,12 @@ namespace CavernizeGUI {
                 activeRenderTarget.Apply();
             }
             if (activeRenderTarget is VirtualizerRenderTarget) {
+                if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.filterSampleRate) {
+                    throw new Exception((string)language["FiltC"]);
+                }
                 listener.SampleRate = VirtualizerFilter.filterSampleRate;
             } else {
-                listener.SampleRate = target.SampleRate;
+                listener.SampleRate = roomCorrection == null ? target.SampleRate : roomCorrectionSampleRate;
             }
 
             listener.DetachAllSources();
@@ -169,7 +172,7 @@ namespace CavernizeGUI {
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
             taskEngine.UpdateStatus((string)language["Start"]);
-            RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly);
+            RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly, roomCorrection);
             UpdatePostRenderReport(stats);
 
             string targetCodec = null;

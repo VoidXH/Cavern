@@ -170,6 +170,7 @@ namespace CavernizeGUI.Elements {
                 track.Source.Dispose();
             }
             reader.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>

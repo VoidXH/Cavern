@@ -29,12 +29,29 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         public virtual void Apply() {
             Channel[] systemChannels = new Channel[Channels.Length];
-            for (int ch = 0; ch < Channels.Length; ++ch) {
+            for (int ch = 0; ch < Channels.Length; ch++) {
                 bool lfe = Channels[ch] == ReferenceChannel.ScreenLFE;
                 systemChannels[ch] = new Channel(ChannelPrototype.AlternativePositions[(int)Channels[ch]], lfe);
             }
             Listener.HeadphoneVirtualizer = false;
             Listener.ReplaceChannels(systemChannels);
+        }
+
+        /// <summary>
+        /// Top rear channels are used as &quot;side&quot; channels as no true rears are available in standard mappings.
+        /// These have to be mapped back to sides in some cases, for example, for the wiring popup.
+        /// </summary>
+        public ReferenceChannel[] GetNameMappedChannels() {
+            ReferenceChannel[] result = (ReferenceChannel[])Channels.Clone();
+            for (int i = 0; i < result.Length; i++) {
+                if (result[i] == ReferenceChannel.TopRearLeft) {
+                    result[i] = ReferenceChannel.TopSideLeft;
+                }
+                if (result[i] == ReferenceChannel.TopRearRight) {
+                    result[i] = ReferenceChannel.TopSideRight;
+                }
+            }
+            return result;
         }
 
         /// <summary>

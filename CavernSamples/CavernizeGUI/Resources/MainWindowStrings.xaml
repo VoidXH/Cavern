@@ -4,6 +4,9 @@
     <!-- UI -->
     <system:String x:Key="MenuR">_Rendering</system:String>
     <system:String x:Key="Upmix">_Upmixing setup</system:String>
+    <system:String x:Key="FiltH">Apply output _filters</system:String>
+    <system:String x:Key="FiltT">Load a set of convolution EQs exported from QuickEQ for the target system
+        to be used as a burnt-in room correction in the converted content.</system:String>
     <system:String x:Key="MuBeH">Mute _bed</system:String>
     <system:String x:Key="MuBeT">Only render objects that are not fixed in position, but move around.</system:String>
     <system:String x:Key="MuGrH">Mute _ground</system:String>
@@ -65,4 +68,8 @@
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize GUI,
         and if the problem persists with the latest version, contact the developer at www.sbence.hu.</system:String>
+    <system:String x:Key="FiltF">Cavern QuickEQ Convolution EQs|*.txt</system:String>
+    <system:String x:Key="FiltN">Convolution EQ file for the {0} channel was not found in this export ({1}).</system:String>
+    <system:String x:Key="FiltC">Conflicting sample rates: headphone virtualization and output filtering can only work
+        together if their sample rates match. One of them has to go.</system:String>
 </ResourceDictionary>

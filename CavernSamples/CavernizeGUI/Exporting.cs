@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 
 using Cavern;
+using Cavern.Filters;
 using Cavern.Format;
 using Cavern.Format.Environment;
 using Cavern.Utilities;
@@ -91,10 +92,34 @@ namespace CavernizeGUI {
         /// Renders a listener to a file, and returns some measurements of the render.
         /// </summary>
         public static RenderStats WriteRender(Listener listener, Track target, AudioWriter writer,
-            TaskEngine taskEngine, bool dynamicOnly, bool heightOnly) {
+            TaskEngine taskEngine, bool dynamicOnly, bool heightOnly, float[][] roomCorrection) {
             RenderStats stats = new(listener);
             Progressor progressor = new Progressor(target.Length, listener, taskEngine);
             bool customMuting = dynamicOnly || heightOnly;
+
+            Filter[] filters = null;
+            if (roomCorrection != null && Listener.Channels.Length == roomCorrection.Length) {
+                filters = new Filter[roomCorrection.Length];
+                for (int ch = 0; ch < Listener.Channels.Length; ch++) {
+                    filters[ch] = new ThreadSafeFastConvolver(roomCorrection[ch]);
+                }
+            }
+
+            const int defaultWriteCacheLength = 16384; // Samples per channel
+            int cachePosition = 0;
+            float[] writeCache = null;
+            bool flush = false;
+            if (writer != null) {
+                int cacheSize = filters == null ? defaultWriteCacheLength : roomCorrection[0].Length;
+                if (cacheSize < listener.UpdateRate) {
+                    cacheSize = listener.UpdateRate;
+                } else if (cacheSize % listener.UpdateRate != 0) {
+                    // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
+                    cacheSize += (listener.UpdateRate - cacheSize % listener.UpdateRate);
+                }
+                writeCache = new float[cacheSize * Listener.Channels.Length];
+            }
+            // TODO: override multichannel process for the fast convolution filter to prevent reallocation
 
             while (progressor.Rendered < target.Length) {
                 float[] result = listener.Render();
@@ -102,13 +127,23 @@ namespace CavernizeGUI {
                 // Alignment of split parts
                 if (target.Length - progressor.Rendered < listener.UpdateRate) {
                     Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
+                    flush = true;
                 }
 
                 if (writer != null) {
-                    if (!Listener.HeadphoneVirtualizer) {
-                        writer.WriteBlock(result, 0, result.LongLength);
-                    } else {
-                        writer.WriteChannelLimitedBlock(result, 2, Listener.Channels.Length, 0, result.LongLength);
+                    Array.Copy(result, 0, writeCache, cachePosition, result.Length);
+                    cachePosition += result.Length;
+                    if (cachePosition == writeCache.Length || flush) {
+                        if (filters != null) {
+                            filters.ProcessAllChannels(writeCache);
+                        }
+
+                        if (!Listener.HeadphoneVirtualizer) {
+                            writer.WriteBlock(writeCache, 0, cachePosition);
+                        } else {
+                            writer.WriteChannelLimitedBlock(writeCache, 2, Listener.Channels.Length, 0, cachePosition);
+                        }
+                        cachePosition = 0;
                     }
                 }
                 if (progressor.Rendered > secondFrame) {

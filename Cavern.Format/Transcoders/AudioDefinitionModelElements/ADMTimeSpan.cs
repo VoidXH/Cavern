@@ -58,8 +58,6 @@
         /// </summary>
         public static ADMTimeSpan operator +(ADMTimeSpan lhs, ADMTimeSpan rhs) {
             int totalFraction = lhs.fraction + rhs.fraction;
-            if (totalFraction > 100000)
-                ;
             return new ADMTimeSpan(lhs.seconds + rhs.seconds + totalFraction / 100000, totalFraction % 100000);
         }
 

@@ -99,8 +99,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             using (ManualResetEvent reset = new ManualResetEvent(false)) {
                 for (int obj = 0; obj < objects; ++obj) {
                     ThreadPool.QueueUserWorkItem(
-                       new WaitCallback(objectId => {
-                           int obj = (int)objectId;
+                       new WaitCallback(objectIndex => {
+                           int obj = (int)objectIndex;
                            ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
                            if (Interlocked.Decrement(ref runs) == 0) {
                                reset.Set();
