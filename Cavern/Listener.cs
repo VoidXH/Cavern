@@ -507,7 +507,7 @@ namespace Cavern {
         /// Version and creator information.
         /// </summary>
         /// <remarks>Hardcoded, because version reading is unsupported for .NET Standard projects</remarks>
-        public const string Info = "Cavern v1.5 by VoidX (cavern.sbence.hu)";
+        public const string Info = "Cavern v1.6 by VoidX (cavern.sbence.hu)";
 
         /// <summary>
         /// Default sample rate.

@@ -52,7 +52,7 @@ namespace VoidX.WPF {
         /// <summary>
         /// The current revision number. If the received revision is newer, an &quot;update available&quot; message is shown.
         /// </summary>
-        const int thisRevision = 2;
+        const int thisRevision = 3;
 
         /// <summary>
         /// The page where the new version can be downloaded.

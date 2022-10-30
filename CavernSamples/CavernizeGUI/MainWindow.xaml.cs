@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Shell;
 
 using Cavern;
 using Cavern.Format.Common;
@@ -19,7 +21,6 @@ using VoidX.WPF;
 
 using Path = System.IO.Path;
 using Track = CavernizeGUI.Elements.Track;
-using System.Windows.Shell;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
