@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
     <Authors>VoidX</Authors>
-    <Product>Cavern Benchmark</Product>
-    <Description>Evaluates Cavern's performance on your system in various use cases.</Description>
+    <Product>ADM Validator</Product>
+    <Description>Checks if ADM BWF files match the standard, and logs all compliance failures.</Description>
     <Copyright>Copyright © VoidX 2022</Copyright>
     <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
@@ -14,6 +14,6 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+    <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
   </ItemGroup>
 </Project>

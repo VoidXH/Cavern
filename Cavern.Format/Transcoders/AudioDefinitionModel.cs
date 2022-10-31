@@ -249,32 +249,57 @@ namespace Cavern.Format.Transcoders {
         public XmlSchema GetSchema() => null;
 
         /// <summary>
-        /// Check if timings and positions are valid for this AXML.
+        /// Check if timings and positions are valid for this AXML. A string for each error is returned.
         /// </summary>
-        public bool Validate() {
+        public List<string> Validate() {
+            List<string> errors = new List<string>();
             for (int ch = 0, c = ChannelFormats.Count; ch < c; ch++) {
-                List<ADMBlockFormat> blocks = ChannelFormats[ch].Blocks;
+                ADMChannelFormat channel = ChannelFormats[ch];
+                List<ADMBlockFormat> blocks = channel.Blocks;
                 int lastBlock = blocks.Count - 1;
                 if (lastBlock == -1) {
-                    return false;
+                    errors.Add($"Channel {channel.ID} has no blocks.");
                 }
 
-                if (!ValidateBlock(blocks[0])) {
-                    return false;
+                if (blocks[0].Offset != ADMTimeSpan.Zero) {
+                    errors.Add($"Channel {channel.ID} does not start when the program starts.");
                 }
+
+                if (channel.Type != ADMPackType.DirectSpeakers) {
+                    for (int block = 0; block <= lastBlock; block++) {
+                        if (blocks[block].Duration == ADMTimeSpan.Zero) {
+                            errors.Add($"Channel {channel.ID}'s block {block + 1}'s length is zero.");
+                        }
+                    }
+                }
+
+                for (int block = 0; block <= lastBlock; block++) {
+                    if (blocks[block].Interpolation > blocks[block].Duration) {
+                        errors.Add($"Channel {channel.ID}'s block {block + 1}'s interpolation is longer than its duration.");
+                    }
+                    if (blocks[block].Position.X < -1 || blocks[block].Position.X > 1 ||
+                        blocks[block].Position.Y < -1 || blocks[block].Position.Y > 1 ||
+                        blocks[block].Position.Z < -1 || blocks[block].Position.Z > 1) {
+                        errors.Add($"Channel {channel.ID}'s block {block + 1}'s position is out of the allowed [-1; 1] range.");
+                    }
+                }
+
+                for (int block = 1; block <= lastBlock; block++) {
+                    if (blocks[block - 1].Offset > blocks[block].Offset) {
+                        errors.Add($"Channel {channel.ID}'s block {block} and {block + 1} are swapped in time.");
+                    }
+                }
+
                 for (int block = 1; block < lastBlock; block++) {
                     if (blocks[block - 1].Offset + blocks[block - 1].Duration != blocks[block].Offset) {
-                        return false;
-                    }
-                    if (!ValidateBlock(blocks[block])) {
-                        return false;
+                        errors.Add($"Channel {channel.ID}'s block {block} does not end when the next block starts.");
                     }
                 }
                 if (Programs.Count != 0 && blocks[lastBlock].Offset + blocks[lastBlock].Duration != Programs[0].Length) {
-                    return false;
+                    errors.Add($"Channel {channel.ID} does not end when the program ends.");
                 }
             }
-            return true;
+            return errors;
         }
 
         /// <summary>
@@ -291,19 +316,6 @@ namespace Cavern.Format.Transcoders {
                 }
             }
             return null;
-        }
-
-        /// <summary>
-        /// Check if an <see cref="ADMBlockFormat"/> is valid.
-        /// </summary>
-        bool ValidateBlock(ADMBlockFormat block) {
-            if (block.Interpolation > block.Duration ||
-                block.Position.X < -1 || block.Position.X > 1 ||
-                block.Position.Y < -1 || block.Position.Y > 1 ||
-                block.Position.Z < -1 || block.Position.Z > 1) {
-                return false;
-            }
-            return true;
         }
     }
 }

@@ -31,7 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WavefrontSimulator", "Wavef
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WAVChannelReorderer", "WAVChannelReorderer\WAVChannelReorderer.csproj", "{042B52BE-0680-45A1-8845-8BACA075B7EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Benchmark\Benchmark.csproj", "{6894C816-D0EF-4C39-B836-9BB7D1A02947}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark", "Benchmark\Benchmark.csproj", "{6894C816-D0EF-4C39-B836-9BB7D1A02947}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADMValidator", "ADMValidator\ADMValidator.csproj", "{065B0038-1D18-419F-8545-96C5E8063064}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,10 @@ Global
 		{6894C816-D0EF-4C39-B836-9BB7D1A02947}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6894C816-D0EF-4C39-B836-9BB7D1A02947}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6894C816-D0EF-4C39-B836-9BB7D1A02947}.Release|Any CPU.Build.0 = Release|Any CPU
+		{065B0038-1D18-419F-8545-96C5E8063064}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{065B0038-1D18-419F-8545-96C5E8063064}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{065B0038-1D18-419F-8545-96C5E8063064}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{065B0038-1D18-419F-8545-96C5E8063064}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
