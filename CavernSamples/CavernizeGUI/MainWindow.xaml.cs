@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -120,6 +121,12 @@ namespace CavernizeGUI {
                 UpdateCheck.Perform(Settings.Default.lastUpdate, () => Settings.Default.lastUpdate = DateTime.Now);
             }
         }
+
+        /// <summary>
+        /// Displays an error message.
+        /// </summary>
+        static void Error(string error) =>
+            MessageBox.Show(error, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
 
         /// <summary>
         /// Perform one-time UI updates after the window is initialized and displayed.
@@ -340,11 +347,44 @@ namespace CavernizeGUI {
             taskEngine.Run(() => QueueRunnerTask(jobs));
         }
 
-        /// <summary>
-        /// Displays an error message.
-        /// </summary>
-        void Error(string error) =>
-            MessageBox.Show(error, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+        void QueueDragEnter(object _, DragEventArgs e) {
+            var dropPossible = e.Data != null && ((DataObject)e.Data).ContainsFileDropList();
+            if (dropPossible) {
+                e.Effects = DragDropEffects.Copy;
+            }
+        }
+
+        void QueueDragOver(object _, DragEventArgs e) {
+            e.Handled = true;
+        }
+
+        void QueueDrop(object _, DragEventArgs e) {
+            if (e.Data is DataObject obj && obj.ContainsFileDropList()) {
+                AudioFile oldFile = file;
+                List<string> invalids = new List<string>();
+                StringCollection files = obj.GetFileDropList();
+                for (int i = 0, c = files.Count; i < c; i++) {
+                    try {
+                        OpenContent(files[i]);
+                    } catch {
+                        invalids.Add(Path.GetFileName(files[i]));
+                        continue;
+                    }
+
+                    var renderTask = GetRenderTask();
+                    if (renderTask != null) {
+                        jobs.Add(new QueuedJob(file, (Track)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
+                            (ExportFormat)audio.SelectedItem, renderTask));
+                    } else {
+                        invalids.Add(Path.GetFileName(files[i]));
+                    }
+                }
+                file = oldFile;
+                if (invalids.Count != 0) {
+                    Error($"{(string)language["DropI"]}\n{string.Join('\n', invalids)}");
+                }
+            }
+        }
 
         /// <summary>
         /// Opens the software's documentation.

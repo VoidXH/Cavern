@@ -134,7 +134,8 @@
                             <TextBlock Margin="59,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
                                    Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
                                    ToolTip="{StaticResource QuDes}" ToolTipService.InitialShowDelay="0"/>
-                            <ListBox x:Name="queuedJobs" Margin="10,34,10,45" Template="{DynamicResource QueueListBox}"/>
+                            <ListBox x:Name="queuedJobs" Margin="10,34,10,45" Template="{DynamicResource QueueListBox}"
+                                     AllowDrop="True" DragEnter="QueueDragEnter" DragOver="QueueDragOver" Drop="QueueDrop"/>
                             <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="100"
                                     Content="{StaticResource QuRem}" Click="RemoveQueued"/>
                             <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" MinWidth="100"

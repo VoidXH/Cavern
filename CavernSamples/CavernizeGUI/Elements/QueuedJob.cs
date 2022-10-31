@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cavern.Format.Common;
+using System;
 
 namespace CavernizeGUI.Elements {
     /// <summary>
@@ -69,6 +70,12 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Show this job's conversion plan.
         /// </summary>
-        public override string ToString() => $"{source} ({track.Codec} - {track.Language}) -> {target.Name} {format.Codec}";
+        public override string ToString() {
+            if (!format.Codec.IsEnvironmental()) {
+                return $"{source} ({track.Codec} - {track.Language}) -> {target.Name} {format.Codec}";
+            } else {
+                return $"{source} ({track.Codec} - {track.Language}) -> {format.Codec}";
+            }
+        }
     }
 }

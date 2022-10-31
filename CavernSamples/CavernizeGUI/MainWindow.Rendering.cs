@@ -127,7 +127,8 @@ namespace CavernizeGUI {
             if (!reportMode.IsChecked) {
                 SaveFileDialog dialog = new() {
                     Filter = ((ExportFormat)audio.SelectedItem).Codec.IsEnvironmental() ?
-                        (string)language["ExBWF"] : (string)language["ExFmt"]
+                        (string)language["ExBWF"] : (string)language["ExFmt"],
+                    FileName = fileName.Text.Contains('.') ? fileName.Text[..fileName.Text.LastIndexOf('.')] : fileName.Text
                 };
                 if (dialog.ShowDialog().Value) {
                     try {

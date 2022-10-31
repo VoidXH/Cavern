@@ -47,7 +47,7 @@
     <system:String x:Key="QuRem">Remove selected</system:String>
     <system:String x:Key="QuSta">Process queue</system:String>
     <!-- Code behind -->
-    <system:String x:Key="UpmiW">_Upmixing setup</system:String>
+    <system:String x:Key="UpmiW">Upmixing setup</system:String>
     <system:String x:Key="CavLo">Driver is set to {0}.</system:String>
     <system:String x:Key="ImFmt">All supported formats|*.ac3;*.eac3;*.ec3;*.laf;*.mka;*.mkv;*.wav|(Enhanced)
         AC-3|*.ac3;*.eac3;*.ec3|Matroska|*.mkv;*.mka|RIFF WAVE, ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
@@ -74,4 +74,5 @@
         together if their sample rates match. One of them has to go.</system:String>
     <system:String x:Key="ProgP">Rendering... ({0}, speed: {1}x, remaining: {2})</system:String>
     <system:String x:Key="FinaP">Finalizing... ({0})</system:String>
+    <system:String x:Key="DropI">The following dropped files were not supported or corrupt:</system:String>
 </ResourceDictionary>
