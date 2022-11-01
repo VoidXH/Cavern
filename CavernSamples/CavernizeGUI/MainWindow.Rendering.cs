@@ -154,7 +154,7 @@ namespace CavernizeGUI {
         /// Run all queued jobs one after another.
         /// </summary>
         void QueueRunnerTask(QueuedJob[] jobs) {
-            Dispatcher.Invoke(() => queuedJobs.IsEnabled = false);
+            Dispatcher.Invoke(() => queuedJobs.AllowDrop = false);
             for (int i = 0; i < jobs.Length; i++) {
                 QueuedJob job = jobs[i];
                 Dispatcher.Invoke(() => {
@@ -164,7 +164,7 @@ namespace CavernizeGUI {
                 job.Run();
                 Dispatcher.Invoke(() => this.jobs.Remove(job));
             }
-            Dispatcher.Invoke(() => queuedJobs.IsEnabled = true);
+            Dispatcher.Invoke(() => queuedJobs.AllowDrop = true);
         }
 
         /// <summary>

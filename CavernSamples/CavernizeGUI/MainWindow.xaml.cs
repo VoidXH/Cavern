@@ -334,7 +334,12 @@ namespace CavernizeGUI {
         /// Removes a queued job.
         /// </summary>
         void RemoveQueued(object _, RoutedEventArgs e) {
-            if (!taskEngine.IsOperationRunning && queuedJobs.SelectedItem != null) {
+            if (taskEngine.IsOperationRunning) {
+                Error((string)language["ReQOp"]);
+                return;
+            } else if (queuedJobs.SelectedItem == null) {
+                Error((string)language["ReQSe"]);
+            } else {
                 jobs.RemoveAt(queuedJobs.SelectedIndex);
             }
         }
