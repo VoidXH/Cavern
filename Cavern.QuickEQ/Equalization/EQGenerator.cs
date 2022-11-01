@@ -148,11 +148,11 @@ namespace Cavern.QuickEQ.Equalization {
             Complex[] filter = new Complex[length];
             if (initial == null) {
                 for (int i = 0; i < length; ++i) {
-                    filter[i].Real = i % 2 == 0 ? gain : -gain; // FFT of DiracDelta(x - length/2)
+                    filter[i].Real = (i & 1) == 0 ? gain : -gain; // FFT of DiracDelta(x - length/2)
                 }
             } else {
                 for (int i = 0; i < length; ++i) {
-                    filter[i].Real = initial[i].Magnitude * (i % 2 == 0 ? gain : -gain);
+                    filter[i].Real = initial[i].Magnitude * ((i & 1) == 0 ? gain : -gain);
                 }
             }
             eq.Apply(filter, sampleRate);

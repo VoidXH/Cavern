@@ -119,7 +119,7 @@ namespace Cavern {
             }
             Listener.IsSymmetric = true;
             int channelCount = Listener.Channels.Length;
-            if (channelCount % 2 == 1) { // If there is an unpaired channel, it must be on the center circle
+            if ((channelCount & 1) == 1) { // If there is an unpaired channel, it must be on the center circle
                 --channelCount;
                 Listener.IsSymmetric = Listener.Channels[channelCount].Y % 180 == 0;
             }
@@ -136,7 +136,7 @@ namespace Cavern {
                         ++Listener.rightChannels;
                     }
                 }
-                if (i % 2 == 1) {
+                if ((i & 1) == 1) {
                     continue;
                 }
                 Channel next = Listener.Channels[i + 1];

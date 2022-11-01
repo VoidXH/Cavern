@@ -50,6 +50,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
         }
 
+        /// <summary>
+        /// Read JOC metadata.
+        /// </summary>
         void DecodeInfo(BitExtractor extractor) {
             int gainPower = extractor.Read(3);
             Gain = 1 + (extractor.Read(5) / 32f) * MathF.Pow(2, gainPower - 4);
@@ -65,35 +68,47 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     steepSlope[obj] = extractor.ReadBit();
                     dataPoints[obj] = extractor.Read(1) + 1;
                     if (steepSlope[obj]) {
+                        int[] offsets = timeslotOffsets[obj];
                         for (int dp = 0; dp < dataPoints[obj]; ++dp) {
-                            timeslotOffsets[obj][dp] = extractor.Read(5) + 1;
+                            offsets[dp] = extractor.Read(5) + 1;
                         }
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Read JOC channels/vectors/matrices.
+        /// </summary>
         void DecodeData(BitExtractor extractor) {
             for (int obj = 0; obj < ObjectCount; ++obj) {
                 if (ObjectActive[obj]) {
-                    for (int dp = 0; dp < dataPoints[obj]; ++dp) {
-                        int[][] codeTable;
-                        if (sparseCoded[obj]) {
-                            jocChannel[obj][dp][0] = extractor.Read(3);
-                            codeTable = JointObjectCodingTables.GetHuffCodeTable(ChannelCount, HuffmanType.IDX);
+                    if (sparseCoded[obj]) {
+                        int[][] channelTable = JointObjectCodingTables.GetHuffCodeTable(ChannelCount, HuffmanType.IDX);
+                        int[][] vecTable = JointObjectCodingTables.GetHuffCodeTable(quantizationTable[obj], HuffmanType.VEC);
+                        int[][] objChannel = jocChannel[obj];
+                        int[][] objVector = jocVector[obj];
+                        for (int dp = 0; dp < dataPoints[obj]; ++dp) {
+                            int[] dpChannel = objChannel[dp];
+                            dpChannel[0] = extractor.Read(3);
                             for (int pb = 1; pb < bands[obj]; ++pb) {
-                                jocChannel[obj][dp][pb] = HuffmanDecode(codeTable, extractor);
+                                dpChannel[pb] = HuffmanDecode(channelTable, extractor);
                             }
-                            codeTable =
-                                JointObjectCodingTables.GetHuffCodeTable(quantizationTable[obj], HuffmanType.VEC);
+
+                            int[] dpVector = objVector[dp];
                             for (int pb = 0; pb < bands[obj]; ++pb) {
-                                jocVector[obj][dp][pb] = HuffmanDecode(codeTable, extractor);
+                                dpVector[pb] = HuffmanDecode(vecTable, extractor);
                             }
-                        } else {
-                            codeTable = JointObjectCodingTables.GetHuffCodeTable(quantizationTable[obj], HuffmanType.MTX);
+                        }
+                    } else {
+                        int[][] codeTable = JointObjectCodingTables.GetHuffCodeTable(quantizationTable[obj], HuffmanType.MTX);
+                        int[][][] objMatrix = jocMatrix[obj];
+                        for (int dp = 0; dp < dataPoints[obj]; ++dp) {
+                            int[][] dpMatrix = objMatrix[dp];
                             for (int ch = 0; ch < ChannelCount; ++ch) {
+                                int[] chMatrix = dpMatrix[ch];
                                 for (int pb = 0; pb < bands[obj]; ++pb) {
-                                    jocMatrix[obj][dp][ch][pb] = HuffmanDecode(codeTable, extractor);
+                                    chMatrix[pb] = HuffmanDecode(codeTable, extractor);
                                 }
                             }
                         }
@@ -102,12 +117,15 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
         }
 
+        /// <summary>
+        /// Read a Huffman-coded value from the bitstream.
+        /// </summary>
         int HuffmanDecode(int[][] codeTable, BitExtractor extractor) {
             int node = 0;
             do {
                 node = codeTable[node][extractor.ReadBit() ? 1 : 0];
             } while (node > 0);
-            return -1 - node;
+            return ~node;
         }
     }
 }

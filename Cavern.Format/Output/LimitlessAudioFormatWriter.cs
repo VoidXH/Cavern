@@ -95,10 +95,10 @@ namespace Cavern.Format {
                     }
                 }
             }
-            byte[] layoutBytes = new byte[ChannelCount % 8 == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1)];
+            byte[] layoutBytes = new byte[(ChannelCount & 7) == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1)];
             for (int channel = 0; channel < ChannelCount; ++channel) {
                 if (toWrite[channel]) {
-                    layoutBytes[channel >> 3] += (byte)(1 << (channel % 8));
+                    layoutBytes[channel >> 3] += (byte)(1 << (channel & 7));
                 }
             }
             writer.Write(layoutBytes);

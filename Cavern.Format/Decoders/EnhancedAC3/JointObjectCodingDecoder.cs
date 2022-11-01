@@ -96,15 +96,15 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
         void GetMixingMatrices(int obj, int timeslots, float[][][] mixMatrix,
             float[][][] interpolationMatrix, float[][] prevMatrix) {
-            int hnquant = quantizationTable[obj] * 48 + 48;
+            int centerValue = quantizationTable[obj] * 48 + 48;
             if (ObjectActive[obj]) {
                 if (sparseCoded[obj]) {
-                    DecodeSparse(obj, mixMatrix, hnquant);
+                    DecodeSparse(obj, mixMatrix, centerValue);
                 } else {
-                    DecodeCoarse(obj, mixMatrix, hnquant);
+                    DecodeCoarse(obj, mixMatrix, centerValue);
                 }
             }
-            Dequantize(obj, mixMatrix, hnquant, .2f - quantizationTable[obj] * .1f);
+            Dequantize(obj, mixMatrix, centerValue, .2f - quantizationTable[obj] * .1f);
 
             // Side info interpolation below
             if (!ObjectActive[obj]) {
@@ -198,14 +198,19 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             }
         }
 
-        void GetMixingMatrices(int num_qmf_timeslots, float[][][] prevMatrix) {
+        /// <summary>
+        /// Get the object mixing matrices.
+        /// </summary>
+        /// <param name="frameSize">Length of the entire time window of all time slots</param>
+        public float[][][][] GetMixingMatrices(int frameSize) {
+            int qmfTimeslots = frameSize / QuadratureMirrorFilterBank.subbands;
             int runs = ObjectCount;
             using ManualResetEvent reset = new ManualResetEvent(false);
             for (int obj = 0; obj < ObjectCount; obj++) {
                 ThreadPool.QueueUserWorkItem(
                    new WaitCallback(objIndex => {
                        int obj = (int)objIndex;
-                       GetMixingMatrices(obj, num_qmf_timeslots, mixMatrix[obj],
+                       GetMixingMatrices(obj, qmfTimeslots, mixMatrix[obj],
                            interpolatedMatrix[obj], prevMatrix[obj]);
                        if (Interlocked.Decrement(ref runs) == 0) {
                            reset.Set();
@@ -213,15 +218,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                    }), obj);
             }
             reset.WaitOne();
-        }
-
-        /// <summary>
-        /// Get the object mixing matrices.
-        /// </summary>
-        /// <param name="frameSize">Length of the entire time window of all time slots</param>
-        public float[][][][] GetMixingMatrices(int frameSize) {
-            int qmfTimeslots = frameSize / QuadratureMirrorFilterBank.subbands;
-            GetMixingMatrices(qmfTimeslots, prevMatrix);
             return interpolatedMatrix;
         }
     }

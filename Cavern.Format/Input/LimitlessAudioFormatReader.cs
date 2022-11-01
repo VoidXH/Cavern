@@ -54,7 +54,7 @@ namespace Cavern.Format {
             };
             reader.ReadByte(); // Channel mode indicator (skipped)
             ChannelCount = reader.ReadInt32();
-            layoutByteCount = ChannelCount % 8 == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1);
+            layoutByteCount = (ChannelCount & 7) == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1);
             Channels = new Channel[ChannelCount];
             for (int channel = 0; channel < ChannelCount; ++channel) {
                 Channels[channel] = new Channel(reader.ReadSingle(), reader.ReadSingle(), reader.ReadByte() != 0);
@@ -100,7 +100,7 @@ namespace Cavern.Format {
             bool[] writtenChannels = new bool[ChannelCount];
             int channelsToRead = 0;
             for (int channel = 0; channel < ChannelCount; ++channel) {
-                if (writtenChannels[channel] = (layoutBytes[channel >> 3] >> (channel % 8)) % 2 != 0) {
+                if (writtenChannels[channel] = ((layoutBytes[channel >> 3] >> (channel & 7)) & 1) != 0) {
                     ++channelsToRead;
                 }
             }

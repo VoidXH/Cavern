@@ -77,9 +77,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int maxChannels = JointObjectCodingTables.inputMatrix.Length;
             prevMatrix = new float[maxObjects][][];
             for (int obj = 0; obj < maxObjects; ++obj) {
-                prevMatrix[obj] = new float[maxChannels][];
+                float[][] objMatrix = prevMatrix[obj] = new float[maxChannels][];
                 for (int ch = 0; ch < maxChannels; ++ch) {
-                    prevMatrix[obj][ch] = new float[QuadratureMirrorFilterBank.subbands];
+                    objMatrix[ch] = new float[QuadratureMirrorFilterBank.subbands];
                 }
             }
         }
