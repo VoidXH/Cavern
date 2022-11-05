@@ -115,9 +115,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             SerializeBlockMain(writer, block, namePrefix, index);
 
             writer.WriteStartElement(ADMTags.blockJumpTag);
-            const string positionDigits = "0.000000";
-            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
-                block.Interpolation.TotalSeconds.ToString(positionDigits).Replace(',', '.'));
+            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute, block.Interpolation.ToString() + '0');
             writer.WriteString(enabledValue);
             writer.WriteEndElement();
 

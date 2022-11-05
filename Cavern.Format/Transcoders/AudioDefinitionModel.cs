@@ -259,6 +259,7 @@ namespace Cavern.Format.Transcoders {
                 int lastBlock = blocks.Count - 1;
                 if (lastBlock == -1) {
                     errors.Add($"Channel {channel.ID} has no blocks.");
+                    continue;
                 }
 
                 if (blocks[0].Offset != ADMTimeSpan.Zero) {
