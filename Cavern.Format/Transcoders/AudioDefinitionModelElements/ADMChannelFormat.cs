@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Numerics;
 using System.Xml;
 using System.Xml.Linq;
@@ -114,10 +115,14 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.ToString());
             SerializeBlockMain(writer, block, namePrefix, index);
 
-            writer.WriteStartElement(ADMTags.blockJumpTag);
-            writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute, block.Interpolation.ToString() + '0');
-            writer.WriteString(enabledValue);
-            writer.WriteEndElement();
+            if (block.Interpolation != block.Duration) {
+                const string interpolationFormat = "0.00000";
+                writer.WriteStartElement(ADMTags.blockJumpTag);
+                writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
+                    block.Interpolation.TotalSeconds.ToString(interpolationFormat, CultureInfo.InvariantCulture.NumberFormat) + '0');
+                writer.WriteString(enabledValue);
+                writer.WriteEndElement();
+            }
 
             writer.WriteEndElement();
         }

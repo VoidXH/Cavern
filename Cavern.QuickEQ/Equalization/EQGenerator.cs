@@ -15,10 +15,10 @@ namespace Cavern.QuickEQ.Equalization {
     public static class EQGenerator {
         static NumberFormatInfo NumberFormat {
             get {
-                if (numberFormat == null) {
-                    numberFormat = new NumberFormatInfo { NumberDecimalSeparator = "," };
+                if (numberFormat != null) {
+                    return numberFormat;
                 }
-                return numberFormat;
+                return numberFormat = new NumberFormatInfo { NumberDecimalSeparator = "," };
             }
         }
         static NumberFormatInfo numberFormat;
