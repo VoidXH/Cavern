@@ -52,8 +52,13 @@ namespace CavernizeGUI.Elements {
                     int trackId = 0;
                     for (int i = 0; i < mkvReader.Tracks.Length; i++) {
                         if (mkvReader.Tracks[i].Extra is TrackExtraAudio) {
-                            tracks.Add(new Track(new AudioTrackReader(mkvReader.Tracks[i]), mkvReader.Tracks[i].Format,
-                                trackId++, mkvReader.Tracks[i].Language));
+                            try {
+                                tracks.Add(new Track(new AudioTrackReader(mkvReader.Tracks[i]), mkvReader.Tracks[i].Format,
+                                    trackId, mkvReader.Tracks[i].Language));
+                            } catch (Exception e) {
+                                tracks.Add(new InvalidTrack(e.Message, mkvReader.Tracks[i].Format, mkvReader.Tracks[i].Language));
+                            }
+                            ++trackId;
                         }
                     }
                     break;

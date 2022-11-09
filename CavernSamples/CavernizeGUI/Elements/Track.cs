@@ -32,7 +32,7 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Track audio coding type.
         /// </summary>
-        public Codec Codec { get; }
+        public Codec Codec { get; protected set; }
 
         /// <summary>
         /// The renderer starting at the first sample of the track after construction.
@@ -57,12 +57,12 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Language code.
         /// </summary>
-        public string Language { get; private set; }
+        public string Language { get; protected set; }
 
         /// <summary>
         /// Text to display about this track.
         /// </summary>
-        public string Details { get; private set; }
+        public string Details { get; protected set; }
 
         /// <summary>
         /// Source of audio data.
@@ -123,6 +123,11 @@ namespace CavernizeGUI.Elements {
             builder.Append("Sample rate: ").Append(reader.SampleRate).AppendLine("Hz");
             Details = builder.ToString();
         }
+
+        /// <summary>
+        /// Empty constructor for derived classes.
+        /// </summary>
+        protected Track() { }
 
         /// <summary>
         /// Attach this track to a rendering environment and start from the beginning.
