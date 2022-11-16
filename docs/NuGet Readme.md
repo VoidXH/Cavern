@@ -13,12 +13,15 @@ self-calibration libraries built on the Cavern engine are also available.
 * Advanced self-calibration with a microphone (Cavern.QuickEQ package)
 	* Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
 	* Uniformity can be achieved without a calibration file
-* Real-time upconversion of regular surround sound mixes to 3D
-* Direction and distance virtualization for headphones
 * Audio transcoder library with a custom spatial format (Cavern.Format package)
-	* Supported containers: .wav, .laf, .mkv, .mka
-	* Fully supported codecs: RIFF WAVE, Limitless Audio Format
-	* Partially supported codecs: E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
+	* Supported codecs:
+	  * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
+	  * Limitless Audio Format
+	  * RIFF WAVE
+	  * Audio Definition Model Broadcast Wave Format
+	* Supported containers: .ac3, .eac3, .ec3, .laf, .mka, .mkv, .wav
+* Direction and distance virtualization for headphones
+* Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats
 * Seat movement generation
 * Unity-like listener and source functionality
@@ -86,3 +89,4 @@ The length of this array is `listener.UpdateRate * Listener.Channels.Length`.
 * [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes.
 * [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
 * [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
+* [Cavern DCP channel order](./docs/Cavern%20DCP%20channel%20order.md) compared to DCP standards
