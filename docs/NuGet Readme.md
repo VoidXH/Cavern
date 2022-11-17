@@ -86,7 +86,7 @@ float[] output = listener.Render();
 The length of this array is `listener.UpdateRate * Listener.Channels.Length`.
 
 ## Development documents
-* [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes.
+* [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
 * [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
-* [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
-* [Cavern DCP channel order](./docs/Cavern%20DCP%20channel%20order.md) compared to DCP standards
+* [Limitless Audio Format](http://cavern.sbence.hu/cavern/doc.php?p=LAF) for storing Cavern mixes in a CPU-effective spatial format
+* [Cavern DCP channel order](http://cavern.sbence.hu/cavern/doc.php?p=DCP) compared to DCP standards
