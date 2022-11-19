@@ -6,12 +6,13 @@ This repository also features a Unity plugin and a standalone converter called
 Cavernize.
 
 [![Build Status](https://api.travis-ci.com/VoidXH/Cavern.svg?branch=master)](https://app.travis-ci.com/VoidXH/Cavern)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)](https://github.com/VoidXH/Cavern/releases/latest)
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/VoidXH/Cavern/latest)
 ![Lines of Code](https://img.shields.io/tokei/lines/github/VoidXH/Cavern "Lines of Code")
 
-![NuGet - Cavern](https://img.shields.io/nuget/v/Cavern?label=NuGet%3A%20Cavern)
-![NuGet - Cavern.Format](https://img.shields.io/nuget/v/Cavern?label=NuGet%3A%20Cavern.Format)
+[![NuGet - Cavern](https://img.shields.io/nuget/v/Cavern?label=NuGet%3A%20Cavern)](https://www.nuget.org/packages/Cavern/)
+[![NuGet - Cavern.Format](https://img.shields.io/nuget/v/Cavern.Format?label=NuGet%3A%20Cavern.Format)](https://www.nuget.org/packages/Cavern.Format/)
+[![NuGet - Cavern.QuickEQ](https://img.shields.io/nuget/v/Cavern.QuickEQ?label=NuGet%3A%20Cavern.QuickEQ)](https://www.nuget.org/packages/Cavern.QuickEQ/)
 
 ## Features
 * Unlimited objects and output channels without position restrictions
