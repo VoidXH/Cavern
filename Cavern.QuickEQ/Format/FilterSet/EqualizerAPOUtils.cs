@@ -5,15 +5,6 @@ namespace Cavern.Format.FilterSet {
     /// Helper functions for handling Equalizer APO configuration files.
     /// </summary>
     public static class EqualizerAPOUtils {
-        internal const string frontLeft = "L";
-        internal const string frontRight = "R";
-        internal const string frontCenter = "C";
-        internal const string screenLFE = "SUB";
-        internal const string rearLeft = "RL";
-        internal const string rearRight = "RR";
-        internal const string sideLeft = "SL";
-        internal const string sideRight = "SR";
-
         /// <summary>
         /// Converts Equalizer APO's channel names to <see cref="ReferenceChannel"/> values.
         /// </summary>
@@ -28,5 +19,14 @@ namespace Cavern.Format.FilterSet {
             sideRight => ReferenceChannel.SideRight,
             _ => ReferenceChannel.Unknown,
         };
+
+        internal const string frontLeft = "L";
+        internal const string frontRight = "R";
+        internal const string frontCenter = "C";
+        internal const string screenLFE = "SUB";
+        internal const string rearLeft = "RL";
+        internal const string rearRight = "RR";
+        internal const string sideLeft = "SL";
+        internal const string sideRight = "SR";
     }
 }

@@ -119,7 +119,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                 const string interpolationFormat = "0.00000";
                 writer.WriteStartElement(ADMTags.blockJumpTag);
                 writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
-                    block.Interpolation.TotalSeconds.ToString(interpolationFormat, CultureInfo.InvariantCulture.NumberFormat) + '0');
+                    block.Interpolation.TotalSeconds.ToString(interpolationFormat, CultureInfo.InvariantCulture) + '0');
                 writer.WriteString(enabledValue);
                 writer.WriteEndElement();
             }
@@ -153,16 +153,16 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteElementString(ADMTags.blockCartesianTag, enabledValue);
             writer.WriteStartElement(ADMTags.blockPositionTag);
             writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, xAxis);
-            writer.WriteString(block.Position.X.ToString(positionDigits).Replace(',', '.'));
+            writer.WriteString(block.Position.X.ToString(positionDigits, CultureInfo.InvariantCulture));
             writer.WriteEndElement();
             writer.WriteStartElement(ADMTags.blockPositionTag);
             writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, yAxis);
-            writer.WriteString(block.Position.Z.ToString(positionDigits).Replace(',', '.'));
+            writer.WriteString(block.Position.Z.ToString(positionDigits, CultureInfo.InvariantCulture));
             writer.WriteEndElement();
             if (block.Position.Y != 0) {
                 writer.WriteStartElement(ADMTags.blockPositionTag);
                 writer.WriteAttributeString(ADMTags.blockCoordinateAttribute, zAxis);
-                writer.WriteString(block.Position.Y.ToString(positionDigits).Replace(',', '.'));
+                writer.WriteString(block.Position.Y.ToString(positionDigits, CultureInfo.InvariantCulture));
                 writer.WriteEndElement();
             }
 
