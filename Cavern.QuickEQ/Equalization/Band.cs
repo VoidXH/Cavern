@@ -28,6 +28,11 @@ namespace Cavern.QuickEQ.Equalization {
         public static Band operator +(Band band, double gain) => new Band(band.Frequency, band.Gain + gain);
 
         /// <summary>
+        /// Subtract gain in decibels from this band.
+        /// </summary>
+        public static Band operator -(Band band, double gain) => new Band(band.Frequency, band.Gain - gain);
+
+        /// <summary>
         /// Band data as text.
         /// </summary>
         public override string ToString() => string.Format("{0} Hz: {1} dB", Frequency, Gain);

@@ -1,9 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
+        /// <summary>
+        /// Set this equalizer so if the <paramref name="other"/> is linear, this will be the difference from it.
+        /// </summary>
+        /// <remarks>Matching frequencies have to be guaranteed before calling this function with
+        /// <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
+        public void AlignTo(Equalizer other) {
+            List<Band> otherBands = other.bands;
+            for (int i = 0, c = bands.Count; i < c; i++) {
+                bands[i] -= otherBands[i].Gain;
+            }
+        }
+
         /// <summary>
         /// Shows the resulting frequency response if this EQ is applied.
         /// </summary>
