@@ -3,33 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Cavern.QuickEQ.EQCurves;
-using Cavern.QuickEQ.SignalGeneration;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
     /// <summary>
     /// Equalizer data collector and exporter.
     /// </summary>
-    public sealed class Equalizer {
+    public sealed partial class Equalizer : ICloneable {
         /// <summary>
         /// Bands that make up this equalizer.
         /// </summary>
         public IReadOnlyList<Band> Bands => bands;
         readonly List<Band> bands = new List<Band>();
-
-        /// <summary>
-        /// Equalizer data collector and exporter.
-        /// </summary>
-        public Equalizer() { }
-
-        /// <summary>
-        /// Equalizer data collector and exporter from a previously created set of bands.
-        /// </summary>
-        /// <remarks>The list of bands must be sorted.</remarks>
-        internal Equalizer(List<Band> bands) {
-            this.bands = bands;
-            RecalculatePeakGain();
-        }
 
         /// <summary>
         /// Gets the gain at a given frequency.
@@ -72,24 +57,6 @@ namespace Cavern.QuickEQ.Equalization {
         bool subsonicFilter = false;
 
         /// <summary>
-        /// Frame modifications to not break subsonic filtering.
-        /// </summary>
-        void Modify(Action action) {
-            bool wasFiltered = subsonicFilter;
-            subsonicFilter = false;
-            if (wasFiltered && bands.Count > 0) {
-                bands.RemoveAt(0);
-            }
-            action();
-            if (wasFiltered) {
-                if (bands.Count > 0) {
-                    AddBand(new Band(bands[0].Frequency * .5f, bands[0].Gain - subsonicRolloff));
-                }
-                subsonicFilter = true;
-            }
-        }
-
-        /// <summary>
         /// Subsonic filter rolloff in dB / octave.
         /// </summary>
         public double SubsonicRolloff {
@@ -103,18 +70,24 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         public double PeakGain { get; private set; }
 
-        void RecalculatePeakGain() {
-            if (bands.Count == 0) {
-                PeakGain = 0;
-                return;
-            }
-            PeakGain = bands[0].Gain;
-            for (int band = 1, count = bands.Count; band < count; ++band) {
-                if (PeakGain < bands[band].Gain) {
-                    PeakGain = bands[band].Gain;
-                }
-            }
+        /// <summary>
+        /// Equalizer data collector and exporter.
+        /// </summary>
+        public Equalizer() { }
+
+        /// <summary>
+        /// Equalizer data collector and exporter from a previously created set of bands.
+        /// </summary>
+        /// <remarks>The list of bands must be sorted.</remarks>
+        internal Equalizer(List<Band> bands) {
+            this.bands = bands;
+            RecalculatePeakGain();
         }
+
+        /// <summary>
+        /// Create a copy of this EQ with the same bands.
+        /// </summary>
+        public object Clone() => new Equalizer(bands.ToList());
 
         /// <summary>
         /// Add a new band to the EQ.
@@ -171,109 +144,29 @@ namespace Cavern.QuickEQ.Equalization {
         });
 
         /// <summary>
-        /// Shows the EQ curve in a linearly scaled frequency axis.
+        /// Add gain in decibels to all bands.
         /// </summary>
-        /// <param name="startFreq">Frequency at the beginning of the curve</param>
-        /// <param name="endFreq">Frequency at the end of the curve</param>
-        /// <param name="length">Points on the curve</param>
-        public float[] VisualizeLinear(double startFreq, double endFreq, int length) {
-            float[] result = new float[length];
+        public void Offset(double gain) {
+            for (int i = 0, c = bands.Count; i < c; i++) {
+                bands[i] += gain;
+            }
+        }
+
+        /// <summary>
+        /// Compares the two EQs if they have values at the same frequencies.
+        /// </summary>
+        public bool HasTheSameFrequenciesAs(Equalizer other) {
+            List<Band> otherBands = other.bands;
             int bandCount = bands.Count;
-            if (bandCount == 0) {
-                return result;
+            if (bandCount != otherBands.Count) {
+                return false;
             }
-            double step = (endFreq - startFreq) / (length - 1);
-            for (int entry = 0, nextBand = 0, prevBand = 0; entry < length; ++entry) {
-                double freq = startFreq + step * entry;
-                while (nextBand != bandCount && bands[nextBand].Frequency < freq) {
-                    prevBand = nextBand;
-                    ++nextBand;
-                }
-                if (nextBand != bandCount && nextBand != 0) {
-                    result[entry] = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
-                        QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, freq));
-                } else {
-                    result[entry] = (float)bands[prevBand].Gain;
+            for (int i = 0; i < bandCount; i++) {
+                if (bands[i].Frequency != otherBands[i].Frequency) {
+                    return false;
                 }
             }
-            return result;
-        }
-
-        /// <summary>
-        /// Gets the corresponding frequencies for <see cref="VisualizeLinear(double, double, int)"/>.
-        /// </summary>
-        /// <param name="startFreq">Frequency at the beginning of the curve</param>
-        /// <param name="endFreq">Frequency at the end of the curve</param>
-        /// <param name="length">Points on the curve</param>
-        public static float[] FrequenciesLinear(double startFreq, double endFreq, int length) =>
-            SweepGenerator.LinearFreqs(startFreq, endFreq, length);
-
-        /// <summary>
-        /// Shows the EQ curve in a logarithmically scaled frequency axis.
-        /// </summary>
-        /// <param name="startFreq">Frequency at the beginning of the curve</param>
-        /// <param name="endFreq">Frequency at the end of the curve</param>
-        /// <param name="length">Points on the curve</param>
-        public float[] Visualize(double startFreq, double endFreq, int length) {
-            float[] result = new float[length];
-            int bandCount = bands.Count;
-            if (bandCount == 0) {
-                return result;
-            }
-            double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (length - 1));
-            for (int i = 0, nextBand = 0, prevBand = 0; i < length; ++i) {
-                while (nextBand != bandCount && bands[nextBand].Frequency < startFreq) {
-                    prevBand = nextBand;
-                    ++nextBand;
-                }
-                if (nextBand != bandCount && nextBand != 0) {
-                    result[i] = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
-                        QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, startFreq));
-                } else {
-                    result[i] = (float)bands[prevBand].Gain;
-                }
-                startFreq *= mul;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Gets the corresponding frequencies for <see cref="Visualize(double, double, int)"/>.
-        /// </summary>
-        /// <param name="startFreq">Frequency at the beginning of the curve</param>
-        /// <param name="endFreq">Frequency at the end of the curve</param>
-        /// <param name="length">Points on the curve</param>
-        public static float[] Frequencies(double startFreq, double endFreq, int length) =>
-            SweepGenerator.ExponentialFreqs(startFreq, endFreq, length);
-
-        /// <summary>
-        /// Shows the resulting frequency response if this EQ is applied.
-        /// </summary>
-        /// <param name="response">Frequency response curve to apply the EQ on, from
-        /// <see cref="GraphUtils.ConvertToGraph(float[], double, double, int, int)"/></param>
-        /// <param name="startFreq">Frequency at the beginning of the curve</param>
-        /// <param name="endFreq">Frequency at the end of the curve</param>
-        public float[] Apply(float[] response, double startFreq, double endFreq) {
-            float[] filter = Visualize(startFreq, endFreq, response.Length);
-            for (int i = 0; i < response.Length; ++i) {
-                filter[i] += response[i];
-            }
-            return filter;
-        }
-
-        /// <summary>
-        /// Apply this EQ on a frequency response.
-        /// </summary>
-        /// <param name="response">Frequency response to apply the EQ on</param>
-        /// <param name="sampleRate">Sample rate where <paramref name="response"/> was generated</param>
-        public void Apply(Complex[] response, int sampleRate) {
-            int halfLength = response.Length / 2 + 1, nyquist = sampleRate / 2;
-            float[] filter = VisualizeLinear(0, nyquist, halfLength);
-            response[0] *= (float)Math.Pow(10, filter[0] * .05f);
-            for (int i = 1; i < halfLength; ++i) {
-                response[i] *= (float)Math.Pow(10, filter[i] * .05f);
-                response[^i] = new Complex(response[i].Real, -response[i].Imaginary);
-            }
+            return true;
         }
 
         /// <summary>
@@ -327,6 +220,37 @@ namespace Cavern.QuickEQ.Equalization {
                         RemoveBand(bands[band--]);
                         --bandc;
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Frame modifications to not break subsonic filtering.
+        /// </summary>
+        void Modify(Action action) {
+            bool wasFiltered = subsonicFilter;
+            subsonicFilter = false;
+            if (wasFiltered && bands.Count > 0) {
+                bands.RemoveAt(0);
+            }
+            action();
+            if (wasFiltered) {
+                if (bands.Count > 0) {
+                    AddBand(new Band(bands[0].Frequency * .5f, bands[0].Gain - subsonicRolloff));
+                }
+                subsonicFilter = true;
+            }
+        }
+
+        void RecalculatePeakGain() {
+            if (bands.Count == 0) {
+                PeakGain = 0;
+                return;
+            }
+            PeakGain = bands[0].Gain;
+            for (int band = 1, count = bands.Count; band < count; ++band) {
+                if (PeakGain < bands[band].Gain) {
+                    PeakGain = bands[band].Gain;
                 }
             }
         }

@@ -212,7 +212,7 @@ namespace Cavern.QuickEQ {
             if (bypass == null) {
                 SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
             } else {
-                SweepReference = (float[])bypass.Clone();
+                SweepReference = bypass.FastClone();
             }
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);

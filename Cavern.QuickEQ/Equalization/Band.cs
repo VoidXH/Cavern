@@ -10,7 +10,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         public readonly double Frequency { get; }
         /// <summary>
-        /// Gain at <see cref="Frequency"/> in dB.
+        /// Gain at <see cref="Frequency"/> in decibels.
         /// </summary>
         public readonly double Gain { get; }
 
@@ -21,6 +21,11 @@ namespace Cavern.QuickEQ.Equalization {
             Frequency = frequency;
             Gain = gain;
         }
+
+        /// <summary>
+        /// Add gain in decibels to this band.
+        /// </summary>
+        public static Band operator +(Band band, double gain) => new Band(band.Frequency, band.Gain + gain);
 
         /// <summary>
         /// Band data as text.

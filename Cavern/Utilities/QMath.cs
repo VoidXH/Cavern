@@ -9,7 +9,7 @@ namespace Cavern.Utilities {
     /// <summary>
     /// Two plus two is four, minus one, that's three, quick maths.
     /// </summary>
-    public static class QMath {
+    public static partial class QMath {
         /// <summary>
         /// Converts the bytes of an int to a float or vice versa.
         /// In this class: hack for <see cref="Log2(int)"/> to use in-CPU float conversion as log2 by shifting the exponent.
@@ -44,29 +44,6 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Average(float[] array, int from, int to) => Sum(array, from, to) / (to - from);
-
-        /// <summary>
-        /// Calculate the average of an array without floating point rounding errors.
-        /// </summary>
-        /// <remarks>This is slower than <see cref="Average(float[])"/>.</remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float AverageAccurate(float[] array) => SumAccurate(array, 0, array.Length) / array.Length;
-
-        /// <summary>
-        /// Calculate the average of an array until the selected border element (exclusive)
-        /// without floating point rounding errors.
-        /// </summary>
-        /// <remarks>This is slower than <see cref="Average(float[], int)"/>.</remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float AverageAccurate(float[] array, int until) => SumAccurate(array, 0, until) / until;
-
-        /// <summary>
-        /// Calculate the average of an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive)
-        /// without floating point rounding errors.
-        /// </summary>
-        /// <remarks>This is slower than <see cref="Average(float[], int)"/>.</remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float AverageAccurate(float[] array, int from, int to) => SumAccurate(array, from, to) / (to - from);
 
         /// <summary>
         /// Round up the number in base 2.
@@ -331,38 +308,6 @@ namespace Cavern.Utilities {
             float sum = 0;
             for (int i = from; i < to; ++i) {
                 sum += Math.Abs(array[i]);
-            }
-            return sum;
-        }
-
-        /// <summary>
-        /// Sum all elements in an array without floating point rounding errors.
-        /// </summary>
-        /// <remarks>This is slower than <see cref="Sum(float[])"/>.</remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAccurate(float[] array) => SumAccurate(array, 0, array.Length);
-
-        /// <summary>
-        /// Sum the elements in an array until the selected border element (exclusive) without floating point rounding errors.
-        /// </summary>
-        /// <remarks>This is slower than <see cref="Sum(float[], int)"/>.</remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAccurate(float[] array, int until) => SumAccurate(array, 0, until);
-
-        /// <summary>
-        /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive)
-        /// without floating point rounding errors.
-        /// </summary>
-        /// <remarks>This is slower than <see cref="Sum(float[], int, int)"/>.</remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAccurate(float[] array, int from, int to) {
-            float sum = 0f,
-                c = 0f;
-            for (int i = from; i < to; ++i) {
-                float y = array[i] - c;
-                float t = sum + y;
-                c = (t - sum) - y;
-                sum = t;
             }
             return sum;
         }

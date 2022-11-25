@@ -1,6 +1,8 @@
 ﻿using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 using Cavern.Remapping;
+using Cavern.Utilities;
+
 using static Cavern.Format.Transcoders.EnhancedAC3;
 
 namespace Cavern.Format.Transcoders {
@@ -153,7 +155,7 @@ namespace Cavern.Format.Transcoders {
         /// Gets the channels contained in the stream in order.
         /// </summary>
         public ReferenceChannel[] GetChannelArrangement() {
-            ReferenceChannel[] channels = (ReferenceChannel[])channelArrangements[ChannelMode].Clone();
+            ReferenceChannel[] channels = channelArrangements[ChannelMode].FastClone();
             if (channelMapping.HasValue) {
                 int channel = 0;
                 for (int i = channelMappingBits - 1; i > 0; --i) {
