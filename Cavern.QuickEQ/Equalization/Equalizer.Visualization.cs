@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using Cavern.Utilities;
 
+using static Cavern.QuickEQ.Windowing;
+
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
         /// <summary>
@@ -104,5 +106,10 @@ namespace Cavern.QuickEQ.Equalization {
             }
             return result;
         }
+
+        /// <summary>
+        /// Add windowing on the right of the curve. Windowing is applied logarithmically.
+        /// </summary>
+        public void Window(Window right, double startFreq, double endFreq) => ApplyWindow(bands, right, startFreq, endFreq);
     }
 }

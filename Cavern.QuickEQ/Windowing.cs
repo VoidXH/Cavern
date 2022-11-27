@@ -1,50 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 
+using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
     /// <summary>
-    /// Available FFT windows.
-    /// </summary>
-    public enum Window {
-        /// <summary>
-        /// No windowing.
-        /// </summary>
-        Disabled,
-        /// <summary>
-        /// 1
-        /// </summary>
-        Rectangular,
-        /// <summary>
-        /// sin(x)
-        /// </summary>
-        Sine,
-        /// <summary>
-        /// 0.54 - 0.46 * cos(x)
-        /// </summary>
-        Hamming,
-        /// <summary>
-        /// 0.5 * (1 - cos(x))
-        /// </summary>
-        Hann,
-        /// <summary>
-        /// 0.42 - 0.5 * cos(x) + 0.08 * cos(2 * x)
-        /// </summary>
-        Blackman,
-        /// <summary>
-        /// 0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)
-        /// </summary>
-        BlackmanHarris,
-        /// <summary>
-        /// A window for impulse response trimming, with a precompiled alpha.
-        /// </summary>
-        Tukey
-    }
-
-    /// <summary>
     /// FFT windowing functions.
     /// </summary>
-    public static class Windowing {
+    public static partial class Windowing {
         /// <summary>
         /// Apply a predefined window function on a signal.
         /// </summary>
@@ -174,66 +138,30 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>
-        /// Window function format.
+        /// Add windowing on the right of the curve. Windowing is applied logarithmically.
         /// </summary>
-        /// <param name="x">The position in the signal from 0 to 2 * pi</param>
-        /// <returns>The multiplier for the sample at x</returns>
-        delegate float WindowFunction(float x);
+        public static void ApplyWindow(List<Band> bands, Window right, double startFreq, double endFreq) {
+            startFreq = Math.Log10(startFreq);
+            endFreq = Math.Log10(endFreq);
+            double range = Math.PI / (endFreq - startFreq);
 
-        /// <summary>
-        /// Get the corresponding window function for each <see cref="Window"/> value.
-        /// </summary>
-        static WindowFunction GetWindowFunction(Window function) => function switch {
-            Window.Sine => SineWindow,
-            Window.Hamming => HammingWindow,
-            Window.Hann => HannWindow,
-            Window.Blackman => BlackmanWindow,
-            Window.BlackmanHarris => BlackmanHarrisWindow,
-            Window.Tukey => TukeyWindow,
-            _ => x => 1,
-        };
+            int i = 0, c = bands.Count;
+            while (i < c && Math.Log10(bands[i].Frequency) < startFreq) {
+                i++;
+            }
 
-        /// <summary>
-        /// sin(x)
-        /// </summary>
-        static float SineWindow(float x) => (float)Math.Sin(x * .5f);
+            WindowFunctionDouble function = GetWindowFunctionDouble(right);
+            for (; i < c; i++) {
+                double logFreq = Math.Log10(bands[i].Frequency);
+                if (logFreq > endFreq) {
+                    break;
+                }
 
-        /// <summary>
-        /// 0.54 - 0.46 * cos(x)
-        /// </summary>
-        static float HammingWindow(float x) => (float)(.54 - .46 * Math.Cos(x));
+                bands[i] *= function(Math.PI + (logFreq - startFreq) * range);
+            }
 
-        /// <summary>
-        /// 0.5 * (1 - cos(x))
-        /// </summary>
-        static float HannWindow(float x) => (float)(.5 * (1 - Math.Cos(x)));
-
-        /// <summary>
-        /// 0.42 - 0.5 * cos(x) + 0.08 * cos(2 * x)
-        /// </summary>
-        static float BlackmanWindow(float x) => (float)(.42 - .5 * Math.Cos(x) + .08 * Math.Cos(x + x));
-
-        /// <summary>
-        /// 0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)
-        /// </summary>
-        static float BlackmanHarrisWindow(float x) {
-            double x2 = x + x;
-            return (float)(.35875 - .48829 * Math.Cos(x) + .14128 * Math.Cos(x2) - .01168 * Math.Cos(x2 + x));
-        }
-
-        /// <summary>
-        /// A window for impulse response trimming, with a precompiled alpha.
-        /// </summary>
-        static float TukeyWindow(float x) {
-            const double alpha = .25, positioner = 1 / alpha,
-                flatLeft = Math.PI * alpha,
-                flatRight = Math.PI * (2 - alpha);
-            if (x < flatLeft) {
-                return (float)(Math.Cos(x * positioner - Math.PI) + 1) * .5f;
-            } else if (x > flatRight) {
-                return (float)(Math.Cos((2 * Math.PI - x) * positioner - Math.PI) + 1) * .5f;
-            } else {
-                return 1;
+            for (; i < c; i++) {
+                bands[i] = new Band(bands[i].Frequency, 0);
             }
         }
     }

@@ -71,6 +71,16 @@ namespace Cavern.QuickEQ.Equalization {
         public double PeakGain { get; private set; }
 
         /// <summary>
+        /// Frequency of the leftmost band.
+        /// </summary>
+        public double StartFrequency => bands[0].Frequency;
+
+        /// <summary>
+        /// Frequency of the rightmost band.
+        /// </summary>
+        public double EndFrequency => bands[^1].Frequency;
+
+        /// <summary>
         /// Equalizer data collector and exporter.
         /// </summary>
         public Equalizer() { }
