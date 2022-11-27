@@ -1,45 +1,45 @@
 ﻿using System;
 
 namespace Cavern.QuickEQ {
-    partial class Windowing {
+    /// <summary>
+    /// Available FFT windowing functions.
+    /// </summary>
+    public enum Window {
         /// <summary>
-        /// Available FFT windowing functions.
+        /// No windowing.
         /// </summary>
-        public enum Window {
-            /// <summary>
-            /// No windowing.
-            /// </summary>
-            Disabled,
-            /// <summary>
-            /// 1
-            /// </summary>
-            Rectangular,
-            /// <summary>
-            /// sin(x)
-            /// </summary>
-            Sine,
-            /// <summary>
-            /// 0.54 - 0.46 * cos(x)
-            /// </summary>
-            Hamming,
-            /// <summary>
-            /// 0.5 * (1 - cos(x))
-            /// </summary>
-            Hann,
-            /// <summary>
-            /// 0.42 - 0.5 * cos(x) + 0.08 * cos(2 * x)
-            /// </summary>
-            Blackman,
-            /// <summary>
-            /// 0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)
-            /// </summary>
-            BlackmanHarris,
-            /// <summary>
-            /// A window for impulse response trimming, with a precompiled alpha.
-            /// </summary>
-            Tukey
-        }
+        Disabled,
+        /// <summary>
+        /// 1
+        /// </summary>
+        Rectangular,
+        /// <summary>
+        /// sin(x)
+        /// </summary>
+        Sine,
+        /// <summary>
+        /// 0.54 - 0.46 * cos(x)
+        /// </summary>
+        Hamming,
+        /// <summary>
+        /// 0.5 * (1 - cos(x))
+        /// </summary>
+        Hann,
+        /// <summary>
+        /// 0.42 - 0.5 * cos(x) + 0.08 * cos(2 * x)
+        /// </summary>
+        Blackman,
+        /// <summary>
+        /// 0.35875 - 0.48829 * cos(x) + 0.14128 * cos(2 * x) - 0.01168 * cos(3 * x)
+        /// </summary>
+        BlackmanHarris,
+        /// <summary>
+        /// A window for impulse response trimming, with a precompiled alpha.
+        /// </summary>
+        Tukey
+    }
 
+    partial class Windowing {
         /// <summary>
         /// Window function format.
         /// </summary>
