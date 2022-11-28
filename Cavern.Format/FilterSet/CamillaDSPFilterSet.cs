@@ -4,9 +4,9 @@
     /// </summary>
     public class CamillaDSPFilterSet : FIRFilterSet {
         /// <summary>
-        /// Convolution filter set for CamillaDSP with a given number of channels.
+        /// Convolution filter set for CamillaDSP.
         /// </summary>
-        public CamillaDSPFilterSet(int channels) : base(channels) { }
+        public CamillaDSPFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
         /// Export the filter set to a target file.
