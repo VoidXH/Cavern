@@ -5,37 +5,14 @@ using Cavern.Utilities;
 
 namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Body {
+        /// <summary>
+        /// Contains and decodes exponent and mantissa data for a single channels.
+        /// </summary>
         partial class Allocation {
-            // TODO: these shouldn't be static, just once per transcoder
             /// <summary>
-            /// Index of the next mantissa in <see cref="bap1Next"/>.
+            /// The body for which the allocation is read.
             /// </summary>
-            static int bap1Pos;
-
-            /// <summary>
-            /// Index of the next mantissa in <see cref="bap2Next"/>.
-            /// </summary>
-            static int bap2Pos;
-
-            /// <summary>
-            /// Index of the next mantissa in <see cref="bap4Next"/>.
-            /// </summary>
-            static int bap4Pos;
-
-            /// <summary>
-            /// Next mantissa values in case the bap is 1.
-            /// </summary>
-            static int[] bap1Next;
-
-            /// <summary>
-            /// Next mantissa values in case the bap is 2.
-            /// </summary>
-            static int[] bap2Next;
-
-            /// <summary>
-            /// Next mantissa values in case the bap is 4.
-            /// </summary>
-            static int[] bap4Next;
+            readonly EnhancedAC3Body host;
 
             /// <summary>
             /// A copy of the mantissa stream to be able to quickly transcode the block without re-encoding.
@@ -46,12 +23,6 @@ namespace Cavern.Format.Transcoders {
             /// Length of the content in <see cref="rawMantissa"/> in bits.
             /// </summary>
             int mantissaBits;
-
-            public static void ResetBlock() {
-                bap1Pos = 2;
-                bap2Pos = 2;
-                bap4Pos = 1;
-            }
 
             /// <summary>
             /// Read the encoded mantissa values and convert them to transform coeffs into the <paramref name="target"/> array.
@@ -67,10 +38,10 @@ namespace Cavern.Format.Transcoders {
                     }
                 }
                 mantissaBits +=
-                    (bap1Pos + (bapReads & 0xFF)) / 3 * bitsToRead[1] +
-                    (bap2Pos + ((bapReads >> 8) & 0xFF)) / 3 * bitsToRead[2] +
+                    (host.bap1Pos + (bapReads & 0xFF)) / 3 * bitsToRead[1] +
+                    (host.bap2Pos + ((bapReads >> 8) & 0xFF)) / 3 * bitsToRead[2] +
                     ((bapReads >> 16) & 0xFF) * bitsToRead[3] +
-                    (bap4Pos + (bapReads >> 24)) / 2 * bitsToRead[4];
+                    (host.bap4Pos + (bapReads >> 24)) / 2 * bitsToRead[4];
                 extractor.ReadBitsInto(ref rawMantissa, mantissaBits);
                 DecodeTransformCoeffs(new BitExtractor(rawMantissa), target, start, end);
                 Array.Clear(target, 0, start);
@@ -169,6 +140,13 @@ namespace Cavern.Format.Transcoders {
             /// <remarks>Skipping this step is a huge performance gain in AC-3 to AC-3 transcoding.
             /// Values are 24-bit and signed, these can be mapped to floats without loss.</remarks>
             void DecodeTransformCoeffs(BitExtractor extractor, float[] target, int start, int end) {
+                int bap1Pos = host.bap1Pos;
+                int bap2Pos = host.bap2Pos;
+                int bap4Pos = host.bap4Pos;
+                int[] bap1Next = host.bap1Next;
+                int[] bap2Next = host.bap2Next;
+                int[] bap4Next = host.bap4Next;
+
                 for (int bin = start; bin < end; ++bin) {
                     switch (bap[bin]) {
                         case 1:
@@ -204,6 +182,13 @@ namespace Cavern.Format.Transcoders {
                             break;
                     }
                 }
+
+                host.bap1Pos = bap1Pos;
+                host.bap2Pos = bap2Pos;
+                host.bap4Pos = bap4Pos;
+                host.bap1Next = bap1Next;
+                host.bap2Next = bap2Next;
+                host.bap4Next = bap4Next;
             }
         }
     }

@@ -93,7 +93,12 @@ namespace Cavern.Format.Transcoders {
             /// </summary>
             readonly float[] coeffSplit2;
 
-            public Allocation(int maxLength) {
+            /// <summary>
+            /// Contains and decodes exponent and mantissa data for a single channels.
+            /// </summary>
+            public Allocation(EnhancedAC3Body host, int maxLength) {
+                this.host = host;
+
                 dexp = new int[maxLength];
                 exp = new int[maxLength];
                 psd = new int[maxLength];

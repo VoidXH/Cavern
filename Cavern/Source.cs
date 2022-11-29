@@ -577,7 +577,7 @@ namespace Cavern {
             float halfVolume1D = volume1D * .5f;
             for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                 if (Listener.Channels[channel].LFE) {
-                    if (!listener.LFESeparation || LFE) { // TODO: rendered is multichannel
+                    if (!listener.LFESeparation || LFE) {
                         WaveformUtils.Mix(leftSamples, rendered, channel, Listener.Channels.Length, halfVolume1D);
                         WaveformUtils.Mix(rightSamples, rendered, channel, Listener.Channels.Length, halfVolume1D);
                     }

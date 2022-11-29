@@ -205,12 +205,12 @@
             }
 
             allocation = new Allocation[channels];
-            couplingAllocation = new Allocation(maxAllocationSize);
-            lfeAllocation = new Allocation(maxAllocationSize);
+            couplingAllocation = new Allocation(this, maxAllocationSize);
+            lfeAllocation = new Allocation(this, maxAllocationSize);
             cpldeltba.Reset();
             lfedeltba.Reset();
             for (int channel = 0; channel < channels; ++channel) {
-                allocation[channel] = new Allocation(maxAllocationSize);
+                allocation[channel] = new Allocation(this, maxAllocationSize);
                 channelOutput[channel] = new float[maxAllocationSize];
                 cplcoexp[channel] = new int[cplbndstrc.Length];
                 cplcomant[channel] = new int[cplbndstrc.Length];

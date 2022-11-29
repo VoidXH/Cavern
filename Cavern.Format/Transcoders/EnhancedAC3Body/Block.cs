@@ -294,8 +294,11 @@ namespace Cavern.Format.Transcoders {
             if (skipflde && extractor.ReadBit())
                 extractor.ReadBytesInto(ref auxData, ref auxDataPos, extractor.Read(9));
 
-            // Quantized mantissa values
-            Allocation.ResetBlock();
+            // Quantized mantissa values - prepare for the next allocation frame
+            bap1Pos = 2;
+            bap2Pos = 2;
+            bap4Pos = 1;
+
             // TODO: optimize for reallocation - currently it doesn't reallocate all the time when needed
             if (cplinu[block])// && cplexpstr[block] != ExpStrat.Reuse)
                 AllocateCoupling(cplexpstr[block]);
