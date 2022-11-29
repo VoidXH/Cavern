@@ -44,6 +44,8 @@ namespace Cavern.Filters {
         /// <summary>
         /// Construct a convolver for a target impulse response.
         /// </summary>
+        /// <param name="impulse">Impulse response to convolve with</param>
+        /// <param name="delay">Additional impulse delay in samples</param>
         public Convolver(float[] impulse, int delay) {
             this.impulse = impulse;
             Delay = delay;

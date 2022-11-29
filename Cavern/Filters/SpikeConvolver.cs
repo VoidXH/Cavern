@@ -8,6 +8,8 @@ namespace Cavern.Filters {
         /// <summary>
         /// Construct a spike convolver for a target impulse response.
         /// </summary>
+        /// <param name="impulse">Impulse response to convolve with</param>
+        /// <param name="delay">Additional impulse delay in samples</param>
         public SpikeConvolver(float[] impulse, int delay) : base(impulse, delay) {}
 
         /// <summary>
