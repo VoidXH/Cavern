@@ -35,7 +35,8 @@ namespace Cavern.Format.FilterSet {
             List<string> configFile = header != null ? new List<string>(header) : new List<string>();
             for (int i = 0; i < Channels.Length; i++) {
                 string targetLabel = EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
-                    filterPath = Path.Combine(folder, $"{fileNameBase} {Channels[i].name ?? targetLabel}.wav");
+                    filterRelative = $"{fileNameBase} {Channels[i].name ?? targetLabel}.wav",
+                    filterPath = Path.Combine(folder, filterRelative);
                 configFile.Add("Channel: " + targetLabel);
 
                 if (Channels[i].delaySamples != 0) {
@@ -48,7 +49,7 @@ namespace Cavern.Format.FilterSet {
                 }
 
                 RIFFWaveWriter.Write(Path.Combine(folder, filterPath), Channels[i].filter, 1, SampleRate, BitDepth.Float32);
-                configFile.Add("Convolution: " + filterPath);
+                configFile.Add("Convolution: " + filterRelative);
             }
 
             File.WriteAllLines(path, configFile);
