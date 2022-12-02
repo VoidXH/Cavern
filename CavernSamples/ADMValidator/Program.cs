@@ -1,5 +1,4 @@
-﻿using Cavern.Format;
-using Cavern.Format.Decoders;
+﻿using Cavern.Format.Decoders;
 
 static class Program {
     /// <summary>

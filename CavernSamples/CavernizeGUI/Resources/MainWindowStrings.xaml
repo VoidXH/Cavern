@@ -56,7 +56,10 @@
     <system:String x:Key="UnTrk">The selected track is not supported for rendering.</system:String>
     <system:String x:Key="ChCnt">The render target has a larger channel count ({0}) than what the selected format can handle ({1}).
         Please choose a different output format or set a render target with less channels.</system:String>
-    <system:String x:Key="ExFmt">Matroska (*.mkv)|*.mkv|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format
+    <system:String x:Key="ExFmt">Matroska (*.mkv)|*.mkv</system:String>
+    <system:String x:Key="ExPCM">Matroska (*.mkv)|*.mkv|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format
+        (*.laf)|*.laf</system:String>
+    <system:String x:Key="ExPCR">RIFF WAVE (*.wav)|*.wav|Limitless Audio Format
         (*.laf)|*.laf</system:String>
     <system:String x:Key="ExBWF">ADM Broadcast Wave Format (*.wav)|*.wav|Separate waveform and metadata (*.xml)|*.xml</system:String>
     <system:String x:Key="UnExt">The file name had an unsupported extension.</system:String>
@@ -78,4 +81,6 @@
     <system:String x:Key="ReQOp">Can't remove elements from a queue that is already being processed.</system:String>
     <system:String x:Key="ReQSe">No queued item is selected.</system:String>
     <system:String x:Key="InvTr">This track could not be decoded. The following error happened while decoding:</system:String>
+    <system:String x:Key="FFOnl">The selected output format requires FFmpeg. Please locate it, and if you need help,
+        click the Help/User guide button.</system:String>
 </ResourceDictionary>

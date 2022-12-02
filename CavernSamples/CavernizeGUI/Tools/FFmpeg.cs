@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 
@@ -12,14 +11,14 @@ namespace VoidX.WPF {
     /// </summary>
     public class FFmpeg {
         /// <summary>
+        /// FFmpeg is located and ready to use.
+        /// </summary>
+        public bool Found { get; private set; }
+
+        /// <summary>
         /// Last user-selected location of FFmpeg.
         /// </summary>
         public string Location { get; private set; }
-
-        /// <summary>
-        /// The buttons that start the process which requires FFmpeg.
-        /// </summary>
-        readonly UIElement start;
 
         /// <summary>
         /// Status text display.
@@ -29,8 +28,7 @@ namespace VoidX.WPF {
         /// <summary>
         /// FFmpeg runner and locator.
         /// </summary>
-        public FFmpeg(UIElement start, TextBlock statusText, string lastLocation) {
-            this.start = start;
+        public FFmpeg(TextBlock statusText, string lastLocation) {
             this.statusText = statusText;
             Location = lastLocation;
             CheckFFmpeg();
@@ -70,14 +68,13 @@ namespace VoidX.WPF {
         /// <summary>
         /// Checks if FFmpeg's executable is located at the selected directory and update the UI accordingly.
         /// </summary>
-        public bool CheckFFmpeg() {
-            bool found = start.IsEnabled = !string.IsNullOrEmpty(Location) && File.Exists(Location);
-            if (found) {
+        public void CheckFFmpeg() {
+            Found = !string.IsNullOrEmpty(Location) && File.Exists(Location);
+            if (Found) {
                 statusText.Text = readyText;
             } else {
                 statusText.Text = notReadyText;
             }
-            return found;
         }
 
         /// <summary>
@@ -98,7 +95,7 @@ namespace VoidX.WPF {
         /// <summary>
         /// Displayed status message when FFmpeg was not found.
         /// </summary>
-        const string notReadyText = "FFmpeg isn't found, please locate.";
+        const string notReadyText = "FFmpeg isn't found, codec limitations are applied.";
 
         /// <summary>
         /// Arguments that limit the text FFmpeg writes to the console not to flood it in console mode.

@@ -102,7 +102,7 @@ namespace CavernizeGUI {
             audio.ItemsSource = ExportFormat.Formats;
             audio.SelectedIndex = Settings.Default.outputCodec;
 
-            ffmpeg = new(renderButtons, status, Settings.Default.ffmpegLocation);
+            ffmpeg = new(status, Settings.Default.ffmpegLocation);
             listener = new() { // Create a listener, which triggers the loading of saved environment settings
                 UpdateRate = 64,
                 AudioQuality = QualityModes.Perfect
@@ -291,8 +291,10 @@ namespace CavernizeGUI {
         /// <summary>
         /// Grey out renderer settings when it's not applicable.
         /// </summary>
-        void OnOutputSelected(object _, SelectionChangedEventArgs e) =>
-            renderSettings.IsEnabled = !((ExportFormat)audio.SelectedItem).Codec.IsEnvironmental();
+        void OnOutputSelected(object _, SelectionChangedEventArgs e) {
+            ExportFormat format = (ExportFormat)audio.SelectedItem;
+            renderSettings.IsEnabled = !format.Codec.IsEnvironmental();
+        }
 
         /// <summary>
         /// Prompt the user to select FFmpeg's installation folder.

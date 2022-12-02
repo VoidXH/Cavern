@@ -29,10 +29,15 @@ namespace CavernizeGUI {
                 throw new Exception((string)language["UnTrk"]);
             }
 
+            ExportFormat format = (ExportFormat)audio.SelectedItem;
+            bool needsFFmpeg = !string.IsNullOrEmpty(format.FFName) && format.Codec != Codec.PCM_Float && format.Codec != Codec.PCM_LE;
+            if (needsFFmpeg && !ffmpeg.Found) {
+                throw new Exception((string)language["FFOnl"]);
+            }
+
             ((RenderTarget)renderTarget.SelectedItem).Apply();
-            int maxChannels = ((ExportFormat)audio.SelectedItem).MaxChannels;
-            if (maxChannels < Listener.Channels.Length) {
-                throw new Exception(string.Format((string)language["ChCnt"], Listener.Channels.Length, maxChannels));
+            if (format.MaxChannels < Listener.Channels.Length) {
+                throw new Exception(string.Format((string)language["ChCnt"], Listener.Channels.Length, format.MaxChannels));
             }
 
             SoftPreRender(false);
@@ -126,10 +131,18 @@ namespace CavernizeGUI {
 
             if (!reportMode.IsChecked) {
                 SaveFileDialog dialog = new() {
-                    Filter = ((ExportFormat)audio.SelectedItem).Codec.IsEnvironmental() ?
-                        (string)language["ExBWF"] : (string)language["ExFmt"],
                     FileName = fileName.Text.Contains('.') ? fileName.Text[..fileName.Text.LastIndexOf('.')] : fileName.Text
                 };
+
+                Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
+                if (codec.IsEnvironmental()) {
+                    dialog.Filter = (string)language["ExBWF"];
+                } else if (codec == Codec.PCM_Float || codec == Codec.PCM_LE) {
+                    dialog.Filter = (string)language[ffmpeg.Found ? "ExPCM" : "ExPCR"];
+                } else {
+                    dialog.Filter = (string)language["ExFmt"];
+                }
+
                 if (dialog.ShowDialog().Value) {
                     try {
                         return Render(dialog.FileName);

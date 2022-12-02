@@ -115,7 +115,7 @@
                                           Template="{DynamicResource DarkComboBox}" SelectionChanged="OnOutputSelected"/>
                                 <TextBlock x:Name="trackInfo" Margin="0,54,0,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
                             </Grid>
-                            <Grid x:Name="renderButtons" Margin="10,0,10,10" VerticalAlignment="Bottom">
+                            <Grid Margin="10,0,10,10" VerticalAlignment="Bottom">
                                 <Button Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="100"
                                     Content="{StaticResource QuAdd}" Click="Queue"/>
                                 <Button Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
