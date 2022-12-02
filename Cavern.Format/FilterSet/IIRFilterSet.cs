@@ -7,7 +7,7 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// Room correction filter data with infinite impulse response (biquad) filter sets for each channel.
     /// </summary>
-    public abstract class IIRFilterSet {
+    public abstract class IIRFilterSet : FilterSet {
         /// <summary>
         /// Applied filter sets for each channel in the configuration file.
         /// </summary>
@@ -41,11 +41,6 @@ namespace Cavern.Format.FilterSet {
             Filters = new BiquadFilter[channels.Length][];
             Matrix = channels;
         }
-
-        /// <summary>
-        /// Export the filter set to a target file.
-        /// </summary>
-        public abstract void Export(string path);
 
         /// <summary>
         /// Apply a filter set on the target system's selected channel.

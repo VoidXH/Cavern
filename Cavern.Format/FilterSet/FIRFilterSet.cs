@@ -6,7 +6,7 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// Room correction filter data with a finite impulse response (convolution) filter for each channel.
     /// </summary>
-    public abstract class FIRFilterSet {
+    public abstract class FIRFilterSet : FilterSet {
         /// <summary>
         /// All information needed for a channel.
         /// </summary>
@@ -72,11 +72,6 @@ namespace Cavern.Format.FilterSet {
                 Channels[i].reference = channels[i];
             }
         }
-
-        /// <summary>
-        /// Export the filter set to a target file.
-        /// </summary>
-        public abstract void Export(string path);
 
         /// <summary>
         /// Setup a channel's filter and related metadata.
