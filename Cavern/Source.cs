@@ -268,7 +268,9 @@ namespace Cavern {
                     // TODO: gain correction for this in both engines
                     if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
                         if (distancer == null) {
-                            distancer = new Distancer(this);
+                            distancer = new Distancer(this) {
+                                trueGain = false
+                            };
                         }
                         distancer.Generate(direction.X > 0, samples);
                     }
