@@ -147,7 +147,7 @@ namespace Cavern.Format.Transcoders {
             /// </summary>
             /// <param name="levels">Number of quantized values</param>
             static int[] GenerateQuantization(int levels) {
-                int[] result = new int[levels];
+                int[] result = new int[levels + 1];
                 int numerator = -1 - levels;
                 for (int i = 0; i < levels; i++) {
                     result[i] = BitConversions.int24Max * (numerator += 2) / levels;
