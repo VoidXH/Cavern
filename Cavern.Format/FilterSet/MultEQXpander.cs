@@ -17,6 +17,21 @@ namespace Cavern.Format.FilterSet {
         public bool Valid { get; private set; } = true;
 
         /// <summary>
+        /// Maximum number of EQ bands per channel.
+        /// </summary>
+        public override int Bands => 10;
+
+        /// <summary>
+        /// Minimum gain of a single peaking EQ band.
+        /// </summary>
+        public override double MinGain => -12;
+
+        /// <summary>
+        /// Maximum gain of a single peaking EQ band.
+        /// </summary>
+        public override double MaxGain => 6;
+
+        /// <summary>
         /// The entire loaded configuration file.
         /// </summary>
         string fileContents;
@@ -73,15 +88,16 @@ namespace Cavern.Format.FilterSet {
 
             StringBuilder builder = new StringBuilder(fileContents[..pos]);
             for (int channel = 0; channel < guids.Length; ++channel) {
-                if (Filters[channel] == null) {
+                BiquadFilter[] filters = Channels[channel].filters;
+                if (filters == null) {
                     continue;
                 }
-                for (int filter = 0; filter < Filters[channel].Length; ++filter) {
+                for (int filter = 0; filter < filters.Length; ++filter) {
                     builder.Append(string.Format(entry,
-                        Filters[channel][filter].CenterFreq.ToString(CultureInfo.InvariantCulture),
-                        Filters[channel][filter].Gain.ToString(CultureInfo.InvariantCulture),
-                        Filters[channel][filter].Q.ToString(CultureInfo.InvariantCulture),
-                        FilterTypeID(Filters[channel][filter]),
+                        filters[filter].CenterFreq.ToString(CultureInfo.InvariantCulture),
+                        filters[filter].Gain.ToString(CultureInfo.InvariantCulture),
+                        filters[filter].Q.ToString(CultureInfo.InvariantCulture),
+                        FilterTypeID(filters[filter]),
                         guids[channel]
                     ));
                 }
@@ -93,7 +109,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Open a MultEQ-X configuration for editing.
         /// </summary>
-        protected override ReferenceChannel[] ReadFile(string path) {
+        protected override void ReadFile(string path, out ChannelData[] channels) {
             fileContents = File.ReadAllText(path);
             int pos = fileContents.IndexOf(channelList),
                 endPos = -1;
@@ -101,8 +117,9 @@ namespace Cavern.Format.FilterSet {
                 endPos = fileContents.IndexOf(']', pos += channelList.Length);
             }
             if (endPos == -1) {
+                channels = new ChannelData[0];
                 Valid = false;
-                return MultEQMatrix[0];
+                return;
             }
 
             guids = fileContents[pos..endPos].Split(',');
@@ -110,13 +127,17 @@ namespace Cavern.Format.FilterSet {
                 pos = guids[guid].IndexOf('"') + 1;
                 endPos = guids[guid].LastIndexOf('"');
                 if (pos == 0 || endPos == -1 || pos >= endPos) {
+                    channels = new ChannelData[0];
                     Valid = false;
-                    return MultEQMatrix[0];
+                    return;
                 }
                 guids[guid] = guids[guid][pos..endPos];
             }
 
-            return MultEQMatrix[guids.Length];
+            channels = new ChannelData[guids.Length];
+            for (int i = 0; i < channels.Length; i++) {
+                channels[i].reference = MultEQMatrix[channels.Length][i];
+            }
         }
 
         /// <summary>

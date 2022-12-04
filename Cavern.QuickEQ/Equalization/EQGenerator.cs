@@ -13,16 +13,6 @@ namespace Cavern.QuickEQ.Equalization {
     /// Equalizer generation functions.
     /// </summary>
     public static class EQGenerator {
-        static NumberFormatInfo NumberFormat {
-            get {
-                if (numberFormat != null) {
-                    return numberFormat;
-                }
-                return numberFormat = new NumberFormatInfo { NumberDecimalSeparator = "," };
-            }
-        }
-        static NumberFormatInfo numberFormat;
-
         /// <summary>
         /// Generate an equalizer setting to flatten the processed response of
         /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.
@@ -217,8 +207,9 @@ namespace Cavern.QuickEQ.Equalization {
             List<Band> bands = new List<Band>();
             for (int line = 0; line < lines.Length; ++line) {
                 string[] nums = lines[line].Trim().Split(' ', '\t');
-                if (nums.Length > 1 && double.TryParse(nums[0].Replace(',', '.'), NumberStyles.Any, NumberFormat, out double freq) &&
-                    double.TryParse(nums[1].Replace(',', '.'), NumberStyles.Any, NumberFormat, out double gain)) {
+                if (nums.Length > 1 && double.TryParse(nums[0].Replace(',', '.'), NumberStyles.Any,
+                    CultureInfo.InvariantCulture, out double freq) && double.TryParse(nums[1].Replace(',', '.'), NumberStyles.Any,
+                    CultureInfo.InvariantCulture, out double gain)) {
                     bands.Add(new Band(freq, gain));
                 }
             }

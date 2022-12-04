@@ -9,52 +9,118 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public abstract class IIRFilterSet : FilterSet {
         /// <summary>
-        /// Applied filter sets for each channel in the configuration file.
+        /// All information needed for a channel.
         /// </summary>
-        protected BiquadFilter[][] Filters { get; private set; }
+        protected struct ChannelData {
+            /// <summary>
+            /// Applied filter set for the channel.
+            /// </summary>
+            public BiquadFilter[] filters;
+
+            /// <summary>
+            /// Gain offset for the channel.
+            /// </summary>
+            public double gain;
+
+            /// <summary>
+            /// Delay of this channel in samples.
+            /// </summary>
+            public int delaySamples;
+
+            /// <summary>
+            /// Swap the sign for this channel.
+            /// </summary>
+            public bool switchPolarity;
+
+            /// <summary>
+            /// The reference channel describing this channel or <see cref="ReferenceChannel.Unknown"/> if not applicable.
+            /// </summary>
+            public ReferenceChannel reference;
+
+            /// <summary>
+            /// Custom label for this channel or null if not applicable.
+            /// </summary>
+            public string name;
+        }
 
         /// <summary>
-        /// Room channel layout.
+        /// Maximum number of EQ bands per channel.
         /// </summary>
-        protected ReferenceChannel[] Matrix { get; private set; }
+        public abstract int Bands { get; }
+
+        /// <summary>
+        /// Minimum gain of a single peaking EQ band.
+        /// </summary>
+        public abstract double MinGain { get; }
+
+        /// <summary>
+        /// Maximum gain of a single peaking EQ band.
+        /// </summary>
+        public abstract double MaxGain { get; }
+
+        /// <summary>
+        /// Round the gains to this precision.
+        /// </summary>
+        public virtual double GainPrecision => .01;
+
+        /// <summary>
+        /// Applied filter sets for each channel in the configuration file.
+        /// </summary>
+        protected ChannelData[] Channels { get; private set; }
 
         /// <summary>
         /// Read a room correction with IIR filter sets for each channel from a file.
         /// </summary>
-        public IIRFilterSet(string path) {
-            Matrix = ReadFile(path);
-            Filters = new BiquadFilter[Matrix.Length][];
+        public IIRFilterSet(string path) : base(defaultSampleRate) {
+            ReadFile(path, out ChannelData[] channels);
+            Channels = channels;
         }
 
         /// <summary>
         /// Construct a room correction with IIR filter sets for each channel for a room with the target number of channels.
         /// </summary>
-        public IIRFilterSet(int channels) {
-            Filters = new BiquadFilter[channels][];
-            Matrix = ChannelPrototype.GetStandardMatrix(channels);
+        public IIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
+            Channels = new ChannelData[channels];
+            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
+            for (int i = 0; i < matrix.Length; i++) {
+                Channels[i].reference = matrix[i];
+            }
         }
 
         /// <summary>
         /// Construct a room correction with IIR filter sets for each channel for a room with the target reference channels.
         /// </summary>
-        public IIRFilterSet(ReferenceChannel[] channels) {
-            Filters = new BiquadFilter[channels.Length][];
-            Matrix = channels;
+        public IIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) {
+            Channels = new ChannelData[channels.Length];
+            for (int i = 0; i < channels.Length; i++) {
+                Channels[i].reference = channels[i];
+            }
         }
 
         /// <summary>
-        /// Apply a filter set on the target system's selected channel.
+        /// Setup a channel's filter set and related metadata.
         /// </summary>
-        public void SetFilters(int channel, BiquadFilter[] filterSet) => Filters[channel] = filterSet;
+        public void SetupChannel(int channel, BiquadFilter[] filters, double gain = 0, int delaySamples = 0,
+            bool switchPolarity = false, string name = null) {
+            Channels[channel].filters = filters;
+            Channels[channel].gain = gain;
+            Channels[channel].delaySamples = delaySamples;
+            Channels[channel].switchPolarity = switchPolarity;
+            Channels[channel].name = name;
+        }
 
         /// <summary>
-        /// Apply a filter set on the target system's selected channel.
+        /// Setup a channel's filter set and related metadata.
         /// </summary>
-        public void SetFilters(ReferenceChannel channel, BiquadFilter[] filterSet) {
-            for (int i = 0; i < Matrix.Length; ++i) {
-                if (Matrix[i] == channel) {
-                    Filters[i] = filterSet;
-                    return;
+        public void SetupChannel(ReferenceChannel channel, BiquadFilter[] filters,
+            double gain = 0, int delaySamples = 0, bool switchPolarity = false, string name = null) {
+            for (int i = 0; i < Channels.Length; i++) {
+                if (Channels[i].reference == channel) {
+                    Channels[i].filters = filters;
+                    Channels[i].gain = gain;
+                    Channels[i].delaySamples = delaySamples;
+                    Channels[i].switchPolarity = switchPolarity;
+                    Channels[i].name = name;
                 }
             }
         }
@@ -62,7 +128,6 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// When overridden, the filter set supports file import through this function.
         /// </summary>
-        /// <returns>Room layout</returns>
-        protected virtual ReferenceChannel[] ReadFile(string path) => throw new NotImplementedException();
+        protected virtual void ReadFile(string path, out ChannelData[] channels) => throw new NotImplementedException();
     }
 }

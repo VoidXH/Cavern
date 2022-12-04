@@ -33,11 +33,6 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Sample rate of the filter set.
-        /// </summary>
-        protected int SampleRate { get; private set; }
-
-        /// <summary>
         /// Applied convolution filters for each channel in the configuration file.
         /// </summary>
         protected ChannelData[] Channels { get; private set; }
@@ -45,7 +40,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Read a room correction with a FIR filter for each channel from a file.
         /// </summary>
-        public FIRFilterSet(string path) {
+        public FIRFilterSet(string path) : base(defaultSampleRate) {
             ReadFile(path, out ChannelData[] channels);
             Channels = channels;
         }
@@ -53,8 +48,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target number of channels.
         /// </summary>
-        public FIRFilterSet(int channels, int sampleRate) {
-            SampleRate = sampleRate;
+        public FIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
             Channels = new ChannelData[channels];
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
             for (int i = 0; i < matrix.Length; i++) {
@@ -65,8 +59,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target reference channels.
         /// </summary>
-        public FIRFilterSet(ReferenceChannel[] channels, int sampleRate) {
-            SampleRate = sampleRate;
+        public FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) {
             Channels = new ChannelData[channels.Length];
             for (int i = 0; i < channels.Length; i++) {
                 Channels[i].reference = channels[i];

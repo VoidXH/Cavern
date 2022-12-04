@@ -1,7 +1,20 @@
 ﻿using System;
 
 namespace Cavern.Format.FilterSet {
+    /// <summary>
+    /// A filter set containing equalization info for each channel of a system.
+    /// </summary>
     public abstract class FilterSet {
+        /// <summary>
+        /// Sample rate of the filter set.
+        /// </summary>
+        public int SampleRate { get; private set; }
+
+        /// <summary>
+        /// A filter set containing equalization info for each channel of a system on a given sample rate.
+        /// </summary>
+        public FilterSet(int sampleRate) => SampleRate = sampleRate;
+
         /// <summary>
         /// Export the filter set to a target file.
         /// </summary>
@@ -12,11 +25,22 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public static FilterSet Create(FilterSetTarget device, int channels, int sampleRate) {
             return device switch {
-                FilterSetTarget.EqualizerAPO => new EqualizerAPOFIRFilterSet(channels, sampleRate),
+                FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
+                FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException(),
             };
         }
+
+        /// <summary>
+        /// Convert a delay from samples to milliseconds.
+        /// </summary>
+        protected double GetDelay(int samples) => samples * 1000.0 / SampleRate;
+
+        /// <summary>
+        /// A default sample rate when it's not important.
+        /// </summary>
+        protected const int defaultSampleRate = 48000;
     }
 
     /// <summary>
@@ -28,10 +52,14 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Equalizer APO for Windows.
         /// </summary>
-        EqualizerAPO,
+        EqualizerAPO_FIR,
         /// <summary>
         /// CamillaDSP for Windows/Mac/Linux.
         /// </summary>
         CamillaDSP,
+        /// <summary>
+        /// StormAudio ISP processors.
+        /// </summary>
+        StormAudio,
     }
 }
