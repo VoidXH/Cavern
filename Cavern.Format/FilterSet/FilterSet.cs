@@ -28,9 +28,15 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
+                FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException(),
             };
         }
+
+        /// <summary>
+        /// Get the short name of a channel written to the configuration file to select that channel for setup.
+        /// </summary>
+        protected virtual string GetLabel(int channel) => "CH" + channel;
 
         /// <summary>
         /// Convert a delay from samples to milliseconds.
@@ -61,5 +67,9 @@ namespace Cavern.Format.FilterSet {
         /// StormAudio ISP processors.
         /// </summary>
         StormAudio,
+        /// <summary>
+        /// Emotiva XMC processors.
+        /// </summary>
+        Emotiva,
     }
 }

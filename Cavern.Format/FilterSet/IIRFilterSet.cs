@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 using Cavern.Filters;
 using Cavern.Remapping;
@@ -129,5 +131,28 @@ namespace Cavern.Format.FilterSet {
         /// When overridden, the filter set supports file import through this function.
         /// </summary>
         protected virtual void ReadFile(string path, out ChannelData[] channels) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Create the file with gain/delay/polarity info as the root document that's saved in the save dialog.
+        /// </summary>
+        protected void CreateRootFile(string path, string filterFileExtension) {
+            string fileNameBase = Path.GetFileName(path);
+            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+            List<string> result = new List<string> {
+                $"Set up delays and levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ."
+            };
+            for (int i = 0, c = Channels.Length; i < c; i++) {
+                result.Add(string.Empty);
+                result.Add("Channel: " + GetLabel(i));
+                if (Channels[i].delaySamples != 0) {
+                    result.Add("Delay: " + GetDelay(Channels[i].delaySamples).ToString("0.0 ms"));
+                }
+                result.Add("Level: " + Channels[i].gain.ToString("0.0 dB"));
+                if (Channels[i].switchPolarity) {
+                    result.Add("Switch polarity");
+                }
+            }
+            File.WriteAllLines(path, result);
+        }
     }
 }
