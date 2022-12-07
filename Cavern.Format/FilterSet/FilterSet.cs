@@ -26,6 +26,7 @@ namespace Cavern.Format.FilterSet {
         public static FilterSet Create(FilterSetTarget device, int channels, int sampleRate) {
             return device switch {
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
+                FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
@@ -56,9 +57,13 @@ namespace Cavern.Format.FilterSet {
     /// are not included as a single measurement can't be exported to them.</remarks>
     public enum FilterSetTarget {
         /// <summary>
-        /// Equalizer APO for Windows.
+        /// Equalizer APO for Windows using convolution filters.
         /// </summary>
         EqualizerAPO_FIR,
+        /// <summary>
+        /// Equalizer APO for Windows using peaking EQs.
+        /// </summary>
+        EqualizerAPO_IIR,
         /// <summary>
         /// CamillaDSP for Windows/Mac/Linux.
         /// </summary>
