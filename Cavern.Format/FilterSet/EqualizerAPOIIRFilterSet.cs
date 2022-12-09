@@ -23,7 +23,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Maximum gain of a single peaking EQ band.
         /// </summary>
-        public override double MaxGain => 6;
+        public override double MaxGain => 20;
 
         /// <summary>
         /// Round the gains to this precision.

@@ -25,12 +25,13 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public static FilterSet Create(FilterSetTarget device, int channels, int sampleRate) {
             return device switch {
+                FilterSetTarget.Generic => new GenericFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
-                _ => throw new NotSupportedException(),
+                _ => throw new NotSupportedException()
             };
         }
 
@@ -56,6 +57,10 @@ namespace Cavern.Format.FilterSet {
     /// <remarks>Targets that need multiple passes (like MultEQ-X with its measure, load, measure, save process)
     /// are not included as a single measurement can't be exported to them.</remarks>
     public enum FilterSetTarget {
+        /// <summary>
+        /// IIR filter sets in a commonly accepted format for maximum compatibility.
+        /// </summary>
+        Generic,
         /// <summary>
         /// Equalizer APO for Windows using convolution filters.
         /// </summary>
