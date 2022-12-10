@@ -58,16 +58,16 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="header">Extra text to be added to the first line of the file</param>
         /// <param name="level">Gain at the center of the curve</param>
         public void Export(string path, double level, string header = null) {
-            int i = header != null ? 1 : 0, c = bands.Count;
-            string[] calFile = new string[bands.Count + i];
+            int start = header != null ? 1 : 0, c = bands.Count;
+            string[] calFile = new string[bands.Count + start];
             if (header != null) {
                 calFile[0] = header;
             }
 
             double normalize = bands[c / 2].Gain - level;
             CultureInfo culture = CultureInfo.InvariantCulture;
-            for (; i < c; ++i) {
-                calFile[i + 1] = $"{bands[i].Frequency.ToString(culture)} {(bands[i].Gain - normalize).ToString(culture)}";
+            for (int band = 0; band < c; ++band) {
+                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {(bands[band].Gain - normalize).ToString(culture)}";
             }
             File.WriteAllLines(path, calFile);
         }
