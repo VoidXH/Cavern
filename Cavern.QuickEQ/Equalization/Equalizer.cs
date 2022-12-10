@@ -252,6 +252,9 @@ namespace Cavern.QuickEQ.Equalization {
             }
         }
 
+        /// <summary>
+        /// Determine the highest amplification of the filter.
+        /// </summary>
         void RecalculatePeakGain() {
             if (bands.Count == 0) {
                 PeakGain = 0;

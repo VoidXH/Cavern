@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 
 using Cavern.Utilities;
 
@@ -47,6 +49,27 @@ namespace Cavern.QuickEQ.Equalization {
                 response[i] *= (float)Math.Pow(10, filter[i] * .05f);
                 response[^i] = new Complex(response[i].Real, -response[i].Imaginary);
             }
+        }
+
+        /// <summary>
+        /// Save this EQ to a file in the standard curve/calibration format.
+        /// </summary>
+        /// <param name="path">Export path of the file</param>
+        /// <param name="header">Extra text to be added to the first line of the file</param>
+        /// <param name="level">Gain at the center of the curve</param>
+        public void Export(string path, double level, string header = null) {
+            int i = header != null ? 1 : 0, c = bands.Count;
+            string[] calFile = new string[bands.Count + i];
+            if (header != null) {
+                calFile[0] = header;
+            }
+
+            double normalize = bands[c / 2].Gain - level;
+            CultureInfo culture = CultureInfo.InvariantCulture;
+            for (; i < c; ++i) {
+                calFile[i + 1] = $"{bands[i].Frequency.ToString(culture)} {(bands[i].Gain - normalize).ToString(culture)}";
+            }
+            File.WriteAllLines(path, calFile);
         }
 
         /// <summary>
