@@ -55,8 +55,8 @@ namespace Cavern.QuickEQ.Equalization {
         /// Save this EQ to a file in the standard curve/calibration format.
         /// </summary>
         /// <param name="path">Export path of the file</param>
-        /// <param name="header">Extra text to be added to the first line of the file</param>
         /// <param name="level">Gain at the center of the curve</param>
+        /// <param name="header">Extra text to be added to the first line of the file</param>
         public void Export(string path, double level, string header = null) {
             int start = header != null ? 1 : 0, c = bands.Count;
             string[] calFile = new string[bands.Count + start];
@@ -69,6 +69,30 @@ namespace Cavern.QuickEQ.Equalization {
             for (int band = 0; band < c; ++band) {
                 calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {(bands[band].Gain - normalize).ToString(culture)}";
             }
+            File.WriteAllLines(path, calFile);
+        }
+
+        /// <summary>
+        /// Save this EQ to a file in Dirac's curve format.
+        /// </summary>
+        /// <param name="path">Export path of the file</param>
+        /// <param name="level">Gain at the center of the curve</param>
+        /// <param name="header">Extra text to be added to the first line of the file</param>
+        public void ExportToDirac(string path, double level, string header = null) {
+            int start = header != null ? 2 : 1, c = bands.Count;
+            string[] calFile = new string[1 + diracFooter.Length + bands.Count + start];
+            if (header != null) {
+                calFile[0] = '#' + header;
+            }
+            calFile[start - 1] = "BREAKPOINTS";
+
+            double normalize = bands[c / 2].Gain - level;
+            CultureInfo culture = CultureInfo.InvariantCulture;
+            for (int band = 0; band < c; ++band) {
+                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {(bands[band].Gain - normalize).ToString(culture)}";
+            }
+
+            Array.Copy(diracFooter, 0, calFile, start + c, diracFooter.Length);
             File.WriteAllLines(path, calFile);
         }
 
@@ -134,5 +158,11 @@ namespace Cavern.QuickEQ.Equalization {
         /// Add windowing on the right of the curve. Windowing is applied logarithmically.
         /// </summary>
         public void Window(Window right, double startFreq, double endFreq) => ApplyWindow(bands, right, startFreq, endFreq);
+
+        /// <summary>
+        /// End of a Dirac calibration file. We don't need these features for FIR.
+        /// </summary>
+        static readonly string[] diracFooter = { "HPSLOPEON", "0", "LPSLOPEON", "0", "HPCUTOFF", "10", "LPCUTOFF", "24000",
+            "HPORDER", "4", "LPORDER", "4", "LOWLIMITHZ", "10", "HIGHLIMITHZ", "24000" };
     }
 }
