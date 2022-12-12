@@ -11,7 +11,7 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class EmotivaFilterSet : IIRFilterSet {
         /// <summary>
-        /// Maximum number of EQ bands per channel.
+        /// Maximum number of peaking EQ filters per channel.
         /// </summary>
         public override int Bands => 12;
 
@@ -68,19 +68,18 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
-        protected override string GetLabel(int channel) => Channels[channel].name ?? (channel > 7 ? "channel" + (channel + 1) :
-            Channels.Length < 7 ? labels51[channel] : labels71[channel]);
+        protected override string GetLabel(int channel) => channel > 7 ? base.GetLabel(channel) :
+            Channels.Length < 7 ? labels51[channel] : labels71[channel];
 
         /// <summary>
         /// 5.1 layout labels in order for Emotiva hardware.
         /// </summary>
-        static readonly string[] labels51 = new string[] { "leftFront", "rightFront", "center", "centerSubwoofer",
-            "leftSurround", "rightSurround" };
+        static readonly string[] labels51 = { "leftFront", "rightFront", "center", "centerSubwoofer", "leftSurround", "rightSurround" };
 
         /// <summary>
         /// 7.1 layout labels in order for Emotiva hardware.
         /// </summary>
-        static readonly string[] labels71 = new string[] { "leftFront", "rightFront", "center", "centerSubwoofer",
+        static readonly string[] labels71 = { "leftFront", "rightFront", "center", "centerSubwoofer",
             "leftBack", "rightBack", "leftSurround", "rightSurround" };
     }
 }

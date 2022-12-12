@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-
-using Cavern.Filters;
-
-namespace Cavern.Format.FilterSet {
+﻿namespace Cavern.Format.FilterSet {
     /// <summary>
     /// IIR filter set for StormAudio hardware.
     /// </summary>
     public class StormAudioFilterSet : GenericFilterSet {
         /// <summary>
-        /// Maximum number of EQ bands per channel.
+        /// Maximum number of peaking EQ filters per channel.
         /// </summary>
         public override int Bands => 12;
 
@@ -38,17 +31,17 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
-        protected override string GetLabel(int channel) => Channels[channel].name ?? (channel > 7 ? "CH" + (channel + 1) :
-            Channels.Length < 7 ? labels51[channel] : labels71[channel]);
+        protected override string GetLabel(int channel) => channel > 7 ? base.GetLabel(channel) :
+            Channels.Length < 7 ? labels51[channel] : labels71[channel];
 
         /// <summary>
         /// 5.1 layout labels in order for StormAudio hardware.
         /// </summary>
-        static readonly string[] labels51 = new string[] { "LF", "RF", "CF", "SUB", "LS", "RS" };
+        static readonly string[] labels51 = { "LF", "RF", "CF", "SUB", "LS", "RS" };
 
         /// <summary>
         /// 7.1 layout labels in order for StormAudio hardware.
         /// </summary>
-        static readonly string[] labels71 = new string[] { "LF", "RF", "CF", "SUB", "LB", "RB", "LS", "RS" };
+        static readonly string[] labels71 = { "LF", "RF", "CF", "SUB", "LB", "RB", "LS", "RS" };
     }
 }

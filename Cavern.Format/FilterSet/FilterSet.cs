@@ -29,8 +29,11 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
-                FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
+                FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
+                FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
+                FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
+                FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
         }
@@ -38,12 +41,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
-        protected virtual string GetLabel(int channel) => "CH" + channel;
-
-        /// <summary>
-        /// Convert a delay from samples to milliseconds.
-        /// </summary>
-        protected double GetDelay(int samples) => samples * 1000.0 / SampleRate;
+        protected virtual string GetLabel(int channel) => "CH" + (channel + 1);
 
         /// <summary>
         /// A default sample rate when it's not important.
@@ -61,6 +59,10 @@ namespace Cavern.Format.FilterSet {
         /// IIR filter sets in a commonly accepted format for maximum compatibility.
         /// </summary>
         Generic,
+
+        // -------------------------------------------------------------------------
+        // PC targets --------------------------------------------------------------
+        // -------------------------------------------------------------------------
         /// <summary>
         /// Equalizer APO for Windows using convolution filters.
         /// </summary>
@@ -73,13 +75,37 @@ namespace Cavern.Format.FilterSet {
         /// CamillaDSP for Windows/Mac/Linux.
         /// </summary>
         CamillaDSP,
+
+        // -------------------------------------------------------------------------
+        // External DSP hardware ---------------------------------------------------
+        // -------------------------------------------------------------------------
         /// <summary>
-        /// StormAudio ISP processors.
+        /// MiniDSP 2x4 Advanced plugin for the standard MiniDSP 2x4.
         /// </summary>
-        StormAudio,
+        MiniDSP2x4Advanced,
+        /// <summary>
+        /// MiniDSP 2x4 HD hardware DSP.
+        /// </summary>
+        MiniDSP2x4HD,
+
+        // -------------------------------------------------------------------------
+        // AVRs and processors -----------------------------------------------------
+        // -------------------------------------------------------------------------
         /// <summary>
         /// Emotiva XMC processors.
         /// </summary>
         Emotiva,
+        /// <summary>
+        /// StormAudio ISP processors.
+        /// </summary>
+        StormAudio,
+
+        // -------------------------------------------------------------------------
+        // Amplifiers --------------------------------------------------------------
+        // -------------------------------------------------------------------------
+        /// <summary>
+        /// Behringer NX-series stereo amplifiers.
+        /// </summary>
+        BehringerNX,
     }
 }

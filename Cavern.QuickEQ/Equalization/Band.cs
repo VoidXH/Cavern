@@ -40,7 +40,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Band data as text.
         /// </summary>
-        public override string ToString() => string.Format("{0} Hz: {1} dB", Frequency, Gain);
+        public override string ToString() => $"{Frequency} Hz: {Gain} dB";
 
         /// <summary>
         /// Compare bands by frequency.

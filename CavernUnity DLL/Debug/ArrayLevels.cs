@@ -34,7 +34,7 @@ namespace Cavern.Debug {
             topR = 8,
             LFE = 9;
 
-        readonly static string[] markers = new string[] { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
+        readonly static string[] markers = { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
 
         readonly static Color[] channelColors = new Color[] {
             ColorUtils.frontJack, ColorUtils.centerJack, ColorUtils.frontJack,

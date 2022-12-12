@@ -89,6 +89,11 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
+        /// Get the short name of a channel written to the configuration file to select that channel for setup.
+        /// </summary>
+        protected override string GetLabel(int channel) => Channels[channel].name ?? base.GetLabel(channel);
+
+        /// <summary>
         /// When overridden, the filter set supports file import through this function.
         /// </summary>
         protected virtual void ReadFile(string path, out ChannelData[] channels) => throw new NotImplementedException();

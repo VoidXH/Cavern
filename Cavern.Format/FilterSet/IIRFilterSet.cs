@@ -46,7 +46,7 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Maximum number of EQ bands per channel.
+        /// Maximum number of peaking EQ filters per channel.
         /// </summary>
         public abstract int Bands { get; }
 
@@ -128,6 +128,11 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
+        /// Get the short name of a channel written to the configuration file to select that channel for setup.
+        /// </summary>
+        protected override string GetLabel(int channel) => Channels[channel].name ?? base.GetLabel(channel);
+
+        /// <summary>
         /// When overridden, the filter set supports file import through this function.
         /// </summary>
         protected virtual void ReadFile(string path, out ChannelData[] channels) => throw new NotImplementedException();
@@ -145,7 +150,7 @@ namespace Cavern.Format.FilterSet {
                 result.Add(string.Empty);
                 result.Add("Channel: " + GetLabel(i));
                 if (Channels[i].delaySamples != 0) {
-                    result.Add("Delay: " + GetDelay(Channels[i].delaySamples).ToString("0.0 ms"));
+                    result.Add("Delay: " + GetDelay(i).ToString("0.0 ms"));
                 }
                 result.Add("Level: " + Channels[i].gain.ToString("0.0 dB"));
                 if (Channels[i].switchPolarity) {
@@ -154,5 +159,10 @@ namespace Cavern.Format.FilterSet {
             }
             File.WriteAllLines(path, result);
         }
+
+        /// <summary>
+        /// Get the delay for a given channel in milliseconds instead of samples.
+        /// </summary>
+        protected double GetDelay(int channel) => Channels[channel].delaySamples * 1000.0 / SampleRate;
     }
 }

@@ -16,9 +16,6 @@ Cavernize.
 
 ## Features
 * Unlimited objects and output channels without position restrictions
-* Advanced self-calibration with a microphone
-	* Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
-	* Uniformity can be achieved without a calibration file
 * Audio transcoder library with a custom spatial format
 	* Supported codecs:
 	  * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
@@ -26,6 +23,15 @@ Cavernize.
 	  * RIFF WAVE
 	  * Audio Definition Model Broadcast Wave Format
 	* Supported containers: .ac3, .eac3, .ec3, .laf, .mka, .mkv, .wav
+* Advanced self-calibration with a microphone
+	* Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
+	* Uniformity can be achieved without a calibration file
+	* Supported software/hardware for EQ/filter set export:
+    * PC: Equalizer APO, CamillaDSP
+    * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD
+    * Processors: Emotiva, StormAudio
+    * Amplifiers: Behringer NX series
+    * Others: Audyssey MultEQ-X
 * Direction and distance virtualization for headphones
 * Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats

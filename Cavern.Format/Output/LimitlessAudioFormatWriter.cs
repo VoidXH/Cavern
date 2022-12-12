@@ -68,7 +68,7 @@ namespace Cavern.Format {
                 BitDepth.Int16 => (byte)LAFMode.Int16,
                 BitDepth.Int24 => (byte)LAFMode.Int24,
                 BitDepth.Float32 => (byte)LAFMode.Float32,
-                _ => throw new IOException(string.Format("Unsupported bit depth: {0}.", Bits))
+                _ => throw new IOException($"Unsupported bit depth: {Bits}.")
             };
             writer.Write(qualityByte);
             writer.Write((byte)0); // Channel mode indicator

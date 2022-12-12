@@ -48,17 +48,16 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Channels in the 4.0 layout of Equalizer APO.
         /// </summary>
-        static readonly string[] APO40 = new string[] { frontLeft, frontRight, rearLeft, rearRight };
+        static readonly string[] APO40 = { frontLeft, frontRight, rearLeft, rearRight };
 
         /// <summary>
         /// Channels in the 5.1 layout of Equalizer APO.
         /// </summary>
-        static readonly string[] APO51 = new string[] { frontLeft, frontRight, frontCenter, screenLFE, sideLeft, sideRight };
+        static readonly string[] APO51 = { frontLeft, frontRight, frontCenter, screenLFE, sideLeft, sideRight };
 
         /// <summary>
         /// Channels in the 7.1 layout of Equalizer APO.
         /// </summary>
-        static readonly string[] APO71 = new string[] { frontLeft, frontRight, frontCenter, screenLFE, rearLeft, rearRight,
-            sideLeft, sideRight };
+        static readonly string[] APO71 = { frontLeft, frontRight, frontCenter, screenLFE, rearLeft, rearRight, sideLeft, sideRight };
     }
 }

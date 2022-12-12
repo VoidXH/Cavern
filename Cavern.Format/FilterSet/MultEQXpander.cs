@@ -17,7 +17,7 @@ namespace Cavern.Format.FilterSet {
         public bool Valid { get; private set; } = true;
 
         /// <summary>
-        /// Maximum number of EQ bands per channel.
+        /// Maximum number of peaking EQ filters per channel.
         /// </summary>
         public override int Bands => 10;
 

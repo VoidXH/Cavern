@@ -11,7 +11,7 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class EqualizerAPOIIRFilterSet : IIRFilterSet {
         /// <summary>
-        /// Maximum number of EQ bands per channel.
+        /// Maximum number of peaking EQ filters per channel.
         /// </summary>
         public override int Bands => 20;
 
@@ -50,7 +50,7 @@ namespace Cavern.Format.FilterSet {
                 configFile.Add("Channel: " + GetLabel(i));
                 configFile.Add($"Preamp: {Channels[i].gain} dB");
                 if (Channels[i].delaySamples != 0) {
-                    configFile.Add($"Delay: {GetDelay(Channels[i].delaySamples)} ms");
+                    configFile.Add($"Delay: {GetDelay(i)} ms");
                 }
                 BiquadFilter[] filters = Channels[i].filters;
                 for (int j = 0; j < filters.Length; j++) {

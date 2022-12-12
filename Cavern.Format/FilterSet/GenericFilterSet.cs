@@ -11,7 +11,7 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class GenericFilterSet : IIRFilterSet {
         /// <summary>
-        /// Maximum number of EQ bands per channel.
+        /// Maximum number of peaking EQ filters per channel.
         /// </summary>
         public override int Bands => 20;
 
