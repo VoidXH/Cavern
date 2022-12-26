@@ -38,7 +38,7 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Linearized <see cref="CalculateAngleMatches(int, Vector3, MatchModifierFunc)"/>:
+        /// Linearized <see cref="CalculateAngleMatches(int, Vector3)"/>:
         /// pi / 2 - pi / 2 * x, angle match: pi - (lin acos) = pi / 2 + pi / 2 * x.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

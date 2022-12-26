@@ -66,89 +66,59 @@ namespace CavernizeGUI.Elements {
         public static readonly RenderTarget[] Targets = {
             new RenderTarget("5.1 side", ChannelPrototype.GetStandardMatrix(6)),
             new RenderTarget("5.1 rear", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight
             }),
             new RenderTarget("5.1.2 front", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
             }),
             new RenderTarget("5.1.2 side", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,  ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("5.1.4", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("5.1.6", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("7.1", ChannelPrototype.GetStandardMatrix(8)),
             new RenderTarget("7.1.2 front", ChannelPrototype.GetStandardMatrix(10)),
             new RenderTarget("7.1.2 side", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
-            new RenderTarget("7.1.4", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }),
-            new RenderTarget("7.1.6", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
-            }),
+            new RenderTarget("7.1.4", ChannelPrototype.GetStandardMatrix(12)),
+            new RenderTarget("7.1.6", ChannelPrototype.GetStandardMatrix(14)),
             new RenderTarget("9.1", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight
             }),
             new RenderTarget("9.1.2 front", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
             }),
             new RenderTarget("9.1.2 side", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("9.1.4", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
-            new RenderTarget("9.1.6", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
-            }),
+            new RenderTarget("9.1.6", ChannelPrototype.GetStandardMatrix(16)),
             new DriverRenderTarget(),
             new VirtualizerRenderTarget()
         };

@@ -220,6 +220,11 @@ namespace Cavern {
         /// </summary>
         static float filterNormalizer = 1;
 
+        /// <summary>
+        /// Active virtualization filter.
+        /// </summary>
+        VirtualizerFilter virtualizer;
+
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Awake() {
             if (Current) {
@@ -278,7 +283,10 @@ namespace Cavern {
                     renderBuffer = Resample.Adaptive(renderBuffer,
                         renderBuffer.Length / channels * SystemSampleRate / cachedSampleRate, channels, AudioQuality);
                     // If the listener didn't perform virtualization for sample rate mismatch, do it here
-                    VirtualizerFilter.Process(renderBuffer, SystemSampleRate);
+                    if (virtualizer == null) {
+                        virtualizer = new VirtualizerFilter();
+                    }
+                    virtualizer.Process(renderBuffer, SystemSampleRate);
                 }
                 int end = filterOutput.Length,
                     altEnd = bufferPosition + renderBuffer.Length / channels * unityChannels;
