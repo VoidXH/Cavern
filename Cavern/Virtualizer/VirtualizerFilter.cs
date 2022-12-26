@@ -8,46 +8,83 @@ namespace Cavern.Virtualizer {
     /// <summary>
     /// Convolution filters for each ear and virtual channel to simulate a spatial environment.
     /// </summary>
-    public static partial class VirtualizerFilter {
+    public partial class VirtualizerFilter {
+        /// <summary>
+        /// Sample rate of the recorded HRIR filters. Only this system sample rate is allowed for virtualization.
+        /// </summary>
+        public static int FilterSampleRate { get; private set; } = defaultSampleRate;
+
+        /// <summary>
+        /// The active filter set's impulses were measured at this distance, meters.
+        /// </summary>
+        public static float ReferenceDistance { get; private set; } = defaultDistance;
+
+        /// <summary>
+        /// Active virtualized channels and their corresponding filters.
+        /// </summary>
+        static VirtualChannel[] SpatialChannels {
+            get => spatialChannels ??= GetDefaultHRIRSet();
+            set => spatialChannels = value;
+        }
+        static VirtualChannel[] spatialChannels;
+
         /// <summary>
         /// Cache of each output channel.
         /// </summary>
-        static float[][] originalSplit;
+        float[][] originalSplit;
 
         /// <summary>
         /// Cache of each output channel for one ear.
         /// </summary>
-        static float[][] leftSplit, rightSplit;
+        float[][] leftSplit, rightSplit;
 
         /// <summary>
         /// Length of split arrays.
         /// </summary>
-        static int blockSize;
+        int blockSize;
 
         /// <summary>
         /// Cached channel IDs for center hack.
         /// </summary>
-        static int left = unassigned, right = unassigned, center = unassigned;
+        int left = unassigned, right = unassigned, center = unassigned;
 
         /// <summary>
         /// Center hack: add a 7.5 ms -20 dB delay of the center to fronts to simulate a wall echo for better immersion.
         /// </summary>
-        static Delay centerDelay;
+        Delay centerDelay;
 
         /// <summary>
         /// Delayed center channel signal for center hack.
         /// </summary>
-        static float[] delayedCenter;
+        float[] delayedCenter;
+
+        /// <summary>
+        /// Apply a new set of HRIR filters.
+        /// </summary>
+        public static void Override(VirtualChannel[] channels, int sampleRate, float referenceDistance = 1) {
+            SpatialChannels = channels;
+            FilterSampleRate = sampleRate;
+            ReferenceDistance = referenceDistance;
+        }
+
+        /// <summary>
+        /// Restore the default HRIR filter set.
+        /// </summary>
+        public static void Reset() {
+            SpatialChannels = GetDefaultHRIRSet();
+            FilterSampleRate = defaultSampleRate;
+            ReferenceDistance = defaultDistance;
+        }
 
         /// <summary>
         /// Set up virtual channel set for the virtualization filters.
         /// </summary>
-        public static void SetLayout() {
+        public void SetLayout() {
             bool setAgain = centerDelay == null;
-            if (Listener.Channels.Length == spatialChannels.Length) {
-                for (int channel = 0; channel < spatialChannels.Length; ++channel) {
-                    if (Listener.Channels[channel].X != spatialChannels[channel].x ||
-                        Listener.Channels[channel].Y != spatialChannels[channel].y) {
+            if (Listener.Channels.Length == SpatialChannels.Length) {
+                for (int channel = 0; channel < SpatialChannels.Length; ++channel) {
+                    if (Listener.Channels[channel].X != SpatialChannels[channel].x ||
+                        Listener.Channels[channel].Y != SpatialChannels[channel].y) {
                         setAgain = true;
                         break;
                     }
@@ -59,25 +96,25 @@ namespace Cavern.Virtualizer {
                 return;
             }
 
-            centerDelay = new Delay(.0075f, filterSampleRate);
-            Channel[] newChannels = new Channel[spatialChannels.Length];
-            for (int channel = 0; channel < spatialChannels.Length; ++channel) {
-                newChannels[channel] = new Channel(spatialChannels[channel].x, spatialChannels[channel].y);
-                if (spatialChannels[channel].x == 0) {
-                    if (spatialChannels[channel].y == 0) {
+            centerDelay = new Delay(.0075f, FilterSampleRate);
+            Channel[] newChannels = new Channel[SpatialChannels.Length];
+            for (int channel = 0; channel < SpatialChannels.Length; ++channel) {
+                newChannels[channel] = new Channel(SpatialChannels[channel].x, SpatialChannels[channel].y);
+                if (SpatialChannels[channel].x == 0) {
+                    if (SpatialChannels[channel].y == 0) {
                         center = channel;
-                    } else if (spatialChannels[channel].y == -45) {
+                    } else if (SpatialChannels[channel].y == -45) {
                         left = channel;
-                    } else if (spatialChannels[channel].y == 45) {
+                    } else if (SpatialChannels[channel].y == 45) {
                         right = channel;
                     }
                 }
             }
             Listener.ReplaceChannels(newChannels);
-            originalSplit = new float[spatialChannels.Length][];
-            leftSplit = new float[spatialChannels.Length][];
-            rightSplit = new float[spatialChannels.Length][];
-            for (int channel = 0; channel < spatialChannels.Length; ++channel) {
+            originalSplit = new float[SpatialChannels.Length][];
+            leftSplit = new float[SpatialChannels.Length][];
+            rightSplit = new float[SpatialChannels.Length][];
+            for (int channel = 0; channel < SpatialChannels.Length; ++channel) {
                 rightSplit[channel] = new float[0];
             }
             originalSplit[0] = new float[0];
@@ -87,10 +124,10 @@ namespace Cavern.Virtualizer {
         /// Apply the virtualizer on the <see cref="Listener"/>'s output,
         /// if the configuration matches the virtualization layout and filter sample rate.
         /// </summary>
-        public static void Process(float[] output, int sampleRate) {
+        public void Process(float[] output, int sampleRate) {
             int channels = Listener.Channels.Length;
             blockSize = output.Length / channels;
-            if (originalSplit == null || sampleRate != filterSampleRate) {
+            if (originalSplit == null || sampleRate != FilterSampleRate) {
                 return;
             }
 
@@ -133,9 +170,9 @@ namespace Cavern.Virtualizer {
         /// <summary>
         /// Split and convolve a single channel by ID.
         /// </summary>
-        static void ProcessChannel(int channel) {
+        void ProcessChannel(int channel) {
             // Select the retain range
-            Crossover lowCrossover = spatialChannels[channel].Crossover;
+            Crossover lowCrossover = SpatialChannels[channel].Crossover;
             lowCrossover.Process(originalSplit[channel]);
             originalSplit[channel] = lowCrossover.LowOutput;
 
@@ -145,14 +182,8 @@ namespace Cavern.Virtualizer {
             }
             leftSplit[channel] = lowCrossover.HighOutput;
             Array.Copy(leftSplit[channel], rightSplit[channel], blockSize);
-            spatialChannels[channel].Filter.Process(leftSplit[channel], rightSplit[channel]);
+            SpatialChannels[channel].Filter.Process(leftSplit[channel], rightSplit[channel]);
         }
-
-
-        /// <summary>
-        /// Sample rate of the recorded HRIR filters. Only this system sample rate is allowed for virtualization.
-        /// </summary>
-        public const int filterSampleRate = 48000;
 
         /// <summary>
         /// Marker instead of a channel ID when a channel was not set.

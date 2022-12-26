@@ -146,8 +146,8 @@ namespace Cavern.Virtualizer {
 
             // Apply gains
             float angleDiff = MathF.Sin(rawAngle) * .097f;
-            float ratioDiff = (distance + angleDiff) * (VirtualizerFilter.referenceDistance - angleDiff) /
-                             ((distance - angleDiff) * (VirtualizerFilter.referenceDistance + angleDiff));
+            float ratioDiff = (distance + angleDiff) * (VirtualizerFilter.ReferenceDistance - angleDiff) /
+                             ((distance - angleDiff) * (VirtualizerFilter.ReferenceDistance + angleDiff));
             ratioDiff *= ratioDiff;
             if (right) {
                 if (ratioDiff < 1) {

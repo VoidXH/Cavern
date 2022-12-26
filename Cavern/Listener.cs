@@ -149,7 +149,10 @@ namespace Cavern {
         /// <summary>
         /// If active, the normalizer won't increase the volume above 100%.
         /// </summary>
-        public bool LimiterOnly { get; set; } = true;
+        public bool LimiterOnly {
+            get => normalizer.limiterOnly;
+            set => normalizer.limiterOnly = value;
+        }
 
         // ------------------------------------------------------------------
         // Advanced settings
@@ -209,16 +212,6 @@ namespace Cavern {
         static Vector3 environmentSize = new Vector3(10, 7, 10);
 
         /// <summary>
-        /// Attached <see cref="Source"/>s.
-        /// </summary>
-        readonly LinkedList<Source> activeSources = new LinkedList<Source>();
-
-        /// <summary>
-        /// All sources from the last frame, rendered to the active <see cref="Channels"/>.
-        /// </summary>
-        readonly List<float[]> results = new List<float[]>();
-
-        /// <summary>
         /// Position between the last and current game frame's playback position.
         /// </summary>
         internal float pulseDelta;
@@ -229,9 +222,19 @@ namespace Cavern {
         internal float[] sourceDistances = new float[defaultSourceLimit];
 
         /// <summary>
-        /// Listener normalizer gain.
+        /// Attached <see cref="Source"/>s.
         /// </summary>
-        float normalization = 1;
+        readonly LinkedList<Source> activeSources = new LinkedList<Source>();
+
+        /// <summary>
+        /// All sources from the last frame, rendered to the active <see cref="Channels"/>.
+        /// </summary>
+        readonly List<float[]> results = new List<float[]>();
+
+        /// <summary>
+        /// Active normalizer filter.
+        /// </summary>
+        readonly Normalizer normalizer = new Normalizer(true);
 
         /// <summary>
         /// Result of the last update. Size is [<see cref="Channels"/>.Length * <see cref="UpdateRate"/>].
@@ -252,6 +255,11 @@ namespace Cavern {
         /// Lowpass filters for each channel.
         /// </summary>
         Lowpass[] lowpasses;
+
+        /// <summary>
+        /// Active virtualization filter.
+        /// </summary>
+        VirtualizerFilter virtualizer;
 
         /// <summary>
         /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
@@ -426,7 +434,7 @@ namespace Cavern {
             if (frames == 1) {
                 float[] result = Frame();
                 if (headphoneVirtualizer) {
-                    VirtualizerFilter.Process(result, SampleRate);
+                    virtualizer.Process(result, SampleRate);
                 }
                 return result;
             } else {
@@ -439,7 +447,7 @@ namespace Cavern {
                     Array.Copy(frameBuffer, 0, multiframeBuffer, frame * frameBuffer.Length, frameBuffer.Length);
                 }
                 if (headphoneVirtualizer) {
-                    VirtualizerFilter.Process(multiframeBuffer, SampleRate);
+                    virtualizer.Process(multiframeBuffer, SampleRate);
                 }
                 return multiframeBuffer;
             }
@@ -464,7 +472,10 @@ namespace Cavern {
         /// </summary>
         float[] Frame() {
             if (headphoneVirtualizer) {
-                VirtualizerFilter.SetLayout();
+                if (virtualizer == null) {
+                    virtualizer = new VirtualizerFilter();
+                }
+                virtualizer.SetLayout();
             }
             if (channelCount != Channels.Length || lastSampleRate != SampleRate || lastUpdateRate != UpdateRate) {
                 Reoptimize();
@@ -498,7 +509,8 @@ namespace Cavern {
                 }
             }
             if (Normalizer != 0) { // Normalize
-                WaveformUtils.Normalize(renderBuffer, Normalizer * UpdateRate / SampleRate, ref normalization, LimiterOnly);
+                normalizer.decayFactor = Normalizer * UpdateRate / SampleRate;
+                normalizer.Process(renderBuffer);
             }
             return renderBuffer;
         }
