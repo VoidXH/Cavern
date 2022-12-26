@@ -4,6 +4,7 @@
     <!-- UI -->
     <system:String x:Key="MenuR">_Rendering</system:String>
     <system:String x:Key="Upmix">_Upmixing setup</system:String>
+    <system:String x:Key="LoadV">Load HRTF/HRIR sets for the _Virtualizer</system:String>
     <system:String x:Key="FiltH">Apply output _filters</system:String>
     <system:String x:Key="FiltT">Load a set of convolution EQs exported from QuickEQ for the target system
         to be used as a burnt-in room correction in the converted content.</system:String>
@@ -56,12 +57,10 @@
     <system:String x:Key="UnTrk">The selected track is not supported for rendering.</system:String>
     <system:String x:Key="ChCnt">The render target has a larger channel count ({0}) than what the selected format can handle ({1}).
         Please choose a different output format or set a render target with less channels.</system:String>
-    <system:String x:Key="ExFmt">Matroska (*.mkv)|*.mkv</system:String>
-    <system:String x:Key="ExPCM">Matroska (*.mkv)|*.mkv|RIFF WAVE (*.wav)|*.wav|Limitless Audio Format
-        (*.laf)|*.laf</system:String>
-    <system:String x:Key="ExPCR">RIFF WAVE (*.wav)|*.wav|Limitless Audio Format
-        (*.laf)|*.laf</system:String>
-    <system:String x:Key="ExBWF">ADM Broadcast Wave Format (*.wav)|*.wav|Separate waveform and metadata (*.xml)|*.xml</system:String>
+    <system:String x:Key="ExFmt">Matroska|*.mkv</system:String>
+    <system:String x:Key="ExPCM">Matroska|*.mkv|RIFF WAVE|*.wav|Limitless Audio Format|*.laf</system:String>
+    <system:String x:Key="ExPCR">RIFF WAVE|*.wav|Limitless Audio Format|*.laf</system:String>
+    <system:String x:Key="ExBWF">ADM Broadcast Wave Format|*.wav|Separate waveform and metadata|*.xml</system:String>
     <system:String x:Key="UnExt">The file name had an unsupported extension.</system:String>
     <system:String x:Key="UnCod">This codec is not supported for export.</system:String>
     <system:String x:Key="WrGui">Wiring guide</system:String>
@@ -71,6 +70,7 @@
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize GUI,
         and if the problem persists with the latest version, contact the developer at www.sbence.hu.</system:String>
+    <system:String x:Key="FiltI">Impulse response packages|*.wav</system:String>
     <system:String x:Key="FiltF">Cavern QuickEQ Convolution EQs|*.txt</system:String>
     <system:String x:Key="FiltN">Convolution EQ file for the {0} channel was not found in this export ({1}).</system:String>
     <system:String x:Key="FiltC">Conflicting sample rates: headphone virtualization and output filtering can only work

@@ -162,7 +162,7 @@ namespace HRTFSetImporter {
         static void Normalize(Dictionary<int, Dictionary<int, float[][]>> data) {
             foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in data) {
                 foreach (KeyValuePair<int, float[][]> distance in angle.Value) {
-                    WaveformUtils.Normalize(distance.Value[0]);
+                    distance.Value[0].Normalize();
                 }
             }
         }

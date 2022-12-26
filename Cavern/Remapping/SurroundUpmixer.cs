@@ -133,7 +133,7 @@ namespace Cavern.Remapping {
         void DifferenceOf2(ReferenceChannel source1, ReferenceChannel source2, ReferenceChannel target) {
             float[] targetArray = output[(int)target];
             output[(int)source1].CopyTo(targetArray);
-            WaveformUtils.Subtract(output[(int)source2], targetArray);
+            output[(int)source2].Subtract(targetArray);
             WaveformUtils.Gain(targetArray, .5f);
         }
 

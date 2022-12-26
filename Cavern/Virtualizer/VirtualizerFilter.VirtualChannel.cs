@@ -43,8 +43,8 @@ namespace Cavern.Virtualizer {
         /// Parse the virtual channels from a multichannel HRIR set.
         /// </summary>
         public static VirtualChannel[] Parse(float[][] hrir, int sampleRate, float crossoverFrequency = 120) {
-            WaveformUtils.TrimStart(hrir);
-            WaveformUtils.Normalize(hrir);
+            hrir.TrimStart();
+            hrir.Normalize();
 
             // L/R impulses of all channels in line
             if (hrir.Length == 2) {
@@ -64,12 +64,14 @@ namespace Cavern.Virtualizer {
                     }
                 }
 
-                float[][][] splits = WaveformUtils.Split(hrir, rPeak - lPeak);
-                // TODO: trim end of splits
+                float[][][] splits = hrir.Split(rPeak - lPeak);
                 int lastToKeep = splits.Length;
-                while (WaveformUtils.IsMute(splits[lastToKeep - 1]) && --lastToKeep > 0) ;
+                while (splits[lastToKeep - 1].IsMute() && --lastToKeep > 0) ;
                 if (splits.Length != lastToKeep) {
                     splits = splits[..lastToKeep];
+                }
+                for (int i = 0; i < splits.Length; i++) {
+                    splits[i].TrimEnd();
                 }
                 ReferenceChannel[] channels = ChannelPrototype.GetStandardMatrix(splits.Length);
                 VirtualChannel[] result = new VirtualChannel[splits.Length];

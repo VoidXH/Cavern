@@ -53,10 +53,10 @@ namespace CavernizeGUI {
                 activeRenderTarget.Apply();
             }
             if (activeRenderTarget is VirtualizerRenderTarget) {
-                if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.filterSampleRate) {
+                if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.FilterSampleRate) {
                     throw new Exception((string)language["FiltC"]);
                 }
-                listener.SampleRate = VirtualizerFilter.filterSampleRate;
+                listener.SampleRate = VirtualizerFilter.FilterSampleRate;
             } else {
                 listener.SampleRate = roomCorrection == null ? target.SampleRate : roomCorrectionSampleRate;
             }

@@ -8,6 +8,7 @@ using Cavern.Remapping;
 
 using CavernizeGUI.Elements;
 using CavernizeGUI.Windows;
+using Cavern.Virtualizer;
 
 namespace CavernizeGUI {
     public partial class MainWindow {
@@ -32,6 +33,25 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
+        /// Load a set of HRTF impulses (HRIRs) for the Virtualizer.
+        /// </summary>
+        void LoadHRIR(object _, RoutedEventArgs e) {
+            if (!hrir.IsChecked) {
+                OpenFileDialog dialog = new() {
+                    Filter = (string)language["FiltI"]
+                };
+                if (dialog.ShowDialog().Value) {
+                    RIFFWaveReader? file = new RIFFWaveReader(dialog.FileName);
+                    VirtualizerFilter.Override(VirtualChannel.Parse(file.ReadMultichannel(), file.SampleRate), file.SampleRate);
+                    hrir.IsChecked = true;
+                }
+            } else {
+                VirtualizerFilter.Reset();
+                hrir.IsChecked = false;
+            }
+        }
+
+        /// <summary>
         /// Load a set of room correction filters to EQ the exported content.
         /// </summary>
         void LoadFilters(object _, RoutedEventArgs e) {
@@ -39,30 +59,28 @@ namespace CavernizeGUI {
                 OpenFileDialog dialog = new() {
                     Filter = (string)language["FiltF"]
                 };
-                if (dialog.ShowDialog().Value) {
-                    int cutoff = dialog.FileName.IndexOf('.');
-                    if (cutoff == -1) {
+                int cutoff;
+                if (!dialog.ShowDialog().Value || (cutoff = dialog.FileName.IndexOf('.')) == -1) {
+                    return;
+                }
+                string pathStart = dialog.FileName[..cutoff] + ' ';
+
+                ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).GetNameMappedChannels();
+                roomCorrection = new float[channels.Length][];
+                for (int i = 0; i < channels.Length; i++) {
+                    string file = $"{pathStart}{channels[i].GetShortName()}.wav";
+                    if (File.Exists(file)) {
+                        using RIFFWaveReader reader = new RIFFWaveReader(file);
+                        roomCorrection[i] = reader.Read();
+                        roomCorrectionSampleRate = reader.SampleRate;
+                    } else {
+                        Error(string.Format((string)language["FiltN"], ChannelPrototype.Mapping[(int)channels[i]].Name,
+                            Path.GetFileName(dialog.FileName)));
+                        roomCorrection = null;
                         return;
                     }
-                    string pathStart = dialog.FileName[..cutoff] + ' ';
-
-                    ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).GetNameMappedChannels();
-                    roomCorrection = new float[channels.Length][];
-                    for (int i = 0; i < channels.Length; i++) {
-                        string file = $"{pathStart}{channels[i].GetShortName()}.wav";
-                        if (File.Exists(file)) {
-                            using RIFFWaveReader reader = new RIFFWaveReader(file);
-                            roomCorrection[i] = reader.Read();
-                            roomCorrectionSampleRate = reader.SampleRate;
-                        } else {
-                            Error(string.Format((string)language["FiltN"], ChannelPrototype.Mapping[(int)channels[i]].Name,
-                                Path.GetFileName(dialog.FileName)));
-                            roomCorrection = null;
-                            return;
-                        }
-                    }
-                    filters.IsChecked = true;
                 }
+                filters.IsChecked = true;
             } else {
                 filters.IsChecked = false;
                 roomCorrection = null;
