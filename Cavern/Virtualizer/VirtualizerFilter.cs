@@ -20,6 +20,11 @@ namespace Cavern.Virtualizer {
         public static float ReferenceDistance { get; private set; } = defaultDistance;
 
         /// <summary>
+        /// Number of virtual channels.
+        /// </summary>
+        public static int VirtualChannels => SpatialChannels.Length;
+
+        /// <summary>
         /// Active virtualized channels and their corresponding filters.
         /// </summary>
         static VirtualChannel[] SpatialChannels {

@@ -186,7 +186,7 @@ namespace CavernizeGUI {
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
             taskEngine.UpdateStatus((string)language["Start"]);
-            RenderStats stats = Exporting.WriteRender(listener, target, writer, taskEngine, dynamicOnly, heightOnly, roomCorrection);
+            RenderStats stats = WriteRender(target, writer, dynamicOnly, heightOnly);
             UpdatePostRenderReport(stats);
 
             string targetCodec = null;
@@ -235,9 +235,9 @@ namespace CavernizeGUI {
 
             RenderStats stats;
             if (writer is BroadcastWaveFormatWriter bwf) {
-                stats = Exporting.WriteTranscode(listener, target, bwf, taskEngine);
+                stats = WriteTranscode(target, bwf);
             } else {
-                stats = Exporting.WriteTranscode(listener, target, writer, taskEngine);
+                stats = WriteTranscode(target, writer);
             }
             UpdatePostRenderReport(stats);
 

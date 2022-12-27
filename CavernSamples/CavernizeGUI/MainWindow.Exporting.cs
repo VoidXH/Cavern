@@ -7,15 +7,13 @@ using Cavern.Filters;
 using Cavern.Format;
 using Cavern.Format.Environment;
 using Cavern.Utilities;
-
+using Cavern.Virtualizer;
 using CavernizeGUI.Elements;
 using VoidX.WPF;
 
 namespace CavernizeGUI {
-    /// <summary>
-    /// Functions that are part of the render export process.
-    /// </summary>
-    static class Exporting {
+    // Functions that are part of the render export process.
+    partial class MainWindow {
         /// <summary>
         /// Keeps track of export time and evaluates performance.
         /// </summary>
@@ -105,8 +103,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Renders a listener to a file, and returns some measurements of the render.
         /// </summary>
-        public static RenderStats WriteRender(Listener listener, Track target, AudioWriter writer,
-            TaskEngine taskEngine, bool dynamicOnly, bool heightOnly, float[][] roomCorrection) {
+        RenderStats WriteRender(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly) {
             RenderStats stats = new(listener);
             Progressor progressor = new Progressor(target.Length, listener, taskEngine);
             bool customMuting = dynamicOnly || heightOnly;
@@ -119,6 +116,14 @@ namespace CavernizeGUI {
                 }
             }
 
+            // Virtualization is done with the buffer instead of each update in the listener to optimize FFT sizes
+            VirtualizerFilter virtualizer = null;
+            if (Listener.HeadphoneVirtualizer) {
+                Listener.HeadphoneVirtualizer = false;
+                virtualizer = new VirtualizerFilter();
+                virtualizer.SetLayout();
+            }
+
             const int defaultWriteCacheLength = 16384; // Samples per channel
             int cachePosition = 0;
             float[] writeCache = null;
@@ -129,9 +134,10 @@ namespace CavernizeGUI {
                     cacheSize = listener.UpdateRate;
                 } else if (cacheSize % listener.UpdateRate != 0) {
                     // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
-                    cacheSize += (listener.UpdateRate - cacheSize % listener.UpdateRate);
+                    cacheSize += listener.UpdateRate - cacheSize % listener.UpdateRate;
                 }
-                writeCache = new float[cacheSize * Listener.Channels.Length];
+                cacheSize *= virtualizer != null ? Listener.Channels.Length : VirtualizerFilter.VirtualChannels;
+                writeCache = new float[cacheSize];
             }
             // TODO: override multichannel process for the fast convolution filter to prevent reallocation
 
@@ -152,9 +158,10 @@ namespace CavernizeGUI {
                             filters.ProcessAllChannels(writeCache);
                         }
 
-                        if (!Listener.HeadphoneVirtualizer) {
+                        if (virtualizer == null) {
                             writer.WriteBlock(writeCache, 0, cachePosition);
                         } else {
+                            virtualizer.Process(writeCache, listener.SampleRate);
                             writer.WriteChannelLimitedBlock(writeCache, 2, Listener.Channels.Length, 0, cachePosition);
                         }
                         cachePosition = 0;
@@ -179,14 +186,16 @@ namespace CavernizeGUI {
             }
 
             writer?.Dispose();
+            if (virtualizer != null) {
+                Listener.HeadphoneVirtualizer = true;
+            }
             return stats;
         }
 
         /// <summary>
         /// Transcodes between object-based tracks, and returns some measurements of the render.
         /// </summary>
-        public static RenderStats WriteTranscode(Listener listener, Track target, EnvironmentWriter writer,
-            TaskEngine taskEngine) {
+        RenderStats WriteTranscode(Track target, EnvironmentWriter writer) {
             RenderStats stats = new(listener);
             Progressor progressor = new Progressor(target.Length, listener, taskEngine);
 
@@ -202,8 +211,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Transcodes from object-based tracks to ADM BWF, and returns some measurements of the render.
         /// </summary>
-        public static RenderStats WriteTranscode(Listener listener, Track target, BroadcastWaveFormatWriter writer,
-            TaskEngine taskEngine) {
+        RenderStats WriteTranscode(Track target, BroadcastWaveFormatWriter writer) {
             RenderStats stats = new(listener);
             Progressor progressor = new Progressor((long)(target.Length / progressSplit), listener, taskEngine);
 

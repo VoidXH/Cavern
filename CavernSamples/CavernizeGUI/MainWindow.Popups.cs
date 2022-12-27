@@ -1,14 +1,16 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Text;
 using System.Windows;
 
 using Cavern.Format;
 using Cavern.Remapping;
+using Cavern.Virtualizer;
 
 using CavernizeGUI.Elements;
 using CavernizeGUI.Windows;
-using Cavern.Virtualizer;
+using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
     public partial class MainWindow {
@@ -21,6 +23,25 @@ namespace CavernizeGUI {
         /// Convolution filter for each channel to be applied on export.
         /// </summary>
         float[][] roomCorrection;
+
+        /// <summary>
+        /// Try to load a HRIR file and return true on success.
+        /// If the file is invalid, an optional error message popup can be displayed.
+        /// </summary>
+        static bool TryLoadHRIR(bool popupOnError) {
+            RIFFWaveReader file;
+            try {
+                file = new RIFFWaveReader(Settings.Default.hrirPath);
+                file.ReadHeader();
+            } catch (Exception e) {
+                if (popupOnError) {
+                    Error(string.Format((string)language["IrErr"], e.Message));
+                }
+                return false;
+            }
+            VirtualizerFilter.Override(VirtualChannel.Parse(file.ReadMultichannelAfterHeader(), file.SampleRate), file.SampleRate);
+            return true;
+        }
 
         /// <summary>
         /// Opens the upmixing settings.
@@ -41,12 +62,12 @@ namespace CavernizeGUI {
                     Filter = (string)language["FiltI"]
                 };
                 if (dialog.ShowDialog().Value) {
-                    RIFFWaveReader? file = new RIFFWaveReader(dialog.FileName);
-                    VirtualizerFilter.Override(VirtualChannel.Parse(file.ReadMultichannel(), file.SampleRate), file.SampleRate);
-                    hrir.IsChecked = true;
+                    Settings.Default.hrirPath = dialog.FileName;
+                    hrir.IsChecked = TryLoadHRIR(true);
                 }
             } else {
                 VirtualizerFilter.Reset();
+                Settings.Default.hrirPath = string.Empty;
                 hrir.IsChecked = false;
             }
         }

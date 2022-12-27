@@ -64,6 +64,7 @@ namespace Cavern.Virtualizer {
                     }
                 }
 
+                // Preprocessing
                 float[][][] splits = hrir.Split(rPeak - lPeak);
                 int lastToKeep = splits.Length;
                 while (splits[lastToKeep - 1].IsMute() && --lastToKeep > 0) ;
@@ -73,12 +74,24 @@ namespace Cavern.Virtualizer {
                 for (int i = 0; i < splits.Length; i++) {
                     splits[i].TrimEnd();
                 }
+
+                // If there's an odd number of channels, use the center twice (assuming center is the third channel) -
+                // Cavern only works with even channels, and this might keep symmetry
+                if (splits.Length % 2 == 1) {
+                    float[][][] newSplits = new float[splits.Length + 1][][];
+                    Array.Copy(splits, newSplits, 3);
+                    newSplits[3] = newSplits[2];
+                    Array.Copy(splits, 3, newSplits, 4, splits.Length - 3);
+                }
+
                 ReferenceChannel[] channels = ChannelPrototype.GetStandardMatrix(splits.Length);
                 VirtualChannel[] result = new VirtualChannel[splits.Length];
                 for (int i = 0; i < result.Length; i++) {
                     ChannelPrototype prototype = ChannelPrototype.Mapping[(int)channels[i]];
-                    result[i] =
-                        new VirtualChannel(prototype.X, prototype.Y, splits[i][0], splits[i][1], sampleRate, crossoverFrequency);
+                    // For the LFE, use the center's impulses, otherwise the LFE would be an overriding channel at the same position,
+                    // and this would cut off high frequencies
+                    float[][] split = !prototype.LFE ? splits[i] : splits[i - 1];
+                    result[i] = new VirtualChannel(prototype.X, prototype.Y, split[0], split[1], sampleRate, crossoverFrequency);
                 }
                 return result;
             }

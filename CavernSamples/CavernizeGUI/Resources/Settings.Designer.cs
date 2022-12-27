@@ -82,5 +82,17 @@ namespace CavernizeGUI.Resources {
                 this["checkUpdates"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string hrirPath {
+            get {
+                return ((string)(this["hrirPath"]));
+            }
+            set {
+                this["hrirPath"] = value;
+            }
+        }
     }
 }

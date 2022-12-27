@@ -116,6 +116,10 @@ namespace CavernizeGUI {
             taskEngine = new(progress, TaskbarItemInfo, status);
             Reset();
 
+            if (File.Exists(Settings.Default.hrirPath)) {
+                hrir.IsChecked = TryLoadHRIR(false);
+            }
+
             checkUpdates.IsChecked = Settings.Default.checkUpdates;
             if (Settings.Default.checkUpdates && !Program.ConsoleMode) {
                 UpdateCheck.Perform(Settings.Default.lastUpdate, () => Settings.Default.lastUpdate = DateTime.Now);
