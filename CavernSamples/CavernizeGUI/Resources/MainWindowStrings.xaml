@@ -51,8 +51,8 @@
     <system:String x:Key="UpmiW">Upmixing setup</system:String>
     <system:String x:Key="IrErr">The impulse response file is invalid. Error: {0}</system:String>
     <system:String x:Key="CavLo">Driver is set to {0}.</system:String>
-    <system:String x:Key="ImFmt">All supported formats|*.ac3;*.eac3;*.ec3;*.laf;*.mka;*.mkv;*.wav|(Enhanced)
-        AC-3|*.ac3;*.eac3;*.ec3|Matroska|*.mkv;*.mka|RIFF WAVE, ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
+    <system:String x:Key="ImFmt">All supported formats|{0}|(Enhanced) AC-3|*.ac3;*.eac3;*.ec3|Matroska|*.mkv;*.mka|RIFF WAVE,
+        ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="OpRun">An operation is already running, please wait for it to finish.</system:String>
     <system:String x:Key="LdSrc">Please load a source file with at least 1 supported track for rendering.</system:String>
     <system:String x:Key="UnTrk">The selected track is not supported for rendering.</system:String>

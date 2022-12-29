@@ -13,6 +13,7 @@ using System.Windows.Shapes;
 using System.Windows.Shell;
 
 using Cavern;
+using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Remapping;
 
@@ -233,7 +234,7 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
-        /// Open file button event; loads a WAV file to <see cref="reader"/>.
+        /// Open file button event; loads an audio file to <see cref="reader"/>.
         /// </summary>
         void OpenFile(object _, RoutedEventArgs e) {
             if (taskEngine.IsOperationRunning) {
@@ -242,7 +243,7 @@ namespace CavernizeGUI {
             }
 
             OpenFileDialog dialog = new() {
-                Filter = (string)language["ImFmt"]
+                Filter = string.Format((string)language["ImFmt"], AudioReader.filter)
             };
             if (dialog.ShowDialog().Value) {
 #if RELEASE

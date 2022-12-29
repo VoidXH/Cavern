@@ -1,0 +1,47 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EnhancedAC3Merger" x:Class="EnhancedAC3Merger.MainWindow"
+        mc:Ignorable="d"
+        Title="Enhanced AC-3 Merger" Height="415" Width="880">
+    <Grid>
+        <GroupBox Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="190"
+                  Header="Mandatory bed (2.0, 4.0, 5.0, or 5.1)">
+            <Grid>
+                <local:InputChannel x:Name="fl" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="Front left"/>
+                <local:InputChannel x:Name="fr" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="Front right"/>
+                <local:InputChannel x:Name="fc" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="Front center"/>
+                <local:InputChannel x:Name="lfe" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="Screen LFE"/>
+                <local:InputChannel x:Name="sl" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="Side left"/>
+                <local:InputChannel x:Name="sr" Margin="10,135,10,0" VerticalAlignment="Top" TargetChannel="Side right"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Margin="435,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="240"
+                  Header="Optional ground channels and God's Voice">
+            <Grid>
+                <local:InputChannel x:Name="flc" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="Front left center"/>
+                <local:InputChannel x:Name="frc" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="Front right center"/>
+                <local:InputChannel x:Name="rl" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="Rear left"/>
+                <local:InputChannel x:Name="rr" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="Rear right"/>
+                <local:InputChannel x:Name="rc" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="Rear center"/>
+                <local:InputChannel x:Name="gv" Margin="10,135,10,0" VerticalAlignment="Top" TargetChannel="God's Voice"/>
+                <local:InputChannel x:Name="wl" Margin="10,160,10,0" VerticalAlignment="Top" TargetChannel="Wide left"/>
+                <local:InputChannel x:Name="wr" Margin="10,185,10,0" VerticalAlignment="Top" TargetChannel="Wide right"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Margin="10,205,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="160"
+            Header="Optional height channels">
+            <Grid>
+                <local:InputChannel x:Name="tfl" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="Top front left"/>
+                <local:InputChannel x:Name="tfr" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="Top front right"/>
+                <local:InputChannel x:Name="tfc" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="Top front center"/>
+                <local:InputChannel x:Name="tsl" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="Top side left"/>
+                <local:InputChannel x:Name="tsr" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="Top side right"/>
+            </Grid>
+        </GroupBox>
+        <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Height="20"
+                Content="Merge" Click="Merge"/>
+    </Grid>
+</Window>

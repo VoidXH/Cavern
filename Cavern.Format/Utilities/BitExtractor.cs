@@ -81,7 +81,7 @@ namespace Cavern.Format.Utilities {
                 }
                 int shiftBack = removedLeft + removedRight;
                 int readBits = 8 - shiftBack;
-                result = (result << readBits) + (((source[Position / 8] << removedLeft) & 0xFF) >> shiftBack);
+                result = (result << readBits) + (((source[Position >> 3] << removedLeft) & 0xFF) >> shiftBack);
                 bits -= readBits;
                 Position += readBits;
             }
@@ -92,7 +92,7 @@ namespace Cavern.Format.Utilities {
         /// Read the next custom length unsigned word, if a flag is set before it.
         /// </summary>
         public int? ReadConditional(int bits) {
-            if (((source[Position / 8] >> (7 - (Position++ & 7))) & 1) != 0) {
+            if (((source[Position >> 3] >> (7 - (Position++ & 7))) & 1) != 0) {
                 return Read(bits);
             }
             return null;
@@ -115,7 +115,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read the next bit and advance the position.
         /// </summary>
-        public int ReadBitInt() => (source[Position / 8] >> (7 - (Position++ & 7))) & 1;
+        public int ReadBitInt() => (source[Position >> 3] >> (7 - (Position++ & 7))) & 1;
 
         /// <summary>
         /// Read the next masked flag value as an array.

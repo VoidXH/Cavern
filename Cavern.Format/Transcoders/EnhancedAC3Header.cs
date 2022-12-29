@@ -1,4 +1,7 @@
-﻿using Cavern.Format.Common;
+﻿using System;
+using System.Linq;
+
+using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 using Cavern.Remapping;
 using Cavern.Utilities;
@@ -39,7 +42,7 @@ namespace Cavern.Format.Transcoders {
         /// Number of the substream (substreamid).
         /// 0 marks the beginning of a new timeslot, incremented values overwrite previous frames.
         /// </summary>
-        public int SubstreamID { get; private set; }
+        public int SubstreamID { get; set; }
 
         /// <summary>
         /// Number of 16-bit words in this frame (words_per_syncframe).
@@ -152,6 +155,40 @@ namespace Cavern.Format.Transcoders {
         }
 
         /// <summary>
+        /// Writes an E-AC-3 header to a bitstream and returns a <see cref="BitPlanter"/> with a header already in place.
+        /// </summary>
+        public BitPlanter Encode() {
+            BitPlanter planter = new BitPlanter();
+            planter.Write(syncWord, 16);
+            planter.Write((int)StreamType, 2);
+            planter.Write(SubstreamID, 3);
+            planter.Write(WordsPerSyncframe - 1, 11);
+            planter.Write(SampleRateCode, 2);
+            planter.Write(numberOfBlocks.IndexOf((byte)Blocks), 2);
+            planter.Write(ChannelMode, 3);
+            planter.Write(LFE);
+            planter.Write((int)Decoder, 5);
+
+            if (Decoder != EnhancedAC3.Decoders.EAC3) {
+                planter.Overwrite(32, SampleRateCode, 2);
+                planter.Overwrite(34, frmsizecod, 6);
+                planter.Write(bsmod, 3);
+                planter.Write(ChannelMode, 3);
+            }
+
+            switch (Decoder) {
+                case EnhancedAC3.Decoders.AlternateAC3:
+                case EnhancedAC3.Decoders.AC3:
+                    WriteBitStreamInformation(planter);
+                    break;
+                case EnhancedAC3.Decoders.EAC3:
+                    WriteBitStreamInformationEAC3(planter);
+                    break;
+            }
+            return planter;
+        }
+
+        /// <summary>
         /// Gets the channels contained in the stream in order.
         /// </summary>
         public ReferenceChannel[] GetChannelArrangement() {
@@ -170,6 +207,47 @@ namespace Cavern.Format.Transcoders {
                 }
             }
             return channels;
+        }
+
+        /// <summary>
+        /// Overrides the channel mapping of the stream.
+        /// </summary>
+        public void SetChannelArrangement(ReferenceChannel[] layout) {
+            // Check for match with the standard arrangement, which doesn't contain the LFE
+            if (channelArrangements[ChannelMode].IsSubsetOf(layout)) {
+                channelMapping = null;
+                return;
+            }
+
+            ReferenceChannel[] invalids = new ReferenceChannel[0];
+            int mapping = 0;
+            for (int i = 0; i < layout.Length; i++) {
+                bool found = false;
+                for (int bit = 0; bit < channelMappingTargets.Length; bit++) {
+                    if (channelMappingTargets[bit].Contains(layout[i])) {
+                        int addition = 1 << bit;
+                        if (addition < mapping) {
+                            throw new InvalidChannelOrderException();
+                        }
+                        mapping += addition;
+
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    Array.Resize(ref invalids, invalids.Length + 1);
+                    invalids[^1] = layout[i];
+                }
+            }
+            if (invalids.Length != 0) {
+                throw new InvalidChannelException(invalids);
+            }
+
+            if (!channelMapping.HasValue) {
+                WordsPerSyncframe += 2; // 17 bits have to be added, this makes sure there's enough space for that
+                channelMapping = mapping;
+            }
         }
 
         /// <summary>

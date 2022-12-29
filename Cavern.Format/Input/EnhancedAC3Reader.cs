@@ -1,6 +1,5 @@
 ﻿using System.IO;
 
-using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers;
@@ -37,7 +36,7 @@ namespace Cavern.Format {
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {
-            decoder = new EnhancedAC3Decoder(BlockBuffer<byte[]>.Create(reader, FormatConsts.blockSize), fileSize);
+            decoder = new EnhancedAC3Decoder(BlockBuffer<byte>.Create(reader, FormatConsts.blockSize), fileSize);
             ChannelCount = decoder.ChannelCount;
             Length = decoder.Length;
             SampleRate = decoder.SampleRate;

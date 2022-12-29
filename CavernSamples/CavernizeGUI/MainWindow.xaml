@@ -106,13 +106,13 @@
                             <Grid x:Name="trackControls" Margin="10,69,10,10">
                                 <TextBlock Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                            Text="{StaticResource OpTrk}" TextWrapping="NoWrap"/>
-                                <ComboBox x:Name="tracks" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="35,0,0,0"
+                                <ComboBox x:Name="tracks" Margin="45,0,10,0" VerticalAlignment="Top"
                                           ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
                                           Template="{DynamicResource DarkComboBox}" SelectionChanged="OnTrackSelected"/>
                                 <TextBlock Margin="0,30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                            Text="{StaticResource OpOut}" TextWrapping="NoWrap"/>
-                                <ComboBox x:Name="audio" Margin="45,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                          MaxWidth="213" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
+                                <ComboBox x:Name="audio" Margin="45,27,10,0" VerticalAlignment="Top"
+                                          ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
                                           Template="{DynamicResource DarkComboBox}" SelectionChanged="OnOutputSelected"/>
                                 <TextBlock x:Name="trackInfo" Margin="0,54,0,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
                             </Grid>

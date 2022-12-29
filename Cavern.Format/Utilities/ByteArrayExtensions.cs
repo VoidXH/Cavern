@@ -7,6 +7,18 @@ namespace Cavern.Format.Utilities {
     /// </summary>
     static class ByteArrayExtensions {
         /// <summary>
+        /// Returns the index in the <paramref name="array"/> of the <paramref name="value"/>, or -1 if it's not found.
+        /// </summary>
+        public static int IndexOf(this byte[] array, byte value) {
+            for (int i = 0; i < array.Length; i++) {
+                if (array[i] == value) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
         /// Read an ASCII string from an offset until the buffer ends or the character count is reached.
         /// </summary>
         public static string ReadCString(this byte[] source, int offset, int length) {

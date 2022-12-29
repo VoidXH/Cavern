@@ -15,6 +15,11 @@ namespace Cavern.Format {
     /// </summary>
     public abstract class AudioReader : IDisposable {
         /// <summary>
+        /// Filter to all supported file types for open file dialogs. These are the containers supported by <see cref="Open(string)"/>.
+        /// </summary>
+        public const string filter = "*.ac3;*.eac3;*.ec3;*.laf;*.mka;*.mkv;*.wav";
+
+        /// <summary>
         /// Content channel count.
         /// </summary>
         public int ChannelCount { get; protected set; }
@@ -68,7 +73,11 @@ namespace Cavern.Format {
                 case LimitlessAudioFormat.syncWord:
                     return new LimitlessAudioFormatReader(reader);
                 case MatroskaTree.EBML:
-                    return new AudioTrackReader(new MatroskaReader(reader).GetMainAudioTrack(), true);
+                    Track track = new MatroskaReader(reader).GetMainAudioTrack();
+                    if (track == null) {
+                        throw new NoProgramException();
+                    }
+                    return new AudioTrackReader(track, true);
                 default:
                     throw new UnsupportedFormatException();
             }

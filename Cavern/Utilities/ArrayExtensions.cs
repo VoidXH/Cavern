@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -49,12 +50,24 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has<T>(this T[] source, Func<T, bool> predicate) {
-            for (int i = 0; i < source.Length; ++i) {
+            for (int i = 0; i < source.Length; i++) {
                 if (predicate(source[i])) {
                     return true;
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Check if an array is the <paramref name="subset"/> of the <paramref name="source"/>.
+        /// </summary>
+        public static bool IsSubsetOf<T>(this T[] source, T[] subset) {
+            for (int i = 0; i < subset.Length; i++) {
+                if (!source.Contains(subset[i])) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

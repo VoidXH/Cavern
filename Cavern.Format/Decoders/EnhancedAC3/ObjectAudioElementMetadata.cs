@@ -70,15 +70,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int elementIndex = extractor.Read(4);
             int endPos = extractor.Position + ExtensibleMetadataExtensions.VariableBits(extractor, 4, 4) + 1;
             extractor.Skip(alternateObjectPresent ? 5 : 1);
-            switch (elementIndex) {
-                case objectElementIndex:
-                    ObjectElement(extractor, objectCount, bedOrISFObjects);
-                    break;
-                case extendedObjectElementIndex:
-                // TODO: support other element types
-                default:
-                    blockOffsetFactor = new short[] { -1 };
-                    break;
+            if (elementIndex == objectElementIndex) {
+                ObjectElement(extractor, objectCount, bedOrISFObjects);
+            } else { // Other elements are unused by encoders
+                blockOffsetFactor = new short[] { -1 };
             }
             extractor.Position = endPos; // Padding
         }
@@ -179,11 +174,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Marks an object positioning frame.
         /// </summary>
         const int objectElementIndex = 1;
-
-        /// <summary>
-        /// Marks a precise object positioning frame.
-        /// </summary>
-        const int extendedObjectElementIndex = 5;
 
         static readonly byte[] sampleOffsetIndex = { 8, 16, 18, 24 };
         static readonly short[] rampDurations = { 0, 512, 1536 };

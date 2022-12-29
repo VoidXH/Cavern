@@ -8,9 +8,45 @@ namespace Cavern.Format.Utilities {
     /// which has to be written to a byte-based stream with <see cref="WriteToStream(Stream)"/>.
     /// </summary>
     sealed class BitPlanter {
+        /// <summary>
+        /// Total number of significant bits in the <see cref="cache"/>.
+        /// </summary>
+        public int BitsWritten => currentByte * 8 + currentBit;
+
+        /// <summary>
+        /// Auto-resized holder of the data.
+        /// </summary>
+        /// <remarks>Reallocation happens in <see cref="NextByte"/>.</remarks>
         byte[] cache = new byte[32];
+
+        /// <summary>
+        /// The index of <see cref="cache"/> written next.
+        /// </summary>
         int currentByte = 0;
+
+        /// <summary>
+        /// The bit of the <see cref="currentByte"/> written next.
+        /// </summary>
         int currentBit = 0;
+
+        /// <summary>
+        /// Write a <paramref name="value"/> at a specific <paramref name="offset"/>
+        /// from the start of a length in <paramref name="bits"/>.
+        /// </summary>
+        public void Overwrite(int offset, int value, int bits) {
+            int currentByte = offset >> 3;
+            offset &= 7;
+            while (bits > 0) {
+                int bitsToWrite = Math.Min(8 - offset, bits);
+                cache[currentByte] = (byte)((cache[currentByte] << bitsToWrite) +
+                    ((value >> (bits - bitsToWrite)) & ((1 << bitsToWrite) - 1)));
+                bits -= bitsToWrite;
+                offset += bitsToWrite;
+                if (offset == 8) {
+                    offset = 0;
+                }
+            }
+        }
 
         /// <summary>
         /// Append a flag to the stream under construction.
@@ -57,9 +93,8 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
-        /// Export the constructed bitstream to a bytestream.
+        /// Write the constructed bitstream to a bytestream and reset this instance.
         /// </summary>
-        /// <param name="target"></param>
         public void WriteToStream(Stream target) {
             int bytesToWrite = currentByte;
             if (currentBit != 0 || currentByte == 0) {
@@ -67,6 +102,9 @@ namespace Cavern.Format.Utilities {
                 ++bytesToWrite;
             }
             target.Write(cache, 0, bytesToWrite);
+            Array.Clear(cache, 0, cache.Length);
+            currentByte = 0;
+            currentBit = 0;
         }
 
         /// <summary>
