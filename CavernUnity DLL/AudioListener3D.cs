@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
+using Cavern.Filters;
 using Cavern.Remapping;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
@@ -152,7 +153,10 @@ namespace Cavern {
         /// <summary>
         /// Actual listener handled by this interface.
         /// </summary>
-        internal static Listener cavernListener = new Listener();
+        /// <remarks>Normalization and limiting happens in this object's <see cref="normalizer"/>.</remarks>
+        internal static Listener cavernListener = new Listener() {
+            LimiterOnly = false
+        };
 
         /// <summary>
         /// Cached system sample rate.
@@ -163,16 +167,19 @@ namespace Cavern {
         // Private vars
         // ------------------------------------------------------------------
         /// <summary>
-        /// Used to prevent sample generation before the first frame.
-        /// </summary>
-        bool startSkip = true;
-
-        /// <summary>
         /// Cached <see cref="SampleRate"/> for change detection.
         /// </summary>
         static int cachedSampleRate = -1;
 
+        /// <summary>
+        /// Renders Unity's output to the layout set in Cavern.
+        /// </summary>
         static Remapper remapper;
+
+        /// <summary>
+        /// Used to prevent sample generation before the first frame.
+        /// </summary>
+        bool startSkip = true;
 
         // ------------------------------------------------------------------
         // Public functions
@@ -216,9 +223,10 @@ namespace Cavern {
         static float[] filterOutput;
 
         /// <summary>
-        /// Filter normalizer gain.
+        /// As the output does not match the <see cref="Listener"/>'s because of Unity's optional sound output and
+        /// to prepare for a channel count mismatch, normalization happens here.
         /// </summary>
-        static float filterNormalizer = 1;
+        static readonly Normalizer normalizer = new Normalizer(true);
 
         /// <summary>
         /// Active virtualization filter.
@@ -240,14 +248,14 @@ namespace Cavern {
             cavernListener.Volume = Volume;
             cavernListener.LFEVolume = LFEVolume;
             cavernListener.Range = Range;
-            cavernListener.Normalizer = Normalizer;
-            cavernListener.LimiterOnly = LimiterOnly;
             cavernListener.SampleRate = SampleRate;
             cavernListener.UpdateRate = UpdateRate;
             cavernListener.DelayTarget = DelayTarget;
             cavernListener.AudioQuality = AudioQuality;
             cavernListener.LFESeparation = LFESeparation;
             cavernListener.DirectLFE = DirectLFE;
+            normalizer.decayFactor = Normalizer * UpdateRate / SampleRate;
+            normalizer.limiterOnly = LimiterOnly;
             cavernListener.Position = VectorUtils.VectorMatch(transform.position);
             cavernListener.Rotation = VectorUtils.VectorMatch(transform.eulerAngles);
             startSkip = false;
@@ -340,7 +348,7 @@ namespace Cavern {
 
             // Apply normalizer
             if (Normalizer != 0) {
-                WaveformUtils.Normalize(unityBuffer, UpdateRate / (float)SampleRate, ref filterNormalizer, true);
+                normalizer.Process(unityBuffer);
             }
 
             // Generate output from buffer
