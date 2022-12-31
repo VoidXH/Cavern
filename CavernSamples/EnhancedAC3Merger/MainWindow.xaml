@@ -10,37 +10,39 @@
         <GroupBox Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="190"
                   Header="Mandatory bed (2.0, 4.0, 5.0, or 5.1)">
             <Grid>
-                <local:InputChannel x:Name="fl" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="Front left"/>
-                <local:InputChannel x:Name="fr" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="Front right"/>
-                <local:InputChannel x:Name="fc" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="Front center"/>
-                <local:InputChannel x:Name="lfe" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="Screen LFE"/>
-                <local:InputChannel x:Name="sl" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="Side left"/>
-                <local:InputChannel x:Name="sr" Margin="10,135,10,0" VerticalAlignment="Top" TargetChannel="Side right"/>
+                <local:InputChannel x:Name="fl" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="FrontLeft"/>
+                <local:InputChannel x:Name="fr" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="FrontRight"/>
+                <local:InputChannel x:Name="fc" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="FrontCenter"/>
+                <local:InputChannel x:Name="lfe" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="ScreenLFE"/>
+                <local:InputChannel x:Name="sl" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="SideLeft"/>
+                <local:InputChannel x:Name="sr" Margin="10,135,10,0" VerticalAlignment="Top" TargetChannel="SideRight"/>
             </Grid>
         </GroupBox>
         <GroupBox Margin="435,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="240"
                   Header="Optional ground channels and God's Voice">
             <Grid>
-                <local:InputChannel x:Name="flc" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="Front left center"/>
-                <local:InputChannel x:Name="frc" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="Front right center"/>
-                <local:InputChannel x:Name="rl" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="Rear left"/>
-                <local:InputChannel x:Name="rr" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="Rear right"/>
-                <local:InputChannel x:Name="rc" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="Rear center"/>
-                <local:InputChannel x:Name="gv" Margin="10,135,10,0" VerticalAlignment="Top" TargetChannel="God's Voice"/>
-                <local:InputChannel x:Name="wl" Margin="10,160,10,0" VerticalAlignment="Top" TargetChannel="Wide left"/>
-                <local:InputChannel x:Name="wr" Margin="10,185,10,0" VerticalAlignment="Top" TargetChannel="Wide right"/>
+                <local:InputChannel x:Name="flc" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="FrontLeftCenter"/>
+                <local:InputChannel x:Name="frc" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="FrontRightCenter"/>
+                <local:InputChannel x:Name="rl" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="RearLeft"/>
+                <local:InputChannel x:Name="rr" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="RearRight"/>
+                <local:InputChannel x:Name="rc" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="RearCenter"/>
+                <local:InputChannel x:Name="gv" Margin="10,135,10,0" VerticalAlignment="Top" TargetChannel="GodsVoice"/>
+                <local:InputChannel x:Name="wl" Margin="10,160,10,0" VerticalAlignment="Top" TargetChannel="WideLeft"/>
+                <local:InputChannel x:Name="wr" Margin="10,185,10,0" VerticalAlignment="Top" TargetChannel="WideRight"/>
             </Grid>
         </GroupBox>
         <GroupBox Margin="10,205,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="160"
             Header="Optional height channels">
             <Grid>
-                <local:InputChannel x:Name="tfl" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="Top front left"/>
-                <local:InputChannel x:Name="tfr" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="Top front right"/>
-                <local:InputChannel x:Name="tfc" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="Top front center"/>
-                <local:InputChannel x:Name="tsl" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="Top side left"/>
-                <local:InputChannel x:Name="tsr" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="Top side right"/>
+                <local:InputChannel x:Name="tfl" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="TopFrontLeft"/>
+                <local:InputChannel x:Name="tfr" Margin="10,35,10,0" VerticalAlignment="Top" TargetChannel="TopFrontRight"/>
+                <local:InputChannel x:Name="tfc" Margin="10,60,10,0" VerticalAlignment="Top" TargetChannel="TopFrontCenter"/>
+                <local:InputChannel x:Name="tsl" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="TopSideLeft"/>
+                <local:InputChannel x:Name="tsr" Margin="10,110,10,0" VerticalAlignment="Top" TargetChannel="TopSideRight"/>
             </Grid>
         </GroupBox>
+        <Button Margin="0,0,10,35" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Height="20"
+                Content="Locate FFmpeg" Click="LocateFFmpeg"/>
         <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Height="20"
                 Content="Merge" Click="Merge"/>
     </Grid>

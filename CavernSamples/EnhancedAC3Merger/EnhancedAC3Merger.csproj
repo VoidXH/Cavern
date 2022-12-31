@@ -16,6 +16,13 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\CavernizeGUI\Tools\FFmpeg.cs" Link="Tools\FFmpeg.cs" />
+    <Compile Include="..\VoidX.WPF\EnumToTitleCase.cs" Link="Tools\EnumToTitleCase.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tools\" />
   </ItemGroup>
 </Project>

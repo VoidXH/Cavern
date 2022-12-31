@@ -40,6 +40,11 @@ namespace Cavern.Format {
         public BitDepth Bits { get; protected set; }
 
         /// <summary>
+        /// Path to the opened file or null if the audio is not read from a file.
+        /// </summary>
+        public string Path => (reader as FileStream)?.Name;
+
+        /// <summary>
         /// File reader object.
         /// </summary>
         protected Stream reader;

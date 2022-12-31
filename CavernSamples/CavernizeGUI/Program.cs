@@ -2,6 +2,8 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
+using VoidX.WPF;
+
 namespace CavernizeGUI {
     class Program {
         /// <summary>
@@ -19,6 +21,7 @@ namespace CavernizeGUI {
                 ShowWindow(GetConsoleWindow(), 0);
             } else {
                 ConsoleMode = true;
+                FFmpeg.ConsoleMode = true;
             }
 
             var app = new App();

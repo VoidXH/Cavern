@@ -4,6 +4,9 @@ using System.Windows;
 using System.Windows.Controls;
 
 using Cavern.Format;
+using Cavern.Remapping;
+
+using VoidX.WPF;
 
 namespace EnhancedAC3Merger {
     /// <summary>
@@ -11,12 +14,21 @@ namespace EnhancedAC3Merger {
     /// </summary>
     public partial class InputChannel : UserControl {
         /// <summary>
-        /// Name of the output channel to set with the control.
+        /// This input channel is assigned.
         /// </summary>
-        public string TargetChannel {
-            get => channelName.Text;
-            set => channelName.Text = value;
+        public bool Active => SelectedFile != null;
+
+        /// <summary>
+        /// The output channel to set with the control.
+        /// </summary>
+        public ReferenceChannel TargetChannel {
+            get => targetChannel;
+            set {
+                targetChannel = value;
+                channelName.Text = EnumToTitleCase.GetTitleCase(value.ToString());
+            }
         }
+        ReferenceChannel targetChannel;
 
         /// <summary>
         /// The file selected for this channel.
@@ -56,5 +68,10 @@ namespace EnhancedAC3Merger {
                 reader.Dispose();
             }
         }
+
+        /// <summary>
+        /// Display the referenced channel on string conversion.
+        /// </summary>
+        public override string ToString() => channelName.Text;
     }
 }

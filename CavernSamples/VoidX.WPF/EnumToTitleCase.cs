@@ -3,8 +3,14 @@ using System.Globalization;
 using System.Windows.Data;
 
 namespace VoidX.WPF {
+    /// <summary>
+    /// Converts a camel-case enum with spaces and uppercase initial.
+    /// </summary>
     public class EnumToTitleCase : IValueConverter {
-        static string GetTitleCase(string source) {
+        /// <summary>
+        /// Converts a camel-case string with spaces and uppercase initial.
+        /// </summary>
+        public static string GetTitleCase(string source) {
             if (string.IsNullOrEmpty(source))
                 return null;
             char[] target = new char[source.Length * 2];
@@ -17,9 +23,11 @@ namespace VoidX.WPF {
                         target[size++] = ' ';
                         lastCamel = true;
                     }
-                } else
+                    target[size++] = (char)(source[i] - ('A' - 'a'));
+                } else {
                     lastCamel = false;
-                target[size++] = source[i];
+                    target[size++] = source[i];
+                }
             }
             return new(target, 0, size);
         }

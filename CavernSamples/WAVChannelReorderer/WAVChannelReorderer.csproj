@@ -16,6 +16,9 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\VoidX.WPF\EnumToTitleCase.cs" Link="Tools\EnumToTitleCase.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
     <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
   </ItemGroup>

@@ -1,15 +1,18 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Win32;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Controls;
-using System.Windows.Forms;
-
-using CavernizeGUI;
 
 namespace VoidX.WPF {
     /// <summary>
     /// FFmpeg runner and locator.
     /// </summary>
     public class FFmpeg {
+        /// <summary>
+        /// In console mode, output less and launch in the same console.
+        /// </summary>
+        public static bool ConsoleMode { get; set; }
+
         /// <summary>
         /// FFmpeg is located and ready to use.
         /// </summary>
@@ -39,9 +42,9 @@ namespace VoidX.WPF {
         /// </summary>
         public bool Launch(string arguments) {
             ProcessStartInfo start = new() {
-                Arguments = Program.ConsoleMode ? arguments + lesserOutput : arguments,
+                Arguments = ConsoleMode ? arguments + lesserOutput : arguments,
                 FileName = Location,
-                UseShellExecute = !Program.ConsoleMode
+                UseShellExecute = !ConsoleMode
             };
             try {
                 using Process proc = Process.Start(start);
@@ -56,10 +59,10 @@ namespace VoidX.WPF {
         /// Prompts the user to select FFmpeg's location.
         /// </summary>
         public void Locate() {
-            using var dialog = new OpenFileDialog() {
+            OpenFileDialog dialog = new OpenFileDialog() {
                 Filter = filter
             };
-            if (dialog.ShowDialog() == DialogResult.OK) {
+            if (dialog.ShowDialog().Value) {
                 Location = dialog.FileName;
                 CheckFFmpeg();
             }
@@ -70,22 +73,19 @@ namespace VoidX.WPF {
         /// </summary>
         public void CheckFFmpeg() {
             Found = !string.IsNullOrEmpty(Location) && File.Exists(Location);
-            if (Found) {
-                statusText.Text = readyText;
-            } else {
-                statusText.Text = notReadyText;
+            if (statusText != null) {
+                if (Found) {
+                    statusText.Text = readyText;
+                } else {
+                    statusText.Text = notReadyText;
+                }
             }
         }
 
         /// <summary>
         /// Open file dialog filter for selecting FFmpeg's binary.
         /// </summary>
-        const string filter = "FFmpeg|" + exeName;
-
-        /// <summary>
-        /// Filename of the searched executable.
-        /// </summary>
-        const string exeName = "ffmpeg.exe";
+        const string filter = "FFmpeg|ffmpeg.exe";
 
         /// <summary>
         /// Displayed status message when FFmpeg was found.

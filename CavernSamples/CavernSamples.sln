@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark", "Benchmark\Benc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADMValidator", "ADMValidator\ADMValidator.csproj", "{065B0038-1D18-419F-8545-96C5E8063064}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnhancedAC3Merger", "EnhancedAC3Merger\EnhancedAC3Merger.csproj", "{205EE433-4DF9-475B-8C82-15E627788F6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnhancedAC3Merger", "EnhancedAC3Merger\EnhancedAC3Merger.csproj", "{205EE433-4DF9-475B-8C82-15E627788F6D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
