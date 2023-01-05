@@ -69,7 +69,7 @@ namespace Cavern.Remapping {
             new Vector3(-1, 0, .677419f), // WideLeft
             new Vector3(1, 0, .677419f), // WideRight
             new Vector3(-1, 1, -1), // TopRearLeft
-            new Vector3(-1, 1, 1), // TopRearRight
+            new Vector3(1, 1, -1), // TopRearRight
             new Vector3(-1, 1, 0) // TopRearCenter
         };
 
