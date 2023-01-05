@@ -136,7 +136,7 @@ namespace CavernizeGUI {
                     // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
                     cacheSize += listener.UpdateRate - cacheSize % listener.UpdateRate;
                 }
-                cacheSize *= virtualizer != null ? Listener.Channels.Length : VirtualizerFilter.VirtualChannels;
+                cacheSize *= virtualizer == null ? Listener.Channels.Length : VirtualizerFilter.VirtualChannels;
                 writeCache = new float[cacheSize];
             }
             // TODO: override multichannel process for the fast convolution filter to prevent reallocation
