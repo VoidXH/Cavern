@@ -6,6 +6,7 @@ using System.Windows;
 using Cavern.Format;
 
 using VoidX.WPF;
+using System;
 
 namespace EnhancedAC3Merger {
     /// <summary>
@@ -27,7 +28,7 @@ namespace EnhancedAC3Merger {
         /// </summary>
         public MainWindow() {
             InitializeComponent();
-            ffmpeg = new FFmpeg(null, null);
+            ffmpeg = new FFmpeg(null, Settings.Default.ffmpeg);
             inputs = new InputChannel[] {
                 fl, fr, fc, lfe, sl, sr, // Bed order doesn't matter, it's handled by FFmpeg
                 flc, frc, rl, rr, rc, gv, wl, wr, tfl, tfr, tfc, tsl, tsr // Others are in E-AC-3 channel assignment order
@@ -37,7 +38,10 @@ namespace EnhancedAC3Merger {
         /// <summary>
         /// Search for FFmpeg's executable.
         /// </summary>
-        void LocateFFmpeg(object _, RoutedEventArgs e) => ffmpeg.Locate();
+        void LocateFFmpeg(object _, RoutedEventArgs e) {
+            ffmpeg.Locate();
+            Settings.Default.ffmpeg = ffmpeg.Location;
+        }
 
         /// <summary>
         /// Start merging the selected tracks.
@@ -72,6 +76,14 @@ namespace EnhancedAC3Merger {
             for (int i = 0; i < files.Length; i++) {
                 files[i].Dispose();
             }
+        }
+
+        /// <summary>
+        /// Save the settings on exiting.
+        /// </summary>
+        protected override void OnClosed(EventArgs e) {
+            base.OnClosed(e);
+            Settings.Default.Save();
         }
     }
 }
