@@ -40,6 +40,17 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         public ADMChannelFormat(XElement source) : base(source) { }
 
         /// <summary>
+        /// Get the length of the contained object movement.
+        /// </summary>
+        public ADMTimeSpan GetLength() {
+            if (Blocks.Count != 0) {
+                ADMBlockFormat block = Blocks[^1];
+                return block.Offset + block.Duration;
+            }
+            return ADMTimeSpan.Zero;
+        }
+
+        /// <summary>
         /// Create an XML element about this object.
         /// </summary>
         public override void Serialize(XmlWriter writer) {

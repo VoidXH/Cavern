@@ -182,6 +182,17 @@ namespace Cavern.Format.Decoders {
         }
 
         /// <summary>
+        /// Get the custom channel layout or the standard layout corresponding to this file's channel count.
+        /// </summary>
+        public ReferenceChannel[] GetChannels() {
+            if (channelMask == -1) {
+                return ChannelPrototype.GetStandardMatrix(channelCount);
+            } else {
+                return RIFFWave.ParseChannelMask(channelMask);
+            }
+        }
+
+        /// <summary>
         /// Read and decode a given number of samples.
         /// </summary>
         /// <param name="target">Array to decode data into</param>
@@ -218,17 +229,6 @@ namespace Cavern.Format.Decoders {
             stream.Position = dataStart + sample * channelCount * ((int)Bits >> 3);
             position = sample;
             reader.Clear();
-        }
-
-        /// <summary>
-        /// Get the custom channel layout or the standard layout corresponding to this file's channel count.
-        /// </summary>
-        public ReferenceChannel[] GetChannels() {
-            if (channelMask == -1) {
-                return ChannelPrototype.GetStandardMatrix(channelCount);
-            } else {
-                return RIFFWave.ParseChannelMask(channelMask);
-            }
         }
 
         /// <summary>

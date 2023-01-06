@@ -136,6 +136,24 @@ namespace Cavern.Format.Transcoders {
         }
 
         /// <summary>
+        /// Get the length of the main program.
+        /// </summary>
+        /// <remarks>For minimal imports, it's calculated from object movement.</remarks>
+        public ADMTimeSpan GetLength() {
+            if (Programs.Count != 0) {
+                return Programs[0].Length;
+            } else {
+                for (int i = 0, c = movements.Count; i < c; i++) {
+                    ADMTimeSpan length = movements[i].GetLength();
+                    if (!length.IsZero()) {
+                        return length;
+                    }
+                }
+                throw new NoProgramException();
+            }
+        }
+
+        /// <summary>
         /// Extracts the ADM metadata from an XML file.
         /// </summary>
         public void ReadXml(XmlReader reader) {
@@ -252,6 +270,7 @@ namespace Cavern.Format.Transcoders {
         /// Check if timings and positions are valid for this AXML. A string for each error is returned.
         /// </summary>
         public List<string> Validate() {
+            ADMTimeSpan length = GetLength();
             List<string> errors = new List<string>();
             for (int ch = 0, c = ChannelFormats.Count; ch < c; ch++) {
                 ADMChannelFormat channel = ChannelFormats[ch];
@@ -262,13 +281,13 @@ namespace Cavern.Format.Transcoders {
                     continue;
                 }
 
-                if (blocks[0].Offset != ADMTimeSpan.Zero) {
+                if (!blocks[0].Offset.IsZero()) {
                     errors.Add($"Channel {channel.ID} does not start when the program starts.");
                 }
 
                 if (channel.Type != ADMPackType.DirectSpeakers) {
                     for (int block = 0; block <= lastBlock; block++) {
-                        if (blocks[block].Duration == ADMTimeSpan.Zero) {
+                        if (blocks[block].Duration.IsZero()) {
                             errors.Add($"Channel {channel.ID}'s block {block + 1}'s length is zero.");
                         }
                     }
@@ -296,7 +315,7 @@ namespace Cavern.Format.Transcoders {
                         errors.Add($"Channel {channel.ID}'s block {block} does not end when the next block starts.");
                     }
                 }
-                if (Programs.Count != 0 && blocks[lastBlock].Offset + blocks[lastBlock].Duration != Programs[0].Length) {
+                if (channel.Type == ADMPackType.Objects && blocks[lastBlock].Offset + blocks[lastBlock].Duration != length) {
                     errors.Add($"Channel {channel.ID} does not end when the program ends.");
                 }
             }

@@ -37,6 +37,11 @@ static class Program {
 
         Console.WriteLine("Validating...");
         List<string> errors = decoder.ADM.Validate();
+        long admLength = (long)(decoder.ADM.GetLength().TotalSeconds * decoder.SampleRate);
+        if (decoder.Length != admLength) {
+            errors.Add("The PCM length in the RIFF header does not match with the ADM program length.");
+        }
+
         if (errors.Count == 0) {
             Console.WriteLine("This is a valid ADM BWF file.");
         } else {

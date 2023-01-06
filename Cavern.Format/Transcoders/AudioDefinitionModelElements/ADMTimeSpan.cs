@@ -95,6 +95,11 @@
         public static bool operator !=(ADMTimeSpan lhs, ADMTimeSpan rhs) => lhs.seconds != rhs.seconds | lhs.fraction != rhs.fraction;
 
         /// <summary>
+        /// Gets if this time span represents no time.
+        /// </summary>
+        public bool IsZero() => seconds == 0 && fraction == 0;
+
+        /// <summary>
         /// Checks if this time span is equal to another object.
         /// </summary>
         public override bool Equals(object obj) {
