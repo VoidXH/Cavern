@@ -64,13 +64,8 @@ namespace CavernizeGUI {
             listener.DetachAllSources();
             target.Attach(listener);
 
-            if (target.Codec == Codec.EnhancedAC3) {
-                listener.Volume = .5f; // Master volume of most E-AC-3 files is -6 dB, not yet applied from the stream
-                listener.LFEVolume = 2;
-            } else {
-                listener.Volume = 1;
-                listener.LFEVolume = 1;
-            }
+            // Prevent height limiting, require at least 4 overhead channels for full gain
+            listener.Volume = target.Codec == Codec.EnhancedAC3 && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1;
         }
 
         /// <summary>
