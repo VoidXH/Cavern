@@ -45,13 +45,16 @@ namespace EnhancedAC3Merger {
         void Merge(object _, RoutedEventArgs e) {
             if (!ffmpeg.Found) {
                 Error("FFmpeg wasn't found, please locate.");
+                return;
             }
             if (inputs.Count(x => x.Active) > 15) {
                 Error("E-AC-3 can only contain 15 full bandwidth channels.");
+                return;
             }
             InputChannel[] bedChannels = GetBed();
             if (bedChannels == null) {
                 Error("Invalid bed layout. Only 2.0, 4.0, 5.0, and 5.1 are allowed.");
+                return;
             }
 
             SaveFileDialog saver = new SaveFileDialog() {

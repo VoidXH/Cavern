@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EnhancedAC3Merger" x:Class="EnhancedAC3Merger.MainWindow"
         mc:Ignorable="d"
-        Title="Enhanced AC-3 Merger" Height="415" Width="880">
+        Title="Enhanced AC-3 Merger" Height="415" Width="920">
     <Grid>
-        <GroupBox Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="190"
+        <GroupBox Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="440" Height="190"
                   Header="Mandatory bed (2.0, 4.0, 5.0, or 5.1)">
             <Grid>
                 <local:InputChannel x:Name="fl" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="FrontLeft"/>
@@ -18,7 +18,7 @@
                 <local:InputChannel x:Name="sr" Margin="10,135,10,0" VerticalAlignment="Top" TargetChannel="SideRight"/>
             </Grid>
         </GroupBox>
-        <GroupBox Margin="435,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="240"
+        <GroupBox Margin="455,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="440" Height="240"
                   Header="Optional ground channels and God's Voice">
             <Grid>
                 <local:InputChannel x:Name="flc" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="FrontLeftCenter"/>
@@ -31,7 +31,7 @@
                 <local:InputChannel x:Name="wr" Margin="10,185,10,0" VerticalAlignment="Top" TargetChannel="WideRight"/>
             </Grid>
         </GroupBox>
-        <GroupBox Margin="10,205,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420" Height="160"
+        <GroupBox Margin="10,205,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="440" Height="160"
             Header="Optional height channels">
             <Grid>
                 <local:InputChannel x:Name="tfl" Margin="10,10,10,0" VerticalAlignment="Top" TargetChannel="TopFrontLeft"/>

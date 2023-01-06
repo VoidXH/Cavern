@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -41,9 +42,38 @@ namespace EnhancedAC3Merger {
         public int SelectedChannel => channelIndex.SelectedIndex;
 
         /// <summary>
+        /// Path of the last opened file in the application.
+        /// </summary>
+        static string lastFile;
+
+        /// <summary>
         /// Single channel input mapper control.
         /// </summary>
         public InputChannel() => InitializeComponent();
+
+        /// <summary>
+        /// Opens a file for selecting a channel from.
+        /// </summary>
+        void OpenFile(string path) {
+            AudioReader reader;
+            try {
+                reader = AudioReader.Open(path);
+                reader.ReadHeader();
+            } catch (Exception ex) {
+                MessageBox.Show("Importing the file failed for the following reason: " + ex.Message);
+                return;
+            }
+
+            SelectedFile = path;
+            ReferenceChannel[] channels = reader.GetRenderer().GetChannels();
+            channelIndex.ItemsSource = channels;
+            if (channels.Contains(targetChannel)) {
+                channelIndex.SelectedItem = targetChannel;
+            } else {
+                channelIndex.SelectedIndex = 0;
+            }
+            reader.Dispose();
+        }
 
         /// <summary>
         /// Opens a file for selecting a channel from.
@@ -53,19 +83,18 @@ namespace EnhancedAC3Merger {
                 Filter = "Supported input files|" + AudioReader.filter
             };
             if (opener.ShowDialog().Value) {
-                AudioReader reader;
-                try {
-                    reader = AudioReader.Open(opener.FileName);
-                    reader.ReadHeader();
-                } catch (Exception ex) {
-                    MessageBox.Show("Importing the file failed for the following reason: " + ex.Message);
-                    return;
-                }
+                OpenFile(lastFile = opener.FileName);
+            }
+        }
 
-                SelectedFile = opener.FileName;
-                channelIndex.ItemsSource = reader.GetRenderer().GetChannels();
-                channelIndex.SelectedIndex = 0;
-                reader.Dispose();
+        /// <summary>
+        /// Uses the file opened the last time clicking another channel's &quot;Open file&quot; button.
+        /// </summary>
+        void LastFile(object _, RoutedEventArgs e) {
+            if (lastFile == null) {
+                MainWindow.Error("No file was opened before.");
+            } else {
+                OpenFile(lastFile);
             }
         }
 

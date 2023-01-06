@@ -12,7 +12,7 @@ namespace EnhancedAC3Merger {
         /// <summary>
         /// Display an error message popup.
         /// </summary>
-        static void Error(string message) => MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        public static void Error(string message) => MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         /// <summary>
         /// Get the channels that are part of the bed (2.0, 4.0, 5.0, or 5.1) or null if the bed layout is invalid.
@@ -43,9 +43,6 @@ namespace EnhancedAC3Merger {
         /// <returns>Stream groups or null if a channel misses its mandatory pair.</returns>
         InputChannel[][] GetSubstreams(params InputChannel[][] prepend) {
             List<InputChannel[]> mustBeGrouped = new List<InputChannel[]>();
-            if (prepend != null) {
-                mustBeGrouped.AddRange(prepend);
-            }
 
             for (int i = 6 /* after bed */; i < inputs.Length; i++) {
                 if (Array.BinarySearch(mustBePaired, inputs[i].TargetChannel) >= 0) {
@@ -60,6 +57,7 @@ namespace EnhancedAC3Merger {
             }
 
             List<InputChannel[]> result = new List<InputChannel[]>();
+            result.AddRange(prepend);
             const int maxPerBuild = 4;
             InputChannel[] build = new InputChannel[maxPerBuild];
             int buildIndex = 0;
