@@ -43,11 +43,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         /// <summary>
-        /// Decode a complete JOC matrix around a <paramref name="center"/> value.
-        /// In this step, the values are positive integers in a simple differential coding.
+        /// Decode and dequantize a complete JOC matrix around a <paramref name="quantizedCenter"/> value.
         /// </summary>
-        void DecodeCoarse(int obj, float[][][] mixMatrix, int center) {
-            int max = center * 2;
+        void DecodeCoarse(int obj, float[][][] mixMatrix, int quantizedCenter, float gainStep) {
+            float center = quantizedCenter * gainStep;
+            float max = center * 2;
             int bands = this.bands[obj];
             int[][][] sourceMatrix = jocMatrix[obj];
             for (int dp = 0; dp < dataPoints[obj]; dp++) {
@@ -56,10 +56,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 for (int ch = 0; ch < ChannelCount; ch++) {
                     float[] chMatrix = dpMatrix[ch];
                     int[] chSource = dpSource[ch];
-                    chMatrix[0] = (center + chSource[0]) % max;
+                    chMatrix[0] = (center + chSource[0] * gainStep) % max;
                     for (int pb = 1; pb < bands; pb++) {
-                        chMatrix[pb] = (chMatrix[pb - 1] + chSource[pb]) % max;
+                        chMatrix[pb] = (chMatrix[pb - 1] + chSource[pb] * gainStep) % max;
+                        chMatrix[pb - 1] -= center;
                     }
+                    chMatrix[bands - 1] -= center;
                 }
             }
         }
@@ -98,16 +100,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             float[][][] interpolationMatrix, float[][] prevMatrix) {
             int centerValue = quantizationTable[obj] * 48 + 48;
             if (ObjectActive[obj]) {
+                float gainStep = .2f - quantizationTable[obj] * .1f;
                 if (sparseCoded[obj]) {
                     DecodeSparse(obj, mixMatrix, centerValue);
+                    Dequantize(obj, mixMatrix, centerValue, gainStep);
                 } else {
-                    DecodeCoarse(obj, mixMatrix, centerValue);
+                    DecodeCoarse(obj, mixMatrix, centerValue, gainStep);
                 }
-            }
-            Dequantize(obj, mixMatrix, centerValue, .2f - quantizationTable[obj] * .1f);
-
-            // Side info interpolation below
-            if (!ObjectActive[obj]) {
+            } else {
+                // The final result is in the interpolation matrix.
+                // For the previously calculated mixing matrix, it will be calculated later.
                 for (int ts = 0; ts < timeslots; ts++) {
                     for (int ch = 0; ch < ChannelCount; ch++) {
                         Array.Clear(interpolationMatrix[ts][ch], 0, QuadratureMirrorFilterBank.subbands);
