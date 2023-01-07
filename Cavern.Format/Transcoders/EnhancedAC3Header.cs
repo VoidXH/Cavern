@@ -226,7 +226,7 @@ namespace Cavern.Format.Transcoders {
                 for (int bit = 0; bit < channelMappingTargets.Length; bit++) {
                     if (channelMappingTargets[bit].Contains(layout[i])) {
                         int addition = 1 << bit;
-                        if (addition < mapping) {
+                        if (addition > mapping && mapping != 0) {
                             throw new InvalidChannelOrderException();
                         }
                         mapping += addition;

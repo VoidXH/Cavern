@@ -15,6 +15,69 @@ namespace EnhancedAC3Merger {
         public static void Error(string message) => MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         /// <summary>
+        /// Create caches for each input file's each channel.
+        /// </summary>
+        /// <param name="files">Result of <see cref="GetFiles"/></param>
+        /// <remarks>The header of the files must be read beforehand.</remarks>
+        static float[][][] CreateChannelCache(AudioReader[] files) {
+            float[][][] result = new float[files.Length][][];
+            for (int i = 0; i < files.Length; i++) {
+                float[][] fileCache = result[i] = new float[files[i].ChannelCount][];
+                for (int j = 0; j < fileCache.Length; j++) {
+                    fileCache[j] = new float[bufferSize];
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Get the complete target layout in E-AC-3's channel mapping order
+        /// </summary>
+        /// <param name="streams">Result of <see cref="GetSubstreams(InputChannel[][])"/></param>
+        static ReferenceChannel[] GetLayout(InputChannel[][] streams) {
+            ReferenceChannel[] layout = streams.SelectMany(x => x).Select(x => x.TargetChannel).ToArray();
+            if (streams[0].Length > 4) { // E-AC-3 has the non-standard LCR order
+                layout[1] = ReferenceChannel.FrontCenter;
+                layout[2] = ReferenceChannel.FrontRight;
+                if (streams[0].Length == 6) { // LFE location is also different
+                    layout[3] = ReferenceChannel.SideLeft;
+                    layout[4] = ReferenceChannel.SideRight;
+                    layout[5] = ReferenceChannel.ScreenLFE;
+                }
+            }
+            return layout;
+        }
+
+        /// <summary>
+        /// Read the headers of the opened files. Get their length and sample rate if they match, and return -1 if they don't.
+        /// </summary>
+        /// <param name="files">Result of <see cref="GetFiles"/></param>
+        static (long length, int sampleRate) PrepareFiles(AudioReader[] files) {
+            files[0].ReadHeader();
+            long length = files[0].Length;
+            int sampleRate = files[0].SampleRate;
+            bool error = false;
+            for (int i = 1; i < files.Length; i++) {
+                files[i].ReadHeader();
+                if (files[i].SampleRate != sampleRate) {
+                    Error("The sample rate of the input files does not match.");
+                    error = true;
+                }
+                if (!error && files[i].Length != length) {
+                    Error("The length of the input files does not match.");
+                    error = true;
+                }
+                if (error) {
+                    for (int j = 0; j < files.Length; j++) {
+                        files[j].Dispose();
+                    }
+                    return (-1, -1);
+                }
+            }
+            return (length, sampleRate);
+        }
+
+        /// <summary>
         /// Get the channels that are part of the bed (2.0, 4.0, 5.0, or 5.1) or null if the bed layout is invalid.
         /// </summary>
         InputChannel[] GetBed() {
@@ -103,6 +166,11 @@ namespace EnhancedAC3Merger {
             }
             return result;
         }
+
+        /// <summary>
+        /// Number of samples per channel to read and write in each frame.
+        /// </summary>
+        const long bufferSize = 16384;
 
         /// <summary>
         /// Channels that can only be in pairs with the next <see cref="ReferenceChannel"/> in order.

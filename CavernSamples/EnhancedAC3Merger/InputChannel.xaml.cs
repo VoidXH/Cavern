@@ -65,7 +65,14 @@ namespace EnhancedAC3Merger {
             if (channels.Contains(targetChannel)) {
                 channelIndex.SelectedItem = targetChannel;
             } else {
-                channelIndex.SelectedIndex = 0;
+                // Top rears are not supported by E-AC-3, but could be exported by Cavernize
+                if (targetChannel == ReferenceChannel.TopSideLeft && channels.Contains(ReferenceChannel.TopRearLeft)) {
+                    channelIndex.SelectedItem = ReferenceChannel.TopRearLeft;
+                } else if (targetChannel == ReferenceChannel.TopSideRight && channels.Contains(ReferenceChannel.TopRearRight)) {
+                    channelIndex.SelectedItem = ReferenceChannel.TopRearRight;
+                } else {
+                    channelIndex.SelectedIndex = 0;
+                }
             }
             reader.Dispose();
         }

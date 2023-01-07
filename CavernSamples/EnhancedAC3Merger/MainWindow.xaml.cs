@@ -1,12 +1,14 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 
 using Cavern.Format;
+using Cavern.Remapping;
 
 using VoidX.WPF;
-using System;
 
 namespace EnhancedAC3Merger {
     /// <summary>
@@ -71,8 +73,67 @@ namespace EnhancedAC3Merger {
             AudioReader[] files = GetFiles();
             Dictionary<InputChannel, int> fileMap = Associate(files);
             InputChannel[][] streams = GetSubstreams(bedChannels);
-            // TODO: write the streams while updating all files, FFmpeg encoding to E-AC-3, and then merge those streams
+            (long length, int sampleRate) = PrepareFiles(files);
+            if (length == -1) {
+                return;
+            }
+            float[][][] channelCache = CreateChannelCache(files);
 
+            // Create outputs
+            string baseOutputName = saver.FileName[..saver.FileName.LastIndexOf('.')];
+            AudioWriter[] outputs = new AudioWriter[streams.Length];
+            for (int i = 0; i < outputs.Length; i++) {
+                outputs[i] = AudioWriter.Create($"{baseOutputName} {i}.wav", streams[i].Length, length, sampleRate, BitDepth.Int24);
+                outputs[i].WriteHeader();
+            }
+
+            long position = 0;
+            while (position < length) {
+                long samplesThisFrame = length - position;
+                if (samplesThisFrame > bufferSize) {
+                    samplesThisFrame = bufferSize;
+                }
+
+                // Read the last samples from each stream
+                for (int i = 0; i < files.Length; i++) {
+                    files[i].ReadBlock(channelCache[i], 0, samplesThisFrame);
+                }
+
+                // Remix the channels and write them to the output files
+                for (int i = 0; i < streams.Length; i++) {
+                    float[][] output = new float[streams[i].Length][];
+                    for (int j = 0; j < output.Length; j++) {
+                        InputChannel stream = streams[i][j];
+                        output[j] = channelCache[fileMap[stream]][stream.SelectedChannel];
+                    }
+                    outputs[i].WriteBlock(output, 0, samplesThisFrame);
+                }
+
+                position += bufferSize;
+            }
+
+            Stream[] finalSources = new Stream[outputs.Length];
+            for (int i = 0; i < outputs.Length; i++) {
+                string tempOutputName = $"{baseOutputName} {i}.wav",
+                    finalTempName = $"{baseOutputName} {i}.ac3";
+                ffmpeg.Launch($"-i \"{tempOutputName}\" -c:a eac3 \"{finalTempName}\"");
+                outputs[i].Dispose();
+                File.Delete(tempOutputName);
+                finalSources[i] = File.OpenRead(finalTempName);
+            }
+
+            ReferenceChannel[] layout = GetLayout(streams);
+            Cavern.Format.Transcoders.EnhancedAC3Merger merger =
+                new Cavern.Format.Transcoders.EnhancedAC3Merger(finalSources, layout, saver.FileName);
+            position = 0;
+            while (!merger.ProcessFrame()) {
+                position += 1536;
+            }
+
+            for (int i = 0; i < outputs.Length; i++) {
+                finalSources[i].Close();
+                File.Delete($"{baseOutputName} {i}.ac3");
+            }
             for (int i = 0; i < files.Length; i++) {
                 files[i].Dispose();
             }
