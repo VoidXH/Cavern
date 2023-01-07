@@ -7,11 +7,13 @@
             if (spxstre = block == 0 || extractor.ReadBit()) {
                 if (extractor.ReadBit()) {
                     spxinu = true;
-                    if (header.ChannelMode == 1)
+                    if (header.ChannelMode == 1) {
                         chinspx[0] = true;
-                    else
-                        for (int channel = 0; channel < channels.Length; ++channel)
+                    } else {
+                        for (int channel = 0; channel < channels.Length; ++channel) {
                             chinspx[channel] = extractor.ReadBit();
+                        }
+                    }
                     spxstrtf = extractor.Read(2);
                     spxbegf = extractor.Read(3);
                     spxendf = extractor.Read(3);
@@ -20,13 +22,15 @@
                     spxbndstrce = extractor.ReadBit();
                     if (spxbndstrce) {
                         spxbndstrc = new bool[spx_end_subbnd];
-                        for (int band = spx_begin_subbnd + 1; band < spx_end_subbnd; ++band)
+                        for (int band = spx_begin_subbnd + 1; band < spx_end_subbnd; ++band) {
                             spxbndstrc[band] = extractor.ReadBit();
+                        }
                     }
 
                     ParseSPX();
-                } else
+                } else {
                     ClearSPX();
+                }
             }
 
             // Coordinates
@@ -36,8 +40,9 @@
                         if (firstspxcos[channel]) {
                             spxcoe[channel] = true;
                             firstspxcos[channel] = false;
-                        } else
+                        } else {
                             spxcoe[channel] = extractor.ReadBit();
+                        }
 
                         if (spxcoe[channel]) {
                             spxblnd[channel] = extractor.Read(5);
@@ -47,8 +52,9 @@
                                 spxcomant[channel][band] = extractor.Read(2);
                             }
                         }
-                    } else
+                    } else {
                         firstspxcos[channel] = true;
+                    }
                 }
             }
         }

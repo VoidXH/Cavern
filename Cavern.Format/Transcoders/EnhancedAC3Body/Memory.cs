@@ -130,7 +130,6 @@
         int[] fsnroffst;
         int[] gainrng;
         int[] lfeexps;
-        int[] mstrcplco;
         int[] mstrspxco;
         int[] nchgrps;
         int[] spxattencod;
@@ -138,8 +137,7 @@
         int[] spxbndsztab;
         int[] transproclen;
         int[] transprocloc;
-        int[][] cplcoexp;
-        int[][] cplcomant;
+        int[][] cplco;
         int[][] exps;
         int[][] spxcoexp;
         int[][] spxcomant;
@@ -171,8 +169,7 @@
             channelOutput = new float[channels][];
             convexpstr = new int[channels];
             cplcoe = new bool[channels];
-            cplcoexp = new int[channels][];
-            cplcomant = new int[channels][];
+            cplco = new int[channels][];
             cplexps = new int[maxAllocationSize];
             cplexpstr = new ExpStrat[blocks];
             cplinu = new bool[blocks];
@@ -189,7 +186,6 @@
             gainrng = new int[channels];
             lfeexps = new int[nlfegrps + 1];
             lfeexpstr = new bool[blocks];
-            mstrcplco = new int[channels];
             mstrspxco = new int[channels];
             nchgrps = new int[channels];
             spxattencod = new int[channels];
@@ -212,8 +208,7 @@
             for (int channel = 0; channel < channels; ++channel) {
                 allocation[channel] = new Allocation(this, maxAllocationSize);
                 channelOutput[channel] = new float[maxAllocationSize];
-                cplcoexp[channel] = new int[cplbndstrc.Length];
-                cplcomant[channel] = new int[cplbndstrc.Length];
+                cplco[channel] = new int[cplbndstrc.Length];
                 deltba[channel].Reset();
                 exps[channel] = new int[maxAllocationSize];
             }

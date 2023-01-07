@@ -12,8 +12,9 @@
                 if (!spxbndstrc[bnd]) {
                     spxbndsztab[nspxbnds] = 12;
                     ++nspxbnds;
-                } else
+                } else {
                     spxbndsztab[nspxbnds - 1] += 12;
+                }
             }
             for (int channel = 0; channel < channels.Length; ++channel) {
                 spxcoexp[channel] = new int[nspxbnds];
@@ -33,8 +34,9 @@
                         ecplstartmant = ecplsubbndtab[ecpl_begin_subbnd];
                         ecplendmant = ecplsubbndtab[ecpl_end_subbnd];
                         ncplgrps = (ecplendmant - ecplstartmant) / groupDiv[(int)cplexpstr[block] - 1];
-                    } else
+                    } else {
                         ncplgrps = (cplendmant - cplstrtmant) / groupDiv[(int)cplexpstr[block] - 1];
+                    }
                 }
             }
 
@@ -42,17 +44,19 @@
                 if (ecplinu)
                     endmant[channel] = ecplsubbndtab[ecpl_begin_subbnd];
                 else {
-                    if (spxinu && !cplinu[block])
+                    if (spxinu && !cplinu[block]) {
                         endmant[channel] = spx_begin_subbnd * 12 + 25;
-                    else if (chincpl[channel])
+                    } else if (chincpl[channel]) {
                         endmant[channel] = cplstrtmant;
-                    else
+                    } else {
                         endmant[channel] = (chbwcod[channel] + 12) * 3 + 37;
+                    }
                 }
 
                 int strat = (int)chexpstr[block][channel];
-                if (strat != 0)
+                if (strat != 0) {
                     nchgrps[channel] = (endmant[channel] + groupAdd[strat - 1]) / groupDiv[strat - 1];
+                }
             }
         }
 
