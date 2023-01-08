@@ -131,9 +131,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         ++checkedBedInstance;
                     }
                 }
-                ChannelPrototype prototype = ChannelPrototype.Mapping[(int)bedChannels[checkedBed]];
-                sources[i].Position = new Vector3(prototype.X, prototype.Y, 0).PlaceInCube() * Listener.EnvironmentSize;
-                sources[i].LFE = prototype.LFE;
+                sources[i].Position = ChannelPrototype.AlternativePositions[(int)bedChannels[checkedBed]] * Listener.EnvironmentSize;
+                sources[i].LFE = ChannelPrototype.Mapping[(int)bedChannels[checkedBed]].LFE;
                 if (++checkedBed == (int)NonStandardBedChannel.Max) {
                     ++checkedBedInstance;
                 }
