@@ -202,6 +202,12 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Parse a calibration text where each line is a frequency-gain (dB) pair.
         /// </summary>
+        /// <param name="contents">Contents of the calibration file</param>
+        public static Equalizer FromCalibration(string contents) => FromCalibration(contents.Split("\n"));
+
+        /// <summary>
+        /// Parse a calibration text where each line is a frequency-gain (dB) pair.
+        /// </summary>
         /// <param name="lines">Lines of the calibration file</param>
         public static Equalizer FromCalibration(string[] lines) {
             List<Band> bands = new List<Band>();
