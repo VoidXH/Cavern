@@ -81,10 +81,10 @@ namespace CavernizeGUI {
                     exportName = exportFormat.Equals(".mkv") ? path[..^4] + waveExtension : path;
                 AudioWriter writer;
                 if (exportFormat.Equals(waveExtension)) {
-                    writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels,
+                    writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels[..activeRenderTarget.OutputChannels],
                         target.Length, listener.SampleRate, BitDepth.Int16);
                 } else {
-                    writer = AudioWriter.Create(exportName, activeRenderTarget.Channels.Length,
+                    writer = AudioWriter.Create(exportName, activeRenderTarget.OutputChannels,
                         target.Length, listener.SampleRate, BitDepth.Int16);
                 }
                 if (writer == null) {
@@ -181,7 +181,9 @@ namespace CavernizeGUI {
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.UpdateProgressBar(0);
             taskEngine.UpdateStatus((string)language["Start"]);
-            RenderStats stats = WriteRender(target, writer, dynamicOnly, heightOnly);
+            RenderTarget renderTargetRef = null;
+            Dispatcher.Invoke(() => renderTargetRef = (RenderTarget)renderTarget.SelectedItem);
+            RenderStats stats = WriteRender(target, writer, renderTargetRef, dynamicOnly, heightOnly);
             UpdatePostRenderReport(stats);
 
             string targetCodec = null;
@@ -195,15 +197,9 @@ namespace CavernizeGUI {
                 if (finalName[^4..].ToLower().Equals(".mkv")) {
                     string exportedAudio = finalName[..^4] + waveExtension;
                     taskEngine.UpdateStatus("Merging to final container...");
-                    string layout = null,
-                        filePath = null;
-                    Dispatcher.Invoke(() => {
-                        layout = ((RenderTarget)renderTarget.SelectedItem).Name;
-                        filePath = file.Path;
-                    });
                     if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c:v copy -c:a {2} " +
                         "-y -metadata:s:a:0 title=\"Cavern {3} render\" \"{4}\"",
-                        filePath, exportedAudio, targetCodec, layout, finalName)) ||
+                        file.Path, exportedAudio, targetCodec, renderTargetRef.Name, finalName)) ||
                         !File.Exists(finalName)) {
                         taskEngine.UpdateStatus("Failed to create the final file. " +
                             "Are your permissions sufficient in the export folder?");

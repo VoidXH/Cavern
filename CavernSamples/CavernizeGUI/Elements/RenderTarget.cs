@@ -17,11 +17,18 @@ namespace CavernizeGUI.Elements {
         public ReferenceChannel[] Channels { get; }
 
         /// <summary>
+        /// The <see cref="Channels"/> are used for rendering, but it could be rematrixed.
+        /// This is the number of channels actually written to the file.
+        /// </summary>
+        public int OutputChannels { get; protected set; }
+
+        /// <summary>
         /// Standard rendering channel layouts.
         /// </summary>
         public RenderTarget(string name, ReferenceChannel[] channels) {
             Name = name;
             Channels = channels;
+            OutputChannels = channels.Length;
         }
 
         /// <summary>
@@ -59,6 +66,26 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         override public string ToString() => Name;
 
+        // These have to come before the Targets, otherwise they would be null.
+        /// <summary>
+        /// Channels of the 5.1.4 layout used for both 5.1.4 and rendering before downmixing to 5.1.2 front.
+        /// </summary>
+        static readonly ReferenceChannel[] layout514 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+            ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
+        };
+
+        /// <summary>
+        /// Channels of the 9.1.4 layout used for both 9.1.4 and rendering before downmixing to 9.1.2 front.
+        /// </summary>
+        static readonly ReferenceChannel[] layout914 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+            ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
+        };
+
         /// <summary>
         /// Default render targets.
         /// </summary>
@@ -69,19 +96,12 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight
             }),
-            new RenderTarget("5.1.2 front", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
-            }),
+            new DownmixedRenderTarget("5.1.2 front", layout514, (8, 4), (9, 5)),
             new RenderTarget("5.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,  ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
-            new RenderTarget("5.1.4", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }),
+            new RenderTarget("5.1.4", layout514),
             new RenderTarget("5.1.6", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
@@ -89,7 +109,7 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("7.1", ChannelPrototype.GetStandardMatrix(8)),
-            new RenderTarget("7.1.2 front", ChannelPrototype.GetStandardMatrix(10)),
+            new DownmixedRenderTarget("7.1.2 front", ChannelPrototype.GetStandardMatrix(12), (10, 4), (11, 5)),
             new RenderTarget("7.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
@@ -102,22 +122,13 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight
             }),
-            new RenderTarget("9.1.2 front", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
-            }),
+            new DownmixedRenderTarget("9.1.2 front", layout914, (12, 4), (13, 5)),
             new RenderTarget("9.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
-            new RenderTarget("9.1.4", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }),
+            new RenderTarget("9.1.4", layout914),
             new RenderTarget("9.1.6", ChannelPrototype.GetStandardMatrix(16)),
             new DriverRenderTarget(),
             new VirtualizerRenderTarget()

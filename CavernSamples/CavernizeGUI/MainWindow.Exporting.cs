@@ -95,7 +95,7 @@ namespace CavernizeGUI {
             /// Report custom progress as finalization.
             /// </summary>
             public void Finalize(double progress) {
-                taskEngine.UpdateStatusLazy(string.Format((string)MainWindow.language["FinaP"], progress.ToString("0.00%")));
+                taskEngine.UpdateStatusLazy(string.Format((string)language["FinaP"], progress.ToString("0.00%")));
                 taskEngine.UpdateProgressBar(progress);
             }
         }
@@ -103,7 +103,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Renders a listener to a file, and returns some measurements of the render.
         /// </summary>
-        RenderStats WriteRender(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly) {
+        RenderStats WriteRender(Track target, AudioWriter writer, RenderTarget renderTarget, bool dynamicOnly, bool heightOnly) {
             RenderStats stats = new(listener);
             Progressor progressor = new Progressor(target.Length, listener, taskEngine);
             bool customMuting = dynamicOnly || heightOnly;
@@ -159,7 +159,13 @@ namespace CavernizeGUI {
                         }
 
                         if (virtualizer == null) {
-                            writer.WriteBlock(writeCache, 0, cachePosition);
+                            if (renderTarget is not DownmixedRenderTarget downmix) {
+                                writer.WriteBlock(writeCache, 0, cachePosition);
+                            } else {
+                                downmix.PerformMerge(writeCache);
+                                writer.WriteChannelLimitedBlock(writeCache, downmix.OutputChannels,
+                                    Listener.Channels.Length, 0, cachePosition);
+                            }
                         } else {
                             virtualizer.Process(writeCache, listener.SampleRate);
                             writer.WriteChannelLimitedBlock(writeCache, 2, Listener.Channels.Length, 0, cachePosition);

@@ -398,6 +398,20 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Mix a channel of a stream to one of its other track.
+        /// </summary>
+        /// <param name="source">Source track</param>
+        /// <param name="sourceChannel">Channel to copy to the <paramref name="destinationChannel"/></param>
+        /// <param name="destinationChannel">Channel to mix the <paramref name="sourceChannel"/> to</param>
+        /// <param name="channels">Number of channels in the <paramref name="source"/></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Mix(float[] source, int sourceChannel, int destinationChannel, int channels) {
+            for (int i = 0; i < source.Length; i += channels) {
+                source[i + destinationChannel] += source[i + sourceChannel];
+            }
+        }
+
+        /// <summary>
         /// Convert part of a multichannel waveform in different arrays to an interlaced waveform.
         /// </summary>
         // TODO: remove everywhere, use cached version
