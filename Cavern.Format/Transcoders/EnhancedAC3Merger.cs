@@ -10,6 +10,8 @@ namespace Cavern.Format.Transcoders {
     /// Combines multiple E-AC-3 streams, with a custom channel mapping. E-AC-3 can contain channel-based 3D audio up to 9.1.6,
     /// and combining a 5.1 stream with quad or stereo additions can reach it.
     /// </summary>
+    /// <remarks>The first file to merge must be a valid E-AC-3 file on its own, not a dependent substream.
+    /// This is required by standard.</remarks>
     public class EnhancedAC3Merger {
         /// <summary>
         /// Easy access to all required objects for reading an E-AC-3 header.
@@ -125,9 +127,10 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         void SetupHeaders() {
             int channelsUsed = 0;
-            for (int i = 0; i < sources.Length; i++) {
+            for (int i = 1; i < sources.Length; i++) {
                 sources[i].Header.SetChannelArrangement(layout[channelsUsed..(channelsUsed += sources[i].ChannelCount)]);
-                sources[i].Header.SubstreamID = i;
+                sources[i].Header.SubstreamID = 7 + i;
+                sources[i].Header.StreamType = EnhancedAC3.StreamTypes.Dependent;
             }
         }
     }

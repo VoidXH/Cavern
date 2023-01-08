@@ -62,7 +62,7 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Type of the last decoded substream.
         /// </summary>
-        public StreamTypes StreamType { get; private set; }
+        public StreamTypes StreamType { get; set; }
 
         /// <summary>
         /// Bitstream mode, information about the type of the contained audio data.
@@ -161,7 +161,7 @@ namespace Cavern.Format.Transcoders {
             BitPlanter planter = new BitPlanter();
             planter.Write(syncWord, 16);
             planter.Write((int)StreamType, 2);
-            planter.Write(SubstreamID, 3);
+            planter.Write(StreamType == StreamTypes.Dependent ? SubstreamID - 8 : SubstreamID, 3);
             planter.Write(WordsPerSyncframe - 1, 11);
             planter.Write(SampleRateCode, 2);
             planter.Write(numberOfBlocks.IndexOf((byte)Blocks), 2);

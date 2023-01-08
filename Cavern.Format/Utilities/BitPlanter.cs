@@ -87,6 +87,7 @@ namespace Cavern.Format.Utilities {
         /// Append a custom width conditional value to the stream under construction.
         /// </summary>
         public void Write(int? value, int bits) {
+            Write(value.HasValue);
             if (value != null) {
                 Write(value.Value, bits);
             }
