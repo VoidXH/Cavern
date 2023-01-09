@@ -31,19 +31,19 @@ namespace Cavern.Utilities {
         /// Calculate the average of an array.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Average(float[] array) => Sum(array, 0, array.Length) / array.Length;
+        public static float Average(this float[] array) => Sum(array, 0, array.Length) / array.Length;
 
         /// <summary>
         /// Calculate the average of an array until the selected border element (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Average(float[] array, int until) => Sum(array, 0, until) / until;
+        public static float Average(this float[] array, int until) => Sum(array, 0, until) / until;
 
         /// <summary>
         /// Calculate the average of an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Average(float[] array, int from, int to) => Sum(array, from, to) / (to - from);
+        public static float Average(this float[] array, int from, int to) => Sum(array, from, to) / (to - from);
 
         /// <summary>
         /// Round up the number in base 2.
@@ -231,19 +231,19 @@ namespace Cavern.Utilities {
         /// Sum all elements in an array.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sum(float[] array) => Sum(array, 0, array.Length);
+        public static float Sum(this float[] array) => Sum(array, 0, array.Length);
 
         /// <summary>
         /// Sum the elements in an array until the selected border element (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sum(float[] array, int until) => Sum(array, 0, until);
+        public static float Sum(this float[] array, int until) => Sum(array, 0, until);
 
         /// <summary>
         /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sum(float[] array, int from, int to) {
+        public static float Sum(this float[] array, int from, int to) {
             float sum = 0;
             for (int i = from; i < to; ++i) {
                 sum += array[i];
@@ -255,19 +255,19 @@ namespace Cavern.Utilities {
         /// Sum all elements in an array.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Sum(int[] array) => Sum(array, 0, array.Length);
+        public static int Sum(this int[] array) => Sum(array, 0, array.Length);
 
         /// <summary>
         /// Sum the elements in an array until the selected border element (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Sum(int[] array, int until) => Sum(array, 0, until);
+        public static int Sum(this int[] array, int until) => Sum(array, 0, until);
 
         /// <summary>
         /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Sum(int[] array, int from, int to) {
+        public static int Sum(this int[] array, int from, int to) {
             int sum = 0;
             for (int i = from; i < to; ++i) {
                 sum += array[i];
@@ -279,7 +279,7 @@ namespace Cavern.Utilities {
         /// Sum the elements in a list.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Sum(IReadOnlyList<double> list) {
+        public static double Sum(this IReadOnlyList<double> list) {
             double sum = 0;
             for (int i = 0, to = list.Count; i < to; ++i) {
                 sum += list[i];
@@ -291,20 +291,20 @@ namespace Cavern.Utilities {
         /// Sum absolute values of elements in an array.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAbs(float[] array) => SumAbs(array, 0, array.Length);
+        public static float SumAbs(this float[] array) => SumAbs(array, 0, array.Length);
 
         /// <summary>
         /// Sum absolute values of elements in an array until the selected border element (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAbs(float[] array, int until) => SumAbs(array, 0, until);
+        public static float SumAbs(this float[] array, int until) => SumAbs(array, 0, until);
 
         /// <summary>
         /// Sum absolute values of elements in an array between <paramref name="from"/> (inclusive)
         /// and <paramref name="to"/> (exclusive).
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAbs(float[] array, int from, int to) {
+        public static float SumAbs(this float[] array, int from, int to) {
             float sum = 0;
             for (int i = from; i < to; ++i) {
                 sum += Math.Abs(array[i]);

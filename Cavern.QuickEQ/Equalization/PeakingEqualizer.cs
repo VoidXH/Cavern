@@ -52,7 +52,7 @@ namespace Cavern.QuickEQ.Equalization {
                 analyzer.SampleRate, target.Length);
             GraphUtils.ConvertToDecibels(changedTarget);
             WaveformUtils.Mix(target, changedTarget);
-            return QMath.SumAbs(changedTarget);
+            return changedTarget.SumAbs();
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Cavern.QuickEQ.Equalization {
         PeakingEQ BruteForceQ(ref float[] target, double freq, double gain, bool alwaysValid = false) {
             double q = StartQ, qStep = q * .5;
             gain = Math.Round(-Math.Clamp(gain, MinGain, MaxGain) / GainPrecision) * GainPrecision;
-            float targetSum = QMath.SumAbs(target);
+            float targetSum = target.SumAbs();
             float[] targetSource = target.FastClone();
             bool valid = alwaysValid; // If false, we're better off without this filter
             for (int i = 0; i < Iterations; ++i) {

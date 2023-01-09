@@ -7,14 +7,14 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This is slower than <see cref="Average(float[])"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double AverageAccurate(double[] array) => SumAccurate(array, 0, array.Length) / array.Length;
+        public static double AverageAccurate(this double[] array) => SumAccurate(array, 0, array.Length) / array.Length;
 
         /// <summary>
         /// Calculate the average of an array without floating point rounding errors.
         /// </summary>
         /// <remarks>This is slower than <see cref="Average(float[])"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float AverageAccurate(float[] array) => SumAccurate(array, 0, array.Length) / array.Length;
+        public static float AverageAccurate(this float[] array) => SumAccurate(array, 0, array.Length) / array.Length;
 
         /// <summary>
         /// Calculate the average of an array until the selected border element (exclusive)
@@ -22,7 +22,7 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This is slower than <see cref="Average(float[], int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double AverageAccurate(double[] array, int until) => SumAccurate(array, 0, until) / until;
+        public static double AverageAccurate(this double[] array, int until) => SumAccurate(array, 0, until) / until;
 
         /// <summary>
         /// Calculate the average of an array until the selected border element (exclusive)
@@ -30,7 +30,7 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This is slower than <see cref="Average(float[], int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float AverageAccurate(float[] array, int until) => SumAccurate(array, 0, until) / until;
+        public static float AverageAccurate(this float[] array, int until) => SumAccurate(array, 0, until) / until;
 
         /// <summary>
         /// Calculate the average of an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive)
@@ -38,7 +38,7 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This is slower than <see cref="Average(float[], int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double AverageAccurate(double[] array, int from, int to) => SumAccurate(array, from, to) / (to - from);
+        public static double AverageAccurate(this double[] array, int from, int to) => SumAccurate(array, from, to) / (to - from);
 
         /// <summary>
         /// Calculate the average of an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive)
@@ -46,35 +46,35 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This is slower than <see cref="Average(float[], int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float AverageAccurate(float[] array, int from, int to) => SumAccurate(array, from, to) / (to - from);
+        public static float AverageAccurate(this float[] array, int from, int to) => SumAccurate(array, from, to) / (to - from);
 
         /// <summary>
         /// Sum all elements in an array without floating point rounding errors.
         /// </summary>
         /// <remarks>This is slower than <see cref="Sum(float[])"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double SumAccurate(double[] array) => SumAccurate(array, 0, array.Length);
+        public static double SumAccurate(this double[] array) => SumAccurate(array, 0, array.Length);
 
         /// <summary>
         /// Sum all elements in an array without floating point rounding errors.
         /// </summary>
         /// <remarks>This is slower than <see cref="Sum(float[])"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAccurate(float[] array) => SumAccurate(array, 0, array.Length);
+        public static float SumAccurate(this float[] array) => SumAccurate(array, 0, array.Length);
 
         /// <summary>
         /// Sum the elements in an array until the selected border element (exclusive) without floating point rounding errors.
         /// </summary>
         /// <remarks>This is slower than <see cref="Sum(float[], int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double SumAccurate(double[] array, int until) => SumAccurate(array, 0, until);
+        public static double SumAccurate(this double[] array, int until) => SumAccurate(array, 0, until);
 
         /// <summary>
         /// Sum the elements in an array until the selected border element (exclusive) without floating point rounding errors.
         /// </summary>
         /// <remarks>This is slower than <see cref="Sum(float[], int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAccurate(float[] array, int until) => SumAccurate(array, 0, until);
+        public static float SumAccurate(this float[] array, int until) => SumAccurate(array, 0, until);
 
         /// <summary>
         /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive)
@@ -82,7 +82,7 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This is slower than <see cref="Sum(float[], int, int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double SumAccurate(double[] array, int from, int to) {
+        public static double SumAccurate(this double[] array, int from, int to) {
             double sum = 0f,
                 c = 0f;
             for (int i = from; i < to; ++i) {
@@ -100,7 +100,7 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This is slower than <see cref="Sum(float[], int, int)"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAccurate(float[] array, int from, int to) {
+        public static float SumAccurate(this float[] array, int from, int to) {
             float sum = 0f,
                 c = 0f;
             for (int i = from; i < to; ++i) {

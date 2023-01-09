@@ -1,5 +1,6 @@
 ﻿using Cavern.Utilities;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.QuickEQ {
     /// <summary>
@@ -43,6 +44,7 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Convert a response curve back from decibel scale.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ConvertFromDecibels(float[] curve) {
             for (int i = 0; i < curve.Length; ++i) {
                 curve[i] = (float)Math.Pow(10, curve[i] * .05f);
@@ -52,6 +54,7 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Convert a response curve to decibel scale.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ConvertToDecibels(float[] curve, float minimum = -100) {
             for (int i = 0; i < curve.Length; ++i) {
                 curve[i] = 20 * (float)Math.Log10(curve[i]);
@@ -102,10 +105,32 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>
+        /// Get the correlation between two curves.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Correlation(float[] x, float[] y) => Correlation(x, y, 0, x.Length);
+
+        /// <summary>
+        /// Get the correlation between a <paramref name="start"/> and <paramref name="end"/> index.
+        /// </summary>
+        public static float Correlation(float[] x, float[] y, int start, int end) {
+            float xMean = x.Average(), yMean = y.Average(),
+                sumXY = 0, sumX2 = 0, sumY2 = 0;
+            for (int i = start; i < end; i++) {
+                float xDiff = x[i] - xMean, yDiff = y[i] - yMean;
+                sumXY += xDiff * yDiff;
+                sumX2 += xDiff * xDiff;
+                sumY2 += yDiff * yDiff;
+            }
+            return sumXY / MathF.Sqrt(sumX2 * sumY2);
+        }
+
+        /// <summary>
         /// Moves a graph's average value to 0.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Normalize(float[] graph) {
-            float avg = QMath.Average(graph);
+            float avg = graph.Average();
             for (int i = 0; i < graph.Length; ++i) {
                 graph[i] -= avg;
             }

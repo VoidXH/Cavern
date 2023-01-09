@@ -134,8 +134,7 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public byte[] GetData() {
             reader.Position = firstFrame;
-            int length = QMath.Sum(frameSizes);
-            return reader.ReadBytes(length);
+            return reader.ReadBytes(frameSizes.Sum());
         }
 
         /// <summary>

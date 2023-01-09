@@ -189,7 +189,7 @@ namespace Cavern.Format.Container {
                     ReadTracks(tracklist);
                 }
             }
-            Duration = QMath.Sum(blockLengths) * nsToS;
+            Duration = blockLengths.Sum() * nsToS;
         }
 
         /// <summary>
