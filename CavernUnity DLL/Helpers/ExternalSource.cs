@@ -8,51 +8,51 @@ namespace Cavern.Helpers {
     [AddComponentMenu("Audio/Helpers/External Source")]
     public class ExternalSource : MonoBehaviour {
         /// <summary>
+        /// Actual latency.
+        /// </summary>
+        public float Latency { get; private set; }
+
+        /// <summary>
         /// Target source.
         /// </summary>
         [Tooltip("Target source.")]
-        public AudioSource3D Source;
+        public AudioSource3D source;
 
         /// <summary>
         /// Audio input device.
         /// </summary>
         [Tooltip("Audio input device.")]
-        public string SourceName;
+        public string sourceName;
 
         /// <summary>
         /// Maximum allowed latency.
         /// </summary>
         [Tooltip("Maximum allowed latency.")]
-        [Range(.02f, .5f)] public float MaxLatency = .05f;
-
-        /// <summary>
-        /// Actual latency.
-        /// </summary>
-        public float Latency { get; private set; }
+        [Range(.02f, .5f)] public float maxLatency = .05f;
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() {
-            Source.Loop = true;
-            Microphone.GetDeviceCaps(SourceName, out _, out int maxFreq);
-            Source.clip = Microphone.Start(SourceName, true, 1, maxFreq);
-            Source.clip.name = SourceName;
-            Source.Play();
+            source.Loop = true;
+            Microphone.GetDeviceCaps(sourceName, out _, out int maxFreq);
+            source.clip = Microphone.Start(sourceName, true, 1, maxFreq);
+            source.clip.name = sourceName;
+            source.Play();
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            if (!Source) {
+            if (!source) {
                 return;
             }
             // Latency fix
-            int micPos = Microphone.GetPosition(Source.clip.name);
-            Latency = (micPos - Source.timeSamples + Source.clip.samples) % Source.clip.samples / (float)Source.clip.samples;
-            if (Latency > MaxLatency) {
-                Source.timeSamples = micPos - AudioSettings.GetConfiguration().dspBufferSize;
+            int micPos = Microphone.GetPosition(source.clip.name);
+            Latency = (micPos - source.timeSamples + source.clip.samples) % source.clip.samples / (float)source.clip.samples;
+            if (Latency > maxLatency) {
+                source.timeSamples = micPos - AudioSettings.GetConfiguration().dspBufferSize;
             }
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void OnDisable() => Destroy(Source.clip);
+        void OnDisable() => Destroy(source.clip);
     }
 }

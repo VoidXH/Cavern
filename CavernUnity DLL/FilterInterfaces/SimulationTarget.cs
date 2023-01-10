@@ -61,8 +61,9 @@ namespace Cavern.FilterInterfaces {
         /// Finalize a freshly generated impulse response.
         /// </summary>
         public void UpdateFilter() {
-            if (character != null)
+            if (character != null) {
                 new Convolver(character, 0).Process(Impulse);
+            }
             filter.Impulse = Impulse;
         }
 

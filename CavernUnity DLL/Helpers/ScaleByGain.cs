@@ -14,31 +14,31 @@ namespace Cavern.Helpers {
         /// Target source.
         /// </summary>
         [Tooltip("Target source.")]
-        public AudioSource3D Source;
+        public AudioSource3D source;
 
         /// <summary>
         /// Object size change smoothness.
         /// </summary>
         [Tooltip("Object size change smoothness.")]
-        [Range(0, .95f)] public float Smoothing = .8f;
+        [Range(0, .95f)] public float smoothing = .8f;
 
         /// <summary>
         /// Object scale at minimum gain.
         /// </summary>
         [Tooltip("Object scale at minimum gain.")]
-        [Range(.1f, 10)] public float MinSize = .1f;
+        [Range(.1f, 10)] public float minSize = .1f;
 
         /// <summary>
         /// Object scale at maximum gain.
         /// </summary>
         [Tooltip("Object scale at maximum gain.")]
-        [Range(.1f, 10)] public float MaxSize = 1.25f;
+        [Range(.1f, 10)] public float maxSize = 1.25f;
 
         /// <summary>
         /// Signal level at minimum size.
         /// </summary>
         [Tooltip("Signal level at minimum size.")]
-        [Range(-300, 0)] public float DynamicRange = -96;
+        [Range(-300, 0)] public float dynamicRange = -96;
 
         /// <summary>
         /// Actual scaling value.
@@ -47,7 +47,7 @@ namespace Cavern.Helpers {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            float[][] samples = Source.cavernSource.Rendered;
+            float[][] samples = source.cavernSource.Rendered;
             if (samples != null) {
                 float peakSize = float.NegativeInfinity;
                 for (int channel = 0; channel < samples.Length; ++channel) {
@@ -59,8 +59,8 @@ namespace Cavern.Helpers {
                         peakSize = channelSize;
                     }
                 }
-                float size = Mathf.Clamp(peakSize / -DynamicRange + 1, 0, 1);
-                scale = QMath.Lerp(scale, (MaxSize - MinSize) * size + MinSize, 1 - Smoothing);
+                float size = Mathf.Clamp(peakSize / -dynamicRange + 1, 0, 1);
+                scale = QMath.Lerp(scale, (maxSize - minSize) * size + minSize, 1 - smoothing);
                 transform.localScale = new Vector3(scale, scale, scale);
             }
         }

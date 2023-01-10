@@ -83,7 +83,7 @@ namespace Cavern.Cavernize {
             newSource.Loop = true;
             newSource.VolumeRolloff = Rolloffs.Disabled;
             newSource.LFE = Channel.LFE;
-            newObject.AddComponent<ScaleByGain>().Source = newSource;
+            newObject.AddComponent<ScaleByGain>().source = newSource;
             if (Channel.Muted)
                 newSource.Volume = 0;
             newObject.transform.SetParent(master.transform);

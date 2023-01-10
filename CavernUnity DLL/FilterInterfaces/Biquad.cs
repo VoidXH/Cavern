@@ -87,9 +87,13 @@ namespace Cavern.FilterInterfaces {
         /// </summary>
         FilterTypes lastFilter;
 
+        /// <summary>
+        /// Set the <see cref="filter"/> to an instance of the selected filter.
+        /// </summary>
         void RecreateFilter() {
-            if (filter != null)
+            if (filter != null) {
                 source.RemoveFilter(filter);
+            }
             source.AddFilter(filter = (lastFilter = FilterType) switch {
                 FilterTypes.Lowpass => new Lowpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain),
                 FilterTypes.Highpass => new Highpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain),
@@ -117,10 +121,12 @@ namespace Cavern.FilterInterfaces {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            if (lastFilter != FilterType)
+            if (lastFilter != FilterType) {
                 RecreateFilter();
-            if (filter.CenterFreq != CenterFreq || filter.Q != Q || filter.Gain != Gain)
+            }
+            if (filter.CenterFreq != CenterFreq || filter.Q != Q || filter.Gain != Gain) {
                 filter.Reset(CenterFreq, Q, Gain);
+            }
         }
     }
 }
