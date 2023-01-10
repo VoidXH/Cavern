@@ -85,7 +85,7 @@ namespace Cavern.QuickEQ.Utilities {
         public PinkNoiseDetector(int blockSize, int sampleRate, FFTCache cache = null, float minFreq = 100, float maxFreq = 16000) {
             reference = new float[blockSize >> 1];
             for (int i = 0; i < reference.Length;) {
-                reference[i] = 1f / ++i;
+                reference[i] = .01f / ++i; // Pink noise spectrum starts at -20 dB
             }
             nyquistFrequency = sampleRate >> 1;
             this.cache = cache;
