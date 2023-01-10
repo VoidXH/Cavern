@@ -1,4 +1,5 @@
 ﻿using Cavern.QuickEQ.Equalization;
+using Cavern.QuickEQ.Utilities;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>

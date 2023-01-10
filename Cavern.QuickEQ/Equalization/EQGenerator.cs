@@ -6,6 +6,7 @@ using System.IO;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.EQCurves;
+using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {

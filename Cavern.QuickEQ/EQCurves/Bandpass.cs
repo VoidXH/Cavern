@@ -1,6 +1,7 @@
 ﻿using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.SignalGeneration;
+using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.EQCurves {

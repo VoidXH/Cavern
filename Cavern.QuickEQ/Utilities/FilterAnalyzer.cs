@@ -6,7 +6,7 @@ using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
-namespace Cavern.QuickEQ {
+namespace Cavern.QuickEQ.Utilities {
     /// <summary>
     /// Measures properties of a filter, like frequency/impulse response, gain, or delay.
     /// </summary>

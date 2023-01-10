@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {

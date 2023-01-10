@@ -1,8 +1,9 @@
-﻿using Cavern.Utilities;
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Cavern.QuickEQ {
+using Cavern.Utilities;
+
+namespace Cavern.QuickEQ.Utilities {
     /// <summary>
     /// Functions for graph processing and iterations.
     /// </summary>
