@@ -134,6 +134,8 @@ namespace Cavern.Format {
         public override void WriteHeader() {
             // RIFF header with file length
             writer.Write(syncWord1);
+            uint fmtContentLength = channelMask == -1 ? fmtContentSize : waveformatextensibleSize;
+            uint fmtSize = (byte)(fmtJunkSize + fmtContentLength);
             bool inConstraints = fmtSize + DataLength < uint.MaxValue;
             if (inConstraints && MaxLargeChunks == 0) {
                 writer.Write(fmtSize + (uint)DataLength);
@@ -151,11 +153,10 @@ namespace Cavern.Format {
 
             // Format header
             writer.Write(formatSync);
+            writer.Write(fmtContentLength);
             if (channelMask == -1) {
-                writer.Write(16); // FMT header size
                 writer.Write(Bits == BitDepth.Float32 ? (short)3 : (short)1); // Sample format...
             } else {
-                writer.Write(16 + 24); // FMT + WAVEFORMATEXTENSIBLE header size
                 writer.Write(extensibleSampleFormat); // ...or that it will be in an extended header
             }
             writer.Write(BitConverter.GetBytes((short)ChannelCount)); // Audio channels
@@ -319,9 +320,19 @@ namespace Cavern.Format {
         }
 
         /// <summary>
-        /// Size of the format header.
+        /// Additional gross bytes in the format header, its total size is this + <see cref="fmtContentSize"/>.
         /// </summary>
-        const byte fmtSize = 36;
+        const byte fmtJunkSize = 20;
+
+        /// <summary>
+        /// Bytes of metadata in the format header.
+        /// </summary>
+        const byte fmtContentSize = 16;
+
+        /// <summary>
+        /// The format header metadata length if it includes additional information.
+        /// </summary>
+        const byte waveformatextensibleSize = fmtContentSize + 24;
 
         /// <summary>
         /// Minimum size of the temporary header that could be replaced with a size header.
