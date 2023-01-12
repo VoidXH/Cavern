@@ -76,16 +76,17 @@ namespace CavernizeGUI {
             RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
             Track target = (Track)tracks.SelectedItem;
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
+            BitDepth bits = force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
             if (!codec.IsEnvironmental()) {
                 string exportFormat = path[^4..].ToLower(),
                     exportName = exportFormat.Equals(".mkv") ? path[..^4] + waveExtension : path;
                 AudioWriter writer;
                 if (exportFormat.Equals(waveExtension)) {
                     writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels[..activeRenderTarget.OutputChannels],
-                        target.Length, listener.SampleRate, BitDepth.Int16);
+                        target.Length, listener.SampleRate, bits);
                 } else {
                     writer = AudioWriter.Create(exportName, activeRenderTarget.OutputChannels,
-                        target.Length, listener.SampleRate, BitDepth.Int16);
+                        target.Length, listener.SampleRate, bits);
                 }
                 if (writer == null) {
                     Error((string)language["UnExt"]);
@@ -99,10 +100,10 @@ namespace CavernizeGUI {
                 EnvironmentWriter transcoder;
                 switch (codec) {
                     case Codec.ADM_BWF:
-                        transcoder = new BroadcastWaveFormatWriter(path, listener, target.Length, BitDepth.Int24);
+                        transcoder = new BroadcastWaveFormatWriter(path, listener, target.Length, bits);
                         break;
                     case Codec.ADM_BWF_Atmos:
-                        transcoder = new DolbyAtmosBWFWriter(path, listener, target.Length, BitDepth.Int24);
+                        transcoder = new DolbyAtmosBWFWriter(path, listener, target.Length, bits);
                         break;
                     default:
                         Error((string)language["UnCod"]);
