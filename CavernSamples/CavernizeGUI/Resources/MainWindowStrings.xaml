@@ -12,7 +12,7 @@
     <system:String x:Key="MuBeT">Only render objects that are not fixed in position, but move around.</system:String>
     <system:String x:Key="MuGrH">Mute _ground</system:String>
     <system:String x:Key="MuGrT">Any sound that only comes from the ground speakers will be muted.</system:String>
-    <system:String x:Key="For24">Force 24-_bit PCM (slower, larger files, no percieved improvement)</system:String>
+    <system:String x:Key="For24">Force 24-_bit PCM (slower, larger files, no perceived improvement)</system:String>
     <system:String x:Key="ReMoH">_Report only mode</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
         report will be available after rendering without writing anything to the disk.</system:String>

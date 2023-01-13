@@ -18,6 +18,11 @@ namespace Cavern.Format {
         public int MaxLargeChunks { get; set; }
 
         /// <summary>
+        /// Channels present in the file, see <see cref="WaveExtensibleChannel"/>.
+        /// </summary>
+        readonly int channelMask = -1;
+
+        /// <summary>
         /// Sizes of chunks larger than 4 GB.
         /// </summary>
         List<Tuple<int, long>> largeChunkSizes;
@@ -28,9 +33,9 @@ namespace Cavern.Format {
         long DataLength => Length * ChannelCount * ((int)Bits / 8);
 
         /// <summary>
-        /// Channels present in the file, see <see cref="WaveExtensibleChannel"/>.
+        /// Total samples written.
         /// </summary>
-        int channelMask = -1;
+        long samplesWritten;
 
         /// <summary>
         /// Minimal RIFF Wave file writer.
@@ -186,6 +191,14 @@ namespace Cavern.Format {
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
         public override void WriteBlock(float[] samples, long from, long to) {
+            // Don't allow overwriting
+            samplesWritten += (to - from) / ChannelCount;
+            if (samplesWritten > Length) {
+                long extra = samplesWritten - Length;
+                to -= extra;
+                samplesWritten -= extra;
+            }
+
             switch (Bits) {
                 case BitDepth.Int8:
                     while (from < to)
@@ -213,9 +226,17 @@ namespace Cavern.Format {
         /// Write a block of samples.
         /// </summary>
         /// <param name="samples">Samples to write</param>
-        /// <param name="from">Start position in the input array (inclusive)</param>
-        /// <param name="to">End position in the input array (exclusive)</param>
+        /// <param name="from">Start position in the input array for a single channel (inclusive)</param>
+        /// <param name="to">End position in the input array for a single channel (exclusive)</param>
         public override void WriteBlock(float[][] samples, long from, long to) {
+            // Don't allow overwriting
+            samplesWritten += to - from;
+            if (samplesWritten > Length) {
+                long extra = samplesWritten - Length;
+                to -= extra;
+                samplesWritten -= extra;
+            }
+
             switch (Bits) {
                 case BitDepth.Int8:
                     while (from < to) {
@@ -277,6 +298,18 @@ namespace Cavern.Format {
         public override void Dispose() {
             if (writer == null) {
                 return; // Already disposed
+            }
+
+            // Handle when a truncated signal was passed to the writer, fill the rest up with zero bytes
+            if (samplesWritten < Length) {
+                long zerosToWrite = (Length - samplesWritten) * ChannelCount * (long)Bits;
+                while (zerosToWrite > 8) {
+                    writer.Write(0L);
+                    zerosToWrite -= 8;
+                }
+                while (zerosToWrite-- > 0) {
+                    writer.Write(0L);
+                }
             }
 
             long contentSize = writer.BaseStream.Position - 8;
