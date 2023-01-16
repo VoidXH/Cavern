@@ -135,14 +135,14 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Downmixing metadata (mode and gains).
         /// </summary>
-        ushort downmixInfo;
+        readonly ushort downmixInfo;
 
         /// <summary>
         /// Reads a Dolby audio Metadata chunk from a stream.
         /// </summary>
         public DolbyMetadata(Stream reader, long length, bool checkChecksums = false) {
-            Version = reader.ReadUInt32(); // each byte is one dotted value -> to/from string
             long endPosition = reader.Position + length;
+            Version = reader.ReadUInt32(); // each byte is one dotted value -> to/from string
 
             byte segmentID;
             byte[] segment = new byte[0];

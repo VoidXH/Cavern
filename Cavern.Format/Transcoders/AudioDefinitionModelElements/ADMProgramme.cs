@@ -12,7 +12,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Length of the program.
         /// </summary>
-        public ADMTimeSpan Length { get; }
+        public ADMTimeSpan Length { get; private set; }
 
         /// <summary>
         /// ID references of contained <see cref="ADMObject"/>s.
@@ -48,6 +48,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         public override void Deserialize(XElement source) {
             ID = source.GetAttribute(ADMTags.programIDAttribute);
             Name = source.GetAttribute(ADMTags.programNameAttribute);
+            Length = ParseTimestamp(source.Attribute(ADMTags.programEndAttribute));
             Contents = ParseStrings(source, ADMTags.contentRefTag);
         }
     }
