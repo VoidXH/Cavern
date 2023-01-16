@@ -402,7 +402,7 @@ namespace CavernizeGUI {
         /// Opens the software's documentation.
         /// </summary>
         void Guide(object _, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
-            FileName = "http://cavern.sbence.hu/cavern/doc.php?p=CavernizeGUI",
+            FileName = "http://cavern.sbence.hu/cavern/doc.php?p=Cavernize",
             UseShellExecute = true
         });
 
