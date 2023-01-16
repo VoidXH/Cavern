@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
 
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 using Cavern.Remapping;
-using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
@@ -87,12 +85,32 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         }
 
         /// <summary>
+        /// Get the &quot;objects&quot; that are just static channels.
+        /// </summary>
+        public ReferenceChannel[] GetStaticChannels() {
+            ReferenceChannel[] result = new ReferenceChannel[Beds];
+            int lastChannel = 0;
+            for (int i = 0; i < bedAssignment.Length; i++) {
+                bool[] assignment = bedAssignment[i];
+                for (int j = 0; j < assignment.Length; j++) {
+                    if (assignment[j]) {
+                        result[lastChannel] = bedChannels[j];
+                        if (++lastChannel == Beds) {
+                            return result;
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Gets which object is the LFE channel or -1 if it's not present.
         /// </summary>
         public int GetLFEPosition() {
             int beds = 0;
-            for (int bed = 0; bed < bedAssignment.Length; ++bed) {
-                for (int i = 0; i < (int)NonStandardBedChannel.Max; ++i) {
+            for (int bed = 0; bed < bedAssignment.Length; bed++) {
+                for (int i = 0; i < (int)NonStandardBedChannel.Max; i++) {
                     if (bedAssignment[bed][i]) {
                         if (i == (int)NonStandardBedChannel.LowFrequencyEffects) {
                             return beds;

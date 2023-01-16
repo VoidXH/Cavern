@@ -249,8 +249,8 @@ namespace Cavern.Format.Decoders {
             short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVEFORMATEXTENSIBLE
             channelCount = reader.ReadInt16();
             sampleRate = reader.ReadInt32();
-            stream.Position += 4; // Bytes/sec
-            stream.Position += 2; // Block size in bytes
+            reader.Position += 4; // Bytes/sec
+            reader.Position += 2; // Block size in bytes
             short bitDepth = reader.ReadInt16();
             if (sampleFormat == -2) {
                 long endPosition = reader.ReadInt16() + reader.Position;
@@ -258,7 +258,7 @@ namespace Cavern.Format.Decoders {
                 channelMask = reader.ReadInt32();
                 sampleFormat = reader.ReadInt16();
                 //byte[] subFormat = reader.ReadBytes((int)(endPosition - stream.Position));
-                stream.Position = endPosition;
+                reader.Position = endPosition;
             }
             if (sampleFormat == 1) {
                 Bits = bitDepth switch {

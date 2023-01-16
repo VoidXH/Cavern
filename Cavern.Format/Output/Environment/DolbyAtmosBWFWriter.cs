@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Format.Consts;
@@ -17,22 +16,44 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
         /// </summary>
-        public DolbyAtmosBWFWriter(BinaryWriter writer, Listener source, long length, BitDepth bits) :
-            base(writer, ExtendWithMuteTarget(source), length, bits) { }
+        /// <param name="writer">File output stream</param>
+        /// <param name="source">Rendering environment that should be exported</param>
+        /// <param name="length">Total samples to write</param>
+        /// <param name="bits">Bit depth of the output</param>
+        /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
+        public DolbyAtmosBWFWriter(BinaryWriter writer, Listener source, long length, BitDepth bits,
+            (ReferenceChannel, Source)[] staticObjects) :
+            base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) { }
 
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
         /// </summary>
-        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits) :
-            this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits) { }
+        /// <param name="path">File output path</param>
+        /// <param name="source">Rendering environment that should be exported</param>
+        /// <param name="length">Total samples to write</param>
+        /// <param name="bits">Bit depth of the output</param>
+        /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
+        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, (ReferenceChannel, Source)[] staticObjects) :
+            this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits, staticObjects) { }
 
         /// <summary>
         /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.
+        /// Additionally, <paramref name="staticObjects"/> could be mapped to the bad if a corresponding bed channel exists.
         /// </summary>
-        static Listener ExtendWithMuteTarget(Listener source) {
-            for (int i = 0; i < bedChannels.Length; i++) {
-                Source mute = new MuteSource(source);
-                source.AttachPrioritySource(mute);
+        static Listener ExtendWithMuteTarget(Listener source, (ReferenceChannel, Source)[] staticObjects) {
+            for (int i = bedChannels.Length - 1; i >= 0; i--) {
+                bool attached = false;
+                for (int j = 0; j < staticObjects.Length; j++) {
+                    if (bedChannels[i] == (int)staticObjects[j].Item1) {
+                        source.AttachPrioritySource(staticObjects[j].Item2);
+                        attached = true;
+                        break;
+                    }
+                }
+                if (!attached) {
+                    Source mute = new MuteSource(source);
+                    source.AttachPrioritySource(mute);
+                }
             }
             return source;
         }
@@ -149,6 +170,6 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Indexes of Dolby Atmos beds (7.1.2) in the <see cref="ADMConsts.channelNames"/> array.
         /// </summary>
-        static readonly int[] bedChannels = { 0, 1, 2, 3, 6, 7, 4, 5, 17, 18 };
+        static readonly byte[] bedChannels = { 0, 1, 2, 3, 6, 7, 4, 5, 17, 18 };
     }
 }

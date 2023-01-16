@@ -94,6 +94,11 @@ namespace Cavern.Format.Renderers {
         public override ReferenceChannel[] GetChannels() => ((EnhancedAC3Decoder)stream).GetChannels();
 
         /// <summary>
+        /// Get the &quot;objects&quot; that are just static channels.
+        /// </summary>
+        public ReferenceChannel[] GetStaticChannels() => ((EnhancedAC3Decoder)stream).Extensions.OAMD.GetStaticChannels();
+
+        /// <summary>
         /// Read the next <paramref name="samples"/> and update the objects.
         /// </summary>
         /// <param name="samples">Samples per channel</param>

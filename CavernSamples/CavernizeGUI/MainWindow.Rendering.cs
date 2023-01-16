@@ -6,11 +6,14 @@ using Cavern;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Environment;
+using Cavern.Format.Renderers;
+using Cavern.Remapping;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
 using CavernizeGUI.Elements;
 using Track = CavernizeGUI.Elements.Track;
+using System.Collections.Generic;
 
 namespace CavernizeGUI {
     partial class MainWindow {
@@ -103,7 +106,18 @@ namespace CavernizeGUI {
                         transcoder = new BroadcastWaveFormatWriter(path, listener, target.Length, bits);
                         break;
                     case Codec.ADM_BWF_Atmos:
-                        transcoder = new DolbyAtmosBWFWriter(path, listener, target.Length, bits);
+                        (ReferenceChannel, Source)[] staticObjects;
+                        if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.HasObjects) {
+                            ReferenceChannel[] staticChannels = eac3.GetStaticChannels();
+                            IReadOnlyList<Source> allObjects = eac3.Objects;
+                            staticObjects = new (ReferenceChannel, Source)[staticChannels.Length];
+                            for (int i = 0; i < staticChannels.Length; i++) {
+                                staticObjects[i] = (staticChannels[i], allObjects[i]);
+                            }
+                        } else {
+                            staticObjects = Array.Empty<(ReferenceChannel, Source)>();
+                        }
+                        transcoder = new DolbyAtmosBWFWriter(path, listener, target.Length, bits, staticObjects);
                         break;
                     default:
                         Error((string)language["UnCod"]);
