@@ -127,6 +127,7 @@ namespace Cavern.Format.Environment {
                 FixEndTimings(movements[i], contentLength);
             }
 
+            ADMTimeSpan validInterpolation = new ADMTimeSpan(250.0 / Source.SampleRate); // The only allowed Atmos jump time is 0 or this
             packHex = ((int)ADMPackType.Objects).ToString("x4");
             for (int i = 0; i < movements.Length - bedChannels.Length; i++) {
                 string id = (0x1001 + i).ToString("x4"),
@@ -139,6 +140,14 @@ namespace Cavern.Format.Environment {
                     trackFormatID = $"AT_{packHex}{id}_01",
                     streamFormatID = $"AS_{packHex}{id}";
 
+                List<ADMBlockFormat> blocks = movements[i + bedChannels.Length];
+                for (int block = 0, c = blocks.Count; block < c; block++) {
+                    if (!blocks[block].Interpolation.IsZero()) {
+                        blocks[block].Interpolation =
+                            blocks[block].Interpolation < validInterpolation ? ADMTimeSpan.Zero : validInterpolation;
+                    }
+                }
+
                 objectIDs.Add(objectID);
                 objects.Add(new ADMObject(objectID, "Audio Object " + (i + 1), default, contentLength, packFormatID) {
                     Tracks = new List<string>() { trackID }
@@ -147,7 +156,7 @@ namespace Cavern.Format.Environment {
                     ChannelFormats = new List<string>() { channelFormatID }
                 });
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, ADMPackType.Objects) {
-                    Blocks = movements[i + bedChannels.Length]
+                    Blocks = blocks
                 });
                 tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, packFormatID));
                 trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));

@@ -127,10 +127,8 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             SerializeBlockMain(writer, block, namePrefix, index);
 
             if (block.Interpolation != block.Duration) {
-                const string interpolationFormat = "0.00000";
                 writer.WriteStartElement(ADMTags.blockJumpTag);
-                writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute,
-                    block.Interpolation.TotalSeconds.ToString(interpolationFormat, CultureInfo.InvariantCulture) + '0');
+                writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute, block.Interpolation.ToInvariantFloatString());
                 writer.WriteString(enabledValue);
                 writer.WriteEndElement();
             }

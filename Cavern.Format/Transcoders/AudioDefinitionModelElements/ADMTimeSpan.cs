@@ -2,7 +2,7 @@
     /// <summary>
     /// Representation of a length of time, with digits cut at 1/100000th of a second.
     /// </summary>
-    public struct ADMTimeSpan {
+    public readonly struct ADMTimeSpan {
         /// <summary>
         /// A time span of 0 seconds and 0 fractions.
         /// </summary>
@@ -98,6 +98,11 @@
         /// Gets if this time span represents no time.
         /// </summary>
         public bool IsZero() => seconds == 0 && fraction == 0;
+
+        /// <summary>
+        /// Display the timestamp as a floating-point number with a dot.
+        /// </summary>
+        public string ToInvariantFloatString() => $"{seconds}.{fraction}";
 
         /// <summary>
         /// Checks if this time span is equal to another object.
