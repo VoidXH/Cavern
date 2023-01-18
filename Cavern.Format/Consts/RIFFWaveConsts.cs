@@ -36,23 +36,28 @@ namespace Cavern.Format.Consts {
             TopFrontRight = 0x4000,
             TopBackLeft = 0x8000,
             TopBackCenter = 0x10000,
-            TopBackRight = 0x20000
+            TopBackRight = 0x20000,
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+            /// <summary>
+            /// A channel that's not even valid as a <see cref="ReferenceChannel"/>.
+            /// </summary>
+            Unknown
         }
 
         /// <summary>
         /// Assigns an array of <see cref="ReferenceChannel"/>s to a channel mask while checking for consistency.
         /// </summary>
+        /// <remarks>Using an unknown channel results in skipping the channel mapping on export.</remarks>
         public static int CreateChannelMask(ReferenceChannel[] channels) {
             int result = 0;
             List<ReferenceChannel> illegalChannels = null;
             for (int i = 0; i < channels.Length; i++) {
                 int mapped = (int)extensibleChannelMapping[(int)channels[i]];
                 if (mapped == (int)WaveExtensibleChannel.None) {
-                    if (illegalChannels == null) {
-                        illegalChannels = new List<ReferenceChannel>();
-                    }
+                    illegalChannels ??= new List<ReferenceChannel>();
                     illegalChannels.Add(channels[i]);
+                } else if (mapped == (int)WaveExtensibleChannel.Unknown) {
+                    return -1;
                 }
                 if ((result & mapped) != 0) {
                     throw new DuplicateChannelException();
@@ -160,7 +165,7 @@ namespace Cavern.Format.Consts {
             WaveExtensibleChannel.FrontRightCenter,
             WaveExtensibleChannel.None,
             WaveExtensibleChannel.None,
-            WaveExtensibleChannel.None,
+            WaveExtensibleChannel.Unknown,
             WaveExtensibleChannel.None,
             WaveExtensibleChannel.None,
             WaveExtensibleChannel.TopFrontLeft,

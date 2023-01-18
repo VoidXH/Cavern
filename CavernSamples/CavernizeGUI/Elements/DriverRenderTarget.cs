@@ -1,4 +1,5 @@
 ﻿using Cavern;
+using Cavern.Format.Renderers;
 using Cavern.Remapping;
 
 namespace CavernizeGUI.Elements {
@@ -9,14 +10,18 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Applies the layout that's set up in the Cavern Driver.
         /// </summary>
-        public DriverRenderTarget() : base(targetName, new ReferenceChannel[GetChannels()]) { }
+        public DriverRenderTarget() : base(targetName, GetChannels()) { }
 
         /// <summary>
-        /// Gets the channel count set up in the Cavern Driver.
+        /// Gets the channels set up in the Cavern Driver.
         /// </summary>
-        static int GetChannels() {
+        static ReferenceChannel[] GetChannels() {
             new Listener();
-            return Listener.Channels.Length;
+            ReferenceChannel[] result = new ReferenceChannel[Listener.Channels.Length];
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = Renderer.ChannelFromPosition(Listener.Channels[i].CubicalPos);
+            }
+            return result;
         }
 
         /// <summary>
