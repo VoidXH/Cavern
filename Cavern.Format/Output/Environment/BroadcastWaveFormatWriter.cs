@@ -29,7 +29,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// If an object is moving linearly for this long, the positions will be merged.
         /// </summary>
-        public double MaxObjectMergeTime;
+        public double MaxObjectMergeTime = 120;
 
         /// <summary>
         /// The main PCM exporter.
