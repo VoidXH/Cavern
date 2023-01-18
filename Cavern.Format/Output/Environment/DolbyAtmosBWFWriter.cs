@@ -23,7 +23,9 @@ namespace Cavern.Format.Environment {
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
         public DolbyAtmosBWFWriter(BinaryWriter writer, Listener source, long length, BitDepth bits,
             (ReferenceChannel, Source)[] staticObjects) :
-            base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) { }
+            base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) {
+            MaxObjectMergeTime = 16.0 / source.SampleRate;
+        }
 
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.

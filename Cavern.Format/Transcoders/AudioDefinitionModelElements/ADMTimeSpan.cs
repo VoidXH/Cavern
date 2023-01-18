@@ -28,7 +28,7 @@
         /// </summary>
         public ADMTimeSpan(double seconds) {
             this.seconds = (int)seconds;
-            fraction = (int)(seconds % 1 * 100000);
+            fraction = (int)(seconds % 1 * 100000 + 0.5);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@
         /// <summary>
         /// Display the timestamp as a floating-point number with a dot.
         /// </summary>
-        public string ToInvariantFloatString() => $"{seconds}.{fraction}";
+        public string ToInvariantFloatString() => $"{seconds}.{fraction:00000}";
 
         /// <summary>
         /// Checks if this time span is equal to another object.
