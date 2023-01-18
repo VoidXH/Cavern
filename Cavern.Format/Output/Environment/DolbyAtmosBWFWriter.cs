@@ -141,11 +141,9 @@ namespace Cavern.Format.Environment {
                     streamFormatID = $"AS_{packHex}{id}";
 
                 List<ADMBlockFormat> blocks = movements[i + bedChannels.Length];
-                for (int block = 0, c = blocks.Count; block < c; block++) {
-                    if (!blocks[block].Interpolation.IsZero()) {
-                        blocks[block].Interpolation =
-                            blocks[block].Interpolation < validInterpolation ? ADMTimeSpan.Zero : validInterpolation;
-                    }
+                blocks[0].Interpolation = ADMTimeSpan.Zero;
+                for (int block = 1, c = blocks.Count; block < c; block++) {
+                    blocks[block].Interpolation = validInterpolation;
                 }
 
                 objectIDs.Add(objectID);
