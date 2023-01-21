@@ -3,12 +3,31 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
+using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
 using static Cavern.QuickEQ.Windowing;
 
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
+        /// <summary>
+        /// Apply a slope (in decibels, per octave) between two frequencies.
+        /// </summary>
+        public void AddSlope(double slope, double startFreq, double endFreq) {
+            double logStart = Math.Log(startFreq),
+                range = Math.Log(endFreq) - logStart;
+            slope *= range * 3.32192809489f; // range / log(2)
+            for (int i = 0, c = bands.Count; i < c; ++i) {
+                if (bands[i].Frequency > startFreq) {
+                    if (bands[i].Frequency > endFreq) {
+                        bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slope);
+                    } else {
+                        bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slope * (Math.Log(bands[i].Frequency) - logStart) / range);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Set this equalizer so if the <paramref name="other"/> is linear, this will be the difference from it.
         /// </summary>

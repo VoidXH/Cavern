@@ -180,9 +180,18 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Parse an Equalizer from a linear spectrum.
+        /// </summary>
+        public static Equalizer FromSpectrum(float[] source, double startFreq, double endFreq) {
+            List<Band> bands = new List<Band>();
+            GraphUtils.ForEachLin(source, startFreq, endFreq, (double freq, ref float gain) => bands.Add(new Band(freq, gain)));
+            return new Equalizer(bands);
+        }
+
+        /// <summary>
         /// Parse an Equalizer from a drawn graph.
         /// </summary>
-        public static Equalizer FromGraph(float[] source, float startFreq, float endFreq) {
+        public static Equalizer FromGraph(float[] source, double startFreq, double endFreq) {
             List<Band> bands = new List<Band>();
             GraphUtils.ForEachLog(source, startFreq, endFreq, (double freq, ref float gain) => bands.Add(new Band(freq, gain)));
             return new Equalizer(bands);

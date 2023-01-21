@@ -43,6 +43,17 @@ namespace Cavern.QuickEQ.Utilities {
         }
 
         /// <summary>
+        /// Apply a slope (in decibels from start to finish) to an existing curve.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddSlope(this float[] curve, float slope) {
+            float mul = 1f / curve.Length;
+            for (int i = 0; i < curve.Length; ++i) {
+                curve[i] += slope * mul;
+            }
+        }
+
+        /// <summary>
         /// Convert a response curve back from decibel scale.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -124,6 +135,19 @@ namespace Cavern.QuickEQ.Utilities {
                 sumY2 += yDiff * yDiff;
             }
             return sumXY / MathF.Sqrt(sumX2 * sumY2);
+        }
+
+        /// <summary>
+        /// Get the peak value of a graph.
+        /// </summary>
+        public static float Max(this float[] graph) {
+            float max = graph[0];
+            for (int i = 1; i < graph.Length; i++) {
+                if (max < graph[i]) {
+                    max = graph[i];
+                }
+            }
+            return max;
         }
 
         /// <summary>

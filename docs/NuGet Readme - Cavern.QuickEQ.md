@@ -8,7 +8,7 @@ Supported software/hardware for EQ/filter set export:
 * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD
 * Processors: Emotiva, StormAudio
 * Amplifiers: Behringer NX series
-* Others: Audyssey MultEQ-X 
+* Others: Audyssey MultEQ-X
 
 [![Build Status](https://api.travis-ci.com/VoidXH/Cavern.svg?branch=master)](https://app.travis-ci.com/VoidXH/Cavern)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)
@@ -45,7 +45,7 @@ Noise and sweep generation with multichannel timing are available in the
 Displaying the spectrum of a measurement takes 3 steps, all of which are found
 in `Cavern.QuickEQ.GraphUtils`:
 * `ConvertToGraph` - Linear spectra have to be cut and converted to logarithmic scale.
-* `ConvertFromDecibels` - The Y axis also requires a logarithmic transformation.
+* `ConvertToDecibels` - The Y axis also requires a logarithmic transformation.
 * `SmoothGraph` - To mitigate heavy spectrum fluctuations by the nature of sound, smoothing helps a lot.
 
 ### CavernAmp
