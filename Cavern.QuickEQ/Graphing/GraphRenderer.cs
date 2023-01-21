@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Cavern.QuickEQ.Equalization;
+using Cavern.QuickEQ.Graphing.Overlays;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
@@ -72,6 +73,11 @@ namespace Cavern.QuickEQ.Graphing {
         public uint[] Pixels { get; }
 
         /// <summary>
+        /// Something to draw over the graph, like a <see cref="Frame"/> or <see cref="Grid"/>.
+        /// </summary>
+        public GraphOverlay Overlay { get; set; }
+
+        /// <summary>
         /// List of displayed curves in overdrawing order.
         /// </summary>
         readonly List<RenderedCurve> curves = new List<RenderedCurve>();
@@ -95,6 +101,7 @@ namespace Cavern.QuickEQ.Graphing {
             entry.ReRenderFull(this);
             curves.Add(entry);
             DrawSingle(entry);
+            Overlay.DrawOn(this);
         }
 
         /// <summary>
@@ -105,6 +112,7 @@ namespace Cavern.QuickEQ.Graphing {
             for (int i = 0, c = curves.Count; i < c; i++) {
                 DrawSingle(curves[i]);
             }
+            Overlay.DrawOn(this);
         }
 
         /// <summary>
