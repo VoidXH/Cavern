@@ -138,8 +138,22 @@ namespace Cavern.QuickEQ.Utilities {
         }
 
         /// <summary>
+        /// Get both the minimum and maximum values of the graph.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void GetLimits(float[] values, out float min, out float max) {
+            min = values[0];
+            max = values[0];
+            for (int i = 1; i < values.Length; ++i) {
+                if (max < values[i]) max = values[i];
+                if (min > values[i]) min = values[i];
+            }
+        }
+
+        /// <summary>
         /// Get the peak value of a graph.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Max(this float[] graph) {
             float max = graph[0];
             for (int i = 1; i < graph.Length; i++) {

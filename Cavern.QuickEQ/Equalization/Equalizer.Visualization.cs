@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-
+using Cavern.QuickEQ.EQCurves;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
@@ -113,6 +113,38 @@ namespace Cavern.QuickEQ.Equalization {
 
             Array.Copy(diracFooter, 0, calFile, start + c, diracFooter.Length);
             File.WriteAllLines(path, calFile);
+        }
+
+        /// <summary>
+        /// Limit the application range of the EQ.
+        /// </summary>
+        /// <param name="startFreq">Bottom cutoff frequency</param>
+        /// <param name="endFreq">Top cutoff frequency</param>
+        /// <param name="targetCurve">If set, the cuts will conform to this curve</param>
+        public void Limit(double startFreq, double endFreq, EQCurve targetCurve = null) {
+            int c = bands.Count;
+            for (int i = 0; i < c; i++) {
+                if (bands[i].Frequency > startFreq) {
+                    if (i != 0) {
+                        double atStart = targetCurve != null ? targetCurve[startFreq] : this[startFreq];
+                        bands.RemoveRange(0, i);
+                        AddBand(new Band(startFreq, atStart));
+                        c -= i;
+                    }
+                    break;
+                }
+            }
+
+            for (int i = c - 1; i >= 0; i--) {
+                if (bands[i].Frequency < endFreq) {
+                    if (i + 1 != c) {
+                        double atEnd = targetCurve != null ? targetCurve[endFreq] : this[endFreq];
+                        bands.RemoveRange(i + 1, c - i - 1);
+                        bands.Add(new Band(endFreq, atEnd));
+                    }
+                    break;
+                }
+            }
         }
 
         /// <summary>
