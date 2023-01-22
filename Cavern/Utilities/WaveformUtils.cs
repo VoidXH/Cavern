@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Cavern.Filters;
+using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -298,15 +300,21 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Sets a channel to a signal in a multichannel waveform.
         /// </summary>
-        /// <param name="samples">Samples of the given <paramref name="channel"/></param>
-        /// <param name="target">Channel array to write to</param>
-        /// <param name="channel">Channel index</param>
-        /// <param name="channels">Total channels</param>
-        /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
-        /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
-        public static void Insert(float[] samples, float[] target, int channel, int channels) {
-            for (int from = 0, to = channel; from < samples.Length; ++from, to += channels) {
-                target[to] = samples[from];
+        /// <param name="source">Samples of the given <paramref name="destinationChannel"/></param>
+        /// <param name="destination">Channel array to write to</param>
+        /// <param name="destinationChannel">Channel index</param>
+        /// <param name="destinationChannels">Total channels</param>
+        /// <remarks>It is assumed that the size of <paramref name="destination"/> equals the size of
+        /// <paramref name="source"/> * <paramref name="destinationChannels"/>.</remarks>
+        public static unsafe void Insert(float[] source, float[] destination, int destinationChannel, int destinationChannels) {
+            fixed (float* pSource = source, pDestination = destination) {
+                float* sourcePos = pSource,
+                    destinationPos = pDestination + destinationChannel,
+                    end = sourcePos + source.Length;
+                while (sourcePos != end) {
+                    *destinationPos = *sourcePos++;
+                    destinationPos += destinationChannels;
+                }
             }
         }
 
@@ -364,8 +372,29 @@ namespace Cavern.Utilities {
         /// <param name="destination">Mono destination stream</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Mix(float[] source, float[] destination) {
-            for (int i = 0; i < source.Length; ++i) {
+            int i = 0;
+            for (int c = source.Length - Vector<float>.Count; i <= c; i += Vector<float>.Count) {
+                (new Vector<float>(source, i) + new Vector<float>(destination, i)).CopyTo(destination, i);
+            }
+            for (; i < source.Length; i++) {
                 destination[i] += source[i];
+            }
+        }
+
+        /// <summary>
+        /// Mix a partial track to a mono stream. The mixing starts at a sample offset, and lasts until the stream.
+        /// </summary>
+        /// <param name="source">Source track</param>
+        /// <param name="sourceOffset">Start the source from this sample</param>
+        /// <param name="destination">Mono destination stream</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Mix(float[] source, int sourceOffset, float[] destination) {
+            int i = 0;
+            for (int c = destination.Length - Vector<float>.Count; i <= c; i += Vector<float>.Count) {
+                (new Vector<float>(source, i + sourceOffset) + new Vector<float>(destination, i)).CopyTo(destination, i);
+            }
+            for (; i < destination.Length; i++) {
+                destination[i] += source[i + sourceOffset];
             }
         }
 
@@ -377,8 +406,13 @@ namespace Cavern.Utilities {
         /// <param name="gain">Linear amplification of the <paramref name="source"/> track</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Mix(float[] source, float[] destination, float gain) {
-            for (int i = 0; i < source.Length; ++i) {
-                destination[i] += source[i] * gain;
+            int i = 0;
+            Vector<float> mul = new Vector<float>(gain);
+            for (int c = source.Length - Vector<float>.Count; i <= c; i += Vector<float>.Count) {
+                (new Vector<float>(source, i) + new Vector<float>(destination, i) * mul).CopyTo(destination, i);
+            }
+            for (; i < source.Length; i++) {
+                destination[i] += source[i];
             }
         }
 
@@ -390,10 +424,18 @@ namespace Cavern.Utilities {
         /// <param name="destinationChannel">Channel of the <paramref name="destination"/></param>
         /// <param name="destinationChannels">Number of channels in the <paramref name="destination"/></param>
         /// <param name="gain">Linear amplification of the <paramref name="source"/> track</param>
+        /// <remarks>It is assumed that the size of <paramref name="destination"/> equals the size of
+        /// <paramref name="source"/> * <paramref name="destinationChannels"/>.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Mix(float[] source, float[] destination, int destinationChannel, int destinationChannels, float gain) {
-            for (int i = 0; i < source.Length; i++) {
-                destination[i * destinationChannels + destinationChannel] += source[i] * gain;
+        public static unsafe void Mix(float[] source, float[] destination, int destinationChannel, int destinationChannels, float gain) {
+            fixed (float* pSource = source, pDestination = destination) {
+                float* sourcePos = pSource,
+                    destinationPos = pDestination + destinationChannel,
+                    end = sourcePos + source.Length;
+                while (sourcePos != end) {
+                    *destinationPos += *sourcePos++ * gain;
+                    destinationPos += destinationChannels;
+                }
             }
         }
 

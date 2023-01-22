@@ -21,12 +21,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Input sample cache for forward transformations.
         /// </summary>
-        readonly float[] inputStreamForward;
+        readonly float[] inputStreamForward = new float[coeffs.Length];
 
         /// <summary>
         /// Input sample cache for inverse transformations.
         /// </summary>
-        readonly float[] inputStreamInverse;
+        readonly float[] inputStreamInverse = new float[coeffs.Length * 2];
 
         /// <summary>
         /// Processor window cache.
@@ -48,8 +48,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         public QuadratureMirrorFilterBank() {
             int doubleLength = subbands * 2;
-            inputStreamForward = new float[coeffs.Length];
-            inputStreamInverse = new float[coeffs.Length * 2];
             window = new float[coeffs.Length];
             grouping = new float[doubleLength];
             outCache = new Vector2[subbands];
@@ -73,23 +71,28 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Convert a timeslot of real <see cref="subbands"/> to QMFB.
         /// </summary>
-        public Vector2[] ProcessForward(float[] input) {
+        public unsafe Vector2[] ProcessForward(float[] input) {
             Array.Copy(inputStreamForward, 0, inputStreamForward, subbands, coeffs.Length - subbands);
-            for (int sample = 0; sample < subbands; ++sample) {
-                inputStreamForward[sample] = input[subbands - sample - 1];
+            fixed (float* pInput = input, pInputStream = inputStreamForward) {
+                float* inputPos = pInput + subbands - 1,
+                    inputStreamPos = pInputStream,
+                    end = inputStreamPos + subbands;
+                while (inputStreamPos != end) {
+                    *inputStreamPos++ = *inputPos--;
+                }
             }
 
-            int doubleLength = subbands * 2;
+            const int doubleLength = subbands * 2;
             Array.Clear(grouping, 0, doubleLength);
-            for (int sample = 0; sample < window.Length; ++sample) {
+            for (int sample = 0; sample < window.Length; sample++) {
                 grouping[sample & groupingMask] += inputStreamForward[sample] * coeffs[sample];
             }
 
             outCache.Clear();
-            for (int sb = 0; sb < subbands; ++sb) {
+            for (int sb = 0; sb < subbands; sb++) {
                 Vector2 result = new Vector2();
                 Vector2[] cache = forwardCache[sb];
-                for (int j = 0; j < doubleLength; ++j) {
+                for (int j = 0; j < doubleLength; j++) {
                     result += cache[j] * grouping[j];
                 }
                 outCache[sb] = result;

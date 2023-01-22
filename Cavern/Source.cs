@@ -93,22 +93,6 @@ namespace Cavern {
         long delay = 0;
 
         /// <summary>
-        /// Output samples to a multichannel array.
-        /// </summary>
-        /// <param name="samples">Samples to write</param>
-        /// <param name="target">Channel array to write to</param>
-        /// <param name="gain">Source gain</param>
-        /// <param name="channel">Channel index</param>
-        /// <param name="channels">Total channels</param>
-        /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
-        /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
-        internal static void WriteOutput(float[] samples, float[] target, float gain, int channel, int channels) {
-            for (int from = 0, to = channel; from < samples.Length; ++from, to += channels) {
-                target[to] += samples[from] * gain;
-            }
-        }
-
-        /// <summary>
         /// Output samples to all channels of a multichannel array.
         /// </summary>
         /// <param name="samples">Samples to write</param>
@@ -408,7 +392,7 @@ namespace Cavern {
                                 float extraChannelVolume = volume3D * MathF.Sqrt(Size / channels.Length);
                                 for (int channel = 0; channel < channels.Length; ++channel) {
                                     if (!channels[channel].LFE) {
-                                        WriteOutput(samples, rendered, extraChannelVolume, channel, channels.Length);
+                                        WaveformUtils.Mix(samples, rendered, channel, channels.Length, extraChannelVolume);
                                     }
                                 }
                             }
@@ -422,30 +406,27 @@ namespace Cavern {
                             if (frontVol.X != 0) {
                                 ratio = Ratio(channels[bottomFrontLeft].CubicalPos.X,
                                     channels[bottomFrontRight].CubicalPos.X, direction.X);
-                                WriteOutput(samples, rendered, MathF.Sqrt(frontVol.X * (1f - ratio)),
-                                    bottomFrontLeft, channels.Length);
-                                WriteOutput(samples, rendered, MathF.Sqrt(frontVol.X * ratio), bottomFrontRight, channels.Length);
+                                WaveformUtils.Mix(samples, rendered, bottomFrontLeft, channels.Length,
+                                    MathF.Sqrt(frontVol.X * (1f - ratio)));
+                                WaveformUtils.Mix(samples, rendered, bottomFrontRight, channels.Length, MathF.Sqrt(frontVol.X * ratio));
                             }
                             if (rearVol.X != 0) {
                                 ratio = Ratio(channels[bottomRearLeft].CubicalPos.X,
                                     channels[bottomRearRight].CubicalPos.X, direction.X);
-                                WriteOutput(samples, rendered, MathF.Sqrt(rearVol.X * (1f - ratio)),
-                                    bottomRearLeft, channels.Length);
-                                WriteOutput(samples, rendered, MathF.Sqrt(rearVol.X * ratio), bottomRearRight, channels.Length);
+                                WaveformUtils.Mix(samples, rendered, bottomRearLeft, channels.Length, MathF.Sqrt(rearVol.X * (1f - ratio)));
+                                WaveformUtils.Mix(samples, rendered, bottomRearRight, channels.Length, MathF.Sqrt(rearVol.X * ratio));
                             }
                             if (frontVol.Y != 0) {
                                 ratio = Ratio(channels[topFrontLeft].CubicalPos.X,
                                     channels[topFrontRight].CubicalPos.X, direction.X);
-                                WriteOutput(samples, rendered, MathF.Sqrt(frontVol.Y * (1f - ratio)),
-                                    topFrontLeft, channels.Length);
-                                WriteOutput(samples, rendered, MathF.Sqrt(frontVol.Y * ratio), topFrontRight, channels.Length);
+                                WaveformUtils.Mix(samples, rendered, topFrontLeft, channels.Length, MathF.Sqrt(frontVol.Y * (1f - ratio)));
+                                WaveformUtils.Mix(samples, rendered, topFrontRight, channels.Length, MathF.Sqrt(frontVol.Y * ratio));
                             }
                             if (rearVol.Y != 0) {
                                 ratio = Ratio(channels[topRearLeft].CubicalPos.X,
                                     channels[topRearRight].CubicalPos.X, direction.X);
-                                WriteOutput(samples, rendered, MathF.Sqrt(rearVol.Y * (1f - ratio)),
-                                    topRearLeft, channels.Length);
-                                WriteOutput(samples, rendered, MathF.Sqrt(rearVol.Y * ratio), topRearRight, channels.Length);
+                                WaveformUtils.Mix(samples, rendered, topRearLeft, channels.Length, MathF.Sqrt(rearVol.Y * (1f - ratio)));
+                                WaveformUtils.Mix(samples, rendered, topRearRight, channels.Length, MathF.Sqrt(rearVol.Y * ratio));
                             }
                         }
 
@@ -453,7 +434,7 @@ namespace Cavern {
                         if (!listener.LFESeparation || LFE) {
                             for (int channel = 0; channel < channels.Length; ++channel) {
                                 if (channels[channel].LFE) {
-                                    WriteOutput(samples, rendered, volume3D, channel, channels.Length);
+                                    WaveformUtils.Mix(samples, rendered, channel, channels.Length, volume3D);
                                 }
                             }
                         }
@@ -521,10 +502,10 @@ namespace Cavern {
                         for (int channel = 0; channel < channels.Length; ++channel) {
                             if (channels[channel].LFE) {
                                 if (!listener.LFESeparation || LFE) {
-                                    WriteOutput(samples, rendered, volume3D * totalAngleMatch, channel, channels.Length);
+                                    WaveformUtils.Mix(samples, rendered, channel, channels.Length, volume3D * totalAngleMatch);
                                 }
                             } else if (!LFE && angleMatches[channel] != 0) {
-                                WriteOutput(samples, rendered, volume3D * angleMatches[channel], channel, channels.Length);
+                                WaveformUtils.Mix(samples, rendered, channel, channels.Length, volume3D * angleMatches[channel]);
                             }
                         }
                     }

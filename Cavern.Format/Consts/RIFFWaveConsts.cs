@@ -41,7 +41,7 @@ namespace Cavern.Format.Consts {
             /// <summary>
             /// A channel that's not even valid as a <see cref="ReferenceChannel"/>.
             /// </summary>
-            Unknown
+            Unknown = 0x40000
         }
 
         /// <summary>
