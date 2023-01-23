@@ -25,6 +25,17 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Read a fixed-length ASCII string from the stream.
+        /// </summary>
+        public static string ReadASCII(this Stream reader, int length) {
+            char[] result = new char[length];
+            for (int i = 0; i < length; i++) {
+                result[i] = (char)reader.ReadByte();
+            }
+            return new string(result);
+        }
+
+        /// <summary>
         /// Read a number of bytes from the stream.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -71,6 +82,15 @@ namespace Cavern.Format.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReadInt32(this Stream reader) =>
             reader.ReadByte() | (reader.ReadByte() << 8) | (reader.ReadByte() << 16) | (reader.ReadByte() << 24);
+
+        /// <summary>
+        /// Read a big-endian 32-bit signed integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ReadInt32BE(this Stream reader) =>
+            BitConverter.IsLittleEndian ?
+                (reader.ReadByte() << 24) | (reader.ReadByte() << 16) | (reader.ReadByte() << 8) | reader.ReadByte() :
+                reader.ReadInt32();
 
         /// <summary>
         /// Read a 32-bit signed integer from the stream.
