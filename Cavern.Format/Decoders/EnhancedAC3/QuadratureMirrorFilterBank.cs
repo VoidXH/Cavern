@@ -6,6 +6,11 @@
         public const int subbands = 64;
 
         /// <summary>
+        /// Value needed for transforming subbands.
+        /// </summary>
+        const int doubleLength = subbands * 2;
+
+        /// <summary>
         /// Filter coefficients.
         /// </summary>
         static readonly float[] coeffs = {

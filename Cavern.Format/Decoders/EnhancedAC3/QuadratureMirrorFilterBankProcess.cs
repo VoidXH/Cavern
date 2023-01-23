@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 
 using Cavern.Utilities;
 
@@ -9,14 +8,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// </summary>
     partial class QuadratureMirrorFilterBank {
         /// <summary>
-        /// Forward transformation cache of rotation cosines and sines. Vectors are used for their SIMD properties.
+        /// Forward transformation cache of rotation cosines and sines.
         /// </summary>
-        static Vector2[][] forwardCache;
+        static (float[] real, float[] imaginary)[] forwardCache;
 
         /// <summary>
-        /// Inverse transformation cache of rotation cosines and sines. Vectors are used for their SIMD properties.
+        /// Inverse transformation cache of rotation cosines and sines.
         /// </summary>
-        static Vector2[][] inverseCache;
+        static (float[] real, float[] imaginary)[] inverseCache;
 
         /// <summary>
         /// Input sample cache for forward transformations.
@@ -41,61 +40,58 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Output cache.
         /// </summary>
-        readonly Vector2[] outCache;
+        readonly (float[] real, float[] imaginary) outCache;
 
         /// <summary>
         /// Converts a PCM stream to a quadrature mirror filter bank and back.
         /// </summary>
         public QuadratureMirrorFilterBank() {
-            int doubleLength = subbands * 2;
             window = new float[coeffs.Length];
             grouping = new float[doubleLength];
-            outCache = new Vector2[subbands];
+            outCache = (new float[subbands], new float[subbands]);
 
             if (forwardCache == null) {
-                forwardCache = new Vector2[subbands][];
-                inverseCache = new Vector2[subbands][];
+                forwardCache = new (float[], float[])[subbands];
+                inverseCache = new (float[], float[])[subbands];
                 for (int sb = 0; sb < subbands; ++sb) {
-                    forwardCache[sb] = new Vector2[doubleLength];
-                    inverseCache[sb] = new Vector2[doubleLength];
+                    forwardCache[sb] = (new float[doubleLength], new float[doubleLength]);
+                    inverseCache[sb] = (new float[doubleLength], new float[doubleLength]);
                     for (int j = 0; j < doubleLength; ++j) {
                         float exp = MathF.PI * (sb + .5f) * (j - .5f) * subbandDiv;
-                        forwardCache[sb][j] = new Vector2(MathF.Cos(exp), MathF.Sin(exp));
+                        forwardCache[sb].real[j] = MathF.Cos(exp);
+                        forwardCache[sb].imaginary[j] = MathF.Sin(exp);
                         exp = MathF.PI * (sb + .5f) * (j - doubleLength + .5f) * subbandDiv;
-                        inverseCache[sb][j] = new Vector2(MathF.Cos(exp), MathF.Sin(exp)) * subbandDiv;
+                        inverseCache[sb].real[j] = MathF.Cos(exp) * subbandDiv;
+                        inverseCache[sb].imaginary[j] = MathF.Sin(exp) * subbandDiv;
                     }
                 }
             }
         }
 
         /// <summary>
-        /// Convert a timeslot of real <see cref="subbands"/> to QMFB.
+        /// Transform a timeslot of real <see cref="subbands"/> to QMFB.
         /// </summary>
-        public unsafe Vector2[] ProcessForward(float[] input) {
+        public unsafe (float[] real, float[] imaginary) ProcessForward(float* input) {
             Array.Copy(inputStreamForward, 0, inputStreamForward, subbands, coeffs.Length - subbands);
-            fixed (float* pInput = input, pInputStream = inputStreamForward) {
-                float* inputPos = pInput + subbands - 1,
+            fixed (float* pInputStream = inputStreamForward, pCoeffs = coeffs) {
+                float* inputPos = input + subbands - 1,
                     inputStreamPos = pInputStream,
                     end = inputStreamPos + subbands;
                 while (inputStreamPos != end) {
                     *inputStreamPos++ = *inputPos--;
                 }
-            }
 
-            const int doubleLength = subbands * 2;
-            Array.Clear(grouping, 0, doubleLength);
-            for (int sample = 0; sample < window.Length; sample++) {
-                grouping[sample & groupingMask] += inputStreamForward[sample] * coeffs[sample];
-            }
-
-            outCache.Clear();
-            for (int sb = 0; sb < subbands; sb++) {
-                Vector2 result = new Vector2();
-                Vector2[] cache = forwardCache[sb];
-                for (int j = 0; j < doubleLength; j++) {
-                    result += cache[j] * grouping[j];
+                QMath.MultiplyAndSet(pInputStream, pCoeffs, grouping, doubleLength);
+                for (int sample = doubleLength; sample < window.Length; sample += doubleLength) {
+                    QMath.MultiplyAndAdd(pInputStream + sample, pCoeffs + sample, grouping, doubleLength);
                 }
-                outCache[sb] = result;
+            }
+
+            for (int sb = 0; sb < subbands; sb++) {
+                fixed (float* real = forwardCache[sb].real, imaginary = forwardCache[sb].imaginary, pGrouping = grouping) {
+                    outCache.real[sb] = QMath.MultiplyAndAdd(real, pGrouping, doubleLength);
+                    outCache.imaginary[sb] = QMath.MultiplyAndAdd(imaginary, pGrouping, doubleLength);
+                }
             }
             return outCache;
         }
@@ -103,29 +99,28 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Convert a timeslot of QMFB <see cref="subbands"/> to PCM samples.
         /// </summary>
-        public void ProcessInverse(Vector2[] input, float[] output) {
-            int doubleLength = subbands * 2;
-
+        public unsafe void ProcessInverse((float[] real, float[] imaginary) input, float[] output) {
             Array.Copy(inputStreamInverse, 0, inputStreamInverse, doubleLength, inputStreamInverse.Length - doubleLength);
-            Array.Clear(inputStreamInverse, 0, doubleLength);
-            for (int sb = 0; sb < subbands; ++sb) {
-                Vector2[] cache = inverseCache[sb];
-                Vector2 mul = input[sb];
-                for (int j = 0; j < doubleLength; ++j) {
-                    Vector2 result = cache[j] * mul;
-                    inputStreamInverse[j] += result.X - result.Y;
+
+            fixed (float* cacheReal = inverseCache[0].real, cacheImaginary = inverseCache[0].imaginary) {
+                QMath.MultiplyAndSet(cacheReal, input.real[0], cacheImaginary, -input.imaginary[0], inputStreamInverse, doubleLength);
+            }
+            for (int sb = 1; sb < subbands; ++sb) {
+                fixed (float* cacheReal = inverseCache[sb].real, cacheImaginary = inverseCache[sb].imaginary) {
+                    QMath.MultiplyAndAdd(cacheReal, input.real[sb], cacheImaginary, -input.imaginary[sb], inputStreamInverse, doubleLength);
                 }
             }
 
-            Array.Clear(output, 0, subbands);
-            for (int j = 0, end = coeffs.Length / doubleLength; j < end; ++j) {
-                int timeSlot = subbands * 4 * j;
-                int coeffSlot = doubleLength * j;
-                int pair = timeSlot + subbands * 3;
-                int coeffPair = coeffSlot + subbands;
-                for (int sb = 0; sb < subbands; ++sb) {
-                    output[sb] += inputStreamInverse[timeSlot + sb] * coeffs[coeffSlot + sb] +
-                        inputStreamInverse[pair + sb] * coeffs[coeffPair + sb];
+            fixed (float* pInputStreamInverse = inputStreamInverse, pCoeffs = coeffs) {
+                QMath.MultiplyAndSet(pInputStreamInverse, pCoeffs,
+                        pInputStreamInverse + subbands * 3, pCoeffs + subbands, output, subbands);
+                for (int j = 1, end = coeffs.Length / doubleLength; j < end; j++) {
+                    int timeSlot = subbands * 4 * j;
+                    int coeffSlot = doubleLength * j;
+                    int timePair = timeSlot + subbands * 3;
+                    int coeffPair = coeffSlot + subbands;
+                    QMath.MultiplyAndAdd(pInputStreamInverse + timeSlot, pCoeffs + coeffSlot,
+                        pInputStreamInverse + timePair, pCoeffs + coeffPair, output, subbands);
                 }
             }
         }

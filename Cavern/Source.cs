@@ -244,18 +244,14 @@ namespace Cavern {
                     samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
                     baseUpdateRate = samples.Length;
                     // Apply filter if set
-                    if (SpatialFilter != null) {
-                        SpatialFilter.Process(samples);
-                    }
+                    SpatialFilter?.Process(samples);
 
                     // Distance simulation for HRTF
                     // TODO: gain correction for this in both engines
                     if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
-                        if (distancer == null) {
-                            distancer = new Distancer(this) {
-                                trueGain = false
-                            };
-                        }
+                        distancer ??= new Distancer(this) {
+                            trueGain = false
+                        };
                         distancer.Generate(direction.X > 0, samples);
                     }
 

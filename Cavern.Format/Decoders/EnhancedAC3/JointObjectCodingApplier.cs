@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -21,14 +20,14 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         readonly float[][] timeslotCache;
 
         /// <summary>
-        /// Recycled forward transformation result holder. Vectors are used for their SIMD properties.
+        /// Recycled forward transformation result holder.
         /// </summary>
-        readonly Vector2[][] results;
+        readonly (float[] real, float[] imaginary)[] results;
 
         /// <summary>
-        /// Recycled QMFB operation arrays. Vectors are used for their SIMD properties.
+        /// Recycled QMFB operation arrays.
         /// </summary>
-        readonly Vector2[][] qmfbCache;
+        readonly (float[] real, float[] imaginary)[] qmfbCache;
 
         /// <summary>
         /// Recycled QMFB transform objects.
@@ -54,11 +53,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             this.frameSize = frameSize;
 
             timeslotCache = new float[objects][];
-            results = new Vector2[maxChannels][];
-            qmfbCache = new Vector2[objects][];
+            results = new (float[], float[])[maxChannels];
+            qmfbCache = new (float[], float[])[objects];
             for (int obj = 0; obj < objects; ++obj) {
                 timeslotCache[obj] = new float[QuadratureMirrorFilterBank.subbands];
-                qmfbCache[obj] = new Vector2[QuadratureMirrorFilterBank.subbands];
+                qmfbCache[obj] = (new float[QuadratureMirrorFilterBank.subbands], new float[QuadratureMirrorFilterBank.subbands]);
             }
 
             int converterCount = Math.Max(maxChannels, objects);
@@ -71,7 +70,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Gets the audio samples of each object for the next timeslot.
         /// </summary>
-        public float[][] Apply(float[][] input, JointObjectCoding joc) {
+        public unsafe float[][] Apply(float[][] input, JointObjectCoding joc) {
             if (timeslot == 0) {
                 mixMatrix = joc.GetMixingMatrices(frameSize);
             }
@@ -83,7 +82,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     ThreadPool.QueueUserWorkItem(
                        new WaitCallback(channel => {
                            int ch = (int)channel;
-                           results[ch] = converters[ch].ProcessForward(input[ch]);
+                           fixed (float* pInput = input[ch]) {
+                               results[ch] = converters[ch].ProcessForward(pInput);
+                           }
                            if (Interlocked.Decrement(ref runs) == 0) {
                                reset.Set();
                            }
@@ -119,14 +120,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Mixes channel-based samples by a matrix to the objects.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void ProcessObject(JointObjectCoding joc, int obj, float[][] mixMatrix, float gain) {
-            Array.Clear(qmfbCache[obj], 0, QuadratureMirrorFilterBank.subbands);
-            Vector2[] objCache = qmfbCache[obj];
-            for (int ch = 0; ch < joc.ChannelCount; ++ch) {
-                Vector2[] channelResult = results[ch];
-                float[] channelMatrix = mixMatrix[ch];
-                for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; ++sb) {
-                    objCache[sb] += channelResult[sb] * channelMatrix[sb];
+        unsafe void ProcessObject(JointObjectCoding joc, int obj, float[][] mixMatrix, float gain) {
+            (float[] real, float[] imaginary) = qmfbCache[obj];
+            fixed (float* channelReal = results[0].real, channelImaginary = results[0].imaginary, channelMatrix = mixMatrix[0]) {
+                QMath.MultiplyAndSet(channelReal, channelMatrix, real, QuadratureMirrorFilterBank.subbands);
+                QMath.MultiplyAndSet(channelImaginary, channelMatrix, imaginary, QuadratureMirrorFilterBank.subbands);
+            }
+            for (int ch = 1; ch < joc.ChannelCount; ch++) {
+                fixed (float* channelReal = results[ch].real, channelImaginary = results[ch].imaginary, channelMatrix = mixMatrix[ch]) {
+                    QMath.MultiplyAndAdd(channelReal, channelMatrix, real, QuadratureMirrorFilterBank.subbands);
+                    QMath.MultiplyAndAdd(channelImaginary, channelMatrix, imaginary, QuadratureMirrorFilterBank.subbands);
                 }
             }
             converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
