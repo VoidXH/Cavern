@@ -9,12 +9,13 @@ namespace Cavern.Utilities {
         public static unsafe float MultiplyAndAdd(float* lhs, float* rhs, int count) {
             int i = 0;
             float sum = 0;
-            for (int vc = Vector<float>.Count, c = count - vc; i < c; i += vc) {
+            for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 sum += Vector.Dot(new Vector<float>(new Span<float>(lhs + i, vc)) *
                     new Vector<float>(new Span<float>(rhs + i, vc)), Vector<float>.One);
             }
-            count -= i;
-            while (count-- != 0) {
+            lhs += i;
+            rhs += i;
+            while (count-- != i) {
                 sum += *lhs++ * *rhs++;
             }
             return sum;
@@ -25,14 +26,15 @@ namespace Cavern.Utilities {
         /// </summary>
         public static unsafe void MultiplyAndAdd(float* lhs, float* rhs, float[] target, int count) {
             int i = 0;
-            for (int vc = Vector<float>.Count, c = count - vc; i < c; i += vc) {
+            for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(target, i) + new Vector<float>(new Span<float>(lhs + i, vc)) *
                     new Vector<float>(new Span<float>(rhs + i, vc))).CopyTo(target, i);
             }
-            count -= i;
+            lhs += i;
+            rhs += i;
             fixed (float* pTarget = target) {
-                float* output = pTarget;
-                while (count-- != 0) {
+                float* output = pTarget + i;
+                while (count-- != i) {
                     *output++ += *lhs++ * *rhs++;
                 }
             }
@@ -43,13 +45,13 @@ namespace Cavern.Utilities {
         /// </summary>
         public static unsafe void MultiplyAndAdd(float* lhs, float rhs, float[] target, int count) {
             int i = 0;
-            for (int vc = Vector<float>.Count, c = count - vc; i < c; i += vc) {
+            for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(target, i) + new Vector<float>(new Span<float>(lhs + i, vc)) * rhs).CopyTo(target, i);
             }
-            count -= i;
+            lhs += i;
             fixed (float* pTarget = target) {
-                float* output = pTarget;
-                while (count-- != 0) {
+                float* output = pTarget + i;
+                while (count-- != i) {
                     *output++ += *lhs++ * rhs;
                 }
             }
@@ -60,15 +62,18 @@ namespace Cavern.Utilities {
         /// </summary>
         public static unsafe void MultiplyAndAdd(float* lhs1, float* rhs1, float* lhs2, float* rhs2, float[] target, int count) {
             int i = 0;
-            for (int vc = Vector<float>.Count, c = count - vc; i < c; i += vc) {
+            for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(target, i) +
                     new Vector<float>(new Span<float>(lhs1 + i, vc)) * new Vector<float>(new Span<float>(rhs1 + i, vc)) +
                     new Vector<float>(new Span<float>(lhs2 + i, vc)) * new Vector<float>(new Span<float>(rhs2 + i, vc))).CopyTo(target, i);
             }
-            count -= i;
+            lhs1 += i;
+            rhs1 += i;
+            lhs2 += i;
+            rhs2 += i;
             fixed (float* pTarget = target) {
-                float* output = pTarget;
-                while (count-- != 0) {
+                float* output = pTarget + i;
+                while (count-- != i) {
                     *output++ += *lhs1++ * *rhs1++ + *lhs2++ * *rhs2++;
                 }
             }
@@ -79,14 +84,15 @@ namespace Cavern.Utilities {
         /// </summary>
         public static unsafe void MultiplyAndAdd(float* lhs1, float rhs1, float* lhs2, float rhs2, float[] target, int count) {
             int i = 0;
-            for (int vc = Vector<float>.Count, c = count - vc; i < c; i += vc) {
+            for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(target, i) + new Vector<float>(new Span<float>(lhs1 + i, vc)) * rhs1 +
                     new Vector<float>(new Span<float>(lhs2 + i, vc)) * rhs2).CopyTo(target, i);
             }
-            count -= i;
+            lhs1 += i;
+            lhs2 += i;
             fixed (float* pTarget = target) {
-                float* output = pTarget;
-                while (count-- != 0) {
+                float* output = pTarget + i;
+                while (count-- != i) {
                     *output++ += *lhs1++ * rhs1 + *lhs2++ * rhs2;
                 }
             }
@@ -97,13 +103,14 @@ namespace Cavern.Utilities {
         /// </summary>
         public static unsafe void MultiplyAndSet(float* lhs, float* rhs, float[] target, int count) {
             int i = 0;
-            for (int vc = Vector<float>.Count, c = count - vc; i < c; i += vc) {
+            for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(new Span<float>(lhs + i, vc)) * new Vector<float>(new Span<float>(rhs + i, vc))).CopyTo(target, i);
             }
-            count -= i;
+            lhs += i;
+            rhs += i;
             fixed (float* pTarget = target) {
-                float* output = pTarget;
-                while (count-- != 0) {
+                float* output = pTarget + i;
+                while (count-- != i) {
                     *output++ = *lhs++ * *rhs++;
                 }
             }
@@ -114,14 +121,17 @@ namespace Cavern.Utilities {
         /// </summary>
         public static unsafe void MultiplyAndSet(float* lhs1, float* rhs1, float* lhs2, float* rhs2, float[] target, int count) {
             int i = 0;
-            for (int vc = Vector<float>.Count, c = count - vc; i < c; i += vc) {
+            for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(new Span<float>(lhs1 + i, vc)) * new Vector<float>(new Span<float>(rhs1 + i, vc)) +
                     new Vector<float>(new Span<float>(lhs2 + i, vc)) * new Vector<float>(new Span<float>(rhs2 + i, vc))).CopyTo(target, i);
             }
-            count -= i;
+            lhs1 += i;
+            rhs1 += i;
+            lhs2 += i;
+            rhs2 += i;
             fixed (float* pTarget = target) {
-                float* output = pTarget;
-                while (count-- != 0) {
+                float* output = pTarget + i;
+                while (count-- != i) {
                     *output++ = *lhs1++ * *rhs1++ + *lhs2++ * *rhs2++;
                 }
             }
@@ -132,14 +142,15 @@ namespace Cavern.Utilities {
         /// </summary>
         public static unsafe void MultiplyAndSet(float* lhs1, float rhs1, float* lhs2, float rhs2, float[] target, int count) {
             int i = 0;
-            for (int vc = Vector<float>.Count, c = count - vc; i < c; i += vc) {
+            for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(new Span<float>(lhs1 + i, vc)) * rhs1 +
                     new Vector<float>(new Span<float>(lhs2 + i, vc)) * rhs2).CopyTo(target, i);
             }
-            count -= i;
+            lhs1 += i;
+            lhs2 += i;
             fixed (float* pTarget = target) {
-                float* output = pTarget;
-                while (count-- != 0) {
+                float* output = pTarget + i;
+                while (count-- != i) {
                     *output++ = *lhs1++ * rhs1 + *lhs2++ * rhs2;
                 }
             }
