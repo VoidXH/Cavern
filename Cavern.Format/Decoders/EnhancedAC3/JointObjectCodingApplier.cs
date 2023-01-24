@@ -10,6 +10,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// </summary>
     class JointObjectCodingApplier {
         /// <summary>
+        /// Cavern is run by a Mono runtime, use functions optimized for that.
+        /// </summary>
+        readonly bool mono;
+
+        /// <summary>
         /// Length of an AC-3 frame.
         /// </summary>
         readonly int frameSize;
@@ -48,6 +53,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Creates a converter from a channel-based audio stream and JOC to object output samples.
         /// </summary>
         public JointObjectCodingApplier(JointObjectCoding joc, int frameSize) {
+            mono = CavernAmp.IsMono();
             int maxChannels = JointObjectCodingTables.inputMatrix.Length;
             int objects = joc.ObjectCount;
             this.frameSize = frameSize;
@@ -83,7 +89,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                        new WaitCallback(channel => {
                            int ch = (int)channel;
                            fixed (float* pInput = input[ch]) {
-                               results[ch] = converters[ch].ProcessForward(pInput);
+                               if (!mono) {
+                                   results[ch] = converters[ch].ProcessForward(pInput);
+                               } else {
+                                   results[ch] = converters[ch].ProcessForward_Mono(pInput);
+                               }
                            }
                            if (Interlocked.Decrement(ref runs) == 0) {
                                reset.Set();
@@ -101,7 +111,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     ThreadPool.QueueUserWorkItem(
                        new WaitCallback(objectIndex => {
                            int obj = (int)objectIndex;
-                           ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                           if (!mono) {
+                               ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                           } else {
+                               ProcessObject_Mono(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                           }
                            if (Interlocked.Decrement(ref runs) == 0) {
                                reset.Set();
                            }
@@ -133,6 +147,29 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
             converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
+            if (gain != 1) {
+                WaveformUtils.Gain(timeslotCache[obj], gain);
+            }
+        }
+
+        /// <summary>
+        /// Mixes channel-based samples by a matrix to the objects.
+        /// This version of the function is faster only in a Mono runtime (like Unity).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        unsafe void ProcessObject_Mono(JointObjectCoding joc, int obj, float[][] mixMatrix, float gain) {
+            (float[] real, float[] imaginary) = qmfbCache[obj];
+            fixed (float* channelReal = results[0].real, channelImaginary = results[0].imaginary, channelMatrix = mixMatrix[0]) {
+                QMath.MultiplyAndSet_Mono(channelReal, channelMatrix, real, QuadratureMirrorFilterBank.subbands);
+                QMath.MultiplyAndSet_Mono(channelImaginary, channelMatrix, imaginary, QuadratureMirrorFilterBank.subbands);
+            }
+            for (int ch = 1; ch < joc.ChannelCount; ch++) {
+                fixed (float* channelReal = results[ch].real, channelImaginary = results[ch].imaginary, channelMatrix = mixMatrix[ch]) {
+                    QMath.MultiplyAndAdd_Mono(channelReal, channelMatrix, real, QuadratureMirrorFilterBank.subbands);
+                    QMath.MultiplyAndAdd_Mono(channelImaginary, channelMatrix, imaginary, QuadratureMirrorFilterBank.subbands);
+                }
+            }
+            converters[obj].ProcessInverse_Mono(qmfbCache[obj], timeslotCache[obj]);
             if (gain != 1) {
                 WaveformUtils.Gain(timeslotCache[obj], gain);
             }

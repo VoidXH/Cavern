@@ -30,6 +30,21 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Force disable CavernAmp for performance benchmarks.
+        /// </summary>
+        public static bool Bypass {
+            set {
+                bypass = value;
+                if (available) {
+                    available = false;
+                }
+                if (!bypass) {
+                    tested = false;
+                }
+            }
+        }
+
+        /// <summary>
         /// Is the CavernAmp DLL present and the platform is correct?
         /// </summary>
         static bool available;
@@ -45,19 +60,10 @@ namespace Cavern.Utilities {
         static bool tested = false;
 
         /// <summary>
-        /// Force disable CavernAmp for performance benchmarks.
+        /// The running CLR is Mono, which limits optimization possibilities and for example,
+        /// Vectors run much slower, they should not be used.
         /// </summary>
-        public static bool Bypass {
-            set {
-                bypass = value;
-                if (available) {
-                    available = false;
-                }
-                if (!bypass) {
-                    tested = false;
-                }
-            }
-        }
+        public static bool IsMono() => Type.GetType("Mono.Runtime") != null;
 
         /// <summary>
         /// When the DLL is present near the executable and the platform matches, this returns true.
