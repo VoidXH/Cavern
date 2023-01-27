@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -16,6 +17,7 @@ using Cavern;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Remapping;
+using Cavern.Utilities;
 
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
@@ -409,7 +411,13 @@ namespace CavernizeGUI {
         /// <summary>
         /// Shows information about the used Cavern library and its version.
         /// </summary>
-        void About(object _, RoutedEventArgs e) => MessageBox.Show(Listener.Info);
+        void About(object _, RoutedEventArgs e) {
+            StringBuilder result = new StringBuilder(Listener.Info);
+            if (CavernAmp.Available) {
+                result.Append('\n').Append((string)language["AbouA"]);
+            }
+            MessageBox.Show(result.ToString(), (string)language["AbouH"]);
+        }
 
         /// <summary>
         /// Open Cavern's website.

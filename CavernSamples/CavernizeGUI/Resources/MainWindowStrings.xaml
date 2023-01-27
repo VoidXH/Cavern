@@ -80,6 +80,8 @@
     <system:String x:Key="ProgP">Rendering... ({0}, speed: {1}x, remaining: {2})</system:String>
     <system:String x:Key="FinaP">Finalizing... ({0})</system:String>
     <system:String x:Key="DropI">The following dropped files were not supported or corrupt:</system:String>
+    <system:String x:Key="AbouH">About</system:String>
+    <system:String x:Key="AbouA">Performance accelerated with CavernAmp.</system:String>
     <system:String x:Key="ReQOp">Can't remove elements from a queue that is already being processed.</system:String>
     <system:String x:Key="ReQSe">No queued item is selected.</system:String>
     <system:String x:Key="InvTr">This track could not be decoded. The following error happened while decoding:</system:String>
