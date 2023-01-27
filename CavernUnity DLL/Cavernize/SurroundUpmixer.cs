@@ -50,7 +50,7 @@ namespace Cavern.Cavernize {
         /// <summary>
         /// Stream to be upmixed.
         /// </summary>
-        /// <remarks>A legacy channel layout found in <see cref="ChannelPrototype.StandardMatrix"/> is required.</remarks>
+        /// <remarks>A legacy channel layout found in <see cref="ChannelPrototype.GetStandardMatrix(int)"/> is required.</remarks>
         readonly Clip source;
 
         /// <summary>
