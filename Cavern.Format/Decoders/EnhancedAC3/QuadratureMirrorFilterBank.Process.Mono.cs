@@ -1,5 +1,6 @@
-﻿using Cavern.Utilities;
-using System;
+﻿using System;
+
+using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     // Non-vectorized versions of QMFB functions, as they run faster in Mono.

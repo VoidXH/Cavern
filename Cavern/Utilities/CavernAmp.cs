@@ -6,7 +6,7 @@ namespace Cavern.Utilities {
     /// <summary>
     /// Drastically faster versions of some functions written in C++.
     /// </summary>
-    public static class CavernAmp {
+    public static partial class CavernAmp {
         /// <summary>
         /// Is the CavernAmp DLL present and the platform is correct?
         /// </summary>
@@ -19,8 +19,10 @@ namespace Cavern.Utilities {
                 if (bypass) {
                     return available = false;
                 }
+
                 try {
-                    available = IsAvailable();
+                    // Available when CavernAmp DLL can be called and AVX is supported
+                    available = IsAvailable() && (GetEnabledXStateFeatures() & 4) != 0;
                 } catch {
                     available = false;
                 }
@@ -64,6 +66,12 @@ namespace Cavern.Utilities {
         /// Vectors run much slower, they should not be used.
         /// </summary>
         public static bool IsMono() => Type.GetType("Mono.Runtime") != null;
+
+        /// <summary>
+        /// Gets supported CPU instruction sets.
+        /// </summary>
+        [DllImport("kernel32.dll")]
+        static extern long GetEnabledXStateFeatures();
 
         /// <summary>
         /// When the DLL is present near the executable and the platform matches, this returns true.

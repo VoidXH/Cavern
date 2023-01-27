@@ -111,7 +111,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     ThreadPool.QueueUserWorkItem(
                        new WaitCallback(objectIndex => {
                            int obj = (int)objectIndex;
-                           if (!mono) {
+                           if (CavernAmp.Available) {
+                               ProcessObject_Amp(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                           } else if (!mono) {
                                ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
                            } else {
                                ProcessObject_Mono(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
@@ -147,6 +149,37 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 }
             }
             converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
+            if (gain != 1) {
+                WaveformUtils.Gain(timeslotCache[obj], gain);
+            }
+        }
+
+        /// <summary>
+        /// Mixes channel-based samples by a matrix to the objects.
+        /// This version of the function is faster when <see cref="CavernAmp"/> is available.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        unsafe void ProcessObject_Amp(JointObjectCoding joc, int obj, float[][] mixMatrix, float gain) {
+            (float[] real, float[] imaginary) = qmfbCache[obj];
+            fixed (float* pReal = real, pImaginary = imaginary) {
+                fixed (float* channelReal = results[0].real, channelImaginary = results[0].imaginary, channelMatrix = mixMatrix[0]) {
+                    CavernAmp.MultiplyAndSet(channelReal, channelMatrix, pReal, QuadratureMirrorFilterBank.subbands);
+                    CavernAmp.MultiplyAndSet(channelImaginary, channelMatrix, pImaginary, QuadratureMirrorFilterBank.subbands);
+                }
+                for (int ch = 1; ch < joc.ChannelCount; ch++) {
+                    fixed (float* channelReal = results[ch].real, channelImaginary = results[ch].imaginary, channelMatrix = mixMatrix[ch]) {
+                        CavernAmp.MultiplyAndAdd(channelReal, channelMatrix, pReal, QuadratureMirrorFilterBank.subbands);
+                        CavernAmp.MultiplyAndAdd(channelImaginary, channelMatrix, pImaginary, QuadratureMirrorFilterBank.subbands);
+                    }
+                }
+            }
+            if (!mono) {
+                converters[obj].ProcessInverse(qmfbCache[obj], timeslotCache[obj]);
+            } else {
+                fixed (float* pReal = real, pImaginary = imaginary) {
+                    converters[obj].ProcessInverse_Amp(pReal, pImaginary, timeslotCache[obj]);
+                }
+            }
             if (gain != 1) {
                 WaveformUtils.Gain(timeslotCache[obj], gain);
             }
