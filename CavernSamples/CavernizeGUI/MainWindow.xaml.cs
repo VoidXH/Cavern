@@ -123,6 +123,7 @@ namespace CavernizeGUI {
                 hrir.IsChecked = TryLoadHRIR(false);
             }
 
+            force24Bit.IsChecked = Settings.Default.force24Bit;
             checkUpdates.IsChecked = Settings.Default.checkUpdates;
             if (Settings.Default.checkUpdates && !Program.ConsoleMode) {
                 UpdateCheck.Perform(Settings.Default.lastUpdate, () => Settings.Default.lastUpdate = DateTime.Now);
@@ -214,6 +215,7 @@ namespace CavernizeGUI {
             Settings.Default.ffmpegLocation = ffmpeg.Location;
             Settings.Default.renderTarget = renderTarget.SelectedIndex;
             Settings.Default.outputCodec = audio.SelectedIndex;
+            Settings.Default.force24Bit = force24Bit.IsChecked;
             Settings.Default.checkUpdates = checkUpdates.IsChecked;
             Settings.Default.Save();
             base.OnClosed(e);
