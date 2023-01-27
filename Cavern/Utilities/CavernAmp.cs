@@ -93,59 +93,98 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Actual FFT processing, somewhat in-place.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void ProcessFFT(Complex[] samples, IntPtr cache, int depth) {
+            fixed (Complex* pSamples = samples) {
+                ProcessFFT(pSamples, samples.Length, cache, depth);
+            }
+        }
+
+        /// <summary>
+        /// Fourier-transform a signal in 1D. The result is the spectral power.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void ProcessFFT(float[] samples, IntPtr cache) {
+            fixed (float* pSamples = samples) {
+                ProcessFFT(pSamples, samples.Length, cache);
+            }
+        }
+
+        /// <summary>
+        /// Fast Fourier transform a 2D signal while keeping the source array allocation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void InPlaceFFT(Complex[] samples, FFTCache cache = null) {
+            fixed (Complex* pSamples = samples) {
+                InPlaceFFT(pSamples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
+            }
+        }
+
+        /// <summary>
+        /// Spectrum of a signal's FFT while keeping the source array allocation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void InPlaceFFT(float[] samples, FFTCache cache = null) {
+            fixed (float* pSamples = samples) {
+                InPlaceFFT(pSamples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
+            }
+        }
+
+        /// <summary>
+        /// Outputs IFFT(X) * N.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void ProcessIFFT(Complex[] samples, IntPtr cache, int depth) {
+            fixed (Complex* pSamples = samples) {
+                ProcessIFFT(pSamples, samples.Length, cache, depth);
+            }
+        }
+
+        /// <summary>
+        /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static unsafe void InPlaceIFFT(Complex[] samples, FFTCache cache = null) {
+            fixed (Complex* pSamples = samples) {
+                InPlaceIFFT(pSamples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
+            }
+        }
+
+        /// <summary>
+        /// Actual FFT processing, somewhat in-place.
+        /// </summary>
         [DllImport("CavernAmp.dll", EntryPoint = "ProcessFFT")]
-        internal static extern void ProcessFFT(Complex[] samples, int sampleCount, IntPtr cache, int depth);
+        static extern unsafe void ProcessFFT(Complex* samples, int sampleCount, IntPtr cache, int depth);
 
         /// <summary>
         /// Fourier-transform a signal in 1D. The result is the spectral power.
         /// </summary>
         [DllImport("CavernAmp.dll", EntryPoint = "ProcessFFT1D")]
-        internal static extern void ProcessFFT(float[] samples, int sampleCount, IntPtr cache);
+        static extern unsafe void ProcessFFT(float* samples, int sampleCount, IntPtr cache);
 
         /// <summary>
         /// Fast Fourier transform a 2D signal while keeping the source array allocation.
         /// </summary>
         [DllImport("CavernAmp.dll", EntryPoint = "InPlaceFFT")]
-        static extern void InPlaceFFTCall(Complex[] samples, int sampleCount, IntPtr cache);
-
-        /// <summary>
-        /// Fast Fourier transform a 2D signal while keeping the source array allocation.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InPlaceFFT(Complex[] samples, FFTCache cache = null) =>
-            InPlaceFFTCall(samples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
+        static extern unsafe void InPlaceFFT(Complex* samples, int sampleCount, IntPtr cache);
 
         /// <summary>
         /// Spectrum of a signal's FFT while keeping the source array allocation.
         /// </summary>
         [DllImport("CavernAmp.dll", EntryPoint = "InPlaceFFT1D")]
-        static extern void InPlaceFFTCall(float[] samples, int sampleCount, IntPtr cache);
-
-        /// <summary>
-        /// Spectrum of a signal's FFT while keeping the source array allocation.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InPlaceFFT(float[] samples, FFTCache cache = null) =>
-            InPlaceFFTCall(samples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
+        static extern unsafe void InPlaceFFT(float* samples, int sampleCount, IntPtr cache);
 
         /// <summary>
         /// Outputs IFFT(X) * N.
         /// </summary>
         [DllImport("CavernAmp.dll", EntryPoint = "ProcessIFFT")]
-        internal static extern void ProcessIFFT(Complex[] samples, int sampleCount, IntPtr cache, int depth);
+        static extern unsafe void ProcessIFFT(Complex* samples, int sampleCount, IntPtr cache, int depth);
 
         /// <summary>
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
         /// </summary>
         [DllImport("CavernAmp.dll", EntryPoint = "InPlaceIFFT")]
-        static extern void InPlaceIFFTCall(Complex[] samples, int sampleCount, IntPtr cache);
-
-        /// <summary>
-        /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void InPlaceIFFT(Complex[] samples, FFTCache cache = null) =>
-            InPlaceIFFTCall(samples, samples.Length, cache == null ? IntPtr.Zero : cache.Native);
+        static extern unsafe void InPlaceIFFT(Complex* samples, int sampleCount, IntPtr cache);
         #endregion
     }
 }
