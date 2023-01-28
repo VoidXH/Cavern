@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <Authors>VoidX</Authors>
     <Product>ADM Validator</Product>
     <Description>Checks if ADM BWF files match the standard, and logs all compliance failures.</Description>

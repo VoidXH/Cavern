@@ -13,6 +13,7 @@ namespace Cavern.Helpers {
         /// <summary>
         /// The followed source.
         /// </summary>
+        [Tooltip("The followed source.")]
         public Source target;
 
         /// <summary>
@@ -30,7 +31,7 @@ namespace Cavern.Helpers {
         /// <summary>
         /// Sphere color for unmuted objects.
         /// </summary>
-        [Header("Colors")]
+        [Header("Display")]
         [Tooltip("Sphere color for unmuted objects.")]
         public Color normalColor = Color.cyan;
 
@@ -47,21 +48,39 @@ namespace Cavern.Helpers {
         public Color muteColor = Color.red;
 
         /// <summary>
+        /// Show the object's trail for this many seconds.
+        /// </summary>
+        public float trailTime;
+
+        /// <summary>
         /// Access to material properties.
         /// </summary>
         new Renderer renderer;
 
         /// <summary>
+        /// Displayed path of the object.
+        /// </summary>
+        TrailRenderer trail;
+
+        /// <summary>
         /// Create a follower for a target source.
         /// </summary>
+        /// <param name="target">Follow this <see cref="Source"/></param>
+        /// <param name="attach">Attach the visualized source to the active listener</param>
+        /// <param name="trailTime">Show the object's trail for this many seconds</param>
         /// <returns>The follower component on a created sphere</returns>
-        public static Follower CreateFollower(Source target, bool attach) {
+        public static Follower CreateFollower(Source target, bool attach, float trailTime = 0) {
             GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             Follower follower = obj.AddComponent<Follower>();
             follower.target = target;
             follower.attach = attach;
             follower.renderer = obj.GetComponent<Renderer>();
             MakeTransparent(follower.renderer.material);
+
+            follower.trailTime = trailTime;
+            follower.trail = obj.AddComponent<TrailRenderer>();
+            follower.trail.material = follower.renderer.material;
+            follower.trail.endWidth = 0;
             return follower;
         }
 
@@ -117,6 +136,10 @@ namespace Cavern.Helpers {
 
                 if (renderer.material.color != newColor) {
                     renderer.material.color = newColor;
+                }
+
+                if (trail.time != trailTime) {
+                    trail.time = trailTime;
                 }
             }
         }

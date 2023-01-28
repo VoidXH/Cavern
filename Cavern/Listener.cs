@@ -472,9 +472,7 @@ namespace Cavern {
         /// </summary>
         float[] Frame() {
             if (headphoneVirtualizer) {
-                if (virtualizer == null) {
-                    virtualizer = new VirtualizerFilter();
-                }
+                virtualizer ??= new VirtualizerFilter();
                 virtualizer.SetLayout();
             }
             if (channelCount != Channels.Length || lastSampleRate != SampleRate || lastUpdateRate != UpdateRate) {

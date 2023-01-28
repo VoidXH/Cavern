@@ -143,10 +143,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 gain = gainHelper switch {
                     0 => 1,
                     1 => 0,
-                    2 => (gainHelper = extractor.Read(6)) < 15 ?
-                        QMath.DbToGain(15 - gainHelper) : QMath.DbToGain(14 - gainHelper),
+                    2 => QMath.DbToGain((gainHelper = extractor.Read(6)) < 15 ? 15 - gainHelper : 14 - gainHelper),
                     _ => -1,
-                };
+                } * .707f; // 3 dB attenuation as some content clip without this
             }
 
             // Priority - unneccessary, everything's rendered
