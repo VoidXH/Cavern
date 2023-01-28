@@ -13,12 +13,12 @@ namespace Cavern.Format.Consts {
         /// <summary>
         /// Bit masks for channels present in a WAV file.
         /// </summary>
+        [Flags]
         public enum WaveExtensibleChannel {
             /// <summary>
             /// Marks a channel that can't be part of a channel mask.
             /// </summary>
             None,
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
             FrontLeft = 0x1,
             FrontRight = 0x2,
             FrontCenter = 0x4,
@@ -37,7 +37,6 @@ namespace Cavern.Format.Consts {
             TopBackLeft = 0x8000,
             TopBackCenter = 0x10000,
             TopBackRight = 0x20000,
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
             /// <summary>
             /// A channel that's not even valid as a <see cref="ReferenceChannel"/>.
             /// </summary>

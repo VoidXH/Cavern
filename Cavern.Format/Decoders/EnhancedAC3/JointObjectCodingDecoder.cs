@@ -134,7 +134,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         float[] mix = mixMatrix[0][ch];
                         for (int ts = 0; ts < timeslots;) {
                             float[] channelInterp = interpolationMatrix[ts][ch];
-                            float lerp = ++ts / timeslots;
+                            float lerp = (float)++ts / timeslots;
                             for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
                                 channelInterp[sb] = channelPrev[sb] + (mix[pbMapping[sb]] - channelPrev[sb]) * lerp;
                             }
@@ -161,11 +161,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         float lerp;
                         float[][] from, to;
                         if (ts <= ts_2) {
-                            lerp = ts / ts_2;
+                            lerp = (float)ts / ts_2;
                             from = prevMatrix;
                             to = mixMatrix[0];
                         } else {
-                            lerp = (ts - ts_2) / (timeslots - ts_2);
+                            lerp = (float)(ts - ts_2) / (timeslots - ts_2);
                             from = mixMatrix[0];
                             to = mixMatrix[1];
                         }

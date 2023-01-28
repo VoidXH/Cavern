@@ -179,6 +179,11 @@ namespace Cavern {
         public bool Equals(Channel other) => X == other.X && Y == other.Y && lowFrequency == other.lowFrequency;
 
         /// <summary>
+        /// Get a hash value representing this channel.
+        /// </summary>
+        public override int GetHashCode() => (Y % 360 * 720 + X + (LFE ? 1048576 : 0)).GetHashCode();
+
+        /// <summary>
         /// Display channel position when converted to string.
         /// </summary>
         public override string ToString() => $"X: {X}, Y: {Y}, {SpatialPos}";

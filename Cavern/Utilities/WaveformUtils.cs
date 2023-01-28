@@ -30,7 +30,7 @@ namespace Cavern.Utilities {
         public static void Delay(float[] signal, float samples, FFTCache cache) {
             Complex[] fft = signal.ParseForFFT();
             fft.InPlaceFFT(cache);
-            Delay(signal, samples, cache);
+            Delay(fft, samples);
             fft.InPlaceIFFT(cache);
             for (int i = 0; i < signal.Length; ++i) {
                 signal[i] = fft[i].Real;
