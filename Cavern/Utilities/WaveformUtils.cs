@@ -292,7 +292,12 @@ namespace Cavern.Utilities {
         /// <param name="gain">Multiplier of signal amplitude</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Insert(float[] source, float[] destination, float gain) {
-            for (int i = 0; i < source.Length; ++i) {
+            int i = 0;
+            Vector<float> mul = new Vector<float>(gain);
+            for (int c = source.Length - Vector<float>.Count; i <= c; i += Vector<float>.Count) {
+                (new Vector<float>(source, i) * mul).CopyTo(destination, i);
+            }
+            for (; i < source.Length; i++) {
                 destination[i] = source[i] * gain;
             }
         }
@@ -412,7 +417,7 @@ namespace Cavern.Utilities {
                 (new Vector<float>(source, i) + new Vector<float>(destination, i) * mul).CopyTo(destination, i);
             }
             for (; i < source.Length; i++) {
-                destination[i] += source[i];
+                destination[i] += source[i] * gain;
             }
         }
 

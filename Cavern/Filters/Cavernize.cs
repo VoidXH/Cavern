@@ -72,11 +72,20 @@ namespace Cavern.Filters {
         /// <summary>
         /// Generate the smoothing factor for a smoothness value.
         /// </summary>
+        /// <param name="sampleRate">System sample rate</param>
         /// <param name="updateRate">Block size for processing</param>
         /// <param name="smoothness">Smoothness from 0 to 1</param>
-        public void CalculateSmoothingFactor(int updateRate, double smoothness = .8) =>
+        public static float CalculateSmoothingFactor(int sampleRate, int updateRate, float smoothness) =>
+            1.001f - (updateRate + (sampleRate - updateRate) * MathF.Pow(smoothness, .1f)) / sampleRate;
+
+        /// <summary>
+        /// Generate the smoothing factor for a smoothness value.
+        /// </summary>
+        /// <param name="updateRate">Block size for processing</param>
+        /// <param name="smoothness">Smoothness from 0 to 1</param>
+        public void CalculateSmoothingFactor(int updateRate, float smoothness) =>
             SmoothFactor =
-                1.001f - (updateRate + (float)((crossover.SampleRate - updateRate) * Math.Pow(smoothness, .1))) / crossover.SampleRate;
+                1.001f - (updateRate + (crossover.SampleRate - updateRate) * MathF.Pow(smoothness, .1f)) / crossover.SampleRate;
 
         /// <summary>
         /// Cavernize an array of samples. One filter should be applied to only one continuous stream of samples.
