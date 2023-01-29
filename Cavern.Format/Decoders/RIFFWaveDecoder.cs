@@ -95,6 +95,10 @@ namespace Cavern.Format.Decoders {
             ChannelAssignment chna = null;
             while (reader.Position < reader.Length) {
                 int headerID = reader.ReadInt32();
+                if (((headerID & 0xFF) == 0) && (reader.Position & 1) == 1) {
+                    reader.Position -= 3;
+                    continue;
+                }
                 if (headerID == 0) {
                     continue;
                 }

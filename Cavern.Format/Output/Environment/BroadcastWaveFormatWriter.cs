@@ -154,8 +154,8 @@ namespace Cavern.Format.Environment {
 
             byte[] axml = Encoding.UTF8.GetBytes(builder.ToString().Replace("utf-16", "utf-8"));
             if (admWriter == null) {
-                output.WriteChunk(RIFFWave.axmlSync, axml);
-                output.WriteChunk(RIFFWave.chnaSync, ChannelAssignment.GetChunk(adm));
+                output.WriteChunk(RIFFWave.axmlSync, axml, true);
+                output.WriteChunk(RIFFWave.chnaSync, ChannelAssignment.GetChunk(adm), true);
                 WriteAdditionalChunks();
             } else {
                 admWriter.Write(axml);

@@ -277,19 +277,21 @@ namespace Cavern.Format {
         /// </summary>
         /// <param name="id">4 byte identifier of the chunk</param>
         /// <param name="data">Raw data of the chunk</param>
+        /// <param name="dwordPadded">Some RIFF readers only work if all chunks start at an even byte, this is for their support</param>
         /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
         /// refer to <see cref="RIFFWave"/> for samples.</remarks>
-        public void WriteChunk(int id, byte[] data) {
+        public void WriteChunk(int id, byte[] data, bool dwordPadded = false) {
             if (data.LongLength > uint.MaxValue) {
-                if (largeChunkSizes == null) {
-                    largeChunkSizes = new List<Tuple<int, long>>();
-                }
+                largeChunkSizes ??= new List<Tuple<int, long>>();
                 largeChunkSizes.Add(new Tuple<int, long>(id, data.LongLength));
             }
 
             writer.Write(id);
             writer.Write(data.Length);
             writer.Write(data);
+            if (dwordPadded && (writer.BaseStream.Position & 1) == 1) {
+                writer.Write((byte)0);
+            }
         }
 
         /// <summary>
