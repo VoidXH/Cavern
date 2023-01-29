@@ -15,6 +15,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         HEVC,
         /// <summary>
+        /// <see cref="HEVC"/> containing Dolby Vision, video.
+        /// </summary>
+        HEVC_DolbyVision,
+        /// <summary>
         /// Advanced Video Coding aka H.264, video.
         /// </summary>
         AVC,

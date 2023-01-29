@@ -5,7 +5,7 @@ Supported codecs:
   * Limitless Audio Format
   * RIFF WAVE
   * Audio Definition Model Broadcast Wave Format
-Supported containers: .ac3, .eac3, .ec3, .laf, .mka, .mkv, .wav
+Supported containers: .ac3, .eac3, .ec3, .laf, .mka, .mkv, .mp4, .wav
 
 [![Build Status](https://api.travis-ci.com/VoidXH/Cavern.svg?branch=master)](https://app.travis-ci.com/VoidXH/Cavern)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)

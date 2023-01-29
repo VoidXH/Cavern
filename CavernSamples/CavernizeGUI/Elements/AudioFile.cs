@@ -48,19 +48,10 @@ namespace CavernizeGUI.Elements {
                     break;
                 case "mkv":
                 case "mka":
-                    MatroskaReader mkvReader = new(Path);
-                    int trackId = 0;
-                    for (int i = 0; i < mkvReader.Tracks.Length; i++) {
-                        if (mkvReader.Tracks[i].Extra is TrackExtraAudio) {
-                            try {
-                                tracks.Add(new Track(new AudioTrackReader(mkvReader.Tracks[i]), mkvReader.Tracks[i].Format,
-                                    trackId, mkvReader.Tracks[i].Language));
-                            } catch (Exception e) {
-                                tracks.Add(new InvalidTrack(e.Message, mkvReader.Tracks[i].Format, mkvReader.Tracks[i].Language));
-                            }
-                            ++trackId;
-                        }
-                    }
+                    AddTracksFromContainer(new MatroskaReader(Path));
+                    break;
+                case "mp4":
+                    AddTracksFromContainer(new MP4Reader(Path));
                     break;
                 case "wav":
                     RIFFWaveReader wavReader = new(Path);
@@ -104,5 +95,23 @@ namespace CavernizeGUI.Elements {
         /// Show the file's name.
         /// </summary>
         public override string ToString() => System.IO.Path.GetFileName(Path);
+
+        /// <summary>
+        /// Add the tracks of a container to the track list.
+        /// </summary>
+        void AddTracksFromContainer(ContainerReader reader) {
+            int trackId = 0;
+            for (int i = 0; i < reader.Tracks.Length; i++) {
+                if (reader.Tracks[i].Extra is TrackExtraAudio) {
+                    try {
+                        tracks.Add(new Track(new AudioTrackReader(reader.Tracks[i]), reader.Tracks[i].Format,
+                            trackId, reader.Tracks[i].Language));
+                    } catch (Exception e) {
+                        tracks.Add(new InvalidTrack(e.Message, reader.Tracks[i].Format, reader.Tracks[i].Language));
+                    }
+                    ++trackId;
+                }
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// The container containing this track.
         /// </summary>
-        public ContainerReader Source { get; private set; }
+        public ContainerReader Source { get; internal set; }
 
         /// <summary>
         /// The position of the track in the container's list of tracks.

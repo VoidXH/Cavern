@@ -73,7 +73,7 @@ namespace Cavern.Format.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static short ReadInt16BE(this Stream reader) {
             int a = reader.ReadByte(), b = reader.ReadByte();
-            return (short)(BitConverter.IsLittleEndian ? (a << 8) + b : ((b << 8) + a));
+            return (short)(BitConverter.IsLittleEndian ? (a << 8) | b : ((b << 8) | a));
         }
 
         /// <summary>
@@ -105,10 +105,22 @@ namespace Cavern.Format.Utilities {
         public static ushort ReadUInt16(this Stream reader) => (ushort)(reader.ReadByte() | (reader.ReadByte() << 8));
 
         /// <summary>
+        /// Read a big-endian 32-bit unsigned integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ReadUInt16BE(this Stream reader) => (ushort)reader.ReadInt16BE();
+
+        /// <summary>
         /// Read a 32-bit unsigned integer from the stream.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ReadUInt32(this Stream reader) => (uint)reader.ReadInt32();
+
+        /// <summary>
+        /// Read a big-endian 32-bit unsigned integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ReadUInt32BE(this Stream reader) => (uint)reader.ReadInt32BE();
 
         /// <summary>
         /// Read a 32-bit floating point number from the stream.
