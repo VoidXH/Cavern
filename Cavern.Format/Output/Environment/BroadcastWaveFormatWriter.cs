@@ -27,11 +27,6 @@ namespace Cavern.Format.Environment {
         public double FinalFeedbackStart;
 
         /// <summary>
-        /// If an object is moving linearly for this long, the positions will be merged.
-        /// </summary>
-        public double MaxObjectMergeTime = 120;
-
-        /// <summary>
         /// The main PCM exporter.
         /// </summary>
         protected readonly RIFFWaveWriter output;
@@ -92,7 +87,6 @@ namespace Cavern.Format.Environment {
             Vector3 scaling = new Vector3(1) / Listener.EnvironmentSize;
             double timeScaling = 1.0 / Source.SampleRate;
             ADMTimeSpan updateTime = new ADMTimeSpan(Source.UpdateRate * timeScaling),
-                maxCombinationSpan = new ADMTimeSpan(MaxObjectMergeTime),
                 newOffset = new ADMTimeSpan(samplesWritten * timeScaling);
 
             int sourceIndex = 0;
@@ -102,7 +96,7 @@ namespace Cavern.Format.Environment {
                 Vector3 scaledPosition = Vector3.Clamp(source.Position * scaling, minusOne, Vector3.One);
                 if (size == 0 || movement[size - 1].Position != scaledPosition) {
                     bool replace = false;
-                    if (size > 1 && movement[size - 1].Duration < maxCombinationSpan) {
+                    if (size > 1) {
                         float t = (float)QMath.LerpInverse(movement[size - 2].Offset.TotalSeconds, newOffset.TotalSeconds,
                             movement[size - 1].Offset.TotalSeconds);
                         Vector3 inBetween = QMath.Lerp(movement[size - 2].Position, scaledPosition, t),

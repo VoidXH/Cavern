@@ -14,6 +14,11 @@ namespace Cavern.Format.Environment {
     /// </summary>
     public class DolbyAtmosBWFWriter : BroadcastWaveFormatWriter {
         /// <summary>
+        /// Number of bed channels to fill.
+        /// </summary>
+        readonly int useBedUntil;
+
+        /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
         /// </summary>
         /// <param name="writer">File output stream</param>
@@ -24,26 +29,39 @@ namespace Cavern.Format.Environment {
         public DolbyAtmosBWFWriter(BinaryWriter writer, Listener source, long length, BitDepth bits,
             (ReferenceChannel, Source)[] staticObjects) :
             base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) {
-            MaxObjectMergeTime = 16.0 / source.SampleRate;
+            useBedUntil = GetBedLimit(staticObjects);
         }
 
         /// <summary>
-        /// ADM BWF exporter with Dolby Atmos compatibility options.
+        /// Returns how many bed channels are required for optimal disk space.
         /// </summary>
-        /// <param name="path">File output path</param>
-        /// <param name="source">Rendering environment that should be exported</param>
-        /// <param name="length">Total samples to write</param>
-        /// <param name="bits">Bit depth of the output</param>
-        /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
-        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, (ReferenceChannel, Source)[] staticObjects) :
-            this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits, staticObjects) { }
+        static int GetBedLimit((ReferenceChannel, Source)[] staticObjects) {
+            int limit = bedChannels.Length;
+            while (limit > 2) {
+                --limit;
+                for (int i = 0; i < staticObjects.Length; i++) {
+                    if ((byte)staticObjects[i].Item1 == bedChannels[limit]) {
+                        limit = -limit;
+                        break;
+                    }
+                }
+            }
+            if (limit < 0) {
+                limit = -limit;
+                if ((limit & 1) == 0) {
+                    ++limit;
+                }
+            }
+            return limit + 1;
+        }
 
         /// <summary>
         /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.
         /// Additionally, <paramref name="staticObjects"/> could be mapped to the bad if a corresponding bed channel exists.
         /// </summary>
         static Listener ExtendWithMuteTarget(Listener source, (ReferenceChannel, Source)[] staticObjects) {
-            for (int i = bedChannels.Length - 1; i >= 0; i--) {
+
+            for (int i = GetBedLimit(staticObjects) - 1; i >= 0; i--) {
                 bool attached = false;
                 for (int j = 0; j < staticObjects.Length; j++) {
                     if (bedChannels[i] == (int)staticObjects[j].Item1) {
@@ -59,6 +77,17 @@ namespace Cavern.Format.Environment {
             }
             return source;
         }
+
+        /// <summary>
+        /// ADM BWF exporter with Dolby Atmos compatibility options.
+        /// </summary>
+        /// <param name="path">File output path</param>
+        /// <param name="source">Rendering environment that should be exported</param>
+        /// <param name="length">Total samples to write</param>
+        /// <param name="bits">Bit depth of the output</param>
+        /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
+        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, (ReferenceChannel, Source)[] staticObjects) :
+            this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits, staticObjects) { }
 
         /// <summary>
         /// Generates the ADM structure from the recorded movement and wires the mute channel to beds.
@@ -102,7 +131,7 @@ namespace Cavern.Format.Environment {
             List<ADMStreamFormat> streamFormats = new List<ADMStreamFormat>();
 
             string packHex = ((int)ADMPackType.DirectSpeakers).ToString("x4");
-            for (int i = 1; i <= bedChannels.Length; i++) {
+            for (int i = 1; i <= useBedUntil; i++) {
                 string trackID = "ATU_" + i.ToString("x8");
                 string trackFormatID = $"AT_{packHex}{0x1000 + i:x4}_01";
                 string channelFormatID = $"AC_{packHex}{0x1000 + i:x4}";
@@ -129,24 +158,17 @@ namespace Cavern.Format.Environment {
                 FixEndTimings(movements[i], contentLength);
             }
 
-            ADMTimeSpan validInterpolation = new ADMTimeSpan(250.0 / Source.SampleRate); // The only allowed Atmos jump time is 0 or this
             packHex = ((int)ADMPackType.Objects).ToString("x4");
-            for (int i = 0; i < movements.Length - bedChannels.Length; i++) {
+            for (int i = 0; i < movements.Length - useBedUntil; i++) {
                 string id = (0x1001 + i).ToString("x4"),
-                    totalId = (0x1001 + bedChannels.Length + i).ToString("x4"),
+                    totalId = (0x1001 + useBedUntil + i).ToString("x4"),
                     objectID = "AO_" + totalId,
                     objectName = "Cavern_Obj_" + (i + 1),
                     packFormatID = $"AP_{packHex}{id}",
                     channelFormatID = $"AC_{packHex}{id}",
-                    trackID = "ATU_0000" + (i + bedChannels.Length + 1).ToString("x4"),
+                    trackID = "ATU_0000" + (i + useBedUntil + 1).ToString("x4"),
                     trackFormatID = $"AT_{packHex}{id}_01",
                     streamFormatID = $"AS_{packHex}{id}";
-
-                List<ADMBlockFormat> blocks = movements[i + bedChannels.Length];
-                blocks[0].Interpolation = ADMTimeSpan.Zero;
-                for (int block = 1, c = blocks.Count; block < c; block++) {
-                    blocks[block].Interpolation = validInterpolation;
-                }
 
                 objectIDs.Add(objectID);
                 objects.Add(new ADMObject(objectID, "Audio Object " + (i + 1), default, contentLength, packFormatID) {
@@ -156,7 +178,7 @@ namespace Cavern.Format.Environment {
                     ChannelFormats = new List<string>() { channelFormatID }
                 });
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, ADMPackType.Objects) {
-                    Blocks = blocks
+                    Blocks = movements[i + useBedUntil]
                 });
                 tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, packFormatID));
                 trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));
