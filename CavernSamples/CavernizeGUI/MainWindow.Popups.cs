@@ -4,8 +4,8 @@ using System.IO;
 using System.Text;
 using System.Windows;
 
+using Cavern.Channels;
 using Cavern.Format;
-using Cavern.Remapping;
 using Cavern.Virtualizer;
 
 using CavernizeGUI.Elements;

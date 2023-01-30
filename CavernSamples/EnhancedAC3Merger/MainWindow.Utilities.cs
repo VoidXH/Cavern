@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 
+using Cavern.Channels;
 using Cavern.Format;
-using Cavern.Remapping;
 
 namespace EnhancedAC3Merger {
     // Utility functions for the main functionality that are unlikely to be modified

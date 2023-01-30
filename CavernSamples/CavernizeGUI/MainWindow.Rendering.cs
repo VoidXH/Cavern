@@ -3,11 +3,11 @@ using System;
 using System.IO;
 
 using Cavern;
+using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Environment;
 using Cavern.Format.Renderers;
-using Cavern.Remapping;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 

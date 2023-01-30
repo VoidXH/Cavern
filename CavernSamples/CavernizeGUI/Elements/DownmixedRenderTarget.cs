@@ -1,4 +1,4 @@
-﻿using Cavern.Remapping;
+﻿using Cavern.Channels;
 using Cavern.Utilities;
 
 namespace CavernizeGUI.Elements {

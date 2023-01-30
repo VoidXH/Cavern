@@ -28,32 +28,7 @@ namespace Cavern.Format.Environment {
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
         public DolbyAtmosBWFWriter(BinaryWriter writer, Listener source, long length, BitDepth bits,
             (ReferenceChannel, Source)[] staticObjects) :
-            base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) {
-            useBedUntil = GetBedLimit(staticObjects);
-        }
-
-        /// <summary>
-        /// Returns how many bed channels are required for optimal disk space.
-        /// </summary>
-        static int GetBedLimit((ReferenceChannel, Source)[] staticObjects) {
-            int limit = bedChannels.Length;
-            while (limit > 2) {
-                --limit;
-                for (int i = 0; i < staticObjects.Length; i++) {
-                    if ((byte)staticObjects[i].Item1 == bedChannels[limit]) {
-                        limit = -limit;
-                        break;
-                    }
-                }
-            }
-            if (limit < 0) {
-                limit = -limit;
-                if ((limit & 1) == 0) {
-                    ++limit;
-                }
-            }
-            return limit + 1;
-        }
+            base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) { }
 
         /// <summary>
         /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.
@@ -61,7 +36,7 @@ namespace Cavern.Format.Environment {
         /// </summary>
         static Listener ExtendWithMuteTarget(Listener source, (ReferenceChannel, Source)[] staticObjects) {
 
-            for (int i = GetBedLimit(staticObjects) - 1; i >= 0; i--) {
+            for (int i = bedChannels.Length - 1; i >= 0; i--) {
                 bool attached = false;
                 for (int j = 0; j < staticObjects.Length; j++) {
                     if (bedChannels[i] == (int)staticObjects[j].Item1) {

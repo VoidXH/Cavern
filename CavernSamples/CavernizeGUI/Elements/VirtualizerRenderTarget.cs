@@ -1,5 +1,5 @@
 ﻿using Cavern;
-using Cavern.Remapping;
+using Cavern.Channels;
 
 namespace CavernizeGUI.Elements {
     /// <summary>

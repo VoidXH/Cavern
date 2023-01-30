@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 
+using Cavern.Channels;
 using Cavern.Format;
-using Cavern.Remapping;
 
 using VoidX.WPF;
 

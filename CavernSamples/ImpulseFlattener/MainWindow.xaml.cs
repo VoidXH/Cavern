@@ -3,10 +3,10 @@ using System;
 using System.IO;
 using System.Windows;
 
+using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format;
 using Cavern.QuickEQ.Equalization;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 using Window = System.Windows.Window;

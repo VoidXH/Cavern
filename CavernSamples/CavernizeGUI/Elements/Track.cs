@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using Cavern;
+using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Renderers;

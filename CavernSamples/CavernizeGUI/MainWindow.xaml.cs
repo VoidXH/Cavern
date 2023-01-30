@@ -14,9 +14,9 @@ using System.Windows.Shapes;
 using System.Windows.Shell;
 
 using Cavern;
+using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 using CavernizeGUI.Elements;

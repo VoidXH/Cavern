@@ -1,7 +1,7 @@
-﻿using Cavern.Format.Decoders;
+﻿using Cavern.Channels;
+using Cavern.Format.Decoders;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
-using Cavern.Remapping;
 
 static class Program {
     /// <summary>

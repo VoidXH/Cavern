@@ -3,8 +3,8 @@ using System.Linq;
 using System.Text;
 
 using Cavern;
+using Cavern.Channels;
 using Cavern.Format.Renderers;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace CavernizeGUI {

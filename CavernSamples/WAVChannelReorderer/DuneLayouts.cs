@@ -1,4 +1,4 @@
-﻿using Cavern.Remapping;
+﻿using Cavern.Channels;
 
 namespace WAVChannelReorderer {
     partial class MainWindow {

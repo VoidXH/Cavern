@@ -12,9 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using Cavern;
+using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format;
-using Cavern.Remapping;
 
 using Color = System.Drawing.Color;
 
@@ -179,7 +179,7 @@ namespace WavefrontSimulator {
             }
             uniformityValue = 1 - (uniformityValue / (size * size * center));
             uniformity.Text = "Uniformity: " + uniformityValue.ToString("0.00%");
-            
+
             Bitmap output = new Bitmap(size, size);
             maxGain -= minGain;
             for (int x = 0; x < size; ++x) {
