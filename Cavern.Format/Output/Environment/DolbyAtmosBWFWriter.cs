@@ -14,11 +14,6 @@ namespace Cavern.Format.Environment {
     /// </summary>
     public class DolbyAtmosBWFWriter : BroadcastWaveFormatWriter {
         /// <summary>
-        /// Number of bed channels to fill.
-        /// </summary>
-        readonly int useBedUntil;
-
-        /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
         /// </summary>
         /// <param name="writer">File output stream</param>
@@ -106,7 +101,7 @@ namespace Cavern.Format.Environment {
             List<ADMStreamFormat> streamFormats = new List<ADMStreamFormat>();
 
             string packHex = ((int)ADMPackType.DirectSpeakers).ToString("x4");
-            for (int i = 1; i <= useBedUntil; i++) {
+            for (int i = 1; i <= bedChannels.Length; i++) {
                 string trackID = "ATU_" + i.ToString("x8");
                 string trackFormatID = $"AT_{packHex}{0x1000 + i:x4}_01";
                 string channelFormatID = $"AC_{packHex}{0x1000 + i:x4}";
@@ -134,14 +129,14 @@ namespace Cavern.Format.Environment {
             }
 
             packHex = ((int)ADMPackType.Objects).ToString("x4");
-            for (int i = 0; i < movements.Length - useBedUntil; i++) {
+            for (int i = 0; i < movements.Length - bedChannels.Length; i++) {
                 string id = (0x1001 + i).ToString("x4"),
-                    totalId = (0x1001 + useBedUntil + i).ToString("x4"),
+                    totalId = (0x1001 + bedChannels.Length + i).ToString("x4"),
                     objectID = "AO_" + totalId,
                     objectName = "Cavern_Obj_" + (i + 1),
                     packFormatID = $"AP_{packHex}{id}",
                     channelFormatID = $"AC_{packHex}{id}",
-                    trackID = "ATU_0000" + (i + useBedUntil + 1).ToString("x4"),
+                    trackID = "ATU_0000" + (i + bedChannels.Length + 1).ToString("x4"),
                     trackFormatID = $"AT_{packHex}{id}_01",
                     streamFormatID = $"AS_{packHex}{id}";
 
@@ -153,7 +148,7 @@ namespace Cavern.Format.Environment {
                     ChannelFormats = new List<string>() { channelFormatID }
                 });
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, ADMPackType.Objects) {
-                    Blocks = movements[i + useBedUntil]
+                    Blocks = movements[i + bedChannels.Length]
                 });
                 tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, packFormatID));
                 trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));
