@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.Channels;
 using Cavern.Format.Common;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Consts {

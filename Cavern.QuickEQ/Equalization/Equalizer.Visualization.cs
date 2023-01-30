@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
+
 using Cavern.QuickEQ.EQCurves;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
@@ -17,7 +19,7 @@ namespace Cavern.QuickEQ.Equalization {
             double logStart = Math.Log(startFreq),
                 range = Math.Log(endFreq) - logStart;
             slope *= range * 3.32192809489f; // range / log(2)
-            for (int i = 0, c = bands.Count; i < c; ++i) {
+            for (int i = 0, c = bands.Count; i < c; i++) {
                 if (bands[i].Frequency > startFreq) {
                     if (bands[i].Frequency > endFreq) {
                         bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slope);
@@ -49,7 +51,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="endFreq">Frequency at the end of the curve</param>
         public float[] Apply(float[] response, double startFreq, double endFreq) {
             float[] filter = Visualize(startFreq, endFreq, response.Length);
-            for (int i = 0; i < response.Length; ++i) {
+            for (int i = 0; i < response.Length; i++) {
                 filter[i] += response[i];
             }
             return filter;
@@ -64,7 +66,7 @@ namespace Cavern.QuickEQ.Equalization {
             int halfLength = response.Length / 2 + 1, nyquist = sampleRate / 2;
             float[] filter = VisualizeLinear(0, nyquist, halfLength);
             response[0] *= (float)Math.Pow(10, filter[0] * .05f);
-            for (int i = 1; i < halfLength; ++i) {
+            for (int i = 1; i < halfLength; i++) {
                 response[i] *= (float)Math.Pow(10, filter[i] * .05f);
                 response[^i] = new Complex(response[i].Real, -response[i].Imaginary);
             }
@@ -85,7 +87,7 @@ namespace Cavern.QuickEQ.Equalization {
 
             double normalize = bands[c / 2].Gain - level;
             CultureInfo culture = CultureInfo.InvariantCulture;
-            for (int band = 0; band < c; ++band) {
+            for (int band = 0; band < c; band++) {
                 calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {(bands[band].Gain - normalize).ToString(culture)}";
             }
             File.WriteAllLines(path, calFile);
@@ -107,12 +109,31 @@ namespace Cavern.QuickEQ.Equalization {
 
             double normalize = bands[c / 2].Gain - level;
             CultureInfo culture = CultureInfo.InvariantCulture;
-            for (int band = 0; band < c; ++band) {
+            for (int band = 0; band < c; band++) {
                 calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {(bands[band].Gain - normalize).ToString(culture)}";
             }
 
             Array.Copy(diracFooter, 0, calFile, start + c, diracFooter.Length);
             File.WriteAllLines(path, calFile);
+        }
+
+        /// <summary>
+        /// Get a line in an Equalizer APO configuration file that applies this EQ.
+        /// </summary>
+        /// <returns></returns>
+        public string ExportToEqualizerAPO() {
+            StringBuilder result = new StringBuilder("GraphicEQ:");
+            int band = 0, c = bands.Count;
+            while (band < c) {
+                result.Append(' ').Append(bands[band].Frequency.ToString(CultureInfo.InvariantCulture))
+                    .Append(' ').Append(bands[band].Gain.ToString(CultureInfo.InvariantCulture));
+                if (++band != c) {
+                    result.Append(';');
+                } else {
+                    break;
+                }
+            }
+            return result.ToString();
         }
 
         /// <summary>
@@ -160,7 +181,7 @@ namespace Cavern.QuickEQ.Equalization {
                 return result;
             }
             double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (length - 1));
-            for (int i = 0, nextBand = 0, prevBand = 0; i < length; ++i) {
+            for (int i = 0, nextBand = 0, prevBand = 0; i < length; i++) {
                 while (nextBand != bandCount && bands[nextBand].Frequency < startFreq) {
                     prevBand = nextBand;
                     ++nextBand;
@@ -189,7 +210,7 @@ namespace Cavern.QuickEQ.Equalization {
                 return result;
             }
             double step = (endFreq - startFreq) / (length - 1);
-            for (int entry = 0, nextBand = 0, prevBand = 0; entry < length; ++entry) {
+            for (int entry = 0, nextBand = 0, prevBand = 0; entry < length; entry++) {
                 double freq = startFreq + step * entry;
                 while (nextBand != bandCount && bands[nextBand].Frequency < freq) {
                     prevBand = nextBand;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using Cavern.Channels;
 using Cavern.Format.Decoders;
-using Cavern.Remapping;
 using Cavern.SpecialSources;
 
 namespace Cavern.Format.Renderers {

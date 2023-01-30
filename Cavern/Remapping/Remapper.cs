@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
+using Cavern.Channels;
 using Cavern.Utilities;
 
 namespace Cavern.Remapping {

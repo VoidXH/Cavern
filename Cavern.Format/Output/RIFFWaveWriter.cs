@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
+using Cavern.Channels;
 using Cavern.Format.Consts;
-using Cavern.Remapping;
 
 using static Cavern.Format.Consts.RIFFWave;
 

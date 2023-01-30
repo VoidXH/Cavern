@@ -1,4 +1,4 @@
-﻿using Cavern.Remapping;
+﻿using Cavern.Channels;
 
 namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     static class ADMConsts {

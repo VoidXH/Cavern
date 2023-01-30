@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
+using Cavern.Channels;
 using Cavern.Filters;
-using Cavern.Remapping;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>

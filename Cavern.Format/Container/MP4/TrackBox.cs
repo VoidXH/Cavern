@@ -9,7 +9,7 @@ namespace Cavern.Format.Container.MP4 {
     /// <summary>
     /// Track metadata block of an MP4 container.
     /// </summary>
-    /// <see cref="https://developer.apple.com/library/archive/documentation/QuickTime/QTFF/QTFFChap2/qtff2.html"/>
+    /// <see href="https://developer.apple.com/library/archive/documentation/QuickTime/QTFF/QTFFChap2/qtff2.html"/>
     internal class TrackBox : NestedBox {
         /// <summary>
         /// Partially parsed track metadata. Has to be filled by the root parser.

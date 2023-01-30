@@ -1,4 +1,22 @@
 # Cavern version history
+## Cavern 1.6 - Happiest Halloween update
+**2022. October 31st**
+
+#### Additions
+* Decoding of Matroska (.mkv/.mka) streams
+* Decoding of E-AC-3 (.ac3/.ec3) streams, including JOC (Dolby Digital+ Atmos) into objects
+* Decoding of ADM BWF (.wav) streams into objects
+* CavernAmp accelerates some features with native code on 64-bit Windows for an average of 2x speedup
+* Ear canal simulations by angle and distance with the Distancer filter
+* Optimized convolution for basic impulse responses called Spike convolver
+* Screen-locked source flag
+* Many new waveform and audio file handling functions
+
+#### Changes
+* File reading is separated to reading, decoding, and rendering
+* Linearized virtualizer frequency responses
+* Moved API to .NET 6 and made NuGet-ready
+
 ## Cavern 1.5 - Nearly 5 years update
 **2021. January 5th**
 

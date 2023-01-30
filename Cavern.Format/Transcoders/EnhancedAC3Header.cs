@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 
+using Cavern.Channels;
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 using static Cavern.Format.Transcoders.EnhancedAC3;

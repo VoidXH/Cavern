@@ -1,7 +1,7 @@
 ﻿using System;
 
+using Cavern.Channels;
 using Cavern.Filters;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Cavernize;
-using Cavern.Remapping;
+using Cavern.Channels;
 using Cavern.Utilities;
 
 namespace Cavern.Cavern4D {

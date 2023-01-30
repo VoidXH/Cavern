@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-using Cavern.Remapping;
+using Cavern.Channels;
 
 namespace Cavern.Format.Renderers {
     /// <summary>

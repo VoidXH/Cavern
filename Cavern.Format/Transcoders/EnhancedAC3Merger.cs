@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Channels;
 using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
-using Cavern.Remapping;
 
 namespace Cavern.Format.Transcoders {
     /// <summary>

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
+using Cavern.Channels;
 using Cavern.Format.Decoders;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Renderers {

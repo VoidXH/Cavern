@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-using Cavern.Remapping;
+using Cavern.Channels;
 using Cavern.Utilities;
 
 namespace Cavern.Cavernize {

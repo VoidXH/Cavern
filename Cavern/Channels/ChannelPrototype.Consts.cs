@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Cavern.Remapping {
+namespace Cavern.Channels {
     partial struct ChannelPrototype {
         /// <summary>
         /// Possible channels to use in layouts.

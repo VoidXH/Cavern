@@ -5,8 +5,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+using Cavern.Channels;
 using Cavern.Filters;
-using Cavern.Remapping;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 

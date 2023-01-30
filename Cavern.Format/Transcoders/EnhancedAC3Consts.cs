@@ -1,4 +1,4 @@
-﻿using Cavern.Remapping;
+﻿using Cavern.Channels;
 
 namespace Cavern.Format.Transcoders {
     static partial class EnhancedAC3 {

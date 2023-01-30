@@ -13,7 +13,7 @@ namespace Cavern.Format.Container {
     /// </summary>
     public class MP4Reader : ContainerReader {
         /// <summary>
-        /// The box containing the bytestreams of the <see cref="Tracks"/>.
+        /// The box containing the bytestreams of the tracks.
         /// </summary>
         RawBox source;
 
@@ -30,7 +30,7 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Continue reading a given track.
         /// </summary>
-        /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the <see cref="Tracks"/> array.</param>
+        /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the Tracks array.</param>
         public override byte[] ReadNextBlock(int track) {
             throw new UnsupportedFeatureException("MP4");
         }

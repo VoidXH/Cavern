@@ -1,6 +1,6 @@
 ﻿using System;
 
-using Cavern.Remapping;
+using Cavern.Channels;
 
 namespace Cavern.Format.Common {
     /// <summary>

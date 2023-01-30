@@ -1,6 +1,5 @@
-﻿using Cavern.Channels;
-
-namespace Cavern.Format.FilterSet {
+﻿namespace Cavern.Channels
+{
     /// <summary>
     /// Helper functions for handling Equalizer APO configuration files.
     /// </summary>

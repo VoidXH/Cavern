@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 
+using Cavern.Channels;
 using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.Format.Utilities;
-using Cavern.Remapping;
 
 namespace Cavern.Format.Decoders {
     /// <summary>

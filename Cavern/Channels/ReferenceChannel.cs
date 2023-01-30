@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Cavern.Remapping {
+namespace Cavern.Channels {
     /// <summary>
     /// Possible channels in channel-based legacy systems.
     /// </summary>

@@ -1,8 +1,8 @@
 ﻿using System;
 
+using Cavern.Channels;
 using Cavern.Format.Decoders;
 using Cavern.Format.Decoders.EnhancedAC3;
-using Cavern.Remapping;
 using Cavern.SpecialSources;
 using Cavern.Utilities;
 

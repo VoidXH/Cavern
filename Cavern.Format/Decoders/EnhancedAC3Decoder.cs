@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Cavern.Channels;
 using Cavern.Format.Common;
 using Cavern.Format.Decoders.EnhancedAC3;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders {

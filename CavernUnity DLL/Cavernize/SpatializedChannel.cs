@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
+using Cavern.Channels;
 using Cavern.Helpers;
-using Cavern.Remapping;
 using Cavern.Utilities;
 
 using Vector3D = System.Numerics.Vector3;

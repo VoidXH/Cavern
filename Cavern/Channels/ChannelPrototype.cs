@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace Cavern.Remapping {
+namespace Cavern.Channels {
     /// <summary>
     /// Light audio channel information structure.
     /// </summary>

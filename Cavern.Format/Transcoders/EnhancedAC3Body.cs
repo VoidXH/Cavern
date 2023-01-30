@@ -1,7 +1,8 @@
-﻿using Cavern.Format.Utilities;
-using Cavern.Remapping;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+
+using Cavern.Channels;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Transcoders {
     /// <summary>

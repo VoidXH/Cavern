@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
-using Cavern.Remapping;
+using Cavern.Channels;
 using Cavern.Utilities;
 
 namespace Cavern.Cavernize {

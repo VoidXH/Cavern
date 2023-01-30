@@ -12,7 +12,7 @@ namespace Cavern.Filters {
 
         /// <summary>
         /// Ratio of the distance actually moved between calculated heights of ftames. Should be set with
-        /// <see cref="CalculateSmoothingFactor(int, double)"/>.
+        /// <see cref="CalculateSmoothingFactor(int, float)"/>.
         /// </summary>
         /// <remarks>The default value is calculated with 0.8 smoothness, with an update rate of 240 at
         /// 48 kHz sampling.</remarks>
