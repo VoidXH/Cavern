@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using Cavern.Channels;
 using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {

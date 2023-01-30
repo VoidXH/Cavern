@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.IO;
 
+using Cavern.Channels;
 using Cavern.Filters;
 
 namespace Cavern.Format.FilterSet {
