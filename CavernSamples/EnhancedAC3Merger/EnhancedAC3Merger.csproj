@@ -14,6 +14,7 @@
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
+    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\CavernizeGUI\Tools\FFmpeg.cs" Link="Tools\FFmpeg.cs" />

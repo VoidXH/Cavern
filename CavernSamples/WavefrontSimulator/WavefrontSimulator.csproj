@@ -15,6 +15,7 @@
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
+    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

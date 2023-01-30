@@ -98,7 +98,7 @@
                 <Grid Grid.Column="1" Margin="10,0,0,0">
                     <Image Margin="1,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="169"
                            Source="{StaticResource Logo}" MouseDown="Ad"/>
-                    <GroupBox Margin="0,32,0,0">
+                    <GroupBox Margin="0,25,0,0">
                         <Grid>
                             <TextBlock Style="{StaticResource Header}" Text="{StaticResource CoPro}"/>
                             <Button Margin="10,34,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100"

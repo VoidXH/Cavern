@@ -16,16 +16,12 @@
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
-    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
     <StartupObject>CavernizeGUI.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Resources\CavernLogo.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
