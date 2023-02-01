@@ -126,7 +126,7 @@ namespace Cavern.Format.Transcoders {
         /// Modify the inputs' headers to have a forced channel mapping.
         /// </summary>
         void SetupHeaders() {
-            int channelsUsed = 0;
+            int channelsUsed = sources[0].ChannelCount;
             for (int i = 1; i < sources.Length; i++) {
                 sources[i].Header.SetChannelArrangement(layout[channelsUsed..(channelsUsed += sources[i].ChannelCount)]);
                 sources[i].Header.SubstreamID = 7 + i;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 
@@ -100,42 +99,45 @@ namespace EnhancedAC3Merger {
         }
 
         /// <summary>
-        /// Assign the channels as E-AC-3 override streams.
+        /// All override channels must come in pairs. This function checks if they do.
         /// </summary>
-        /// <param name="prepend">Append substreams after these entries</param>
-        /// <returns>Stream groups or null if a channel misses its mandatory pair.</returns>
-        InputChannel[][] GetSubstreams(params InputChannel[][] prepend) {
-            List<InputChannel[]> mustBeGrouped = new List<InputChannel[]>();
+        bool CheckPairing() {
+            for (int i = 6 /* after bed */; i < inputs.Length; i += 2) {
+                if (inputs[i].Active != inputs[i + 1].Active) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
-            for (int i = 6 /* after bed */; i < inputs.Length; i++) {
-                if (Array.BinarySearch(mustBePaired, inputs[i].TargetChannel) >= 0) {
-                    if (inputs[i].SelectedFile != null && inputs[i + 1].SelectedFile != null) {
-                        mustBeGrouped.Add(new InputChannel[] { inputs[i], inputs[++i] });
-                    } else if (inputs[i].SelectedFile != null || inputs[++i].SelectedFile != null) {
+        /// <summary>
+        /// Get the parts that have to be separated. Backwards-compatibility have to be provided, so override streams will
+        /// work according to the summary of <see cref="downmixPairs"/>.
+        /// </summary>
+        InputChannel[][] GetStreams() {
+            if (!CheckPairing()) {
+                Error("All channels must have their pairs also assigned.");
+                return null;
+            }
+
+            InputChannel[] bedChannels = GetBed();
+            if (bedChannels == null) {
+                Error("Invalid bed layout. Only 2.0, 4.0, 5.0, and 5.1 are allowed.");
+                return null;
+            }
+
+            List<InputChannel[]> result = new List<InputChannel[]> { bedChannels };
+            for (int i = 0; i < downmixPairs.Length; i += 2) {
+                if (downmixPairs[i].newChannel.Active) {
+                    if (!downmixPairs[i].overriddenChannel.Active) {
+                        Error("Override streams couldn't be assigned because one of the non-bed channels " +
+                            "should override the sides which are unavailable.");
                         return null;
                     }
-                } else if (inputs[i].SelectedFile != null) {
-                    mustBeGrouped.Add(new InputChannel[] { inputs[i] });
-                }
-            }
 
-            List<InputChannel[]> result = new List<InputChannel[]>();
-            result.AddRange(prepend);
-            const int maxPerBuild = 4;
-            InputChannel[] build = new InputChannel[maxPerBuild];
-            int buildIndex = 0;
-            for (int i = 0, c = mustBeGrouped.Count; i < c; i++) {
-                if (buildIndex + mustBeGrouped[i].Length > maxPerBuild) {
-                    result.Add(build[..buildIndex]);
-                    build = new InputChannel[maxPerBuild];
-                    buildIndex = 0;
+                    result.Add(new InputChannel[] { downmixPairs[i].overriddenChannel, downmixPairs[i + 1].overriddenChannel,
+                        downmixPairs[i].newChannel, downmixPairs[i + 1].newChannel});
                 }
-                for (int j = 0; j < mustBeGrouped[i].Length; j++) {
-                    build[buildIndex++] = mustBeGrouped[i][j];
-                }
-            }
-            if (buildIndex != 0) {
-                result.Add(build[..buildIndex]);
             }
             return result.ToArray();
         }
@@ -171,13 +173,5 @@ namespace EnhancedAC3Merger {
         /// Number of samples per channel to read and write in each frame.
         /// </summary>
         const long bufferSize = 16384;
-
-        /// <summary>
-        /// Channels that can only be in pairs with the next <see cref="ReferenceChannel"/> in order.
-        /// </summary>
-        static readonly ReferenceChannel[] mustBePaired = {
-            ReferenceChannel.RearLeft, ReferenceChannel.FrontLeftCenter, ReferenceChannel.TopFrontLeft,
-            ReferenceChannel.TopSideLeft, ReferenceChannel.WideLeft
-        };
     }
 }

@@ -21,20 +21,12 @@ namespace EnhancedAC3Merger {
         readonly FFmpeg ffmpeg;
 
         /// <summary>
-        /// All possible input tracks, even if they're not assigned.
-        /// </summary>
-        readonly InputChannel[] inputs;
-
-        /// <summary>
         /// Main application window.
         /// </summary>
         public MainWindow() {
             InitializeComponent();
+            CreateConsts();
             ffmpeg = new FFmpeg(null, Settings.Default.ffmpeg);
-            inputs = new InputChannel[] {
-                fl, fr, fc, lfe, sl, sr, // Bed order doesn't matter, it's handled by FFmpeg
-                flc, frc, rl, rr, rc, gv, wl, wr, tfl, tfr, tfc, tsl, tsr // Others are in E-AC-3 channel assignment order
-            };
         }
 
         /// <summary>
@@ -53,13 +45,9 @@ namespace EnhancedAC3Merger {
                 Error("FFmpeg wasn't found, please locate.");
                 return;
             }
-            if (inputs.Count(x => x.Active) > 15) {
-                Error("E-AC-3 can only contain 15 full bandwidth channels.");
-                return;
-            }
-            InputChannel[] bedChannels = GetBed();
-            if (bedChannels == null) {
-                Error("Invalid bed layout. Only 2.0, 4.0, 5.0, and 5.1 are allowed.");
+
+            InputChannel[][] streams = GetStreams();
+            if (streams == null) {
                 return;
             }
 
@@ -72,7 +60,6 @@ namespace EnhancedAC3Merger {
 
             AudioReader[] files = GetFiles();
             Dictionary<InputChannel, int> fileMap = Associate(files);
-            InputChannel[][] streams = GetSubstreams(bedChannels);
             (long length, int sampleRate) = PrepareFiles(files);
             if (length == -1) {
                 return;
