@@ -21,16 +21,27 @@ static class Program {
         }
 
         Console.WriteLine("Loading the file, this might take a while...");
+        Stream reader;
         RIFFWaveTester decoder;
         try {
-            decoder = new RIFFWaveTester(new FileStream(args[0], FileMode.Open, FileAccess.Read, FileShare.Read,
-                10 * 1024 * 1024, FileOptions.SequentialScan));
+            reader = new FileStream(args[0], FileMode.Open, FileAccess.Read, FileShare.Read, 10 * 1024 * 1024, FileOptions.SequentialScan);
+            decoder = new RIFFWaveTester(reader);
         } catch (Exception e) {
             Console.WriteLine("This file is either corrupt or not an ADM BWF:");
             Console.WriteLine(e.Message);
             BeforeExit();
             return;
         }
+
+        Console.WriteLine();
+        Console.WriteLine("Chunklist:");
+        for (int i = 0, c = decoder.ChunkSizes.Count; i < c; i++) {
+            Console.WriteLine($" - {decoder.ChunkSizes[i].chunk}: {decoder.ChunkSizes[i].size}");
+        }
+        Console.WriteLine("Total subchunk size: " + (decoder.ChunkSizes.Sum(x => x.size + 8) + 12 /* RIFF + size + WAVE */));
+        Console.WriteLine("Self-reported size:  " + decoder.FileLength);
+        Console.WriteLine("Actual size:         " + reader.Position);
+        Console.WriteLine();
 
         AudioDefinitionModel adm = decoder.ADM;
         if (adm == null) {
@@ -39,16 +50,21 @@ static class Program {
             return;
         }
 
-        Console.WriteLine("Validating...");
         List<string> errors = adm.Validate();
         long admLength = (long)(adm.GetLength().TotalSeconds * decoder.SampleRate + .5);
         if (decoder.Length != admLength) {
             errors.Add($"The PCM length in the RIFF header ({decoder.Length}) does not match with the ADM program length ({admLength}).");
         }
+        if (decoder.RF64Mismatch) {
+            errors.Add("One or more subchunks over 4 GB have incorrect size overrides.");
+        }
+        if (reader.Position < decoder.FileLength) {
+            errors.Add($"The file is truncated. Expected length is {decoder.FileLength} B, actual length is {reader.Position} B.");
+        } else if (reader.Position > decoder.FileLength) {
+            errors.Add($"The file is longer than the header says by {reader.Position - decoder.FileLength} bytes.");
+        }
 
         if (decoder.DBMD != null) {
-            Console.WriteLine("Validating Dolby Atmos conformity...");
-
             if (!decoder.DwordAligned) {
                 errors.Add("The subchunks are not DWORD-aligned. The Dolby importer won't detect this file.");
             }
@@ -69,6 +85,8 @@ static class Program {
                     }
                 }
             }
+        } else {
+            Console.WriteLine("No Dolby Atmos metadata was detected.");
         }
 
         if (errors.Count == 0) {
@@ -76,7 +94,7 @@ static class Program {
         } else {
             Console.WriteLine("The following errors invalidate this ADM BWF file:");
             for (int i = 0, c = errors.Count; i < c; i++) {
-                Console.WriteLine(errors[i]);
+                Console.WriteLine(" - " + errors[i]);
             }
         }
 

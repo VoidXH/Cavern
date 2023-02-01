@@ -48,9 +48,25 @@ namespace Cavern.Format.Decoders {
         int sampleRate;
 
         /// <summary>
+        /// The file size according to the RIFF header.
+        /// </summary>
+        public long FileLength { get; private set; }
+
+        /// <summary>
         /// All subchunks start at an even byte. Some decoders only work if this is true, so this is a validation option for special cases.
         /// </summary>
         public bool DwordAligned { get; private set; }
+
+        /// <summary>
+        /// An overridden size is not marked with 0xFFFFFFFF.
+        /// </summary>
+        public bool RF64Mismatch { get; private set; }
+
+        /// <summary>
+        /// List of all chunks and their sizes for debugging.
+        /// </summary>
+        public IReadOnlyList<(string chunk, long size)> ChunkSizes => chunkSizes;
+        readonly List<(string chunk, long size)> chunkSizes = new List<(string chunk, long size)>();
 
         /// <summary>
         /// Reads a WAV header for testing.
@@ -61,27 +77,36 @@ namespace Cavern.Format.Decoders {
             if (sync != RIFFWave.syncWord1 && sync != RIFFWave.syncWord1_64) {
                 throw new SyncException();
             }
-            long fileLength = reader.ReadInt32();
+            FileLength = reader.ReadInt32();
             if (reader.ReadInt32() != RIFFWave.syncWord2) {
                 throw new SyncException();
             }
 
             // Subchunks
-            Dictionary<int, long> sizeOverrides = null;
+            Dictionary<uint, long> sizeOverrides = null;
             ChannelAssignment chna = null;
             DwordAligned = true;
             while (reader.Position < reader.Length) {
-                int headerID = reader.ReadInt32();
-                if (headerID == 0) {
-                    throw new IOException("The file contains zero headers.");
+                uint headerID = reader.ReadUInt32();
+                if (((headerID & 0xFF) == 0) && (reader.Position & 1) == 1) {
+                    reader.Position -= 3;
+                    continue;
                 }
-                long headerSize = (uint)reader.ReadInt32();
+                if (headerID == 0) {
+                    continue;
+                }
+                long headerSize = reader.ReadUInt32();
                 if (sizeOverrides != null && sizeOverrides.ContainsKey(headerID)) {
+                    if (headerSize != 0xFFFFFFFF) {
+                        RF64Mismatch = true;
+                    }
                     headerSize = sizeOverrides[headerID];
                 }
+
                 if ((reader.Position & 1) == 1) {
                     DwordAligned = false;
                 }
+                chunkSizes.Add((new string(headerID.ToFourCC().Reverse().ToArray()), headerSize));
 
                 switch (headerID) {
                     case RIFFWave.formatSync:
@@ -90,14 +115,14 @@ namespace Cavern.Format.Decoders {
                         reader.Position = headerEnd;
                         break;
                     case RIFFWave.ds64Sync:
-                        sizeOverrides = new Dictionary<int, long>() {
-                            [RIFFWave.syncWord1_64] = fileLength = reader.ReadInt64(),
+                        sizeOverrides = new Dictionary<uint, long>() {
+                            [RIFFWave.syncWord1_64] = FileLength = reader.ReadInt64(),
                             [RIFFWave.dataSync] = reader.ReadInt64()
                         };
                         reader.Position += 8; // Sample count, redundant
                         int additionalSizes = reader.ReadInt32();
                         for (int i = 0; i < additionalSizes; i++) {
-                            headerID = reader.ReadInt32();
+                            headerID = reader.ReadUInt32();
                             sizeOverrides[headerID] = reader.ReadInt64();
                         }
                         break;
@@ -111,7 +136,7 @@ namespace Cavern.Format.Decoders {
                         DBMD = new DolbyMetadata(reader, headerSize, true);
                         break;
                     case RIFFWave.dataSync:
-                        length = (uint)headerSize * 8L / (long)Bits / ChannelCount;
+                        length = headerSize * 8L / (long)Bits / ChannelCount;
                         long dataStart = reader.Position;
                         if (dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags
                             reader.Position = dataStart + headerSize;
@@ -129,10 +154,7 @@ namespace Cavern.Format.Decoders {
                 ADM.Assign(chna);
             }
 
-            fileLength += 8; // RIFF and size are not calculated into this
-            if (reader.Position != fileLength) {
-                throw new IOException($"The file is truncated. Expected length is {fileLength}, actual length is {reader.Position}.");
-            }
+            FileLength += 8; // RIFF and size are not calculated into this
         }
 
         /// <summary>
