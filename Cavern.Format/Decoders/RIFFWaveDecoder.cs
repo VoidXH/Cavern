@@ -132,7 +132,7 @@ namespace Cavern.Format.Decoders {
                         chna = new ChannelAssignment(reader);
                         break;
                     case RIFFWave.dataSync:
-                        length = (uint)headerSize * 8L / (long)Bits / ChannelCount;
+                        length = headerSize * 8L / (long)Bits / ChannelCount;
                         dataStart = reader.Position;
                         if (dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags
                             reader.Position = dataStart + headerSize;

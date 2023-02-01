@@ -181,7 +181,7 @@ namespace Cavern.Format {
 
             // Data header
             writer.Write(dataSync);
-            writer.Write(BitConverter.GetBytes((uint)DataLength));
+            writer.Write(BitConverter.GetBytes(DataLength > uint.MaxValue ? 0xFFFFFFFF : (uint)DataLength));
         }
 
         /// <summary>
@@ -281,13 +281,14 @@ namespace Cavern.Format {
         /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
         /// refer to <see cref="RIFFWave"/> for samples.</remarks>
         public void WriteChunk(int id, byte[] data, bool dwordPadded = false) {
+            writer.Write(id);
             if (data.LongLength > uint.MaxValue) {
                 largeChunkSizes ??= new List<Tuple<int, long>>();
                 largeChunkSizes.Add(new Tuple<int, long>(id, data.LongLength));
+                writer.Write(0xFFFFFFFF);
+            } else {
+                writer.Write(data.Length);
             }
-
-            writer.Write(id);
-            writer.Write(data.Length);
             writer.Write(data);
             if (dwordPadded && (writer.BaseStream.Position & 1) == 1) {
                 writer.Write((byte)0);
