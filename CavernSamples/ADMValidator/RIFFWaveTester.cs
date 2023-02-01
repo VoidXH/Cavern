@@ -48,6 +48,11 @@ namespace Cavern.Format.Decoders {
         int sampleRate;
 
         /// <summary>
+        /// All subchunks start at an even byte. Some decoders only work if this is true, so this is a validation option for special cases.
+        /// </summary>
+        public bool DwordAligned { get; private set; }
+
+        /// <summary>
         /// Reads a WAV header for testing.
         /// </summary>
         public RIFFWaveTester(Stream reader) {
@@ -64,6 +69,7 @@ namespace Cavern.Format.Decoders {
             // Subchunks
             Dictionary<int, long> sizeOverrides = null;
             ChannelAssignment chna = null;
+            DwordAligned = true;
             while (reader.Position < reader.Length) {
                 int headerID = reader.ReadInt32();
                 if (headerID == 0) {
@@ -72,6 +78,9 @@ namespace Cavern.Format.Decoders {
                 long headerSize = (uint)reader.ReadInt32();
                 if (sizeOverrides != null && sizeOverrides.ContainsKey(headerID)) {
                     headerSize = sizeOverrides[headerID];
+                }
+                if ((reader.Position & 1) == 1) {
+                    DwordAligned = false;
                 }
 
                 switch (headerID) {

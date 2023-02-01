@@ -48,10 +48,16 @@ static class Program {
 
         if (decoder.DBMD != null) {
             Console.WriteLine("Validating Dolby Atmos conformity...");
+
+            if (!decoder.DwordAligned) {
+                errors.Add("The subchunks are not DWORD-aligned. The Dolby importer won't detect this file.");
+            }
+
             List<string> tracks = adm.Objects[0].Tracks;
             if (tracks.Count != 10) {
                 errors.Add("An invalid number of bed channels are present.");
             }
+
             ADMPackFormat pack = adm.PackFormats.FirstOrDefault(x => x.ID == adm.Objects[0].PackFormat);
             if (pack != null) {
                 tracks = pack.ChannelFormats;
