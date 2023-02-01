@@ -125,7 +125,13 @@ namespace Cavern.Format.Environment {
             }
 
             for (int i = 0; i < movements.Length; i++) {
-                FixEndTimings(movements[i], contentLength);
+                if (movements[i].Count != 0) {
+                    FixEndTimings(movements[i], contentLength);
+                } else {
+                    movements[i].Add(new ADMBlockFormat() {
+                        Duration = contentLength
+                    });
+                }
             }
 
             packHex = ((int)ADMPackType.Objects).ToString("x4");
