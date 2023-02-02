@@ -31,6 +31,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
+                FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
@@ -91,6 +92,10 @@ namespace Cavern.Format.FilterSet {
         // -------------------------------------------------------------------------
         // AVRs and processors -----------------------------------------------------
         // -------------------------------------------------------------------------
+        /// <summary>
+        /// Processors supporting Audyssey MultEQ-X.
+        /// </summary>
+        MultEQX,
         /// <summary>
         /// Emotiva XMC processors.
         /// </summary>
