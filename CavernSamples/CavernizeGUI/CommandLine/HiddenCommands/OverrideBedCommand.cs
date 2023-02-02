@@ -44,7 +44,7 @@ namespace CavernizeGUI.CommandLine.HiddenCommands {
                 throw new CommandException("Sample rate of the overriding stream don't match the source stream.");
             }
             if (file.Tracks[0].Length != overrider.Length) {
-                throw new CommandException("Sample rate of the overriding stream don't match the source stream.");
+                throw new CommandException("Length of the overriding stream don't match the source stream.");
             }
             file.Reset();
             app.SetFile(file);
