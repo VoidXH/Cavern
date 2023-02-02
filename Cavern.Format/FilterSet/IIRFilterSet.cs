@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Linq;
 using Cavern.Channels;
 using Cavern.Filters;
 
@@ -143,21 +143,23 @@ namespace Cavern.Format.FilterSet {
         protected void CreateRootFile(string path, string filterFileExtension) {
             string fileNameBase = Path.GetFileName(path);
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
-            List<string> result = new List<string> {
-                $"Set up delays and levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ."
-            };
+            List<string> result = new List<string>();
+            bool hasDelays = false;
             for (int i = 0, c = Channels.Length; i < c; i++) {
                 result.Add(string.Empty);
                 result.Add("Channel: " + GetLabel(i));
                 if (Channels[i].delaySamples != 0) {
                     result.Add("Delay: " + GetDelay(i).ToString("0.0 ms"));
+                    hasDelays = true;
                 }
                 result.Add("Level: " + Channels[i].gain.ToString("0.0 dB"));
                 if (Channels[i].switchPolarity) {
                     result.Add("Switch polarity");
                 }
             }
-            File.WriteAllLines(path, result);
+            File.WriteAllLines(path, result.Prepend(hasDelays ?
+                $"Set up levels and delays by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ." :
+                $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ."));
         }
 
         /// <summary>
