@@ -10,6 +10,11 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class CamillaDSPFilterSet : FIRFilterSet {
         /// <summary>
+        /// Extension of the single-file export. This should be displayed on export dialogs.
+        /// </summary>
+        public override string FileExtension => "yml";
+
+        /// <summary>
         /// Convolution filter set for CamillaDSP.
         /// </summary>
         public CamillaDSPFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }

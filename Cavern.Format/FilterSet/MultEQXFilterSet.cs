@@ -13,9 +13,9 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class MultEQXFilterSet : IIRFilterSet {
         /// <summary>
-        /// This instance is based on a valid configuration file and a modified version can be exported.
+        /// Extension of the single-file export. This should be displayed on export dialogs.
         /// </summary>
-        public bool Valid { get; private set; } = true;
+        public override string FileExtension => "mqx";
 
         /// <summary>
         /// Maximum number of peaking EQ filters per channel.
@@ -31,6 +31,11 @@ namespace Cavern.Format.FilterSet {
         /// Maximum gain of a single peaking EQ band.
         /// </summary>
         public override double MaxGain => 6;
+
+        /// <summary>
+        /// This instance is based on a valid configuration file and a modified version can be exported.
+        /// </summary>
+        public bool Valid { get; private set; } = true;
 
         /// <summary>
         /// In-file channel GUIDs.

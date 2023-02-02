@@ -11,6 +11,11 @@ namespace Cavern.Format.FilterSet {
         public int SampleRate { get; private set; }
 
         /// <summary>
+        /// Extension of the root file or the single-file export. This should be displayed on export dialogs.
+        /// </summary>
+        public virtual string FileExtension => "txt";
+
+        /// <summary>
         /// A filter set containing equalization info for each channel of a system on a given sample rate.
         /// </summary>
         public FilterSet(int sampleRate) => SampleRate = sampleRate;
