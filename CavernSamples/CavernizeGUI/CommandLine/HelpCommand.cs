@@ -34,7 +34,9 @@ namespace CavernizeGUI.CommandLine {
         public override void Execute(string[] args, int offset, MainWindow app) {
             Command[] pool = CommandPool;
             for (int i = 0; i < pool.Length; i++) {
-                Console.WriteLine($"{pool[i].Name} ({pool[i].Alias})\t: {pool[i].Help}");
+                if (pool[i] is not HiddenCommand) {
+                    Console.WriteLine($"{pool[i].Name} ({pool[i].Alias})\t: {pool[i].Help}");
+                }
             }
             app.IsEnabled = false;
         }

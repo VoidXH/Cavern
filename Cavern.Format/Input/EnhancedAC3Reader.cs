@@ -13,12 +13,12 @@ namespace Cavern.Format {
         /// <summary>
         /// File size to calculate the content length from, assuming AC-3 is constant bitrate.
         /// </summary>
-        readonly long fileSize;
+        protected readonly long fileSize;
 
         /// <summary>
         /// Bitsteam interpreter.
         /// </summary>
-        EnhancedAC3Decoder decoder;
+        protected EnhancedAC3Decoder decoder;
 
         /// <summary>
         /// Enhanced AC-3 file reader.

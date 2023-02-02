@@ -1,4 +1,6 @@
-﻿namespace CavernizeGUI.CommandLine {
+﻿using CavernizeGUI.CommandLine.HiddenCommands;
+
+namespace CavernizeGUI.CommandLine {
     /// <summary>
     /// Abstract command line parameter.
     /// </summary>
@@ -8,21 +10,22 @@
         /// </summary>
         public static Command[] CommandPool {
             get {
-                if (commandPool == null) {
-                    commandPool = new Command[] {
-                        new HelpCommand(),
-                        new InputCommand(),
-                        new FormatCommand(),
-                        new TargetCommand(),
-                        new OutputCommand(),
-                        new MuteBedCommand(),
-                        new MuteGroundCommand(),
-                        new MatrixCommand(),
-                        new CavernizeCommand(),
-                        new EffectCommand(),
-                        new SmoothnessCommand(),
-                    };
-                }
+                commandPool ??= new Command[] {
+                    new HelpCommand(),
+                    new InputCommand(),
+                    new FormatCommand(),
+                    new TargetCommand(),
+                    new OutputCommand(),
+                    new MuteBedCommand(),
+                    new MuteGroundCommand(),
+                    new MatrixCommand(),
+                    new CavernizeCommand(),
+                    new EffectCommand(),
+                    new SmoothnessCommand(),
+
+                    // Hidden commands
+                    new OverrideBedCommand(),
+                };
                 return commandPool;
             }
         }

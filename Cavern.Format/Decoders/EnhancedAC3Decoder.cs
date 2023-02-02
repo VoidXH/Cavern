@@ -34,10 +34,11 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         public override long Length {
             get {
-                if (fileSize != -1)
+                if (fileSize != -1) {
                     return fileSize * outCache.Length / (frameSize * ChannelCount);
-                else
+                } else {
                     throw new RealtimeLengthException();
+                }
             }
         }
 
@@ -115,8 +116,9 @@ namespace Cavern.Format.Decoders {
         /// Decode a new frame if the cached samples are already fetched.
         /// </summary>
         protected override float[] DecodeFrame() {
-            if (outputs.Count == 0)
+            if (outputs.Count == 0) {
                 ReadHeader();
+            }
 
             long frameStart = reader.LastFetchStart;
             do {
@@ -127,18 +129,21 @@ namespace Cavern.Format.Decoders {
 
                 EnhancedAC3Body body = bodies[header.SubstreamID];
                 body.Update();
-                for (int i = 0, c = body.Channels.Count; i < c; ++i)
+                for (int i = 0, c = body.Channels.Count; i < c; ++i) {
                     outputs[body.Channels[i]] = body.FrameResult[i];
-                if (header.LFE)
+                }
+                if (header.LFE) {
                     outputs[ReferenceChannel.ScreenLFE] = body.LFEResult;
+                }
 
                 Extensions.Decode(body.GetAuxData());
                 ReadHeader();
             } while (header.SubstreamID != 0);
 
             int outLength = outputs.Count * FrameSize;
-            if (outCache.Length != outLength)
+            if (outCache.Length != outLength) {
                 outCache = new float[outputs.Count * FrameSize];
+            }
 
             int channelIndex = 0;
             IOrderedEnumerable<KeyValuePair<ReferenceChannel, float[]>> orderedChannels = outputs.OrderBy(x => x.Key);
@@ -146,8 +151,9 @@ namespace Cavern.Format.Decoders {
                 WaveformUtils.Insert(channel.Value, outCache, channelIndex++, outputs.Count);
             }
 
-            if (frameStart < reader.LastFetchStart)
+            if (frameStart < reader.LastFetchStart) {
                 frameSize = reader.LastFetchStart - frameStart;
+            }
             return outCache;
         }
 
@@ -166,8 +172,9 @@ namespace Cavern.Format.Decoders {
                     bodies[header.SubstreamID] = new EnhancedAC3Body(header);
                 }
                 bodies[header.SubstreamID].PrepareUpdate(extractor);
-            } else
+            } else {
                 Finished = true;
+            }
         }
 
         /// <summary>

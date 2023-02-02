@@ -39,6 +39,11 @@ namespace CavernizeGUI {
         public bool Rendering => taskEngine.IsOperationRunning;
 
         /// <summary>
+        /// The path of the currently open file.
+        /// </summary>
+        public string FilePath => file != null ? file.Path : null;
+
+        /// <summary>
         /// The matching displayed dot for each supported channel.
         /// </summary>
         readonly Dictionary<ReferenceChannel, Ellipse> channelDisplay;

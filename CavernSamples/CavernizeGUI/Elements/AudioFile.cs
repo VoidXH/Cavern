@@ -23,7 +23,7 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// List of track handlers.
         /// </summary>
-        readonly List<Track> tracks = new List<Track>();
+        protected readonly List<Track> tracks = new List<Track>();
 
         /// <summary>
         /// Loads an audio file.
@@ -36,15 +36,14 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Reloads the tracklist to be able to start reading from the beginning.
         /// </summary>
-        public void Reset() {
+        public virtual void Reset() {
             Dispose();
             tracks.Clear();
             switch (Path[^3..]) {
                 case "ac3":
                 case "eac3":
                 case "ec3":
-                    EnhancedAC3Reader ac3Reader = new(Path);
-                    tracks.Add(new Track(ac3Reader, Codec.EnhancedAC3, 0));
+                    tracks.Add(new Track(new EnhancedAC3Reader(Path), Codec.EnhancedAC3, 0));
                     break;
                 case "mkv":
                 case "mka":
