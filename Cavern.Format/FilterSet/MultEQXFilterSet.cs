@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using Cavern.Channels;
@@ -7,10 +9,9 @@ using Cavern.Filters;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
-    /// Adds a set of <see cref="PeakingEQ"/> filters to selected channels in an Audyssey MultEQ-X configuration file.
+    /// IIR filter set for MultEQ-X.
     /// </summary>
-    // TODO: add support for gains and delays
-    public class MultEQXpander : IIRFilterSet {
+    public class MultEQXFilterSet : IIRFilterSet {
         /// <summary>
         /// This instance is based on a valid configuration file and a modified version can be exported.
         /// </summary>
@@ -32,19 +33,25 @@ namespace Cavern.Format.FilterSet {
         public override double MaxGain => 6;
 
         /// <summary>
-        /// The entire loaded configuration file.
-        /// </summary>
-        string fileContents;
-
-        /// <summary>
         /// In-file channel GUIDs.
         /// </summary>
         string[] guids;
 
         /// <summary>
-        /// Create an instance of MultEQ-Xpander by loading an existing MultEQ-X configuration file.
+        /// Load a MultEQ-X configuration file for editing.
         /// </summary>
-        public MultEQXpander(string path) : base(path) { }
+        public MultEQXFilterSet(string path) : base(path) { }
+
+        /// <summary>
+        /// Create a MultEQ-X configuration file for EQ export.
+        /// </summary>
+        public MultEQXFilterSet(int channels, int sampleRate) : base(channels, sampleRate) {
+            Valid = true;
+            guids = new string[channels];
+            for (int i = 0; i < channels; i++) {
+                guids[i] = Guid.NewGuid().ToString();
+            }
+        }
 
         /// <summary>
         /// Translates Cavern filter classes to MultEQ-X filter IDs.
@@ -72,45 +79,72 @@ namespace Cavern.Format.FilterSet {
         /// Export the modified version of the loaded configuration file containing all applied filters.
         /// </summary>
         public override void Export(string path) {
-            if (!Valid)
+            if (!Valid) {
                 throw new InvalidSourceException();
-            int pos = fileContents.IndexOf('[', fileContents.IndexOf(targetList) + targetList.Length);
-            int level = 0;
-            while (level != -1) {
-                ++pos;
-                if (fileContents[pos] == '[') {
-                    ++level;
-                } else if (fileContents[pos] == ']') {
-                    --level;
+            }
+
+            StringBuilder result = new StringBuilder();
+            result.AppendLine(fileStart);
+            for (int channel = 0; channel < guids.Length;) {
+                (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair, string location) label =
+                    labeling.FirstOrDefault(x => x.channel == Channels[channel].reference);
+                if (label.designation == null) {
+                    throw new IOException("A channel that's part of the exported configuration is unsupported by MultEQ-X.");
+                }
+
+                result.Append(string.Format(channelEntry, guids[channel], label.designation, label.name,
+                    label.pairDesignation, label.pair, label.location,
+                    Channels[channel].gain.ToString(CultureInfo.InvariantCulture),
+                    GetDelay(channel).ToString(CultureInfo.InvariantCulture),
+                    Channels[channel].switchPolarity.ToString().ToLower()));
+                if (++channel != guids.Length) {
+                    result.AppendLine(",");
+                } else {
+                    result.AppendLine();
                 }
             }
-            pos = fileContents.LastIndexOf('}', pos) + 1;
 
-            StringBuilder builder = new StringBuilder(fileContents[..pos]);
-            for (int channel = 0; channel < guids.Length; ++channel) {
+            result.AppendLine(fileBeforeGuids);
+            for (int channel = 0; channel < guids.Length;) {
+                result.Append('"').Append(guids[channel]).Append('"');
+                if (++channel != guids.Length) {
+                    result.AppendLine(",");
+                } else {
+                    result.AppendLine();
+                }
+            }
+
+            result.AppendLine(fileBeforeTargets);
+            for (int channel = 0; channel < guids.Length;) {
                 BiquadFilter[] filters = Channels[channel].filters;
                 if (filters == null) {
                     continue;
                 }
-                for (int filter = 0; filter < filters.Length; ++filter) {
-                    builder.Append(string.Format(entry,
+                for (int filter = 0; filter < filters.Length;) {
+                    result.Append(string.Format(filterEntry,
                         filters[filter].CenterFreq.ToString(CultureInfo.InvariantCulture),
                         filters[filter].Gain.ToString(CultureInfo.InvariantCulture),
                         filters[filter].Q.ToString(CultureInfo.InvariantCulture),
                         FilterTypeID(filters[filter]),
                         guids[channel]
                     ));
+                    if (++filter != filters.Length || ++channel != guids.Length) {
+                        result.AppendLine(",");
+                    } else {
+                        result.AppendLine();
+                    }
                 }
             }
-            builder.Append(fileContents[pos..]);
-            File.WriteAllText(path, builder.ToString());
+
+            result.Append(fileEnd);
+            File.WriteAllText(path, result.ToString());
         }
 
         /// <summary>
         /// Open a MultEQ-X configuration for editing.
         /// </summary>
         protected override void ReadFile(string path, out ChannelData[] channels) {
-            fileContents = File.ReadAllText(path);
+            string fileContents = File.ReadAllText(path);
             int pos = fileContents.IndexOf(channelList),
                 endPos = -1;
             if (pos != -1) {
@@ -171,25 +205,58 @@ namespace Cavern.Format.FilterSet {
         const string channelList = "\"OrderedChannelGuids\":";
 
         /// <summary>
-        /// JSON tag for the list of target curves.
+        /// Beginning of the JSON file.
         /// </summary>
-        const string targetList = "\"TargetCurveSet\"";
+        const string fileStart = "{ \"_measurements\": [], \"_channelDataMap\": {";
+
+        /// <summary>
+        /// A channel's metadata in the MultEQ-X configuration file.
+        /// </summary>
+        const string channelEntry = @"""{0}"": {{
+    ""Metadata"": {{
+        ""AvrOriginatingDesignation"": ""{1}"",
+        ""DisplayName"": ""{2}"",
+        ""PairDesignation"": ""{3}"",
+        ""PairDisplayName"": ""{4}"",
+        ""Location"": ""{5}""
+    }},
+    ""Calibration"": {{
+        ""IsEnabled"": true,
+        ""Trim"": {6},
+        ""DistanceMilliseconds"": {7},
+        ""PolarityError"": {8},
+        ""SpeakerSize"": ""Small"",
+        ""CrossoverFrequency"": 80.0
+    }},
+    ""TargetCurveCutoff"": {{
+        ""Mode"": ""Auto""
+    }}
+}}";
+
+        /// <summary>
+        /// The text separating the channels and the GUIDs.
+        /// </summary>
+        const string fileBeforeGuids = "}, \"OrderedChannelGuids\": [";
+
+        /// <summary>
+        /// The text separating the GUIDs and the EQs.
+        /// </summary>
+        const string fileBeforeTargets = "], \"CalibrationSettings\": { \"AutoTrims\": false, \"AutoDistance\": false, " +
+            "\"AutoEnable\": false, \"AutoBassManagement\": false }, \"TargetCurveSet\": [";
 
         /// <summary>
         /// A filter entry in a MultEQ-X configuration file, prepared for a single channel.
         /// </summary>
-        const string entry = @",
-    {{
+        const string filterEntry = @"    {{
       ""_itemString"": ""{{\""Frequency\"":{0},\""Gain\"":{1},\""Q\"":{2},\""Type\"":{3}}}"",
-      ""_itemType"": ""Audyssey.CoreData.BiquadData, Audyssey.CoreData, Version=1.0.350.0, Culture=neutral, PublicKeyToken=null"",
-      ""Channels"": [
-        ""{4}""
-      ],
-      ""All"": false,
-      ""Name"": null,
-      ""ApplyToReference"": true,
-      ""ApplyToFlat"": true
+      ""_itemType"": ""Audyssey.CoreData.BiquadData, Audyssey.CoreData, Version=1.4.610.0, Culture=neutral, PublicKeyToken=null"",
+      ""Channels"": [ ""{4}"" ], ""All"": false, ""Name"": null, ""ApplyToReference"": true, ""ApplyToFlat"": true
     }}";
+
+        /// <summary>
+        /// Closing of the JSON file.
+        /// </summary>
+        const string fileEnd = "], \"PositionNames\": {}, \"UsedLocalMicrophones\": {} }";
 
         /// <summary>
         /// Channel layout for each channel count in a MultEQ-X configuration file.
@@ -210,6 +277,21 @@ namespace Cavern.Format.FilterSet {
             new ReferenceChannel[8] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.ScreenLFE }
+        };
+
+        /// <summary>
+        /// Values of MultEQ fields for <see cref="ReferenceChannel"/>s.
+        /// </summary>
+        static readonly (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair,
+            string location)[] labeling = {
+            (ReferenceChannel.FrontLeft, "FL", "Front Left", "F_", "Front", "FL"),
+            (ReferenceChannel.FrontRight, "FR", "Front Right", "F_", "Front", "FR"),
+            (ReferenceChannel.FrontCenter, "C", "Center", "C", "Center", "Center, Front"),
+            (ReferenceChannel.ScreenLFE, "SW1", "Subwoofer 1", "SW1", "Subwoofer 1", "Subwoofer, Position1"),
+            (ReferenceChannel.SideLeft, "SLA", "Surround Left", "S_A", "Surround", "Left, Surround, Position1"),
+            (ReferenceChannel.SideRight, "SRA", "Surround Right", "S_A", "Surround", "Right, Surround, Position1"),
+            (ReferenceChannel.RearLeft, "SBL", "Surround Back Left", "SB_", "Surround Back", "Left, Back"),
+            (ReferenceChannel.RearRight, "SBR", "Surround Back Right", "SB_", "Surround Back", "Right, Back"),
         };
     }
 }
