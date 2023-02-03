@@ -5,6 +5,8 @@ rd /s /q Cavern.Format\bin
 rd /s /q Cavern.Format\obj
 rd /s /q Cavern.QuickEQ\bin
 rd /s /q Cavern.QuickEQ\obj
+rd /s /q Cavern.QuickEQ.Format\bin
+rd /s /q Cavern.QuickEQ.Format\obj
 rd /s /q "CavernUnity DLL\bin"
 rd /s /q "CavernUnity DLL\obj"
 rd /s /q CavernSamples\.vs

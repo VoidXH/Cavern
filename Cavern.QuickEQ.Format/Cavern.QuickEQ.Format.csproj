@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Version>1.6</Version>
+    <Authors>VoidX</Authors>
+    <Description>Software and hardware support for exporting calibrations made with Cavern QuickEQ.</Description>
+    <Copyright>Copyright © Bence Sgánetz 2016-2023</Copyright>
+    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Nullable>disable</Nullable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENCE.md</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>CavernLogo.png</PackageIcon>
+    <PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <DocumentationFile>bin\Release\Cavern.QuickEQ.Format.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj" />
+    <ProjectReference Include="..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
+  </ItemGroup>
+</Project>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
 using Cavern.Channels;
 using Cavern.Filters;
 
@@ -123,6 +124,7 @@ namespace Cavern.Format.FilterSet {
                     Channels[i].delaySamples = delaySamples;
                     Channels[i].switchPolarity = switchPolarity;
                     Channels[i].name = name;
+                    return;
                 }
             }
         }

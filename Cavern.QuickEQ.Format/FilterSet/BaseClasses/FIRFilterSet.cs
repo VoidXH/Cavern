@@ -84,6 +84,7 @@ namespace Cavern.Format.FilterSet {
                     Channels[i].filter = filter;
                     Channels[i].delaySamples = delaySamples;
                     Channels[i].name = name;
+                    return;
                 }
             }
         }
