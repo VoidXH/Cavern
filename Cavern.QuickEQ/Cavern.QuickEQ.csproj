@@ -6,7 +6,7 @@
     <Version>1.6</Version>
     <Authors>VoidX</Authors>
     <Description>Measurement and equalization tools for the Cavern spatial audio engine.</Description>
-    <Copyright>Copyright © Bence Sgánetz 2016-2022</Copyright>
+    <Copyright>Copyright © Bence Sgánetz 2016-2023</Copyright>
     <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
