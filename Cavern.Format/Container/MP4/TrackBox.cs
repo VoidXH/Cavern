@@ -42,16 +42,17 @@ namespace Cavern.Format.Container.MP4 {
             }
 
             uint timeScale = mediaHeader.ReadUInt32BE(12);
-            if (((mediaMeta[mediaInfoBox] as NestedBox)?[sampleTableBox] as NestedBox)?[sampleDescriptionBox] is
-                SampleDescriptionBox stsd && stsd.Formats.Length == 1) {
-                Track.Format = stsd.Formats[0].codec;
-                if (Track.Format.IsAudio()) {
-                    byte[] extra = stsd.Formats[0].extra;
-                    Track.Extra = new TrackExtraAudio() {
-                        Bits = (BitDepth)extra.ReadInt16(11),
-                        ChannelCount = extra.ReadInt16(9),
-                        SampleRate = timeScale
-                    };
+            if ((mediaMeta[mediaInfoBox] as NestedBox)?[sampleTableBox] is NestedBox stbl) {
+                if (stbl[sampleDescriptionBox] is SampleDescriptionBox stsd && stsd.Formats.Length == 1) {
+                    Track.Format = stsd.Formats[0].codec;
+                    if (Track.Format.IsAudio()) {
+                        byte[] extra = stsd.Formats[0].extra;
+                        Track.Extra = new TrackExtraAudio() {
+                            Bits = (BitDepth)extra.ReadInt16(11),
+                            ChannelCount = extra.ReadInt16(9),
+                            SampleRate = timeScale
+                        };
+                    }
                 }
             }
         }

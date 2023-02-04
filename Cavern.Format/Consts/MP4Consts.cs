@@ -62,5 +62,15 @@
         /// FourCC marker of the <see cref="sampleTableBox"/>'s sample description box (stsd).
         /// </summary>
         public const uint sampleDescriptionBox = 0x73747364;
+
+        /// <summary>
+        /// FourCC marker of the <see cref="sampleTableBox"/>'s sample durations for media samples (stts).
+        /// </summary>
+        public const uint timeToSampleBox = 0x73747473;
+
+        /// <summary>
+        /// FourCC marker of the <see cref="sampleTableBox"/>'s chunk assignment (stsc).
+        /// </summary>
+        public const uint sampleToChunkBox = 0x73747363;
     }
 }

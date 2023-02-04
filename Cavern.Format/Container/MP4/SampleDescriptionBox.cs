@@ -1,4 +1,5 @@
 ﻿using System.IO;
+
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 
@@ -19,9 +20,8 @@ namespace Cavern.Format.Container.MP4 {
         /// </summary>
         public SampleDescriptionBox(uint length, Stream reader) : base(length, sampleDescriptionBox, reader) {
             reader.Position += 4; // Version byte and zero flags
-            uint entries = reader.ReadUInt32BE();
-            Formats = new (Codec, ushort, byte[])[entries];
-            for (uint i = 0; i < entries; i++) {
+            Formats = new (Codec, ushort, byte[])[reader.ReadUInt32BE()];
+            for (uint i = 0; i < Formats.Length; i++) {
                 int size = reader.ReadInt32BE();
                 Codec codec = ParseCodec(reader.ReadUInt32BE());
                 reader.Position += 6; // Reserved

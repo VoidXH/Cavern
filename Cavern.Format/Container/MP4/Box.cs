@@ -65,6 +65,8 @@ namespace Cavern.Format.Container.MP4 {
                 mediaInfoBox => new NestedBox(length, header, reader),
                 sampleTableBox => new NestedBox(length, header, reader),
                 sampleDescriptionBox => new SampleDescriptionBox(length, reader),
+                timeToSampleBox => new TimeToSampleBox(length, reader),
+                sampleToChunkBox => new SampleToChunkBox(length, reader),
                 _ => new Box(length, header, reader.Position)
             };
             reader.Position = nextBox;
