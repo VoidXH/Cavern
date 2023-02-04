@@ -31,8 +31,10 @@ namespace Cavern.Format.FilterSet {
         public static FilterSet Create(FilterSetTarget device, int channels, int sampleRate) {
             return device switch {
                 FilterSetTarget.Generic => new GenericFilterSet(channels, sampleRate),
+                FilterSetTarget.GenericEqualizer => new EqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLive => new DiracFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
@@ -65,6 +67,10 @@ namespace Cavern.Format.FilterSet {
         /// IIR filter sets in a commonly accepted format for maximum compatibility.
         /// </summary>
         Generic,
+        /// <summary>
+        /// Equalization curve sets in a commonly accepted format for maximum compatibility.
+        /// </summary>
+        GenericEqualizer,
 
         // -------------------------------------------------------------------------
         // PC targets --------------------------------------------------------------
@@ -97,6 +103,11 @@ namespace Cavern.Format.FilterSet {
         // -------------------------------------------------------------------------
         // AVRs and processors -----------------------------------------------------
         // -------------------------------------------------------------------------
+        /// <summary>
+        /// Processors supporting Dirac Live.
+        /// </summary>
+        /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
+        DiracLive,
         /// <summary>
         /// Processors supporting Audyssey MultEQ-X.
         /// </summary>
