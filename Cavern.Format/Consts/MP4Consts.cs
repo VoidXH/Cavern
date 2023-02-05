@@ -72,5 +72,20 @@
         /// FourCC marker of the <see cref="sampleTableBox"/>'s chunk assignment (stsc).
         /// </summary>
         public const uint sampleToChunkBox = 0x73747363;
+
+        /// <summary>
+        /// FourCC marker of the <see cref="sampleTableBox"/>'s sample size list (stsz).
+        /// </summary>
+        public const uint sampleSizeBox = 0x7374737A;
+
+        /// <summary>
+        /// FourCC marker of the <see cref="sampleTableBox"/>'s 32-bit chunk size list (stco).
+        /// </summary>
+        public const uint chunkOffset32 = 0x7374636F;
+
+        /// <summary>
+        /// FourCC marker of the <see cref="sampleTableBox"/>'s 64-bit chunk size list (co64).
+        /// </summary>
+        public const uint chunkOffset64 = 0x636F3634;
     }
 }

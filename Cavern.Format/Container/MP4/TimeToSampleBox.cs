@@ -12,13 +12,13 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Contains how many consecutive samples have a given duration. This is used for seeking.
         /// </summary>
-        public (uint sampleCount, uint duration)[] Durations { get; }
+        public readonly (uint sampleCount, uint duration)[] durations;
 
         public TimeToSampleBox(uint length, Stream reader) : base(length, timeToSampleBox, reader) {
             reader.Position += 4; // Version byte and zero flags
-            Durations = new (uint, uint)[reader.ReadUInt32BE()];
-            for (int i = 0; i < Durations.Length; i++) {
-                Durations[i] = (reader.ReadUInt32BE(), reader.ReadUInt32BE());
+            durations = new (uint, uint)[reader.ReadUInt32BE()];
+            for (int i = 0; i < durations.Length; i++) {
+                durations[i] = (reader.ReadUInt32BE(), reader.ReadUInt32BE());
             }
         }
     }

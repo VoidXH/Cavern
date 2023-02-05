@@ -17,6 +17,11 @@ namespace Cavern.Format.Container.MP4 {
         public Track Track { get; }
 
         /// <summary>
+        /// Contains which sample of the input starts from which file offset and how many bytes should be read.
+        /// </summary>
+        internal ByteMap ByteMap { get; }
+
+        /// <summary>
         /// Track metadata block of an MP4 container.
         /// </summary>
         public TrackBox(uint length, Stream reader) : base(length, trackBox, reader) {
@@ -43,10 +48,10 @@ namespace Cavern.Format.Container.MP4 {
 
             uint timeScale = mediaHeader.ReadUInt32BE(12);
             if ((mediaMeta[mediaInfoBox] as NestedBox)?[sampleTableBox] is NestedBox stbl) {
-                if (stbl[sampleDescriptionBox] is SampleDescriptionBox stsd && stsd.Formats.Length == 1) {
-                    Track.Format = stsd.Formats[0].codec;
+                if (stbl[sampleDescriptionBox] is SampleDescriptionBox stsd && stsd.formats.Length == 1) {
+                    Track.Format = stsd.formats[0].codec;
                     if (Track.Format.IsAudio()) {
-                        byte[] extra = stsd.Formats[0].extra;
+                        byte[] extra = stsd.formats[0].extra;
                         Track.Extra = new TrackExtraAudio() {
                             Bits = (BitDepth)extra.ReadInt16(11),
                             ChannelCount = extra.ReadInt16(9),
@@ -54,6 +59,7 @@ namespace Cavern.Format.Container.MP4 {
                         };
                     }
                 }
+                ByteMap = new ByteMap(stbl);
             }
         }
     }

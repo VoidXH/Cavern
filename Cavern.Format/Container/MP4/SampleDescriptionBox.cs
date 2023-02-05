@@ -13,19 +13,19 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Used codecs for referenced raw data with their extra values. References are contained in reference boxes.
         /// </summary>
-        public (Codec codec, ushort dataReferenceIndex, byte[] extra)[] Formats { get; }
+        public readonly (Codec codec, ushort dataReferenceIndex, byte[] extra)[] formats;
 
         /// <summary>
         /// Metadata box containing codec information.
         /// </summary>
         public SampleDescriptionBox(uint length, Stream reader) : base(length, sampleDescriptionBox, reader) {
             reader.Position += 4; // Version byte and zero flags
-            Formats = new (Codec, ushort, byte[])[reader.ReadUInt32BE()];
-            for (uint i = 0; i < Formats.Length; i++) {
+            formats = new (Codec, ushort, byte[])[reader.ReadUInt32BE()];
+            for (uint i = 0; i < formats.Length; i++) {
                 int size = reader.ReadInt32BE();
                 Codec codec = ParseCodec(reader.ReadUInt32BE());
                 reader.Position += 6; // Reserved
-                Formats[i] = (codec, reader.ReadUInt16BE(), reader.ReadBytes(size - 16));
+                formats[i] = (codec, reader.ReadUInt16BE(), reader.ReadBytes(size - 16));
             }
         }
 

@@ -93,10 +93,13 @@ namespace Cavern.Format.Utilities {
                 reader.ReadInt32();
 
         /// <summary>
-        /// Read a 32-bit signed integer from the stream.
+        /// Read a 64-bit signed integer from the stream.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long ReadInt64(this Stream reader) => BitConverter.ToInt64(reader.ReadBytes(8));
+        public static long ReadInt64(this Stream reader) =>
+            (long)reader.ReadByte() | ((long)reader.ReadByte() << 8) | ((long)reader.ReadByte() << 16) | ((long)reader.ReadByte() << 24) |
+            ((long)reader.ReadByte() << 32) | ((long)reader.ReadByte() << 40) |
+            ((long)reader.ReadByte() << 48) | ((long)reader.ReadByte() << 56);
 
         /// <summary>
         /// Read a 16-bit signed integer from the stream.
@@ -121,6 +124,26 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ReadUInt32BE(this Stream reader) => (uint)reader.ReadInt32BE();
+
+#pragma warning disable CS0675 // False positive: Bitwise-or operator used on a sign-extended operand
+        /// <summary>
+        /// Read a 64-bit unsigned integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ulong ReadUInt64(this Stream reader) =>
+            (ulong)reader.ReadByte() | ((ulong)reader.ReadByte() << 8) | ((ulong)reader.ReadByte() << 16) |
+            ((ulong)reader.ReadByte() << 24) | ((ulong)reader.ReadByte() << 32) | ((ulong)reader.ReadByte() << 40) |
+            ((ulong)reader.ReadByte() << 48) | ((ulong)reader.ReadByte() << 56);
+
+        /// <summary>
+        /// Read a big-endian 64-bit unsigned integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ulong ReadUInt64BE(this Stream reader) =>
+            ((ulong)reader.ReadByte() << 56) | ((ulong)reader.ReadByte() << 48) | ((ulong)reader.ReadByte() << 40) |
+            ((ulong)reader.ReadByte() << 32) | ((ulong)reader.ReadByte() << 24) | ((ulong)reader.ReadByte() << 16) |
+            ((ulong)reader.ReadByte() << 8) | (ulong)reader.ReadByte();
+#pragma warning restore CS0675
 
         /// <summary>
         /// Read a 32-bit floating point number from the stream.
