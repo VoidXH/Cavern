@@ -46,6 +46,16 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Read a number of bytes from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] ReadBytes(this Stream reader, uint length) {
+            byte[] bytes = new byte[length];
+            reader.Read(bytes);
+            return bytes;
+        }
+
+        /// <summary>
         /// Reads an ASCII string with a closing 0.
         /// </summary>
         public static string ReadCString(this Stream reader) {

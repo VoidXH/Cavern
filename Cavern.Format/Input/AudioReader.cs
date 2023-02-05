@@ -66,12 +66,13 @@ namespace Cavern.Format {
         /// </summary>
         public static AudioReader Open(Stream reader) {
             int syncWord = reader.ReadInt32();
+            if (reader.ReadInt32BE() == MP4Consts.fileTypeBox) {
+                reader.Position = 0;
+                return OpenContainer(new MP4Reader(reader));
+            }
             reader.Position = 0;
             if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE) {
                 return new EnhancedAC3Reader(reader);
-            }
-            if (reader.ReadInt32BE() == MP4Consts.fileTypeBox) {
-                return OpenContainer(new MP4Reader(reader));
             }
 
             switch (syncWord) {

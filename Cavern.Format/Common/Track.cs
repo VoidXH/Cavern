@@ -33,12 +33,18 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// The container containing this track.
         /// </summary>
-        public ContainerReader Source { get; internal set; }
+        public ContainerReader Source { get; private set; }
 
         /// <summary>
         /// The position of the track in the container's list of tracks.
         /// </summary>
-        readonly int trackNumber;
+        int trackNumber;
+
+        /// <summary>
+        /// Create a track to be placed in the list of a container's tracks after it's set up with
+        /// <see cref="Override(ContainerReader, int)"/>.
+        /// </summary>
+        internal Track() { }
 
         /// <summary>
         /// Create a track to be placed in the list of a container's tracks.
@@ -47,6 +53,14 @@ namespace Cavern.Format.Common {
         /// <param name="trackNumber">The position of the track in the container's list of tracks.</param>
         /// <remarks>The <paramref name="trackNumber"/> required for reading from the container.</remarks>
         internal Track(ContainerReader source, int trackNumber) {
+            Source = source;
+            this.trackNumber = trackNumber;
+        }
+
+        /// <summary>
+        /// Late-init the <see cref="Source"/> and <see cref="trackNumber"/>.
+        /// </summary>
+        internal void Override(ContainerReader source, int trackNumber) {
             Source = source;
             this.trackNumber = trackNumber;
         }

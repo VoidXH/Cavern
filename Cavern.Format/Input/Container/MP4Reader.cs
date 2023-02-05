@@ -13,11 +13,6 @@ namespace Cavern.Format.Container {
     /// </summary>
     public class MP4Reader : ContainerReader {
         /// <summary>
-        /// The box containing the bytestreams of the tracks.
-        /// </summary>
-        RawBox source;
-
-        /// <summary>
         /// Minimal ISO-BMFF reader.
         /// </summary>
         public MP4Reader(Stream reader) : base(reader) { ReadSkeleton(); }
@@ -32,7 +27,11 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the Tracks array.</param>
         public override byte[] ReadNextBlock(int track) {
-            throw new UnsupportedFeatureException("MP4");
+            MP4Track source = (MP4Track)Tracks[track];
+            if (source.nextSample == 53)
+                ;
+            reader.Position = (long)source.map[source.nextSample].offset;
+            return reader.ReadBytes(source.map[source.nextSample++].length);
         }
 
         /// <summary>
@@ -40,7 +39,21 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <returns>Position that was actually possible to seek to or -1 if the position didn't change.</returns>
         public override double Seek(double position) {
-            throw new UnsupportedFeatureException("seek");
+            double audioTime = -1, mainTime = -1;
+            for (int i = 0; i < Tracks.Length; i++) {
+                MP4Track source = (MP4Track)Tracks[i];
+                (long index, double time) = source.GetSample(position);
+                if (index != -1) {
+                    if (mainTime == -1) {
+                        mainTime = time;
+                    }
+                    if (audioTime == -1 && Tracks[i].Format.IsSupportedAudio()) {
+                        audioTime = time;
+                    }
+                    source.nextSample = index;
+                }
+            }
+            return audioTime != -1 ? audioTime : mainTime;
         }
 
         /// <summary>
@@ -59,13 +72,11 @@ namespace Cavern.Format.Container {
                     List<Track> tracks = new List<Track>();
                     for (int i = 0; i < metadata.Contents.Length; i++) {
                         if (metadata.Contents[i] is TrackBox track) {
-                            track.Track.Source = this;
+                            track.Track.Override(this, tracks.Count);
                             tracks.Add(track.Track);
                         }
                     }
                     Tracks = tracks.ToArray();
-                } else if (box is RawBox raw) {
-                    source = raw;
                 }
             }
         }
