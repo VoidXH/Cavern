@@ -17,7 +17,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Filter to all supported file types for open file dialogs. These are the containers supported by <see cref="Open(string)"/>.
         /// </summary>
-        public const string filter = "*.ac3;*.eac3;*.ec3;*.laf;*.mka;*.mkv;*.mp4;*.wav";
+        public const string filter = "*.ac3;*.eac3;*.ec3;*.laf;*.mka;*.mkv;*.mov;*.mp4;*.qt;*.wav";
 
         /// <summary>
         /// Content channel count.
@@ -70,6 +70,9 @@ namespace Cavern.Format {
             if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE) {
                 return new EnhancedAC3Reader(reader);
             }
+            if (reader.ReadInt32BE() == MP4Consts.fileTypeBox) {
+                return OpenContainer(new MP4Reader(reader));
+            }
 
             switch (syncWord) {
                 case RIFFWave.syncWord1:
@@ -78,11 +81,7 @@ namespace Cavern.Format {
                 case LimitlessAudioFormat.syncWord:
                     return new LimitlessAudioFormatReader(reader);
                 case MatroskaTree.EBML:
-                    Track track = new MatroskaReader(reader).GetMainAudioTrack();
-                    if (track == null) {
-                        throw new NoProgramException();
-                    }
-                    return new AudioTrackReader(track, true);
+                    return OpenContainer(new MatroskaReader(reader));
                 default:
                     throw new UnsupportedFormatException();
             }
@@ -108,6 +107,17 @@ namespace Cavern.Format {
         /// </summary>
         internal static Stream OpenSequentialStream(string path) =>
             new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 10 * 1024 * 1024, FileOptions.SequentialScan);
+
+        /// <summary>
+        /// Open a container as a single audio track by selecting the best fit of its tracks for Cavern.Format.
+        /// </summary>
+        static AudioReader OpenContainer(ContainerReader reader) {
+            Track track = reader.GetMainAudioTrack();
+            if (track == null) {
+                throw new NoProgramException();
+            }
+            return new AudioTrackReader(track, true);
+        }
 
         /// <summary>
         /// Get an object-based renderer for this audio file.

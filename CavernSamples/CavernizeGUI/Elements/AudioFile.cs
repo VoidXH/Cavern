@@ -49,7 +49,9 @@ namespace CavernizeGUI.Elements {
                 case "mka":
                     AddTracksFromContainer(new MatroskaReader(Path));
                     break;
+                case "mov":
                 case "mp4":
+                case "qt":
                     AddTracksFromContainer(new MP4Reader(Path));
                     break;
                 case "wav":

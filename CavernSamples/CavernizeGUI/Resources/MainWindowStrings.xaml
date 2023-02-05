@@ -52,7 +52,7 @@
         like true object usage statistics.</system:String>
     <system:String x:Key="IrErr">The impulse response file is invalid. Error: {0}</system:String>
     <system:String x:Key="CavLo">Driver is set to {0}.</system:String>
-    <system:String x:Key="ImFmt">All supported formats|{0}|(Enhanced) AC-3|*.ac3;*.eac3;*.ec3|Movies|*.mkv;*.mka;*.mp4|RIFF WAVE,
+    <system:String x:Key="ImFmt">All supported formats|{0}|(Enhanced) AC-3|*.ac3;*.eac3;*.ec3|Movies|*.mkv;*.mka;*.mov;*.mp4;*.qt|RIFF WAVE,
         ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="OpRun">An operation is already running, please wait for it to finish.</system:String>
     <system:String x:Key="LdSrc">Please load a source file with at least 1 supported track for rendering.</system:String>

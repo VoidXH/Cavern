@@ -34,8 +34,8 @@ namespace Cavern.Format.Container.MP4 {
             for (int i = 0; i < map.Length;) { // Get the map chunk by chunk
                 if (sampleSizes.size == 0) {
                     for (ulong sample = 0; sample < samplesPerChunkL; sample++) {
-                        map[i++] = (offset, sampleSizes.sizes[i]);
-                        offset += sampleSizes.sizes[i];
+                        map[i] = (offset, sampleSizes.sizes[i]);
+                        offset += sampleSizes.sizes[i++];
                     }
                 } else {
                     for (ulong sample = 0; sample < samplesPerChunkL; sample++) {
