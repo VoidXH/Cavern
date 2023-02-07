@@ -27,13 +27,13 @@ namespace Cavern.Format.Container {
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public ContainerReader(Stream reader) => this.reader = reader;
+        protected ContainerReader(Stream reader) => this.reader = reader;
 
         /// <summary>
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="path">Input file name</param>
-        public ContainerReader(string path) => reader = File.OpenRead(path);
+        protected ContainerReader(string path) => reader = File.OpenRead(path);
 
         /// <summary>
         /// Continue reading a given track.

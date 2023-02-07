@@ -188,8 +188,6 @@ namespace Cavern.Format.Transcoders {
                         case ADMTags.streamFormatTag:
                             streamFormats.Add(new ADMStreamFormat(enumerator.Current));
                             break;
-                        default:
-                            break;
                     }
                 }
                 return;
@@ -221,8 +219,6 @@ namespace Cavern.Format.Transcoders {
                         break;
                     case ADMTags.streamFormatTag:
                         streamFormats.Add(new ADMStreamFormat(enumerator.Current));
-                        break;
-                    default:
                         break;
                 }
             }

@@ -246,7 +246,7 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Matroska codec ID mapping to the <see cref="Codec"/> enum.
         /// </summary>
-        readonly static Dictionary<string, Codec> codecNames = new Dictionary<string, Codec>() {
+        readonly static Dictionary<string, Codec> codecNames = new Dictionary<string, Codec> {
             ["V_MPEG4/ISO/AVC"] = Codec.AVC,
             ["V_MPEGH/ISO/HEVC"] = Codec.HEVC,
             ["A_AC3"] = Codec.AC3,

@@ -66,8 +66,15 @@ namespace Cavern.QuickEQ.Utilities {
         /// <summary>
         /// Convert a response curve to decibel scale.
         /// </summary>
+        /// <remarks>The minimum value will be -100 to prevent NaNs.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ConvertToDecibels(float[] curve, float minimum = -100) {
+        public static void ConvertToDecibels(float[] curve) => ConvertToDecibels(curve, -100);
+
+        /// <summary>
+        /// Convert a response curve to decibel scale.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ConvertToDecibels(float[] curve, float minimum) {
             for (int i = 0; i < curve.Length; ++i) {
                 curve[i] = 20 * (float)Math.Log10(curve[i]);
                 if (curve[i] < minimum) { // this is also true if curve[i] == 0
@@ -141,13 +148,18 @@ namespace Cavern.QuickEQ.Utilities {
         /// Get both the minimum and maximum values of the graph.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetLimits(float[] values, out float min, out float max) {
-            min = values[0];
-            max = values[0];
+        public static (float min, float max) GetLimits(float[] values) {
+            float min = values[0];
+            float max = values[0];
             for (int i = 1; i < values.Length; ++i) {
-                if (max < values[i]) max = values[i];
-                if (min > values[i]) min = values[i];
+                if (max < values[i]) {
+                    max = values[i];
+                }
+                if (min > values[i]) {
+                    min = values[i];
+                }
             }
+            return (min, max);
         }
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace Cavern.Format.Container.MP4 {
                 Format = stsd.formats[0].codec;
                 if (Format.IsAudio()) {
                     byte[] extra = stsd.formats[0].extra;
-                    Extra = new TrackExtraAudio() {
+                    Extra = new TrackExtraAudio {
                         Bits = (BitDepth)extra.ReadInt16(11),
                         ChannelCount = extra.ReadInt16(9),
                         SampleRate = timeScale

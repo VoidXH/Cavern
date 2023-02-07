@@ -73,11 +73,10 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Reads information from a track's renderer.
         /// </summary>
-        public Track(AudioReader reader, Codec codec, int index, string language = null) {
+        public Track(AudioReader reader, Codec codec, int index) {
             this.reader = reader;
             Codec = codec;
             Index = index;
-            Language = language;
 
             StringBuilder builder = new();
             Renderer = reader.GetRenderer();
@@ -124,6 +123,11 @@ namespace CavernizeGUI.Elements {
             builder.Append("Sample rate: ").Append(reader.SampleRate).AppendLine("Hz");
             Details = builder.ToString();
         }
+
+        /// <summary>
+        /// Reads information from a track's renderer.
+        /// </summary>
+        public Track(AudioReader reader, Codec codec, int index, string language) : this(reader, codec, index) => Language = language;
 
         /// <summary>
         /// Empty constructor for derived classes.

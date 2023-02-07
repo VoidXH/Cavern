@@ -1,8 +1,10 @@
-﻿namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
+﻿using System;
+
+namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
     /// <summary>
     /// Representation of a length of time, with digits cut at 1/100000th of a second.
     /// </summary>
-    public readonly struct ADMTimeSpan {
+    public readonly struct ADMTimeSpan : IEquatable<ADMTimeSpan> {
         /// <summary>
         /// A time span of 0 seconds and 0 fractions.
         /// </summary>
@@ -87,12 +89,7 @@
         /// <summary>
         /// Checks if the two time spans are equal.
         /// </summary>
-        public static bool operator ==(ADMTimeSpan lhs, ADMTimeSpan rhs) => lhs.seconds == rhs.seconds & lhs.fraction == rhs.fraction;
-
-        /// <summary>
-        /// Checks if the two time spans are not equal.
-        /// </summary>
-        public static bool operator !=(ADMTimeSpan lhs, ADMTimeSpan rhs) => lhs.seconds != rhs.seconds | lhs.fraction != rhs.fraction;
+        public bool Equals(ADMTimeSpan other) => seconds == other.seconds & fraction == other.fraction;
 
         /// <summary>
         /// Gets if this time span represents no time.

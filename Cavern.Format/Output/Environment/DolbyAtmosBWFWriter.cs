@@ -115,7 +115,7 @@ namespace Cavern.Format.Environment {
 
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, channelName, ADMPackType.DirectSpeakers) {
                     Blocks = new List<ADMBlockFormat> {
-                        new ADMBlockFormat() {
+                        new ADMBlockFormat {
                             Position = ChannelPrototype.AlternativePositions[bedChannels[i - 1]]
                         }
                     }

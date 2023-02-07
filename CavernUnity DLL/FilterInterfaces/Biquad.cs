@@ -70,7 +70,7 @@ namespace Cavern.FilterInterfaces {
         /// Gain of the filter in decibels.
         /// </summary>
         [Tooltip("Gain of the filter in decibels.")]
-        [Range(-10, 10)] public double Gain = 0;
+        [Range(-10, 10)] public double Gain;
 
         /// <summary>
         /// The attached audio source.
@@ -94,7 +94,8 @@ namespace Cavern.FilterInterfaces {
             if (filter != null) {
                 source.RemoveFilter(filter);
             }
-            source.AddFilter(filter = (lastFilter = FilterType) switch {
+            lastFilter = FilterType;
+            filter = lastFilter switch {
                 FilterTypes.Lowpass => new Lowpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain),
                 FilterTypes.Highpass => new Highpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain),
                 FilterTypes.Bandpass => new Bandpass(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain),
@@ -104,7 +105,8 @@ namespace Cavern.FilterInterfaces {
                 FilterTypes.LowShelf => new LowShelf(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain),
                 FilterTypes.HighShelf => new HighShelf(AudioListener3D.Current.SampleRate, CenterFreq, Q, Gain),
                 _ => throw new FilterNotExistsException(),
-            });
+            };
+            source.AddFilter(filter);
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]

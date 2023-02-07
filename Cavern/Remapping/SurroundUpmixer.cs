@@ -143,6 +143,6 @@ namespace Cavern.Remapping {
         /// Number of output channels, the corresponding standard matrix will be used.
         /// </summary>
         /// <remarks>Some values are hardcoded, this must always be 8.</remarks>
-        public const int matrixSize = 8;
+        public static readonly int matrixSize = 8;
     }
 }

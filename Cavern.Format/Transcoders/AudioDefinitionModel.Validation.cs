@@ -54,11 +54,11 @@ namespace Cavern.Format.Transcoders {
                 }
 
                 for (int block = 1; block < lastBlock; block++) {
-                    if (blocks[block - 1].Offset + blocks[block - 1].Duration != blocks[block].Offset) {
+                    if (!blocks[block].Offset.Equals(blocks[block - 1].Offset + blocks[block - 1].Duration)) {
                         errors.Add($"Channel {channel.ID}'s block {block} does not end when the next block starts.");
                     }
                 }
-                if (channel.Type == ADMPackType.Objects && blocks[lastBlock].Offset + blocks[lastBlock].Duration != length) {
+                if (channel.Type == ADMPackType.Objects && !length.Equals(blocks[lastBlock].Offset + blocks[lastBlock].Duration)) {
                     errors.Add($"Channel {channel.ID} does not end when the program ends.");
                 }
             }

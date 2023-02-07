@@ -4,7 +4,7 @@ namespace CavernizeGUI.CommandLine {
     /// <summary>
     /// A command's execution has failed.
     /// </summary>
-    class CommandException : Exception {
+    public class CommandException : Exception {
         /// <summary>
         /// A command's execution has failed.
         /// </summary>

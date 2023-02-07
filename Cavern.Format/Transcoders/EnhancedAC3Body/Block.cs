@@ -181,8 +181,9 @@ namespace Cavern.Format.Transcoders {
                         lfefgaincod = extractor.Read(3);
                     }
                 } else {
-                    if (cplinu[block])
+                    if (cplinu[block]) {
                         cplfgaincod = 4;
+                    }
                     for (int channel = 0; channel < channels.Length; ++channel) {
                         fgaincod[channel] = 4;
                     }

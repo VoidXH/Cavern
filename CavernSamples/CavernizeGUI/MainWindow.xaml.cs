@@ -41,7 +41,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// The path of the currently open file.
         /// </summary>
-        public string FilePath => file != null ? file.Path : null;
+        public string FilePath => file?.Path;
 
         /// <summary>
         /// The matching displayed dot for each supported channel.
@@ -84,7 +84,7 @@ namespace CavernizeGUI {
         /// Initialize the window and load last settings.
         /// </summary>
         public MainWindow() {
-            TaskbarItemInfo = new TaskbarItemInfo() {
+            TaskbarItemInfo = new TaskbarItemInfo {
                 ProgressState = TaskbarItemProgressState.Normal
             };
 
@@ -138,8 +138,8 @@ namespace CavernizeGUI {
         /// <summary>
         /// Displays an error message.
         /// </summary>
-        static void Error(string error) =>
-            MessageBox.Show(error, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+        static void Error(string message) =>
+            MessageBox.Show(message, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
 
         /// <summary>
         /// Perform one-time UI updates after the window is initialized and displayed.
@@ -352,7 +352,6 @@ namespace CavernizeGUI {
         void RemoveQueued(object _, RoutedEventArgs e) {
             if (taskEngine.IsOperationRunning) {
                 Error((string)language["ReQOp"]);
-                return;
             } else if (queuedJobs.SelectedItem == null) {
                 Error((string)language["ReQSe"]);
             } else {
@@ -364,8 +363,8 @@ namespace CavernizeGUI {
         /// Start processing the queue.
         /// </summary>
         void StartQueue(object _, RoutedEventArgs e) {
-            QueuedJob[] jobs = this.jobs.ToArray();
-            taskEngine.Run(() => QueueRunnerTask(jobs));
+            QueuedJob[] jobsToRun = jobs.ToArray();
+            taskEngine.Run(() => QueueRunnerTask(jobsToRun));
         }
 
         void QueueDragEnter(object _, DragEventArgs e) {

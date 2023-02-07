@@ -10,11 +10,6 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         partial class Allocation {
             /// <summary>
-            /// The body for which the allocation is read.
-            /// </summary>
-            readonly EnhancedAC3Body host;
-
-            /// <summary>
             /// A copy of the mantissa stream to be able to quickly transcode the block without re-encoding.
             /// </summary>
             byte[] rawMantissa = new byte[0];

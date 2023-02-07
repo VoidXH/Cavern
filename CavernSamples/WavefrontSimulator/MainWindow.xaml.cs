@@ -91,7 +91,7 @@ namespace WavefrontSimulator {
             clear.IsEnabled = false;
         }
 
-        void DirectivityIndexChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+        void DirectivityIndexChanged(object sender, RoutedPropertyChangedEventArgs<double> _) {
             directivityIndex = (float)Math.Round(((Slider)sender).Value * 10) * .1f;
             if (dirIndex != null) {
                 dirIndex.Text = directivityIndex.ToString("0.0");
@@ -101,7 +101,7 @@ namespace WavefrontSimulator {
             }
         }
 
-        void WallLengthChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+        void WallLengthChanged(object sender, RoutedPropertyChangedEventArgs<double> _) {
             wallLength = (float)Math.Round(((Slider)sender).Value * 10) * .1f;
             if (wallLen != null) {
                 wallLen.Text = wallLength.ToString("0.0 m");

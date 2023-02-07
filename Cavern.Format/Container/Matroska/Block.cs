@@ -119,8 +119,6 @@ namespace Cavern.Format.Container.Matroska {
                         }
                         frameSizes[frameCount - 1] = (int)(last + source.Length - (reader.Position - start));
                         break;
-                    default:
-                        break;
                 }
             } else {
                 firstFrame = reader.Position;

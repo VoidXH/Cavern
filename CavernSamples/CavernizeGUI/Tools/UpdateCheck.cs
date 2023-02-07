@@ -34,7 +34,7 @@ namespace VoidX.WPF {
             if (thisRevision < int.Parse(body)) {
                 if (MessageBox.Show("A new version is available! Do you want to download it?",
                     "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes) {
-                    Process.Start(new ProcessStartInfo() {
+                    Process.Start(new ProcessStartInfo {
                         FileName = downloadLink,
                         UseShellExecute = true
                     });

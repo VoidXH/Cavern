@@ -16,7 +16,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// <summary>
         /// Target output channel.
         /// </summary>
-        readonly int channel = 0;
+        readonly int channel;
 
         /// <summary>
         /// Delay playback by this many times the <see cref="testTone"/>'s length. Used to play after preceding measurements.

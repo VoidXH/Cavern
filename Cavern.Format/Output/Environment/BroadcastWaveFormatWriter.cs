@@ -116,7 +116,7 @@ namespace Cavern.Format.Environment {
                         if (size != 0) {
                             movement[size - 1].Duration = newOffset - movement[size - 1].Offset;
                         }
-                        movement.Add(new ADMBlockFormat() {
+                        movement.Add(new ADMBlockFormat {
                             Position = scaledPosition,
                             Offset = newOffset,
                             Duration = updateTime,
@@ -255,9 +255,9 @@ namespace Cavern.Format.Environment {
             for (int j = 0, c = blocks.Count; j < c; j++) {
                 if (blocks.Count != 0) {
                     ADMBlockFormat lastBlock = blocks[^1];
-                    if (!lastBlock.Duration.IsZero() && lastBlock.Offset + lastBlock.Duration != contentLength) {
+                    if (!lastBlock.Duration.IsZero() && !contentLength.Equals(lastBlock.Offset + lastBlock.Duration)) {
                         ADMTimeSpan newDuration = contentLength - lastBlock.Offset;
-                        if (lastBlock.Interpolation == lastBlock.Duration) {
+                        if (lastBlock.Interpolation.Equals(lastBlock.Duration)) {
                             lastBlock.Interpolation = newDuration;
                         }
                         lastBlock.Duration = newDuration;

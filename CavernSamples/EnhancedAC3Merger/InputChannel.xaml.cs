@@ -81,7 +81,7 @@ namespace EnhancedAC3Merger {
         /// Opens a file for selecting a channel from.
         /// </summary>
         void OpenFile(object _, RoutedEventArgs e) {
-            OpenFileDialog opener = new OpenFileDialog() {
+            OpenFileDialog opener = new OpenFileDialog {
                 Filter = "Supported input files|" + AudioReader.filter
             };
             if (opener.ShowDialog().Value) {

@@ -151,10 +151,10 @@ namespace Cavern.Debug {
                 if (arrayLevels[channel] > 1) {
                     arrayLevels[channel] = 1;
                 }
-                float barHeight = 20 * Mathf.Log10(arrayLevels[channel]) / -DynamicRange + 1,
+                float currentLevel = 20 * Mathf.Log10(arrayLevels[channel]) / -DynamicRange + 1,
                     currentPeak = channelData[channel].Peak - Time.deltaTime;
-                if (currentPeak < barHeight) {
-                    currentPeak = barHeight;
+                if (currentPeak < currentLevel) {
+                    currentPeak = currentLevel;
                 }
                 channelData[channel].Peak = currentPeak;
             }

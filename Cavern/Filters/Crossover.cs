@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -65,13 +66,21 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
+        /// Simple 2nd-order crossover.
+        /// </summary>
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="frequency">Crossover frequency</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Crossover(int sampleRate, double frequency) : this(sampleRate, frequency, 2) { }
+
+        /// <summary>
         /// Simple variable-order crossover.
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="frequency">Crossover frequency</param>
         /// <param name="order">Number of filters per pass, 2 is recommended for mixing notch prevention</param>
         public Crossover(int sampleRate, double frequency, int order = 2) {
-            this.SampleRate = sampleRate;
+            SampleRate = sampleRate;
             RecreateFilters(frequency, order);
         }
 

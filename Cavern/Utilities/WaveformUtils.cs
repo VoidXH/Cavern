@@ -533,7 +533,9 @@ namespace Cavern.Utilities {
         /// </summary>
         public static void TrimStart(ref float[] target) {
             int trim = 0;
-            while (target[trim] == 0 && trim++ < target.Length) ;
+            while (target[trim] == 0 && trim < target.Length) {
+                ++trim;
+            }
             if (trim != 0) {
                 target = target[trim..];
             }
@@ -547,7 +549,9 @@ namespace Cavern.Utilities {
             for (int i = 0; i < target.Length; i++) {
                 float[] check = target[i];
                 int trim = 0;
-                while (check[trim] == 0 && trim++ < check.Length) ;
+                while (check[trim] == 0 && trim < check.Length) {
+                    ++trim;
+                }
                 if (min > trim) {
                     min = trim;
                 }
@@ -564,7 +568,9 @@ namespace Cavern.Utilities {
         /// </summary>
         public static void TrimEnd(ref float[] target) {
             int trim = target.Length;
-            while (target[trim - 1] == 0 && --trim > 0) ;
+            while (trim > 0 && target[trim - 1] == 0) {
+                --trim;
+            }
             if (trim != target.Length) {
                 target = target[..trim];
             }

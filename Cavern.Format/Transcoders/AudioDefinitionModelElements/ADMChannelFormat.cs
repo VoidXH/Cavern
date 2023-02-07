@@ -126,7 +126,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.ToString());
             SerializeBlockMain(writer, block, namePrefix, index);
 
-            if (block.Interpolation != block.Duration) {
+            if (!block.Interpolation.Equals(block.Duration)) {
                 writer.WriteStartElement(ADMTags.blockJumpTag);
                 writer.WriteAttributeString(ADMTags.blockJumpLengthAttribute, block.Interpolation.ToInvariantFloatString());
                 writer.WriteString(enabledValue);
@@ -228,7 +228,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                 if (!cartesian) {
                     throw new UnsupportedFeatureException("polar");
                 }
-                result.Add(new ADMBlockFormat() {
+                result.Add(new ADMBlockFormat {
                     Offset = ParseTimestamp(block.Attribute(ADMTags.blockOffsetAttribute)),
                     Duration = duration,
                     Position = new Vector3(x, y, z),

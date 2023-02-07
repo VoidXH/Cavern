@@ -20,7 +20,7 @@ namespace Cavern.QuickEQ {
                 return complexResponse = Complex.Parse(response);
             }
         }
-        Complex[] complexResponse = null;
+        Complex[] complexResponse;
 
         /// <summary>
         /// Raw impulse response on the real plane.
@@ -33,7 +33,7 @@ namespace Cavern.QuickEQ {
                 return response = Measurements.GetRealPart(ComplexResponse);
             }
         }
-        float[] response = null;
+        float[] response;
 
         /// <summary>
         /// Impulse polarity, true if positive.
@@ -151,7 +151,9 @@ namespace Cavern.QuickEQ {
                     abs[i] = Math.Abs(response[i]);
                 }
                 float[] smoothed = GraphUtils.SmoothGraph(abs, 20, 20000, .1f);
-                while (smoothed[--rt60] < target && rt60 > delay) ;
+                do {
+                    --rt60;
+                } while (smoothed[rt60] < target && rt60 > delay);
                 return rt60 -= delay;
             }
         }
@@ -161,7 +163,7 @@ namespace Cavern.QuickEQ {
         /// Peaks in the impulse response.
         /// </summary>
         /// <remarks>Calculated when <see cref="GetPeak(int)"/> is called.</remarks>
-        Peak[] peaks = null;
+        Peak[] peaks;
 
         /// <summary>
         /// Create a verbose impulse response from a precalculated impulse response.
@@ -182,15 +184,15 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Representation of a peak in the impulse response.
         /// </summary>
-        public struct Peak {
+        public struct Peak : IEquatable<Peak> {
             /// <summary>
             /// Peak time offset in samples.
             /// </summary>
-            public int Position;
+            public int Position { get; }
             /// <summary>
             /// Gain at that position.
             /// </summary>
-            public float Size;
+            public float Size { get; }
 
             /// <summary>
             /// Representation of a peak in the impulse response.
@@ -211,13 +213,18 @@ namespace Cavern.QuickEQ {
             /// Represents a nonexisting peak.
             /// </summary>
             public static Peak Null = new Peak(-1, 0);
+
+            /// <summary>
+            /// Check if two peaks are equal.
+            /// </summary>
+            public bool Equals(Peak other) => Position != other.Position && Size != other.Size;
         }
 
         /// <summary>
         /// Get the <paramref name="position"/>th peak in the impulse response.
         /// </summary>
         public Peak GetPeak(int position) {
-            if (peaks == null && response.Length > 0) {
+            if (peaks == null) {
                 List<Peak> peakList = new List<Peak>();
                 float[] response = Response;
                 float last = Math.Abs(response[0]), abs = Math.Abs(response[1]);

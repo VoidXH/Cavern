@@ -94,6 +94,11 @@ namespace Cavern.Format.Transcoders {
             readonly float[] coeffSplit2;
 
             /// <summary>
+            /// The body for which the allocation is read.
+            /// </summary>
+            readonly EnhancedAC3Body host;
+
+            /// <summary>
             /// Contains and decodes exponent and mantissa data for a single channels.
             /// </summary>
             public Allocation(EnhancedAC3Body host, int maxLength) {

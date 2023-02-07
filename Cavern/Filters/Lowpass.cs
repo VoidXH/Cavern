@@ -29,7 +29,8 @@ namespace Cavern.Filters {
                 alpha = (float)(Math.Sin(w0) / (q + q)), divisor = 1 / (1 + alpha); // 1 / a0
             a1 = -2 * cos * divisor;
             a2 = (1 - alpha) * divisor;
-            b2 = (b1 = (1 - cos) * divisor) * .5f;
+            b1 = (1 - cos) * divisor;
+            b2 = b1 * .5f;
             b0 = (float)Math.Pow(10, gain * .05f) * b2;
         }
     }

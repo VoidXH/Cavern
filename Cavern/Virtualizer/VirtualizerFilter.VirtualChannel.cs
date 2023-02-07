@@ -67,7 +67,9 @@ namespace Cavern.Virtualizer {
                 // Preprocessing
                 float[][][] splits = hrir.Split(rPeak - lPeak);
                 int lastToKeep = splits.Length;
-                while (splits[lastToKeep - 1].IsMute() && --lastToKeep > 0) ;
+                while (lastToKeep > 1 && splits[lastToKeep - 1].IsMute()) {
+                    --lastToKeep;
+                }
                 if (splits.Length != lastToKeep) {
                     splits = splits[..lastToKeep];
                 }

@@ -151,11 +151,14 @@ namespace Cavern.Format.Transcoders {
                 if (segment.Length < segmentLength) {
                     segment = new byte[segmentLength];
                 }
-                reader.Read(segment, 0, segmentLength);
+                int read = reader.Read(segment, 0, segmentLength);
+                if (read != segmentLength) {
+                    throw new CorruptionException("DBMD length");
+                }
 
                 if (checkChecksums) {
                     if (reader.ReadByte() != CalculateChecksum(segment, segmentLength)) {
-                        throw new CorruptionException("dbmd segment " + segmentID);
+                        throw new CorruptionException("DBMD segment " + segmentID);
                     }
                 } else {
                     ++reader.Position;
@@ -180,8 +183,6 @@ namespace Cavern.Format.Transcoders {
                         ObjectMetadataPreamble = segment.ReadUInt32(0);
                         ObjectCount = segment[4];
                         // Find out the following bytes if needed
-                        break;
-                    default:
                         break;
                 }
             }

@@ -124,7 +124,8 @@ namespace Cavern.Filters {
             }
 
             // Write the output and remove those samples from the future
-            Array.Copy(future, 0, samples, from, to -= from);
+            to -= from;
+            Array.Copy(future, 0, samples, from, to);
             Array.Copy(future, to, future, 0, future.Length - to);
             Array.Clear(future, future.Length - to, to);
         }

@@ -69,7 +69,7 @@ namespace Cavern.Helpers {
         /// <param name="attach">Attach the visualized source to the active listener</param>
         /// <param name="trailTime">Show the object's trail for this many seconds</param>
         /// <returns>The follower component on a created sphere</returns>
-        public static Follower CreateFollower(Source target, bool attach, float trailTime = 0) {
+        public static Follower CreateFollower(Source target, bool attach) {
             GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             Follower follower = obj.AddComponent<Follower>();
             follower.target = target;
@@ -77,7 +77,6 @@ namespace Cavern.Helpers {
             follower.renderer = obj.GetComponent<Renderer>();
             MakeTransparent(follower.renderer.material);
 
-            follower.trailTime = trailTime;
             follower.trail = obj.AddComponent<TrailRenderer>();
             follower.trail.material = follower.renderer.material;
             follower.trail.endWidth = 0;

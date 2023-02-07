@@ -25,7 +25,7 @@ namespace Cavern.Remapping {
         /// <param name="pairs">Pairs of indices of later given inputs to recreate the space between</param>
         /// <param name="intermediateSourceCount">Number of bands to separate</param>
         /// <param name="sampleRate">Content sample rate</param>
-        public PairBasedUpmixer(Vector3[] positions, (int, int)[] pairs, int intermediateSourceCount, int sampleRate) :
+        protected PairBasedUpmixer(Vector3[] positions, (int, int)[] pairs, int intermediateSourceCount, int sampleRate) :
             base(pairs.Length * intermediateSourceCount, sampleRate) {
             this.positions = positions;
             this.pairs = pairs;
