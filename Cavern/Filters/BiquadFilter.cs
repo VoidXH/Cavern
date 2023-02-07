@@ -94,12 +94,25 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
+        /// Regenerate the transfer function with maximum flatness and no additional gain.
+        /// </summary>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        public virtual void Reset(double centerFreq) => Reset(centerFreq, QFactor.reference, 0);
+
+        /// <summary>
+        /// Regenerate the transfer function with a custom Q-factor, but no additional gain.
+        /// </summary>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        public virtual void Reset(double centerFreq, double q) => Reset(centerFreq, q, 0);
+
+        /// <summary>
         /// Regenerate the transfer function.
         /// </summary>
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
-        public virtual void Reset(double centerFreq, double q = QFactor.reference, double gain = 0) {
+        public virtual void Reset(double centerFreq, double q, double gain) {
             this.centerFreq = centerFreq;
             this.q = q;
             this.gain = gain;

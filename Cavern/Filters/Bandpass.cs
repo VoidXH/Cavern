@@ -23,7 +23,7 @@ namespace Cavern.Filters {
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
-        public override void Reset(double centerFreq, double q = QFactor.reference, double gain = 0) {
+        public override void Reset(double centerFreq, double q, double gain) {
             base.Reset(centerFreq, q, gain);
             float w0 = (float)(Math.PI * 2 * centerFreq / sampleRate), cos = (float)Math.Cos(w0),
                 alpha = (float)(Math.Sin(w0) / (q + q)), divisor = 1 / (1 + alpha); // 1 / a0

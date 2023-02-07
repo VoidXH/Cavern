@@ -11,7 +11,7 @@ namespace Cavern.Format.Transcoders {
             }
             int snroffset = (((csnroffst - 15) << 4) + fsnroffst[channel]) << 2;
             Allocate(0, endmant[channel], fastgain[fgaincod[channel]], snroffset, exps[channel], nchgrps[channel],
-                exps[channel][0], expstr, allocation[channel], deltba[channel]);
+                exps[channel][0], expstr, allocation[channel], deltba[channel], 0, 0, false);
         }
 
         void AllocateCoupling(ExpStrat expstr) {
@@ -31,12 +31,11 @@ namespace Cavern.Format.Transcoders {
             }
             int snroffset = (((csnroffst - 15) << 4) + lfefsnroffst) << 2;
             Allocate(lfestrtmant, lfeendmant, fastgain[lfefgaincod], snroffset, lfeexps, nlfegrps, lfeexps[0],
-                ExpStrat.D15, lfeAllocation, lfedeltba);
+                ExpStrat.D15, lfeAllocation, lfedeltba, 0, 0, false);
         }
 
         void Allocate(int start, int end, int fgain, int snroffset, int[] gexp, int ngrps, int absexp,
-            ExpStrat expstr, Allocation allocation, DeltaBitAllocation dba, int fastleak = 0, int slowleak = 0,
-            bool coupling = false) {
+            ExpStrat expstr, Allocation allocation, DeltaBitAllocation dba, int fastleak, int slowleak, bool coupling) {
             // Unpack the mapped values
             int[] dexp = allocation.dexp;
             for (int grp = 0; grp < ngrps; ++grp) {
@@ -120,8 +119,9 @@ namespace Cavern.Format.Transcoders {
                     excite[bin] = Math.Max(fastleak - lowcomp, slowleak);
                 }
                 begin = 22;
-            } else // Coupling channel
+            } else { // Coupling channel
                 begin = bndstrt;
+            }
             for (int bin = begin; bin < bndend; ++bin) {
                 fastleak = Math.Max(fastleak - fdecay, bndpsd[bin] - fgain);
                 slowleak = Math.Max(slowleak - sdecay, bndpsd[bin] - sgain);

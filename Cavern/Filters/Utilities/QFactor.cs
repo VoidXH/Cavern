@@ -44,7 +44,7 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
-        /// Sqrt(2)/2, the reference Q factor.
+        /// Sqrt(2)/2, the Q factor for maximum flatness.
         /// </summary>
         public const double reference = .7071067811865475;
     }

@@ -38,8 +38,9 @@ namespace Cavern.Filters {
                     max = absSample;
                 }
             }
-            if (max * lastGain > 1) // Attack
+            if (max * lastGain > 1) { // Attack
                 lastGain = .9f / max;
+            }
             WaveformUtils.Gain(samples, lastGain); // Normalize last samples
             // Decay
             lastGain += decayFactor;

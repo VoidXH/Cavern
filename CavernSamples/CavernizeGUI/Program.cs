@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using VoidX.WPF;
 
 namespace CavernizeGUI {
-    class Program {
+    static class Program {
         /// <summary>
         /// The application runs from a console. This makes FFmpeg output to the same console.
         /// </summary>

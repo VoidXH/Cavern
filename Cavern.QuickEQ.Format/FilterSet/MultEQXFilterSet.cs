@@ -57,23 +57,23 @@ namespace Cavern.Format.FilterSet {
                 throw new CorruptionException("channel list");
             }
 
-            string[] guids = fileContents[pos..endPos].Split(',');
-            for (int guid = 0; guid < guids.Length; guid++) {
-                pos = guids[guid].IndexOf('"') + 1;
-                endPos = guids[guid].LastIndexOf('"');
+            string[] sourceGuids = fileContents[pos..endPos].Split(',');
+            for (int guid = 0; guid < sourceGuids.Length; guid++) {
+                pos = sourceGuids[guid].IndexOf('"') + 1;
+                endPos = sourceGuids[guid].LastIndexOf('"');
                 if (pos == 0 || endPos == -1 || pos >= endPos) {
                     throw new CorruptionException("guids");
                 }
-                guids[guid] = guids[guid][pos..endPos];
+                sourceGuids[guid] = sourceGuids[guid][pos..endPos];
             }
 
-            ReferenceChannel[] channels = new ReferenceChannel[guids.Length];
+            ReferenceChannel[] channels = new ReferenceChannel[sourceGuids.Length];
             for (int i = 0; i < channels.Length; i++) {
                 channels[i] = MultEQMatrix[channels.Length][i];
             }
 
             return new MultEQXFilterSet(channels, Listener.DefaultSampleRate) {
-                guids = guids
+                guids = sourceGuids
             };
         }
 
