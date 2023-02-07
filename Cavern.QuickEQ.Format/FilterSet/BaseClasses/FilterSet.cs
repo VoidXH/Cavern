@@ -50,11 +50,6 @@ namespace Cavern.Format.FilterSet {
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
         protected virtual string GetLabel(int channel) => "CH" + (channel + 1);
-
-        /// <summary>
-        /// A default sample rate when it's not important.
-        /// </summary>
-        protected const int defaultSampleRate = 48000;
     }
 
     /// <summary>

@@ -72,14 +72,6 @@ namespace Cavern.Format.FilterSet {
         protected ChannelData[] Channels { get; private set; }
 
         /// <summary>
-        /// Read a room correction with IIR filter sets for each channel from a file.
-        /// </summary>
-        public IIRFilterSet(string path) : base(defaultSampleRate) {
-            ReadFile(path, out ChannelData[] channels);
-            Channels = channels;
-        }
-
-        /// <summary>
         /// Construct a room correction with IIR filter sets for each channel for a room with the target number of channels.
         /// </summary>
         public IIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
@@ -133,11 +125,6 @@ namespace Cavern.Format.FilterSet {
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
         protected override string GetLabel(int channel) => Channels[channel].name ?? base.GetLabel(channel);
-
-        /// <summary>
-        /// When overridden, the filter set supports file import through this function.
-        /// </summary>
-        protected virtual void ReadFile(string path, out ChannelData[] channels) => throw new NotImplementedException();
 
         /// <summary>
         /// Create the file with gain/delay/polarity info as the root document that's saved in the save dialog.

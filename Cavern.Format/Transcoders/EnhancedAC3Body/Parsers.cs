@@ -41,9 +41,9 @@
             }
 
             for (int channel = 0; channel < channels.Length; ++channel) {
-                if (ecplinu)
+                if (ecplinu) {
                     endmant[channel] = ecplsubbndtab[ecpl_begin_subbnd];
-                else {
+                } else {
                     if (spxinu && !cplinu[block]) {
                         endmant[channel] = spx_begin_subbnd * 12 + 25;
                     } else if (chincpl[channel]) {

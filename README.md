@@ -15,29 +15,29 @@ Cavernize.
 [![NuGet - Cavern.QuickEQ](https://img.shields.io/nuget/v/Cavern.QuickEQ?label=NuGet%3A%20Cavern.QuickEQ)](https://www.nuget.org/packages/Cavern.QuickEQ/)
 
 ## Features
-  * Unlimited objects and output channels without position restrictions
-  * Audio transcoder library with a custom spatial format
-  * Supported codecs:
-    * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
-    * Limitless Audio Format
-    * RIFF WAVE
-    * Audio Definition Model Broadcast Wave Format
-    * Supported containers: .ac3, .eac3, .ec3, .laf, .mka, .mkv, .mov, .mp4, .qt, .wav
-  * Advanced self-calibration with a microphone
-    * Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
-    * Uniformity can be achieved without a calibration file
-    * Supported software/hardware for EQ/filter set export:
-      * PC: Equalizer APO, CamillaDSP
-      * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD
-      * Processors: Emotiva, StormAudio
-      * Amplifiers: Behringer NX series
-      * Others: Audyssey MultEQ-X, Dirac Live
-  * Direction and distance virtualization for headphones
-  * Real-time upconversion of regular surround sound mixes to 3D
-  * Mix repositioning based on occupied seats
-  * Seat movement generation
-  * Unity-like listener and source functionality
-  * Ultra low latency, even the upconverter can work from as low as one sample per frame
+* Unlimited objects and output channels without position restrictions
+* Audio transcoder library with a custom spatial format
+* Supported codecs:
+  * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
+  * Limitless Audio Format
+  * RIFF WAVE
+  * Audio Definition Model Broadcast Wave Format
+  * Supported containers: .ac3, .eac3, .ec3, .laf, .mka, .mkv, .mov, .mp4, .qt, .wav
+* Advanced self-calibration with a microphone
+  * Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
+  * Uniformity can be achieved without a calibration file
+  * Supported software/hardware for EQ/filter set export:
+    * PC: Equalizer APO, CamillaDSP
+    * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD
+    * Processors: Emotiva, StormAudio
+    * Amplifiers: Behringer NX series
+    * Others: Audyssey MultEQ-X, Dirac Live
+* Direction and distance virtualization for headphones
+* Real-time upconversion of regular surround sound mixes to 3D
+* Mix repositioning based on occupied seats
+* Seat movement generation
+* Unity-like listener and source functionality
+* Ultra low latency, even the upconverter can work from as low as one sample per frame
 
 ## User documentation
 User documentation can be found at the [Cavern documentation webpage](http://cavern.sbence.hu/cavern/doc.php).
@@ -186,10 +186,10 @@ component browser, under audio, and they will automatically add all their Unity
 dependencies.
 
 ## Development documents
-  * [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
-  * [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
-  * [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
-  * [Cavern DCP channel order](./docs/Cavern%20DCP%20channel%20order.md) compared to DCP standards
+* [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
+* [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
+* [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
+* [Cavern DCP channel order](./docs/Cavern%20DCP%20channel%20order.md) compared to DCP standards
 
 ## Disclaimers
 ### Code

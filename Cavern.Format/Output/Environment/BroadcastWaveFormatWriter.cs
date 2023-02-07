@@ -175,7 +175,7 @@ namespace Cavern.Format.Environment {
 
             List<ADMProgramme> programs = new List<ADMProgramme> {
                 new ADMProgramme("APR_1001", "Cavern_Export", contentLength) {
-                    Contents = new List<string>() { channelContentID, objectContentID }
+                    Contents = new List<string> { channelContentID, objectContentID }
                 }
             };
             List<ADMContent> contents = new List<ADMContent> {

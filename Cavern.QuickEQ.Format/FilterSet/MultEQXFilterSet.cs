@@ -6,6 +6,7 @@ using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Format.Common;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -45,7 +46,36 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Load a MultEQ-X configuration file for editing.
         /// </summary>
-        public MultEQXFilterSet(string path) : base(path) { }
+        public static MultEQXFilterSet FromFile(string path) {
+            string fileContents = File.ReadAllText(path);
+            int pos = fileContents.IndexOf(channelList),
+                endPos = -1;
+            if (pos != -1) {
+                endPos = fileContents.IndexOf(']', pos += channelList.Length);
+            }
+            if (endPos == -1) {
+                throw new CorruptionException("channel list");
+            }
+
+            string[] guids = fileContents[pos..endPos].Split(',');
+            for (int guid = 0; guid < guids.Length; guid++) {
+                pos = guids[guid].IndexOf('"') + 1;
+                endPos = guids[guid].LastIndexOf('"');
+                if (pos == 0 || endPos == -1 || pos >= endPos) {
+                    throw new CorruptionException("guids");
+                }
+                guids[guid] = guids[guid][pos..endPos];
+            }
+
+            ReferenceChannel[] channels = new ReferenceChannel[guids.Length];
+            for (int i = 0; i < channels.Length; i++) {
+                channels[i] = MultEQMatrix[channels.Length][i];
+            }
+
+            return new MultEQXFilterSet(channels, Listener.DefaultSampleRate) {
+                guids = guids
+            };
+        }
 
         /// <summary>
         /// Create a MultEQ-X configuration file for EQ export.
@@ -54,6 +84,17 @@ namespace Cavern.Format.FilterSet {
             Valid = true;
             guids = new string[channels];
             for (int i = 0; i < channels; i++) {
+                guids[i] = Guid.NewGuid().ToString();
+            }
+        }
+
+        /// <summary>
+        /// Create a MultEQ-X configuration file for EQ export.
+        /// </summary>
+        public MultEQXFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) {
+            Valid = true;
+            guids = new string[channels.Length];
+            for (int i = 0; i < guids.Length; i++) {
                 guids[i] = Guid.NewGuid().ToString();
             }
         }
@@ -143,40 +184,6 @@ namespace Cavern.Format.FilterSet {
 
             result.Append(fileEnd);
             File.WriteAllText(path, result.ToString());
-        }
-
-        /// <summary>
-        /// Open a MultEQ-X configuration for editing.
-        /// </summary>
-        protected override void ReadFile(string path, out ChannelData[] channels) {
-            string fileContents = File.ReadAllText(path);
-            int pos = fileContents.IndexOf(channelList),
-                endPos = -1;
-            if (pos != -1) {
-                endPos = fileContents.IndexOf(']', pos += channelList.Length);
-            }
-            if (endPos == -1) {
-                channels = new ChannelData[0];
-                Valid = false;
-                return;
-            }
-
-            guids = fileContents[pos..endPos].Split(',');
-            for (int guid = 0; guid < guids.Length; ++guid) {
-                pos = guids[guid].IndexOf('"') + 1;
-                endPos = guids[guid].LastIndexOf('"');
-                if (pos == 0 || endPos == -1 || pos >= endPos) {
-                    channels = new ChannelData[0];
-                    Valid = false;
-                    return;
-                }
-                guids[guid] = guids[guid][pos..endPos];
-            }
-
-            channels = new ChannelData[guids.Length];
-            for (int i = 0; i < channels.Length; i++) {
-                channels[i].reference = MultEQMatrix[channels.Length][i];
-            }
         }
 
         /// <summary>

@@ -89,7 +89,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Checks if the two time spans are equal.
         /// </summary>
-        public bool Equals(ADMTimeSpan other) => seconds == other.seconds & fraction == other.fraction;
+        public bool Equals(ADMTimeSpan other) => seconds == other.seconds && fraction == other.fraction;
 
         /// <summary>
         /// Gets if this time span represents no time.
