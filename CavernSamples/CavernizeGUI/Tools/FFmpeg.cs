@@ -59,7 +59,7 @@ namespace VoidX.WPF {
         /// Prompts the user to select FFmpeg's location.
         /// </summary>
         public void Locate() {
-            OpenFileDialog dialog = new OpenFileDialog() {
+            OpenFileDialog dialog = new OpenFileDialog {
                 Filter = filter
             };
             if (dialog.ShowDialog().Value) {

@@ -38,7 +38,7 @@ namespace WAVChannelReorderer {
         /// </summary>
         public MainWindow() {
             InitializeComponent();
-            process = new(progress, status);
+            process = new(progress, null, status);
         }
 
         /// <summary>

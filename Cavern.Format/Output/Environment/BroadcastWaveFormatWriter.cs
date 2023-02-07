@@ -217,10 +217,10 @@ namespace Cavern.Format.Environment {
 
                 objects.Add(new ADMObject(objectID, isDynamic ? "Audio Object " + objectIndex : objectName,
                     default, contentLength, packFormatID) {
-                    Tracks = new List<string>() { trackID }
+                    Tracks = new List<string> { trackID }
                 });
                 packFormats.Add(new ADMPackFormat(packFormatID, objectName, packType) {
-                    ChannelFormats = new List<string>() { channelFormatID }
+                    ChannelFormats = new List<string> { channelFormatID }
                 });
 
                 FixEndTimings(movements[i], contentLength);

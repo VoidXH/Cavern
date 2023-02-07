@@ -79,7 +79,7 @@ namespace Cavern.Filters {
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="frequency">Crossover frequency</param>
         /// <param name="order">Number of filters per pass, 2 is recommended for mixing notch prevention</param>
-        public Crossover(int sampleRate, double frequency, int order = 2) {
+        public Crossover(int sampleRate, double frequency, int order) {
             SampleRate = sampleRate;
             RecreateFilters(frequency, order);
         }

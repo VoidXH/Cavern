@@ -179,6 +179,11 @@ namespace Cavern {
         public bool Equals(Channel other) => X == other.X && Y == other.Y && lowFrequency == other.lowFrequency;
 
         /// <summary>
+        /// Check if the other object is also a <see cref="Channel"/> and equal to this.
+        /// </summary>
+        public override bool Equals(object obj) => obj is Channel other && Equals(other);
+
+        /// <summary>
         /// Get a hash value representing this channel.
         /// </summary>
         public override int GetHashCode() => (Y % 360 * 720 + X + (LFE ? 1048576 : 0)).GetHashCode();

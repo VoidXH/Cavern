@@ -87,7 +87,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// Create an EQ that completely linearizes the <paramref name="spectrum"/>.
         /// </summary>
         public static Equalizer FlattenSpectrum(Complex[] spectrum, int sampleRate) {
-            double step = sampleRate / spectrum.Length;
+            double step = (double)sampleRate / spectrum.Length;
             List<Band> bands = new List<Band>(spectrum.Length >> 1);
             for (int i = 0; i < spectrum.Length >> 1; ++i) {
                 bands.Add(new Band(i * step, -20 * Math.Log10(spectrum[i].Magnitude)));

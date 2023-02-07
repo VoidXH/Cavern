@@ -25,6 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
     <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
   </ItemGroup>

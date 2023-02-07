@@ -154,7 +154,7 @@ namespace Cavern {
         /// Actual listener handled by this interface.
         /// </summary>
         /// <remarks>Normalization and limiting happens in this object's <see cref="normalizer"/>.</remarks>
-        internal static Listener cavernListener = new Listener() {
+        internal static Listener cavernListener = new Listener {
             LimiterOnly = false
         };
 

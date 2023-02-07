@@ -22,25 +22,25 @@ namespace CavernizeGUI {
         /// </summary>
         void PreRender() {
             if (taskEngine.IsOperationRunning) {
-                throw new Exception((string)language["OpRun"]);
+                throw new ConcurrencyException((string)language["OpRun"]);
             }
             if (tracks.SelectedItem == null) {
-                throw new Exception((string)language["LdSrc"]);
+                throw new TrackException((string)language["LdSrc"]);
             }
 
             if (!((Track)tracks.SelectedItem).Supported) {
-                throw new Exception((string)language["UnTrk"]);
+                throw new TrackException((string)language["UnTrk"]);
             }
 
             ExportFormat format = (ExportFormat)audio.SelectedItem;
             bool needsFFmpeg = !string.IsNullOrEmpty(format.FFName) && format.Codec != Codec.PCM_Float && format.Codec != Codec.PCM_LE;
             if (needsFFmpeg && !ffmpeg.Found) {
-                throw new Exception((string)language["FFOnl"]);
+                throw new TrackException((string)language["FFOnl"]);
             }
 
             ((RenderTarget)renderTarget.SelectedItem).Apply();
             if (format.MaxChannels < Listener.Channels.Length) {
-                throw new Exception(string.Format((string)language["ChCnt"], Listener.Channels.Length, format.MaxChannels));
+                throw new TrackException(string.Format((string)language["ChCnt"], Listener.Channels.Length, format.MaxChannels));
             }
 
             SoftPreRender(false);
@@ -57,7 +57,7 @@ namespace CavernizeGUI {
             }
             if (activeRenderTarget is VirtualizerRenderTarget) {
                 if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.FilterSampleRate) {
-                    throw new Exception((string)language["FiltC"]);
+                    throw new IncompatibleSettingsException((string)language["FiltC"]);
                 }
                 listener.SampleRate = VirtualizerFilter.FilterSampleRate;
             } else {

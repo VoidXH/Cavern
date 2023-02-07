@@ -233,11 +233,15 @@ namespace Cavern.QuickEQ {
         /// </summary>
         void ProcessExport() {
             Channels = 0;
-            int lastSample = data[0].Length;
-            while (data[0][--lastSample] == 0 && lastSample > 0) ;
+            int lastSample = data[0].Length - 1;
+            while (data[0][lastSample] == 0 && lastSample > 0) {
+                --lastSample;
+            }
             for (int channel = 1; channel < data.Length; ++channel) {
                 int firstSample = 0;
-                while (data[channel][firstSample] == 0 && ++firstSample < data[channel].Length) ;
+                while (data[channel][firstSample] == 0 && firstSample < lastSample) {
+                    ++firstSample;
+                }
                 if (firstSample < lastSample) {
                     Channels = channel;
                     break;

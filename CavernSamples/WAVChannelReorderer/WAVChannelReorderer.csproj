@@ -18,6 +18,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\VoidX.WPF\EnumToTitleCase.cs" Link="Tools\EnumToTitleCase.cs" />
+    <Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
