@@ -12,26 +12,11 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// IIR filter set for MultEQ-X.
     /// </summary>
-    public class MultEQXFilterSet : IIRFilterSet {
+    public class MultEQXFilterSet : MultEQXRawFilterSet {
         /// <summary>
         /// Extension of the single-file export. This should be displayed on export dialogs.
         /// </summary>
         public override string FileExtension => "mqx";
-
-        /// <summary>
-        /// Maximum number of peaking EQ filters per channel.
-        /// </summary>
-        public override int Bands => 10;
-
-        /// <summary>
-        /// Minimum gain of a single peaking EQ band.
-        /// </summary>
-        public override double MinGain => -12;
-
-        /// <summary>
-        /// Maximum gain of a single peaking EQ band.
-        /// </summary>
-        public override double MaxGain => 6;
 
         /// <summary>
         /// This instance is based on a valid configuration file and a modified version can be exported.
@@ -48,7 +33,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public static MultEQXFilterSet FromFile(string path) {
             string fileContents = File.ReadAllText(path);
-            int pos = fileContents.IndexOf(channelList),
+            int pos = fileContents.IndexOf(channelList, StringComparison.Ordinal),
                 endPos = -1;
             if (pos != -1) {
                 endPos = fileContents.IndexOf(']', pos += channelList.Length);
@@ -274,19 +259,19 @@ namespace Cavern.Format.FilterSet {
         /// Channel layout for each channel count in a MultEQ-X configuration file.
         /// </summary>
         static readonly ReferenceChannel[][] MultEQMatrix = new ReferenceChannel[][] {
-            new ReferenceChannel[0],
-            new ReferenceChannel[1] { ReferenceChannel.FrontCenter },
-            new ReferenceChannel[2] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight },
-            new ReferenceChannel[3] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter },
-            new ReferenceChannel[4] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
+            Array.Empty<ReferenceChannel>(),
+            new ReferenceChannel[] { ReferenceChannel.FrontCenter },
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight },
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter },
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight },
-            new ReferenceChannel[5] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight },
-            new ReferenceChannel[6] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.ScreenLFE },
-            new ReferenceChannel[7] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.ScreenLFE, ReferenceChannel.ScreenLFE },
-            new ReferenceChannel[8] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.ScreenLFE }
         };

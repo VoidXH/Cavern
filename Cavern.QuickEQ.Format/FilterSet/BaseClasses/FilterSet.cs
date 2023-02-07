@@ -30,7 +30,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public static FilterSet Create(FilterSetTarget device, int channels, int sampleRate) {
             return device switch {
-                FilterSetTarget.Generic => new GenericFilterSet(channels, sampleRate),
+                FilterSetTarget.Generic => new IIRFilterSet(channels, sampleRate),
                 FilterSetTarget.GenericEqualizer => new EqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_EQ => new EqualizerAPOEqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
@@ -40,6 +40,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
+                FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
@@ -109,9 +110,13 @@ namespace Cavern.Format.FilterSet {
         /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
         DiracLive,
         /// <summary>
-        /// Processors supporting Audyssey MultEQ-X.
+        /// Processors supporting Audyssey MultEQ-X, MultEQ-X config file.
         /// </summary>
         MultEQX,
+        /// <summary>
+        /// Processors supporting Audyssey MultEQ-X, PEQ files.
+        /// </summary>
+        MultEQXRaw,
         /// <summary>
         /// Emotiva XMC processors.
         /// </summary>

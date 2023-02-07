@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -10,7 +11,7 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// Room correction filter data with infinite impulse response (biquad) filter sets for each channel.
     /// </summary>
-    public abstract class IIRFilterSet : FilterSet {
+    public class IIRFilterSet : FilterSet {
         /// <summary>
         /// All information needed for a channel.
         /// </summary>
@@ -49,22 +50,22 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Maximum number of peaking EQ filters per channel.
         /// </summary>
-        public abstract int Bands { get; }
+        public virtual int Bands => 20;
 
         /// <summary>
         /// Minimum gain of a single peaking EQ band.
         /// </summary>
-        public abstract double MinGain { get; }
+        public virtual double MinGain => -20;
 
         /// <summary>
         /// Maximum gain of a single peaking EQ band.
         /// </summary>
-        public abstract double MaxGain { get; }
+        public virtual double MaxGain => 20;
 
         /// <summary>
         /// Round the gains to this precision.
         /// </summary>
-        public virtual double GainPrecision => .01;
+        public virtual double GainPrecision => .0001;
 
         /// <summary>
         /// Applied filter sets for each channel in the configuration file.
@@ -122,6 +123,38 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
+        /// Export the filter set to a target file. This is the standard IIR filter set format
+        /// </summary>
+        public override void Export(string path) {
+            string folder = Path.GetDirectoryName(path),
+                fileNameBase = Path.GetFileName(path);
+            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+            CreateRootFile(path, "txt");
+
+            for (int i = 0, c = Channels.Length; i < c; i++) {
+                List<string> channelData = new List<string>();
+                BiquadFilter[] filters = Channels[i].filters;
+                for (int j = 0; j < filters.Length; j++) {
+                    string freq;
+                    if (filters[j].CenterFreq < 100) {
+                        freq = filters[j].CenterFreq.ToString("0.00");
+                    } else if (filters[j].CenterFreq < 1000) {
+                        freq = filters[j].CenterFreq.ToString("0.0");
+                    } else {
+                        freq = filters[j].CenterFreq.ToString("0");
+                    }
+                    channelData.Add(string.Format("Filter {0,2}: ON  PK       Fc {1,7} Hz  Gain {2,6} dB  Q {3,6}",
+                        j + 1, freq, filters[j].Gain.ToString("0.00", CultureInfo.InvariantCulture),
+                        Math.Max(Math.Round(filters[j].Q * 4) / 4, .25).ToString("0.00", CultureInfo.InvariantCulture)));
+                }
+                for (int j = filters.Length; j < Bands;) {
+                    channelData.Add($"Filter {++j}: OFF None");
+                }
+                File.WriteAllLines(Path.Combine(folder, $"{fileNameBase} {GetLabel(i)}.txt"), channelData);
+            }
+        }
+
+        /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
         protected override string GetLabel(int channel) => Channels[channel].name ?? base.GetLabel(channel);
@@ -133,22 +166,30 @@ namespace Cavern.Format.FilterSet {
             string fileNameBase = Path.GetFileName(path);
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
             List<string> result = new List<string>();
-            bool hasDelays = false;
+            bool hasAnything = false,
+                hasDelays = false;
             for (int i = 0, c = Channels.Length; i < c; i++) {
                 result.Add(string.Empty);
                 result.Add("Channel: " + GetLabel(i));
                 if (Channels[i].delaySamples != 0) {
                     result.Add("Delay: " + GetDelay(i).ToString("0.0 ms"));
+                    hasAnything = true;
                     hasDelays = true;
                 }
-                result.Add("Level: " + Channels[i].gain.ToString("0.0 dB"));
+                if (Channels[i].gain != 0) {
+                    result.Add("Level: " + Channels[i].gain.ToString("0.0 dB"));
+                    hasAnything = true;
+                }
                 if (Channels[i].switchPolarity) {
                     result.Add("Switch polarity");
+                    hasAnything = true;
                 }
             }
-            File.WriteAllLines(path, result.Prepend(hasDelays ?
-                $"Set up levels and delays by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ." :
-                $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ."));
+            if (hasAnything) {
+                File.WriteAllLines(path, result.Prepend(hasDelays ?
+                    $"Set up levels and delays by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ." :
+                    $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ."));
+            }
         }
 
         /// <summary>

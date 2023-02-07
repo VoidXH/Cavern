@@ -2,7 +2,7 @@
     /// <summary>
     /// IIR filter set for StormAudio hardware.
     /// </summary>
-    public class StormAudioFilterSet : GenericFilterSet {
+    public class StormAudioFilterSet : IIRFilterSet {
         /// <summary>
         /// Maximum number of peaking EQ filters per channel.
         /// </summary>
