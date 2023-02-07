@@ -15,6 +15,16 @@ namespace Cavern {
     /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
     /// </summary>
     public sealed class Listener {
+        /// <summary>
+        /// Version and creator information.
+        /// </summary>
+        public static string Info => info;
+
+        /// <summary>
+        /// Default sample rate.
+        /// </summary>
+        public static int DefaultSampleRate => 48000;
+
         // ------------------------------------------------------------------
         // Renderer settings
         // ------------------------------------------------------------------
@@ -160,7 +170,7 @@ namespace Cavern {
         /// <summary>
         /// Project sample rate (min. 44100). It's best to have all your audio clips in this sample rate for maximum performance.
         /// </summary>
-        public int SampleRate { get; set; } = defaultSampleRate;
+        public int SampleRate { get; set; } = DefaultSampleRate;
 
         /// <summary>
         /// Update interval in audio samples (min. 16).
@@ -181,12 +191,12 @@ namespace Cavern {
         /// <summary>
         /// Only mix LFE tagged sources to subwoofers.
         /// </summary>
-        public bool LFESeparation { get; set; } = false;
+        public bool LFESeparation { get; set; }
 
         /// <summary>
         /// Disable lowpass on the LFE channel.
         /// </summary>
-        public bool DirectLFE { get; set; } = false;
+        public bool DirectLFE { get; set; }
 
         // ------------------------------------------------------------------
         // Logic
@@ -199,7 +209,7 @@ namespace Cavern {
         /// <summary>
         /// Virtual surround effect for headphones. This will replace the active <see cref="Channels"/> on the next frame.
         /// </summary>
-        static bool headphoneVirtualizer = false;
+        static bool headphoneVirtualizer;
 
         /// <summary>
         /// 3D environment type.
@@ -302,7 +312,7 @@ namespace Cavern {
                 return "Virtualization";
             } else {
                 int regular = 0, sub = 0, ceiling = 0, floor = 0;
-                for (int channel = 0; channel < Channels.Length; ++channel)
+                for (int channel = 0; channel < Channels.Length; ++channel) {
                     if (Channels[channel].LFE) {
                         ++sub;
                     } else if (Channels[channel].X == 0) {
@@ -312,6 +322,7 @@ namespace Cavern {
                     } else if (Channels[channel].X > 0) {
                         ++floor;
                     }
+                }
                 StringBuilder layout = new StringBuilder(regular.ToString()).Append('.').Append(sub);
                 if (ceiling > 0 || floor > 0) {
                     layout.Append('.').Append(ceiling);
@@ -517,12 +528,7 @@ namespace Cavern {
         /// Version and creator information.
         /// </summary>
         /// <remarks>Hardcoded, because version reading is unsupported for .NET Standard projects</remarks>
-        public const string Info = "Cavern v1.6 by VoidX (cavern.sbence.hu)";
-
-        /// <summary>
-        /// Default sample rate.
-        /// </summary>
-        public const int defaultSampleRate = 48000;
+        const string info = "Cavern v1.6 by VoidX (cavern.sbence.hu)";
 
         /// <summary>
         /// Default value of <see cref="MaximumSources"/>.

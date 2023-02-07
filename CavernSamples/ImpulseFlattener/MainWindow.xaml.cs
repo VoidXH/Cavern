@@ -51,14 +51,16 @@ namespace ImpulseFlattener {
                 WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
 
                 Complex[] spectrum = Measurements.FFT(channel, cache);
-                for (int band = 0; band < spectrum.Length; ++band)
+                for (int band = 0; band < spectrum.Length; ++band) {
                     spectrum[band] = spectrum[band].Invert();
+                }
                 filters[ch] = GetFilter(spectrum, WaveformUtils.GetRMS(channel), reader.SampleRate);
             }
 
             Array.Resize(ref impulse, impulse.Length << 1);
-            for (int ch = 0; ch < reader.ChannelCount; ++ch)
+            for (int ch = 0; ch < reader.ChannelCount; ++ch) {
                 filters[ch].Process(impulse, ch, reader.ChannelCount);
+            }
         }
 
         void ProcessCommon(AudioReader reader, ref float[] impulse) {
@@ -71,13 +73,15 @@ namespace ImpulseFlattener {
                 WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
 
                 Complex[] spectrum = Measurements.FFT(channel, cache);
-                for (int band = 0; band < spectrum.Length; ++band)
+                for (int band = 0; band < spectrum.Length; ++band) {
                     commonSpectrum[band] += spectrum[band];
+                }
             }
 
             float mul = 1f / reader.ChannelCount;
-            for (int band = 0; band < commonSpectrum.Length; ++band)
+            for (int band = 0; band < commonSpectrum.Length; ++band) {
                 commonSpectrum[band] = (commonSpectrum[band] * mul).Invert();
+            }
 
             Array.Resize(ref impulse, impulse.Length << 1);
             for (int ch = 0; ch < reader.ChannelCount; ++ch) {
@@ -91,20 +95,24 @@ namespace ImpulseFlattener {
                 AudioReader reader = AudioReader.Open(browser.FileName);
                 float[] impulse = reader.Read();
                 float gain = 1;
-                if (keepGain.IsChecked.Value)
+                if (keepGain.IsChecked.Value) {
                     gain = WaveformUtils.GetPeak(impulse);
+                }
 
-                if (commonEQ.IsChecked.Value)
+                if (commonEQ.IsChecked.Value) {
                     ProcessCommon(reader, ref impulse);
-                else
+                } else {
                     ProcessPerChannel(reader, ref impulse);
+                }
 
-                if (keepGain.IsChecked.Value)
+                if (keepGain.IsChecked.Value) {
                     WaveformUtils.Gain(impulse, gain / WaveformUtils.GetPeak(impulse));
+                }
 
                 BitDepth bits = reader.Bits;
-                if (forceFloat.IsChecked.Value)
+                if (forceFloat.IsChecked.Value) {
                     bits = BitDepth.Float32;
+                }
 
                 int targetLen = QMath.Base2Ceil((int)reader.Length);
                 if (separateExport.IsChecked.Value) {

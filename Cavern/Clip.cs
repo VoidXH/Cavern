@@ -133,7 +133,6 @@ namespace Cavern {
             }
 
             fixed (float* pData = data) {
-                float* output = pData;
                 int dataPos = 0;
                 int perChannel = data.Length / this.data.Length;
                 while (dataPos < perChannel) {
@@ -147,12 +146,12 @@ namespace Cavern {
                             float* source = pSource + offset,
                                 end = source + samplesThisRound;
                             while (source != end) {
-                                *output = *source++;
-                                output += this.data.Length;
+                                *dataOut = *source++;
+                                dataOut += this.data.Length;
                             }
                         }
                     }
-                    dataPos += samplesThisRound * this.data.Length;
+                    dataPos += samplesThisRound;
                     if ((offset += samplesThisRound) == this.data[0].Length) {
                         offset = 0;
                     }
@@ -170,7 +169,7 @@ namespace Cavern {
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         /// <returns>The operation was successful as the channel counts matched.</returns>
         public bool GetData(float[] data, int channel, int offset) {
-            if (data.Length % this.data.Length != 0) {
+            if (data.Length != this.data[0].Length) {
                 return false;
             }
 
@@ -201,15 +200,17 @@ namespace Cavern {
                 return false;
             }
 
-            int endPos = this.data[0].Length - offset;
+            int endPos = this.data.Length * (this.data[0].Length - offset);
             if (endPos > data.Length) {
                 endPos = data.Length;
             }
             for (int channel = 0; channel < this.data.Length; channel++) {
                 int dataPos = channel;
                 float[] output = this.data[channel];
+                int channelOffset = offset;
                 while (dataPos < endPos) {
-                    data[dataPos += this.data.Length] = output[offset++];
+                    data[dataPos] = output[channelOffset++];
+                    dataPos += this.data.Length;
                 }
             }
             Array.Clear(data, endPos, data.Length - endPos);
@@ -256,21 +257,20 @@ namespace Cavern {
             }
 
             fixed (float* pData = data) {
-                float* output = pData;
                 int dataPos = 0;
                 while (dataPos < data.Length) {
-                    int samplesThisRound = this.data.Length - offset;
+                    int samplesThisRound = this.data[0].Length - offset;
                     if (samplesThisRound > data.Length - dataPos) {
                         samplesThisRound = data.Length - dataPos;
                     }
                     for (int channel = 0; channel < this.data.Length; channel++) {
-                        float* dataOut = pData + channel + this.data.Length * dataPos;
+                        float* dataIn = pData + channel + dataPos;
                         fixed (float* pSource = this.data[channel]) {
                             float* source = pSource + offset,
                                 end = source + samplesThisRound;
                             while (source != end) {
-                                *source++ = *output;
-                                output += this.data.Length;
+                                *source++ = *dataIn;
+                                dataIn += this.data.Length;
                             }
                         }
                     }

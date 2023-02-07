@@ -115,7 +115,7 @@ namespace Cavern.Format.Decoders {
                         reader.Position = headerEnd;
                         break;
                     case RIFFWave.ds64Sync:
-                        sizeOverrides = new Dictionary<uint, long>() {
+                        sizeOverrides = new Dictionary<uint, long> {
                             [RIFFWave.syncWord1_64] = FileLength = reader.ReadInt64(),
                             [RIFFWave.dataSync] = reader.ReadInt64()
                         };

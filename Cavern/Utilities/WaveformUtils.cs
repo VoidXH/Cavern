@@ -571,14 +571,16 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Remove the 0s from the end of the multichannel signal.
+        /// Remove the 0s from the end of the multichannel signal, but keep the lengths of jagged arrays equal to the longest cut signal.
         /// </summary>
         public static void TrimEnd(this float[][] target) {
             int max = 0;
             for (int i = 0; i < target.Length; i++) {
                 float[] check = target[i];
                 int trim = check.Length;
-                while (check[trim - 1] == 0 && --trim > 0) ;
+                while (trim > 0 && check[trim - 1] == 0) {
+                    --trim;
+                }
                 if (max < trim) {
                     max = trim;
                 }

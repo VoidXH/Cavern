@@ -105,37 +105,40 @@ namespace Cavern.Debug {
                 float max = 0, absSample;
                 for (int sample = actChannel; sample < multichannelUpdateRate; sample += Listener.Channels.Length) {
                     absSample = Math.Abs(outputCache[sample]);
-                    if (max < absSample)
+                    if (max < absSample) {
                         max = absSample;
+                    }
                 }
                 Channel thisChannel = Listener.Channels[actChannel];
                 if (!thisChannel.LFE) {
                     if (thisChannel.X >= 0) { // Standard 7.1 and below
                         if (thisChannel.Y % 180 == 0) {
-                            if (thisChannel.Y == 0)
+                            if (thisChannel.Y == 0) {
                                 arrayLevels[center] += max;
-                            else {
+                            } else {
                                 max *= .5f;
                                 arrayLevels[rearL] += max;
                                 arrayLevels[rearR] += max;
                             }
                         } else if (thisChannel.Y < 0) {
-                            if (thisChannel.Y < -45)
+                            if (thisChannel.Y < -45) {
                                 arrayLevels[thisChannel.Y < -135 ? rearL : surroundL] += max;
-                            else
+                            } else {
                                 arrayLevels[left] += max;
+                            }
                         } else if (thisChannel.Y > 0) {
-                            if (thisChannel.Y > 45)
+                            if (thisChannel.Y > 45) {
                                 arrayLevels[thisChannel.Y > 135 ? rearR : surroundR] += max;
-                            else
+                            } else {
                                 arrayLevels[right] += max;
+                            }
                         }
                     } else { // Height/overhead channels
-                        if (thisChannel.Y < 0)
+                        if (thisChannel.Y < 0) {
                             arrayLevels[topL] += max;
-                        else if (thisChannel.Y > 0)
+                        } else if (thisChannel.Y > 0) {
                             arrayLevels[topR] += max;
-                        else {
+                        } else {
                             max *= .5f;
                             arrayLevels[topL] += max;
                             arrayLevels[topR] += max;
@@ -145,11 +148,14 @@ namespace Cavern.Debug {
                     arrayLevels[LFE] += max;
             }
             for (int channel = 0; channel < channels; ++channel) {
-                if (arrayLevels[channel] > 1)
+                if (arrayLevels[channel] > 1) {
                     arrayLevels[channel] = 1;
-                float barHeight = 20 * Mathf.Log10(arrayLevels[channel]) / -DynamicRange + 1, currentPeak = channelData[channel].Peak - Time.deltaTime;
-                if (currentPeak < barHeight)
+                }
+                float barHeight = 20 * Mathf.Log10(arrayLevels[channel]) / -DynamicRange + 1,
+                    currentPeak = channelData[channel].Peak - Time.deltaTime;
+                if (currentPeak < barHeight) {
                     currentPeak = barHeight;
+                }
                 channelData[channel].Peak = currentPeak;
             }
         }
@@ -157,8 +163,9 @@ namespace Cavern.Debug {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() {
             Destroy(white);
-            for (int Channel = 0; Channel < channels; ++Channel)
+            for (int Channel = 0; Channel < channels; ++Channel) {
                 Destroy(channelData[Channel].Color);
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Cavern.Remapping {
         /// </summary>
         /// <param name="updateRate">Source stream's update rate</param>
         public RemappedChannel(int updateRate) : base(new float[1][] { new float[updateRate] }, updateRate) =>
-            SampleRate = Listener.defaultSampleRate;
+            SampleRate = Listener.DefaultSampleRate;
 
         /// <summary>
         /// Apply the new update rate of the <see cref="Remapper"/>.

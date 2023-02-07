@@ -216,9 +216,7 @@ namespace Cavern.QuickEQ {
             }
             float gainMult = Mathf.Pow(10, SweepGain / 20);
             WaveformUtils.Gain(SweepReference, gainMult);
-            if (sweepFFTCache != null) {
-                sweepFFTCache.Dispose();
-            }
+            sweepFFTCache?.Dispose();
             sweepFFT = SweepReference.FFT(sweepFFTCache = new FFTCache(SweepReference.Length));
             sweepFFTlow = sweepFFT.FastClone();
             Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, SampleRate, 100);
@@ -319,7 +317,7 @@ namespace Cavern.QuickEQ {
                 workers[Channel].Start();
                 if (++Channel == Listener.Channels.Length) {
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
-                        while (workers[channel].Result.IsNull()) ;
+                        workers[channel].Wait();
                     }
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
                         FreqResponses[channel] = workers[channel].Result.FreqResponse;
@@ -362,11 +360,7 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Free the resources used by this object.
         /// </summary>
-        public void Dispose() {
-            if (sweepFFTCache != null) {
-                sweepFFTCache.Dispose();
-            }
-        }
+        public void Dispose() => sweepFFTCache?.Dispose();
 
         struct WorkerResult {
             public float[] FreqResponse;

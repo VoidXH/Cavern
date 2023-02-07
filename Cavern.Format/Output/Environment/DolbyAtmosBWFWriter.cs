@@ -30,7 +30,6 @@ namespace Cavern.Format.Environment {
         /// Additionally, <paramref name="staticObjects"/> could be mapped to the bad if a corresponding bed channel exists.
         /// </summary>
         static Listener ExtendWithMuteTarget(Listener source, (ReferenceChannel, Source)[] staticObjects) {
-
             for (int i = bedChannels.Length - 1; i >= 0; i--) {
                 bool attached = false;
                 for (int j = 0; j < staticObjects.Length; j++) {
@@ -68,18 +67,17 @@ namespace Cavern.Format.Environment {
                 objectContentID = "ACO_1002",
                 bedObjectID = "AO_1001",
                 bedPackFormatID = "AP_00011001";
-            List<string> channelIDs = new List<string>();
             List<string> objectIDs = new List<string>();
 
             List<ADMProgramme> programs = new List<ADMProgramme> {
                 new ADMProgramme("APR_1001", "Cavern_Export", contentLength) {
-                    Contents = new List<string>() { bedContentID, objectContentID }
+                    Contents = new List<string> { bedContentID, objectContentID }
                 }
             };
 
             List<ADMContent> contents = new List<ADMContent> {
                 new ADMContent(bedContentID, "Cavern_Master_Content") {
-                    Objects = new List<string>() { bedObjectID }
+                    Objects = new List<string> { bedObjectID }
                 },
                 new ADMContent(objectContentID, "Objects") {
                     Objects = objectIDs
@@ -89,12 +87,12 @@ namespace Cavern.Format.Environment {
             ADMObject bedObject = new ADMObject(bedObjectID, "Bed", default, contentLength, bedPackFormatID) {
                 Tracks = new List<string>()
             };
-            List<ADMObject> objects = new List<ADMObject>() { bedObject };
+            List<ADMObject> objects = new List<ADMObject> { bedObject };
 
             ADMPackFormat bedPackFormat = new ADMPackFormat(bedPackFormatID, "CavernCustomPackFormat1", ADMPackType.DirectSpeakers) {
                 ChannelFormats = new List<string>()
             };
-            List<ADMPackFormat> packFormats = new List<ADMPackFormat>() { bedPackFormat };
+            List<ADMPackFormat> packFormats = new List<ADMPackFormat> { bedPackFormat };
             List<ADMChannelFormat> channelFormats = new List<ADMChannelFormat>();
             List<ADMTrack> tracks = new List<ADMTrack>();
             List<ADMTrackFormat> trackFormats = new List<ADMTrackFormat>();
@@ -116,7 +114,7 @@ namespace Cavern.Format.Environment {
                     channelFormatID, bedPackFormatID, trackFormatID));
 
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, channelName, ADMPackType.DirectSpeakers) {
-                    Blocks = new List<ADMBlockFormat>() {
+                    Blocks = new List<ADMBlockFormat> {
                         new ADMBlockFormat() {
                             Position = ChannelPrototype.AlternativePositions[bedChannels[i - 1]]
                         }
@@ -128,7 +126,7 @@ namespace Cavern.Format.Environment {
                 if (movements[i].Count != 0) {
                     FixEndTimings(movements[i], contentLength);
                 } else {
-                    movements[i].Add(new ADMBlockFormat() {
+                    movements[i].Add(new ADMBlockFormat {
                         Duration = contentLength
                     });
                 }
@@ -148,10 +146,10 @@ namespace Cavern.Format.Environment {
 
                 objectIDs.Add(objectID);
                 objects.Add(new ADMObject(objectID, "Audio Object " + (i + 1), default, contentLength, packFormatID) {
-                    Tracks = new List<string>() { trackID }
+                    Tracks = new List<string> { trackID }
                 });
                 packFormats.Add(new ADMPackFormat(packFormatID, objectName, ADMPackType.Objects) {
-                    ChannelFormats = new List<string>() { channelFormatID }
+                    ChannelFormats = new List<string> { channelFormatID }
                 });
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, ADMPackType.Objects) {
                     Blocks = movements[i + bedChannels.Length]

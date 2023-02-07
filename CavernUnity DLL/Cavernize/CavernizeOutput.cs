@@ -62,8 +62,8 @@ namespace Cavern.Cavernize {
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void Awake() => cavernSource = new CavernizeOutputSource() {
-            Clip = new Clip(new float[1][] { new float[1] }, Listener.defaultSampleRate)
+        void Awake() => cavernSource = new CavernizeOutputSource {
+            Clip = new Clip(new float[1][] { new float[1] }, Listener.DefaultSampleRate)
         };
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]

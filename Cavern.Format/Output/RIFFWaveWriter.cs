@@ -240,15 +240,17 @@ namespace Cavern.Format {
             switch (Bits) {
                 case BitDepth.Int8:
                     while (from < to) {
-                        for (int channel = 0; channel < samples.Length; ++channel)
+                        for (int channel = 0; channel < samples.Length; ++channel) {
                             writer.Write((sbyte)(samples[channel][from] * sbyte.MaxValue));
+                        }
                         ++from;
                     }
                     break;
                 case BitDepth.Int16:
                     while (from < to) {
-                        for (int channel = 0; channel < samples.Length; ++channel)
+                        for (int channel = 0; channel < samples.Length; ++channel) {
                             writer.Write((short)(samples[channel][from] * short.MaxValue));
+                        }
                         ++from;
                     }
                     break;
@@ -264,8 +266,9 @@ namespace Cavern.Format {
                     break;
                 case BitDepth.Float32:
                     while (from < to) {
-                        for (int channel = 0; channel < samples.Length; ++channel)
+                        for (int channel = 0; channel < samples.Length; ++channel) {
                             writer.Write(samples[channel][from]);
+                        }
                         ++from;
                     }
                     break;

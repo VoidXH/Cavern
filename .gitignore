@@ -42,3 +42,5 @@ CavernUnity DLL/bin/
 CavernUnity DLL/obj/
 packages/
 Pro/
+Tests/Test.Cavern/bin/
+Tests/Test.Cavern/obj/

@@ -39,10 +39,11 @@ namespace WavefrontSimulator {
                 this.samples = samples;
                 Position = new();
                 float min = Math.Min(Math.Abs(position.X), Math.Abs(position.Y));
-                if (min == Math.Abs(position.X))
+                if (min == Math.Abs(position.X)) {
                     Direction = new Vector2(0, Math.Sign(-position.Y));
-                else
+                } else {
                     Direction = new Vector2(Math.Sign(-position.X), 0);
+                }
                 Distance = 0;
                 Samples = null;
             }
@@ -92,29 +93,34 @@ namespace WavefrontSimulator {
 
         void DirectivityIndexChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
             directivityIndex = (float)Math.Round(((Slider)sender).Value * 10) * .1f;
-            if (dirIndex != null)
+            if (dirIndex != null) {
                 dirIndex.Text = directivityIndex.ToString("0.0");
-            if (realTime.IsChecked.Value && data.Count != 0)
+            }
+            if (realTime.IsChecked.Value && data.Count != 0) {
                 Render(null, null);
+            }
         }
 
         void WallLengthChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
             wallLength = (float)Math.Round(((Slider)sender).Value * 10) * .1f;
-            if (wallLen != null)
+            if (wallLen != null) {
                 wallLen.Text = wallLength.ToString("0.0 m");
-            if (realTime.IsChecked.Value && data.Count != 0)
+            }
+            if (realTime.IsChecked.Value && data.Count != 0) {
                 Render(null, null);
+            }
         }
 
         static Color DrawPixel(float strength) {
-            if (!float.IsNaN(strength))
+            if (!float.IsNaN(strength)) {
                 return Color.FromArgb(
                     Math.Max((int)(255 * (1 - Math.Abs(2 * strength))), 0),
                     (int)(127 * 1 - Math.Abs(2 * (strength - .5f))),
                     Math.Max((int)(255 * (1 - Math.Abs(2 * (strength - 1)))), 0)
                 );
-            else
+            } else {
                 return Color.Black;
+            }
         }
 
         [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
@@ -139,11 +145,13 @@ namespace WavefrontSimulator {
 
             float[] sine = new float[data[0].SampleCount];
             const float frequency = 1000;
-            for (int i = 0; i < sine.Length; ++i)
+            for (int i = 0; i < sine.Length; ++i) {
                 sine[i] = MathF.Sin(2 * MathF.PI * frequency * i / sampleRate);
+            }
             float roomSizeUnit = wallLength / 2;
-            for (int i = 0; i < data.Count; ++i)
+            for (int i = 0; i < data.Count; ++i) {
                 data[i] = data[i].WorkWith(roomSizeUnit, sine);
+            }
 
             int size = (int)image.Width;
             float[,] gains = new float[size, size];
@@ -173,8 +181,9 @@ namespace WavefrontSimulator {
             for (int x = 0; x < size; ++x) {
                 for (int y = 0; y < size; ++y) {
                     float addition = MathF.Abs(gains[x, y] - middle);
-                    if (!float.IsNaN(addition))
+                    if (!float.IsNaN(addition)) {
                         uniformityValue += addition;
+                    }
                 }
             }
             uniformityValue = 1 - (uniformityValue / (size * size * center));
@@ -202,8 +211,9 @@ namespace WavefrontSimulator {
                 FileName = $"Waveform simulation - {uniformity.Text.Replace(":", " -").Replace(',', '.')}.bmp",
                 Filter = "Bitmap files (*.bmp)|*.bmp"
             };
-            if (dialog.ShowDialog() == true)
+            if (dialog.ShowDialog() == true) {
                 ((Bitmap)image.Tag).Save(dialog.FileName);
+            }
         }
 
         void OnExit(object _, CancelEventArgs e) {

@@ -51,7 +51,7 @@ namespace EnhancedAC3Merger {
                 return;
             }
 
-            SaveFileDialog saver = new SaveFileDialog() {
+            SaveFileDialog saver = new SaveFileDialog {
                 Filter = "E-AC-3 files|*.ec3"
             };
             if (!saver.ShowDialog().Value) {

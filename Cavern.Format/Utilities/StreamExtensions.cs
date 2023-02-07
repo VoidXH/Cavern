@@ -19,7 +19,10 @@ namespace Cavern.Format.Utilities {
             length += start;
             while (position != length) {
                 int step = (int)Math.Min(length - position, int.MaxValue);
-                reader.Read(buffer, 0, step);
+                int read = reader.Read(buffer, 0, step);
+                if (read != step) {
+                    return;
+                }
                 position += step;
             }
         }
@@ -158,7 +161,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read a 32-bit floating point number from the stream.
         /// </summary>
-        public static float ReadSingle(this Stream reader) => new ConverterStruct() {
+        public static float ReadSingle(this Stream reader) => new ConverterStruct {
             asInt = reader.ReadInt32()
         }.asFloat;
     }

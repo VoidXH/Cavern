@@ -9,6 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern", "Cavern\Cavern.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.QuickEQ", "Cavern.QuickEQ\Cavern.QuickEQ.csproj", "{B657F4AC-A378-486F-9355-937499DDD335}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.QuickEQ.Format", "Cavern.QuickEQ.Format\Cavern.QuickEQ.Format.csproj", "{94FABADA-A272-43C5-A5B7-34796FFD1295}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2D5BFF47-CF93-43C6-BD9D-8E31C1F6F324}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Cavern", "Tests\Test.Cavern\Test.Cavern.csproj", "{07B967BD-1003-40C3-BC80-41C3CB36532A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,9 +33,20 @@ Global
 		{B657F4AC-A378-486F-9355-937499DDD335}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B657F4AC-A378-486F-9355-937499DDD335}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B657F4AC-A378-486F-9355-937499DDD335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94FABADA-A272-43C5-A5B7-34796FFD1295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94FABADA-A272-43C5-A5B7-34796FFD1295}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94FABADA-A272-43C5-A5B7-34796FFD1295}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94FABADA-A272-43C5-A5B7-34796FFD1295}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07B967BD-1003-40C3-BC80-41C3CB36532A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07B967BD-1003-40C3-BC80-41C3CB36532A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07B967BD-1003-40C3-BC80-41C3CB36532A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07B967BD-1003-40C3-BC80-41C3CB36532A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{07B967BD-1003-40C3-BC80-41C3CB36532A} = {2D5BFF47-CF93-43C6-BD9D-8E31C1F6F324}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A7F9771D-BEA0-4DE3-B267-46E1B87FE612}

@@ -71,7 +71,7 @@ namespace Cavern.Format.Utilities {
         public static BlockBuffer<byte> Create(Stream reader, int blockSize = 4096) {
             Stream readerCopy = reader;
             int blockSizeCopy = blockSize;
-            return new BlockBuffer<byte>(() => reader.ReadBytes(blockSize), pos => readerCopy.Position = pos);
+            return new BlockBuffer<byte>(() => reader.ReadBytes(blockSizeCopy), pos => readerCopy.Position = pos);
         }
 
         /// <summary>

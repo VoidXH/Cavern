@@ -55,7 +55,7 @@ namespace Cavern.Remapping {
                 filters[i] = new Cavernize(sampleRate, crossoverFrequency);
             }
 
-            pinger = new Listener() {
+            pinger = new Listener {
                 SampleRate = sampleRate
             };
             for (int i = 0; i < sources.Count; i++) {
