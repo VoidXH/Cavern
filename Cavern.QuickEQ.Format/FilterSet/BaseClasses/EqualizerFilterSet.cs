@@ -107,5 +107,10 @@ namespace Cavern.Format.FilterSet {
                     Channels[i].gain, optionalHeader);
             }
         }
+
+        /// <summary>
+        /// Get the delay for a given channel in milliseconds instead of samples.
+        /// </summary>
+        protected double GetDelay(int channel) => Channels[channel].delaySamples * 1000.0 / SampleRate;
     }
 }

@@ -32,6 +32,7 @@ namespace Cavern.Format.FilterSet {
             return device switch {
                 FilterSetTarget.Generic => new GenericFilterSet(channels, sampleRate),
                 FilterSetTarget.GenericEqualizer => new EqualizerFilterSet(channels, sampleRate),
+                FilterSetTarget.EqualizerAPO_EQ => new EqualizerAPOEqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLive => new DiracFilterSet(channels, sampleRate),
@@ -70,6 +71,10 @@ namespace Cavern.Format.FilterSet {
         // -------------------------------------------------------------------------
         // PC targets --------------------------------------------------------------
         // -------------------------------------------------------------------------
+        /// <summary>
+        /// Equalizer APO for Windows using EQ curves.
+        /// </summary>
+        EqualizerAPO_EQ,
         /// <summary>
         /// Equalizer APO for Windows using convolution filters.
         /// </summary>
