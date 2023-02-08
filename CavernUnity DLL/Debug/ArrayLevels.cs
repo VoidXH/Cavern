@@ -144,8 +144,9 @@ namespace Cavern.Debug {
                             arrayLevels[topR] += max;
                         }
                     }
-                } else
+                } else {
                     arrayLevels[LFE] += max;
+                }
             }
             for (int channel = 0; channel < channels; ++channel) {
                 if (arrayLevels[channel] > 1) {

@@ -16,6 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\VoidX.WPF\NumericUpDown.xaml.cs" Link="Tools\NumericUpDown.xaml.cs" />
+    <Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="..\VoidX.WPF\NumericUpDown.xaml" Link="Tools\NumericUpDown.xaml">

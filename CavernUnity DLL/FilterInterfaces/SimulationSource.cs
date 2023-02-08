@@ -54,10 +54,11 @@ namespace Cavern.FilterInterfaces {
 
         void ResetColliders() {
             colliders = new Collider[Targets.Length];
-            for (int target = 0; target < Targets.Length; ++target) {
+            for (int target = 0; target < Targets.Length; target++) {
                 colliders[target] = Targets[target].GetComponent<Collider>();
-                if (colliders[target] == null)
+                if (colliders[target] == null) {
                     UnityEngine.Debug.LogError(Targets[target].name + " doesn't have a collider to be used for simulation.");
+                }
             }
         }
 
@@ -65,24 +66,29 @@ namespace Cavern.FilterInterfaces {
         void Start() => ResetColliders();
 
         void MixImpulse(SimulationTarget target) {
-            if (!target.HasClip)
+            if (!target.HasClip) {
                 return;
+            }
             float distance;
             if (hitCount != 0) {
                 distance = Vector3.Distance(transform.position, hits[0]);
                 int lastHit = hitCount - 1;
-                for (int hit = 0; hit < lastHit; ++hit)
+                for (int hit = 0; hit < lastHit; hit++) {
                     distance += Vector3.Distance(hits[hit], hits[hit + 1]);
+                }
                 distance += Vector3.Distance(hits[lastHit], target.transform.position);
-            } else
+            } else {
                 distance = Vector3.Distance(transform.position, target.transform.position);
+            }
             float timeOffset = distance / SpeedOfSound * target.SampleRate;
             if (timeOffset < target.MaxSamples - 1) {
                 float gain = 1f / timeOffset;
-                if (gain > 1)
+                if (gain > 1) {
                     gain = 1;
-                if (ChangePhase && hitCount % 2 == 1)
+                }
+                if (ChangePhase && hitCount % 2 == 1) {
                     gain = -gain;
+                }
                 target.Impulse[(int)timeOffset] += gain;
             }
         }
@@ -92,7 +98,7 @@ namespace Cavern.FilterInterfaces {
             Color lastColor = new Color(0, 1, 0, .5f);
             float colorStep = 1f / Bounces,
                 alphaStep = colorStep * .25f;
-            for (int hit = 0; hit < hitCount; ++hit) {
+            for (int hit = 0; hit < hitCount; hit++) {
                 lastColor.r += colorStep;
                 lastColor.b += colorStep;
                 lastColor.a -= alphaStep;
@@ -105,22 +111,24 @@ namespace Cavern.FilterInterfaces {
         void Raycast(Action<SimulationTarget> onHit) {
             float maxDist = float.PositiveInfinity,
                 step = 360f / Detail;
-            if (AudioListener3D.Current != null)
+            if (AudioListener3D.Current != null) {
                 maxDist = AudioListener3D.Current.Range;
+            }
             Vector3 direction = Vector3.zero;
 
             hits = new Vector3[Bounces + 1];
-            for (int target = 0; target < Targets.Length; ++target)
+            for (int target = 0; target < Targets.Length; target++) {
                 Targets[target].Prepare();
+            }
 
-            for (int horizontal = 0; horizontal < Detail; ++horizontal) {
-                for (int vertical = 0; vertical < Detail; ++vertical) {
+            for (int horizontal = 0; horizontal < Detail; horizontal++) {
+                for (int vertical = 0; vertical < Detail; vertical++) {
                     Vector3 lastPos = transform.position;
                     Vector3 lastDir = Quaternion.Euler(direction) * Vector3.forward;
                     hitCount = 0;
-                    for (int bounce = 0; bounce < Bounces; ++bounce) {
+                    for (int bounce = 0; bounce < Bounces; bounce++) {
                         if (Physics.Raycast(lastPos, lastDir, out RaycastHit hit, maxDist, Layers.value)) {
-                            for (int i = 0; i < colliders.Length; ++i) {
+                            for (int i = 0; i < colliders.Length; i++) {
                                 if (colliders[i] == hit.collider) { // Found a path to one collider
                                     hits[hitCount++] = hit.point;
                                     onHit(Targets[i]);
@@ -130,8 +138,9 @@ namespace Cavern.FilterInterfaces {
                             }
                             lastDir = Vector3.Reflect(lastDir, hit.normal);
                             hits[hitCount++] = lastPos = hit.point;
-                        } else
+                        } else {
                             break;
+                        }
                     }
                     direction.y += step;
                 }
@@ -141,11 +150,12 @@ namespace Cavern.FilterInterfaces {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDrawGizmosSelected() {
-            if (ShowAllRays)
+            if (ShowAllRays) {
                 DrawDebugRays();
-            else {
-                if (Targets.Length != colliders.Length)
+            } else {
+                if (Targets.Length != colliders.Length) {
                     ResetColliders();
+                }
                 Raycast(PaintPath);
             }
         }
@@ -154,11 +164,13 @@ namespace Cavern.FilterInterfaces {
         /// Render new impulse responses by the state of the scene.
         /// </summary>
         public void Update() {
-            if (Targets.Length != colliders.Length)
+            if (Targets.Length != colliders.Length) {
                 ResetColliders();
+            }
             Raycast(MixImpulse);
-            for (int target = 0; target < Targets.Length; ++target)
+            for (int target = 0; target < Targets.Length; target++) {
                 Targets[target].UpdateFilter();
+            }
         }
     }
 }

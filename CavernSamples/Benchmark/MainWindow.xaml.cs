@@ -15,7 +15,7 @@ namespace Benchmark {
         /// </summary>
         public MainWindow() {
             InitializeComponent();
-            runner = new TaskEngine(progress, status);
+            runner = new TaskEngine(progress, null, status);
         }
 
         /// <summary>

@@ -23,12 +23,12 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// An ADM element with an empty ID and name.
         /// </summary>
-        public TaggedADMElement() { }
+        protected TaggedADMElement() { }
 
         /// <summary>
         /// An ADM element with a set ID and name.
         /// </summary>
-        public TaggedADMElement(string id, string name) {
+        protected TaggedADMElement(string id, string name) {
             ID = id;
             Name = name;
         }
@@ -36,7 +36,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// An ADM element parsed from the corresponding XML element.
         /// </summary>
-        public TaggedADMElement(XElement source) => Deserialize(source);
+        protected TaggedADMElement(XElement source) => Deserialize(source);
 
         /// <summary>
         /// Create an XML element about this object.

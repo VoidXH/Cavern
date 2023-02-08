@@ -33,7 +33,7 @@ namespace Cavern.Cavernize {
         /// Restart the source when finished.
         /// </summary>
         [Tooltip("Restart the source when finished.")]
-        public bool Loop = false;
+        public bool Loop;
 
         /// <summary>
         /// How many times the object positions are calculated every second.
@@ -63,7 +63,8 @@ namespace Cavern.Cavernize {
         /// Creates missing channels from existing ones. Works best if the source is matrix-encoded. Not recommended for Gaming 3D setups.
         /// </summary>
         [Header("Matrix Upmix")]
-        [Tooltip("Creates missing channels from existing ones. Works best if the source is matrix-encoded. Not recommended for Gaming 3D setups.")]
+        [Tooltip("Creates missing channels from existing ones. Works best if the source is matrix-encoded. " +
+            "Not recommended for Gaming 3D setups.")]
         public bool MatrixUpmix = true;
 
         /// <summary>
@@ -84,7 +85,7 @@ namespace Cavern.Cavernize {
         /// </summary>
         [Header("Debug")]
         [Tooltip("Show converted objects.")]
-        public bool Visualize = false;
+        public bool Visualize;
 
 #pragma warning disable IDE1006 // Naming Styles
         /// <summary>
@@ -135,31 +136,36 @@ namespace Cavern.Cavernize {
             oldSampleRate = listener.SampleRate;
             oldUpdateRate = listener.UpdateRate;
 
-            if (Clip)
+            if (Clip) {
                 Clip3D = AudioClip3D.FromUnityClip(Clip);
+            }
             updateRate = listener.UpdateRate = (listener.SampleRate = Clip3D.SampleRate) / UpdatesPerSecond;
             generator = new SurroundUpmixer(Clip3D);
             generator.OnPlaybackFinished += () => IsPlaying = false;
 
             ReferenceChannel[] targetChannels = generator.GetChannels();
-            for (int source = 0; source < targetChannels.Length; ++source)
+            for (int source = 0; source < targetChannels.Length; ++source) {
                 channels[targetChannels[source]] = new SpatializedChannel(targetChannels[source], this, updateRate);
+            }
         }
 
         internal SpatializedChannel GetChannel(ReferenceChannel target) {
-            if (channels.ContainsKey(target))
+            if (channels.ContainsKey(target)) {
                 return channels[target];
+            }
             return null;
         }
 
         void GenerateSampleBlock() {
             AudioListener3D listener = AudioListener3D.Current;
-            float smoothFactor = 1f - QMath.Lerp(updateRate, listener.SampleRate, (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
+            float smoothFactor = 1f - QMath.Lerp(updateRate, listener.SampleRate,
+                (float)Math.Pow(Smoothness, .1f)) / listener.SampleRate * .999f;
             if (IsPlaying) {
                 generator.loop = Loop;
                 generator.timeSamples = timeSamples;
                 generator.GenerateSamples(updateRate);
-                timeSamples = generator.timeSamples; // This nasty wrapping will also be removed once Cavernize is moved away from the Unity DLL
+                // This nasty wrapping will also be removed once Cavernize is moved away from the Unity DLL
+                timeSamples = generator.timeSamples;
                 foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels) {
                     channel.Value.WrittenOutput = generator.Readable(channel.Key);
                     float[] source = generator.RetrieveSamples(channel.Key);
@@ -167,15 +173,17 @@ namespace Cavern.Cavernize {
                 }
             }
             // Overwrite channel data with new output, even if it's empty
-            foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
+            foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels) {
                 channel.Value.Tick(Effect, smoothFactor, GroundCrossover, Visualize);
+            }
         }
 
         internal float[][] Tick(SpatializedChannel source, bool groundLevel) {
             if (source.TicksTook == 2) { // Both moving and ground source was fed
                 GenerateSampleBlock();
-                foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
+                foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels) {
                     channel.Value.TicksTook = 0;
+                }
             }
             ++source.TicksTook;
             return new float[1][] { source.GetOutput(groundLevel) };
@@ -183,8 +191,9 @@ namespace Cavern.Cavernize {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() {
-            foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels)
+            foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels) {
                 channel.Value.Destroy();
+            }
             AudioListener3D listener = AudioListener3D.Current;
             listener.SampleRate = oldSampleRate;
             listener.UpdateRate = oldUpdateRate;

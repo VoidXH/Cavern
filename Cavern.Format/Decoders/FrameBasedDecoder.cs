@@ -27,7 +27,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Converts a frame-based bitstream to raw samples.
         /// </summary>
-        public FrameBasedDecoder(BlockBuffer<byte> reader) : base(reader) =>
+        protected FrameBasedDecoder(BlockBuffer<byte> reader) : base(reader) =>
             decoder = new BlockBuffer<float>(DecodeFrame);
 
         /// <summary>
@@ -41,8 +41,9 @@ namespace Cavern.Format.Decoders {
         public override void DecodeBlock(float[] target, long from, long to) {
             const long skip = FormatConsts.blockSize / sizeof(float); // source split optimization for both memory and IO
             if (to - from > skip) {
-                for (; from < to; from += skip)
+                for (; from < to; from += skip) {
                     DecodeBlock(target, from, Math.Min(to, from + skip));
+                }
                 return;
             }
 

@@ -65,10 +65,11 @@ namespace Cavern.Cavernize {
 
         void CreateSource(Cavernizer master, bool groundLevel) {
             GameObject newObject;
-            if (!Channel.Equals(ChannelPrototype.ScreenLFE))
+            if (!Channel.Equals(ChannelPrototype.ScreenLFE)) {
                 newObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            else
+            } else {
                 newObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            }
             newObject.name = Channel.Name;
             CavernizeOutput newSource = newObject.AddComponent<CavernizeOutput>();
             newSource.Master = master;
@@ -84,8 +85,9 @@ namespace Cavern.Cavernize {
             newSource.VolumeRolloff = Rolloffs.Disabled;
             newSource.LFE = Channel.LFE;
             newObject.AddComponent<ScaleByGain>().source = newSource;
-            if (Channel.Muted)
+            if (Channel.Muted) {
                 newSource.Volume = 0;
+            }
             newObject.transform.SetParent(master.transform);
             Vector3D position = new Vector3D(0, Channel.Y, 0).PlaceInCube();
             position *= Listener.EnvironmentSize;
@@ -102,8 +104,9 @@ namespace Cavern.Cavernize {
         }
 
         public void Tick(float effect, float smoothFactor, float crossoverFreq, bool visualize) {
-            if (!WrittenOutput)
+            if (!WrittenOutput) {
                 Output.Clear();
+            }
             if (filter.GroundCrossover != crossoverFreq)
                 filter.GroundCrossover = crossoverFreq;
             this.visualize = visualize && WrittenOutput;
@@ -111,16 +114,18 @@ namespace Cavern.Cavernize {
                 filter.Effect = effect;
                 filter.SmoothFactor = smoothFactor;
                 filter.Process(Output);
-                if (Channel.Y != 0 || !MovingSource.Master.CenterStays || Channel.X != 0)
+                if (Channel.Y != 0 || !MovingSource.Master.CenterStays || Channel.X != 0) {
                     Height = filter.Height;
-                else
+                } else {
                     Height = Cavernizer.unsetHeight;
+                }
             }
         }
 
         public float[] GetOutput(bool groundLevel) {
-            if (groundLevel)
+            if (groundLevel) {
                 return filter.GroundLevel;
+            }
             return filter.HeightLevel;
         }
 
@@ -128,18 +133,21 @@ namespace Cavern.Cavernize {
             MovingRenderer.enabled = GroundRenderer.enabled = visualize;
             Vector3D position = new Vector3D(0, Channel.Y, 0).PlaceInCube();
             position *= Listener.EnvironmentSize;
-            if (Height != Cavernizer.unsetHeight)
+            if (Height != Cavernizer.unsetHeight) {
                 position.Y = Height * Listener.EnvironmentSize.Y;
-            else
+            } else {
                 position.Y = 0;
+            }
             MovingSource.transform.localPosition = VectorUtils.VectorMatch(position);
         }
 
         public void Destroy() {
-            if (MovingSource)
-                UnityEngine.Object.Destroy(MovingSource.gameObject);
-            if (GroundSource)
-                UnityEngine.Object.Destroy(GroundSource.gameObject);
+            if (MovingSource) {
+                Object.Destroy(MovingSource.gameObject);
+            }
+            if (GroundSource) {
+                Object.Destroy(GroundSource.gameObject);
+            }
         }
     }
 }

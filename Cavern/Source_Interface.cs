@@ -23,23 +23,23 @@ namespace Cavern {
         /// <summary>
         /// Restart the source when finished.
         /// </summary>
-        public bool Loop = false;
+        public bool Loop;
 
         /// <summary>
         /// Mute the source.
         /// </summary>
-        public bool Mute = false;
+        public bool Mute;
 
         /// <summary>
         /// Only mix this channel to subwoofers.
         /// </summary>
-        public bool LFE = false;
+        public bool LFE;
 
         /// <summary>
         /// The object position is relative to the screen and scales with screen size.
         /// </summary>
         /// <remarks>TODO: implement this</remarks>
-        public bool screenLocked = false;
+        public bool screenLocked;
 
         // ------------------------------------------------------------------
         // 1D processing
@@ -57,7 +57,7 @@ namespace Cavern {
         /// <summary>
         /// Balance between left and right channels.
         /// </summary>
-        public float stereoPan = 0;
+        public float stereoPan;
 
         // ------------------------------------------------------------------
         // 3D processing
@@ -70,12 +70,12 @@ namespace Cavern {
         /// <summary>
         /// Audio source size relative to <see cref="Listener.EnvironmentSize"/>. 0 is a point, 1 is the entire room.
         /// </summary>
-        public float Size = 0;
+        public float Size;
 
         /// <summary>
         /// Doppler effect scale, 1 is real.
         /// </summary>
-        public float DopplerLevel = 0;
+        public float DopplerLevel;
 
         /// <summary>
         /// Volume decreasing function by distance.
@@ -103,7 +103,7 @@ namespace Cavern {
         /// <summary>
         /// Clip playback position in samples.
         /// </summary>
-        public int TimeSamples = 0;
+        public int TimeSamples;
 
         // ------------------------------------------------------------------
         // Properties

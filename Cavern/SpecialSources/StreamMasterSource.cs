@@ -26,6 +26,6 @@
         /// <summary>
         /// Get the next samples in the audio stream.
         /// </summary>
-        protected internal override float[][] GetSamples() => new float[1][] { master.Update(sourceIndex, PitchedUpdateRate) };
+        protected internal override float[][] GetSamples() => new float[][] { master.Update(sourceIndex, PitchedUpdateRate) };
     }
 }

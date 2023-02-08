@@ -45,8 +45,9 @@ namespace Cavern.FilterInterfaces {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             int targetDelay = (int)(Delay * AudioListener3D.Current.SampleRate);
-            if (filter.DelaySamples != targetDelay)
+            if (filter.DelaySamples != targetDelay) {
                 filter.DelaySamples = targetDelay;
+            }
             filter.Strength = Strength;
         }
     }

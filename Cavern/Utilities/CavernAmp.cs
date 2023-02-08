@@ -54,12 +54,12 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Force disable CavernAmp for performance benchmarks.
         /// </summary>
-        static bool bypass = false;
+        static bool bypass;
 
         /// <summary>
         /// True if CavernAmp DLL was checked if <see cref="available"/>.
         /// </summary>
-        static bool tested = false;
+        static bool tested;
 
         /// <summary>
         /// The running CLR is Mono, which limits optimization possibilities and for example,

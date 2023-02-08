@@ -80,8 +80,9 @@ namespace Cavern.FilterInterfaces {
                                 impulse[(int)timeOffset] += (1 - postMix) * gain;
                                 impulse[(int)timeOffset + 1] -= postMix * gain;
                             }
-                        } else
+                        } else {
                             break;
+                        }
                     }
                     direction.y += step;
                 }

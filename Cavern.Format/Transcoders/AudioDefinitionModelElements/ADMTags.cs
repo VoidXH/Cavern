@@ -106,7 +106,7 @@
         /// <summary>
         /// Reference to a single audio object by ID.
         /// </summary>
-        public static string objectRefTag = "audioObjectIDRef";
+        public const string objectRefTag = "audioObjectIDRef";
 
         /// <summary>
         /// A single audio object with multiple possible tracks.

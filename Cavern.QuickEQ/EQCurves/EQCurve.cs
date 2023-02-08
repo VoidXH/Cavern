@@ -6,11 +6,6 @@ namespace Cavern.QuickEQ.EQCurves {
     /// </summary>
     public abstract class EQCurve {
         /// <summary>
-        /// Returned when an EQ Curve can't be created by a generic switch.
-        /// </summary>
-        const string constructorException = "This EQ should be created with its constructor.";
-
-        /// <summary>
         /// Get the curve's gain in decibels at a given frequency.
         /// </summary>
         public abstract double this[double frequency] { get; }
@@ -31,7 +26,7 @@ namespace Cavern.QuickEQ.EQCurves {
                 case CurveFunction.Bandpass:
                 case CurveFunction.Custom:
                 case CurveFunction.Smoother:
-                    throw new Exception(constructorException);
+                    throw new NonGeneralizedCurveException();
                 default:
                     return new Flat();
             }

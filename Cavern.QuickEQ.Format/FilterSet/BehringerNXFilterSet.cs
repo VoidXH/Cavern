@@ -55,9 +55,9 @@ namespace Cavern.Format.FilterSet {
                 BiquadFilter[] filters = Channels[i].filters;
                 for (int j = 0; j < filters.Length; j++) {
                     string freq;
-                    if (filters[j].CenterFreq < 1000)
+                    if (filters[j].CenterFreq < 1000) {
                         freq = filters[j].CenterFreq.ToString("0.0", CultureInfo.InvariantCulture);
-                    else {
+                    } else {
                         int freqSource = (int)(filters[j].CenterFreq + .5);
                         freq = $"{freqSource / 1000}k{freqSource % 1000 / 10}";
                     }
@@ -88,8 +88,9 @@ namespace Cavern.Format.FilterSet {
 
         static string FormatWithSign(double number, string format) {
             string parse = number.ToString(format, CultureInfo.InvariantCulture);
-            if (number >= 0)
+            if (number >= 0) {
                 return '+' + parse;
+            }
             return parse;
         }
 

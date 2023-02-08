@@ -75,8 +75,9 @@ namespace Cavern.Format.Renderers {
         /// Set up the renderer for a number of objects.
         /// </summary>
         protected void SetupObjects(int count) {
-            for (int obj = 0; obj < count; ++obj)
+            for (int obj = 0; obj < count; ++obj) {
                 objects.Add(new StreamMasterSource(reader, obj));
+            }
             FinishSetup(count);
             HasObjects = true;
         }

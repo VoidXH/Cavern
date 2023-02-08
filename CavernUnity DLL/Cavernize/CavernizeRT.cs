@@ -86,8 +86,9 @@ namespace Cavern {
         public static float Fader {
             get {
                 float dB = 20 * Mathf.Log10(1f / faderGain);
-                if (dB > -10)
+                if (dB > -10) {
                     return dB * .3f + 7;
+                }
                 return dB * .05f + 4.5f;
             }
             set => faderGain = 1f / Mathf.Pow(10, 1 / 20f * (value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20)));
@@ -105,49 +106,60 @@ namespace Cavern {
             int UpdateRate = data.Length / channels, actualSample = 0;
             float[] monoMix = new float[UpdateRate];
             if (Balanced) {
-                for (int sample = ChannelUsed; sample < data.Length; sample += channels)
+                for (int sample = ChannelUsed; sample < data.Length; sample += channels) {
                     monoMix[actualSample++] = data[sample];
+                }
                 actualSample = 0;
-                for (int sample = ChannelUsed % 2 == 0 ? (ChannelUsed + 1) : (ChannelUsed - 1); sample < data.Length; sample += channels)
+                for (int sample = ChannelUsed % 2 == 0 ? (ChannelUsed + 1) : (ChannelUsed - 1); sample < data.Length; sample += channels) {
                     monoMix[actualSample] = (monoMix[actualSample] - data[sample]) * .5f;
+                }
             } else {
-                for (int sample = ChannelUsed; sample < data.Length; sample += channels)
+                for (int sample = ChannelUsed; sample < data.Length; sample += channels) {
                     monoMix[actualSample++] = data[sample];
+                }
             }
+
             // Cavernize
             float smoothFactor = 1f - Mathf.LerpUnclamped(UpdateRate, sampleRate, Mathf.Pow(Smoothness, .1f)) / sampleRate * .999f;
             float maxDepth = .0001f, MaxHeight = .0001f, absHigh, absLow;
-            for (int sample = 0; sample < UpdateRate; ++sample) {
+            for (int sample = 0; sample < UpdateRate; sample++) {
                 float currentSample = monoMix[sample] * faderGain;
                 highSample = .9f * (highSample + currentSample - lastSample);
                 absHigh = Math.Abs(highSample);
-                if (MaxHeight < absHigh)
+                if (MaxHeight < absHigh) {
                     MaxHeight = absHigh;
+                }
                 lowSample = lowSample * .99f + highSample * .01f;
                 absLow = Math.Abs(lowSample);
-                if (maxDepth < absLow)
+                if (maxDepth < absLow) {
                     maxDepth = absLow;
+                }
                 lastSample = currentSample;
             }
             MaxHeight = Mathf.Clamp((MaxHeight - maxDepth * 1.2f) * Effect * 15, BottomSpeakerHeight, TopSpeakerHeight);
             Height = Mathf.LerpUnclamped(Height, MaxHeight, smoothFactor);
+
             // Output
             float upperMix = (MaxHeight - BottomSpeakerHeight) / (TopSpeakerHeight - BottomSpeakerHeight),
                 lowerMix = Mathf.Sin(Mathf.PI / 2 * (1f - upperMix));
             upperMix = Mathf.Sin(Mathf.PI / 2 * upperMix);
             int outputPos = (int)Divert % channels - channels;
             data.Clear();
-            for (int sample = 0; sample < UpdateRate; ++sample) // Base channel
+            for (int sample = 0; sample < UpdateRate; sample++) { // Base channel
                 data[outputPos += channels] = monoMix[sample] * lowerMix;
+            }
             outputPos = ((int)HeightDivert + 1) % channels - channels;
-            for (int sample = 0; sample < UpdateRate; ++sample) // Height channel
+            for (int sample = 0; sample < UpdateRate; sample++) { // Height channel
                 data[outputPos += channels] = monoMix[sample] * upperMix;
+            }
+
             // Metering
             float currentPeak = 0, abs;
-            for (int sample = 0; sample < UpdateRate; ++sample) {
+            for (int sample = 0; sample < UpdateRate; sample++) {
                 abs = Math.Abs(data[sample]);
-                if (currentPeak < abs)
+                if (currentPeak < abs) {
                     currentPeak = abs;
+                }
             }
             LastPeak = Mathf.Max(currentPeak, LastPeak - PeakDecay * UpdateRate / sampleRate);
         }
