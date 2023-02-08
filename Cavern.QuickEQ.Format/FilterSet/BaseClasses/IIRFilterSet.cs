@@ -53,12 +53,12 @@ namespace Cavern.Format.FilterSet {
         public virtual int Bands => 20;
 
         /// <summary>
-        /// Minimum gain of a single peaking EQ band.
+        /// Minimum gain of a single peaking EQ band in decibels.
         /// </summary>
         public virtual double MinGain => -20;
 
         /// <summary>
-        /// Maximum gain of a single peaking EQ band.
+        /// Maximum gain of a single peaking EQ band in decibels.
         /// </summary>
         public virtual double MaxGain => 20;
 

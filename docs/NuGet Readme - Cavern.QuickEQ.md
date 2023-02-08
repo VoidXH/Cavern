@@ -8,7 +8,7 @@ Supported software/hardware for EQ/filter set export:
 * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD
 * Processors: Emotiva, StormAudio
 * Amplifiers: Behringer NX series
-* Others: Audyssey MultEQ-X, Dirac Live
+* Others: Audyssey MultEQ-X, Dirac Live, YPAO
 
 [![Build Status](https://api.travis-ci.com/VoidXH/Cavern.svg?branch=master)](https://app.travis-ci.com/VoidXH/Cavern)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)

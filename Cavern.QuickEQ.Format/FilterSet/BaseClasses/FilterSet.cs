@@ -35,15 +35,16 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.EqualizerAPO_EQ => new EqualizerAPOEqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
-                FilterSetTarget.DiracLive => new DiracFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
-                FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
-                FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLive => new DiracFilterSet(channels, sampleRate),
+                FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
+                FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
+                FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
         }
@@ -105,19 +106,6 @@ namespace Cavern.Format.FilterSet {
         // AVRs and processors -----------------------------------------------------
         // -------------------------------------------------------------------------
         /// <summary>
-        /// Processors supporting Dirac Live.
-        /// </summary>
-        /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
-        DiracLive,
-        /// <summary>
-        /// Processors supporting Audyssey MultEQ-X, MultEQ-X config file.
-        /// </summary>
-        MultEQX,
-        /// <summary>
-        /// Processors supporting Audyssey MultEQ-X, PEQ files.
-        /// </summary>
-        MultEQXRaw,
-        /// <summary>
         /// Emotiva XMC processors.
         /// </summary>
         Emotiva,
@@ -133,5 +121,26 @@ namespace Cavern.Format.FilterSet {
         /// Behringer NX-series stereo amplifiers.
         /// </summary>
         BehringerNX,
+
+        // -------------------------------------------------------------------------
+        // Others ------------------------------------------------------------------
+        // -------------------------------------------------------------------------
+        /// <summary>
+        /// Processors supporting Dirac Live.
+        /// </summary>
+        /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
+        DiracLive,
+        /// <summary>
+        /// Processors supporting Audyssey MultEQ-X, MultEQ-X config file.
+        /// </summary>
+        MultEQX,
+        /// <summary>
+        /// Processors supporting Audyssey MultEQ-X, PEQ files.
+        /// </summary>
+        MultEQXRaw,
+        /// <summary>
+        /// Processors supporting the latest YPAO with additional fine tuning PEQs.
+        /// </summary>
+        YPAO,
     }
 }

@@ -69,5 +69,29 @@ namespace Cavern.Utilities {
             }
             return true;
         }
+
+        /// <summary>
+        /// From a <paramref name="source"/>, get which element is closest to a given <paramref name="value"/>.
+        /// </summary>
+        public static float Nearest(this float[] source, float value) {
+            int left = 0, right = source.Length - 1;
+            float closest = source[0];
+            while (left <= right) {
+                int mid = (left + right) / 2;
+                if (source[mid] == value) {
+                    return source[mid];
+                }
+                if (Math.Abs(source[mid] - value) < Math.Abs(closest - value)) {
+                    closest = source[mid];
+                }
+                if (source[mid] < value) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            return closest;
+
+        }
     }
 }

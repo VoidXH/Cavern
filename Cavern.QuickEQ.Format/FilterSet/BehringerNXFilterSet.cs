@@ -16,12 +16,12 @@ namespace Cavern.Format.FilterSet {
         public override int Bands => 8;
 
         /// <summary>
-        /// Minimum gain of a single peaking EQ band.
+        /// Minimum gain of a single peaking EQ band in decibels.
         /// </summary>
         public override double MinGain => -15;
 
         /// <summary>
-        /// Maximum gain of a single peaking EQ band.
+        /// Maximum gain of a single peaking EQ band in decibels.
         /// </summary>
         public override double MaxGain => 6;
 
