@@ -137,6 +137,65 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Get the average level between the rolloff points (-<paramref name="range"/> dB points)
+        /// of the curve drawn by this <see cref="Equalizer"/>.
+        /// </summary>
+        /// <returns></returns>
+        public double GetAverageLevel(double range) {
+            (double minFreq, double maxFreq) = GetRolloffs(range);
+            int i = 0, c = bands.Count;
+            while (i < c && bands[i].Frequency < minFreq) {
+                ++i;
+            }
+            double sum = 0;
+            int n = 0;
+            while (i < c && bands[i].Frequency < maxFreq) {
+                sum += Math.Pow(10, bands[i++].Gain * .05);
+                ++n;
+            }
+            return 20 * Math.Log10(sum / n);
+        }
+
+        /// <summary>
+        /// Get a line in the form of m*log10(x)+b that fits the curve drawn by this <see cref="Equalizer"/>.
+        /// </summary>
+        public (double m, double b) GetRegressionLine() {
+            double[] logFreqs = new double[bands.Count];
+            double avgGain = 0;
+            for (int i = 0; i < logFreqs.Length; i++) {
+                logFreqs[i] = Math.Log10(bands[i].Frequency);
+                avgGain += bands[i].Gain;
+            }
+            double avgFreq = QMath.Average(logFreqs);
+            avgGain /= logFreqs.Length;
+
+            double mNum = 0, mDen = 0;
+            for (int i = 0; i < logFreqs.Length; i++) {
+                double freqDiff = logFreqs[i] - avgFreq;
+                mNum += freqDiff * (bands[i].Gain - avgGain);
+                mDen += freqDiff * freqDiff;
+            }
+            double m = mNum / mDen;
+            return (m, avgGain - m * avgFreq);
+        }
+
+        /// <summary>
+        /// Get the rolloff points of the EQ by fitting a line on it and finding the first and last points
+        /// with a given range in decibels below it.
+        /// </summary>
+        public (double minFreq, double maxFreq) GetRolloffs(double range) {
+            (double m, double b) = GetRegressionLine();
+            int first = 0, last = bands.Count - 1;
+            while (first < last && bands[first].Gain + range < m * Math.Log10(bands[first].Frequency) + b) {
+                ++first;
+            }
+            while (last > first && bands[last].Gain + range < m * Math.Log10(bands[last].Frequency) + b) {
+                --last;
+            }
+            return (bands[first].Frequency, bands[last].Frequency);
+        }
+
+        /// <summary>
         /// Limit the application range of the EQ.
         /// </summary>
         /// <param name="startFreq">Bottom cutoff frequency</param>
@@ -165,6 +224,35 @@ namespace Cavern.QuickEQ.Equalization {
                     }
                     break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Apply smoothing on this <see cref="Equalizer"/> with a window of a given octave.
+        /// </summary>
+        public void Smooth(double octaves) {
+            int smoothFrom = 0, smoothTo = 0;
+            double multipleTo = Math.Pow(2, octaves), multipleFrom = 1 / multipleTo;
+            double[] result = new double[bands.Count];
+            for (int i = 0; i < result.Length; i++) {
+                double minFreq = bands[i].Frequency * multipleFrom,
+                    maxFreq = bands[i].Frequency * multipleTo;
+                while (smoothFrom < result.Length && bands[smoothFrom].Frequency < minFreq) {
+                    ++smoothFrom;
+                }
+                while (smoothTo < result.Length && bands[smoothTo].Frequency < maxFreq) {
+                    ++smoothTo;
+                }
+                result[i] = Math.Pow(10, bands[i].Gain * .05);
+                if (smoothFrom != smoothTo) {
+                    for (int j = smoothFrom + 1; j < smoothTo; j++) {
+                        result[i] += Math.Pow(10, bands[j].Gain * .05);
+                    }
+                    result[i] = 20 * Math.Log10(result[i] / (smoothTo - smoothFrom));
+                }
+            }
+            for (int i = 0; i < result.Length; i++) {
+                bands[i] = new Band(bands[i].Frequency, result[i]);
             }
         }
 

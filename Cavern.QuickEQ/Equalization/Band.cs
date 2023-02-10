@@ -4,7 +4,7 @@ namespace Cavern.QuickEQ.Equalization {
     /// <summary>
     /// A single equalizer band.
     /// </summary>
-    public struct Band : IComparable<Band> {
+    public readonly struct Band : IComparable<Band> {
         /// <summary>
         /// Position of the band.
         /// </summary>

@@ -42,5 +42,7 @@ CavernUnity DLL/bin/
 CavernUnity DLL/obj/
 packages/
 Pro/
+Tests/Test.Cavern.QuickEQ/bin/
+Tests/Test.Cavern.QuickEQ/obj/
 Tests/Test.Cavern/bin/
 Tests/Test.Cavern/obj/

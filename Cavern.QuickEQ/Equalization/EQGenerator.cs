@@ -84,6 +84,31 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Get the average gains of multiple equalizers. The averaging happens in linear space.
+        /// </summary>
+        /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
+        public static Equalizer Average(params Equalizer[] sources) {
+            double[] bands = new double[sources[0].Bands.Count];
+            IReadOnlyList<Band> source = sources[0].Bands;
+            for (int i = 0; i < bands.Length; i++) {
+                bands[i] = Math.Pow(10, source[i].Gain * .05f);
+            }
+            for (int i = 1; i < sources.Length; i++) {
+                source = sources[i].Bands;
+                for (int j = 0; j < bands.Length; j++) {
+                    bands[j] += Math.Pow(10, source[j].Gain * .05f);
+                }
+            }
+
+            double div = 1.0 / sources.Length;
+            List<Band> result = new List<Band>(bands.Length);
+            for (int i = 0; i < bands.Length; i++) {
+                result.Add(new Band(source[i].Frequency, 20 * Math.Log10(bands[i] * div)));
+            }
+            return new Equalizer(result);
+        }
+
+        /// <summary>
         /// Create an EQ that completely linearizes the <paramref name="spectrum"/>.
         /// </summary>
         public static Equalizer FlattenSpectrum(Complex[] spectrum, int sampleRate) {
@@ -180,11 +205,40 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Parse an Equalizer from a linear spectrum.
+        /// Parse an Equalizer from a linear transfer function.
         /// </summary>
-        public static Equalizer FromSpectrum(float[] source, double startFreq, double endFreq) {
+        public static Equalizer FromTransferFunction(Complex[] source, int sampleRate) {
             List<Band> bands = new List<Band>();
-            GraphUtils.ForEachLin(source, startFreq, endFreq, (double freq, ref float gain) => bands.Add(new Band(freq, gain)));
+            double step = (double)sampleRate / (source.Length - 1);
+            for (int entry = 0, end = source.Length >> 1; entry < end; entry++) {
+                bands.Add(new Band(step * entry, 20 * Math.Log10(source[entry].Magnitude)));
+            }
+            return new Equalizer(bands);
+        }
+
+        /// <summary>
+        /// Parse an Equalizer from a linear transfer function, but merge samples in logarithmic gaps (keep the octave range constant).
+        /// </summary>
+        public static unsafe Equalizer FromTransferFunctionOptimized(Complex[] source, int sampleRate) {
+            List<Band> bands = new List<Band>();
+            double step = (double)sampleRate / (source.Length - 1);
+            fixed (Complex* pSource = source) {
+                for (int entry = 2, end = source.Length >> 1; entry < end;) {
+                    int merge = (int)Math.Log(entry, 2);
+                    if (merge > end - entry) {
+                        merge = end - entry;
+                    }
+
+                    float sum = 0;
+                    for (Complex* i = pSource + entry, mergeUntil = i + merge; i != mergeUntil; i++) {
+                        sum += (*i).Magnitude;
+                    }
+                    sum /= merge;
+
+                    bands.Add(new Band(step * (entry + (merge - 1) * 0.5), 20 * Math.Log10(sum)));
+                    entry += merge;
+                }
+            }
             return new Equalizer(bands);
         }
 

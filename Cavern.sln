@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2D5BFF47
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Cavern", "Tests\Test.Cavern\Test.Cavern.csproj", "{07B967BD-1003-40C3-BC80-41C3CB36532A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Cavern.QuickEQ", "Tests\Test.Cavern.QuickEQ\Test.Cavern.QuickEQ.csproj", "{2E393F38-9125-43B6-807D-F1AC5FF16295}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,12 +43,17 @@ Global
 		{07B967BD-1003-40C3-BC80-41C3CB36532A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07B967BD-1003-40C3-BC80-41C3CB36532A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07B967BD-1003-40C3-BC80-41C3CB36532A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E393F38-9125-43B6-807D-F1AC5FF16295}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E393F38-9125-43B6-807D-F1AC5FF16295}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E393F38-9125-43B6-807D-F1AC5FF16295}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E393F38-9125-43B6-807D-F1AC5FF16295}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{07B967BD-1003-40C3-BC80-41C3CB36532A} = {2D5BFF47-CF93-43C6-BD9D-8E31C1F6F324}
+		{2E393F38-9125-43B6-807D-F1AC5FF16295} = {2D5BFF47-CF93-43C6-BD9D-8E31C1F6F324}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A7F9771D-BEA0-4DE3-B267-46E1B87FE612}

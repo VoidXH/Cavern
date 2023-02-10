@@ -62,17 +62,12 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Frequency responses of output channels.
         /// </summary>
-        [NonSerialized] public float[][] FreqResponses;
+        [NonSerialized] public Equalizer[] FreqResponses;
 
         /// <summary>
         /// Impulse responses of output channels.
         /// </summary>
         [NonSerialized] public VerboseImpulseResponse[] ImpResponses;
-
-        /// <summary>
-        /// Room correction, equalizer for each channel.
-        /// </summary>
-        [NonSerialized] public Equalizer[] Equalizers;
 
         /// <summary>
         /// Change the measurement signal to this tone.
@@ -243,7 +238,7 @@ namespace Cavern.QuickEQ {
             SweepLength = fftSize;
             RegenerateSweep();
             ExcitementResponses = new float[channels][];
-            FreqResponses = new float[channels][];
+            FreqResponses = new Equalizer[channels];
             ImpResponses = new VerboseImpulseResponse[channels];
         }
 
@@ -254,7 +249,7 @@ namespace Cavern.QuickEQ {
             ExcitementResponses[channel] = response;
             int lfeGetterChannels = ExcitementResponses.Length == Listener.Channels.Length ? -1 : ExcitementResponses.Length;
             Complex[] RawResponse = GetFrequencyResponse(response, Cavern.Channel.IsLFE(channel, lfeGetterChannels));
-            FreqResponses[channel] = Measurements.GetSpectrum(RawResponse);
+            FreqResponses[channel] = EQGenerator.FromTransferFunctionOptimized(RawResponse, sampleRate);
             ImpResponses[channel] = GetImpulseResponse(RawResponse);
         }
 
@@ -274,10 +269,9 @@ namespace Cavern.QuickEQ {
             RegenerateSweep();
             Channel = 0;
             int channels = Listener.Channels.Length;
-            FreqResponses = new float[channels][];
+            FreqResponses = new Equalizer[channels];
             ImpResponses = new VerboseImpulseResponse[channels];
             ExcitementResponses = new float[channels][];
-            Equalizers = new Equalizer[channels];
             workers = new Task<WorkerResult>[channels];
             oldDirectLFE = AudioListener3D.Current.DirectLFE;
             oldVirtualizer = Listener.HeadphoneVirtualizer;
@@ -313,7 +307,7 @@ namespace Cavern.QuickEQ {
                 }
                 ExcitementResponses[Channel] = result;
                 Complex[] fft = Cavern.Channel.IsLFE(Channel) ? sweepFFTlow : sweepFFT;
-                workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(fft, sweepFFTCache, result));
+                workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(fft, sweepFFTCache, result, sampleRate));
                 workers[Channel].Start();
                 if (++Channel == Listener.Channels.Length) {
                     for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
@@ -363,12 +357,12 @@ namespace Cavern.QuickEQ {
         public void Dispose() => sweepFFTCache?.Dispose();
 
         struct WorkerResult {
-            public float[] FreqResponse;
+            public Equalizer FreqResponse;
             public VerboseImpulseResponse ImpResponse;
 
-            public WorkerResult(Complex[] sweepFFT, FFTCache sweepFFTCache, float[] response) {
+            public WorkerResult(Complex[] sweepFFT, FFTCache sweepFFTCache, float[] response, int sampleRate) {
                 Complex[] rawResponse = Measurements.GetFrequencyResponse(sweepFFT, response.FFT(sweepFFTCache));
-                FreqResponse = Measurements.GetSpectrum(rawResponse);
+                FreqResponse = EQGenerator.FromTransferFunctionOptimized(rawResponse, sampleRate);
                 ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(rawResponse, sweepFFTCache));
             }
 

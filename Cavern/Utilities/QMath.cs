@@ -31,6 +31,24 @@ namespace Cavern.Utilities {
         /// Calculate the average of an array.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Average(this double[] array) => Sum(array, 0, array.Length) / array.Length;
+
+        /// <summary>
+        /// Calculate the average of an array until the selected border element (exclusive).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Average(this double[] array, int until) => Sum(array, 0, until) / until;
+
+        /// <summary>
+        /// Calculate the average of an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Average(this double[] array, int from, int to) => Sum(array, from, to) / (to - from);
+
+        /// <summary>
+        /// Calculate the average of an array.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Average(this float[] array) => Sum(array, 0, array.Length) / array.Length;
 
         /// <summary>
@@ -226,6 +244,30 @@ namespace Cavern.Utilities {
         /// <remarks>This function does not handle 0, 0 correctly for optimization purposes.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool SignCompare(float a, float b) => a * b > 0;
+
+        /// <summary>
+        /// Sum all elements in an array.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Sum(this double[] array) => Sum(array, 0, array.Length);
+
+        /// <summary>
+        /// Sum the elements in an array until the selected border element (exclusive).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Sum(this double[] array, int until) => Sum(array, 0, until);
+
+        /// <summary>
+        /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Sum(this double[] array, int from, int to) {
+            double sum = 0;
+            for (int i = from; i < to; ++i) {
+                sum += array[i];
+            }
+            return sum;
+        }
 
         /// <summary>
         /// Sum all elements in an array.

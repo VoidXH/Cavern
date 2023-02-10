@@ -28,4 +28,6 @@ rd /s /q CavernSamples\WavefrontSimulator\bin
 rd /s /q CavernSamples\WavefrontSimulator\obj
 rd /s /q Tests\Test.Cavern\bin
 rd /s /q Tests\Test.Cavern\obj
+rd /s /q Tests\Test.Cavern.QuickEQ\bin
+rd /s /q Tests\Test.Cavern.QuickEQ\obj
 pause
