@@ -39,7 +39,7 @@ namespace Cavern {
         /// Disables any audio. Use this instead of enabling/disabling the script.
         /// </summary>
         [Tooltip("Disables any audio. Use this instead of enabling/disabling the script.")]
-        public bool Paused = false;
+        public bool Paused;
 
         /// <summary>
         /// Adaption speed of the normalizer. 0 means disabled.
@@ -85,13 +85,13 @@ namespace Cavern {
         /// Only mix LFE tagged sources to subwoofers.
         /// </summary>
         [Tooltip("Only mix LFE tagged sources to subwoofers.")]
-        public bool LFESeparation = false;
+        public bool LFESeparation;
 
         /// <summary>
         /// Disable lowpass on the LFE channel.
         /// </summary>
         [Tooltip("Disable lowpass on the LFE channel.")]
-        public bool DirectLFE = false;
+        public bool DirectLFE;
 
         /// <summary>
         /// Save performance by not remapping Unity's output to the user layout and only rendering Cavern sources.
@@ -99,7 +99,7 @@ namespace Cavern {
         /// <remarks>You should still use Unity's render engine
         /// for non-decompressed clips like background music to save memory.</remarks>
         [Tooltip("Save performance by not remapping Unity's output to the user layout and only rendering Cavern sources.")]
-        public bool DisableUnityAudio = false;
+        public bool DisableUnityAudio;
 
         // ------------------------------------------------------------------
         // Compatibility
@@ -215,7 +215,7 @@ namespace Cavern {
         /// <summary>
         /// Filter buffer position, samples currently cached for output.
         /// </summary>
-        static int bufferPosition = 0;
+        static int bufferPosition;
 
         /// <summary>
         /// Samples to play with the filter.

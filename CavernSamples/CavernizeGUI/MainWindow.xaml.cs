@@ -214,9 +214,10 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
-        /// Save persistent settings on quit.
+        /// Save persistent settings and free resources on quit.
         /// </summary>
         protected override void OnClosed(EventArgs e) {
+            taskEngine?.Dispose();
             Settings.Default.ffmpegLocation = ffmpeg.Location;
             Settings.Default.renderTarget = renderTarget.SelectedIndex;
             Settings.Default.outputCodec = audio.SelectedIndex;

@@ -18,7 +18,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// A filter set containing equalization info for each channel of a system on a given sample rate.
         /// </summary>
-        public FilterSet(int sampleRate) => SampleRate = sampleRate;
+        protected FilterSet(int sampleRate) => SampleRate = sampleRate;
 
         /// <summary>
         /// Export the filter set to a target file.

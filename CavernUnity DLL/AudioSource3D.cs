@@ -36,25 +36,25 @@ namespace Cavern {
         /// Restart the source when finished.
         /// </summary>
         [Tooltip("Restart the source when finished.")]
-        public bool Loop = false;
+        public bool Loop;
 
         /// <summary>
         /// Mute the source.
         /// </summary>
         [Tooltip("Mute the source.")]
-        public bool Mute = false;
+        public bool Mute;
 
         /// <summary>
         /// Only mix this channel to subwoofers.
         /// </summary>
         [Tooltip("Only mix this channel to subwoofers.")]
-        public bool LFE = false;
+        public bool LFE;
 
         /// <summary>
         /// Start playback from a random position.
         /// </summary>
         [Tooltip("Start playback from a random position.")]
-        public bool RandomPosition = false;
+        public bool RandomPosition;
 
         /// <summary>
         /// Source playback volume.
@@ -73,7 +73,7 @@ namespace Cavern {
         /// Balance between left and right channels.
         /// </summary>
         [Tooltip("Balance between left and right channels.")]
-        [Range(-1, 1)] public float StereoPan = 0;
+        [Range(-1, 1)] public float StereoPan;
 
         /// <summary>
         /// Balance between 1D and 3D mixing. 0 is 1D and 1 is 3D.
@@ -86,13 +86,13 @@ namespace Cavern {
         /// Audio source size relative to <see cref="Listener.EnvironmentSize"/>. 0 is a point, 1 is the entire room.
         /// </summary>
         [Tooltip("Audio source size relative to the environment. 0 is a point, 1 is the entire room.")]
-        [Range(0, 1)] public float Size = 0;
+        [Range(0, 1)] public float Size;
 
         /// <summary>
         /// Doppler effect scale, 1 is real.
         /// </summary>
         [Tooltip("Doppler effect scale, 1 is real.")]
-        [Range(0, 5)] public float DopplerLevel = 0;
+        [Range(0, 5)] public float DopplerLevel;
 
         /// <summary>
         /// Volume decreasing function by distance.

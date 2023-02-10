@@ -2,7 +2,7 @@
 using System.Numerics;
 
 namespace Cavern.Utilities {
-    partial class QMath {
+    public static partial class QMath {
         /// <summary>
         /// Multiply the values of both arrays together and add these multiples together.
         /// </summary>

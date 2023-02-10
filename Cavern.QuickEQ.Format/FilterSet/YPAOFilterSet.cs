@@ -49,7 +49,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All the possible bands that can be selected for YPAO. These are 1/3 octaves apart.
         /// </summary>
-        static readonly float[] bands = new float[] {
+        static readonly float[] bands = {
             39.4f, 49.6f, 62.5f, 78.7f, 99.2f, 125.0f, 157.5f, 198.4f, 250, 315, 396.9f, 500, 630, 793.7f,
             1000, 1260, 1590, 2000, 2520, 3170, 4000, 5040, 6350, 8000, 10100, 12700, 16000
         };
@@ -57,8 +57,6 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All the possible Q-factors that can be selected for YPAO.
         /// </summary>
-        static readonly float[] qFactors = new float[] {
-            0.5f, 0.630f, 0.794f, 1f, 1.260f, 1.587f, 2f, 2.520f, 3.175f, 4f, 5.040f, 6.350f, 8f, 10.08f
-        };
+        static readonly float[] qFactors = { 0.5f, 0.630f, 0.794f, 1f, 1.260f, 1.587f, 2f, 2.520f, 3.175f, 4f, 5.040f, 6.350f, 8f, 10.08f };
     }
 }

@@ -124,7 +124,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
             writer.WriteAttributeString(ADMTags.blockIDAttribute, namePrefix + index.ToString("x8"));
             writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.ToString());
             writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.ToString());
-            SerializeBlockMain(writer, block, index);
+            SerializeBlockMain(writer, block);
 
             if (!block.Interpolation.Equals(block.Duration)) {
                 writer.WriteStartElement(ADMTags.blockJumpTag);
@@ -146,7 +146,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                 writer.WriteAttributeString(ADMTags.blockOffsetAttribute, block.Offset.ToString());
                 writer.WriteAttributeString(ADMTags.durationAttribute, block.Duration.ToString());
             }
-            SerializeBlockMain(writer, block, index);
+            SerializeBlockMain(writer, block);
             if (Type == ADMPackType.DirectSpeakers) {
                 writer.WriteElementString(ADMTags.blockLabelAttribute,
                     ADMConsts.channelLabels[(int)Renderer.ChannelFromPosition(Blocks[0].Position)]);
@@ -157,7 +157,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// <summary>
         /// Inner serialization of a single block element without element start/end to be extensible.
         /// </summary>
-        void SerializeBlockMain(XmlWriter writer, ADMBlockFormat block, int index) {
+        void SerializeBlockMain(XmlWriter writer, ADMBlockFormat block) {
             const string positionDigits = "0.0000000000";
             writer.WriteElementString(ADMTags.blockCartesianTag, enabledValue);
             writer.WriteStartElement(ADMTags.blockPositionTag);

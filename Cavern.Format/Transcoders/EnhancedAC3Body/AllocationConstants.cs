@@ -51,12 +51,12 @@ namespace Cavern.Format.Transcoders {
             /// <summary>
             /// Complex multiplication cache for 512-sample IMDCT.
             /// </summary>
-            static Complex[] x512;
+            static readonly Complex[] x512 = new Complex[IMDCTSize / 4];
 
             /// <summary>
             /// Complex multiplication cache for 256-sample IMDCT.
             /// </summary>
-            static Complex[] x256;
+            static readonly Complex[] x256 = new Complex[IMDCTSize / 8];
 
             /// <summary>
             /// Intermediate IMDCT array for 512-sample IMDCT.
@@ -122,14 +122,12 @@ namespace Cavern.Format.Transcoders {
                     bap4 = GenerateGroupedQuantization(11, 2, 7);
                     bap5 = GenerateQuantization(15);
 
-                    x512 = new Complex[IMDCTSize / 4];
                     for (int i = 0; i < x512.Length; i++) {
                         const float mul = 2 * MathF.PI / (8 * IMDCTSize);
                         float phi = mul * (8 * i + 1);
                         x512[i] = new Complex(-MathF.Cos(phi), -MathF.Sin(phi));
                     }
 
-                    x256 = new Complex[IMDCTSize / 8];
                     for (int i = 0; i < x256.Length; i++) {
                         const float mul = 2 * MathF.PI / (4 * IMDCTSize);
                         float phi = mul * (8 * i + 1);

@@ -8,7 +8,7 @@ namespace VoidX.WPF {
     /// <summary>
     /// Progress reporter and job handler.
     /// </summary>
-    public class TaskEngine {
+    public class TaskEngine : IDisposable {
         static readonly TimeSpan lazyStatusDelta = new TimeSpan(0, 0, 1);
 
         readonly ProgressBar progressBar;
@@ -80,6 +80,16 @@ namespace VoidX.WPF {
             operation = new Task(task);
             operation.Start();
             return true;
+        }
+
+        /// <summary>
+        /// Free up resources.
+        /// </summary>
+        public void Dispose() {
+            try {
+                operation?.Dispose();
+            } catch { }
+            GC.SuppressFinalize(this);
         }
     }
 }

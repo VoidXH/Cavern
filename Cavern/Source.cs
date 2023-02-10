@@ -90,7 +90,7 @@ namespace Cavern {
         /// <summary>
         /// Remaining delay until starting playback.
         /// </summary>
-        long delay = 0;
+        long delay;
 
         /// <summary>
         /// Output samples to all channels of a multichannel array.

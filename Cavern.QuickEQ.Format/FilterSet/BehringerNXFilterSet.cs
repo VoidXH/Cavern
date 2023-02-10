@@ -44,10 +44,10 @@ namespace Cavern.Format.FilterSet {
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
             CreateRootFile(path, "nxp");
 
-            List<string> channelData = null;
+            List<string> channelData = new List<string>();
             for (int i = 0, c = Channels.Length; i < c; ++i) {
                 if (i % 2 == 0) {
-                    channelData = new List<string>();
+                    channelData.Clear();
                     channelData.AddRange(header);
                 }
 

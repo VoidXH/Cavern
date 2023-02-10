@@ -47,6 +47,14 @@ namespace WAVChannelReorderer {
         static void ShowError(string message) => MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         /// <summary>
+        /// Free resources when the application is closed.
+        /// </summary>
+        protected override void OnClosed(EventArgs e) {
+            process?.Dispose();
+            base.OnClosed(e);
+        }
+
+        /// <summary>
         /// Loads a standard layout of the channel count of the imported file to a list of channels.
         /// </summary>
         void SetStandardLayout(ListBox holder) =>

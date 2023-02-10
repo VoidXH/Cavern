@@ -66,12 +66,12 @@ namespace Cavern.Format {
         /// <summary>
         /// Samples read for each channel since the construction of this reader.
         /// </summary>
-        long readSamples = 0;
+        long readSamples;
 
         /// <summary>
         /// Read position in <see cref="lastReadSecond"/>.
         /// </summary>
-        int copiedSamples = 0;
+        int copiedSamples;
 
         /// <summary>
         /// The last loaded second, as LAF stores channel availability data every second.

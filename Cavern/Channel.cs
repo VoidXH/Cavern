@@ -58,7 +58,7 @@ namespace Cavern {
         /// <summary>
         /// True for channels carrying only Low Frequency Effects.
         /// </summary>
-        bool lowFrequency = false;
+        bool lowFrequency;
 
         /// <summary>
         /// Constructs a channel with given rotation values.

@@ -90,16 +90,5 @@ namespace Cavern.Format.Container.MP4 {
         /// Box metadata to string.
         /// </summary>
         public override string ToString() => $"{Header.ToFourCC()} ({Length} bytes)";
-
-        /// <summary>
-        /// Throw an exception that a required child box was not found.
-        /// </summary>
-        protected internal void ThrowCorruption(uint box) =>
-            throw new CorruptionException(string.Format(corruptionMessage, box, position));
-
-        /// <summary>
-        /// Message sent with the exception when a required box was not found.
-        /// </summary>
-        const string corruptionMessage = "{0} was not found after {1}";
     }
 }

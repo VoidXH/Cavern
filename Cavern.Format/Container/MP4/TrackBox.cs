@@ -1,5 +1,6 @@
 ﻿using System.IO;
 
+using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 
 using static Cavern.Format.Consts.MP4Consts;
@@ -21,16 +22,16 @@ namespace Cavern.Format.Container.MP4 {
         public TrackBox(uint length, Stream reader) : base(length, trackBox, reader) {
             Box headerBox = this[trackHeaderBox];
             if (headerBox == null) {
-                ThrowCorruption(trackHeaderBox);
+                throw new MissingElementException(trackHeaderBox.ToFourCC(), position);
             }
             NestedBox mediaMeta = (NestedBox)this[mediaBox];
             if (mediaMeta == null) {
-                ThrowCorruption(mediaBox);
+                throw new MissingElementException(mediaBox.ToFourCC(), position);
             }
 
             byte[] mediaHeader = mediaMeta[mediaHeaderBox]?.GetRawData(reader);
             if (mediaHeader == null) {
-                ThrowCorruption(mediaHeaderBox);
+                throw new MissingElementException(mediaHeaderBox.ToFourCC(), position);
             }
 
             byte[] trackHeader = headerBox.GetRawData(reader);

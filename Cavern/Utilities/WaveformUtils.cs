@@ -147,13 +147,13 @@ namespace Cavern.Utilities {
         /// Set gain for a channel in a multichannel array.
         /// </summary>
         /// <param name="target">Sample reference</param>
-        /// <param name="gain">Gain</param>
+        /// <param name="addedGain">The number to multiply each element with</param>
         /// <param name="channel">Target channel</param>
         /// <param name="channels">Channel count</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Gain(float[] target, float gain, int channel, int channels) {
+        public static void Gain(float[] target, float addedGain, int channel, int channels) {
             for (int sample = channel; sample < target.Length; sample += channels) {
-                target[sample] *= gain;
+                target[sample] *= addedGain;
             }
         }
 

@@ -63,7 +63,7 @@ namespace Cavern.Format.Container {
                 if (box.Header == metadataBox && box is NestedBox metadata) {
                     byte[] header = metadata[metadataHeaderBox]?.GetRawData(reader);
                     if (header == null) {
-                        metadata.ThrowCorruption(metadataHeaderBox);
+                        throw new MissingElementException(metadataHeaderBox.ToFourCC());
                     }
                     Duration = (double)header.ReadUInt32BE(16) / header.ReadUInt32BE(12);
 

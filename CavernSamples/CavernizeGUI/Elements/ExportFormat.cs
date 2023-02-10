@@ -10,16 +10,14 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         public static ExportFormat[] Formats {
             get {
-                if (formats == null) {
-                    formats = new ExportFormat[] {
-                        new ExportFormat(Codec.Opus, "libopus", 64, "Opus (transparent, small size)"),
-                        new ExportFormat(Codec.FLAC, "flac", 8, "FLAC (lossless, large size)"),
-                        new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, "PCM integer (lossless, larger size)"),
-                        new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, "PCM float (needless, largest size)"),
-                        new ExportFormat(Codec.ADM_BWF, string.Empty, 128, "ADM Broadcast Wave Format (compact)"),
-                        new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, "ADM Broadcast Wave Format (Dolby Atmos)"),
-                    };
-                }
+                formats ??= new ExportFormat[] {
+                    new ExportFormat(Codec.Opus, "libopus", 64, "Opus (transparent, small size)"),
+                    new ExportFormat(Codec.FLAC, "flac", 8, "FLAC (lossless, large size)"),
+                    new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, "PCM integer (lossless, larger size)"),
+                    new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, "PCM float (needless, largest size)"),
+                    new ExportFormat(Codec.ADM_BWF, string.Empty, 128, "ADM Broadcast Wave Format (compact)"),
+                    new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, "ADM Broadcast Wave Format (Dolby Atmos)"),
+                };
                 return formats;
             }
         }

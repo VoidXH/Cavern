@@ -19,6 +19,14 @@ namespace Benchmark {
         }
 
         /// <summary>
+        /// Free up resources when the window is closed.
+        /// </summary>
+        protected override void OnClosed(EventArgs e) {
+            runner?.Dispose();
+            base.OnClosed(e);
+        }
+
+        /// <summary>
         /// Perform a benchmark and display performance metrics.
         /// </summary>
         void Benchmark(Benchmarks.Benchmark benchmark) {

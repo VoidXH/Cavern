@@ -28,11 +28,11 @@ namespace CavernizeGUI.CommandLine {
                 Execute(value, app);
                 return;
             }
-            if (args[offset].ToLower() == "on" || args[offset].ToLower() == "yes") {
+            if (args[offset].ToLower().Equals(true1) || args[offset].ToLower().Equals(true2)) {
                 Execute(true, app);
                 return;
             }
-            if (args[offset].ToLower() == "off" || args[offset].ToLower() == "no") {
+            if (args[offset].ToLower().Equals(false1) || args[offset].ToLower().Equals(false2)) {
                 Execute(false, app);
                 return;
             }
@@ -40,5 +40,15 @@ namespace CavernizeGUI.CommandLine {
             Console.Error.WriteLine($"Invalid parameter for {Name} ({args[offset]}). Use either \"on\" or \"off\".");
             app.IsEnabled = false;
         }
+
+        /// <summary>
+        /// A possible value for a true parameter.
+        /// </summary>
+        const string true1 = "on", true2 = "yes";
+
+        /// <summary>
+        /// A possible value for a false parameter.
+        /// </summary>
+        const string false1 = "off", false2 = "no";
     }
 }

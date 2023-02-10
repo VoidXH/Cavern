@@ -1,6 +1,6 @@
 ﻿namespace Cavern.Utilities {
     // Non-vectorized versions of vector functions, as they run faster in Mono.
-    partial class QMath {
+    public static partial class QMath {
         /// <summary>
         /// Multiply the values of both arrays together and add these multiples together.
         /// This version of the function is faster only in a Mono runtime (like Unity).

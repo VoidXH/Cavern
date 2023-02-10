@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
-    partial class QMath {
+    public static partial class QMath {
         /// <summary>
         /// Calculate the average of an array without floating point rounding errors.
         /// </summary>
