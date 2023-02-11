@@ -39,7 +39,7 @@ namespace Cavern.QuickEQ {
         Tukey
     }
 
-    partial class Windowing {
+    public static partial class Windowing {
         /// <summary>
         /// Window function format.
         /// </summary>

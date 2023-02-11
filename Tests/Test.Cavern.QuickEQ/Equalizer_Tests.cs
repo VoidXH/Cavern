@@ -7,6 +7,9 @@ namespace Test.Cavern {
     /// </summary>
     [TestClass]
     public class Equalizer_Tests {
+        /// <summary>
+        /// Tests if <see cref="Equalizer.Smooth(double)"/> works as intended.
+        /// </summary>
         [TestMethod, Timeout(1000)]
         public void Smooth() {
             Equalizer equalizer = Create(20, 20000, 100, 10);
