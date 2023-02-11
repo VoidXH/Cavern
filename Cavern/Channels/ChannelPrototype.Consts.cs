@@ -85,56 +85,97 @@ namespace Cavern.Channels {
         };
 
         /// <summary>
+        /// Standard 1.0.0 setup (C).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref100 = { ReferenceChannel.FrontCenter };
+
+        /// <summary>
+        /// Standard 2.0.0 setup (L, R).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref200 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight };
+
+        /// <summary>
+        /// Standard 3.0.0 setup (L, R, C).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref300 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter
+        };
+
+        /// <summary>
+        /// Standard 4.0.0 setup (L, R, SL, SR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref400 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+        };
+
+        /// <summary>
+        /// Standard 5.0.0 setup (L, R, C, SL, SR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref500 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+        };
+
+        /// <summary>
+        /// Standard 5.1.0 setup (L, R, C, LFE, SL, SR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref510 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+            ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+        };
+
+        /// <summary>
+        /// Standard 7.0.0 setup (L, R, C, RL, RR, SL, SR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref700 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+        };
+
+        /// <summary>
+        /// Standard 7.0.2 setup (L, R, C, RL, RR, SL, SR, TFL, TFR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref702 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
+            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
+        };
+
+        /// <summary>
+        /// Standard 7.1.0 setup (L, R, C, LFE, RL, RR, SL, SR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref710 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
+        };
+
+        /// <summary>
+        /// Standard 7.1.2 setup (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref712 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
+        };
+
+        /// <summary>
+        /// DCP standard 8.1.0 setup (L, R, C, LFE, RL, RR, SL, SR, RC).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref810 = {
+            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,  ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+            ReferenceChannel.RearCenter
+        };
+
+        /// <summary>
         /// Industry standard channel orders for each input channel count.
         /// </summary>
         /// <remarks>Matrices with 8+ channels are DCP orders, with messy standardization, and are
         /// unused in commercial applications. Manual revision before each workflow is recommended
         /// when working with non-5.1 DCPs or content with 8+ channels.</remarks>
         static readonly ReferenceChannel[][] HomeStandardMatrix = {
-            new ReferenceChannel[0],
-            // 1CH: 1.0 (C)
-            new ReferenceChannel[] { ReferenceChannel.FrontCenter},
-            // 2CH: 2.0 (L, R)
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight },
-            // 3CH: 3.0 (L, R, C) - non-standard
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter },
-            // 4CH: 4.0 (L, R, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 5CH: 5.0 (L, R, C, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 6CH: 5.1 (L, R, C, LFE, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 7CH: 7.0 (L, R, C, RL, RR, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 8CH: 7.1 (L, R, C, LFE, RL, RR, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
-                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 9CH: 7.0.2 (L, R, C, RL, RR, SL, SR, TFL, TFR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
-            },
-            // 10CH: 7.1.2 (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
-            },
+            Array.Empty<ReferenceChannel>(), ref100, ref200, ref300, ref400, ref500, ref510, ref700, ref710,
+            ref702, ref712,
             // 11CH: 7.0.4 (L, R, C, RL, RR, SL, SR, TFL, TFR, TRL, TRR)
             new ReferenceChannel[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
@@ -188,50 +229,8 @@ namespace Cavern.Channels {
         /// unused in commercial applications. Manual revision before each workflow is recommended
         /// when working with non-5.1 DCPs or content with 8+ channels.</remarks>
         static readonly ReferenceChannel[][] IndustryStandardMatrix = {
-            new ReferenceChannel[0],
-            // 1CH: 1.0 (C)
-            new ReferenceChannel[] { ReferenceChannel.FrontCenter},
-            // 2CH: 2.0 (L, R)
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight },
-            // 3CH: 3.0 (L, R, C) - non-standard
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter },
-            // 4CH: 4.0 (L, R, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 5CH: 5.0 (L, R, C, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 6CH: 5.1 (L, R, C, LFE, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 7CH: 7.0 (L, R, C, RL, RR, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 8CH: 7.1 (L, R, C, LFE, RL, RR, SL, SR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
-                ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-            },
-            // 9CH: 8.1 (not used) (L, R, C, LFE, RL, RR, SL, SR, RC)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,  ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.RearCenter
-            },
-            // 10CH: 7.1.2 (out-of-order Cavern DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
-            },
+            Array.Empty<ReferenceChannel>(), ref100, ref200, ref300, ref400, ref500, ref510, ref700, ref710,
+            ref810, ref712,
             // 11CH: 7.1.2.1 (out-of-order Cavern XL DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, BS)
             new ReferenceChannel[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,

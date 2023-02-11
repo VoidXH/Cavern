@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
@@ -33,31 +34,24 @@ namespace Cavern.QuickEQ.EQCurves {
         }
 
         /// <summary>
-        /// Generate a linear curve for correction generators.
+        /// Generate a linear curve for correction generators with no additional gain.
         /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
-        public virtual float[] GenerateLinearCurve(int sampleRate, int length) {
-            float[] curve = new float[length];
-            double positioner = sampleRate * .5 / length;
-            for (int pos = 0; pos < length; ++pos) {
-                curve[pos] = (float)this[pos * positioner];
-            }
-            return curve;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual float[] GenerateLinearCurve(int sampleRate, int length) => GenerateLinearCurve(sampleRate, length, 0);
 
         /// <summary>
-        /// Generate a linear curve for correction generators.
+        /// Generate a linear curve for correction generators with an additional gain.
         /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="sampleRate">Sample rate of the measurement that the generated curve will be used for</param>
         /// <param name="gain">Curve reference level</param>
-        /// <remarks>For uses where gain is not needed, use <see cref="GenerateLinearCurve(int, int)"/>, it's faster.</remarks>
         public virtual float[] GenerateLinearCurve(int sampleRate, int length, float gain) {
             float[] curve = new float[length];
             double positioner = sampleRate * .5 / length;
-            for (int pos = 0; pos < length; ++pos) {
-                curve[pos] = gain + (float)this[pos * positioner];
+            for (int pos = 0; pos < length; pos++) {
+                curve[pos] = (float)this[pos * positioner] + gain;
             }
             return curve;
         }
@@ -69,43 +63,33 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         protected float[] GenerateLinearCurveOptimized(int sampleRate, int length, float gain) {
             float[] curve = GenerateLinearCurve(sampleRate, length);
-            for (int pos = 0; pos < length; ++pos) {
+            for (int pos = 0; pos < length; pos++) {
                 curve[pos] += gain;
             }
             return curve;
         }
 
         /// <summary>
-        /// Generate a logarithmic curve for correction generators.
+        /// Generate a logarithmic curve for correction generators with no additional gain.
         /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
-        public virtual float[] GenerateLogCurve(double startFreq, double endFreq, int length) {
-            float[] curve = new float[length];
-            double freqHere = startFreq,
-                multiplier = Math.Pow(endFreq / startFreq, 1.0 / length);
-            for (int pos = 0; pos < length; ++pos) {
-                curve[pos] = (float)this[freqHere];
-                freqHere *= multiplier;
-            }
-            return curve;
-        }
+        public virtual float[] GenerateLogCurve(double startFreq, double endFreq, int length) =>
+            GenerateLogCurve(startFreq, endFreq, length, 0);
 
         /// <summary>
-        /// Generate a logarithmic curve for correction generators.
+        /// Generate a logarithmic curve for correction generators with an additional gain.
         /// </summary>
         /// <param name="length">Curve length</param>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
         /// <param name="endFreq">Frequency at the end of the curve</param>
         /// <param name="gain">Curve reference level</param>
-        /// <remarks>For uses where gain is not needed, use
-        /// <see cref="GenerateLogCurve(double, double, int)"/>, it's faster.</remarks>
         public virtual float[] GenerateLogCurve(double startFreq, double endFreq, int length, float gain) {
             float[] curve = new float[length];
             double freqHere = startFreq,
                 multiplier = Math.Pow(endFreq / startFreq, 1.0 / length);
-            for (int pos = 0; pos < length; ++pos) {
+            for (int pos = 0; pos < length; pos++) {
                 curve[pos] = (float)this[freqHere] + gain;
                 freqHere *= multiplier;
             }
@@ -118,7 +102,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         protected float[] GenerateLogCurveOptimized(double startFreq, double endFreq, int length, float gain) {
             float[] curve = GenerateLogCurve(startFreq, endFreq, length);
-            for (int pos = 0; pos < length; ++pos) {
+            for (int pos = 0; pos < length; pos++) {
                 curve[pos] += gain;
             }
             return curve;

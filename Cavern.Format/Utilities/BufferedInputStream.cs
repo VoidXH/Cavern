@@ -253,8 +253,12 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void BlockUntilReadable() {
-            while (position - offset >= blocks.Length * blockSize) ;
-            while (blocks[(position - offset) / blockSize] == null) ;
+            while (position - offset >= blocks.Length * blockSize) {
+                // Block while the current block is not reached
+            }
+            while (blocks[(position - offset) / blockSize] == null) {
+                // Block while the current block is under reading
+            }
         }
 
         /// <summary>

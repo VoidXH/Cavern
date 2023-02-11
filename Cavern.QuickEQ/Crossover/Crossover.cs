@@ -47,7 +47,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// </summary>
         /// <param name="frequencies">Crossover frequencies for each channel, only values over 0 mean crossovered channels</param>
         /// <param name="subs">Channels to route bass to</param>
-        public Crossover(float[] frequencies, bool[] subs) {
+        protected Crossover(float[] frequencies, bool[] subs) {
             this.frequencies = frequencies;
             this.subs = subs;
         }

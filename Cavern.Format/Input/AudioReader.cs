@@ -53,13 +53,13 @@ namespace Cavern.Format {
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public AudioReader(Stream reader) => this.reader = reader;
+        protected AudioReader(Stream reader) => this.reader = reader;
 
         /// <summary>
         /// Abstract audio file reader.
         /// </summary>
         /// <param name="path">Input file name</param>
-        public AudioReader(string path) => reader = OpenSequentialStream(path);
+        protected AudioReader(string path) => reader = OpenSequentialStream(path);
 
         /// <summary>
         /// Open an audio stream for reading. The format will be detected automatically.
