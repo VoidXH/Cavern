@@ -32,8 +32,9 @@ namespace Cavern.Format.Common {
         public KeyLengthValue(Stream reader) {
             Tag = (int)VarInt.ReadTag(reader);
             Length = VarInt.ReadValue(reader);
-            if (Length < 0)
+            if (Length < 0) {
                 Length = 0;
+            }
             position = reader.Position;
         }
 
@@ -50,10 +51,12 @@ namespace Cavern.Format.Common {
         /// </summary>
         public double GetFloatBE(Stream reader) {
             byte[] bytes = GetBytes(reader);
-            if (BitConverter.IsLittleEndian)
+            if (BitConverter.IsLittleEndian) {
                 Array.Reverse(bytes);
-            if (Length == 8)
+            }
+            if (Length == 8) {
                 return BitConverter.ToDouble(bytes);
+            }
             return BitConverter.ToSingle(bytes);
         }
 

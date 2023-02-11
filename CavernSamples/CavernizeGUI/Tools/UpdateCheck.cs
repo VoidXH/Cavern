@@ -8,7 +8,7 @@ namespace VoidX.WPF {
     /// <summary>
     /// Checks for application updates in a separate thread once a week.
     /// </summary>
-    public class UpdateCheck {
+    public static class UpdateCheck {
         /// <summary>
         /// Run the update check in a separate thread.
         /// </summary>

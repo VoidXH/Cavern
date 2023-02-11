@@ -6,28 +6,6 @@ namespace CavernizeGUI.Elements {
     /// </summary>
     class ExportFormat {
         /// <summary>
-        /// All supported export formats.
-        /// </summary>
-        public static ExportFormat[] Formats {
-            get {
-                formats ??= new ExportFormat[] {
-                    new ExportFormat(Codec.Opus, "libopus", 64, "Opus (transparent, small size)"),
-                    new ExportFormat(Codec.FLAC, "flac", 8, "FLAC (lossless, large size)"),
-                    new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, "PCM integer (lossless, larger size)"),
-                    new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, "PCM float (needless, largest size)"),
-                    new ExportFormat(Codec.ADM_BWF, string.Empty, 128, "ADM Broadcast Wave Format (compact)"),
-                    new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, "ADM Broadcast Wave Format (Dolby Atmos)"),
-                };
-                return formats;
-            }
-        }
-
-        /// <summary>
-        /// All supported export formats, cached for reuse.
-        /// </summary>
-        static ExportFormat[] formats;
-
-        /// <summary>
         /// Cavern-compatible marking of the format.
         /// </summary>
         public Codec Codec { get; }
@@ -61,5 +39,17 @@ namespace CavernizeGUI.Elements {
         /// Displays the format's information for ComboBoxes.
         /// </summary>
         public override string ToString() => Description;
+
+        /// <summary>
+        /// All supported export formats.
+        /// </summary>
+        public static readonly ExportFormat[] Formats = {
+            new ExportFormat(Codec.Opus, "libopus", 64, "Opus (transparent, small size)"),
+            new ExportFormat(Codec.FLAC, "flac", 8, "FLAC (lossless, large size)"),
+            new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, "PCM integer (lossless, larger size)"),
+            new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, "PCM float (needless, largest size)"),
+            new ExportFormat(Codec.ADM_BWF, string.Empty, 128, "ADM Broadcast Wave Format (compact)"),
+            new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, "ADM Broadcast Wave Format (Dolby Atmos)"),
+        };
     }
 }

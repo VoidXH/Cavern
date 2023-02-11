@@ -83,11 +83,6 @@ namespace Cavern.Format.Decoders {
         internal ExtensibleMetadataDecoder Extensions { get; private set; } = new ExtensibleMetadataDecoder();
 
         /// <summary>
-        /// Reads through the current frame.
-        /// </summary>
-        BitExtractor extractor;
-
-        /// <summary>
         /// Reusable output sample array.
         /// </summary>
         float[] outCache = new float[0];
@@ -163,7 +158,7 @@ namespace Cavern.Format.Decoders {
         /// <remarks>This decoder has to read the beginning of the next frame to know if it's a beginning.</remarks>
         void ReadHeader() {
             if (reader.Readable) {
-                extractor = header.Decode(reader);
+                BitExtractor extractor = header.Decode(reader);
                 if (extractor == null || !extractor.Readable) {
                     Finished = true;
                     return;

@@ -15,8 +15,9 @@ namespace Cavern.Format.Common {
             int first = reader.ReadByte();
             int extraBytes = QMath.LeadingZerosInByte(first);
             long value = first;
-            for (int i = 0; i < extraBytes; ++i)
+            for (int i = 0; i < extraBytes; i++) {
                 value = (value << 8) | reader.ReadByte();
+            }
             return value;
         }
 
@@ -41,8 +42,9 @@ namespace Cavern.Format.Common {
         /// </summary>
         public static long ReadValue(Stream reader, int length) {
             long value = 0;
-            for (int i = 0; i < length; ++i)
+            for (int i = 0; i < length; i++) {
                 value = (value << 8) | reader.ReadByte();
+            }
             return value;
         }
 #pragma warning restore CS0675 // Bitwise-or operator used on a sign-extended operand

@@ -41,7 +41,7 @@ namespace Cavern.Format {
         /// <param name="length">Output length in samples per channel</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
-        public AudioWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) {
+        protected AudioWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) {
             this.writer = writer;
             ChannelCount = channelCount;
             Length = length;
@@ -57,7 +57,7 @@ namespace Cavern.Format {
         /// <param name="length">Output length in samples per channel</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
-        public AudioWriter(string path, int channelCount, long length, int sampleRate, BitDepth bits) :
+        protected AudioWriter(string path, int channelCount, long length, int sampleRate, BitDepth bits) :
             this(new BinaryWriter(Open(path)), channelCount, length, sampleRate, bits) { }
 
         /// <summary>
@@ -152,12 +152,15 @@ namespace Cavern.Format {
         /// Writes the <paramref name="samples"/> to be played back channel after channel.
         /// </summary>
         /// <param name="samples">All input samples</param>
+        public void WriteOffset(float[][] samples) => WriteOffset(samples, samples.Length);
+
+        /// <summary>
+        /// Writes the <paramref name="samples"/> to be played back channel after channel, but some channels play simultaneously.
+        /// </summary>
+        /// <param name="samples">All input samples</param>
         /// <param name="period">Channels separated by this many channels are played simultaneously</param>
-        public void WriteOffset(float[][] samples, int period = -1) {
+        public void WriteOffset(float[][] samples, int period) {
             ChannelCount = samples.Length;
-            if (period == -1) {
-                period = ChannelCount;
-            }
             Length = period * samples[0].Length;
             float[] empty = new float[samples[0].Length];
             float[][] holder = new float[samples.Length][];

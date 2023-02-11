@@ -40,7 +40,7 @@ namespace Cavern.Format {
             this.path = path;
             segments = new AudioWriter[length / segmentSize + (length % segmentSize != 0 ? 1 : 0)];
             long lengthSum = 0;
-            for (int i = 0; i < segments.Length; ++i) {
+            for (int i = 0; i < segments.Length; i++) {
                 long lengthHere = Math.Min(segmentSize, length - lengthSum);
                 lengthSum += lengthHere;
                 segments[i] = Create(string.Format(path, i), channelCount, lengthHere, sampleRate, bits);
@@ -52,8 +52,9 @@ namespace Cavern.Format {
         /// </summary>
         public string[] GetSegmentFiles() {
             string[] files = new string[segments.Length];
-            for (int i = 0; i < segments.Length; ++i)
+            for (int i = 0; i < segments.Length; i++) {
                 files[i] = string.Format(path, i);
+            }
             return files;
         }
 
@@ -61,8 +62,9 @@ namespace Cavern.Format {
         /// Create the file header.
         /// </summary>
         public override void WriteHeader() {
-            for (int i = 0; i < segments.Length; ++i)
+            for (int i = 0; i < segments.Length; i++) {
                 segments[i].WriteHeader();
+            }
         }
 
         /// <summary>
@@ -72,8 +74,9 @@ namespace Cavern.Format {
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
         public override void WriteBlock(float[] samples, long from, long to) {
-            if (segment == segments.Length)
+            if (segment == segments.Length) {
                 return;
+            }
             long fromCurrent = (to - from) / ChannelCount,
                 remainingInSegment = segments[segment].Length - segmentPosition;
             if (fromCurrent <= remainingInSegment) {
@@ -81,8 +84,9 @@ namespace Cavern.Format {
                 segmentPosition += fromCurrent;
             } else {
                 segments[segment++].WriteBlock(samples, from, from += remainingInSegment * ChannelCount);
-                if (segment != segments.Length)
+                if (segment != segments.Length) {
                     segments[segment].WriteBlock(samples, from, to);
+                }
                 segmentPosition = fromCurrent - remainingInSegment;
             }
         }
@@ -110,8 +114,9 @@ namespace Cavern.Format {
         /// Close the files of the segments.
         /// </summary>
         public override void Dispose() {
-            for (int i = 0; i < segments.Length; ++i)
+            for (int i = 0; i < segments.Length; i++) {
                 segments[i].Dispose();
+            }
         }
     }
 }

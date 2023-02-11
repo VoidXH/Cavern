@@ -77,7 +77,7 @@ namespace Cavern.Format.Renderers {
             // Channel-based rendering
             else {
                 ReferenceChannel[] channels = stream.GetChannels();
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     Source source = new StreamMasterSource(reader, channel) {
                         Position = ChannelPrototype.AlternativePositions[(int)channels[channel]] * Listener.EnvironmentSize
                     };
@@ -105,7 +105,7 @@ namespace Cavern.Format.Renderers {
         public override void Update(int samples) {
             if (lfeResult.Length != samples) {
                 timeslotResult = new float[finalResult.Length][];
-                for (int obj = 0; obj < finalResult.Length; ++obj) {
+                for (int obj = 0; obj < finalResult.Length; obj++) {
                     finalResult[obj] = new float[samples];
                 }
                 lfeTimeslot = new float[samples];
@@ -114,22 +114,23 @@ namespace Cavern.Format.Renderers {
             if (inputData.Length != stream.ChannelCount) {
                 decodedBlock = new float[QuadratureMirrorFilterBank.subbands * stream.ChannelCount];
                 inputData = new float[stream.ChannelCount][];
-                for (int channel = 0; channel < inputData.Length; ++channel) {
+                for (int channel = 0; channel < inputData.Length; channel++) {
                     inputData[channel] = new float[QuadratureMirrorFilterBank.subbands];
                 }
             }
 
             int pointer = 0;
             while (pointer < samples) {
-                if (timeslotPosition == 0)
+                if (timeslotPosition == 0) {
                     RenderNextTimeslot();
+                }
                 int next = Math.Min(samples - pointer, QuadratureMirrorFilterBank.subbands - timeslotPosition);
-                for (int obj = 0; obj < finalResult.Length; ++obj) {
-                    for (int i = 0; i < next; ++i) {
+                for (int obj = 0; obj < finalResult.Length; obj++) {
+                    for (int i = 0; i < next; i++) {
                         finalResult[obj][pointer + i] = timeslotResult[obj][timeslotPosition + i];
                     }
                 }
-                for (int i = 0; i < next; ++i) {
+                for (int i = 0; i < next; i++) {
                     lfeResult[pointer + i] = lfeTimeslot[timeslotPosition + i];
                 }
                 pointer += next;
@@ -143,7 +144,7 @@ namespace Cavern.Format.Renderers {
             if (lfe != -1) {
                 Array.Copy(finalResult, objectSamples, lfe);
                 ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
-                for (int i = 0; i < matrix.Length; ++i) {
+                for (int i = 0; i < matrix.Length; i++) {
                     if (matrix[i] == ReferenceChannel.ScreenLFE) {
                         objectSamples[lfe] = lfeResult;
                         break;
@@ -169,8 +170,8 @@ namespace Cavern.Format.Renderers {
                 decoder.Extensions.OAMD.UpdateSources(decoder.LastFetchStart / stream.ChannelCount, objects);
 
                 float[][] sources = new float[JointObjectCodingTables.inputMatrix.Length][];
-                for (int i = 0; i < sources.Length; ++i) {
-                    for (int j = 0; j < matrix.Length; ++j) {
+                for (int i = 0; i < sources.Length; i++) {
+                    for (int j = 0; j < matrix.Length; j++) {
                         if (JointObjectCodingTables.inputMatrix[i] == matrix[j]) {
                             sources[i] = inputData[j];
                             break;
@@ -178,7 +179,7 @@ namespace Cavern.Format.Renderers {
                     }
                 }
 
-                for (int i = 0; i < matrix.Length; ++i) {
+                for (int i = 0; i < matrix.Length; i++) {
                     if (matrix[i] == ReferenceChannel.ScreenLFE) {
                         lfeTimeslot = inputData[i];
                     }
@@ -188,7 +189,7 @@ namespace Cavern.Format.Renderers {
             }
             // Channel-based rendering or fallback to it when OAMD or JOC can't be decoded correctly
             else {
-                for (int i = 0; i < matrix.Length; ++i) {
+                for (int i = 0; i < matrix.Length; i++) {
                     timeslotResult[i] = inputData[i];
                     objects[i].Position = ChannelPrototype.AlternativePositions[(int)matrix[i]] * Listener.EnvironmentSize;
                     if (ChannelPrototype.Mapping[(int)matrix[i]].LFE) { // LFE is handled elsewhere
@@ -196,7 +197,7 @@ namespace Cavern.Format.Renderers {
                         timeslotResult[i].Clear();
                     }
                 }
-                for (int i = matrix.Length; i < timeslotResult.Length; ++i) {
+                for (int i = matrix.Length; i < timeslotResult.Length; i++) {
                     objects[i].Position = default;
                     timeslotResult[i].Clear();
                 }

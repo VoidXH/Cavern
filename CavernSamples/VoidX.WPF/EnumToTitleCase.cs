@@ -11,13 +11,14 @@ namespace VoidX.WPF {
         /// Converts a camel-case string with spaces and uppercase initial.
         /// </summary>
         public static string GetTitleCase(string source) {
-            if (string.IsNullOrEmpty(source))
+            if (string.IsNullOrEmpty(source)) {
                 return null;
+            }
             char[] target = new char[source.Length * 2];
             bool lastCamel = false;
             int size = 1;
             target[0] = source[0] >= 'a' && source[0] <= 'z' ? (char)(source[0] + ('A' - 'a')) : source[0];
-            for (int i = 1; i < source.Length; ++i) {
+            for (int i = 1; i < source.Length; i++) {
                 if (source[i] >= 'A' && source[i] <= 'Z') {
                     if (!lastCamel) {
                         target[size++] = ' ';

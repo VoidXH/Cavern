@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using Cavern.Filters;
 
@@ -127,10 +128,16 @@ namespace Cavern {
         public static implicit operator bool(Source source) => source != null;
 
         /// <summary>
-        /// Start playback from the beginning of the <see cref="Clip"/>.
+        /// Start playback from the beginning of the <see cref="Clip"/> immediately.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Play() => Play(0);
+
+        /// <summary>
+        /// Start playback from the beginning of the <see cref="Clip"/> after a delay has passed.
         /// </summary>
         /// <param name="delaySamples">Optional delay in samples</param>
-        public void Play(long delaySamples = 0) {
+        public void Play(long delaySamples) {
             TimeSamples = 0;
             delay = delaySamples;
             IsPlaying = true;

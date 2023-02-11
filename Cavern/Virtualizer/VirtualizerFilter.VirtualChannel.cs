@@ -8,7 +8,7 @@ namespace Cavern.Virtualizer {
     /// <summary>
     /// Represents a virtualizable channel with impulse responses for both ears.
     /// </summary>
-    public struct VirtualChannel {
+    public struct VirtualChannel : IEquatable<VirtualChannel> {
         /// <summary>
         /// Low frequency crossover filter for retaining bass outside the usable impulse response frequency range.
         /// </summary>
@@ -110,5 +110,10 @@ namespace Cavern.Virtualizer {
         /// <remarks>This formula is based on measurements and the sine wave's usability was disproven.
         /// See Bence S. (2022). Extending HRTF with distance simulation based on ray-tracing.</remarks>
         static int GetDelay(float angle) => (int)((90 - Math.Abs(angle - 90)) / 2.7f);
+
+        /// <summary>
+        /// Check if the two virtual channels handle the same source channel position.
+        /// </summary>
+        public bool Equals(VirtualChannel other) => x == other.x && y == other.y;
     }
 }

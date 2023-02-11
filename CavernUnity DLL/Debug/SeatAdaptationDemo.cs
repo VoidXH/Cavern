@@ -34,9 +34,12 @@ namespace Cavern.Debug {
         /// <param name="ID">Window ID</param>
         protected override void Draw(int ID) {
             GUI.DrawTexture(new Rect(5, 20, Adaptor.Columns * 20 - 5, 2), Gray);
-            for (int z = 0; z < Adaptor.Rows; ++z)
-                for (int x = 0; x < Adaptor.Columns; ++x)
-                    Adaptor.SeatsOccupied[z, x] = GUI.Toggle(new Rect(x * 20 + 5, z * 20 + 22, 15, 15), Adaptor.SeatsOccupied[z, x], string.Empty);
+            for (int z = 0; z < Adaptor.Rows; ++z) {
+                for (int x = 0; x < Adaptor.Columns; ++x) {
+                    Adaptor.SeatsOccupied[z, x] =
+                        GUI.Toggle(new Rect(x * 20 + 5, z * 20 + 22, 15, 15), Adaptor.SeatsOccupied[z, x], string.Empty);
+                }
+            }
             GUI.DragWindow();
         }
     }

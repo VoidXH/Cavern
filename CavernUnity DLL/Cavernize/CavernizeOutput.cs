@@ -50,8 +50,9 @@ namespace Cavern.Cavernize {
             /// Force the source to be played.
             /// </summary>
             protected override bool Precollect() {
-                if (!Master)
+                if (!Master) {
                     return false;
+                }
                 return base.Precollect();
             }
 
@@ -70,10 +71,11 @@ namespace Cavern.Cavernize {
         void Start() {
             SourceUpdate();
             CavernizeOutputSource source = (CavernizeOutputSource)cavernSource;
-            if (Master.Clip != null)
+            if (Master.Clip != null) {
                 source.Clip = new Clip(new float[1][] { new float[1] }, Master.Clip.frequency);
-            else
+            } else {
                 source.Clip = new Clip(new float[1][] { new float[1] }, Master.Clip3D.SampleRate);
+            }
             source.Master = Master;
             source.GroundLevel = GroundLevel;
             source.Channel = Channel;

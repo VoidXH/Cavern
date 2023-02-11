@@ -88,7 +88,9 @@ namespace VoidX.WPF {
         public void Dispose() {
             try {
                 operation?.Dispose();
-            } catch { }
+            } catch {
+                // There are cases, like the open file dialog, where cancellation is not possible. The OS will free it anyway.
+            }
             GC.SuppressFinalize(this);
         }
     }

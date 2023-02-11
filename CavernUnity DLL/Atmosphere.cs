@@ -28,7 +28,7 @@ namespace Cavern {
         /// Create a spherical environment instead of cubic.
         /// </summary>
         [Tooltip("Create a spherical environment instead of cubic.")]
-        public bool Spherical = false;
+        public bool Spherical;
 
         /// <summary>
         /// Minimal distance to spawn sources from the object's position.

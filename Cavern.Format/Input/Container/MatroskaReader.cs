@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
 using Cavern.Format.Common;
 using Cavern.Format.Container.Matroska;
 using Cavern.Utilities;
@@ -16,7 +17,7 @@ namespace Cavern.Format.Container {
         /// The limit is the size of this array. Use <see cref="GetCluster(int)"/> to read a cluster,
         /// it checks the cache before trying to read it.
         /// </summary>
-        readonly Tuple<int, Cluster>[] cachedClusters = new Tuple<int, Cluster>[] {
+        readonly Tuple<int, Cluster>[] cachedClusters = {
             new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null),
             new Tuple<int, Cluster>(-1, null), new Tuple<int, Cluster>(-1, null) // Still better than null checks
         };
@@ -143,13 +144,13 @@ namespace Cavern.Format.Container {
         /// Read a <see cref="Cluster"/> from the cache, or if it's not cached, from the file.
         /// </summary>
         Cluster GetCluster(int index) {
-            for (int i = 0; i < cachedClusters.Length; ++i) {
+            for (int i = 0; i < cachedClusters.Length; i++) {
                 if (cachedClusters[i].Item1 == index) {
                     return cachedClusters[i].Item2;
                 }
             }
 
-            for (int i = 0; i < segments.Length; ++i) {
+            for (int i = 0; i < segments.Length; i++) {
                 MatroskaTree cluster = segments[i].GetChild(reader, MatroskaTree.Segment_Cluster, index);
                 if (cluster != null) {
                     Array.Copy(cachedClusters, 1, cachedClusters, 0, cachedClusters.Length - 1);
@@ -177,7 +178,7 @@ namespace Cavern.Format.Container {
             segments = segmentSource.ToArray();
 
             List<double> blockLengths = new List<double>();
-            for (int i = 0; i < segments.Length; ++i) {
+            for (int i = 0; i < segments.Length; i++) {
                 MatroskaTree segmentInfo = segments[i].GetChild(reader, MatroskaTree.Segment_Info);
                 double length = segmentInfo.GetChild(reader, MatroskaTree.Segment_Info_Duration).GetFloatBE(reader);
                 timestampScale = segmentInfo.GetChildValue(reader, MatroskaTree.Segment_Info_TimestampScale);
@@ -198,7 +199,7 @@ namespace Cavern.Format.Container {
         void ReadTracks(MatroskaTree tracklist) {
             MatroskaTree[] entries = tracklist.GetChildren(reader, MatroskaTree.Segment_Tracks_TrackEntry);
             Tracks = new Track[entries.Length];
-            for (int track = 0; track < entries.Length; ++track) {
+            for (int track = 0; track < entries.Length; track++) {
                 MatroskaTrack entry = new MatroskaTrack(this, track);
                 Tracks[track] = entry;
 

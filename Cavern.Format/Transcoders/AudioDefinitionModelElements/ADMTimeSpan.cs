@@ -106,7 +106,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
         /// </summary>
         public override bool Equals(object obj) {
             if (obj is ADMTimeSpan rhs) {
-                return seconds == rhs.seconds & fraction == rhs.fraction;
+                return seconds == rhs.seconds && fraction == rhs.fraction;
             }
             return false;
         }

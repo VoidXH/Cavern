@@ -1,7 +1,8 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace Cavern.Channels {
-    partial struct ChannelPrototype {
+    public partial struct ChannelPrototype : IEquatable<ChannelPrototype> {
         /// <summary>
         /// Possible channels to use in layouts.
         /// </summary>

@@ -35,13 +35,18 @@ namespace Cavern.Filters {
         readonly int delay;
 
         /// <summary>
-        /// Constructs an optimized convolution.
+        /// Constructs an optimized convolution with no delay.
         /// </summary>
-        public FastConvolver(float[] impulse, int delay = 0) {
+        public FastConvolver(float[] impulse) : this(impulse, 0) { }
+
+        /// <summary>
+        /// Constructs an optimized convolution with added delay.
+        /// </summary>
+        public FastConvolver(float[] impulse, int delay) {
             int fftSize = 2 << QMath.Log2Ceil(impulse.Length); // Zero padding for the falloff to have space
             cache = CreateCache(fftSize);
             filter = new Complex[fftSize];
-            for (int sample = 0; sample < impulse.Length; ++sample) {
+            for (int sample = 0; sample < impulse.Length; sample++) {
                 filter[sample].Real = impulse[sample];
             }
             filter.InPlaceFFT(cache);
