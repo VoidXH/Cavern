@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
@@ -204,13 +205,34 @@ namespace Cavern.QuickEQ.Utilities {
         public ReadOnlyCollection<float> GetSpectrumReadonly() => Array.AsReadOnly(Spectrum);
 
         /// <summary>
-        /// Render an approximate <see cref="Equalizer"/> by the analyzed filter's frequency response.
+        /// Render an approximate <see cref="Equalizer"/> by the analyzed filter's frequency response
+        /// with a 1/3 octave resolution, without oversampling.
+        /// </summary>
+        /// <param name="startFreq">Start of the rendered range</param>
+        /// <param name="endFreq">End of the rendered range</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Equalizer ToEqualizer(double startFreq, double endFreq) => ToEqualizer(startFreq, endFreq, 1 / 3f, 1);
+
+        /// <summary>
+        /// Render an approximate <see cref="Equalizer"/> by the analyzed filter's frequency response
+        /// with a custom resolution, without oversampling.
+        /// </summary>
+        /// <param name="startFreq">Start of the rendered range</param>
+        /// <param name="endFreq">End of the rendered range</param>
+        /// <param name="resolution">Band diversity in octaves</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Equalizer ToEqualizer(double startFreq, double endFreq, double resolution) =>
+            ToEqualizer(startFreq, endFreq, resolution, 1);
+
+        /// <summary>
+        /// Render an approximate <see cref="Equalizer"/> by the analyzed filter's frequency response
+        /// with a custom resolution and oversampling.
         /// </summary>
         /// <param name="startFreq">Start of the rendered range</param>
         /// <param name="endFreq">End of the rendered range</param>
         /// <param name="resolution">Band diversity in octaves</param>
         /// <param name="oversampling">Detail increase factor</param>
-        public Equalizer ToEqualizer(double startFreq, double endFreq, double resolution = 1 / 3f, int oversampling = 1) {
+        public Equalizer ToEqualizer(double startFreq, double endFreq, double resolution, int oversampling) {
             float[] graph = GraphUtils.ConvertToGraph(FrequencyResponse, startFreq, endFreq, SampleRate, SampleRate * oversampling);
             List<Band> bands = new List<Band>();
             double startPow = Math.Log10(startFreq), powRange = (Math.Log10(endFreq) - startPow) / graph.Length,

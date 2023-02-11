@@ -39,9 +39,14 @@ namespace Cavern.Filters {
         readonly int delay2;
 
         /// <summary>
-        /// Constructs an optimized convolution.
+        /// Constructs an optimized convolution with no delay.
         /// </summary>
-        public DualConvolver(float[] impulse1, float[] impulse2, int delay1 = 0, int delay2 = 0) {
+        public DualConvolver(float[] impulse1, float[] impulse2) : this(impulse1, impulse2, 0, 0) { }
+
+        /// <summary>
+        /// Constructs an optimized convolution with additional delays.
+        /// </summary>
+        public DualConvolver(float[] impulse1, float[] impulse2, int delay1, int delay2) {
             int impulseLength = Math.Max(impulse1.Length, impulse2.Length);
             int fftSize = 2 << QMath.Log2Ceil(impulseLength); // Zero padding for the falloff to have space
             cache = new ThreadSafeFFTCache(fftSize);

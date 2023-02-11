@@ -70,7 +70,6 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="frequency">Crossover frequency</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Crossover(int sampleRate, double frequency) : this(sampleRate, frequency, 2) { }
 
         /// <summary>

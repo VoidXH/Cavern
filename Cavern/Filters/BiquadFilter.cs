@@ -82,13 +82,29 @@ namespace Cavern.Filters {
         protected float x1, x2, y1, y2;
 
         /// <summary>
+        /// Simple first-order biquad filter with maximum flatness and no additional gain.
+        /// </summary>
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        protected BiquadFilter(int sampleRate, double centerFreq) : this(sampleRate, centerFreq, QFactor.reference, 0) { }
+
+        /// <summary>
+        /// Simple first-order biquad filter with no additional gain.
+        /// </summary>
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        protected BiquadFilter(int sampleRate, double centerFreq, double q) : this(sampleRate, centerFreq, q, 0) { }
+
+        /// <summary>
         /// Simple first-order biquad filter.
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
-        public BiquadFilter(int sampleRate, double centerFreq, double q = QFactor.reference, double gain = 0) {
+        protected BiquadFilter(int sampleRate, double centerFreq, double q, double gain) {
             this.sampleRate = sampleRate;
             Reset(centerFreq, q, gain);
         }

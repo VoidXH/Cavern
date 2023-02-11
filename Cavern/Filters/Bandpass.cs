@@ -1,12 +1,26 @@
 ﻿using System;
 
-using Cavern.Filters.Utilities;
-
 namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order bandpass filter.
     /// </summary>
     public class Bandpass : BiquadFilter {
+        /// <summary>
+        /// Simple first-order bandpass filter with maximum flatness and no additional gain.
+        /// </summary>
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        public Bandpass(int sampleRate, double centerFreq) : base(sampleRate, centerFreq) { }
+
+        /// <summary>
+        /// Simple first-order bandpass filter with no additional gain.
+        /// </summary>
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        public Bandpass(int sampleRate, double centerFreq, double q) : base(sampleRate, centerFreq, q) { }
+
         /// <summary>
         /// Simple first-order bandpass filter.
         /// </summary>
@@ -14,8 +28,7 @@ namespace Cavern.Filters {
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
-        public Bandpass(int sampleRate, double centerFreq, double q = QFactor.reference, double gain = 0) :
-            base(sampleRate, centerFreq, q, gain) { }
+        public Bandpass(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
 
         /// <summary>
         /// Regenerate the transfer function.

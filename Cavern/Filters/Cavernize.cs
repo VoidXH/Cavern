@@ -62,11 +62,18 @@ namespace Cavern.Filters {
         float lastHigh;
 
         /// <summary>
+        /// Separates ground and height data for a channel of a regular surround mix. Constructs the filter with keeping sounds
+        /// below 250 Hz on the ground.
+        /// </summary>
+        /// <param name="sampleRate">Content sample rate</param>
+        public Cavernize(int sampleRate) : this(sampleRate, 250) { }
+
+        /// <summary>
         /// Separates ground and height data for a channel of a regular surround mix.
         /// </summary>
         /// <param name="sampleRate">Content sample rate</param>
         /// <param name="crossoverFrequency">Keep sounds below this frequency on the ground layer</param>
-        public Cavernize(int sampleRate, float crossoverFrequency = 250) =>
+        public Cavernize(int sampleRate, float crossoverFrequency) =>
             crossover = new Crossover(sampleRate, crossoverFrequency, 2);
 
         /// <summary>

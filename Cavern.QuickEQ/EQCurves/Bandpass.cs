@@ -31,16 +31,8 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="highFreq">High frequency (lowpass) cutoff knee</param>
         /// <param name="sampleRate">Sample rate of the system to be EQ'd</param>
         /// <param name="resolution">Sample resolution for <see cref="this[double]"/>, must be a power of 2</param>
-        public Bandpass(double lowFreq, double highFreq, int sampleRate, int resolution) {
-            positioner = resolution * 2.0 / sampleRate;
-            float[] reference = SweepGenerator.Exponential(20, sampleRate * .5f, resolution * 2, sampleRate),
-                response = reference.FastClone();
-            BandpassFlat filter = new BandpassFlat(lowFreq, highFreq, sampleRate, QFactor.reference, 1);
-            filter.Process(response);
-            spectrum = Measurements.GetSpectrum(Measurements.GetFrequencyResponse(reference, response));
-            GraphUtils.ConvertToDecibels(spectrum);
-            gain = 6;
-        }
+        public Bandpass(double lowFreq, double highFreq, int sampleRate, int resolution) :
+            this(lowFreq, highFreq, sampleRate, resolution, QFactor.reference, 1, 6) { }
 
         /// <summary>
         /// Bandpass EQ curve with custom Q-factor, order, and gain.
