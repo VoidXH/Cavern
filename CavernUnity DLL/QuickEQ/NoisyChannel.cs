@@ -14,7 +14,7 @@ namespace Cavern.QuickEQ {
         /// </summary>
         [Header("Noisy channel")]
         [Tooltip("Target output channel.")]
-        public int Channel = 0;
+        public int Channel;
 
         /// <summary>
         /// Generates noise on the selected output channel.

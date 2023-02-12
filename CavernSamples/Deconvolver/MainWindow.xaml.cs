@@ -27,7 +27,7 @@ namespace Deconvolver {
             }
         }
 
-        static void Error(string error) => MessageBox.Show(error, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        static void Error(string message) => MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
         AudioReader Import(string fileName) {
             browser.FileName = fileName;

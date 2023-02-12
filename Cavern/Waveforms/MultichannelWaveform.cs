@@ -92,13 +92,12 @@ namespace Cavern {
         /// <summary>
         /// Multiplies all values in all channels' signals.
         /// </summary>
-        /// <param name="gain">Multiplier</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Gain(float gain) {
+        public void Gain(float multiplier) {
             for (int i = 0; i < signals.Length; ++i) {
                 float[] channel = signals[i];
                 for (int j = 0; j < channel.Length; j++) {
-                    channel[j] *= gain;
+                    channel[j] *= multiplier;
                 }
             }
         }

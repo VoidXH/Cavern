@@ -10,7 +10,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// <summary>
         /// Target output channel.
         /// </summary>
-        public int channel = 0;
+        public int channel;
 
         /// <summary>
         /// Rendered output array kept to save allocation time.

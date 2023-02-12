@@ -103,8 +103,9 @@ namespace Cavern {
             }
 
             int endPos = data[0].Length - offset;
-            if (endPos > output[0].Length)
+            if (endPos > output[0].Length) {
                 endPos = output[0].Length;
+            }
             for (int channel = 0; channel < data.Channels; channel++) {
                 Array.Copy(data[channel], offset, output[channel], 0, endPos);
             }

@@ -43,7 +43,9 @@ namespace Cavern.Format {
         public override void ReadHeader() {
             BlockTest(LimitlessAudioFormat.limitless); // Find Limitless marker
             byte[] cache = new byte[LimitlessAudioFormat.head.Length];
-            while (!RollingBlockCheck(cache, LimitlessAudioFormat.head)) ; // Find header marker, skip metadata
+            while (!RollingBlockCheck(cache, LimitlessAudioFormat.head)) {
+                // Find header marker, skip metadata
+            }
 
             Bits = reader.ReadByte() switch {
                 (byte)LAFMode.Int8 => BitDepth.Int8,

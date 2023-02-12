@@ -152,7 +152,7 @@ namespace Cavern.QuickEQ {
                 inputDevice = value;
             }
         }
-        string inputDevice = null;
+        string inputDevice;
 
         /// <summary>
         /// Microphone input.

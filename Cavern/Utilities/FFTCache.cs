@@ -36,7 +36,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// C++ FFT cache class memory address to be passed to <see cref="CavernAmp"/>.
         /// </summary>
-        internal IntPtr Native { get; private set; } = IntPtr.Zero;
+        internal IntPtr Native { get; private set; };
 
         /// <summary>
         /// FFT cache constructor.

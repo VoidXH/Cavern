@@ -14,7 +14,7 @@ namespace Cavern.QuickEQ {
         /// </summary>
         [Header("Sweep channel")]
         [Tooltip("Target output channel.")]
-        public int Channel = 0;
+        public int Channel;
 
         /// <summary>
         /// Sweeper to use the sweep reference of.

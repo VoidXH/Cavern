@@ -22,12 +22,12 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// The index of <see cref="cache"/> written next.
         /// </summary>
-        int currentByte = 0;
+        int currentByte;
 
         /// <summary>
         /// The bit of the <see cref="currentByte"/> written next.
         /// </summary>
-        int currentBit = 0;
+        int currentBit;
 
         /// <summary>
         /// Write a <paramref name="value"/> at a specific <paramref name="offset"/>

@@ -14,13 +14,13 @@ namespace Cavern {
         /// The channel of the source to convert.
         /// </summary>
         [Tooltip("The channel of the source to convert.")]
-        public int ChannelUsed = 0;
+        public int ChannelUsed;
 
         /// <summary>
         /// Indicates a balanced input line.
         /// </summary>
         [Tooltip("Indicates a balanced input line.")]
-        public bool Balanced = false;
+        public bool Balanced;
 
         /// <summary>
         /// Target output for the base channel (L).
@@ -50,7 +50,7 @@ namespace Cavern {
         /// Base speaker's position on the horizontal axis.
         /// </summary>
         [Tooltip("Base speaker's position on the horizontal axis.")]
-        [Range(-1, 1)] public float BottomSpeakerHeight = 0;
+        [Range(-1, 1)] public float BottomSpeakerHeight;
 
         /// <summary>
         /// Height speaker's position on the horizontal axis.
@@ -94,7 +94,7 @@ namespace Cavern {
             set => faderGain = 1f / Mathf.Pow(10, 1 / 20f * (value > 4 ? (value - 7) * 3.3333333333333f : ((value - 4.5f) * 20)));
         }
 
-        float lastSample = 0, lowSample = 0, highSample = 0;
+        float lastSample, lowSample, highSample;
         int sampleRate;
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]

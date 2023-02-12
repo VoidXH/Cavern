@@ -21,12 +21,12 @@ namespace Cavern.Format {
         /// <summary>
         /// Write position in the <see cref="cache"/>. Used to check if the cache is full for block dumping.
         /// </summary>
-        int cachePosition = 0;
+        int cachePosition;
 
         /// <summary>
         /// Total samples written in the file so far. Used to check the end of file and dump the unfilled last block.
         /// </summary>
-        long totalWritten = 0;
+        long totalWritten;
 
         /// <summary>
         /// Minimal Limitless Audio Format file writer.

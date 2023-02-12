@@ -20,7 +20,7 @@ namespace Cavern.FilterInterfaces {
         /// Change the phase of the sound wave on reflection.
         /// </summary>
         [Tooltip("Change the phase of the sound wave on reflection.")]
-        public bool ChangePhase = false;
+        public bool ChangePhase;
 
         /// <summary>
         /// Targets which absorb the emitted rays and generate their impulse response by.
@@ -34,7 +34,7 @@ namespace Cavern.FilterInterfaces {
         /// </summary>
         [Header("Debug")]
         [Tooltip("Show all rays, even the ones that didn't hit.")]
-        public bool ShowAllRays = false;
+        public bool ShowAllRays;
 
         /// <summary>
         /// Colliders for the <see cref="Targets"/>.

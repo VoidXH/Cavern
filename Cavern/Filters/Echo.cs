@@ -47,19 +47,19 @@ namespace Cavern.Filters {
         int delay;
 
         /// <summary>
-        /// Create an echo filter with the default effect strength (0.25) and delay (4096 samples).
+        /// Create an echo filter with the default effect strength (0.25) and delay (0.1 seconds).
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Echo(int sampleRate) : this(sampleRate, .25f, 4096) { }
+        public Echo(int sampleRate) : this(sampleRate, .25f, .1) { }
 
         /// <summary>
-        /// Create an echo filter with a custom effect strength and default delay (4096 samples).
+        /// Create an echo filter with a custom effect strength and default delay (0.1 seconds).
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="strength">Effect strength</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Echo(int sampleRate, double strength) : this(sampleRate, strength, 4096) { }
+        public Echo(int sampleRate, double strength) : this(sampleRate, strength, .1) { }
 
         /// <summary>
         /// Create an echo filter with custom effect strength and delay.
@@ -73,13 +73,12 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
-        /// Create an echo filter.
+        /// Create an echo filter with custom effect strength and delay.
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="strength">Effect strength</param>
         /// <param name="delay">Delay between echoes in seconds</param>
-        public Echo(int sampleRate, double strength = .25f, double delay = .1f) =>
-            Reset(strength, (int)(delay * (this.sampleRate = sampleRate)));
+        public Echo(int sampleRate, double strength, double delay) => Reset(strength, (int)(delay * (this.sampleRate = sampleRate)));
 
         /// <summary>
         /// Reset filter settings.
