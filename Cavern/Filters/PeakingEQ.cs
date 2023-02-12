@@ -30,20 +30,17 @@ namespace Cavern.Filters {
         public PeakingEQ(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
 
         /// <summary>
-        /// Regenerate the transfer function.
+        /// Reset the parameters specifically for the derived filter.
         /// </summary>
-        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
-        /// <param name="q">Q-factor of the filter</param>
-        /// <param name="gain">Gain of the filter in decibels</param>
-        public override void Reset(double centerFreq, double q, double gain) {
-            base.Reset(centerFreq, q, gain);
-            float w0 = (float)(Math.PI * 2 * centerFreq / sampleRate), cos = (float)Math.Cos(w0),
-                alpha = (float)(Math.Sin(w0) / (q + q)),
-                a = (float)Math.Pow(10, gain * .025f), // gain is doubled for some reason
-                divisor = 1 / (1 + alpha / a); // 1 / a0
+        /// <param name="cosW0">Cosine of omega0</param>
+        /// <param name="alpha">Value of the alpha parameter</param>
+        /// <param name="divisor">1 / a0, as a0 is the same for all biquad filters</param>
+        protected override void Reset(float cosW0, float alpha, float divisor) {
+            float a = (float)Math.Pow(10, gain * .025f); // gain is doubled for some reason
+            divisor = 1 / (1 + alpha / a);
             b0 = (1 + alpha * a) * divisor;
             b2 = (1 - alpha * a) * divisor;
-            a1 = b1 = -2 * cos * divisor;
+            a1 = b1 = -2 * cosW0 * divisor;
             a2 = (1 - alpha / a) * divisor;
         }
     }

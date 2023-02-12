@@ -1,4 +1,6 @@
-﻿using Cavern.Filters.Utilities;
+﻿using System;
+
+using Cavern.Filters.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -127,10 +129,13 @@ namespace Cavern.Filters {
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
-        public virtual void Reset(double centerFreq, double q, double gain) {
+        public void Reset(double centerFreq, double q, double gain) {
             this.centerFreq = centerFreq;
             this.q = q;
             this.gain = gain;
+            float w0 = (float)(MathF.PI * 2 * centerFreq / sampleRate), cos = (float)Math.Cos(w0),
+                alpha = (float)(Math.Sin(w0) / (q + q)), divisor = 1 / (1 + alpha);
+            Reset(cos, alpha, divisor);
         }
 
         /// <summary>
@@ -149,5 +154,13 @@ namespace Cavern.Filters {
                 x1 = thisSample;
             }
         }
+
+        /// <summary>
+        /// Reset the parameters specifically for the derived filter.
+        /// </summary>
+        /// <param name="cosW0">Cosine of omega0</param>
+        /// <param name="alpha">Value of the alpha parameter</param>
+        /// <param name="divisor">1 / a0, as a0 is the same for all biquad filters</param>
+        protected abstract void Reset(float cosW0, float alpha, float divisor);
     }
 }
