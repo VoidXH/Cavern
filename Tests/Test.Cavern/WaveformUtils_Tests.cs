@@ -7,6 +7,18 @@ namespace Test.Cavern {
     [TestClass]
     public class WaveformUtils_Tests {
         /// <summary>
+        /// Tests if <see cref="WaveformUtils.GetPeak(float[])"/> works at any index.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void GetPeak() {
+            float[] source = new float[3];
+            for (int i = 0; i < source.Length;) {
+                source[i] = i + 1;
+                Assert.AreEqual((int)source.GetPeak(), ++i);
+            }
+        }
+
+        /// <summary>
         /// Tests if <see cref="WaveformUtils.TrimEnd(float[][])"/> correctly cuts the end of jagged arrays.
         /// </summary>
         [TestMethod, Timeout(1000)]

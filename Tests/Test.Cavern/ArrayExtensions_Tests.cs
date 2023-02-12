@@ -1,8 +1,14 @@
 ﻿using Cavern.Utilities;
 
 namespace Test.Cavern {
+    /// <summary>
+    /// Tests the <see cref="ArrayExtensions"/> class.
+    /// </summary>
     [TestClass]
     public class ArrayExtensions_Tests {
+        /// <summary>
+        /// Tests the <see cref="ArrayExtensions.Nearest(float[], float)"/> method.
+        /// </summary>
         [TestMethod, Timeout(1000)]
         public void Nearest() {
             float[] testArray = { 1, 2, 3, 4 };

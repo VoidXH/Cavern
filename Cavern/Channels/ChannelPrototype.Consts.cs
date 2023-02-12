@@ -97,154 +97,117 @@ namespace Cavern.Channels {
         /// <summary>
         /// Standard 3.0.0 setup (L, R, C).
         /// </summary>
-        public static readonly ReferenceChannel[] ref300 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter
-        };
+        public static readonly ReferenceChannel[] ref300 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter };
 
         /// <summary>
         /// Standard 4.0.0 setup (L, R, SL, SR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref400 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-        };
+        public static readonly ReferenceChannel[] ref400 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight };
 
         /// <summary>
         /// Standard 5.0.0 setup (L, R, C, SL, SR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref500 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-            ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-        };
+        public static readonly ReferenceChannel[] ref500 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.SideLeft, ReferenceChannel.SideRight };
 
         /// <summary>
         /// Standard 5.1.0 setup (L, R, C, LFE, SL, SR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref510 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-        };
+        public static readonly ReferenceChannel[] ref510 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight };
 
         /// <summary>
         /// Standard 5.1.4 setup (L, R, C, LFE, SL, SR, TFL, TFR, TRL, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref514 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-        };
+        public static readonly ReferenceChannel[] ref514 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Standard 7.0.0 setup (L, R, C, RL, RR, SL, SR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref700 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-        };
+        public static readonly ReferenceChannel[] ref700 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight };
 
         /// <summary>
         /// Standard 7.0.2 setup (L, R, C, RL, RR, SL, SR, TFL, TFR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref702 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
-        };
+        public static readonly ReferenceChannel[] ref702 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight };
 
         /// <summary>
         /// Standard 7.0.4 setup (L, R, C, RL, RR, SL, SR, TFL, TFR, TRL, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref704 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-        };
+        public static readonly ReferenceChannel[] ref704 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Non-standard 7.0.6 setup (L, R, C, RL, RR, SL, SR, TFL, TFC, TFR, TRL, TRC, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref706 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
-        };
+        public static readonly ReferenceChannel[] ref706 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Standard 7.1.0 setup (L, R, C, LFE, RL, RR, SL, SR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref710 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight
-        };
+        public static readonly ReferenceChannel[] ref710 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight };
 
         /// <summary>
         /// Standard 7.1.2 setup (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref712 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
-        };
+        public static readonly ReferenceChannel[] ref712 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight };
+
+        /// <summary>
+        /// 7.1.2.1 (out-of-order Cavern XL DCP) setup (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, BS).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref712_1 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.BottomSurround };
 
         /// <summary>
         /// Standard 7.1.4 setup (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, TRL, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref714 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-        };
+        public static readonly ReferenceChannel[] ref714 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Non-standard 7.1.6 setup (L, R, C, LFE, RL, RR, SL, SR, TFL, TFC, TFR, TRL, TRC, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref716 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
-        };
+        public static readonly ReferenceChannel[] ref716 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// DCP standard 8.1.0 setup (L, R, C, LFE, RL, RR, SL, SR, RC).
         /// </summary>
-        public static readonly ReferenceChannel[] ref810 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,  ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.RearCenter
-        };
+        public static readonly ReferenceChannel[] ref810 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,  ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearCenter };
 
         /// <summary>
         /// Non-standard 9.0.6 setup (L, R, C, RL, RR, SL, SR, WL, WR, TFL, TFC, TFR, TRL, TRC, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref906 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
-        };
+        public static readonly ReferenceChannel[] ref906 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Standard 9.1.4 setup (L, R, C, LFE, RL, RR, SL, SR, WL, WR, TFL, TFR, TRL, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref914 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-        };
+        public static readonly ReferenceChannel[] ref914 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Non-standard 9.0.6 setup (L, R, C, LFE, RL, RR, SL, SR, WL, WR, TFL, TFC, TFR, TRL, TRC, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref916 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.WideLeft, ReferenceChannel.WideRight,
-            ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
-        };
+        public static readonly ReferenceChannel[] ref916 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
+
+        /// <summary>
+        /// Standard 11.1 DCP (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref111 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight };
+
+        /// <summary>
+        /// Standard 11.1 DCP with MD/ES signals (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR, MD, ES).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref111Plus = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight, ReferenceChannel.MotionData, ReferenceChannel.ExternalData };
+
+        /// <summary>
+        /// Standard 12-Track DCP (L, R, C, LFE, RL, RR, TFC, SL, SR, TFL, TFR, TSL, TSR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref121 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.TopFrontCenter, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight };
+
+        /// <summary>
+        /// Standard Cavern DCP with all signals (L, R, C, LFE, SL, SR, HI, VI, TFL, TFR, RL, RR, MD, ES, SL).
+        /// </summary>
+        public static readonly ReferenceChannel[] refCavern = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage };
+
+        /// <summary>
+        /// Standard Cavern XL DCP with all signals (L, R, C, LFE, SL, SR, HI, VI, TFL, TFR, RL, RR, MD, ES, SL, BS).
+        /// </summary>
+        public static readonly ReferenceChannel[] refCavernXL = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage, ReferenceChannel.BottomSurround };
 
         /// <summary>
         /// Industry standard channel orders for each input channel count.
@@ -265,49 +228,7 @@ namespace Cavern.Channels {
         /// when working with non-5.1 DCPs or content with 8+ channels.</remarks>
         static readonly ReferenceChannel[][] IndustryStandardMatrix = {
             Array.Empty<ReferenceChannel>(), ref100, ref200, ref300, ref400, ref500, ref510, ref700, ref710,
-            ref810, ref712,
-            // 11CH: 7.1.2.1 (out-of-order Cavern XL DCP) (L, R, C, LFE, RL, RR, SL, SR, TFL, TFR, BS)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.BottomSurround
-            },
-            // 12CH: 11.1 (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
-            },
-            // 13CH: 12-Track (L, R, C, LFE, RL, RR, TFC, SL, SR, TFL, TFR, TSL, TSR)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.TopFrontCenter,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight
-            },
-            // 14CH: 11.1 + MD/ES (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR, MD, ES)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopFrontCenter, ReferenceChannel.GodsVoice,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight, ReferenceChannel.MotionData, ReferenceChannel.ExternalData
-            },
-            // 15CH: Cavern DCP (L, R, C, LFE, SL, SR, HI, VI, TFL, TFR, RL, RR, MD, ES, SL)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.HearingImpaired, ReferenceChannel.VisuallyImpaired,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.MotionData, ReferenceChannel.ExternalData, ReferenceChannel.SignLanguage
-            },
-            // 16CH: Cavern XL DCP (L, R, C, LFE, SL, SR, HI, VI, TL, TR, RL, RR, MD, ES, SL, BS)
-            new ReferenceChannel[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.HearingImpaired,
-                ReferenceChannel.VisuallyImpaired, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.MotionData, ReferenceChannel.ExternalData,
-                ReferenceChannel.SignLanguage, ReferenceChannel.BottomSurround
-            }
+            ref810, ref712, ref712_1, ref111, ref121, ref111Plus, refCavern, refCavernXL
         };
 
         /// <summary>

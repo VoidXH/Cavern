@@ -1,6 +1,4 @@
-﻿using Cavern.Format;
-using Cavern.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +6,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
+
+using Cavern.Format;
+using Cavern.Utilities;
 
 using Clipboard = System.Windows.Clipboard;
 using MessageBox = System.Windows.MessageBox;
@@ -68,51 +69,6 @@ namespace HRTFSetImporter {
             return true;
         }
 
-        void ImportDirectionalSet(object _, EventArgs e) {
-            if (importer.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                string format = directionalSetName.Text
-                    .Replace(hMarker, "(?<param1>.+)")
-                    .Replace(wMarker, "(?<param2>.+)");
-                Regex pattern = new Regex(format);
-
-                Dictionary<int, Dictionary<int, float[][]>> data = ImportImpulses(importer.SelectedPath, pattern); // [Y][X]
-                if (data.Count == 0) {
-                    MessageBox.Show("No files were found in the selected folder matching the given file name format.", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                if (data.First().Value.First().Value.Length != 2) {
-                    MessageBox.Show("Only stereo directional files are supported.", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                List<int> written = new List<int>(); // Already exported channels' hash
-                StringBuilder result = new StringBuilder()
-                    .AppendLine("static readonly SpatialChannel[] spatialChannels = new SpatialChannel[] {");
-                IOrderedEnumerable<KeyValuePair<int, Dictionary<int, float[][]>>> orderedH = data.OrderBy(entry => entry.Key);
-                foreach (KeyValuePair<int, Dictionary<int, float[][]>> hPoint in orderedH) {
-                    IOrderedEnumerable<KeyValuePair<int, float[][]>> orderedW = hPoint.Value.OrderBy(entry => entry.Key);
-                    foreach (KeyValuePair<int, float[][]> wPoint in orderedW) {
-                        if (!WriteDirectionalChannel(result, written, hPoint.Key, wPoint.Key, wPoint.Value)) {
-                            continue;
-                        }
-                        int pair = 360 - hPoint.Key;
-                        if (data.ContainsKey(pair) && data[pair].ContainsKey(wPoint.Key)) {
-                            WriteDirectionalChannel(result, written, pair, wPoint.Key, data[pair][wPoint.Key]);
-                        }
-                    }
-                }
-                result.Append("};");
-                if (useSpaces.IsChecked.Value) {
-                    result.Replace("\t", "    ");
-                }
-                Clipboard.SetText(result.ToString());
-                MessageBox.Show("Impulse response array successfully copied to clipboard.", "Success",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
         static void LeadingClearing(Dictionary<int, Dictionary<int, float[][]>> data) {
             int minLead = int.MaxValue;
             foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in data) {
@@ -143,6 +99,14 @@ namespace HRTFSetImporter {
             }
         }
 
+        static void Normalize(Dictionary<int, Dictionary<int, float[][]>> data) {
+            foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in data) {
+                foreach (KeyValuePair<int, float[][]> distance in angle.Value) {
+                    distance.Value[0].Normalize();
+                }
+            }
+        }
+
         static void TrailingClearing(Dictionary<int, Dictionary<int, float[][]>> data) {
             int[] angles = data.Keys.ToArray();
             foreach (int angle in angles) {
@@ -159,29 +123,22 @@ namespace HRTFSetImporter {
             }
         }
 
-        static void Normalize(Dictionary<int, Dictionary<int, float[][]>> data) {
-            foreach (KeyValuePair<int, Dictionary<int, float[][]>> angle in data) {
-                foreach (KeyValuePair<int, float[][]> distance in angle.Value) {
-                    distance.Value[0].Normalize();
-                }
+        /// <summary>
+        /// Copy the <paramref name="result"/> to the clipboard in the expected format.
+        /// </summary>
+        void Finalize(StringBuilder result) {
+            if (useSpaces.IsChecked.Value) {
+                result.Replace("\t", "    ");
             }
+            Clipboard.SetText(result.ToString());
+            MessageBox.Show("Impulse response array successfully copied to clipboard.", "Success",
+                MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         void ImportAngleSet(object _, RoutedEventArgs e) {
             if (importer.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                string format = angleSetName.Text
-                    .Replace(angleMarker, "(?<param1>.+)")
-                    .Replace(distanceMarker, "(?<param2>.+)");
-                Regex pattern = new Regex(format);
-
-                Dictionary<int, Dictionary<int, float[][]>> data = ImportImpulses(importer.SelectedPath, pattern); // [angle][distance]
-                if (data.Count == 0) {
-                    MessageBox.Show("No files were found in the selected folder matching the given file name format.", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-                if (data.First().Value.First().Value.Length != 1) {
-                    MessageBox.Show("Only mono angle files are supported.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Dictionary<int, Dictionary<int, float[][]>> data = ImportSet(angleSetName.Name, angleMarker, distanceMarker);
+                if (data == null) {
                     return;
                 }
 
@@ -201,13 +158,59 @@ namespace HRTFSetImporter {
                     result.AppendLine("\t},");
                 }
                 result.Append("};");
-                if (useSpaces.IsChecked.Value) {
-                    result.Replace("\t", "    ");
-                }
-                Clipboard.SetText(result.ToString());
-                MessageBox.Show("Impulse response array successfully copied to clipboard.", "Success",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                Finalize(result);
             }
+        }
+
+        void ImportDirectionalSet(object _, EventArgs e) {
+            if (importer.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
+                Dictionary<int, Dictionary<int, float[][]>> data = ImportSet(directionalSetName.Name, hMarker, wMarker);
+                if (data == null) {
+                    return;
+                }
+
+                List<int> written = new List<int>(); // Already exported channels' hash
+                StringBuilder result = new StringBuilder()
+                    .AppendLine("static readonly SpatialChannel[] spatialChannels = new SpatialChannel[] {");
+                IOrderedEnumerable<KeyValuePair<int, Dictionary<int, float[][]>>> orderedH = data.OrderBy(entry => entry.Key);
+                foreach (KeyValuePair<int, Dictionary<int, float[][]>> hPoint in orderedH) {
+                    IOrderedEnumerable<KeyValuePair<int, float[][]>> orderedW = hPoint.Value.OrderBy(entry => entry.Key);
+                    foreach (KeyValuePair<int, float[][]> wPoint in orderedW) {
+                        if (!WriteDirectionalChannel(result, written, hPoint.Key, wPoint.Key, wPoint.Value)) {
+                            continue;
+                        }
+                        int pair = 360 - hPoint.Key;
+                        if (data.ContainsKey(pair) && data[pair].ContainsKey(wPoint.Key)) {
+                            WriteDirectionalChannel(result, written, pair, wPoint.Key, data[pair][wPoint.Key]);
+                        }
+                    }
+                }
+                result.Append("};");
+                Finalize(result);
+            }
+        }
+
+        /// <summary>
+        /// Import a set of HRTF files conforming to a 2-parameter file name format.
+        /// </summary>
+        Dictionary<int, Dictionary<int, float[][]>> ImportSet(string setName, string param1Marker, string param2Marker) {
+            string format = setName
+                    .Replace(param1Marker, "(?<param1>.+)")
+                    .Replace(param2Marker, "(?<param2>.+)");
+            Regex pattern = new Regex(format);
+
+            Dictionary<int, Dictionary<int, float[][]>> data = ImportImpulses(importer.SelectedPath, pattern);
+            if (data.Count == 0) {
+                MessageBox.Show("No files were found in the selected folder matching the given file name format.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+            if (data.First().Value.First().Value.Length != 2) {
+                MessageBox.Show("Only stereo directional files are supported.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+            return data;
         }
 
         protected override void OnClosed(EventArgs e) {
