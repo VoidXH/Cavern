@@ -42,12 +42,12 @@ namespace Cavern.Virtualizer {
         /// <summary>
         /// Parse the virtual channels from a multichannel HRIR set.
         /// </summary>
-        public static VirtualChannel[] Parse(float[][] hrir, int sampleRate, float crossoverFrequency = 120) {
+        public static VirtualChannel[] Parse(MultichannelWaveform hrir, int sampleRate, float crossoverFrequency = 120) {
             hrir.TrimStart();
             hrir.Normalize();
 
             // L/R impulses of all channels in line
-            if (hrir.Length == 2) {
+            if (hrir.Channels == 2) {
                 int channelCount = 0,
                     lPeak = -1,
                     rPeak = -1;
@@ -65,7 +65,7 @@ namespace Cavern.Virtualizer {
                 }
 
                 // Preprocessing
-                float[][][] splits = hrir.Split(rPeak - lPeak);
+                MultichannelWaveform[] splits = hrir.Split(rPeak - lPeak);
                 int lastToKeep = splits.Length;
                 while (lastToKeep > 1 && splits[lastToKeep - 1].IsMute()) {
                     --lastToKeep;
@@ -92,7 +92,7 @@ namespace Cavern.Virtualizer {
                     ChannelPrototype prototype = ChannelPrototype.Mapping[(int)channels[i]];
                     // For the LFE, use the center's impulses, otherwise the LFE would be an overriding channel at the same position,
                     // and this would cut off high frequencies
-                    float[][] split = !prototype.LFE ? splits[i] : splits[i - 1];
+                    MultichannelWaveform split = !prototype.LFE ? splits[i] : splits[i - 1];
                     result[i] = new VirtualChannel(prototype.X, prototype.Y, split[0], split[1], sampleRate, crossoverFrequency);
                 }
                 return result;

@@ -9,13 +9,13 @@ namespace Cavern.Remapping {
         /// Easily editable clip for <see cref="Remapper"/>'s channel spoofing.
         /// </summary>
         /// <param name="updateRate">Source stream's update rate</param>
-        public RemappedChannel(int updateRate) : base(new float[1][] { new float[updateRate] }, updateRate) =>
+        public RemappedChannel(int updateRate) : base(new MultichannelWaveform(1, updateRate), updateRate) =>
             SampleRate = Listener.DefaultSampleRate;
 
         /// <summary>
         /// Apply the new update rate of the <see cref="Remapper"/>.
         /// </summary>
-        public void Remake(int updateRate) => data[0] = new float[updateRate];
+        public void Remake(int updateRate) => data = new MultichannelWaveform(1, updateRate);
 
         /// <summary>
         /// Read samples from the source for the next frame.

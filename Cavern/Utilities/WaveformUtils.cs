@@ -129,21 +129,6 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Multiplies all values in a multichannel array.
-        /// </summary>
-        /// <param name="target">Array reference</param>
-        /// <param name="value">Multiplier</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Gain(float[][] target, float value) {
-            for (int i = 0; i < target.Length; ++i) {
-                float[] channel = target[i];
-                for (int j = 0; j < channel.Length; j++) {
-                    channel[j] *= value;
-                }
-            }
-        }
-
-        /// <summary>
         /// Set gain for a channel in a multichannel array.
         /// </summary>
         /// <param name="target">Sample reference</param>
@@ -199,23 +184,6 @@ namespace Cavern.Utilities {
                 absSample = Math.Abs(target[sample]);
                 if (max < absSample) {
                     max = absSample;
-                }
-            }
-            return max;
-        }
-
-        /// <summary>
-        /// Get the peak amplitude of a multichannel signal.
-        /// </summary>
-        /// <param name="target">Array reference</param>
-        /// <returns>Peak amplitude in the array</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float GetPeak(float[][] target) {
-            float max = GetPeak(target[0]);
-            for (int i = 1; i < target.Length; i++) {
-                float current = GetPeak(target[1]);
-                if (max < current) {
-                    max = current;
                 }
             }
             return max;
@@ -340,18 +308,6 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Gets if a multichannel signal has no amplitude.
-        /// </summary>
-        public static bool IsMute(this float[][] source) {
-            for (int i = 0; i < source.Length; i++) {
-                if (!source[i].IsMute()) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
         /// Mix a track to a mono stream.
         /// </summary>
         /// <param name="source">Source track</param>
@@ -462,28 +418,6 @@ namespace Cavern.Utilities {
         public static void Normalize(this float[] target) => Gain(target, 1 / GetPeak(target));
 
         /// <summary>
-        /// Set a multichannel signal's peak to 1 (0 dB FS).
-        /// </summary>
-        /// <param name="target">Samples to normalize</param>
-        public static void Normalize(this float[][] target) => Gain(target, 1 / GetPeak(target));
-
-        /// <summary>
-        /// Split a multichannel array to blocks of a given <paramref name="blockSize"/>.
-        /// </summary>
-        public static float[][][] Split(this float[][] source, int blockSize) {
-            float[][][] result = new float[source[0].Length / blockSize][][];
-            for (int block = 0; block < result.Length; block++) {
-                int start = block * blockSize,
-                    end = start + blockSize;
-                float[][] target = result[block] = new float[source.Length][];
-                for (int channel = 0; channel < source.Length; channel++) {
-                    target[channel] = source[channel][start..end];
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Subtract a track from a stream.
         /// </summary>
         /// <param name="source">Track to subtract</param>
@@ -523,28 +457,6 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Remove the 0s from the beginning of the multichannel signal.
-        /// </summary>
-        public static void TrimStart(this float[][] target) {
-            int min = target[0].Length;
-            for (int i = 0; i < target.Length; i++) {
-                float[] check = target[i];
-                int trim = 0;
-                while (check[trim] == 0 && trim < check.Length) {
-                    ++trim;
-                }
-                if (min > trim) {
-                    min = trim;
-                }
-            }
-            if (min != 0) {
-                for (int i = 0; i < target.Length; i++) {
-                    target[i] = target[i][min..];
-                }
-            }
-        }
-
-        /// <summary>
         /// Remove the 0s from the end of the signal.
         /// </summary>
         public static void TrimEnd(ref float[] target) {
@@ -554,28 +466,6 @@ namespace Cavern.Utilities {
             }
             if (trim != target.Length) {
                 target = target[..trim];
-            }
-        }
-
-        /// <summary>
-        /// Remove the 0s from the end of the multichannel signal, but keep the lengths of jagged arrays equal to the longest cut signal.
-        /// </summary>
-        public static void TrimEnd(this float[][] target) {
-            int max = 0;
-            for (int i = 0; i < target.Length; i++) {
-                float[] check = target[i];
-                int trim = check.Length;
-                while (trim > 0 && check[trim - 1] == 0) {
-                    --trim;
-                }
-                if (max < trim) {
-                    max = trim;
-                }
-            }
-            if (max != target[0].Length) {
-                for (int i = 0; i < target.Length; i++) {
-                    target[i] = target[i][..max];
-                }
             }
         }
     }

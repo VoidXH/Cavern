@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 
+using Cavern;
 using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Virtualizer;
@@ -39,7 +40,8 @@ namespace CavernizeGUI {
                 }
                 return false;
             }
-            VirtualizerFilter.Override(VirtualChannel.Parse(file.ReadMultichannelAfterHeader(), file.SampleRate), file.SampleRate);
+            VirtualizerFilter.Override(VirtualChannel.Parse(new MultichannelWaveform(file.ReadMultichannelAfterHeader()), file.SampleRate),
+                file.SampleRate);
             return true;
         }
 

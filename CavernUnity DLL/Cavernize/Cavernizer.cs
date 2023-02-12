@@ -178,7 +178,7 @@ namespace Cavern.Cavernize {
             }
         }
 
-        internal float[][] Tick(SpatializedChannel source, bool groundLevel) {
+        internal MultichannelWaveform Tick(SpatializedChannel source, bool groundLevel) {
             if (source.TicksTook == 2) { // Both moving and ground source was fed
                 GenerateSampleBlock();
                 foreach (KeyValuePair<ReferenceChannel, SpatializedChannel> channel in channels) {
@@ -186,7 +186,7 @@ namespace Cavern.Cavernize {
                 }
             }
             ++source.TicksTook;
-            return new float[1][] { source.GetOutput(groundLevel) };
+            return new MultichannelWaveform(source.GetOutput(groundLevel));
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]

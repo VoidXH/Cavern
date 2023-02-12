@@ -111,7 +111,7 @@ namespace Cavern.Cavernize {
             }
 
             // Fetch samples
-            source.GetData(cache, timeSamples);
+            source.GetData(new MultichannelWaveform(cache), timeSamples);
             if (timeSamples >= source.Samples) {
                 if (loop) {
                     timeSamples %= source.Samples;

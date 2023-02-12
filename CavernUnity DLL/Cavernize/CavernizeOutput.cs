@@ -59,12 +59,12 @@ namespace Cavern.Cavernize {
             /// <summary>
             /// Get the next sample block from <see cref="Master"/>.
             /// </summary>
-            protected override float[][] GetSamples() => Master.Tick(Channel, GroundLevel);
+            protected override MultichannelWaveform GetSamples() => Master.Tick(Channel, GroundLevel);
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Awake() => cavernSource = new CavernizeOutputSource {
-            Clip = new Clip(new float[1][] { new float[1] }, Listener.DefaultSampleRate)
+            Clip = new Clip(new MultichannelWaveform(1, 1), Listener.DefaultSampleRate)
         };
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
@@ -72,9 +72,9 @@ namespace Cavern.Cavernize {
             SourceUpdate();
             CavernizeOutputSource source = (CavernizeOutputSource)cavernSource;
             if (Master.Clip != null) {
-                source.Clip = new Clip(new[] { new float[1] }, Master.Clip.frequency);
+                source.Clip = new Clip(new MultichannelWaveform(1, 1), Master.Clip.frequency);
             } else {
-                source.Clip = new Clip(new[] { new float[1] }, Master.Clip3D.SampleRate);
+                source.Clip = new Clip(new MultichannelWaveform(1, 1), Master.Clip3D.SampleRate);
             }
             source.Master = Master;
             source.GroundLevel = GroundLevel;

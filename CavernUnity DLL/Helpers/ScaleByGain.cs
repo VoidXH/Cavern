@@ -47,10 +47,10 @@ namespace Cavern.Helpers {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            float[][] samples = source.cavernSource.Rendered;
+            MultichannelWaveform samples = source.cavernSource.Rendered;
             if (samples != null) {
                 float peakSize = float.NegativeInfinity;
-                for (int channel = 0; channel < samples.Length; ++channel) {
+                for (int channel = 0; channel < samples.Channels; channel++) {
                     float channelSize = 20 * (float)Math.Log10(WaveformUtils.GetPeak(samples[channel]));
                     if (channelSize < -600) {
                         channelSize = -600;

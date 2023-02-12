@@ -180,7 +180,7 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Calibrate this Equalizer with another: keep the ones and subtract the source's added frequencies.
+        /// Calibrate this Equalizer with another: keep the frequencies and subtract the recording device's added gains.
         /// </summary>
         public void Calibrate(Equalizer with) {
             for (int band = 0, bandc = bands.Count; band < bandc; ++band) {

@@ -34,6 +34,7 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="cosW0">Cosine of omega0</param>
         /// <param name="alpha">Value of the alpha parameter</param>
+        /// <param name="_">Would be the divisor, but it's calculated differently for this filter</param>
         protected override void Reset(float cosW0, float alpha, float _) {
             float a = (float)Math.Pow(10, gain * .025f),
                 slope = 2 * (float)Math.Sqrt(a) * alpha,

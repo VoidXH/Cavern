@@ -44,8 +44,8 @@ namespace Cavern.SpecialSources {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
             InfiniteSource source = (InfiniteSource)cavernSource;
-            Tunneler.TunnelClips(ref source.Intro, intro, intro3D, ref introClipHash);
-            Tunneler.TunnelClips(ref source.LoopClip, loopClip, loopClip3D, ref loopClipHash);
+            Tunneler.TunnelClips(ref source.intro, intro, intro3D, ref introClipHash);
+            Tunneler.TunnelClips(ref source.loopClip, loopClip, loopClip3D, ref loopClipHash);
             SourceUpdate();
         }
     }

@@ -6,7 +6,7 @@
         /// <summary>
         /// Empty cache to return.
         /// </summary>
-        readonly float[][] samples = new float[][] { new float[0] };
+        MultichannelWaveform samples = new MultichannelWaveform(1, 0);
 
         /// <summary>
         /// A source that plays silence.
@@ -19,9 +19,9 @@
         /// <summary>
         /// Get the next samples in the audio stream.
         /// </summary>
-        protected internal override float[][] GetSamples() {
+        protected internal override MultichannelWaveform GetSamples() {
             if (samples[0].Length != PitchedUpdateRate) {
-                samples[0] = new float[PitchedUpdateRate];
+                samples = new MultichannelWaveform(1, PitchedUpdateRate);
             }
             return samples;
         }

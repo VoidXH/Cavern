@@ -130,16 +130,10 @@ namespace Cavern {
         /// <summary>
         /// Get the next samples in the audio stream.
         /// </summary>
-        protected internal virtual float[][] GetSamples() {
+        protected internal virtual MultichannelWaveform GetSamples() {
             int channels = Clip.Channels;
-            if (Rendered == null || Rendered.Length != channels) {
-                Rendered = new float[channels][];
-                Rendered[0] = new float[0];
-            }
-            if (Rendered[0].Length != PitchedUpdateRate) {
-                for (int channel = 0; channel < channels; ++channel) {
-                    Rendered[channel] = new float[PitchedUpdateRate];
-                }
+            if (Rendered == null || Rendered.Channels != channels || Rendered[0].Length != PitchedUpdateRate) {
+                Rendered = new MultichannelWaveform(channels, PitchedUpdateRate);
             }
             if (Loop) {
                 Clip.GetData(Rendered, TimeSamples);

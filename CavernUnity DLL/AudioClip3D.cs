@@ -38,7 +38,7 @@ namespace Cavern {
         /// </summary>
         /// <param name="data">Audio data, with the size of [channels][samples for given channel]</param>
         /// <param name="sampleRate">Sample rate</param>
-        public AudioClip3D(float[][] data, int sampleRate) : base(data, sampleRate) => Fill();
+        public AudioClip3D(MultichannelWaveform data, int sampleRate) : base(data, sampleRate) => Fill();
 
         /// <summary>
         /// Audio content.
