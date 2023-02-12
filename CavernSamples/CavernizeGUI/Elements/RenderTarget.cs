@@ -66,70 +66,50 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         override public string ToString() => Name;
 
-        // These have to come before the Targets, otherwise they would be null.
-        /// <summary>
-        /// Channels of the 5.1.4 layout used for both 5.1.4 and rendering before downmixing to 5.1.2 front.
-        /// </summary>
-        static readonly ReferenceChannel[] layout514 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-        };
-
-        /// <summary>
-        /// Channels of the 9.1.4 layout used for both 9.1.4 and rendering before downmixing to 9.1.2 front.
-        /// </summary>
-        static readonly ReferenceChannel[] layout914 = {
-            ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-            ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-            ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-            ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-        };
-
         /// <summary>
         /// Default render targets.
         /// </summary>
         /// <remarks>Top rears are used instead of sides for smooth height transitions and WAVEFORMATEXTENSIBLE support.</remarks>
         public static readonly RenderTarget[] Targets = {
-            new RenderTarget("5.1 side", ChannelPrototype.GetStandardMatrix(6)),
+            new RenderTarget("5.1 side", ChannelPrototype.ref510),
             new RenderTarget("5.1 rear", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight
             }),
-            new DownmixedRenderTarget("5.1.2 front", layout514, (8, 4), (9, 5)),
+            new DownmixedRenderTarget("5.1.2 front", ChannelPrototype.ref514, (8, 4), (9, 5)),
             new RenderTarget("5.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,  ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
-            new RenderTarget("5.1.4", layout514),
+            new RenderTarget("5.1.4", ChannelPrototype.ref514),
             new RenderTarget("5.1.6", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
             }),
-            new RenderTarget("7.1", ChannelPrototype.GetStandardMatrix(8)),
-            new DownmixedRenderTarget("7.1.2 front", ChannelPrototype.GetStandardMatrix(12), (10, 4), (11, 5)),
+            new RenderTarget("7.1", ChannelPrototype.ref710),
+            new DownmixedRenderTarget("7.1.2 front", ChannelPrototype.ref714, (10, 4), (11, 5)),
             new RenderTarget("7.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
-            new RenderTarget("7.1.4", ChannelPrototype.GetStandardMatrix(12)),
-            new RenderTarget("7.1.6", ChannelPrototype.GetStandardMatrix(14)),
+            new RenderTarget("7.1.4", ChannelPrototype.ref714),
+            new RenderTarget("7.1.6", ChannelPrototype.ref716),
             new RenderTarget("9.1", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight
             }),
-            new DownmixedRenderTarget("9.1.2 front", layout914, (12, 4), (13, 5)),
+            new DownmixedRenderTarget("9.1.2 front", ChannelPrototype.ref914, (12, 4), (13, 5)),
             new RenderTarget("9.1.2 side", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
-            new RenderTarget("9.1.4", layout914),
-            new RenderTarget("9.1.6", ChannelPrototype.GetStandardMatrix(16)),
+            new RenderTarget("9.1.4", ChannelPrototype.ref914),
+            new RenderTarget("9.1.6", ChannelPrototype.ref916),
             new DriverRenderTarget(),
             new VirtualizerRenderTarget()
         };

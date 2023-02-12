@@ -52,7 +52,7 @@ namespace Cavern {
         /// Show created objects.
         /// </summary>
         [Tooltip("Show created objects.")]
-        public bool Visualize = false;
+        public bool Visualize;
 
         struct AtmosphereObject {
             public GameObject Object;

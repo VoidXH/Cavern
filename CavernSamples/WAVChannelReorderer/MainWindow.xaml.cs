@@ -70,12 +70,13 @@ namespace WAVChannelReorderer {
         /// </summary>
         void DuneTarget(object sender, RoutedEventArgs e) {
             // TODO: only 24 bit is supported for 5.1
-            if (reader.ChannelCount < 6)
+            if (reader.ChannelCount < 6) {
                 SetStandardLayout(targetChannels);
-            else if (reader.ChannelCount <= 8)
+            } else if (reader.ChannelCount <= 8) {
                 targetChannels.ItemsSource = (ReferenceChannel[])duneLayouts[reader.ChannelCount - 6].Clone();
-            else
+            } else {
                 ShowError("More than 8 raw channels are unsupported with any dedicated media player.");
+            }
         }
 
         /// <summary>
@@ -152,9 +153,11 @@ namespace WAVChannelReorderer {
             int[] targetIndexes = new int[channels];
             for (int i = 0; i < channels; ++i) {
                 targetIndexes[i] = -1;
-                for (int j = 0; j < channels; ++j)
-                    if ((ReferenceChannel)sourceChannels.Items[i] == (ReferenceChannel)targetChannels.Items[j])
+                for (int j = 0; j < channels; ++j) {
+                    if ((ReferenceChannel)sourceChannels.Items[i] == (ReferenceChannel)targetChannels.Items[j]) {
                         targetIndexes[i] = j;
+                    }
+                }
             }
 
             using RIFFWaveWriter writer = new(path, channels, reader.Length, reader.SampleRate, reader.Bits);
@@ -171,10 +174,12 @@ namespace WAVChannelReorderer {
                 Array.Clear(target, 0, (int)stepSize);
                 for (int ch = 0; ch < channels; ++ch) {
                     int targetIndex = targetIndexes[ch];
-                    if (targetIndex == -1)
+                    if (targetIndex == -1) {
                         continue;
-                    for (int sample = ch, pair = targetIndex; sample < source.Length; sample += channels, pair += channels)
+                    }
+                    for (int sample = ch, pair = targetIndex; sample < source.Length; sample += channels, pair += channels) {
                         target[pair] = source[sample];
+                    }
                 }
                 writer.WriteBlock(target, 0, stepSize);
                 position += stepSize;
@@ -195,11 +200,13 @@ namespace WAVChannelReorderer {
             SaveFileDialog dialog = new() {
                 Filter = dialogFilter
             };
-            if (dialog.ShowDialog() == true)
-                if (dialog.FileName == loadedFile)
+            if (dialog.ShowDialog() == true) {
+                if (dialog.FileName == loadedFile) {
                     ShowError("Can't overwrite the source file with the exported file.");
-                else
+                } else {
                     process.Run(() => ExportProcess(dialog.FileName));
+                }
+            }
         }
     }
 }

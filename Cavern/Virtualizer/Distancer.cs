@@ -131,7 +131,7 @@ namespace Cavern.Virtualizer {
                 impulses[largerAngle][smallerDistance],
                 impulses[largerAngle][largerDistance]
             };
-            float[] gains = new float[] {
+            float[] gains = {
                 (float)Math.Sqrt((1 - angleRatio) * (1 - distanceRatio)),
                 (float)Math.Sqrt((1 - angleRatio) * distanceRatio),
                 (float)Math.Sqrt(angleRatio * (1 - distanceRatio)),
