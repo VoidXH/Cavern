@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cavern.Filters {
+﻿namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order highpass filter.
     /// </summary>
@@ -35,11 +33,6 @@ namespace Cavern.Filters {
         /// <param name="cosW0">Cosine of omega0</param>
         /// <param name="alpha">Value of the alpha parameter</param>
         /// <param name="divisor">1 / a0, as a0 is the same for all biquad filters</param>
-        protected override void Reset(float cosW0, float alpha, float divisor) {
-            a1 = -2 * cosW0 * divisor;
-            a2 = (1 - alpha) * divisor;
-            b2 = -(b1 = (-1 - cosW0) * divisor) * .5f;
-            b0 = (float)Math.Pow(10, gain * .05f) * b2;
-        }
+        protected override void Reset(float cosW0, float alpha, float divisor) => SetupPass(cosW0, alpha, divisor, -1 - cosW0);
     }
 }

@@ -26,27 +26,27 @@ namespace Cavern.Format.Transcoders {
             /// <summary>
             /// Grouped mantissas for bap = 1 (3-level) quantization.
             /// </summary>
-            static int[][] bap1;
+            static readonly int[][] bap1 = GenerateGroupedQuantization(3, 3, 5);
 
             /// <summary>
             /// Grouped mantissas for bap = 2 (5-level) quantization.
             /// </summary>
-            static int[][] bap2;
+            static readonly int[][] bap2 = GenerateGroupedQuantization(5, 3, 7);
 
             /// <summary>
             /// Mantissas for bap = 3 (7-level) quantization.
             /// </summary>
-            static int[] bap3;
+            static readonly int[] bap3 = GenerateQuantization(7);
 
             /// <summary>
             /// Grouped mantissas for bap = 4 (11-level) quantization.
             /// </summary>
-            static int[][] bap4;
+            static readonly int[][] bap4 = GenerateGroupedQuantization(11, 2, 7);
 
             /// <summary>
             /// Mantissas for bap = 5 (15-level) quantization.
             /// </summary>
-            static int[] bap5;
+            static readonly int[] bap5 = GenerateQuantization(15);
 
             /// <summary>
             /// Complex multiplication cache for 512-sample IMDCT.
@@ -115,12 +115,6 @@ namespace Cavern.Format.Transcoders {
                 if (cache512 == null) {
                     cache512 = new FFTCache(IMDCTSize / 4);
                     cache256 = new FFTCache(IMDCTSize / 8);
-
-                    bap1 = GenerateGroupedQuantization(3, 3, 5);
-                    bap2 = GenerateGroupedQuantization(5, 3, 7);
-                    bap3 = GenerateQuantization(7);
-                    bap4 = GenerateGroupedQuantization(11, 2, 7);
-                    bap5 = GenerateQuantization(15);
 
                     for (int i = 0; i < x512.Length; i++) {
                         const float mul = 2 * MathF.PI / (8 * IMDCTSize);

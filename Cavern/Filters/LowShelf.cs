@@ -34,13 +34,12 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="cosW0">Cosine of omega0</param>
         /// <param name="alpha">Value of the alpha parameter</param>
-        /// <param name="divisor">1 / a0, as a0 is the same for all biquad filters</param>
-        protected override void Reset(float cosW0, float alpha, float divisor) {
+        protected override void Reset(float cosW0, float alpha, float _) {
             float a = (float)Math.Pow(10, gain * .025f),
                 slope = 2 * (float)Math.Sqrt(a) * alpha,
                 minCos = (a - 1) * cosW0,
                 addCos = (a + 1) * cosW0;
-            divisor = 1 / (a + 1 + minCos + slope);
+            float divisor = 1 / (a + 1 + minCos + slope);
             a1 = -2 * (a - 1 + addCos) * divisor;
             a2 = (a + 1 + minCos - slope) * divisor;
             b0 = a * (a + 1 - minCos + slope) * divisor;

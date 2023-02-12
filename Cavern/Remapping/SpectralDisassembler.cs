@@ -28,7 +28,7 @@ namespace Cavern.Remapping {
         /// <summary>
         /// Contains one band of deconstruction, a fixed width of the full content spectrum, with relative spatial placement.
         /// </summary>
-        public struct SpectralPart {
+        public struct SpectralPart : IEquatable<SpectralPart> {
             /// <summary>
             /// Ratio of the position between left and right input channels.
             /// </summary>
@@ -38,6 +38,9 @@ namespace Cavern.Remapping {
             /// Band-limited audio data from the mono mix of the original content.
             /// </summary>
             public float[] samples;
+
+            /// Check if two <see cref="SpectralPart"/>s describe the same <see cref="panning"/>.
+            bool IEquatable<SpectralPart>.Equals(SpectralPart other) => panning == other.panning;
         }
 
         /// <summary>

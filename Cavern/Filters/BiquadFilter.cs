@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 using Cavern.Filters.Utilities;
 
@@ -161,6 +162,19 @@ namespace Cavern.Filters {
         /// <param name="cosW0">Cosine of omega0</param>
         /// <param name="alpha">Value of the alpha parameter</param>
         /// <param name="divisor">1 / a0, as a0 is the same for all biquad filters</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract void Reset(float cosW0, float alpha, float divisor);
+
+        /// <summary>
+        /// Sets up a lowpass/highpass filter.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void SetupPass(float cosW0, float alpha, float divisor, float b1Pre) {
+            a1 = -2 * cosW0 * divisor;
+            a2 = (1 - alpha) * divisor;
+            b1 = b1Pre * divisor;
+            b2 = Math.Abs(b1) * .5f;
+            b0 = MathF.Pow(10, (float)gain * .05f) * b2;
+        }
     }
 }

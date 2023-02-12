@@ -26,8 +26,9 @@ namespace CavernizeGUI {
                 .Select(x => Renderer.ChannelFromPosition(x / Listener.EnvironmentSize)).ToList();
 
             bool hasLFE = listener.ActiveSources.Any(source => source.LFE);
-            if (hasLFE)
+            if (hasLFE) {
                 channels.Add(ReferenceChannel.ScreenLFE);
+            }
             channels.Sort();
 
             int unused = total - dynamic - channels.Count;
@@ -37,8 +38,9 @@ namespace CavernizeGUI {
             }
 
             builder.Append("Actually present bed channels: ").Append(channels.Count);
-            if (channels.Count != 0)
+            if (channels.Count != 0) {
                 builder.Append(" (").Append(string.Join(", ", channels)).Append(')');
+            }
             builder.AppendLine().Append("Actually present dynamic objects: ").AppendLine(dynamic.ToString())
                 .Append("Unused (fake) rendering targets: ").AppendLine(unused.ToString());
             report = builder.ToString();
