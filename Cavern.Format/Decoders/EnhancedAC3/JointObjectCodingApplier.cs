@@ -192,17 +192,21 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         unsafe void ProcessObject_Mono(JointObjectCoding joc, int obj, float[][] mixMatrix, float gain) {
             (float[] real, float[] imaginary) = qmfbCache[obj];
-            fixed (float* channelReal = results[0].real, channelImaginary = results[0].imaginary, channelMatrix = mixMatrix[0]) {
-                QMath.MultiplyAndSet_Mono(channelReal, channelMatrix, real, QuadratureMirrorFilterBank.subbands);
-                QMath.MultiplyAndSet_Mono(channelImaginary, channelMatrix, imaginary, QuadratureMirrorFilterBank.subbands);
-            }
-            for (int ch = 1; ch < joc.ChannelCount; ch++) {
-                fixed (float* channelReal = results[ch].real, channelImaginary = results[ch].imaginary, channelMatrix = mixMatrix[ch]) {
-                    QMath.MultiplyAndAdd_Mono(channelReal, channelMatrix, real, QuadratureMirrorFilterBank.subbands);
-                    QMath.MultiplyAndAdd_Mono(channelImaginary, channelMatrix, imaginary, QuadratureMirrorFilterBank.subbands);
+            fixed (float* pReal = real, pImaginary = imaginary) {
+                fixed (float* channelReal = results[0].real, channelImaginary = results[0].imaginary, channelMatrix = mixMatrix[0]) {
+                    QMath.MultiplyAndSet_Mono(channelReal, channelMatrix, pReal, QuadratureMirrorFilterBank.subbands);
+                    QMath.MultiplyAndSet_Mono(channelImaginary, channelMatrix, pImaginary, QuadratureMirrorFilterBank.subbands);
+                }
+                for (int ch = 1; ch < joc.ChannelCount; ch++) {
+                    fixed (float* channelReal = results[ch].real, channelImaginary = results[ch].imaginary, channelMatrix = mixMatrix[ch]) {
+                        QMath.MultiplyAndAdd_Mono(channelReal, channelMatrix, pReal, QuadratureMirrorFilterBank.subbands);
+                        QMath.MultiplyAndAdd_Mono(channelImaginary, channelMatrix, pImaginary, QuadratureMirrorFilterBank.subbands);
+                    }
                 }
             }
-            converters[obj].ProcessInverse_Mono(qmfbCache[obj], timeslotCache[obj]);
+            fixed (float* output = timeslotCache[obj]) {
+                converters[obj].ProcessInverse_Mono(qmfbCache[obj], output);
+            }
             if (gain != 1) {
                 WaveformUtils.Gain(timeslotCache[obj], gain);
             }

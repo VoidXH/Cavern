@@ -13,12 +13,7 @@ namespace Cavern.Utilities {
                 sum += Vector.Dot(new Vector<float>(new Span<float>(lhs + i, vc)) *
                     new Vector<float>(new Span<float>(rhs + i, vc)), Vector<float>.One);
             }
-            lhs += i;
-            rhs += i;
-            while (count-- != i) {
-                sum += *lhs++ * *rhs++;
-            }
-            return sum;
+            return i == count ? sum : (sum + MultiplyAndAdd_Mono(lhs + i, rhs + i, count - i));
         }
 
         /// <summary>
@@ -30,12 +25,9 @@ namespace Cavern.Utilities {
                 (new Vector<float>(target, i) + new Vector<float>(new Span<float>(lhs + i, vc)) *
                     new Vector<float>(new Span<float>(rhs + i, vc))).CopyTo(target, i);
             }
-            lhs += i;
-            rhs += i;
-            fixed (float* pTarget = target) {
-                float* output = pTarget + i;
-                while (count-- != i) {
-                    *output++ += *lhs++ * *rhs++;
+            if (i != count) {
+                fixed (float* pTarget = target) {
+                    MultiplyAndAdd_Mono(lhs + i, rhs + i, pTarget + i, count - i);
                 }
             }
         }
@@ -48,11 +40,9 @@ namespace Cavern.Utilities {
             for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(target, i) + new Vector<float>(new Span<float>(lhs + i, vc)) * rhs).CopyTo(target, i);
             }
-            lhs += i;
-            fixed (float* pTarget = target) {
-                float* output = pTarget + i;
-                while (count-- != i) {
-                    *output++ += *lhs++ * rhs;
+            if (i != count) {
+                fixed (float* pTarget = target) {
+                    MultiplyAndAdd_Mono(lhs + i, rhs, pTarget + i, count - i);
                 }
             }
         }
@@ -67,14 +57,9 @@ namespace Cavern.Utilities {
                     new Vector<float>(new Span<float>(lhs1 + i, vc)) * new Vector<float>(new Span<float>(rhs1 + i, vc)) +
                     new Vector<float>(new Span<float>(lhs2 + i, vc)) * new Vector<float>(new Span<float>(rhs2 + i, vc))).CopyTo(target, i);
             }
-            lhs1 += i;
-            rhs1 += i;
-            lhs2 += i;
-            rhs2 += i;
-            fixed (float* pTarget = target) {
-                float* output = pTarget + i;
-                while (count-- != i) {
-                    *output++ += *lhs1++ * *rhs1++ + *lhs2++ * *rhs2++;
+            if (i != count) {
+                fixed (float* pTarget = target) {
+                    MultiplyAndAdd_Mono(lhs1 + i, rhs1 + i, lhs2 + i, rhs2 + i, pTarget + i, count - i);
                 }
             }
         }
@@ -88,12 +73,9 @@ namespace Cavern.Utilities {
                 (new Vector<float>(target, i) + new Vector<float>(new Span<float>(lhs1 + i, vc)) * rhs1 +
                     new Vector<float>(new Span<float>(lhs2 + i, vc)) * rhs2).CopyTo(target, i);
             }
-            lhs1 += i;
-            lhs2 += i;
-            fixed (float* pTarget = target) {
-                float* output = pTarget + i;
-                while (count-- != i) {
-                    *output++ += *lhs1++ * rhs1 + *lhs2++ * rhs2;
+            if (i != count) {
+                fixed (float* pTarget = target) {
+                    MultiplyAndAdd_Mono(lhs1 + i, rhs1, lhs2 + i, rhs2, pTarget + i, count - i);
                 }
             }
         }
@@ -106,12 +88,9 @@ namespace Cavern.Utilities {
             for (int vc = Vector<float>.Count, c = count - vc; i <= c; i += vc) {
                 (new Vector<float>(new Span<float>(lhs + i, vc)) * new Vector<float>(new Span<float>(rhs + i, vc))).CopyTo(target, i);
             }
-            lhs += i;
-            rhs += i;
-            fixed (float* pTarget = target) {
-                float* output = pTarget + i;
-                while (count-- != i) {
-                    *output++ = *lhs++ * *rhs++;
+            if (i != count) {
+                fixed (float* pTarget = target) {
+                    MultiplyAndSet_Mono(lhs + i, rhs + i, pTarget + i, count - i);
                 }
             }
         }
@@ -125,14 +104,9 @@ namespace Cavern.Utilities {
                 (new Vector<float>(new Span<float>(lhs1 + i, vc)) * new Vector<float>(new Span<float>(rhs1 + i, vc)) +
                     new Vector<float>(new Span<float>(lhs2 + i, vc)) * new Vector<float>(new Span<float>(rhs2 + i, vc))).CopyTo(target, i);
             }
-            lhs1 += i;
-            rhs1 += i;
-            lhs2 += i;
-            rhs2 += i;
-            fixed (float* pTarget = target) {
-                float* output = pTarget + i;
-                while (count-- != i) {
-                    *output++ = *lhs1++ * *rhs1++ + *lhs2++ * *rhs2++;
+            if (i != count) {
+                fixed (float* pTarget = target) {
+                    MultiplyAndSet_Mono(lhs1 + i, rhs1 + i, lhs2 + i, rhs2 + i, pTarget + i, count - i);
                 }
             }
         }
@@ -146,12 +120,9 @@ namespace Cavern.Utilities {
                 (new Vector<float>(new Span<float>(lhs1 + i, vc)) * rhs1 +
                     new Vector<float>(new Span<float>(lhs2 + i, vc)) * rhs2).CopyTo(target, i);
             }
-            lhs1 += i;
-            lhs2 += i;
-            fixed (float* pTarget = target) {
-                float* output = pTarget + i;
-                while (count-- != i) {
-                    *output++ = *lhs1++ * rhs1 + *lhs2++ * rhs2;
+            if (i != count) {
+                fixed (float* pTarget = target) {
+                    MultiplyAndSet_Mono(lhs1 + i, rhs1, lhs2 + i, rhs2, pTarget + i, count - i);
                 }
             }
         }

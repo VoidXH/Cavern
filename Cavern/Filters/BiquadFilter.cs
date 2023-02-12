@@ -86,7 +86,6 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
-        /// <param name="q">Q-factor of the filter</param>
         protected BiquadFilter(int sampleRate, double centerFreq) : this(sampleRate, centerFreq, QFactor.reference, 0) { }
 
         /// <summary>

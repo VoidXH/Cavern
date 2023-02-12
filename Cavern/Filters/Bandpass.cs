@@ -10,7 +10,6 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="sampleRate">Audio sample rate</param>
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
-        /// <param name="q">Q-factor of the filter</param>
         public Bandpass(int sampleRate, double centerFreq) : base(sampleRate, centerFreq) { }
 
         /// <summary>
