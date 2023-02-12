@@ -4,6 +4,15 @@
     /// </summary>
     public static class ComplexArray {
         /// <summary>
+        /// Convert all elements in the <paramref name="source"/> to their conjugates.
+        /// </summary>
+        public static void Conjugate(this Complex[] source) {
+            for (int i = 0; i < source.Length; i++) {
+                source[i].Imaginary = -source[i].Imaginary;
+            }
+        }
+
+        /// <summary>
         /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
         /// </summary>
         public static void Convolve(this Complex[] source, Complex[] other) {

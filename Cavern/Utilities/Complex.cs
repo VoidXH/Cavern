@@ -40,23 +40,27 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Complex addition.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex operator +(Complex lhs, Complex rhs) =>
             new Complex(lhs.Real + rhs.Real, lhs.Imaginary + rhs.Imaginary);
 
         /// <summary>
         /// Complex subtraction.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex operator -(Complex lhs, Complex rhs) =>
             new Complex(lhs.Real - rhs.Real, lhs.Imaginary - rhs.Imaginary);
 
         /// <summary>
         /// Complex negation.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex operator -(Complex pon) => new Complex(-pon.Real, -pon.Imaginary);
 
         /// <summary>
         /// Complex multiplication.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex operator *(Complex lhs, Complex rhs) =>
             new Complex(lhs.Real * rhs.Real - lhs.Imaginary * rhs.Imaginary,
                 lhs.Real * rhs.Imaginary + lhs.Imaginary * rhs.Real);
@@ -64,11 +68,13 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Scalar complex multiplication.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex operator *(Complex lhs, float rhs) => new Complex(lhs.Real * rhs, lhs.Imaginary * rhs);
 
         /// <summary>
         /// Complex division.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex operator /(Complex lhs, Complex rhs) {
             float multiplier = 1 / (rhs.Real * rhs.Real + rhs.Imaginary * rhs.Imaginary);
             return new Complex((lhs.Real * rhs.Real + lhs.Imaginary * rhs.Imaginary) * multiplier,

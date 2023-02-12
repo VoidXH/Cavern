@@ -36,7 +36,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static Complex[] FFT(this float[] samples, FFTCache cache) {
             Complex[] complexSignal = new Complex[samples.Length];
-            for (int sample = 0; sample < samples.Length; ++sample) {
+            for (int sample = 0; sample < samples.Length; sample++) {
                 complexSignal[sample].Real = samples[sample];
             }
             complexSignal.InPlaceFFT(cache);
@@ -159,9 +159,8 @@ namespace Cavern.Utilities {
             }
             ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
             float multiplier = 1f / samples.Length;
-            for (int i = 0; i < samples.Length; ++i) {
-                samples[i].Real *= multiplier;
-                samples[i].Imaginary *= multiplier;
+            for (int i = 0; i < samples.Length; i++) {
+                samples[i] *= multiplier;
             }
         }
 
@@ -172,7 +171,7 @@ namespace Cavern.Utilities {
         public static void InPlaceIFFTUnscaled(this Complex[] samples, FFTCache cache) {
             if (CavernAmp.Available) {
                 CavernAmp.InPlaceIFFT(samples, cache);
-                for (int i = 0; i < samples.Length; ++i) {
+                for (int i = 0; i < samples.Length; i++) {
                     samples[i].Real *= samples.Length;
                     samples[i].Imaginary *= samples.Length;
                 }
@@ -193,7 +192,7 @@ namespace Cavern.Utilities {
                 customCache = true;
             }
             int halfLength = response.Length / 2;
-            for (int i = 0; i < response.Length; ++i) {
+            for (int i = 0; i < response.Length; i++) {
                 response[i] = Complex.Log(response[i].Real);
             }
             if (CavernAmp.Available) {
@@ -201,7 +200,7 @@ namespace Cavern.Utilities {
             } else {
                 response.InPlaceIFFT(cache);
             }
-            for (int i = 1; i < halfLength; ++i) {
+            for (int i = 1; i < halfLength; i++) {
                 response[i].Real += response[^i].Real;
                 response[i].Imaginary -= response[^i].Imaginary;
                 response[^i].Clear();
@@ -212,7 +211,7 @@ namespace Cavern.Utilities {
             } else {
                 response.InPlaceFFT(cache);
             }
-            for (int i = 0; i < response.Length; ++i) {
+            for (int i = 0; i < response.Length; i++) {
                 double exp = Math.Exp(response[i].Real);
                 response[i].Real = (float)(exp * Math.Cos(response[i].Imaginary));
                 response[i].Imaginary = (float)(exp * Math.Sin(response[i].Imaginary));
@@ -229,11 +228,11 @@ namespace Cavern.Utilities {
                 endPos = (int)(samples.Length * endFreq / sampleRate);
             float gain = (float)Math.Pow(10, dBgain * .05);
             samples[0] *= gain;
-            for (int i = 1; i < startPos; ++i) {
+            for (int i = 1; i < startPos; i++) {
                 samples[i] *= gain;
                 samples[^i] *= gain;
             }
-            for (int i = endPos + 1, half = samples.Length / 2; i <= half; ++i) {
+            for (int i = endPos + 1, half = samples.Length / 2; i <= half; i++) {
                 samples[i] *= gain;
                 samples[^i] *= gain;
             }
@@ -244,7 +243,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static float[] GetRealPart(Complex[] samples) {
             float[] output = new float[samples.Length];
-            for (int sample = 0; sample < samples.Length; ++sample) {
+            for (int sample = 0; sample < samples.Length; sample++) {
                 output[sample] = samples[sample].Real;
             }
             return output;
@@ -254,9 +253,8 @@ namespace Cavern.Utilities {
         /// Get half of the real part of a signal's FFT.
         /// </summary>
         public static float[] GetRealPartHalf(Complex[] samples) {
-            int half = samples.Length / 2;
-            float[] output = new float[half];
-            for (int sample = 0; sample < half; ++sample) {
+            float[] output = new float[samples.Length / 2];
+            for (int sample = 0; sample < output.Length; sample++) {
                 output[sample] = samples[sample].Real;
             }
             return output;
@@ -267,7 +265,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static float[] GetImaginaryPart(Complex[] samples) {
             float[] output = new float[samples.Length];
-            for (int sample = 0; sample < samples.Length; ++sample) {
+            for (int sample = 0; sample < samples.Length; sample++) {
                 output[sample] = samples[sample].Imaginary;
             }
             return output;
@@ -277,9 +275,8 @@ namespace Cavern.Utilities {
         /// Get the gains of frequencies in a signal after FFT.
         /// </summary>
         public static float[] GetSpectrum(Complex[] samples) {
-            int end = samples.Length / 2;
-            float[] output = new float[end];
-            for (int sample = 0; sample < end; ++sample) {
+            float[] output = new float[samples.Length / 2];
+            for (int sample = 0; sample < output.Length; sample++) {
                 output[sample] = samples[sample].Magnitude;
             }
             return output;
@@ -289,9 +286,8 @@ namespace Cavern.Utilities {
         /// Get the gains of frequencies in a signal after FFT.
         /// </summary>
         public static float[] GetPhase(Complex[] samples) {
-            int end = samples.Length / 2;
-            float[] output = new float[end];
-            for (int sample = 0; sample < end; ++sample) {
+            float[] output = new float[samples.Length / 2];
+            for (int sample = 0; sample < output.Length; sample++) {
                 output[sample] = samples[sample].Phase;
             }
             return output;
@@ -338,12 +334,11 @@ namespace Cavern.Utilities {
         /// Actual FFT processing, somewhat in-place.
         /// </summary>
         static void ProcessFFT(Complex[] samples, FFTCache cache, int depth) {
-            int halfLength = samples.Length / 2;
             if (samples.Length == 1) {
                 return;
             }
             Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
-            for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
+            for (int sample = 0, pair = 0; pair < samples.Length; sample++, pair += 2) {
                 even[sample] = samples[pair];
                 odd[sample] = samples[pair + 1];
             }
@@ -351,8 +346,9 @@ namespace Cavern.Utilities {
             ProcessFFT(odd, cache, depth);
             float[] cosCache = cache.cos,
                 sinCache = cache.sin;
-            int stepMul = cosCache.Length / halfLength;
-            for (int i = 0; i < halfLength; ++i) {
+            int halfLength = samples.Length >> 1,
+                stepMul = cosCache.Length / halfLength;
+            for (int i = 0; i < halfLength; i++) {
                 float oddReal = odd[i].Real * cosCache[i * stepMul] - odd[i].Imaginary * sinCache[i * stepMul],
                     oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul];
                 samples[i].Real = even[i].Real + oddReal;
@@ -366,12 +362,12 @@ namespace Cavern.Utilities {
         /// Fourier-transform a signal in 1D. The result is the spectral power.
         /// </summary>
         static void ProcessFFT(float[] samples, FFTCache cache) {
-            int halfLength = samples.Length / 2, depth = QMath.Log2(samples.Length) - 1;
+            int depth = QMath.Log2(samples.Length) - 1;
             if (samples.Length == 1) {
                 return;
             }
             Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
-            for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
+            for (int sample = 0, pair = 0; pair < samples.Length; sample++, pair += 2) {
                 even[sample].Real = samples[pair];
                 odd[sample].Real = samples[pair + 1];
             }
@@ -379,11 +375,13 @@ namespace Cavern.Utilities {
             ProcessFFT(odd, cache, depth);
             float[] cosCache = cache.cos,
                 sinCache = cache.sin;
-            int stepMul = cosCache.Length / halfLength;
-            for (int i = 0; i < halfLength; ++i) {
+            int halfLength = samples.Length >> 1,
+                stepMul = cosCache.Length / halfLength;
+            for (int i = 0; i < halfLength; i++) {
                 float oddReal = odd[i].Real * cosCache[i * stepMul] - odd[i].Imaginary * sinCache[i * stepMul],
-                    oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul];
-                float real = even[i].Real + oddReal, imaginary = even[i].Imaginary + oddImag;
+                    oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul],
+                    real = even[i].Real + oddReal,
+                    imaginary = even[i].Imaginary + oddImag;
                 samples[i] = (float)Math.Sqrt(real * real + imaginary * imaginary);
                 real = even[i].Real - oddReal;
                 imaginary = even[i].Imaginary - oddImag;
@@ -395,28 +393,9 @@ namespace Cavern.Utilities {
         /// Outputs IFFT(X) * N.
         /// </summary>
         static void ProcessIFFT(Complex[] samples, FFTCache cache, int depth) {
-            if (samples.Length == 1) {
-                return;
-            }
-            Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
-            int halfLength = samples.Length / 2;
-            for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
-                even[sample] = samples[pair];
-                odd[sample] = samples[pair + 1];
-            }
-            ProcessIFFT(even, cache, --depth);
-            ProcessIFFT(odd, cache, depth);
-            int stepMul = cache.cos.Length / halfLength;
-            float[] cosCache = cache.cos,
-                sinCache = cache.sin;
-            for (int i = 0; i < halfLength; ++i) {
-                float oddReal = odd[i].Real * cosCache[i * stepMul] + odd[i].Imaginary * sinCache[i * stepMul],
-                    oddImag = odd[i].Imaginary * cosCache[i * stepMul] - odd[i].Real * sinCache[i * stepMul];
-                samples[i].Real = even[i].Real + oddReal;
-                samples[i].Imaginary = even[i].Imaginary + oddImag;
-                samples[i + halfLength].Real = even[i].Real - oddReal;
-                samples[i + halfLength].Imaginary = even[i].Imaginary - oddImag;
-            }
+            samples.Conjugate();
+            ProcessFFT(samples, cache, depth);
+            samples.Conjugate();
         }
     }
 }

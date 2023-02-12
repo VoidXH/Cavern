@@ -3,7 +3,7 @@
 namespace Test.Cavern {
     [TestClass]
     public class ArrayExtensions_Tests {
-        [TestMethod]
+        [TestMethod, Timeout(1000)]
         public void Nearest() {
             float[] testArray = { 1, 2, 3, 4 };
             Assert.AreEqual(testArray.Nearest(1.99f), 2);

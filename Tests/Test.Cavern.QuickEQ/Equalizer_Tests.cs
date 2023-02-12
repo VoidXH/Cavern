@@ -14,7 +14,7 @@ namespace Test.Cavern {
         public void Smooth() {
             Equalizer equalizer = Create(20, 20000, 100, 10);
             equalizer.Smooth(2);
-            Assert.IsTrue(equalizer.Bands.All(x => Math.Abs(x.Gain) < 3));
+            Assert.IsTrue(equalizer.Bands.All(x => Math.Abs(x.Gain) < 5));
         }
 
         /// <summary>

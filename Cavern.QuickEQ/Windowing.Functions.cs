@@ -140,13 +140,12 @@ namespace Cavern.QuickEQ {
         /// A window for impulse response trimming, with a precompiled alpha.
         /// </summary>
         static float TukeyWindow(float x) {
-            const float alpha = .25f, positioner = 1 / alpha,
-                flatLeft = MathF.PI * alpha,
-                flatRight = MathF.PI * (2 - alpha);
-            if (x < flatLeft) {
-                return MathF.Cos(x * positioner - MathF.PI) + 1 * .5f;
-            } else if (x > flatRight) {
-                return MathF.Cos((2 * MathF.PI - x) * positioner - MathF.PI) + 1 * .5f;
+            const float alpha = .25f,
+                positioner = 1 / alpha;
+            if (x < MathF.PI * alpha) {
+                return (MathF.Cos(x * positioner - MathF.PI) + 1) * .5f;
+            } else if (x > MathF.PI * (2 - alpha)) {
+                return (MathF.Cos((2 * MathF.PI - x) * positioner - MathF.PI) + 1) * .5f;
             } else {
                 return 1;
             }
@@ -156,13 +155,12 @@ namespace Cavern.QuickEQ {
         /// A window for impulse response trimming, with a precompiled alpha.
         /// </summary>
         static double TukeyWindow(double x) {
-            const double alpha = .25, positioner = 1 / alpha,
-                flatLeft = Math.PI * alpha,
-                flatRight = Math.PI * (2 - alpha);
-            if (x < flatLeft) {
-                return Math.Cos(x * positioner - Math.PI) + 1 * .5;
-            } else if (x > flatRight) {
-                return Math.Cos((2 * Math.PI - x) * positioner - Math.PI) + 1 * .5;
+            const double alpha = .25,
+                positioner = 1 / alpha;
+            if (x < Math.PI * alpha) {
+                return (Math.Cos(x * positioner - Math.PI) + 1) * .5;
+            } else if (x > Math.PI * (2 - alpha)) {
+                return (Math.Cos((2 * Math.PI - x) * positioner - Math.PI) + 1) * .5;
             } else {
                 return 1;
             }
