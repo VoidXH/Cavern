@@ -21,7 +21,7 @@ namespace CavernizeGUI {
             /// <summary>
             /// Samples rendered so far.
             /// </summary>
-            public long Rendered { get; private set; };
+            public long Rendered { get; private set; }
 
             /// <summary>
             /// Time of starting the export process.

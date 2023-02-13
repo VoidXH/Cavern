@@ -31,8 +31,11 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// An MP4 file's <see cref="Track"/> with stream positioning information. The format and its extra information is parsed here.
         /// </summary>
-        internal MP4Track(NestedBox sampleTableBox, uint timeScale) : base() {
-            if (sampleTableBox != null && sampleTableBox[sampleDescriptionBox] is SampleDescriptionBox stsd && stsd.formats.Length == 1) {
+        internal MP4Track(NestedBox sampleTableBox, uint timeScale) {
+            if (sampleTableBox == null) {
+                throw new MissingElementException(Consts.MP4Consts.sampleTableBox.ToFourCC());
+            }
+            if (sampleTableBox[sampleDescriptionBox] is SampleDescriptionBox stsd && stsd.formats.Length == 1) {
                 Format = stsd.formats[0].codec;
                 if (Format.IsAudio()) {
                     byte[] extra = stsd.formats[0].extra;

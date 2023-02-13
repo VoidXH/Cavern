@@ -176,5 +176,10 @@ namespace Cavern.Filters {
             b2 = Math.Abs(b1) * .5f;
             b0 = MathF.Pow(10, (float)gain * .05f) * b2;
         }
+
+        /// <summary>
+        /// Display the filter's parameters when converting to string.
+        /// </summary>
+        public override string ToString() => $"Biquad filter at {centerFreq} Hz, Q: {q}, gain: {gain} dB";
     }
 }
