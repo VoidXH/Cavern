@@ -61,7 +61,7 @@ namespace CavernizeGUI.Resources {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1996-12-17")]
+        [global::System.Configuration.DefaultSettingValueAttribute("2020-09-21")]
         public global::System.DateTime lastUpdate {
             get {
                 return ((global::System.DateTime)(this["lastUpdate"]));

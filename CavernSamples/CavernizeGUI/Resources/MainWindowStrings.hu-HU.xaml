@@ -1,0 +1,92 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- UI -->
+    <system:String x:Key="MenuR">_Renderelés</system:String>
+    <system:String x:Key="Upmix">_Felkeverési beállítások</system:String>
+    <system:String x:Key="LoadV">HRTF/HRIR szettek betöltése a _Virtualizálóba</system:String>
+    <system:String x:Key="FiltH">Kimeneti _szűrők alkalmazása</system:String>
+    <system:String x:Key="FiltT">Betölt egy konvolúciós EQ szettet, amit a QuickEQ exportált a célrendszerhez,
+        majd ezt használja a konvertált fájlba beégetett szobakorrekcióként.</system:String>
+    <system:String x:Key="MuBeH">_Bed némítása</system:String>
+    <system:String x:Key="MuBeT">Csak azokat az objektumokat renderelje, amik valóban mozognak, nincs fix helyük.</system:String>
+    <system:String x:Key="MuGrH">_Talaj némítása</system:String>
+    <system:String x:Key="MuGrT">Minden hangot elnémít, ami nem a magasból jön.</system:String>
+    <system:String x:Key="For24">24-bites _PCM erőltetése (lassabb, nagyobb fájlok, nem ad hallható javulást)</system:String>
+    <system:String x:Key="ReMoH">_Csak jelentés mód</system:String>
+    <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
+        report will be available after rendering without writing anything to the disk.</system:String>
+    <system:String x:Key="PReSh">_Renderelés utáni jelentés megnyitása</system:String>
+    <system:String x:Key="PReRe">Renderelés utáni jelentés</system:String>
+    <system:String x:Key="MenuH">_Súgó</system:String>
+    <system:String x:Key="UsrGu">_Felhasználói kézikönyv (angol)</system:String>
+    <system:String x:Key="About">_Névjegy</system:String>
+    <system:String x:Key="SySet">Rendszerbeállítás</system:String>
+    <system:String x:Key="RSInf">Válassz ki egy hangszórókiosztást, és helyezd el úgy a hangszóróid. Kattints a &quot;Bekötés mutatása&quot;
+        gombra, hogy megtudd, melyik kimenetet melyik valódi csatornára kell kötnöd.
+        A maximális hangminőséghez kalibráld a rendszered QuickEQ-val.</system:String>
+    <system:String x:Key="RndTg">Render célja:</system:String>
+    <system:String x:Key="DisWi">Bekötés mutatása</system:String>
+    <system:String x:Key="FFLoc">FFmpeg keresése</system:String>
+    <system:String x:Key="FFDes">Keresd meg az FFmpeg-et ezzel a gombbal. Töltsd le az FFmpeg-et, majd keresd meg az ffmpeg.exe-t a letöltés
+        bin mappájában. A Cavern az FFmpeg-et használja az újrakódoláshoz. Ez az ideiglenes megoldás sok helyet használ, ami miatt legalább
+        10 GB extra szabad helyre lesz szükséged egy 2 órás filmhez.</system:String>
+    <system:String x:Key="CoPro">Tartalom processzálása</system:String>
+    <system:String x:Key="OpCnt">Megnyitás</system:String>
+    <system:String x:Key="OpTrk">Hangsáv:</system:String>
+    <system:String x:Key="OpOut">Kimenet:</system:String>
+    <system:String x:Key="OpRnd">Renderelés most</system:String>
+    <system:String x:Key="ChkUp">Frissítések automatikus keresése</system:String>
+    <system:String x:Key="ChkTt">Alkalmanként automatikusan megnézi, hogy áll-e rendelkezésre új frissítés.</system:String>
+    <system:String x:Key="Queue">Sor</system:String>
+    <system:String x:Key="QuDes">A konverziókat egymás után sorbaállíthatod ahelyett, hogy mindegyiket manuálisan hajtanád végre.
+        Kattints a &quot;Sorhoz adás&quot; gombra, hogy egy beállított konverziót sorba tégy, majd a &quot;Feldolgozás&quot;
+        gombbal indíthatod el a sorba állított tartalmak konverzióját.</system:String>
+    <system:String x:Key="QuAdd">Sorhoz adás</system:String>
+    <system:String x:Key="QuRem">Kijelölt törlése</system:String>
+    <system:String x:Key="QuSta">Feldolgozás</system:String>
+    <!-- Code behind -->
+    <system:String x:Key="dnErr">A .NET 6 telepítésed sérült és nem tölthető be. Kérlek, telepítsd a legújabbat a Microsoft-tól.\n
+        Nyomj meg egy gombot a kilépéshez...</system:String>
+    <system:String x:Key="UpmiW">Felkeverési beállítások</system:String>
+    <system:String x:Key="Reprt">Miután a renderelés befejeződött, itt további sávinformációt találsz,
+        mint például a valódi objektumhasználati statisztika.</system:String>
+    <system:String x:Key="IrErr">Az impulzusválasz fájl hibás. Pontosabban: {0}</system:String>
+    <system:String x:Key="ImFmt">Minden támogatott formátum|{0}|(Enhanced) AC-3|*.ac3;*.eac3;*.ec3|Filmek|*.mkv;*.mka;*.mov;*.mp4;*.qt|RIFF
+        WAVE, ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
+    <system:String x:Key="OpRun">Egy művelet már fut, kérlek várj, amíg befejeződik.</system:String>
+    <system:String x:Key="LdSrc">Kérlek, tölts be egy fájlt, aminek legalább egy hangsávja támogatott rendereléshez.</system:String>
+    <system:String x:Key="UnTrk">A kiválasztott hangsáv nem támogatott rendereléshez.</system:String>
+    <system:String x:Key="ChCnt">A render céljának nagyobb a csatornaszáma ({0}), mint amit a kiválasztott formátum képes kezelni ({1}).
+        Kérlek, válassz más formátumot vagy kevesebb csatornás rendercélt.</system:String>
+    <system:String x:Key="ExFmt">Matroska|*.mkv</system:String>
+    <system:String x:Key="ExPCM">Matroska|*.mkv|RIFF WAVE|*.wav|Limitless Audio Format|*.laf</system:String>
+    <system:String x:Key="ExPCR">RIFF WAVE|*.wav|Limitless Audio Format|*.laf</system:String>
+    <system:String x:Key="ExBWF">ADM Broadcast Wave Format|*.wav|Elkülönített hang és metaadat|*.xml</system:String>
+    <system:String x:Key="UnExt">A fájlnév kiterjesztése nem támogatott.</system:String>
+    <system:String x:Key="UnCod">Ez a kodek nem támogatott exportáláshoz.</system:String>
+    <system:String x:Key="WrGui">Bekötési útmutató</system:String>
+    <system:String x:Key="ChCon">Kösd a {0} csatornát a rendszered {1} kimenetére.</system:String>
+    <system:String x:Key="Start">Renderelés indítása...</system:String>
+    <system:String x:Key="ExpOk">Befejezve!</system:String>
+    <system:String x:Key="Error">Hiba</system:String>
+    <system:String x:Key="Later">Ez későbbi verziókban megjavulhat. Kérlek, próbáld meg frissíteni a Cavernize-t,
+        és ha a probléma továbbra is fennáll a legújabb verzióban is, írj a fejlesztőnek a www.sbence.hu-n.</system:String>
+    <system:String x:Key="FiltI">Impulzusválasz csomagok|*.wav</system:String>
+    <system:String x:Key="FiltF">Cavern QuickEQ konvolúciós EQ-k|*.txt</system:String>
+    <system:String x:Key="FiltN">A(z) {0} csatornához nem lehetett konvolúciós EQ-t találni az exportban ({1}).</system:String>
+    <system:String x:Key="FiltC">Ütköző mintavételezési frekvenciák: a fejhallgató virtualizáció és a kimeneti szűrők csak akkor
+        működnek együtt, ha a mintavételezési frekvenciájuk egyezik. Egyiküknek mennie kell.</system:String>
+    <system:String x:Key="FFRea">Készen áll!</system:String>
+    <system:String x:Key="FFNRe">Az FFmpeg nem található, kodekkorlátok vannak érvényben.</system:String>
+    <system:String x:Key="ProgP">Renderelés... ({0}, sebesség: {1}x, hátravan: {2})</system:String>
+    <system:String x:Key="FinaP">Véglegesítés... ({0})</system:String>
+    <system:String x:Key="DropI">Ezek a kihagyott fájlok nem támogatottak vagy sérültek:</system:String>
+    <system:String x:Key="AbouH">Névjegy</system:String>
+    <system:String x:Key="AbouA">A teljesítményt a CavernAmp gyorsítja.</system:String>
+    <system:String x:Key="ReQOp">Nem lehet feldolgozás alatt álló elemeket törölni a sorból.</system:String>
+    <system:String x:Key="ReQSe">Nincs kijelölt sorban álló elem.</system:String>
+    <system:String x:Key="InvTr">Ezt a hangsávot nem lehet dekódolni. A következő hiba történt a dekódolás során:</system:String>
+    <system:String x:Key="FFOnl">A kiválasztott kimeneti formátumhoz FFmpeg-re van szükség. Kérlek, keresd meg az &quot;FFmpeg keresése&quot;
+        gombbal, segítségért pedig kattints a Súgó/Felhasználói kézikönyv gombra.</system:String>
+</ResourceDictionary>

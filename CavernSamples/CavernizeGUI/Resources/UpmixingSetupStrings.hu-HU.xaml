@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="MatrC">7.1 kitöltése</system:String>
+    <system:String x:Key="MatrT">Mátrixfelkeveréssel kihasználja a teljes 7.1 alapot hagyományos csatornaalapú tartalmaknál.</system:String>
+    <system:String x:Key="CazeC">Nem térbeli tartalom felkonvertálása</system:String>
+    <system:String x:Key="CazeT">Megpróbálja kitalálni a magassági információt hagyományos tartalmakhoz, maximum 7.1-ig.</system:String>
+    <system:String x:Key="Effec">Felkeverés ereje:</system:String>
+    <system:String x:Key="Smoot">Felkeverés folytonossága:</system:String>
+    <system:String x:Key="BtnRs">Alaphelyzet</system:String>
+    <system:String x:Key="BtnOk">Ok</system:String>
+    <system:String x:Key="BtnCn">Mégse</system:String>
+</ResourceDictionary>

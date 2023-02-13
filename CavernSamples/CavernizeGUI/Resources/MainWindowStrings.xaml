@@ -38,20 +38,20 @@
     <system:String x:Key="OpRnd">Render now</system:String>
     <system:String x:Key="ChkUp">Automatically check for updates</system:String>
     <system:String x:Key="ChkTt">Periodically auto-check if a new update is available.</system:String>
-    <system:String x:Key="ByWho">by VoidX (cavern.sbence.hu)</system:String>
     <system:String x:Key="Queue">Queue</system:String>
     <system:String x:Key="QuDes">Jobs can be queued after each other instead of manually rendering each one.
-        Click the &quot;Add&quot; button to add a conversion to this queue, and click &quot;Start&quot;
+        Click the &quot;Add to queue&quot; button to add a set up conversion to this queue, and click &quot;Process queue&quot;
         to start rendering the queued contents.</system:String>
     <system:String x:Key="QuAdd">Add to queue</system:String>
     <system:String x:Key="QuRem">Remove selected</system:String>
     <system:String x:Key="QuSta">Process queue</system:String>
     <!-- Code behind -->
+    <system:String x:Key="dnErr">Your .NET 6 installation is corrupted and can't be loaded. Please install the latest version
+        from Microsoft.\nPress any key to exit...</system:String>
     <system:String x:Key="UpmiW">Upmixing setup</system:String>
     <system:String x:Key="Reprt">After rendering has finished, more track information will appear here,
         like true object usage statistics.</system:String>
     <system:String x:Key="IrErr">The impulse response file is invalid. Error: {0}</system:String>
-    <system:String x:Key="CavLo">Driver is set to {0}.</system:String>
     <system:String x:Key="ImFmt">All supported formats|{0}|(Enhanced) AC-3|*.ac3;*.eac3;*.ec3|Movies|*.mkv;*.mka;*.mov;*.mp4;*.qt|RIFF WAVE,
         ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="OpRun">An operation is already running, please wait for it to finish.</system:String>
@@ -70,13 +70,15 @@
     <system:String x:Key="Start">Starting render...</system:String>
     <system:String x:Key="ExpOk">Finished!</system:String>
     <system:String x:Key="Error">Error</system:String>
-    <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize GUI,
+    <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize,
         and if the problem persists with the latest version, contact the developer at www.sbence.hu.</system:String>
     <system:String x:Key="FiltI">Impulse response packages|*.wav</system:String>
     <system:String x:Key="FiltF">Cavern QuickEQ Convolution EQs|*.txt</system:String>
     <system:String x:Key="FiltN">Convolution EQ file for the {0} channel was not found in this export ({1}).</system:String>
     <system:String x:Key="FiltC">Conflicting sample rates: headphone virtualization and output filtering can only work
         together if their sample rates match. One of them has to go.</system:String>
+    <system:String x:Key="FFRea">Ready!</system:String>
+    <system:String x:Key="FFNRe">FFmpeg isn't found, codec limitations are applied.</system:String>
     <system:String x:Key="ProgP">Rendering... ({0}, speed: {1}x, remaining: {2})</system:String>
     <system:String x:Key="FinaP">Finalizing... ({0})</system:String>
     <system:String x:Key="DropI">The following dropped files were not supported or corrupt:</system:String>
@@ -85,6 +87,6 @@
     <system:String x:Key="ReQOp">Can't remove elements from a queue that is already being processed.</system:String>
     <system:String x:Key="ReQSe">No queued item is selected.</system:String>
     <system:String x:Key="InvTr">This track could not be decoded. The following error happened while decoding:</system:String>
-    <system:String x:Key="FFOnl">The selected output format requires FFmpeg. Please locate it, and if you need help,
-        click the Help/User guide button.</system:String>
+    <system:String x:Key="FFOnl">The selected output format requires FFmpeg. Please locate it with the &quot;Locate FFmpeg&quot;
+        button, and if you need help, click the Help/User guide button.</system:String>
 </ResourceDictionary>

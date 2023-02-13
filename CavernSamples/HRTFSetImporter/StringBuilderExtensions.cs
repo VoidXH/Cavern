@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Text;
 
 namespace HRTFSetImporter {
@@ -11,12 +12,13 @@ namespace HRTFSetImporter {
             builder.Append("new float[").Append(array.Length).Append("] { ");
             for (int i = 0; i < array.Length; ++i) {
                 string str = array[i].ToString(numberFormat);
-                if (str.StartsWith("0."))
-                    builder.Append(str.Substring(1)).Append("f, ");
-                else if (str.Equals("0"))
+                if (str.StartsWith("0.")) {
+                    builder.Append(str.AsSpan(1)).Append("f, ");
+                } else if (str.Equals("0")) {
                     builder.Append("0, ");
-                else
+                } else {
                     builder.Append(str).Append("f, ");
+                }
             }
             builder.Remove(builder.Length - 2, 2).AppendLine(" },");
             return builder;

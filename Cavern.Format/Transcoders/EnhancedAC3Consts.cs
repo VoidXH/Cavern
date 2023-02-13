@@ -22,18 +22,18 @@ namespace Cavern.Format.Transcoders {
         /// For 44.1 kHz, frame sizes are 1393/1280 times these values.
         /// For 32 kHz, frame sizes are 3/2 times these values.
         /// </summary>
-        public static readonly ushort[] frameSizes = new ushort[19]
+        public static readonly ushort[] frameSizes =
             { 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, 448, 512, 640, 768, 896, 1024, 1152, 1280 };
 
         /// <summary>
         /// Number of blocks per sync frame for each code.
         /// </summary>
-        public static readonly byte[] numberOfBlocks = new byte[] { 1, 2, 3, 6 };
+        public static readonly byte[] numberOfBlocks = { 1, 2, 3, 6 };
 
         /// <summary>
         /// Sample rates for each sample rate code.
         /// </summary>
-        public static readonly ushort[] sampleRates = new ushort[] { 48000, 44100, 32000 };
+        public static readonly ushort[] sampleRates = { 48000, 44100, 32000 };
 
         /// <summary>
         /// Possible channel arrangements in E-AC-3. The index is the ID read from the file. LFE channel is marked separately.

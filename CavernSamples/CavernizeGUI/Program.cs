@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
-
+using System.Windows;
 using VoidX.WPF;
 
 namespace CavernizeGUI {
@@ -25,7 +25,17 @@ namespace CavernizeGUI {
             }
 
             var app = new App();
-            app.InitializeComponent();
+            app.Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
+            app.Resources.MergedDictionaries.Add(Consts.Language.GetUpmixingSetupStrings());
+            try {
+                app.InitializeComponent();
+            } catch {
+                if (!ConsoleMode) {
+                    ShowWindow(GetConsoleWindow(), 1);
+                }
+                Console.WriteLine((string)Consts.Language.GetMainWindowStrings()["dnErr"]);
+                Console.ReadKey();
+            }
             app.Run();
         }
 

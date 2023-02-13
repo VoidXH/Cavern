@@ -8,7 +8,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/MainWindowStrings.xaml"/>
+                <d:ResourceDictionary Source="Resources/MainWindowStrings.xaml"/>
                 <ResourceDictionary Source="Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BitmapImage x:Key="Logo" UriSource="Resources\CavernLogo.png"/>
@@ -49,12 +49,12 @@
                 <GroupBox>
                     <Grid>
                         <Grid x:Name="renderSettings">
-                            <TextBlock Style="{StaticResource Header}" Text="{StaticResource SySet}"/>
-                            <Ellipse Margin="113,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20"
-                                 Fill="{StaticResource InfoBlue}"/>
-                            <TextBlock Margin="113,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20"
+                            <TextBlock x:Name="renderSettingsHeader" Style="{StaticResource Header}" Text="{StaticResource SySet}"/>
+                            <Ellipse Margin="0,9,5,0" VerticalAlignment="Top" Height="20"
+                                 Fill="{StaticResource InfoBlue}" HorizontalAlignment="Right" Width="20"/>
+                            <TextBlock Margin="0,9,5,0" VerticalAlignment="Top" Height="20"
                                    Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
-                                   ToolTip="{StaticResource RSInf}" ToolTipService.InitialShowDelay="0"/>
+                                   ToolTip="{StaticResource RSInf}" ToolTipService.InitialShowDelay="0" HorizontalAlignment="Right" Width="20"/>
                             <TextBlock Margin="10,37,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
                                        Text="{StaticResource RndTg}"/>
                             <ComboBox x:Name="renderTarget" Margin="90,34,10,0" VerticalAlignment="Top"
@@ -107,12 +107,12 @@
                             <Grid x:Name="trackControls" Margin="10,69,10,10">
                                 <TextBlock Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                            Text="{StaticResource OpTrk}" TextWrapping="NoWrap"/>
-                                <ComboBox x:Name="tracks" Margin="45,0,10,0" VerticalAlignment="Top"
+                                <ComboBox x:Name="tracks" Margin="55,0,10,0" VerticalAlignment="Top"
                                           ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
                                           Template="{DynamicResource DarkComboBox}" SelectionChanged="OnTrackSelected"/>
                                 <TextBlock Margin="0,30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                            Text="{StaticResource OpOut}" TextWrapping="NoWrap"/>
-                                <ComboBox x:Name="audio" Margin="45,27,10,0" VerticalAlignment="Top"
+                                <ComboBox x:Name="audio" Margin="55,27,10,0" VerticalAlignment="Top"
                                           ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
                                           Template="{DynamicResource DarkComboBox}" SelectionChanged="OnOutputSelected"/>
                                 <TextBlock x:Name="trackInfo" Margin="0,54,0,0" VerticalAlignment="Top" TextWrapping="Wrap"/>
@@ -131,11 +131,11 @@
                     <GroupBox>
                         <Grid>
                             <TextBlock Style="{StaticResource Header}" Text="{StaticResource Queue}"/>
-                            <Ellipse Margin="59,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
-                                 Fill="{StaticResource InfoBlue}"/>
-                            <TextBlock Margin="59,9,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
+                            <Ellipse Margin="0,9,5,0" VerticalAlignment="Top" Height="20"
+                                 Fill="{StaticResource InfoBlue}" HorizontalAlignment="Right" Width="20"/>
+                            <TextBlock Margin="0,9,5,0" VerticalAlignment="Top" Height="20"
                                    Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
-                                   ToolTip="{StaticResource QuDes}" ToolTipService.InitialShowDelay="0"/>
+                                   ToolTip="{StaticResource QuDes}" ToolTipService.InitialShowDelay="0" HorizontalAlignment="Right" Width="20"/>
                             <ListBox x:Name="queuedJobs" Margin="10,34,10,45" Template="{DynamicResource QueueListBox}"
                                      AllowDrop="True" DragEnter="QueueDragEnter" DragOver="QueueDragOver" Drop="QueueDrop"/>
                             <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="100"

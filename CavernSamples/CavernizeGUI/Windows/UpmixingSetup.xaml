@@ -4,11 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Cavernize" Height="185" Width="300" Background="#222222">
+        Title="Cavernize" Height="185" Width="350" Background="#222222">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Resources/UpmixingSetupStrings.xaml"/>
+                <d:ResourceDictionary Source="../Resources/UpmixingSetupStrings.xaml"/>
                 <ResourceDictionary Source="../Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -20,10 +20,10 @@
                   Content="{StaticResource CazeC}" ToolTip="{StaticResource CazeT}"/>
         <TextBlock Margin="10,51,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                    Text="{StaticResource Effec}" TextWrapping="Wrap"/>
-        <Slider x:Name="effect" Margin="135,50,10,0" VerticalAlignment="Top" Minimum="0" Value="75" Interval="1" Maximum="100"/>
+        <Slider x:Name="effect" Margin="175,50,10,0" VerticalAlignment="Top" Minimum="0" Value="75" Interval="1" Maximum="100"/>
         <TextBlock Margin="10,74,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                    Text="{StaticResource Smoot}" TextWrapping="Wrap"/>
-        <Slider x:Name="smoothness" Margin="135,73,10,0" VerticalAlignment="Top" Minimum="0" Value="80" Interval="1" Maximum="100"/>
+        <Slider x:Name="smoothness" Margin="175,73,10,0" VerticalAlignment="Top" Minimum="0" Value="80" Interval="1" Maximum="100"/>
         <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="80"
                 Content="{StaticResource BtnRs}" Click="Reset"/>
         <Button Margin="0,0,95,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="80"

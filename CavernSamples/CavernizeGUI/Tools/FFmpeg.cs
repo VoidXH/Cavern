@@ -14,6 +14,16 @@ namespace VoidX.WPF {
         public static bool ConsoleMode { get; set; }
 
         /// <summary>
+        /// Displayed status message when FFmpeg was found.
+        /// </summary>
+        public static string ReadyText { get; set; } = "Ready.";
+
+        /// <summary>
+        /// Displayed status message when FFmpeg was not found.
+        /// </summary>
+        public static string NotReadyText { get; set; } = "FFmpeg isn't found, codec limitations are applied.";
+
+        /// <summary>
         /// FFmpeg is located and ready to use.
         /// </summary>
         public bool Found { get; private set; }
@@ -75,9 +85,9 @@ namespace VoidX.WPF {
             Found = !string.IsNullOrEmpty(Location) && File.Exists(Location);
             if (statusText != null) {
                 if (Found) {
-                    statusText.Text = readyText;
+                    statusText.Text = ReadyText;
                 } else {
-                    statusText.Text = notReadyText;
+                    statusText.Text = NotReadyText;
                 }
             }
         }
@@ -86,16 +96,6 @@ namespace VoidX.WPF {
         /// Open file dialog filter for selecting FFmpeg's binary.
         /// </summary>
         const string filter = "FFmpeg|ffmpeg.exe";
-
-        /// <summary>
-        /// Displayed status message when FFmpeg was found.
-        /// </summary>
-        const string readyText = "Ready.";
-
-        /// <summary>
-        /// Displayed status message when FFmpeg was not found.
-        /// </summary>
-        const string notReadyText = "FFmpeg isn't found, codec limitations are applied.";
 
         /// <summary>
         /// Arguments that limit the text FFmpeg writes to the console not to flood it in console mode.

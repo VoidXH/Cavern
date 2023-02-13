@@ -216,8 +216,9 @@ namespace Cavern.Utilities {
                 response[i].Real = (float)(exp * Math.Cos(response[i].Imaginary));
                 response[i].Imaginary = (float)(exp * Math.Sin(response[i].Imaginary));
             }
-            if (customCache)
+            if (customCache) {
                 cache.Dispose();
+            }
         }
 
         /// <summary>

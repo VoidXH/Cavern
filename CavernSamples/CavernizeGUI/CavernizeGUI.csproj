@@ -11,7 +11,7 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <DebugType>full</DebugType>
     <Authors>VoidX</Authors>
-    <Product>Cavernize GUI</Product>
+    <Product>Cavernize</Product>
     <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

@@ -58,9 +58,8 @@ namespace Cavern {
         /// Output channel layout. The default setup is the standard 5.1.
         /// </summary>
         /// <remarks>Set by the user and applied when a <see cref="Listener"/> is created.</remarks>
-        public static Channel[] Channels { get; private set; } = new Channel[]
-            { new Channel(0, -30), new Channel(0, 30), new Channel(0, 0), new Channel(15, 15, true),
-                new Channel(0, -110), new Channel(0, 110) };
+        public static Channel[] Channels { get; private set; } = { new Channel(0, -30), new Channel(0, 30),
+            new Channel(0, 0), new Channel(15, 15, true), new Channel(0, -110), new Channel(0, 110) };
 
         /// <summary>
         /// Gets if the speakers are placed in a sphere according to current layout settings.

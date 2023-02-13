@@ -31,7 +31,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Source of language strings.
         /// </summary>
-        public static readonly ResourceDictionary language = new();
+        public static readonly ResourceDictionary language = Consts.Language.GetMainWindowStrings();
 
         /// <summary>
         /// Tells if a rendering process is in progress.
@@ -110,13 +110,14 @@ namespace CavernizeGUI {
             audio.ItemsSource = ExportFormat.Formats;
             audio.SelectedIndex = Settings.Default.outputCodec;
 
+            FFmpeg.ReadyText = (string)language["FFRea"];
+            FFmpeg.NotReadyText = (string)language["FFNRe"];
             ffmpeg = new(status, Settings.Default.ffmpegLocation);
             listener = new() { // Create a listener, which triggers the loading of saved environment settings
                 UpdateRate = 64,
                 AudioQuality = QualityModes.Perfect
             };
 
-            language.Source = new Uri(";component/Resources/MainWindowStrings.xaml", UriKind.RelativeOrAbsolute);
             renderTarget.ItemsSource = RenderTarget.Targets;
             renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget), RenderTarget.Targets.Length - 1);
             renderSettings.IsEnabled = true; // Don't grey out initially

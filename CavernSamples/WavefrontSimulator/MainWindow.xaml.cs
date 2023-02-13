@@ -170,10 +170,12 @@ namespace WavefrontSimulator {
                         result += data[i].Samples[delay] * directivity;
                     }
                     gains[x, y] = result;
-                    if (maxGain < gains[x, y])
+                    if (maxGain < gains[x, y]) {
                         maxGain = gains[x, y];
-                    if (minGain > gains[x, y])
+                    }
+                    if (minGain > gains[x, y]) {
                         minGain = gains[x, y];
+                    }
                 }
             }
 
