@@ -1,6 +1,4 @@
-﻿using System;
-
-using Cavern.Channels;
+﻿using Cavern.Channels;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -40,7 +38,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target number of channels.
         /// </summary>
-        public FIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
+        protected FIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
             Channels = new ChannelData[channels];
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
             for (int i = 0; i < matrix.Length; i++) {
@@ -51,7 +49,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target reference channels.
         /// </summary>
-        public FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) {
+        protected FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) {
             Channels = new ChannelData[channels.Length];
             for (int i = 0; i < channels.Length; i++) {
                 Channels[i].reference = channels[i];

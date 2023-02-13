@@ -10,12 +10,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Forward transformation cache of rotation cosines and sines.
         /// </summary>
-        static (float[] real, float[] imaginary)[] forwardCache;
+        static readonly (float[] real, float[] imaginary)[] forwardCache = new (float[], float[])[subbands];
 
         /// <summary>
         /// Inverse transformation cache of rotation cosines and sines.
         /// </summary>
-        static (float[] real, float[] imaginary)[] inverseCache;
+        static readonly (float[] real, float[] imaginary)[] inverseCache = new (float[], float[])[subbands];
 
         /// <summary>
         /// Input sample cache for forward transformations.
@@ -50,9 +50,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             grouping = new float[doubleLength];
             outCache = (new float[subbands], new float[subbands]);
 
-            if (forwardCache == null) {
-                forwardCache = new (float[], float[])[subbands];
-                inverseCache = new (float[], float[])[subbands];
+            if (forwardCache[0].real == null) {
                 for (int sb = 0; sb < subbands; ++sb) {
                     forwardCache[sb] = (new float[doubleLength], new float[doubleLength]);
                     inverseCache[sb] = (new float[doubleLength], new float[doubleLength]);

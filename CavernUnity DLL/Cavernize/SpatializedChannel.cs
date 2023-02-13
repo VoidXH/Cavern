@@ -107,8 +107,9 @@ namespace Cavern.Cavernize {
             if (!WrittenOutput) {
                 Output.Clear();
             }
-            if (filter.GroundCrossover != crossoverFreq)
+            if (filter.GroundCrossover != crossoverFreq) {
                 filter.GroundCrossover = crossoverFreq;
+            }
             this.visualize = visualize && WrittenOutput;
             if (WrittenOutput) {
                 filter.Effect = effect;

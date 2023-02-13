@@ -54,7 +54,7 @@ namespace Cavern.QuickEQ.Equalization {
                 subsonicFilter = value;
             }
         }
-        bool subsonicFilter = false;
+        bool subsonicFilter;
 
         /// <summary>
         /// Subsonic filter rolloff in dB / octave.

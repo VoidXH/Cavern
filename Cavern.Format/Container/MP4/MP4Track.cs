@@ -80,6 +80,9 @@ namespace Cavern.Format.Container.MP4 {
 
                 offset = chunkOffsets.offsets[++chunk];
                 if (--chunksUntilNextCluster == 0) {
+                    if (i == map.Length || locations.Length == 1) {
+                        break;
+                    }
                     if (++cluster == locations.Length - 1) {
                         chunksUntilNextCluster = chunkOffsets.offsets.LongLength - locations[^1].firstChunk;
                         samplesPerChunkL = (ulong)(map.LongLength - i);

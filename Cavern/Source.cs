@@ -204,8 +204,9 @@ namespace Cavern {
                 if (SpatialBlend != 0) {
                     if (listener.AudioQuality >= QualityModes.High && clipChannels != 1) { // Mono downmix above medium quality
                         Array.Clear(samples, 0, PitchedUpdateRate);
-                        for (int channel = 0; channel < clipChannels; ++channel)
+                        for (int channel = 0; channel < clipChannels; ++channel) {
                             WaveformUtils.Mix(Rendered[channel], samples);
+                        }
                         WaveformUtils.Gain(samples, 1f / clipChannels);
                     } else { // First channel only otherwise
                         Array.Copy(Rendered[0], samples, PitchedUpdateRate);
