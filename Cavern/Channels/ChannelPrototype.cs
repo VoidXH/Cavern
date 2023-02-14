@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -133,6 +134,11 @@ namespace Cavern.Channels {
             }
             return result;
         }
+
+        /// <summary>
+        /// Convert a mapping of <see cref="ReferenceChannel"/>s to channel name initials.
+        /// </summary>
+        public static string[] GetShortNames(ReferenceChannel[] source) => source.Select(x => x.GetShortName()).ToArray();
 
         /// <summary>
         /// Convert a prototype array to their corresponding alternative positions in the current environment.

@@ -24,6 +24,12 @@
     <Page Update="Resources\Styles.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Resources\TrackStrings.hu-HU.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\TrackStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Resources\UpmixingSetupStrings.hu-HU.xaml">
       <SubType>Designer</SubType>
     </Page>

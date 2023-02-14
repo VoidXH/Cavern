@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Windows;
 
 using Cavern;
 using Cavern.Channels;
@@ -10,6 +10,7 @@ using Cavern.Format.Common;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
 using Cavern.Utilities;
+
 using CavernizeGUI.Resources;
 
 namespace CavernizeGUI.Elements {
@@ -17,12 +18,14 @@ namespace CavernizeGUI.Elements {
     /// Represents an audio track of an audio file.
     /// </summary>
     public class Track : IDisposable {
+        /// <summary>
+        /// Expanded names of codecs for which the enum is a shorthand.
+        /// </summary>
         readonly static Dictionary<Codec, string> formatNames = new() {
             [Codec.DTS] = "DTS Coherent Acoustics",
             [Codec.DTS_HD] = "DTS-HD",
+            [Codec.AC3] = "AC-3",
             [Codec.EnhancedAC3] = "Enhanced AC-3",
-            [Codec.PCM_Float] = "PCM (floating point)",
-            [Codec.PCM_LE] = "PCM (integer)",
         };
 
         /// <summary>
@@ -61,9 +64,14 @@ namespace CavernizeGUI.Elements {
         public string Language { get; protected set; }
 
         /// <summary>
-        /// Text to display about this track.
+        /// Major format information to display first when this track is selected.
         /// </summary>
-        public string Details { get; protected set; }
+        public string FormatHeader { get; protected set; }
+
+        /// <summary>
+        /// Main properties of this audio track.
+        /// </summary>
+        public (string property, string value)[] Details { get; protected set; }
 
         /// <summary>
         /// Source of audio data.
@@ -78,50 +86,46 @@ namespace CavernizeGUI.Elements {
             Codec = codec;
             Index = index;
 
-            StringBuilder builder = new();
             Renderer = reader.GetRenderer();
             Supported = Renderer is not DummyRenderer;
             EnhancedAC3Renderer eac3 = Renderer as EnhancedAC3Renderer;
 
+            ResourceDictionary strings = Consts.Language.GetTrackStrings();
             if (!Supported) {
-                builder.AppendLine("Format unsupported by Cavern");
+                FormatHeader = (string)strings["NoSup"];
             } else if (eac3 != null) {
                 if (eac3.HasObjects) {
-                    builder.AppendLine("Enhanced AC-3 with Joint Object Coding");
+                    FormatHeader = (string)strings["E3JOC"];
                 } else {
-                    builder.AppendLine(eac3.Enhanced ? "Enhanced AC-3" : "AC-3");
+                    FormatHeader = eac3.Enhanced ? "Enhanced AC-3" : "AC-3";
                 }
             } else {
-                if (Renderer.HasObjects) {
-                    builder.Append("Object");
-                } else {
-                    builder.Append("Channel");
-                }
-                builder.AppendLine("-based audio track");
+                FormatHeader = Renderer.HasObjects ? (string)strings["ObTra"] : (string)strings["ChTra"];
             }
 
             ReferenceChannel[] beds = Renderer != null ? Renderer.GetChannels() : Array.Empty<ReferenceChannel>();
-            string bedList = string.Join(", ", ChannelPrototype.GetNames(beds));
+            string bedList = string.Join(' ', ChannelPrototype.GetShortNames(beds));
+            List<(string, string)> builder = new();
             if (eac3 != null && eac3.HasObjects) {
-                builder.Append("Source channels (").Append(reader.ChannelCount).Append("): ").AppendLine(bedList)
-                    .Append("Matrixed bed channels: ").AppendLine((eac3.Objects.Count - eac3.DynamicObjects).ToString())
-                    .Append("Matrixed dynamic objects: ").AppendLine(eac3.DynamicObjects.ToString());
+                builder.Add(((string)strings["SouCh"], $"{reader.ChannelCount} - {bedList}"));
+                string[] newBeds = ChannelPrototype.GetShortNames(eac3.GetStaticChannels());
+                builder.Add(((string)strings["MatBe"], $"{newBeds.Length} - {string.Join(' ', newBeds)}"));
+                builder.Add(((string)strings["MatOb"], eac3.DynamicObjects.ToString()));
             } else {
                 if (Renderer != null && beds.Length != Renderer.Objects.Count) {
                     if (beds.Length > 0) {
-                        builder.Append("Bed channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
+                        builder.Add(((string)strings["SouBe"], $"{beds.Length} - {bedList}"));
                     }
-                    builder.Append("Dynamic objects: ").AppendLine((Renderer.Objects.Count - beds.Length).ToString());
+                    builder.Add(((string)strings["SouDy"], (Renderer.Objects.Count - beds.Length).ToString()));
                 } else if (beds.Length > 0) {
-                    builder.Append("Channels (").Append(beds.Length).Append("): ").AppendLine(bedList);
+                    builder.Add(((string)strings["Chans"], $"{beds.Length} - {bedList}"));
                 } else {
-                    builder.Append("Channel count: ").AppendLine(reader.ChannelCount.ToString());
+                    builder.Add(((string)strings["ChCnt"], reader.ChannelCount.ToString()));
                 }
             }
-
-            builder.Append("Length: ").AppendLine(TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString());
-            builder.Append("Sample rate: ").Append(reader.SampleRate).AppendLine("Hz");
-            Details = builder.ToString();
+            builder.Add(((string)strings["TraLe"], TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString()));
+            builder.Add(((string)strings["TraFs"], reader.SampleRate + " Hz"));
+            Details = builder.ToArray();
         }
 
         /// <summary>
@@ -187,8 +191,10 @@ namespace CavernizeGUI.Elements {
         /// Very short track information for the dropdown.
         /// </summary>
         public override string ToString() {
-            string codecName = formatNames.ContainsKey(Codec) ? formatNames[Codec] : Codec.ToString();
-            string objects = Renderer != null && Renderer.HasObjects ? " with objects" : string.Empty;
+            ResourceDictionary strings = Consts.Language.GetTrackStrings();
+            string codecName = (string)strings[Codec.ToString()] ??
+                (formatNames.ContainsKey(Codec) ? formatNames[Codec] : Codec.ToString());
+            string objects = Renderer != null && Renderer.HasObjects ? " " + strings["WiObj"] : string.Empty;
             return string.IsNullOrEmpty(Language) ? codecName : $"{codecName}{objects} ({Language})";
         }
     }

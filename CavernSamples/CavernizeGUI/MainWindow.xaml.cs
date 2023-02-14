@@ -49,6 +49,11 @@ namespace CavernizeGUI {
         readonly Dictionary<ReferenceChannel, Ellipse> channelDisplay;
 
         /// <summary>
+        /// The fields that show property-value pairs in a table.
+        /// </summary>
+        readonly (TextBlock property, TextBlock value)[] trackInfo;
+
+        /// <summary>
         /// FFmpeg runner and locator.
         /// </summary>
         readonly FFmpeg ffmpeg;
@@ -105,6 +110,13 @@ namespace CavernizeGUI {
                 [ReferenceChannel.TopRearLeft] = topRearLeft,
                 [ReferenceChannel.TopRearCenter] = topRearCenter,
                 [ReferenceChannel.TopRearRight] = topRearRight
+            };
+            trackInfo = new (TextBlock, TextBlock)[] {
+                (trackTable1Title, trackTable1Value),
+                (trackTable2Title, trackTable2Value),
+                (trackTable3Title, trackTable3Value),
+                (trackTable4Title, trackTable4Value),
+                (trackTable5Title, trackTable5Value)
             };
 
             audio.ItemsSource = ExportFormat.Formats;
@@ -240,7 +252,11 @@ namespace CavernizeGUI {
             fileName.Text = string.Empty;
             trackControls.Visibility = Visibility.Hidden;
             tracks.ItemsSource = null;
-            trackInfo.Text = string.Empty;
+            trackCodec.Text = string.Empty;
+            for (int i = 0; i < trackInfo.Length; i++) {
+                trackInfo[i].property.Text = string.Empty;
+                trackInfo[i].value.Text = string.Empty;
+            }
             report = (string)language["Reprt"];
         }
 
@@ -300,7 +316,18 @@ namespace CavernizeGUI {
         /// </summary>
         void OnTrackSelected(object _, SelectionChangedEventArgs e) {
             if (tracks.SelectedItem != null) {
-                trackInfo.Text = ((Track)tracks.SelectedItem).Details;
+                Track track = (Track)tracks.SelectedItem;
+                trackCodec.Text = track.FormatHeader;
+                (string property, string value)[] details = track.Details;
+                int fill = Math.Min(trackInfo.Length, details.Length);
+                for (int i = 0; i < fill; i++) {
+                    trackInfo[i].property.Text = details[i].property;
+                    trackInfo[i].value.Text = details[i].value;
+                }
+                for (int i = fill; i < trackInfo.Length; i++) {
+                    trackInfo[i].property.Text = string.Empty;
+                    trackInfo[i].value.Text = string.Empty;
+                }
             }
         }
 

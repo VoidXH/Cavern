@@ -8,7 +8,7 @@
     <system:String x:Key="FiltH">Kimeneti _szűrők alkalmazása</system:String>
     <system:String x:Key="FiltT">Betölt egy konvolúciós EQ szettet, amit a QuickEQ exportált a célrendszerhez,
         majd ezt használja a konvertált fájlba beégetett szobakorrekcióként.</system:String>
-    <system:String x:Key="MuBeH">_Bed némítása</system:String>
+    <system:String x:Key="MuBeH">_Alap némítása</system:String>
     <system:String x:Key="MuBeT">Csak azokat az objektumokat renderelje, amik valóban mozognak, nincs fix helyük.</system:String>
     <system:String x:Key="MuGrH">_Talaj némítása</system:String>
     <system:String x:Key="MuGrT">Minden hangot elnémít, ami nem a magasból jön.</system:String>

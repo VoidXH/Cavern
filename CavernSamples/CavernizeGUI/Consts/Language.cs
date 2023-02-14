@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows;
 
+using CavernizeGUI.Elements;
 using CavernizeGUI.Windows;
 
 namespace CavernizeGUI.Consts {
@@ -10,6 +11,11 @@ namespace CavernizeGUI.Consts {
         /// Get the <see cref="MainWindow"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= GetFor("MainWindowStrings");
+
+        /// <summary>
+        /// Get the <see cref="MainWindow"/>'s translation.
+        /// </summary>
+        public static ResourceDictionary GetTrackStrings() => trackCache ??= GetFor("TrackStrings");
 
         /// <summary>
         /// Get the <see cref="UpmixingSetup"/>'s translation.
@@ -37,5 +43,10 @@ namespace CavernizeGUI.Consts {
         /// The loaded translation of the <see cref="MainWindow"/> for reuse.
         /// </summary>
         static ResourceDictionary mainWindowCache;
+
+        /// <summary>
+        /// The loaded translation of <see cref="Track"/>s for reuse.
+        /// </summary>
+        static ResourceDictionary trackCache;
     }
 }

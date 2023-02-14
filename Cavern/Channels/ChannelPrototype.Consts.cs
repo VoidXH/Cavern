@@ -10,7 +10,7 @@ namespace Cavern.Channels {
             FrontLeft = new ChannelPrototype(-30, "Front left"),
             FrontRight = new ChannelPrototype(30, "Front right"),
             FrontCenter = new ChannelPrototype(0, "Front center", false, false),
-            ScreenLFE = new ChannelPrototype(0, "LFE", true),
+            ScreenLFE = new ChannelPrototype(0, "Low frequency effects", true),
             RearLeft = new ChannelPrototype(-150, "Rear left", false, false),
             RearRight = new ChannelPrototype(150, "Rear right", false, false),
             SideLeft = new ChannelPrototype(-110, "Side left", false, false),

@@ -9,7 +9,8 @@ namespace CavernizeGUI.Elements {
         /// An audio track's replacement when it failed to load.
         /// </summary>
         public InvalidTrack(string error, Codec codec, string language) {
-            Details = $"{(string)MainWindow.language["InvTr"]} {error} {(string)MainWindow.language["Later"]}";
+            FormatHeader = $"{(string)MainWindow.language["InvTr"]}\n{error} {(string)MainWindow.language["Later"]}";
+            Details = System.Array.Empty<(string, string)>();
             Codec = codec;
             Language = language;
         }

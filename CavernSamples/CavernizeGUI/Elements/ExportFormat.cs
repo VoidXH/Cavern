@@ -1,4 +1,8 @@
-﻿using Cavern.Format.Common;
+﻿using System.Windows;
+
+using Cavern.Format.Common;
+
+using CavernizeGUI.Consts;
 
 namespace CavernizeGUI.Elements {
     /// <summary>
@@ -43,13 +47,23 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// All supported export formats.
         /// </summary>
-        public static readonly ExportFormat[] Formats = {
-            new ExportFormat(Codec.Opus, "libopus", 64, "Opus (transparent, small size)"),
-            new ExportFormat(Codec.FLAC, "flac", 8, "FLAC (lossless, large size)"),
-            new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, "PCM integer (lossless, larger size)"),
-            new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, "PCM float (needless, largest size)"),
-            new ExportFormat(Codec.ADM_BWF, string.Empty, 128, "ADM Broadcast Wave Format (compact)"),
-            new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, "ADM Broadcast Wave Format (Dolby Atmos)"),
-        };
+        public static ExportFormat[] Formats {
+            get {
+                ResourceDictionary strings = Language.GetTrackStrings();
+                return formats ??= new ExportFormat[] {
+                    new ExportFormat(Codec.Opus, "libopus", 64, (string)strings["COpus"]),
+                    new ExportFormat(Codec.FLAC, "flac", 8, (string)strings["CFLAC"]),
+                    new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, (string)strings["CPCMI"]),
+                    new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, (string)strings["CPCMF"]),
+                    new ExportFormat(Codec.ADM_BWF, string.Empty, 128, (string)strings["CADMC"]),
+                    new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, (string)strings["CADMA"]),
+                };
+            }
+        }
+
+        /// <summary>
+        /// Cache for <see cref="Formats"/>, allocated on the first call.
+        /// </summary>
+        static ExportFormat[] formats;
     }
 }
