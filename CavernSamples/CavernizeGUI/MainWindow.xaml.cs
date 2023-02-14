@@ -107,6 +107,8 @@ namespace CavernizeGUI {
                 [ReferenceChannel.TopFrontLeft] = topFrontLeft,
                 [ReferenceChannel.TopFrontCenter] = topFrontCenter,
                 [ReferenceChannel.TopFrontRight] = topFrontRight,
+                [ReferenceChannel.TopSideLeft] = topSideLeft,
+                [ReferenceChannel.TopSideRight] = topSideRight,
                 [ReferenceChannel.TopRearLeft] = topRearLeft,
                 [ReferenceChannel.TopRearCenter] = topRearCenter,
                 [ReferenceChannel.TopRearRight] = topRearRight
@@ -305,7 +307,7 @@ namespace CavernizeGUI {
 
             ReferenceChannel[] channels = selected.Channels;
             for (int ch = 0; ch < channels.Length; ++ch) {
-                if (channelDisplay.ContainsKey(channels[ch])) {
+                if (channelDisplay.ContainsKey(channels[ch]) && selected.IsExported(ch)) {
                     channelDisplay[channels[ch]].Fill = green;
                 }
             }

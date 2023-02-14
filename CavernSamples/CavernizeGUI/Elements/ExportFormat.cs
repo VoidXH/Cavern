@@ -50,7 +50,7 @@ namespace CavernizeGUI.Elements {
         public static ExportFormat[] Formats {
             get {
                 ResourceDictionary strings = Language.GetTrackStrings();
-                return formats ??= new ExportFormat[] {
+                return formats ??= new[] {
                     new ExportFormat(Codec.Opus, "libopus", 64, (string)strings["COpus"]),
                     new ExportFormat(Codec.FLAC, "flac", 8, (string)strings["CFLAC"]),
                     new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, (string)strings["CPCMI"]),

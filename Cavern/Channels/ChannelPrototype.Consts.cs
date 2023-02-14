@@ -120,6 +120,16 @@ namespace Cavern.Channels {
         public static readonly ReferenceChannel[] ref514 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
+        /// SMPTE-standard 5.1.6 setup (L, R, C, LFE, SL, SR, TFL, TFR, TSL, TSR, TSR, TRL, TRR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref516 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
+
+        /// <summary>
+        /// WAVE-standard 5.1.6 setup (L, R, C, LFE, SL, SR, TFL, TFC, TFR, TRL, TRC, TRR).
+        /// </summary>
+        public static readonly ReferenceChannel[] wav516 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
+
+        /// <summary>
         /// Standard 7.0.0 setup (L, R, C, RL, RR, SL, SR).
         /// </summary>
         public static readonly ReferenceChannel[] ref700 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight };
@@ -135,9 +145,9 @@ namespace Cavern.Channels {
         public static readonly ReferenceChannel[] ref704 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
-        /// Non-standard 7.0.6 setup (L, R, C, RL, RR, SL, SR, TFL, TFC, TFR, TRL, TRC, TRR).
+        /// WAVE-standard 7.0.6 setup (L, R, C, RL, RR, SL, SR, TFL, TFC, TFR, TRL, TRC, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref706 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
+        public static readonly ReferenceChannel[] wav706 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Standard 7.1.0 setup (L, R, C, LFE, RL, RR, SL, SR).
@@ -160,9 +170,14 @@ namespace Cavern.Channels {
         public static readonly ReferenceChannel[] ref714 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
-        /// Non-standard 7.1.6 setup (L, R, C, LFE, RL, RR, SL, SR, TFL, TFC, TFR, TRL, TRC, TRR).
+        /// SMPTE-standard 7.1.6 setup (L, R, C, LFE, SL, SR, RL, RR, TFL, TFR, TSL, TSR, TSR, TRL, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref716 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
+        public static readonly ReferenceChannel[] ref716 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
+
+        /// <summary>
+        /// WAVE-standard 7.1.6 setup (L, R, C, LFE, RL, RR, SL, SR, TFL, TFC, TFR, TRL, TRC, TRR).
+        /// </summary>
+        public static readonly ReferenceChannel[] wav716 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// DCP standard 8.1.0 setup (L, R, C, LFE, RL, RR, SL, SR, RC).
@@ -170,9 +185,9 @@ namespace Cavern.Channels {
         public static readonly ReferenceChannel[] ref810 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,  ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearCenter };
 
         /// <summary>
-        /// Non-standard 9.0.6 setup (L, R, C, RL, RR, SL, SR, WL, WR, TFL, TFC, TFR, TRL, TRC, TRR).
+        /// WAVE-standard 9.0.6 setup (L, R, C, RL, RR, SL, SR, WL, WR, TFL, TFC, TFR, TRL, TRC, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref906 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
+        public static readonly ReferenceChannel[] wav906 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Standard 9.1.4 setup (L, R, C, LFE, RL, RR, SL, SR, WL, WR, TFL, TFR, TRL, TRR).
@@ -180,9 +195,14 @@ namespace Cavern.Channels {
         public static readonly ReferenceChannel[] ref914 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
-        /// Non-standard 9.0.6 setup (L, R, C, LFE, RL, RR, SL, SR, WL, WR, TFL, TFC, TFR, TRL, TRC, TRR).
+        /// SMPTE-standard 9.1.6 setup (L, R, C, LFE, SL, SR, RL, RR, WL, WR, TFL, TFR, TSL, TSR, TSR, TRL, TRR).
         /// </summary>
-        public static readonly ReferenceChannel[] ref916 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
+        public static readonly ReferenceChannel[] ref916 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
+
+        /// <summary>
+        /// WAVE-standard 9.1.6 setup (L, R, C, LFE, RL, RR, SL, SR, WL, WR, TFL, TFC, TFR, TRL, TRC, TRR).
+        /// </summary>
+        public static readonly ReferenceChannel[] wav916 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Standard 11.1 DCP (L, R, C, LFE, SL, SR, TFL, TFR, TFC, GV, TSL, TSR).
@@ -217,7 +237,7 @@ namespace Cavern.Channels {
         /// when working with non-5.1 DCPs or content with 8+ channels.</remarks>
         static readonly ReferenceChannel[][] HomeStandardMatrix = {
             Array.Empty<ReferenceChannel>(), ref100, ref200, ref300, ref400, ref500, ref510, ref700, ref710,
-            ref702, ref712, ref704, ref714, ref706, ref716, ref906, ref916
+            ref702, ref712, ref704, ref714, wav706, wav716, wav906, wav916
         };
 
         /// <summary>

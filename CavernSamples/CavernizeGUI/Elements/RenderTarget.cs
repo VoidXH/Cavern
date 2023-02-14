@@ -62,6 +62,11 @@ namespace CavernizeGUI.Elements {
         }
 
         /// <summary>
+        /// Gets if a channel is actually present in the final file or just used for downmixing in <see cref="DownmixedRenderTarget"/>.
+        /// </summary>
+        public virtual bool IsExported(int _) => true;
+
+        /// <summary>
         /// Return the <see cref="Name"/> on string conversion.
         /// </summary>
         override public string ToString() => Name;
@@ -82,12 +87,8 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("5.1.4", ChannelPrototype.ref514),
-            new RenderTarget("5.1.6", new[] {
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight
-            }),
+            new RenderTarget("5.1.6 (SMPTE)", ChannelPrototype.ref516),
+            new RenderTarget("5.1.6 (WAVE)", ChannelPrototype.wav516),
             new RenderTarget("7.1", ChannelPrototype.ref710),
             new DownmixedRenderTarget("7.1.2 front", ChannelPrototype.ref714, (10, 4), (11, 5)),
             new RenderTarget("7.1.2 side", new[] {
@@ -96,7 +97,8 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("7.1.4", ChannelPrototype.ref714),
-            new RenderTarget("7.1.6", ChannelPrototype.ref716),
+            new RenderTarget("7.1.6 (SMPTE)", ChannelPrototype.ref716),
+            new RenderTarget("7.1.6 (WAVE)", ChannelPrototype.wav716),
             new RenderTarget("9.1", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
@@ -109,7 +111,8 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("9.1.4", ChannelPrototype.ref914),
-            new RenderTarget("9.1.6", ChannelPrototype.ref916),
+            new RenderTarget("9.1.6 (SMPTE)", ChannelPrototype.ref916),
+            new RenderTarget("9.1.6 (WAVE)", ChannelPrototype.wav916),
             new DriverRenderTarget(),
             new VirtualizerRenderTarget()
         };

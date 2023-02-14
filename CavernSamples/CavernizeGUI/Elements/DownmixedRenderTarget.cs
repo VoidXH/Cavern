@@ -31,6 +31,18 @@ namespace CavernizeGUI.Elements {
         }
 
         /// <summary>
+        /// Gets if a channel is actually present in the final file or just used for downmixing.
+        /// </summary>
+        public override bool IsExported(int index) {
+            for (int i = 0; i < merge.Length; i++) {
+                if (merge[i].source == index) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Perform the channel mixing by the <see cref="merge"/> mapping.
         /// </summary>
         public void PerformMerge(float[] samples) {

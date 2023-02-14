@@ -107,7 +107,7 @@ namespace CavernizeGUI.Elements {
             string bedList = string.Join(' ', ChannelPrototype.GetShortNames(beds));
             List<(string, string)> builder = new();
             if (eac3 != null && eac3.HasObjects) {
-                builder.Add(((string)strings["SouCh"], $"{reader.ChannelCount} - {bedList}"));
+                builder.Add(((string)strings["SouCh"], $"{beds.Length} - {bedList}"));
                 string[] newBeds = ChannelPrototype.GetShortNames(eac3.GetStaticChannels());
                 builder.Add(((string)strings["MatBe"], $"{newBeds.Length} - {string.Join(' ', newBeds)}"));
                 builder.Add(((string)strings["MatOb"], eac3.DynamicObjects.ToString()));

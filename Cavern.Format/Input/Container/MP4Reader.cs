@@ -28,8 +28,11 @@ namespace Cavern.Format.Container {
         /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the Tracks array.</param>
         public override byte[] ReadNextBlock(int track) {
             MP4Track source = (MP4Track)Tracks[track];
-            reader.Position = (long)source.map[source.nextSample].offset;
-            return reader.ReadBytes(source.map[source.nextSample++].length);
+            if (source.map.Length != source.nextSample) {
+                reader.Position = (long)source.map[source.nextSample].offset;
+                return reader.ReadBytes(source.map[source.nextSample++].length);
+            }
+            return null;
         }
 
         /// <summary>
