@@ -86,6 +86,10 @@ namespace Cavern.Format.Renderers {
                 finalResult = new float[channels.Length][];
                 FinishSetup(channels.Length);
             }
+
+            for (int i = 0, c = objects.Count; i < c; i++) {
+                objects[i].Volume = .707f; // E-AC-3 + JOC has a general -3 dB gain to prevent clipping
+            }
         }
 
         /// <summary>
