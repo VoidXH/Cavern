@@ -1,4 +1,6 @@
-﻿namespace Test.Cavern {
+﻿using Cavern;
+
+namespace Test.Cavern {
     /// <summary>
     /// Constant test values.
     /// </summary>
@@ -21,6 +23,6 @@
         /// <summary>
         /// The two sample arrays as a stereo signal for multichannel tests.
         /// </summary>
-        internal static readonly float[][] multichannel = { samples, samples2 };
+        internal static readonly MultichannelWaveform multichannel = new MultichannelWaveform(samples, samples2);
     }
 }

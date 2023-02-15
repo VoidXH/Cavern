@@ -21,10 +21,10 @@ namespace Test.Cavern {
         /// Create an <see cref="Equalizer"/> that resembles a sine wave of a given amplitude.
         /// </summary>
         static Equalizer Create(double startFreq, double endFreq, int length, double amplitude) {
-            Equalizer result = new Equalizer();
+            Equalizer result = new();
             double mul = 1.0 / (length - 1);
             for (int i = 0; i < length; i++) {
-                result.AddBand(new Band(QMath.Lerp(startFreq, endFreq, i * mul), amplitude * Math.Sin(i)));
+                result.AddBand(new(QMath.Lerp(startFreq, endFreq, i * mul), amplitude * Math.Sin(i)));
             }
             return result;
         }

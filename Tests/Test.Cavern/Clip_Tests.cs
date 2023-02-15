@@ -11,7 +11,7 @@ namespace Test.Cavern {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void SetGetData_Mono() {
-            Clip clip = new Clip(new float[Consts.samples.Length], 1, Listener.DefaultSampleRate);
+            Clip clip = new(new float[Consts.samples.Length], 1, Listener.DefaultSampleRate);
             Assert.IsTrue(clip.SetData(Consts.samples, loopOffset));
 
             float[] getTo = new float[Consts.samples.Length];
@@ -27,17 +27,17 @@ namespace Test.Cavern {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void SetGetData_Multichannel() {
-            Clip clip = new Clip(new float[][] {
+            Clip clip = new(new(
                 new float[Consts.samples.Length],
                 new float[Consts.samples.Length]
-            }, Listener.DefaultSampleRate);
+            ), Listener.DefaultSampleRate);
             Assert.IsTrue(clip.SetData(Consts.multichannel, loopOffset));
 
             float[] getTo = new float[Consts.samples.Length];
             Assert.IsTrue(clip.GetData(getTo, 0, loopOffset));
             CollectionAssert.AreEqual(getTo, Consts.samples);
 
-            float[][] getMultichannelTo = new float[][] { new float[Consts.samples.Length], new float[Consts.samples.Length] };
+            MultichannelWaveform getMultichannelTo = new(new float[Consts.samples.Length], new float[Consts.samples.Length]);
             Assert.IsTrue(clip.GetData(getMultichannelTo, loopOffset));
             CollectionAssert.AreEqual(getMultichannelTo[0], Consts.samples);
 

@@ -1,3 +1,4 @@
+using Cavern;
 using Cavern.Utilities;
 
 namespace Test.Cavern {
@@ -23,12 +24,12 @@ namespace Test.Cavern {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void TrimEnd_2D() {
-            float[][] source = {
+            MultichannelWaveform source = new(
                 new float[100], // Will be cut until the nicest element
-                new float[100], // Will be empty, but not cut, since the other jagged array is longer
-            };
+                new float[100] // Will be empty, but not cut, since the other jagged array is longer
+            );
             source[0][Consts.nice] = 1;
-            WaveformUtils.TrimEnd(source);
+            source.TrimEnd();
 
             Assert.AreEqual(source[0].Length, Consts.nice + 1);
             Assert.AreEqual(source[0].Length, source[1].Length);
