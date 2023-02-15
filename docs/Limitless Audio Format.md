@@ -38,18 +38,18 @@ played back.
 ### Object mode
 For object-based exports, extra PCM tracks are used for object movement data.
 These tracks are marked with the X axis rotation set to NaN. The Y rotation in
-this case will contain flags for which channels the PCM track encodes position
-values for. Alignment of the flags is done the same way as for the active
-channels at the beginning of each PCM block. Since there are only 32 bits
-available, this means a single PCM track can only contain positional information
-for 32 channels at most. The next such channel would contain data for the next
-32 PCM channel and so on.
+this case is reserved and shall be 0. One object position track contains
+movement data for exactly 16 channels. If there are more channels, more object
+position tracks are added, but if there are less channels left for the last
+track, it will fill the remaining channels with skipped data, but the alignment
+must match with a 16-channel position track. The positions follow each other by
+their index, and the order of the dimensions is width, height, depth.
 
 The bit depth determines the total data available for object movement. A single
 16-bit PCM channel can provide 3D position updates for all objects every `3
-coordinates * 32 bits per float coordinate / 16 bit sample rate * 32 objects =
-192 samples`, which means a 250 Hz update rate at 48 kHz. When the content is
-24 bit, the sample interval is 128, meaning a 375 Hz update rate. Linear
-interpolation should be applied for position changes, and instant position
-changes should be handled by adding an additional track, since the format can
-handle practically infinite objects.
+coordinates * 32 bits per float coordinate / 16 bit sample rate * 16 objects =
+96 samples`, which means a 500 Hz update rate at 48 kHz. When the content's bit
+depth is 24 bits, the sample interval is 64, meaning a 750 Hz update rate.
+Linear interpolation should be applied for position changes, and instant
+position changes should be handled by adding an additional track, since the
+format can handle practically infinite objects.

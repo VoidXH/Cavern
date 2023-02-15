@@ -94,7 +94,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Setup a channel's curve with additional gain/delay, and a custom name.
         /// </summary>
-        public void SetupChannel(int channel, Equalizer curve, double gain = 0, int delaySamples = 0, string name = null) {
+        public void SetupChannel(int channel, Equalizer curve, double gain, int delaySamples, string name) {
             Channels[channel].curve = curve;
             Channels[channel].gain = gain;
             Channels[channel].delaySamples = delaySamples;
