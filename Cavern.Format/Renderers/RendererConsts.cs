@@ -6,7 +6,7 @@ namespace Cavern.Format.Renderers {
     /// <summary>
     /// Constants required for rendering.
     /// </summary>
-    partial class Renderer {
+    public abstract partial class Renderer {
         /// <summary>
         /// Get which standard renderer position corresponds to which channel.
         /// </summary>

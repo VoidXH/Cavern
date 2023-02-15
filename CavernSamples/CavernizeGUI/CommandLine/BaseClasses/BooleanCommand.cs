@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace CavernizeGUI.CommandLine {
     /// <summary>
@@ -28,7 +29,8 @@ namespace CavernizeGUI.CommandLine {
                 Execute(value, app);
                 return;
             }
-            if (args[offset].ToLower().Equals(true1) || args[offset].ToLower().Equals(true2)) {
+            if (args[offset].ToLower(CultureInfo.InvariantCulture).Equals(true1) ||
+                args[offset].ToLower(CultureInfo.InvariantCulture).Equals(true2)) {
                 Execute(true, app);
                 return;
             }

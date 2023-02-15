@@ -16,12 +16,12 @@ namespace Cavern.Format.Transcoders {
             /// <summary>
             /// Precalculated values for the 512-sample IMDCT's IFFT.
             /// </summary>
-            static FFTCache cache512;
+            static readonly FFTCache cache512 = new FFTCache(IMDCTSize / 4);
 
             /// <summary>
             /// Precalculated values for the 256-sample IMDCT's IFFT.
             /// </summary>
-            static FFTCache cache256;
+            static readonly FFTCache cache256 = new FFTCache(IMDCTSize / 8);
 
             /// <summary>
             /// Grouped mantissas for bap = 1 (3-level) quantization.
@@ -51,12 +51,12 @@ namespace Cavern.Format.Transcoders {
             /// <summary>
             /// Complex multiplication cache for 512-sample IMDCT.
             /// </summary>
-            static readonly Complex[] x512 = new Complex[IMDCTSize / 4];
+            static readonly Complex[] x512 = CreateCoefficients(128);
 
             /// <summary>
             /// Complex multiplication cache for 256-sample IMDCT.
             /// </summary>
-            static readonly Complex[] x256 = new Complex[IMDCTSize / 8];
+            static readonly Complex[] x256 = CreateCoefficients(64);
 
             /// <summary>
             /// Intermediate IMDCT array for 512-sample IMDCT.
@@ -112,23 +112,6 @@ namespace Cavern.Format.Transcoders {
                 mask = new int[maxLength];
                 bap = new byte[maxLength];
 
-                if (cache512 == null) {
-                    cache512 = new FFTCache(IMDCTSize / 4);
-                    cache256 = new FFTCache(IMDCTSize / 8);
-
-                    for (int i = 0; i < x512.Length; i++) {
-                        const float mul = 2 * MathF.PI / (8 * IMDCTSize);
-                        float phi = mul * (8 * i + 1);
-                        x512[i] = new Complex(-MathF.Cos(phi), -MathF.Sin(phi));
-                    }
-
-                    for (int i = 0; i < x256.Length; i++) {
-                        const float mul = 2 * MathF.PI / (4 * IMDCTSize);
-                        float phi = mul * (8 * i + 1);
-                        x256[i] = new Complex(-MathF.Cos(phi), -MathF.Sin(phi));
-                    }
-                }
-
                 intermediate = new Complex[IMDCTSize / 4];
                 output = new float[IMDCTSize];
                 delay = new float[IMDCTSize / 2];
@@ -137,6 +120,19 @@ namespace Cavern.Format.Transcoders {
                 coeffSplit2 = new float[IMDCTSize / 4];
                 intermediate1 = new Complex[IMDCTSize / 8];
                 intermediate2 = new Complex[IMDCTSize / 8];
+            }
+
+            /// <summary>
+            /// Create the coefficients for an IMDCT transform.
+            /// </summary>
+            static Complex[] CreateCoefficients(int imdctSize) {
+                Complex[] result = new Complex[imdctSize];
+                float mul = 2 * MathF.PI / (imdctSize << 5);
+                for (int i = 0; i < imdctSize; i++) {
+                    float phi = mul * (8 * i + 1);
+                    result[i] = new Complex(-MathF.Cos(phi), -MathF.Sin(phi));
+                }
+                return result;
             }
 
             /// <summary>

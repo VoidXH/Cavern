@@ -568,6 +568,6 @@ namespace Cavern {
         /// <summary>
         /// Reference sound velocity in m/s (dry air, 25.4 degrees Celsius).
         /// </summary>
-        public const float SpeedOfSound = 346.74f;
+        public static readonly float SpeedOfSound = 346.74f;
     }
 }

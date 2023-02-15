@@ -272,10 +272,16 @@ namespace Cavern {
 
         /// <summary>
         /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
+        /// The layout set up by the user will be used.
+        /// </summary>
+        public Listener() : this(true) { }
+
+        /// <summary>
+        /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
         /// </summary>
         /// <param name="loadGlobals">Load the global settings for all listeners. This should be false for listeners created
         /// on the fly, as this overwrites previous application settings that might have been modified.</param>
-        public Listener(bool loadGlobals = true) {
+        public Listener(bool loadGlobals) {
             if (!loadGlobals) {
                 return;
             }

@@ -1,4 +1,6 @@
-﻿using Cavern.Channels;
+﻿using System;
+
+using Cavern.Channels;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -8,7 +10,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All information needed for a channel.
         /// </summary>
-        protected struct ChannelData {
+        protected struct ChannelData : IEquatable<ChannelData> {
             /// <summary>
             /// Applied convolution filter to this channel.
             /// </summary>
@@ -28,6 +30,11 @@ namespace Cavern.Format.FilterSet {
             /// Custom label for this channel or null if not applicable.
             /// </summary>
             public string name;
+
+            /// <summary>
+            /// Check if the same correction is applied to the <paramref name="other"/> channel.
+            /// </summary>
+            public bool Equals(ChannelData other) => filter.Equals(other.filter) && delaySamples == other.delaySamples;
         }
 
         /// <summary>
@@ -57,18 +64,49 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Setup a channel's filter and related metadata.
+        /// Setup a channel's filter with no delay or custom name.
         /// </summary>
-        public void SetupChannel(int channel, float[] filter, int delaySamples = 0, string name = null) {
+        public void SetupChannel(int channel, float[] filter) => SetupChannel(channel, filter, 0, null);
+
+        /// <summary>
+        /// Setup a channel's filter with additional delay, but no custom name.
+        /// </summary>
+        public void SetupChannel(int channel, float[] filter, int delaySamples) => SetupChannel(channel, filter, delaySamples, null);
+
+        /// <summary>
+        /// Setup a channel's filter with a custom name, but no additional delay.
+        /// </summary>
+        public void SetupChannel(int channel, float[] filter, string name) => SetupChannel(channel, filter, 0, name);
+
+        /// <summary>
+        /// Setup a channel's filter with additional delay and custom name.
+        /// </summary>
+        public void SetupChannel(int channel, float[] filter, int delaySamples, string name) {
             Channels[channel].filter = filter;
             Channels[channel].delaySamples = delaySamples;
             Channels[channel].name = name;
         }
 
         /// <summary>
-        /// Setup a channel's filter and related metadata.
+        /// Setup a channel's filter with no additional delay or custom name.
         /// </summary>
-        public void SetupChannel(ReferenceChannel channel, float[] filter, int delaySamples = 0, string name = null) {
+        public void SetupChannel(ReferenceChannel channel, float[] filter) => SetupChannel(channel, filter, 0, null);
+
+        /// <summary>
+        /// Setup a channel's filter with additional delay, but no custom name.
+        /// </summary>
+        public void SetupChannel(ReferenceChannel channel, float[] filter, int delaySamples) =>
+            SetupChannel(channel, filter, delaySamples, null);
+
+        /// <summary>
+        /// Setup a channel's filter with a custom name, but no additional delay.
+        /// </summary>
+        public void SetupChannel(ReferenceChannel channel, float[] filter, string name) => SetupChannel(channel, filter, 0, name);
+
+        /// <summary>
+        /// Setup a channel's filter with additional delay and custom name.
+        /// </summary>
+        public void SetupChannel(ReferenceChannel channel, float[] filter, int delaySamples, string name) {
             for (int i = 0; i < Channels.Length; ++i) {
                 if (Channels[i].reference == channel) {
                     Channels[i].filter = filter;

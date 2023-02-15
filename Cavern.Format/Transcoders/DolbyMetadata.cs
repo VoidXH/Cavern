@@ -138,9 +138,14 @@ namespace Cavern.Format.Transcoders {
         readonly ushort downmixInfo;
 
         /// <summary>
-        /// Reads a Dolby audio Metadata chunk from a stream.
+        /// Reads a Dolby audio Metadata chunk from a stream without checking if it's valid or not.
         /// </summary>
-        public DolbyMetadata(Stream reader, long length, bool checkChecksums = false) {
+        public DolbyMetadata(Stream reader, long length) : this(reader, length, false) { }
+
+        /// <summary>
+        /// Reads a Dolby audio Metadata chunk from a stream with an optional validation.
+        /// </summary>
+        public DolbyMetadata(Stream reader, long length, bool checkChecksums) {
             long endPosition = reader.Position + length;
             Version = reader.ReadUInt32(); // each byte is one dotted value -> to/from string
 

@@ -15,7 +15,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All information needed for a channel.
         /// </summary>
-        protected struct ChannelData {
+        protected struct ChannelData : IEquatable<ChannelData> {
             /// <summary>
             /// Applied filter set for the channel.
             /// </summary>
@@ -45,6 +45,12 @@ namespace Cavern.Format.FilterSet {
             /// Custom label for this channel or null if not applicable.
             /// </summary>
             public string name;
+
+            /// <summary>
+            /// Check if the same correction is applied to the <paramref name="other"/> channel.
+            /// </summary>
+            public bool Equals(ChannelData other) => filters.Equals(other.filters) && gain == other.gain &&
+                delaySamples == other.delaySamples && switchPolarity == other.switchPolarity;
         }
 
         /// <summary>
@@ -94,10 +100,19 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Setup a channel's filter set and related metadata.
+        /// Setup a channel's filter set with only filters and no additional corrections or custom name.
         /// </summary>
-        public void SetupChannel(int channel, BiquadFilter[] filters, double gain = 0, int delaySamples = 0,
-            bool switchPolarity = false, string name = null) {
+        public void SetupChannel(int channel, BiquadFilter[] filters) => SetupChannel(channel, filters, 0, 0, false, null);
+
+        /// <summary>
+        /// Setup a channel's filter set with only filters and no additional corrections, but a custom name.
+        /// </summary>
+        public void SetupChannel(int channel, BiquadFilter[] filters, string name) => SetupChannel(channel, filters, 0, 0, false, name);
+
+        /// <summary>
+        /// Setup a channel's filter set with all corrections.
+        /// </summary>
+        public void SetupChannel(int channel, BiquadFilter[] filters, double gain, int delaySamples, bool switchPolarity, string name) {
             Channels[channel].filters = filters;
             Channels[channel].gain = gain;
             Channels[channel].delaySamples = delaySamples;
@@ -106,10 +121,21 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Setup a channel's filter set and related metadata.
+        /// Setup a channel's filter set with only filters and no additional corrections or custom name.
+        /// </summary>
+        public void SetupChannel(ReferenceChannel channel, BiquadFilter[] filters) => SetupChannel(channel, filters, 0, 0, false, null);
+
+        /// <summary>
+        /// Setup a channel's filter set with only filters and no additional corrections, but a custom name.
+        /// </summary>
+        public void SetupChannel(ReferenceChannel channel, BiquadFilter[] filters, string name) =>
+            SetupChannel(channel, filters, 0, 0, false, name);
+
+        /// <summary>
+        /// Setup a channel's filter set with all corrections.
         /// </summary>
         public void SetupChannel(ReferenceChannel channel, BiquadFilter[] filters,
-            double gain = 0, int delaySamples = 0, bool switchPolarity = false, string name = null) {
+            double gain, int delaySamples, bool switchPolarity, string name) {
             for (int i = 0; i < Channels.Length; i++) {
                 if (Channels[i].reference == channel) {
                     Channels[i].filters = filters;

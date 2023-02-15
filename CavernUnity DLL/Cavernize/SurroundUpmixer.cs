@@ -13,7 +13,7 @@ namespace Cavern.Cavernize {
         /// <summary>
         /// Required data for handling a single channel in the upmixing process.
         /// </summary>
-        struct ChannelData {
+        struct ChannelData : IEquatable<ChannelData> {
             public ReferenceChannel target;
             public bool writtenTo;
             public float[] lastSamples;
@@ -23,6 +23,11 @@ namespace Cavern.Cavernize {
                 writtenTo = false;
                 lastSamples = null;
             }
+
+            /// <summary>
+            /// Check if two channel data holders represent the same channel.
+            /// </summary>
+            public bool Equals(ChannelData other) => target == other.target;
         }
 
         /// <summary>

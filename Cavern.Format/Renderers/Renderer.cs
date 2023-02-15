@@ -47,7 +47,7 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// Renders a decoded stream with Cavern.
         /// </summary>
-        public Renderer(Decoder stream) {
+        protected Renderer(Decoder stream) {
             this.stream = stream;
             reader = new StreamMaster(GetNextObjectSamples);
         }

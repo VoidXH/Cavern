@@ -29,7 +29,7 @@ namespace Benchmark {
         /// <summary>
         /// Perform a benchmark and display performance metrics.
         /// </summary>
-        void Benchmark(Benchmarks.Benchmark benchmark) {
+        void Benchmark(Benchmarks.Benchmark procedure) {
             int secs = seconds.Value;
             DateTime endTime = DateTime.Now + TimeSpan.FromSeconds(secs);
             int steps = 0;
@@ -37,12 +37,12 @@ namespace Benchmark {
                 DateTime now = DateTime.Now;
                 while (now < endTime) {
                     ++steps;
-                    benchmark.Step();
+                    procedure.Step();
                     now = DateTime.Now;
                     runner.UpdateProgressBar(1 - (endTime - now).TotalSeconds / secs);
                 }
                 MessageBox.Show($"Performed {steps} steps in {secs} seconds. " +
-                    $"Performance: {benchmark.ToString(steps, secs)}.", "Benchmark finished");
+                    $"Performance: {procedure.ToString(steps, secs)}.", "Benchmark finished");
             });
         }
 

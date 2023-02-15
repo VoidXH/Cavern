@@ -123,7 +123,7 @@ namespace Cavern.Format.Container.Matroska {
             } else {
                 firstFrame = reader.Position;
                 frameCount = 1;
-                frameSizes = new int[1] { (int)(source.Length - (firstFrame - start)) };
+                frameSizes = new[] { (int)(source.Length - (firstFrame - start)) };
             }
         }
 

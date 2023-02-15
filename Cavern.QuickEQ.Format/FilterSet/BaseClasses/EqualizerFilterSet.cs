@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using Cavern.Channels;
 using Cavern.QuickEQ.Equalization;
@@ -17,7 +18,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Required data for each exported channel.
         /// </summary>
-        protected struct ChannelData {
+        protected struct ChannelData : IEquatable<ChannelData> {
             /// <summary>
             /// Applied equalization filter for the channel, using which is resulting in the expected target response.
             /// </summary>
@@ -42,8 +43,12 @@ namespace Cavern.Format.FilterSet {
             /// The reference channel describing this channel or <see cref="ReferenceChannel.Unknown"/> if not applicable.
             /// </summary>
             public ReferenceChannel reference;
-        };
 
+            /// <summary>
+            /// Check if the same correction is applied to the <paramref name="other"/> channel.
+            /// </summary>
+            public bool Equals(ChannelData other) => curve.Equals(other.curve) && gain == other.gain && delaySamples == other.delaySamples;
+        }
         /// <summary>
         /// Applied equalization parameters for each channel in the configuration file.
         /// </summary>
@@ -71,7 +76,23 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Setup a channel's curve and related metadata.
+        /// Setup a channel's curve with no additional gain/delay or custom name.
+        /// </summary>
+        public void SetupChannel(int channel, Equalizer curve) => SetupChannel(channel, curve, 0, 0, null);
+
+        /// <summary>
+        /// Setup a channel's curve with additional gain/delay, but no custom name.
+        /// </summary>
+        public void SetupChannel(int channel, Equalizer curve, double gain, int delaySamples) =>
+            SetupChannel(channel, curve, gain, delaySamples, null);
+
+        /// <summary>
+        /// Setup a channel's curve with a custom name, but no additional gain/delay.
+        /// </summary>
+        public void SetupChannel(int channel, Equalizer curve, string name) => SetupChannel(channel, curve, 0, 0, name);
+
+        /// <summary>
+        /// Setup a channel's curve with additional gain/delay, and a custom name.
         /// </summary>
         public void SetupChannel(int channel, Equalizer curve, double gain = 0, int delaySamples = 0, string name = null) {
             Channels[channel].curve = curve;
@@ -81,9 +102,25 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Setup a channel's curve and related metadata.
+        /// Setup a channel's curve with no additional gain/delay or custom name.
         /// </summary>
-        public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain = 0, int delaySamples = 0, string name = null) {
+        public void SetupChannel(ReferenceChannel channel, Equalizer curve) => SetupChannel(channel, curve, 0, 0, null);
+
+        /// <summary>
+        /// Setup a channel's curve with additional gain/delay, but no custom name.
+        /// </summary>
+        public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain, int delaySamples) =>
+            SetupChannel(channel, curve, gain, delaySamples, null);
+
+        /// <summary>
+        /// Setup a channel's curve with a custom name, but no additional gain/delay.
+        /// </summary>
+        public void SetupChannel(ReferenceChannel channel, Equalizer curve, string name) => SetupChannel(channel, curve, 0, 0, name);
+
+        /// <summary>
+        /// Setup a channel's curve with additional gain/delay, and a custom name.
+        /// </summary>
+        public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain, int delaySamples, string name) {
             for (int i = 0; i < Channels.Length; ++i) {
                 if (Channels[i].reference == channel) {
                     Channels[i].curve = curve;

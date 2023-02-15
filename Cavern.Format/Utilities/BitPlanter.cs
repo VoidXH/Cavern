@@ -34,11 +34,11 @@ namespace Cavern.Format.Utilities {
         /// from the start of a length in <paramref name="bits"/>.
         /// </summary>
         public void Overwrite(int offset, int value, int bits) {
-            int currentByte = offset >> 3;
+            int writtenByte = offset >> 3;
             offset &= 7;
             while (bits > 0) {
                 int bitsToWrite = Math.Min(8 - offset, bits);
-                cache[currentByte] = (byte)((cache[currentByte] << bitsToWrite) +
+                cache[writtenByte] = (byte)((cache[writtenByte] << bitsToWrite) +
                     ((value >> (bits - bitsToWrite)) & ((1 << bitsToWrite) - 1)));
                 bits -= bitsToWrite;
                 offset += bitsToWrite;

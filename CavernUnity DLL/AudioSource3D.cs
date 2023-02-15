@@ -307,12 +307,25 @@ namespace Cavern {
         }
 
         /// <summary>
+        /// Play a clip once on full volume from this <see cref="GameObject"/>.
+        /// </summary>
+        /// <param name="clip">Target clip</param>
+        public void PlayOneShot(AudioClip clip) => PlayOneShot(clip, 1, false);
+
+        /// <summary>
+        /// Play a clip once with a custom <paramref name="volume"/> from this <see cref="GameObject"/>.
+        /// </summary>
+        /// <param name="clip">Target clip</param>
+        /// <param name="volume">Playback volume</param>
+        public void PlayOneShot(AudioClip clip, float volume) => PlayOneShot(clip, volume, false);
+
+        /// <summary>
         /// Play a clip once.
         /// </summary>
         /// <param name="clip">Target clip</param>
         /// <param name="volume">Playback volume</param>
         /// <param name="isStatic">Do not play on the source's game object, play at the source's current position instead.</param>
-        public void PlayOneShot(AudioClip clip, float volume = 1, bool isStatic = false) {
+        public void PlayOneShot(AudioClip clip, float volume, bool isStatic) {
             GameObject obj;
             if (isStatic) {
                 obj = new GameObject("Temporary Static Audio Source");
@@ -369,12 +382,19 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Play a clip once at the given world position.
+        /// Play a clip once at the given world position with full volume.
+        /// </summary>
+        /// <param name="clip">Target clip</param>
+        /// <param name="position">World position of the clip</param>
+        public static void PlayClipAtPoint(AudioClip clip, Vector3 position) => PlayClipAtPoint(clip, position, 1);
+
+        /// <summary>
+        /// Play a clip once at the given world position with a custom <paramref name="volume"/>.
         /// </summary>
         /// <param name="clip">Target clip</param>
         /// <param name="position">World position of the clip</param>
         /// <param name="volume">Playback volume</param>
-        public static void PlayClipAtPoint(AudioClip clip, Vector3 position, float volume = 1) {
+        public static void PlayClipAtPoint(AudioClip clip, Vector3 position, float volume) {
             GameObject obj = new GameObject("Temporary Static Audio Source");
             obj.transform.position = position;
             AudioSource3D source = obj.AddComponent<AudioSource3D>();
