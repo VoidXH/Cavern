@@ -167,8 +167,9 @@ namespace Cavern.Format {
         /// <remarks>The next to - from samples will be read from the file. Samples are counted for all channels.</remarks>
         public override void ReadBlock(float[] samples, long from, long to) {
             if (to - from > skip) {
-                for (; from < to; from += skip) {
-                    ReadBlock(samples, from, Math.Min(to, from + skip));
+                long actualSkip = skip - skip % ChannelCount; // Blocks have to be divisible with the channel count
+                for (; from < to; from += actualSkip) {
+                    ReadBlock(samples, from, Math.Min(to, from + actualSkip));
                 }
                 return;
             }
@@ -189,7 +190,6 @@ namespace Cavern.Format {
                 if (copiedSamples == SampleRate) {
                     copiedSamples = 0;
                 }
-                from += toProcess * ChannelCount;
             }
         }
 

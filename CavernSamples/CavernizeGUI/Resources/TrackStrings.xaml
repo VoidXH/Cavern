@@ -24,8 +24,9 @@
     <!-- Export formats -->
     <system:String x:Key="COpus">Opus (transparent, small size)</system:String>
     <system:String x:Key="CFLAC">FLAC (lossless, large size)</system:String>
-    <system:String x:Key="CPCMI">PCM integer (lossless, larger size)</system:String>
-    <system:String x:Key="CPCMF">PCM float (needless, largest size)</system:String>
+    <system:String x:Key="CPCMI">PCM, integer (lossless, larger size)</system:String>
+    <system:String x:Key="CPCMF">PCM, float (needless, largest size)</system:String>
     <system:String x:Key="CADMC">ADM Broadcast Wave Format (compact)</system:String>
     <system:String x:Key="CADMA">ADM Broadcast Wave Format (Dolby Atmos)</system:String>
+    <system:String x:Key="C_LAF">Limitless Audio Format</system:String>
 </ResourceDictionary>

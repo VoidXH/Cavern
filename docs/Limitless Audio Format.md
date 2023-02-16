@@ -45,11 +45,10 @@ track, it will fill the remaining channels with skipped data, but the alignment
 must match with a 16-channel position track. The positions follow each other by
 their index, and the order of the dimensions is width, height, depth.
 
-The bit depth determines the total data available for object movement. A single
-16-bit PCM channel can provide 3D position updates for all objects every `3
-coordinates * 32 bits per float coordinate / 16 bit sample rate * 16 objects =
-96 samples`, which means a 500 Hz update rate at 48 kHz. When the content's bit
-depth is 24 bits, the sample interval is 64, meaning a 750 Hz update rate.
-Linear interpolation should be applied for position changes, and instant
-position changes should be handled by adding an additional track, since the
-format can handle practically infinite objects.
+Position tracks contain the values dimension by dimension, object by object
+(object 1 X, object 1 Y, object 1 Z, object 2 X...). LAF is using a right-handed
+Cartesian coordinate system. The bit depth of the content sets the precision of
+object positions, these values are encoded the exact same way PCM samples are:
+from -1 to 1 (these limits are the walls of the virtual room), multiplied by the
+positive integer limit in integer mode. In floating point mode, placing objects
+over the room's walls is permitted.

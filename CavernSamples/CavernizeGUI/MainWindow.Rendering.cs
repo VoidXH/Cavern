@@ -102,6 +102,9 @@ namespace CavernizeGUI {
             } else {
                 EnvironmentWriter transcoder;
                 switch (codec) {
+                    case Codec.LimitlessAudio:
+                        transcoder = new LimitlessAudioFormatEnvironmentWriter(path, listener, target.Length, bits);
+                        break;
                     case Codec.ADM_BWF:
                         transcoder = new BroadcastWaveFormatWriter(path, listener, target.Length, bits);
                         break;
@@ -146,7 +149,7 @@ namespace CavernizeGUI {
 
                 Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
                 if (codec.IsEnvironmental()) {
-                    dialog.Filter = (string)language["ExBWF"];
+                    dialog.Filter = codec == Codec.LimitlessAudio ? (string)language["ExLAF"] : (string)language["ExBWF"];
                 } else if (codec == Codec.PCM_Float || codec == Codec.PCM_LE) {
                     dialog.Filter = (string)language[ffmpeg.Found ? "ExPCM" : "ExPCR"];
                 } else {

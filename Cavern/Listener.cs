@@ -79,14 +79,14 @@ namespace Cavern {
         /// Originally set by the user and applied when a <see cref="Listener"/> is created, however, overriding
         /// it in specific applications can make a huge difference. Objects inside a box this size are positioned
         /// inside the room, and defines the range of balance between left/right, front/rear, and top/bottom speakers.
-        /// Does not effect directional rendering. The user's settings should be
+        /// Does not affect directional rendering. The user's settings should be
         /// respected, thus this vector should be scaled, not completely overridden.
         /// </summary>
         public static Vector3 EnvironmentSize {
             get => environmentSize;
             set {
                 environmentSize = value;
-                EnvironmentSizeInverse = new Vector3(1) / value;
+                EnvironmentSizeInverse = Vector3.One / value;
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using Cavern.Filters;
@@ -152,7 +153,7 @@ namespace Cavern {
         /// <summary>
         /// Jump to a random position.
         /// </summary>
-        public void RandomPosition() => TimeSamples = random.Next(0, Clip.Samples);
+        public void RandomPosition() => TimeSamples = new Random().Next(0, Clip.Samples);
 
         /// <summary>
         /// Pause playback if it's not paused.

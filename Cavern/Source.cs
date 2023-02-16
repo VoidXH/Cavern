@@ -83,11 +83,6 @@ namespace Cavern {
         float[] samples = new float[0];
 
         /// <summary>
-        /// Random number generator.
-        /// </summary>
-        readonly Random random = new Random();
-
-        /// <summary>
         /// Remaining delay until starting playback.
         /// </summary>
         long delay;

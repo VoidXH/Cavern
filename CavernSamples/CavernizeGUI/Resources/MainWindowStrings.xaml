@@ -63,6 +63,7 @@
     <system:String x:Key="ExPCM">Matroska|*.mkv|RIFF WAVE|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="ExPCR">RIFF WAVE|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="ExBWF">ADM Broadcast Wave Format|*.wav|Separate waveform and metadata|*.xml</system:String>
+    <system:String x:Key="ExLAF">Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="UnExt">The file name had an unsupported extension.</system:String>
     <system:String x:Key="UnCod">This codec is not supported for export.</system:String>
     <system:String x:Key="WrGui">Wiring guide</system:String>

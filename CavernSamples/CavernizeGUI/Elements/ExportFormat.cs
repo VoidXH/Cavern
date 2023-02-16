@@ -57,6 +57,7 @@ namespace CavernizeGUI.Elements {
                     new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, (string)strings["CPCMF"]),
                     new ExportFormat(Codec.ADM_BWF, string.Empty, 128, (string)strings["CADMC"]),
                     new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, (string)strings["CADMA"]),
+                    new ExportFormat(Codec.LimitlessAudio, string.Empty, int.MaxValue, (string)strings["C_LAF"]),
                 };
             }
         }

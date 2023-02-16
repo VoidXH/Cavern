@@ -63,6 +63,7 @@
     <system:String x:Key="ExPCM">Matroska|*.mkv|RIFF WAVE|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="ExPCR">RIFF WAVE|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="ExBWF">ADM Broadcast Wave Format|*.wav|Elkülönített hang és metaadat|*.xml</system:String>
+    <system:String x:Key="ExLAF">Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="UnExt">A fájlnév kiterjesztése nem támogatott.</system:String>
     <system:String x:Key="UnCod">Ez a kodek nem támogatott exportáláshoz.</system:String>
     <system:String x:Key="WrGui">Bekötési útmutató</system:String>

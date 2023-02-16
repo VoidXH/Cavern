@@ -101,12 +101,12 @@ namespace Cavern.Format {
         /// <summary>
         /// Create the file header.
         /// </summary>
-        public override void WriteHeader() => WriteHeader(false);
+        public override void WriteHeader() => WriteHeader(false, ChannelCount);
 
         /// <summary>
         /// Create the file header.
         /// </summary>
-        protected void WriteHeader(bool objectMode) {
+        internal void WriteHeader(bool objectMode, int objectCount) {
             writer.Write(LimitlessAudioFormat.limitless); // Limitless marker
             // No custom headers
             writer.Write(LimitlessAudioFormat.head); // Main header marker
@@ -120,10 +120,15 @@ namespace Cavern.Format {
             writer.Write(qualityByte);
             writer.Write(objectMode ? (byte)1 : (byte)0); // Mode
             writer.Write(BitConverter.GetBytes(ChannelCount)); // Channel/object count
-            for (int channel = 0; channel < ChannelCount; ++channel) { // Channel/object info
+            for (int channel = 0; channel < objectCount; ++channel) { // Audible channel/object info
                 writer.Write(BitConverter.GetBytes(channels[channel].X)); // Rotation on vertical axis
                 writer.Write(BitConverter.GetBytes(channels[channel].Y)); // Rotation on horizontal axis
                 writer.Write(channels[channel].LFE ? (byte)1 : (byte)0); // Low frequency
+            }
+            for (int channel = objectCount; channel < ChannelCount; ++channel) { // Positional track markers
+                writer.Write(float.NaN); // Marker
+                writer.Write(0); // Reserved
+                writer.Write((byte)0); // Reserved
             }
             writer.Write(BitConverter.GetBytes(SampleRate));
             writer.Write(BitConverter.GetBytes(Length));
