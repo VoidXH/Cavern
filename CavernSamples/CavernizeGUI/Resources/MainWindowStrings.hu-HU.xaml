@@ -13,6 +13,7 @@
     <system:String x:Key="MuGrH">_Talaj némítása</system:String>
     <system:String x:Key="MuGrT">Minden hangot elnémít, ami nem a magasból jön.</system:String>
     <system:String x:Key="For24">24-bites _PCM erőltetése (lassabb, nagyobb fájlok, nem ad hallható javulást)</system:String>
+    <system:String x:Key="SuSwa">_Oldalsó/hátsó csatornák felcserélése</system:String>
     <system:String x:Key="ReMoH">_Csak jelentés mód</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
         report will be available after rendering without writing anything to the disk.</system:String>
@@ -68,6 +69,8 @@
     <system:String x:Key="UnCod">Ez a kodek nem támogatott exportáláshoz.</system:String>
     <system:String x:Key="WrGui">Bekötési útmutató</system:String>
     <system:String x:Key="ChCon">Kösd a {0} csatornát a rendszered {1} kimenetére.</system:String>
+    <system:String x:Key="Over8">Nincs szabványos bekötés 8 csatorna felett. Masszívan többcsatornás interfészeknél a csatornák
+        rendje pontosan az, ami a fájlban is:{0}</system:String>
     <system:String x:Key="Start">Renderelés indítása...</system:String>
     <system:String x:Key="ExpOk">Befejezve!</system:String>
     <system:String x:Key="Error">Hiba</system:String>

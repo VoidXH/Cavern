@@ -106,5 +106,17 @@ namespace CavernizeGUI.Resources {
                 this["force24Bit"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool surroundSwap {
+            get {
+                return ((bool)(this["surroundSwap"]));
+            }
+            set {
+                this["surroundSwap"] = value;
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 
@@ -121,6 +122,12 @@ namespace CavernizeGUI {
         void DisplayWiring(object _, RoutedEventArgs e) {
             ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).GetNameMappedChannels();
             ChannelPrototype[] prototypes = ChannelPrototype.Get(channels);
+            if (channels.Length > 8) {
+                MessageBox.Show(string.Format((string)language["Over8"], string.Join(string.Empty, prototypes.Select(x => "\n- " + x.Name)),
+                    (string)language["WrGui"]));
+                return;
+            }
+
             StringBuilder output = new StringBuilder();
             for (int i = 0; i < prototypes.Length; ++i) {
                 output.AppendLine(string.Format((string)language["ChCon"], prototypes[i].Name,

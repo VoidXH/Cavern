@@ -76,6 +76,11 @@ namespace CavernizeGUI {
         AudioFile file;
 
         /// <summary>
+        /// Any setting has changed in the application and it should be saved.
+        /// </summary>
+        bool settingChanged;
+
+        /// <summary>
         /// One-time UI transformations were applied.
         /// </summary>
         bool uiInitialized;
@@ -144,10 +149,12 @@ namespace CavernizeGUI {
             }
 
             force24Bit.IsChecked = Settings.Default.force24Bit;
+            surroundSwap.IsChecked = Settings.Default.surroundSwap;
             checkUpdates.IsChecked = Settings.Default.checkUpdates;
             if (Settings.Default.checkUpdates && !Program.ConsoleMode) {
                 UpdateCheck.Perform(Settings.Default.lastUpdate, () => Settings.Default.lastUpdate = DateTime.Now);
             }
+            Settings.Default.SettingChanging += (_, e) => settingChanged |= !Settings.Default[e.SettingName].Equals(e.NewValue);
         }
 
         /// <summary>
@@ -238,7 +245,9 @@ namespace CavernizeGUI {
             Settings.Default.outputCodec = audio.SelectedIndex;
             Settings.Default.force24Bit = force24Bit.IsChecked;
             Settings.Default.checkUpdates = checkUpdates.IsChecked;
-            Settings.Default.Save();
+            if (settingChanged) {
+                Settings.Default.Save();
+            }
             base.OnClosed(e);
         }
 
