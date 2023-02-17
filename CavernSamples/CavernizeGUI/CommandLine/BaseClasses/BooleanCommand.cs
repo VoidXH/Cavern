@@ -34,7 +34,8 @@ namespace CavernizeGUI.CommandLine {
                 Execute(true, app);
                 return;
             }
-            if (args[offset].ToLower().Equals(false1) || args[offset].ToLower().Equals(false2)) {
+            if (args[offset].ToLower(CultureInfo.InvariantCulture).Equals(false1) ||
+                args[offset].ToLower(CultureInfo.InvariantCulture).Equals(false2)) {
                 Execute(false, app);
                 return;
             }

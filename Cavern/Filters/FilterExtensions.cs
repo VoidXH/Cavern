@@ -12,14 +12,13 @@ namespace Cavern.Filters {
             int runs = filters.Length;
             using ManualResetEvent reset = new ManualResetEvent(false);
             for (int ch = 0; ch < filters.Length; ch++) {
-                ThreadPool.QueueUserWorkItem(
-                   new WaitCallback(channel => {
-                       int ch = (int)channel;
-                       filters[ch].Process(target, ch, filters.Length);
-                       if (Interlocked.Decrement(ref runs) == 0) {
-                           reset.Set();
-                       }
-                   }), ch);
+                ThreadPool.QueueUserWorkItem(channel => {
+                    int ch = (int)channel;
+                    filters[ch].Process(target, ch, filters.Length);
+                    if (Interlocked.Decrement(ref runs) == 0) {
+                        reset.Set();
+                    }
+                }, ch);
             }
             reset.WaitOne();
         }

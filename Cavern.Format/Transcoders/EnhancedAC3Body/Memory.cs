@@ -60,14 +60,10 @@
         bool[] chinspx;
         bool[] chinspxatten;
         bool[] chintransproc;
-        bool[] cplbndstrc = { false, false, false, false, false, false, false, false, true, false,
-            true, true, false, true, true, true, true, true }; // defcplbndstrc
         bool[] cplcoe;
         bool[] cplinu;
         bool[] cplstre;
         bool[] dithflag;
-        bool[] ecplbndstrc = { false, false, false, false, false, false, false, false, true, false,
-            true, false, true, false, true, true, true, false, true, true, true }; // defecplbndstrc
         bool[] firstcplcos;
         bool[] firstspxcos;
         bool[] lfeexpstr;
@@ -156,6 +152,11 @@
         /// PCM output data for the LFE channel's last read audio block.
         /// </summary>
         readonly float[] lfeOutput = new float[maxAllocationSize];
+
+        readonly bool[] cplbndstrc = { false, false, false, false, false, false, false, false, true, false,
+            true, true, false, true, true, true, true, true }; // defcplbndstrc
+        readonly bool[] ecplbndstrc = { false, false, false, false, false, false, false, false, true, false,
+            true, false, true, false, true, true, true, false, true, true, true }; // defecplbndstrc
 
         void CreateCacheTables(int blocks, int channels) {
             blksw = new bool[channels];

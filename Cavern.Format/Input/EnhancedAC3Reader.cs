@@ -56,8 +56,9 @@ namespace Cavern.Format {
         /// Get an object-based renderer for this audio file.
         /// </summary>
         public override Renderer GetRenderer() {
-            if (decoder == null)
+            if (decoder == null) {
                 ReadHeader();
+            }
             return new EnhancedAC3Renderer(decoder);
         }
 

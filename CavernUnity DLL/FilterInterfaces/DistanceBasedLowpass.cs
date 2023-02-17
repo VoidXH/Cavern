@@ -40,8 +40,9 @@ namespace Cavern.FilterInterfaces {
         void Update() {
             float distance = (source.cavernSource.Position - AudioListener3D.cavernListener.Position).Length(),
                 distanceScale = distance * Strength;
-            if (distanceScale > 1)
+            if (distanceScale > 1) {
                 filter.Reset(120 + 20000 / distanceScale);
+            }
         }
     }
 }

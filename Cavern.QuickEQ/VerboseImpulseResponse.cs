@@ -212,7 +212,7 @@ namespace Cavern.QuickEQ {
             /// <summary>
             /// Represents a nonexisting peak.
             /// </summary>
-            public static Peak Null = new Peak(-1, 0);
+            public static readonly Peak Null = new Peak(-1, 0);
 
             /// <summary>
             /// Check if two peaks are equal.
@@ -226,10 +226,10 @@ namespace Cavern.QuickEQ {
         public Peak GetPeak(int position) {
             if (peaks == null) {
                 List<Peak> peakList = new List<Peak>();
-                float[] response = Response;
-                float last = Math.Abs(response[0]), abs = Math.Abs(response[1]);
-                for (int pos = 2; pos < response.Length; ++pos) {
-                    float next = Math.Abs(response[pos]);
+                float[] raw = Response;
+                float last = Math.Abs(raw[0]), abs = Math.Abs(raw[1]);
+                for (int pos = 2; pos < raw.Length; ++pos) {
+                    float next = Math.Abs(raw[pos]);
                     if (abs > last && abs > next) {
                         peakList.Add(new Peak(pos - 1, abs));
                     }

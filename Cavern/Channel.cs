@@ -108,7 +108,7 @@ namespace Cavern {
         /// If <paramref name="channels"/> == -1, the current layout will be used.
         /// </summary>
         public static bool IsLFE(int channel, int channels = -1) =>
-            channels == -1 ? Listener.Channels[channel].lowFrequency : (channels >= 6 & channel == 3);
+            channels == -1 ? Listener.Channels[channel].lowFrequency : (channels >= 6 && channel == 3);
 
         /// <summary>
         /// Recalculates symmetry when a channel's position is changed.

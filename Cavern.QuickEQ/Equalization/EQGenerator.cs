@@ -66,7 +66,7 @@ namespace Cavern.QuickEQ.Equalization {
             float targetGain, float maxGain = 6) {
             List<Band> bands = new List<Band>();
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length;
-            List<int> windowEdges = new List<int>(new int[] { 0 });
+            List<int> windowEdges = new List<int> { 0 };
             for (int sample = 1, end = graph.Length - 1; sample < end; ++sample) {
                 if ((graph[sample - 1] < graph[sample] && graph[sample + 1] > graph[sample]) ||
                     (graph[sample - 1] > graph[sample] && graph[sample + 1] < graph[sample])) {

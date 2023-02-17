@@ -85,20 +85,19 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             int runs = joc.ChannelCount;
             using (ManualResetEvent reset = new ManualResetEvent(false)) {
                 for (int ch = 0; ch < joc.ChannelCount; ++ch) {
-                    ThreadPool.QueueUserWorkItem(
-                       new WaitCallback(channel => {
-                           int ch = (int)channel;
-                           fixed (float* pInput = input[ch]) {
-                               if (!mono) {
-                                   results[ch] = converters[ch].ProcessForward(pInput);
-                               } else {
-                                   results[ch] = converters[ch].ProcessForward_Mono(pInput);
-                               }
-                           }
-                           if (Interlocked.Decrement(ref runs) == 0) {
-                               reset.Set();
-                           }
-                       }), ch);
+                    ThreadPool.QueueUserWorkItem(channel => {
+                        int ch = (int)channel;
+                        fixed (float* pInput = input[ch]) {
+                            if (!mono) {
+                                results[ch] = converters[ch].ProcessForward(pInput);
+                            } else {
+                                results[ch] = converters[ch].ProcessForward_Mono(pInput);
+                            }
+                        }
+                        if (Interlocked.Decrement(ref runs) == 0) {
+                            reset.Set();
+                        }
+                    }, ch);
                 }
                 reset.WaitOne();
             }
@@ -108,20 +107,19 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             runs = objects;
             using (ManualResetEvent reset = new ManualResetEvent(false)) {
                 for (int obj = 0; obj < objects; ++obj) {
-                    ThreadPool.QueueUserWorkItem(
-                       new WaitCallback(objectIndex => {
-                           int obj = (int)objectIndex;
-                           if (CavernAmp.Available) {
-                               ProcessObject_Amp(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
-                           } else if (!mono) {
-                               ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
-                           } else {
-                               ProcessObject_Mono(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
-                           }
-                           if (Interlocked.Decrement(ref runs) == 0) {
-                               reset.Set();
-                           }
-                       }), obj);
+                    ThreadPool.QueueUserWorkItem(objectIndex => {
+                        int obj = (int)objectIndex;
+                        if (CavernAmp.Available) {
+                            ProcessObject_Amp(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                        } else if (!mono) {
+                            ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                        } else {
+                            ProcessObject_Mono(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                        }
+                        if (Interlocked.Decrement(ref runs) == 0) {
+                            reset.Set();
+                        }
+                    }, obj);
                 }
                 reset.WaitOne();
             }

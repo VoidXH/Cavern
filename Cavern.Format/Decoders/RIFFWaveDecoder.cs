@@ -180,9 +180,11 @@ namespace Cavern.Format.Decoders {
                 case BitDepth.Float32: {
                         if (targetOffset < int.MaxValue / sizeof(float)) {
                             Buffer.BlockCopy(source, 0, target, (int)targetOffset * sizeof(float), source.Length);
-                        } else for (int i = 0; i < source.Length; ++i) {
+                        } else {
+                            for (int i = 0; i < source.Length; ++i) {
                                 target[targetOffset++] = BitConverter.ToSingle(source, i * sizeof(float));
                             }
+                        }
                         break;
                     }
             }

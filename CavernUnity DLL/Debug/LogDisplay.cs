@@ -49,8 +49,9 @@ namespace Cavern.Debug {
         /// <param name="wID">Window ID</param>
         protected override void Draw(int wID) {
             Color oldColor = GUI.color;
-            if (lastType <= LogType.Error)
+            if (lastType <= LogType.Error) {
                 GUI.color = Color.red;
+            }
             TextAnchor oldAlign = GUI.skin.label.alignment;
             int oldSize = GUI.skin.label.fontSize;
             bool oldWrap = GUI.skin.label.wordWrap;

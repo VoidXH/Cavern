@@ -176,7 +176,7 @@ namespace Cavern.Format.Transcoders {
             /// <summary>
             /// Windowing function for the IMDCT transformations.
             /// </summary>
-            static readonly float[] window = new float[IMDCTSize / 2] {
+            static readonly float[] window = {
                 0.00014f, 0.00024f, 0.00037f, 0.00051f, 0.00067f, 0.00086f, 0.00107f, 0.00130f, 0.00157f, 0.00187f,
                 0.00220f, 0.00256f, 0.00297f, 0.00341f, 0.00390f, 0.00443f, 0.00501f, 0.00564f, 0.00632f, 0.00706f,
                 0.00785f, 0.00871f, 0.00962f, 0.01061f, 0.01166f, 0.01279f, 0.01399f, 0.01526f, 0.01662f, 0.01806f,

@@ -67,7 +67,7 @@ namespace Cavern.Format.Transcoders {
                             ecpl_end_subbnd = spxbegf < 6 ? spxbegf + 5 : (spxbegf * 2);
                         }
                         if (ecplbndstrce = extractor.ReadBit()) {
-                            ecplbndstrc = new bool[ecpl_end_subbnd];
+                            Array.Clear(ecplbndstrc, 0, ecplbndstrc.Length);
                             for (int sbnd = Math.Max(9, ecpl_begin_subbnd + 1); sbnd < ecpl_end_subbnd; sbnd++) {
                                 ecplbndstrc[sbnd] = extractor.ReadBit();
                             }

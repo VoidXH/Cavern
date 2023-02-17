@@ -201,12 +201,14 @@ namespace Cavern.Format {
 
             switch (Bits) {
                 case BitDepth.Int8:
-                    while (from < to)
+                    while (from < to) {
                         writer.Write((sbyte)(samples[from++] * sbyte.MaxValue));
+                    }
                     break;
                 case BitDepth.Int16:
-                    while (from < to)
+                    while (from < to) {
                         writer.Write((short)(samples[from++] * short.MaxValue));
+                    }
                     break;
                 case BitDepth.Int24:
                     while (from < to) {
@@ -216,8 +218,9 @@ namespace Cavern.Format {
                     }
                     break;
                 case BitDepth.Float32:
-                    while (from < to)
+                    while (from < to) {
                         writer.Write(samples[from++]);
+                    }
                     break;
             }
         }
@@ -321,8 +324,9 @@ namespace Cavern.Format {
             long contentSize = writer.BaseStream.Position - 8;
             if (contentSize > uint.MaxValue || MaxLargeChunks != 0) {
                 int largeChunks = 0;
-                if (largeChunkSizes != null)
+                if (largeChunkSizes != null) {
                     largeChunks = largeChunkSizes.Count;
+                }
 
                 // 64-bit sync word
                 writer.BaseStream.Position = 0;

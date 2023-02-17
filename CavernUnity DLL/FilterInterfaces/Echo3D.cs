@@ -56,8 +56,9 @@ namespace Cavern.FilterInterfaces {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            if (!source.clip)
+            if (!source.clip) {
                 return;
+            }
             Vector3 listenerPos = AudioListener3D.Current.transform.position;
             float maxDist = AudioListener3D.Current.Range,
                 sourceDist = Vector3.Distance(transform.position, listenerPos),

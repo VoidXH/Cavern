@@ -20,8 +20,9 @@ namespace Cavern.Remapping {
         public int UpdateRate {
             get => updateRate;
             set {
-                for (int clip = 0; clip < clips.Length; ++clip)
+                for (int clip = 0; clip < clips.Length; clip++) {
                     clips[clip].Remake(value);
+                }
                 updateRate = value;
             }
         }
@@ -81,12 +82,12 @@ namespace Cavern.Remapping {
         public float[] Update(float[] stream, int channels) {
             int actualRate = stream.Length / channels;
             if (updateRate != actualRate) {
-                for (int channel = 0; channel < channels; ++channel) {
+                for (int channel = 0; channel < channels; channel++) {
                     clips[channel].Remake(actualRate);
                 }
                 listener.UpdateRate = updateRate = actualRate;
             }
-            for (int channel = 0; channel < channels; ++channel) {
+            for (int channel = 0; channel < channels; channel++) {
                 clips[channel].Update(stream, channel, channels);
             }
             return listener.Render();
@@ -96,7 +97,7 @@ namespace Cavern.Remapping {
         /// Remove the created sources from the listener.
         /// </summary>
         public void Dispose() {
-            for (int channel = 0; channel < channels; ++channel) {
+            for (int channel = 0; channel < channels; channel++) {
                 listener.DetachSource(sources[channel]);
             }
         }

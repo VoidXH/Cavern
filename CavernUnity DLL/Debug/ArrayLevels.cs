@@ -22,26 +22,6 @@ namespace Cavern.Debug {
             public Texture2D Color;
         }
 
-        const int channels = 10,
-            left = 0,
-            center = 1,
-            right = 2,
-            surroundL = 3,
-            surroundR = 4,
-            rearL = 5,
-            rearR = 6,
-            topL = 7,
-            topR = 8,
-            LFE = 9;
-
-        readonly static string[] markers = { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
-
-        readonly static Color[] channelColors = new Color[] {
-            ColorUtils.frontJack, ColorUtils.centerJack, ColorUtils.frontJack,
-            ColorUtils.sideJack, ColorUtils.sideJack, Color.black, Color.black,
-            ColorUtils.CavernBlue, ColorUtils.CavernBlue, ColorUtils.centerJack
-        };
-
         readonly ArrayLevelData[] channelData = new ArrayLevelData[channels];
 
         Texture2D white;
@@ -124,13 +104,13 @@ namespace Cavern.Debug {
                             if (thisChannel.Y < -45) {
                                 arrayLevels[thisChannel.Y < -135 ? rearL : surroundL] += max;
                             } else {
-                                arrayLevels[left] += max;
+                                arrayLevels[frontL] += max;
                             }
                         } else if (thisChannel.Y > 0) {
                             if (thisChannel.Y > 45) {
                                 arrayLevels[thisChannel.Y > 135 ? rearR : surroundR] += max;
                             } else {
-                                arrayLevels[right] += max;
+                                arrayLevels[frontR] += max;
                             }
                         }
                     } else { // Height/overhead channels
@@ -168,5 +148,25 @@ namespace Cavern.Debug {
                 Destroy(channelData[Channel].Color);
             }
         }
+
+        const int channels = 10,
+            frontL = 0,
+            center = 1,
+            frontR = 2,
+            surroundL = 3,
+            surroundR = 4,
+            rearL = 5,
+            rearR = 6,
+            topL = 7,
+            topR = 8,
+            LFE = 9;
+
+        readonly static string[] markers = { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
+
+        readonly static Color[] channelColors = new Color[] {
+            ColorUtils.frontJack, ColorUtils.centerJack, ColorUtils.frontJack,
+            ColorUtils.sideJack, ColorUtils.sideJack, Color.black, Color.black,
+            ColorUtils.CavernBlue, ColorUtils.CavernBlue, ColorUtils.centerJack
+        };
     }
 }

@@ -33,7 +33,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Converts a bitstream to raw samples.
         /// </summary>
-        public Decoder(BlockBuffer<byte> reader) => this.reader = reader;
+        protected Decoder(BlockBuffer<byte> reader) => this.reader = reader;
 
         /// <summary>
         /// Gives the possibility of setting <see cref="reader"/> after a derived constructor has read a header.

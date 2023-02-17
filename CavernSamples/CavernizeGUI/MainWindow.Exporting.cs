@@ -118,10 +118,14 @@ namespace CavernizeGUI {
 
             // Virtualization is done with the buffer instead of each update in the listener to optimize FFT sizes
             VirtualizerFilter virtualizer = null;
+            Normalizer normalizer = null;
             if (Listener.HeadphoneVirtualizer) {
                 Listener.HeadphoneVirtualizer = false;
                 virtualizer = new VirtualizerFilter();
                 virtualizer.SetLayout();
+                normalizer = new Normalizer(true) {
+                    decayFactor = 10 * (float)listener.UpdateRate / listener.SampleRate
+                };
             }
 
             const int defaultWriteCacheLength = 16384; // Samples per channel
@@ -154,9 +158,7 @@ namespace CavernizeGUI {
                     Array.Copy(result, 0, writeCache, cachePosition, result.Length);
                     cachePosition += result.Length;
                     if (cachePosition == writeCache.Length || flush) {
-                        if (filters != null) {
-                            filters.ProcessAllChannels(writeCache);
-                        }
+                        filters?.ProcessAllChannels(writeCache);
 
                         if (virtualizer == null) {
                             if (renderTarget is not DownmixedRenderTarget downmix) {
@@ -168,6 +170,7 @@ namespace CavernizeGUI {
                             }
                         } else {
                             virtualizer.Process(writeCache, listener.SampleRate);
+                            normalizer.Process(writeCache);
                             writer.WriteChannelLimitedBlock(writeCache, 2, Listener.Channels.Length, 0, cachePosition);
                         }
                         cachePosition = 0;

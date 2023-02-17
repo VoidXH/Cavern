@@ -31,21 +31,21 @@
         public static float[] Adaptive(float[] samples, int to, int channels, QualityModes quality) {
             float[][] channelSplit = new float[channels][];
             int splitSize = samples.Length / channels;
-            for (int channel = 0; channel < channels; ++channel) {
+            for (int channel = 0; channel < channels; channel++) {
                 channelSplit[channel] = new float[splitSize];
             }
-            for (int sample = 0, outSample = 0; sample < splitSize; ++sample) {
-                for (int channel = 0; channel < channels; ++channel, ++outSample) {
+            for (int sample = 0, outSample = 0; sample < splitSize; sample++) {
+                for (int channel = 0; channel < channels; channel++, outSample++) {
                     channelSplit[channel][sample] = samples[outSample];
                 }
             }
-            for (int channel = 0; channel < channels; ++channel) {
+            for (int channel = 0; channel < channels; channel++) {
                 channelSplit[channel] = Adaptive(channelSplit[channel], to, quality);
             }
             int newUpdateRate = channelSplit[0].Length;
             samples = new float[channels * newUpdateRate];
-            for (int sample = 0, outSample = 0; sample < newUpdateRate; ++sample) {
-                for (int channel = 0; channel < channels; ++channel, ++outSample) {
+            for (int sample = 0, outSample = 0; sample < newUpdateRate; sample++) {
+                for (int channel = 0; channel < channels; channel++, outSample++) {
                     samples[outSample] = channelSplit[channel][sample];
                 }
             }
@@ -64,7 +64,7 @@
             }
             float[] output = new float[to];
             float ratio = samples.Length / (float)to;
-            for (int i = 0; i < to; ++i) {
+            for (int i = 0; i < to; i++) {
                 output[i] = samples[(int)(i * ratio)];
             }
             return output;
@@ -83,11 +83,11 @@
             float[] output = new float[to];
             float ratio = samples.Length / (float)to;
             int lerpUntil = (int)((samples.Length - 1) / ratio); // Halving point where i * ratio would be over the array
-            for (int i = 0; i < lerpUntil; ++i) {
+            for (int i = 0; i < lerpUntil; i++) {
                 int sample = (int)(i * ratio);
                 output[i] = QMath.Lerp(samples[sample], samples[sample + 1], i * ratio % 1);
             }
-            for (int i = lerpUntil; i < to; ++i) {
+            for (int i = lerpUntil; i < to; i++) {
                 output[i] = samples[(int)(i * ratio)];
             }
             return output;
@@ -106,9 +106,10 @@
             float[] output = new float[to];
             float ratio = samples.Length / (float)to;
             int start = (int)(1 / ratio + 1), end = samples.Length - 3;
-            for (int i = 0; i < start; ++i)
+            for (int i = 0; i < start; i++) {
                 output[i] = samples[i];
-            for (int i = start; i < to; ++i) {
+            }
+            for (int i = start; i < to; i++) {
                 int sample = (int)(i * ratio);
                 if (sample < end) {
                     float t = i * ratio % 1;
