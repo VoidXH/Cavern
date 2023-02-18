@@ -40,10 +40,10 @@
             uint[] pixels = target.Pixels;
             int xGap = target.Width / xSteps,
                 yGap = target.Height / ySteps,
-                yMax = target.Height - width;
+                yMax = target.Height - Width;
             for (int x = 1; x < xSteps; x++) {
                 int xPos = x * xGap;
-                for (int y = width; y < yMax; y++) {
+                for (int y = Width; y < yMax; y++) {
                     int start = y * target.Width + xPos;
                     for (int w = 0; w < gridWidth; w++) {
                         pixels[start + w] = color;
@@ -51,12 +51,12 @@
                 }
             }
 
-            int xMax = target.Width - width;
+            int xMax = target.Width - Width;
             for (int y = 1; y < ySteps; y++) {
                 int yPos = y * yGap;
                 for (int w = 0; w < gridWidth; w++) {
                     int start = (yPos + w) * target.Width;
-                    for (int x = width; x < xMax; x++) {
+                    for (int x = Width; x < xMax; x++) {
                         pixels[start + x] = color;
                     }
                 }

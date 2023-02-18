@@ -1,14 +1,12 @@
-﻿using System.ComponentModel;
-
-namespace Cavern.QuickEQ.Graphing.Overlays {
+﻿namespace Cavern.QuickEQ.Graphing.Overlays {
     /// <summary>
-    /// Draws a frame of a given <see cref="width"/> over the graph.
+    /// Draws a frame of a given <see cref="Width"/> over the graph.
     /// </summary>
     public class Frame : GraphOverlay {
         /// <summary>
         /// Line stroke width.
         /// </summary>
-        protected readonly int width;
+        public int Width { get; set; }
 
         /// <summary>
         /// RGBA color of the line.
@@ -21,7 +19,7 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
         /// <param name="width">Line stroke width</param>
         /// <param name="color">RGBA color of the line</param>
         public Frame(int width, uint color) {
-            this.width = width;
+            Width = width;
             this.color = color;
         }
 
@@ -31,7 +29,7 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
         public override void DrawOn(GraphRenderer target) {
             // Edge rows
             uint[] pixels = target.Pixels;
-            int until = target.Width * width;
+            int until = target.Width * Width;
             for (int i = 0; i < until; i++) {
                 pixels[i] = color;
             }
@@ -40,12 +38,12 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
             }
 
             // Edge columns
-            for (int x = 0; x < width; x++) {
-                int c = target.Height - width;
-                for (int y = width; y < c; y++) {
+            for (int x = 0; x < Width; x++) {
+                int c = target.Height - Width;
+                for (int y = Width; y < c; y++) {
                     pixels[y * target.Width + x] = color;
                 }
-                for (int y = width; y < c; y++) {
+                for (int y = Width; y < c; y++) {
                     pixels[pixels.Length - y * target.Width - x] = color;
                 }
             }

@@ -41,8 +41,8 @@ namespace Cavern.QuickEQ.Graphing {
         /// Some minor values have changed, recreate the <see cref="Render"/> from the <see cref="preRender"/>.
         /// </summary>
         public void ReRender(GraphRenderer parent) {
-            float bottom = preRender.Max() - parent.DynamicRange,
-                ratio = (parent.Height - 1) / parent.DynamicRange;
+            float bottom = preRender.Max() - parent.DynamicRange - parent.Padding,
+                ratio = (parent.Height - 1) / (parent.DynamicRange + 2 * parent.Padding);
             int lastRow = (int)((preRender[0] - bottom) * ratio);
             if (lastRow >= 0) {
                 Render[lastRow * parent.Width] = 0xFF;

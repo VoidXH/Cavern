@@ -58,6 +58,24 @@ namespace Cavern.QuickEQ.Graphing {
         float dynamicRange = 30;
 
         /// <summary>
+        /// The top and bottom will be moved towards the center by this many decibels.
+        /// </summary>
+        public float Padding {
+            get {
+                // The default padding is just for preventing the frame overwriting the curve
+                if (padding == 0 && Overlay is Frame frame) {
+                    padding = dynamicRange - dynamicRange * Height / (Height + 2 * frame.Width);
+                }
+                return padding;
+            }
+            set {
+                padding = value;
+                ReRender();
+            }
+        }
+        float padding;
+
+        /// <summary>
         /// Canvas width.
         /// </summary>
         public int Width { get; }
