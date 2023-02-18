@@ -123,6 +123,23 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
+        /// Get the frequency at a given subpixel position on the width axis.
+        /// </summary>
+        public float GetFrequencyAt(float width) {
+            if (logarithmic) {
+                float start = MathF.Log10(startFrequency);
+                return MathF.Pow(10, start + width / Width * (MathF.Log10(endFrequency) - start));
+            } else {
+                return startFrequency + width / Width * (endFrequency - startFrequency);
+            }
+        }
+
+        /// <summary>
+        /// Get what gain corresponds to a given subpixel position on the heigh axis, relative to the peak gain.
+        /// </summary>
+        public float GetGainAt(float height) => -(height / Height) * dynamicRange;
+
+        /// <summary>
         /// Redraw the entire image.
         /// </summary>
         void DrawAll() {
