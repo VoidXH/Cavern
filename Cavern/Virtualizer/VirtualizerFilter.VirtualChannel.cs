@@ -40,9 +40,14 @@ namespace Cavern.Virtualizer {
         }
 
         /// <summary>
-        /// Parse the virtual channels from a multichannel HRIR set.
+        /// Parse the virtual channels from a multichannel HRIR set, and use it above 120 Hz.
         /// </summary>
-        public static VirtualChannel[] Parse(MultichannelWaveform hrir, int sampleRate, float crossoverFrequency = 120) {
+        public static VirtualChannel[] Parse(MultichannelWaveform hrir, int sampleRate) => Parse(hrir, sampleRate, 120);
+
+        /// <summary>
+        /// Parse the virtual channels from a multichannel HRIR set, and use it above a set frequency.
+        /// </summary>
+        public static VirtualChannel[] Parse(MultichannelWaveform hrir, int sampleRate, float crossoverFrequency) {
             hrir.TrimStart();
             hrir.Normalize();
 

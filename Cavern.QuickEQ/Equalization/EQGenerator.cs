@@ -16,6 +16,35 @@ namespace Cavern.QuickEQ.Equalization {
     public static class EQGenerator {
         /// <summary>
         /// Generate an equalizer setting to flatten the processed response of
+        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>. The maximum gain on any band
+        /// will not pass the recommended maximum of 6 dB. The default resolution of 1/3 octaves will be used.
+        /// </summary>
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing
+        /// (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is strongly recommended</param>
+        /// <param name="startFreq">Frequency at the beginning of the graph</param>
+        /// <param name="endFreq">Frequency at the end of the graph</param>
+        /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
+        /// <param name="targetGain">Target EQ level</param>
+        public static Equalizer CorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain) =>
+            CorrectGraph(graph, startFreq, endFreq, targetCurve, targetGain, 1 / 3f, 6);
+
+        /// <summary>
+        /// Generate an equalizer setting to flatten the processed response of
+        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>. The maximum gain on any band
+        /// will not pass the recommended maximum of 6 dB.
+        /// </summary>
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing
+        /// (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is strongly recommended</param>
+        /// <param name="startFreq">Frequency at the beginning of the graph</param>
+        /// <param name="endFreq">Frequency at the end of the graph</param>
+        /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
+        /// <param name="targetGain">Target EQ level</param>
+        /// <param name="resolution">Band diversity in octaves</param>
+        public static Equalizer CorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
+            double resolution) => CorrectGraph(graph, startFreq, endFreq, targetCurve, targetGain, resolution, 6);
+
+        /// <summary>
+        /// Generate an equalizer setting to flatten the processed response of
         /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.
         /// </summary>
         /// <param name="graph">Graph to equalize, a pre-applied smoothing
@@ -23,11 +52,11 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="startFreq">Frequency at the beginning of the graph</param>
         /// <param name="endFreq">Frequency at the end of the graph</param>
         /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
-        /// <param name="resolution">Band diversity in octaves</param>
         /// <param name="targetGain">Target EQ level</param>
+        /// <param name="resolution">Band diversity in octaves</param>
         /// <param name="maxGain">Maximum gain of any generated band</param>
         public static Equalizer CorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
-            double resolution = 1 / 3f, float maxGain = 6) {
+            double resolution, float maxGain) {
             List<Band> bands = new List<Band>();
             double startPow = Math.Log10(startFreq), powRange = (Math.Log10(endFreq) - startPow) / graph.Length,
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2);
@@ -53,6 +82,20 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>
         /// Generate a precise equalizer setting to flatten the processed response of
+        /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.The maximum gain on any band
+        /// will not pass the recommended maximum of 6 dB.
+        /// </summary>
+        /// <param name="graph">Graph to equalize, a pre-applied smoothing
+        /// (<see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/> is strongly recommended</param>
+        /// <param name="startFreq">Frequency at the beginning of the graph</param>
+        /// <param name="endFreq">Frequency at the end of the graph</param>
+        /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
+        /// <param name="targetGain">Target EQ level</param>
+        public static Equalizer AutoCorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve,
+            float targetGain) => AutoCorrectGraph(graph, startFreq, endFreq, targetCurve, targetGain, 6);
+
+        /// <summary>
+        /// Generate a precise equalizer setting to flatten the processed response of
         /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>.
         /// </summary>
         /// <param name="graph">Graph to equalize, a pre-applied smoothing
@@ -63,7 +106,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="targetGain">Target EQ level</param>
         /// <param name="maxGain">Maximum gain of any generated band</param>
         public static Equalizer AutoCorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve,
-            float targetGain, float maxGain = 6) {
+            float targetGain, float maxGain) {
             List<Band> bands = new List<Band>();
             double startPow = Math.Log10(startFreq), endPow = Math.Log10(endFreq), powRange = (endPow - startPow) / graph.Length;
             List<int> windowEdges = new List<int> { 0 };
@@ -122,6 +165,37 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>
         /// Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.
+        /// Additional gain will not be applied, and the filter's length will be the default of 1024 samples.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        public static float[] GetConvolution(this Equalizer eq, int sampleRate) =>
+            eq.GetConvolution(sampleRate, 1024, 1, null);
+
+        /// <summary>
+        /// Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.
+        /// Additional gain will not be applied.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
+        public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length) =>
+            eq.GetConvolution(sampleRate, length, 1, null);
+
+        /// <summary>
+        /// Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.
+        /// Additional gain will be applied.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
+        /// <param name="gain">Signal voltage multiplier</param>
+        public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length, float gain) =>
+            eq.GetConvolution(sampleRate, length, gain, null);
+
+        /// <summary>
+        /// Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.
+        /// The initial curve can be provided in Fourier-space.
         /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
@@ -129,8 +203,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="gain">Signal voltage multiplier</param>
         /// <param name="initial">Custom initial spectrum to apply the EQ on - phases will be corrected, this is not convolved,
         /// and has to be twice the size of <paramref name="length"/></param>
-        public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length = 1024, float gain = 1,
-            Complex[] initial = null) {
+        public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length, float gain, Complex[] initial) {
             length <<= 1;
             Complex[] filter = new Complex[length];
             if (initial == null) {
@@ -152,6 +225,37 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>
         /// Gets a linear phase convolution filter that results in this EQ when applied.
+        /// Additional gain will not be applied, and the filter's length will be the default of 1024 samples.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate) =>
+            eq.GetLinearConvolution(sampleRate, 1024, 1, null);
+
+        /// <summary>
+        /// Gets a linear phase convolution filter that results in this EQ when applied.
+        /// Additional gain will not be applied.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
+        public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length) =>
+            eq.GetLinearConvolution(sampleRate, length, 1, null);
+
+        /// <summary>
+        /// Gets a linear phase convolution filter that results in this EQ when applied.
+        /// Additional gain will be applied.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
+        /// <param name="gain">Signal voltage multiplier</param>
+        public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length, float gain) =>
+            eq.GetLinearConvolution(sampleRate, length, gain, null);
+
+        /// <summary>
+        /// Gets a linear phase convolution filter that results in this EQ when applied.
+        /// The initial curve can be provided in Fourier-space.
         /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
@@ -159,8 +263,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="gain">Signal voltage multiplier</param>
         /// <param name="initial">Custom initial spectrum to apply the EQ on - phases will be corrected, this is not convolved,
         /// and has to be twice the size of <paramref name="length"/></param>
-        public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length = 1024, float gain = 1,
-            Complex[] initial = null) {
+        public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length, float gain, Complex[] initial) {
             Complex[] filter = new Complex[length];
             if (initial == null) {
                 for (int i = 0; i < length; ++i) {
@@ -178,11 +281,19 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>
         /// Create a peaking EQ filter set with bands at the positions of the EQ's bands to approximate the drawn EQ curve.
+        /// The default of 2 octave smoothing will be used.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Target system sample rate</param>
+        public static PeakingEQ[] GetPeakingEQ(this Equalizer eq, int sampleRate) => eq.GetPeakingEQ(sampleRate, 2);
+
+        /// <summary>
+        /// Create a peaking EQ filter set with bands at the positions of the EQ's bands to approximate the drawn EQ curve.
         /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Target system sample rate</param>
         /// <param name="smoothing">Smooth out band spikes</param>
-        public static PeakingEQ[] GetPeakingEQ(this Equalizer eq, int sampleRate, double smoothing = 2) {
+        public static PeakingEQ[] GetPeakingEQ(this Equalizer eq, int sampleRate, double smoothing) {
             IReadOnlyList<Band> bands = eq.Bands;
             PeakingEQ[] result = new PeakingEQ[bands.Count];
             double freq = bands[0].Frequency, gainMul = 1 / Math.Pow(smoothing, QFactor.reference), qMul = Math.PI / smoothing;

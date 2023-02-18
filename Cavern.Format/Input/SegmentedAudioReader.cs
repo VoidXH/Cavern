@@ -35,11 +35,11 @@ namespace Cavern.Format {
         public SegmentedAudioReader(string path) : base((Stream)null) {
             this.path = path;
             while (true) {
-                string segment = string.Format(path, segments.Count);
-                if (!File.Exists(segment)) {
+                string segmentPath = string.Format(path, segments.Count);
+                if (!File.Exists(segmentPath)) {
                     break;
                 }
-                segments.Add(Open(segment));
+                segments.Add(Open(segmentPath));
             }
             if (segments.Count == 0) {
                 throw new FileNotFoundException(path);

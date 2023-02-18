@@ -257,10 +257,18 @@ namespace Cavern {
         // Public functions
         // ------------------------------------------------------------------
         /// <summary>
-        /// Start playback from the beginning of the <see cref="clip"/>.
+        /// Start playback from the beginning of the <see cref="clip"/> immediately.
+        /// </summary>
+        public void Play() {
+            cavernSource.Play();
+            IsPlaying = cavernSource.IsPlaying;
+        }
+
+        /// <summary>
+        /// Start playback from the beginning of the <see cref="clip"/> after a delay has passed.
         /// </summary>
         /// <param name="delaySamples">Optional delay in samples</param>
-        public void Play(long delaySamples = 0) {
+        public void Play(long delaySamples) {
             cavernSource.Play(delaySamples);
             IsPlaying = cavernSource.IsPlaying;
         }

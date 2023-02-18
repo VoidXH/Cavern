@@ -30,9 +30,17 @@ namespace Cavern.Utilities {
         public float Phase => MathF.Atan2(Imaginary, Real);
 
         /// <summary>
-        /// Constructor from coordinates.
+        /// Complex number from a scalar.
         /// </summary>
-        public Complex(float real = 0, float imaginary = 0) {
+        public Complex(float real) {
+            Real = real;
+            Imaginary = 0;
+        }
+
+        /// <summary>
+        /// Complex number from coordinates.
+        /// </summary>
+        public Complex(float real, float imaginary) {
             Real = real;
             Imaginary = imaginary;
         }

@@ -7,7 +7,7 @@ namespace Cavern.Utilities {
     /// </summary>
     public static class Measurements {
         /// <summary>
-        /// Fast Fourier transform a 2D signal.
+        /// Fast Fourier transform a 2D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static Complex[] FFT(this Complex[] samples) {
             using FFTCache cache = new FFTCache(samples.Length);
@@ -24,7 +24,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Fast Fourier transform a 1D signal.
+        /// Fast Fourier transform a 1D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static Complex[] FFT(this float[] samples) {
             using FFTCache cache = new FFTCache(samples.Length);
@@ -69,7 +69,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Spectrum of a signal's FFT.
+        /// Spectrum of a signal's FFT. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static float[] FFT1D(this float[] samples) {
             using FFTCache cache = new FFTCache(samples.Length);
@@ -87,6 +87,7 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Spectrum of a signal's FFT while keeping the source array allocation.
+        /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this float[] samples) {
@@ -112,6 +113,7 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Inverse Fast Fourier Transform of a transformed signal.
+        /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static Complex[] IFFT(this Complex[] samples) {
             samples = samples.FastClone();
@@ -139,6 +141,7 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
+        /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static void InPlaceIFFT(this Complex[] samples) {
             if (CavernAmp.Available) {
@@ -181,11 +184,18 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Minimizes the phase of a spectrum. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
+        /// </summary>
+        /// <remarks>This function does not handle zeros in the spectrum.
+        /// Make sure there is a threshold before using this function.</remarks>
+        public static void MinimumPhaseSpectrum(Complex[] response) => MinimumPhaseSpectrum(response, null);
+
+        /// <summary>
         /// Minimizes the phase of a spectrum.
         /// </summary>
         /// <remarks>This function does not handle zeros in the spectrum.
         /// Make sure there is a threshold before using this function.</remarks>
-        public static void MinimumPhaseSpectrum(Complex[] response, FFTCache cache = null) {
+        public static void MinimumPhaseSpectrum(Complex[] response, FFTCache cache) {
             bool customCache = false;
             if (cache == null) {
                 cache = new FFTCache(response.Length);
@@ -304,31 +314,54 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Get the frequency response using the original sweep signal's FFT as reference.
+        /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
-        public static Complex[] GetFrequencyResponse(Complex[] referenceFFT, float[] response, FFTCache cache = null) =>
+        public static Complex[] GetFrequencyResponse(Complex[] referenceFFT, float[] response) =>
+            GetFrequencyResponse(referenceFFT, response.FFT());
+
+        /// <summary>
+        /// Get the frequency response using the original sweep signal's FFT as reference.
+        /// </summary>
+        public static Complex[] GetFrequencyResponse(Complex[] referenceFFT, float[] response, FFTCache cache) =>
             GetFrequencyResponse(referenceFFT, response.FFT(cache));
 
         /// <summary>
         /// Get the frequency response using the original sweep signal as reference.
+        /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
-        public static Complex[] GetFrequencyResponse(float[] reference, float[] response, FFTCache cache = null) {
-            if (cache == null) {
-                using FFTCache tempCache = new FFTCache(reference.Length);
-                return GetFrequencyResponse(reference.FFT(tempCache), response.FFT(tempCache));
-            }
-            return GetFrequencyResponse(reference.FFT(cache), response.FFT(cache));
+        public static Complex[] GetFrequencyResponse(float[] reference, float[] response) {
+            using FFTCache tempCache = new FFTCache(reference.Length);
+            return GetFrequencyResponse(reference, response, tempCache);
         }
+
+        /// <summary>
+        /// Get the frequency response using the original sweep signal as reference.
+        /// </summary>
+        public static Complex[] GetFrequencyResponse(float[] reference, float[] response, FFTCache cache) =>
+            GetFrequencyResponse(reference.FFT(cache), response.FFT(cache));
+
+        /// <summary>
+        /// Get the complex impulse response using a precalculated frequency response.
+        /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
+        /// </summary>
+        public static Complex[] GetImpulseResponse(Complex[] frequencyResponse) => frequencyResponse.IFFT();
 
         /// <summary>
         /// Get the complex impulse response using a precalculated frequency response.
         /// </summary>
-        public static Complex[] GetImpulseResponse(Complex[] frequencyResponse, FFTCache cache = null) =>
-            frequencyResponse.IFFT(cache);
+        public static Complex[] GetImpulseResponse(Complex[] frequencyResponse, FFTCache cache) => frequencyResponse.IFFT(cache);
+
+        /// <summary>
+        /// Get the complex impulse response using the original sweep signal as a reference.
+        ///
+        /// </summary>
+        public static Complex[] GetImpulseResponse(float[] reference, float[] response) =>
+            IFFT(GetFrequencyResponse(reference, response));
 
         /// <summary>
         /// Get the complex impulse response using the original sweep signal as a reference.
         /// </summary>
-        public static Complex[] GetImpulseResponse(float[] reference, float[] response, FFTCache cache = null) =>
+        public static Complex[] GetImpulseResponse(float[] reference, float[] response, FFTCache cache) =>
             IFFT(GetFrequencyResponse(reference, response), cache);
 
         /// <summary>

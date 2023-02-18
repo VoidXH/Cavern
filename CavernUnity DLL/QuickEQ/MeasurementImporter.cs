@@ -24,7 +24,7 @@ namespace Cavern.QuickEQ {
     /// <summary>
     /// Imports a QuickEQ measurement in the background.
     /// </summary>
-    public class MeasurementImporter {
+    public class MeasurementImporter : IDisposable {
         /// <summary>
         /// Import process status.
         /// </summary>
@@ -281,5 +281,10 @@ namespace Cavern.QuickEQ {
             }
             Status = MeasurementImporterStatus.Done;
         }
+
+        /// <summary>
+        /// Free the resources used by the importer.
+        /// </summary>
+        public void Dispose() => runner?.Dispose();
     }
 }

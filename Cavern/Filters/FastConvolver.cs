@@ -95,13 +95,21 @@ namespace Cavern.Filters {
 
         /// <summary>
         /// Performs the convolution of two real signals. The real result is returned.
+        ///  The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
+        /// </summary>
+        public static float[] Convolve(float[] excitation, float[] impulse) {
+            Complex[] result = ConvolveFourier(excitation, impulse);
+            result.InPlaceIFFT();
+            return Measurements.GetRealPart(result);
+        }
+
+        /// <summary>
+        /// Performs the convolution of two real signals. The real result is returned.
         /// </summary>
         /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/>
         /// to match in a length of a power of 2.</remarks>
-        public static float[] Convolve(float[] excitation, float[] impulse, FFTCache cache = null) {
-            Complex[] result = cache != null?
-                ConvolveFourier(excitation, impulse, cache) :
-                ConvolveFourier(excitation, impulse);
+        public static float[] Convolve(float[] excitation, float[] impulse, FFTCache cache) {
+            Complex[] result = ConvolveFourier(excitation, impulse, cache);
             result.InPlaceIFFT();
             return Measurements.GetRealPart(result);
         }

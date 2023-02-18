@@ -23,8 +23,13 @@ namespace Cavern.Spoofer {
         /// <summary>
         /// Create an <see cref="AutoSpoofer"/> through the application if it doesn't exist.
         /// </summary>
+        public static void CreateSpoofer() => CreateSpoofer(false);
+
+        /// <summary>
+        /// Create an <see cref="AutoSpoofer"/> through the application if it doesn't exist.
+        /// </summary>
         /// <param name="debug">Display <see cref="Debug.Levels"/> in the application.</param>
-        public static void CreateSpoofer(bool debug = false) {
+        public static void CreateSpoofer(bool debug) {
             if (!instance) {
                 DontDestroyOnLoad(new GameObject("Auto Audio Engine Spoofer").AddComponent<AutoSpoofer>());
             }

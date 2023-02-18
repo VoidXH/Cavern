@@ -154,7 +154,7 @@ namespace Cavern {
         /// Actual listener handled by this interface.
         /// </summary>
         /// <remarks>Normalization and limiting happens in this object's <see cref="normalizer"/>.</remarks>
-        internal static Listener cavernListener = new Listener {
+        internal static readonly Listener cavernListener = new Listener {
             LimiterOnly = false
         };
 
@@ -291,9 +291,7 @@ namespace Cavern {
                     renderBuffer = Resample.Adaptive(renderBuffer,
                         renderBuffer.Length / channels * SystemSampleRate / cachedSampleRate, channels, AudioQuality);
                     // If the listener didn't perform virtualization for sample rate mismatch, do it here
-                    if (virtualizer == null) {
-                        virtualizer = new VirtualizerFilter();
-                    }
+                    virtualizer ??= new VirtualizerFilter();
                     virtualizer.Process(renderBuffer, SystemSampleRate);
                 }
                 int end = filterOutput.Length,

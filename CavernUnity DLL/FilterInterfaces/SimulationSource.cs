@@ -86,7 +86,7 @@ namespace Cavern.FilterInterfaces {
                 if (gain > 1) {
                     gain = 1;
                 }
-                if (ChangePhase && hitCount % 2 == 1) {
+                if (ChangePhase && (hitCount & 1) == 1) {
                     gain = -gain;
                 }
                 target.Impulse[(int)timeOffset] += gain;

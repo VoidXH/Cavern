@@ -64,9 +64,14 @@ namespace Cavern.Virtualizer {
         float[] delayedCenter;
 
         /// <summary>
-        /// Apply a new set of HRIR filters.
+        /// Apply a new set of HRIR filters. The reference distance of the sound sources from the subject will be 1 meter.
         /// </summary>
-        public static void Override(VirtualChannel[] channels, int sampleRate, float referenceDistance = 1) {
+        public static void Override(VirtualChannel[] channels, int sampleRate) => Override(channels, sampleRate, 1);
+
+        /// <summary>
+        /// Apply a new set of HRIR filters, and specify what distance from the subject was the speaker when they were created.
+        /// </summary>
+        public static void Override(VirtualChannel[] channels, int sampleRate, float referenceDistance) {
             SpatialChannels = channels;
             FilterSampleRate = sampleRate;
             ReferenceDistance = referenceDistance;

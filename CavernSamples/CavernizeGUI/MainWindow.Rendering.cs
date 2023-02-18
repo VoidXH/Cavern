@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 using Cavern;
@@ -13,7 +15,6 @@ using Cavern.Virtualizer;
 
 using CavernizeGUI.Elements;
 using Track = CavernizeGUI.Elements.Track;
-using System.Collections.Generic;
 
 namespace CavernizeGUI {
     partial class MainWindow {
@@ -81,7 +82,7 @@ namespace CavernizeGUI {
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
             BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
             if (!codec.IsEnvironmental()) {
-                string exportFormat = path[^4..].ToLower(),
+                string exportFormat = path[^4..].ToLower(CultureInfo.InvariantCulture),
                     exportName = exportFormat.Equals(".mkv") ? path[..^4] + waveExtension : path;
                 AudioWriter writer;
                 if (exportFormat.Equals(waveExtension)) {
@@ -212,7 +213,7 @@ namespace CavernizeGUI {
                     targetCodec += massivelyMultichannel;
                 }
 
-                if (finalName[^4..].ToLower().Equals(".mkv")) {
+                if (finalName[^4..].ToLower(CultureInfo.InvariantCulture).Equals(".mkv")) {
                     string exportedAudio = finalName[..^4] + waveExtension;
                     taskEngine.UpdateStatus("Merging to final container...");
                     if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c:v copy -c:a {2} " +
