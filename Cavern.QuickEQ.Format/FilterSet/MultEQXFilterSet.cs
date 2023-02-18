@@ -289,6 +289,14 @@ namespace Cavern.Format.FilterSet {
             (ReferenceChannel.SideRight, "SRA", "Surround Right", "S_A", "Surround", "Right, Surround, Position1"),
             (ReferenceChannel.RearLeft, "SBL", "Surround Back Left", "SB_", "Surround Back", "Left, Back"),
             (ReferenceChannel.RearRight, "SBR", "Surround Back Right", "SB_", "Surround Back", "Right, Back"),
+            (ReferenceChannel.TopFrontLeft, "FHL", "Front Height Left", "FH_", "Front Height", "FL, Height"),
+            (ReferenceChannel.TopFrontCenter, "CH", "Center Height", "CH", "Center Height", "Overhead"),
+            (ReferenceChannel.TopFrontRight, "FHR", "Front Height Right", "FH_", "Front Height", "FR, Height"),
+            (ReferenceChannel.TopSideLeft, "TML", "Top Middle Left", "TM_", "Top Middle", "Left, Surround, Top"),
+            (ReferenceChannel.TopSideRight, "TMR", "Top Middle Right", "TM_", "Top Middle", "Right, Surround, Top"),
+            (ReferenceChannel.TopRearLeft, "RHL", "Rear Height Left", "RH_", "Rear Height", "Left, Rear, Height"),
+            (ReferenceChannel.TopRearRight, "RHR", "Rear Height Right", "RH_", "Rear Height", "Right, Rear, Height"),
+            (ReferenceChannel.GodsVoice, "TS", "Top Surround", "TS", "Top Surround", "Surround, Top"),
         };
     }
 }
