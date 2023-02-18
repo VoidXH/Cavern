@@ -170,6 +170,34 @@ namespace Cavern.Format.Utilities {
         }.asFloat;
 
         /// <summary>
+        /// Tests if the next byte block is as expected, throws an exception if it's not.
+        /// </summary>
+        public static void BlockTest(this Stream reader, byte[] block) {
+            byte[] input = reader.ReadBytes(block.Length);
+            for (int i = 0; i < block.Length; ++i) {
+                if (input[i] != block[i]) {
+                    throw new IOException("Format mismatch.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tests if the next rolling byte block is as expected, if not, it advances by 1 byte.
+        /// </summary>
+        public static bool RollingBlockCheck(this Stream reader, byte[] cache, byte[] block) {
+            for (int i = 1; i < cache.Length; ++i) {
+                cache[i - 1] = cache[i];
+            }
+            cache[^1] = (byte)reader.ReadByte();
+            for (int i = 0; i < block.Length; ++i) {
+                if (cache[i] != block[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Write any value to the stream.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

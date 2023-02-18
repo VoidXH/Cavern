@@ -228,33 +228,5 @@ namespace Cavern.Format {
         /// Close the reader.
         /// </summary>
         public virtual void Dispose() => reader?.Close();
-
-        /// <summary>
-        /// Tests if the next rolling byte block is as expected, if not, it advances by 1 byte.
-        /// </summary>
-        protected bool RollingBlockCheck(byte[] cache, byte[] block) {
-            for (int i = 1; i < cache.Length; ++i) {
-                cache[i - 1] = cache[i];
-            }
-            cache[^1] = (byte)reader.ReadByte();
-            for (int i = 0; i < block.Length; ++i) {
-                if (cache[i] != block[i]) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Tests if the next byte block is as expected, throws an exception if it's not.
-        /// </summary>
-        protected void BlockTest(byte[] block) {
-            byte[] input = reader.ReadBytes(block.Length);
-            for (int i = 0; i < block.Length; ++i) {
-                if (input[i] != block[i]) {
-                    throw new IOException("Format mismatch.");
-                }
-            }
-        }
     }
 }

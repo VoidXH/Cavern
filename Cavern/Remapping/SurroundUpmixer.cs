@@ -40,13 +40,22 @@ namespace Cavern.Remapping {
         readonly bool mode51;
 
         /// <summary>
+        /// Creates 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels, and
+        /// uses Cavern's channel positions.
+        /// </summary>
+        /// <param name="sourceChannels">The channel that is present at each index in the input array</param>
+        /// <param name="sampleRate">Content sample rate</param>
+        public SurroundUpmixer(ReferenceChannel[] sourceChannels, int sampleRate) : this(sourceChannels, sampleRate, false, false) { }
+
+        /// <summary>
         /// Creates 5.1 or 7.1 mixes from any legacy stream by matrix upmixing. Keeps any additional channels.
         /// </summary>
         /// <param name="sourceChannels">The channel that is present at each index in the input array</param>
         /// <param name="sampleRate">Content sample rate</param>
-        /// <param name="mode51">Upmix up to 5.1 only</param>
-        /// <param name="widen">Use the corners of the room for speaker placements</param>
-        public SurroundUpmixer(ReferenceChannel[] sourceChannels, int sampleRate, bool mode51 = false, bool widen = false) :
+        /// <param name="mode51">Upmix up to 5.1 only, and don't create the rear channels</param>
+        /// <param name="widen">Use the corners of the room for speaker placements
+        /// instead of Cavern's internal positions (&quot;movie mode&quot;)</param>
+        public SurroundUpmixer(ReferenceChannel[] sourceChannels, int sampleRate, bool mode51, bool widen) :
             base(matrixSize, sampleRate) {
             sourceRouting = new int[sourceChannels.Length];
             this.mode51 = mode51;

@@ -59,7 +59,9 @@ namespace CavernizeGUI.Elements {
                     tracks.Add(new Track(wavReader, wavReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE, 0));
                     break;
                 case "laf":
-                    throw new NotSupportedException();
+                    LimitlessAudioFormatReader lafReader = new(Path);
+                    tracks.Add(new Track(lafReader, lafReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE, 0));
+                    break;
                 default:
                     throw new NotSupportedException();
             }

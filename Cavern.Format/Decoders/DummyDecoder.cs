@@ -6,26 +6,6 @@ namespace Cavern.Format.Decoders {
     /// </summary>
     public class DummyDecoder : Decoder {
         /// <summary>
-        /// Content channel count.
-        /// </summary>
-        public override int ChannelCount { get; }
-
-        /// <summary>
-        /// Location in the stream in samples. Unsupported for this codec.
-        /// </summary>
-        public override long Position => -1;
-
-        /// <summary>
-        /// Content length in samples for a single channel.
-        /// </summary>
-        public override long Length { get; }
-
-        /// <summary>
-        /// Bitstream sample rate.
-        /// </summary>
-        public override int SampleRate { get; }
-
-        /// <summary>
         /// Unsupported codec type.
         /// </summary>
         readonly Codec format;
@@ -37,6 +17,7 @@ namespace Cavern.Format.Decoders {
             this.format = format;
             ChannelCount = channelCount;
             Length = length;
+            Position = -1;
             SampleRate = sampleRate;
         }
 

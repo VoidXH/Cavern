@@ -10,11 +10,6 @@ namespace Cavern.Format.Decoders {
     /// </summary>
     public abstract class FrameBasedDecoder : Decoder {
         /// <summary>
-        /// Location in the stream in samples. Unsupported for this codec.
-        /// </summary>
-        public override long Position => -1;
-
-        /// <summary>
         /// The position of the first sample of the last exported block in the buffer.
         /// </summary>
         public int LastFetchStart => decoder.LastFetchStart;
@@ -27,8 +22,10 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Converts a frame-based bitstream to raw samples.
         /// </summary>
-        protected FrameBasedDecoder(BlockBuffer<byte> reader) : base(reader) =>
+        protected FrameBasedDecoder(BlockBuffer<byte> reader) : base(reader) {
             decoder = new BlockBuffer<float>(DecodeFrame);
+            Position = -1;
+        }
 
         /// <summary>
         /// Read and decode a given number of samples.
@@ -41,8 +38,9 @@ namespace Cavern.Format.Decoders {
         public override void DecodeBlock(float[] target, long from, long to) {
             const long skip = FormatConsts.blockSize / sizeof(float); // source split optimization for both memory and IO
             if (to - from > skip) {
-                for (; from < to; from += skip) {
-                    DecodeBlock(target, from, Math.Min(to, from + skip));
+                long actualSkip = skip - skip % ChannelCount; // Blocks have to be divisible with the channel count
+                for (; from < to; from += actualSkip) {
+                    DecodeBlock(target, from, Math.Min(to, from + actualSkip));
                 }
                 return;
             }

@@ -25,30 +25,6 @@ namespace Cavern.Format.Decoders {
         public BitDepth Bits { get; private set; }
 
         /// <summary>
-        /// Content channel count.
-        /// </summary>
-        public override int ChannelCount => channelCount;
-        int channelCount;
-
-        /// <summary>
-        /// Location in the stream in samples.
-        /// </summary>
-        public override long Position => position;
-        long position;
-
-        /// <summary>
-        /// Content length in samples for a single channel.
-        /// </summary>
-        public override long Length => length;
-        readonly long length;
-
-        /// <summary>
-        /// Bitstream sample rate.
-        /// </summary>
-        public override int SampleRate => sampleRate;
-        int sampleRate;
-
-        /// <summary>
         /// WAVEFORMATEXTENSIBLE channel mask if available.
         /// </summary>
         int channelMask = -1;
@@ -69,9 +45,9 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         public RIFFWaveDecoder(BlockBuffer<byte> reader, int channelCount, long length, int sampleRate, BitDepth bits) :
             base(reader) {
-            this.channelCount = channelCount;
-            this.length = length;
-            this.sampleRate = sampleRate;
+            ChannelCount = channelCount;
+            Length = length;
+            SampleRate = sampleRate;
             Bits = bits;
         }
 
@@ -132,7 +108,7 @@ namespace Cavern.Format.Decoders {
                         chna = new ChannelAssignment(reader);
                         break;
                     case RIFFWave.dataSync:
-                        length = headerSize * 8L / (long)Bits / ChannelCount;
+                        Length = headerSize * 8L / (long)Bits / ChannelCount;
                         dataStart = reader.Position;
                         if (dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags
                             reader.Position = dataStart + headerSize;
@@ -154,48 +130,11 @@ namespace Cavern.Format.Decoders {
         }
 
         /// <summary>
-        /// Decode a block of RIFF WAVE data.
-        /// </summary>
-        static void DecodeLittleEndianBlock(byte[] source, float[] target, long targetOffset, BitDepth bits) {
-            switch (bits) {
-                case BitDepth.Int8: {
-                        for (int i = 0; i < source.Length; ++i) {
-                            target[targetOffset++] = source[i] * BitConversions.fromInt8;
-                        }
-                        break;
-                    }
-                case BitDepth.Int16: {
-                        for (int i = 0; i < source.Length;) {
-                            target[targetOffset++] = (short)(source[i++] | source[i++] << 8) * BitConversions.fromInt16;
-                        }
-                        break;
-                    }
-                case BitDepth.Int24: {
-                        for (int i = 0; i < source.Length;) {
-                            target[targetOffset++] = ((source[i++] << 8 | source[i++] << 16 | source[i++] << 24) >> 8) *
-                                BitConversions.fromInt24; // This needs to be shifted into overflow for correct sign
-                        }
-                        break;
-                    }
-                case BitDepth.Float32: {
-                        if (targetOffset < int.MaxValue / sizeof(float)) {
-                            Buffer.BlockCopy(source, 0, target, (int)targetOffset * sizeof(float), source.Length);
-                        } else {
-                            for (int i = 0; i < source.Length; ++i) {
-                                target[targetOffset++] = BitConverter.ToSingle(source, i * sizeof(float));
-                            }
-                        }
-                        break;
-                    }
-            }
-        }
-
-        /// <summary>
         /// Get the custom channel layout or the standard layout corresponding to this file's channel count.
         /// </summary>
         public ReferenceChannel[] GetChannels() {
             if (channelMask == -1) {
-                return ChannelPrototype.GetStandardMatrix(channelCount);
+                return ChannelPrototype.GetStandardMatrix(ChannelCount);
             } else {
                 return RIFFWave.ParseChannelMask(channelMask);
             }
@@ -218,13 +157,8 @@ namespace Cavern.Format.Decoders {
                 return;
             }
 
-            byte[] source = reader.Read((int)(to - from) * ((int)Bits >> 3));
-            if (source != null) {
-                DecodeLittleEndianBlock(source, target, from, Bits);
-            } else {
-                Array.Clear(target, (int)from, (int)(to - from));
-            }
-            position += (to - from) / channelCount;
+            DecodeLittleEndianBlock(reader, target, from, to, Bits);
+            Position += (to - from) / ChannelCount;
         }
 
         /// <summary>
@@ -235,8 +169,8 @@ namespace Cavern.Format.Decoders {
             if (stream == null) {
                 throw new StreamingException();
             }
-            stream.Position = dataStart + sample * channelCount * ((int)Bits >> 3);
-            position = sample;
+            stream.Position = dataStart + sample * ChannelCount * ((int)Bits >> 3);
+            Position = sample;
             reader.Clear();
         }
 
@@ -253,8 +187,8 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         void ParseFormatHeader(Stream reader) {
             short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVEFORMATEXTENSIBLE
-            channelCount = reader.ReadInt16();
-            sampleRate = reader.ReadInt32();
+            ChannelCount = reader.ReadInt16();
+            SampleRate = reader.ReadInt32();
             reader.Position += 4; // Bytes/sec
             reader.Position += 2; // Block size in bytes
             short bitDepth = reader.ReadInt16();

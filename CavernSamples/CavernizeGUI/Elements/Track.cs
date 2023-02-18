@@ -183,7 +183,7 @@ namespace CavernizeGUI.Elements {
             if (reader is AudioTrackReader track) {
                 track.Source.Dispose();
             }
-            reader.Dispose();
+            reader?.Dispose();
             GC.SuppressFinalize(this);
         }
 

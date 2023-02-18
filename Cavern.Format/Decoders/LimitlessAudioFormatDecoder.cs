@@ -1,0 +1,158 @@
+﻿using System;
+using System.IO;
+
+using Cavern.Format.Consts;
+using Cavern.Format.Utilities;
+using Cavern.Utilities;
+
+namespace Cavern.Format.Decoders {
+    /// <summary>
+    /// Limitless Audio Format file reader and metadata parser.
+    /// </summary>
+    public class LimitlessAudioFormatDecoder : Decoder {
+        /// <summary>
+        /// Bit depth of the WAVE file.
+        /// </summary>
+        public BitDepth Bits { get; private set; }
+
+        /// <summary>
+        /// Description of each imported channel/object.
+        /// </summary>
+        readonly Channel[] channels;
+
+        /// <summary>
+        /// Bytes used before each second of samples to determine which channels are actually exported.
+        /// </summary>
+        readonly int layoutByteCount;
+
+        /// <summary>
+        /// Contains which channels contained any data in the last decoded second.
+        /// </summary>
+        readonly bool[] writtenChannels;
+
+        /// <summary>
+        /// The last loaded second, as LAF stores channel availability data every second. This is an interlaced array
+        /// of the read channels, and has to be realigned when reading a block from it.
+        /// </summary>
+        readonly float[] lastReadSecond;
+
+        /// <summary>
+        /// The first track that contains object positions. This shouldn't be audible.
+        /// </summary>
+        readonly int objectTracksFrom;
+
+        /// <summary>
+        /// Read position in <see cref="lastReadSecond"/>.
+        /// </summary>
+        int copiedSamples;
+
+        /// <summary>
+        /// Limitless Audio Format file reader and metadata parser.
+        /// </summary>
+        public LimitlessAudioFormatDecoder(Stream stream) {
+            stream.BlockTest(LimitlessAudioFormat.limitless); // Find Limitless marker
+            byte[] cache = new byte[LimitlessAudioFormat.head.Length];
+            while (!stream.RollingBlockCheck(cache, LimitlessAudioFormat.head)) {
+                // Find header marker, skip metadata
+            }
+
+            Bits = stream.ReadByte() switch {
+                (byte)LAFMode.Int8 => BitDepth.Int8,
+                (byte)LAFMode.Int16 => BitDepth.Int16,
+                (byte)LAFMode.Int24 => BitDepth.Int24,
+                (byte)LAFMode.Float32 => BitDepth.Float32,
+                _ => throw new IOException("Unsupported LAF quality mode.")
+            };
+            stream.ReadByte(); // Channel mode indicator (skipped)
+            ChannelCount = stream.ReadInt32();
+            layoutByteCount = (ChannelCount & 7) == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1);
+            channels = new Channel[ChannelCount];
+            for (int channel = 0; channel < ChannelCount; channel++) {
+                float x = stream.ReadSingle();
+                if (float.IsNaN(x) && objectTracksFrom == 0) {
+                    objectTracksFrom = channel;
+                }
+                channels[channel] = new Channel(x, stream.ReadSingle(), stream.ReadByte() != 0);
+            }
+            if (objectTracksFrom == 0) {
+                objectTracksFrom = ChannelCount;
+            }
+            SampleRate = stream.ReadInt32();
+            Length = stream.ReadInt64();
+
+            writtenChannels = new bool[ChannelCount];
+            lastReadSecond = new float[ChannelCount * SampleRate];
+            reader = BlockBuffer<byte>.Create(stream, FormatConsts.blockSize);
+        }
+
+        /// <summary>
+        /// Read and decode a given number of samples.
+        /// </summary>
+        /// <param name="target">Array to decode data into</param>
+        /// <param name="from">Start position in the target array (inclusive)</param>
+        /// <param name="to">End position in the target array (exclusive)</param>
+        /// <remarks>The next to - from samples will be read from the file.
+        /// All samples are counted, not just a single channel.</remarks>
+        public override void DecodeBlock(float[] target, long from, long to) {
+            if (to - from > skip) {
+                long actualSkip = skip - skip % ChannelCount; // Blocks have to be divisible with the channel count
+                for (; from < to; from += actualSkip) {
+                    DecodeBlock(target, from, Math.Min(to, from + actualSkip));
+                }
+                return;
+            }
+
+            while (from < to) {
+                if (copiedSamples == 0) {
+                    ReadSecond();
+                }
+
+                int perChannel = (int)Math.Min((to - from) / ChannelCount, SampleRate - copiedSamples);
+                for (int i = 0, source = 0; i < objectTracksFrom; i++) {
+                    if (writtenChannels[i]) {
+                        WaveformUtils.Insert(lastReadSecond, copiedSamples * ChannelCount + source++, ChannelCount,
+                            target, (int)from + i, ChannelCount);
+                    } else {
+                        WaveformUtils.ClearChannel(target, i, ChannelCount);
+                    }
+                }
+                copiedSamples += perChannel;
+                from += perChannel * ChannelCount;
+                if (copiedSamples >= SampleRate) {
+                    copiedSamples = 0;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Start the following reads from the selected sample.
+        /// </summary>
+        /// <param name="sample">The selected sample, for a single channel</param>
+        public override void Seek(long sample) => throw new NotImplementedException();
+
+        /// <summary>
+        /// Read the next second of audio data.
+        /// </summary>
+        void ReadSecond() {
+            byte[] layoutBytes = reader.Read(layoutByteCount);
+            if (layoutBytes.Length == 0) {
+                return;
+            }
+            int channelsToRead = 0;
+            for (int channel = 0; channel < ChannelCount; channel++) {
+                if (writtenChannels[channel] = ((layoutBytes[channel >> 3] >> (channel & 7)) & 1) != 0) {
+                    ++channelsToRead;
+                }
+            }
+
+            int samplesToRead = (int)Math.Min(Length - Position, SampleRate) * channelsToRead;
+            DecodeLittleEndianBlock(reader, lastReadSecond, 0, samplesToRead, Bits);
+            Position += SampleRate;
+        }
+
+        /// <summary>
+        /// Maximum size of each read block. This can balance optimization between memory and IO.
+        /// </summary>
+        const long skip = FormatConsts.blockSize / sizeof(float);
+    }
+}

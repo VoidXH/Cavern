@@ -48,12 +48,20 @@ namespace Cavern.Remapping {
         int updateRate;
 
         /// <summary>
+        /// Convert any standard multichannel audio stream to the channel layout set for Cavern while using a standard layout
+        /// for the given number of <paramref name="channels"/>.
+        /// </summary>
+        /// <param name="channels">Channels to remap</param>
+        /// <param name="updateRate">Remapping update rate</param>
+        public Remapper(int channels, int updateRate) : this(channels, updateRate, false) { }
+
+        /// <summary>
         /// Convert any standard multichannel audio stream to the channel layout set for Cavern.
         /// </summary>
         /// <param name="channels">Channels to remap</param>
         /// <param name="updateRate">Remapping update rate</param>
         /// <param name="loadCavernSettings">Load user settings including the Cavern channel layout</param>
-        public Remapper(int channels, int updateRate, bool loadCavernSettings = false) {
+        public Remapper(int channels, int updateRate, bool loadCavernSettings) {
             listener = new Listener(loadCavernSettings) {
                 UpdateRate = this.updateRate = updateRate
             };

@@ -1,5 +1,4 @@
-﻿using Cavern.Filters;
-using System;
+﻿using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -8,6 +7,20 @@ namespace Cavern.Utilities {
     /// Sound processing functions.
     /// </summary>
     public static class WaveformUtils {
+        /// <summary>
+        /// Sets all samples in a single channel of an interlaced signal to 0.
+        /// </summary>
+        public static unsafe void ClearChannel(float[] signal, int channel, int channels) {
+            fixed (float* pSignal = signal) {
+                float* pChannel = pSignal + channel,
+                    end = pChannel + signal.Length;
+                while (pChannel < end) {
+                    *pChannel = 0;
+                    pChannel += channels;
+                }
+            }
+        }
+
         /// <summary>
         /// Apply a delay of a given number of <paramref name="samples"/> on a <paramref name="waveform"/>.
         /// </summary>
@@ -268,6 +281,31 @@ namespace Cavern.Utilities {
                 while (sourcePos != end) {
                     *destinationPos = *sourcePos++;
                     destinationPos += destinationChannels;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets a channel to a signal in a multichannel waveform.
+        /// </summary>
+        /// <param name="source">Samples of the given <paramref name="destinationChannel"/></param>
+        /// <param name="sourceChannel">Source channel index, but can be used as a sample offset (all channels count)</param>
+        /// <param name="sourceChannels">Total channels in the <paramref name="source"/></param>
+        /// <param name="destination">Channel array to write to</param>
+        /// <param name="destinationChannel">Destination channel index, but can be used as a sample offset (all channels count)</param>
+        /// <param name="destinationChannels">Total channels in the <paramref name="destination"/></param>
+        /// <remarks>It is assumed that the size of <paramref name="destination"/> equals the size of
+        /// <paramref name="source"/> * <paramref name="destinationChannels"/>.</remarks>
+        public static unsafe void Insert(float[] source, int sourceChannel, int sourceChannels,
+            float[] destination, int destinationChannel, int destinationChannels) {
+            fixed (float* pSource = source, pDestination = destination) {
+                float* sourcePos = pSource + sourceChannel,
+                    destinationPos = pDestination + destinationChannel,
+                    end = pDestination + destination.Length;
+                while (destinationPos < end) {
+                    *destinationPos = *sourcePos;
+                    destinationPos += destinationChannels;
+                    sourcePos += sourceChannels;
                 }
             }
         }

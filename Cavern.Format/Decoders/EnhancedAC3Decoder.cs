@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Cavern.Channels;
-using Cavern.Format.Common;
 using Cavern.Format.Decoders.EnhancedAC3;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
@@ -23,29 +22,6 @@ namespace Cavern.Format.Decoders {
         /// True if the stream has reached its end.
         /// </summary>
         public bool Finished { get; private set; }
-
-        /// <summary>
-        /// Number of total output channels.
-        /// </summary>
-        public override int ChannelCount => outputs.Count;
-
-        /// <summary>
-        /// Content length in samples for a single channel.
-        /// </summary>
-        public override long Length {
-            get {
-                if (fileSize != -1) {
-                    return fileSize * outCache.Length / (frameSize * ChannelCount);
-                } else {
-                    throw new RealtimeLengthException();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Content sample rate.
-        /// </summary>
-        public override int SampleRate => header.SampleRate;
 
         /// <summary>
         /// Samples in each decoded frame
@@ -170,6 +146,10 @@ namespace Cavern.Format.Decoders {
             } else {
                 Finished = true;
             }
+
+            ChannelCount = outputs.Count;
+            SampleRate = header.SampleRate;
+            Length = fileSize != -1 ? fileSize * outCache.Length / (frameSize * ChannelCount) : -1;
         }
 
         /// <summary>
