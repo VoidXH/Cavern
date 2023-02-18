@@ -2,6 +2,7 @@
 using System.IO;
 
 using Cavern.Format.Consts;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format {
     /// <summary>
@@ -36,7 +37,7 @@ namespace Cavern.Format {
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         /// <param name="channels">Output channel information</param>
-        public LimitlessAudioFormatWriter(BinaryWriter writer, long length, int sampleRate, BitDepth bits, Channel[] channels) :
+        public LimitlessAudioFormatWriter(Stream writer, long length, int sampleRate, BitDepth bits, Channel[] channels) :
             base(writer, channels.Length, length, sampleRate, bits) {
             this.channels = channels;
             cache = new float[channels.Length * sampleRate];
@@ -117,18 +118,18 @@ namespace Cavern.Format {
                 BitDepth.Float32 => (byte)LAFMode.Float32,
                 _ => throw new IOException($"Unsupported bit depth: {Bits}.")
             };
-            writer.Write(qualityByte);
-            writer.Write(objectMode ? (byte)1 : (byte)0); // Mode
-            writer.Write(BitConverter.GetBytes(ChannelCount)); // Channel/object count
+            writer.WriteAny(qualityByte);
+            writer.WriteAny(objectMode ? (byte)1 : (byte)0); // Mode
+            writer.WriteAny(ChannelCount); // Channel/object count
             for (int channel = 0; channel < objectCount; ++channel) { // Audible channel/object info
-                writer.Write(BitConverter.GetBytes(channels[channel].X)); // Rotation on vertical axis
-                writer.Write(BitConverter.GetBytes(channels[channel].Y)); // Rotation on horizontal axis
-                writer.Write(channels[channel].LFE ? (byte)1 : (byte)0); // Low frequency
+                writer.WriteAny(channels[channel].X); // Rotation on vertical axis
+                writer.WriteAny(channels[channel].Y); // Rotation on horizontal axis
+                writer.WriteAny(channels[channel].LFE ? (byte)1 : (byte)0); // Low frequency
             }
             for (int channel = objectCount; channel < ChannelCount; ++channel) { // Positional track markers
-                writer.Write(float.NaN); // Marker
-                writer.Write(0); // Reserved
-                writer.Write((byte)0); // Reserved
+                writer.WriteAny(float.NaN); // Marker
+                writer.WriteAny(0); // Reserved
+                writer.WriteAny((byte)0); // Reserved
             }
             writer.Write(BitConverter.GetBytes(SampleRate));
             writer.Write(BitConverter.GetBytes(Length));
@@ -179,14 +180,14 @@ namespace Cavern.Format {
                 case BitDepth.Int8:
                     for (int sample = 0; sample < until; ++sample) {
                         if (toWrite[sample % ChannelCount]) {
-                            writer.Write((sbyte)(cache[sample] * sbyte.MaxValue));
+                            writer.WriteAny((sbyte)(cache[sample] * sbyte.MaxValue));
                         }
                     }
                     break;
                 case BitDepth.Int16:
                     for (int sample = 0; sample < until; ++sample) {
                         if (toWrite[sample % ChannelCount]) {
-                            writer.Write((short)(cache[sample] * short.MaxValue));
+                            writer.WriteAny((short)(cache[sample] * short.MaxValue));
                         }
                     }
                     break;
@@ -194,9 +195,9 @@ namespace Cavern.Format {
                     for (int sample = 0; sample < until; ++sample) {
                         if (toWrite[sample % ChannelCount]) {
                             int src = (int)(cache[sample] * BitConversions.int24Max);
-                            writer.Write((byte)src);
-                            writer.Write((byte)(src >> 8));
-                            writer.Write((byte)(src >> 16));
+                            writer.WriteAny((byte)src);
+                            writer.WriteAny((byte)(src >> 8));
+                            writer.WriteAny((byte)(src >> 16));
                         }
                     }
                     break;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -25,6 +26,26 @@ namespace Cavern.Utilities {
             /// Get the contained 4 bytes as a float.
             /// </summary>
             [FieldOffset(0)] public float asFloat;
+
+            /// <summary>
+            /// Get the byte at index 0.
+            /// </summary>
+            [FieldOffset(0)] public byte byte0;
+
+            /// <summary>
+            /// Get the byte at index 1.
+            /// </summary>
+            [FieldOffset(1)] public byte byte1;
+
+            /// <summary>
+            /// Get the byte at index 2.
+            /// </summary>
+            [FieldOffset(2)] public byte byte2;
+
+            /// <summary>
+            /// Get the byte at index 3.
+            /// </summary>
+            [FieldOffset(3)] public byte byte3;
         }
 
         /// <summary>

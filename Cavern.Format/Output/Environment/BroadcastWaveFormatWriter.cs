@@ -39,7 +39,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// When not null, writes the AXML to this separate file.
         /// </summary>
-        readonly BinaryWriter admWriter;
+        readonly Stream admWriter;
 
         /// <summary>
         /// Total samples written to the export file.
@@ -50,11 +50,11 @@ namespace Cavern.Format.Environment {
         /// Object-based exporter of a listening environment to Audio Definition Model Broadcast Wave Format.
         /// When an XML path is received, the waveform and the ADM will be written to separate files.
         /// </summary>
-        public BroadcastWaveFormatWriter(BinaryWriter writer, Listener source, long length, BitDepth bits) :
+        public BroadcastWaveFormatWriter(Stream writer, Listener source, long length, BitDepth bits) :
             base(writer, source) {
-            if (writer.BaseStream is FileStream fs && fs.Name.EndsWith(".xml")) {
+            if (writer is FileStream fs && fs.Name.EndsWith(".xml")) {
                 admWriter = writer;
-                writer = new BinaryWriter(AudioWriter.Open(fs.Name[..^3] + "wav"));
+                writer = AudioWriter.Open(fs.Name[..^3] + "wav");
             }
 
             output = new RIFFWaveWriter(writer, source.ActiveSources.Count, length, source.SampleRate, bits) {
@@ -73,7 +73,7 @@ namespace Cavern.Format.Environment {
         /// When an XML path is received, the waveform and the ADM will be written to separate files.
         /// </summary>
         public BroadcastWaveFormatWriter(string path, Listener source, long length, BitDepth bits) :
-            this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits) { }
+            this(AudioWriter.Open(path), source, length, bits) { }
 
         /// <summary>
         /// Export the next frame of the <see cref="Source"/>.

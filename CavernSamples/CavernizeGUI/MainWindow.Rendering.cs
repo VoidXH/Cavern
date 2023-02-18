@@ -79,7 +79,7 @@ namespace CavernizeGUI {
             RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
             Track target = (Track)tracks.SelectedItem;
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
-            BitDepth bits = force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
+            BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
             if (!codec.IsEnvironmental()) {
                 string exportFormat = path[^4..].ToLower(),
                     exportName = exportFormat.Equals(".mkv") ? path[..^4] + waveExtension : path;

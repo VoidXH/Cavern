@@ -21,7 +21,7 @@ namespace Cavern.Format.Environment {
         /// <param name="length">Total samples to write</param>
         /// <param name="bits">Bit depth of the output</param>
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
-        public DolbyAtmosBWFWriter(BinaryWriter writer, Listener source, long length, BitDepth bits,
+        public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits,
             (ReferenceChannel, Source)[] staticObjects) :
             base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) { }
 
@@ -56,7 +56,7 @@ namespace Cavern.Format.Environment {
         /// <param name="bits">Bit depth of the output</param>
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
         public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, (ReferenceChannel, Source)[] staticObjects) :
-            this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits, staticObjects) { }
+            this(AudioWriter.Open(path), source, length, bits, staticObjects) { }
 
         /// <summary>
         /// Generates the ADM structure from the recorded movement and wires the mute channel to beds.

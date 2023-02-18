@@ -107,7 +107,7 @@ namespace Cavern.Format {
         /// Open a file stream optimized for sequential reading.
         /// </summary>
         internal static Stream OpenSequentialStream(string path) =>
-            new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 10 * 1024 * 1024, FileOptions.SequentialScan);
+            new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, FormatConsts.blockSize, FileOptions.SequentialScan);
 
         /// <summary>
         /// Open a container as a single audio track by selecting the best fit of its tracks for Cavern.Format.

@@ -18,7 +18,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Maximum size of each read block. This can balance optimization between memory and IO.
         /// </summary>
-        const long skip = 10 /* MB */ * 1024 * 1024 / sizeof(float);
+        const long skip = FormatConsts.blockSize / sizeof(float);
 
         /// <summary>
         /// Bytes used before each second of samples to determine which channels are actually exported.

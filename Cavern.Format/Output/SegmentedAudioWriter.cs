@@ -36,7 +36,7 @@ namespace Cavern.Format {
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         public SegmentedAudioWriter(string path, int channelCount, long length, long segmentSize, int sampleRate,
-            BitDepth bits) : base((BinaryWriter)null, channelCount, length, sampleRate, bits) {
+            BitDepth bits) : base((Stream)null, channelCount, length, sampleRate, bits) {
             this.path = path;
             segments = new AudioWriter[length / segmentSize + (length % segmentSize != 0 ? 1 : 0)];
             long lengthSum = 0;

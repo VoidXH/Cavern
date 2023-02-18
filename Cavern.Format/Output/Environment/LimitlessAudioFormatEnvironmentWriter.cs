@@ -39,7 +39,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Exports the rendered environment in an object-based Limitless Audio Format file.
         /// </summary>
-        public LimitlessAudioFormatEnvironmentWriter(BinaryWriter writer, Listener source, long length, BitDepth bits) :
+        public LimitlessAudioFormatEnvironmentWriter(Stream writer, Listener source, long length, BitDepth bits) :
             base(writer, ExtendWithMuteTarget(source, (source.ActiveSources.Count >> 4) +
                 ((source.ActiveSources.Count & 0b1111) != 0 ? 1 : 0))) {
             IReadOnlyCollection<Source> sources = source.ActiveSources;
@@ -69,7 +69,7 @@ namespace Cavern.Format.Environment {
         /// Exports the rendered environment in an object-based Limitless Audio Format file.
         /// </summary>
         public LimitlessAudioFormatEnvironmentWriter(string path, Listener source, long length, BitDepth bits) :
-            this(new BinaryWriter(AudioWriter.Open(path)), source, length, bits) { }
+            this(AudioWriter.Open(path), source, length, bits) { }
 
         /// <summary>
         /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the object position tracks.

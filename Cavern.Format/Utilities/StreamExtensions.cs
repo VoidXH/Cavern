@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 using static Cavern.Utilities.QMath;
+
+using Stream = System.IO.Stream;
 
 namespace Cavern.Format.Utilities {
     /// <summary>
@@ -161,8 +164,16 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read a 32-bit floating point number from the stream.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ReadSingle(this Stream reader) => new ConverterStruct {
             asInt = reader.ReadInt32()
         }.asFloat;
+
+        /// <summary>
+        /// Write any value to the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteAny<T>(this Stream writer, T value) where T : struct =>
+            writer.Write(MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref value, 1)));
     }
 }

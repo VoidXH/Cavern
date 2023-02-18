@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Consts;
 using Cavern.Utilities;
 
 namespace Cavern.Format {
@@ -29,19 +30,19 @@ namespace Cavern.Format {
         public BitDepth Bits { get; protected set; }
 
         /// <summary>
-        /// File writer object.
+        /// Stream to write to.
         /// </summary>
-        protected BinaryWriter writer;
+        protected Stream writer;
 
         /// <summary>
-        /// Abstract audio file writer.
+        /// Abstract audio stream writer.
         /// </summary>
-        /// <param name="writer">File writer object</param>
+        /// <param name="writer">Stream to write to</param>
         /// <param name="channelCount">Output channel count</param>
         /// <param name="length">Output length in samples per channel</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
-        protected AudioWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) {
+        protected AudioWriter(Stream writer, int channelCount, long length, int sampleRate, BitDepth bits) {
             this.writer = writer;
             ChannelCount = channelCount;
             Length = length;
@@ -58,7 +59,7 @@ namespace Cavern.Format {
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         protected AudioWriter(string path, int channelCount, long length, int sampleRate, BitDepth bits) :
-            this(new BinaryWriter(Open(path)), channelCount, length, sampleRate, bits) { }
+            this(File.Open(path, FileMode.Create), channelCount, length, sampleRate, bits) { }
 
         /// <summary>
         /// Create an <see cref="AudioWriter"/> that matches the output file name.
@@ -80,7 +81,7 @@ namespace Cavern.Format {
         /// Open a file stream optimized for sequential writing.
         /// </summary>
         internal static Stream Open(string path) =>
-            new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read, 10 * 1024 * 1024, FileOptions.SequentialScan);
+            new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read, FormatConsts.blockSize, FileOptions.SequentialScan);
 
         /// <summary>
         /// Create the file header.

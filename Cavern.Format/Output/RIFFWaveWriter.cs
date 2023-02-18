@@ -4,6 +4,8 @@ using System.IO;
 
 using Cavern.Channels;
 using Cavern.Format.Consts;
+using Cavern.Format.Utilities;
+using Cavern.Utilities;
 
 using static Cavern.Format.Consts.RIFFWave;
 
@@ -45,7 +47,7 @@ namespace Cavern.Format {
         /// <param name="length">Output length in samples per channel</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
-        public RIFFWaveWriter(BinaryWriter writer, int channelCount, long length, int sampleRate, BitDepth bits) :
+        public RIFFWaveWriter(Stream writer, int channelCount, long length, int sampleRate, BitDepth bits) :
             base(writer, channelCount, length, sampleRate, bits) { }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace Cavern.Format {
         /// <param name="length">Output length in samples per channel</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
-        public RIFFWaveWriter(BinaryWriter writer, ReferenceChannel[] channels, long length, int sampleRate, BitDepth bits) :
+        public RIFFWaveWriter(Stream writer, ReferenceChannel[] channels, long length, int sampleRate, BitDepth bits) :
             base(writer, channels.Length, length, sampleRate, bits) => channelMask = CreateChannelMask(channels);
 
         /// <summary>
@@ -138,49 +140,49 @@ namespace Cavern.Format {
         /// </summary>
         public override void WriteHeader() {
             // RIFF header with file length
-            writer.Write(syncWord1);
+            writer.WriteAny(syncWord1);
             uint fmtContentLength = channelMask == -1 ? fmtContentSize : waveformatextensibleSize;
             uint fmtSize = (byte)(fmtJunkSize + fmtContentLength);
             bool inConstraints = fmtSize + DataLength < uint.MaxValue;
             if (inConstraints && MaxLargeChunks == 0) {
-                writer.Write(fmtSize + (uint)DataLength);
-                writer.Write(syncWord2);
+                writer.WriteAny(fmtSize + (uint)DataLength);
+                writer.WriteAny(syncWord2);
             } else {
-                writer.Write(inConstraints ? fmtSize + (uint)DataLength : 0xFFFFFFFF);
-                writer.Write(syncWord2);
+                writer.WriteAny(inConstraints ? fmtSize + (uint)DataLength : 0xFFFFFFFF);
+                writer.WriteAny(syncWord2);
                 if (!inConstraints || MaxLargeChunks != 0) {
-                    writer.Write(junkSync);
+                    writer.WriteAny(junkSync);
                     int junkLength = junkBaseSize + MaxLargeChunks * junkExtraSize;
-                    writer.Write(junkLength);
+                    writer.WriteAny(junkLength);
                     writer.Write(new byte[junkLength]);
                 }
             }
 
             // Format header
-            writer.Write(formatSync);
-            writer.Write(fmtContentLength);
+            writer.WriteAny(formatSync);
+            writer.WriteAny(fmtContentLength);
             if (channelMask == -1) {
-                writer.Write(Bits == BitDepth.Float32 ? (short)3 : (short)1); // Sample format...
+                writer.WriteAny(Bits == BitDepth.Float32 ? (short)3 : (short)1); // Sample format...
             } else {
-                writer.Write(extensibleSampleFormat); // ...or that it will be in an extended header
+                writer.WriteAny(extensibleSampleFormat); // ...or that it will be in an extended header
             }
-            writer.Write(BitConverter.GetBytes((short)ChannelCount)); // Audio channels
-            writer.Write(BitConverter.GetBytes(SampleRate)); // Sample rate
+            writer.WriteAny((short)ChannelCount); // Audio channels
+            writer.WriteAny(SampleRate); // Sample rate
             int blockAlign = ChannelCount * ((int)Bits / 8), BPS = SampleRate * blockAlign;
-            writer.Write(BitConverter.GetBytes(BPS)); // Bytes per second
-            writer.Write(BitConverter.GetBytes((short)blockAlign)); // Block size in bytes
-            writer.Write(BitConverter.GetBytes((short)Bits)); // Bit depth
+            writer.WriteAny(BPS); // Bytes per second
+            writer.WriteAny((short)blockAlign); // Block size in bytes
+            writer.WriteAny((short)Bits); // Bit depth
 
             if (channelMask != -1) { // Use WAVEFORMATEXTENSIBLE
-                writer.Write((short)22); // Extensible header size - 1
-                writer.Write((short)Bits); // Bit depth
-                writer.Write(channelMask); // Channel mask
-                writer.Write(Bits == BitDepth.Float32 ? (short)3 : (short)1); // Sample format
+                writer.WriteAny((short)22); // Extensible header size - 1
+                writer.WriteAny((short)Bits); // Bit depth
+                writer.WriteAny(channelMask); // Channel mask
+                writer.WriteAny(Bits == BitDepth.Float32 ? (short)3 : (short)1); // Sample format
                 writer.Write(new byte[] { 0, 0, 0, 0, 16, 0, 128, 0, 0, 170, 0, 56, 155, 113 }); // SubFormat GUID
             }
 
             // Data header
-            writer.Write(dataSync);
+            writer.WriteAny(dataSync);
             writer.Write(BitConverter.GetBytes(DataLength > uint.MaxValue ? 0xFFFFFFFF : (uint)DataLength));
         }
 
@@ -191,38 +193,57 @@ namespace Cavern.Format {
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
         public override void WriteBlock(float[] samples, long from, long to) {
+            const long skip = FormatConsts.blockSize / sizeof(float); // Source split optimization for both memory and IO
+            if (to - from > skip) {
+                long actualSkip = skip - skip % ChannelCount; // Blocks have to be divisible with the channel count
+                for (; from < to; from += actualSkip) {
+                    WriteBlock(samples, from, Math.Min(to, from + actualSkip));
+                }
+                return;
+            }
+
             // Don't allow overwriting
-            samplesWritten += (to - from) / ChannelCount;
+            int window = (int)(to - from);
+            samplesWritten += window / ChannelCount;
             if (samplesWritten > Length) {
                 long extra = samplesWritten - Length;
-                to -= extra;
+                window -= (int)(extra * ChannelCount);
                 samplesWritten -= extra;
             }
 
+            byte[] output = new byte[window * ((long)Bits >> 3)];
             switch (Bits) {
                 case BitDepth.Int8:
-                    while (from < to) {
-                        writer.Write((sbyte)(samples[from++] * sbyte.MaxValue));
+                    for (int i = 0; i < window; i++) {
+                        output[i] = (byte)(samples[from++] * sbyte.MaxValue);
                     }
                     break;
                 case BitDepth.Int16:
-                    while (from < to) {
-                        writer.Write((short)(samples[from++] * short.MaxValue));
+                    for (int i = 0; i < window; i++) {
+                        short val = (short)(samples[from++] * short.MaxValue);
+                        output[2 * i] = (byte)val;
+                        output[2 * i + 1] = (byte)(val >> 8);
                     }
                     break;
                 case BitDepth.Int24:
-                    while (from < to) {
-                        int src = (int)(samples[from++] * BitConversions.int24Max);
-                        writer.Write((short)src);
-                        writer.Write((byte)(src >> 16));
+                    for (int i = 0; i < window; i++) {
+                        QMath.ConverterStruct val = new QMath.ConverterStruct { asInt = (int)(samples[from++] * int.MaxValue) };
+                        output[3 * i] = val.byte1;
+                        output[3 * i + 1] = val.byte2;
+                        output[3 * i + 2] = val.byte3;
                     }
                     break;
                 case BitDepth.Float32:
-                    while (from < to) {
-                        writer.Write(samples[from++]);
+                    for (int i = 0; i < window; i++) {
+                        QMath.ConverterStruct val = new QMath.ConverterStruct { asFloat = samples[from++] };
+                        output[4 * i] = val.byte0;
+                        output[4 * i + 1] = val.byte1;
+                        output[4 * i + 2] = val.byte2;
+                        output[4 * i + 3] = val.byte3;
                     }
                     break;
             }
+            writer.Write(output);
         }
 
         /// <summary>
@@ -244,7 +265,7 @@ namespace Cavern.Format {
                 case BitDepth.Int8:
                     while (from < to) {
                         for (int channel = 0; channel < samples.Length; ++channel) {
-                            writer.Write((sbyte)(samples[channel][from] * sbyte.MaxValue));
+                            writer.WriteAny((sbyte)(samples[channel][from] * sbyte.MaxValue));
                         }
                         ++from;
                     }
@@ -252,7 +273,7 @@ namespace Cavern.Format {
                 case BitDepth.Int16:
                     while (from < to) {
                         for (int channel = 0; channel < samples.Length; ++channel) {
-                            writer.Write((short)(samples[channel][from] * short.MaxValue));
+                            writer.WriteAny((short)(samples[channel][from] * short.MaxValue));
                         }
                         ++from;
                     }
@@ -261,8 +282,8 @@ namespace Cavern.Format {
                     while (from < to) {
                         for (int channel = 0; channel < samples.Length; ++channel) {
                             int src = (int)(samples[channel][from] * BitConversions.int24Max);
-                            writer.Write((short)src);
-                            writer.Write((byte)(src >> 16));
+                            writer.WriteAny((short)src);
+                            writer.WriteAny((byte)(src >> 16));
                         }
                         ++from;
                     }
@@ -270,7 +291,7 @@ namespace Cavern.Format {
                 case BitDepth.Float32:
                     while (from < to) {
                         for (int channel = 0; channel < samples.Length; ++channel) {
-                            writer.Write(samples[channel][from]);
+                            writer.WriteAny(samples[channel][from]);
                         }
                         ++from;
                     }
@@ -287,17 +308,17 @@ namespace Cavern.Format {
         /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
         /// refer to <see cref="RIFFWave"/> for samples.</remarks>
         public void WriteChunk(int id, byte[] data, bool dwordPadded = false) {
-            writer.Write(id);
+            writer.WriteAny(id);
             if (data.LongLength > uint.MaxValue) {
                 largeChunkSizes ??= new List<Tuple<int, long>>();
                 largeChunkSizes.Add(new Tuple<int, long>(id, data.LongLength));
-                writer.Write(0xFFFFFFFF);
+                writer.WriteAny(0xFFFFFFFF);
             } else {
-                writer.Write(data.Length);
+                writer.WriteAny(data.Length);
             }
             writer.Write(data);
-            if (dwordPadded && (writer.BaseStream.Position & 1) == 1) {
-                writer.Write((byte)0);
+            if (dwordPadded && (writer.Position & 1) == 1) {
+                writer.WriteAny((byte)0);
             }
         }
 
@@ -313,15 +334,15 @@ namespace Cavern.Format {
             if (samplesWritten < Length) {
                 long zerosToWrite = (Length - samplesWritten) * ChannelCount * (long)Bits;
                 while (zerosToWrite > 8) {
-                    writer.Write(0L);
+                    writer.WriteAny(0L);
                     zerosToWrite -= 8;
                 }
                 while (zerosToWrite-- > 0) {
-                    writer.Write(0L);
+                    writer.WriteAny(0L);
                 }
             }
 
-            long contentSize = writer.BaseStream.Position - 8;
+            long contentSize = writer.Position - 8;
             if (contentSize > uint.MaxValue || MaxLargeChunks != 0) {
                 int largeChunks = 0;
                 if (largeChunkSizes != null) {
@@ -329,34 +350,34 @@ namespace Cavern.Format {
                 }
 
                 // 64-bit sync word
-                writer.BaseStream.Position = 0;
-                writer.Write(syncWord1_64);
-                writer.Write(0xFFFFFFFF);
-                writer.BaseStream.Position += 4;
+                writer.Position = 0;
+                writer.WriteAny(syncWord1_64);
+                writer.WriteAny(0xFFFFFFFF);
+                writer.Position += 4;
 
                 // 64-bit format header
-                writer.Write(ds64Sync);
-                writer.Write(junkBaseSize + largeChunks * junkExtraSize);
+                writer.WriteAny(ds64Sync);
+                writer.WriteAny(junkBaseSize + largeChunks * junkExtraSize);
 
                 // Mandatory sizes
-                writer.Write(contentSize);
-                writer.Write(DataLength);
-                writer.Write(Length);
+                writer.WriteAny(contentSize);
+                writer.WriteAny(DataLength);
+                writer.WriteAny(Length);
 
                 // Large chunk sizes
-                writer.Write(largeChunks);
+                writer.WriteAny(largeChunks);
                 if (largeChunkSizes != null) {
                     for (int i = 0; i < largeChunks; ++i) {
-                        writer.Write(largeChunkSizes[i].Item1);
-                        writer.Write(largeChunkSizes[i].Item2);
+                        writer.WriteAny(largeChunkSizes[i].Item1);
+                        writer.WriteAny(largeChunkSizes[i].Item2);
                     }
                 }
 
                 // Fill the unused space with junk
                 int emptyBytes = (MaxLargeChunks - largeChunks) * junkExtraSize;
                 if (emptyBytes != 0) {
-                    writer.Write(junkSync);
-                    writer.Write(emptyBytes - 8);
+                    writer.WriteAny(junkSync);
+                    writer.WriteAny(emptyBytes - 8);
                 }
             }
             base.Dispose();

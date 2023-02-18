@@ -16,7 +16,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// File writer object.
         /// </summary>
-        protected BinaryWriter writer;
+        protected Stream writer;
 
         /// <summary>
         /// One update of samples to be reused.
@@ -26,7 +26,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Exports a listener environment with all its objects, including movement data.
         /// </summary>
-        protected EnvironmentWriter(BinaryWriter writer, Listener source) {
+        protected EnvironmentWriter(Stream writer, Listener source) {
             Source = source;
             this.writer = writer;
             renderCache = new float[source.UpdateRate * source.ActiveSources.Count];
@@ -35,7 +35,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Exports a listener environment with all its objects, including movement data.
         /// </summary>
-        protected EnvironmentWriter(string path, Listener source) : this(new BinaryWriter(AudioWriter.Open(path)), source) { }
+        protected EnvironmentWriter(string path, Listener source) : this(AudioWriter.Open(path), source) { }
 
         /// <summary>
         /// Export the next frame of the <see cref="Source"/>.
