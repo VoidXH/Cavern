@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 
 using Cavern.Format.Consts;
+using Cavern.Format.Environment;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
@@ -14,6 +16,11 @@ namespace Cavern.Format.Decoders {
         /// Bit depth of the WAVE file.
         /// </summary>
         public BitDepth Bits { get; private set; }
+
+        /// <summary>
+        /// Last decoded positions of objects or position of channels if the LAF file is channel-based.
+        /// </summary>
+        public Vector3[] ObjectPositions { get; }
 
         /// <summary>
         /// Description of each imported channel/object.
@@ -37,9 +44,10 @@ namespace Cavern.Format.Decoders {
         readonly float[] lastReadSecond;
 
         /// <summary>
-        /// The first track that contains object positions. This shouldn't be audible.
+        /// Total count of audio tracks, both PCM channels and object position tracks. The first track that contains object
+        /// positions is what <see cref="Decoder.ChannelCount"/> equals to. That shouldn't be audible.
         /// </summary>
-        readonly int objectTracksFrom;
+        readonly int trackCount;
 
         /// <summary>
         /// Read position in <see cref="lastReadSecond"/>.
@@ -64,24 +72,30 @@ namespace Cavern.Format.Decoders {
                 _ => throw new IOException("Unsupported LAF quality mode.")
             };
             stream.ReadByte(); // Channel mode indicator (skipped)
-            ChannelCount = stream.ReadInt32();
-            layoutByteCount = (ChannelCount & 7) == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1);
-            channels = new Channel[ChannelCount];
-            for (int channel = 0; channel < ChannelCount; channel++) {
+            trackCount = stream.ReadInt32();
+            layoutByteCount = (trackCount & 7) == 0 ? trackCount >> 3 : ((trackCount >> 3) + 1);
+            channels = new Channel[trackCount];
+            for (int channel = 0; channel < trackCount; channel++) {
                 float x = stream.ReadSingle();
-                if (float.IsNaN(x) && objectTracksFrom == 0) {
-                    objectTracksFrom = channel;
+                if (float.IsNaN(x) && ChannelCount == 0) {
+                    ChannelCount = channel;
                 }
                 channels[channel] = new Channel(x, stream.ReadSingle(), stream.ReadByte() != 0);
             }
-            if (objectTracksFrom == 0) {
-                objectTracksFrom = ChannelCount;
+            if (ChannelCount == 0) {
+                ChannelCount = trackCount;
             }
+
+            ObjectPositions = new Vector3[ChannelCount];
+            for (int i = 0; i < ChannelCount; i++) {
+                ObjectPositions[i] = channels[i].SpatialPos;
+            }
+
             SampleRate = stream.ReadInt32();
             Length = stream.ReadInt64();
 
-            writtenChannels = new bool[ChannelCount];
-            lastReadSecond = new float[ChannelCount * SampleRate];
+            writtenChannels = new bool[trackCount];
+            lastReadSecond = new float[trackCount * SampleRate];
             reader = BlockBuffer<byte>.Create(stream, FormatConsts.blockSize);
         }
 
@@ -102,24 +116,35 @@ namespace Cavern.Format.Decoders {
                 return;
             }
 
+            int firstObjectTrack = 0;
             while (from < to) {
                 if (copiedSamples == 0) {
                     ReadSecond();
                 }
 
                 int perChannel = (int)Math.Min((to - from) / ChannelCount, SampleRate - copiedSamples);
-                for (int i = 0, source = 0; i < objectTracksFrom; i++) {
+                for (int i = 0; i < ChannelCount; i++) {
                     if (writtenChannels[i]) {
-                        WaveformUtils.Insert(lastReadSecond, copiedSamples * ChannelCount + source++, ChannelCount,
-                            target, (int)from + i, ChannelCount);
+                        WaveformUtils.Insert(lastReadSecond, copiedSamples * trackCount + firstObjectTrack++, trackCount,
+                            target, (int)from + i, ChannelCount, perChannel);
                     } else {
                         WaveformUtils.ClearChannel(target, i, ChannelCount);
                     }
                 }
                 copiedSamples += perChannel;
                 from += perChannel * ChannelCount;
-                if (copiedSamples >= SampleRate) {
+                if (copiedSamples == SampleRate) {
                     copiedSamples = 0;
+                }
+            }
+
+            if (trackCount != ChannelCount) {
+                int positionSource = copiedSamples - copiedSamples % LimitlessAudioFormatEnvironmentWriter.objectStreamRate;
+                for (int obj = 0; obj < ChannelCount; obj++) {
+                    int offset = (positionSource + (obj & 0b1111) /* object */ * 3 /* coordinate */) * trackCount + // Sample positioning
+                        firstObjectTrack + (obj >> 4); // Object track positioning
+                    ObjectPositions[obj] = new Vector3(lastReadSecond[offset], lastReadSecond[offset + trackCount],
+                        lastReadSecond[offset + trackCount * 2]);
                 }
             }
         }
@@ -139,7 +164,7 @@ namespace Cavern.Format.Decoders {
                 return;
             }
             int channelsToRead = 0;
-            for (int channel = 0; channel < ChannelCount; channel++) {
+            for (int channel = 0; channel < trackCount; channel++) {
                 if (writtenChannels[channel] = ((layoutBytes[channel >> 3] >> (channel & 7)) & 1) != 0) {
                     ++channelsToRead;
                 }

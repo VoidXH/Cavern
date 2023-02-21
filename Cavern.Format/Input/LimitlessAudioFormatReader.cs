@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers;
@@ -52,7 +51,10 @@ namespace Cavern.Format {
         /// Get an object-based renderer for this audio file.
         /// </summary>
         public override Renderer GetRenderer() {
-            throw new NotImplementedException();
+            if (decoder == null) {
+                ReadHeader();
+            }
+            return new LimitlessAudioFormatRenderer(decoder);
         }
 
         /// <summary>

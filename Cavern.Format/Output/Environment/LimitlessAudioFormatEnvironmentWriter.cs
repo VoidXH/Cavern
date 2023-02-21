@@ -85,6 +85,7 @@ namespace Cavern.Format.Environment {
         /// Export the next frame of the <see cref="Source"/>.
         /// </summary>
         public override void WriteNextFrame() {
+            Vector3 scale = Vector3.One / Listener.EnvironmentSize;
             float[] result = GetInterlacedPCMOutput();
             long writable = output.Length - samplesWritten;
             if (writable > 0) {
@@ -96,7 +97,7 @@ namespace Cavern.Format.Environment {
                         IEnumerator<Source> enumerator = Source.ActiveSources.GetEnumerator();
                         int i = 0;
                         while (i < objects && enumerator.MoveNext()) {
-                            (enumerator.Current.Position / Listener.EnvironmentSize).CopyTo(positionalBlock[i >> 4], 3 * i);
+                            (enumerator.Current.Position * scale).CopyTo(positionalBlock[i >> 4], 3 * i);
                             i++;
                         }
                         objectStreamPosition = 0;
@@ -136,6 +137,6 @@ namespace Cavern.Format.Environment {
         /// The number of values required for position updates per position track. Position tracks always contain data for 16
         /// channels, even if those values are unused. Their precision depends on the bit depth, but the range is always [0;1].
         /// </summary>
-        const int objectStreamRate = 16 * 3;
+        internal const int objectStreamRate = 16 * 3;
     }
 }

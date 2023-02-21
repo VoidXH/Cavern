@@ -294,15 +294,15 @@ namespace Cavern.Utilities {
         /// <param name="destination">Channel array to write to</param>
         /// <param name="destinationChannel">Destination channel index, but can be used as a sample offset (all channels count)</param>
         /// <param name="destinationChannels">Total channels in the <paramref name="destination"/></param>
+        /// <param name="count">Number of samples of the channel to copy</param>
         /// <remarks>It is assumed that the size of <paramref name="destination"/> equals the size of
         /// <paramref name="source"/> * <paramref name="destinationChannels"/>.</remarks>
         public static unsafe void Insert(float[] source, int sourceChannel, int sourceChannels,
-            float[] destination, int destinationChannel, int destinationChannels) {
+            float[] destination, int destinationChannel, int destinationChannels, int count) {
             fixed (float* pSource = source, pDestination = destination) {
                 float* sourcePos = pSource + sourceChannel,
-                    destinationPos = pDestination + destinationChannel,
-                    end = pDestination + destination.Length;
-                while (destinationPos < end) {
+                    destinationPos = pDestination + destinationChannel;
+                while (count-- != 0) {
                     *destinationPos = *sourcePos;
                     destinationPos += destinationChannels;
                     sourcePos += sourceChannels;

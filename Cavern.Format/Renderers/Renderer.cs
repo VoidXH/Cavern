@@ -6,7 +6,8 @@ using Cavern.SpecialSources;
 
 namespace Cavern.Format.Renderers {
     /// <summary>
-    /// Renders a decoded stream with Cavern.
+    /// Renders a decoded stream with Cavern. The basic override is calling <see cref="SetupObjects(int)"/>, positioning
+    /// said <see cref="objects"/>, and setting the <see cref="objectSamples"/> in <see cref="Update(int)"/>.
     /// </summary>
     public abstract partial class Renderer {
         /// <summary>
