@@ -50,6 +50,11 @@ namespace Cavern.Format.Decoders {
         readonly int trackCount;
 
         /// <summary>
+        /// Number of actually written tracks in the last second.
+        /// </summary>
+        int writtenTracks;
+
+        /// <summary>
         /// Read position in <see cref="lastReadSecond"/>.
         /// </summary>
         int copiedSamples;
@@ -116,16 +121,16 @@ namespace Cavern.Format.Decoders {
                 return;
             }
 
-            int firstObjectTrack = 0;
             while (from < to) {
                 if (copiedSamples == 0) {
                     ReadSecond();
                 }
 
-                int perChannel = (int)Math.Min((to - from) / ChannelCount, SampleRate - copiedSamples);
+                int perChannel = (int)Math.Min((to - from) / ChannelCount, SampleRate - copiedSamples),
+                    codedChannel = 0;
                 for (int i = 0; i < ChannelCount; i++) {
                     if (writtenChannels[i]) {
-                        WaveformUtils.Insert(lastReadSecond, copiedSamples * trackCount + firstObjectTrack++, trackCount,
+                        WaveformUtils.Insert(lastReadSecond, copiedSamples * writtenTracks + codedChannel++, writtenTracks,
                             target, (int)from + i, ChannelCount, perChannel);
                     } else {
                         WaveformUtils.ClearChannel(target, i, ChannelCount);
@@ -139,12 +144,13 @@ namespace Cavern.Format.Decoders {
             }
 
             if (trackCount != ChannelCount) {
-                int positionSource = copiedSamples - copiedSamples % LimitlessAudioFormatEnvironmentWriter.objectStreamRate;
+                int positionSource = copiedSamples - copiedSamples % LimitlessAudioFormatEnvironmentWriter.objectStreamRate,
+                    firstObjectTrack = writtenTracks - trackCount + ChannelCount;
                 for (int obj = 0; obj < ChannelCount; obj++) {
-                    int offset = (positionSource + (obj & 0b1111) /* object */ * 3 /* coordinate */) * trackCount + // Sample positioning
+                    int offset = (positionSource + (obj & 0b1111) /* object */ * 3 /* coordinate */) * writtenTracks + // Sample positioning
                         firstObjectTrack + (obj >> 4); // Object track positioning
-                    ObjectPositions[obj] = new Vector3(lastReadSecond[offset], lastReadSecond[offset + trackCount],
-                        lastReadSecond[offset + trackCount * 2]);
+                    ObjectPositions[obj] = new Vector3(lastReadSecond[offset], lastReadSecond[offset + writtenTracks],
+                        lastReadSecond[offset + writtenTracks * 2]);
                 }
             }
         }
@@ -163,14 +169,14 @@ namespace Cavern.Format.Decoders {
             if (layoutBytes.Length == 0) {
                 return;
             }
-            int channelsToRead = 0;
+            writtenTracks = 0;
             for (int channel = 0; channel < trackCount; channel++) {
                 if (writtenChannels[channel] = ((layoutBytes[channel >> 3] >> (channel & 7)) & 1) != 0) {
-                    ++channelsToRead;
+                    ++writtenTracks;
                 }
             }
 
-            int samplesToRead = (int)Math.Min(Length - Position, SampleRate) * channelsToRead;
+            int samplesToRead = (int)Math.Min(Length - Position, SampleRate) * writtenTracks;
             DecodeLittleEndianBlock(reader, lastReadSecond, 0, samplesToRead, Bits);
             Position += SampleRate;
         }

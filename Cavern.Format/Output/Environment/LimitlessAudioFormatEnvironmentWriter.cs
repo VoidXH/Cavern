@@ -62,7 +62,7 @@ namespace Cavern.Format.Environment {
             }
 
             output = new LimitlessAudioFormatWriter(writer, length, source.SampleRate, bits, channels);
-            output.WriteHeader();
+            output.WriteHeader(true, objects);
         }
 
         /// <summary>
