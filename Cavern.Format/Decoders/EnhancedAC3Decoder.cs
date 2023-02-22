@@ -125,6 +125,10 @@ namespace Cavern.Format.Decoders {
             if (frameStart < reader.LastFetchStart) {
                 frameSize = reader.LastFetchStart - frameStart;
             }
+
+            ChannelCount = outputs.Count;
+            SampleRate = header.SampleRate;
+            Length = fileSize != -1 ? fileSize * outCache.Length / (FrameSize * ChannelCount) : -1;
             return outCache;
         }
 
@@ -146,10 +150,6 @@ namespace Cavern.Format.Decoders {
             } else {
                 Finished = true;
             }
-
-            ChannelCount = outputs.Count;
-            SampleRate = header.SampleRate;
-            Length = fileSize != -1 ? fileSize * outCache.Length / (frameSize * ChannelCount) : -1;
         }
 
         /// <summary>

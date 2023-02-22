@@ -62,7 +62,7 @@ namespace Cavern.Format.Environment {
             }
 
             output = new LimitlessAudioFormatWriter(writer, length, source.SampleRate, bits, channels);
-            output.WriteHeader(true, objects);
+            output.WriteHeader();
         }
 
         /// <summary>
@@ -115,6 +115,7 @@ namespace Cavern.Format.Environment {
                             output.ChannelCount - positionalBlock.Length + track; // Track alignment
                         for (int sample = 0; sample < valuesFittingFrame; sample++) {
                             result[index] = source[objectStreamPosition + sample];
+                            index += output.ChannelCount;
                         }
                     }
                     objectStreamPosition += valuesFittingFrame;
