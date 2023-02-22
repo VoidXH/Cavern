@@ -14,6 +14,7 @@
     <system:String x:Key="MuGrT">Minden hangot elnémít, ami nem a magasból jön.</system:String>
     <system:String x:Key="For24">24-bites _PCM erőltetése (lassabb, nagyobb fájlok, nem ad hallható javulást)</system:String>
     <system:String x:Key="SuSwa">_Oldalsó/hátsó csatornák felcserélése</system:String>
+    <system:String x:Key="WavCh">RIFF WAVE csatornamaszk kihagyása (korlátozások feloldása)</system:String>
     <system:String x:Key="ReMoH">_Csak jelentés mód</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
         report will be available after rendering without writing anything to the disk.</system:String>

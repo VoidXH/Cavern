@@ -118,5 +118,17 @@ namespace CavernizeGUI.Resources {
                 this["surroundSwap"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool wavChannelSkip {
+            get {
+                return ((bool)(this["wavChannelSkip"]));
+            }
+            set {
+                this["wavChannelSkip"] = value;
+            }
+        }
     }
 }

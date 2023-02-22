@@ -85,7 +85,7 @@ namespace CavernizeGUI {
                 string exportFormat = path[^4..].ToLower(CultureInfo.InvariantCulture),
                     exportName = exportFormat.Equals(".mkv") ? path[..^4] + waveExtension : path;
                 AudioWriter writer;
-                if (exportFormat.Equals(waveExtension)) {
+                if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
                     writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels[..activeRenderTarget.OutputChannels],
                         target.Length, listener.SampleRate, bits);
                 } else {

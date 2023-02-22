@@ -150,6 +150,7 @@ namespace CavernizeGUI {
 
             force24Bit.IsChecked = Settings.Default.force24Bit;
             surroundSwap.IsChecked = Settings.Default.surroundSwap;
+            wavChannelSkip.IsChecked = Settings.Default.wavChannelSkip;
             checkUpdates.IsChecked = Settings.Default.checkUpdates;
             if (Settings.Default.checkUpdates && !Program.ConsoleMode) {
                 UpdateCheck.Perform(Settings.Default.lastUpdate, () => Settings.Default.lastUpdate = DateTime.Now);

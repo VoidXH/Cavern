@@ -14,6 +14,7 @@
     <system:String x:Key="MuGrT">Any sound that only comes from the ground speakers will be muted.</system:String>
     <system:String x:Key="For24">Force 24-_bit PCM (slower, larger files, no perceived improvement)</system:String>
     <system:String x:Key="SuSwa">S_wap side/rear channels</system:String>
+    <system:String x:Key="WavCh">Skip RIFF WAVE channel mask (bypass restrictions)</system:String>
     <system:String x:Key="ReMoH">_Report only mode</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
         report will be available after rendering without writing anything to the disk.</system:String>
