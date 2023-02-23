@@ -24,7 +24,7 @@ namespace Cavern.Format.Decoders {
         public bool Finished { get; private set; }
 
         /// <summary>
-        /// Samples in each decoded frame
+        /// Samples in each decoded frame.
         /// </summary>
         public int FrameSize => header.Blocks * samplesPerBlock;
 
@@ -44,11 +44,6 @@ namespace Cavern.Format.Decoders {
         readonly Dictionary<ReferenceChannel, float[]> outputs = new Dictionary<ReferenceChannel, float[]>();
 
         /// <summary>
-        /// File size to calculate the content length from, assuming AC-3 is constant bitrate.
-        /// </summary>
-        readonly long fileSize;
-
-        /// <summary>
         /// Bytes per audio frame.
         /// </summary>
         long frameSize;
@@ -66,13 +61,14 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Converts an Enhanced AC-3 bitstream to raw samples.
         /// </summary>
-        public EnhancedAC3Decoder(BlockBuffer<byte> reader) : base(reader) => fileSize = -1;
+        public EnhancedAC3Decoder(BlockBuffer<byte> reader) : base(reader) => Length = -1;
 
         /// <summary>
         /// Converts an Enhanced AC-3 bitstream to raw samples. When the file size is known, the length can be calculated
         /// from the bitrate assuming AC-3 is constant bitrate.
         /// </summary>
-        public EnhancedAC3Decoder(BlockBuffer<byte> reader, long fileSize) : base(reader) => this.fileSize = fileSize;
+        public EnhancedAC3Decoder(BlockBuffer<byte> reader, long fileSize) : base(reader) =>
+            Length = fileSize / frameSize * FrameSize;
 
         /// <summary>
         /// Get the bed channels.
@@ -128,7 +124,6 @@ namespace Cavern.Format.Decoders {
 
             ChannelCount = outputs.Count;
             SampleRate = header.SampleRate;
-            Length = fileSize != -1 ? fileSize * outCache.Length / (FrameSize * ChannelCount) : -1;
             return outCache;
         }
 
@@ -159,7 +154,7 @@ namespace Cavern.Format.Decoders {
         /// <remarks>Assuming a constant bitrate, swapping to a frame is possible. Inter-frame seeking is not possible in this
         /// implementation, this function shouldn't be used for alignment. For tracks, use the container's seek.</remarks>
         public override void Seek(long sample) {
-            if (fileSize == -1) {
+            if (Length == -1) {
                 throw new NotImplementedException(trackSeekError);
             }
 
