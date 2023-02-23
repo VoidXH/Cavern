@@ -10,11 +10,15 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Sets all samples in a single channel of an interlaced signal to 0.
         /// </summary>
-        public static unsafe void ClearChannel(float[] signal, int channel, int channels) {
+        /// <param name="signal">Interlaced signal to clear a channel of</param>
+        /// <param name="channel">Channel index, but can be used as the first sample's index to clear</param>
+        /// <param name="channels">Total number of channels in the <paramref name="signal"/></param>
+        /// <param name="limit">Total number of samples to remove</param>
+        public static unsafe void ClearChannel(float[] signal, int channel, int channels, int limit) {
             fixed (float* pSignal = signal) {
                 float* pChannel = pSignal + channel,
                     end = pChannel + signal.Length;
-                while (pChannel < end) {
+                while (limit-- != 0) {
                     *pChannel = 0;
                     pChannel += channels;
                 }

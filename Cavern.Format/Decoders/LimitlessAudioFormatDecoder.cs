@@ -133,7 +133,7 @@ namespace Cavern.Format.Decoders {
                         WaveformUtils.Insert(lastReadSecond, copiedSamples * writtenTracks + codedChannel++, writtenTracks,
                             target, (int)from + i, ChannelCount, perChannel);
                     } else {
-                        WaveformUtils.ClearChannel(target, i, ChannelCount);
+                        WaveformUtils.ClearChannel(target, (int)from + i, ChannelCount, perChannel);
                     }
                 }
                 copiedSamples += perChannel;
