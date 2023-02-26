@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.Utilities;
@@ -87,7 +87,7 @@ namespace Cavern.QuickEQ.Equalization {
                 }
                 analyzer.Dispose();
             }
-            return result;
+            return Cleanup(result);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Cavern.QuickEQ.Equalization {
                 result[band] = BruteForceQ(ref target, source.Bands[band].Frequency, source.Bands[band].Gain);
             }
             analyzer.Dispose();
-            return result;
+            return Cleanup(result);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Cavern.QuickEQ.Equalization {
                 result[i] = BruteForceGain(ref target, freq, q);
             }
             analyzer.Dispose();
-            return result;
+            return Cleanup(result);
         }
 
         /// <summary>
@@ -130,6 +130,20 @@ namespace Cavern.QuickEQ.Equalization {
             GraphUtils.ConvertToDecibels(changedTarget);
             WaveformUtils.Mix(target, changedTarget);
             return changedTarget.SumAbs();
+        }
+
+        /// <summary>
+        /// When the EQ generation finishes, the last band repeats. This function returns an array of results
+        /// with the invalid entries removed.
+        /// </summary>
+        PeakingEQ[] Cleanup(PeakingEQ[] results) {
+            PeakingEQ last = results[^1];
+            for (int i = 0; i < results.Length - 1; i++) {
+                if (results[i].CenterFreq == last.CenterFreq && results[i].Gain == last.Gain && results[i].Q == last.Q) {
+                    return results[..i];
+                }
+            }
+            return results;
         }
 
         /// <summary>

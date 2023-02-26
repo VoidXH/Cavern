@@ -160,6 +160,7 @@ namespace Cavern.QuickEQ.Equalization {
             for (int i = 0, c = bands.Count; i < c; i++) {
                 bands[i] += gain;
             }
+            PeakGain += gain;
         }
 
         /// <summary>

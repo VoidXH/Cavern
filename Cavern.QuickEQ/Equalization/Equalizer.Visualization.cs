@@ -219,11 +219,26 @@ namespace Cavern.QuickEQ.Equalization {
                 if (bands[i].Frequency < endFreq) {
                     if (i + 1 != c) {
                         double atEnd = targetCurve != null ? targetCurve[endFreq] : this[endFreq];
-                        bands.RemoveRange(i + 1, c - i - 1);
+                        bands.RemoveRange(i + 1, c - i);
                         bands.Add(new Band(endFreq, atEnd));
                     }
                     break;
                 }
+            }
+            RecalculatePeakGain();
+        }
+
+        /// <summary>
+        /// Make sure the EQ won't go over the desired <paramref name="peak"/>.
+        /// </summary>
+        public void LimitPeaks(double peak) {
+            for (int i = 0, c = bands.Count; i < c; i++) {
+                if (bands[i].Gain > peak) {
+                    bands[i] = new Band(bands[i].Frequency, peak);
+                }
+            }
+            if (PeakGain > peak) {
+                PeakGain = peak;
             }
         }
 
