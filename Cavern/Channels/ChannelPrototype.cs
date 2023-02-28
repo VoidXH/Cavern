@@ -211,8 +211,8 @@ namespace Cavern.Channels {
         /// Get the standard matrix from one of the standard matrix databases.
         /// </summary>
         static ReferenceChannel[] GetStandardMatrix(ReferenceChannel[][] database, int count) {
-            int subcount = Math.Min(count, database.Length);
-            ReferenceChannel[] matrix = database[count];
+            int subcount = Math.Min(count, database.Length - 1);
+            ReferenceChannel[] matrix = database[subcount];
             if (subcount != count) {
                 Array.Resize(ref matrix, count);
                 for (int i = subcount; i < count; ++i) {
