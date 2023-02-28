@@ -88,7 +88,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// ARGB values for all pixels of the canvas, line by line.
         /// </summary>
-        public uint[] Pixels { get; }
+        public uint[] Pixels { get; } = Array.Empty<uint>();
 
         /// <summary>
         /// Something to draw over the graph, like a <see cref="Frame"/> or <see cref="Grid"/>.
@@ -147,7 +147,7 @@ namespace Cavern.QuickEQ.Graphing {
             for (int i = 0, c = curves.Count; i < c; i++) {
                 DrawSingle(curves[i]);
             }
-            Overlay.DrawOn(this);
+            Overlay?.DrawOn(this);
         }
 
         /// <summary>
