@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 using Cavern.Format.Common;
 using Cavern.Format.Utilities;
@@ -7,7 +8,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
     /// Joint object coding decoder and renderer.
     /// </summary>
-    partial class JointObjectCoding {
+    partial class JointObjectCoding : IDisposable {
         /// <summary>
         /// The object is active and will have rendered audio data.
         /// </summary>
@@ -29,6 +30,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public float Gain { get; private set; }
 
         /// <summary>
+        /// Used for waiting while started tasks work.
+        /// </summary>
+        readonly AutoResetEvent taskWaiter = new AutoResetEvent(false);
+
+        /// <summary>
         /// Decodes a JOC frame from an EMDF payload.
         /// </summary>
         public void Decode(BitExtractor extractor) {
@@ -36,6 +42,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             DecodeInfo(extractor);
             DecodeData(extractor);
         }
+
+        /// <summary>
+        /// Free up resources used by this object.
+        /// </summary>
+        public void Dispose() => taskWaiter.Dispose();
 
         void DecodeHeader(BitExtractor extractor) {
             int downmixConfig = extractor.Read(3);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -45,39 +46,59 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Decode and dequantize a complete JOC matrix around a <paramref name="quantizedCenter"/> value.
         /// </summary>
-        void DecodeCoarse(int obj, float[][][] mixMatrix, int quantizedCenter, float gainStep) {
+        unsafe void DecodeCoarse(int obj, float[][][] mixMatrix, int quantizedCenter, float gainStep) {
             float center = quantizedCenter * gainStep;
             float max = center * 2;
             int bands = this.bands[obj];
             int[][][] sourceMatrix = jocMatrix[obj];
             for (int dp = 0; dp < dataPoints[obj]; dp++) {
-                float[][] dpMatrix = mixMatrix[dp];
                 int[][] dpSource = sourceMatrix[dp];
+                float[][] dpMatrix = mixMatrix[dp];
                 for (int ch = 0; ch < ChannelCount; ch++) {
-                    float[] chMatrix = dpMatrix[ch];
                     int[] chSource = dpSource[ch];
-                    chMatrix[0] = (center + chSource[0] * gainStep) % max;
-                    for (int pb = 1; pb < bands; pb++) {
-                        chMatrix[pb] = (chMatrix[pb - 1] + chSource[pb] * gainStep) % max;
-                        chMatrix[pb - 1] -= center;
+                    float[] chMatrix = dpMatrix[ch];
+                    fixed (int* source = chSource) {
+                        fixed (float* destination = chMatrix) {
+                            DecodeCoarseChannel(source, destination, center, gainStep, max, bands);
+                        }
                     }
-                    chMatrix[bands - 1] -= center;
                 }
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        unsafe void DecodeCoarseChannel(int* source, float* destination, float center, float gainStep, float max, int bands) {
+            *destination = (center + *source * gainStep) % max;
+            while (--bands != 0) {
+                float next = (*destination + *++source * gainStep) % max;
+                *(destination++) -= center;
+                *destination = next;
+            }
+            *destination -= center;
         }
 
         /// <summary>
         /// Convert the values of the decoded JOC matrix to the mixing range.
         /// </summary>
-        void Dequantize(int obj, float[][][] mixMatrix, int center, float gainStep) {
+        unsafe void Dequantize(int obj, float[][][] mixMatrix, int center, float gainStep) {
             for (int dp = 0; dp < dataPoints[obj]; dp++) {
                 float[][] dpMix = mixMatrix[dp];
                 for (int ch = 0; ch < ChannelCount; ch++) {
-                    float[] chMix = dpMix[ch];
-                    for (int pb = 0; pb < bands[obj]; pb++) {
-                        chMix[pb] = (chMix[pb] - center) * gainStep;
+                    fixed (float* chMix = dpMix[ch]) {
+                        DequantizeObject(chMix, center, gainStep, bands[obj]);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Convert the values of the decoded object to the mixing range.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        unsafe static void DequantizeObject(float* channel, int center, float gainStep, int bands) {
+            while (bands != 0) {
+                *(channel++) = (*channel - center) * gainStep;
+                --bands;
             }
         }
 
@@ -88,11 +109,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         void SteepSingleDataPointTimeslot(int ts, float[][][] interpolationMatrix, float[][] source) {
             float[][] timeslotInterp = interpolationMatrix[ts];
             for (int ch = 0; ch < ChannelCount; ch++) {
-                float[] channelInterp = timeslotInterp[ch];
-                float[] sourceChannel = source[ch];
-                for (byte sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
-                    channelInterp[sb] = sourceChannel[sb];
-                }
+                Array.Copy(source[ch], timeslotInterp[ch], QuadratureMirrorFilterBank.subbands);
             }
         }
 
@@ -207,7 +224,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public float[][][][] GetMixingMatrices(int frameSize) {
             int qmfTimeslots = frameSize / QuadratureMirrorFilterBank.subbands;
             int runs = ObjectCount;
-            using ManualResetEvent reset = new ManualResetEvent(false);
             for (int obj = 0; obj < ObjectCount; obj++) {
                 ThreadPool.QueueUserWorkItem(
                    new WaitCallback(objIndex => {
@@ -215,11 +231,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                        GetMixingMatrices(obj, qmfTimeslots, mixMatrix[obj],
                            interpolatedMatrix[obj], prevMatrix[obj]);
                        if (Interlocked.Decrement(ref runs) == 0) {
-                           reset.Set();
+                           taskWaiter.Set();
                        }
                    }), obj);
             }
-            reset.WaitOne();
+            taskWaiter.WaitOne();
             return interpolatedMatrix;
         }
     }

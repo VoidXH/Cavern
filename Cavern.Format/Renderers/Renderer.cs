@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Channels;
 using Cavern.Format.Decoders;
@@ -9,7 +10,7 @@ namespace Cavern.Format.Renderers {
     /// Renders a decoded stream with Cavern. The basic override is calling <see cref="SetupObjects(int)"/>, positioning
     /// said <see cref="objects"/>, and setting the <see cref="objectSamples"/> in <see cref="Update(int)"/>.
     /// </summary>
-    public abstract partial class Renderer {
+    public abstract partial class Renderer : IDisposable {
         /// <summary>
         /// The stream is object-based.
         /// </summary>
@@ -107,5 +108,10 @@ namespace Cavern.Format.Renderers {
             reader.SetupSources(objects, stream.SampleRate);
             objectSamples = new float[count][];
         }
+
+        /// <summary>
+        /// Free up resources created by the renderer.
+        /// </summary>
+        public virtual void Dispose() => GC.SuppressFinalize(this);
     }
 }

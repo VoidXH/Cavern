@@ -8,7 +8,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
     /// Converts a channel-based audio stream and JOC to object output samples.
     /// </summary>
-    class JointObjectCodingApplier {
+    class JointObjectCodingApplier : IDisposable {
         /// <summary>
         /// Cavern is run by a Mono runtime, use functions optimized for that.
         /// </summary>
@@ -33,6 +33,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Recycled QMFB operation arrays.
         /// </summary>
         readonly (float[] real, float[] imaginary)[] qmfbCache;
+
+        /// <summary>
+        /// Used for waiting while started tasks work.
+        /// </summary>
+        readonly AutoResetEvent taskWaiter = new AutoResetEvent(false);
 
         /// <summary>
         /// Recycled QMFB transform objects.
@@ -83,52 +88,53 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
             // Forward transformations
             int runs = joc.ChannelCount;
-            using (ManualResetEvent reset = new ManualResetEvent(false)) {
-                for (int ch = 0; ch < joc.ChannelCount; ++ch) {
-                    ThreadPool.QueueUserWorkItem(channel => {
-                        int ch = (int)channel;
-                        fixed (float* pInput = input[ch]) {
-                            if (!mono) {
-                                results[ch] = converters[ch].ProcessForward(pInput);
-                            } else {
-                                results[ch] = converters[ch].ProcessForward_Mono(pInput);
-                            }
+            for (int ch = 0; ch < joc.ChannelCount; ++ch) {
+                ThreadPool.QueueUserWorkItem(channel => {
+                    int ch = (int)channel;
+                    fixed (float* pInput = input[ch]) {
+                        if (!mono) {
+                            results[ch] = converters[ch].ProcessForward(pInput);
+                        } else {
+                            results[ch] = converters[ch].ProcessForward_Mono(pInput);
                         }
-                        if (Interlocked.Decrement(ref runs) == 0) {
-                            reset.Set();
-                        }
-                    }, ch);
-                }
-                reset.WaitOne();
+                    }
+                    if (Interlocked.Decrement(ref runs) == 0) {
+                        taskWaiter.Set();
+                    }
+                }, ch);
             }
+            taskWaiter.WaitOne();
 
             // Inverse transformations
             int objects = joc.ObjectCount;
             runs = objects;
-            using (ManualResetEvent reset = new ManualResetEvent(false)) {
-                for (int obj = 0; obj < objects; ++obj) {
-                    ThreadPool.QueueUserWorkItem(objectIndex => {
-                        int obj = (int)objectIndex;
-                        if (CavernAmp.Available) {
-                            ProcessObject_Amp(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
-                        } else if (!mono) {
-                            ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
-                        } else {
-                            ProcessObject_Mono(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
-                        }
-                        if (Interlocked.Decrement(ref runs) == 0) {
-                            reset.Set();
-                        }
-                    }, obj);
-                }
-                reset.WaitOne();
+            for (int obj = 0; obj < objects; ++obj) {
+                ThreadPool.QueueUserWorkItem(objectIndex => {
+                    int obj = (int)objectIndex;
+                    if (CavernAmp.Available) {
+                        ProcessObject_Amp(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                    } else if (!mono) {
+                        ProcessObject(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                    } else {
+                        ProcessObject_Mono(joc, obj, mixMatrix[obj][timeslot], joc.Gain);
+                    }
+                    if (Interlocked.Decrement(ref runs) == 0) {
+                        taskWaiter.Set();
+                    }
+                }, obj);
             }
+            taskWaiter.WaitOne();
 
             if (++timeslot == input.Length) {
                 timeslot = 0;
             }
             return timeslotCache;
         }
+
+        /// <summary>
+        /// Free up resources used by this object.
+        /// </summary>
+        public void Dispose() => taskWaiter.Dispose();
 
         /// <summary>
         /// Mixes channel-based samples by a matrix to the objects.

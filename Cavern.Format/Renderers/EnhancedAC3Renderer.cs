@@ -207,5 +207,13 @@ namespace Cavern.Format.Renderers {
                 }
             }
         }
+
+        /// <summary>
+        /// Free up resources created by the renderer.
+        /// </summary>
+        public override void Dispose() {
+            applier.Dispose();
+            base.Dispose();
+        }
     }
 }
