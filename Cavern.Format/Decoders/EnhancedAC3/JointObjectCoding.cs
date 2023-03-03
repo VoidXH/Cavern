@@ -32,7 +32,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Used for waiting while started tasks work.
         /// </summary>
-        readonly AutoResetEvent taskWaiter = new AutoResetEvent(false);
+        readonly ManualResetEventSlim taskWaiter = new ManualResetEventSlim(false);
 
         /// <summary>
         /// Decodes a JOC frame from an EMDF payload.

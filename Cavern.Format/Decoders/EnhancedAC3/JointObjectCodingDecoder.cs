@@ -224,6 +224,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public float[][][][] GetMixingMatrices(int frameSize) {
             int qmfTimeslots = frameSize / QuadratureMirrorFilterBank.subbands;
             int runs = ObjectCount;
+            taskWaiter.Reset();
             for (int obj = 0; obj < ObjectCount; obj++) {
                 ThreadPool.QueueUserWorkItem(
                    new WaitCallback(objIndex => {
@@ -235,7 +236,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                        }
                    }), obj);
             }
-            taskWaiter.WaitOne();
+            taskWaiter.Wait();
             return interpolatedMatrix;
         }
     }

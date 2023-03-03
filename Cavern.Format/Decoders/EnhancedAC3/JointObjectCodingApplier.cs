@@ -37,7 +37,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Used for waiting while started tasks work.
         /// </summary>
-        readonly AutoResetEvent taskWaiter = new AutoResetEvent(false);
+        readonly ManualResetEventSlim taskWaiter = new ManualResetEventSlim(false);
 
         /// <summary>
         /// Recycled QMFB transform objects.
@@ -88,6 +88,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
             // Forward transformations
             int runs = joc.ChannelCount;
+            taskWaiter.Reset();
             for (int ch = 0; ch < joc.ChannelCount; ++ch) {
                 ThreadPool.QueueUserWorkItem(channel => {
                     int ch = (int)channel;
@@ -103,11 +104,12 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     }
                 }, ch);
             }
-            taskWaiter.WaitOne();
+            taskWaiter.Wait();
 
             // Inverse transformations
             int objects = joc.ObjectCount;
             runs = objects;
+            taskWaiter.Reset();
             for (int obj = 0; obj < objects; ++obj) {
                 ThreadPool.QueueUserWorkItem(objectIndex => {
                     int obj = (int)objectIndex;
@@ -123,7 +125,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     }
                 }, obj);
             }
-            taskWaiter.WaitOne();
+            taskWaiter.Wait();
 
             if (++timeslot == input.Length) {
                 timeslot = 0;
