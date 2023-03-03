@@ -181,6 +181,16 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Flip the <see cref="Equalizer"/> vertically.
+        /// </summary>
+        public void Invert() {
+            for (int i = 0, c = bands.Count; i < c; i++) {
+                bands[i] = new Band(bands[i].Frequency, -bands[i].Gain);
+            }
+            RecalculatePeakGain();
+        }
+
+        /// <summary>
         /// Calibrate this Equalizer with another: keep the frequencies and subtract the recording device's added gains.
         /// </summary>
         public void Calibrate(Equalizer with) {
