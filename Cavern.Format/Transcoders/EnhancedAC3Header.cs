@@ -229,8 +229,11 @@ namespace Cavern.Format.Transcoders {
                         if (addition > mapping && mapping != 0) {
                             throw new InvalidChannelOrderException();
                         }
-                        mapping += addition;
+                        if ((mapping & addition) != 0) {
+                            addition = 0;
+                        }
 
+                        mapping += addition;
                         found = true;
                         break;
                     }

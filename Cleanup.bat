@@ -20,8 +20,6 @@ rd /s /q CavernSamples\EnhancedAC3Merger\bin
 rd /s /q CavernSamples\EnhancedAC3Merger\obj
 rd /s /q CavernSamples\HRTFSetImporter\bin
 rd /s /q CavernSamples\HRTFSetImporter\obj
-rd /s /q CavernSamples\HRTFSetStatista\bin
-rd /s /q CavernSamples\HRTFSetStatista\obj
 rd /s /q CavernSamples\WAVChannelReorderer\bin
 rd /s /q CavernSamples\WAVChannelReorderer\obj
 rd /s /q CavernSamples\WavefrontSimulator\bin

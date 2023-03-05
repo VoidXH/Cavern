@@ -227,6 +227,11 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
+        /// Display the tag in HEX when converting to string.
+        /// </summary>
+        public override string ToString() => "0x" + Tag.ToString("X8");
+
+        /// <summary>
         /// EBML tag IDs.
         /// </summary>
         internal const int Segment_Tracks_TrackEntry_CodecID = 0x86,

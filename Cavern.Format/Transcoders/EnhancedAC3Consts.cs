@@ -70,7 +70,7 @@ namespace Cavern.Format.Transcoders {
             new ReferenceChannel[] { ReferenceChannel.TopFrontCenter },
             new ReferenceChannel[] { ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight },
             new ReferenceChannel[] { ReferenceChannel.WideLeft, ReferenceChannel.WideRight },
-            new ReferenceChannel[] { ReferenceChannel.SideLeft, ReferenceChannel.SideRight },
+            new ReferenceChannel[] { ReferenceChannel.ScreenLFE, ReferenceChannel.ScreenLFE }, // Side surround, but not used
             new ReferenceChannel[] { ReferenceChannel.GodsVoice },
             new ReferenceChannel[] { ReferenceChannel.RearCenter },
             new ReferenceChannel[] { ReferenceChannel.RearLeft, ReferenceChannel.RearRight },

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows;
 
 using Cavern.Channels;
@@ -103,8 +102,8 @@ namespace EnhancedAC3Merger {
             for (int i = 0; i < outputs.Length; i++) {
                 string tempOutputName = $"{baseOutputName} {i}.wav",
                     finalTempName = $"{baseOutputName} {i}.ac3";
-                ffmpeg.Launch($"-i \"{tempOutputName}\" -c:a eac3 -y \"{finalTempName}\"");
                 outputs[i].Dispose();
+                ffmpeg.Launch($"-i \"{tempOutputName}\" -c:a eac3 -y \"{finalTempName}\"");
                 File.Delete(tempOutputName);
                 finalSources[i] = File.OpenRead(finalTempName);
             }

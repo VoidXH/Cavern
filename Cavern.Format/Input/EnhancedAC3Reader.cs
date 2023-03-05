@@ -1,5 +1,6 @@
 ﻿using System.IO;
 
+using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers;
@@ -9,7 +10,7 @@ namespace Cavern.Format {
     /// <summary>
     /// Enhanced AC-3 file reader.
     /// </summary>
-    public class EnhancedAC3Reader : AudioReader {
+    public class EnhancedAC3Reader : AudioReader, IMetadataSupplier {
         /// <summary>
         /// File size to calculate the content length from, assuming AC-3 is constant bitrate.
         /// </summary>
@@ -68,5 +69,10 @@ namespace Cavern.Format {
         /// <param name="sample">The selected sample, for a single channel</param>
         /// <remarks>Seeking is not thread-safe.</remarks>
         public override void Seek(long sample) => decoder.Seek(sample);
+
+        /// <summary>
+        /// Gets the metadata for this codec in a human-readable format.
+        /// </summary>
+        public ReadableMetadata GetMetadata() => decoder.GetMetadata();
     }
 }

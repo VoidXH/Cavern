@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Cavern.Channels;
+using Cavern.Format.Common;
 using Cavern.Format.Decoders.EnhancedAC3;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
@@ -12,7 +13,7 @@ namespace Cavern.Format.Decoders {
     /// <summary>
     /// Converts an Enhanced AC-3 bitstream to raw samples.
     /// </summary>
-    public class EnhancedAC3Decoder : FrameBasedDecoder {
+    public class EnhancedAC3Decoder : FrameBasedDecoder, IMetadataSupplier {
         /// <summary>
         /// The stream is coded in the Enhanced version of AC-3.
         /// </summary>
@@ -161,6 +162,11 @@ namespace Cavern.Format.Decoders {
             long targetFrame = sample / samplesPerBlock / header.Blocks;
             reader.Seek(targetFrame * frameSize);
         }
+
+        /// <summary>
+        /// Gets the metadata for this codec in a human-readable format.
+        /// </summary>
+        public ReadableMetadata GetMetadata() => header.GetMetadata();
 
         /// <summary>
         /// Each (E-)AC-3 block is 256 samples.
