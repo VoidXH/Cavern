@@ -8,7 +8,7 @@ namespace Cavern.Format {
     /// <summary>
     /// Reads an audio track from a container.
     /// </summary>
-    public class AudioTrackReader : AudioReader {
+    public class AudioTrackReader : AudioReader, IMetadataSupplier {
         /// <summary>
         /// Get the container that contains this track.
         /// </summary>
@@ -104,6 +104,11 @@ namespace Cavern.Format {
             Source.Seek(0);
             ReadHeader();
         }
+
+        /// <summary>
+        /// Gets the metadata for the underlying codec in a human-readable format.
+        /// </summary>
+        public ReadableMetadata GetMetadata() => decoder is IMetadataSupplier meta ? meta.GetMetadata() : null;
 
         /// <summary>
         /// Close the reader if it surely can't be used anywhere else.

@@ -27,6 +27,8 @@
                 <MenuItem x:Name="force24Bit" IsCheckable="True" Header="{StaticResource For24}"/>
                 <MenuItem x:Name="surroundSwap" IsCheckable="True" Header="{StaticResource SuSwa}" Click="SurroundSwapChange"/>
                 <MenuItem x:Name="wavChannelSkip" IsCheckable="True" Header="{StaticResource WavCh}" Click="WAVChannelSkipChange"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource SMetH}" ToolTip="{StaticResource SMetT}" Click="ShowMetadata"/>
                 <MenuItem x:Name="reportMode" IsCheckable="True" Header="{StaticResource ReMoH}" ToolTip="{StaticResource ReMoT}"/>
                 <MenuItem Header="{StaticResource PReSh}" Click="ShowPostRenderReport"/>
             </MenuItem>

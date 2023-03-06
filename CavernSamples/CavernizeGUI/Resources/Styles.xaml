@@ -40,5 +40,11 @@
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontWeight" Value="DemiBold"/>
     </Style>
+    <Style TargetType="TreeView">
+        <Setter Property="Background" Value="#222222"/>
+    </Style>
+    <Style TargetType="TreeViewItem">
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
     <SolidColorBrush x:Key="InfoBlue">#3186CE</SolidColorBrush>
 </ResourceDictionary>

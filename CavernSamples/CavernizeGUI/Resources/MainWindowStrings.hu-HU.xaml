@@ -15,6 +15,8 @@
     <system:String x:Key="For24">24-bites _PCM erőltetése (lassabb, nagyobb fájlok, nem ad hallható javulást)</system:String>
     <system:String x:Key="SuSwa">_Oldalsó/hátsó csatornák felcserélése</system:String>
     <system:String x:Key="WavCh">RIFF WAVE csatornamaszk kihagyása (korlátozások feloldása)</system:String>
+    <system:String x:Key="SMetH">Metaadatok mutatása</system:String>
+    <system:String x:Key="SMetT">Megmutatja a dekódolt kodekspecifikus mezőit a kiválasztott sávnak.</system:String>
     <system:String x:Key="ReMoH">_Csak jelentés mód</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
         report will be available after rendering without writing anything to the disk.</system:String>
@@ -94,4 +96,7 @@
     <system:String x:Key="InvTr">Ezt a hangsávot nem lehet dekódolni. A következő hiba történt a dekódolás során:</system:String>
     <system:String x:Key="FFOnl">A kiválasztott kimeneti formátumhoz FFmpeg-re van szükség. Kérlek, keresd meg az &quot;FFmpeg keresése&quot;
         gombbal, segítségért pedig kattints a Súgó/Felhasználói kézikönyv gombra.</system:String>
+    <system:String x:Key="CMetT">Kodek metaadatok</system:String>
+    <system:String x:Key="CMeET">Légy szíves, előbb tölts be egy fájlt.</system:String>
+    <system:String x:Key="CMeUT">A Cavern API még nem támogatja a kiválasztott sáv metaadatainak megjelenítését.</system:String>
 </ResourceDictionary>

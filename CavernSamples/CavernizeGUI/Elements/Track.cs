@@ -17,7 +17,7 @@ namespace CavernizeGUI.Elements {
     /// <summary>
     /// Represents an audio track of an audio file.
     /// </summary>
-    public class Track : IDisposable {
+    public class Track : IDisposable, IMetadataSupplier {
         /// <summary>
         /// Expanded names of codecs for which the enum is a shorthand.
         /// </summary>
@@ -175,6 +175,11 @@ namespace CavernizeGUI.Elements {
                 listener.AttachSource(attachables[i]);
             }
         }
+
+        /// <summary>
+        /// Gets the metadata for this codec in a human-readable format.
+        /// </summary>
+        public ReadableMetadata GetMetadata() => reader is IMetadataSupplier meta ? meta.GetMetadata() : null;
 
         /// <summary>
         /// Free up resources.

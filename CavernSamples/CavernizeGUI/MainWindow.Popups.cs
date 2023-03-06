@@ -8,11 +8,14 @@ using System.Windows;
 using Cavern;
 using Cavern.Channels;
 using Cavern.Format;
+using Cavern.Format.Common;
 using Cavern.Virtualizer;
 
 using CavernizeGUI.Elements;
 using CavernizeGUI.Windows;
 using CavernizeGUI.Resources;
+
+using Track = CavernizeGUI.Elements.Track;
 
 namespace CavernizeGUI {
     public partial class MainWindow {
@@ -109,6 +112,26 @@ namespace CavernizeGUI {
                 filters.IsChecked = false;
                 roomCorrection = null;
             }
+        }
+
+        /// <summary>
+        /// Show the post-render report in a popup.
+        /// </summary>
+        void ShowMetadata(object _, RoutedEventArgs e) {
+            if (tracks.SelectedItem is not Track track) {
+                Error((string)language["CMeET"]);
+                return;
+            }
+
+            ReadableMetadata metadata = track.GetMetadata();
+            if (metadata == null) {
+                Error((string)language["CMeUT"]);
+                return;
+            }
+
+            new CodecMetadata(metadata) {
+                Title = (string)language["CMetT"]
+            }.Show();
         }
 
         /// <summary>

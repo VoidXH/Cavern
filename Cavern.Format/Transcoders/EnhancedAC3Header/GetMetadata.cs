@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-
-using Cavern.Format.Common;
+﻿using Cavern.Format.Common;
 
 namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Header : IMetadataSupplier {
         /// <summary>
         /// Gets the metadata for this codec in a human-readable format.
         /// </summary>
-        public ReadableMetadata GetMetadata() => new ReadableMetadata(new (string name, IReadOnlyList<ReadableMetadataField> fields)[] {
-            ("Bitstream information", new ReadableMetadataField[] {
+        public ReadableMetadata GetMetadata() => new ReadableMetadata(new[] {
+            new ReadableMetadataHeader("Bitstream information", new[] {
                 new ReadableMetadataField("strmtyp", "Stream type", StreamType.ToString()),
                 new ReadableMetadataField("substreamid", "Substream ID", SubstreamID),
                 new ReadableMetadataField("frmsiz", "Frame size (in 16-bit words)", WordsPerSyncframe),
@@ -27,7 +25,7 @@ namespace Cavern.Format.Transcoders {
                 new ReadableMetadataField("infomdate", "Informational metadata exists", informationalMetadataEnabled),
                 new ReadableMetadataField("convsync", "Converter synchronization flag", convsync),
                 new ReadableMetadataField("blkid", "Block ID", blkid),
-                new ReadableMetadataField("addbsil", "Additional bit stream information length (in bytes)", addbsilen),
+                new ReadableMetadataField("addbsil", "Additional bitstream information length (in bytes)", addbsilen),
             })
         });
     }

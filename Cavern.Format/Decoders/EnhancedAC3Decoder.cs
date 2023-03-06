@@ -166,7 +166,13 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Gets the metadata for this codec in a human-readable format.
         /// </summary>
-        public ReadableMetadata GetMetadata() => header.GetMetadata();
+        public ReadableMetadata GetMetadata() {
+            IEnumerable<ReadableMetadataHeader> headers = header.GetMetadata().Headers;
+            if (Extensions.JOC != null) {
+                headers = headers.Concat(Extensions.JOC.GetMetadata().Headers);
+            }
+            return new ReadableMetadata(headers.ToList());
+        }
 
         /// <summary>
         /// Each (E-)AC-3 block is 256 samples.

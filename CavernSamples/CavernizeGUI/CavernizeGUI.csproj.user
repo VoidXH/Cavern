@@ -7,6 +7,9 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Windows\CodecMetadata.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Windows\UpmixingSetup.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -34,6 +37,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Resources\UpmixingSetupStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\CodecMetadata.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Windows\UpmixingSetup.xaml">
