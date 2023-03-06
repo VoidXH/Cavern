@@ -59,7 +59,7 @@ namespace Cavern.Format.Transcoders {
                 CreateCacheTables(header.Blocks, channels.Length);
             }
             if (header.Decoder == EnhancedAC3.Decoders.EAC3) {
-                AudioFrame();
+                DecodeAudioFrame();
             } else {
                 blkswe = true;
                 dithflage = true;
