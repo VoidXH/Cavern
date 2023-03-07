@@ -33,7 +33,7 @@ namespace Cavern.Format.FilterSet {
                 string label = Channels[i].name ?? EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
                     filterRelative = $"{fileNameBase} {label}.wav",
                     filterPath = Path.Combine(folder, filterRelative);
-                configFile.AddRange(new string[] {
+                configFile.AddRange(new[] {
                     $"  channel_{label}:",
                     "    type: Conv",
                     "    parameters:",
@@ -46,7 +46,7 @@ namespace Cavern.Format.FilterSet {
                     if ((Channels[i].filter.Length >> 1) > Channels[i].delaySamples) {
                         WaveformUtils.Delay(Channels[i].filter, Channels[i].delaySamples);
                     } else {
-                        configFile.AddRange(new string[] {
+                        configFile.AddRange(new[] {
                             $"  channel_{label}_delay:",
                             "    type: Delay",
                             "    parameters:",
@@ -64,7 +64,7 @@ namespace Cavern.Format.FilterSet {
             configFile.Add("pipeline:");
             for (int i = 0; i < Channels.Length; i++) {
                 string label = Channels[i].name ?? EqualizerAPOUtils.GetChannelLabel(i, Channels.Length);
-                configFile.AddRange(new string[] {
+                configFile.AddRange(new[] {
                     "  - type: Filter",
                     "    channel: " + i,
                     "    names:",

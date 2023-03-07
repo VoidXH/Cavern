@@ -50,7 +50,7 @@ namespace Cavern.Format.FilterSet {
                 BiquadFilter[] filters = Channels[i].filters;
                 for (int j = 0; j < filters.Length; j++) {
                     List<string> targetData = j < (Bands >> 1) ? inputData : outputData;
-                    targetData.AddRange(new string[] {
+                    targetData.AddRange(new[] {
                         $"biquad{j % (Bands >> 1) + 1},",
                         $"b0={filters[j].b0.ToString(CultureInfo.InvariantCulture)},",
                         $"b1={filters[j].b1.ToString(CultureInfo.InvariantCulture)},",

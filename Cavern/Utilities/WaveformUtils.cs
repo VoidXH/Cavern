@@ -16,8 +16,7 @@ namespace Cavern.Utilities {
         /// <param name="limit">Total number of samples to remove</param>
         public static unsafe void ClearChannel(float[] signal, int channel, int channels, int limit) {
             fixed (float* pSignal = signal) {
-                float* pChannel = pSignal + channel,
-                    end = pChannel + signal.Length;
+                float* pChannel = pSignal + channel;
                 while (limit-- != 0) {
                     *pChannel = 0;
                     pChannel += channels;

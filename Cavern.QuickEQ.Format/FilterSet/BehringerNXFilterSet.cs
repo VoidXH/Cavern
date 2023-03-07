@@ -46,7 +46,7 @@ namespace Cavern.Format.FilterSet {
 
             List<string> channelData = new List<string>();
             for (int i = 0, c = Channels.Length; i < c; ++i) {
-                if (i % 2 == 0) {
+                if ((i & 1) == 0) {
                     channelData.Clear();
                     channelData.AddRange(header);
                 }
@@ -65,7 +65,7 @@ namespace Cavern.Format.FilterSet {
                         freq, FormatWithSign(filters[j].Gain, "0.0"),
                         Math.Min(filters[j].Q, 10).ToString("0.00", CultureInfo.InvariantCulture)));
                 }
-                channelData.AddRange(new string[] {
+                channelData.AddRange(new[] {
                     prefix + "xover/hp sf OFF 100.0",
                     prefix + "xover/lp sf OFF 10k00",
                     $"{prefix}xover/gain f  {FormatWithSign(Math.Max(Math.Round(Channels[i].gain * 5) / 5, -12), "0.0")}",
@@ -79,7 +79,7 @@ namespace Cavern.Format.FilterSet {
                     prefix + "limiter fff 85.0 100.0  50.0"
                 });
 
-                if (i % 2 == 1) {
+                if ((i & 1) != 0) {
                     channelData.Add("END_OSC_DATA");
                     File.WriteAllLines(Path.Combine(folder, $"{fileNameBase} {GetLabel(i - 1)}-{GetLabel(i)}.nxp"), channelData);
                 }

@@ -216,9 +216,17 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>
         /// Remove correction from spectrum vallies that are most likely measurement errors or uncorrectable room modes.
+        /// The maximum gain increase is 6 dB, any band that needs more than this is considered a valley.
         /// </summary>
-        public void ValleyCorrection(float[] curve, EQCurve targetEQ, double startFreq, double stopFreq, float targetGain,
-            float maxGain = 6) {
+        public void ValleyCorrection(float[] curve, EQCurve targetEQ, double startFreq, double stopFreq, float targetGain) =>
+            ValleyCorrection(curve, targetEQ, startFreq, stopFreq, targetGain, 6);
+
+        /// <summary>
+        /// Remove correction from spectrum vallies that are most likely measurement errors or uncorrectable room modes.
+        /// The maximum gain increase is defined in the <paramref name="maxGain"/> parameter in decibels,
+        /// anyt band that needs more than this is considered a valley.
+        /// </summary>
+        public void ValleyCorrection(float[] curve, EQCurve targetEQ, double startFreq, double stopFreq, float targetGain, float maxGain) {
             int start = 0, end = curve.Length - 1;
             float[] target = targetEQ.GenerateLogCurve(startFreq, stopFreq, curve.Length, targetGain);
             while (start < end && target[start] > curve[start] + maxGain) {

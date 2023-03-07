@@ -64,7 +64,7 @@ namespace Cavern.Helpers {
             } else { // Fix for a Unity bug that's a feature: on Android, GetDeviceCaps always reports 16 kHz
                 buffer = Microphone.Start(deviceName, true, 1, sampleRate);
                 if (buffer == null) {
-                    int[] androidSampleRates = new int[] { 8000, 16000, 22050, 32000, 44100, 48000, 88200, 96000, 192000 };
+                    int[] androidSampleRates = new[] { 8000, 16000, 22050, 32000, 44100, 48000, 88200, 96000, 192000 };
                     int index = Array.BinarySearch(androidSampleRates, sampleRate);
                     if (index < 0) {
                         index = ~index;

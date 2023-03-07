@@ -32,7 +32,7 @@ namespace Cavern.Remapping {
         /// </summary>
         /// <param name="sourceCount">Number of output sources</param>
         /// <param name="sampleRate">Content sample rate</param>
-        public Upmixer(int sourceCount, int sampleRate) {
+        protected Upmixer(int sourceCount, int sampleRate) {
             StreamMaster reader = new StreamMaster(UpdateSourcesFully);
             IntermediateSources = new Source[sourceCount];
             output = new float[sourceCount][];

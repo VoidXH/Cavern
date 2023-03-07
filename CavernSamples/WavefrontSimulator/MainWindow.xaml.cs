@@ -23,7 +23,7 @@ namespace WavefrontSimulator {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
-        struct Simulated {
+        class Simulated {
             Vector2 position;
             readonly float[] samples;
 
