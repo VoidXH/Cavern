@@ -110,7 +110,7 @@ namespace Cavern.Format.Transcoders {
             }
 
             if (header.Blocks != 1) {
-                planter.Write(extractor.ReadBit());
+                planter.Write(blkstrtinfoe);
                 if (blkstrtinfoe) {
                     planter.Write(blkstrtinfo, (header.Blocks - 1) * (4 + QMath.Log2Ceil(header.WordsPerSyncframe)));
                 }

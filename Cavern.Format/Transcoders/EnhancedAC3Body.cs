@@ -40,8 +40,14 @@ namespace Cavern.Format.Transcoders {
         /// <remarks>Reading is done in the decoder.</remarks>
         readonly EnhancedAC3Header header;
 
+        /// <summary>
+        /// Renders a single E-AC-3 substream and holds inter-frame data.
+        /// </summary>
         public EnhancedAC3Body(EnhancedAC3Header header) => this.header = header;
 
+        /// <summary>
+        /// Do the mandatory steps before reading the audio blocks.
+        /// </summary>
         public void PrepareUpdate(BitExtractor extractor) {
             this.extractor = extractor;
             channels = header.GetChannelArrangement();
@@ -74,6 +80,15 @@ namespace Cavern.Format.Transcoders {
         }
 
         /// <summary>
+        /// Do the mandatory steps before writing the audio blocks.
+        /// </summary>
+        public void PrepareUpdate(BitPlanter planter) {
+            if (header.Decoder == EnhancedAC3.Decoders.EAC3) {
+                EncodeAudioFrame(planter);
+            }
+        }
+
+        /// <summary>
         /// Combine the found auxillary data.
         /// </summary>
         public BitExtractor GetAuxData() => new BitExtractor(auxData, auxDataPos);
@@ -84,7 +99,7 @@ namespace Cavern.Format.Transcoders {
         public void Update() {
             auxDataPos = 0;
             for (int block = 0; block < header.Blocks; ++block) {
-                AudioBlock(block);
+                DecodeAudioBlock(block);
             }
             ReadAux();
         }

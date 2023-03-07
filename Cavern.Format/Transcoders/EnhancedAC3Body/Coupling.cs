@@ -19,7 +19,7 @@ namespace Cavern.Format.Transcoders {
                     if (eac3 && header.ChannelMode == 2) {
                         chincpl[0] = chincpl[1] = true;
                     } else {
-                        for (int channel = 0; channel < channels.Length; ++channel) {
+                        for (int channel = 0; channel < channels.Length; channel++) {
                             chincpl[channel] = extractor.ReadBit();
                         }
                     }
@@ -39,13 +39,13 @@ namespace Cavern.Format.Transcoders {
                             throw new DecoderException(3);
                         }
                         if (cplbndstrce = !eac3 || extractor.ReadBit()) {
-                            for (int band = 1; band < ncplsubnd; ++band) {
+                            for (int band = 1; band < ncplsubnd; band++) {
                                 if (cplbndstrc[cplbegf + band] = extractor.ReadBit()) {
                                     --ncplbnd;
                                 }
                             }
                         } else {
-                            for (int band = 1; band < ncplsubnd; ++band) {
+                            for (int band = 1; band < ncplsubnd; band++) {
                                 if (cplbndstrc[cplbegf + band]) {
                                     --ncplbnd;
                                 }
@@ -74,7 +74,7 @@ namespace Cavern.Format.Transcoders {
                         }
                     }
                 } else if (eac3) {
-                    for (int channel = 0; channel < channels.Length; ++channel) {
+                    for (int channel = 0; channel < channels.Length; channel++) {
                         chincpl[channel] = false;
                         firstcplcos[channel] = true;
                     }
@@ -90,7 +90,7 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         void DecodeCouplingCoordinates(bool eac3) {
             if (!ecplinu) { // Standard coupling
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     if (chincpl[channel]) {
                         if (eac3 && firstcplcos[channel]) {
                             cplcoe[channel] = true;
@@ -101,7 +101,7 @@ namespace Cavern.Format.Transcoders {
                         if (cplcoe[channel]) {
                             int mstrcplco = extractor.Read(2) * 3;
                             int[] tcplco = cplco[channel];
-                            for (int band = 0; band < ncplbnd; ++band) {
+                            for (int band = 0; band < ncplbnd; band++) {
                                 int cplcoexp = extractor.Read(4);
                                 int cplcomant = extractor.Read(4) << 16; // Scale to max exponent
                                 if (cplcoexp != 15) {

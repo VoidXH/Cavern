@@ -14,13 +14,18 @@ namespace Cavern.Format.Transcoders {
     /// This is required by standard.</remarks>
     public class EnhancedAC3Merger {
         /// <summary>
-        /// Easy access to all required objects for reading an E-AC-3 header.
+        /// A single stream to merge. Easy access to all required objects for reading an E-AC-3 header.
         /// </summary>
-        struct Source {
+        class Source {
             /// <summary>
-            /// A stream to merge.
+            /// Alignment and content information of the stream.
             /// </summary>
             public EnhancedAC3Header Header { get; }
+
+            /// <summary>
+            /// Actual coded data of the stream.
+            /// </summary>
+            public EnhancedAC3Body Body { get; }
 
             /// <summary>
             /// File accessor to the <see cref="Header"/>.
@@ -42,6 +47,7 @@ namespace Cavern.Format.Transcoders {
             /// </summary>
             public Source(Stream source) {
                 Header = new EnhancedAC3Header();
+                Body = new EnhancedAC3Body(Header);
                 Reader = BlockBuffer<byte>.Create(source, FormatConsts.blockSize);
                 Frame = Header.Decode(Reader);
                 ChannelCount = Header.GetChannelArrangement().Length;
@@ -97,17 +103,20 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         public bool ProcessFrame() {
             for (int i = 0; i < sources.Length; i++) {
-                BitPlanter encoder = sources[i].Header.Encode();
-                int contentBits = sources[i].Frame.BackPosition - sources[i].Frame.Position;
+                var source = sources[i];
+                BitPlanter encoder = source.Header.Encode();
+                source.Body.PrepareUpdate(source.Frame);
+                source.Body.PrepareUpdate(encoder);
+                int contentBits = source.Frame.BackPosition - source.Frame.Position;
                 while (contentBits != 0) {
                     int toRead = 31;
                     if (toRead > contentBits) {
                         toRead = contentBits;
                     }
-                    encoder.Write(sources[i].Frame.Read(toRead), toRead);
+                    encoder.Write(source.Frame.Read(toRead), toRead);
                     contentBits -= toRead;
                 }
-                encoder.Write(0, sources[i].Header.WordsPerSyncframe * 16 - encoder.BitsWritten); // Padding
+                encoder.Write(0, source.Header.WordsPerSyncframe * 16 - encoder.BitsWritten); // Padding
                 encoder.WriteToStream(output);
             }
 

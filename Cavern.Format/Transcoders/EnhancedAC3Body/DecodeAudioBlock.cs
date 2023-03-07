@@ -9,24 +9,24 @@ namespace Cavern.Format.Transcoders {
         /// Decode an (E-)AC-3 audio block.
         /// </summary>
         /// <param name="block">Number of the block in the currently decoded syncframe</param>
-        void AudioBlock(int block) {
+        void DecodeAudioBlock(int block) {
             bool eac3 = header.Decoder == EnhancedAC3.Decoders.EAC3;
 
             if (blkswe) {
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     blksw[channel] = extractor.ReadBit();
                 }
             } else {
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     blksw[channel] = false;
                 }
             }
             if (dithflage) {
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     dithflag[channel] = extractor.ReadBit();
                 }
             } else {
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     dithflag[channel] = true;
                 }
             }
@@ -39,6 +39,7 @@ namespace Cavern.Format.Transcoders {
             if (eac3) {
                 ReadSPX(block);
             } else {
+                spxinu = false;
                 ClearSPX();
             }
 
@@ -56,7 +57,7 @@ namespace Cavern.Format.Transcoders {
                 if (cplinu[block]) {
                     cplexpstr[block] = (ExpStrat)extractor.Read(2);
                 }
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     chexpstr[block][channel] = (ExpStrat)extractor.Read(2);
                 }
                 if (header.LFE) {
@@ -65,7 +66,7 @@ namespace Cavern.Format.Transcoders {
             }
 
             // Channel bandwidth code
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < channels.Length; channel++) {
                 if (chexpstr[block][channel] != ExpStrat.Reuse) {
                     if (!chincpl[channel] && !chinspx[channel]) {
                         chbwcod[channel] = extractor.Read(6);
@@ -85,7 +86,7 @@ namespace Cavern.Format.Transcoders {
             }
 
             // Exponents for full bandwidth channels
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < channels.Length; channel++) {
                 if (chexpstr[block][channel] != ExpStrat.Reuse) {
                     exps[channel][0] = extractor.Read(4);
                     for (int group = 0; group < nchgrps[channel];) {
@@ -126,7 +127,7 @@ namespace Cavern.Format.Transcoders {
                 if (cplinu[block]) {
                     cplfsnroffst = frmfsnroffst;
                 }
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     fsnroffst[channel] = frmfsnroffst;
                 }
                 if (header.LFE) {
@@ -140,7 +141,7 @@ namespace Cavern.Format.Transcoders {
                             cplfsnroffst = extractor.Read(4);
                             cplfgaincod = extractor.Read(3);
                         }
-                        for (int channel = 0; channel < channels.Length; ++channel) {
+                        for (int channel = 0; channel < channels.Length; channel++) {
                             fsnroffst[channel] = extractor.Read(4);
                             fgaincod[channel] = extractor.Read(3);
                         }
@@ -151,7 +152,7 @@ namespace Cavern.Format.Transcoders {
                     } else if (snroffststr == 1) {
                         blkfsnroffst = extractor.Read(4);
                         cplfsnroffst = blkfsnroffst;
-                        for (int channel = 0; channel < channels.Length; ++channel) {
+                        for (int channel = 0; channel < channels.Length; channel++) {
                             fsnroffst[channel] = blkfsnroffst;
                         }
                         lfefsnroffst = blkfsnroffst;
@@ -159,7 +160,7 @@ namespace Cavern.Format.Transcoders {
                         if (cplinu[block]) {
                             cplfsnroffst = extractor.Read(4);
                         }
-                        for (int channel = 0; channel < channels.Length; ++channel) {
+                        for (int channel = 0; channel < channels.Length; channel++) {
                             fsnroffst[channel] = extractor.Read(4);
                         }
                         if (header.LFE) {
@@ -174,7 +175,7 @@ namespace Cavern.Format.Transcoders {
                     if (cplinu[block]) {
                         cplfgaincod = extractor.Read(3);
                     }
-                    for (int channel = 0; channel < channels.Length; ++channel) {
+                    for (int channel = 0; channel < channels.Length; channel++) {
                         fgaincod[channel] = extractor.Read(3);
                     }
                     if (header.LFE) {
@@ -184,7 +185,7 @@ namespace Cavern.Format.Transcoders {
                     if (cplinu[block]) {
                         cplfgaincod = 4;
                     }
-                    for (int channel = 0; channel < channels.Length; ++channel) {
+                    for (int channel = 0; channel < channels.Length; channel++) {
                         fgaincod[channel] = 4;
                     }
                     if (header.LFE) {
@@ -216,13 +217,13 @@ namespace Cavern.Format.Transcoders {
                 if (cplinu[block]) {
                     cpldeltba.enabled = (DeltaBitAllocationMode)extractor.Read(2);
                 }
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     deltba[channel].enabled = (DeltaBitAllocationMode)extractor.Read(2);
                 }
                 if (cplinu[block] && cpldeltba.enabled == DeltaBitAllocationMode.NewInfoFollows) {
                     cpldeltba.Read(extractor);
                 }
-                for (int channel = 0; channel < channels.Length; ++channel) {
+                for (int channel = 0; channel < channels.Length; channel++) {
                     if (deltba[channel].enabled == DeltaBitAllocationMode.NewInfoFollows) {
                         deltba[channel].Read(extractor);
                     }
@@ -238,7 +239,7 @@ namespace Cavern.Format.Transcoders {
                     throw new DecoderException(10);
                 }
             }
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < channels.Length; channel++) {
                 if (block == 0 && chexpstr[0][channel] == ExpStrat.Reuse) {
                     throw new DecoderException(8);
                 }
@@ -263,7 +264,7 @@ namespace Cavern.Format.Transcoders {
             }
 
             bool got_cplchan = false;
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < channels.Length; channel++) {
                 if (chahtinu[channel] == 0) {
                     //if (chexpstr[block][channel] != ExpStrat.Reuse)
                         Allocate(channel, chexpstr[block][channel]);
@@ -283,7 +284,7 @@ namespace Cavern.Format.Transcoders {
             }
 
             // Output
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < channels.Length; channel++) {
                 if (cplinu[block] && chincpl[channel]) {
                     ApplyCoupling(channel);
                 }
