@@ -87,6 +87,7 @@
                                 <Ellipse x:Name="topRearRight"  Width="10" Height="6" Fill="Red" Canvas.Left="112" Canvas.Top="62"/>
                                 <Rectangle Width="140" Height="85" Canvas.Left="14" Canvas.Top="73" Stroke="Gray"/>
                                 <Ellipse x:Name="rearLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="34" Canvas.Top="118"/>
+                                <Ellipse x:Name="rearCenter"  Width="10" Height="10" Fill="Red" Canvas.Left="79" Canvas.Top="118"/>
                                 <Ellipse x:Name="rearRight"  Width="10" Height="10" Fill="Red" Canvas.Left="124" Canvas.Top="118"/>
                             </Canvas>
                             <Button x:Name="wiring" Margin="40,231,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
