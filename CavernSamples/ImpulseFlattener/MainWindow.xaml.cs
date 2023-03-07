@@ -126,14 +126,14 @@ namespace ImpulseFlattener {
                         if (exporter.ShowDialog().Value) {
                             float[] channel = new float[targetLen * 2];
                             WaveformUtils.ExtractChannel(impulse, channel, ch, reader.ChannelCount);
-                            BinaryWriter outStream = new BinaryWriter(File.OpenWrite(exporter.FileName));
+                            Stream outStream = File.OpenWrite(exporter.FileName);
                             new RIFFWaveWriter(outStream, 1, targetLen * 2, reader.SampleRate, bits).Write(channel);
                         }
                     }
                 } else {
                     exporter.FileName = Path.GetFileName(browser.FileName);
                     if (exporter.ShowDialog().Value) {
-                        BinaryWriter outStream = new BinaryWriter(File.OpenWrite(exporter.FileName));
+                        Stream outStream = File.OpenWrite(exporter.FileName);
                         new RIFFWaveWriter(outStream, reader.ChannelCount, targetLen * 2, reader.SampleRate, bits).Write(impulse);
                     }
                 }

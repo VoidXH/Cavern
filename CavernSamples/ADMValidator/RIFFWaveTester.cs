@@ -25,29 +25,6 @@ namespace Cavern.Format.Decoders {
         public BitDepth Bits { get; private set; }
 
         /// <summary>
-        /// Content channel count.
-        /// </summary>
-        public override int ChannelCount => channelCount;
-        int channelCount;
-
-        /// <summary>
-        /// Location in the stream in samples.
-        /// </summary>
-        public override long Position => 0;
-
-        /// <summary>
-        /// Content length in samples for a single channel.
-        /// </summary>
-        public override long Length => length;
-        readonly long length;
-
-        /// <summary>
-        /// Bitstream sample rate.
-        /// </summary>
-        public override int SampleRate => sampleRate;
-        int sampleRate;
-
-        /// <summary>
         /// The file size according to the RIFF header.
         /// </summary>
         public long FileLength { get; private set; }
@@ -136,7 +113,7 @@ namespace Cavern.Format.Decoders {
                         DBMD = new DolbyMetadata(reader, headerSize, true);
                         break;
                     case RIFFWave.dataSync:
-                        length = headerSize * 8L / (long)Bits / ChannelCount;
+                        Length = headerSize * 8L / (long)Bits / ChannelCount;
                         long dataStart = reader.Position;
                         if (dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags
                             reader.Position = dataStart + headerSize;
@@ -172,8 +149,8 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         void ParseFormatHeader(Stream reader) {
             short sampleFormat = reader.ReadInt16(); // 1 = int, 3 = float, -2 = WAVEFORMATEXTENSIBLE
-            channelCount = reader.ReadInt16();
-            sampleRate = reader.ReadInt32();
+            ChannelCount = reader.ReadInt16();
+            SampleRate = reader.ReadInt32();
             reader.Position += 4; // Bytes/sec
             reader.Position += 2; // Block size in bytes
             short bitDepth = reader.ReadInt16();
