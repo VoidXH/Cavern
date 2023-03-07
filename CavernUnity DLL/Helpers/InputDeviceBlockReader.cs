@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cavern.Format;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace Cavern.Helpers {
         /// </summary>
         [Tooltip("Target device sample rate. Will be overridden if the device doesn't support it." +
             " Only updated when the component is enabled.")]
-        public int sampleRate;
+        public int sampleRate = 48000;
 
         /// <summary>
         /// Name of the target device or empty string for the default device.
@@ -56,9 +57,30 @@ namespace Cavern.Helpers {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity lifecycle")]
         void OnEnable() {
-            Microphone.GetDeviceCaps(deviceName, out int minFreq, out int maxFreq);
-            sampleRate = Math.Clamp(sampleRate, minFreq, maxFreq);
-            buffer = Microphone.Start(deviceName, true, 1, sampleRate);
+            if (Application.platform != RuntimePlatform.Android) {
+                Microphone.GetDeviceCaps(deviceName, out int minFreq, out int maxFreq);
+                sampleRate = Math.Clamp(sampleRate, minFreq, maxFreq);
+                buffer = Microphone.Start(deviceName, true, 1, sampleRate);
+            } else { // Fix for a Unity bug that's a feature: on Android, GetDeviceCaps always reports 16 kHz
+                buffer = Microphone.Start(deviceName, true, 1, sampleRate);
+                if (buffer == null) {
+                    int[] androidSampleRates = new int[] { 8000, 16000, 22050, 32000, 44100, 48000, 88200, 96000, 192000 };
+                    int index = Array.BinarySearch(androidSampleRates, sampleRate);
+                    if (index < 0) {
+                        index = ~index;
+                    }
+                    for (int i = index; i < androidSampleRates.Length; i++) {
+                        if (buffer = Microphone.Start(deviceName, true, 1, sampleRate = androidSampleRates[i])) {
+                            return;
+                        }
+                    }
+                    for (int i = 0; i < index; i++) {
+                        if (buffer = Microphone.Start(deviceName, true, 1, sampleRate = androidSampleRates[i])) {
+                            return;
+                        }
+                    }
+                }
+            }
             frame = new float[blockSize];
         }
 

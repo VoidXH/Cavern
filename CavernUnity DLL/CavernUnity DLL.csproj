@@ -40,10 +40,10 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEditor">
-      <HintPath>..\..\..\2021.3.16f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
+      <HintPath>..\..\..\2022.2.9f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\2021.3.16f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\2022.2.9f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
