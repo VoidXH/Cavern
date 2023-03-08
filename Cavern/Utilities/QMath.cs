@@ -376,6 +376,19 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Counts the trailing zeros in an integer.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int TrailingZeros(int x) {
+            int zeros = 0;
+            while ((x & 1) == 0) {
+                ++zeros;
+                x >>= 1;
+            }
+            return zeros;
+        }
+
+        /// <summary>
         /// Conversion array for <see cref="BitsAfterMSB(int)"/>.
         /// </summary>
         static readonly byte[] bitsAfterMSBHack = { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,

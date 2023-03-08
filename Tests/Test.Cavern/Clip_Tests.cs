@@ -16,10 +16,10 @@ namespace Test.Cavern {
 
             float[] getTo = new float[Consts.samples.Length];
             Assert.IsTrue(clip.GetData(getTo, loopOffset));
-            CollectionAssert.AreEqual(getTo, Consts.samples);
+            CollectionAssert.AreEqual(Consts.samples, getTo);
 
             Assert.IsTrue(clip.GetDataNonLooping(getTo, loopOffset));
-            CollectionAssert.AreEqual(getTo[..(Consts.samples.Length - loopOffset)], Consts.samples[..^loopOffset]);
+            CollectionAssert.AreEqual(Consts.samples[..^loopOffset], getTo[..(Consts.samples.Length - loopOffset)]);
         }
 
         /// <summary>
@@ -35,14 +35,14 @@ namespace Test.Cavern {
 
             float[] getTo = new float[Consts.samples.Length];
             Assert.IsTrue(clip.GetData(getTo, 0, loopOffset));
-            CollectionAssert.AreEqual(getTo, Consts.samples);
+            CollectionAssert.AreEqual(Consts.samples, getTo);
 
             MultichannelWaveform getMultichannelTo = new(new float[Consts.samples.Length], new float[Consts.samples.Length]);
             Assert.IsTrue(clip.GetData(getMultichannelTo, loopOffset));
-            CollectionAssert.AreEqual(getMultichannelTo[0], Consts.samples);
+            CollectionAssert.AreEqual(Consts.samples, getMultichannelTo[0]);
 
             Assert.IsTrue(clip.GetDataNonLooping(getMultichannelTo, loopOffset));
-            CollectionAssert.AreEqual(getMultichannelTo[1][..(Consts.samples.Length - loopOffset)], Consts.samples2[..^loopOffset]);
+            CollectionAssert.AreEqual(Consts.samples2[..^loopOffset], getMultichannelTo[1][..(Consts.samples.Length - loopOffset)]);
         }
 
         /// <summary>

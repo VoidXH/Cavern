@@ -15,7 +15,7 @@ namespace Test.Cavern {
             float[] source = new float[3];
             for (int i = 0; i < source.Length;) {
                 source[i] = i + 1;
-                Assert.AreEqual((int)source.GetPeak(), ++i);
+                Assert.AreEqual(++i, (int)source.GetPeak());
             }
         }
 
@@ -31,7 +31,7 @@ namespace Test.Cavern {
             source[0][Consts.nice] = 1;
             source.TrimEnd();
 
-            Assert.AreEqual(source[0].Length, Consts.nice + 1);
+            Assert.AreEqual(Consts.nice + 1, source[0].Length);
             Assert.AreEqual(source[0].Length, source[1].Length);
         }
     }

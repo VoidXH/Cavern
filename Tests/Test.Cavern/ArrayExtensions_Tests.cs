@@ -12,8 +12,8 @@ namespace Test.Cavern {
         [TestMethod, Timeout(1000)]
         public void Nearest() {
             float[] testArray = { 1, 2, 3, 4 };
-            Assert.AreEqual(testArray.Nearest(1.99f), 2);
-            Assert.AreEqual(testArray.Nearest(3.01f), 3);
+            Assert.AreEqual(2, testArray.Nearest(1.99f));
+            Assert.AreEqual(3, testArray.Nearest(3.01f));
         }
     }
 }

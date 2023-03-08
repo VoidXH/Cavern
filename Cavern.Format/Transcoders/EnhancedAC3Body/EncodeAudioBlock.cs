@@ -9,7 +9,7 @@ namespace Cavern.Format.Transcoders {
         /// Encode an (E-)AC-3 audio block.
         /// </summary>
         /// <param name="block">Number of the block in the currently decoded syncframe</param>
-        void EncodeAudioBlock(BitPlanter planter, int block) {
+        internal void EncodeAudioBlock(BitPlanter planter, int block) {
             bool eac3 = header.Decoder == EnhancedAC3.Decoders.EAC3;
 
             if (blkswe) {
@@ -32,9 +32,9 @@ namespace Cavern.Format.Transcoders {
                 WriteSPX(planter, block);
             }
 
-            // TODO: DecodeCouplingStrategy(eac3, block);
+            EncodeCouplingStrategy(planter, eac3, block);
             if (cplinu[block]) {
-                // TODO: DecodeCouplingCoordinates(eac3);
+                EncodeCouplingCoordinates(planter, eac3);
             }
 
             if (header.ChannelMode == 2) {
@@ -179,11 +179,11 @@ namespace Cavern.Format.Transcoders {
                         planter.Write((int)deltba[channel].enabled, 2);
                     }
                     if (cplinu[block] && cpldeltba.enabled == DeltaBitAllocationMode.NewInfoFollows) {
-                        // TODO: cpldeltba.Read(extractor);
+                        cpldeltba.Write(planter);
                     }
                     for (int channel = 0; channel < channels.Length; channel++) {
                         if (deltba[channel].enabled == DeltaBitAllocationMode.NewInfoFollows) {
-                            // TODO: deltba[channel].Read(extractor);
+                            deltba[channel].Write(planter);
                         }
                     }
                 }
@@ -193,7 +193,7 @@ namespace Cavern.Format.Transcoders {
             if (skipFieldSyntaxEnabled) {
                 planter.Write(skipLengthEnabled);
                 if (skipLengthEnabled) {
-                    // TODO: extractor.ReadBytesInto(ref auxData, ref auxDataPos, skipLength = extractor.Read(9));
+                    throw new UnsupportedFeatureException("aux");
                 }
             }
 

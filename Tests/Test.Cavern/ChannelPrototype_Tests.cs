@@ -12,8 +12,8 @@ namespace Test.Cavern {
         [TestMethod, Timeout(1000)]
         public void LayoutSizes() {
             for (int i = 1; i <= 16; i++) {
-                Assert.AreEqual(ChannelPrototype.GetStandardMatrix(i).Length, i);
-                Assert.AreEqual(ChannelPrototype.GetIndustryStandardMatrix(i).Length, i);
+                Assert.AreEqual(i, ChannelPrototype.GetStandardMatrix(i).Length);
+                Assert.AreEqual(i, ChannelPrototype.GetIndustryStandardMatrix(i).Length);
             }
         }
     }

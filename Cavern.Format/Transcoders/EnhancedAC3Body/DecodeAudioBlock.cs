@@ -10,7 +10,7 @@ namespace Cavern.Format.Transcoders {
         /// Decode an (E-)AC-3 audio block.
         /// </summary>
         /// <param name="block">Number of the block in the currently decoded syncframe</param>
-        void DecodeAudioBlock(int block) {
+        internal void DecodeAudioBlock(int block) {
             bool eac3 = header.Decoder == EnhancedAC3.Decoders.EAC3;
 
             if (blkswe) {

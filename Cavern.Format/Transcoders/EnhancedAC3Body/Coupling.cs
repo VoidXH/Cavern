@@ -1,9 +1,10 @@
 ﻿using System;
 
 using Cavern.Format.Common;
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Transcoders {
-    // Functions related to the coupling channel, its decoding, and its application.
+    // Functions related to the coupling channel, its decoding/encoding, and its application.
     partial class EnhancedAC3Body {
         /// <summary>
         /// Decode the (enhanced) coupling strategy information.
@@ -99,15 +100,18 @@ namespace Cavern.Format.Transcoders {
                             cplcoe[channel] = extractor.ReadBit();
                         }
                         if (cplcoe[channel]) {
-                            int mstrcplco = extractor.Read(2) * 3;
-                            int[] tcplco = cplco[channel];
+                            mstrcplco[channel] = extractor.Read(2) * 3;
+                            int[] tcplco = cplco[channel],
+                                cplchexp = cplcoexp[channel],
+                                cplchmant = cplcomant[channel];
                             for (int band = 0; band < ncplbnd; band++) {
-                                int cplcoexp = extractor.Read(4);
-                                int cplcomant = extractor.Read(4) << 16; // Scale to max exponent
-                                if (cplcoexp != 15) {
-                                    cplcomant = (cplcomant >> 1) + (16 << 15);
+                                cplchexp[band] = extractor.Read(4);
+                                cplchmant[band] = extractor.Read(4);
+                                if (cplchexp[band] != 15) {
+                                    tcplco[band] = (cplchmant[band] + 16) << (15 - cplchexp[band] - mstrcplco[channel]);
+                                } else {
+                                    tcplco[band] = cplchmant[band] << (15 - mstrcplco[channel]);
                                 }
-                                tcplco[band] = cplcomant >> (cplcoexp + mstrcplco);
                             }
                         }
                         if ((header.ChannelMode == 0x2) && phsflginu && (cplcoe[0] || cplcoe[1])) {
@@ -115,6 +119,77 @@ namespace Cavern.Format.Transcoders {
                         }
                     } else {
                         firstcplcos[channel] = true;
+                    }
+                }
+            } else { // Enhanced coupling
+                throw new UnsupportedFeatureException("ecplinu");
+            }
+        }
+
+        /// <summary>
+        /// Encode the (enhanced) coupling strategy information.
+        /// </summary>
+        void EncodeCouplingStrategy(BitPlanter planter, bool eac3, int block) {
+            if (!eac3) {
+                planter.Write(cplstre[block]);
+                if (cplstre[block]) {
+                    planter.Write(cplinu[block]);
+                }
+            }
+
+            if ((cplstre[block] || !eac3) && cplinu[block]) {
+                if (eac3) {
+                    planter.Write(ecplinu);
+                }
+                if (!eac3 || header.ChannelMode != 2) {
+                    for (int channel = 0; channel < channels.Length; channel++) {
+                        planter.Write(chincpl[channel]);
+                    }
+                }
+                if (!ecplinu) { // Standard coupling
+                    if (header.ChannelMode == 0x2) {
+                        planter.Write(phsflginu);
+                    }
+                    planter.Write(cplbegf, 4);
+                    if (!spxinu) {
+                        planter.Write(cplendf, 4);
+                    }
+                    if (eac3) {
+                        planter.Write(cplbndstrce);
+                    }
+                    if (cplbndstrce) {
+                        for (int band = 1; band < ncplsubnd; band++) {
+                            planter.Write(cplbndstrc[cplbegf + band]);
+                        }
+                    }
+                } else { // Enhanced coupling
+                    throw new UnsupportedFeatureException("ecplinu");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Encode coupling coordinates and phase flags.
+        /// </summary>
+        void EncodeCouplingCoordinates(BitPlanter planter, bool eac3) {
+            if (!ecplinu) { // Standard coupling
+                for (int channel = 0; channel < channels.Length; channel++) {
+                    if (chincpl[channel]) {
+                        if (!eac3 || !firstcplcos[channel]) {
+                            planter.Write(cplcoe[channel]);
+                        }
+                        if (cplcoe[channel]) {
+                            planter.Write(mstrcplco[channel] / 3, 2);
+                            int[] cplchexp = cplcoexp[channel],
+                                cplchmant = cplcomant[channel];
+                            for (int band = 0; band < ncplbnd; band++) {
+                                planter.Write(cplchexp[band], 4);
+                                planter.Write(cplchmant[band], 4);
+                            }
+                        }
+                        if ((header.ChannelMode == 2) && phsflginu && (cplcoe[0] || cplcoe[1])) {
+                            throw new UnsupportedFeatureException("stereo");
+                        }
                     }
                 }
             } else { // Enhanced coupling

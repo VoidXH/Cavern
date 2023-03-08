@@ -107,15 +107,9 @@ namespace Cavern.Format.Transcoders {
                 BitPlanter encoder = source.Header.Encode();
                 source.Body.PrepareUpdate(source.Frame);
                 source.Body.PrepareUpdate(encoder);
-                // TODO: read and write blocks instead of this copy, but keep padding
-                int contentBits = source.Frame.BackPosition - source.Frame.Position;
-                while (contentBits != 0) {
-                    int toRead = 31;
-                    if (toRead > contentBits) {
-                        toRead = contentBits;
-                    }
-                    encoder.Write(source.Frame.Read(toRead), toRead);
-                    contentBits -= toRead;
+                for (int block = 0; block < source.Header.Blocks; block++) {
+                    source.Body.DecodeAudioBlock(block);
+                    source.Body.EncodeAudioBlock(encoder, block);
                 }
                 encoder.Write(0, source.Header.WordsPerSyncframe * 16 - encoder.BitsWritten); // Padding
                 encoder.WriteToStream(output);
