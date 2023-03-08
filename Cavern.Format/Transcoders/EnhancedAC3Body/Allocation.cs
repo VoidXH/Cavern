@@ -43,7 +43,10 @@ namespace Cavern.Format.Transcoders {
                 Array.Clear(target, end, target.Length - end);
             }
 
-
+            /// <summary>
+            /// Write the encoded mantissa values to a bitstream.
+            /// </summary>
+            public void WriteTransformCoeffs(BitPlanter planter) => planter.WriteBits(rawMantissa, mantissaBits);
 
             /// <summary>
             /// Performs a 512-sample inverse modified discrete cosine transform in-place.

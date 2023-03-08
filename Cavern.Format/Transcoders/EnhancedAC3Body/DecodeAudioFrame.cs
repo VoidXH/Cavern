@@ -18,7 +18,7 @@ namespace Cavern.Format.Transcoders {
             bamode = extractor.ReadBit();
             frmfgaincode = extractor.ReadBit();
             dbaflde = extractor.ReadBit();
-            skipflde = extractor.ReadBit();
+            skipFieldSyntaxEnabled = extractor.ReadBit();
             spxattene = extractor.ReadBit();
 
             if (header.ChannelMode > 1) { // Not mono

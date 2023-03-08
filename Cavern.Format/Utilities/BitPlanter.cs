@@ -60,6 +60,7 @@ namespace Cavern.Format.Utilities {
 
         /// <summary>
         /// Append an array of bytes to the stream under construction, without aligning to byte borders.
+        /// The length is given in bytes.
         /// </summary>
         public void Write(byte[] value, int length) {
             for (int i = 0; i < length; i++) {
@@ -90,6 +91,19 @@ namespace Cavern.Format.Utilities {
             Write(value.HasValue);
             if (value != null) {
                 Write(value.Value, bits);
+            }
+        }
+
+        /// <summary>
+        /// Append an array of bytes to the stream under construction, without aligning to byte borders.
+        /// The length is given in bits.
+        /// </summary>
+        public void WriteBits(byte[] value, int length) {
+            int fullBytes = length >> 3;
+            Write(value, fullBytes);
+            int remainder = length & 7;
+            if (remainder != 0) {
+                Write(value[fullBytes], remainder);
             }
         }
 

@@ -1,10 +1,6 @@
 ﻿namespace Cavern.Format.Transcoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
     partial class EnhancedAC3Body {
-        const int maxAllocationSize = 256;
-        const int lfestrtmant = 0;
-        const int lfeendmant = 7;
-
         /// <summary>
         /// Per-channel bit allocation data.
         /// </summary>
@@ -21,14 +17,29 @@
         Allocation lfeAllocation;
 
         /// <summary>
-        /// Unprocessed auxillary data fields are added here.
+        /// Skip field (some bytes of <see cref="auxData"/>) can be present.
         /// </summary>
-        byte[] auxData = new byte[0];
+        bool skipFieldSyntaxEnabled;
+
+        /// <summary>
+        /// Skip field (some bytes of <see cref="auxData"/>) is present.
+        /// </summary>
+        bool skipLengthEnabled;
+
+        /// <summary>
+        /// Size of the skip field (this many bytes of <see cref="auxData"/> are contained in this frame.
+        /// </summary>
+        int skipLength;
 
         /// <summary>
         /// Last written byte in <see cref="auxData"/>.
         /// </summary>
         int auxDataPos;
+
+        /// <summary>
+        /// Unprocessed auxillary data fields are added here.
+        /// </summary>
+        byte[] auxData = new byte[0];
 
         bool ahte;
         bool baie;
@@ -38,6 +49,7 @@
         bool convexpstre;
         bool convsnroffste;
         bool cplbndstrce;
+        bool cplleake;
         bool dbaflde;
         bool deltbaie;
         bool dithflage;
@@ -48,7 +60,6 @@
         bool firstcplleak;
         bool frmfgaincode;
         bool phsflginu;
-        bool skipflde;
         bool snroffste;
         bool spxattene;
         bool spxbndstrce;
@@ -214,5 +225,21 @@
                 exps[channel] = new int[maxAllocationSize];
             }
         }
+
+
+        /// <summary>
+        /// Absolute maximum band. If arrays are allocated to this size, they can't be overrun.
+        /// </summary>
+        const int maxAllocationSize = 256;
+
+        /// <summary>
+        /// First mantissa of the LFE channel.
+        /// </summary>
+        const int lfestrtmant = 0;
+
+        /// <summary>
+        /// Last mantissa of the LFE channel.
+        /// </summary>
+        const int lfeendmant = 7;
     }
 }

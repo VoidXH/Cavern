@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Format.Common;
+
 using static Cavern.Format.Transcoders.EnhancedAC3;
 
 namespace Cavern.Format.Transcoders {
@@ -67,21 +68,17 @@ namespace Cavern.Format.Transcoders {
 
             // Channel bandwidth code
             for (int channel = 0; channel < channels.Length; channel++) {
-                if (chexpstr[block][channel] != ExpStrat.Reuse) {
-                    if (!chincpl[channel] && !chinspx[channel]) {
-                        chbwcod[channel] = extractor.Read(6);
-                    }
+                if (chexpstr[block][channel] != ExpStrat.Reuse && !chincpl[channel] && !chinspx[channel]) {
+                    chbwcod[channel] = extractor.Read(6);
                 }
             }
 
             // Exponents
             ParseParametricBitAllocation(block);
-            if (cplinu[block]) {
-                if (cplexpstr[block] != ExpStrat.Reuse) {
-                    cplexps[0] = extractor.Read(4);
-                    for (int group = 0; group < ncplgrps;) {
-                        cplexps[++group] = extractor.Read(7);
-                    }
+            if (cplinu[block] && cplexpstr[block] != ExpStrat.Reuse) {
+                cplexps[0] = extractor.Read(4);
+                for (int group = 0; group < ncplgrps;) {
+                    cplexps[++group] = extractor.Read(7);
                 }
             }
 
@@ -97,12 +94,10 @@ namespace Cavern.Format.Transcoders {
             }
 
             // Exponents for LFE channel
-            if (header.LFE) {
-                if (lfeexpstr[block]) {
-                    lfeexps[0] = extractor.Read(4);
-                    lfeexps[1] = extractor.Read(7);
-                    lfeexps[2] = extractor.Read(7);
-                }
+            if (header.LFE && lfeexpstr[block]) {
+                lfeexps[0] = extractor.Read(4);
+                lfeexps[1] = extractor.Read(7);
+                lfeexps[2] = extractor.Read(7);
             }
 
             // Bit allocation parametric information
@@ -199,7 +194,6 @@ namespace Cavern.Format.Transcoders {
             }
 
             if (cplinu[block]) {
-                bool cplleake;
                 if (firstcplleak) {
                     cplleake = true;
                     firstcplleak = false;
@@ -249,8 +243,8 @@ namespace Cavern.Format.Transcoders {
             }
 
             // "Unused dummy data" that might just be used to transport objects
-            if (skipflde && extractor.ReadBit()) {
-                extractor.ReadBytesInto(ref auxData, ref auxDataPos, extractor.Read(9));
+            if (skipFieldSyntaxEnabled && (skipLengthEnabled = extractor.ReadBit())) {
+                extractor.ReadBytesInto(ref auxData, ref auxDataPos, skipLength = extractor.Read(9));
             }
 
             // Quantized mantissa values - prepare for the next allocation frame

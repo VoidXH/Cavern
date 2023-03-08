@@ -74,7 +74,7 @@ namespace Cavern.Format.Transcoders {
                 frmfgaincode = false;
                 firstcplleak = false;
                 dbaflde = true;
-                skipflde = true;
+                skipFieldSyntaxEnabled = true;
                 // TODO: disable AHT when it's implemented
             }
         }

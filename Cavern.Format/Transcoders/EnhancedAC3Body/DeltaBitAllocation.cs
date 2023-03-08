@@ -68,10 +68,22 @@ namespace Cavern.Format.Transcoders {
                     Length = new int[segments];
                     BitAllocation = new int[segments];
                 }
-                for (int segment = 0; segment < segments; ++segment) {
+                for (int segment = 0; segment < segments; segment++) {
                     Offset[segment] = extractor.Read(5);
                     Length[segment] = extractor.Read(4);
                     BitAllocation[segment] = extractor.Read(3);
+                }
+            }
+
+            /// <summary>
+            /// Write the delta bit allocation to the bitstream.
+            /// </summary>
+            public void Write(BitPlanter planter) {
+                planter.Write(Offset.Length - 1, 3);
+                for (int segment = 0; segment < Offset.Length; segment++) {
+                    planter.Write(Offset[segment], 5);
+                    planter.Write(Length[segment], 4);
+                    planter.Write(BitAllocation[segment], 3);
                 }
             }
         }

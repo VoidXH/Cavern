@@ -21,7 +21,7 @@ namespace Cavern.Format.Transcoders {
             planter.Write(bamode);
             planter.Write(frmfgaincode);
             planter.Write(dbaflde);
-            planter.Write(skipflde);
+            planter.Write(skipFieldSyntaxEnabled);
             planter.Write(spxattene);
 
             if (header.ChannelMode > 1) { // Not mono
