@@ -222,9 +222,9 @@ namespace Cavern.Utilities {
                 response.InPlaceFFT(cache);
             }
             for (int i = 0; i < response.Length; i++) {
-                double exp = Math.Exp(response[i].Real);
-                response[i].Real = (float)(exp * Math.Cos(response[i].Imaginary));
-                response[i].Imaginary = (float)(exp * Math.Sin(response[i].Imaginary));
+                float exp = MathF.Exp(response[i].Real);
+                response[i].Real = exp * MathF.Cos(response[i].Imaginary);
+                response[i].Imaginary = exp * MathF.Sin(response[i].Imaginary);
             }
             if (customCache) {
                 cache.Dispose();
@@ -416,10 +416,10 @@ namespace Cavern.Utilities {
                     oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul],
                     real = even[i].Real + oddReal,
                     imaginary = even[i].Imaginary + oddImag;
-                samples[i] = (float)Math.Sqrt(real * real + imaginary * imaginary);
+                samples[i] = MathF.Sqrt(real * real + imaginary * imaginary);
                 real = even[i].Real - oddReal;
                 imaginary = even[i].Imaginary - oddImag;
-                samples[i + halfLength] = (float)Math.Sqrt(real * real + imaginary * imaginary);
+                samples[i + halfLength] = MathF.Sqrt(real * real + imaginary * imaginary);
             }
         }
 
