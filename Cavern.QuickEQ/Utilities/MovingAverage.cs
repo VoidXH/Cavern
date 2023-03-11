@@ -1,0 +1,46 @@
+﻿using Cavern.Utilities;
+
+namespace Cavern.QuickEQ.Utilities {
+    /// <summary>
+    /// Averages multiple frames of windowed audio or spectrum data, and when a new window is added, the last one is removed.
+    /// </summary>
+    public class MovingAverage {
+        /// <summary>
+        /// The current moving average.
+        /// </summary>
+        public float[] Average { get; private set; }
+
+        /// <summary>
+        /// The windows to average.
+        /// </summary>
+        readonly float[][] windows;
+
+        /// <summary>
+        /// Averages multiple frames of windowed audio or spectrum data, and when a new window is added, the last one is removed.
+        /// </summary>
+        /// <param name="frames">Number of windows to average</param>
+        public MovingAverage(int frames) {
+            windows = new float[frames][];
+        }
+
+        /// <summary>
+        /// Process the average by adding the next frame.
+        /// </summary>
+        /// <remarks>The length of <paramref name="frame"/> must be constant across the use of this object.</remarks>
+        public void AddFrame(float[] frame) {
+            if (Average != null) {
+                WaveformUtils.Insert(frame, Average, -1f / windows.Length);
+                for (int i = 1; i < windows.Length; i++) {
+                    windows[i - 1] = windows[i];
+                }
+                windows[^1] = frame;
+            } else {
+                Average = new float[frame.Length];
+                WaveformUtils.Insert(frame, Average, 1);
+                for (int i = 0; i < windows.Length; i++) {
+                    windows[i] = frame;
+                }
+            }
+        }
+    }
+}

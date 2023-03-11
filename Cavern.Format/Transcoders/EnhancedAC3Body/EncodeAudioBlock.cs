@@ -8,6 +8,7 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Encode an (E-)AC-3 audio block.
         /// </summary>
+        /// <param name="planter">Bitstream to write to</param>
         /// <param name="block">Number of the block in the currently decoded syncframe</param>
         internal void EncodeAudioBlock(BitPlanter planter, int block) {
             bool eac3 = header.Decoder == EnhancedAC3.Decoders.EAC3;

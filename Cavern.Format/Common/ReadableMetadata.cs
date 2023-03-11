@@ -68,7 +68,7 @@ namespace Cavern.Format.Common {
         public IReadOnlyList<ReadableMetadataHeader> Headers { get; }
 
         /// <summary>
-        /// Box the human-readable <see cref="headers"/> for transfer.
+        /// Box the human-readable <see cref="Headers"/> for transfer.
         /// </summary>
         public ReadableMetadata(IReadOnlyList<ReadableMetadataHeader> headers) => Headers = headers;
     }

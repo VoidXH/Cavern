@@ -67,7 +67,6 @@ namespace Cavern.Helpers {
         /// </summary>
         /// <param name="target">Follow this <see cref="Source"/></param>
         /// <param name="attach">Attach the visualized source to the active listener</param>
-        /// <param name="trailTime">Show the object's trail for this many seconds</param>
         /// <returns>The follower component on a created sphere</returns>
         public static Follower CreateFollower(Source target, bool attach) {
             GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
