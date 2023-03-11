@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Cavern.QuickEQ.Equalization;
-using Cavern.QuickEQ.Utilities;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
@@ -41,14 +40,14 @@ namespace Cavern.QuickEQ.Graphing {
         /// Some minor values have changed, recreate the <see cref="Render"/> from the <see cref="preRender"/>.
         /// </summary>
         public void ReRender(GraphRenderer parent) {
-            float bottom = preRender.Max() - parent.DynamicRange - parent.Padding,
+            float bottom = parent.Peak - parent.DynamicRange - parent.Padding,
                 ratio = (parent.Height - 1) / (parent.DynamicRange + 2 * parent.Padding);
-            int lastRow = (int)((preRender[0] - bottom) * ratio);
-            if (lastRow >= 0) {
+            int lastRow = Math.Min((int)((preRender[0] - bottom) * ratio), parent.Height - 1);
+            if (lastRow >= 0 && lastRow < parent.Height) {
                 Render[lastRow * parent.Width] = 0xFF;
             }
             for (int i = 1; i < preRender.Length; i++) {
-                int row = (int)((preRender[i] - bottom) * ratio);
+                int row = Math.Min((int)((preRender[i] - bottom) * ratio), parent.Height - 1);
                 for (int j = Math.Max(lastRow, 0); j <= row; j++) {
                     Render[j * parent.Width + i] = 0xFF;
                 }

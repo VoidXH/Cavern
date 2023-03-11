@@ -58,6 +58,18 @@ namespace Cavern.QuickEQ.Graphing {
         float dynamicRange = 30;
 
         /// <summary>
+        /// Maximum value to display in decibels.
+        /// </summary>
+        public float Peak {
+            get => peak;
+            set {
+                peak = value;
+                ReRender();
+            }
+        }
+        float peak = 6;
+
+        /// <summary>
         /// The top and bottom will be moved towards the center by this many decibels.
         /// </summary>
         public float Padding {
@@ -137,7 +149,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Get what gain corresponds to a given subpixel position on the heigh axis, relative to the peak gain.
         /// </summary>
-        public float GetGainAt(float height) => -(height / Height) * dynamicRange;
+        public float GetGainAt(float height) => peak - height / Height * dynamicRange;
 
         /// <summary>
         /// Redraw the entire image.
