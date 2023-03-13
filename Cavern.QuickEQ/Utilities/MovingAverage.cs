@@ -1,4 +1,6 @@
-﻿using Cavern.Utilities;
+﻿using System;
+
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Utilities {
     /// <summary>
@@ -29,14 +31,16 @@ namespace Cavern.QuickEQ.Utilities {
         /// <remarks>The length of <paramref name="frame"/> must be constant across the use of this object.</remarks>
         public void AddFrame(float[] frame) {
             if (Average != null) {
-                WaveformUtils.Insert(frame, Average, -1f / windows.Length);
+                float mixGain = 1f / windows.Length;
+                WaveformUtils.Mix(windows[0], Average, -mixGain);
+                WaveformUtils.Mix(frame, Average, mixGain);
                 for (int i = 1; i < windows.Length; i++) {
                     windows[i - 1] = windows[i];
                 }
                 windows[^1] = frame;
             } else {
                 Average = new float[frame.Length];
-                WaveformUtils.Insert(frame, Average, 1);
+                Array.Copy(frame, Average, frame.Length);
                 for (int i = 0; i < windows.Length; i++) {
                     windows[i] = frame;
                 }

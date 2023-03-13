@@ -392,7 +392,7 @@ namespace Cavern.Utilities {
             int i = 0;
             Vector<float> mul = new Vector<float>(gain);
             for (int c = source.Length - Vector<float>.Count; i <= c; i += Vector<float>.Count) {
-                (new Vector<float>(source, i) + new Vector<float>(destination, i) * mul).CopyTo(destination, i);
+                (new Vector<float>(destination, i) + new Vector<float>(source, i) * mul).CopyTo(destination, i);
             }
             for (; i < source.Length; i++) {
                 destination[i] += source[i] * gain;
