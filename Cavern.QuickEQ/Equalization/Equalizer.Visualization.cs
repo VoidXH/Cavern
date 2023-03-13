@@ -73,6 +73,27 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Decrease the number of bands to this number at max. The function guarantees that a constant range
+        /// between old bands is kept.
+        /// </summary>
+        public void Downsample(int numberOfBands) {
+            int range = bands.Count / numberOfBands;
+            if (range == 0) {
+                return;
+            }
+
+            List<Band> newBands = new List<Band>();
+            for (int i = 0, c = bands.Count; i < c; i++) {
+                if (i % range == 0) {
+                    newBands.Add(bands[i]);
+                }
+            }
+            bands.Clear();
+            bands.AddRange(newBands);
+            RecalculatePeakGain();
+        }
+
+        /// <summary>
         /// Save this EQ to a file in the standard curve/calibration format.
         /// </summary>
         /// <param name="path">Export path of the file</param>
