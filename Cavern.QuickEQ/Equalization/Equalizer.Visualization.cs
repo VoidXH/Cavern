@@ -1,47 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
 
-using Cavern.QuickEQ.EQCurves;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
-using static Cavern.QuickEQ.Windowing;
-
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
-        /// <summary>
-        /// Apply a slope (in decibels, per octave) between two frequencies.
-        /// </summary>
-        public void AddSlope(double slope, double startFreq, double endFreq) {
-            double logStart = Math.Log(startFreq),
-                range = Math.Log(endFreq) - logStart;
-            slope *= range * 3.32192809489f; // range / log(2)
-            for (int i = 0, c = bands.Count; i < c; i++) {
-                if (bands[i].Frequency > startFreq) {
-                    if (bands[i].Frequency > endFreq) {
-                        bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slope);
-                    } else {
-                        bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slope * (Math.Log(bands[i].Frequency) - logStart) / range);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Set this equalizer so if the <paramref name="other"/> is linear, this will be the difference from it.
-        /// </summary>
-        /// <remarks>Matching frequencies have to be guaranteed before calling this function with
-        /// <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
-        public void AlignTo(Equalizer other) {
-            List<Band> otherBands = other.bands;
-            for (int i = 0, c = bands.Count; i < c; i++) {
-                bands[i] -= otherBands[i].Gain;
-            }
-        }
-
         /// <summary>
         /// Shows the resulting frequency response if this EQ is applied.
         /// </summary>
@@ -70,27 +36,6 @@ namespace Cavern.QuickEQ.Equalization {
                 response[i] *= (float)Math.Pow(10, filter[i] * .05f);
                 response[^i] = new Complex(response[i].Real, -response[i].Imaginary);
             }
-        }
-
-        /// <summary>
-        /// Decrease the number of bands to this number at max. The function guarantees that a constant range
-        /// between old bands is kept.
-        /// </summary>
-        public void Downsample(int numberOfBands) {
-            int range = bands.Count / numberOfBands;
-            if (range == 0) {
-                return;
-            }
-
-            List<Band> newBands = new List<Band>();
-            for (int i = 0, c = bands.Count; i < c; i++) {
-                if (i % range == 0) {
-                    newBands.Add(bands[i]);
-                }
-            }
-            bands.Clear();
-            bands.AddRange(newBands);
-            RecalculatePeakGain();
         }
 
         /// <summary>
@@ -217,82 +162,6 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Limit the application range of the EQ.
-        /// </summary>
-        /// <param name="startFreq">Bottom cutoff frequency</param>
-        /// <param name="endFreq">Top cutoff frequency</param>
-        /// <param name="targetCurve">If set, the cuts will conform to this curve</param>
-        public void Limit(double startFreq, double endFreq, EQCurve targetCurve = null) {
-            int c = bands.Count;
-            for (int i = 0; i < c; i++) {
-                if (bands[i].Frequency > startFreq) {
-                    if (i != 0) {
-                        double atStart = targetCurve != null ? targetCurve[startFreq] : this[startFreq];
-                        bands.RemoveRange(0, i);
-                        AddBand(new Band(startFreq, atStart));
-                        c -= i;
-                    }
-                    break;
-                }
-            }
-
-            for (int i = c - 1; i >= 0; i--) {
-                if (bands[i].Frequency < endFreq) {
-                    if (i + 1 != c) {
-                        double atEnd = targetCurve != null ? targetCurve[endFreq] : this[endFreq];
-                        bands.RemoveRange(i + 1, c - i);
-                        bands.Add(new Band(endFreq, atEnd));
-                    }
-                    break;
-                }
-            }
-            RecalculatePeakGain();
-        }
-
-        /// <summary>
-        /// Make sure the EQ won't go over the desired <paramref name="peak"/>.
-        /// </summary>
-        public void LimitPeaks(double peak) {
-            for (int i = 0, c = bands.Count; i < c; i++) {
-                if (bands[i].Gain > peak) {
-                    bands[i] = new Band(bands[i].Frequency, peak);
-                }
-            }
-            if (PeakGain > peak) {
-                PeakGain = peak;
-            }
-        }
-
-        /// <summary>
-        /// Apply smoothing on this <see cref="Equalizer"/> with a window of a given octave.
-        /// </summary>
-        public void Smooth(double octaves) {
-            int smoothFrom = 0, smoothTo = 0;
-            double multipleTo = Math.Pow(2, octaves), multipleFrom = 1 / multipleTo;
-            double[] result = new double[bands.Count];
-            for (int i = 0; i < result.Length; i++) {
-                double minFreq = bands[i].Frequency * multipleFrom,
-                    maxFreq = bands[i].Frequency * multipleTo;
-                while (smoothFrom < result.Length && bands[smoothFrom].Frequency < minFreq) {
-                    ++smoothFrom;
-                }
-                while (smoothTo < result.Length && bands[smoothTo].Frequency < maxFreq) {
-                    ++smoothTo;
-                }
-                result[i] = Math.Pow(10, bands[i].Gain * .05);
-                if (smoothFrom != smoothTo) {
-                    for (int j = smoothFrom + 1; j < smoothTo; j++) {
-                        result[i] += Math.Pow(10, bands[j].Gain * .05);
-                    }
-                    result[i] = 20 * Math.Log10(result[i] / (smoothTo - smoothFrom));
-                }
-            }
-            for (int i = 0; i < result.Length; i++) {
-                bands[i] = new Band(bands[i].Frequency, result[i]);
-            }
-        }
-
-        /// <summary>
         /// Shows the EQ curve in a logarithmically scaled frequency axis.
         /// </summary>
         /// <param name="startFreq">Frequency at the beginning of the curve</param>
@@ -349,11 +218,6 @@ namespace Cavern.QuickEQ.Equalization {
             }
             return result;
         }
-
-        /// <summary>
-        /// Add windowing on the right of the curve. Windowing is applied logarithmically.
-        /// </summary>
-        public void Window(Window right, double startFreq, double endFreq) => ApplyWindow(bands, right, startFreq, endFreq);
 
         /// <summary>
         /// End of a Dirac calibration file. We don't need these features for FIR.

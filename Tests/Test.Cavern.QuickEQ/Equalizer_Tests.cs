@@ -18,6 +18,16 @@ namespace Test.Cavern {
         }
 
         /// <summary>
+        /// Tests if <see cref="Equalizer.MonotonousDecrease(double, double)"/> works as intended.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void MonotonousDecrease() {
+            Equalizer equalizer = Create(20, 20000, 100, 10);
+            equalizer.MonotonousDecrease(0, 10000);
+            Assert.IsTrue(equalizer.Bands.Where(x => x.Frequency < 5000).All(x => x.Gain > .99));
+        }
+
+        /// <summary>
         /// Create an <see cref="Equalizer"/> that resembles a sine wave of a given amplitude.
         /// </summary>
         static Equalizer Create(double startFreq, double endFreq, int length, double amplitude) {
