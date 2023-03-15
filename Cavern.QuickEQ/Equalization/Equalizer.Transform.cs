@@ -64,18 +64,14 @@ namespace Cavern.QuickEQ.Equalization {
             int i = GetFirstBand(startFreq),
                 c = bands.Count;
             if (i > 0) {
-                double atStart = targetCurve != null ? targetCurve[startFreq] : this[startFreq];
                 bands.RemoveRange(0, i);
-                AddBand(new Band(startFreq, atStart));
                 c -= i;
             }
 
             for (i = c - 1; i >= 0; i--) {
                 if (bands[i].Frequency < endFreq) {
                     if (i + 1 != c) {
-                        double atEnd = targetCurve != null ? targetCurve[endFreq] : this[endFreq];
                         bands.RemoveRange(i + 1, c - (i + 1));
-                        bands.Add(new Band(endFreq, atEnd));
                     }
                     break;
                 }
@@ -159,7 +155,17 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Add windowing on the right of the curve. Windowing is applied logarithmically.
         /// </summary>
-        public void Window(Window right, double startFreq, double endFreq) => Windowing.ApplyWindow(bands, right, startFreq, endFreq);
+        public void Window(Window right, double startFreq, double endFreq) {
+            if (startFreq >= bands[^1].Frequency) { // If there are no bands for windowing, make them
+                const int intermediateBands = 128; // 128 bands are always enough to follow a window's curvature
+                double gap = (endFreq - startFreq) / intermediateBands;
+                double lastGain = bands[^1].Gain;
+                for (int i = 0; i < intermediateBands;) {
+                    bands.Add(new Band(startFreq + ++i * gap, lastGain));
+                }
+            }
+            Windowing.ApplyWindow(bands, right, startFreq, endFreq);
+        }
 
         /// <summary>
         /// Get which band is the first after a given <paramref name="freq"/>uency. Returns -1 if such a band was not found.

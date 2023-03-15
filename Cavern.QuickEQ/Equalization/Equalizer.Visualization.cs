@@ -51,10 +51,9 @@ namespace Cavern.QuickEQ.Equalization {
                 calFile[0] = header;
             }
 
-            double normalize = bands[c / 2].Gain - level;
             CultureInfo culture = CultureInfo.InvariantCulture;
             for (int band = 0; band < c; band++) {
-                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {(bands[band].Gain - normalize).ToString(culture)}";
+                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {bands[band].Gain.ToString(culture)}";
             }
             File.WriteAllLines(path, calFile);
         }
@@ -73,10 +72,9 @@ namespace Cavern.QuickEQ.Equalization {
             }
             calFile[start - 1] = "BREAKPOINTS";
 
-            double normalize = bands[c / 2].Gain - level;
             CultureInfo culture = CultureInfo.InvariantCulture;
             for (int band = 0; band < c; band++) {
-                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {(bands[band].Gain - normalize).ToString(culture)}";
+                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {bands[band].Gain.ToString(culture)}";
             }
 
             Array.Copy(diracFooter, 0, calFile, start + c, diracFooter.Length);

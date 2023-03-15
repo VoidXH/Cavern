@@ -1,4 +1,5 @@
 ﻿using Cavern.QuickEQ;
+using Cavern.QuickEQ.Equalization;
 
 namespace Test.Cavern {
     /// <summary>
@@ -15,6 +16,22 @@ namespace Test.Cavern {
             Array.Fill(window, 1);
             Windowing.ApplyWindow(window, Window.Hann);
             CollectionAssert.AreEqual(window, hannResult);
+        }
+
+        /// <summary>
+        /// Tests if the Hann window produces an expected result for an.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void HannEqualizer() {
+            Equalizer eq = new();
+            int half = hannResult.Length >> 1;
+            for (int i = half; i < hannResult.Length; i++) {
+                eq.AddBand(new Band(i, 1));
+            }
+            eq.Window(Window.Hann, half, hannResult.Length);
+            for (int i = 0; i < half; i++) {
+                Assert.IsTrue(Math.Abs(eq.Bands[i].Gain - hannResult[i + half]) < .14f);
+            }
         }
 
         /// <summary>

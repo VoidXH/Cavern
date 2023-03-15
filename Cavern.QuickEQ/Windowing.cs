@@ -72,7 +72,7 @@ namespace Cavern.QuickEQ {
                 (from, to) = (to, from);
                 offset = MathF.PI;
             }
-            float step = 2 * channels * MathF.PI / ((to - from) * 2);
+            float step = channels * MathF.PI / (to - from);
             for (int channel = 0; channel < channels; channel++) {
                 for (int sample = from + channel; sample < to; sample += channels) {
                     samples[sample] *= fptr(offset);
@@ -103,8 +103,8 @@ namespace Cavern.QuickEQ {
                 rightSpan = end - splitter,
                 endMirror = splitter - (end - splitter),
                 posSplitter = Math.Max(splitter, 0);
-            float leftSpanDiv = 2 * (float)Math.PI / (leftSpan * 2),
-                rightSpanDiv = 2 * (float)Math.PI / (rightSpan * 2);
+            float leftSpanDiv = MathF.PI / leftSpan,
+                rightSpanDiv = MathF.PI / rightSpan;
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
                 Array.Clear(samples, 0, start);
