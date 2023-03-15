@@ -74,7 +74,7 @@ namespace Cavern.QuickEQ.Equalization {
                 if (bands[i].Frequency < endFreq) {
                     if (i + 1 != c) {
                         double atEnd = targetCurve != null ? targetCurve[endFreq] : this[endFreq];
-                        bands.RemoveRange(i + 1, c - i);
+                        bands.RemoveRange(i + 1, c - (i + 1));
                         bands.Add(new Band(endFreq, atEnd));
                     }
                     break;
