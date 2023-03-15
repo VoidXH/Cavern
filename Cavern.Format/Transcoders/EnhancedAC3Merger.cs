@@ -103,13 +103,25 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         public bool ProcessFrame() {
             for (int i = 0; i < sources.Length; i++) {
-                var source = sources[i];
+                Source source = sources[i];
                 BitPlanter encoder = source.Header.Encode();
-                source.Body.PrepareUpdate(source.Frame);
-                source.Body.PrepareUpdate(encoder);
                 for (int block = 0; block < source.Header.Blocks; block++) {
+                    EnhancedAC3Body stateBefore;
+                    if (block == 0) {
+                        source.Body.PrepareUpdate(source.Frame);
+                        stateBefore = source.Body.CreateEncodeBackup();
+                    } else {
+                        stateBefore = source.Body.CreateEncodeBackup();
+                    }
                     source.Body.DecodeAudioBlock(block);
+                    EnhancedAC3Body stateAfter = source.Body.CreateEncodeBackup();
+
+                    source.Body.RestoreEncodeBackup(stateBefore);
+                    if (block == 0) {
+                        source.Body.PrepareUpdate(encoder);
+                    }
                     source.Body.EncodeAudioBlock(encoder, block);
+                    source.Body.RestoreEncodeBackup(stateAfter);
                 }
                 encoder.Write(0, source.Header.WordsPerSyncframe * 16 - encoder.BitsWritten); // Padding
                 encoder.WriteToStream(output);
@@ -134,7 +146,7 @@ namespace Cavern.Format.Transcoders {
             for (int i = 1; i < sources.Length; i++) {
                 sources[i].Header.SetChannelArrangement(layout[channelsUsed..(channelsUsed += sources[i].ChannelCount)]);
                 sources[i].Header.SubstreamID = 7 + i;
-                sources[i].Header.StreamType = EnhancedAC3.StreamTypes.Dependent;
+                sources[i].Header.StreamTypeOut = EnhancedAC3.StreamTypes.Dependent;
             }
         }
     }

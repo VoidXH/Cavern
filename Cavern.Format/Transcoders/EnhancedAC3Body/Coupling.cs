@@ -137,33 +137,43 @@ namespace Cavern.Format.Transcoders {
                 }
             }
 
-            if ((cplstre[block] || !eac3) && cplinu[block]) {
-                if (eac3) {
-                    planter.Write(ecplinu);
-                }
-                if (!eac3 || header.ChannelMode != 2) {
-                    for (int channel = 0; channel < channels.Length; channel++) {
-                        planter.Write(chincpl[channel]);
-                    }
-                }
-                if (!ecplinu) { // Standard coupling
-                    if (header.ChannelMode == 0x2) {
-                        planter.Write(phsflginu);
-                    }
-                    planter.Write(cplbegf, 4);
-                    if (!spxinu) {
-                        planter.Write(cplendf, 4);
-                    }
+            if (cplstre[block] || !eac3) {
+                if (cplinu[block]) {
                     if (eac3) {
-                        planter.Write(cplbndstrce);
+                        planter.Write(ecplinu);
                     }
-                    if (cplbndstrce) {
-                        for (int band = 1; band < ncplsubnd; band++) {
-                            planter.Write(cplbndstrc[cplbegf + band]);
+                    if (!eac3 || header.ChannelMode != 2) {
+                        for (int channel = 0; channel < channels.Length; channel++) {
+                            planter.Write(chincpl[channel]);
                         }
                     }
-                } else { // Enhanced coupling
-                    throw new UnsupportedFeatureException("ecplinu");
+                    if (!ecplinu) { // Standard coupling
+                        if (header.ChannelMode == 0x2) {
+                            planter.Write(phsflginu);
+                        }
+                        planter.Write(cplbegf, 4);
+                        if (!spxinu) {
+                            planter.Write(cplendf, 4);
+                        }
+                        if (eac3) {
+                            planter.Write(cplbndstrce);
+                        }
+                        if (cplbndstrce) {
+                            for (int band = 1; band < ncplsubnd; band++) {
+                                planter.Write(cplbndstrc[cplbegf + band]);
+                            }
+                        }
+                    } else { // Enhanced coupling
+                        throw new UnsupportedFeatureException("ecplinu");
+                    }
+                } else if (eac3) {
+                    for (int channel = 0; channel < channels.Length; channel++) {
+                        chincpl[channel] = false;
+                        firstcplcos[channel] = true;
+                    }
+                    firstcplleak = true;
+                    phsflginu = false;
+                    ecplinu = false;
                 }
             }
         }
@@ -175,7 +185,10 @@ namespace Cavern.Format.Transcoders {
             if (!ecplinu) { // Standard coupling
                 for (int channel = 0; channel < channels.Length; channel++) {
                     if (chincpl[channel]) {
-                        if (!eac3 || !firstcplcos[channel]) {
+                        if (eac3 && firstcplcos[channel]) {
+                            cplcoe[channel] = true;
+                            firstcplcos[channel] = false;
+                        } else {
                             planter.Write(cplcoe[channel]);
                         }
                         if (cplcoe[channel]) {
@@ -190,6 +203,8 @@ namespace Cavern.Format.Transcoders {
                         if ((header.ChannelMode == 2) && phsflginu && (cplcoe[0] || cplcoe[1])) {
                             throw new UnsupportedFeatureException("stereo");
                         }
+                    } else {
+                        firstcplcos[channel] = true;
                     }
                 }
             } else { // Enhanced coupling

@@ -1,4 +1,8 @@
-﻿namespace Cavern.Format.Transcoders {
+﻿using System;
+
+using Cavern.Utilities;
+
+namespace Cavern.Format.Transcoders {
     // These are the stored variables for the decoder. They can be infinitely reused between frames.
     partial class EnhancedAC3Body {
         /// <summary>
@@ -172,6 +176,33 @@
         readonly bool[] ecplbndstrc = { false, false, false, false, false, false, false, false, true, false,
             true, false, true, false, true, true, true, false, true, true, true }; // defecplbndstrc
 
+        /// <summary>
+        /// Some fields are changing mid-block, this have to be replicated while transcoding a body. To prevent overhead in regular decoding,
+        /// a backup is created, and restored after each block, for fields that need it.
+        /// </summary>
+        public EnhancedAC3Body CreateEncodeBackup() {
+            return new EnhancedAC3Body(null) {
+                cplcoe = cplcoe.FastClone(),
+                ecplinu = ecplinu,
+                firstcplcos = firstcplcos.FastClone(),
+                firstcplleak = firstcplleak,
+                firstspxcos = firstspxcos.FastClone(),
+                phsflginu = phsflginu
+            };
+        }
+
+        /// <summary>
+        /// Reverts the state to one created with <see cref="CreateEncodeBackup"/>.
+        /// </summary>
+        public void RestoreEncodeBackup(EnhancedAC3Body backup) {
+            Array.Copy(cplcoe, backup.cplcoe, cplcoe.Length);
+            ecplinu = backup.ecplinu;
+            Array.Copy(firstcplcos, backup.firstcplcos, firstcplcos.Length);
+            firstcplleak = backup.firstcplleak;
+            Array.Copy(firstspxcos, backup.firstspxcos, firstspxcos.Length);
+            phsflginu = backup.phsflginu;
+        }
+
         void CreateCacheTables(int blocks, int channels) {
             blksw = new bool[channels];
             chahtinu = new int[channels];
@@ -233,7 +264,6 @@
                 exps[channel] = new int[maxAllocationSize];
             }
         }
-
 
         /// <summary>
         /// Absolute maximum band. If arrays are allocated to this size, they can't be overrun.

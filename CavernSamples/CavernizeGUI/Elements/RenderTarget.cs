@@ -1,5 +1,6 @@
 ﻿using Cavern;
 using Cavern.Channels;
+using Cavern.Utilities;
 
 using CavernizeGUI.Resources;
 
@@ -67,7 +68,7 @@ namespace CavernizeGUI.Elements {
         /// These have to be mapped back to sides in some cases, for example, for the wiring popup.
         /// </summary>
         public ReferenceChannel[] GetNameMappedChannels() {
-            ReferenceChannel[] result = (ReferenceChannel[])Channels.Clone();
+            ReferenceChannel[] result = Channels.FastClone();
             bool side = false, rear = false;
             for (int i = 0; i < result.Length; i++) {
                 side |= result[i] == ReferenceChannel.TopSideLeft;

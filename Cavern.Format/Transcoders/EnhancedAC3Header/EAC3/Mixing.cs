@@ -125,7 +125,7 @@ namespace Cavern.Format.Transcoders {
                 planter.Write(lfemixlevcod, 5);
             }
 
-            if (StreamType == StreamTypes.Independent) {
+            if (StreamTypeOut == StreamTypes.Independent) {
                 planter.Write(pgmscl, 6);
                 if (ChannelMode == 0) {
                     planter.Write(pgmscl2, 6);

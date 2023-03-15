@@ -27,6 +27,16 @@ namespace Cavern.Format.Renderers {
         readonly float[][] finalResult;
 
         /// <summary>
+        /// Standard-aligned PCM channels.
+        /// </summary>
+        readonly ReferenceChannel[] inputMatrix;
+
+        /// <summary>
+        /// Actually rendered channels.
+        /// </summary>
+        readonly ReferenceChannel[] outputMatrix;
+
+        /// <summary>
         /// Creates the object mix from channels.
         /// </summary>
         readonly JointObjectCodingApplier applier;
@@ -65,6 +75,9 @@ namespace Cavern.Format.Renderers {
         /// Parse an E-AC-3 decoder to a renderer.
         /// </summary>
         public EnhancedAC3Renderer(EnhancedAC3Decoder stream) : base(stream) {
+            inputMatrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
+            outputMatrix = stream.GetChannels();
+
             // Object-based rendering
             if (HasObjects = stream.Extensions.HasObjects) {
                 ObjectAudioMetadata oamd = stream.Extensions.OAMD;
@@ -76,15 +89,14 @@ namespace Cavern.Format.Renderers {
             }
             // Channel-based rendering
             else {
-                ReferenceChannel[] channels = stream.GetChannels();
-                for (int channel = 0; channel < channels.Length; channel++) {
+                for (int channel = 0; channel < outputMatrix.Length; channel++) {
                     Source source = new StreamMasterSource(reader, channel) {
-                        Position = ChannelPrototype.AlternativePositions[(int)channels[channel]] * Listener.EnvironmentSize
+                        Position = ChannelPrototype.AlternativePositions[(int)outputMatrix[channel]] * Listener.EnvironmentSize
                     };
                     objects.Add(source);
                 }
-                finalResult = new float[channels.Length][];
-                FinishSetup(channels.Length);
+                finalResult = new float[outputMatrix.Length][];
+                FinishSetup(outputMatrix.Length);
             }
 
             for (int i = 0, c = objects.Count; i < c; i++) {
@@ -147,9 +159,8 @@ namespace Cavern.Format.Renderers {
             int lfe = ((EnhancedAC3Decoder)stream).Extensions.OAMD.GetLFEPosition();
             if (lfe != -1) {
                 Array.Copy(finalResult, objectSamples, lfe);
-                ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
-                for (int i = 0; i < matrix.Length; i++) {
-                    if (matrix[i] == ReferenceChannel.ScreenLFE) {
+                for (int i = 0; i < outputMatrix.Length; i++) {
+                    if (outputMatrix[i] == ReferenceChannel.ScreenLFE) {
                         objectSamples[lfe] = lfeResult;
                         break;
                     }
@@ -167,7 +178,6 @@ namespace Cavern.Format.Renderers {
             stream.DecodeBlock(decodedBlock, 0, decodedBlock.LongLength);
             WaveformUtils.InterlacedToMultichannel(decodedBlock, inputData);
 
-            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(stream.ChannelCount);
             EnhancedAC3Decoder decoder = (EnhancedAC3Decoder)stream;
             // Object-based rendering
             if (HasObjects = decoder.Extensions.HasObjects) {
@@ -175,16 +185,16 @@ namespace Cavern.Format.Renderers {
 
                 float[][] sources = new float[JointObjectCodingTables.inputMatrix.Length][];
                 for (int i = 0; i < sources.Length; i++) {
-                    for (int j = 0; j < matrix.Length; j++) {
-                        if (JointObjectCodingTables.inputMatrix[i] == matrix[j]) {
+                    for (int j = 0; j < inputMatrix.Length; j++) {
+                        if (JointObjectCodingTables.inputMatrix[i] == inputMatrix[j]) {
                             sources[i] = inputData[j];
                             break;
                         }
                     }
                 }
 
-                for (int i = 0; i < matrix.Length; i++) {
-                    if (matrix[i] == ReferenceChannel.ScreenLFE) {
+                for (int i = 0; i < inputMatrix.Length; i++) {
+                    if (inputMatrix[i] == ReferenceChannel.ScreenLFE) {
                         lfeTimeslot = inputData[i];
                     }
                 }
@@ -193,15 +203,15 @@ namespace Cavern.Format.Renderers {
             }
             // Channel-based rendering or fallback to it when OAMD or JOC can't be decoded correctly
             else {
-                for (int i = 0; i < matrix.Length; i++) {
+                for (int i = 0; i < outputMatrix.Length; i++) {
                     timeslotResult[i] = inputData[i];
-                    objects[i].Position = ChannelPrototype.AlternativePositions[(int)matrix[i]] * Listener.EnvironmentSize;
-                    if (ChannelPrototype.Mapping[(int)matrix[i]].LFE) { // LFE is handled elsewhere
+                    objects[i].Position = ChannelPrototype.AlternativePositions[(int)outputMatrix[i]] * Listener.EnvironmentSize;
+                    if (ChannelPrototype.Mapping[(int)outputMatrix[i]].LFE) { // LFE is handled elsewhere
                         objects[i].Position = default;
                         timeslotResult[i].Clear();
                     }
                 }
-                for (int i = matrix.Length; i < timeslotResult.Length; i++) {
+                for (int i = outputMatrix.Length; i < timeslotResult.Length; i++) {
                     objects[i].Position = default;
                     timeslotResult[i].Clear();
                 }

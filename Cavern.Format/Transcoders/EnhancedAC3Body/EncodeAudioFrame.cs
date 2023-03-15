@@ -66,7 +66,7 @@ namespace Cavern.Format.Transcoders {
             }
 
             // Converter exponent strategy data
-            if (header.StreamType == StreamTypes.Independent) {
+            if (header.StreamTypeOut == StreamTypes.Independent) {
                 if (header.Blocks != 6) {
                     planter.Write(convexpstre);
                 }
@@ -115,6 +115,13 @@ namespace Cavern.Format.Transcoders {
                     planter.Write(blkstrtinfo, (header.Blocks - 1) * (4 + QMath.Log2Ceil(header.WordsPerSyncframe)));
                 }
             }
+
+            // Syntax state init
+            for (int channel = 0; channel < channels.Length; channel++) {
+                firstspxcos[channel] = true;
+                firstcplcos[channel] = true;
+            }
+            firstcplleak = true;
         }
     }
 }

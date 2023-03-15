@@ -55,15 +55,15 @@ namespace Cavern.Format.Transcoders {
                 planter.Write(compr2, 8);
             }
 
-            if (StreamType == StreamTypes.Dependent) {
+            if (StreamTypeOut == StreamTypes.Dependent) {
                 planter.Write(channelMapping, channelMappingBits);
             }
             WriteMixingMetadata(planter);
             WriteInfoMetadata(planter);
-            if (StreamType == StreamTypes.Independent && Blocks != 6) {
+            if (StreamTypeOut == StreamTypes.Independent && Blocks != 6) {
                 planter.Write(convsync);
             }
-            if (StreamType == StreamTypes.Repackaged) {
+            if (StreamTypeOut == StreamTypes.Repackaged) {
                 if (Blocks != 6) {
                     planter.Write(blkid);
                 }

@@ -151,7 +151,7 @@ namespace Cavern.Format.Transcoders {
                     }
                 }
 
-                if (header.StreamType == StreamTypes.Independent) {
+                if (header.StreamTypeOut == StreamTypes.Independent) {
                     planter.Write(convsnroffste);
                     if (convsnroffste) {
                         planter.Write(convsnroffst, 10);
