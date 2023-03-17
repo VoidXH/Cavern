@@ -6,11 +6,16 @@ namespace Cavern.QuickEQ.Graphing {
     /// <summary>
     /// A curve's source and render.
     /// </summary>
-    class RenderedCurve {
+    public class RenderedCurve {
         /// <summary>
         /// Source curve to draw.
         /// </summary>
-        public Equalizer Curve { get; }
+        public Equalizer Curve { get; private set; }
+
+        /// <summary>
+        /// The graph that draws this curve.
+        /// </summary>
+        public GraphRenderer Parent { get; }
 
         /// <summary>
         /// ARGB color of the curve.
@@ -32,27 +37,41 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         public RenderedCurve(Equalizer curve, GraphRenderer parent) {
             Curve = curve;
+            Parent = parent;
             Render = new byte[parent.Width * parent.Height];
-            ReRenderFull(parent);
+            ReRenderFull();
+        }
+
+        /// <summary>
+        /// Change the <paramref name="curve"/> displayed by this unit of the graph,
+        /// and optionally <paramref name="redraw"/> the entire graph.
+        /// </summary>
+        public void Update(Equalizer curve, bool redraw) {
+            Curve = curve;
+            ReRenderFull();
+            if (redraw) {
+                Parent.DrawAll();
+            }
         }
 
         /// <summary>
         /// Some minor values have changed, recreate the <see cref="Render"/> from the <see cref="preRender"/>.
         /// </summary>
-        public void ReRender(GraphRenderer parent) {
-            float bottom = parent.Peak - parent.DynamicRange - parent.Padding,
-                ratio = (parent.Height - 1) / (parent.DynamicRange + 2 * parent.Padding);
-            int lastRow = Math.Min((int)((preRender[0] - bottom) * ratio), parent.Height - 1);
-            if (lastRow >= 0 && lastRow < parent.Height) {
-                Render[lastRow * parent.Width] = 0xFF;
+        internal void ReRender() {
+            Array.Clear(Render, 0, Render.Length);
+            float bottom = Parent.Peak - Parent.DynamicRange - Parent.Padding,
+                ratio = (Parent.Height - 1) / (Parent.DynamicRange + 2 * Parent.Padding);
+            int lastRow = Math.Min((int)((preRender[0] - bottom) * ratio), Parent.Height - 1);
+            if (lastRow >= 0 && lastRow < Parent.Height) {
+                Render[lastRow * Parent.Width] = 0xFF;
             }
             for (int i = 1; i < preRender.Length; i++) {
-                int row = Math.Min((int)((preRender[i] - bottom) * ratio), parent.Height - 1);
+                int row = Math.Min((int)((preRender[i] - bottom) * ratio), Parent.Height - 1);
                 for (int j = Math.Max(lastRow, 0); j <= row; j++) {
-                    Render[j * parent.Width + i] = 0xFF;
+                    Render[j * Parent.Width + i] = 0xFF;
                 }
                 for (int j = Math.Max(row, 0); j <= lastRow; j++) {
-                    Render[j * parent.Width + i] = 0xFF;
+                    Render[j * Parent.Width + i] = 0xFF;
                 }
                 lastRow = row;
             }
@@ -61,11 +80,18 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Major values have changed (like frequency limits), restart from <see cref="preRender"/>ing.
         /// </summary>
-        public void ReRenderFull(GraphRenderer parent) {
-            preRender = parent.Logarithmic ?
-                Curve.Visualize(parent.StartFrequency, parent.EndFrequency, parent.Width) :
-                Curve.VisualizeLinear(parent.StartFrequency, parent.EndFrequency, parent.Width);
-            ReRender(parent);
+        internal void ReRenderFull() {
+            Update();
+            ReRender();
+        }
+
+        /// <summary>
+        /// Update the pixel positions.
+        /// </summary>
+        void Update() {
+            preRender = Parent.Logarithmic ?
+                Curve.Visualize(Parent.StartFrequency, Parent.EndFrequency, Parent.Width) :
+                Curve.VisualizeLinear(Parent.StartFrequency, Parent.EndFrequency, Parent.Width);
         }
     }
 }

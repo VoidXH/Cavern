@@ -124,14 +124,23 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Add a curve with an ARGB color.
         /// </summary>
-        public void AddCurve(Equalizer curve, uint color) {
+        public RenderedCurve AddCurve(Equalizer curve, uint color) {
             RenderedCurve entry = new RenderedCurve(curve, this) {
                 Color = color
             };
-            entry.ReRenderFull(this);
+            entry.ReRenderFull();
             curves.Add(entry);
             DrawSingle(entry);
             Overlay.DrawOn(this);
+            return entry;
+        }
+
+        /// <summary>
+        /// Remove all curves from the graph.
+        /// </summary>
+        public void Clear() {
+            curves.Clear();
+            DrawAll();
         }
 
         /// <summary>
@@ -154,7 +163,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Redraw the entire image.
         /// </summary>
-        void DrawAll() {
+        internal void DrawAll() {
             Array.Clear(Pixels, 0, Pixels.Length);
             for (int i = 0, c = curves.Count; i < c; i++) {
                 DrawSingle(curves[i]);
@@ -165,18 +174,24 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Draw a single curve over the current output.
         /// </summary>
-        void DrawSingle(RenderedCurve curve) {
-            byte[] source = curve.Render;
+        unsafe void DrawSingle(RenderedCurve curve) {
             uint r = curve.Color & 0x00FF0000,
                  g = curve.Color & 0x0000FF00,
                  b = curve.Color & 0x000000FF;
-            for (int i = 0; i < Pixels.Length; i++) {
-                if (source[i] != 0) {
-                    byte retain = (byte)(0xFF - source[i]);
-                    Pixels[i] = 0xFF000000
-                        + ((Pixels[i] & 0x00FF0000) * retain + r * source[i]) / 0xFF
-                        + ((Pixels[i] & 0x0000FF00) * retain + g * source[i]) / 0xFF
-                        + ((Pixels[i] & 0x000000FF) * retain + b * source[i]) / 0xFF;
+            fixed (byte* pSource = curve.Render)
+            fixed (uint* pPixels = Pixels) {
+                byte* source = pSource, end = source + Pixels.Length;
+                uint* pixel = pPixels;
+                while (source != end) {
+                    if (*source != 0) {
+                        byte retain = (byte)(0xFF - *source);
+                        *pixel = 0xFF000000
+                            | ((*pixel & 0x00FF0000) * retain + r * *source) >> 8
+                            | ((*pixel & 0x0000FF00) * retain + g * *source) >> 8
+                            | ((*pixel & 0x000000FF) * retain + b * *source) >> 8;
+                    }
+                    source++;
+                    pixel++;
                 }
             }
         }
@@ -185,8 +200,11 @@ namespace Cavern.QuickEQ.Graphing {
         /// Re-render but don't regenerate all displayed curves.
         /// </summary>
         void ReRender() {
-            for (int i = 0, c = curves.Count; i < c; i++) {
-                curves[i].ReRender(this);
+            int c = curves.Count;
+            if (c == 0) {
+                for (int i = 0; i < c; i++) {
+                    curves[i].ReRender();
+                }
             }
             DrawAll();
         }
@@ -196,7 +214,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         void ReRenderFull() {
             for (int i = 0, c = curves.Count; i < c; i++) {
-                curves[i].ReRenderFull(this);
+                curves[i].ReRenderFull();
             }
             DrawAll();
         }

@@ -55,6 +55,15 @@ namespace Cavern.Helpers {
         /// </summary>
         int lastPosition;
 
+        /// <summary>
+        /// Returns the most recent samples recorded, whatever the inner state of recording is.
+        /// </summary>
+        public float[] ForceRead() {
+            int pos = Microphone.GetPosition(deviceName);
+            buffer.GetData(frame, pos > blockSize ? pos - blockSize : (sampleRate + pos - blockSize));
+            return frame;
+        }
+
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity lifecycle")]
         void OnEnable() {
             if (Application.platform != RuntimePlatform.Android) {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -21,6 +20,11 @@ namespace Cavern.Utilities {
             /// Get the contained 4 bytes as an integer.
             /// </summary>
             [FieldOffset(0)] public int asInt;
+
+            /// <summary>
+            /// Get the contained 4 bytes as an unsigned integer.
+            /// </summary>
+            [FieldOffset(0)] public uint asUInt;
 
             /// <summary>
             /// Get the contained 4 bytes as a float.

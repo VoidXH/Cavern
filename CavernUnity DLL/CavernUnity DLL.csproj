@@ -31,6 +31,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <Nullable>disable</Nullable>
     <PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj" />
