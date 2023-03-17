@@ -10,7 +10,7 @@ namespace Cavern.QuickEQ.Utilities {
         /// <summary>
         /// The current moving average.
         /// </summary>
-        public float[] Average { get; private set; }
+        public float[] Average { get; protected set; }
 
         /// <summary>
         /// The windows to average.
@@ -21,15 +21,13 @@ namespace Cavern.QuickEQ.Utilities {
         /// Averages multiple frames of windowed audio or spectrum data, and when a new window is added, the last one is removed.
         /// </summary>
         /// <param name="frames">Number of windows to average</param>
-        public MovingAverage(int frames) {
-            windows = new float[frames][];
-        }
+        public MovingAverage(int frames) => windows = new float[frames][];
 
         /// <summary>
-        /// Process the average by adding the next frame.
+        /// Compute the <see cref="Average"/> by adding the next frame.
         /// </summary>
         /// <remarks>The length of <paramref name="frame"/> must be constant across the use of this object.</remarks>
-        public void AddFrame(float[] frame) {
+        public virtual void AddFrame(float[] frame) {
             if (Average != null) {
                 float mixGain = 1f / windows.Length;
                 WaveformUtils.Mix(windows[0], Average, -mixGain);
@@ -46,5 +44,10 @@ namespace Cavern.QuickEQ.Utilities {
                 }
             }
         }
+
+        /// <summary>
+        /// Reset the averaging.
+        /// </summary>
+        public virtual void Reset() => Average = null;
     }
 }

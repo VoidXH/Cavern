@@ -29,7 +29,7 @@ namespace Cavern.QuickEQ.Graphing {
                 }
             }
             reusedTexture.SetPixels(reusedColors);
-            reusedTexture.Apply(false);
+            reusedTexture.Apply();
         }
     }
 }
