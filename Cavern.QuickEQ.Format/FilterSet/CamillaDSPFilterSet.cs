@@ -20,6 +20,11 @@ namespace Cavern.Format.FilterSet {
         public CamillaDSPFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
+        /// Convolution filter set for CamillaDSP.
+        /// </summary>
+        public CamillaDSPFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
         /// Export the filter set to a target file.
         /// </summary>
         public override void Export(string path) {

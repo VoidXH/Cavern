@@ -46,6 +46,17 @@ namespace Cavern.Format.FilterSet {
             this.header = header;
 
         /// <summary>
+        /// IIR filter set for Equalizer APO (PC) with no additional header.
+        /// </summary>
+        public EqualizerAPOIIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// IIR filter set for Equalizer APO (PC) with an additional header.
+        /// </summary>
+        public EqualizerAPOIIRFilterSet(ReferenceChannel[] channels, int sampleRate, IEnumerable<string> header) :
+            base(channels, sampleRate) => this.header = header;
+
+        /// <summary>
         /// Export the filter set to a target file.
         /// </summary>
         public override void Export(string path) {

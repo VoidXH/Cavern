@@ -1,5 +1,6 @@
 ﻿using System.IO;
 
+using Cavern.Channels;
 using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.Format.FilterSet {
@@ -11,6 +12,11 @@ namespace Cavern.Format.FilterSet {
         /// A filter set exporting raw <see cref="Equalizer"/>s for Dirac Live.
         /// </summary>
         public DiracFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// A filter set exporting raw <see cref="Equalizer"/>s for Dirac Live.
+        /// </summary>
+        public DiracFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
         /// Save the results to EQ curve files for each channel.

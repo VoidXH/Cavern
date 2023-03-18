@@ -15,10 +15,26 @@ namespace Cavern.Format.FilterSet {
         readonly IEnumerable<string> header;
 
         /// <summary>
-        /// Convolution filter set for Equalizer APO with a given number of channels with an optional header.
+        /// Convolution filter set for Equalizer APO with a given number of channels with no additional header.
         /// </summary>
-        public EqualizerAPOFIRFilterSet(int channels, int sampleRate, IEnumerable<string> header = null) : base(channels, sampleRate) =>
+        public EqualizerAPOFIRFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// Convolution filter set for Equalizer APO with a given number of channels with an additional header.
+        /// </summary>
+        public EqualizerAPOFIRFilterSet(int channels, int sampleRate, IEnumerable<string> header) : base(channels, sampleRate) =>
             this.header = header;
+
+        /// <summary>
+        /// Convolution filter set for Equalizer APO with a given number of channels with no additional header.
+        /// </summary>
+        public EqualizerAPOFIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// Convolution filter set for Equalizer APO with a given number of channels with an additional header.
+        /// </summary>
+        public EqualizerAPOFIRFilterSet(ReferenceChannel[] channels, int sampleRate, IEnumerable<string> header) :
+            base(channels, sampleRate) => this.header = header;
 
         /// <summary>
         /// Export the filter set to a target file.

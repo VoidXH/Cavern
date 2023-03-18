@@ -1,4 +1,6 @@
-﻿namespace Cavern.Format.FilterSet {
+﻿using Cavern.Channels;
+
+namespace Cavern.Format.FilterSet {
     /// <summary>
     /// IIR filter set for StormAudio hardware.
     /// </summary>
@@ -27,6 +29,11 @@
         /// IIR filter set for StormAudio processors with a given number of channels.
         /// </summary>
         public StormAudioFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// IIR filter set for StormAudio processors with a given number of channels.
+        /// </summary>
+        public StormAudioFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.

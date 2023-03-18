@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
+using Cavern.Channels;
 using Cavern.Filters;
 
 namespace Cavern.Format.FilterSet {
@@ -34,6 +35,11 @@ namespace Cavern.Format.FilterSet {
         /// IIR filter set for Behringer NX-series stereo amplifiers with a given number of channels.
         /// </summary>
         public BehringerNXFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// IIR filter set for Behringer NX-series stereo amplifiers with a given number of channels.
+        /// </summary>
+        public BehringerNXFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
         /// Export the filter set to a target file.

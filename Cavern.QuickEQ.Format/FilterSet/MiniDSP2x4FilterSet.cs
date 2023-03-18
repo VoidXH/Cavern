@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-
+using Cavern.Channels;
 using Cavern.Filters;
 
 namespace Cavern.Format.FilterSet {
@@ -34,6 +34,11 @@ namespace Cavern.Format.FilterSet {
         /// IIR filter set for MiniDSP 2x4 with a given number of channels.
         /// </summary>
         public MiniDSP2x4FilterSet(int channels) : base(channels, 96000) { }
+
+        /// <summary>
+        /// IIR filter set for MiniDSP 2x4 with a given number of channels.
+        /// </summary>
+        public MiniDSP2x4FilterSet(ReferenceChannel[] channels) : base(channels, 96000) { }
 
         /// <summary>
         /// Export the filter set to a target file.
@@ -81,5 +86,10 @@ namespace Cavern.Format.FilterSet {
         /// IIR filter set for MiniDSP 2x4 HD with a given number of channels.
         /// </summary>
         public MiniDSP2x4HDFilterSet(int channels) : base(channels) { }
+
+        /// <summary>
+        /// IIR filter set for MiniDSP 2x4 HD with a given number of channels.
+        /// </summary>
+        public MiniDSP2x4HDFilterSet(ReferenceChannel[] channels) : base(channels) { }
     }
 }

@@ -27,6 +27,11 @@ namespace Cavern.Format.FilterSet {
         public EqualizerAPOEqualizerFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
+        /// Construct an Equalizer APO filter set with EQ curves for each channel for a room with the target number of channels.
+        /// </summary>
+        public EqualizerAPOEqualizerFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
         /// Save the results to an Equalizer APO configuration file.
         /// </summary>
         public override void Export(string path) {

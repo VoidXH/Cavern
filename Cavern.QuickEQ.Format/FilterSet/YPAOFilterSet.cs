@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Utilities;
 
@@ -28,6 +29,11 @@ namespace Cavern.Format.FilterSet {
         /// Filter set to fine tune an existing YPAO calibration with.
         /// </summary>
         public YPAOFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// Filter set to fine tune an existing YPAO calibration with.
+        /// </summary>
+        public YPAOFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
         /// Export the filter set to a target file. This is the standard IIR filter set format
