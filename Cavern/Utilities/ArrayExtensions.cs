@@ -30,6 +30,22 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Quickly checks if a value is in an array.
+        /// </summary>
+        /// <param name="target">Array reference</param>
+        /// <param name="value">Value to check</param>
+        /// <returns>If an array contains the value</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Contains<T>(this T[] target, T value) where T : struct {
+            for (int entry = 0; entry < target.Length; ++entry) {
+                if (target[entry].Equals(value)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Shorthand for copying the entire array.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

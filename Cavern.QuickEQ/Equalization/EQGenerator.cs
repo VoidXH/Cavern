@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
@@ -149,6 +150,28 @@ namespace Cavern.QuickEQ.Equalization {
                 result.Add(new Band(source[i].Frequency, 20 * Math.Log10(bands[i] * div)));
             }
             return new Equalizer(result);
+        }
+
+        /// <summary>
+        /// Get the average gains of multiple equalizers, regardless of how many bands they have. The averaging happens in linear space.
+        /// </summary>
+        public static Equalizer AverageSafe(params Equalizer[] sources) {
+            List<Band> bands = new List<Band>();
+            double div = 1.0 / sources.Length;
+            for (int i = 0; i < sources.Length; i++) {
+                IReadOnlyList<Band> source = sources[i].Bands;
+                for (int j = 0, c = source.Count; j < c; j++) {
+                    double freq = source[j].Frequency,
+                        gain = 0;
+                    for (int other = 0; other < sources.Length; other++) {
+                        gain += Math.Pow(10, sources[other][freq] * .05f);
+                    }
+                    bands.Add(new Band(freq, 20 * Math.Log10(gain * div)));
+                }
+            }
+
+            bands.Sort();
+            return new Equalizer(bands.Distinct().ToList());
         }
 
         /// <summary>

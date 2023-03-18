@@ -43,7 +43,8 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
-                FilterSetTarget.DiracLive => new DiracFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLive => new DiracLiveFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLiveBassControl => new DiracLiveBassControlFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
@@ -67,7 +68,8 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
-                FilterSetTarget.DiracLive => new DiracFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLive => new DiracLiveFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLiveBassControl => new DiracLiveBassControlFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
@@ -156,6 +158,11 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
         DiracLive,
+        /// <summary>
+        /// Processors supporting Dirac Live Bass Control. DLBC requires some channels to be merged into groups.
+        /// </summary>
+        /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
+        DiracLiveBassControl,
         /// <summary>
         /// Processors supporting Audyssey MultEQ-X, MultEQ-X config file.
         /// </summary>

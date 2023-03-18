@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Format.Common;

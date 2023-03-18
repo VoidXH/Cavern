@@ -7,16 +7,16 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// A filter set exporting raw <see cref="Equalizer"/>s for Dirac Live.
     /// </summary>
-    public class DiracFilterSet : EqualizerFilterSet {
+    public class DiracLiveFilterSet : EqualizerFilterSet {
         /// <summary>
         /// A filter set exporting raw <see cref="Equalizer"/>s for Dirac Live.
         /// </summary>
-        public DiracFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+        public DiracLiveFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
         /// A filter set exporting raw <see cref="Equalizer"/>s for Dirac Live.
         /// </summary>
-        public DiracFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
+        public DiracLiveFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
         /// Save the results to EQ curve files for each channel.
