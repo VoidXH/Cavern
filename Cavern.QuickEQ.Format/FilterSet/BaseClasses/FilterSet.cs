@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 using Cavern.Channels;
 
@@ -7,6 +10,31 @@ namespace Cavern.Format.FilterSet {
     /// A filter set containing equalization info for each channel of a system.
     /// </summary>
     public abstract class FilterSet {
+        /// <summary>
+        /// Basic information needed for a channel.
+        /// </summary>
+        protected abstract class ChannelData {
+            /// <summary>
+            /// The reference channel describing this channel or <see cref="ReferenceChannel.Unknown"/> if not applicable.
+            /// </summary>
+            public ReferenceChannel reference;
+
+            /// <summary>
+            /// Custom label for this channel or null if not applicable.
+            /// </summary>
+            public string name;
+
+            /// <summary>
+            /// Delay of this channel in samples.
+            /// </summary>
+            public int delaySamples;
+        }
+
+        /// <summary>
+        /// Applied filters for each channel in the configuration file.
+        /// </summary>
+        protected ChannelData[] Channels { get; set; }
+
         /// <summary>
         /// Sample rate of the filter set.
         /// </summary>
@@ -80,7 +108,45 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
-        protected virtual string GetLabel(int channel) => "CH" + (channel + 1);
+        protected virtual string GetLabel(int channel) => Channels[channel].name ?? "CH" + (channel + 1);
+
+        /// <summary>
+        /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
+        /// </summary>
+        protected virtual void RootFileExtension(int channel, List<string> result) { }
+
+        /// <summary>
+        /// Get the delay for a given channel in milliseconds instead of samples.
+        /// </summary>
+        protected double GetDelay(int channel) => Channels[channel].delaySamples * 1000.0 / SampleRate;
+
+        /// <summary>
+        /// Create the file with gain/delay/polarity info as the root document that's saved in the save dialog.
+        /// </summary>
+        protected void CreateRootFile(string path, string filterFileExtension) {
+            string fileNameBase = Path.GetFileName(path);
+            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+            List<string> result = new List<string>();
+            bool hasAnything = false,
+                hasDelays = false;
+            for (int i = 0, c = Channels.Length; i < c; i++) {
+                result.Add(string.Empty);
+                result.Add("Channel: " + GetLabel(i));
+                if (Channels[i].delaySamples != 0) {
+                    result.Add("Delay: " + GetDelay(i).ToString("0.0 ms"));
+                    hasAnything = true;
+                    hasDelays = true;
+                }
+                int before = result.Count;
+                RootFileExtension(i, result);
+                hasAnything |= result.Count != before;
+            }
+            if (hasAnything) {
+                File.WriteAllLines(path, result.Prepend(hasDelays ?
+                    $"Set up levels and delays by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ." :
+                    $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ."));
+            }
+        }
     }
 
     /// <summary>

@@ -25,6 +25,7 @@ namespace Cavern.Format.FilterSet {
         /// Save the results to EQ curve files for each channel.
         /// </summary>
         public override void Export(string path) {
+            CreateRootFile(path, "txt");
             string folder = Path.GetDirectoryName(path),
                 fileNameBase = Path.GetFileName(path);
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
@@ -32,19 +33,20 @@ namespace Cavern.Format.FilterSet {
             List<Equalizer>[] groups = new List<Equalizer>[channelGroups.Length];
             List<(Equalizer curve, string name)> standalones = new List<(Equalizer, string)>();
             for (int i = 0; i < Channels.Length; i++) {
+                EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
                 bool found = false;
                 for (int j = 0; j < channelGroups.Length; j++) {
-                    if (channelGroups[j].channels.Contains(Channels[i].reference)) {
+                    if (channelGroups[j].channels.Contains(channelRef.reference)) {
                         if (groups[j] == null) {
                             groups[j] = new List<Equalizer>();
                         }
-                        groups[j].Add(Channels[i].curve);
+                        groups[j].Add(channelRef.curve);
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    standalones.Add((Channels[i].curve, Channels[i].name));
+                    standalones.Add((channelRef.curve, channelRef.name));
                 }
             }
 

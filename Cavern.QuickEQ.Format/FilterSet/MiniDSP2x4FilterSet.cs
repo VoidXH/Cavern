@@ -52,7 +52,7 @@ namespace Cavern.Format.FilterSet {
             int split = (Bands >> 1) - 1;
             for (int i = 0, c = Channels.Length; i < c; ++i) {
                 List<string> inputData = new List<string>(), outputData = new List<string>();
-                BiquadFilter[] filters = Channels[i].filters;
+                BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
                 for (int j = 0; j < filters.Length; j++) {
                     List<string> targetData = j < (Bands >> 1) ? inputData : outputData;
                     targetData.AddRange(new[] {

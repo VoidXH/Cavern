@@ -117,17 +117,18 @@ namespace Cavern.Format.FilterSet {
             StringBuilder result = new StringBuilder();
             result.AppendLine(fileStart);
             for (int channel = 0; channel < guids.Length;) {
+                IIRChannelData channelRef = (IIRChannelData)Channels[channel];
                 (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair, string location) label =
-                    labeling.FirstOrDefault(x => x.channel == Channels[channel].reference);
+                    labeling.FirstOrDefault(x => x.channel == channelRef.reference);
                 if (label.designation == null) {
                     throw new IOException("A channel that's part of the exported configuration is unsupported by MultEQ-X.");
                 }
 
                 result.Append(string.Format(channelEntry, guids[channel], label.designation, label.name,
                     label.pairDesignation, label.pair, label.location,
-                    Channels[channel].gain.ToString(CultureInfo.InvariantCulture),
+                    channelRef.gain.ToString(CultureInfo.InvariantCulture),
                     GetDelay(channel).ToString(CultureInfo.InvariantCulture),
-                    Channels[channel].switchPolarity.ToString().ToLower()));
+                    channelRef.switchPolarity.ToString().ToLower()));
                 if (++channel != guids.Length) {
                     result.AppendLine(",");
                 } else {
@@ -147,7 +148,7 @@ namespace Cavern.Format.FilterSet {
 
             result.AppendLine(fileBeforeTargets);
             for (int channel = 0; channel < guids.Length;) {
-                BiquadFilter[] filters = Channels[channel].filters;
+                BiquadFilter[] filters = ((IIRChannelData)Channels[channel]).filters;
                 if (filters == null) {
                     continue;
                 }

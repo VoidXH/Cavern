@@ -62,12 +62,13 @@ namespace Cavern.Format.FilterSet {
         public override void Export(string path) {
             List<string> configFile = header != null ? new List<string>(header) : new List<string>();
             for (int i = 0, c = Channels.Length; i < c; ++i) {
+                IIRChannelData channelRef = (IIRChannelData)Channels[i];
                 configFile.Add("Channel: " + GetLabel(i));
-                configFile.Add($"Preamp: {Channels[i].gain} dB");
-                if (Channels[i].delaySamples != 0) {
+                configFile.Add($"Preamp: {channelRef.gain} dB");
+                if (channelRef.delaySamples != 0) {
                     configFile.Add($"Delay: {GetDelay(i)} ms");
                 }
-                BiquadFilter[] filters = Channels[i].filters;
+                BiquadFilter[] filters = channelRef.filters;
                 for (int j = 0; j < filters.Length; j++) {
                     configFile.Add(
                         $"Filter: ON PK Fc {filters[j].CenterFreq:0.00} Hz Gain {filters[j].Gain:0.00} dB Q {filters[j].Q:0.0000}");

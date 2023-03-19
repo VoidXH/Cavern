@@ -10,46 +10,28 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All information needed for a channel.
         /// </summary>
-        protected struct ChannelData : IEquatable<ChannelData> {
+        protected class FIRChannelData : ChannelData, IEquatable<FIRChannelData> {
             /// <summary>
             /// Applied convolution filter to this channel.
             /// </summary>
             public float[] filter;
 
             /// <summary>
-            /// Delay of this channel in samples.
-            /// </summary>
-            public int delaySamples;
-
-            /// <summary>
-            /// The reference channel describing this channel or <see cref="ReferenceChannel.Unknown"/> if not applicable.
-            /// </summary>
-            public ReferenceChannel reference;
-
-            /// <summary>
-            /// Custom label for this channel or null if not applicable.
-            /// </summary>
-            public string name;
-
-            /// <summary>
             /// Check if the same correction is applied to the <paramref name="other"/> channel.
             /// </summary>
-            public bool Equals(ChannelData other) => filter.Equals(other.filter) && delaySamples == other.delaySamples;
+            public bool Equals(FIRChannelData other) => filter.Equals(other.filter) && delaySamples == other.delaySamples;
         }
-
-        /// <summary>
-        /// Applied convolution filters for each channel in the configuration file.
-        /// </summary>
-        protected ChannelData[] Channels { get; private set; }
 
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target number of channels.
         /// </summary>
         protected FIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
-            Channels = new ChannelData[channels];
+            Channels = new FIRChannelData[channels];
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
             for (int i = 0; i < matrix.Length; i++) {
-                Channels[i].reference = matrix[i];
+                Channels[i] = new FIRChannelData {
+                    reference = matrix[i]
+                };
             }
         }
 
@@ -57,9 +39,11 @@ namespace Cavern.Format.FilterSet {
         /// Construct a room correction with a FIR filter for each channel for a room with the target reference channels.
         /// </summary>
         protected FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) {
-            Channels = new ChannelData[channels.Length];
+            Channels = new FIRChannelData[channels.Length];
             for (int i = 0; i < channels.Length; i++) {
-                Channels[i].reference = channels[i];
+                Channels[i] = new FIRChannelData {
+                    reference = channels[i]
+                };
             }
         }
 
@@ -82,7 +66,7 @@ namespace Cavern.Format.FilterSet {
         /// Setup a channel's filter with additional delay and custom name.
         /// </summary>
         public void SetupChannel(int channel, float[] filter, int delaySamples, string name) {
-            Channels[channel].filter = filter;
+            ((FIRChannelData)Channels[channel]).filter = filter;
             Channels[channel].delaySamples = delaySamples;
             Channels[channel].name = name;
         }
@@ -109,17 +93,12 @@ namespace Cavern.Format.FilterSet {
         public void SetupChannel(ReferenceChannel channel, float[] filter, int delaySamples, string name) {
             for (int i = 0; i < Channels.Length; ++i) {
                 if (Channels[i].reference == channel) {
-                    Channels[i].filter = filter;
+                    ((FIRChannelData)Channels[i]).filter = filter;
                     Channels[i].delaySamples = delaySamples;
                     Channels[i].name = name;
                     return;
                 }
             }
         }
-
-        /// <summary>
-        /// Get the short name of a channel written to the configuration file to select that channel for setup.
-        /// </summary>
-        protected override string GetLabel(int channel) => Channels[channel].name ?? base.GetLabel(channel);
     }
 }

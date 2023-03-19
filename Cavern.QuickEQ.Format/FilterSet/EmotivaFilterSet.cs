@@ -56,7 +56,7 @@ namespace Cavern.Format.FilterSet {
                     "<equalization>",
                     $"    <speaker location=\"{GetLabel(i)}\" headroom=\"6\">"
                 };
-                BiquadFilter[] filters = Channels[i].filters;
+                BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
                 for (int j = 0; j < filters.Length; j++) {
                     string qFactor = Math.Min(Math.Round(filters[j].Q * 5) / 5, 10).ToString("0.00", CultureInfo.InvariantCulture);
                     channelData.Add($"        <filter number=\"{j + 1}\">");

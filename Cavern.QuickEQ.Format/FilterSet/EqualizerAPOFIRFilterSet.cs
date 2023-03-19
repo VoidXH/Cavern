@@ -46,21 +46,22 @@ namespace Cavern.Format.FilterSet {
 
             List<string> configFile = header != null ? new List<string>(header) : new List<string>();
             for (int i = 0; i < Channels.Length; i++) {
+                FIRChannelData channelRef = (FIRChannelData)Channels[i];
                 string targetLabel = EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
-                    filterRelative = $"{fileNameBase} {Channels[i].name ?? targetLabel}.wav",
+                    filterRelative = $"{fileNameBase} {channelRef.name ?? targetLabel}.wav",
                     filterPath = Path.Combine(folder, filterRelative);
                 configFile.Add("Channel: " + targetLabel);
 
-                if (Channels[i].delaySamples != 0) {
+                if (channelRef.delaySamples != 0) {
                     // Only delay in the actual convolution if it's less than half the filter
-                    if ((Channels[i].filter.Length >> 1) > Channels[i].delaySamples) {
-                        WaveformUtils.Delay(Channels[i].filter, Channels[i].delaySamples);
+                    if ((channelRef.filter.Length >> 1) > channelRef.delaySamples) {
+                        WaveformUtils.Delay(channelRef.filter, channelRef.delaySamples);
                     } else {
-                        configFile.Add($"Delay: {Channels[i].delaySamples * 1000.0 / SampleRate} ms");
+                        configFile.Add($"Delay: {channelRef.delaySamples * 1000.0 / SampleRate} ms");
                     }
                 }
 
-                RIFFWaveWriter.Write(Path.Combine(folder, filterPath), Channels[i].filter, 1, SampleRate, BitDepth.Float32);
+                RIFFWaveWriter.Write(Path.Combine(folder, filterPath), channelRef.filter, 1, SampleRate, BitDepth.Float32);
                 configFile.Add("Convolution: " + filterRelative);
             }
 

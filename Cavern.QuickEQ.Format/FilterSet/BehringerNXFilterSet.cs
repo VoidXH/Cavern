@@ -57,8 +57,9 @@ namespace Cavern.Format.FilterSet {
                     channelData.AddRange(header);
                 }
 
+                IIRChannelData channelRef = (IIRChannelData)Channels[i];
                 string prefix = $"/channel/{i % 2 + 1}/";
-                BiquadFilter[] filters = Channels[i].filters;
+                BiquadFilter[] filters = channelRef.filters;
                 for (int j = 0; j < filters.Length; j++) {
                     string freq;
                     if (filters[j].CenterFreq < 1000) {
@@ -74,7 +75,7 @@ namespace Cavern.Format.FilterSet {
                 channelData.AddRange(new[] {
                     prefix + "xover/hp sf OFF 100.0",
                     prefix + "xover/lp sf OFF 10k00",
-                    $"{prefix}xover/gain f  {FormatWithSign(Math.Max(Math.Round(Channels[i].gain * 5) / 5, -12), "0.0")}",
+                    $"{prefix}xover/gain f  {FormatWithSign(Math.Max(Math.Round(channelRef.gain * 5) / 5, -12), "0.0")}",
                     prefix + "deq/1/comp fff  +0.0 -60.0 5.0",
                     prefix + "deq/1/time ff 20.0 400.0",
                     prefix + "deq/1/filt sff OFF 200.0 1.00",

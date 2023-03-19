@@ -15,7 +15,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All information needed for a channel.
         /// </summary>
-        protected struct ChannelData : IEquatable<ChannelData> {
+        protected class IIRChannelData : ChannelData, IEquatable<IIRChannelData> {
             /// <summary>
             /// Applied filter set for the channel.
             /// </summary>
@@ -27,29 +27,14 @@ namespace Cavern.Format.FilterSet {
             public double gain;
 
             /// <summary>
-            /// Delay of this channel in samples.
-            /// </summary>
-            public int delaySamples;
-
-            /// <summary>
             /// Swap the sign for this channel.
             /// </summary>
             public bool switchPolarity;
 
             /// <summary>
-            /// The reference channel describing this channel or <see cref="ReferenceChannel.Unknown"/> if not applicable.
-            /// </summary>
-            public ReferenceChannel reference;
-
-            /// <summary>
-            /// Custom label for this channel or null if not applicable.
-            /// </summary>
-            public string name;
-
-            /// <summary>
             /// Check if the same correction is applied to the <paramref name="other"/> channel.
             /// </summary>
-            public bool Equals(ChannelData other) => filters.Equals(other.filters) && gain == other.gain &&
+            public bool Equals(IIRChannelData other) => filters.Equals(other.filters) && gain == other.gain &&
                 delaySamples == other.delaySamples && switchPolarity == other.switchPolarity;
         }
 
@@ -74,18 +59,15 @@ namespace Cavern.Format.FilterSet {
         public virtual double GainPrecision => .0001;
 
         /// <summary>
-        /// Applied filter sets for each channel in the configuration file.
-        /// </summary>
-        protected ChannelData[] Channels { get; private set; }
-
-        /// <summary>
         /// Construct a room correction with IIR filter sets for each channel for a room with the target number of channels.
         /// </summary>
         public IIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
-            Channels = new ChannelData[channels];
+            Channels = new IIRChannelData[channels];
             ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
             for (int i = 0; i < matrix.Length; i++) {
-                Channels[i].reference = matrix[i];
+                Channels[i] = new IIRChannelData {
+                    reference = matrix[i]
+                };
             }
         }
 
@@ -93,9 +75,11 @@ namespace Cavern.Format.FilterSet {
         /// Construct a room correction with IIR filter sets for each channel for a room with the target reference channels.
         /// </summary>
         public IIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) {
-            Channels = new ChannelData[channels.Length];
+            Channels = new IIRChannelData[channels.Length];
             for (int i = 0; i < channels.Length; i++) {
-                Channels[i].reference = channels[i];
+                Channels[i] = new IIRChannelData {
+                    reference = channels[i]
+                };
             }
         }
 
@@ -113,11 +97,12 @@ namespace Cavern.Format.FilterSet {
         /// Setup a channel's filter set with all corrections.
         /// </summary>
         public void SetupChannel(int channel, BiquadFilter[] filters, double gain, int delaySamples, bool switchPolarity, string name) {
-            Channels[channel].filters = filters;
-            Channels[channel].gain = gain;
-            Channels[channel].delaySamples = delaySamples;
-            Channels[channel].switchPolarity = switchPolarity;
-            Channels[channel].name = name;
+            IIRChannelData channelRef = (IIRChannelData)Channels[channel];
+            channelRef.filters = filters;
+            channelRef.gain = gain;
+            channelRef.delaySamples = delaySamples;
+            channelRef.switchPolarity = switchPolarity;
+            channelRef.name = name;
         }
 
         /// <summary>
@@ -137,12 +122,13 @@ namespace Cavern.Format.FilterSet {
         public void SetupChannel(ReferenceChannel channel, BiquadFilter[] filters,
             double gain, int delaySamples, bool switchPolarity, string name) {
             for (int i = 0; i < Channels.Length; i++) {
-                if (Channels[i].reference == channel) {
-                    Channels[i].filters = filters;
-                    Channels[i].gain = gain;
-                    Channels[i].delaySamples = delaySamples;
-                    Channels[i].switchPolarity = switchPolarity;
-                    Channels[i].name = name;
+                IIRChannelData channelRef = (IIRChannelData)Channels[i];
+                if (channelRef.reference == channel) {
+                    channelRef.filters = filters;
+                    channelRef.gain = gain;
+                    channelRef.delaySamples = delaySamples;
+                    channelRef.switchPolarity = switchPolarity;
+                    channelRef.name = name;
                     return;
                 }
             }
@@ -159,7 +145,7 @@ namespace Cavern.Format.FilterSet {
 
             for (int i = 0, c = Channels.Length; i < c; i++) {
                 List<string> channelData = new List<string>();
-                BiquadFilter[] filters = Channels[i].filters;
+                BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
                 for (int j = 0; j < filters.Length; j++) {
                     string freq;
                     if (filters[j].CenterFreq < 100) {
@@ -181,46 +167,16 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Get the short name of a channel written to the configuration file to select that channel for setup.
+        /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
-        protected override string GetLabel(int channel) => Channels[channel].name ?? base.GetLabel(channel);
-
-        /// <summary>
-        /// Create the file with gain/delay/polarity info as the root document that's saved in the save dialog.
-        /// </summary>
-        protected void CreateRootFile(string path, string filterFileExtension) {
-            string fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
-            List<string> result = new List<string>();
-            bool hasAnything = false,
-                hasDelays = false;
-            for (int i = 0, c = Channels.Length; i < c; i++) {
-                result.Add(string.Empty);
-                result.Add("Channel: " + GetLabel(i));
-                if (Channels[i].delaySamples != 0) {
-                    result.Add("Delay: " + GetDelay(i).ToString("0.0 ms"));
-                    hasAnything = true;
-                    hasDelays = true;
-                }
-                if (Channels[i].gain != 0) {
-                    result.Add("Level: " + Channels[i].gain.ToString("0.0 dB"));
-                    hasAnything = true;
-                }
-                if (Channels[i].switchPolarity) {
-                    result.Add("Switch polarity");
-                    hasAnything = true;
-                }
+        protected override void RootFileExtension(int channel, List<string> result) {
+            IIRChannelData channelRef = (IIRChannelData)Channels[channel];
+            if (channelRef.gain != 0) {
+                result.Add("Level: " + channelRef.gain.ToString("0.0 dB"));
             }
-            if (hasAnything) {
-                File.WriteAllLines(path, result.Prepend(hasDelays ?
-                    $"Set up levels and delays by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ." :
-                    $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ."));
+            if (channelRef.switchPolarity) {
+                result.Add("Switch polarity");
             }
         }
-
-        /// <summary>
-        /// Get the delay for a given channel in milliseconds instead of samples.
-        /// </summary>
-        protected double GetDelay(int channel) => Channels[channel].delaySamples * 1000.0 / SampleRate;
     }
 }

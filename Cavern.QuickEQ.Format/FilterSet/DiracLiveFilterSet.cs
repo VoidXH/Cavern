@@ -22,12 +22,14 @@ namespace Cavern.Format.FilterSet {
         /// Save the results to EQ curve files for each channel.
         /// </summary>
         public override void Export(string path) {
+            CreateRootFile(path, "txt");
             string folder = Path.GetDirectoryName(path),
                 fileNameBase = Path.GetFileName(path);
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
             for (int i = 0; i < Channels.Length; i++) {
-                Channels[i].curve.ExportToDirac(Path.Combine(folder, $"{fileNameBase} {Channels[i].name}.txt"),
-                    Channels[i].gain, optionalHeader);
+                var channelRef = (EqualizerChannelData)Channels[i];
+                channelRef.curve.ExportToDirac(Path.Combine(folder, $"{fileNameBase} {channelRef.name}.txt"),
+                    channelRef.gain, optionalHeader);
             }
         }
     }

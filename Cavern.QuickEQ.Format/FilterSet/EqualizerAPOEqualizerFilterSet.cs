@@ -41,15 +41,16 @@ namespace Cavern.Format.FilterSet {
             }
 
             for (int channel = 0; channel < Channels.Length; channel++) {
+                EqualizerChannelData channelRef = (EqualizerChannelData)Channels[channel];
                 string chName = EqualizerAPOUtils.GetChannelLabel(channel, Channels.Length);
                 result.Add("Channel: " + chName);
-                if (Channels[channel].gain != 0) {
-                    result.Add($"Preamp: {Channels[channel].gain.ToString(CultureInfo.InvariantCulture)} dB");
+                if (channelRef.gain != 0) {
+                    result.Add($"Preamp: {channelRef.gain.ToString(CultureInfo.InvariantCulture)} dB");
                 }
-                if (Channels[channel].delaySamples != 0) {
+                if (channelRef.delaySamples != 0) {
                     result.Add($"Delay: {GetDelay(channel)} ms");
                 }
-                result.Add(Channels[channel].curve.ExportToEqualizerAPO());
+                result.Add(channelRef.curve.ExportToEqualizerAPO());
             }
 
             if (append != null) {

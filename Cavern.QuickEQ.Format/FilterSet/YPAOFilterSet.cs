@@ -43,8 +43,9 @@ namespace Cavern.Format.FilterSet {
             for (int i = 0; i < Channels.Length; i++) {
                 result.Add(string.Empty);
                 result.Add(GetLabel(i) + ':');
-                for (int j = 0; j < Channels[i].filters.Length;) {
-                    BiquadFilter filter = Channels[i].filters[j];
+                BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
+                for (int j = 0; j < filters.Length;) {
+                    BiquadFilter filter = filters[j];
                     result.Add($"Filter {++j} - Frequency: {bands.Nearest((float)filter.CenterFreq)}, Q factor: " +
                         $"{qFactors.Nearest((float)filter.Q)}, gain: {filter.Gain}");
                 }

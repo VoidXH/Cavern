@@ -35,7 +35,8 @@ namespace Cavern.Format.FilterSet {
             List<string> configFile = new List<string> { "filters:" };
             bool[] additionalDelays = new bool[Channels.Length];
             for (int i = 0; i < Channels.Length; i++) {
-                string label = Channels[i].name ?? EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
+                FIRChannelData channelRef = (FIRChannelData)Channels[i];
+                string label = channelRef.name ?? EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
                     filterRelative = $"{fileNameBase} {label}.wav",
                     filterPath = Path.Combine(folder, filterRelative);
                 configFile.AddRange(new[] {
@@ -46,16 +47,16 @@ namespace Cavern.Format.FilterSet {
                     "      filename: " + filterRelative
                 });
 
-                if (Channels[i].delaySamples != 0) {
+                if (channelRef.delaySamples != 0) {
                     // Only delay in the actual convolution if it's less than half the filter
-                    if ((Channels[i].filter.Length >> 1) > Channels[i].delaySamples) {
-                        WaveformUtils.Delay(Channels[i].filter, Channels[i].delaySamples);
+                    if ((channelRef.filter.Length >> 1) > channelRef.delaySamples) {
+                        WaveformUtils.Delay(channelRef.filter, channelRef.delaySamples);
                     } else {
                         configFile.AddRange(new[] {
                             $"  channel_{label}_delay:",
                             "    type: Delay",
                             "    parameters:",
-                            "      delay: " + Channels[i].delaySamples,
+                            "      delay: " + channelRef.delaySamples,
                             "      unit: samples",
                             "      subsample: false"
                         });
@@ -63,7 +64,7 @@ namespace Cavern.Format.FilterSet {
                     }
                 }
 
-                RIFFWaveWriter.Write(Path.Combine(folder, filterPath), Channels[i].filter, 1, SampleRate, BitDepth.Float32);
+                RIFFWaveWriter.Write(Path.Combine(folder, filterPath), channelRef.filter, 1, SampleRate, BitDepth.Float32);
             }
 
             configFile.Add("pipeline:");
