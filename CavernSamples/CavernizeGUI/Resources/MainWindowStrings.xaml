@@ -99,4 +99,6 @@
     <system:String x:Key="CMetT">Codec metadata</system:String>
     <system:String x:Key="CMeET">Please load a file first.</system:String>
     <system:String x:Key="CMeUT">The Cavern API does not yet support displaying the metadata of the selected track.</system:String>
+    <system:String x:Key="JocWa">This file had some parts which were coded in sparse JOC. This part of the E-AC-3 standard is
+        not correctly documented, thus can't be decoded, and was muted. Small distortions in the audio are expected.</system:String>
 </ResourceDictionary>

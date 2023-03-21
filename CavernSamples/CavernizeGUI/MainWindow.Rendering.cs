@@ -228,12 +228,7 @@ namespace CavernizeGUI {
                 }
             }
 
-            taskEngine.UpdateStatus((string)language["ExpOk"]);
-            taskEngine.UpdateProgressBar(1);
-
-            if (Program.ConsoleMode) {
-                Dispatcher.Invoke(Close);
-            }
+            FinishTask(target);
         }
 
         /// <summary>
@@ -250,9 +245,27 @@ namespace CavernizeGUI {
                 stats = WriteTranscode(target, writer);
             }
             UpdatePostRenderReport(stats);
+            FinishTask(target);
+        }
 
+        /// <summary>
+        /// Operations to perform after a conversion was successful.
+        /// </summary>
+        void FinishTask(Track target) {
             taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.UpdateProgressBar(1);
+
+            if (Program.ConsoleMode) {
+                Dispatcher.Invoke(Close);
+            }
+
+            if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.WorkedAround) {
+                if (Program.ConsoleMode) {
+                    Console.WriteLine((string)language["JocWa"]);
+                } else {
+                    Error((string)language["JocWa"]);
+                }
+            }
         }
 
         /// <summary>

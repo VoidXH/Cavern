@@ -17,6 +17,12 @@ namespace Cavern.Format.Renderers {
         public bool Enhanced => ((EnhancedAC3Decoder)stream).Enhanced;
 
         /// <summary>
+        /// The stream contained sparsely decoded data, which can't be supported, as the documentation is incorrect.
+        /// </summary>
+        public bool WorkedAround => ((EnhancedAC3Decoder)stream).Extensions.JOC != null
+            && ((EnhancedAC3Decoder)stream).Extensions.JOC.HadSparse;
+
+        /// <summary>
         /// Count of free-floating objects.
         /// </summary>
         public int DynamicObjects { get; }

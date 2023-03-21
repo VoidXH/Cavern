@@ -1,16 +1,20 @@
 ﻿using System;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     partial class JointObjectCoding {
         /// <summary>
+        /// The JOC contained vector-based and not matrix-based encoded data at some point.
+        /// </summary>
+        public bool HadSparse { get; private set; }
+
+        /// <summary>
         /// Decode a JOC matrix around a <paramref name="center"/> value in a coding where each object only takes one
         /// channel's data. In this step, the values are positive integers.
         /// </summary>
-        // TODO: fix this, the standard code is wrong
         void DecodeSparse(int obj, float[][][] mixMatrix, int center) {
+            HadSparse = true;
             int max = center * 2;
             int[][] sourceVector = jocVector[obj];
             int[][] inputChannel = jocChannel[obj];
@@ -18,6 +22,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             for (int dp = 0; dp < dataPoints[obj]; dp++) {
                 float[][] dpMatrix = mixMatrix[dp];
                 int[] dpVector = sourceVector[dp];
+                Array.Clear(dpVector, 0, dpVector.Length); // TODO: unmute sparse when the standard is fixed
                 int[] dpChannel = inputChannel[dp];
 
                 for (int pb = 0; pb < bands; pb++) {
