@@ -35,6 +35,21 @@
             return APO71[channel];
         }
 
+        /// <summary>
+        /// Get Equalizer APO's label for a given reference channel.
+        /// </summary>
+        public static string GetChannelLabel(ReferenceChannel channel) => channel switch {
+            ReferenceChannel.FrontLeft => frontLeft,
+            ReferenceChannel.FrontRight => frontRight,
+            ReferenceChannel.FrontCenter => frontCenter,
+            ReferenceChannel.ScreenLFE => screenLFE,
+            ReferenceChannel.RearLeft => rearLeft,
+            ReferenceChannel.RearRight => rearRight,
+            ReferenceChannel.SideLeft => sideLeft,
+            ReferenceChannel.SideRight => sideRight,
+            _ => channel.GetShortName(),
+        };
+
         const string frontLeft = "L";
         const string frontRight = "R";
         const string frontCenter = "C";

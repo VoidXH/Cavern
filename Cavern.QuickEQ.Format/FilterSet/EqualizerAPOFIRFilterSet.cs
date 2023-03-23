@@ -47,7 +47,7 @@ namespace Cavern.Format.FilterSet {
             List<string> configFile = header != null ? new List<string>(header) : new List<string>();
             for (int i = 0; i < Channels.Length; i++) {
                 FIRChannelData channelRef = (FIRChannelData)Channels[i];
-                string targetLabel = EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
+                string targetLabel = GetLabel(i),
                     filterRelative = $"{fileNameBase} {channelRef.name ?? targetLabel}.wav",
                     filterPath = Path.Combine(folder, filterRelative);
                 configFile.Add("Channel: " + targetLabel);
@@ -67,5 +67,11 @@ namespace Cavern.Format.FilterSet {
 
             File.WriteAllLines(path, configFile);
         }
+
+        /// <summary>
+        /// Get the short name of a channel written to the configuration file to select that channel for setup.
+        /// </summary>
+        protected override string GetLabel(int channel) => channel < 8 ?
+            EqualizerAPOUtils.GetChannelLabel(Channels[channel].reference) : base.GetLabel(channel);
     }
 }

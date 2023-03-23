@@ -42,8 +42,7 @@ namespace Cavern.Format.FilterSet {
 
             for (int channel = 0; channel < Channels.Length; channel++) {
                 EqualizerChannelData channelRef = (EqualizerChannelData)Channels[channel];
-                string chName = EqualizerAPOUtils.GetChannelLabel(channel, Channels.Length);
-                result.Add("Channel: " + chName);
+                result.Add("Channel: " + GetLabel(channel));
                 if (channelRef.gain != 0) {
                     result.Add($"Preamp: {channelRef.gain.ToString(CultureInfo.InvariantCulture)} dB");
                 }
@@ -58,5 +57,11 @@ namespace Cavern.Format.FilterSet {
             }
             File.WriteAllLines(path, result);
         }
+
+        /// <summary>
+        /// Get the short name of a channel written to the configuration file to select that channel for setup.
+        /// </summary>
+        protected override string GetLabel(int channel) => channel < 8 ?
+            EqualizerAPOUtils.GetChannelLabel(Channels[channel].reference) : base.GetLabel(channel);
     }
 }

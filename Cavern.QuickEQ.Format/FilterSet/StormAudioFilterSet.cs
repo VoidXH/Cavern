@@ -38,17 +38,24 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
-        protected override string GetLabel(int channel) => channel > 7 ? base.GetLabel(channel) :
-            Channels.Length < 7 ? labels51[channel] : labels71[channel];
-
-        /// <summary>
-        /// 5.1 layout labels in order for StormAudio hardware.
-        /// </summary>
-        static readonly string[] labels51 = { "LF", "RF", "CF", "SUB", "LS", "RS" };
-
-        /// <summary>
-        /// 7.1 layout labels in order for StormAudio hardware.
-        /// </summary>
-        static readonly string[] labels71 = { "LF", "RF", "CF", "SUB", "LB", "RB", "LS", "RS" };
+        protected override string GetLabel(int channel) => Channels[channel].reference switch {
+            ReferenceChannel.FrontLeft => "LF",
+            ReferenceChannel.FrontRight => "RF",
+            ReferenceChannel.FrontCenter => "CF",
+            ReferenceChannel.ScreenLFE => "SUB",
+            ReferenceChannel.RearLeft => "LB",
+            ReferenceChannel.RearRight => "RB",
+            ReferenceChannel.SideLeft => "LS",
+            ReferenceChannel.SideRight => "RS",
+            ReferenceChannel.TopFrontLeft => "LFH",
+            ReferenceChannel.TopFrontRight => "RFH",
+            ReferenceChannel.TopSideLeft => "LTM",
+            ReferenceChannel.TopSideRight => "RTM",
+            ReferenceChannel.TopFrontCenter => "CFH",
+            ReferenceChannel.GodsVoice => "TOP",
+            ReferenceChannel.TopRearLeft => "LBH",
+            ReferenceChannel.TopRearRight => "RBH",
+            _ => base.GetLabel(channel)
+        };
     }
 }
