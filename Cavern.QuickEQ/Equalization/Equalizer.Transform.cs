@@ -125,6 +125,21 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Change the frequencies contained in this <see cref="Equalizer"/>.
+        /// </summary>
+        /// <param name="frequencies">Use the frequencies of these bands</param>
+        public void Resample(IReadOnlyList<Band> frequencies) {
+            int c = frequencies.Count;
+            List<Band> newBands = new List<Band>(c);
+            for (int i = 0; i < c; i++) {
+                newBands.Add(new Band(frequencies[i].Frequency, this[frequencies[i].Frequency]));
+            }
+            bands.Clear();
+            bands.AddRange(newBands);
+            RecalculatePeakGain();
+        }
+
+        /// <summary>
         /// Apply smoothing on this <see cref="Equalizer"/> with a window of a given octave.
         /// </summary>
         public void Smooth(double octaves) {
