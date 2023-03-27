@@ -26,6 +26,11 @@ namespace Cavern.Format.FilterSet {
         public override double GainPrecision => .5;
 
         /// <summary>
+        /// Mandatory marker in each file to be accepted by the processor.
+        /// </summary>
+        protected override string Header => "Equaliser: StormAudio";
+
+        /// <summary>
         /// IIR filter set for StormAudio processors with a given number of channels.
         /// </summary>
         public StormAudioFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }

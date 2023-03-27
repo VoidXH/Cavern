@@ -59,6 +59,11 @@ namespace Cavern.Format.FilterSet {
         public virtual double GainPrecision => .0001;
 
         /// <summary>
+        /// An optional text to add to the first line of every exported channel filter set.
+        /// </summary>
+        protected virtual string Header => null;
+
+        /// <summary>
         /// Construct a room correction with IIR filter sets for each channel for a room with the target number of channels.
         /// </summary>
         public IIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
@@ -145,6 +150,10 @@ namespace Cavern.Format.FilterSet {
 
             for (int i = 0, c = Channels.Length; i < c; i++) {
                 List<string> channelData = new List<string>();
+                if (Header != null) {
+                    channelData.Add(Header);
+                }
+
                 BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
                 for (int j = 0; j < filters.Length; j++) {
                     string freq;
