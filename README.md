@@ -37,8 +37,10 @@ Cavernize.
 * Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats
 * Seat movement generation
-* Unity-like listener and source functionality
 * Ultra low latency, even the upconverter can work from as low as one sample per frame
+* Unity-like listener and source functionality
+* Fixes for Unity's Microphone API
+  * Works in WebGL too
 
 ## User documentation
 User documentation can be found at the [Cavern documentation webpage](http://cavern.sbence.hu/cavern/doc.php).
