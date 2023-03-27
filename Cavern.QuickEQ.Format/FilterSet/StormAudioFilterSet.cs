@@ -47,14 +47,14 @@ namespace Cavern.Format.FilterSet {
             ReferenceChannel.RearRight => "RB",
             ReferenceChannel.SideLeft => "LS",
             ReferenceChannel.SideRight => "RS",
-            ReferenceChannel.TopFrontLeft => "LFH",
-            ReferenceChannel.TopFrontRight => "RFH",
-            ReferenceChannel.TopSideLeft => "LTM",
-            ReferenceChannel.TopSideRight => "RTM",
+            ReferenceChannel.TopFrontLeft => "LFT",
+            ReferenceChannel.TopFrontRight => "RFT",
+            ReferenceChannel.TopSideLeft => "LMT",
+            ReferenceChannel.TopSideRight => "RMT",
             ReferenceChannel.TopFrontCenter => "CFH",
             ReferenceChannel.GodsVoice => "TOP",
-            ReferenceChannel.TopRearLeft => "LBH",
-            ReferenceChannel.TopRearRight => "RBH",
+            ReferenceChannel.TopRearLeft => "LBT",
+            ReferenceChannel.TopRearRight => "RBT",
             _ => base.GetLabel(channel)
         };
     }
