@@ -155,7 +155,7 @@ namespace Cavern {
         /// </summary>
         /// <remarks>Normalization and limiting happens in this object's <see cref="normalizer"/>.</remarks>
         internal static readonly Listener cavernListener = new Listener {
-            LimiterOnly = false
+            LimiterOnly = true
         };
 
         /// <summary>
@@ -256,6 +256,7 @@ namespace Cavern {
             cavernListener.DirectLFE = DirectLFE;
             normalizer.decayFactor = Normalizer * UpdateRate / SampleRate;
             normalizer.limiterOnly = LimiterOnly;
+            cavernListener.LimiterOnly = LimiterOnly;
             cavernListener.Position = VectorUtils.VectorMatch(transform.position);
             cavernListener.Rotation = VectorUtils.VectorMatch(transform.eulerAngles);
             startSkip = false;

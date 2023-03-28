@@ -32,7 +32,7 @@ namespace Cavern.Filters {
         /// </summary>
         public override void Process(float[] samples) {
             float max = Math.Abs(samples[0]), absSample;
-            for (int sample = 1; sample < samples.Length; ++sample) {
+            for (int sample = 1; sample < samples.Length; sample++) {
                 absSample = Math.Abs(samples[sample]);
                 if (max < absSample) {
                     max = absSample;
