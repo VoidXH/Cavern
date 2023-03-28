@@ -26,6 +26,7 @@ namespace CavernizeGUI {
 
             var app = new App();
             app.Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
+            app.Resources.MergedDictionaries.Add(Consts.Language.GetRenderTargetSelectorStrings());
             app.Resources.MergedDictionaries.Add(Consts.Language.GetUpmixingSetupStrings());
             try {
                 app.InitializeComponent();

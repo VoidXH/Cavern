@@ -18,6 +18,11 @@ namespace CavernizeGUI.Consts {
         public static ResourceDictionary GetTrackStrings() => trackCache ??= GetFor("TrackStrings");
 
         /// <summary>
+        /// Get the <see cref="RenderTargetSelector"/>'s translation.
+        /// </summary>
+        public static ResourceDictionary GetRenderTargetSelectorStrings() => GetFor("RenderTargetSelectorStrings");
+
+        /// <summary>
         /// Get the <see cref="UpmixingSetup"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetUpmixingSetupStrings() => GetFor("UpmixingSetupStrings");

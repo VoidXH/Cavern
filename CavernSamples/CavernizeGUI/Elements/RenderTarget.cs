@@ -8,7 +8,7 @@ namespace CavernizeGUI.Elements {
     /// <summary>
     /// Standard rendering channel layouts.
     /// </summary>
-    class RenderTarget {
+    public class RenderTarget {
         /// <summary>
         /// Layout name.
         /// </summary>

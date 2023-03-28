@@ -10,6 +10,9 @@
     <Compile Update="Windows\CodecMetadata.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Windows\RenderTargetSelector.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Windows\UpmixingSetup.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -24,6 +27,9 @@
     <Page Update="Resources\MainWindowStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Resources\RenderTargetSelectorStrings.hu-HU.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Resources\Styles.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -33,6 +39,9 @@
     <Page Update="Resources\TrackStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Resources\RenderTargetSelectorStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Resources\UpmixingSetupStrings.hu-HU.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -40,6 +49,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Windows\CodecMetadata.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\RenderTargetSelector.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Windows\UpmixingSetup.xaml">

@@ -21,6 +21,7 @@ using Cavern.Utilities;
 
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
+using CavernizeGUI.Windows;
 using VoidX.WPF;
 
 using Path = System.IO.Path;
@@ -322,6 +323,20 @@ namespace CavernizeGUI {
                     channelDisplay[channels[ch]].Fill = green;
                 }
             }
+        }
+
+        /// <summary>
+        /// Open the render target selector at the render target's position when clicking the render target dropdown.
+        /// </summary>
+        void OnRenderTargetOpened(object sender, EventArgs e) {
+            renderTarget.IsDropDownOpen = false;
+            Point renderTargetPos = renderTarget.PointToScreen(new Point(0, 0));
+            RenderTargetSelector selector = new(RenderTarget.Targets, (RenderTarget)renderTarget.SelectedItem) {
+                Left = renderTargetPos.X,
+                Top = renderTargetPos.Y + renderTarget.ActualHeight
+            };
+            selector.ShowDialog();
+            renderTarget.SelectedItem = selector.Result;
         }
 
         /// <summary>

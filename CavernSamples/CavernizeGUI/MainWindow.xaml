@@ -62,8 +62,8 @@
                             <TextBlock Margin="10,37,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
                                        Text="{StaticResource RndTg}"/>
                             <ComboBox x:Name="renderTarget" Margin="90,34,10,0" VerticalAlignment="Top"
-                                      SelectionChanged="OnRenderTargetSelected" Template="{DynamicResource DarkComboBox}"
-                                      ItemContainerStyle="{DynamicResource DarkComboBoxItem}"/>
+                                      DropDownOpened="OnRenderTargetOpened" SelectionChanged="OnRenderTargetSelected"
+                                      Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"/>
                             <Canvas Margin="29,66,29,0" VerticalAlignment="Top" Width="170" Height="160">
                                 <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
                                 <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
