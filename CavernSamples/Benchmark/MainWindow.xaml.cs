@@ -1,6 +1,7 @@
-﻿using Benchmark.Benchmarks;
-using System;
+﻿using System;
 using System.Windows;
+
+using Benchmark.Benchmarks;
 using VoidX.WPF;
 
 namespace Benchmark {

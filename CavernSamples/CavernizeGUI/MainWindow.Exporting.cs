@@ -8,6 +8,7 @@ using Cavern.Format;
 using Cavern.Format.Environment;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
+
 using CavernizeGUI.Elements;
 using VoidX.WPF;
 

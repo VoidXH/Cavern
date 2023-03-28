@@ -39,7 +39,7 @@ namespace EnhancedAC3Merger {
         /// <summary>
         /// Index of the selected channel in the <see cref="SelectedFile"/>.
         /// </summary>
-        public int SelectedChannel => channelIndex.SelectedIndex;
+        public int SelectedChannel => channelIndex.Dispatcher.Invoke(() => channelIndex.SelectedIndex);
 
         /// <summary>
         /// Single channel input mapper control.

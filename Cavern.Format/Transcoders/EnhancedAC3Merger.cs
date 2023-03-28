@@ -106,13 +106,10 @@ namespace Cavern.Format.Transcoders {
                 Source source = sources[i];
                 BitPlanter encoder = source.Header.Encode();
                 for (int block = 0; block < source.Header.Blocks; block++) {
-                    EnhancedAC3Body stateBefore;
                     if (block == 0) {
                         source.Body.PrepareUpdate(source.Frame);
-                        stateBefore = source.Body.CreateEncodeBackup();
-                    } else {
-                        stateBefore = source.Body.CreateEncodeBackup();
                     }
+                    EnhancedAC3Body stateBefore = source.Body.CreateEncodeBackup();
                     source.Body.DecodeAudioBlock(block);
                     EnhancedAC3Body stateAfter = source.Body.CreateEncodeBackup();
 

@@ -38,9 +38,11 @@
                 <local:InputChannel x:Name="tsr" Margin="10,85,10,0" VerticalAlignment="Top" TargetChannel="TopSideRight"/>
             </Grid>
         </GroupBox>
-        <Button Margin="0,0,10,35" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Height="20"
+        <Button Margin="0,0,10,60" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Height="20"
                 Content="Locate FFmpeg" Click="LocateFFmpeg"/>
-        <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Height="20"
+        <Button Margin="0,0,10,35" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Height="20"
                 Content="Merge" Click="Merge"/>
+        <ProgressBar x:Name="progress" Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100" Height="20"
+                     Maximum="1"/>
     </Grid>
 </Window>
