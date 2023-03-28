@@ -1,0 +1,48 @@
+﻿<Window x:Class="QuickEQResultMerger.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuickEQResultMerger"
+        mc:Ignorable="d"
+        Title="QuickEQ Result Merger" Height="450" Width="750">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="295"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="Files">
+            <Grid>
+                <Button Content="Add file" HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" Click="AddFile"/>
+                <Button Content="Clear" HorizontalAlignment="Right" VerticalAlignment="Top" Width="70" Click="Clear"/>
+                <DataGrid x:Name="files" Margin="0,25,0,0"/>
+            </Grid>
+        </GroupBox>
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch"/>
+        <GroupBox Grid.Column="2" Header="How to use">
+            <Grid>
+                <TextBlock Margin="10,10,10,10" HorizontalAlignment="Center" TextWrapping="Wrap">
+                    This application combines the result of multiple Cavern QuickEQ measurements to aid in EQing
+                    an unlimited number of channels on select systems.<LineBreak/>
+                    <LineBreak/>
+                    <Bold>Perform measurements</Bold> of different channel sets with Cavern, but always have
+                    at least one common channel you've measured before, for example:<LineBreak/>
+                    - Left front, right front, center, LFE 1<LineBreak/>
+                    - Left surround, right surround, center, LFE 2<LineBreak/>
+                    In these cases, the center channel was measured in both sets, thus they can be synchronized.<LineBreak/>
+                    <LineBreak/>
+                    <Bold>Set the channel names</Bold> in one of two ways:<LineBreak/>
+                    - With Cavern's &quot;Manual channel setup&quot;, rename the channels before each measurement. This will
+                    make sure they are exported with unique names.<LineBreak/>
+                    - If you don't change the settings of Cavern between measurements, only the wires, open the exported
+                    text files, and modify the channel names manually.<LineBreak/>
+                    <LineBreak/>
+                    <Bold>Add the text files</Bold> to this program with the &quot;Add file&quot; button. They will be
+                    merged automatically, with the gains and delays ready to be imported to the target system. EQ sets
+                    don't need merging.
+                </TextBlock>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>

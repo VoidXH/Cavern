@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADMValidator", "ADMValidato
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnhancedAC3Merger", "EnhancedAC3Merger\EnhancedAC3Merger.csproj", "{205EE433-4DF9-475B-8C82-15E627788F6D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuickEQResultMerger", "QuickEQResultMerger\QuickEQResultMerger.csproj", "{AF9655E4-8DC7-4D30-8E35-59C81EFB3132}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +91,10 @@ Global
 		{205EE433-4DF9-475B-8C82-15E627788F6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{205EE433-4DF9-475B-8C82-15E627788F6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{205EE433-4DF9-475B-8C82-15E627788F6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF9655E4-8DC7-4D30-8E35-59C81EFB3132}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF9655E4-8DC7-4D30-8E35-59C81EFB3132}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF9655E4-8DC7-4D30-8E35-59C81EFB3132}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF9655E4-8DC7-4D30-8E35-59C81EFB3132}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

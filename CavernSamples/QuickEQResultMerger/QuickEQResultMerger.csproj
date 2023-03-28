@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+    <UseWPF>true</UseWPF>
+    <Product>QuickEQ Result Merger</Product>
+    <Company>VoidX</Company>
+    <Description>Combines the result of multiple Cavern QuickEQ measurements to aid in EQing an unlimited number of channels on select systems.</Description>
+  </PropertyGroup>
+</Project>
