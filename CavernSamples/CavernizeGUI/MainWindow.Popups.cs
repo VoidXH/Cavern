@@ -143,7 +143,8 @@ namespace CavernizeGUI {
         /// Shows a popup about what channel should be wired to which output.
         /// </summary>
         void DisplayWiring(object _, RoutedEventArgs e) {
-            ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).GetNameMappedChannels();
+            RenderTarget target = (RenderTarget)renderTarget.SelectedItem;
+            ReferenceChannel[] channels = target.GetNameMappedChannels();
             ChannelPrototype[] prototypes = ChannelPrototype.Get(channels);
             if (channels.Length > 8) {
                 MessageBox.Show(string.Format((string)language["Over8"], string.Join(string.Empty, prototypes.Select(x => "\n- " + x.Name)),
@@ -152,9 +153,16 @@ namespace CavernizeGUI {
             }
 
             StringBuilder output = new StringBuilder();
-            for (int i = 0; i < prototypes.Length; ++i) {
+            for (int i = 0; i < prototypes.Length; i++) {
                 output.AppendLine(string.Format((string)language["ChCon"], prototypes[i].Name,
                     ChannelPrototype.Get(i, prototypes.Length).Name));
+            }
+            if (target is DownmixedRenderTarget downmix) {
+                (ReferenceChannel source, ReferenceChannel posPhase, ReferenceChannel negPhase)[] matrixed = downmix.MatrixWirings;
+                for (int i = 0; i < matrixed.Length; i++) {
+                    output.AppendLine(string.Format((string)language["ChCMx"],
+                        matrixed[i].source, matrixed[i].posPhase, matrixed[i].negPhase));
+                }
             }
             MessageBox.Show(output.ToString(), (string)language["WrGui"]);
         }

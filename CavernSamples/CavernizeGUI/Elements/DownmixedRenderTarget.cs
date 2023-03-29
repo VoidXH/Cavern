@@ -11,8 +11,59 @@ namespace CavernizeGUI.Elements {
     /// first <see cref="OutputChannels"/> will be kept.</remarks>
     class DownmixedRenderTarget : RenderTarget {
         /// <summary>
-        /// Channels pairs in the form of (a, b) where a is mixed into b and then thrown away.
+        /// The exact <see cref="OutputChannels"/>, what will have an output.
+        /// These are the channels that are not just virtual.
         /// </summary>
+        public override ReferenceChannel[] WiredChannels {
+            get {
+                ReferenceChannel[] result = new ReferenceChannel[OutputChannels];
+                int resultIndex = 0;
+                for (int i = 0; i < Channels.Length; i++) {
+                    bool written = true;
+                    for (int j = 0; j < merge.Length; j++) {
+                        if (merge[j].source == i) {
+                            written = false;
+                            break;
+                        }
+                    }
+                    if (written) {
+                        result[resultIndex++] = Channels[i];
+                    }
+                }
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Some channels can be wired such that their terminals will be connected to a different channel's + terminal.
+        /// If they broadcast the same signal, but in different phase, they'll get added together
+        /// </summary>
+        public (ReferenceChannel source, ReferenceChannel posPhase, ReferenceChannel negPhase)[] MatrixWirings {
+            get {
+                int count = 0;
+                for (int i = 0; i < merge.Length; i++) {
+                    if (merge[i].source < 0) {
+                        count++;
+                    }
+                }
+
+                (ReferenceChannel, ReferenceChannel, ReferenceChannel)[] result =
+                    new (ReferenceChannel, ReferenceChannel, ReferenceChannel)[count];
+                count = 0;
+                for (int i = 0; i < merge.Length; i++) {
+                    if (merge[i].source < 0) {
+                        result[count++] = (Channels[~merge[i].source], Channels[merge[i - 1].target], Channels[merge[i].target]);
+                    }
+                }
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Channels pairs in the form of (a, b) where a is mixed into b and then thrown away. When the source is 2's complement, a
+        /// phase-inverted downmix will be performed.
+        /// </summary>
+        /// <remarks>Positive and negative matrix wiring terminals must follow each other.</remarks>
         readonly (int source, int target)[] merge;
 
         /// <summary>
@@ -27,7 +78,13 @@ namespace CavernizeGUI.Elements {
         public DownmixedRenderTarget(string name, ReferenceChannel[] channels, params (int, int)[] merge) :
             base(name, channels) {
             this.merge = merge;
-            OutputChannels = channels.Length - merge.Length;
+            int merged = merge.Length;
+            for (int i = 0; i < merge.Length; i++) {
+                if (merge[i].Item1 < 0) {
+                    --merged; // Don't count L - R mixes twice
+                }
+            }
+            OutputChannels = channels.Length - merged;
         }
 
         /// <summary>
@@ -35,7 +92,7 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         public override bool IsExported(int index) {
             for (int i = 0; i < merge.Length; i++) {
-                if (merge[i].source == index) {
+                if (merge[i].source == index || ~merge[i].source == index) {
                     return false;
                 }
             }
@@ -47,7 +104,13 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         public void PerformMerge(float[] samples) {
             for (int i = 0; i < merge.Length; i++) {
-                WaveformUtils.Mix(samples, merge[i].source, merge[i].target, Channels.Length);
+                if (i + 1 < merge.Length && merge[i].source == ~merge[i + 1].source) { // Matrix channel, + phase
+                    WaveformUtils.Mix(samples, merge[i].source, merge[i].target, Channels.Length, .5f);
+                } else if (merge[i].source >= 0) { // Regular channel
+                    WaveformUtils.Mix(samples, merge[i].source, merge[i].target, Channels.Length);
+                } else { // Matrix channel, - phase
+                    WaveformUtils.Mix(samples, ~merge[i].source, merge[i].target, Channels.Length, -.5f);
+                }
             }
         }
     }

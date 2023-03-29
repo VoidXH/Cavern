@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Width="320" Height="325" Background="#424242" WindowStyle="None" AllowsTransparency="True">
+        Width="320" Height="325" Background="#424242" WindowStyle="None" AllowsTransparency="True" ShowInTaskbar="False">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

@@ -20,6 +20,12 @@ namespace CavernizeGUI.Elements {
         public ReferenceChannel[] Channels { get; }
 
         /// <summary>
+        /// The exact <see cref="OutputChannels"/>, what will have an output.
+        /// These are the channels that are not just virtual.
+        /// </summary>
+        public virtual ReferenceChannel[] WiredChannels => Channels;
+
+        /// <summary>
         /// The <see cref="Channels"/> are used for rendering, but it could be rematrixed.
         /// This is the number of channels actually written to the file.
         /// </summary>
@@ -68,7 +74,7 @@ namespace CavernizeGUI.Elements {
         /// These have to be mapped back to sides in some cases, for example, for the wiring popup.
         /// </summary>
         public ReferenceChannel[] GetNameMappedChannels() {
-            ReferenceChannel[] result = Channels.FastClone();
+            ReferenceChannel[] result = WiredChannels.FastClone();
             bool side = false, rear = false;
             for (int i = 0; i < result.Length; i++) {
                 side |= result[i] == ReferenceChannel.TopSideLeft;
@@ -119,6 +125,11 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
             new RenderTarget("5.1.4", ChannelPrototype.ref514),
+            new DownmixedRenderTarget("5.1.4 matrix", new[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
+            }, (8, 0), (~8, 4), (9, 1), (~9, 5)),
             new RenderTarget("5.1.6 with top sides", ChannelPrototype.ref516),
             new RenderTarget("5.1.6 for WAVE", ChannelPrototype.wav516),
             new RenderTarget("7.1", ChannelPrototype.ref710),
@@ -128,6 +139,16 @@ namespace CavernizeGUI.Elements {
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
             }),
+            new DownmixedRenderTarget("7.1.2 matrix", new[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
+            }, (8, 6), (~8, 4), (9, 7), (~9, 5)),
+            new DownmixedRenderTarget("7.1.3 matrix", new[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight, ReferenceChannel.TopFrontCenter
+            }, (8, 6), (~8, 4), (9, 7), (~9, 5), (10, 0), (~10, 1)),
             new RenderTarget("7.1.4", ChannelPrototype.ref714),
             new RenderTarget("7.1.6 with top sides", ChannelPrototype.ref716),
             new RenderTarget("7.1.6 for WAVE", ChannelPrototype.wav716),
