@@ -112,6 +112,7 @@ namespace Cavern.Format.Transcoders {
             extractor.Position = extractor.BackPosition - 32;
             int auxLength = extractor.Read(14);
             if (extractor.ReadBit()) { // Auxillary data present
+                extractor.Position = extractor.BackPosition - 32 - auxLength;
                 extractor.ReadBytesInto(ref auxData, ref auxDataPos, auxLength);
             }
         }

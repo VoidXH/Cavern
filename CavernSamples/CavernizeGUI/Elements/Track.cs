@@ -21,7 +21,7 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Expanded names of codecs for which the enum is a shorthand.
         /// </summary>
-        readonly static Dictionary<Codec, string> formatNames = new() {
+        static readonly Dictionary<Codec, string> formatNames = new() {
             [Codec.DTS] = "DTS Coherent Acoustics",
             [Codec.DTS_HD] = "DTS-HD",
             [Codec.AC3] = "AC-3",

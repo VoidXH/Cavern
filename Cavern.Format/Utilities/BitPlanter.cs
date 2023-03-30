@@ -30,6 +30,24 @@ namespace Cavern.Format.Utilities {
         int currentBit;
 
         /// <summary>
+        /// Get the CRC value of the written stream.
+        /// </summary>
+        public int CalculateCRC16(int fromBit, int polynomial) {
+            BitExtractor extractor = new BitExtractor(cache);
+            extractor.Skip(fromBit);
+            int end = BitsWritten,
+                crc = 0;
+            while (extractor.Position < end) {
+                if (extractor.ReadBit() != (((crc & 0x8000) >> 15) == 1)) {
+                    crc = (crc << 1) ^ polynomial;
+                } else {
+                    crc <<= 1;
+                }
+            }
+            return crc & 0xFFFF;
+        }
+
+        /// <summary>
         /// Write a <paramref name="value"/> at a specific <paramref name="offset"/>
         /// from the start of a length in <paramref name="bits"/>.
         /// </summary>

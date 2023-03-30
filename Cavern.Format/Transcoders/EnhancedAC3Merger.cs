@@ -120,7 +120,8 @@ namespace Cavern.Format.Transcoders {
                     source.Body.EncodeAudioBlock(encoder, block);
                     source.Body.RestoreEncodeBackup(stateAfter);
                 }
-                encoder.Write(0, source.Header.WordsPerSyncframe * 16 - encoder.BitsWritten); // Padding
+                encoder.Write(0, source.Header.WordsPerSyncframe * 16 - encoder.BitsWritten - 16 /* CRC */); // Padding
+                encoder.Write(encoder.CalculateCRC16(16, 0x8005), 16);
                 encoder.WriteToStream(output);
             }
 
