@@ -140,7 +140,7 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Export the filter set to a target file. This is the standard IIR filter set format
+        /// Export the filter set to a target file. This is the standard IIR filter set format.
         /// </summary>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
