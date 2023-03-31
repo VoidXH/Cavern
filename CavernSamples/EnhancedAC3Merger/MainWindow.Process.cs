@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Channels;
@@ -78,7 +79,14 @@ namespace EnhancedAC3Merger {
             ReferenceChannel[] layout = GetLayout(streams);
             Cavern.Format.Transcoders.EnhancedAC3Merger merger =
                 new Cavern.Format.Transcoders.EnhancedAC3Merger(finalSources, layout, fileName);
-            position = 0;
+            try { // Only slow down for checking consistency in the first frame - exceptions that would happen will be here too
+                merger.ProcessFrame();
+            } catch (Exception e) {
+                Error(e.Message);
+                return;
+            }
+
+            position = 1536;
             progressScale = .75 / length;
             while (!merger.ProcessFrame()) {
                 if ((position & 0xFFFF) == 0) {
