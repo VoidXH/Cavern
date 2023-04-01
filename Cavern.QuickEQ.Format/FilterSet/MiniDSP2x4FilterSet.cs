@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 
 using Cavern.Channels;
@@ -50,27 +49,30 @@ namespace Cavern.Format.FilterSet {
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
             CreateRootFile(path, "txt");
 
-            int split = (Bands >> 1) - 1;
-            for (int i = 0, c = Channels.Length; i < c; ++i) {
-                List<string> inputData = new List<string>(), outputData = new List<string>();
-                BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
-                for (int j = 0; j < filters.Length; j++) {
-                    List<string> targetData = j < (Bands >> 1) ? inputData : outputData;
-                    targetData.AddRange(new[] {
-                        $"biquad{j % (Bands >> 1) + 1},",
-                        $"b0={filters[j].b0.ToString(CultureInfo.InvariantCulture)},",
-                        $"b1={filters[j].b1.ToString(CultureInfo.InvariantCulture)},",
-                        $"b2={filters[j].b2.ToString(CultureInfo.InvariantCulture)},",
-                        $"a1={(-filters[j].a1).ToString(CultureInfo.InvariantCulture)},",
-                        string.Format(j % (Bands >> 1) != split ? "a2={0}," : "a2={0}",
-                            (-filters[j].a2).ToString(CultureInfo.InvariantCulture))
-                    });
-                }
-
+            for (int i = 0; i < Channels.Length; i++) {
                 string pathBase = Path.Combine(folder, $"{fileNameBase} {GetLabel(i)} ");
-                File.WriteAllLines(pathBase + "input.txt", inputData);
-                File.WriteAllLines(pathBase + "output.txt", outputData);
+                BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
+                SaveFilters(filters, 0, Bands >> 1, pathBase + "input.txt");
+                SaveFilters(filters, Bands >> 1, Bands, pathBase + "output.txt");
             }
+        }
+
+        /// <summary>
+        /// Save a partial filter set in MiniDSP's format.
+        /// </summary>
+        protected void SaveFilters(BiquadFilter[] filters, int from, int to, string path) {
+            string[] lines = new string[(to - from) * 6];
+            --to;
+            int line = 0;
+            for (int i = from; i <= to; i++) {
+                lines[line++] = $"biquad{i - from + 1},";
+                lines[line++] = $"b0={filters[i].b0.ToString(CultureInfo.InvariantCulture)},";
+                lines[line++] = $"b1={filters[i].b1.ToString(CultureInfo.InvariantCulture)},";
+                lines[line++] = $"b2={filters[i].b2.ToString(CultureInfo.InvariantCulture)},";
+                lines[line++] = $"a1={(-filters[i].a1).ToString(CultureInfo.InvariantCulture)},";
+                lines[line++] = string.Format(i != to ? "a2={0}," : "a2={0}", (-filters[i].a2).ToString(CultureInfo.InvariantCulture));
+            }
+            File.WriteAllLines(path, lines);
         }
     }
 

@@ -67,7 +67,9 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
+                FilterSetTarget.MiniDSP2x4AdvancedLite => new MiniDSP2x4FilterSetLite(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
+                FilterSetTarget.MiniDSP2x4HDLite => new MiniDSP2x4HDFilterSetLite(channels),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
@@ -92,7 +94,9 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
+                FilterSetTarget.MiniDSP2x4AdvancedLite => new MiniDSP2x4FilterSetLite(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
+                FilterSetTarget.MiniDSP2x4HDLite => new MiniDSP2x4HDFilterSetLite(channels),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
@@ -192,9 +196,17 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MiniDSP2x4Advanced,
         /// <summary>
+        /// MiniDSP 2x4 Advanced plugin for the standard MiniDSP 2x4, only using half the bands.
+        /// </summary>
+        MiniDSP2x4AdvancedLite,
+        /// <summary>
         /// MiniDSP 2x4 HD hardware DSP.
         /// </summary>
         MiniDSP2x4HD,
+        /// <summary>
+        /// MiniDSP 2x4 HD hardware DSP, only using half the bands.
+        /// </summary>
+        MiniDSP2x4HDLite,
 
         // -------------------------------------------------------------------------
         // AVRs and processors -----------------------------------------------------
