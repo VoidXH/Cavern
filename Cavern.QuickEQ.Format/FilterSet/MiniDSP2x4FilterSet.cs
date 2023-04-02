@@ -62,6 +62,9 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         protected void SaveFilters(BiquadFilter[] filters, int from, int to, string path) {
             string[] lines = new string[(to - from) * 6];
+            if (to > filters.Length) {
+                to = filters.Length;
+            }
             --to;
             int line = 0;
             for (int i = from; i <= to; i++) {
