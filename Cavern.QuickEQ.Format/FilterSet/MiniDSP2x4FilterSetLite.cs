@@ -41,7 +41,7 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// IIR filter set for MiniDSP 2x4 HD.
     /// </summary>
-    public class MiniDSP2x4HDFilterSetLite : MiniDSP2x4FilterSet {
+    public class MiniDSP2x4HDFilterSetLite : MiniDSP2x4FilterSetLite {
         /// <summary>
         /// Maximum number of peaking EQ filters per channel.
         /// </summary>

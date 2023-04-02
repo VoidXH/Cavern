@@ -59,13 +59,19 @@ namespace Cavern.Input {
         /// </summary>
         public float[] ForceRead() {
             int pos = MultiplatformMicrophone.GetPosition(deviceName);
-            buffer.GetData(frame, pos > blockSize ? pos - blockSize : (sampleRate + pos - blockSize));
+            if (buffer != null) {
+                buffer.GetData(frame, pos > blockSize ? pos - blockSize : (sampleRate + pos - blockSize));
+            } else {
+                Array.Clear(frame, 0, frame.Length);
+            }
             return frame;
         }
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity lifecycle")]
         void OnEnable() {
-            frame = new float[blockSize];
+            if (frame == null || frame.Length != blockSize) {
+                frame = new float[blockSize];
+            }
+
             if (Application.platform != RuntimePlatform.Android) {
                 MultiplatformMicrophone.GetDeviceCaps(deviceName, out int minFreq, out int maxFreq);
                 sampleRate = Math.Clamp(sampleRate, minFreq, maxFreq);
@@ -94,6 +100,10 @@ namespace Cavern.Input {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity lifecycle")]
         void Update() {
+            if (buffer == null) {
+                OnEnable(); // In case the microphone couldn't be started, try again continuously.
+            }
+
             int pos = MultiplatformMicrophone.GetPosition(deviceName);
             if (lastPosition > pos) {
                 lastPosition -= sampleRate;

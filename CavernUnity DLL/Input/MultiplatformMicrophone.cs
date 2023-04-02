@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using UnityEngine;
 
 using Cavern.Common;
@@ -12,6 +14,12 @@ namespace Cavern.Input {
     /// which wouldn't even compile if <see cref="Microphone"/> functions were used.
     /// </summary>
     public static class MultiplatformMicrophone {
+        /// <summary>
+        /// Holds the recording progress for each device by name, including the allocated <see cref="Task"/>, the samples recorded so far
+        /// (which are overridden for looping recordings), and which was the last recorded sample.
+        /// </summary>
+        static Dictionary<string, (Task thread, float[] samples, int index)> recorders = new Dictionary<string, (Task, float[], int)>();
+
         /// <summary>
         /// Names of connected audio input devices.
         /// </summary>
@@ -62,6 +70,10 @@ namespace Cavern.Input {
         /// <returns>Returns null if the device is unavailable</returns>
         public static AudioClip Start(string deviceName, bool loop, int lengthSec, int frequency) {
             if (Application.platform == RuntimePlatform.WebGLPlayer) {
+                if (startDevice(deviceName)) {
+                    recorders[deviceName] = (null, null, 0);
+                    return null;
+                }
                 return null;
             } else {
                 return Microphone.Start(deviceName, loop, lengthSec, frequency);
@@ -73,7 +85,7 @@ namespace Cavern.Input {
         /// </summary>
         public static int GetPosition(string deviceName) {
             if (Application.platform == RuntimePlatform.WebGLPlayer) {
-                return (int)(Time.time % 1 * 48000);
+                return recorders.ContainsKey(deviceName) ? recorders[deviceName].index : 0;
             } else {
                 return Microphone.GetPosition(deviceName);
             }
@@ -84,7 +96,7 @@ namespace Cavern.Input {
         /// </summary>
         public static bool IsRecording(string deviceName) {
             if (Application.platform == RuntimePlatform.WebGLPlayer) {
-                return true;
+                return recorders.ContainsKey(deviceName);
             } else {
                 return Microphone.IsRecording(deviceName);
             }
@@ -95,6 +107,10 @@ namespace Cavern.Input {
         /// </summary>
         public static void End(string deviceName) {
             if (Application.platform == RuntimePlatform.WebGLPlayer) {
+                if (recorders.ContainsKey(deviceName)) {
+                    endDevice(deviceName);
+                    recorders.Remove(deviceName);
+                }
             } else {
                 Microphone.End(deviceName);
             }
@@ -130,6 +146,18 @@ namespace Cavern.Input {
         /// </summary>
         [DllImport("__Internal")]
         static extern IntPtr getDevices();
+
+        /// <summary>
+        /// Start recording by device name.
+        /// </summary>
+        [DllImport("__Internal")]
+        static extern bool startDevice(string deviceName);
+
+        /// <summary>
+        /// Stop recording by device name.
+        /// </summary>
+        [DllImport("__Internal")]
+        static extern void endDevice(string deviceName);
 
         /// <summary>
         /// Frees some allocated memory.
