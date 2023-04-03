@@ -59,11 +59,9 @@ namespace Cavern.Format.FilterSet {
                 result.Add(string.Empty);
                 result.Add(channelRef.name);
                 result.Add(new string('=', channelRef.name.Length));
-                if (channelRef.gain != 0) {
-                    result.Add($"Gain: {channelRef.gain:0.00 dB}");
-                }
+                RootFileExtension(i, result);
                 if (channelRef.delaySamples != 0) {
-                    result.Add($"Delay: {GetDelay(i):0.00 ms}");
+                    result.Add("Delay: " + GetDelay(i).ToString("0.00 ms"));
                 }
                 BiquadFilter[] bands = channelRef.filters;
                 for (int j = 0; j < bands.Length; j++) {

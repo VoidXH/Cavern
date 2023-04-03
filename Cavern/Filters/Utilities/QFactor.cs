@@ -44,6 +44,16 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
+        /// Convert Q-factor to bandwidth.
+        /// </summary>
+        public static double ToBandwidth(double qFactor) {
+            const double log2 = 0.30102999566398119521373889472449;
+            qFactor = 1 / (qFactor * qFactor);
+            double num = qFactor + 2;
+            return (Math.Log10(1 + qFactor * .5 + Math.Sqrt(num * num * .25 - 1))) / log2;
+        }
+
+        /// <summary>
         /// Sqrt(2)/2, the Q factor for maximum flatness.
         /// </summary>
         public const double reference = .7071067811865475;

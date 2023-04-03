@@ -66,6 +66,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
+                FilterSetTarget.AUNBandEQ => new AUNBandEQ(channels, sampleRate),
                 FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
                 FilterSetTarget.MiniDSP2x4AdvancedLite => new MiniDSP2x4FilterSetLite(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
@@ -93,6 +94,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
+                FilterSetTarget.AUNBandEQ => new AUNBandEQ(channels, sampleRate),
                 FilterSetTarget.MiniDSP2x4Advanced => new MiniDSP2x4FilterSet(channels),
                 FilterSetTarget.MiniDSP2x4AdvancedLite => new MiniDSP2x4FilterSetLite(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
@@ -187,6 +189,10 @@ namespace Cavern.Format.FilterSet {
         /// CamillaDSP for Windows/Mac/Linux.
         /// </summary>
         CamillaDSP,
+        /// <summary>
+        /// AU N-Band EQ for Mac.
+        /// </summary>
+        AUNBandEQ,
 
         // -------------------------------------------------------------------------
         // External DSP hardware ---------------------------------------------------

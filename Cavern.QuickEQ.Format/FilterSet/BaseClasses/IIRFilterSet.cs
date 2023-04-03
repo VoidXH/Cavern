@@ -181,7 +181,7 @@ namespace Cavern.Format.FilterSet {
         protected override void RootFileExtension(int channel, List<string> result) {
             IIRChannelData channelRef = (IIRChannelData)Channels[channel];
             if (channelRef.gain != 0) {
-                result.Add("Level: " + channelRef.gain.ToString("0.0 dB"));
+                result.Add("Level: " + channelRef.gain.ToString("0.00 dB"));
             }
             if (channelRef.switchPolarity) {
                 result.Add("Switch polarity");
