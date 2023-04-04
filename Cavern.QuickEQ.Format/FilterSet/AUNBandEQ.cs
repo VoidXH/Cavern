@@ -52,13 +52,18 @@ namespace Cavern.Format.FilterSet {
                 result.Add(string.Empty);
                 result.Add(channelRef.name);
                 result.Add(new string('=', channelRef.name.Length));
-                RootFileExtension(i, result);
+                if (channelRef.gain != 0) {
+                    result.Add("Global gain: " + channelRef.gain.ToString("0.00 dB"));
+                }
                 if (channelRef.delaySamples != 0) {
                     result.Add("Delay: " + GetDelay(i).ToString("0.00 ms"));
                 }
                 BiquadFilter[] bands = channelRef.filters;
                 for (int j = 0; j < bands.Length; j++) {
-                    result.Add($"{bands[j].CenterFreq:0} Hz:\t{bands[j].Gain:0.00} dB, bandwidth: {QFactor.ToBandwidth(bands[j].Q):0.00}");
+                    result.Add(string.Format(
+                        "Band {0,2}: Freq: {1,5} Hz, Width: {2,5}, Gain: {3,6} dB",
+                        j + 1, bands[j].CenterFreq.ToString("0"), QFactor.ToBandwidth(bands[j].Q).ToString("0.00"),
+                        bands[j].Gain.ToString("0.00")));
                 }
             }
             File.WriteAllLines(path, result);
