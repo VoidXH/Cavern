@@ -1,8 +1,6 @@
 ﻿using System;
 
-using Cavern.Utilities;
-
-namespace Cavern.QuickEQ.Utilities {
+namespace Cavern.Utilities {
     /// <summary>
     /// Averages any number of frames continuously.
     /// </summary>

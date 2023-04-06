@@ -43,6 +43,18 @@ namespace CavernizeGUI {
             }
             builder.AppendLine().Append("Actually present dynamic objects: ").AppendLine(dynamic.ToString())
                 .Append("Unused (fake) rendering targets: ").AppendLine(unused.ToString());
+
+            if (stats is RenderStatsEx statsEx) {
+                builder.AppendLine().Append("Peak frame level: ").AppendLine(QMath.GainToDb(statsEx.FrameLevelPeak).ToString("0.00 dB"))
+                    .Append("RMS content level: ").AppendLine(QMath.GainToDb(statsEx.FrameLevelRMS).ToString("0.00 dB"))
+                    .Append("Macrodynamics: ").AppendLine(QMath.GainToDb(statsEx.Macrodynamics).ToString("0.00 dB"))
+                    .Append("Microdynamics: ").AppendLine(QMath.GainToDb(statsEx.Microdynamics).ToString("0.00 dB"))
+                    .AppendLine().Append("Peak LFE level: ").AppendLine(QMath.GainToDb(statsEx.LFELevelPeak).ToString("0.00 dB"))
+                    .Append("RMS LFE level: ").AppendLine(QMath.GainToDb(statsEx.LFELevelRMS).ToString("0.00 dB"))
+                    .Append("LFE macrodynamics: ").AppendLine(QMath.GainToDb(statsEx.LFEMacrodynamics).ToString("0.00 dB"))
+                    .Append("LFE microdynamics: ").AppendLine(QMath.GainToDb(statsEx.LFEMicrodynamics).ToString("0.00 dB"));
+            }
+
             report = builder.ToString();
         }
     }

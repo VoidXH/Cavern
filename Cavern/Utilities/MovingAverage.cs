@@ -1,8 +1,6 @@
 ﻿using System;
 
-using Cavern.Utilities;
-
-namespace Cavern.QuickEQ.Utilities {
+namespace Cavern.Utilities {
     /// <summary>
     /// Averages multiple frames of windowed audio or spectrum data, and when a new window is added, the last one is removed.
     /// </summary>

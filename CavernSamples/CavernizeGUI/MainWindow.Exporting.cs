@@ -178,7 +178,7 @@ namespace CavernizeGUI {
                     }
                 }
                 if (progressor.Rendered > secondFrame) {
-                    stats.Update();
+                    stats.Update(result);
                 }
 
                 if (customMuting) {

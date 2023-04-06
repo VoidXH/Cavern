@@ -238,15 +238,15 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Get the root mean square amplitude of a single-channel signal.
         /// </summary>
-        /// <param name="target">Array reference</param>
+        /// <param name="target">Samples of the signal</param>
         /// <returns>RMS amplitude of the signal</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetRMS(float[] target) {
             float sum = 0;
-            for (int sample = 0; sample < target.Length; ++sample) {
+            for (int sample = 0; sample < target.Length; sample++) {
                 sum += target[sample] * target[sample];
             }
-            return (float)Math.Sqrt(sum / target.Length);
+            return MathF.Sqrt(sum / target.Length);
         }
 
         /// <summary>

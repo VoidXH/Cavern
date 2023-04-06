@@ -61,7 +61,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Target rendering environment.
         /// </summary>
-        readonly Listener listener;
+        protected readonly Listener listener;
 
         /// <summary>
         /// Recorded stats for each source.
@@ -90,9 +90,10 @@ namespace Cavern.Utilities {
         public int GetSuperStaticCount() => stats.Sum(x => x.Value.SuperStatic ? 1 : 0);
 
         /// <summary>
-        /// Update the stats according to the last frame.
+        /// Update the stats according to the last <paramref name="frame"/> that's rendered by the <see cref="listener"/>.
         /// </summary>
-        public void Update() {
+        /// <remarks>The base class doesn't use the <paramref name="frame"/> data, but <see cref="RenderStatsEx"/> does.</remarks>
+        public virtual void Update(float[] frame) {
             foreach (Source source in listener.ActiveSources) {
                 StatHolder holder;
                 if (!stats.ContainsKey(source)) {
