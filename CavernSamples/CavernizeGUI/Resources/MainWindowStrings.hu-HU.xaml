@@ -20,6 +20,9 @@
     <system:String x:Key="ReMoH">_Csak jelentés mód</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
         report will be available after rendering without writing anything to the disk.</system:String>
+    <system:String x:Key="DeGrH">Minőséganalízis és osztályozás</system:String>
+    <system:String x:Key="DeGrT">Érzékelhető hangminőségi metrikák mérése és a tartalom osztályozása. Ezt az információt a renderelés utáni
+        jelentés fogja tartalmazni.</system:String>
     <system:String x:Key="PReSh">_Renderelés utáni jelentés megnyitása</system:String>
     <system:String x:Key="PReRe">Renderelés utáni jelentés</system:String>
     <system:String x:Key="MenuH">_Súgó</system:String>

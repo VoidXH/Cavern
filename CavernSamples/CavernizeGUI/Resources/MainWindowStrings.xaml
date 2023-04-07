@@ -20,6 +20,9 @@
     <system:String x:Key="ReMoH">_Report only mode</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
         report will be available after rendering without writing anything to the disk.</system:String>
+    <system:String x:Key="DeGrH">Quality analysis and grading</system:String>
+    <system:String x:Key="DeGrT">Measure perceived audio quality metrics and grade the content. This information is displayed
+        in the post-render report.</system:String>
     <system:String x:Key="PReSh">_Show post-render report</system:String>
     <system:String x:Key="PReRe">Post-render report</system:String>
     <system:String x:Key="MenuH">_Help</system:String>

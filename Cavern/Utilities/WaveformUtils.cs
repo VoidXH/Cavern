@@ -250,6 +250,22 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Get the root mean square amplitude of a single channel in a multichannel signal.
+        /// </summary>
+        /// <param name="target">Samples of the signal</param>
+        /// <param name="channel">The measured channel</param>
+        /// <param name="channels">Total number of channels</param>
+        /// <returns>RMS amplitude of the signal</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetRMS(float[] target, int channel, int channels) {
+            float sum = 0;
+            for (int sample = channel; sample < target.Length; sample += channels) {
+                sum += target[sample] * target[sample];
+            }
+            return MathF.Sqrt(sum * channels / target.Length);
+        }
+
+        /// <summary>
         /// Sets a track to a stream with a set gain.
         /// </summary>
         /// <param name="source">Source track</param>

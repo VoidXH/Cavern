@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- General stats -->
+    <system:String x:Key="ABeds">Actually present bed channels</system:String>
+    <system:String x:Key="AObjs">Actually present dynamic objects</system:String>
+    <system:String x:Key="FakeT">Unused (fake) rendering targets</system:String>
+
+    <!-- Extended stats -->
+    <system:String x:Key="PeaGa">Peak audio frame level</system:String>
+    <system:String x:Key="RMSGa">RMS content level</system:String>
+    <system:String x:Key="MacDi">Macrodynamics</system:String>
+    <system:String x:Key="MicDi">Microdynamics</system:String>
+    <system:String x:Key="PeaLF">Peak LFE level</system:String>
+    <system:String x:Key="RMSLF">RMS LFE level</system:String>
+    <system:String x:Key="MacLF">LFE macrodynamics</system:String>
+    <system:String x:Key="MicLF">LFE microdynamics</system:String>
+    <system:String x:Key="CheSl">Chest slam grade</system:String>
+    <system:String x:Key="SurUs">Surround usage</system:String>
+    <system:String x:Key="HeiUs">Height usage</system:String>
+
+    <!-- Grades -->
+    <system:String x:Key="Grad0">A+</system:String>
+    <system:String x:Key="Grad1">A</system:String>
+    <system:String x:Key="Grad2">B</system:String>
+    <system:String x:Key="Grad3">C</system:String>
+    <system:String x:Key="Grad4">D</system:String>
+    <system:String x:Key="Grad5">F</system:String>
+</ResourceDictionary>

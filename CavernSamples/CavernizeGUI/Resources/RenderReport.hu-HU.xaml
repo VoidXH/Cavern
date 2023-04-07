@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- General stats -->
+    <system:String x:Key="ABeds">Valójában tartalmazott bed csatornák</system:String>
+    <system:String x:Key="AObjs">Valójában tartalmazott dinamikus objektumok</system:String>
+    <system:String x:Key="FakeT">Kihasználatlan (kamu) renderelési célok</system:String>
+
+    <!-- Extended stats -->
+    <system:String x:Key="PeaGa">Csúcs audio keret szint</system:String>
+    <system:String x:Key="RMSGa">Tartalom RMS szintje</system:String>
+    <system:String x:Key="MacDi">Makrodinamika</system:String>
+    <system:String x:Key="MicDi">Mikrodinamika</system:String>
+    <system:String x:Key="PeaLF">Csúcs LFE szint</system:String>
+    <system:String x:Key="RMSLF">RMS LFE szint</system:String>
+    <system:String x:Key="MacLF">LFE makrodinamika</system:String>
+    <system:String x:Key="MicLF">LFE mikrodinamika</system:String>
+    <system:String x:Key="CheSl">Mellbevágási osztályzat</system:String>
+    <system:String x:Key="SurUs">Surround használat</system:String>
+    <system:String x:Key="HeiUs">Magasság használat</system:String>
+
+    <!-- Grades -->
+    <system:String x:Key="Grad0">5*</system:String>
+    <system:String x:Key="Grad1">5</system:String>
+    <system:String x:Key="Grad2">4</system:String>
+    <system:String x:Key="Grad3">3</system:String>
+    <system:String x:Key="Grad4">2</system:String>
+    <system:String x:Key="Grad5">1</system:String>
+</ResourceDictionary>

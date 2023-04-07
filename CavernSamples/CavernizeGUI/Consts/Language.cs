@@ -18,6 +18,11 @@ namespace CavernizeGUI.Consts {
         public static ResourceDictionary GetTrackStrings() => trackCache ??= GetFor("TrackStrings");
 
         /// <summary>
+        /// Get the post-render report dialog's translation.
+        /// </summary>
+        public static ResourceDictionary GetRenderReportStrings() => renderReportCache ??= GetFor("RenderReport");
+
+        /// <summary>
         /// Get the <see cref="RenderTargetSelector"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetRenderTargetSelectorStrings() => GetFor("RenderTargetSelectorStrings");
@@ -53,5 +58,10 @@ namespace CavernizeGUI.Consts {
         /// The loaded translation of <see cref="Track"/>s for reuse.
         /// </summary>
         static ResourceDictionary trackCache;
+
+        /// <summary>
+        /// The loaded translation of the post-render report dialog for reuse.
+        /// </summary>
+        static ResourceDictionary renderReportCache;
     }
 }

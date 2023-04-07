@@ -105,7 +105,7 @@ namespace CavernizeGUI {
         /// Renders a listener to a file, and returns some measurements of the render.
         /// </summary>
         RenderStats WriteRender(Track target, AudioWriter writer, RenderTarget renderTarget, bool dynamicOnly, bool heightOnly) {
-            RenderStats stats = new(listener);
+            RenderStats stats = Dispatcher.Invoke(() => grading.IsChecked) ? new RenderStatsEx(listener) : new RenderStats(listener);
             Progressor progressor = new Progressor(target.Length, listener, taskEngine);
             bool customMuting = dynamicOnly || heightOnly;
 
