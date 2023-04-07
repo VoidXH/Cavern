@@ -90,8 +90,10 @@ namespace Cavern.Format.Renderers {
         protected void SetupChannels() {
             ReferenceChannel[] channels = GetChannels();
             for (int channel = 0; channel < channels.Length; ++channel) {
+                int referenceIndex = (int)channels[channel];
                 Source source = new StreamMasterSource(reader, channel) {
-                    Position = ChannelPrototype.AlternativePositions[(int)channels[channel]] * Listener.EnvironmentSize
+                    Position = ChannelPrototype.AlternativePositions[referenceIndex] * Listener.EnvironmentSize,
+                    LFE = ChannelPrototype.Mapping[referenceIndex].LFE
                 };
                 objects.Add(source);
             }

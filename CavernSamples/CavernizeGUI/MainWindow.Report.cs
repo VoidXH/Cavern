@@ -52,11 +52,6 @@ namespace CavernizeGUI {
 
             List<ReferenceChannel> channels = stats.GetStaticOrSemiStaticPositions()
                 .Select(x => Renderer.ChannelFromPosition(x / Listener.EnvironmentSize)).ToList();
-
-            bool hasLFE = listener.ActiveSources.Any(source => source.LFE);
-            if (hasLFE) {
-                channels.Add(ReferenceChannel.ScreenLFE);
-            }
             channels.Sort();
 
             int unused = total - dynamic - channels.Count;
@@ -105,7 +100,9 @@ namespace CavernizeGUI {
                     .AppendLine().AppendLine();
 
                 ReportGrade(builder, (string)language["SurUs"], surroundUsage, surroundGrade);
-                ReportGrade(builder, (string)language["HeiUs"], heightUsage, heightGrade);
+                if (statsEx.RelativeHeightLevel != 0) {
+                    ReportGrade(builder, (string)language["HeiUs"], heightUsage, heightGrade);
+                }
             }
 
             report = builder.ToString();
