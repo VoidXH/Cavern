@@ -87,9 +87,7 @@ namespace Cavern.Format.Container.Matroska {
         /// Get a specific child by its order of the same kind of children.
         /// </summary>
         public MatroskaTree GetChild(Stream reader, int tag, int index) {
-            if (childIndices == null) {
-                childIndices = new Dictionary<int, List<int>>();
-            }
+            childIndices ??= new Dictionary<int, List<int>>();
             List<int> indices;
             if (childIndices.ContainsKey(tag)) {
                 indices = childIndices[tag];
@@ -265,5 +263,22 @@ namespace Cavern.Format.Container.Matroska {
             EBML = unchecked((int)0xA3DF451A),
             Segment_Cues = 0x1C53BB6B,
             Segment_Cluster = 0x1F43B675;
+
+        /// <summary>
+        /// Matroska codec ID mapping to the <see cref="Codec"/> enum.
+        /// </summary>
+        public static readonly Dictionary<string, Codec> codecNames = new Dictionary<string, Codec> {
+            ["V_MPEG4/ISO/AVC"] = Codec.AVC,
+            ["V_MPEGH/ISO/HEVC"] = Codec.HEVC,
+            ["A_AC3"] = Codec.AC3,
+            ["A_DTS"] = Codec.DTS,
+            ["A_DTS/LOSSLESS"] = Codec.DTS_HD,
+            ["A_EAC3"] = Codec.EnhancedAC3,
+            ["A_FLAC"] = Codec.FLAC,
+            ["A_OPUS"] = Codec.Opus,
+            ["A_PCM/FLOAT/IEEE"] = Codec.PCM_Float,
+            ["A_PCM/INT/LIT"] = Codec.PCM_LE,
+            ["A_TRUEHD"] = Codec.TrueHD,
+        };
     }
 }

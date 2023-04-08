@@ -211,8 +211,8 @@ namespace Cavern.Format.Container {
                     entry.Language = defaultLanguage;
                 }
                 string codec = source.GetChildUTF8(reader, MatroskaTree.Segment_Tracks_TrackEntry_CodecID);
-                if (codecNames.ContainsKey(codec)) {
-                    entry.Format = codecNames[codec];
+                if (MatroskaTree.codecNames.ContainsKey(codec)) {
+                    entry.Format = MatroskaTree.codecNames[codec];
                 }
 
                 MatroskaTree audioData = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Audio);
@@ -243,22 +243,5 @@ namespace Cavern.Format.Container {
         /// A Matroska track's default language.
         /// </summary>
         const string defaultLanguage = "eng";
-
-        /// <summary>
-        /// Matroska codec ID mapping to the <see cref="Codec"/> enum.
-        /// </summary>
-        readonly static Dictionary<string, Codec> codecNames = new Dictionary<string, Codec> {
-            ["V_MPEG4/ISO/AVC"] = Codec.AVC,
-            ["V_MPEGH/ISO/HEVC"] = Codec.HEVC,
-            ["A_AC3"] = Codec.AC3,
-            ["A_DTS"] = Codec.DTS,
-            ["A_DTS/LOSSLESS"] = Codec.DTS_HD,
-            ["A_EAC3"] = Codec.EnhancedAC3,
-            ["A_FLAC"] = Codec.FLAC,
-            ["A_OPUS"] = Codec.Opus,
-            ["A_PCM/FLOAT/IEEE"] = Codec.PCM_Float,
-            ["A_PCM/INT/LIT"] = Codec.PCM_LE,
-            ["A_TRUEHD"] = Codec.TrueHD,
-        };
     }
 }
