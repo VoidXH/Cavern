@@ -55,6 +55,8 @@
     <!-- Code behind -->
     <system:String x:Key="dnErr">Your .NET 6 installation is corrupted and can't be loaded. Please install the latest version
         from Microsoft.\nPress any key to exit...</system:String>
+    <system:String x:Key="DropF">Multiple files at once can only be dropped on the Queue.
+        Drag out the right side of the window to make it visible.</system:String>
     <system:String x:Key="UpmiW">Upmixing setup</system:String>
     <system:String x:Key="Reprt">After rendering has finished, more track information will appear here,
         like true object usage statistics.</system:String>

@@ -300,6 +300,20 @@ namespace CavernizeGUI {
         }
 
         /// <summary>
+        /// When a file is dropped on the Content processing box, open it.
+        /// </summary>
+        void DropFile(object _, DragEventArgs e) {
+            if (e.Data is DataObject obj && obj.ContainsFileDropList()) {
+                StringCollection files = obj.GetFileDropList();
+                if (files.Count == 1) {
+                    OpenContent(files[0]);
+                } else {
+                    Error((string)language["DropF"]);
+                }
+            }
+        }
+
+        /// <summary>
         /// Display the selected render target's active channels.
         /// </summary>
         void OnRenderTargetSelected(object _, SelectionChangedEventArgs e) {
@@ -424,17 +438,6 @@ namespace CavernizeGUI {
             taskEngine.Run(() => QueueRunnerTask(jobsToRun));
         }
 
-        void QueueDragEnter(object _, DragEventArgs e) {
-            var dropPossible = e.Data != null && ((DataObject)e.Data).ContainsFileDropList();
-            if (dropPossible) {
-                e.Effects = DragDropEffects.Copy;
-            }
-        }
-
-        void QueueDragOver(object _, DragEventArgs e) {
-            e.Handled = true;
-        }
-
         void QueueDrop(object _, DragEventArgs e) {
             if (e.Data is DataObject obj && obj.ContainsFileDropList()) {
                 AudioFile oldFile = file;
@@ -462,6 +465,21 @@ namespace CavernizeGUI {
                 }
             }
         }
+
+        /// <summary>
+        /// Handle when a dragged file moves over a control that supports drop.
+        /// </summary>
+        void FileDragEnter(object _, DragEventArgs e) {
+            var dropPossible = e.Data != null && ((DataObject)e.Data).ContainsFileDropList();
+            if (dropPossible) {
+                e.Effects = DragDropEffects.Copy;
+            }
+        }
+
+        /// <summary>
+        /// Handle when a dragged file leaves a control that supports drop.
+        /// </summary>
+        void FileDragOver(object _, DragEventArgs e) => e.Handled = true;
 
         /// <summary>
         /// Opens the software's documentation.

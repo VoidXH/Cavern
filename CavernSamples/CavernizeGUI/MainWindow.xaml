@@ -107,7 +107,7 @@
                     <Image Margin="1,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="169"
                            Source="{StaticResource Logo}" MouseDown="Ad"/>
                     <GroupBox Margin="0,25,0,0">
-                        <Grid>
+                        <Grid AllowDrop="True" DragEnter="FileDragEnter" DragOver="FileDragOver" Drop="DropFile">
                             <TextBlock Style="{StaticResource Header}" Text="{StaticResource CoPro}"/>
                             <Button Margin="10,34,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="100"
                                     Content="{StaticResource OpCnt}" Click="OpenFile"/>
@@ -161,7 +161,7 @@
                                    Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
                                    ToolTip="{StaticResource QuDes}" ToolTipService.InitialShowDelay="0" Width="20"/>
                             <ListBox x:Name="queuedJobs" Margin="10,34,10,45" Template="{DynamicResource QueueListBox}"
-                                     AllowDrop="True" DragEnter="QueueDragEnter" DragOver="QueueDragOver" Drop="QueueDrop"/>
+                                     AllowDrop="True" DragEnter="FileDragEnter" DragOver="FileDragOver" Drop="QueueDrop"/>
                             <Button Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="100"
                                     Content="{StaticResource QuRem}" Click="RemoveQueued"/>
                             <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" MinWidth="100"
