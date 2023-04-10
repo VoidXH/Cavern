@@ -64,10 +64,8 @@ namespace Cavern.Format.Container {
             while (reader.Position < reader.Length) {
                 Box box = Box.Parse(reader);
                 if (box.Header == metadataBox && box is NestedBox metadata) {
-                    byte[] header = metadata[metadataHeaderBox]?.GetRawData(reader);
-                    if (header == null) {
+                    byte[] header = metadata[metadataHeaderBox]?.GetRawData(reader) ??
                         throw new MissingElementException(metadataHeaderBox.ToFourCC());
-                    }
                     Duration = (double)header.ReadUInt32BE(16) / header.ReadUInt32BE(12);
 
                     List<Track> tracks = new List<Track>();

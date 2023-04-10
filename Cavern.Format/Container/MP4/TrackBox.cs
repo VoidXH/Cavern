@@ -20,20 +20,10 @@ namespace Cavern.Format.Container.MP4 {
         /// Track metadata block of an MP4 container.
         /// </summary>
         public TrackBox(uint length, Stream reader) : base(length, trackBox, reader) {
-            Box headerBox = this[trackHeaderBox];
-            if (headerBox == null) {
-                throw new MissingElementException(trackHeaderBox.ToFourCC(), position);
-            }
-            NestedBox mediaMeta = (NestedBox)this[mediaBox];
-            if (mediaMeta == null) {
-                throw new MissingElementException(mediaBox.ToFourCC(), position);
-            }
-
-            byte[] mediaHeader = mediaMeta[mediaHeaderBox]?.GetRawData(reader);
-            if (mediaHeader == null) {
+            Box headerBox = this[trackHeaderBox] ?? throw new MissingElementException(trackHeaderBox.ToFourCC(), position);
+            NestedBox mediaMeta = (NestedBox)this[mediaBox] ?? throw new MissingElementException(mediaBox.ToFourCC(), position);
+            byte[] mediaHeader = (mediaMeta[mediaHeaderBox]?.GetRawData(reader)) ??
                 throw new MissingElementException(mediaHeaderBox.ToFourCC(), position);
-            }
-
             byte[] trackHeader = headerBox.GetRawData(reader);
             Track = new MP4Track((mediaMeta[mediaInfoBox] as NestedBox)?[sampleTableBox] as NestedBox, mediaHeader.ReadUInt32BE(12)) {
                 ID = trackHeader.ReadInt32BE(12)

@@ -1,6 +1,6 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 
-using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 
 using static Cavern.Format.Consts.MP4Consts;
@@ -26,13 +26,10 @@ namespace Cavern.Format.Container.MP4 {
         protected readonly long position;
 
         /// <summary>
-        /// Stores the metadata of an ISO-BMFF box.
+        /// Stores the metadata of an ISO-BMFF box that can be read from the current position of the <paramref name="reader"/>.
         /// </summary>
-        protected Box(uint length, uint header, Stream reader) {
-            Length = length;
-            Header = header;
-            position = reader.Position;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected Box(uint length, uint header, Stream reader) : this(length, header, reader.Position) { }
 
         /// <summary>
         /// Stores the metadata of an ISO-BMFF box.
