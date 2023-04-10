@@ -17,7 +17,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Filter to all supported file types for open file dialogs. These are the containers supported by <see cref="Open(string)"/>.
         /// </summary>
-        public static readonly string filter = "*.ac3;*.eac3;*.ec3;*.laf;*.mka;*.mkv;*.mov;*.mp4;*.qt;*.wav";
+        public static readonly string filter = "*.ac3;*.eac3;*.ec3;*.laf;*.mka;*.mkv;*.mov;*.mp4;*.qt;*.wav;*.weba;*.webm";
 
         /// <summary>
         /// Content channel count.

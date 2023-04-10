@@ -39,7 +39,11 @@ namespace CavernizeGUI.Elements {
         public virtual void Reset() {
             Dispose();
             tracks.Clear();
-            switch (Path[^3..]) {
+            int index = Path.LastIndexOf('.') + 1;
+            if (index == 0 || index == Path.Length) {
+                throw new NotSupportedException();
+            }
+            switch (Path[index..]) {
                 case "ac3":
                 case "eac3":
                 case "ec3":
@@ -47,6 +51,8 @@ namespace CavernizeGUI.Elements {
                     break;
                 case "mkv":
                 case "mka":
+                case "webm":
+                case "weba":
                     AddTracksFromContainer(new MatroskaReader(Path));
                     break;
                 case "mov":

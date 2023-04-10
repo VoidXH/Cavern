@@ -61,7 +61,8 @@
     <system:String x:Key="Reprt">Miután a renderelés befejeződött, itt további sávinformációt találsz,
         mint például a valódi objektumhasználati statisztika.</system:String>
     <system:String x:Key="IrErr">Az impulzusválasz fájl hibás. Pontosabban: {0}</system:String>
-    <system:String x:Key="ImFmt">Minden támogatott formátum|{0}|(Enhanced) AC-3|*.ac3;*.eac3;*.ec3|Filmek|*.mkv;*.mka;*.mov;*.mp4;*.qt|RIFF
+    <system:String x:Key="ImFmt">Minden támogatott formátum|{0}|(Enhanced)
+        AC-3|*.ac3;*.eac3;*.ec3|Filmek|*.mkv;*.mka;*.mov;*.mp4;*.qt;*.webm;*.weba|RIFF
         WAVE, ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="OpRun">Egy művelet már fut, kérlek várj, amíg befejeződik.</system:String>
     <system:String x:Key="LdSrc">Kérlek, tölts be egy fájlt, aminek legalább egy hangsávja támogatott rendereléshez.</system:String>

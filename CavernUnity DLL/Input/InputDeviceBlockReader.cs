@@ -20,6 +20,11 @@ namespace Cavern.Input {
         public event AudioBlockDelegate Callback;
 
         /// <summary>
+        /// Recording has successfully started.
+        /// </summary>
+        public bool Active => buffer != null;
+
+        /// <summary>
         /// Target device sample rate. Will be overridden if the device doesn't support it.
         /// Only updated when the component is enabled.
         /// </summary>
@@ -102,6 +107,9 @@ namespace Cavern.Input {
         void Update() {
             if (buffer == null) {
                 OnEnable(); // In case the microphone couldn't be started, try again continuously.
+            }
+            if (buffer == null) {
+                return;
             }
 
             int pos = MultiplatformMicrophone.GetPosition(deviceName);
