@@ -215,16 +215,22 @@ namespace Cavern.Format.Container {
                     entry.Format = MatroskaTree.codecNames[codec];
                 }
 
-                MatroskaTree audioData = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Audio);
-                if (audioData != null) {
-                    entry.Extra = new TrackExtraAudio {
-                        SampleRate = audioData.GetChildFloatBE(reader,
-                            MatroskaTree.Segment_Tracks_TrackEntry_Audio_SamplingFrequency),
-                        ChannelCount = (int)audioData.GetChildValue(reader,
-                            MatroskaTree.Segment_Tracks_TrackEntry_Audio_Channels),
-                        Bits = (BitDepth)audioData.GetChildValue(reader,
-                            MatroskaTree.Segment_Tracks_TrackEntry_Audio_BitDepth)
-                    };
+                MatroskaTree data = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video);
+                if (data != null) {
+                    MatroskaTree codecPrivate = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_CodecPrivate);
+                    TrackExtraVideo extra = new TrackExtraVideo(reader, data);
+                    entry.Extra = extra;
+                    extra.PrivateData = codecPrivate?.GetBytes(reader);
+
+                    long defaultDuration = source.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_DefaultDuration);
+                    if (defaultDuration != -1) {
+                        extra.FrameRate = sToNs / defaultDuration;
+                    }
+                } else {
+                    data = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Audio);
+                    if (data != null) {
+                        entry.Extra = new TrackExtraAudio(reader, data);
+                    }
                 }
             }
         }

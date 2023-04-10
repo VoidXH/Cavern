@@ -74,7 +74,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Write an integer to exactly as many bytes as it requires.
         /// </summary>
-        public static void Write(Stream writer, int value) => Fill(writer, (byte)(4 - (QMath.LeadingZeros(value) >> 3)), value);
+        public static void Write(Stream writer, int value) => Fill(writer, (byte)((31 - QMath.LeadingZeros(value)) / 7 + 1), value);
 
         /// <summary>
         /// Write a tag that already contains the leading 1, but in its last byte, since they are stored as little-endian internally.

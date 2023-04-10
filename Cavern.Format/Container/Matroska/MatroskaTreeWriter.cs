@@ -47,6 +47,15 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
+        /// Write a tag that contains raw bytes.
+        /// </summary>
+        public void Write(int tag, byte[] value) {
+            VarInt.WriteTag(writer, tag);
+            VarInt.Write(writer, value.Length);
+            writer.Write(value, 0, value.Length);
+        }
+
+        /// <summary>
         /// Write a tag that contains a single short value.
         /// </summary>
         public void Write(int tag, short value) {
@@ -63,6 +72,15 @@ namespace Cavern.Format.Container.Matroska {
             VarInt.WriteTag(writer, tag);
             writer.WriteByte(0x84); // Length of 4, 0 additional bytes
             writer.WriteAny(value.ReverseEndianness());
+        }
+
+        /// <summary>
+        /// Write a tag that contains a single floating point value.
+        /// </summary>
+        public void Write(int tag, float value) {
+            VarInt.WriteTag(writer, tag);
+            writer.WriteByte(0x84); // Length of 4, 0 additional bytes
+            writer.WriteAny(new QMath.ConverterStruct() { asFloat = value }.asUInt.ReverseEndianness());
         }
 
         /// <summary>
