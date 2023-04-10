@@ -38,7 +38,7 @@ namespace CavernizeGUI.Windows {
             };
             Grid.SetColumn(newButton, Grid.GetColumn(template));
             Grid.SetRow(newButton, Grid.GetRow(template));
-            newButton.Click += (_, e) => {
+            newButton.Click += (_, __) => {
                 Result = target;
                 Close();
             };

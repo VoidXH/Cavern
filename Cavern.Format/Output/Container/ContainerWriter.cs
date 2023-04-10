@@ -23,7 +23,7 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <param name="writer">Output stream to write to</param>
         /// <param name="tracks">The source tracks to pack in the container</param>
-        public ContainerWriter(Stream writer, Track[] tracks) {
+        protected ContainerWriter(Stream writer, Track[] tracks) {
             this.writer = writer;
             this.tracks = tracks;
         }
@@ -33,7 +33,7 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <param name="path">Output file name</param>
         /// <param name="tracks">The source tracks to pack in the container</param>
-        public ContainerWriter(string path, Track[] tracks) : this(File.Open(path, FileMode.Create), tracks) { }
+        protected ContainerWriter(string path, Track[] tracks) : this(File.Open(path, FileMode.Create), tracks) { }
 
         /// <summary>
         /// Write the metadata that is present before the coded content.

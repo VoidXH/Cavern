@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace QuickEQResultMerger {
@@ -48,7 +49,7 @@ namespace QuickEQResultMerger {
         /// Parse a file that contains gain and delay values.
         /// </summary>
         public ResultFile(string path) {
-            separator = 0.1f.ToString()[1];
+            separator = 0.1f.ToString(CultureInfo.CurrentCulture)[1];
             wrongSeparator = separator == ',' ? '.' : ',';
 
             string[] lines = File.ReadAllLines(path);
@@ -71,8 +72,6 @@ namespace QuickEQResultMerger {
                         break;
                     case "Delay":
                         lastDelay = GetNumericValue(value);
-                        break;
-                    default:
                         break;
                 }
             }
