@@ -1,4 +1,4 @@
-﻿using Cavern.QuickEQ.Utilities;
+﻿using Cavern.Utilities;
 
 namespace Test.Cavern {
     /// <summary>

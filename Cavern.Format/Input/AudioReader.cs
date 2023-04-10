@@ -81,7 +81,7 @@ namespace Cavern.Format {
                     return new RIFFWaveReader(reader);
                 case LimitlessAudioFormat.syncWord:
                     return new LimitlessAudioFormatReader(reader);
-                case MatroskaTree.EBML:
+                case MatroskaTree.EBML_LE:
                     return OpenContainer(new MatroskaReader(reader));
                 default:
                     throw new UnsupportedFormatException();

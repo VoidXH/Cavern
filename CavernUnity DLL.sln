@@ -17,7 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0EEA289B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Cavern", "Tests\Test.Cavern\Test.Cavern.csproj", "{FD25F0E4-8AAC-4354-86CA-6B60120DEE30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Cavern.QuickEQ", "Tests\Test.Cavern.QuickEQ\Test.Cavern.QuickEQ.csproj", "{1EF755C6-66D1-4991-9727-567B29646F86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Cavern.QuickEQ", "Tests\Test.Cavern.QuickEQ\Test.Cavern.QuickEQ.csproj", "{1EF755C6-66D1-4991-9727-567B29646F86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Cavern.Format", "Tests\Test.Cavern.Format\Test.Cavern.Format.csproj", "{7921DD28-0CFF-446C-BC4D-09F64E88A396}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{1EF755C6-66D1-4991-9727-567B29646F86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EF755C6-66D1-4991-9727-567B29646F86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EF755C6-66D1-4991-9727-567B29646F86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7921DD28-0CFF-446C-BC4D-09F64E88A396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7921DD28-0CFF-446C-BC4D-09F64E88A396}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7921DD28-0CFF-446C-BC4D-09F64E88A396}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7921DD28-0CFF-446C-BC4D-09F64E88A396}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +66,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{FD25F0E4-8AAC-4354-86CA-6B60120DEE30} = {0EEA289B-F2A4-4199-AFEE-775FE935673D}
 		{1EF755C6-66D1-4991-9727-567B29646F86} = {0EEA289B-F2A4-4199-AFEE-775FE935673D}
+		{7921DD28-0CFF-446C-BC4D-09F64E88A396} = {0EEA289B-F2A4-4199-AFEE-775FE935673D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A7F9771D-BEA0-4DE3-B267-46E1B87FE612}

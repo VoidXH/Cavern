@@ -260,7 +260,15 @@ namespace Cavern.Format.Container.Matroska {
             Segment_Info = 0x1549A966,
             Segment_Tracks = 0x1654AE6B,
             Segment = 0x18538067,
-            EBML = unchecked((int)0xA3DF451A),
+            EBML = 0x1A45DFA3,
+            EBML_LE = unchecked((int)0xA3DF451A),
+            EBML_Version = 0x4286,
+            EBML_ReadVersion = 0x42F7,
+            EBML_MaxIDLength = 0x42F2,
+            EBML_MaxSizeLength = 0x42F3,
+            EBML_DocType = 0x4282,
+            EBML_DocTypeVersion = 0x4287,
+            EBML_DocTypeReadVersion = 0x4285,
             Segment_Cues = 0x1C53BB6B,
             Segment_Cluster = 0x1F43B675;
 
