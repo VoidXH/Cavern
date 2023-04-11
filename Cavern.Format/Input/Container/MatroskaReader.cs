@@ -73,6 +73,16 @@ namespace Cavern.Format.Container {
         }
 
         /// <summary>
+        /// Get what is the time offset of the next block in seconds.
+        /// </summary>
+        public override double GetNextBlockOffset(int track) {
+            MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
+            Cluster cluster = GetCluster(trackData.lastCluster);
+            Block block = cluster.GetBlocks(reader)[trackData.lastBlock];
+            return (cluster.TimeStamp + block.TimeStamp) * timestampScale * nsToS;
+        }
+
+        /// <summary>
         /// Start the following reads from the selected timestamp.
         /// Seeks all tracks to the block before the position given in seconds.
         /// </summary>
@@ -238,12 +248,12 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Nanoseconds to seconds.
         /// </summary>
-        const double nsToS = 1.0 / 1000000000;
+        internal const double nsToS = 1.0 / 1000000000;
 
         /// <summary>
         /// Seconds to nanoseconds.
         /// </summary>
-        const double sToNs = 1000000000;
+        internal const double sToNs = 1000000000;
 
         /// <summary>
         /// A Matroska track's default language.

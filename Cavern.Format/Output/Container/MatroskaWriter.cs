@@ -10,31 +10,91 @@ namespace Cavern.Format.Container {
     /// </summary>
     public class MatroskaWriter : ContainerWriter {
         /// <summary>
-        /// Writes source <paramref name="tracks"/> to a Matroska file.
+        /// Writes the structure of the EBML file.
         /// </summary>
-        public MatroskaWriter(Stream writer, Track[] tracks) : base(writer, tracks) { }
+        MatroskaTreeWriter tree;
+
+        /// <summary>
+        /// Writing a <see cref="Cluster"/> is in progress and it's not closed.
+        /// </summary>
+        bool inCluster;
+
+        /// <summary>
+        /// Seconds of content already written to the file.
+        /// </summary>
+        double position;
+
+        /// <summary>
+        /// The <see cref="position"/> where the last cluster was opened. Used for relative <see cref="Block"/> timestamps.
+        /// </summary>
+        double lastClusterStarted;
 
         /// <summary>
         /// Writes source <paramref name="tracks"/> to a Matroska file.
         /// </summary>
-        public MatroskaWriter(string path, Track[] tracks) : base(path, tracks) { }
+        public MatroskaWriter(Stream writer, Track[] tracks, double duration) : base(writer, tracks, duration) { }
+
+        /// <summary>
+        /// Writes source <paramref name="tracks"/> to a Matroska file.
+        /// </summary>
+        public MatroskaWriter(string path, Track[] tracks, double duration) : base(path, tracks, duration) { }
 
         /// <summary>
         /// Write the metadata that is present before the coded content.
         /// </summary>
         public override void WriteHeader() {
-            MatroskaTreeWriter tree = new MatroskaTreeWriter(writer);
-            CreateEBMLHeader(tree);
+            tree = new MatroskaTreeWriter(writer);
+            CreateEBMLHeader();
             tree.OpenSequence(MatroskaTree.Segment, 5); // Maximum file size supported is 69 GB (nice)
-            CreateSegmentInfo(tree);
-            CreateSegmentTracks(tree);
-            tree.CloseSequence();
+            CreateSegmentInfo();
+            CreateSegmentTracks();
+        }
+
+        /// <summary>
+        /// Write the frames that are part of the next block with of a given <see cref="duration"/>.
+        /// </summary>
+        /// <returns>The writing has finished.</returns>
+        public override bool WriteBlock(double blockDuration) {
+            if (!inCluster) {
+                inCluster = true;
+                lastClusterStarted = position;
+                tree.OpenSequence(MatroskaTree.Segment_Cluster, 4);
+                uint pos = (uint)(position * MatroskaReader.sToNs / timestampScale);
+                if (pos < short.MaxValue) {
+                    tree.Write(MatroskaTree.Segment_Cluster_Timestamp, (short)pos);
+                } else {
+                    tree.Write(MatroskaTree.Segment_Cluster_Timestamp, pos);
+                }
+            }
+
+            uint relativeTimestamp = (uint)((position - lastClusterStarted) * MatroskaReader.sToNs / timestampScale);
+            if (relativeTimestamp > short.MaxValue) { // Start a new cluster when the available bits for offset are exhausted
+                tree.CloseSequence();
+                inCluster = false;
+                return WriteBlock(blockDuration);
+            }
+
+            // TODO: write block
+
+            position += blockDuration;
+            return position >= duration;
+        }
+
+        /// <summary>
+        /// Close the last block and write the cues.
+        /// </summary>
+        public override void Dispose() {
+            if (inCluster) {
+                tree.CloseSequence();
+            }
+            tree.CloseSequence(); // Segment
+            base.Dispose();
         }
 
         /// <summary>
         /// Write the format header.
         /// </summary>
-        void CreateEBMLHeader(MatroskaTreeWriter tree) {
+        void CreateEBMLHeader() {
             tree.OpenSequence(MatroskaTree.EBML, 1);
             tree.Write(MatroskaTree.EBML_Version, (byte)1);
             tree.Write(MatroskaTree.EBML_ReadVersion, (byte)1);
@@ -49,19 +109,19 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Write the informational part of the segment.
         /// </summary>
-        void CreateSegmentInfo(MatroskaTreeWriter tree) {
+        void CreateSegmentInfo() {
             tree.OpenSequence(MatroskaTree.Segment_Info, 2);
             tree.Write(MatroskaTree.Segment_Info_TimestampScale, timestampScale);
             tree.Write(MatroskaTree.Segment_Info_MuxingApp, Listener.Info);
             tree.Write(MatroskaTree.Segment_Info_WritingApp, Listener.Info);
-            // TODO: duration (max of tracks)
+            tree.Write(MatroskaTree.Segment_Info_Duration, (float)(duration * MatroskaReader.sToNs / timestampScale));
             tree.CloseSequence();
         }
 
         /// <summary>
         /// Write the tracks of the segment.
         /// </summary>
-        void CreateSegmentTracks(MatroskaTreeWriter tree) {
+        void CreateSegmentTracks() {
             tree.OpenSequence(MatroskaTree.Segment_Tracks, tracks.Length > 4 ? (byte)3 : (byte)2); // 4096 bytes per track is over the top
             for (int i = 0; i < tracks.Length;) {
                 Track track = tracks[i++];
@@ -88,7 +148,8 @@ namespace Cavern.Format.Container {
                     tree.CloseSequence();
                 } else if (track.Extra is TrackExtraVideo videoInfo) {
                     if (videoInfo.FrameRate != 0) {
-                        tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_DefaultDuration, (uint)(1000000000 / videoInfo.FrameRate));
+                        tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_DefaultDuration,
+                            (uint)(MatroskaReader.sToNs / videoInfo.FrameRate));
                     }
                     tree.OpenSequence(MatroskaTree.Segment_Tracks_TrackEntry_Video, 1);
                     tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_Video_PixelWidth, (short)videoInfo.Width);

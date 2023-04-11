@@ -42,6 +42,11 @@ namespace Cavern.Format.Container {
         public abstract byte[] ReadNextBlock(int track);
 
         /// <summary>
+        /// Get what is the time offset of the next block in seconds.
+        /// </summary>
+        public virtual double GetNextBlockOffset(int track) => throw new NotImplementedException();
+
+        /// <summary>
         /// Start the following reads from the selected timestamp.
         /// </summary>
         /// <returns>Position that was actually possible to seek to or -1 if the position didn't change.</returns>

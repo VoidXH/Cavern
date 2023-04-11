@@ -75,12 +75,21 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
+        /// Write a tag that contains a single unsigned long value.
+        /// </summary>
+        public void Write(int tag, ulong value) {
+            VarInt.WriteTag(writer, tag);
+            writer.WriteByte(0x88); // Length of 8, 0 additional bytes
+            writer.WriteAny(value.ReverseEndianness());
+        }
+
+        /// <summary>
         /// Write a tag that contains a single floating point value.
         /// </summary>
         public void Write(int tag, float value) {
             VarInt.WriteTag(writer, tag);
             writer.WriteByte(0x84); // Length of 4, 0 additional bytes
-            writer.WriteAny(new QMath.ConverterStruct() { asFloat = value }.asUInt.ReverseEndianness());
+            writer.WriteAny(new QMath.ConverterStruct { asFloat = value }.asUInt.ReverseEndianness());
         }
 
         /// <summary>
