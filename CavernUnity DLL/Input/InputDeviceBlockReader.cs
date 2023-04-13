@@ -60,6 +60,12 @@ namespace Cavern.Input {
         int lastPosition;
 
         /// <summary>
+        /// The value of <see cref="deviceName"/> when the last device was activated. If its value has changed, the device
+        /// should be changed.
+        /// </summary>
+        string activeDevice;
+
+        /// <summary>
         /// Returns the most recent samples recorded, whatever the inner state of recording is.
         /// </summary>
         public float[] ForceRead() {
@@ -77,6 +83,7 @@ namespace Cavern.Input {
                 frame = new float[blockSize];
             }
 
+            activeDevice = deviceName;
             if (Application.platform != RuntimePlatform.Android) {
                 MultiplatformMicrophone.GetDeviceCaps(deviceName, out int minFreq, out int maxFreq);
                 sampleRate = Math.Clamp(sampleRate, minFreq, maxFreq);
@@ -105,6 +112,11 @@ namespace Cavern.Input {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity lifecycle")]
         void Update() {
+            if (!deviceName.Equals(activeDevice)) {
+                OnDisable();
+                OnEnable();
+            }
+
             if (buffer == null) {
                 OnEnable(); // In case the microphone couldn't be started, try again continuously.
             }
