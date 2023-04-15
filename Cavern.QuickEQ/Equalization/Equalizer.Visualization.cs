@@ -122,7 +122,7 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Get a line in the form of slope * x + intercept that fits the curve drawn by this <see cref="Equalizer"/>.
+        /// Get a line in the form of slope * log10(x) + intercept that fits the curve drawn by this <see cref="Equalizer"/>.
         /// The regression line will only be calculated on the bands between <paramref name="startFreq"/> and <paramref name="endFreq"/>.
         /// </summary>
         public (double slope, double intercept) GetRegressionLine(double startFreq, double endFreq) {
@@ -131,18 +131,16 @@ namespace Cavern.QuickEQ.Equalization {
                 gainSum = 0,
                 mac = 0,
                 n = 0;
-            for (int i = 0, c = bands.Count; i < c; i++) {
-                if (bands[i].Frequency < startFreq) {
-                    continue;
-                }
-                if (bands[i].Frequency > endFreq) {
-                    break;
-                }
-
-                freqSum += bands[i].Frequency;
-                freqSqSum += bands[i].Frequency * bands[i].Frequency;
+            int i, c = bands.Count;
+            for (i = 0; i < c && bands[i].Frequency < startFreq; i++) {
+                // Skip the bands below the start freq
+            }
+            for (; i < c && bands[i].Frequency <= endFreq; i++) {
+                double freq = Math.Log10(bands[i].Frequency);
+                freqSum += freq;
+                freqSqSum += freq * freq;
                 gainSum += bands[i].Gain;
-                mac += bands[i].Frequency * bands[i].Gain;
+                mac += freq * bands[i].Gain;
                 n++;
             }
             double slope = (n * mac - freqSum * gainSum) / (n * freqSqSum - freqSum * freqSum);
@@ -157,10 +155,10 @@ namespace Cavern.QuickEQ.Equalization {
         public (double minFreq, double maxFreq) GetRolloffs(double range, double stableRangeStart, double stableRangeEnd) {
             (double m, double b) = GetRegressionLine(stableRangeStart, stableRangeEnd);
             int first = 0, last = bands.Count - 1;
-            while (first < last && bands[first].Gain + range < m * bands[first].Frequency + b) {
+            while (first < last && bands[first].Gain + range < m * Math.Log10(bands[first].Frequency) + b) {
                 ++first;
             }
-            while (last > first && bands[last].Gain + range < m * bands[last].Frequency + b) {
+            while (last > first && bands[last].Gain + range < m * Math.Log10(bands[last].Frequency) + b) {
                 --last;
             }
             return (bands[first].Frequency, bands[last].Frequency);
