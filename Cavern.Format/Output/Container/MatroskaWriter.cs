@@ -37,6 +37,7 @@ namespace Cavern.Format.Container {
 
         /// <summary>
         /// The start position of the main segment in the output stream. Cues are written relative to this.
+        /// This is also the position where the <see cref="seekHead"/> will be written.
         /// </summary>
         long segmentOffset;
 
@@ -50,7 +51,12 @@ namespace Cavern.Format.Container {
         /// This only includes video frames (main track), as audio can be found in the same cluster, always being keyframes.
         /// One cue will be created for each cluster, the first keyframe in them.
         /// </summary>
-        List<Cue> cues = new List<Cue>();
+        readonly List<Cue> cues = new List<Cue>();
+
+        /// <summary>
+        /// Positions of major elements inside the main <see cref="MatroskaTree.Segment"/>.
+        /// </summary>
+        readonly List<(int tag, long offset)> seekHead = new List<(int tag, long offset)>();
 
         /// <summary>
         /// Writes source <paramref name="tracks"/> to a Matroska file.
@@ -70,6 +76,12 @@ namespace Cavern.Format.Container {
             CreateEBMLHeader();
             tree.OpenSequence(MatroskaTree.Segment, 6);
             segmentOffset = writer.Position;
+
+            // Create a placeholder for the seek header.
+            tree.OpenSequence(MatroskaTree.EBML_Void, voidOverhead - 1);
+            writer.Write(new byte[maxSeekHeadSize - voidOverhead]);
+            tree.CloseSequence();
+
             CreateSegmentInfo();
             CreateSegmentTracks();
         }
@@ -137,6 +149,7 @@ namespace Cavern.Format.Container {
             }
             CreateSegmentCues();
             tree.CloseSequence(); // Segment
+            CreateSegmentSeekHead();
             base.Dispose();
         }
 
@@ -168,9 +181,28 @@ namespace Cavern.Format.Container {
         }
 
         /// <summary>
+        /// Overwrite the <see cref="MatroskaTree.EBML_Void"/> written as a placeholder for the seek header.
+        /// </summary>
+        void CreateSegmentSeekHead() {
+            writer.Position = segmentOffset;
+            tree.OpenSequence(MatroskaTree.Segment_SeekHead, 2);
+            for (int i = 0, c = seekHead.Count; i < c; i++) {
+                tree.OpenSequence(MatroskaTree.Segment_SeekHead_Seek, 1);
+                tree.Write(MatroskaTree.Segment_SeekHead_Seek_SeekID, (uint)seekHead[i].tag);
+                tree.Write(MatroskaTree.Segment_SeekHead_Seek_SeekPosition, (ulong)seekHead[i].offset);
+                tree.CloseSequence();
+            }
+            tree.CloseSequence();
+            tree.OpenSequence(MatroskaTree.EBML_Void, voidOverhead - 1);
+            writer.Write(new byte[maxSeekHeadSize - (writer.Position - segmentOffset)]);
+            tree.CloseSequence();
+        }
+
+        /// <summary>
         /// Write the informational part of the segment.
         /// </summary>
         void CreateSegmentInfo() {
+            seekHead.Add((MatroskaTree.Segment_Info, writer.Position - segmentOffset));
             tree.OpenSequence(MatroskaTree.Segment_Info, 2);
             tree.Write(MatroskaTree.Segment_Info_TimestampScale, timestampScale);
             tree.Write(MatroskaTree.Segment_Info_MuxingApp, Listener.Info);
@@ -183,6 +215,7 @@ namespace Cavern.Format.Container {
         /// Write the tracks of the segment.
         /// </summary>
         void CreateSegmentTracks() {
+            seekHead.Add((MatroskaTree.Segment_Tracks, writer.Position - segmentOffset));
             tree.OpenSequence(MatroskaTree.Segment_Tracks, tracks.Length > 4 ? (byte)3 : (byte)2); // 4096 bytes per track is over the top
             for (int i = 0; i < tracks.Length;) {
                 Track track = tracks[i++];
@@ -232,6 +265,7 @@ namespace Cavern.Format.Container {
         /// Write the seeking offsets of the segment.
         /// </summary>
         void CreateSegmentCues() {
+            seekHead.Add((MatroskaTree.Segment_Cues, writer.Position - segmentOffset));
             tree.OpenSequence(MatroskaTree.Segment_Cues, 4);
             for (int i = 0, c = cues.Count; i < c; i++) {
                 cues[i].Write(tree);
@@ -253,6 +287,16 @@ namespace Cavern.Format.Container {
         /// Matroska ticks per second.
         /// </summary>
         const int timestampScale = 1000000;
+
+        /// <summary>
+        /// Number of bytes to reserve for the seek header.
+        /// </summary>
+        const int maxSeekHeadSize = 150;
+
+        /// <summary>
+        /// Bytes of <see cref="maxSeekHeadSize"/> that are used by the key and length of the <see cref="MatroskaTree.EBML_Void"/>.
+        /// </summary>
+        const int voidOverhead = 2 /* size */ + 1 /* element ID */;
 
         /// <summary>
         /// The maximum seconds of content to write in a single cluster.

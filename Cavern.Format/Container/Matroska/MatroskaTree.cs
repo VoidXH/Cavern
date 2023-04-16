@@ -273,6 +273,7 @@ namespace Cavern.Format.Container.Matroska {
             Segment_Tracks = 0x1654AE6B,
             Segment = 0x18538067,
             EBML = 0x1A45DFA3,
+            EBML_Void = 0xEC,
             EBML_LE = unchecked((int)0xA3DF451A),
             EBML_Version = 0x4286,
             EBML_ReadVersion = 0x42F7,
