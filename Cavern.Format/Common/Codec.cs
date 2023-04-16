@@ -84,6 +84,11 @@ namespace Cavern.Format.Common {
             Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD, Codec.DTS_HD, Codec.FLAC, Codec.Opus, Codec.DTS, Codec.AC3 };
 
         /// <summary>
+        /// List of known video codecs.
+        /// </summary>
+        static readonly Codec[] videoCodecs = { Codec.HEVC, Codec.HEVC_DolbyVision, Codec.AVC };
+
+        /// <summary>
         /// List of supported audio codecs.
         /// </summary>
         static readonly Codec[] supportedAudioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.EnhancedAC3,
@@ -95,9 +100,14 @@ namespace Cavern.Format.Common {
         static readonly Codec[] environmentalAudioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos };
 
         /// <summary>
-        /// Checks if a codec is used for audio only.
+        /// Checks if a codec transports audio.
         /// </summary>
         public static bool IsAudio(this Codec codec) => Array.BinarySearch(audioCodecs, codec) >= 0;
+
+        /// <summary>
+        /// Checks if a codec transports video.
+        /// </summary>
+        public static bool IsVideo(this Codec codec) => Array.BinarySearch(videoCodecs, codec) >= 0;
 
         /// <summary>
         /// Checks if a codec is a supported audio codec.

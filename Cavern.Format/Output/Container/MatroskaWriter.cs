@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 using Cavern.Format.Common;
 using Cavern.Format.Container.Matroska;
@@ -30,14 +31,36 @@ namespace Cavern.Format.Container {
         double lastClusterStarted;
 
         /// <summary>
-        /// Writes source <paramref name="tracks"/> to a Matroska file.
+        /// The index of the track that contains the main video. Used to create the <see cref="cues"/>.
         /// </summary>
-        public MatroskaWriter(Stream writer, Track[] tracks, double duration) : base(writer, tracks, duration) { }
+        int mainTrack;
+
+        /// <summary>
+        /// The start position of the main segment in the output stream. Cues are written relative to this.
+        /// </summary>
+        long segmentOffset;
+
+        /// <summary>
+        /// The start position of the currently written cluster in the output stream, used for positioning <see cref="cues"/>.
+        /// </summary>
+        long clusterOffset;
+
+        /// <summary>
+        /// List of all keyframes that will be written to the <see cref="MatroskaTree.Segment_Cues"/> element.
+        /// This only includes video frames (main track), as audio can be found in the same cluster, always being keyframes.
+        /// One cue will be created for each cluster, the first keyframe in them.
+        /// </summary>
+        List<Cue> cues = new List<Cue>();
 
         /// <summary>
         /// Writes source <paramref name="tracks"/> to a Matroska file.
         /// </summary>
-        public MatroskaWriter(string path, Track[] tracks, double duration) : base(path, tracks, duration) { }
+        public MatroskaWriter(Stream writer, Track[] tracks, double duration) : base(writer, tracks, duration) => SetMainTrack();
+
+        /// <summary>
+        /// Writes source <paramref name="tracks"/> to a Matroska file.
+        /// </summary>
+        public MatroskaWriter(string path, Track[] tracks, double duration) : base(path, tracks, duration) => SetMainTrack();
 
         /// <summary>
         /// Write the metadata that is present before the coded content.
@@ -46,6 +69,7 @@ namespace Cavern.Format.Container {
             tree = new MatroskaTreeWriter(writer);
             CreateEBMLHeader();
             tree.OpenSequence(MatroskaTree.Segment, 6);
+            segmentOffset = writer.Position;
             CreateSegmentInfo();
             CreateSegmentTracks();
         }
@@ -58,6 +82,7 @@ namespace Cavern.Format.Container {
             if (!inCluster) {
                 inCluster = true;
                 lastClusterStarted = position;
+                clusterOffset = writer.Position;
                 tree.OpenSequence(MatroskaTree.Segment_Cluster, 4);
                 uint pos = (uint)(position * MatroskaReader.sToNs / timestampScale);
                 if (pos < short.MaxValue) {
@@ -67,8 +92,10 @@ namespace Cavern.Format.Container {
                 }
             }
 
-            uint relativeTimestamp = (uint)((position - lastClusterStarted) * MatroskaReader.sToNs / timestampScale);
-            if (relativeTimestamp > short.MaxValue) { // Start a new cluster when the available bits for offset are exhausted
+            double timeInCluster = position - lastClusterStarted;
+            uint relativeTimestamp = (uint)(timeInCluster * MatroskaReader.sToNs / timestampScale);
+            // Start a new cluster when the available bits for offset are exhausted or the cluster is too long
+            if (relativeTimestamp > short.MaxValue || timeInCluster > maxTimeInCluster) {
                 tree.CloseSequence();
                 inCluster = false;
                 return WriteBlock(blockDuration);
@@ -77,21 +104,24 @@ namespace Cavern.Format.Container {
             double endPosition = position + blockDuration;
             while (true) {
                 double nextBlockTime = double.PositiveInfinity;
-                int nextBlock = -1;
+                int track = -1;
                 for (int i = 0; i < tracks.Length; i++) {
                     double offset = tracks[i].GetNextBlockOffset();
                     if (offset != -1 && nextBlockTime > offset) {
                         nextBlockTime = offset;
-                        nextBlock = i;
+                        track = i;
                     }
                 }
-                if (nextBlock == -1 || nextBlockTime > endPosition) {
+                if (track == -1 || nextBlockTime > endPosition) {
                     break;
                 }
 
-                bool keyframe = tracks[nextBlock].IsNextBlockKeyframe();
-                short clusterOffset = (short)((nextBlockTime - lastClusterStarted) * MatroskaReader.sToNs / timestampScale);
-                Block.Write(tree, writer, keyframe, nextBlock + 1, clusterOffset, tracks[nextBlock].ReadNextBlock());
+                bool keyframe = tracks[track].IsNextBlockKeyframe();
+                if (keyframe && track == mainTrack && (cues.Count == 0 || cues[^1].Position != clusterOffset)) {
+                    cues.Add(new Cue((long)(position * MatroskaReader.sToNs / timestampScale), track + 1, clusterOffset - segmentOffset));
+                }
+                short clusterOffsetTicks = (short)((nextBlockTime - lastClusterStarted) * MatroskaReader.sToNs / timestampScale);
+                Block.Write(tree, writer, keyframe, track + 1, clusterOffsetTicks, tracks[track].ReadNextBlock());
             }
 
             position = endPosition;
@@ -99,14 +129,27 @@ namespace Cavern.Format.Container {
         }
 
         /// <summary>
-        /// Close the last block and write the cues.
+        /// Close the last block and write the <see cref="cues"/>.
         /// </summary>
         public override void Dispose() {
             if (inCluster) {
                 tree.CloseSequence();
             }
+            CreateSegmentCues();
             tree.CloseSequence(); // Segment
             base.Dispose();
+        }
+
+        /// <summary>
+        /// Find the main video track and allocate it for generating <see cref="cues"/>.
+        /// </summary>
+        void SetMainTrack() {
+            for (int i = 0; i < tracks.Length; i++) {
+                if (tracks[i].Format.IsVideo()) {
+                    mainTrack = i;
+                    return;
+                }
+            }
         }
 
         /// <summary>
@@ -186,6 +229,17 @@ namespace Cavern.Format.Container {
         }
 
         /// <summary>
+        /// Write the seeking offsets of the segment.
+        /// </summary>
+        void CreateSegmentCues() {
+            tree.OpenSequence(MatroskaTree.Segment_Cues, 4);
+            for (int i = 0, c = cues.Count; i < c; i++) {
+                cues[i].Write(tree);
+            }
+            tree.CloseSequence();
+        }
+
+        /// <summary>
         /// All mandatory values up to this version of Matroska will be included.
         /// </summary>
         const byte creatorVersion = 4;
@@ -199,5 +253,10 @@ namespace Cavern.Format.Container {
         /// Matroska ticks per second.
         /// </summary>
         const int timestampScale = 1000000;
+
+        /// <summary>
+        /// The maximum seconds of content to write in a single cluster.
+        /// </summary>
+        const double maxTimeInCluster = 5;
     }
 }
