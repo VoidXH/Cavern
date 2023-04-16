@@ -27,7 +27,12 @@ namespace VoidX.WPF {
             }
 
             HttpClient client = new();
-            HttpResponseMessage response = await client.GetAsync(updateLocation);
+            HttpResponseMessage response;
+            try {
+                response = await client.GetAsync(updateLocation);
+            } catch {
+                return;
+            }
             response.EnsureSuccessStatusCode();
             string body = await response.Content.ReadAsStringAsync();
 
