@@ -45,7 +45,7 @@ namespace Cavern.Format.Container {
         public override void WriteHeader() {
             tree = new MatroskaTreeWriter(writer);
             CreateEBMLHeader();
-            tree.OpenSequence(MatroskaTree.Segment, 5); // Maximum file size supported is 69 GB (nice)
+            tree.OpenSequence(MatroskaTree.Segment, 6);
             CreateSegmentInfo();
             CreateSegmentTracks();
         }
