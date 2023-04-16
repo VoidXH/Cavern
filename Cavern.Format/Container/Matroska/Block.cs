@@ -128,6 +128,26 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
+        /// Write a block of data to a Matroska file that's under creation.
+        /// </summary>
+        /// <param name="tree">EBML writer object</param>
+        /// <param name="writer">The stream used by the <paramref name="tree"/> writer for writing raw bytes</param>
+        /// <param name="keyframe">This block can be decoded on its own</param>
+        /// <param name="track">Unique identifier of the track</param>
+        /// <param name="timeStamp">Timing relative to <see cref="Cluster.TimeStamp"/></param>
+        /// <param name="data">Raw data of the block</param>
+        /// <remarks>Only a single frame can be written using this function.</remarks>
+        public static void Write(MatroskaTreeWriter tree, Stream writer, bool keyframe, int track, short timeStamp, byte[] data) {
+            tree.OpenSequence(MatroskaTree.Segment_Cluster_SimpleBlock, 3);
+            VarInt.Write(writer, track);
+            writer.WriteByte((byte)(timeStamp >> 8));
+            writer.WriteByte((byte)timeStamp);
+            writer.WriteByte(keyframe ? keyframeFlag : (byte)0);
+            writer.Write(data);
+            tree.CloseSequence();
+        }
+
+        /// <summary>
         /// Read all stream data from this block, without separating frames.
         /// </summary>
         public byte[] GetData() {

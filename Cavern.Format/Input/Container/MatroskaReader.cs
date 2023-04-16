@@ -53,33 +53,30 @@ namespace Cavern.Format.Container {
         /// <param name="track">Not the unique <see cref="Track.ID"/>, but its position in the
         /// <see cref="ContainerReader.Tracks"/> array.</param>
         public override byte[] ReadNextBlock(int track) {
-            MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
-            while (true) {
-                Cluster data = GetCluster(trackData.lastCluster);
-                if (data == null) {
-                    return null;
-                }
-                IReadOnlyList<Block> blocks = data.GetBlocks(reader);
-                int count = blocks.Count;
-                while (trackData.lastBlock < count) {
-                    Block block = blocks[trackData.lastBlock++];
-                    if (block.Track == trackData.ID) {
-                        return block.GetData();
-                    }
-                }
-                trackData.lastBlock = 0;
-                ++trackData.lastCluster;
-            }
+            Block nextBlock = GetBlock(track);
+            ((MatroskaTrack)Tracks[track]).lastBlock++;
+            return nextBlock?.GetData();
+        }
+
+        /// <summary>
+        /// Returns if the next block of a track can be completely decoded by itself.
+        /// </summary>
+        public override bool IsNextBlockKeyframe(int track) {
+            Block nextBlock = GetBlock(track);
+            return nextBlock != null && nextBlock.IsKeyframe;
         }
 
         /// <summary>
         /// Get what is the time offset of the next block in seconds.
         /// </summary>
+        /// <returns>Time offset in seconds, or -1 if the last block was passed.</returns>
         public override double GetNextBlockOffset(int track) {
-            MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
-            Cluster cluster = GetCluster(trackData.lastCluster);
-            Block block = cluster.GetBlocks(reader)[trackData.lastBlock];
-            return (cluster.TimeStamp + block.TimeStamp) * timestampScale * nsToS;
+            Block nextBlock = GetBlock(track);
+            if (nextBlock != null) {
+                Cluster cluster = GetCluster(((MatroskaTrack)Tracks[track]).lastCluster);
+                return (cluster.TimeStamp + nextBlock.TimeStamp) * timestampScale * nsToS;
+            }
+            return -1;
         }
 
         /// <summary>
@@ -148,6 +145,33 @@ namespace Cavern.Format.Container {
                 return minTime * timestampScale * nsToS;
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Get the block in line for a <see cref="Track"/>. Does not increment the block counter, just gets the <see cref="Block"/>.
+        /// To read the next block, increment <see cref="MatroskaTrack.lastBlock"/>, then call this function.
+        /// </summary>
+        /// <param name="track"></param>
+        /// <returns></returns>
+        Block GetBlock(int track) {
+            MatroskaTrack trackData = Tracks[track] as MatroskaTrack;
+            while (true) {
+                Cluster data = GetCluster(trackData.lastCluster);
+                if (data == null) {
+                    return null;
+                }
+                IReadOnlyList<Block> blocks = data.GetBlocks(reader);
+                int count = blocks.Count;
+                while (trackData.lastBlock < count) {
+                    Block block = blocks[trackData.lastBlock];
+                    if (block.Track == trackData.ID) {
+                        return block;
+                    }
+                    trackData.lastBlock++;
+                }
+                trackData.lastBlock = 0;
+                trackData.lastCluster++;
+            }
         }
 
         /// <summary>

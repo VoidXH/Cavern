@@ -42,8 +42,14 @@ namespace Cavern.Format.Container {
         public abstract byte[] ReadNextBlock(int track);
 
         /// <summary>
+        /// Returns if the next block of a track can be completely decoded by itself.
+        /// </summary>
+        public virtual bool IsNextBlockKeyframe(int track) => throw new NotImplementedException();
+
+        /// <summary>
         /// Get what is the time offset of the next block in seconds.
         /// </summary>
+        /// <returns>Time offset in seconds, or -1 if the last block was passed.</returns>
         public virtual double GetNextBlockOffset(int track) => throw new NotImplementedException();
 
         /// <summary>

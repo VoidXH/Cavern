@@ -69,5 +69,15 @@ namespace Cavern.Format.Common {
         /// Continue reading the track.
         /// </summary>
         public byte[] ReadNextBlock() => Source.ReadNextBlock(trackNumber);
+
+        /// <summary>
+        /// Returns if the next block can be completely decoded by itself.
+        /// </summary>
+        public bool IsNextBlockKeyframe() => Source.IsNextBlockKeyframe(trackNumber);
+
+        /// <summary>
+        /// Get the block's offset in seconds.
+        /// </summary>
+        public double GetNextBlockOffset() => Source.GetNextBlockOffset(trackNumber);
     }
 }

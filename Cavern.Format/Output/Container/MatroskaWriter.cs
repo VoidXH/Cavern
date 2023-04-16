@@ -74,9 +74,27 @@ namespace Cavern.Format.Container {
                 return WriteBlock(blockDuration);
             }
 
-            // TODO: write block
+            double endPosition = position + blockDuration;
+            while (true) {
+                double nextBlockTime = double.PositiveInfinity;
+                int nextBlock = -1;
+                for (int i = 0; i < tracks.Length; i++) {
+                    double offset = tracks[i].GetNextBlockOffset();
+                    if (offset != -1 && nextBlockTime > offset) {
+                        nextBlockTime = offset;
+                        nextBlock = i;
+                    }
+                }
+                if (nextBlock == -1 || nextBlockTime > endPosition) {
+                    break;
+                }
 
-            position += blockDuration;
+                bool keyframe = tracks[nextBlock].IsNextBlockKeyframe();
+                short clusterOffset = (short)((nextBlockTime - lastClusterStarted) * MatroskaReader.sToNs / timestampScale);
+                Block.Write(tree, writer, keyframe, nextBlock + 1, clusterOffset, tracks[nextBlock].ReadNextBlock());
+            }
+
+            position = endPosition;
             return position >= duration;
         }
 
