@@ -51,10 +51,10 @@ namespace Cavern.Filters {
             int fftSize = 2 << QMath.Log2Ceil(impulseLength); // Zero padding for the falloff to have space
             cache = new ThreadSafeFFTCache(fftSize);
             filter = new Complex[fftSize];
-            for (int sample = 0; sample < impulse1.Length; ++sample) {
+            for (int sample = 0; sample < impulse1.Length; sample++) {
                 filter[sample].Real = impulse1[sample];
             }
-            for (int sample = 0; sample < impulse2.Length; ++sample) {
+            for (int sample = 0; sample < impulse2.Length; sample++) {
                 filter[sample].Imaginary = impulse2[sample];
             }
             filter.InPlaceFFT(cache);
@@ -82,10 +82,10 @@ namespace Cavern.Filters {
         /// </summary>
         void ProcessTimeslot(float[] samplesInOut, float[] samplesOut, int from, int to) {
             // Move samples and pad present
-            for (int i = from; i < to; ++i) {
+            for (int i = from; i < to; i++) {
                 present[i - from] = new Complex(samplesInOut[i], 0);
             }
-            for (int i = to - from; i < present.Length; ++i) {
+            for (int i = to - from; i < present.Length; i++) {
                 present[i].Clear();
             }
 
@@ -95,14 +95,14 @@ namespace Cavern.Filters {
             present.InPlaceIFFT(cache);
 
             // Append the result to the future
-            for (int i = 0; i < present.Length; ++i) {
+            for (int i = 0; i < present.Length; i++) {
                 future[i + delay1].Real += present[i].Real;
                 future[i + delay2].Imaginary += present[i].Imaginary;
             }
 
             // Write the output and remove those samples from the future
             to -= from;
-            for (int i = 0; i < to; ++i) {
+            for (int i = 0; i < to; i++) {
                 samplesInOut[from + i] = future[i].Real;
                 samplesOut[from + i] = future[i].Imaginary;
             }

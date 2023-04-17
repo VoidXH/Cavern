@@ -2,7 +2,6 @@
 
 using Cavern.Channels;
 using Cavern.Filters;
-using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
     /// <summary>

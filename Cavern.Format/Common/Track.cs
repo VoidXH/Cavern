@@ -38,7 +38,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// The position of the track in the container's list of tracks.
         /// </summary>
-        int trackNumber;
+        internal int trackNumber;
 
         /// <summary>
         /// Create a track to be placed in the list of a container's tracks after it's set up with
@@ -58,26 +58,26 @@ namespace Cavern.Format.Common {
         }
 
         /// <summary>
+        /// Continue reading the track.
+        /// </summary>
+        public virtual byte[] ReadNextBlock() => Source.ReadNextBlock(trackNumber);
+
+        /// <summary>
+        /// Returns if the next block can be completely decoded by itself.
+        /// </summary>
+        public virtual bool IsNextBlockKeyframe() => Source.IsNextBlockKeyframe(trackNumber);
+
+        /// <summary>
+        /// Get the block's offset in seconds.
+        /// </summary>
+        public virtual double GetNextBlockOffset() => Source.GetNextBlockOffset(trackNumber);
+
+        /// <summary>
         /// Late-init the <see cref="Source"/> and <see cref="trackNumber"/>.
         /// </summary>
         internal void Override(ContainerReader source, int trackNumber) {
             Source = source;
             this.trackNumber = trackNumber;
         }
-
-        /// <summary>
-        /// Continue reading the track.
-        /// </summary>
-        public byte[] ReadNextBlock() => Source.ReadNextBlock(trackNumber);
-
-        /// <summary>
-        /// Returns if the next block can be completely decoded by itself.
-        /// </summary>
-        public bool IsNextBlockKeyframe() => Source.IsNextBlockKeyframe(trackNumber);
-
-        /// <summary>
-        /// Get the block's offset in seconds.
-        /// </summary>
-        public double GetNextBlockOffset() => Source.GetNextBlockOffset(trackNumber);
     }
 }
