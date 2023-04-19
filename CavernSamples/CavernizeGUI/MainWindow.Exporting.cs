@@ -85,7 +85,7 @@ namespace CavernizeGUI {
                         remDisp = remaining.ToString("d':'hh':'mm':'ss");
                     }
 
-                    taskEngine.UpdateStatusLazy(string.Format((string)MainWindow.language["ProgP"],
+                    taskEngine.UpdateStatusLazy(string.Format((string)language["ProgP"],
                         progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
                     taskEngine.UpdateProgressBar(progress);
                     untilUpdate = updateInterval;
@@ -110,7 +110,7 @@ namespace CavernizeGUI {
             bool customMuting = dynamicOnly || heightOnly;
 
             Filter[] filters = null;
-            if (roomCorrection != null && Listener.Channels.Length == roomCorrection.Length) {
+            if (FiltersUsed) {
                 filters = new Filter[roomCorrection.Length];
                 for (int ch = 0; ch < Listener.Channels.Length; ch++) {
                     filters[ch] = new ThreadSafeFastConvolver(roomCorrection[ch]);
@@ -129,20 +129,11 @@ namespace CavernizeGUI {
                 };
             }
 
-            const int defaultWriteCacheLength = 16384; // Samples per channel
             int cachePosition = 0;
             float[] writeCache = null;
             bool flush = false;
             if (writer != null) {
-                int cacheSize = filters == null ? defaultWriteCacheLength : roomCorrection[0].Length;
-                if (cacheSize < listener.UpdateRate) {
-                    cacheSize = listener.UpdateRate;
-                } else if (cacheSize % listener.UpdateRate != 0) {
-                    // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
-                    cacheSize += listener.UpdateRate - cacheSize % listener.UpdateRate;
-                }
-                cacheSize *= virtualizer == null ? Listener.Channels.Length : VirtualizerFilter.VirtualChannels;
-                writeCache = new float[cacheSize];
+                writeCache = new float[blockSize];
             }
             // TODO: override multichannel process for the fast convolution filter to prevent reallocation
 

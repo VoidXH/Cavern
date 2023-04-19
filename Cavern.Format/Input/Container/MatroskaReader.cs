@@ -13,6 +13,11 @@ namespace Cavern.Format.Container {
     /// <see href="https://www.matroska.org/files/matroska_file_format_alexander_noe.pdf"/>
     public class MatroskaReader : ContainerReader {
         /// <summary>
+        /// Returns the format of the loaded container.
+        /// </summary>
+        public override Common.Container Type => Common.Container.Matroska;
+
+        /// <summary>
         /// Clusters are large and should be cached, but only to a certain limit to prevent leaking.
         /// The limit is the size of this array. Use <see cref="GetCluster(int)"/> to read a cluster,
         /// it checks the cache before trying to read it.
@@ -46,6 +51,11 @@ namespace Cavern.Format.Container {
         /// Minimal EBML reader.
         /// </summary>
         public MatroskaReader(string path) : base(path) { ReadSkeleton(); }
+
+        /// <summary>
+        /// The following block of the track is rendered and available.
+        /// </summary>
+        public override bool IsNextBlockAvailable(int track) => GetBlock(track) != null;
 
         /// <summary>
         /// Continue reading a given track.

@@ -118,10 +118,12 @@ namespace Cavern.Format.Container {
                 double nextBlockTime = double.PositiveInfinity;
                 int track = -1;
                 for (int i = 0; i < tracks.Length; i++) {
-                    double offset = tracks[i].GetNextBlockOffset();
-                    if (offset != -1 && nextBlockTime > offset) {
-                        nextBlockTime = offset;
-                        track = i;
+                    if (tracks[i].IsNextBlockAvailable()) {
+                        double offset = tracks[i].GetNextBlockOffset();
+                        if (offset != -1 && nextBlockTime > offset) {
+                            nextBlockTime = offset;
+                            track = i;
+                        }
                     }
                 }
                 if (track == -1 || nextBlockTime > endPosition) {
@@ -225,6 +227,9 @@ namespace Cavern.Format.Container {
                 tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_TrackUID, (short)i);
                 tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_TrackType, audio ? (byte)2 : (byte)1);
                 tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_FlagLacing, (byte)0);
+                if (!string.IsNullOrEmpty(track.Name)) {
+                    tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_Name, track.Name);
+                }
                 tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_Language, track.Language ?? "und");
                 tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_CodecID, MatroskaTree.codecNames.GetKey(track.Format));
                 if (audio) {

@@ -8,6 +8,7 @@ using Cavern;
 using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
+using Cavern.Format.Container;
 using Cavern.Format.Environment;
 using Cavern.Format.Renderers;
 using Cavern.Utilities;
@@ -18,6 +19,11 @@ using Track = CavernizeGUI.Elements.Track;
 
 namespace CavernizeGUI {
     partial class MainWindow {
+        /// <summary>
+        /// Total number of samples for all channels that will be written to the file at once.
+        /// </summary>
+        int blockSize;
+
         /// <summary>
         /// Prepare the renderer for export.
         /// </summary>
@@ -82,10 +88,26 @@ namespace CavernizeGUI {
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
             BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
             if (!codec.IsEnvironmental()) {
-                string exportFormat = path[^4..].ToLower(CultureInfo.InvariantCulture),
-                    exportName = exportFormat.Equals(".mkv") ? path[..^4] + waveExtension : path;
+                blockSize = FiltersUsed ? roomCorrection[0].Length : defaultWriteCacheLength;
+                if (blockSize < listener.UpdateRate) {
+                    blockSize = listener.UpdateRate;
+                } else if (blockSize % listener.UpdateRate != 0) {
+                    // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
+                    blockSize += listener.UpdateRate - blockSize % listener.UpdateRate;
+                }
+                blockSize *= Listener.HeadphoneVirtualizer ? VirtualizerFilter.VirtualChannels : Listener.Channels.Length;
+
+                string exportFormat = path[^4..].ToLower(CultureInfo.InvariantCulture);
+                bool mkvTarget = exportFormat.Equals(".mkv");
+                string exportName = mkvTarget ? path[..^4] + waveExtension : path;
                 AudioWriter writer;
-                if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
+                if (mkvTarget && target.Container == Container.Matroska && (codec == Codec.PCM_LE || codec == Codec.PCM_Float)) {
+                    AudioWriterIntoContainer container = new AudioWriterIntoContainer(path, target.GetVideoTracks(), codec,
+                        blockSize, Listener.Channels.Length, target.Length, target.SampleRate, bits) {
+                        NewTrackName = $"Cavern {activeRenderTarget.Name} render"
+                    };
+                    writer = container;
+                } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
                     writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels[..activeRenderTarget.OutputChannels],
                         target.Length, listener.SampleRate, bits);
                 } else {
@@ -143,6 +165,7 @@ namespace CavernizeGUI {
                 return null;
             }
 
+            Track target = (Track)tracks.SelectedItem;
             if (!reportMode.IsChecked) {
                 SaveFileDialog dialog = new() {
                     FileName = fileName.Text.Contains('.') ? fileName.Text[..fileName.Text.LastIndexOf('.')] : fileName.Text
@@ -152,7 +175,7 @@ namespace CavernizeGUI {
                 if (codec.IsEnvironmental()) {
                     dialog.Filter = codec == Codec.LimitlessAudio ? (string)language["ExLAF"] : (string)language["ExBWF"];
                 } else if (codec == Codec.PCM_Float || codec == Codec.PCM_LE) {
-                    dialog.Filter = (string)language[ffmpeg.Found ? "ExPCM" : "ExPCR"];
+                    dialog.Filter = (string)language[ffmpeg.Found || target.Container == Container.Matroska ? "ExPCM" : "ExPCR"];
                 } else {
                     dialog.Filter = (string)language["ExFmt"];
                 }
@@ -166,7 +189,6 @@ namespace CavernizeGUI {
                     }
                 }
             } else {
-                Track target = (Track)tracks.SelectedItem;
                 try {
                     return () => RenderTask(target, null, false, false, null);
                 } catch (Exception e) {
@@ -213,7 +235,7 @@ namespace CavernizeGUI {
                     targetCodec += massivelyMultichannel;
                 }
 
-                if (finalName[^4..].ToLower(CultureInfo.InvariantCulture).Equals(".mkv")) {
+                if (target.Container != Container.Matroska && finalName[^4..].ToLower(CultureInfo.InvariantCulture).Equals(".mkv")) {
                     string exportedAudio = finalName[..^4] + waveExtension;
                     taskEngine.UpdateStatus("Merging to final container...");
                     if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c:v copy -c:a {2} " +
@@ -272,5 +294,10 @@ namespace CavernizeGUI {
         /// RIFF Wave file extension.
         /// </summary>
         const string waveExtension = ".wav";
+
+        /// <summary>
+        /// Default value of <see cref="blockSize"/> per channel.
+        /// </summary>
+        const int defaultWriteCacheLength = 16384;
     }
 }

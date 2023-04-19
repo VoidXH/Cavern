@@ -19,6 +19,11 @@ namespace Cavern.Format.Container {
         public Track[] Tracks { get; protected set; }
 
         /// <summary>
+        /// Returns the format of the loaded container.
+        /// </summary>
+        public abstract Common.Container Type { get; }
+
+        /// <summary>
         /// File reader object.
         /// </summary>
         internal protected Stream reader;
@@ -34,6 +39,11 @@ namespace Cavern.Format.Container {
         /// </summary>
         /// <param name="path">Input file name</param>
         protected ContainerReader(string path) => reader = File.OpenRead(path);
+
+        /// <summary>
+        /// The following block of the track is rendered and available.
+        /// </summary>
+        public abstract bool IsNextBlockAvailable(int track);
 
         /// <summary>
         /// Continue reading a given track.

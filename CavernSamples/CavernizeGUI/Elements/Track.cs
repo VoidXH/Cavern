@@ -39,6 +39,11 @@ namespace CavernizeGUI.Elements {
         public Codec Codec { get; protected set; }
 
         /// <summary>
+        /// The track's container's file format.
+        /// </summary>
+        public Container Container => reader is AudioTrackReader trackReader ? trackReader.Source.Type : Container.NotContainer;
+
+        /// <summary>
         /// The renderer starting at the first sample of the track after construction.
         /// </summary>
         public Renderer Renderer { get; private set; }
@@ -175,6 +180,12 @@ namespace CavernizeGUI.Elements {
                 listener.AttachSource(attachables[i]);
             }
         }
+
+        /// <summary>
+        /// Get the video tracks this audio track is accompanying.
+        /// </summary>
+        public Cavern.Format.Common.Track[] GetVideoTracks() =>
+            reader is AudioTrackReader trackReader ? trackReader.Source.Tracks.Where(x => x.Format.IsVideo()).ToArray() : null;
 
         /// <summary>
         /// Gets the metadata for this codec in a human-readable format.

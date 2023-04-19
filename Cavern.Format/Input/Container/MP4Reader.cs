@@ -13,6 +13,11 @@ namespace Cavern.Format.Container {
     /// </summary>
     public class MP4Reader : ContainerReader {
         /// <summary>
+        /// Returns the format of the loaded container.
+        /// </summary>
+        public override Common.Container Type => Common.Container.MP4;
+
+        /// <summary>
         /// Minimal ISO-BMFF reader.
         /// </summary>
         public MP4Reader(Stream reader) : base(reader) { ReadSkeleton(); }
@@ -21,6 +26,14 @@ namespace Cavern.Format.Container {
         /// Minimal ISO-BMFF reader.
         /// </summary>
         public MP4Reader(string path) : base(path) { ReadSkeleton(); }
+
+        /// <summary>
+        /// The following block of the track is rendered and available.
+        /// </summary>
+        public override bool IsNextBlockAvailable(int track) {
+            MP4Track source = (MP4Track)Tracks[track];
+            return source.map.Length != source.nextSample;
+        }
 
         /// <summary>
         /// Continue reading a given track.

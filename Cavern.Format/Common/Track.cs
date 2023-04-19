@@ -58,6 +58,11 @@ namespace Cavern.Format.Common {
         }
 
         /// <summary>
+        /// The following block of the track is rendered and available.
+        /// </summary>
+        public virtual bool IsNextBlockAvailable() => Source.IsNextBlockAvailable(trackNumber);
+
+        /// <summary>
         /// Continue reading the track.
         /// </summary>
         public virtual byte[] ReadNextBlock() => Source.ReadNextBlock(trackNumber);

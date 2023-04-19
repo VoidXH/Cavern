@@ -31,22 +31,23 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Number of blocks requested by <see cref="ReadNextBlock"/>.
         /// </summary>
-        int blocksWritten = 0;
+        int blocksWritten;
 
         /// <summary>
         /// Encodes audio content as a <see cref="Track"/> to be used in a <see cref="ContainerWriter"/>.
         /// </summary>
         /// <param name="format">Codec used for encoding</param>
-        /// <param name="blockSize">The fixed number of samples that will be encoded</param>
+        /// <param name="blockSize">The fixed number of samples that will be encoded (for all channels)</param>
         /// <param name="channelCount">Number of output channels</param>
+        /// <param name="length">Content length in samples (for a single channel)</param>
         /// <param name="sampleRate">Rendering environment sample rate</param>
         /// <param name="bits">Bit depth of the <paramref name="format"/> if applicable</param>
-        public RenderTrack(Codec format, int blockSize, int channelCount, int sampleRate, BitDepth bits) {
-            timeStep = blockSize / (double)sampleRate;
+        public RenderTrack(Codec format, int blockSize, int channelCount, long length, int sampleRate, BitDepth bits) {
+            timeStep = blockSize / channelCount / (double)sampleRate;
             Format = format;
             encoder = format switch {
-                Codec.PCM_LE => new RIFFWaveWriter(output, channelCount, blockSize, sampleRate, bits),
-                Codec.PCM_Float => new RIFFWaveWriter(output, channelCount, blockSize, sampleRate, bits),
+                Codec.PCM_LE => new RIFFWaveWriter(output, channelCount, length, sampleRate, bits),
+                Codec.PCM_Float => new RIFFWaveWriter(output, channelCount, length, sampleRate, bits),
                 _ => throw new UnsupportedCodecException(true, format),
             };
             Extra = new TrackExtraAudio {
@@ -64,6 +65,11 @@ namespace Cavern.Format.Common {
         /// - <see cref="ContainerWriter.WriteBlock(double)"/>, it will call <see cref="ReadNextBlock"/>
         /// </summary>
         public void EncodeNextBlock(float[] samples) => encoder.WriteBlock(samples, 0, samples.Length);
+
+        /// <summary>
+        /// The following block of the track is rendered and available.
+        /// </summary>
+        public override bool IsNextBlockAvailable() => output.Position != 0;
 
         /// <summary>
         /// Continue reading the track.

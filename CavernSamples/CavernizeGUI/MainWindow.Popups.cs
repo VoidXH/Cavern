@@ -20,6 +20,11 @@ using Track = CavernizeGUI.Elements.Track;
 namespace CavernizeGUI {
     public partial class MainWindow {
         /// <summary>
+        /// Room correction is active and the loaded filter set for it is valid for the output system.
+        /// </summary>
+        bool FiltersUsed => roomCorrection != null && Listener.Channels.Length == roomCorrection.Length;
+
+        /// <summary>
         /// Sample rate of the <see cref="roomCorrection"/> filters.
         /// </summary>
         int roomCorrectionSampleRate;

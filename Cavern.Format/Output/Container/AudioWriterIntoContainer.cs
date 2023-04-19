@@ -8,6 +8,14 @@ namespace Cavern.Format.Container {
     /// </summary>
     public class AudioWriterIntoContainer : AudioWriter {
         /// <summary>
+        /// The name of the new <see cref="track"/> in the output <see cref="container"/>.
+        /// </summary>
+        public string NewTrackName {
+            get => track.Name;
+            set => track.Name = value;
+        }
+
+        /// <summary>
         /// Handles the container itself.
         /// </summary>
         readonly ContainerWriter container;
@@ -38,7 +46,7 @@ namespace Cavern.Format.Container {
             }
 
             Array.Resize(ref tracks, tracks.Length + 1);
-            tracks[^1] = track = new RenderTrack(newTrack, blockSize, channelCount, sampleRate, bits);
+            tracks[^1] = track = new RenderTrack(newTrack, blockSize, channelCount, length, sampleRate, bits);
 
             switch (path[index..]) {
                 case "mkv":
