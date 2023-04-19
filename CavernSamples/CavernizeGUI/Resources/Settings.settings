@@ -9,7 +9,7 @@
       <Value Profile="(Default)">3</Value>
     </Setting>
     <Setting Name="outputCodec" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="lastUpdate" Type="System.DateTime" Scope="User">
       <Value Profile="(Default)">2020-09-21</Value>
