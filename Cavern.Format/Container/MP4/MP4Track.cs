@@ -78,7 +78,10 @@ namespace Cavern.Format.Container.MP4 {
                     }
                 }
 
-                offset = chunkOffsets.offsets[++chunk];
+                if (++chunk == chunkOffsets.offsets.Length) {
+                    break; // It's actually a corrupt file, but might work with slow seeking
+                }
+                offset = chunkOffsets.offsets[chunk];
                 if (--chunksUntilNextCluster == 0) {
                     if (i == map.Length || locations.Length == 1) {
                         break;
