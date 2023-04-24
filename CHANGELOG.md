@@ -1,4 +1,24 @@
 # Cavern version history
+## Cavern 2.0 - Long-term Support update
+**2023. April 25th**
+
+#### Library additions
+* Added MKV container writing
+* Added MP4 container reading
+* Added LAF environment export
+* Added crossover export for Equalizer APO, supporting all of Cavern's basic crossovers
+* Added FIR/IIR filter set export for supported software/hardware, including CamillaDSP
+* Merging of multiple E-AC-3 files for channel-based spatial mix storage
+* Microphone support for WebGL
+
+#### Cavernize additions
+* Added a metadata viewer
+* Added 4.1.1 channel layout
+* Content grading
+* New render target selector
+* Option to swap side/rear channels
+* Support opening webm/weba file
+
 ## Cavern 1.6 - Happiest Halloween update
 **2022. October 31st**
 
