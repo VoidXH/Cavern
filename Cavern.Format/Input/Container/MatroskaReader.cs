@@ -262,13 +262,17 @@ namespace Cavern.Format.Container {
                 MatroskaTree data = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video);
                 if (data != null) {
                     MatroskaTree codecPrivate = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_CodecPrivate);
-                    TrackExtraVideo extra = new TrackExtraVideo(reader, data);
+                    MatroskaTrackExtraVideo extra = new MatroskaTrackExtraVideo(reader, data);
                     entry.Extra = extra;
                     extra.PrivateData = codecPrivate?.GetBytes(reader);
 
                     long defaultDuration = source.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_DefaultDuration);
                     if (defaultDuration != -1) {
                         extra.FrameRate = sToNs / defaultDuration;
+                    }
+                    MatroskaTree addition = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_BlockAdditionMapping);
+                    if (addition != null) {
+                        extra.BlockAdditionMapping = addition.GetBytes(reader);
                     }
                 } else {
                     data = source.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Audio);

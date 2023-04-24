@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Version>1.6</Version>
+    <Version>2.0</Version>
     <Authors>VoidX</Authors>
     <Description>Measurement and equalization tools for the Cavern spatial audio engine.</Description>
     <Copyright>Copyright © Bence Sgánetz 2016-2023</Copyright>

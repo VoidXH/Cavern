@@ -38,7 +38,7 @@ namespace Cavern.Format.Common {
         public TrackExtraVideo() { }
 
         /// <summary>
-        /// Parse video metadata from a Matroska track's video metadata node.
+        /// Parse video metadata from a track's video metadata node.
         /// </summary>
         internal TrackExtraVideo(Stream reader, MatroskaTree videoMeta) {
             Width = (int)videoMeta.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video_PixelWidth);

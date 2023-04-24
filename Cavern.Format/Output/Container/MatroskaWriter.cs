@@ -258,6 +258,9 @@ namespace Cavern.Format.Container {
                         tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_Video_Colour_Range, (byte)videoInfo.ColorRange);
                         tree.CloseSequence();
                     }
+                    if (videoInfo is MatroskaTrackExtraVideo matroskaVideoInfo && matroskaVideoInfo.BlockAdditionMapping != null) {
+                        tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_BlockAdditionMapping, matroskaVideoInfo.BlockAdditionMapping);
+                    }
                     tree.CloseSequence();
                     tree.Write(MatroskaTree.Segment_Tracks_TrackEntry_CodecPrivate, videoInfo.PrivateData);
                 }

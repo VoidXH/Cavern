@@ -20,7 +20,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <Version>1.5</Version>
+    <Version>2.0</Version>
     <Authors>VoidX</Authors>
     <Description>Unity wrappers for the Cavern spatial audio engine.</Description>
     <Copyright>Copyright © Bence Sgánetz 2016-2023</Copyright>

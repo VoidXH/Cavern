@@ -252,6 +252,7 @@ namespace Cavern.Format.Container.Matroska {
             Segment_Cluster_Timestamp = 0xE7,
             Segment_Cues_CuePoint_CueTrackPositions_CueClusterPosition = 0xF1,
             Segment_Cues_CuePoint_CueTrackPositions_CueTrack = 0xF7,
+            Segment_Tracks_TrackEntry_BlockAdditionMapping = 0x41E4,
             Segment_Info_Duration = 0x4489,
             Segment_Info_MuxingApp = 0x4D80,
             Segment_SeekHead_Seek = 0x4DBB,
