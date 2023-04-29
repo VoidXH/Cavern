@@ -2,6 +2,7 @@
 using System;
 
 using Cavern.QuickEQ.EQCurves;
+using Cavern.QuickEQ.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
@@ -50,6 +51,23 @@ namespace Cavern.QuickEQ.Equalization {
                     newBands.Add(bands[i]);
                 }
             }
+
+            bands.Clear();
+            bands.AddRange(newBands);
+            RecalculatePeakGain();
+        }
+
+        /// <summary>
+        /// Change the number of bands to a fixed value by resampling the curve on a logarithmic scale.
+        /// </summary>
+        public void DownsampleLogarithmically(int numberOfBands, double startFreq, double endFreq) {
+            double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (numberOfBands - 1));
+            List<Band> newBands = new List<Band>();
+            for (int i = 0; i < numberOfBands; ++i) {
+                newBands.Add(new Band(startFreq, this[startFreq]));
+                startFreq *= mul;
+            }
+
             bands.Clear();
             bands.AddRange(newBands);
             RecalculatePeakGain();
@@ -60,10 +78,19 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         /// <param name="startFreq">Bottom cutoff frequency</param>
         /// <param name="endFreq">Top cutoff frequency</param>
+        public void Limit(double startFreq, double endFreq) => Limit(startFreq, endFreq, null);
+
+        /// <summary>
+        /// Limit the application range of the EQ, and conform the gain of the cut parts to the target curve.
+        /// </summary>
+        /// <param name="startFreq">Bottom cutoff frequency</param>
+        /// <param name="endFreq">Top cutoff frequency</param>
         /// <param name="targetCurve">If set, the cuts will conform to this curve</param>
-        public void Limit(double startFreq, double endFreq, EQCurve targetCurve = null) {
+        public void Limit(double startFreq, double endFreq, EQCurve targetCurve) {
+            // TODO: conform to target curve using SumGains when a targetCurve is set
             int i = GetFirstBand(startFreq),
                 c = bands.Count;
+
             if (i > 0) {
                 bands.RemoveRange(0, i);
                 c -= i;
@@ -77,6 +104,7 @@ namespace Cavern.QuickEQ.Equalization {
                     break;
                 }
             }
+
             RecalculatePeakGain();
         }
 
@@ -193,6 +221,17 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Get the sum of gains between the <paramref name="first"/> (inclusive) and <paramref name="last"/> (exclusive) band.
+        /// </summary>
+        double SumGains(int first, int last) {
+            double result = 0;
+            while (first < last) {
+                result += bands[first++].Gain;
+            }
+            return result;
         }
     }
 }

@@ -239,9 +239,15 @@ namespace Cavern.QuickEQ.Utilities {
         }
 
         /// <summary>
+        /// Apply 1/3 octave smoothing on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
+        /// </summary>
+        public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq) =>
+            SmoothGraph(samples, startFreq, endFreq, 1 / 3f);
+
+        /// <summary>
         /// Apply smoothing (in octaves) on a graph drawn with <see cref="ConvertToGraph(float[], double, double, int, int)"/>.
         /// </summary>
-        public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float octave = 1 / 3f) {
+        public static float[] SmoothGraph(float[] samples, float startFreq, float endFreq, float octave) {
             if (octave == 0) {
                 return samples.FastClone();
             }

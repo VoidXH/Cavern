@@ -17,7 +17,7 @@
 * Content grading
 * New render target selector
 * Option to swap side/rear channels
-* Support opening webm/weba file
+* Support opening webm/weba files
 
 ## Cavern 1.6 - Happiest Halloween update
 **2022. October 31st**

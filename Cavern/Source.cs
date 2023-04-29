@@ -237,7 +237,6 @@ namespace Cavern {
                     SpatialFilter?.Process(samples);
 
                     // Distance simulation for HRTF
-                    // TODO: gain correction for this in both engines
                     if (DistanceSimulation && Listener.HeadphoneVirtualizer) {
                         distancer ??= new Distancer(this) {
                             trueGain = false
