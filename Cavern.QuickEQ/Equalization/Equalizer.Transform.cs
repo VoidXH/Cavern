@@ -2,7 +2,6 @@
 using System;
 
 using Cavern.QuickEQ.EQCurves;
-using Cavern.QuickEQ.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
@@ -183,12 +182,16 @@ namespace Cavern.QuickEQ.Equalization {
                 while (smoothTo < result.Length && bands[smoothTo].Frequency < maxFreq) {
                     ++smoothTo;
                 }
-                result[i] = Math.Pow(10, bands[i].Gain * .05);
+
                 if (smoothFrom != smoothTo) {
+                    double smoothed = Math.Pow(10, bands[i].Gain * .05);
                     for (int j = smoothFrom + 1; j < smoothTo; j++) {
-                        result[i] += Math.Pow(10, bands[j].Gain * .05);
+                        smoothed += Math.Pow(10, bands[j].Gain * .05);
                     }
-                    result[i] = 20 * Math.Log10(result[i] / (smoothTo - smoothFrom));
+                    smoothed = 20 * Math.Log10(smoothed / (smoothTo - smoothFrom));
+                    result[i] = smoothed;
+                } else {
+                    result[i] = bands[i].Gain;
                 }
             }
             for (int i = 0; i < result.Length; i++) {
