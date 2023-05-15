@@ -152,6 +152,29 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Set the average gain of the curve to 0 dB.
+        /// </summary>
+        public void Normalize() => Normalize(double.MinValue, double.MaxValue);
+
+        /// <summary>
+        /// Set the average gain of the curve to 0 dB between frequency limits.
+        /// </summary>
+        public void Normalize(double startFreq, double endFreq) {
+            int first = GetFirstBand(startFreq),
+                last = bands.Count;
+            double total = 0;
+            for (int i = first; i < last; i++) {
+                if (bands[i].Gain > endFreq) {
+                    last = i;
+                    break;
+                }
+
+                total += bands[i].Gain;
+            }
+            Offset(total / (first - last));
+        }
+
+        /// <summary>
         /// Change the frequencies contained in this <see cref="Equalizer"/>.
         /// </summary>
         /// <param name="frequencies">Use the frequencies of these bands</param>
@@ -224,17 +247,6 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             return -1;
-        }
-
-        /// <summary>
-        /// Get the sum of gains between the <paramref name="first"/> (inclusive) and <paramref name="last"/> (exclusive) band.
-        /// </summary>
-        double SumGains(int first, int last) {
-            double result = 0;
-            while (first < last) {
-                result += bands[first++].Gain;
-            }
-            return result;
         }
     }
 }
