@@ -97,7 +97,7 @@ namespace Cavern.Format.Environment {
                         IEnumerator<Source> enumerator = Source.ActiveSources.GetEnumerator();
                         int i = 0;
                         while (i < objects && enumerator.MoveNext()) {
-                            (enumerator.Current.Position * scale).CopyTo(positionalBlock[i >> 4], 3 * i);
+                            (enumerator.Current.Position * scale).CopyTo(positionalBlock[i >> 4], 3 * i % objectStreamRate);
                             i++;
                         }
                         objectStreamPosition = 0;
