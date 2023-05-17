@@ -22,8 +22,9 @@ namespace Cavern.Utilities {
         public override void AddFrame(float[] frame) {
             frames++;
             if (Average != null) {
-                WaveformUtils.Gain(Average, (frames - 1) / (float)frames);
-                WaveformUtils.Mix(frame, Average, 1f / frames);
+                float mul = 1f / (frames + 1);
+                WaveformUtils.Gain(Average, frames * mul);
+                WaveformUtils.Mix(frame, Average, mul);
             } else {
                 Average = new float[frame.Length];
                 Array.Copy(frame, Average, frame.Length);
