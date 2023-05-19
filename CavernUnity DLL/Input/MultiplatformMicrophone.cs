@@ -1,66 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
-using Cavern.Common;
-
 namespace Cavern.Input {
-    // TODO: Working WebGL support
     /// <summary>
     /// A box for Unity's <see cref="Microphone"/> class that also works for WebGL,
     /// which wouldn't even compile if <see cref="Microphone"/> functions were used.
     /// </summary>
     public static class MultiplatformMicrophone {
         /// <summary>
-        /// Holds the recording progress for each device by name, including the allocated <see cref="Task"/>, the samples recorded so far
-        /// (which are overridden for looping recordings), and which was the last recorded sample.
+        /// To use an unsupported platform's microphone, initialize an accessor class to this property and it will be used.
         /// </summary>
-        static Dictionary<string, (Task thread, float[] samples, int index)> recorders = new Dictionary<string, (Task, float[], int)>();
+        public static IMicrophone Override { get; set; }
 
         /// <summary>
         /// Names of connected audio input devices.
         /// </summary>
         /// <remarks>Since JS gets the microphones asynchronously, this might have to be polled.</remarks>
         [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "API matching")]
-        public static string[] devices {
-            get {
-                if (Application.platform == RuntimePlatform.WebGLPlayer) {
-                    if (!JSlibAvailable) {
-                        throw new JSlibNotFoundException("microphone.jslib");
-                    }
-
-                    IntPtr read = getDevices();
-                    string[] result = Marshal.PtrToStringAuto(read).Split('\n');
-                    dispose(read);
-                    if (result[0].Length != 0) {
-                        if (result[0].Equals(permissionDeniedReturn)) {
-                            throw new PermissionDeniedException();
-                        }
-                        if (result[0].Equals(errorReturn)) {
-                            throw new JSlibException();
-                        }
-
-                        return result;
-                    }
-                    return new string[0];
-                } else {
-                    return Microphone.devices;
-                }
-            }
-        }
+        public static string[] devices => Override == null ? Microphone.devices : Override.GetDevices();
 
         /// <summary>
         /// Get the sample rate limits of a device.
         /// </summary>
         public static void GetDeviceCaps(string deviceName, out int minFreq, out int maxFreq) {
-            if (Application.platform == RuntimePlatform.WebGLPlayer) {
-                minFreq = 48000;
-                maxFreq = 48000;
-            } else {
+            if (Override == null) {
                 Microphone.GetDeviceCaps(deviceName, out minFreq, out maxFreq);
+            } else {
+                Override.GetDeviceCaps(deviceName, out minFreq, out maxFreq);
             }
         }
 
@@ -68,111 +34,31 @@ namespace Cavern.Input {
         /// Connect to an input device and start recording.
         /// </summary>
         /// <returns>Returns null if the device is unavailable</returns>
-        public static AudioClip Start(string deviceName, bool loop, int lengthSec, int frequency) {
-            if (Application.platform == RuntimePlatform.WebGLPlayer) {
-                if (startDevice(deviceName)) {
-                    recorders[deviceName] = (null, null, 0);
-                    return null;
-                }
-                return null;
-            } else {
-                return Microphone.Start(deviceName, loop, lengthSec, frequency);
-            }
-        }
+        public static AudioClip Start(string deviceName, bool loop, int lengthSec, int frequency) => Override == null
+            ? Microphone.Start(deviceName, loop, lengthSec, frequency)
+            : Override.StartDevice(deviceName, loop, lengthSec, frequency);
 
         /// <summary>
         /// Returns the index of the last read sample of the input device in its <see cref="AudioClip"/>.
         /// </summary>
-        public static int GetPosition(string deviceName) {
-            if (Application.platform == RuntimePlatform.WebGLPlayer) {
-                return recorders.ContainsKey(deviceName) ? recorders[deviceName].index : 0;
-            } else {
-                return Microphone.GetPosition(deviceName);
-            }
-        }
+        public static int GetPosition(string deviceName) =>
+            Override == null ? Microphone.GetPosition(deviceName) : Override.GetPosition(deviceName);
 
         /// <summary>
         /// Returns if the device has successfully started recording.
         /// </summary>
-        public static bool IsRecording(string deviceName) {
-            if (Application.platform == RuntimePlatform.WebGLPlayer) {
-                return recorders.ContainsKey(deviceName);
-            } else {
-                return Microphone.IsRecording(deviceName);
-            }
-        }
+        public static bool IsRecording(string deviceName) =>
+            Override == null ? Microphone.IsRecording(deviceName) : Override.IsRecording(deviceName);
 
         /// <summary>
         /// Close an input device.
         /// </summary>
         public static void End(string deviceName) {
-            if (Application.platform == RuntimePlatform.WebGLPlayer) {
-                if (recorders.ContainsKey(deviceName)) {
-                    endDevice(deviceName);
-                    recorders.Remove(deviceName);
-                }
-            } else {
+            if (Override == null) {
                 Microphone.End(deviceName);
+            } else {
+                Override.EndDevice(deviceName);
             }
         }
-
-        /// <summary>
-        /// Gets if the required microphone.jslib file was compiled.
-        /// </summary>
-        static bool JSlibAvailable {
-            get {
-                if (jslibAvailable.HasValue) {
-                    return jslibAvailable.Value;
-                }
-                try {
-                    getMicrophoneJslib();
-                    return true;
-                } catch {
-                    jslibAvailable = false;
-                    return false;
-                }
-            }
-        }
-        static bool? jslibAvailable;
-
-        /// <summary>
-        /// Zhrows an exception if the required microphone.jslib file wasn't compiled.
-        /// </summary>
-        [DllImport("__Internal")]
-        static extern void getMicrophoneJslib();
-
-        /// <summary>
-        /// Get the list of available audio input devices, separated by a single \n.
-        /// </summary>
-        [DllImport("__Internal")]
-        static extern IntPtr getDevices();
-
-        /// <summary>
-        /// Start recording by device name.
-        /// </summary>
-        [DllImport("__Internal")]
-        static extern bool startDevice(string deviceName);
-
-        /// <summary>
-        /// Stop recording by device name.
-        /// </summary>
-        [DllImport("__Internal")]
-        static extern void endDevice(string deviceName);
-
-        /// <summary>
-        /// Frees some allocated memory.
-        /// </summary>
-        [DllImport("__Internal")]
-        static extern void dispose(IntPtr pointer);
-
-        /// <summary>
-        /// String returned from <see cref="getDevices"/> when the user rejected the microphone access.
-        /// </summary>
-        const string permissionDeniedReturn = "DENIED";
-
-        /// <summary>
-        /// String returned from <see cref="getDevices"/> in case of a general error.
-        /// </summary>
-        const string errorReturn = "ERROR";
     }
 }

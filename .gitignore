@@ -42,6 +42,8 @@ CavernSamples/WavefrontSimulator/bin/
 CavernSamples/WavefrontSimulator/obj/
 CavernUnity DLL/bin/
 CavernUnity DLL/obj/
+CavernUnity.WebGL/bin/
+CavernUnity.WebGL/obj/
 packages/
 Pro/
 Tests/Test.Cavern.Format/bin/

@@ -9,6 +9,8 @@ rd /s /q Cavern.QuickEQ.Format\bin
 rd /s /q Cavern.QuickEQ.Format\obj
 rd /s /q "CavernUnity DLL\bin"
 rd /s /q "CavernUnity DLL\obj"
+rd /s /q "CavernUnity.WebGL\bin"
+rd /s /q "CavernUnity.WebGL\obj"
 rd /s /q CavernSamples\.vs
 rd /s /q CavernSamples\Benchmark\bin
 rd /s /q CavernSamples\Benchmark\obj

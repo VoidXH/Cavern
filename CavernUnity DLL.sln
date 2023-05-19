@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Cavern", "Tests\Test.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Cavern.QuickEQ", "Tests\Test.Cavern.QuickEQ\Test.Cavern.QuickEQ.csproj", "{1EF755C6-66D1-4991-9727-567B29646F86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Cavern.Format", "Tests\Test.Cavern.Format\Test.Cavern.Format.csproj", "{7921DD28-0CFF-446C-BC4D-09F64E88A396}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Cavern.Format", "Tests\Test.Cavern.Format\Test.Cavern.Format.csproj", "{7921DD28-0CFF-446C-BC4D-09F64E88A396}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CavernUnity.WebGL", "CavernUnity.WebGL\CavernUnity.WebGL.csproj", "{23636B9A-543A-48B7-B276-F871B6E7ACFC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{7921DD28-0CFF-446C-BC4D-09F64E88A396}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7921DD28-0CFF-446C-BC4D-09F64E88A396}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7921DD28-0CFF-446C-BC4D-09F64E88A396}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23636B9A-543A-48B7-B276-F871B6E7ACFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23636B9A-543A-48B7-B276-F871B6E7ACFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23636B9A-543A-48B7-B276-F871B6E7ACFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23636B9A-543A-48B7-B276-F871B6E7ACFC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
