@@ -24,7 +24,7 @@ namespace Cavern.Format.Transcoders {
             /// </summary>
             public void ReadTransformCoeffs(BitExtractor extractor, float[] target, int start, int end) {
                 mantissaBits = 0; // Additionally, keep raw data in a byte array to make transcoding possible
-                int bapReads = 0; // 4 bytes for the first 4 baps, counting their read count efficiently
+                long bapReads = 0; // 4 bytes for the first 4 baps, counting their read count efficiently
                 for (int bin = start; bin < end; ++bin) {
                     if (bap[bin] != 0 && bap[bin] < 5) {
                         bapReads += 1 << ((bap[bin] - 1) * 8);
@@ -32,11 +32,11 @@ namespace Cavern.Format.Transcoders {
                         mantissaBits += bitsToRead[bap[bin]];
                     }
                 }
-                mantissaBits +=
-                    (host.bap1Pos + (bapReads & 0xFF)) / 3 * bitsToRead[1] +
+                mantissaBits += (int)
+                    ((host.bap1Pos + (bapReads & 0xFF)) / 3 * bitsToRead[1] +
                     (host.bap2Pos + ((bapReads >> 8) & 0xFF)) / 3 * bitsToRead[2] +
                     ((bapReads >> 16) & 0xFF) * bitsToRead[3] +
-                    (host.bap4Pos + (bapReads >> 24)) / 2 * bitsToRead[4];
+                    (host.bap4Pos + (bapReads >> 24)) / 2 * bitsToRead[4]);
                 extractor.ReadBitsInto(ref rawMantissa, mantissaBits);
                 DecodeTransformCoeffs(new BitExtractor(rawMantissa), target, start, end);
                 Array.Clear(target, 0, start);
