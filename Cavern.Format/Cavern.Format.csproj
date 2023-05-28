@@ -13,7 +13,7 @@
     <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
     <NeutralLanguage>en</NeutralLanguage>
     <Nullable>disable</Nullable>
-	  <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <PackageReadmeFile>NuGet Readme - Cavern.Format.md</PackageReadmeFile>
 	  <PackageLicenseFile>LICENCE.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageIcon>CavernLogo.png</PackageIcon>
@@ -25,7 +25,7 @@
     <DocumentationFile>bin\Release\Cavern.Format.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\docs\NuGet Readme - Cavern.Format.md" Pack="true" PackagePath="README.md" Link="Resources\NuGet Readme - Cavern.Format.md" />
+    <None Include="..\docs\NuGet Readme - Cavern.Format.md" Pack="true" PackagePath="\" Link="Resources\NuGet Readme - Cavern.Format.md" />
     <None Include="..\docs\NuGet Licence.md" Pack="true" PackagePath="LICENCE.md" Link="Resources\NuGet Licence.md" />
     <None Include="..\Cavern\Resources\CavernLogo.png" Pack="true" PackagePath="CavernLogo.png" Link="Resources\CavernLogo.png" />
   </ItemGroup>
