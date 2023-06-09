@@ -2,6 +2,7 @@
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.Virtualizer {
     /// <summary>
@@ -36,6 +37,28 @@ namespace Cavern.Virtualizer {
             this.y = y;
             Crossover = new Crossover(sampleRate, crossoverFrequency);
             Filter = new DualConvolver(leftEarIR, rightEarIR, y % 180 > 0 ? GetDelay(y % 180) : 0, y < 0 ? GetDelay(-y) : 0);
+        }
+
+        /// <summary>
+        /// Constructs a virtualizable channel with impulse responses for both ears, recalibrating gains by the position's angles
+        /// if they were lost in recording/processing.
+        /// </summary>
+        public static VirtualChannel FromSubparMeasurement(float x, float y, float[] leftEarIR, float[] rightEarIR,
+            int sampleRate, float crossoverFrequency) {
+            if (y == 0 || y == 180) { // Middle
+                WaveformUtils.Gain(leftEarIR, minus16dB / WaveformUtils.GetRMS(leftEarIR));
+                Array.Copy(leftEarIR, rightEarIR, leftEarIR.Length);
+            } else {
+                float otherGain = minus10dB * QMath.DbToGain(-20 * MathF.Sin(MathF.Abs(y) * VectorExtensions.Deg2Rad));
+                if (y < 0) { // Left side
+                    WaveformUtils.Gain(leftEarIR, minus10dB / WaveformUtils.GetRMS(leftEarIR));
+                    WaveformUtils.Gain(rightEarIR, otherGain / WaveformUtils.GetRMS(rightEarIR));
+                } else { // Right side
+                    WaveformUtils.Gain(leftEarIR, otherGain / WaveformUtils.GetRMS(leftEarIR));
+                    WaveformUtils.Gain(rightEarIR, minus10dB / WaveformUtils.GetRMS(rightEarIR));
+                }
+            }
+            return new VirtualChannel(x, y, leftEarIR, rightEarIR, sampleRate, crossoverFrequency);
         }
 
         /// <summary>
@@ -119,5 +142,15 @@ namespace Cavern.Virtualizer {
         /// Check if the two virtual channels handle the same source channel position.
         /// </summary>
         public bool Equals(VirtualChannel other) => x == other.x && y == other.y;
+
+        /// <summary>
+        /// Precalculated -10 dB as voltage gain. Used by angle gain post-processing.
+        /// </summary>
+        const float minus10dB = .31622776601f;
+
+        /// <summary>
+        /// Precalculated -16 dB as voltage gain. Used by angle gain post-processing for middle channels to prevent double volume.
+        /// </summary>
+        const float minus16dB = .15848931924f;
     }
 }

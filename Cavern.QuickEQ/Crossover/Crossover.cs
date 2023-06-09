@@ -140,6 +140,6 @@ namespace Cavern.QuickEQ.Crossover {
         /// Use this value to mix crossover results to an LFE channel.
         /// The LFE's level is over the mains with 10 dB, this results in level matching.
         /// </summary>
-        protected const float minus10dB = 0.31622776601f;
+        protected const float minus10dB = .31622776601f;
     }
 }
