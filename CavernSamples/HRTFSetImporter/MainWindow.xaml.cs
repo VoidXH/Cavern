@@ -34,10 +34,10 @@ namespace HRTFSetImporter {
 
         static Dictionary<int, Dictionary<int, float[][]>> ImportImpulses(string path, Regex pattern) {
             Settings.Default.LastFolder = path;
-            string[] folders = Directory.GetFiles(path);
+            string[] files = Directory.GetFiles(path);
             Dictionary<int, Dictionary<int, float[][]>> data = new Dictionary<int, Dictionary<int, float[][]>>();
-            for (int file = 0; file < folders.Length; ++file) {
-                string fileName = Path.GetFileName(folders[file]);
+            for (int file = 0; file < files.Length; ++file) {
+                string fileName = Path.GetFileName(files[file]);
                 Match match = pattern.Match(fileName);
                 if (match.Success &&
                     int.TryParse(match.Groups["param1"].Value, out int angle) &&
@@ -45,7 +45,7 @@ namespace HRTFSetImporter {
                     if (!data.ContainsKey(angle)) {
                         data.Add(angle, new Dictionary<int, float[][]>());
                     }
-                    data[angle][distance] = AudioReader.Open(folders[file]).ReadMultichannel();
+                    data[angle][distance] = AudioReader.Open(files[file]).ReadMultichannel();
                 }
             }
             return data;
@@ -61,10 +61,9 @@ namespace HRTFSetImporter {
             if (hValue <= -180) {
                 hValue += 360;
             }
-            builder.AppendLine("\tnew SpatialChannel() {")
-                .Append("\t\tY = ").Append(hValue).Append(", X = ").Append(-w).AppendLine(",")
-                .Append("\t\tLeftEarIR = ").AppendArray(samples[0])
-                .Append("\t\tRightEarIR = ").AppendArray(samples[1])
+            builder.AppendLine("\tnew VirtualChannel(").Append(-w).Append(", ").Append(hValue).Append(",\n")
+                .Append("\t\t").AppendArray(samples[0])
+                .Append("\t\t").AppendArray(samples[1])
                 .AppendLine("\t},");
             return true;
         }
@@ -164,14 +163,14 @@ namespace HRTFSetImporter {
 
         void ImportDirectionalSet(object _, EventArgs e) {
             if (importer.ShowDialog() == System.Windows.Forms.DialogResult.OK) {
-                Dictionary<int, Dictionary<int, float[][]>> data = ImportSet(directionalSetName.Name, hMarker, wMarker);
+                Dictionary<int, Dictionary<int, float[][]>> data = ImportSet(directionalSetName.Text, hMarker, wMarker);
                 if (data == null) {
                     return;
                 }
 
                 List<int> written = new List<int>(); // Already exported channels' hash
                 StringBuilder result = new StringBuilder()
-                    .AppendLine("static readonly SpatialChannel[] spatialChannels = new SpatialChannel[] {");
+                    .AppendLine("static VirtualChannel[] GetDefaultHRIRSet() => new[] {");
                 IOrderedEnumerable<KeyValuePair<int, Dictionary<int, float[][]>>> orderedH = data.OrderBy(entry => entry.Key);
                 foreach (KeyValuePair<int, Dictionary<int, float[][]>> hPoint in orderedH) {
                     IOrderedEnumerable<KeyValuePair<int, float[][]>> orderedW = hPoint.Value.OrderBy(entry => entry.Key);

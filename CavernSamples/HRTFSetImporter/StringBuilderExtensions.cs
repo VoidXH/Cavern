@@ -4,14 +4,10 @@ using System.Text;
 
 namespace HRTFSetImporter {
     static class StringBuilderExtensions {
-        static readonly NumberFormatInfo numberFormat = new NumberFormatInfo {
-            NumberDecimalSeparator = "."
-        };
-
         public static StringBuilder AppendArray(this StringBuilder builder, float[] array) {
             builder.Append("new float[").Append(array.Length).Append("] { ");
             for (int i = 0; i < array.Length; ++i) {
-                string str = array[i].ToString(numberFormat);
+                string str = array[i].ToString(CultureInfo.InvariantCulture);
                 if (str.StartsWith("0.")) {
                     builder.Append(str.AsSpan(1)).Append("f, ");
                 } else if (str.Equals("0")) {
