@@ -42,10 +42,22 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Create the filters that should be used when setting up a channel.
         /// </summary>
-        public PeakingEQ[] CalculateFilters(Equalizer targetToReach) => new PeakingEqualizer(targetToReach) {
-            MinGain = -12,
-            MaxGain = 6
-        }.GetPeakingEQ(SampleRate, firstBand, bandsPerOctave, bandCount);
+        public PeakingEQ[] CalculateFilters(Equalizer targetToReach) {
+            PeakingEQ[] result = new PeakingEqualizer(targetToReach) {
+                MinGain = -12,
+                MaxGain = 6
+            }.GetPeakingEQ(SampleRate, firstBand, bandsPerOctave, bandCount);
+
+            IReadOnlyList<Band> bands = targetToReach.Bands;
+            double maxFreq = bands.Count != 0 ? bands[^1].Frequency : 0;
+            for (int i = 1; i < result.Length; i++) {
+                if (result[i].CenterFreq > maxFreq) {
+                    result[i].Gain = result[i - 1].Gain;
+                }
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Export the filter set to a target file. Since these settings have to be manually entered, no separation is needed.
