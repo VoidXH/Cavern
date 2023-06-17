@@ -10,6 +10,7 @@ namespace VoidX.WPF {
     /// </summary>
     public class TaskEngine : IDisposable {
         static readonly TimeSpan lazyStatusDelta = new TimeSpan(0, 0, 1);
+        static readonly TimeSpan progressUpdateRate = new(0, 0, 0, 0, 16); // About 60 FPS
 
         readonly ProgressBar progressBar;
         readonly TaskbarItemInfo taskbar;
@@ -17,11 +18,27 @@ namespace VoidX.WPF {
 
         Task operation;
         DateTime lastLazyStatus = DateTime.MinValue;
+        DateTime lastProgressBar = DateTime.MinValue;
 
         /// <summary>
         /// A task is running and is not completed or failed.
         /// </summary>
         public bool IsOperationRunning => operation != null && operation.Status == TaskStatus.Running;
+
+        /// <summary>
+        /// Current value of the progress bar, setting this will force a value change unlike <see cref="UpdateProgressBar(double)"/>.
+        /// </summary>
+        public double Progress {
+            get {
+                double val = -1;
+                progressBar?.Dispatcher.Invoke(() => val = progressBar.Value);
+                return val;
+            }
+            set {
+                taskbar?.Dispatcher.Invoke(() => taskbar.ProgressValue = value < 1 ? value : 0);
+                progressBar?.Dispatcher.Invoke(() => progressBar.Value = value);
+            }
+        }
 
         /// <summary>
         /// Set the progress bar and status label to enable progress reporting on the UI.
@@ -35,25 +52,20 @@ namespace VoidX.WPF {
         /// <summary>
         /// Set the progress on the progress bar if it's set.
         /// </summary>
+        /// <remarks>This is the lazy update of the progress bars, use <see cref="Progress"/> for forced updates.</remarks>
         public void UpdateProgressBar(double progress) {
-            taskbar?.Dispatcher.Invoke(() => {
-                if (progress < 1) {
-                    taskbar.ProgressValue = progress;
-                } else {
-                    taskbar.ProgressValue = 0;
-                }
-            });
-            progressBar?.Dispatcher.Invoke(() => {
-                progressBar.Value = progress;
-            });
+            DateTime now = DateTime.Now;
+            if (now - lastProgressBar <= progressUpdateRate) {
+                return;
+            }
+            lastProgressBar = now;
+            Progress = progress;
         }
 
         /// <summary>
         /// Set the status text label, if it's given.
         /// </summary>
-        public void UpdateStatus(string text) {
-            progressLabel?.Dispatcher.Invoke(() => progressLabel.Text = text);
-        }
+        public void UpdateStatus(string text) => progressLabel?.Dispatcher.Invoke(() => progressLabel.Text = text);
 
         /// <summary>
         /// Set the status text label, if it's given. The label is only updated if

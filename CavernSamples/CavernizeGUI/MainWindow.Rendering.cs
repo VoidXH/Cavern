@@ -220,7 +220,7 @@ namespace CavernizeGUI {
         /// Render the content and export it to a channel-based format.
         /// </summary>
         void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
-            taskEngine.UpdateProgressBar(0);
+            taskEngine.Progress = 0;
             taskEngine.UpdateStatus((string)language["Start"]);
             RenderTarget renderTargetRef = null;
             Dispatcher.Invoke(() => renderTargetRef = (RenderTarget)renderTarget.SelectedItem);
@@ -257,7 +257,7 @@ namespace CavernizeGUI {
         /// Decode the source and export it to an object-based format.
         /// </summary>
         void TranscodeTask(Track target, EnvironmentWriter writer) {
-            taskEngine.UpdateProgressBar(0);
+            taskEngine.Progress = 0;
             taskEngine.UpdateStatus((string)language["Start"]);
 
             RenderStats stats;
@@ -275,7 +275,7 @@ namespace CavernizeGUI {
         /// </summary>
         void FinishTask(Track target) {
             taskEngine.UpdateStatus((string)language["ExpOk"]);
-            taskEngine.UpdateProgressBar(1);
+            taskEngine.Progress = 1;
 
             if (Program.ConsoleMode) {
                 Dispatcher.Invoke(Close);

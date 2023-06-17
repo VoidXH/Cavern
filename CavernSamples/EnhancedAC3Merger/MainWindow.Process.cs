@@ -13,7 +13,7 @@ namespace EnhancedAC3Merger {
         /// Perform the merging process.
         /// </summary>
         void Process(TaskEngine engine, InputChannel[][] streams, string fileName) {
-            engine.UpdateProgressBar(0);
+            engine.Progress = 0;
             AudioReader[] files = GetFiles();
             Dictionary<InputChannel, int> fileMap = Associate(files);
             (long length, int sampleRate) = PrepareFiles(files);
@@ -102,7 +102,7 @@ namespace EnhancedAC3Merger {
             for (int i = 0; i < files.Length; i++) {
                 files[i].Dispose();
             }
-            engine.UpdateProgressBar(1);
+            engine.Progress = 1;
         }
     }
 }

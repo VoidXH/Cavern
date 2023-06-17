@@ -183,7 +183,7 @@ namespace CavernizeGUI {
         public void OpenContent(string path) {
             Reset();
             ffmpeg.CheckFFmpeg();
-            taskEngine.UpdateProgressBar(0);
+            taskEngine.Progress = 0;
             OnOutputSelected(null, null);
 
 #if RELEASE

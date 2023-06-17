@@ -190,7 +190,7 @@ namespace WAVChannelReorderer {
             }
 
             process.UpdateStatus("Finished!");
-            process.UpdateProgressBar(1);
+            process.Progress = 1;
         }
 
         /// <summary>
