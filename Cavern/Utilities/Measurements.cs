@@ -367,28 +367,66 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Actual FFT processing, somewhat in-place.
         /// </summary>
-        static void ProcessFFT(Complex[] samples, FFTCache cache, int depth) {
+        static unsafe void ProcessFFT(Complex[] samples, FFTCache cache, int depth) {
             if (samples.Length == 1) {
                 return;
             }
-            Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
-            for (int sample = 0, pair = 0; pair < samples.Length; sample++, pair += 2) {
-                even[sample] = samples[pair];
-                odd[sample] = samples[pair + 1];
+
+            Complex[] even = cache.Even[depth],
+                odd = cache.Odd[depth];
+            fixed (Complex* pSamples = samples)
+            fixed (Complex* pEven = even)
+            fixed (Complex* pOdd = odd) {
+                Complex* result = pSamples,
+                    end = result + samples.Length,
+                    evenRef = pEven,
+                    oddRef = pOdd;
+                while (result != end) {
+                    *evenRef++ = *result++;
+                    *oddRef++ = *result++;
+                }
             }
+
             ProcessFFT(even, cache, --depth);
             ProcessFFT(odd, cache, depth);
-            float[] cosCache = cache.cos,
-                sinCache = cache.sin;
-            int halfLength = samples.Length >> 1,
-                stepMul = cosCache.Length / halfLength;
-            for (int i = 0; i < halfLength; i++) {
-                float oddReal = odd[i].Real * cosCache[i * stepMul] - odd[i].Imaginary * sinCache[i * stepMul],
-                    oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul];
-                samples[i].Real = even[i].Real + oddReal;
-                samples[i].Imaginary = even[i].Imaginary + oddImag;
-                samples[i + halfLength].Real = even[i].Real - oddReal;
-                samples[i + halfLength].Imaginary = even[i].Imaginary - oddImag;
+
+            fixed (Complex* pSamples = samples)
+            fixed (Complex* pEven = even)
+            fixed (Complex* pOdd = odd)
+            fixed (float* pCosCache = cache.cos)
+            fixed (float* pSinCache = cache.sin) {
+                int halfLength = samples.Length >> 1,
+                    stepMul = cache.cos.Length / halfLength;
+                Complex* result = pSamples,
+                    mirror = result + halfLength,
+                    end = mirror,
+                    evenRef = pEven,
+                    oddRef = pOdd;
+                float* cosCache = pCosCache,
+                    sinCache = pSinCache;
+
+                while (result != end) {
+                    float evenReal = (*evenRef).Real,
+                        evenImag = (*evenRef).Imaginary,
+                        oddRealSource = (*oddRef).Real,
+                        oddImagSource = (*oddRef).Imaginary,
+                        cachedCos = *cosCache,
+                        cachedSin = *sinCache,
+                        oddReal = oddRealSource * cachedCos - oddImagSource * cachedSin,
+                        oddImag = oddRealSource * cachedSin + oddImagSource * cachedCos;
+
+                    (*result).Real = evenReal + oddReal;
+                    (*result).Imaginary = evenImag + oddImag;
+                    (*mirror).Real = evenReal - oddReal;
+                    (*mirror).Imaginary = evenImag - oddImag;
+
+                    result++;
+                    evenRef++;
+                    oddRef++;
+                    mirror++;
+                    cosCache += stepMul;
+                    sinCache += stepMul;
+                }
             }
         }
 

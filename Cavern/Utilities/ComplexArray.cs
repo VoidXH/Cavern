@@ -1,4 +1,6 @@
-﻿namespace Cavern.Utilities {
+﻿using System.Runtime.CompilerServices;
+
+namespace Cavern.Utilities {
     /// <summary>
     /// Operations on complex arrays.
     /// </summary>
@@ -6,20 +8,34 @@
         /// <summary>
         /// Convert all elements in the <paramref name="source"/> to their conjugates.
         /// </summary>
-        public static void Conjugate(this Complex[] source) {
-            for (int i = 0; i < source.Length; i++) {
-                source[i].Imaginary = -source[i].Imaginary;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void Conjugate(this Complex[] source) {
+            fixed (Complex* pSource = source) {
+                Complex* src = pSource,
+                    end = src + source.Length;
+                while (src != end) {
+                    (*src).Imaginary = -(*src).Imaginary;
+                    src++;
+                }
             }
         }
 
         /// <summary>
         /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
         /// </summary>
-        public static void Convolve(this Complex[] source, Complex[] other) {
-            for (int i = 0; i < source.Length; ++i) {
-                float oldReal = source[i].Real;
-                source[i].Real = source[i].Real * other[i].Real - source[i].Imaginary * other[i].Imaginary;
-                source[i].Imaginary = oldReal * other[i].Imaginary + source[i].Imaginary * other[i].Real;
+        public static unsafe void Convolve(this Complex[] source, Complex[] other) {
+            fixed (Complex* pSource = source)
+            fixed (Complex* pOther = other) {
+                Complex* lhs = pSource,
+                    rhs = pOther,
+                    end = pSource + source.Length;
+                while (lhs != end) {
+                    float oldReal = (*lhs).Real;
+                    (*lhs).Real = (*lhs).Real * (*rhs).Real - (*lhs).Imaginary * (*rhs).Imaginary;
+                    (*lhs).Imaginary = oldReal * (*rhs).Imaginary + (*lhs).Imaginary * (*rhs).Real;
+                    lhs++;
+                    rhs++;
+                }
             }
         }
 

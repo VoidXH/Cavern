@@ -117,14 +117,19 @@ namespace Cavern.Filters {
         /// <summary>
         /// In case there are more input samples than the size of the filter, split it in parts.
         /// </summary>
-        void ProcessTimeslot(float[] samples, int from, int to) {
+        unsafe void ProcessTimeslot(float[] samples, int from, int to) {
             // Move samples and pad present
-            for (int i = from; i < to; ++i) {
-                present[i - from] = new Complex(samples[i]);
+            int sourceLength = to - from;
+            fixed (float* pSamples = samples)
+            fixed (Complex* pPresent = present) {
+                float* sample = pSamples + from,
+                    lastSample = sample + sourceLength;
+                Complex* timeslot = pPresent;
+                while (sample != lastSample) {
+                    *timeslot++ = new Complex(*sample++);
+                }
             }
-            for (int i = to - from; i < present.Length; ++i) {
-                present[i].Clear();
-            }
+            Array.Clear(present, sourceLength, present.Length - sourceLength);
 
             // Perform the convolution
             present.InPlaceFFT(cache);
@@ -132,8 +137,14 @@ namespace Cavern.Filters {
             present.InPlaceIFFT(cache);
 
             // Append the result to the future
-            for (int i = 0; i < present.Length; ++i) {
-                future[i + delay] += present[i].Real;
+            fixed (Complex* pPresent = present)
+            fixed (float* pFuture = future) {
+                Complex* source = pPresent,
+                    end = source + present.Length;
+                float* destination = pFuture + delay;
+                while (source != end) {
+                    *destination++ += (*source++).Real;
+                }
             }
 
             // Write the output and remove those samples from the future

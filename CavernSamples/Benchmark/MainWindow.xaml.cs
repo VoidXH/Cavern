@@ -50,6 +50,6 @@ namespace Benchmark {
         /// <summary>
         /// Perform a convolution benchmark.
         /// </summary>
-        void StartConvolution(object sender, RoutedEventArgs e) => Benchmark(new Convolution(filterSize.Value));
+        void StartConvolution(object sender, RoutedEventArgs e) => Benchmark(new Convolution(filterSize.Value, blockSize.Value));
     }
 }
