@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows;
 
+using Cavern.Utilities;
+
 using Benchmark.Benchmarks;
 using VoidX.WPF;
 
@@ -16,6 +18,7 @@ namespace Benchmark {
         /// </summary>
         public MainWindow() {
             InitializeComponent();
+            cavernAmp.IsEnabled = CavernAmp.Available;
             runner = new TaskEngine(progress, null, status);
         }
 
@@ -31,6 +34,7 @@ namespace Benchmark {
         /// Perform a benchmark and display performance metrics.
         /// </summary>
         void Benchmark(Benchmarks.Benchmark procedure) {
+            CavernAmp.Bypass = !cavernAmp.IsChecked.Value;
             int secs = seconds.Value;
             DateTime endTime = DateTime.Now + TimeSpan.FromSeconds(secs);
             int steps = 0;

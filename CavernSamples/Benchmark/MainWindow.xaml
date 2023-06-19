@@ -18,6 +18,7 @@
                     <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0" TextWrapping="Wrap"
                                Text="Benchmark seconds:"/>
                     <WPF:NumericUpDown x:Name="seconds" Margin="10,31,10,0" VerticalAlignment="Top" Value="5"/>
+                    <CheckBox x:Name="cavernAmp" Content="Use CavernAmp" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top"/>
                 </Grid>
             </GroupBox>
             <GroupBox Header="Convolution" HorizontalAlignment="Left" Width="200" Margin="155,0,0,0">
