@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
 
@@ -7,7 +8,8 @@ namespace Cavern.Filters {
     /// Performs an optimized convolution.
     /// </summary>
     /// <remarks>This filter is using the overlap and add method using FFTs, with non-thread-safe caches.
-    /// For a thread-safe fast convolver, use <see cref="ThreadSafeFastConvolver"/>.</remarks>
+    /// For a thread-safe fast convolver, use <see cref="ThreadSafeFastConvolver"/>. This filter is also
+    /// only for a single channel, use <see cref="MultichannelConvolver"/> for multichannel signals.</remarks>
     public class FastConvolver : Filter {
         /// <summary>
         /// Created convolution filter in Fourier-space.
@@ -71,6 +73,20 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
+        /// Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// </summary>
+        /// <param name="samples">Input samples</param>
+        /// <param name="channel">Channel to filter</param>
+        /// <param name="channels">Total channels</param>
+        public override void Process(float[] samples, int channel, int channels) {
+            int start = 0,
+                end = samples.Length / channels;
+            while (start < end) {
+                ProcessTimeslot(samples, channel, channels, start, Math.Min(end, start += filter.Length >> 1));
+            }
+        }
+
+        /// <summary>
         /// Performs the convolution of two real signals. The FFT of the result is returned.
         /// </summary>
         /// <remarks>Requires <paramref name="excitation"/> and <paramref name="impulse"/>
@@ -117,6 +133,9 @@ namespace Cavern.Filters {
         /// <summary>
         /// In case there are more input samples than the size of the filter, split it in parts.
         /// </summary>
+        /// <param name="samples">Signal that contains the timeslot to process</param>
+        /// <param name="from">First sample to process (inclusive)</param>
+        /// <param name="to">Last sample to process (exclusive)</param>
         unsafe void ProcessTimeslot(float[] samples, int from, int to) {
             // Move samples and pad present
             int sourceLength = to - from;
@@ -131,6 +150,61 @@ namespace Cavern.Filters {
             }
             Array.Clear(present, sourceLength, present.Length - sourceLength);
 
+            ProcessCache();
+
+            // Write the output and remove those samples from the future
+            to -= from;
+            Array.Copy(future, 0, samples, from, to);
+            Array.Copy(future, to, future, 0, future.Length - to);
+            Array.Clear(future, future.Length - to, to);
+        }
+
+        /// <summary>
+        /// In case there are more input samples than the size of the filter, split it in parts.
+        /// </summary>
+        /// <param name="samples">Interlaced signal that contains the timeslot to process</param>
+        /// <param name="channel">The channel to process</param>
+        /// <param name="channels">Total channels contained in the <paramref name="samples"/></param>
+        /// <param name="from">First sample to process (for a single channel, inclusive)</param>
+        /// <param name="to">Last sample to process (for a single channel, exclusive)</param>
+        unsafe void ProcessTimeslot(float[] samples, int channel, int channels, int from, int to) {
+            // Move samples and pad present
+            int sourceLength = to - from;
+            fixed (float* pSamples = samples)
+            fixed (Complex* pPresent = present) {
+                float* sample = pSamples + from * channels + channel,
+                    lastSample = sample + sourceLength * channels;
+                Complex* timeslot = pPresent;
+                while (sample != lastSample) {
+                    *timeslot++ = new Complex(*sample);
+                    sample += channels;
+                }
+            }
+            Array.Clear(present, sourceLength, present.Length - sourceLength);
+
+            ProcessCache();
+
+            // Write the output and remove those samples from the future
+            fixed (float* pSamples = samples)
+            fixed (float* pFuture = future) {
+                float* source = pFuture,
+                    sample = pSamples + from * channels + channel,
+                    lastSample = sample + sourceLength * channels;
+                while (sample != lastSample) {
+                    *sample = *source++;
+                    sample += channels;
+                }
+            }
+            to -= from;
+            Array.Copy(future, to, future, 0, future.Length - to);
+            Array.Clear(future, future.Length - to, to);
+        }
+
+        /// <summary>
+        /// When <see cref="present"/> is filled with the source samples, it will be convolved and put into the <see cref="future"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        unsafe void ProcessCache() {
             // Perform the convolution
             present.InPlaceFFT(cache);
             present.Convolve(filter);
@@ -146,12 +220,6 @@ namespace Cavern.Filters {
                     *destination++ += (*source++).Real;
                 }
             }
-
-            // Write the output and remove those samples from the future
-            to -= from;
-            Array.Copy(future, 0, samples, from, to);
-            Array.Copy(future, to, future, 0, future.Length - to);
-            Array.Clear(future, future.Length - to, to);
         }
     }
 }

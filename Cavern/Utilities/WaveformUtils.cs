@@ -126,9 +126,16 @@ namespace Cavern.Utilities {
         /// <param name="channel">Target channel</param>
         /// <param name="channels">Channel count</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ExtractChannel(float[] from, float[] to, int channel, int channels) {
-            for (int sample = 0, samples = from.Length / channels; sample < samples; ++sample) {
-                to[sample] = from[sample * channels + channel];
+        public static unsafe void ExtractChannel(float[] from, float[] to, int channel, int channels) {
+            fixed (float* pFrom = from)
+            fixed (float* pTo = to) {
+                float* source = pFrom + channel,
+                    destination = pTo,
+                    end = pTo + to.Length;
+                while (destination != end) {
+                    *destination++ = *source;
+                    source += channels;
+                }
             }
         }
 

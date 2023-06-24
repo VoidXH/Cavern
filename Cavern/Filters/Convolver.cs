@@ -5,6 +5,8 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple convolution window filter.
     /// </summary>
+    /// <remarks>This filter is performing convolution by definition, which is faster if the window size is very small.
+    /// For most cases, <see cref="FastConvolver"/> is preferred.</remarks>
     public class Convolver : Filter {
         /// <summary>
         /// Additional impulse delay in samples.
