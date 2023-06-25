@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Version>2.0</Version>
+    <Version>2.0.1</Version>
     <Authors>VoidX</Authors>
     <Description>Object-based 3D audio rendering and (up)mixing engine.</Description>
     <Copyright>Copyright © Bence Sgánetz 2016-2023</Copyright>
