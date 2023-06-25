@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 using Cavern.Filters;
 using Cavern.Utilities;
@@ -62,6 +61,16 @@ namespace Cavern.Virtualizer {
         /// Delayed center channel signal for center hack.
         /// </summary>
         float[] delayedCenter;
+
+        /// <summary>
+        /// Parallel executor of channel filtering.
+        /// </summary>
+        readonly Parallelizer processor;
+
+        /// <summary>
+        /// Convolution filters for each ear and virtual channel to simulate a spatial environment.
+        /// </summary>
+        public VirtualizerFilter() => processor = new Parallelizer(ProcessChannel);
 
         /// <summary>
         /// Apply a new set of HRIR filters. The reference distance of the sound sources from the subject will be 1 meter.
@@ -163,7 +172,7 @@ namespace Cavern.Virtualizer {
                     WaveformUtils.Mix(delayedCenter, originalSplit[right]);
                 }
             }
-            Parallel.For(0, channels, ProcessChannel);
+            processor.For(0, channels);
 
             // Stereo downmix
             output.Clear();

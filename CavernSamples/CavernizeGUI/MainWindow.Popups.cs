@@ -22,7 +22,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Room correction is active and the loaded filter set for it is valid for the output system.
         /// </summary>
-        bool FiltersUsed => roomCorrection != null && Listener.Channels.Length == roomCorrection.Length;
+        bool FiltersUsed => roomCorrection != null && Listener.Channels.Length == roomCorrection.Channels;
 
         /// <summary>
         /// Sample rate of the <see cref="roomCorrection"/> filters.
@@ -32,7 +32,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Convolution filter for each channel to be applied on export.
         /// </summary>
-        float[][] roomCorrection;
+        MultichannelWaveform roomCorrection;
 
         /// <summary>
         /// Try to load a HRIR file and return true on success.
@@ -86,7 +86,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Load a set of room correction filters to EQ the exported content.
         /// </summary>
-        void LoadFilters(object _, RoutedEventArgs e) {
+        void LoadFilters(object _, RoutedEventArgs __) {
             if (!filters.IsChecked) {
                 OpenFileDialog dialog = new() {
                     Filter = (string)language["FiltF"]
@@ -98,12 +98,15 @@ namespace CavernizeGUI {
                 string pathStart = dialog.FileName[..cutoff] + ' ';
 
                 ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).GetNameMappedChannels();
-                roomCorrection = new float[channels.Length][];
+                float[][] roomCorrectionSource = new float[channels.Length][];
                 for (int i = 0; i < channels.Length; i++) {
                     string file = $"{pathStart}{channels[i].GetShortName()}.wav";
+                    if (!File.Exists(file)) {
+                        file = $"{pathStart}{i + 1}.wav";
+                    }
                     if (File.Exists(file)) {
                         using RIFFWaveReader reader = new RIFFWaveReader(file);
-                        roomCorrection[i] = reader.Read();
+                        roomCorrectionSource[i] = reader.Read();
                         roomCorrectionSampleRate = reader.SampleRate;
                     } else {
                         Error(string.Format((string)language["FiltN"], ChannelPrototype.Mapping[(int)channels[i]].Name,
@@ -113,6 +116,12 @@ namespace CavernizeGUI {
                     }
                 }
                 filters.IsChecked = true;
+                try {
+                    roomCorrection = new MultichannelWaveform(roomCorrectionSource);
+                } catch (Exception e) {
+                    Error(e.Message);
+                    filters.IsChecked = false;
+                }
             } else {
                 filters.IsChecked = false;
                 roomCorrection = null;

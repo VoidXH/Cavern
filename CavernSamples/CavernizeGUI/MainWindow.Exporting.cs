@@ -109,12 +109,9 @@ namespace CavernizeGUI {
             Progressor progressor = new Progressor(target.Length, listener, taskEngine);
             bool customMuting = dynamicOnly || heightOnly;
 
-            Filter[] filters = null;
+            MultichannelConvolver filters = null;
             if (FiltersUsed) {
-                filters = new Filter[roomCorrection.Length];
-                for (int ch = 0; ch < Listener.Channels.Length; ch++) {
-                    filters[ch] = new ThreadSafeFastConvolver(roomCorrection[ch]);
-                }
+                filters = new MultichannelConvolver(roomCorrection);
             }
 
             // Virtualization is done with the buffer instead of each update in the listener to optimize FFT sizes
@@ -150,7 +147,7 @@ namespace CavernizeGUI {
                     Array.Copy(result, 0, writeCache, cachePosition, result.Length);
                     cachePosition += result.Length;
                     if (cachePosition == writeCache.Length || flush) {
-                        filters?.ProcessAllChannels(writeCache);
+                        filters?.Process(writeCache);
 
                         if (virtualizer == null) {
                             if (renderTarget is not DownmixedRenderTarget downmix) {
