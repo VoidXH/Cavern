@@ -33,8 +33,10 @@ namespace Benchmark {
         /// <summary>
         /// Perform a benchmark and display performance metrics.
         /// </summary>
-        void Benchmark(Benchmarks.Benchmark procedure) {
+        /// <param name="procedureSetup">The generator of the procedure performing instance.</param>
+        void Benchmark(Func<Benchmarks.Benchmark> procedureSetup) {
             CavernAmp.Bypass = !cavernAmp.IsChecked.Value;
+            Benchmarks.Benchmark procedure = procedureSetup();
             int secs = seconds.Value;
             DateTime endTime = DateTime.Now + TimeSpan.FromSeconds(secs);
             int steps = 0;
@@ -54,6 +56,7 @@ namespace Benchmark {
         /// <summary>
         /// Perform a convolution benchmark.
         /// </summary>
-        void StartConvolution(object sender, RoutedEventArgs e) => Benchmark(new Convolution(filterSize.Value, blockSize.Value));
+        void StartConvolution(object sender, RoutedEventArgs e) =>
+            Benchmark(() => new Convolution(filterSize.Value, blockSize.Value, channels.Value));
     }
 }

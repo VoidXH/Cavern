@@ -1,11 +1,20 @@
-﻿using Cavern.Filters;
+﻿using Cavern;
+using Cavern.Filters;
 
 namespace Benchmark.Benchmarks {
     /// <summary>
     /// Benchmarks Cavern's <see cref="FastConvolver"/> filter.
     /// </summary>
     internal class Convolution : Benchmark {
-        readonly FastConvolver filter;
+        /// <summary>
+        /// Instance of the used convolution filter.
+        /// </summary>
+        readonly Filter filter;
+
+        /// <summary>
+        /// Samples processed per channel per frame. Used for calculating performance.
+        /// </summary>
+        readonly int blockSize;
 
         /// <summary>
         /// The example audio block to process.
@@ -15,9 +24,15 @@ namespace Benchmark.Benchmarks {
         /// <summary>
         /// Constructs a benchmark for Cavern's <see cref="FastConvolver"/> filter.
         /// </summary>
-        public Convolution(int length, int blockSize) {
-            filter = new FastConvolver(new float[length]);
-            block = new float[blockSize];
+        public Convolution(int length, int blockSize, int channels) {
+            this.blockSize = blockSize;
+            if (channels == 1) {
+                filter = new FastConvolver(new float[length]);
+                block = new float[blockSize];
+            } else {
+                filter = new MultichannelConvolver(new MultichannelWaveform(channels, length));
+                block = new float[blockSize * channels];
+            }
         }
 
         /// <summary>
@@ -29,6 +44,6 @@ namespace Benchmark.Benchmarks {
         /// Displays the result of the benchmark in a relevant metric.
         /// </summary>
         public override string ToString(int steps, int seconds) =>
-            $"{steps * block.Length / (float)(seconds * 48000):0.0} seconds of audio processed every second at 48 kHz";
+            $"{steps * blockSize / (float)(seconds * 48000):0.0} seconds of audio processed every second at 48 kHz";
     }
 }

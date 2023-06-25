@@ -155,15 +155,19 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
         /// </summary>
-        public static void InPlaceIFFT(this Complex[] samples, FFTCache cache) {
+        public static unsafe void InPlaceIFFT(this Complex[] samples, FFTCache cache) {
             if (CavernAmp.Available) {
                 CavernAmp.InPlaceIFFT(samples, cache);
                 return;
             }
             ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
             float multiplier = 1f / samples.Length;
-            for (int i = 0; i < samples.Length; i++) {
-                samples[i] *= multiplier;
+            fixed (Complex* pSamples = samples) {
+                Complex* sample = pSamples,
+                    end = sample + samples.Length;
+                while (sample != end) {
+                    *sample++ *= multiplier;
+                }
             }
         }
 

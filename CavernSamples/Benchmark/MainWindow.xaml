@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Benchmark"
         xmlns:WPF="clr-namespace:VoidX.WPF" x:Class="Benchmark.MainWindow"
         mc:Ignorable="d"
-        Title="Cavern Benchmark" Height="180" Width="500">
+        Title="Cavern Benchmark" Height="210" Width="500">
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <ProgressBar x:Name="progress" Height="16" Width="250" Maximum="1"/>
@@ -25,10 +25,13 @@
                 <Grid>
                     <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,14,0,0" TextWrapping="Wrap" Text="Filter size:"/>
                     <WPF:NumericUpDown x:Name="filterSize" Margin="0,10,10,0" VerticalAlignment="Top" Width="100"
-                                       Minimum="1" Maximum="131072" Value="8192" HorizontalAlignment="Right"/>
+                                       Minimum="1" Maximum="1048576" Value="8192" HorizontalAlignment="Right"/>
                     <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,43,0,0" TextWrapping="Wrap" Text="Block size:"/>
                     <WPF:NumericUpDown x:Name="blockSize" Margin="0,39,10,0" VerticalAlignment="Top" Width="100"
                                        Minimum="1" Maximum="131072" Value="512" HorizontalAlignment="Right"/>
+                    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,72,0,0" TextWrapping="Wrap" Text="Channels:"/>
+                    <WPF:NumericUpDown x:Name="channels" Margin="0,68,10,0" VerticalAlignment="Top" Width="100"
+                                       Minimum="1" Maximum="128" Value="1" HorizontalAlignment="Right"/>
                     <Button Margin="0,0,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" Height="20"
                             Content="Start" Click="StartConvolution"/>
                 </Grid>

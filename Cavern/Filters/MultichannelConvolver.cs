@@ -8,7 +8,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Each channel's actual filter and reuseable extracted sample block cache.
         /// </summary>
-        readonly (ThreadSafeFastConvolver filter, float[] cache)[] workers;
+        readonly ThreadSafeFastConvolver[] workers;
 
         /// <summary>
         /// Performs the convolution for each channel on a different thread.
@@ -26,11 +26,11 @@ namespace Cavern.Filters {
         /// <param name="impulses">The convolution filters' impulse responses for each channel that will be present in the signal
         /// that will be used to call <see cref="Filter.Process(float[])"/> with.</param>
         public MultichannelConvolver(MultichannelWaveform impulses) {
-            workers = new (ThreadSafeFastConvolver filter, float[] cache)[impulses.Channels];
+            workers = new ThreadSafeFastConvolver[impulses.Channels];
             for (int i = 0; i < workers.Length; i++) {
-                workers[i] = (new ThreadSafeFastConvolver(impulses[i]), new float[0]);
+                workers[i] = new ThreadSafeFastConvolver(impulses[i]);
             }
-            threader = new Parallelizer(ch => workers[ch].filter.Process(samples, ch, workers.Length));
+            threader = new Parallelizer(Step);
         }
 
         /// <summary>
@@ -48,6 +48,11 @@ namespace Cavern.Filters {
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) =>
-            workers[channel].filter.Process(samples, channel, channels);
+            workers[channel].Process(samples, channel, channels);
+
+        /// <summary>
+        /// The operation the <see cref="workers"/> perform.
+        /// </summary>
+        void Step(int channel) => workers[channel].Process(samples, channel, workers.Length);
     }
 }
