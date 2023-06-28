@@ -87,7 +87,7 @@ namespace Cavern.Format.Container {
         }
 
         /// <summary>
-        /// Write the frames that are part of the next block with of a given <see cref="duration"/>.
+        /// Write the frames that are part of the next block with of a given <paramref name="blockDuration"/>.
         /// </summary>
         /// <returns>The writing has finished.</returns>
         public override bool WriteBlock(double blockDuration) {

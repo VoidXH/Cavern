@@ -131,7 +131,7 @@ namespace Cavern.Utilities {
             fixed (float* pTo = to) {
                 float* source = pFrom + channel,
                     destination = pTo,
-                    end = pTo + to.Length;
+                    end = pTo + Math.Min(from.Length, to.Length);
                 while (destination != end) {
                     *destination++ = *source;
                     source += channels;
