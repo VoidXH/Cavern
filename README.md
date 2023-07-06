@@ -60,6 +60,8 @@ These examples use the Cavern library to show how it works. The solution
 containing all sample projects is found at `CavernSamples/CavernSamples.sln`.
 The same build instructions apply as to the base project.
 
+Single-purpose sample codes are found under `docs/Code`.
+
 ### Cavern for Unity
 Open the `CavernUnity DLL.sln` solution with Microsoft Visual Studio 2022.
 Remove the references from the CavernUnity DLL project to UnityEngine and
