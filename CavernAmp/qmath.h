@@ -15,6 +15,11 @@ inline int log2(const int x) {
   return y;
 }
 
+inline int log2Ceil(const int x) {
+    int y = log2(x);
+    return y + ((1 << y) != x);
+}
+
 // Sum absolute values of elements in an array.
 float SumAbs(float* array, int arrayLength);
 

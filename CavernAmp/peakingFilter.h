@@ -6,7 +6,7 @@
 #define Q_REF 0.7071067811865475
 
 // Simple first-order biquad filter.
-class PeakingFilter {
+class PeakingFilter /*: public Filter*/ {
 private:
     double centerFreq, q, gain;
     int sampleRate;

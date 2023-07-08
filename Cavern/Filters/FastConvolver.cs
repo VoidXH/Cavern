@@ -10,7 +10,14 @@ namespace Cavern.Filters {
     /// <remarks>This filter is using the overlap and add method using FFTs, with non-thread-safe caches.
     /// For a thread-safe fast convolver, use <see cref="ThreadSafeFastConvolver"/>. This filter is also
     /// only for a single channel, use <see cref="MultichannelConvolver"/> for multichannel signals.</remarks>
-    public class FastConvolver : Filter {
+    public class FastConvolver : Filter, IDisposable {
+#if FORCE_AMP // Removed as C++ is slower than CLR
+        /// <summary>
+        /// CavernAmp instance of a FastConvolver.
+        /// </summary>
+        readonly IntPtr native;
+#endif
+
         /// <summary>
         /// Created convolution filter in Fourier-space.
         /// </summary>
@@ -45,6 +52,12 @@ namespace Cavern.Filters {
         /// Constructs an optimized convolution with added delay.
         /// </summary>
         public FastConvolver(float[] impulse, int delay) {
+#if FORCE_AMP
+            if (CavernAmp.Available) {
+                native = CavernAmp.FastConvolver_Create(impulse, delay);
+                return;
+            }
+#endif
             int fftSize = 2 << QMath.Log2Ceil(impulse.Length); // Zero padding for the falloff to have space
             cache = CreateCache(fftSize);
             filter = new Complex[fftSize];
@@ -66,6 +79,12 @@ namespace Cavern.Filters {
         /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
         /// </summary>
         public override void Process(float[] samples) {
+#if FORCE_AMP
+            if (native != IntPtr.Zero) {
+                CavernAmp.FastConvolver_Process(native, samples, 0, 1);
+                return;
+            }
+#endif
             int start = 0;
             while (start < samples.Length) {
                 ProcessTimeslot(samples, start, Math.Min(samples.Length, start += filter.Length >> 1));
@@ -73,17 +92,34 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
-        /// Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.
+        /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
         /// </summary>
         /// <param name="samples">Input samples</param>
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
+#if FORCE_AMP
+            if (native != IntPtr.Zero) {
+                CavernAmp.FastConvolver_Process(native, samples, channel, channels);
+                return;
+            }
+#endif
             int start = 0,
                 end = samples.Length / channels;
             while (start < end) {
                 ProcessTimeslot(samples, channel, channels, start, Math.Min(end, start += filter.Length >> 1));
             }
+        }
+
+        /// <summary>
+        /// Free up the native resources if they were used.
+        /// </summary>
+        public void Dispose() {
+#if FORCE_AMP
+            if (native != IntPtr.Zero) {
+                CavernAmp.FastConvolver_Dispose(native);
+            }
+#endif
         }
 
         /// <summary>
@@ -150,7 +186,7 @@ namespace Cavern.Filters {
             }
             Array.Clear(present, sourceLength, present.Length - sourceLength);
 
-            ProcessCache();
+            ProcessCache(sourceLength + (filter.Length >> 1));
 
             // Write the output and remove those samples from the future
             to -= from;
@@ -182,7 +218,7 @@ namespace Cavern.Filters {
             }
             Array.Clear(present, sourceLength, present.Length - sourceLength);
 
-            ProcessCache();
+            ProcessCache(sourceLength + (filter.Length >> 1));
 
             // Write the output and remove those samples from the future
             fixed (float* pSamples = samples)
@@ -203,8 +239,10 @@ namespace Cavern.Filters {
         /// <summary>
         /// When <see cref="present"/> is filled with the source samples, it will be convolved and put into the <see cref="future"/>.
         /// </summary>
+        /// <param name="maxResultLength">The maximum number of samples the convolution can result in, which equals
+        /// block samples + filter samples.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        unsafe void ProcessCache() {
+        unsafe void ProcessCache(int maxResultLength) {
             // Perform the convolution
             present.InPlaceFFT(cache);
             present.Convolve(filter);
@@ -213,10 +251,10 @@ namespace Cavern.Filters {
             // Append the result to the future
             fixed (Complex* pPresent = present)
             fixed (float* pFuture = future) {
-                Complex* source = pPresent,
-                    end = source + present.Length;
-                float* destination = pFuture + delay;
-                while (source != end) {
+                Complex* source = pPresent;
+                float* destination = pFuture + delay,
+                    end = destination + maxResultLength;
+                while (destination != end) {
                     *destination++ += (*source++).Real;
                 }
             }

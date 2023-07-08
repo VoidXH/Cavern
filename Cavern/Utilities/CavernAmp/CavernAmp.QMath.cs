@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
 namespace Cavern.Utilities {
+    // Native versions of QMath functions.
     public static partial class CavernAmp {
         /// <summary>
         /// Multiply the values of both arrays together and add these multiples together.

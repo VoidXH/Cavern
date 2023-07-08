@@ -34,14 +34,29 @@
 		<Unit filename="complex.h">
 			<Option virtualFolder="Utilities/Headers/" />
 		</Unit>
+		<Unit filename="complexArray.cpp">
+			<Option virtualFolder="Utilities/Sources/" />
+		</Unit>
+		<Unit filename="complexArray.h">
+			<Option virtualFolder="Utilities/Headers/" />
+		</Unit>
 		<Unit filename="export.h">
 			<Option virtualFolder="Utilities/Headers/" />
+		</Unit>
+		<Unit filename="fastConvolver.cpp">
+			<Option virtualFolder="Filters/Sources/" />
+		</Unit>
+		<Unit filename="fastConvolver.h">
+			<Option virtualFolder="Filters/Headers/" />
 		</Unit>
 		<Unit filename="fftcache.cpp">
 			<Option virtualFolder="QuickEQ/Sources/" />
 		</Unit>
 		<Unit filename="fftcache.h">
 			<Option virtualFolder="QuickEQ/Headers/" />
+		</Unit>
+		<Unit filename="filter.h">
+			<Option virtualFolder="Filters/Headers/" />
 		</Unit>
 		<Unit filename="filterAnalyzer.cpp">
 			<Option virtualFolder="QuickEQ/Sources/" />
