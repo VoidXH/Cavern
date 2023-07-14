@@ -23,7 +23,7 @@ Cavernize.
   * Limitless Audio Format
   * RIFF WAVE
   * Audio Definition Model Broadcast Wave Format
-  * Supported containers: .ac3, .eac3, .ec3, .laf, .mka, .mkv, .mov, .mp4, .qt, .wav, .weba, .webm
+  * Supported containers: .ac3, .eac3, .ec3, .laf, .m4a, .m4v, .mka, .mkv, .mov, .mp4, .qt, .wav, .weba, .webm
 * Advanced self-calibration with a microphone
   * Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
   * Uniformity can be achieved without a calibration file
