@@ -14,7 +14,7 @@ namespace Cavern.Utilities {
                 Complex* src = pSource,
                     end = src + source.Length;
                 while (src != end) {
-                    (*src).Imaginary = -(*src).Imaginary;
+                    src->Imaginary = -src->Imaginary;
                     src++;
                 }
             }
@@ -30,9 +30,9 @@ namespace Cavern.Utilities {
                     rhs = pOther,
                     end = pSource + source.Length;
                 while (lhs != end) {
-                    float oldReal = (*lhs).Real;
-                    (*lhs).Real = (*lhs).Real * (*rhs).Real - (*lhs).Imaginary * (*rhs).Imaginary;
-                    (*lhs).Imaginary = oldReal * (*rhs).Imaginary + (*lhs).Imaginary * (*rhs).Real;
+                    float oldReal = lhs->Real;
+                    lhs->Real = lhs->Real * rhs->Real - lhs->Imaginary * rhs->Imaginary;
+                    lhs->Imaginary = oldReal * rhs->Imaginary + lhs->Imaginary * rhs->Real;
                     lhs++;
                     rhs++;
                 }

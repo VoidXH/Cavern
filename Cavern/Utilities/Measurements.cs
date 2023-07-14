@@ -410,19 +410,19 @@ namespace Cavern.Utilities {
                     sinCache = pSinCache;
 
                 while (result != end) {
-                    float evenReal = (*evenRef).Real,
-                        evenImag = (*evenRef).Imaginary,
-                        oddRealSource = (*oddRef).Real,
-                        oddImagSource = (*oddRef).Imaginary,
+                    float evenReal = evenRef->Real,
+                        evenImag = evenRef->Imaginary,
+                        oddRealSource = oddRef->Real,
+                        oddImagSource = oddRef->Imaginary,
                         cachedCos = *cosCache,
                         cachedSin = *sinCache,
                         oddReal = oddRealSource * cachedCos - oddImagSource * cachedSin,
                         oddImag = oddRealSource * cachedSin + oddImagSource * cachedCos;
 
-                    (*result).Real = evenReal + oddReal;
-                    (*result).Imaginary = evenImag + oddImag;
-                    (*mirror).Real = evenReal - oddReal;
-                    (*mirror).Imaginary = evenImag - oddImag;
+                    result->Real = evenReal + oddReal;
+                    result->Imaginary = evenImag + oddImag;
+                    mirror->Real = evenReal - oddReal;
+                    mirror->Imaginary = evenImag - oddImag;
 
                     result++;
                     evenRef++;

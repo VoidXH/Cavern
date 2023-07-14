@@ -53,8 +53,8 @@ void FastConvolver::ProcessTimeslot(float *samples, int channel, int channels, i
         *lastSample = sample + sourceLength * channels;
     Complex* timeslot = present;
     while (sample != lastSample) {
-        (*timeslot).real = *sample;
-        (*timeslot).imaginary = 0;
+        timeslot->real = *sample;
+        timeslot->imaginary = 0;
         timeslot++;
         sample += channels;
     }
