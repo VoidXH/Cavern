@@ -110,6 +110,10 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         /// <remarks>Top rears are used instead of sides for smooth height transitions and WAVEFORMATEXTENSIBLE support.</remarks>
         public static readonly RenderTarget[] Targets = {
+            new RenderTarget("4.0.4", new[] {
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
+            }),
             new RenderTarget("4.1.1", new[] {
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearCenter, ReferenceChannel.TopFrontCenter
