@@ -135,6 +135,17 @@ namespace Cavern {
             } else {
                 Clip.GetDataNonLooping(Rendered, TimeSamples);
             }
+
+            TimeSamples += PitchedUpdateRate;
+            if (TimeSamples >= Clip.Samples) {
+                if (Loop) {
+                    TimeSamples %= Clip.Samples;
+                } else {
+                    TimeSamples = 0;
+                    IsPlaying = false;
+                }
+            }
+
             return Rendered;
         }
 
@@ -494,17 +505,6 @@ namespace Cavern {
                             }
                         }
                     }
-                }
-            }
-
-            // Timing
-            TimeSamples += PitchedUpdateRate;
-            if (TimeSamples >= Clip.Samples) {
-                if (Loop) {
-                    TimeSamples %= Clip.Samples;
-                } else {
-                    TimeSamples = 0;
-                    IsPlaying = false;
                 }
             }
             return rendered;
