@@ -38,7 +38,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// ARGB color of the pixels not used for drawing the layout.
         /// </summary>
-        public uint BackgroundColor { get; set; } = 0;
+        public uint BackgroundColor { get; set; }
 
         /// <summary>
         /// Draws a channel layout as an overhead image. The pixels are in ARGB.
