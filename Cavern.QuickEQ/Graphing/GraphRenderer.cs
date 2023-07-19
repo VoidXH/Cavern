@@ -161,6 +161,22 @@ namespace Cavern.QuickEQ.Graphing {
         public float GetGainAt(float height) => peak - height / Height * dynamicRange;
 
         /// <summary>
+        /// Set the <see cref="peak"/> to the max displayed gain.
+        /// </summary>
+        public void Normalize() {
+            double peak = float.NegativeInfinity;
+            for (int i = 0, c = curves.Count; i < c; i++) {
+                IReadOnlyList<Band> curve = curves[i].Curve.Bands;
+                for (int f = 0, c2 = curve.Count; f < c2; f++) {
+                    if (peak < curve[f].Gain) {
+                        peak = curve[f].Gain;
+                    }
+                }
+            }
+            Peak = (float)peak;
+        }
+
+        /// <summary>
         /// Redraw the entire image.
         /// </summary>
         internal void DrawAll() {
