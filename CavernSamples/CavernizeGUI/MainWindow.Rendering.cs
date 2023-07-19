@@ -235,7 +235,7 @@ namespace CavernizeGUI {
                     targetCodec += massivelyMultichannel;
                 }
 
-                if (target.Container != Container.Matroska && finalName[^4..].ToLower(CultureInfo.InvariantCulture).Equals(".mkv")) {
+                if (writer is RIFFWaveWriter && finalName[^4..].ToLower(CultureInfo.InvariantCulture).Equals(".mkv")) {
                     string exportedAudio = finalName[..^4] + waveExtension;
                     taskEngine.UpdateStatus("Merging to final container...");
                     if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c:v copy -c:a {2} " +
