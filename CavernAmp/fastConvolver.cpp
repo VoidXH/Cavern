@@ -31,7 +31,7 @@ void FastConvolver::Initialize(const float *impulse, const int len, const int de
 void FastConvolver::Process(float *samples, int len) {
     int start = 0;
     while (start < len) {
-        int nextBlock = start + (len >> 1);
+        int nextBlock = start + (filterLength >> 1);
         ProcessTimeslot(samples, 0, 1, start, min(len, nextBlock));
         start = nextBlock;
     }
@@ -41,7 +41,7 @@ void FastConvolver::Process(float *samples, int len, int channel, int channels) 
     int start = 0,
         end = len / channels;
     while (start < end) {
-        int nextBlock = start + (len >> 1);
+        int nextBlock = start + (filterLength >> 1);
         ProcessTimeslot(samples, channel, channels, start, min(end, nextBlock));
         start = nextBlock;
     }

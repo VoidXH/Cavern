@@ -5,7 +5,6 @@ namespace Cavern.Utilities {
     // Native versions of Filters' functions.
     public static partial class CavernAmp {
         #region FastConvolver
-#if FORCE_AMP // Removed as C++ is slower than CLR
         /// <summary>
         /// Constructs an optimized convolution with added delay.
         /// </summary>
@@ -45,7 +44,6 @@ namespace Cavern.Utilities {
         /// </summary>
         [DllImport("CavernAmp.dll")]
         static extern unsafe void FastConvolver_Process(IntPtr instance, float* samples, int len, int channel, int channels);
-#endif
         #endregion
     }
 }

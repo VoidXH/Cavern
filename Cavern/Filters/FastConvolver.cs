@@ -11,12 +11,10 @@ namespace Cavern.Filters {
     /// For a thread-safe fast convolver, use <see cref="ThreadSafeFastConvolver"/>. This filter is also
     /// only for a single channel, use <see cref="MultichannelConvolver"/> for multichannel signals.</remarks>
     public class FastConvolver : Filter, IDisposable {
-#if FORCE_AMP // Removed as C++ is slower than CLR
         /// <summary>
         /// CavernAmp instance of a FastConvolver.
         /// </summary>
         readonly IntPtr native;
-#endif
 
         /// <summary>
         /// Created convolution filter in Fourier-space.
@@ -52,12 +50,10 @@ namespace Cavern.Filters {
         /// Constructs an optimized convolution with added delay.
         /// </summary>
         public FastConvolver(float[] impulse, int delay) {
-#if FORCE_AMP
             if (CavernAmp.Available) {
                 native = CavernAmp.FastConvolver_Create(impulse, delay);
                 return;
             }
-#endif
             int fftSize = 2 << QMath.Log2Ceil(impulse.Length); // Zero padding for the falloff to have space
             cache = CreateCache(fftSize);
             filter = new Complex[fftSize];
@@ -79,12 +75,10 @@ namespace Cavern.Filters {
         /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
         /// </summary>
         public override void Process(float[] samples) {
-#if FORCE_AMP
             if (native != IntPtr.Zero) {
                 CavernAmp.FastConvolver_Process(native, samples, 0, 1);
                 return;
             }
-#endif
             int start = 0;
             while (start < samples.Length) {
                 ProcessTimeslot(samples, start, Math.Min(samples.Length, start += filter.Length >> 1));
@@ -98,12 +92,10 @@ namespace Cavern.Filters {
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
-#if FORCE_AMP
             if (native != IntPtr.Zero) {
                 CavernAmp.FastConvolver_Process(native, samples, channel, channels);
                 return;
             }
-#endif
             int start = 0,
                 end = samples.Length / channels;
             while (start < end) {
@@ -115,11 +107,9 @@ namespace Cavern.Filters {
         /// Free up the native resources if they were used.
         /// </summary>
         public void Dispose() {
-#if FORCE_AMP
             if (native != IntPtr.Zero) {
                 CavernAmp.FastConvolver_Dispose(native);
             }
-#endif
         }
 
         /// <summary>
