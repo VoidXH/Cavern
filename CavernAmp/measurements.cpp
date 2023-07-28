@@ -4,9 +4,31 @@
 #include "qmath.h"
 
 void DLL_EXPORT ProcessFFT(Complex *samples, int sampleCount, FFTCache *cache, int depth) {
-    int halfLength = sampleCount / 2;
-    if (sampleCount == 1)
+    if (sampleCount < 8) {
+        if (sampleCount == 4) {
+            Complex evenValue = samples[0],
+                oddValue = samples[2];
+            Complex evenValue1 { evenValue.real + oddValue.real, evenValue.imaginary + oddValue.imaginary };
+            Complex evenValue2 { evenValue.real - oddValue.real, evenValue.imaginary - oddValue.imaginary };
+
+            evenValue = samples[1];
+            oddValue = samples[3];
+            Complex oddValue1 { evenValue.real + oddValue.real, evenValue.imaginary + oddValue.imaginary };
+            Complex oddValue2 { evenValue.real - oddValue.real, evenValue.imaginary - oddValue.imaginary };
+
+            samples[0] = { evenValue1.real + oddValue1.real, evenValue1.imaginary + oddValue1.imaginary };
+            samples[1] = { evenValue2.real + oddValue2.imaginary, evenValue2.imaginary - oddValue2.real };
+            samples[2] = { evenValue1.real - oddValue1.real, evenValue1.imaginary - oddValue1.imaginary };
+            samples[3] = { evenValue2.real - oddValue2.imaginary, evenValue2.imaginary + oddValue2.real };
+        } else if (sampleCount == 2) {
+            Complex evenValue = samples[0],
+                oddValue = samples[1];
+            samples[0] = { evenValue.real + oddValue.real, evenValue.imaginary + oddValue.imaginary };
+            samples[1] = { evenValue.real - oddValue.real, evenValue.imaginary - oddValue.imaginary };
+        }
         return;
+    }
+    int halfLength = sampleCount / 2;
     Complex *even = cache->even[depth], *odd = cache->odd[depth];
     for (int sample = 0, pair = 0; sample < halfLength; ++sample, pair += 2) {
         even[sample] = samples[pair];

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -48,7 +49,7 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this Complex[] samples) {
-            if (CavernAmp.Available) {
+            if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceFFT(samples);
             } else {
                 using FFTCache cache = new FFTCache(samples.Length);
@@ -61,7 +62,7 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this Complex[] samples, FFTCache cache) {
-            if (CavernAmp.Available) {
+            if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceFFT(samples, cache);
             } else {
                 ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
@@ -91,7 +92,7 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this float[] samples) {
-            if (CavernAmp.Available) {
+            if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceFFT(samples);
             } else {
                 using FFTCache cache = new FFTCache(samples.Length);
@@ -104,7 +105,7 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this float[] samples, FFTCache cache) {
-            if (CavernAmp.Available) {
+            if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceFFT(samples, cache);
             } else {
                 ProcessFFT(samples, cache);
@@ -117,7 +118,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static Complex[] IFFT(this Complex[] samples) {
             samples = samples.FastClone();
-            if (CavernAmp.Available) {
+            if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceIFFT(samples);
             } else {
                 using FFTCache cache = new FFTCache(samples.Length);
@@ -131,7 +132,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static Complex[] IFFT(this Complex[] samples, FFTCache cache) {
             samples = samples.FastClone();
-            if (CavernAmp.Available) {
+            if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceIFFT(samples, cache);
             } else {
                 samples.InPlaceIFFT(cache);
@@ -144,7 +145,7 @@ namespace Cavern.Utilities {
         /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static void InPlaceIFFT(this Complex[] samples) {
-            if (CavernAmp.Available) {
+            if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceIFFT(samples);
                 return;
             }
@@ -156,7 +157,7 @@ namespace Cavern.Utilities {
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
         /// </summary>
         public static unsafe void InPlaceIFFT(this Complex[] samples, FFTCache cache) {
-            if (CavernAmp.Available) {
+            if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceIFFT(samples, cache);
                 return;
             }
@@ -176,7 +177,7 @@ namespace Cavern.Utilities {
         /// division with the number of elements. This is the definition of IFFT, but unsuitable for measurement use.
         /// </summary>
         public static void InPlaceIFFTUnscaled(this Complex[] samples, FFTCache cache) {
-            if (CavernAmp.Available) {
+            if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceIFFT(samples, cache);
                 for (int i = 0; i < samples.Length; i++) {
                     samples[i].Real *= samples.Length;
@@ -209,7 +210,7 @@ namespace Cavern.Utilities {
             for (int i = 0; i < response.Length; i++) {
                 response[i] = Complex.Log(response[i].Real);
             }
-            if (CavernAmp.Available) {
+            if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceIFFT(response, cache);
             } else {
                 response.InPlaceIFFT(cache);
@@ -220,7 +221,7 @@ namespace Cavern.Utilities {
                 response[^i].Clear();
             }
             response[halfLength].Imaginary = -response[halfLength].Imaginary;
-            if (CavernAmp.Available) {
+            if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceFFT(response, cache);
             } else {
                 response.InPlaceFFT(cache);
@@ -372,7 +373,32 @@ namespace Cavern.Utilities {
         /// Actual FFT processing, somewhat in-place.
         /// </summary>
         static unsafe void ProcessFFT(Complex[] samples, FFTCache cache, int depth) {
-            if (samples.Length == 1) {
+            float[] cosCacheSrc = FFTCache.cos[depth],
+                sinCacheSrc = FFTCache.sin[depth];
+
+            // Hardcoded small-size FFTs double the performance
+            if (samples.Length < 8) {
+                if (samples.Length == 4) {
+                    Complex evenValue = samples[0],
+                        oddValue = samples[2];
+                    Complex evenValue1 = new Complex(evenValue.Real + oddValue.Real, evenValue.Imaginary + oddValue.Imaginary);
+                    Complex evenValue2 = new Complex(evenValue.Real - oddValue.Real, evenValue.Imaginary - oddValue.Imaginary);
+
+                    evenValue = samples[1];
+                    oddValue = samples[3];
+                    Complex oddValue1 = new Complex(evenValue.Real + oddValue.Real, evenValue.Imaginary + oddValue.Imaginary);
+                    Complex oddValue2 = new Complex(evenValue.Real - oddValue.Real, evenValue.Imaginary - oddValue.Imaginary);
+
+                    samples[0] = new Complex(evenValue1.Real + oddValue1.Real, evenValue1.Imaginary + oddValue1.Imaginary);
+                    samples[1] = new Complex(evenValue2.Real + oddValue2.Imaginary, evenValue2.Imaginary - oddValue2.Real);
+                    samples[2] = new Complex(evenValue1.Real - oddValue1.Real, evenValue1.Imaginary - oddValue1.Imaginary);
+                    samples[3] = new Complex(evenValue2.Real - oddValue2.Imaginary, evenValue2.Imaginary + oddValue2.Real);
+                } else if (samples.Length == 2) {
+                    Complex evenValue = samples[0],
+                        oddValue = samples[1];
+                    samples[0] = new Complex(evenValue.Real + oddValue.Real, evenValue.Imaginary + oddValue.Imaginary);
+                    samples[1] = new Complex(evenValue.Real - oddValue.Real, evenValue.Imaginary - oddValue.Imaginary);
+                }
                 return;
             }
 
@@ -397,18 +423,46 @@ namespace Cavern.Utilities {
             fixed (Complex* pSamples = samples)
             fixed (Complex* pEven = even)
             fixed (Complex* pOdd = odd)
-            fixed (float* pCosCache = cache.cos)
-            fixed (float* pSinCache = cache.sin) {
-                int halfLength = samples.Length >> 1,
-                    stepMul = cache.cos.Length / halfLength;
+            fixed (float* pCosCache = cosCacheSrc)
+            fixed (float* pSinCache = sinCacheSrc) {
+                int halfLength = samples.Length >> 1;
                 Complex* result = pSamples,
                     mirror = result + halfLength,
                     end = mirror,
+                    endSimd = end - (Vector<float>.Count >> 1),
                     evenRef = pEven,
                     oddRef = pOdd;
                 float* cosCache = pCosCache,
                     sinCache = pSinCache;
 
+                // SIMD pass
+                while (result < endSimd) {
+                    Vector<float> oddRight = new Vector<float>(new Span<float>((float*)oddRef - 1, Vector<float>.Count)),
+                        oddVec = new Vector<float>(new Span<float>((float*)oddRef, Vector<float>.Count)),
+                        oddLeft = new Vector<float>(new Span<float>((float*)oddRef + 1, Vector<float>.Count));
+
+                    Vector<float> newOdd =
+                    // At even offsets: real * cos - imag * sin
+                        (oddVec * new Vector<float>(new Span<float>(cosCache, Vector<float>.Count)) -
+                        oddLeft * new Vector<float>(new Span<float>(sinCache, Vector<float>.Count))) * FFTCache.evenMask
+                    // At odd offsets: real * sin + imag * cos
+                        + (oddRight * new Vector<float>(new Span<float>(sinCache, Vector<float>.Count)) +
+                        oddVec * new Vector<float>(new Span<float>(cosCache, Vector<float>.Count))) * FFTCache.oddMask;
+
+                    Vector<float> evenSource = new Vector<float>(new Span<float>((float*)evenRef, Vector<float>.Count));
+                    *(Vector<float>*)result = evenSource + newOdd;
+                    *(Vector<float>*)mirror = evenSource - newOdd;
+
+                    int step = Vector<float>.Count >> 1;
+                    result += step;
+                    mirror += step;
+                    evenRef += step;
+                    oddRef += step;
+                    cosCache += Vector<float>.Count;
+                    sinCache += Vector<float>.Count;
+                }
+
+                // Slow pass
                 while (result != end) {
                     float evenReal = evenRef->Real,
                         evenImag = evenRef->Imaginary,
@@ -425,11 +479,11 @@ namespace Cavern.Utilities {
                     mirror->Imaginary = evenImag - oddImag;
 
                     result++;
+                    mirror++;
                     evenRef++;
                     oddRef++;
-                    mirror++;
-                    cosCache += stepMul;
-                    sinCache += stepMul;
+                    cosCache += 2;
+                    sinCache += 2;
                 }
             }
         }
@@ -449,13 +503,15 @@ namespace Cavern.Utilities {
             }
             ProcessFFT(even, cache, --depth);
             ProcessFFT(odd, cache, depth);
-            float[] cosCache = cache.cos,
-                sinCache = cache.sin;
-            int halfLength = samples.Length >> 1,
-                stepMul = cosCache.Length / halfLength;
+            float[] cosCache = FFTCache.cos[depth + 1],
+                sinCache = FFTCache.sin[depth + 1];
+            int halfLength = samples.Length >> 1;
             for (int i = 0; i < halfLength; i++) {
-                float oddReal = odd[i].Real * cosCache[i * stepMul] - odd[i].Imaginary * sinCache[i * stepMul],
-                    oddImag = odd[i].Real * sinCache[i * stepMul] + odd[i].Imaginary * cosCache[i * stepMul],
+                float
+                    cosRef = cosCache[i << 1],
+                    sinRef = sinCache[i << 1],
+                    oddReal = odd[i].Real * cosRef - odd[i].Imaginary * sinRef,
+                    oddImag = odd[i].Real * sinRef + odd[i].Imaginary * cosRef,
                     real = even[i].Real + oddReal,
                     imaginary = even[i].Imaginary + oddImag;
                 samples[i] = MathF.Sqrt(real * real + imaginary * imaginary);

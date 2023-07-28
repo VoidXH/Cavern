@@ -50,7 +50,7 @@ namespace Cavern.Filters {
         /// Constructs an optimized convolution with added delay.
         /// </summary>
         public FastConvolver(float[] impulse, int delay) {
-            if (CavernAmp.Available) {
+            if (CavernAmp.Available && CavernAmp.IsMono()) { // CavernAmp only improves performance when the runtime has no SIMD
                 native = CavernAmp.FastConvolver_Create(impulse, delay);
                 return;
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -24,14 +25,24 @@ namespace Cavern.Utilities {
         static readonly Complex[][] globalEven = new Complex[30][], globalOdd = new Complex[30][];
 
         /// <summary>
-        /// Cached cosines for each FFT band.
+        /// Cached cosines for each FFT band at each depth, doubled for SIMD operations.
         /// </summary>
-        internal float[] cos;
+        internal static float[][] cos = new float[30][];
 
         /// <summary>
-        /// Cached sines for each FFT band.
+        /// Cached sines for each FFT band at each depth, doubled for SIMD operations.
         /// </summary>
-        internal float[] sin;
+        internal static float[][] sin = new float[30][];
+
+        /// <summary>
+        /// Alternating 1s and 0s up to the maximum vector length supported by the CLR and the CPU.
+        /// </summary>
+        internal static Vector<float> evenMask;
+
+        /// <summary>
+        /// Alternating 0s and 1s up to the maximum vector length supported by the CLR and the CPU.
+        /// </summary>
+        internal static Vector<float> oddMask;
 
         /// <summary>
         /// C++ FFT cache class memory address to be passed to <see cref="CavernAmp"/>.
@@ -42,31 +53,38 @@ namespace Cavern.Utilities {
         /// FFT cache constructor.
         /// </summary>
         public FFTCache(int size) {
-            if (CavernAmp.Available) {
+            if (CavernAmp.Available && CavernAmp.IsMono()) { // CavernAmp only improves performance when the runtime has no SIMD
                 Native = CavernAmp.FFTCache_Create(size);
                 return;
             }
 
-            int halfSize = size / 2;
-            double step = -2 * Math.PI / size;
-            cos = new float[halfSize];
-            sin = new float[halfSize];
-            for (int i = 0; i < halfSize; ++i) {
-                double rotation = i * step;
-                cos[i] = (float)Math.Cos(rotation);
-                sin[i] = (float)Math.Sin(rotation);
+            for (int i = 0, c = QMath.Log2(size); i < c; ++i) {
+                if (cos[i] != null) {
+                    continue;
+                }
+                int elements = 2 << i;
+                float step = -MathF.PI / elements;
+                float[] thisCos = cos[i] = new float[elements];
+                float[] thisSin = sin[i] = new float[elements];
+                for (int j = 0; j < elements; j += 2) {
+                    float rotation = j * step;
+                    float cos = MathF.Cos(rotation),
+                        sin = MathF.Sin(rotation);
+                    thisCos[j] = cos;
+                    thisCos[j + 1] = cos;
+                    thisSin[j] = sin;
+                    thisSin[j + 1] = sin;
+                }
             }
 
-            CreateCacheArrays(size);
-        }
+            float[] maskSource = new float[Vector<float>.Count + 1];
+            for (int i = 0; i < maskSource.Length; i++) {
+                int even = (i & 1) == 0 ? 1 : 0;
+                maskSource[i] = even;
+            }
+            evenMask = new Vector<float>(maskSource);
+            oddMask = new Vector<float>(maskSource, 1);
 
-        /// <summary>
-        /// Construct an FFT cache with custom look-up tables.
-        /// </summary>
-        /// <remarks>Caches created this way can't be accelerated with CavernAmp.</remarks>
-        public FFTCache(int size, float[] cos, float[] sin) {
-            this.cos = cos;
-            this.sin = sin;
             CreateCacheArrays(size);
         }
 
@@ -74,7 +92,7 @@ namespace Cavern.Utilities {
         /// Free all used resources if there is any.
         /// </summary>
         public void Dispose() {
-            if (Native.ToInt64() != 0) {
+            if (Native != IntPtr.Zero) {
                 CavernAmp.FFTCache_Dispose(Native);
             }
         }
@@ -111,11 +129,5 @@ namespace Cavern.Utilities {
         /// Thread-safe <see cref="FFTCache"/> constructor. Does not reference shared split arrays.
         /// </summary>
         public ThreadSafeFFTCache(int size) : base(size) { }
-
-        /// <summary>
-        /// Construct a thread-safe <see cref="FFTCache"/> with custom look-up tables.
-        /// </summary>
-        /// <remarks>Caches created this way can't be accelerated with CavernAmp.</remarks>
-        public ThreadSafeFFTCache(int size, float[] cos, float[] sin) : base(size, cos, sin) { }
     }
 }
