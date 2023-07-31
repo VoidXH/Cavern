@@ -405,8 +405,8 @@ namespace Cavern.Utilities {
                 ProcessFFT(even, cache, depth);
                 ProcessFFT(odd, cache, depth);
             } else {
-                PerformFFT4(even);
-                PerformFFT4(odd);
+                ProcessFFT4(even);
+                ProcessFFT4(odd);
             }
 
             fixed (Complex* pSamples = samples)
@@ -481,7 +481,7 @@ namespace Cavern.Utilities {
         /// Perform 4 sample FFTs in a hardcoded, most efficient way.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static unsafe void PerformFFT4(Complex[] samples) {
+        static unsafe void ProcessFFT4(Complex[] samples) {
             fixed (Complex* pSamples = samples) {
                 Vector2 evenValue = *(Vector2*)pSamples,
                     oddValue = *(Vector2*)(pSamples + 2),
@@ -506,7 +506,7 @@ namespace Cavern.Utilities {
         /// </summary>
         static unsafe void ProcessFFTSmall(Complex[] samples) {
             if (samples.Length == 4) {
-                PerformFFT4(samples);
+                ProcessFFT4(samples);
             } else if (samples.Length == 2) {
                 fixed (Complex* pSamples = samples) {
                     Vector2 evenValue = *(Vector2*)pSamples,

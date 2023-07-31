@@ -55,7 +55,7 @@ namespace Test.Cavern {
         }
 
         /// <summary>
-        /// Tests if an FFT of a length 4, which is calling a hardcoded FFT variant.
+        /// Tests an FFT with a length of 4, which is calling a hardcoded FFT variant.
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void FFT4() {
