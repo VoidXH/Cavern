@@ -174,6 +174,7 @@ namespace Cavern.QuickEQ.Graphing {
                 }
             }
             Peak = (float)peak;
+            ReRenderFull();
         }
 
         /// <summary>
