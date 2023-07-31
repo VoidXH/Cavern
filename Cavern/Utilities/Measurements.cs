@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -53,7 +54,7 @@ namespace Cavern.Utilities {
                 CavernAmp.InPlaceFFT(samples);
             } else {
                 using FFTCache cache = new FFTCache(samples.Length);
-                ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+                ProcessFFT(samples, cache);
             }
         }
 
@@ -65,7 +66,7 @@ namespace Cavern.Utilities {
             if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceFFT(samples, cache);
             } else {
-                ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+                ProcessFFT(samples, cache);
             }
         }
 
@@ -161,7 +162,7 @@ namespace Cavern.Utilities {
                 CavernAmp.InPlaceIFFT(samples, cache);
                 return;
             }
-            ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+            ProcessIFFT(samples, cache);
             float multiplier = 1f / samples.Length;
             fixed (Complex* pSamples = samples) {
                 Complex* sample = pSamples,
@@ -185,7 +186,7 @@ namespace Cavern.Utilities {
                 }
                 return;
             }
-            ProcessIFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+            ProcessIFFT(samples, cache);
         }
 
         /// <summary>
@@ -370,38 +371,20 @@ namespace Cavern.Utilities {
             IFFT(GetFrequencyResponse(reference, response), cache);
 
         /// <summary>
+        /// FFT processor selector.
+        /// </summary>
+        static void ProcessFFT(Complex[] samples, FFTCache cache) {
+            if (samples.Length > 4) {
+                ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+            } else {
+                ProcessFFTSmall(samples);
+            }
+        }
+
+        /// <summary>
         /// Actual FFT processing, somewhat in-place.
         /// </summary>
         static unsafe void ProcessFFT(Complex[] samples, FFTCache cache, int depth) {
-            float[] cosCacheSrc = FFTCache.cos[depth],
-                sinCacheSrc = FFTCache.sin[depth];
-
-            // Hardcoded small-size FFTs double the performance
-            if (samples.Length < 8) {
-                if (samples.Length == 4) {
-                    Complex evenValue = samples[0],
-                        oddValue = samples[2];
-                    Complex evenValue1 = new Complex(evenValue.Real + oddValue.Real, evenValue.Imaginary + oddValue.Imaginary);
-                    Complex evenValue2 = new Complex(evenValue.Real - oddValue.Real, evenValue.Imaginary - oddValue.Imaginary);
-
-                    evenValue = samples[1];
-                    oddValue = samples[3];
-                    Complex oddValue1 = new Complex(evenValue.Real + oddValue.Real, evenValue.Imaginary + oddValue.Imaginary);
-                    Complex oddValue2 = new Complex(evenValue.Real - oddValue.Real, evenValue.Imaginary - oddValue.Imaginary);
-
-                    samples[0] = new Complex(evenValue1.Real + oddValue1.Real, evenValue1.Imaginary + oddValue1.Imaginary);
-                    samples[1] = new Complex(evenValue2.Real + oddValue2.Imaginary, evenValue2.Imaginary - oddValue2.Real);
-                    samples[2] = new Complex(evenValue1.Real - oddValue1.Real, evenValue1.Imaginary - oddValue1.Imaginary);
-                    samples[3] = new Complex(evenValue2.Real - oddValue2.Imaginary, evenValue2.Imaginary + oddValue2.Real);
-                } else if (samples.Length == 2) {
-                    Complex evenValue = samples[0],
-                        oddValue = samples[1];
-                    samples[0] = new Complex(evenValue.Real + oddValue.Real, evenValue.Imaginary + oddValue.Imaginary);
-                    samples[1] = new Complex(evenValue.Real - oddValue.Real, evenValue.Imaginary - oddValue.Imaginary);
-                }
-                return;
-            }
-
             Complex[] even = cache.Even[depth],
                 odd = cache.Odd[depth];
             fixed (Complex* pSamples = samples)
@@ -417,14 +400,20 @@ namespace Cavern.Utilities {
                 }
             }
 
-            ProcessFFT(even, cache, --depth);
-            ProcessFFT(odd, cache, depth);
+            --depth;
+            if (even.Length != 4) {
+                ProcessFFT(even, cache, depth);
+                ProcessFFT(odd, cache, depth);
+            } else {
+                PerformFFT4(even);
+                PerformFFT4(odd);
+            }
 
             fixed (Complex* pSamples = samples)
             fixed (Complex* pEven = even)
             fixed (Complex* pOdd = odd)
-            fixed (float* pCosCache = cosCacheSrc)
-            fixed (float* pSinCache = sinCacheSrc) {
+            fixed (float* pCosCache = FFTCache.cos[depth + 1])
+            fixed (float* pSinCache = FFTCache.sin[depth + 1]) {
                 int halfLength = samples.Length >> 1;
                 Complex* result = pSamples,
                     mirror = result + halfLength,
@@ -489,6 +478,47 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Perform 4 sample FFTs in a hardcoded, most efficient way.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static unsafe void PerformFFT4(Complex[] samples) {
+            fixed (Complex* pSamples = samples) {
+                Vector2 evenValue = *(Vector2*)pSamples,
+                    oddValue = *(Vector2*)(pSamples + 2),
+                    evenValue1 = evenValue + oddValue,
+                    evenValue2 = evenValue - oddValue;
+
+                evenValue = *(Vector2*)(pSamples + 1);
+                oddValue = *(Vector2*)(pSamples + 3);
+                Vector2 oddValue1 = evenValue + oddValue,
+                    oddValue2 = evenValue - oddValue;
+                oddValue2 = new Vector2(oddValue2.Y, -oddValue2.X);
+
+                *(Vector2*)pSamples = evenValue1 + oddValue1;
+                *(Vector2*)(pSamples + 1) = evenValue2 + oddValue2;
+                *(Vector2*)(pSamples + 2) = evenValue1 - oddValue1;
+                *(Vector2*)(pSamples + 3) = evenValue2 - oddValue2;
+            }
+        }
+
+        /// <summary>
+        /// Perform very small-size FFTs in a hardcoded, most efficient way.
+        /// </summary>
+        static unsafe void ProcessFFTSmall(Complex[] samples) {
+            if (samples.Length == 4) {
+                PerformFFT4(samples);
+            } else if (samples.Length == 2) {
+                fixed (Complex* pSamples = samples) {
+                    Vector2 evenValue = *(Vector2*)pSamples,
+                        oddValue = *(Vector2*)(pSamples + 1);
+                    *(Vector2*)pSamples = evenValue + oddValue;
+                    *(Vector2*)(pSamples + 1) = evenValue - oddValue;
+                }
+            }
+            return;
+        }
+
+        /// <summary>
         /// Fourier-transform a signal in 1D. The result is the spectral power.
         /// </summary>
         static void ProcessFFT(float[] samples, FFTCache cache) {
@@ -524,9 +554,9 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Outputs IFFT(X) * N.
         /// </summary>
-        static void ProcessIFFT(Complex[] samples, FFTCache cache, int depth) {
+        static void ProcessIFFT(Complex[] samples, FFTCache cache) {
             samples.Conjugate();
-            ProcessFFT(samples, cache, depth);
+            ProcessFFT(samples, cache);
             samples.Conjugate();
         }
     }

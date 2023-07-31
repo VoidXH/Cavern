@@ -53,5 +53,16 @@ namespace Test.Cavern {
                 Assert.IsTrue(Math.Abs(fft[i].Imaginary) < .000002f);
             }
         }
+
+        /// <summary>
+        /// Tests if an FFT of a length 4, which is calling a hardcoded FFT variant.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void FFT4() {
+            float[] signal = new float[] { 1, .5f, .25f, 0 };
+            Complex[] fft = signal.FFT();
+            Complex[] expected = new Complex[] { new Complex(1.75f), new Complex(.75f, -.5f), new Complex(.75f), new Complex(.75f, .5f) };
+            CollectionAssert.AreEqual(expected, fft);
+        }
     }
 }
