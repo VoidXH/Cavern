@@ -124,15 +124,23 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Add a curve with an ARGB color.
         /// </summary>
-        public RenderedCurve AddCurve(Equalizer curve, uint color) {
-            RenderedCurve entry = new RenderedCurve(curve, this) {
-                Color = color
-            };
-            entry.ReRenderFull();
-            curves.Add(entry);
-            DrawSingle(entry);
-            Overlay.DrawOn(this);
-            return entry;
+        public RenderedCurve AddCurve(Equalizer curve, uint color) => AddCurve(curve, color, true);
+
+        /// <summary>
+        /// Add multiple curves with their respective ARGB colors.
+        /// </summary>
+        /// <param name="curves">Curves to draw with their corresponding colors</param>
+        /// <param name="normalize">Set the <see cref="Peak"/> to the highest value of any curve</param>
+        /// <remarks>This is the recommended method for adding multiple curves at once as this doesn't re-render for each one.</remarks>
+        public void AddCurves((Equalizer curve, uint color)[] curves, bool normalize) {
+            for (int i = 0; i < curves.Length; i++) {
+                AddCurve(curves[i].curve, curves[i].color, false);
+            }
+            if (normalize) {
+                Normalize();
+            } else {
+                ReRenderFull();
+            }
         }
 
         /// <summary>
@@ -186,6 +194,22 @@ namespace Cavern.QuickEQ.Graphing {
                 DrawSingle(curves[i]);
             }
             Overlay?.DrawOn(this);
+        }
+
+        /// <summary>
+        /// Add a curve with an ARGB color, with the option not to draw it instantly.
+        /// </summary>
+        RenderedCurve AddCurve(Equalizer curve, uint color, bool redraw) {
+            RenderedCurve entry = new RenderedCurve(curve, this) {
+                Color = color
+            };
+            curves.Add(entry);
+            if (redraw) {
+                entry.ReRenderFull();
+                DrawSingle(entry);
+                Overlay.DrawOn(this);
+            }
+            return entry;
         }
 
         /// <summary>
