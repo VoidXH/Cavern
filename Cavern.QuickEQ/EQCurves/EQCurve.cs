@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+using Cavern.QuickEQ.Equalization;
+
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
     /// Equalizer curve processing.
@@ -31,6 +33,14 @@ namespace Cavern.QuickEQ.EQCurves {
                 default:
                     return new Flat();
             }
+        }
+
+        /// <summary>
+        /// Generate the filter graph as an <see cref="Equalizer"/> with a given number of logarithmically spaced <paramref name="bands"/>.
+        /// </summary>
+        public virtual Equalizer GenerateLogEqualizer(double startFreq, double endFreq, int bands) {
+            float[] curve = GenerateLogCurve(startFreq, endFreq, bands);
+            return EQGenerator.FromGraph(curve, startFreq, endFreq);
         }
 
         /// <summary>
@@ -88,7 +98,7 @@ namespace Cavern.QuickEQ.EQCurves {
         public virtual float[] GenerateLogCurve(double startFreq, double endFreq, int length, float gain) {
             float[] curve = new float[length];
             double freqHere = startFreq,
-                multiplier = Math.Pow(endFreq / startFreq, 1.0 / length);
+                multiplier = Math.Pow(endFreq / startFreq, 1.0 / (length - 1));
             for (int pos = 0; pos < length; pos++) {
                 curve[pos] = (float)this[freqHere] + gain;
                 freqHere *= multiplier;

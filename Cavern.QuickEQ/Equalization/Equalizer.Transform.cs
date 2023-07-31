@@ -6,6 +6,19 @@ using Cavern.QuickEQ.EQCurves;
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
         /// <summary>
+        /// Add the two <see cref="Equalizer"/>s together.
+        /// </summary>
+        /// <remarks>Matching frequencies have to be guaranteed before calling this function with
+        /// <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
+        public void AddCurve(Equalizer other) {
+            List<Band> otherBands = other.bands;
+            for (int i = 0, c = bands.Count; i < c; i++) {
+                bands[i] += otherBands[i].Gain;
+            }
+            RecalculatePeakGain();
+        }
+
+        /// <summary>
         /// Apply a slope (in decibels, per octave) between two frequencies.
         /// </summary>
         public void AddSlope(double slope, double startFreq, double endFreq) {

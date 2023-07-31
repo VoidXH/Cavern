@@ -101,6 +101,24 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Get the average level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>.
+        /// </summary>
+        /// <returns></returns>
+        public double GetAverageLevel(double minFreq, double maxFreq) {
+            int i = 0, c = bands.Count;
+            while (i < c && bands[i].Frequency < minFreq) {
+                ++i;
+            }
+            double sum = 0;
+            int n = 0;
+            while (i < c && bands[i].Frequency <= maxFreq) {
+                sum += Math.Pow(10, bands[i++].Gain * .05);
+                ++n;
+            }
+            return 20 * Math.Log10(sum / n);
+        }
+
+        /// <summary>
         /// Get the average level between the rolloff points (-<paramref name="range"/> dB points)
         /// of the curve drawn by this <see cref="Equalizer"/>. <paramref name="stableRangeStart"/> and <paramref name="stableRangeEnd"/> are
         /// the limits of a frequency band that can't be overly distorted on the curve and shall work for regression line calculation.
@@ -108,17 +126,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <returns></returns>
         public double GetAverageLevel(double range, double stableRangeStart, double stableRangeEnd) {
             (double minFreq, double maxFreq) = GetRolloffs(range, stableRangeStart, stableRangeEnd);
-            int i = 0, c = bands.Count;
-            while (i < c && bands[i].Frequency < minFreq) {
-                ++i;
-            }
-            double sum = 0;
-            int n = 0;
-            while (i < c && bands[i].Frequency < maxFreq) {
-                sum += Math.Pow(10, bands[i++].Gain * .05);
-                ++n;
-            }
-            return 20 * Math.Log10(sum / n);
+            return GetAverageLevel(minFreq, maxFreq);
         }
 
         /// <summary>
