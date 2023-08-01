@@ -43,7 +43,7 @@
                 yMax = target.Height - Width;
             for (int x = 1; x < xSteps; x++) {
                 int xPos = x * xGap;
-                for (int y = Width; y < yMax; y++) {
+                for (int y = Width; y <= yMax; y++) {
                     int start = y * target.Width + xPos;
                     for (int w = 0; w < gridWidth; w++) {
                         pixels[start + w] = color;
@@ -56,7 +56,7 @@
                 int yPos = y * yGap;
                 for (int w = 0; w < gridWidth; w++) {
                     int start = (yPos + w) * target.Width;
-                    for (int x = Width; x < xMax; x++) {
+                    for (int x = Width; x <= xMax; x++) {
                         pixels[start + x] = color;
                     }
                 }
