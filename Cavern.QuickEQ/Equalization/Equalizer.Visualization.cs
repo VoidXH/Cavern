@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using Cavern.QuickEQ.Utilities;
@@ -84,7 +86,6 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Get a line in an Equalizer APO configuration file that applies this EQ.
         /// </summary>
-        /// <returns></returns>
         public string ExportToEqualizerAPO() {
             StringBuilder result = new StringBuilder("GraphicEQ:");
             int band = 0, c = bands.Count;
@@ -103,17 +104,16 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Get the average level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>.
         /// </summary>
-        /// <returns></returns>
         public double GetAverageLevel(double minFreq, double maxFreq) {
             int i = 0, c = bands.Count;
             while (i < c && bands[i].Frequency < minFreq) {
-                ++i;
+                i++;
             }
             double sum = 0;
             int n = 0;
             while (i < c && bands[i].Frequency <= maxFreq) {
                 sum += Math.Pow(10, bands[i++].Gain * .05);
-                ++n;
+                n++;
             }
             return 20 * Math.Log10(sum / n);
         }
@@ -123,10 +123,27 @@ namespace Cavern.QuickEQ.Equalization {
         /// of the curve drawn by this <see cref="Equalizer"/>. <paramref name="stableRangeStart"/> and <paramref name="stableRangeEnd"/> are
         /// the limits of a frequency band that can't be overly distorted on the curve and shall work for regression line calculation.
         /// </summary>
-        /// <returns></returns>
         public double GetAverageLevel(double range, double stableRangeStart, double stableRangeEnd) {
             (double minFreq, double maxFreq) = GetRolloffs(range, stableRangeStart, stableRangeEnd);
             return GetAverageLevel(minFreq, maxFreq);
+        }
+
+        /// <summary>
+        /// Get the median level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>.
+        /// </summary>
+        public double GetMedianLevel(double minFreq, double maxFreq) {
+            int i = 0, c = bands.Count;
+            while (i < c && bands[i].Frequency < minFreq) {
+                i++;
+            }
+            int startBand = i;
+            while (i < c && bands[i].Frequency <= maxFreq) {
+                i++;
+            }
+
+            List<double> sortedBands = bands.GetRange(startBand, i - startBand).Select(x => x.Gain).ToList();
+            sortedBands.Sort();
+            return sortedBands[sortedBands.Count >> 1];
         }
 
         /// <summary>
@@ -164,10 +181,10 @@ namespace Cavern.QuickEQ.Equalization {
             (double m, double b) = GetRegressionLine(stableRangeStart, stableRangeEnd);
             int first = 0, last = bands.Count - 1;
             while (first < last && bands[first].Gain + range < m * Math.Log10(bands[first].Frequency) + b) {
-                ++first;
+                first++;
             }
             while (last > first && bands[last].Gain + range < m * Math.Log10(bands[last].Frequency) + b) {
-                --last;
+                last--;
             }
             return (bands[first].Frequency, bands[last].Frequency);
         }
@@ -188,7 +205,7 @@ namespace Cavern.QuickEQ.Equalization {
             for (int i = 0, nextBand = 0, prevBand = 0; i < length; i++) {
                 while (nextBand != bandCount && bands[nextBand].Frequency < startFreq) {
                     prevBand = nextBand;
-                    ++nextBand;
+                    nextBand++;
                 }
                 if (nextBand != bandCount && nextBand != 0) {
                     result[i] = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
@@ -218,7 +235,7 @@ namespace Cavern.QuickEQ.Equalization {
                 double freq = startFreq + step * entry;
                 while (nextBand != bandCount && bands[nextBand].Frequency < freq) {
                     prevBand = nextBand;
-                    ++nextBand;
+                    nextBand++;
                 }
                 if (nextBand != bandCount && nextBand != 0) {
                     result[entry] = (float)QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
