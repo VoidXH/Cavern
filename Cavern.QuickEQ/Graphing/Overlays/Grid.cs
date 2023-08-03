@@ -37,29 +37,15 @@
         /// </summary>
         public override void DrawOn(GraphRenderer target) {
             base.DrawOn(target);
-            uint[] pixels = target.Pixels;
-            int xGap = target.Width / xSteps,
-                yGap = target.Height / ySteps,
-                yMax = target.Height - Width;
+
+            int gap = target.Width / xSteps;
             for (int x = 1; x < xSteps; x++) {
-                int xPos = x * xGap;
-                for (int y = Width; y <= yMax; y++) {
-                    int start = y * target.Width + xPos;
-                    for (int w = 0; w < gridWidth; w++) {
-                        pixels[start + w] = color;
-                    }
-                }
+                DrawColumn(target, x * gap, gridWidth, color);
             }
 
-            int xMax = target.Width - Width;
+            gap = target.Height / ySteps;
             for (int y = 1; y < ySteps; y++) {
-                int yPos = y * yGap;
-                for (int w = 0; w < gridWidth; w++) {
-                    int start = (yPos + w) * target.Width;
-                    for (int x = Width; x <= xMax; x++) {
-                        pixels[start + x] = color;
-                    }
-                }
+                DrawRow(target, y * gap, gridWidth, color);
             }
         }
     }

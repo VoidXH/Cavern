@@ -1,4 +1,6 @@
-﻿namespace Cavern.QuickEQ.Graphing.Overlays {
+﻿using System.Runtime.CompilerServices;
+
+namespace Cavern.QuickEQ.Graphing.Overlays {
     /// <summary>
     /// Draws a frame of a given <see cref="Width"/> over the graph.
     /// </summary>
@@ -27,25 +29,40 @@
         /// Adds the overlay to a graph.
         /// </summary>
         public override void DrawOn(GraphRenderer target) {
-            // Edge rows
-            uint[] pixels = target.Pixels;
-            int until = target.Width * Width;
-            for (int i = 0; i < until; i++) {
-                pixels[i] = color;
-            }
-            for (int i = pixels.Length - until; i < pixels.Length; i++) {
-                pixels[i] = color;
-            }
+            DrawRow(target, 0, Width, color);
+            DrawRow(target, target.Height - Width, Width, color);
+            DrawColumn(target, 0, Width, color);
+            DrawColumn(target, target.Width - Width, Width, color);
+        }
 
-            // Edge columns
-            for (int x = 0; x < Width; x++) {
-                int c = target.Height - Width;
-                for (int y = Width; y < c; y++) {
-                    pixels[y * target.Width + x] = color;
+        /// <summary>
+        /// Draw a single row at a height <paramref name="offset"/> of a developing image.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void DrawRow(GraphRenderer target, int offset, int width, uint color) {
+            uint[] pixels = target.Pixels;
+            while (width > 0) {
+                for (int y = offset * target.Width, end = y + target.Width; y < end; y++) {
+                    pixels[y] = color;
                 }
-                for (int y = Width; y < c; y++) {
-                    pixels[pixels.Length - y * target.Width - x] = color;
+                offset++;
+                width--;
+            }
+        }
+
+        /// <summary>
+        /// Draw a single column at a width <paramref name="offset"/> of a developing image.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void DrawColumn(GraphRenderer target, int offset, int width, uint color) {
+            uint[] pixels = target.Pixels;
+            while (width > 0) {
+                for (int y = 0, pos = offset, step = target.Width; y < target.Height; y++) {
+                    pixels[pos] = color;
+                    pos += step;
                 }
+                offset++;
+                width--;
             }
         }
     }
