@@ -31,9 +31,7 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
         /// <summary>
         /// Adds the overlay to a graph.
         /// </summary>
-        public override void DrawOn(GraphRenderer target) {
-            base.DrawOn(target);
-
+        public override void DrawBehind(GraphRenderer target) {
             int gap = target.Height / ySteps;
             for (int y = 1; y < ySteps; y++) {
                 DrawRow(target, y * gap, gridWidth, color);

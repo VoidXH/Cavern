@@ -35,9 +35,7 @@
         /// <summary>
         /// Adds the overlay to a graph.
         /// </summary>
-        public override void DrawOn(GraphRenderer target) {
-            base.DrawOn(target);
-
+        public override void DrawBehind(GraphRenderer target) {
             int gap = target.Width / xSteps;
             for (int x = 1; x < xSteps; x++) {
                 DrawColumn(target, x * gap, gridWidth, color);

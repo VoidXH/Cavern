@@ -190,6 +190,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         internal void DrawAll() {
             Array.Clear(Pixels, 0, Pixels.Length);
+            Overlay?.DrawBehind(this);
             for (int i = 0, c = curves.Count; i < c; i++) {
                 DrawSingle(curves[i]);
             }

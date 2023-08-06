@@ -4,8 +4,13 @@
     /// </summary>
     public abstract class GraphOverlay {
         /// <summary>
-        /// Adds the overlay to a graph.
+        /// Adds the overlay's foreground to a graph.
         /// </summary>
-        public abstract void DrawOn(GraphRenderer target);
+        public virtual void DrawOn(GraphRenderer target) { }
+
+        /// <summary>
+        /// Adds the overlay's background to a graph.
+        /// </summary>
+        public virtual void DrawBehind(GraphRenderer target) { }
     }
 }
