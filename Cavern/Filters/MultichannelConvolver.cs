@@ -42,7 +42,7 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
-        /// Apply a single channel's filter only n oa multichannel signal's same channel.
+        /// Apply a single channel's filter only on a multichannel signal's same channel.
         /// </summary>
         /// <param name="samples">Input samples</param>
         /// <param name="channel">Channel to filter</param>

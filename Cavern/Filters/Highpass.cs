@@ -28,6 +28,16 @@
         public Highpass(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
 
         /// <summary>
+        /// Create a copy of this filter.
+        /// </summary>
+        public override object Clone() => new Highpass(sampleRate, centerFreq, q, gain);
+
+        /// <summary>
+        /// Create a copy of this filter with a changed sampleRate.
+        /// </summary>
+        public override object Clone(int sampleRate) => new Highpass(sampleRate, centerFreq, q, gain);
+
+        /// <summary>
         /// Reset the parameters specifically for the derived filter.
         /// </summary>
         /// <param name="cosW0">Cosine of omega0</param>

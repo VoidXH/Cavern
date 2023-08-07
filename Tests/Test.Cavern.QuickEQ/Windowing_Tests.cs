@@ -1,7 +1,7 @@
 ﻿using Cavern.QuickEQ;
 using Cavern.QuickEQ.Equalization;
 
-namespace Test.Cavern {
+namespace Test.Cavern.QuickEQ {
     /// <summary>
     /// Tests the <see cref="Windowing"/> class.
     /// </summary>

@@ -1,6 +1,8 @@
 ﻿using System;
 
 using Cavern.Channels;
+using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -45,6 +47,22 @@ namespace Cavern.Format.FilterSet {
                     reference = channels[i]
                 };
             }
+        }
+
+        /// <summary>
+        /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
+        /// </summary>
+        public override MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength) {
+            float[][] result = new float[Channels.Length][];
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = new float[convolutionLength];
+                float[] source = ((FIRChannelData)Channels[i]).filter;
+                if (SampleRate != sampleRate) {
+                    source = Resample.Adaptive(source, (int)((long)source.Length * SampleRate / sampleRate), QualityModes.Perfect);
+                }
+                Array.Copy(source, result[i], Math.Min(source.Length, convolutionLength));
+            }
+            return new MultichannelWaveform(result);
         }
 
         /// <summary>

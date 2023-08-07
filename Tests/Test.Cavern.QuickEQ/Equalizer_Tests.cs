@@ -1,7 +1,7 @@
 ﻿using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
-namespace Test.Cavern {
+namespace Test.Cavern.QuickEQ {
     /// <summary>
     /// Tests the <see cref="Equalizer"/> class.
     /// </summary>

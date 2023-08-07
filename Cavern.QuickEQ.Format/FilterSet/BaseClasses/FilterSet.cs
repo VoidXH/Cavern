@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 
 using Cavern.Channels;
+using Cavern.Filters;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -54,6 +55,11 @@ namespace Cavern.Format.FilterSet {
         /// Export the filter set to a target file.
         /// </summary>
         public abstract void Export(string path);
+
+        /// <summary>
+        /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
+        /// </summary>
+        public abstract MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength);
 
         /// <summary>
         /// Create a filter set for the target <paramref name="device"/>.

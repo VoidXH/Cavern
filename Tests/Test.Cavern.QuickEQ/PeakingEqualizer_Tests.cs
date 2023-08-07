@@ -1,7 +1,7 @@
 ﻿using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
 
-namespace Test.Cavern {
+namespace Test.Cavern.QuickEQ {
     /// <summary>
     /// Tests the <see cref="PeakingEqualizer"/> class.
     /// </summary>

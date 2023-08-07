@@ -30,6 +30,16 @@ namespace Cavern.Filters {
         public HighShelf(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
 
         /// <summary>
+        /// Create a copy of this filter.
+        /// </summary>
+        public override object Clone() => new HighShelf(sampleRate, centerFreq, q, gain);
+
+        /// <summary>
+        /// Create a copy of this filter with a changed sampleRate.
+        /// </summary>
+        public override object Clone(int sampleRate) => new HighShelf(sampleRate, centerFreq, q, gain);
+
+        /// <summary>
         /// Reset the parameters specifically for the derived filter.
         /// </summary>
         /// <param name="cosW0">Cosine of omega0</param>

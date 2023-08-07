@@ -1,6 +1,6 @@
 ﻿using Cavern.Utilities;
 
-namespace Test.Cavern {
+namespace Test.Cavern.QuickEQ {
     /// <summary>
     /// Tests the <see cref="MovingAverage"/> class.
     /// </summary>

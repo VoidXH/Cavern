@@ -7,7 +7,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter.
     /// </summary>
-    public abstract class BiquadFilter : Filter {
+    public abstract class BiquadFilter : Filter, ICloneable {
         /// <summary>
         /// Center frequency (-3 dB point) of the filter.
         /// </summary>
@@ -112,6 +112,16 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
+        /// Wipe the history to prevent clipping when applying the same filter for a new signal.
+        /// </summary>
+        public void Reset() {
+            x1 = 0;
+            x2 = 0;
+            y1 = 0;
+            y2 = 0;
+        }
+
+        /// <summary>
         /// Regenerate the transfer function with maximum flatness and no additional gain.
         /// </summary>
         /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
@@ -155,6 +165,16 @@ namespace Cavern.Filters {
                 x1 = thisSample;
             }
         }
+
+        /// <summary>
+        /// Create a copy of this filter.
+        /// </summary>
+        public abstract object Clone();
+
+        /// <summary>
+        /// Create a copy of this filter with a changed sampleRate.
+        /// </summary>
+        public abstract object Clone(int sampleRate);
 
         /// <summary>
         /// Reset the parameters specifically for the derived filter.

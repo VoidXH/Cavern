@@ -89,6 +89,23 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
+        /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
+        /// </summary>
+        public override MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength) {
+            float[][] result = new float[Channels.Length][];
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = new float[convolutionLength];
+                result[i][0] = 1;
+                BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
+                for (int j = 0; j < filters.Length; j++) {
+                    BiquadFilter filter = (BiquadFilter)filters[j].Clone(sampleRate);
+                    filter.Process(result[i]);
+                }
+            }
+            return new MultichannelWaveform(result);
+        }
+
+        /// <summary>
         /// Setup a channel's filter set with only filters and no additional corrections or custom name.
         /// </summary>
         public void SetupChannel(int channel, BiquadFilter[] filters) => SetupChannel(channel, filters, 0, 0, false, null);

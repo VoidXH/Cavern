@@ -1,6 +1,6 @@
 ﻿using Cavern.Format.Common;
 
-namespace Test.Cavern {
+namespace Test.Cavern.Format {
     /// <summary>
     /// Tests the <see cref="VarInt"/> class.
     /// </summary>

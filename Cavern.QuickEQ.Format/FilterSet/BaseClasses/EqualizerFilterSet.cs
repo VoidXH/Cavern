@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Channels;
+using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.Format.FilterSet {
@@ -60,6 +61,17 @@ namespace Cavern.Format.FilterSet {
                     reference = channels[i]
                 };
             }
+        }
+
+        /// <summary>
+        /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
+        /// </summary>
+        public override MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength) {
+            float[][] result = new float[Channels.Length][];
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = ((EqualizerChannelData)Channels[i]).curve.GetConvolution(sampleRate, convolutionLength);
+            }
+            return new MultichannelWaveform(result);
         }
 
         /// <summary>
