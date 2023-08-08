@@ -118,6 +118,11 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
+        /// Set the <paramref name="delay"/> in samples for a given <paramref name="channel"/>.
+        /// </summary>
+        public void OverrideDelay(int channel, int delay) => Channels[channel].delaySamples = delay;
+
+        /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
         protected virtual string GetLabel(int channel) => Channels[channel].name ?? "CH" + (channel + 1);

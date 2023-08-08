@@ -6,6 +6,7 @@ using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -95,7 +96,7 @@ namespace Cavern.Format.FilterSet {
             float[][] result = new float[Channels.Length][];
             for (int i = 0; i < result.Length; i++) {
                 result[i] = new float[convolutionLength];
-                result[i][0] = 1;
+                result[i][Channels[i].delaySamples] = 1;
                 BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
                 for (int j = 0; j < filters.Length; j++) {
                     BiquadFilter filter = (BiquadFilter)filters[j].Clone(sampleRate);

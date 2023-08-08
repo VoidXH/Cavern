@@ -5,6 +5,7 @@ using System.IO;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -70,6 +71,7 @@ namespace Cavern.Format.FilterSet {
             float[][] result = new float[Channels.Length][];
             for (int i = 0; i < result.Length; i++) {
                 result[i] = ((EqualizerChannelData)Channels[i]).curve.GetConvolution(sampleRate, convolutionLength);
+                WaveformUtils.Delay(result[i], Channels[i].delaySamples);
             }
             return new MultichannelWaveform(result);
         }

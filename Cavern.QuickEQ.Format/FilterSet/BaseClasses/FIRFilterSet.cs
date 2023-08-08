@@ -61,6 +61,7 @@ namespace Cavern.Format.FilterSet {
                     source = Resample.Adaptive(source, (int)((long)source.Length * SampleRate / sampleRate), QualityModes.Perfect);
                 }
                 Array.Copy(source, result[i], Math.Min(source.Length, convolutionLength));
+                WaveformUtils.Delay(result[i], Channels[i].delaySamples);
             }
             return new MultichannelWaveform(result);
         }
