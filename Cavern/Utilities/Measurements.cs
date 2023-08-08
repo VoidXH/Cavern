@@ -267,6 +267,21 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Get the real part of a signal's FFT.
+        /// </summary>
+        public static unsafe void GetRealPart(this Complex[] samples, float[] output) {
+            fixed (Complex* pSamples = samples)
+            fixed (float* pOutput = output) {
+                Complex* inSample = pSamples,
+                    end = inSample + Math.Min(samples.Length, output.Length);
+                float* outSample = pOutput;
+                while (inSample != end) {
+                    *outSample++ = inSample++->Real;
+                }
+            }
+        }
+
+        /// <summary>
         /// Get half of the real part of a signal's FFT.
         /// </summary>
         public static float[] GetRealPartHalf(Complex[] samples) {

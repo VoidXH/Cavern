@@ -64,5 +64,15 @@ namespace Test.Cavern {
             Complex[] expected = new Complex[] { new Complex(1.75f), new Complex(.75f, -.5f), new Complex(.75f), new Complex(.75f, .5f) };
             CollectionAssert.AreEqual(expected, fft);
         }
+
+        /// <summary>
+        /// Tests the <see cref="Measurements.GetRealPart(Complex[], float[])"/> method.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void GetRealPart() {
+            float[] realPart = new float[Consts.complexSamples.Length];
+            Consts.complexSamples.GetRealPart(realPart);
+            CollectionAssert.AreEqual(Consts.samples, realPart);
+        }
     }
 }
