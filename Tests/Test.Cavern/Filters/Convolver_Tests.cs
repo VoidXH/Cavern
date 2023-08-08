@@ -31,5 +31,14 @@ namespace Test.Cavern.Filters {
             WaveformUtils.ExtractChannel(dirac, left, 0, 2);
             CollectionAssert.AreEqual(step, left);
         }
+
+        /// <summary>
+        /// Tests the <see cref="FastConvolver.ConvolveSafe(float[], float[])"/> method.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void FastConvolverSafe() {
+            float[] result = FastConvolver.ConvolveSafe(Consts.samples, Consts.samples2);
+            CollectionAssert.AreEqual(Consts.convolved, result);
+        }
     }
 }

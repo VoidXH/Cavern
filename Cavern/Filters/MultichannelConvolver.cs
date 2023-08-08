@@ -34,6 +34,17 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
+        /// Performs the convolution of multiple real signal pairs of any length. The real result is returned.
+        /// </summary>
+        public static MultichannelWaveform ConvolveSafe(MultichannelWaveform excitations, MultichannelWaveform impulses) {
+            float[][] results = new float[excitations.Channels][];
+            Parallelizer.For(0, results.Length, i => {
+                results[i] = FastConvolver.ConvolveSafe(excitations[i], impulses[i]);
+            });
+            return new MultichannelWaveform(results);
+        }
+
+        /// <summary>
         /// Apply the convolution filter of each channel on a multichannel signal with a matching channel count.
         /// </summary>
         public override void Process(float[] samples) {
