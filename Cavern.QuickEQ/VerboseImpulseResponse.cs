@@ -121,15 +121,7 @@ namespace Cavern.QuickEQ {
                 if (delay != -1) {
                     return delay;
                 }
-                float absPeak = float.NegativeInfinity, absHere;
-                for (int pos = 0; pos < Response.Length; ++pos) {
-                    absHere = Math.Abs(response[pos]);
-                    if (absPeak < absHere) {
-                        absPeak = absHere;
-                        delay = pos;
-                    }
-                }
-                return delay;
+                return delay = GetDelay(Response);
             }
         }
         int delay = -1;
@@ -184,7 +176,7 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Representation of a peak in the impulse response.
         /// </summary>
-        public struct Peak : IEquatable<Peak> {
+        public readonly struct Peak : IEquatable<Peak> {
             /// <summary>
             /// Peak time offset in samples.
             /// </summary>
@@ -218,6 +210,22 @@ namespace Cavern.QuickEQ {
             /// Check if two peaks are equal.
             /// </summary>
             public bool Equals(Peak other) => Position != other.Position && Size != other.Size;
+        }
+
+        /// <summary>
+        /// Get the delay of an impulse response in samples. In this case, delay means the index of the highest absolute value sample.
+        /// </summary>
+        public static int GetDelay(float[] response) {
+            int delay = 0;
+            float absPeak = float.NegativeInfinity, absHere;
+            for (int pos = 0; pos < response.Length; ++pos) {
+                absHere = Math.Abs(response[pos]);
+                if (absPeak < absHere) {
+                    absPeak = absHere;
+                    delay = pos;
+                }
+            }
+            return delay;
         }
 
         /// <summary>
