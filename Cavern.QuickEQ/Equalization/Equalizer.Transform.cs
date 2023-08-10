@@ -177,7 +177,7 @@ namespace Cavern.QuickEQ.Equalization {
                 last = bands.Count;
             double total = 0;
             for (int i = first; i < last; i++) {
-                if (bands[i].Gain > endFreq) {
+                if (bands[i].Frequency > endFreq) {
                     last = i;
                     break;
                 }
