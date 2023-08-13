@@ -29,6 +29,11 @@ namespace WAVChannelReorderer {
         string loadedFile;
 
         /// <summary>
+        /// Dune HD only supports 24-bit 5.1 WAV files.
+        /// </summary>
+        bool force24Bits;
+
+        /// <summary>
         /// Background export runner.
         /// </summary>
         readonly TaskEngine process;
@@ -57,8 +62,10 @@ namespace WAVChannelReorderer {
         /// <summary>
         /// Loads a standard layout of the channel count of the imported file to a list of channels.
         /// </summary>
-        void SetStandardLayout(ListBox holder) =>
+        void SetStandardLayout(ListBox holder) {
             holder.ItemsSource = (ReferenceChannel[])ChannelPrototype.GetStandardMatrix(reader.ChannelCount).Clone();
+            force24Bits = false;
+        }
 
         /// <summary>
         /// Sets up a standard layout for export.
@@ -69,11 +76,12 @@ namespace WAVChannelReorderer {
         /// Sets up a Dune HD player's layout for export.
         /// </summary>
         void DuneTarget(object sender, RoutedEventArgs e) {
-            // TODO: only 24 bit is supported for 5.1
             if (reader.ChannelCount < 6) {
                 SetStandardLayout(targetChannels);
             } else if (reader.ChannelCount <= 8) {
-                targetChannels.ItemsSource = (ReferenceChannel[])duneLayouts[reader.ChannelCount - 6].Clone();
+                ReferenceChannel[] source = (ReferenceChannel[])duneLayouts[reader.ChannelCount - 6].Clone();
+                targetChannels.ItemsSource = source;
+                force24Bits = source.Length == 6;
             } else {
                 ShowError("More than 8 raw channels are unsupported with any dedicated media player.");
             }
@@ -160,7 +168,7 @@ namespace WAVChannelReorderer {
                 }
             }
 
-            using RIFFWaveWriter writer = new(path, channels, reader.Length, reader.SampleRate, reader.Bits);
+            using RIFFWaveWriter writer = new(path, channels, reader.Length, reader.SampleRate, force24Bits ? BitDepth.Int24 : reader.Bits);
             reader.Reset();
             writer.WriteHeader();
             long position = 0,
