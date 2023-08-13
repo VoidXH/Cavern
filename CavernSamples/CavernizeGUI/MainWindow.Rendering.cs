@@ -16,6 +16,7 @@ using Cavern.Virtualizer;
 
 using CavernizeGUI.Elements;
 using Track = CavernizeGUI.Elements.Track;
+using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
     partial class MainWindow {
@@ -170,6 +171,9 @@ namespace CavernizeGUI {
                 SaveFileDialog dialog = new() {
                     FileName = fileName.Text.Contains('.') ? fileName.Text[..fileName.Text.LastIndexOf('.')] : fileName.Text
                 };
+                if (Directory.Exists(Settings.Default.lastDirectory)) {
+                    dialog.InitialDirectory = Settings.Default.lastDirectory;
+                }
 
                 Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
                 if (codec.IsEnvironmental()) {

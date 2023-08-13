@@ -26,6 +26,7 @@ using VoidX.WPF;
 
 using Path = System.IO.Path;
 using Track = CavernizeGUI.Elements.Track;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
@@ -199,6 +200,7 @@ namespace CavernizeGUI {
                 throw new Exception($"{e.Message} {(string)language["Later"]}");
             }
 #endif
+            Settings.Default.lastDirectory = Path.GetDirectoryName(path);
         }
 
         /// <summary>
@@ -286,6 +288,9 @@ namespace CavernizeGUI {
             OpenFileDialog dialog = new() {
                 Filter = string.Format((string)language["ImFmt"], AudioReader.filter)
             };
+            if (Directory.Exists(Settings.Default.lastDirectory)) {
+                dialog.InitialDirectory = Settings.Default.lastDirectory;
+            }
             if (dialog.ShowDialog().Value) {
 #if RELEASE
                 try {
