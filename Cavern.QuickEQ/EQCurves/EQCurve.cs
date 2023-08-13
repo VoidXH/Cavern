@@ -117,5 +117,24 @@ namespace Cavern.QuickEQ.EQCurves {
             }
             return curve;
         }
+
+        /// <summary>
+        /// Get the average gain (calculated in voltage scale, returned in dB scale) of this curve
+        /// with a given <paramref name="resolution"/> in Hz.
+        /// </summary>
+        public double GetAverageLevel(double startFreq, double endFreq, double resolution) {
+            if (resolution <= 0) {
+                throw new ArgumentOutOfRangeException(nameof(resolution), "Resolution can only be a positive number.");
+            }
+
+            double sum = 0;
+            int n = 0;
+            while (startFreq < endFreq) {
+                sum += Math.Pow(10, this[startFreq] * .05);
+                startFreq += resolution;
+                n++;
+            }
+            return 20 * Math.Log10(sum / n);
+        }
     }
 }

@@ -28,6 +28,15 @@ namespace Test.Cavern.QuickEQ {
         }
 
         /// <summary>
+        /// Tests if <see cref="Equalizer.GetAverageLevel(double, double)"/> works as intended.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void GetAverageLevel() {
+            Equalizer equalizer = Create(20, 20000, 100, 10);
+            Assert.AreEqual(8.760460922297078, equalizer.GetAverageLevel(100, 500), Consts.delta);
+        }
+
+        /// <summary>
         /// Create an <see cref="Equalizer"/> that resembles a sine wave of a given amplitude.
         /// </summary>
         static Equalizer Create(double startFreq, double endFreq, int length, double amplitude) {

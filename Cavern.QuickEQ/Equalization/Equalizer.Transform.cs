@@ -99,18 +99,23 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="endFreq">Top cutoff frequency</param>
         /// <param name="targetCurve">If set, the cuts will conform to this curve</param>
         public void Limit(double startFreq, double endFreq, EQCurve targetCurve) {
-            // TODO: conform to target curve using SumGains when a targetCurve is set
             int i = GetFirstBand(startFreq),
                 c = bands.Count;
 
+            double newStartGain = double.NaN;
             if (i > 0) {
+                newStartGain = GetConformGain(0, i, targetCurve);
                 bands.RemoveRange(0, i);
                 c -= i;
             }
 
+            double newEndGain = double.NaN;
             for (i = c - 1; i >= 0; i--) {
                 if (bands[i].Frequency < endFreq) {
                     if (i + 1 != c) {
+                        if (c - i > 2) {
+                            newEndGain = GetConformGain(i + 1, c - 1, targetCurve);
+                        }
                         bands.RemoveRange(i + 1, c - (i + 1));
                     }
                     break;
@@ -118,6 +123,12 @@ namespace Cavern.QuickEQ.Equalization {
             }
 
             RecalculatePeakGain();
+            if (!double.IsNaN(newStartGain)) {
+                AddBand(new Band(startFreq, newStartGain));
+            }
+            if (!double.IsNaN(newEndGain)) {
+                AddBand(new Band(endFreq, newEndGain));
+            }
         }
 
         /// <summary>
@@ -260,6 +271,16 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Get the average gain between two band indexes if the curve was perfectly corrected to a specific <paramref name="targetCurve"/>.
+        /// </summary>
+        double GetConformGain(int firstBand, int lastBand, EQCurve targetCurve) {
+            double clearStartFreq = bands[firstBand].Frequency,
+                clearEndFreq = bands[lastBand].Frequency,
+                targetGain = targetCurve.GetAverageLevel(clearStartFreq, clearEndFreq, (clearEndFreq - clearStartFreq) / 50);
+            return GetAverageLevel(firstBand, lastBand) + targetGain;
         }
     }
 }

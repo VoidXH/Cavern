@@ -102,7 +102,8 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Get the average level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>.
+        /// Get the average level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>,
+        /// calculated in voltage scale, returned in dB scale.
         /// </summary>
         public double GetAverageLevel(double minFreq, double maxFreq) {
             int i = 0, c = bands.Count;
@@ -245,6 +246,20 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Get the average level between the <paramref name="firstBand"/> (inclusive) and <paramref name="lastBand"/> (exclusive),
+        /// calculated in voltage scale, returned in dB scale.
+        /// </summary>
+        double GetAverageLevel(int firstBand, int lastBand) {
+            double sum = 0;
+            int n = 0;
+            while (firstBand < lastBand) {
+                sum += Math.Pow(10, bands[firstBand++].Gain * .05);
+                n++;
+            }
+            return 20 * Math.Log10(sum / n);
         }
 
         /// <summary>
