@@ -2,7 +2,7 @@
 using System.IO;
 
 using Cavern.Format.Consts;
-using Cavern.Utilities;
+using Cavern.Format.Container;
 
 namespace Cavern.Format {
     /// <summary>
@@ -102,10 +102,9 @@ namespace Cavern.Format {
         /// <param name="samples">Samples to write</param>
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
-        public virtual void WriteBlock(float[][] samples, long from, long to) {
-            float[] cache = WaveformUtils.MultichannelToInterlaced(samples, from, to);
-            WriteBlock(cache, 0, cache.Length);
-        }
+        /// <remarks>If you don't want to implement a custom, optimized version, use the implementation in
+        /// <see cref="AudioWriterIntoContainer"/>.</remarks>
+        public abstract void WriteBlock(float[][] samples, long from, long to);
 
         /// <summary>
         /// Write the first selected channels of a block of mono or interlaced samples.

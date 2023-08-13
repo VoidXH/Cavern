@@ -161,9 +161,9 @@ namespace Cavern.Debug {
             topR = 8,
             LFE = 9;
 
-        readonly static string[] markers = { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
+        static readonly string[] markers = { "L", "C", "R", "SL", "SR", "RL", "RR", "TL", "TR", "LFE" };
 
-        readonly static Color[] channelColors = new Color[] {
+        static readonly Color[] channelColors = new Color[] {
             ColorUtils.frontJack, ColorUtils.centerJack, ColorUtils.frontJack,
             ColorUtils.sideJack, ColorUtils.sideJack, Color.black, Color.black,
             ColorUtils.CavernBlue, ColorUtils.CavernBlue, ColorUtils.centerJack

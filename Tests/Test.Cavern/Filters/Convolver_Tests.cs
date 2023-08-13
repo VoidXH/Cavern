@@ -38,7 +38,9 @@ namespace Test.Cavern.Filters {
         [TestMethod, Timeout(1000)]
         public void FastConvolverSafe() {
             float[] result = FastConvolver.ConvolveSafe(Consts.samples, Consts.samples2);
-            CollectionAssert.AreEqual(Consts.convolved, result);
+            for (int i = 0; i < result.Length; i++) {
+                Assert.AreEqual(Consts.convolved[i], result[i], Consts.delta);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Format.Common;
+using Cavern.Utilities;
 
 namespace Cavern.Format.Container {
     /// <summary>
@@ -24,6 +25,12 @@ namespace Cavern.Format.Container {
         /// The new track to encode.
         /// </summary>
         readonly RenderTrack track;
+
+        /// <summary>
+        /// Used when converting multichannel waveforms to interlaced ones for exporting with the interlaced
+        /// <see cref="WriteBlock(float[], long, long)"/> variant.
+        /// </summary>
+        float[] writeCache = new float[0];
 
         /// <summary>
         /// Writes the audio data as a new <see cref="track"/> into a <see cref="container"/>, amongst other tracks.
@@ -74,6 +81,21 @@ namespace Cavern.Format.Container {
         public override void WriteBlock(float[] samples, long from, long to) {
             track.EncodeNextBlock(samples);
             container.WriteBlock(track.timeStep);
+        }
+
+        /// <summary>
+        /// Write a block of multichannel samples.
+        /// </summary>
+        /// <param name="samples">Samples to write</param>
+        /// <param name="from">Start position in the input array (inclusive)</param>
+        /// <param name="to">End position in the input array (exclusive)</param>
+        public override void WriteBlock(float[][] samples, long from, long to) {
+            long sampleCount = samples.Length * (to - from);
+            if (writeCache.LongLength < sampleCount) {
+                writeCache = new float[sampleCount];
+            }
+            WaveformUtils.MultichannelToInterlaced(samples, from, to, writeCache, 0);
+            WriteBlock(writeCache, 0, sampleCount);
         }
 
         /// <summary>

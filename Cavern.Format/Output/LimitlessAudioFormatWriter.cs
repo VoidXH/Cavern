@@ -3,6 +3,7 @@ using System.IO;
 
 using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.Format {
     /// <summary>
@@ -144,14 +145,35 @@ namespace Cavern.Format {
         public override void WriteBlock(float[] samples, long from, long to) {
             long dumpLength = to - from;
             while (from < to) {
-                for (; from < to && cachePosition < cache.Length; ++from) {
+                for (; from < to && cachePosition < cache.Length; from++) {
                     cache[cachePosition++] = samples[from];
                 }
                 if (cachePosition == cache.Length) {
-                    DumpBlock(cache.Length);
+                    DumpBlock(cache.LongLength);
                 }
             }
             if ((totalWritten += dumpLength) == Length * ChannelCount) {
+                DumpBlock(cachePosition);
+            }
+        }
+
+        /// <summary>
+        /// Write a block of multichannel samples.
+        /// </summary>
+        /// <param name="samples">Samples to write</param>
+        /// <param name="from">Start position in the input array (inclusive)</param>
+        /// <param name="to">End position in the input array (exclusive)</param>
+        public override void WriteBlock(float[][] samples, long from, long to) {
+            long dumpLength = to - from;
+            while (from < to) {
+                long samplesToWrite = Math.Min((to - from) * samples.LongLength, cache.Length - cachePosition);
+                WaveformUtils.MultichannelToInterlaced(samples, from, from += samplesToWrite / samples.LongLength, cache, cachePosition);
+                cachePosition += (int)samplesToWrite;
+                if (cachePosition == cache.Length) {
+                    DumpBlock(cache.LongLength);
+                }
+            }
+            if ((totalWritten += dumpLength) == Length) {
                 DumpBlock(cachePosition);
             }
         }

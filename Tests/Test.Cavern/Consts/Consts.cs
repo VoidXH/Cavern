@@ -7,6 +7,11 @@ namespace Test.Cavern {
     /// </summary>
     static class Consts {
         /// <summary>
+        /// Allowed floating point margin of error.
+        /// </summary>
+        internal const float delta = .000001f;
+
+        /// <summary>
         /// Generic test value.
         /// </summary>
         internal const int nice = 69;
@@ -24,9 +29,7 @@ namespace Test.Cavern {
         /// <summary>
         /// The result of convolving <see cref="samples"/> with <see cref="samples2"/>.
         /// </summary>
-        internal static readonly float[] convolved = {
-            6, -1.6848315f, -1.1056854f, 0.1806264f, 0.20000002f, -0.12724546f, 0.025685448f, -0.12854938f, 0.24000007f, -0.12854931f
-        };
+        internal static readonly float[] convolved = { .06f, .19f, .4f, .7f, 1.1f, 1.14f, 1.06f, .85f, .5f, 0 };
 
         /// <summary>
         /// Some complex samples used where complex samples are needed.

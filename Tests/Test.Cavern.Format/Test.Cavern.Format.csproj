@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+    <ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
   </ItemGroup>
 
 </Project>
