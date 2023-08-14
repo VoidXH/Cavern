@@ -242,7 +242,7 @@ namespace Cavern.QuickEQ.Utilities {
                 bands.Add(new Band(Math.Pow(10, startPow + powRange * pos), 20 * Math.Log10(graph[pos])));
             }
             bands.Reverse();
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>

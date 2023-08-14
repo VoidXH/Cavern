@@ -78,7 +78,7 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             bands.Reverse();
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Cavern.QuickEQ.Equalization {
                     bands.Add(new Band((float)Math.Pow(10, startPow + powRange * windowPos), refGain[windowPos] - graph[windowPos]));
                 }
             }
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Cavern.QuickEQ.Equalization {
             for (int i = 0; i < bands.Length; i++) {
                 result.Add(new Band(source[i].Frequency, 20 * Math.Log10(bands[i] * div)));
             }
-            return new Equalizer(result);
+            return new Equalizer(result, true);
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace Cavern.QuickEQ.Equalization {
             }
 
             bands.Sort();
-            return new Equalizer(bands.Distinct().ToList());
+            return new Equalizer(bands.Distinct().ToList(), true);
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace Cavern.QuickEQ.Equalization {
             for (int i = 0; i < spectrum.Length >> 1; ++i) {
                 bands.Add(new Band(i * step, -20 * Math.Log10(spectrum[i].Magnitude)));
             }
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace Cavern.QuickEQ.Equalization {
             for (int entry = 0, end = source.Length >> 1; entry < end; entry++) {
                 bands.Add(new Band(step * entry, 20 * Math.Log10(source[entry].Magnitude)));
             }
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace Cavern.QuickEQ.Equalization {
                     entry += merge;
                 }
             }
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>
@@ -382,7 +382,7 @@ namespace Cavern.QuickEQ.Equalization {
         public static Equalizer FromGraph(float[] source, double startFreq, double endFreq) {
             List<Band> bands = new List<Band>();
             GraphUtils.ForEachLog(source, startFreq, endFreq, (double freq, ref float gain) => bands.Add(new Band(freq, gain)));
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>
@@ -394,7 +394,7 @@ namespace Cavern.QuickEQ.Equalization {
                 bands.Add(new Band(source[band], source[band + 1]));
             }
             bands.Sort();
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             bands.Sort();
-            return new Equalizer(bands);
+            return new Equalizer(bands, true);
         }
 
         /// <summary>

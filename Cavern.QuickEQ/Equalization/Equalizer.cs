@@ -88,8 +88,12 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Equalizer data collector and exporter from a previously created set of bands.
         /// </summary>
-        /// <remarks>The list of bands must be sorted.</remarks>
-        internal Equalizer(List<Band> bands) {
+        /// <param name="bands">Bands to add</param>
+        /// <param name="sorted">The bands are in ascending order by frequency</param>
+        public Equalizer(List<Band> bands, bool sorted) {
+            if (!sorted) {
+                bands.Sort();
+            }
             this.bands = bands;
             RecalculatePeakGain();
         }
@@ -97,7 +101,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Create a copy of this EQ with the same bands.
         /// </summary>
-        public object Clone() => new Equalizer(bands.ToList());
+        public object Clone() => new Equalizer(bands.ToList(), true);
 
         /// <summary>
         /// Add a new band to the EQ.
@@ -211,7 +215,7 @@ namespace Cavern.QuickEQ.Equalization {
                 output.Add(new Band(with.bands[band].Frequency, with.bands[band].Gain + this[with.bands[band].Frequency]));
             }
             output.Sort();
-            return new Equalizer(output.Distinct().ToList());
+            return new Equalizer(output.Distinct().ToList(), true);
         }
 
         /// <summary>

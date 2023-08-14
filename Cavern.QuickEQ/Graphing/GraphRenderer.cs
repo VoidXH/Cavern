@@ -208,7 +208,7 @@ namespace Cavern.QuickEQ.Graphing {
             if (redraw) {
                 entry.ReRenderFull();
                 DrawSingle(entry);
-                Overlay.DrawOn(this);
+                Overlay?.DrawOn(this);
             }
             return entry;
         }
