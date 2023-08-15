@@ -101,5 +101,11 @@ namespace Cavern.Utilities {
                     return CavernBlue;
             }
         }
+
+        /// <summary>
+        /// Convert a Unity <see cref="Color"/> to ARGB which Cavern's graphing is using.
+        /// </summary>
+        public static uint ToARGB(this Color color) =>
+            ((uint)(color.a * 255) << 24) | (uint)(color.r * 255) << 16 | (uint)(color.g * 255) << 8 | (uint)(color.b * 255);
     }
 }

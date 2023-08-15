@@ -1,10 +1,19 @@
 ﻿using UnityEngine;
 
+using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
     /// Unity extension functions for graph rendering.
     /// </summary>
     public static class GraphRenderExtensions {
+        /// <summary>
+        /// Add a curve with a Unity color.
+        /// </summary>
+        public static RenderedCurve AddCurve(this GraphRenderer renderer, Equalizer curve, Color color) =>
+            renderer.AddCurve(curve, color.ToARGB());
+
         /// <summary>
         /// Copies the rendered graph to a Unity texture.
         /// </summary>
