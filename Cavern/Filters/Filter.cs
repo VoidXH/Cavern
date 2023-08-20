@@ -1,4 +1,6 @@
-﻿using Cavern.Utilities;
+﻿using System;
+
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -23,6 +25,35 @@ namespace Cavern.Filters {
             WaveformUtils.ExtractChannel(samples, singleChannel, channel, channels);
             Process(singleChannel);
             WaveformUtils.Insert(singleChannel, samples, channel, channels);
+        }
+
+        /// <summary>
+        /// Some filters, like <see cref="Normalizer"/> require block-by-block processing, and can't handle an entire signal
+        /// at once. This function will process the <paramref name="samples"/> block by block with a given <paramref name="blockSize"/>.
+        /// </summary>
+        public void ProcessInBlocks(float[] samples, long blockSize) {
+            float[] block = new float[blockSize];
+            for (long i = 0; i < samples.LongLength; i += blockSize) {
+                long currentBlock = Math.Min(blockSize, samples.LongLength - i);
+                Array.Copy(samples, i, block, 0, currentBlock);
+                Process(block);
+                Array.Copy(block, 0, samples, i, currentBlock);
+            }
+        }
+
+        /// <summary>
+        /// Some filters, like <see cref="Normalizer"/> require block-by-block processing, and can't handle an entire signal
+        /// at once. This function will process a single channel of the multichannel signal contained in the <paramref name="samples"/>
+        /// block by block with a given <paramref name="blockSize"/>.
+        /// </summary>
+        public void ProcessInBlocks(float[] samples, int channel, int channels, long blockSize) {
+            float[] block = new float[blockSize];
+            long samplesPerChannel = samples.LongLength / channels;
+            for (long i = 0; i < samplesPerChannel; i += blockSize) {
+                WaveformUtils.ExtractChannel(samples, i * channels, block, channel, channels);
+                Process(block);
+                WaveformUtils.Insert(block, samples, (int)i * channels + channel, channels);
+            }
         }
     }
 }

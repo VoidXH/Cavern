@@ -140,6 +140,28 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Extract part of a single channel from a multichannel audio stream.
+        /// </summary>
+        /// <param name="from">Source audio stream</param>
+        /// <param name="offset">Sample offset in the <paramref name="from"/> array, across all channels</param>
+        /// <param name="to">Destination channel data</param>
+        /// <param name="channel">Target channel</param>
+        /// <param name="channels">Channel count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void ExtractChannel(float[] from, long offset, float[] to, int channel, int channels) {
+            fixed (float* pFrom = from)
+            fixed (float* pTo = to) {
+                float* source = pFrom + offset + channel,
+                    destination = pTo,
+                    end = pTo + Math.Min(from.Length - offset, to.Length);
+                while (destination != end) {
+                    *destination++ = *source;
+                    source += channels;
+                }
+            }
+        }
+
+        /// <summary>
         /// Multiplies all values in an array.
         /// </summary>
         /// <param name="target">Array reference</param>
