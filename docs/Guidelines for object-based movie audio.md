@@ -105,6 +105,11 @@ while always being spatially accurate. This is the current general practice.
   equal and at the wall of the room. This exaggerates in-room object movement.
   The same behavior can be reproduced with Cavern by halving the values of
   `Listener.EnvironmentSize`.
+* The object-embedded channels in a Dolby Atmos mix do not match neither their
+  official speaker placement guides or the Cavern Driver's angles. Because of
+  this, to be accurate, Cavernize, and only Cavernize, is using those angles if
+  a preset layout is applied instead of Cavern Driver. These positions are found
+  in ChannelPrototype.Conts.cs as `ChannelPrototype.AlternativePositions`.
 
 ## Commercial cinema audio guidelines
 Unless the maximum `Source` count of 128 is surpassed, Cavern's
