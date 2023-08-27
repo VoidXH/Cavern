@@ -30,8 +30,6 @@ namespace EQAPOtoFIR {
                 case "GraphicEQ":
                     target.Modify(GraphicEQ(split[1]));
                     break;
-                default:
-                    break;
             }
         }
 

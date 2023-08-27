@@ -35,6 +35,7 @@ namespace Cavern.Utilities {
         /// Force disable CavernAmp for performance benchmarks.
         /// </summary>
         public static bool Bypass {
+            get => bypass;
             set {
                 bypass = value;
                 if (available) {

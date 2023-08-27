@@ -24,7 +24,9 @@ namespace Cavern.Format {
         /// <summary>
         /// Create the file header.
         /// </summary>
-        public override void WriteHeader() { }
+        public override void WriteHeader() {
+            // Abstract function, but not required operation
+        }
 
         /// <summary>
         /// Write a block of mono or interlaced samples.
@@ -53,8 +55,9 @@ namespace Cavern.Format {
                 }
                 case BitDepth.Int24: {
                     int[] temp = new int[to - from];
-                    for (long i = from; i < to; i++)
+                    for (long i = from; i < to; i++) {
                         temp[i - from] = (int)(samples[i] * 8388607f);
+                    }
                     WriteBlock(output, temp, samples.Length, from, to, "int");
                     break;
                 }

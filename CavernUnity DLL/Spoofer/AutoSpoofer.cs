@@ -51,13 +51,13 @@ namespace Cavern.Spoofer {
                 spoofer.Source = listenerInstance;
                 spoofer.duality = Duality;
             }
-            this.sources.RemoveAll(x => !x);
-            AudioSource[] sources = FindObjectsOfType<AudioSource>();
-            for (int source = 0, end = sources.Length; source < end; ++source) {
-                if (!this.sources.Contains(sources[source])) {
-                    this.sources.Add(sources[source]);
-                    AudioSourceSpoofer spoofer = sources[source].gameObject.AddComponent<AudioSourceSpoofer>();
-                    spoofer.Source = sources[source];
+            sources.RemoveAll(x => !x);
+            AudioSource[] toAdd = FindObjectsOfType<AudioSource>();
+            for (int source = 0, end = toAdd.Length; source < end; ++source) {
+                if (!sources.Contains(toAdd[source])) {
+                    sources.Add(toAdd[source]);
+                    AudioSourceSpoofer spoofer = toAdd[source].gameObject.AddComponent<AudioSourceSpoofer>();
+                    spoofer.Source = toAdd[source];
                     spoofer.duality = Duality;
                 }
             }

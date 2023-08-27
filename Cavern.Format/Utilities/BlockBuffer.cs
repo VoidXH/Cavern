@@ -66,9 +66,14 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Converts a stream reader to a 4 kB block buffer.
+        /// </summary>
+        public static BlockBuffer<byte> Create(Stream reader) => Create(reader, 4096);
+
+        /// <summary>
         /// Converts a stream reader to a block buffer of fixed size.
         /// </summary>
-        public static BlockBuffer<byte> Create(Stream reader, int blockSize = 4096) {
+        public static BlockBuffer<byte> Create(Stream reader, int blockSize) {
             Stream readerCopy = reader;
             int blockSizeCopy = blockSize;
             return new BlockBuffer<byte>(() => reader.ReadBytes(blockSizeCopy), pos => readerCopy.Position = pos);

@@ -1,5 +1,5 @@
 ﻿namespace Cavern.Virtualizer {
-    partial class VirtualizerFilter {
+    public partial class VirtualizerFilter {
         /// <summary>
         /// Returns the default HRIR set (see the Cavern HRIR repo for more info).
         /// </summary>

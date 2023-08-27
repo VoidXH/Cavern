@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 
@@ -19,7 +20,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Total length of the filter.
         /// </summary>
-        long bufferLength = 0;
+        long bufferLength;
 
         /// <summary>
         /// Convolution exporter as HLS addition.
@@ -35,7 +36,9 @@ namespace Cavern.Format {
         /// <summary>
         /// Create the file header.
         /// </summary>
-        public override void WriteHeader() {}
+        public override void WriteHeader() {
+            // Abstract function, but not required operation
+        }
 
         /// <summary>Write a block of samples.</summary>
         /// <param name="samples">Samples to write</param>
@@ -54,7 +57,7 @@ namespace Cavern.Format {
                                 if (convolution.ContainsKey(sample)) {
                                     convolution[sample].Add(from);
                                 } else {
-                                    convolution.Add(sample, new List<long>() { from });
+                                    convolution.Add(sample, new List<long> { from });
                                 }
                             }
                             from++;
@@ -138,7 +141,7 @@ namespace Cavern.Format {
                 code.AppendLine("\tResultSample res = 0;");
                 if (Bits == BitDepth.Float32) { // Floats
                     for (long i = 0; i < to; ++i) {
-                        code.AppendLine($"\tres += {name}_{i} * {samples[i].ToString().Replace(',', '.')}f;");
+                        code.AppendLine($"\tres += {name}_{i} * {samples[i].ToString(CultureInfo.InvariantCulture).Replace(',', '.')}f;");
                     }
                 } else { // Integers
                     foreach (KeyValuePair<long, List<long>> kv in convolution) {

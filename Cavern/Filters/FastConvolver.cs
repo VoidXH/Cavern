@@ -162,8 +162,8 @@ namespace Cavern.Filters {
         /// Performs the convolution of two real signals of any length. The real result is returned.
         /// </summary>
         public static float[] ConvolveSafe(float[] excitation, float[] impulse) {
-            using FFTCache cache = new ThreadSafeFFTCache(1 << QMath.Log2Ceil(excitation.Length + impulse.Length));
-            return ConvolveSafe(excitation, impulse, cache);
+            using FFTCache tempCache = new ThreadSafeFFTCache(1 << QMath.Log2Ceil(excitation.Length + impulse.Length));
+            return ConvolveSafe(excitation, impulse, tempCache);
         }
 
         /// <summary>

@@ -26,7 +26,7 @@ namespace EQAPOtoFIR {
         /// </summary>
         public ConfigParser(string path) {
             string[] contents = File.ReadAllLines(path);
-            string[] active = new string[] { "ALL" };
+            string[] active = { "ALL" };
             Dictionary<string, EqualizedChannel> channels = new Dictionary<string, EqualizedChannel> {
                 ["ALL"] = new EqualizedChannel("ALL")
             };
@@ -35,7 +35,7 @@ namespace EQAPOtoFIR {
                     continue;
                 }
                 if (contents[line].StartsWith("Channel:")) {
-                    active = contents[line][(contents[line].IndexOf(' ') + 1)..].Trim().ToUpper().Split(' ');
+                    active = contents[line][(contents[line].IndexOf(' ') + 1)..].Trim().ToUpperInvariant().Split(' ');
                 } else {
                     for (int ch = 0; ch < active.Length; ch++) {
                         if (!channels.ContainsKey(active[ch])) {

@@ -530,7 +530,6 @@ namespace Cavern.Utilities {
                     *(Vector2*)(pSamples + 1) = evenValue - oddValue;
                 }
             }
-            return;
         }
 
         /// <summary>

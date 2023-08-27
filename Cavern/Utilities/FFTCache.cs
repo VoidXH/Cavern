@@ -33,12 +33,12 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Cached cosines for each FFT band at each depth, doubled for SIMD operations.
         /// </summary>
-        internal static float[][] cos = new float[30][];
+        internal static readonly float[][] cos = new float[30][];
 
         /// <summary>
         /// Cached sines for each FFT band at each depth, doubled for SIMD operations.
         /// </summary>
-        internal static float[][] sin = new float[30][];
+        internal static readonly float[][] sin = new float[30][];
 
         /// <summary>
         /// Alternating 1s and 0s up to the maximum vector length supported by the CLR and the CPU.
@@ -81,12 +81,12 @@ namespace Cavern.Utilities {
                     float[] thisSin = sin[i] = new float[elements];
                     for (int j = 0; j < elements; j += 2) {
                         float rotation = j * step;
-                        float cos = MathF.Cos(rotation),
-                            sin = MathF.Sin(rotation);
-                        thisCos[j] = cos;
-                        thisCos[j + 1] = cos;
-                        thisSin[j] = sin;
-                        thisSin[j + 1] = sin;
+                        float cosValue = MathF.Cos(rotation),
+                            sinValue = MathF.Sin(rotation);
+                        thisCos[j] = cosValue;
+                        thisCos[j + 1] = cosValue;
+                        thisSin[j] = sinValue;
+                        thisSin[j + 1] = sinValue;
                     }
                 }
                 Interlocked.Increment(ref refcounts[i]);
