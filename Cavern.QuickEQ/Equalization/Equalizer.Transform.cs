@@ -278,9 +278,12 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         double GetConformGain(int firstBand, int lastBand, EQCurve targetCurve) {
             double clearStartFreq = bands[firstBand].Frequency,
-                clearEndFreq = bands[lastBand].Frequency,
-                targetGain = targetCurve.GetAverageLevel(clearStartFreq, clearEndFreq, (clearEndFreq - clearStartFreq) / 50);
-            return GetAverageLevel(firstBand, lastBand) + targetGain;
+                clearEndFreq = bands[lastBand].Frequency;
+            double result = GetAverageLevel(firstBand, lastBand);
+            if (targetCurve != null) {
+                return result + targetCurve.GetAverageLevel(clearStartFreq, clearEndFreq, (clearEndFreq - clearStartFreq) / 50);
+            }
+            return result;
         }
     }
 }

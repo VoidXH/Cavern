@@ -8,7 +8,7 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// IIR filter set for MiniDSP 2x4. This class is for the MiniDSP 2x4 Advanced driver.
     /// </summary>
-    /// <remarks>MiniDSP hardware only work on 96 kHz sampling rate. Using anything else breaks the filter set.</remarks>
+    /// <remarks>MiniDSP 2x4s only work on 96 kHz sampling rate. Using anything else breaks the filter set.</remarks>
     public class MiniDSP2x4FilterSet : IIRFilterSet {
         /// <summary>
         /// Maximum number of peaking EQ filters per channel.
@@ -33,12 +33,22 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// IIR filter set for MiniDSP 2x4 with a given number of channels.
         /// </summary>
-        public MiniDSP2x4FilterSet(int channels) : base(channels, 96000) { }
+        public MiniDSP2x4FilterSet(int channels) : this(channels, sampleRate) { }
 
         /// <summary>
-        /// IIR filter set for MiniDSP 2x4 with a given number of channels.
+        /// IIR filter set for MiniDSP 2x4 with a given set of channels.
         /// </summary>
-        public MiniDSP2x4FilterSet(ReferenceChannel[] channels) : base(channels, 96000) { }
+        public MiniDSP2x4FilterSet(ReferenceChannel[] channels) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// IIR filter set for MiniDSP 2x4 with a given number of channels and at a modified sample rate.
+        /// </summary>
+        internal MiniDSP2x4FilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// IIR filter set for MiniDSP 2x4 with a given set of channels and at a modified sample rate.
+        /// </summary>
+        internal MiniDSP2x4FilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
         /// Export the filter set to a target file.
@@ -77,6 +87,11 @@ namespace Cavern.Format.FilterSet {
             }
             File.WriteAllLines(path, lines);
         }
+
+        /// <summary>
+        /// Working sample rate of all MiniDSP 2x4s.
+        /// </summary>
+        const int sampleRate = 96000;
     }
 
     /// <summary>
@@ -94,7 +109,7 @@ namespace Cavern.Format.FilterSet {
         public MiniDSP2x4HDFilterSet(int channels) : base(channels) { }
 
         /// <summary>
-        /// IIR filter set for MiniDSP 2x4 HD with a given number of channels.
+        /// IIR filter set for MiniDSP 2x4 HD with a given set of channels.
         /// </summary>
         public MiniDSP2x4HDFilterSet(ReferenceChannel[] channels) : base(channels) { }
     }

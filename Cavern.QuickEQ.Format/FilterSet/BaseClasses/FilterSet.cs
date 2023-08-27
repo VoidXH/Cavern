@@ -77,6 +77,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MiniDSP2x4AdvancedLite => new MiniDSP2x4FilterSetLite(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
                 FilterSetTarget.MiniDSP2x4HDLite => new MiniDSP2x4HDFilterSetLite(channels),
+                FilterSetTarget.MiniDSPDDRC88A => new MiniDSPDDRC88AFilterSet(channels),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
@@ -105,6 +106,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MiniDSP2x4AdvancedLite => new MiniDSP2x4FilterSetLite(channels),
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
                 FilterSetTarget.MiniDSP2x4HDLite => new MiniDSP2x4HDFilterSetLite(channels),
+                FilterSetTarget.MiniDSPDDRC88A => new MiniDSPDDRC88AFilterSet(channels),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
@@ -224,6 +226,10 @@ namespace Cavern.Format.FilterSet {
         /// MiniDSP 2x4 HD hardware DSP, only using half the bands.
         /// </summary>
         MiniDSP2x4HDLite,
+        /// <summary>
+        /// MiniDSP DDRC-88A hardware DSP.
+        /// </summary>
+        MiniDSPDDRC88A,
 
         // -------------------------------------------------------------------------
         // AVRs and processors -----------------------------------------------------
