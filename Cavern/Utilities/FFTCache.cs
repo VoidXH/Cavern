@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.Threading;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -9,6 +10,11 @@ namespace Cavern.Utilities {
     /// unless you use <see cref="ThreadSafeFFTCache"/>.
     /// </remarks>
     public class FFTCache : IDisposable {
+        /// <summary>
+        /// Number of samples in an FFT this cache can maximally handle.
+        /// </summary>
+        public int Size { get; }
+
         /// <summary>
         /// Preallocated even split arrays. Globally cached in single-threaded applications.
         /// </summary>
@@ -50,31 +56,40 @@ namespace Cavern.Utilities {
         internal IntPtr Native { get; private set; }
 
         /// <summary>
+        /// Number of existing FFTCache instances of each size.
+        /// </summary>
+        static readonly int[] refcounts = new int[30];
+
+        /// <summary>
         /// FFT cache constructor.
         /// </summary>
         public FFTCache(int size) {
+            Size = size;
             if (CavernAmp.Available && CavernAmp.IsMono()) { // CavernAmp only improves performance when the runtime has no SIMD
                 Native = CavernAmp.FFTCache_Create(size);
                 return;
             }
 
-            for (int i = 0, c = QMath.Log2(size); i < c; ++i) {
+            for (int i = 0, c = QMath.Log2(size); i < c; i++) {
                 if (cos[i] != null) {
                     continue;
                 }
                 int elements = 2 << i;
                 float step = -MathF.PI / elements;
-                float[] thisCos = cos[i] = new float[elements];
-                float[] thisSin = sin[i] = new float[elements];
-                for (int j = 0; j < elements; j += 2) {
-                    float rotation = j * step;
-                    float cos = MathF.Cos(rotation),
-                        sin = MathF.Sin(rotation);
-                    thisCos[j] = cos;
-                    thisCos[j + 1] = cos;
-                    thisSin[j] = sin;
-                    thisSin[j + 1] = sin;
+                if (cos[i] == null) {
+                    float[] thisCos = cos[i] = new float[elements];
+                    float[] thisSin = sin[i] = new float[elements];
+                    for (int j = 0; j < elements; j += 2) {
+                        float rotation = j * step;
+                        float cos = MathF.Cos(rotation),
+                            sin = MathF.Sin(rotation);
+                        thisCos[j] = cos;
+                        thisCos[j + 1] = cos;
+                        thisSin[j] = sin;
+                        thisSin[j + 1] = sin;
+                    }
                 }
+                Interlocked.Increment(ref refcounts[i]);
             }
 
             float[] maskSource = new float[Vector<float>.Count + 1];
@@ -105,6 +120,18 @@ namespace Cavern.Utilities {
                 if (Even[depth] == null) {
                     Even[depth] = new Complex[1 << depth];
                     Odd[depth] = new Complex[1 << depth];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Free the memory of large cos/sin caches when they're not required anymore.
+        /// </summary>
+        ~FFTCache() {
+            for (int i = 0, c = QMath.Log2(Size); i < c; i++) {
+                if (Interlocked.Decrement(ref refcounts[i]) == 0) {
+                    cos[i] = null;
+                    sin[i] = null;
                 }
             }
         }
