@@ -42,7 +42,7 @@ auto-detect the format:
 ```
 Clip clip = AudioReader.ReadClip(pathToFile);
 ```
-Refer to the [scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/Cavern/Clip/index)
+Refer to the [scripting API](https://cavern.sbence.hu/cavern/doc.php?if=api/Cavern/Clip/index)
 for the complete description of this object.
 
 ### Listener
@@ -65,7 +65,7 @@ all listeners to 5.1:
 ```
 Listener.ReplaceChannels(6);
 ```
-Refer to the [scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/Cavern/Listener/index)
+Refer to the [scripting API](https://cavern.sbence.hu/cavern/doc.php?if=api/Cavern/Listener/index)
 for the complete description of this object.
 
 ### Source
@@ -80,7 +80,7 @@ Source source = new Source() {
 listener.AttachSource(source);
 ```
 Sources that are no longer used should be detached from the listener using
-`DetachSource`. Refer to the [scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/Cavern/Source/index)
+`DetachSource`. Refer to the [scripting API](https://cavern.sbence.hu/cavern/doc.php?if=api/Cavern/Source/index)
 for the complete description of this object.
 
 ### Rendering
@@ -92,7 +92,7 @@ float[] output = listener.Render();
 The length of this array is `listener.UpdateRate * Listener.Channels.Length`.
 
 ## Development documents
-* [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
+* [Scripting API](https://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
 * [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
-* [Limitless Audio Format](http://cavern.sbence.hu/cavern/doc.php?p=LAF) for storing Cavern mixes in a CPU-effective spatial format
-* [Cavern DCP channel order](http://cavern.sbence.hu/cavern/doc.php?p=DCP) compared to DCP standards
+* [Limitless Audio Format](https://cavern.sbence.hu/cavern/doc.php?p=LAF) for storing Cavern mixes in a CPU-effective spatial format
+* [Cavern DCP channel order](https://cavern.sbence.hu/cavern/doc.php?p=DCP) compared to DCP standards

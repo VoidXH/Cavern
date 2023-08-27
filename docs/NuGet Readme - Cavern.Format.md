@@ -65,6 +65,6 @@ Just like `AudioReader`, an `AudioWriter` can be used with a single call
 (`WriteHeader()` and `WriteBlock(float[] samples, long from, long to)`).
 
 ## Development documents
-* [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
-* [Limitless Audio Format](http://cavern.sbence.hu/cavern/doc.php?p=LAF) for storing Cavern mixes in a CPU-effective spatial format
-* [Cavern DCP channel order](http://cavern.sbence.hu/cavern/doc.php?p=DCP) compared to DCP standards
+* [Scripting API](https://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
+* [Limitless Audio Format](https://cavern.sbence.hu/cavern/doc.php?p=LAF) for storing Cavern mixes in a CPU-effective spatial format
+* [Cavern DCP channel order](https://cavern.sbence.hu/cavern/doc.php?p=DCP) compared to DCP standards

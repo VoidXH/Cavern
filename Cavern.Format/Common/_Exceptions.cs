@@ -52,6 +52,18 @@ namespace Cavern.Format.Common {
     }
 
     /// <summary>
+    /// Tells if the selected bit depth is not supported for the current operation.
+    /// </summary>
+    public class InvalidBitDepthException : Exception {
+        const string message = "The selected bit depth ({0}) is not supported.";
+
+        /// <summary>
+        /// Tells if the selected bit depth is not supported for the current operation.
+        /// </summary>
+        public InvalidBitDepthException(BitDepth bits) : base(string.Format(message, bits)) { }
+    }
+
+    /// <summary>
     /// Tells if some channels are not supported by the export format.
     /// </summary>
     public class InvalidChannelException : Exception {

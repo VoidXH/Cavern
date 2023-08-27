@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
@@ -230,6 +231,8 @@ namespace Cavern.Format {
                         }
                     }
                     break;
+                default:
+                    throw new InvalidBitDepthException(Bits);
             }
             cachePosition = 0;
         }

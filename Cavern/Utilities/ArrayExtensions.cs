@@ -107,7 +107,20 @@ namespace Cavern.Utilities {
                 }
             }
             return closest;
+        }
 
+        /// <summary>
+        /// Remove the 0 or default elements from the end of an array.
+        /// </summary>
+        public static void RemoveZeros<T>(ref T[] arr) where T : IComparable {
+            int newLength = arr.Length;
+            while (newLength > 0) {
+                if (arr[--newLength].CompareTo(default(T)) != 0) {
+                    newLength++;
+                    break;
+                }
+            }
+            Array.Resize(ref arr, newLength);
         }
     }
 }

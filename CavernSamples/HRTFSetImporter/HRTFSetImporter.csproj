@@ -5,13 +5,13 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <Copyright>Copyright © VoidX 2022</Copyright>
+    <Copyright>Copyright © VoidX 2023</Copyright>
     <Description>Processes HRTF sets to be inserted into the Cavern source code.</Description>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <DebugType>full</DebugType>
     <Authors>VoidX</Authors>
     <Product>HRTF Set Importer</Product>
-    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>

@@ -162,9 +162,9 @@ namespace Cavern {
         /// <param name="output">Audio data cache</param>
         /// <param name="channel">Channel ID to get samples from</param>
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
-        /// <returns>The operation was successful as the channel counts matched.</returns>
+        /// <returns>The operation was successful.</returns>
         public bool GetData(float[] output, int channel, int offset) {
-            if (output.Length != data[0].Length) {
+            if (channel >= data.Channels) {
                 return false;
             }
 

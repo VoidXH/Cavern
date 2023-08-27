@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Channels;
+using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
@@ -242,6 +243,8 @@ namespace Cavern.Format {
                         output[4 * i + 3] = val.byte3;
                     }
                     break;
+                default:
+                    throw new InvalidBitDepthException(Bits);
             }
             writer.Write(output);
         }

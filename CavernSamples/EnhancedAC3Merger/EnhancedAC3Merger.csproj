@@ -4,13 +4,13 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <Copyright>Copyright © VoidX 2022</Copyright>
+    <Copyright>Copyright © VoidX 2023</Copyright>
     <Description>Combines multiple tracks into a channel-based spatial E-AC-3 file up to 16 specific channels.</Description>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <DebugType>full</DebugType>
     <Authors>VoidX</Authors>
     <Product>Enhanced AC-3 Merger</Product>
-    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>

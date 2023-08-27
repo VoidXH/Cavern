@@ -52,7 +52,7 @@ namespace VoidX.WPF {
         /// <summary>
         /// The HTTP query that results in getting the latest revision number.
         /// </summary>
-        const string updateLocation = "http://sbence.hu/ver/cavg.php";
+        const string updateLocation = "https://sbence.hu/ver/cavg.php";
 
         /// <summary>
         /// The current revision number. If the received revision is newer, an &quot;update available&quot; message is shown.
@@ -62,6 +62,6 @@ namespace VoidX.WPF {
         /// <summary>
         /// The page where the new version can be downloaded.
         /// </summary>
-        const string downloadLink = "http://cavern.sbence.hu/cavern/downloads.php";
+        const string downloadLink = "https://cavern.sbence.hu/cavern/downloads.php";
     }
 }

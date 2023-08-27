@@ -490,7 +490,7 @@ namespace CavernizeGUI {
         /// Opens the software's documentation.
         /// </summary>
         void Guide(object _, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
-            FileName = "http://cavern.sbence.hu/cavern/doc.php?p=Cavernize",
+            FileName = "https://cavern.sbence.hu/cavern/doc.php?p=Cavernize",
             UseShellExecute = true
         });
 
@@ -509,7 +509,7 @@ namespace CavernizeGUI {
         /// Open Cavern's website.
         /// </summary>
         void Ad(object _, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
-            FileName = "http://cavern.sbence.hu",
+            FileName = "https://cavern.sbence.hu",
             UseShellExecute = true
         });
 

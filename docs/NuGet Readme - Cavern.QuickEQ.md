@@ -54,4 +54,4 @@ to `Cavern.QuickEQ.dll`. It doesn't require any code changes, but it only runs
 on Windows.
 
 ## Development documents
-* [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
+* [Scripting API](https://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes

@@ -7,8 +7,8 @@
     <Authors>VoidX</Authors>
     <Product>Cavern Benchmark</Product>
     <Description>Evaluates Cavern's performance on your system in various use cases.</Description>
-    <Copyright>Copyright © VoidX 2022</Copyright>
-    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <Copyright>Copyright © VoidX 2023</Copyright>
+    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>

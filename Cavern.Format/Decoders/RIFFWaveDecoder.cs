@@ -204,7 +204,7 @@ namespace Cavern.Format.Decoders {
                     8 => BitDepth.Int8,
                     16 => BitDepth.Int16,
                     24 => BitDepth.Int24,
-                    _ => throw new IOException($"Unsupported bit depth for signed little endian integer: {bitDepth}.")
+                    _ => throw new InvalidBitDepthException(Bits)
                 };
             } else if (sampleFormat == 3 && bitDepth == 32) {
                 Bits = BitDepth.Float32;

@@ -5,13 +5,13 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-    <Copyright>Copyright © VoidX 2022</Copyright>
+    <Copyright>Copyright © VoidX 2023</Copyright>
     <Description>Simulates nodes and antinodes in free space for the loaded impulse responses.</Description>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <DebugType>full</DebugType>
     <Authors>VoidX</Authors>
     <Product>Wavefront Simulator</Product>
-    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>

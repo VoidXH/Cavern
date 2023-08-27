@@ -20,6 +20,8 @@ rd /s /q CavernSamples\Deconvolver\bin
 rd /s /q CavernSamples\Deconvolver\obj
 rd /s /q CavernSamples\EnhancedAC3Merger\bin
 rd /s /q CavernSamples\EnhancedAC3Merger\obj
+rd /s /q CavernSamples\EQAPOtoFIR\bin
+rd /s /q CavernSamples\EQAPOtoFIR\obj
 rd /s /q CavernSamples\HRTFSetImporter\bin
 rd /s /q CavernSamples\HRTFSetImporter\obj
 rd /s /q CavernSamples\QuickEQResultMerger\bin

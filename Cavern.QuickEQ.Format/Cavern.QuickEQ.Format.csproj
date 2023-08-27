@@ -7,7 +7,7 @@
     <Authors>VoidX</Authors>
     <Description>Software and hardware support for exporting calibrations made with Cavern QuickEQ.</Description>
     <Copyright>Copyright © Bence Sgánetz 2016-2023</Copyright>
-    <PackageProjectUrl>http://cavern.sbence.hu/</PackageProjectUrl>
+    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>

@@ -5,32 +5,32 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <Copyright>Copyright © VoidX 2023</Copyright>
-    <Description>Performs or reverses convolutions or generates a transfer function between two systems.</Description>
+    <Description>Converts Equalizer APO configuration files to various FIR filter source files.</Description>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <DebugType>full</DebugType>
     <Authors>VoidX</Authors>
-    <Product>De/convolver</Product>
+    <Product>Equalizer APO to FIR</Product>
     <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
     <ApplicationIcon>..\Icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\VoidX.WPF\NumericUpDown.xaml.cs" Link="Controls\NumericUpDown.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="..\VoidX.WPF\NumericUpDown.xaml" Link="Controls\NumericUpDown.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+    <ProjectReference Include="..\..\Cavern.QuickEQ.Format\Cavern.QuickEQ.Format.csproj" />
     <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+
 </Project>

@@ -1,0 +1,57 @@
+﻿<Window x:Class="EQAPOtoFIR.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EQAPOtoFIR"
+        xmlns:voidx="clr-namespace:VoidX.WPF"
+        mc:Ignorable="d"
+        Title="Equalizer APO to FIR" Height="286" Width="404">
+    <Grid>
+        <GroupBox Header="Configuration" Height="42" Margin="10,10,10,0" VerticalAlignment="Top">
+            <Grid>
+                <Button Content="Open file" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="Open"/>
+                <Label x:Name="configFile" Content="Click this button to open an Equalizer APO config."
+                       Margin="80,2,0,0" Padding="0,0,0,0" Height="18" VerticalAlignment="Top"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Sample rate" HorizontalAlignment="Left" Height="45" Margin="10,57,0,0" VerticalAlignment="Top" Width="100">
+            <voidx:NumericUpDown x:Name="sampleRate" Minimum="8000" Value="48000" Maximum="384000" />
+        </GroupBox>
+        <GroupBox Header="FFT size" HorizontalAlignment="Left" Height="45" Margin="10,107,0,0" VerticalAlignment="Top" Width="100">
+            <local:FFTSize x:Name="fftSize" Minimum="512" Value="65536" Maximum="1024576" />
+        </GroupBox>
+        <GroupBox Header="Bit depth" HorizontalAlignment="Left" Height="95" Margin="115,57,0,0" VerticalAlignment="Top" Width="100">
+            <Grid>
+                <RadioButton x:Name="int8" Content="8-bit int" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <RadioButton x:Name="int16" Content="16-bit int" HorizontalAlignment="Left" Margin="0,19,0,0" VerticalAlignment="Top"/>
+                <RadioButton x:Name="int24" Content="24-bit int" HorizontalAlignment="Left" Margin="0,38,0,0" VerticalAlignment="Top" IsChecked="True"/>
+                <RadioButton x:Name="float32" Content="32-bit float" HorizontalAlignment="Left" Margin="0,57,0,0" VerticalAlignment="Top"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Direction" Height="45" Margin="220,57,10,0" VerticalAlignment="Top">
+            <Grid>
+                <RadioButton x:Name="impulse" Content="Impulse" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0" IsChecked="True"/>
+                <RadioButton x:Name="fir" Content="FIR" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,4,0,0"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Format" Height="104" Margin="220,107,10,0" VerticalAlignment="Top">
+            <Grid>
+                <RadioButton x:Name="wav" Content="WAVE" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0" IsChecked="True"/>
+                <RadioButton x:Name="c" Content="C array" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="69,4,0,0"/>
+                <RadioButton x:Name="hls" Content="HLS optimization" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,24,0,0"/>
+                <RadioButton x:Name="multEQX_PEQ" Content="MultEQ-X (PEQ only)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,44,0,-2"/>
+                <RadioButton x:Name="multEQX_full" Content="MultEQ-X (full approx.)" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,64,0,-2"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Optimize for" HorizontalAlignment="Left" Height="45" Margin="10,157,0,0" VerticalAlignment="Top" Width="205">
+            <Grid>
+                <RadioButton x:Name="minimum" Content="No delay" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0" IsChecked="True"/>
+                <RadioButton x:Name="unchanged" Content="Flat phase" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="90,4,0,0"/>
+            </Grid>
+        </GroupBox>
+        <Button Content="by VoidX" Margin="0,0,90,10" Click="Ad_Click" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
+        <Button x:Name="export" Content="Export" Margin="0,0,10,10"
+                Click="Export" IsEnabled="False" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
+    </Grid>
+</Window>
