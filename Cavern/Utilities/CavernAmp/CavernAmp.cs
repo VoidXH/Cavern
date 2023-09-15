@@ -63,10 +63,15 @@ namespace Cavern.Utilities {
         static bool tested;
 
         /// <summary>
+        /// The running CLR is Mono.
+        /// </summary>
+        static bool? mono;
+
+        /// <summary>
         /// The running CLR is Mono, which limits optimization possibilities and for example,
         /// Vectors run much slower, they should not be used.
         /// </summary>
-        public static bool IsMono() => Type.GetType("Mono.Runtime") != null;
+        public static bool IsMono() => mono ??= Type.GetType("Mono.Runtime") != null;
 
         /// <summary>
         /// Gets supported CPU instruction sets.
