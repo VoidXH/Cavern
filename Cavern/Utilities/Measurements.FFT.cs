@@ -37,12 +37,13 @@ namespace Cavern.Utilities {
             fixed (Complex* pOdd = odd)
             fixed (float* pCosCache = FFTCache.cos[depth + 1])
             fixed (float* pSinCache = FFTCache.sin[depth + 1]) {
-                Complex* result = pSamples,
+                int step = Vector<float>.Count >> 1;
+                Vector2* result = (Vector2*)pSamples,
                     mirror = result + (samples.Length >> 1),
                     end = mirror,
-                    endSimd = end - (Vector<float>.Count >> 1),
-                    evenRef = pEven,
-                    oddRef = pOdd;
+                    endSimd = end - step,
+                    evenRef = (Vector2*)pEven,
+                    oddRef = (Vector2*)pOdd;
                 float* cosCache = pCosCache,
                     sinCache = pSinCache;
 
@@ -64,7 +65,6 @@ namespace Cavern.Utilities {
                     *(Vector<float>*)result = evenSource + newOdd;
                     *(Vector<float>*)mirror = evenSource - newOdd;
 
-                    int step = Vector<float>.Count >> 1;
                     result += step;
                     mirror += step;
                     evenRef += step;
@@ -75,19 +75,15 @@ namespace Cavern.Utilities {
 
                 // Slow pass
                 while (result != end) {
-                    float evenReal = evenRef->Real,
-                        evenImag = evenRef->Imaginary,
-                        oddRealSource = oddRef->Real,
-                        oddImagSource = oddRef->Imaginary,
+                    float oddRealSource = oddRef->X,
+                        oddImagSource = oddRef->Y,
                         cachedCos = *cosCache,
-                        cachedSin = *sinCache,
-                        oddReal = oddRealSource * cachedCos - oddImagSource * cachedSin,
-                        oddImag = oddRealSource * cachedSin + oddImagSource * cachedCos;
+                        cachedSin = *sinCache;
+                    Vector2 newOdd = new Vector2(oddRealSource * cachedCos - oddImagSource * cachedSin,
+                        oddRealSource * cachedSin + oddImagSource * cachedCos);
 
-                    result->Real = evenReal + oddReal;
-                    result->Imaginary = evenImag + oddImag;
-                    mirror->Real = evenReal - oddReal;
-                    mirror->Imaginary = evenImag - oddImag;
+                    *result = *evenRef + newOdd;
+                    *mirror = *evenRef - newOdd;
 
                     result++;
                     mirror++;
