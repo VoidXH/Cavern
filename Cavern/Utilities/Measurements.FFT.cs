@@ -219,9 +219,12 @@ namespace Cavern.Utilities {
             if (CavernAmp.IsMono()) {
                 ProcessFFT_Mono(even, cache, --depth);
                 ProcessFFT_Mono(odd, cache, depth);
-            } else {
+            } else if (even.Length != 4) {
                 ProcessFFT(even, cache, --depth);
                 ProcessFFT(odd, cache, depth);
+            } else {
+                ProcessFFT4(even);
+                ProcessFFT4(odd);
             }
 
             float[] cosCache = FFTCache.cos[depth + 1],

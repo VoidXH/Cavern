@@ -55,6 +55,19 @@ namespace Test.Cavern {
         }
 
         /// <summary>
+        /// Tests the FFT variant which optimizes the first step of the FFT to keep an absolute result.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void FFT1D() {
+            float[] signal = new float[16];
+            signal[0] = 1;
+            float[] fft = signal.FFT1D();
+            for (int i = 0; i < fft.Length; i++) {
+                Assert.IsTrue(fft[i] == 1);
+            }
+        }
+
+        /// <summary>
         /// Tests an FFT with a length of 4, which is calling a hardcoded FFT variant.
         /// </summary>
         [TestMethod, Timeout(1000)]
