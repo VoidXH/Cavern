@@ -22,7 +22,7 @@ self-calibration libraries built on the Cavern engine are also available.
 	* Uniformity can be achieved without a calibration file
 	* Supported software/hardware for EQ/filter set export:
     * PC: Equalizer APO, CamillaDSP
-    * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD
+    * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD, MiniDSP DDRC-88A
     * Processors: Emotiva, StormAudio
     * Amplifiers: Behringer NX series
     * Others: Audyssey MultEQ-X
