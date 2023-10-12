@@ -10,7 +10,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
     /// Decodes an object audio element metadata block.
     /// </summary>
-    class OAElementMD {
+    partial class OAElementMD {
         /// <summary>
         /// Gets the timecode of the first update in this block.
         /// </summary>

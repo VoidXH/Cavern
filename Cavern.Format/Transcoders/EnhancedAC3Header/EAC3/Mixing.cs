@@ -10,15 +10,15 @@ namespace Cavern.Format.Transcoders {
 
         /// <summary>
         /// Center downmixing level (cmixlev).
-        /// When using E-AC-3, both LtRt and LoRo modes are included (ltrtcmixlev and lorocmixlev).
+        /// When using E-AC-3, both Lt/Rt and Lo/Ro modes are contained (ltrtcmixlev and lorocmixlev).
         /// </summary>
-        int centerDownmix;
+        byte centerDownmix;
 
         /// <summary>
         /// Surround downmixing level (surmixlev).
-        /// When using E-AC-3, both LtRt and LoRo modes are included (ltrtsurmixlev and lorosurmixlev).
+        /// When using E-AC-3, both Lt/Rt and Lo/Ro modes are contained (ltrtsurmixlev and lorosurmixlev).
         /// </summary>
-        int surroundDownmix;
+        byte surroundDownmix;
 
         int dmixmod;
         int? lfemixlevcod;
@@ -50,10 +50,10 @@ namespace Cavern.Format.Transcoders {
                 dmixmod = extractor.Read(2);
             }
             if (((ChannelMode & 1) != 0) && (ChannelMode > 2)) { // 3 front channels present
-                centerDownmix = extractor.Read(6);
+                centerDownmix = (byte)extractor.Read(6);
             }
             if ((ChannelMode & 0x4) != 0) { // Surround present
-                surroundDownmix = extractor.Read(6);
+                surroundDownmix = (byte)extractor.Read(6);
             }
             if (LFE) {
                 lfemixlevcod = extractor.ReadConditional(5);
@@ -168,6 +168,43 @@ namespace Cavern.Format.Transcoders {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Get the center downmix gain when downmixing in Lt/Rt mode.
+        /// </summary>
+        float GetCenterDownmixLtRt() => Decoder == EnhancedAC3.Decoders.EAC3 ? GetCenterDownmix(centerDownmix >> 3) : GetCenterDownmixAC3();
+
+        /// <summary>
+        /// Get the center downmix gain when downmixing in Lt/Rt mode.
+        /// </summary>
+        float GetCenterDownmixLoRo() => Decoder == EnhancedAC3.Decoders.EAC3 ? GetCenterDownmix(centerDownmix & 0x7) : GetCenterDownmixAC3();
+
+        /// <summary>
+        /// Get the center downmix gain from an E-AC3 code.
+        /// </summary>
+        float GetCenterDownmix(int code) {
+            return code switch {
+                0 => 1.414f,
+                2 => 1.189f,
+                3 => 1,
+                4 => .841f,
+                5 => .707f,
+                6 => .595f,
+                7 => .5f,
+                _ => 0
+            };
+        }
+
+        /// <summary>
+        /// Get the center downmix gain from an AC3 code.
+        /// </summary>
+        float GetCenterDownmixAC3() {
+            return centerDownmix switch {
+                0 => .707f,
+                2 => .5f,
+                _ => .595f
+            };
         }
     }
 }

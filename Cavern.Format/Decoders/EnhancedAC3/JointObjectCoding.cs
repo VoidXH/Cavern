@@ -10,7 +10,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// </summary>
     partial class JointObjectCoding : IDisposable {
         /// <summary>
-        /// The object is active and will have rendered audio data.
+        /// The object is active and will have rendered audio data (b_joc_obj_present).
         /// </summary>
         public bool[] ObjectActive = new bool[0];
 

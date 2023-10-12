@@ -8,7 +8,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
     /// <summary>
     /// A decoded OAMD frame from an EMDF payload.
     /// </summary>
-    class ObjectAudioMetadata {
+    partial class ObjectAudioMetadata {
         /// <summary>
         /// Count of bed channels.
         /// </summary>

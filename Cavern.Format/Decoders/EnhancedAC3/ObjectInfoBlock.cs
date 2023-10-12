@@ -5,7 +5,7 @@ using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
-    class ObjectInfoBlock {
+    partial class ObjectInfoBlock {
         /// <summary>
         /// This block contained a position information update.
         /// </summary>

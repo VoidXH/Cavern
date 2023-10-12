@@ -21,7 +21,7 @@ namespace Cavern.Format.Transcoders {
         int dheadphonmod;
         int dsurexmod;
         bool audprodie;
-        int mixlevel;
+        byte mixlevel;
         int roomtyp;
         bool adconvtyp;
         bool audprodi2e;
@@ -48,7 +48,7 @@ namespace Cavern.Format.Transcoders {
                 dsurexmod = extractor.Read(2);
             }
             if (audprodie = extractor.ReadBit()) {
-                mixlevel = extractor.Read(5);
+                mixlevel = (byte)extractor.Read(5);
                 roomtyp = extractor.Read(2);
                 adconvtyp = extractor.ReadBit();
             }

@@ -22,10 +22,10 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         void ReadBitStreamInformation(BitExtractor extractor) {
             if ((ChannelMode & 0x1) != 0 && (ChannelMode != 0x1)) { // 3 fronts exist
-                centerDownmix = extractor.Read(2);
+                centerDownmix = (byte)extractor.Read(2);
             }
             if ((ChannelMode & 0x4) != 0) { // Surrounds exist
-                surroundDownmix = extractor.Read(2);
+                surroundDownmix = (byte)extractor.Read(2);
             }
             if (ChannelMode == 0x2) { // Stereo
                 dsurmod = extractor.Read(2);
@@ -36,7 +36,7 @@ namespace Cavern.Format.Transcoders {
             compr = extractor.ReadConditional(8);
             langcod = extractor.ReadConditional(8);
             if (audprodie = extractor.ReadBit()) {
-                mixlevel = extractor.Read(5);
+                mixlevel = (byte)extractor.Read(5);
                 roomtyp = extractor.Read(2);
             }
 

@@ -168,6 +168,9 @@ namespace Cavern.Format.Decoders {
         /// </summary>
         public ReadableMetadata GetMetadata() {
             IEnumerable<ReadableMetadataHeader> headers = header.GetMetadata().Headers;
+            if (Extensions.OAMD != null) {
+                headers = headers.Concat(Extensions.OAMD.GetMetadata().Headers);
+            }
             if (Extensions.JOC != null) {
                 headers = headers.Concat(Extensions.JOC.GetMetadata().Headers);
             }

@@ -9,17 +9,17 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         readonly float[][][] prevMatrix;
 
         /// <summary>
-        /// If true, the temporal extension transition will not be linearly interpolated, only stepped.
+        /// If true, the temporal extension transition will not be linearly interpolated, only stepped (joc_slope_idx).
         /// </summary>
         bool[] steepSlope;
 
         /// <summary>
-        /// Indexing value for given <see cref="bands"/> values in cache tables.
+        /// Indexing value for given <see cref="bands"/> values in cache tables (joc_num_bands_idx).
         /// </summary>
         byte[] bandsIndex;
 
         /// <summary>
-        /// Number of processed bands of each object.
+        /// Number of processed bands of each object (joc_num_bands).
         /// </summary>
         byte[] bands;
 
@@ -35,7 +35,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
 
         /// <summary>
         /// The given object is using sparse coding (<see cref="jocChannel"/> and <see cref="jocVector"/>) instead
-        /// of a fully encoded matrix (<see cref="jocMatrix"/>).
+        /// of a fully encoded matrix (<see cref="jocMatrix"/>) (b_joc_sparse).
         /// </summary>
         bool[] sparseCoded;
 
