@@ -12,6 +12,11 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         public bool ValidPosition { get; private set; }
 
         /// <summary>
+        /// This object is not dynamic, but used as a bed channel.
+        /// </summary>
+        public bool IsBed => anchor == ObjectAnchor.Speaker;
+
+        /// <summary>
         /// This frame contains the difference from the last object position instead of an exact position.
         /// </summary>
         bool differentialPosition;

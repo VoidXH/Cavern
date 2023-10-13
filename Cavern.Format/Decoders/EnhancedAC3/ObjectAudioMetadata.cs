@@ -28,7 +28,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// Bed channels used. The first dimension is the element ID, the second is one bit for each channel,
         /// in the order of <see cref="bedChannels"/>.
         /// </summary>
-        bool[][] bedAssignment = new bool[0][];
+        bool[][] bedAssignment;
 
         /// <summary>
         /// Use intermediate spatial format (ISF), which has a few fixed layouts.
@@ -163,6 +163,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     bedAssignment = new bool[1][];
                     bedAssignment[0] = new bool[(int)NonStandardBedChannel.Max];
                     bedAssignment[0][(int)NonStandardBedChannel.LowFrequencyEffects] = true;
+                } else {
+                    bedAssignment = new bool[0][];
                 }
             } else {
                 int contentDescription = extractor.Read(4);

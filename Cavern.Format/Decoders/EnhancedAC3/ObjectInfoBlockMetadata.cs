@@ -5,6 +5,7 @@ using Cavern.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {
     partial class ObjectInfoBlock : IMetadataSupplier {
+        /// <inheritdoc/>
         public ReadableMetadata GetMetadata() => new ReadableMetadata(new List<ReadableMetadataHeader> {
             new ReadableMetadataHeader("Object Info Block", new[] {
                 new ReadableMetadataField("object_gain", "Object gain", gain < 0 ? "reuse" : QMath.GainToDb(gain).ToString("0 dB")),
