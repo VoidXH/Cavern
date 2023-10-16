@@ -16,6 +16,9 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         public LimitlessAudioFormatRenderer(LimitlessAudioFormatDecoder stream) : base(stream) {
             SetupObjects(stream.ChannelCount);
+            for (int i = 0; i < stream.ChannelCount; i++) {
+                objects[i].Position = stream.ObjectPositions[i];
+            }
             objectSamples[0] = new float[0];
         }
 
