@@ -30,6 +30,11 @@ namespace Cavern.Utilities {
         public float Phase => MathF.Atan2(Imaginary, Real);
 
         /// <summary>
+        /// Squared magnitude of the complex number.
+        /// </summary>
+        public float SqrMagnitude => Real * Real + Imaginary * Imaginary;
+
+        /// <summary>
         /// Complex number from a scalar.
         /// </summary>
         public Complex(float real) {

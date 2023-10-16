@@ -6,6 +6,21 @@ namespace Cavern.Utilities {
     /// </summary>
     public static class ComplexArray {
         /// <summary>
+        /// Add the <paramref name="other"/> array's each element to the same indexes in the <paramref name="source"/>.
+        /// </summary>
+        public static unsafe void Add(this Complex[] source, Complex[] other) {
+            fixed (Complex* pSource = source)
+            fixed (Complex* pOther = other) {
+                Complex* lhs = pSource,
+                    rhs = pOther,
+                    end = pSource + source.Length;
+                while (lhs != end) {
+                    *lhs++ += *rhs++;
+                }
+            }
+        }
+
+        /// <summary>
         /// Convert all elements in the <paramref name="source"/> to their conjugates.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
