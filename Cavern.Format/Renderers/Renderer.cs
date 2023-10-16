@@ -77,7 +77,7 @@ namespace Cavern.Format.Renderers {
         /// Set up the renderer for a number of objects.
         /// </summary>
         protected void SetupObjects(int count) {
-            for (int obj = 0; obj < count; ++obj) {
+            for (int obj = 0; obj < count; obj++) {
                 objects.Add(new StreamMasterSource(reader, obj));
             }
             FinishSetup(count);
@@ -89,7 +89,7 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         protected void SetupChannels() {
             ReferenceChannel[] channels = GetChannels();
-            for (int channel = 0; channel < channels.Length; ++channel) {
+            for (int channel = 0; channel < channels.Length; channel++) {
                 int referenceIndex = (int)channels[channel];
                 Source source = new StreamMasterSource(reader, channel) {
                     Position = ChannelPrototype.AlternativePositions[referenceIndex] * Listener.EnvironmentSize,
@@ -104,7 +104,7 @@ namespace Cavern.Format.Renderers {
         /// Finishing steps of creating a layout.
         /// </summary>
         protected void FinishSetup(int count) {
-            for (int obj = 0; obj < count; ++obj) {
+            for (int obj = 0; obj < count; obj++) {
                 objects[obj].VolumeRolloff = Rolloffs.Disabled;
             }
             reader.SetupSources(objects, stream.SampleRate);

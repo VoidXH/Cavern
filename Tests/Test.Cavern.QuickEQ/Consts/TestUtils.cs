@@ -2,7 +2,7 @@
     /// <summary>
     /// Common utilities used in testing like assertions.
     /// </summary>
-    internal class TestUtils {
+    internal static class TestUtils {
         /// <summary>
         /// Test if an <paramref name="array"/> between the given limits is strictly monotonously decreasing,
         /// but allowing an error margin of <paramref name="epsilon"/>.

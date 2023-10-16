@@ -12,7 +12,7 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         /// <remarks>Internal Cavern channel positions are not the same.</remarks>
         public static ReferenceChannel ChannelFromPosition(Vector3 position) {
-            for (int i = 0; i < ChannelPrototype.AlternativePositions.Length; ++i) {
+            for (int i = 0; i < ChannelPrototype.AlternativePositions.Length; i++) {
                 if (position == ChannelPrototype.AlternativePositions[i]) {
                     return (ReferenceChannel)i;
                 }

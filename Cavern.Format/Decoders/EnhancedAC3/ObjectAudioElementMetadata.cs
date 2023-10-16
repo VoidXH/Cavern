@@ -73,7 +73,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (elementIndex == objectElementIndex) {
                 ObjectElement(extractor, objectCount, bedOrISFObjects);
             } else { // Other elements are unused by encoders
-                blockOffsetFactor = new short[] { (short)(-1 - elementIndex) };
+                blockOffsetFactor = new[] { (short)(-1 - elementIndex) };
             }
             extractor.Position = endPos; // Padding
         }

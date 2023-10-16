@@ -216,16 +216,16 @@ namespace Cavern.QuickEQ {
         /// Get the delay of an impulse response in samples. In this case, delay means the index of the highest absolute value sample.
         /// </summary>
         public static int GetDelay(float[] response) {
-            int delay = 0;
+            int result = 0;
             float absPeak = float.NegativeInfinity, absHere;
             for (int pos = 0; pos < response.Length; ++pos) {
                 absHere = Math.Abs(response[pos]);
                 if (absPeak < absHere) {
                     absPeak = absHere;
-                    delay = pos;
+                    result = pos;
                 }
             }
-            return delay;
+            return result;
         }
 
         /// <summary>
