@@ -71,6 +71,7 @@ namespace Cavern.Utilities {
             }
 
             for (int i = 0, c = QMath.Log2(size); i < c; i++) {
+                Interlocked.Increment(ref refcounts[i]);
                 if (cos[i] != null) {
                     continue;
                 }
@@ -89,7 +90,6 @@ namespace Cavern.Utilities {
                         thisSin[j + 1] = sinValue;
                     }
                 }
-                Interlocked.Increment(ref refcounts[i]);
             }
 
             float[] maskSource = new float[Vector<float>.Count + 1];
