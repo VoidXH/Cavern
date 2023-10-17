@@ -67,6 +67,19 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Multiply all elements in the <paramref name="array"/> with the <paramref name="gain"/>.
+        /// </summary>
+        public static unsafe void Gain(this Complex[] array, float gain) {
+            fixed (Complex* pArray = array) {
+                Complex* lhs = pArray,
+                    end = pArray + array.Length;
+                while (lhs != end) {
+                    *lhs++ *= gain;
+                }
+            }
+        }
+
+        /// <summary>
         /// Convert a float array to complex a size that's ready for FFT.
         /// </summary>
         public static Complex[] ParseForFFT(this float[] source) {
