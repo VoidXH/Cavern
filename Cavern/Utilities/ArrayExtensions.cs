@@ -62,6 +62,30 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Deep copies a 1-dimensional array.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] DeepCopy1D<T>(this T[] source) where T : ICloneable {
+            T[] clone = source.FastClone();
+            for (int i = 0; i < clone.Length; i++) {
+                clone[i] = (T)clone[i].Clone();
+            }
+            return clone;
+        }
+
+        /// <summary>
+        /// Deep copies a 2-dimensional array.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[][] DeepCopy2D<T>(this T[][] source) {
+            T[][] clone = source.FastClone();
+            for (int i = 0; i < clone.Length; i++) {
+                clone[i] = clone[i].FastClone();
+            }
+            return clone;
+        }
+
+        /// <summary>
         /// Checks if an array has any values matching a <paramref name="predicate"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -48,6 +48,9 @@ namespace Cavern.Utilities {
             for (int i = start; i < end; i++) {
                 ThreadPool.QueueUserWorkItem(Step, i);
             }
+            if (runs == 0) {
+                return;
+            }
             taskWaiter.Wait();
         }
 
