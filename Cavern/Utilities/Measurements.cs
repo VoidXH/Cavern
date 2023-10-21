@@ -202,7 +202,7 @@ namespace Cavern.Utilities {
         public static void MinimumPhaseSpectrum(Complex[] response, FFTCache cache) {
             bool customCache = false;
             if (cache == null) {
-                cache = new FFTCache(response.Length);
+                cache = new ThreadSafeFFTCache(response.Length);
                 customCache = true;
             }
             int halfLength = response.Length / 2;

@@ -8,19 +8,19 @@ namespace Cavern.Utilities {
     /// </summary>
     public class FFTCachePool : IDisposable {
         /// <summary>
+        /// Size of the used FFTs.
+        /// </summary>
+        public int Size { get; private set; }
+
+        /// <summary>
         /// Caches not currently leased.
         /// </summary>
         readonly Stack<FFTCache> caches = new Stack<FFTCache>();
 
         /// <summary>
-        /// Size of the used FFTs.
-        /// </summary>
-        readonly int size;
-
-        /// <summary>
         /// Create an <see cref="FFTCache"/> pool for this FFT size.
         /// </summary>
-        public FFTCachePool(int size) => this.size = size;
+        public FFTCachePool(int size) => Size = size;
 
         /// <summary>
         /// Get an <see cref="FFTCache"/> to work with.
@@ -28,7 +28,7 @@ namespace Cavern.Utilities {
         public FFTCache Lease() {
             lock (this) {
                 if (caches.Count == 0) {
-                    return new ThreadSafeFFTCache(size);
+                    return new ThreadSafeFFTCache(Size);
                 } else {
                     return caches.Pop();
                 }
