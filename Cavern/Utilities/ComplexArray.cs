@@ -21,6 +21,18 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Get the average of multiple transfer functions.
+        /// </summary>
+        public static Complex[] Average(this Complex[][] sources) {
+            Complex[] result = new Complex[sources[0].Length];
+            for (int i = 0; i < sources.Length; i++) {
+                Add(result, sources[i]);
+            }
+            Gain(result, 1f / sources.Length);
+            return result;
+        }
+
+        /// <summary>
         /// Convert all elements in the <paramref name="source"/> to their conjugates.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,6 +89,30 @@ namespace Cavern.Utilities {
                     *lhs++ *= gain;
                 }
             }
+        }
+
+        /// <summary>
+        /// Get the maximum at each position of the transfer functions.
+        /// </summary>
+        public static unsafe Complex[] Max(this Complex[][] sources) {
+            Complex[] result = new Complex[sources[0].Length];
+            fixed (Complex* pTarget = result) {
+                Complex* end = pTarget + result.Length;
+                for (int i = 0; i < sources.Length; i++) {
+                    fixed (Complex* pSource = sources[i]) {
+                        Complex* source = pSource,
+                            target = pTarget;
+                        while (target != end) {
+                            if ((*target).ComparisonMagnitude < (*source).ComparisonMagnitude) {
+                                *target = *source;
+                            }
+                            source++;
+                            target++;
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
         /// <summary>

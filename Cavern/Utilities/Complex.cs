@@ -35,6 +35,11 @@ namespace Cavern.Utilities {
         public float SqrMagnitude => Real * Real + Imaginary * Imaginary;
 
         /// <summary>
+        /// Use this value to compare two complex values by amplitude the fastest.
+        /// </summary>
+        public float ComparisonMagnitude => Math.Abs(Real) + Math.Abs(Imaginary);
+
+        /// <summary>
         /// Complex number from a scalar.
         /// </summary>
         public Complex(float real) {
