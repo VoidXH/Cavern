@@ -33,6 +33,21 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Get the average of multiple frequency responses.
+        /// </summary>
+        public static float[] AverageMagnitudes(this Complex[][] sources) {
+            float[] result = new float[sources[0].Length >> 1];
+            for (int i = 0; i < sources.Length; i++) {
+                Complex[] source = sources[i];
+                for (int j = 0; j < result.Length; j++) {
+                    result[j] += source[j].Magnitude;
+                }
+            }
+            WaveformUtils.Gain(result, 1f / sources.Length);
+            return result;
+        }
+
+        /// <summary>
         /// Convert all elements in the <paramref name="source"/> to their conjugates.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
