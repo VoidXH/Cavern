@@ -47,6 +47,10 @@ namespace Cavern.Format.FilterSet {
             List<string> configFile = header != null ? new List<string>(header) : new List<string>();
             for (int i = 0; i < Channels.Length; i++) {
                 FIRChannelData channelRef = (FIRChannelData)Channels[i];
+                if (channelRef.filter == null) {
+                    continue;
+                }
+
                 string targetLabel = GetLabel(i),
                     filterRelative = $"{fileNameBase} {channelRef.name ?? targetLabel}.wav",
                     filterPath = Path.Combine(folder, filterRelative);
