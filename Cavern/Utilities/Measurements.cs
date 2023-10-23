@@ -10,7 +10,7 @@ namespace Cavern.Utilities {
         /// Fast Fourier transform a 2D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static Complex[] FFT(this Complex[] samples) {
-            using FFTCache cache = new FFTCache(samples.Length);
+            using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
             return samples.FFT(cache);
         }
 
@@ -27,7 +27,7 @@ namespace Cavern.Utilities {
         /// Fast Fourier transform a 1D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static Complex[] FFT(this float[] samples) {
-            using FFTCache cache = new FFTCache(samples.Length);
+            using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
             return samples.FFT(cache);
         }
 
@@ -51,7 +51,7 @@ namespace Cavern.Utilities {
             if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceFFT(samples);
             } else {
-                using FFTCache cache = new FFTCache(samples.Length);
+                using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
                 ProcessFFT(samples, cache);
             }
         }
@@ -72,7 +72,7 @@ namespace Cavern.Utilities {
         /// Spectrum of a signal's FFT. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static float[] FFT1D(this float[] samples) {
-            using FFTCache cache = new FFTCache(samples.Length);
+            using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
             return samples.FFT1D(cache);
         }
 
@@ -94,7 +94,7 @@ namespace Cavern.Utilities {
             if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceFFT(samples);
             } else {
-                using FFTCache cache = new FFTCache(samples.Length);
+                using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
                 ProcessFFT(samples, cache);
             }
         }
@@ -120,7 +120,7 @@ namespace Cavern.Utilities {
             if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceIFFT(samples);
             } else {
-                using FFTCache cache = new FFTCache(samples.Length);
+                using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
                 samples.InPlaceIFFT(cache);
             }
             return samples;
@@ -148,7 +148,7 @@ namespace Cavern.Utilities {
                 CavernAmp.InPlaceIFFT(samples);
                 return;
             }
-            using FFTCache cache = new FFTCache(samples.Length);
+            using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
             samples.InPlaceIFFT(cache);
         }
 
@@ -349,7 +349,7 @@ namespace Cavern.Utilities {
         /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static Complex[] GetFrequencyResponse(float[] reference, float[] response) {
-            using FFTCache tempCache = new FFTCache(reference.Length);
+            using FFTCache tempCache = new ThreadSafeFFTCache(reference.Length);
             return GetFrequencyResponse(reference, response, tempCache);
         }
 
