@@ -18,6 +18,11 @@ namespace Cavern.Utilities {
         readonly Stack<FFTCache> caches = new Stack<FFTCache>();
 
         /// <summary>
+        /// Used for safe locking.
+        /// </summary>
+        readonly object locker = new object();
+
+        /// <summary>
         /// Create an <see cref="FFTCache"/> pool for this FFT size.
         /// </summary>
         public FFTCachePool(int size) => Size = size;
@@ -26,7 +31,7 @@ namespace Cavern.Utilities {
         /// Get an <see cref="FFTCache"/> to work with.
         /// </summary>
         public FFTCache Lease() {
-            lock (this) {
+            lock (locker) {
                 if (caches.Count == 0) {
                     return new ThreadSafeFFTCache(Size);
                 } else {
@@ -39,7 +44,7 @@ namespace Cavern.Utilities {
         /// Store the <paramref name="cache"/> for later reuse.
         /// </summary>
         public void Return(FFTCache cache) {
-            lock (this) {
+            lock (locker) {
                 caches.Push(cache);
             }
         }

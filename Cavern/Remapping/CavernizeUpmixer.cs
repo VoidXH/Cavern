@@ -43,11 +43,19 @@ namespace Cavern.Remapping {
 
         /// <summary>
         /// Creates height information for ground sources with the <see cref="Cavernize"/> filter.
+        /// The default crossover frequency of 250 Hz will be used.
+        /// </summary>
+        /// <param name="sources">Mono sources to upconvert, not attached to any <see cref="Listener"/></param>
+        /// <param name="sampleRate">Content sample rate</param>
+        public CavernizeUpmixer(IList<Source> sources, int sampleRate) : this(sources, sampleRate, 250) { }
+
+        /// <summary>
+        /// Creates height information for ground sources with the <see cref="Cavernize"/> filter.
         /// </summary>
         /// <param name="sources">Mono sources to upconvert, not attached to any <see cref="Listener"/></param>
         /// <param name="sampleRate">Content sample rate</param>
         /// <param name="crossoverFrequency">Keep sounds below this frequency on the ground layer</param>
-        public CavernizeUpmixer(IList<Source> sources, int sampleRate, int crossoverFrequency = 250) :
+        public CavernizeUpmixer(IList<Source> sources, int sampleRate, int crossoverFrequency) :
             base(2 * sources.Count, sampleRate) {
             this.sources = sources.ToArray();
 

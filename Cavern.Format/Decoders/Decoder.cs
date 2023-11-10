@@ -91,7 +91,7 @@ namespace Cavern.Format.Decoders {
                         byte* src = pSrc,
                             end = src + source.Length;
                         while (src != end) {
-                            target[from++] = (((*(ushort*)src) << 8) | *(src += sizeof(ushort)) << 24) *
+                            target[from++] = ((*(ushort*)src << 8) | *(src += sizeof(ushort)) << 24) *
                                 BitConversions.fromInt32; // This needs to be shifted into overflow for correct sign
                             src++;
                         }

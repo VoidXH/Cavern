@@ -59,9 +59,9 @@
 
     internal static class BitConversions {
         public const int int24Max = (1 << 23) - 1;
-        public const float fromInt8 = 1 / (float)sbyte.MaxValue;
-        public const float fromInt16 = 1 / (float)short.MaxValue;
-        public const float fromInt24 = 1 / (float)int24Max;
-        public const float fromInt32 = 1 / (float)int.MaxValue;
+        public const float fromInt8 = 1f / sbyte.MaxValue;
+        public const float fromInt16 = 1f / short.MaxValue;
+        public const float fromInt24 = 1f / int24Max;
+        public const float fromInt32 = 1f / int.MaxValue;
     }
 }
