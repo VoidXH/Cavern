@@ -43,14 +43,14 @@ namespace Test.Cavern {
             using FFTCache cache = new FFTCache(signal.Length);
             Complex[] fft = signal.FFT(cache);
             for (int i = 0; i < fft.Length; i++) {
-                Assert.IsTrue(i == 1 || i == 31 ? fft[i].Real == (signal.Length >> 1) : Math.Abs(fft[i].Real) < .000002f);
-                Assert.IsTrue(Math.Abs(fft[i].Imaginary) < .000004f);
+                Assert.IsTrue(i == 1 || i == 31 ? fft[i].Real == (signal.Length >> 1) : Math.Abs(fft[i].Real) < 2 * Consts.delta);
+                Assert.IsTrue(Math.Abs(fft[i].Imaginary) < 4 * Consts.delta);
             }
 
             fft.InPlaceIFFT(cache);
             for (int i = 0; i < fft.Length; i++) {
-                Assert.IsTrue(Math.Abs(fft[i].Real - signal[i]) < .000002f);
-                Assert.IsTrue(Math.Abs(fft[i].Imaginary) < .000002f);
+                Assert.IsTrue(Math.Abs(fft[i].Real - signal[i]) < 2 * Consts.delta);
+                Assert.IsTrue(Math.Abs(fft[i].Imaginary) < 2 * Consts.delta);
             }
         }
 

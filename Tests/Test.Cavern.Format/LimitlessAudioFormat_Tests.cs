@@ -2,7 +2,7 @@
 
 namespace Test.Cavern.Format {
     /// <summary>
-    /// Tests the <see cref="Limit"/> class.
+    /// Tests the <see cref="LimitlessAudioFormatWriter"/> and <see cref="LimitlessAudioFormatReader"/> classes.
     /// </summary>
     [TestClass]
     public class LimitlessAudioFormat_Tests {
@@ -14,7 +14,7 @@ namespace Test.Cavern.Format {
             MemoryStream stream = new();
             using LimitlessAudioFormatWriter writer = new(stream, 4 * Consts.sampleRate, Consts.sampleRate, BitDepth.Float32, Consts.mono);
             using LimitlessAudioFormatReader reader = new(stream);
-            AudioReaderWriter_Tests.WriteBlockMono(writer, reader);
+            AudioReaderWriter_Tests.WriteBlockMono(writer, reader, Consts.epsilon);
         }
 
         /// <summary>

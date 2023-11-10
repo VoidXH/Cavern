@@ -62,7 +62,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Decode a block of RIFF WAVE data.
         /// </summary>
-        internal static void DecodeLittleEndianBlock(BlockBuffer<byte> reader, float[] target, long from, long to, BitDepth bits) {
+        internal static unsafe void DecodeLittleEndianBlock(BlockBuffer<byte> reader, float[] target, long from, long to, BitDepth bits) {
             byte[] source = reader.Read((int)(to - from) * ((int)bits >> 3));
             if (source == null) {
                 Array.Clear(target, (int)from, (int)(to - from));
@@ -72,29 +72,42 @@ namespace Cavern.Format.Decoders {
             switch (bits) {
                 case BitDepth.Int8: {
                         for (int i = 0; i < source.Length; i++) {
-                            target[from++] = source[i] * BitConversions.fromInt8;
+                            target[from++] = (sbyte)source[i] * BitConversions.fromInt8;
                         }
                         break;
                     }
-                case BitDepth.Int16: {
-                        for (int i = 0; i < source.Length;) {
-                            target[from++] = (short)(source[i++] | source[i++] << 8) * BitConversions.fromInt16;
+                case BitDepth.Int16:
+                    fixed (byte* pSrc = source) {
+                        byte* src = pSrc,
+                            end = src + source.Length;
+                        while (src != end) {
+                            target[from++] = *(short*)src * BitConversions.fromInt16;
+                            src += 2;
                         }
-                        break;
                     }
-                case BitDepth.Int24: {
-                        for (int i = 0; i < source.Length;) {
-                            target[from++] = ((source[i++] << 8 | source[i++] << 16 | source[i++] << 24) >> 8) *
-                                BitConversions.fromInt24; // This needs to be shifted into overflow for correct sign
+                    break;
+                case BitDepth.Int24:
+                    fixed (byte* pSrc = source) {
+                        byte* src = pSrc,
+                            end = src + source.Length;
+                        while (src != end) {
+                            target[from++] = (((*(ushort*)src) << 8) | *(src += sizeof(ushort)) << 24) *
+                                BitConversions.fromInt32; // This needs to be shifted into overflow for correct sign
+                            src++;
                         }
-                        break;
                     }
+                    break;
                 case BitDepth.Float32: {
                         if (from < int.MaxValue / sizeof(float)) {
                             Buffer.BlockCopy(source, 0, target, (int)from * sizeof(float), source.Length);
                         } else {
-                            for (int i = 0; i < source.Length; i++) {
-                                target[from++] = BitConverter.ToSingle(source, i * sizeof(float));
+                            fixed (byte* pSrc = source) {
+                                byte* src = pSrc,
+                                    end = src + source.Length;
+                                while (src != end) {
+                                    target[from++] = *(float*)src;
+                                    src += sizeof(float);
+                                }
                             }
                         }
                         break;

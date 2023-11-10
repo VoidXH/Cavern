@@ -11,8 +11,8 @@ namespace Test.Cavern.Filters {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void TrailingZeros() {
-            Assert.AreEqual(0.1442094593213907, QFactor.ToBandwidth(10), .0000001);
-            Assert.AreEqual(10, QFactor.FromBandwidth(0.1442094593213907), .0000001);
+            Assert.AreEqual(0.1442094593213907, QFactor.ToBandwidth(10), Consts.delta);
+            Assert.AreEqual(10, QFactor.FromBandwidth(0.1442094593213907), Consts.delta);
         }
     }
 }

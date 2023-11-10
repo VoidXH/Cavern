@@ -13,7 +13,7 @@ namespace Test.Cavern.Format {
         /// <summary>
         /// Allowed floating point margin of error.
         /// </summary>
-        internal const float delta = .000001f;
+        internal const float epsilon = .000001f;
 
         /// <summary>
         /// Mono channel layout.

@@ -28,7 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\2022.2.19f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\2022.3.12f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

@@ -228,7 +228,7 @@ namespace Cavern.Format {
                     break;
                 case BitDepth.Int24:
                     for (int i = 0; i < window; i++) {
-                        QMath.ConverterStruct val = new QMath.ConverterStruct { asInt = (int)(samples[from++] * int.MaxValue) };
+                        QMath.ConverterStruct val = new QMath.ConverterStruct { asInt = (int)((double)samples[from++] * int.MaxValue) };
                         output[3 * i] = val.byte1;
                         output[3 * i + 1] = val.byte2;
                         output[3 * i + 2] = val.byte3;
@@ -329,7 +329,7 @@ namespace Cavern.Format {
         /// Update 64-bit size information when needed before closing the file.
         /// </summary>
         public override void Dispose() {
-            if (writer == null) {
+            if (writer == null || !writer.CanWrite) {
                 return; // Already disposed
             }
 
