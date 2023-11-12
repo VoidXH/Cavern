@@ -85,7 +85,7 @@ namespace Cavern.Utilities {
         /// Replace the <paramref name="source"/> with its deconvolution with an <paramref name="other"/> array.
         /// </summary>
         public static void Deconvolve(this Complex[] source, Complex[] other) {
-            for (int i = 0; i < source.Length; ++i) {
+            for (int i = 0; i < source.Length; i++) {
                 float multiplier = 1 / (other[i].Real * other[i].Real + other[i].Imaginary * other[i].Imaginary),
                     oldReal = source[i].Real;
                 source[i].Real = (source[i].Real * other[i].Real + source[i].Imaginary * other[i].Imaginary) * multiplier;
@@ -118,7 +118,7 @@ namespace Cavern.Utilities {
                         Complex* source = pSource,
                             target = pTarget;
                         while (target != end) {
-                            if ((*target).ComparisonMagnitude < (*source).ComparisonMagnitude) {
+                            if ((*target).SqrMagnitude < (*source).SqrMagnitude) {
                                 *target = *source;
                             }
                             source++;
@@ -135,7 +135,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static Complex[] ParseForFFT(this float[] source) {
             Complex[] result = new Complex[QMath.Base2Ceil(source.Length)];
-            for (int i = 0; i < source.Length; ++i) {
+            for (int i = 0; i < source.Length; i++) {
                 result[i].Real = source[i];
             }
             return result;
@@ -146,8 +146,17 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This function clears the imaginary part, allowing the use of reusable arrays.</remarks>
         public static void ParseForFFT(this float[] source, Complex[] target) {
-            for (int i = 0; i < source.Length; ++i) {
+            for (int i = 0; i < source.Length; i++) {
                 target[i] = new Complex(source[i]);
+            }
+        }
+
+        /// <summary>
+        /// Set this array to the FFT of the Dirac delta function, which is constant 1.
+        /// </summary>
+        public static void SetToDiracDelta(this Complex[] array) {
+            for (int i = 0; i < array.Length; i++) {
+                array[i] = new Complex(1);
             }
         }
     }

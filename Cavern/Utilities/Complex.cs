@@ -35,11 +35,6 @@ namespace Cavern.Utilities {
         public float SqrMagnitude => Real * Real + Imaginary * Imaginary;
 
         /// <summary>
-        /// Use this value to compare two complex values by amplitude the fastest.
-        /// </summary>
-        public float ComparisonMagnitude => Math.Abs(Real) + Math.Abs(Imaginary);
-
-        /// <summary>
         /// Complex number from a scalar.
         /// </summary>
         public Complex(float real) {
@@ -109,6 +104,11 @@ namespace Cavern.Utilities {
             }
             return result;
         }
+
+        /// <summary>
+        /// Gets the complex number with a <see cref="Magnitude"/> of 1 and a desired <see cref="Phase"/>.
+        /// </summary>
+        public static Complex UnitPhase(float phase) => new Complex(MathF.Cos(phase), MathF.Sin(phase));
 
         /// <summary>
         /// True if the number is 0 + 0i.
