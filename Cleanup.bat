@@ -16,6 +16,8 @@ rd /s /q CavernSamples\Benchmark\bin
 rd /s /q CavernSamples\Benchmark\obj
 rd /s /q CavernSamples\CavernizeGUI\bin
 rd /s /q CavernSamples\CavernizeGUI\obj
+rd /s /q CavernSamples\CavernizeLive\bin
+rd /s /q CavernSamples\CavernizeLive\obj
 rd /s /q CavernSamples\Deconvolver\bin
 rd /s /q CavernSamples\Deconvolver\obj
 rd /s /q CavernSamples\EnhancedAC3Merger\bin
