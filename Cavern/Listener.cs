@@ -437,7 +437,7 @@ namespace Cavern {
             for (int source = 0; source < sourceDistances.Length; ++source) {
                 sourceDistances[source] = Range;
             }
-            pulseDelta = (frames * UpdateRate) / (float)SampleRate;
+            pulseDelta = frames * UpdateRate / (float)SampleRate;
 
             // Choose the sources to play
             LinkedListNode<Source> node = activeSources.First;

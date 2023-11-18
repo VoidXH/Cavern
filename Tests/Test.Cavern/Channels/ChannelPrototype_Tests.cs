@@ -1,6 +1,6 @@
 ﻿using Cavern.Channels;
 
-namespace Test.Cavern {
+namespace Test.Cavern.Channels {
     /// <summary>
     /// Tests the <see cref="ChannelPrototype"/> struct.
     /// </summary>

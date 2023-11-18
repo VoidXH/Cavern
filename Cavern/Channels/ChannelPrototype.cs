@@ -125,6 +125,24 @@ namespace Cavern.Channels {
         }
 
         /// <summary>
+        /// Convert a mapping of <see cref="ReferenceChannel"/>s to <see cref="ChannelPrototype"/>s with <see cref="AlternativePositions"/>.
+        /// </summary>
+        public static ChannelPrototype[] GetAlternative(ReferenceChannel[] source) {
+            ChannelPrototype[] result = new ChannelPrototype[source.Length];
+            for (int i = 0; i < source.Length; ++i) {
+                int index = (int)source[i];
+                ChannelPrototype old = Mapping[index];
+                Channel moved = new Channel(AlternativePositions[index], old.LFE);
+                if (old.X == 0) {
+                    result[i] = new ChannelPrototype(moved.Y, old.Name, old.LFE, old.Muted);
+                } else {
+                    result[i] = new ChannelPrototype(moved.Y, moved.X, old.Name);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Convert a mapping of <see cref="ReferenceChannel"/>s to the names of the channels.
         /// </summary>
         public static string[] GetNames(ReferenceChannel[] source) {
@@ -192,14 +210,20 @@ namespace Cavern.Channels {
         public static Channel[] ToLayout(ReferenceChannel[] source) => ToLayout(Get(source));
 
         /// <summary>
+        /// Convert a reference array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>,
+        /// using the <see cref="AlternativePositions"/>.
+        /// </summary>
+        public static Channel[] ToLayoutAlternative(ReferenceChannel[] source) => ToLayout(GetAlternative(source));
+
+        /// <summary>
         /// Check if two channel prototypes are the same.
         /// </summary>
-        public bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
+        public readonly bool Equals(ChannelPrototype other) => X == other.X && Y == other.Y && LFE == other.LFE;
 
         /// <summary>
         /// Human-readable channel prototype data.
         /// </summary>
-        public override string ToString() {
+        public override readonly string ToString() {
             string basic = $"{(LFE ? Name + "(LFE)" : Name)} ({X}; {Y})";
             if (Muted) {
                 return basic + " (muted)";
