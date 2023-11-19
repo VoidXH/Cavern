@@ -110,63 +110,63 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         /// <remarks>Top rears are used instead of sides for smooth height transitions and WAVEFORMATEXTENSIBLE support.</remarks>
         public static readonly RenderTarget[] Targets = {
-            new RenderTarget("4.0.4", new[] {
+            new RenderTarget("4.0.4", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }),
-            new RenderTarget("4.1.1", new[] {
+            ]),
+            new RenderTarget("4.1.1", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearCenter, ReferenceChannel.TopFrontCenter
-            }),
+            ]),
             new RenderTarget("5.1 side", ChannelPrototype.ref510),
-            new RenderTarget("5.1 rear", new[] {
+            new RenderTarget("5.1 rear", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight
-            }),
+            ]),
             new DownmixedRenderTarget("5.1.2 front", ChannelPrototype.ref514, (8, 4), (9, 5)),
-            new RenderTarget("5.1.2 side", new[] {
+            new RenderTarget("5.1.2 side", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,  ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }),
+            ]),
             new RenderTarget("5.1.4", ChannelPrototype.ref514),
-            new DownmixedRenderTarget("5.1.4 matrix", new[] {
+            new DownmixedRenderTarget("5.1.4 matrix", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }, (8, 0), (~8, 4), (9, 1), (~9, 5)),
+            ], (8, 0), (~8, 4), (9, 1), (~9, 5)),
             new RenderTarget("5.1.6 with top sides", ChannelPrototype.ref516),
             new RenderTarget("5.1.6 for WAVE", ChannelPrototype.wav516),
             new RenderTarget("7.1", ChannelPrototype.ref710),
             new DownmixedRenderTarget("7.1.2 front", ChannelPrototype.ref714, (10, 4), (11, 5)),
-            new RenderTarget("7.1.2 side", new[] {
+            new RenderTarget("7.1.2 side", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }),
-            new DownmixedRenderTarget("7.1.2 matrix", new[] {
+            ]),
+            new DownmixedRenderTarget("7.1.2 matrix", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }, (8, 6), (~8, 4), (9, 7), (~9, 5)),
-            new DownmixedRenderTarget("7.1.3 matrix", new[] {
+            ], (8, 6), (~8, 4), (9, 7), (~9, 5)),
+            new DownmixedRenderTarget("7.1.3 matrix", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight, ReferenceChannel.TopFrontCenter
-            }, (8, 6), (~8, 4), (9, 7), (~9, 5), (10, 0), (~10, 1)),
+            ], (8, 6), (~8, 4), (9, 7), (~9, 5), (10, 0), (~10, 1)),
             new RenderTarget("7.1.4", ChannelPrototype.ref714),
             new RenderTarget("7.1.6 with top sides", ChannelPrototype.ref716),
             new RenderTarget("7.1.6 for WAVE", ChannelPrototype.wav716),
-            new RenderTarget("9.1", new[] {
+            new RenderTarget("9.1", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight
-            }),
+            ]),
             new DownmixedRenderTarget("9.1.2 front", ChannelPrototype.ref914, (12, 4), (13, 5)),
-            new RenderTarget("9.1.2 side", new[] {
+            new RenderTarget("9.1.2 side", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
                 ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            }),
+            ]),
             new RenderTarget("9.1.4", ChannelPrototype.ref914),
             new RenderTarget("9.1.6 with top sides", ChannelPrototype.ref916),
             new RenderTarget("9.1.6 for WAVE", ChannelPrototype.wav916),

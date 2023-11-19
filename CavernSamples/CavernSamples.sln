@@ -37,9 +37,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnhancedAC3Merger", "Enhanc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuickEQResultMerger", "QuickEQResultMerger\QuickEQResultMerger.csproj", "{AF9655E4-8DC7-4D30-8E35-59C81EFB3132}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EQAPOtoFIR", "EQAPOtoFIR\EQAPOtoFIR.csproj", "{9D7888F3-02C1-4B07-87C3-7272A254E477}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EQAPOtoFIR", "EQAPOtoFIR\EQAPOtoFIR.csproj", "{9D7888F3-02C1-4B07-87C3-7272A254E477}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.QuickEQ.Format", "..\Cavern.QuickEQ.Format\Cavern.QuickEQ.Format.csproj", "{24E5737B-A035-4EC4-BA8E-21375BC81219}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernizeLive", "CavernizeLive\CavernizeLive.csproj", "{21AFB2EA-E96F-4C12-A526-064FA498B6EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,6 +109,10 @@ Global
 		{24E5737B-A035-4EC4-BA8E-21375BC81219}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24E5737B-A035-4EC4-BA8E-21375BC81219}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24E5737B-A035-4EC4-BA8E-21375BC81219}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21AFB2EA-E96F-4C12-A526-064FA498B6EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21AFB2EA-E96F-4C12-A526-064FA498B6EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21AFB2EA-E96F-4C12-A526-064FA498B6EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21AFB2EA-E96F-4C12-A526-064FA498B6EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

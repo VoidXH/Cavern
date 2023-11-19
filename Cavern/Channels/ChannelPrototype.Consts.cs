@@ -115,6 +115,11 @@ namespace Cavern.Channels {
         public static readonly ReferenceChannel[] ref510 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight };
 
         /// <summary>
+        /// Standard 5.1.2 setup (L, R, C, LFE, SL, SR, TSL, TSR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref512 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,  ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight };
+
+        /// <summary>
         /// Standard 5.1.4 setup (L, R, C, LFE, SL, SR, TFL, TFR, TRL, TRR).
         /// </summary>
         public static readonly ReferenceChannel[] ref514 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };

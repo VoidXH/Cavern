@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 using Cavern.Utilities;
 
@@ -14,17 +17,17 @@ namespace Cavern.Channels {
         /// specific channel. The dimensions are [output channels][input channels].
         /// </summary>
         public static float[][] GetMatrix(Channel[] playedContent, Channel[] usedLayout) {
-            Channel[] oldChannels = Listener.Channels;
-            Listener.ReplaceChannels(usedLayout);
             int inputs = playedContent.Length,
                 outputs = usedLayout.Length;
 
             // Create simulation
-            Listener simulator = new Listener() {
+            Listener simulator = new Listener(false) {
                 UpdateRate = Math.Max(inputs, 16),
                 LFESeparation = true,
                 DirectLFE = true
             };
+            Channel[] oldChannels = Listener.Channels;
+            Listener.ReplaceChannels(usedLayout);
             for (int i = 0; i < inputs; i++) {
                 simulator.AttachSource(new Source() {
                     Clip = GetClipForChannel(i, inputs, simulator.SampleRate),
@@ -48,6 +51,51 @@ namespace Cavern.Channels {
             WaveformUtils.InterlacedToMultichannel(result, output);
             return output;
         }
+
+        /// <summary>
+        /// Get a mixing matrix that maps the <paramref name="playedContent"/> to the user-set <see cref="Listener.Channels"/> of the
+        /// current system. The result is a set of multipliers for each output (playback) channel, with which the input (content)
+        /// channels should be multiplied and mixed to that specific channel. The dimensions are [output channels][input channels].
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[][] GetMatrix(Channel[] playedContent) => GetMatrix(playedContent, Listener.Channels);
+
+        /// <summary>
+        /// Convert a spatial remapping matrix to an Equalizer APO Copy filter.
+        /// </summary>
+        public static string ToEqualizerAPO(float[][] matrix) {
+            StringBuilder result = new StringBuilder("Copy:");
+            for (int i = 0; i < matrix.Length; i++) {
+                float[] input = matrix[i];
+                bool started = false;
+                string label = EqualizerAPOUtils.GetChannelLabel(i, matrix.Length);
+                for (int j = 0; j < input.Length; j++) {
+                    if (input[j] != 0) {
+                        if (!started) {
+                            result.Append(' ').Append(label).Append('=');
+                            started = true;
+                        } else {
+                            result.Append('+');
+                        }
+                        if (input[j] != 1) {
+                            result.Append(input[j].ToString(CultureInfo.InvariantCulture)).Append('*');
+                        }
+                        result.Append(EqualizerAPOUtils.GetChannelLabel(j, input.Length));
+                    }
+                }
+                if (!started) {
+                    result.Append(' ').Append(label).Append("=0");
+                }
+            }
+            return result.ToString();
+        }
+
+        /// <summary>
+        /// Create an Equalizer APO Copy filter that matrix mixes the <paramref name="playedContent"/> to the user-set
+        /// <see cref="Listener.Channels"/> of the current system.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToEqualizerAPO(Channel[] playedContent) => ToEqualizerAPO(GetMatrix(playedContent));
 
         /// <summary>
         /// Create a <see cref="Clip"/> that is 1 at the channel's index and 0 everywhere else.
