@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Xml;
 
 using Cavern.Utilities;
 
@@ -96,6 +97,39 @@ namespace Cavern.Channels {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToEqualizerAPO(Channel[] playedContent) => ToEqualizerAPO(GetMatrix(playedContent));
+
+        /// <summary>
+        /// Convert a spatial remapping matrix to an XML file.
+        /// </summary>
+        public static string ToXML(float[][] matrix) {
+            StringBuilder result = new StringBuilder();
+            using XmlWriter writer = XmlWriter.Create(result);
+            writer.WriteStartElement("matrix");
+            for (int output = 0; output < matrix.Length; output++) {
+                float[] inputs = matrix[output];
+                writer.WriteStartElement("output");
+                writer.WriteAttributeString("channel", output.ToString());
+                for (int input = 0; input < inputs.Length; input++) {
+                    if (inputs[input] != 0) {
+                        writer.WriteStartElement("input");
+                        writer.WriteAttributeString("channel", input.ToString());
+                        writer.WriteAttributeString("gain", inputs[input].ToString(CultureInfo.InvariantCulture));
+                        writer.WriteEndElement();
+                    }
+                }
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
+            writer.Flush();
+            return result.ToString();
+        }
+
+        /// <summary>
+        /// Create an XML file that describes a matrix mix that mixes the <paramref name="playedContent"/> to the user-set
+        /// <see cref="Listener.Channels"/> of the current system.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToXML(Channel[] playedContent) => ToXML(GetMatrix(playedContent));
 
         /// <summary>
         /// Create a <see cref="Clip"/> that is 1 at the channel's index and 0 everywhere else.
