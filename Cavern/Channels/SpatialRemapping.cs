@@ -30,7 +30,7 @@ namespace Cavern.Channels {
             Channel[] oldChannels = Listener.Channels;
             Listener.ReplaceChannels(usedLayout);
             for (int i = 0; i < inputs; i++) {
-                simulator.AttachSource(new Source() {
+                simulator.AttachSource(new Source {
                     Clip = GetClipForChannel(i, inputs, simulator.SampleRate),
                     Position = playedContent[i].SpatialPos * Listener.EnvironmentSize,
                     LFE = playedContent[i].LFE,

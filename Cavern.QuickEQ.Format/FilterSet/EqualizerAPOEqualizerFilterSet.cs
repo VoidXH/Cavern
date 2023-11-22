@@ -61,7 +61,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
-        protected override string GetLabel(int channel) => channel < 8 ?
+        protected override string GetLabel(int channel) => Channels.Length <= 8 ?
             EqualizerAPOUtils.GetChannelLabel(Channels[channel].reference) : base.GetLabel(channel);
     }
 }
