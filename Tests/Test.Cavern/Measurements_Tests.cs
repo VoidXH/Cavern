@@ -72,9 +72,22 @@ namespace Test.Cavern {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void FFT4() {
-            float[] signal = new float[] { 1, .5f, .25f, 0 };
+            float[] signal = [1, .5f, .25f, 0];
             Complex[] fft = signal.FFT();
-            Complex[] expected = { new Complex(1.75f), new Complex(.75f, -.5f), new Complex(.75f), new Complex(.75f, .5f) };
+            Complex[] expected = [new Complex(1.75f), new Complex(.75f, -.5f), new Complex(.75f), new Complex(.75f, .5f)];
+            CollectionAssert.AreEqual(expected, fft);
+        }
+
+        /// <summary>
+        /// Tests an FFT with a length of 4, which is calling a hardcoded FFT variant.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void FFT8() {
+            float[] signal = [1, 2, 3, 4, 0, 0, 0, 0];
+            Complex[] fft = signal.FFT();
+            Complex[] expected = [new Complex(10), new Complex(-0.41421354f, -7.2426405f), new Complex(-2f, 2f),
+                new Complex(2.4142137f, -1.2426405f), new Complex(-2f, 0f),
+                new Complex(2.4142137f, 1.2426405f), new Complex(-2f, -2f), new Complex(-0.41421354f, 7.2426405f)];
             CollectionAssert.AreEqual(expected, fft);
         }
 

@@ -387,7 +387,7 @@ namespace Cavern.Utilities {
         /// FFT processor selector.
         /// </summary>
         static void ProcessFFT(Complex[] samples, FFTCache cache) {
-            if (samples.Length > 4) {
+            if (samples.Length > 8) {
                 if (CavernAmp.IsMono()) {
                     ProcessFFT_Mono(samples, cache, QMath.Log2(samples.Length) - 1);
                 } else {

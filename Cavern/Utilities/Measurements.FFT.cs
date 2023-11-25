@@ -1,6 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
-using System;
 
 namespace Cavern.Utilities {
     public static partial class Measurements {
@@ -21,15 +21,15 @@ namespace Cavern.Utilities {
                     *evenRef++ = *result++;
                     *oddRef++ = *result++;
                 }
-            }
 
-            --depth;
-            if (even.Length != 4) {
-                ProcessFFT(even, cache, depth);
-                ProcessFFT(odd, cache, depth);
-            } else {
-                ProcessFFT4(even);
-                ProcessFFT4(odd);
+                --depth;
+                if (even.Length != 8) {
+                    ProcessFFT(even, cache, depth);
+                    ProcessFFT(odd, cache, depth);
+                } else {
+                    ProcessFFT8(pEven);
+                    ProcessFFT8(pOdd);
+                }
             }
 
             fixed (Complex* pSamples = samples)
@@ -112,15 +112,15 @@ namespace Cavern.Utilities {
                     *evenRef++ = *result++;
                     *oddRef++ = *result++;
                 }
-            }
 
-            --depth;
-            if (even.Length != 4) {
-                ProcessFFT_Mono(even, cache, depth);
-                ProcessFFT_Mono(odd, cache, depth);
-            } else {
-                ProcessFFT4(even);
-                ProcessFFT4(odd);
+                --depth;
+                if (even.Length != 8) {
+                    ProcessFFT_Mono(even, cache, depth);
+                    ProcessFFT_Mono(odd, cache, depth);
+                } else {
+                    ProcessFFT8(pEven);
+                    ProcessFFT8(pOdd);
+                }
             }
 
             fixed (Complex* pSamples = samples)
@@ -166,34 +166,87 @@ namespace Cavern.Utilities {
         /// Perform 4 sample FFTs in a hardcoded, most efficient way.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static unsafe void ProcessFFT4(Complex[] samples) {
-            fixed (Complex* pSamples = samples) {
-                Vector2 evenValue = *(Vector2*)pSamples,
-                    oddValue = *(Vector2*)(pSamples + 2),
-                    evenValue1 = evenValue + oddValue,
-                    evenValue2 = evenValue - oddValue;
+        static unsafe void ProcessFFT4(Complex* samples) {
+            Vector2 evenValue = *(Vector2*)samples,
+                oddValue = *(Vector2*)(samples + 2),
+                evenValue1 = evenValue + oddValue,
+                evenValue2 = evenValue - oddValue;
 
-                evenValue = *(Vector2*)(pSamples + 1);
-                oddValue = *(Vector2*)(pSamples + 3);
-                Vector2 oddValue1 = evenValue + oddValue,
-                    oddValue2 = evenValue - oddValue;
-                oddValue2 = new Vector2(oddValue2.Y, -oddValue2.X);
+            evenValue = *(Vector2*)(samples + 1);
+            oddValue = *(Vector2*)(samples + 3);
+            Vector2 oddValue1 = evenValue + oddValue;
+            oddValue = evenValue - oddValue;
+            oddValue = new Vector2(oddValue.Y, -oddValue.X);
 
-                *(Vector2*)pSamples = evenValue1 + oddValue1;
-                *(Vector2*)(pSamples + 1) = evenValue2 + oddValue2;
-                *(Vector2*)(pSamples + 2) = evenValue1 - oddValue1;
-                *(Vector2*)(pSamples + 3) = evenValue2 - oddValue2;
-            }
+            *(Vector2*)samples = evenValue1 + oddValue1;
+            *(Vector2*)(samples + 1) = evenValue2 + oddValue;
+            *(Vector2*)(samples + 2) = evenValue1 - oddValue1;
+            *(Vector2*)(samples + 3) = evenValue2 - oddValue;
+        }
+
+
+        /// <summary>
+        /// Perform 8 sample FFTs in a hardcoded, most efficient way.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static unsafe void ProcessFFT8(Complex* samples) {
+            Vector2 evenValue = *(Vector2*)samples,
+                oddValue = *(Vector2*)(samples + 4),
+                evenValue1 = evenValue + oddValue,
+                evenValue2 = evenValue - oddValue;
+
+            evenValue = *(Vector2*)(samples + 2);
+            oddValue = *(Vector2*)(samples + 6);
+            Vector2 oddValue1 = evenValue + oddValue;
+            oddValue = evenValue - oddValue;
+            oddValue = new Vector2(oddValue.Y, -oddValue.X);
+
+            Vector2 even1 = evenValue1 + oddValue1;
+            Vector2 even2 = evenValue2 + oddValue;
+            Vector2 even3 = evenValue1 - oddValue1;
+            Vector2 even4 = evenValue2 - oddValue;
+
+            evenValue = *(Vector2*)(samples + 1);
+            oddValue = *(Vector2*)(samples + 5);
+            evenValue1 = evenValue + oddValue;
+            evenValue2 = evenValue - oddValue;
+
+            evenValue = *(Vector2*)(samples + 3);
+            oddValue = *(Vector2*)(samples + 7);
+            oddValue1 = evenValue + oddValue;
+            oddValue = evenValue - oddValue;
+            oddValue = new Vector2(oddValue.Y, -oddValue.X);
+
+            Vector2 odd1 = evenValue1 + oddValue1;
+            Vector2 odd2 = evenValue2 + oddValue;
+            evenValue1 -= oddValue1; // odd3 from now
+            evenValue2 -= oddValue; // odd4 from now
+
+            const float sin = -0.70710678118f; // sin(-pi/4)
+            odd2 = new Vector2(-odd2.X - odd2.Y, odd2.X - odd2.Y) * sin;
+            evenValue1 = new Vector2(evenValue1.Y, -evenValue1.X);
+            evenValue2 = new Vector2(evenValue2.X - evenValue2.Y, evenValue2.X + evenValue2.Y) * sin;
+
+            *(Vector2*)samples = even1 + odd1;
+            *(Vector2*)(samples + 1) = even2 + odd2;
+            *(Vector2*)(samples + 2) = even3 + evenValue1;
+            *(Vector2*)(samples + 3) = even4 + evenValue2;
+            *(Vector2*)(samples + 4) = even1 - odd1;
+            *(Vector2*)(samples + 5) = even2 - odd2;
+            *(Vector2*)(samples + 6) = even3 - evenValue1;
+            *(Vector2*)(samples + 7) = even4 - evenValue2;
         }
 
         /// <summary>
         /// Perform very small-size FFTs in a hardcoded, most efficient way.
         /// </summary>
         static unsafe void ProcessFFTSmall(Complex[] samples) {
-            if (samples.Length == 4) {
-                ProcessFFT4(samples);
-            } else if (samples.Length == 2) {
-                fixed (Complex* pSamples = samples) {
+            fixed (Complex* pSamples = samples) {
+                if (samples.Length == 8) {
+                    ProcessFFT8(pSamples);
+                } else if (samples.Length == 4) {
+                    ProcessFFT4(pSamples);
+                } else if (samples.Length == 2) {
                     Vector2 evenValue = *(Vector2*)pSamples,
                         oddValue = *(Vector2*)(pSamples + 1);
                     *(Vector2*)pSamples = evenValue + oddValue;
@@ -205,7 +258,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fourier-transform a signal in 1D. The result is the spectral power.
         /// </summary>
-        static void ProcessFFT(float[] samples, FFTCache cache) {
+        static unsafe void ProcessFFT(float[] samples, FFTCache cache) {
             int depth = QMath.Log2(samples.Length) - 1;
             if (samples.Length == 1) {
                 return;
@@ -216,15 +269,19 @@ namespace Cavern.Utilities {
                 odd[sample].Real = samples[pair + 1];
             }
 
+            --depth;
             if (CavernAmp.IsMono()) {
-                ProcessFFT_Mono(even, cache, --depth);
+                ProcessFFT_Mono(even, cache, depth);
                 ProcessFFT_Mono(odd, cache, depth);
-            } else if (even.Length != 4) {
-                ProcessFFT(even, cache, --depth);
+            } else if (even.Length != 8) {
+                ProcessFFT(even, cache, depth);
                 ProcessFFT(odd, cache, depth);
             } else {
-                ProcessFFT4(even);
-                ProcessFFT4(odd);
+                fixed (Complex* pEven = even)
+                fixed (Complex* pOdd = odd) {
+                    ProcessFFT8(pEven);
+                    ProcessFFT8(pOdd);
+                }
             }
 
             float[] cosCache = FFTCache.cos[depth + 1],
