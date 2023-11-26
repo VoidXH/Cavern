@@ -33,10 +33,15 @@ namespace Cavern.Format.FilterSet {
             public double gain;
 
             /// <summary>
+            /// Swap the sign for this channel.
+            /// </summary>
+            public bool switchPolarity;
+
+            /// <summary>
             /// Check if the same correction is applied to the <paramref name="other"/> channel.
             /// </summary>
-            public bool Equals(EqualizerChannelData other) =>
-                curve.Equals(other.curve) && gain == other.gain && delaySamples == other.delaySamples;
+            public bool Equals(EqualizerChannelData other) => curve.Equals(other.curve) &&
+                gain == other.gain && delaySamples == other.delaySamples && switchPolarity == other.switchPolarity;
         }
 
         /// <summary>
@@ -79,56 +84,58 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Setup a channel's curve with no additional gain/delay or custom name.
         /// </summary>
-        public void SetupChannel(int channel, Equalizer curve) => SetupChannel(channel, curve, 0, 0, null);
+        public void SetupChannel(int channel, Equalizer curve) => SetupChannel(channel, curve, 0, 0, false, null);
 
         /// <summary>
         /// Setup a channel's curve with additional gain/delay, but no custom name.
         /// </summary>
         public void SetupChannel(int channel, Equalizer curve, double gain, int delaySamples) =>
-            SetupChannel(channel, curve, gain, delaySamples, null);
+            SetupChannel(channel, curve, gain, delaySamples, false, null);
 
         /// <summary>
         /// Setup a channel's curve with a custom name, but no additional gain/delay.
         /// </summary>
-        public void SetupChannel(int channel, Equalizer curve, string name) => SetupChannel(channel, curve, 0, 0, name);
+        public void SetupChannel(int channel, Equalizer curve, string name) => SetupChannel(channel, curve, 0, 0, false, name);
 
         /// <summary>
         /// Setup a channel's curve with additional gain/delay, and a custom name.
         /// </summary>
-        public void SetupChannel(int channel, Equalizer curve, double gain, int delaySamples, string name) {
+        public void SetupChannel(int channel, Equalizer curve, double gain, int delaySamples, bool switchPolarity, string name) {
             EqualizerChannelData channelRef = (EqualizerChannelData)Channels[channel];
             channelRef.curve = curve;
             channelRef.gain = gain;
             channelRef.delaySamples = delaySamples;
+            channelRef.switchPolarity = switchPolarity;
             channelRef.name = name;
         }
 
         /// <summary>
         /// Setup a channel's curve with no additional gain/delay or custom name.
         /// </summary>
-        public void SetupChannel(ReferenceChannel channel, Equalizer curve) => SetupChannel(channel, curve, 0, 0, null);
+        public void SetupChannel(ReferenceChannel channel, Equalizer curve) => SetupChannel(channel, curve, 0, 0, false,null);
 
         /// <summary>
         /// Setup a channel's curve with additional gain/delay, but no custom name.
         /// </summary>
         public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain, int delaySamples) =>
-            SetupChannel(channel, curve, gain, delaySamples, null);
+            SetupChannel(channel, curve, gain, delaySamples, false, null);
 
         /// <summary>
         /// Setup a channel's curve with a custom name, but no additional gain/delay.
         /// </summary>
-        public void SetupChannel(ReferenceChannel channel, Equalizer curve, string name) => SetupChannel(channel, curve, 0, 0, name);
+        public void SetupChannel(ReferenceChannel channel, Equalizer curve, string name) => SetupChannel(channel, curve, 0, 0, false, name);
 
         /// <summary>
         /// Setup a channel's curve with additional gain/delay, and a custom name.
         /// </summary>
-        public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain, int delaySamples, string name) {
+        public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain, int delaySamples, bool switchPolarity, string name) {
             for (int i = 0; i < Channels.Length; ++i) {
                 if (Channels[i].reference == channel) {
                     EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
                     channelRef.curve = curve;
                     channelRef.gain = gain;
                     channelRef.delaySamples = delaySamples;
+                    channelRef.switchPolarity = switchPolarity;
                     channelRef.name = name;
                     return;
                 }

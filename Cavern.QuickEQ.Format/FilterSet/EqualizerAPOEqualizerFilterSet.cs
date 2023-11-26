@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 using Cavern.Channels;
 using Cavern.QuickEQ.Equalization;
@@ -50,6 +51,11 @@ namespace Cavern.Format.FilterSet {
                     result.Add($"Delay: {GetDelay(channel)} ms");
                 }
                 result.Add(channelRef.curve.ExportToEqualizerAPO());
+            }
+
+            string polarity = EqualizerAPOUtils.GetPolarityLine(Channels.Select(x => ((EqualizerChannelData)x).switchPolarity).ToArray());
+            if (polarity != null) {
+                result.Add(polarity);
             }
 
             if (append != null) {

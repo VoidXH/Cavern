@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
@@ -61,7 +62,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public override void Export(string path) {
             List<string> configFile = header != null ? new List<string>(header) : new List<string>();
-            for (int i = 0, c = Channels.Length; i < c; ++i) {
+            for (int i = 0, c = Channels.Length; i < c; i++) {
                 IIRChannelData channelRef = (IIRChannelData)Channels[i];
                 configFile.Add("Channel: " + GetLabel(i));
                 configFile.Add($"Preamp: {channelRef.gain} dB");
@@ -73,6 +74,10 @@ namespace Cavern.Format.FilterSet {
                     configFile.Add(
                         $"Filter: ON PK Fc {filters[j].CenterFreq:0.00} Hz Gain {filters[j].Gain:0.00} dB Q {filters[j].Q:0.0000}");
                 }
+            }
+            string polarity = EqualizerAPOUtils.GetPolarityLine(Channels.Select(x => ((IIRChannelData)x).switchPolarity).ToArray());
+            if (polarity != null) {
+                configFile.Add(polarity);
             }
             File.WriteAllLines(path, configFile);
         }

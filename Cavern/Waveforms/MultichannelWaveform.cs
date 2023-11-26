@@ -123,6 +123,11 @@ namespace Cavern {
         public void Normalize() => Gain(1 / GetPeak());
 
         /// <summary>
+        /// Get an array of the contained <see cref="signals"/>.
+        /// </summary>
+        public float[][] ToArray() => signals.FastClone();
+
+        /// <summary>
         /// Remove the 0s from the beginning of the multichannel signal.
         /// </summary>
         public void TrimStart() {

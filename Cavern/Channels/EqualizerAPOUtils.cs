@@ -1,4 +1,6 @@
-﻿namespace Cavern.Channels
+﻿using System.Text;
+
+namespace Cavern.Channels
 {
     /// <summary>
     /// Helper functions for handling Equalizer APO configuration files.
@@ -49,6 +51,23 @@
             ReferenceChannel.SideRight => sideRight,
             _ => channel.GetShortName(),
         };
+
+        /// <summary>
+        /// Where the value of <paramref name="polarities"/> is true, invert that channel.
+        /// Returns null if the line doesn't have to be added to the exported configuration.
+        /// </summary>
+        public static string GetPolarityLine(bool[] polarities) {
+            StringBuilder result = new StringBuilder("Copy:");
+            bool valid = false;
+            for (int i = 0; i < polarities.Length; i++) {
+                if (polarities[i]) {
+                    string chName = GetChannelLabel(i, polarities.Length);
+                    result.Append(' ').Append(chName).Append("=-1*").Append(chName);
+                    valid = true;
+                }
+            }
+            return valid ? result.ToString() : null;
+        }
 
         const string frontLeft = "L";
         const string frontRight = "R";

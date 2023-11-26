@@ -254,7 +254,7 @@ namespace Cavern.Utilities {
             int pos = from;
             float max = Math.Abs(target[from++]),
                 absSample;
-            for (; from < to; ++from) {
+            for (; from < to; from++) {
                 absSample = Math.Abs(target[from]);
                 if (max < absSample) {
                     max = absSample;

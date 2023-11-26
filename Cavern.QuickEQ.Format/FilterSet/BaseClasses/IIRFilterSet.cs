@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
-using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
