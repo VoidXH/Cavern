@@ -28,8 +28,13 @@ namespace Cavern.Utilities {
         /// Apply a delay of a given number of <paramref name="samples"/> on a <paramref name="waveform"/>.
         /// </summary>
         public static void Delay(float[] waveform, int samples) {
-            Array.Copy(waveform, 0, waveform, samples, waveform.Length - samples);
-            Array.Clear(waveform, 0, samples);
+            int count = waveform.Length - samples;
+            if (count > 0) {
+                Array.Copy(waveform, 0, waveform, samples, count);
+                Array.Clear(waveform, 0, samples);
+            } else {
+                Array.Clear(waveform, 0, waveform.Length);
+            }
         }
 
         /// <summary>
