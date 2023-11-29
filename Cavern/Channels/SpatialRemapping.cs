@@ -101,7 +101,10 @@ namespace Cavern.Channels {
         /// <summary>
         /// Convert a spatial remapping matrix to an XML file.
         /// </summary>
-        public static string ToXML(float[][] matrix) {
+        /// <param name="matrix">A mixing matrix created with one of the <see cref="GetMatrix(Channel[])"/> functions</param>
+        /// <param name="extraParams">Optional argument keys and their values for all output channels - if the number of the
+        /// values is less than the number of channels, the last channels without values will skip that attribute</param>
+        public static string ToXML(float[][] matrix, params (string key, string[] values)[] extraParams) {
             StringBuilder result = new StringBuilder();
             using XmlWriter writer = XmlWriter.Create(result);
             writer.WriteStartElement("matrix");
@@ -109,6 +112,12 @@ namespace Cavern.Channels {
                 float[] inputs = matrix[output];
                 writer.WriteStartElement("output");
                 writer.WriteAttributeString("channel", output.ToString());
+                for (int extra = 0; extra < extraParams.Length; extra++) {
+                    (string key, string[] values) = extraParams[extra];
+                    if (output < values.Length) {
+                        writer.WriteAttributeString(key, values[output].ToString());
+                    }
+                }
                 for (int input = 0; input < inputs.Length; input++) {
                     if (inputs[input] != 0) {
                         writer.WriteStartElement("input");
