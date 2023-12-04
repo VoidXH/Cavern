@@ -69,7 +69,7 @@ namespace Cavern.Input {
         /// Returns the most recent samples recorded, whatever the inner state of recording is.
         /// </summary>
         public float[] ForceRead() {
-            int pos = MultiplatformMicrophone.GetPosition(deviceName);
+            int pos = MultiplatformMicrophone.GetPosition(activeDevice);
             if (buffer != null) {
                 buffer.GetData(frame, pos > blockSize ? pos - blockSize : (sampleRate + pos - blockSize));
             } else {
@@ -85,11 +85,13 @@ namespace Cavern.Input {
 
             activeDevice = deviceName;
             if (Application.platform != RuntimePlatform.Android) {
-                MultiplatformMicrophone.GetDeviceCaps(deviceName, out int minFreq, out int maxFreq);
-                sampleRate = Math.Clamp(sampleRate, minFreq, maxFreq);
-                buffer = MultiplatformMicrophone.Start(deviceName, true, 1, sampleRate);
+                MultiplatformMicrophone.GetDeviceCaps(activeDevice, out int minFreq, out int maxFreq);
+                if (minFreq != 0 && maxFreq != 0) {
+                    sampleRate = Math.Clamp(sampleRate, minFreq, maxFreq);
+                }
+                buffer = MultiplatformMicrophone.Start(activeDevice, true, 1, sampleRate);
             } else { // Fix for a Unity bug that's a feature: on Android, GetDeviceCaps always reports 16 kHz
-                buffer = MultiplatformMicrophone.Start(deviceName, true, 1, sampleRate);
+                buffer = MultiplatformMicrophone.Start(activeDevice, true, 1, sampleRate);
                 if (buffer == null) {
                     int[] androidSampleRates = new[] { 8000, 16000, 22050, 32000, 44100, 48000, 88200, 96000, 192000 };
                     int index = Array.BinarySearch(androidSampleRates, sampleRate);
@@ -97,12 +99,12 @@ namespace Cavern.Input {
                         index = ~index;
                     }
                     for (int i = index; i < androidSampleRates.Length; i++) {
-                        if (buffer = MultiplatformMicrophone.Start(deviceName, true, 1, sampleRate = androidSampleRates[i])) {
+                        if (buffer = MultiplatformMicrophone.Start(activeDevice, true, 1, sampleRate = androidSampleRates[i])) {
                             return;
                         }
                     }
                     for (int i = 0; i < index; i++) {
-                        if (buffer = MultiplatformMicrophone.Start(deviceName, true, 1, sampleRate = androidSampleRates[i])) {
+                        if (buffer = MultiplatformMicrophone.Start(activeDevice, true, 1, sampleRate = androidSampleRates[i])) {
                             return;
                         }
                     }
@@ -124,7 +126,7 @@ namespace Cavern.Input {
                 return;
             }
 
-            int pos = MultiplatformMicrophone.GetPosition(deviceName);
+            int pos = MultiplatformMicrophone.GetPosition(activeDevice);
             if (lastPosition > pos) {
                 lastPosition -= sampleRate;
             }
@@ -135,11 +137,11 @@ namespace Cavern.Input {
             }
         }
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity lifecycle")]
         void OnDisable() {
-            if (MultiplatformMicrophone.IsRecording(deviceName)) {
-                MultiplatformMicrophone.End(deviceName);
+            if (MultiplatformMicrophone.IsRecording(activeDevice)) {
+                MultiplatformMicrophone.End(activeDevice);
                 Destroy(buffer);
+                buffer = null;
             }
         }
     }
