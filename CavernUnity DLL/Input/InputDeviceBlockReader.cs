@@ -28,8 +28,8 @@ namespace Cavern.Input {
         /// Target device sample rate. Will be overridden if the device doesn't support it.
         /// Only updated when the component is enabled.
         /// </summary>
-        [Tooltip("Target device sample rate. Will be overridden if the device doesn't support it." +
-            " Only updated when the component is enabled.")]
+        [Tooltip("Target device sample rate. Will be overridden if the device doesn't support it. " +
+            "Only updated when the component is enabled.")]
         public int sampleRate = 48000;
 
         /// <summary>
@@ -43,6 +43,14 @@ namespace Cavern.Input {
         /// </summary>
         [Tooltip("Amount of audio samples to be delivered per callback.")]
         public int blockSize = 16384;
+
+        /// <summary>
+        /// Number of overlapping samples between frames when calling the <see cref="Callback"/>.
+        /// Helps mitigate the spectral distortions of windowing.
+        /// </summary>
+        [Tooltip("Number of overlapping samples between frames when calling the Callback. " +
+            "Helps mitigate the spectral distortions of windowing.")]
+        public int overlap;
 
         /// <summary>
         /// Clip to record to from the device.
@@ -126,14 +134,19 @@ namespace Cavern.Input {
                 return;
             }
 
-            int pos = MultiplatformMicrophone.GetPosition(activeDevice);
+            int pos = MultiplatformMicrophone.GetPosition(activeDevice),
+                interval = blockSize - overlap;
+            if (interval < 0) {
+                throw new ArgumentOutOfRangeException(nameof(overlap), "The overlap can't be larger than the block size.");
+            }
+
             if (lastPosition > pos) {
                 lastPosition -= sampleRate;
             }
-            while (lastPosition + blockSize < pos) {
-                buffer.GetData(frame, lastPosition < 0 ? lastPosition + buffer.samples : lastPosition);
+            while (lastPosition + interval < pos) {
+                buffer.GetData(frame, lastPosition < 0 ? lastPosition + sampleRate : lastPosition);
                 Callback?.Invoke(frame);
-                lastPosition += blockSize;
+                lastPosition += interval;
             }
         }
 
