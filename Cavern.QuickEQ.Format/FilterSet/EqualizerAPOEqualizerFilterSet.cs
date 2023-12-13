@@ -43,14 +43,21 @@ namespace Cavern.Format.FilterSet {
 
             for (int channel = 0; channel < Channels.Length; channel++) {
                 EqualizerChannelData channelRef = (EqualizerChannelData)Channels[channel];
-                result.Add("Channel: " + GetLabel(channel));
-                if (channelRef.gain != 0) {
+                bool hasGain = channelRef.gain != 0,
+                    hasDelay = channelRef.delaySamples != 0,
+                    hasEQ = channelRef.curve != null;
+                if (hasGain || hasDelay || hasEQ) {
+                    result.Add("Channel: " + GetLabel(channel));
+                }
+                if (hasGain) {
                     result.Add($"Preamp: {channelRef.gain.ToString(CultureInfo.InvariantCulture)} dB");
                 }
-                if (channelRef.delaySamples != 0) {
+                if (hasDelay) {
                     result.Add($"Delay: {GetDelay(channel)} ms");
                 }
-                result.Add(channelRef.curve.ExportToEqualizerAPO());
+                if (hasEQ) {
+                    result.Add(channelRef.curve.ExportToEqualizerAPO());
+                }
             }
 
             string polarity = EqualizerAPOUtils.GetPolarityLine(Channels.Select(x => ((EqualizerChannelData)x).switchPolarity).ToArray());

@@ -17,7 +17,7 @@ namespace Test.Cavern.QuickEQ.FilterSet.BaseClasses {
         public void Simulation() {
             IIRFilterSet testSet = new IIRFilterSet(1, Consts.sampleRate);
             Lowpass filter = new Lowpass(Consts.sampleRate, Consts.sampleRate >> 2, QFactor.reference);
-            testSet.SetupChannel(0, new BiquadFilter[] { filter });
+            testSet.SetupChannel(0, [filter]);
             MultichannelWaveform fir = testSet.GetConvolutionFilter(Consts.sampleRate, Consts.convolutionLength);
             fir[0].InPlaceFFT();
             TestUtils.AssertDecrease(fir[0], 0, Consts.convolutionLength / 2, Consts.delta);

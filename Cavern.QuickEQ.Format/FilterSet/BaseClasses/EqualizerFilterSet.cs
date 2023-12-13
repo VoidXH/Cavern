@@ -75,7 +75,13 @@ namespace Cavern.Format.FilterSet {
         public override MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength) {
             float[][] result = new float[Channels.Length][];
             for (int i = 0; i < result.Length; i++) {
-                result[i] = ((EqualizerChannelData)Channels[i]).curve.GetConvolution(sampleRate, convolutionLength);
+                Equalizer curve = ((EqualizerChannelData)Channels[i]).curve;
+                if (curve != null) {
+                    result[i] = curve.GetConvolution(sampleRate, convolutionLength);
+                } else {
+                    result[i] = new float[convolutionLength];
+                    result[i][0] = 1; // Dirac-delta, can be delayed
+                }
                 WaveformUtils.Delay(result[i], Channels[i].delaySamples);
             }
             return new MultichannelWaveform(result);
