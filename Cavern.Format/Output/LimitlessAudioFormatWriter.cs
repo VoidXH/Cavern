@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 using Cavern.Format.Common;
 using Cavern.Format.Consts;
@@ -94,9 +95,20 @@ namespace Cavern.Format {
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
         /// <param name="channels">Output channel information</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, Channel[] channels) =>
+            WriteOffset(path, data, sampleRate, bits, channels, channels.Length);
+
+        /// <summary>
+        /// Export an audio file to be played back channel after channel, but some channels play simultaneously.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        /// <param name="channels">Output channel information</param>
         /// <param name="period">Channels separated by this many channels are played simultaneously</param>
-        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, Channel[] channels,
-            int period = -1) {
+        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, Channel[] channels, int period) {
             LimitlessAudioFormatWriter writer = new LimitlessAudioFormatWriter(path, data[0].LongLength, sampleRate, bits, channels);
             writer.WriteOffset(data, period);
         }
@@ -123,12 +135,12 @@ namespace Cavern.Format {
             writer.WriteAny(qualityByte);
             writer.WriteAny(objectMode ? (byte)1 : (byte)0); // Mode
             writer.WriteAny(ChannelCount); // Channel/object count
-            for (int channel = 0; channel < objectCount; ++channel) { // Audible channel/object info
+            for (int channel = 0; channel < objectCount; channel++) { // Audible channel/object info
                 writer.WriteAny(channels[channel].X); // Rotation on vertical axis
                 writer.WriteAny(channels[channel].Y); // Rotation on horizontal axis
                 writer.WriteAny(channels[channel].LFE ? (byte)1 : (byte)0); // Low frequency
             }
-            for (int channel = objectCount; channel < ChannelCount; ++channel) { // Positional track markers
+            for (int channel = objectCount; channel < ChannelCount; channel++) { // Positional track markers
                 writer.WriteAny(float.NaN); // Marker
                 writer.WriteAny(0); // Reserved
                 writer.WriteAny((byte)0); // Reserved
@@ -185,7 +197,7 @@ namespace Cavern.Format {
         /// <param name="until">Samples to dump from the <see cref="cache"/></param>
         void DumpBlock(long until) {
             bool[] toWrite = new bool[ChannelCount];
-            for (int channel = 0; channel < ChannelCount; ++channel) {
+            for (int channel = 0; channel < ChannelCount; channel++) {
                 for (int sample = channel; !toWrite[channel] && sample < cache.Length; sample += ChannelCount) {
                     if (cache[sample] != 0) {
                         toWrite[channel] = true;
@@ -193,7 +205,7 @@ namespace Cavern.Format {
                 }
             }
             byte[] layoutBytes = new byte[(ChannelCount & 7) == 0 ? ChannelCount >> 3 : ((ChannelCount >> 3) + 1)];
-            for (int channel = 0; channel < ChannelCount; ++channel) {
+            for (int channel = 0; channel < ChannelCount; channel++) {
                 if (toWrite[channel]) {
                     layoutBytes[channel >> 3] += (byte)(1 << (channel & 7));
                 }

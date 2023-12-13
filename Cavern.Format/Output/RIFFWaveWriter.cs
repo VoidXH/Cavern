@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 using Cavern.Channels;
 using Cavern.Format.Common;
@@ -116,8 +117,19 @@ namespace Cavern.Format {
         /// <param name="data">Samples to write in the file</param>
         /// <param name="sampleRate">Output sample rate</param>
         /// <param name="bits">Output bit depth</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits) =>
+            WriteOffset(path, data, sampleRate, bits, data.Length);
+
+        /// <summary>
+        /// Export an audio file to be played back channel after channel, but some channels play simultaneously.
+        /// </summary>
+        /// <param name="path">Output file name</param>
+        /// <param name="data">Samples to write in the file</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
         /// <param name="period">Channels separated by this many channels are played simultaneously</param>
-        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, int period = -1) {
+        public static void WriteOffset(string path, float[][] data, int sampleRate, BitDepth bits, int period) {
             RIFFWaveWriter writer = new RIFFWaveWriter(path, data.Length, data[0].LongLength, sampleRate, bits);
             writer.WriteOffset(data, period);
         }
@@ -267,7 +279,7 @@ namespace Cavern.Format {
             switch (Bits) {
                 case BitDepth.Int8:
                     while (from < to) {
-                        for (int channel = 0; channel < samples.Length; ++channel) {
+                        for (int channel = 0; channel < samples.Length; channel++) {
                             writer.WriteAny((sbyte)(samples[channel][from] * sbyte.MaxValue));
                         }
                         ++from;
@@ -275,7 +287,7 @@ namespace Cavern.Format {
                     break;
                 case BitDepth.Int16:
                     while (from < to) {
-                        for (int channel = 0; channel < samples.Length; ++channel) {
+                        for (int channel = 0; channel < samples.Length; channel++) {
                             writer.WriteAny((short)(samples[channel][from] * short.MaxValue));
                         }
                         ++from;
@@ -283,7 +295,7 @@ namespace Cavern.Format {
                     break;
                 case BitDepth.Int24:
                     while (from < to) {
-                        for (int channel = 0; channel < samples.Length; ++channel) {
+                        for (int channel = 0; channel < samples.Length; channel++) {
                             int src = (int)(samples[channel][from] * BitConversions.int24Max);
                             writer.WriteAny((short)src);
                             writer.WriteAny((byte)(src >> 16));
@@ -293,7 +305,7 @@ namespace Cavern.Format {
                     break;
                 case BitDepth.Float32:
                     while (from < to) {
-                        for (int channel = 0; channel < samples.Length; ++channel) {
+                        for (int channel = 0; channel < samples.Length; channel++) {
                             writer.WriteAny(samples[channel][from]);
                         }
                         ++from;
@@ -303,6 +315,15 @@ namespace Cavern.Format {
         }
 
         /// <summary>
+        /// Append an extra chunk to the file, without considering its alignment to even bytes.
+        /// </summary>
+        /// <param name="id">4 byte identifier of the chunk</param>
+        /// <param name="data">Raw data of the chunk</param>
+        /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
+        /// refer to <see cref="RIFFWave"/> for samples.</remarks>
+        public void WriteChunk(int id, byte[] data) => WriteChunk(id, data, false);
+
+        /// <summary>
         /// Append an extra chunk to the file.
         /// </summary>
         /// <param name="id">4 byte identifier of the chunk</param>
@@ -310,7 +331,7 @@ namespace Cavern.Format {
         /// <param name="dwordPadded">Some RIFF readers only work if all chunks start at an even byte, this is for their support</param>
         /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
         /// refer to <see cref="RIFFWave"/> for samples.</remarks>
-        public void WriteChunk(int id, byte[] data, bool dwordPadded = false) {
+        public void WriteChunk(int id, byte[] data, bool dwordPadded) {
             writer.WriteAny(id);
             if (data.LongLength > uint.MaxValue) {
                 largeChunkSizes ??= new List<Tuple<int, long>>();

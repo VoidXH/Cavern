@@ -165,8 +165,8 @@ namespace Cavern.Format {
             float[] empty = new float[samples[0].Length];
             float[][] holder = new float[samples.Length][];
             WriteHeader();
-            for (int curPeriod = 0; curPeriod < period; ++curPeriod) {
-                for (int channel = 0; channel < holder.Length; ++channel) {
+            for (int curPeriod = 0; curPeriod < period; curPeriod++) {
+                for (int channel = 0; channel < holder.Length; channel++) {
                     holder[channel] = channel % period == curPeriod ? samples[channel] : empty;
                 }
                 WriteBlock(holder, 0, holder[0].Length);
@@ -181,7 +181,7 @@ namespace Cavern.Format {
         /// <param name="channelCount">Output channel count</param>
         public void WriteForEachChannel(float[] samples, int channelCount) {
             float[][] holder = new float[channelCount][];
-            for (int channel = 0; channel < channelCount; ++channel) {
+            for (int channel = 0; channel < channelCount; channel++) {
                 holder[channel] = samples;
             }
             WriteOffset(holder);
