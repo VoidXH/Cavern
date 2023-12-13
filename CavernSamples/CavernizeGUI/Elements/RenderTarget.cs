@@ -8,16 +8,18 @@ namespace CavernizeGUI.Elements {
     /// <summary>
     /// Standard rendering channel layouts.
     /// </summary>
-    public class RenderTarget {
+    /// <param name="name">Layout name</param>
+    /// <param name="channels">List of used channels</param>
+    public class RenderTarget(string name, ReferenceChannel[] channels) {
         /// <summary>
         /// Layout name.
         /// </summary>
-        public string Name { get; }
+        public string Name { get; } = name;
 
         /// <summary>
         /// List of used channels.
         /// </summary>
-        public ReferenceChannel[] Channels { get; }
+        public ReferenceChannel[] Channels { get; } = channels;
 
         /// <summary>
         /// The exact <see cref="OutputChannels"/>, what will have an output.
@@ -29,16 +31,7 @@ namespace CavernizeGUI.Elements {
         /// The <see cref="Channels"/> are used for rendering, but it could be rematrixed.
         /// This is the number of channels actually written to the file.
         /// </summary>
-        public int OutputChannels { get; protected set; }
-
-        /// <summary>
-        /// Standard rendering channel layouts.
-        /// </summary>
-        public RenderTarget(string name, ReferenceChannel[] channels) {
-            Name = name;
-            Channels = channels;
-            OutputChannels = channels.Length;
-        }
+        public int OutputChannels { get; protected set; } = channels.Length;
 
         /// <summary>
         /// Apply this render target on the system's output.
@@ -50,19 +43,9 @@ namespace CavernizeGUI.Elements {
                 systemChannels[ch] = new Channel(ChannelPrototype.AlternativePositions[(int)Channels[ch]], lfe);
             }
 
-            if (Settings.Default.surroundSwap) {
-                for (int i = 0; i < Channels.Length; i++) {
-                    if (Channels[i] == ReferenceChannel.SideLeft) {
-                        for (int j = 0; j < Channels.Length; j++) {
-                            if (Channels[j] == ReferenceChannel.RearLeft) {
-                                (systemChannels[i], systemChannels[j]) = (systemChannels[j], systemChannels[i]);
-                                (systemChannels[i + 1], systemChannels[j + 1]) = (systemChannels[j + 1], systemChannels[i + 1]);
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
+            if (Settings.Default.surroundSwap && Channels.Length >= 8) {
+                (systemChannels[4], systemChannels[6]) = (systemChannels[6], systemChannels[4]);
+                (systemChannels[5], systemChannels[7]) = (systemChannels[7], systemChannels[5]);
             }
 
             Listener.HeadphoneVirtualizer = false;

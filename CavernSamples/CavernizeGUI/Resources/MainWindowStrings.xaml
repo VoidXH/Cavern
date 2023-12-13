@@ -13,7 +13,7 @@
     <system:String x:Key="MuGrH">Mute _ground</system:String>
     <system:String x:Key="MuGrT">Any sound that only comes from the ground speakers will be muted.</system:String>
     <system:String x:Key="For24">Force 24-_bit PCM (slower, larger files, no perceived improvement)</system:String>
-    <system:String x:Key="SuSwa">S_wap side/rear channels</system:String>
+    <system:String x:Key="SuSwa">S_wap side/rear output channels</system:String>
     <system:String x:Key="WavCh">Skip RIFF WAVE channel mask (bypass restrictions)</system:String>
     <system:String x:Key="SMetH">Show metadata</system:String>
     <system:String x:Key="SMetT">Display the decoded codec-specific fields of the selected track.</system:String>

@@ -13,7 +13,7 @@
     <system:String x:Key="MuGrH">_Talaj némítása</system:String>
     <system:String x:Key="MuGrT">Minden hangot elnémít, ami nem a magasból jön.</system:String>
     <system:String x:Key="For24">24-bites _PCM erőltetése (lassabb, nagyobb fájlok, nem ad hallható javulást)</system:String>
-    <system:String x:Key="SuSwa">_Oldalsó/hátsó csatornák felcserélése</system:String>
+    <system:String x:Key="SuSwa">_Oldalsó/hátsó kimeneti csatornák felcserélése</system:String>
     <system:String x:Key="WavCh">RIFF WAVE csatornamaszk kihagyása (korlátozások feloldása)</system:String>
     <system:String x:Key="SMetH">Metaadatok mutatása</system:String>
     <system:String x:Key="SMetT">Megmutatja a dekódolt kodekspecifikus mezőit a kiválasztott sávnak.</system:String>
