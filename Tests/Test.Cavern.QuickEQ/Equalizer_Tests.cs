@@ -8,13 +8,22 @@ namespace Test.Cavern.QuickEQ {
     [TestClass]
     public class Equalizer_Tests {
         /// <summary>
-        /// Tests if <see cref="Equalizer.Smooth(double)"/> works as intended.
+        /// Tests if <see cref="Equalizer.AddSlope(double, double, double)"/> works as intended.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void Smooth() {
+        public void AddSlope() {
+            Equalizer equalizer = Create(20, 40, 80, 500, 640, 1280, 3000);
+            equalizer.AddSlope(3, 40, 2560);
+            Compare(equalizer, 0, 0, 3, 10.931568423390376, 12, 15, 18);
+        }
+
+        /// <summary>
+        /// Tests if <see cref="Equalizer.GetAverageLevel(double, double)"/> works as intended.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void GetAverageLevel() {
             Equalizer equalizer = Create(20, 20000, 100, 10);
-            equalizer.Smooth(2);
-            Assert.IsTrue(equalizer.Bands.All(x => Math.Abs(x.Gain) < 5));
+            Assert.AreEqual(8.760460922297078, equalizer.GetAverageLevel(100, 500), Consts.delta);
         }
 
         /// <summary>
@@ -28,12 +37,13 @@ namespace Test.Cavern.QuickEQ {
         }
 
         /// <summary>
-        /// Tests if <see cref="Equalizer.GetAverageLevel(double, double)"/> works as intended.
+        /// Tests if <see cref="Equalizer.Smooth(double)"/> works as intended.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void GetAverageLevel() {
+        public void Smooth() {
             Equalizer equalizer = Create(20, 20000, 100, 10);
-            Assert.AreEqual(8.760460922297078, equalizer.GetAverageLevel(100, 500), Consts.delta);
+            equalizer.Smooth(2);
+            Assert.IsTrue(equalizer.Bands.All(x => Math.Abs(x.Gain) < 5));
         }
 
         /// <summary>
@@ -46,6 +56,27 @@ namespace Test.Cavern.QuickEQ {
                 result.AddBand(new(QMath.Lerp(startFreq, endFreq, i * mul), amplitude * Math.Sin(i)));
             }
             return result;
+        }
+
+        /// <summary>
+        /// Create a flat <see cref="Equalizer"/> with given frequencies.
+        /// </summary>
+        static Equalizer Create(params double[] frequencies) {
+            Equalizer result = new();
+            for (int i = 0; i < frequencies.Length; i++) {
+                result.AddBand(new Band(frequencies[i], 0));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Assert if all bands have the gain they should after the tested operation.
+        /// </summary>
+        static void Compare(Equalizer source, params double[] bandGains) {
+            IReadOnlyList<Band> bands = source.Bands;
+            for (int i = 0; i < bandGains.Length; i++) {
+                Assert.AreEqual(bands[i].Gain, bandGains[i], Consts.delta);
+            }
         }
     }
 }

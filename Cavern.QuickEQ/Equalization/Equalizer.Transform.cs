@@ -24,12 +24,13 @@ namespace Cavern.QuickEQ.Equalization {
         public void AddSlope(double slope, double startFreq, double endFreq) {
             double logStart = Math.Log(startFreq),
                 range = Math.Log(endFreq) - logStart;
-            slope *= range * 3.32192809489f; // range / log(2)
+            slope *= 1.44269504089f; // Slope /= log(2)
+            double slopeMax = slope * range;
             for (int i = GetFirstBand(startFreq), c = bands.Count; i < c; i++) {
                 if (bands[i].Frequency > endFreq) {
-                    bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slope);
+                    bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slopeMax);
                 } else {
-                    bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slope * (Math.Log(bands[i].Frequency) - logStart) / range);
+                    bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slope * (Math.Log(bands[i].Frequency) - logStart));
                 }
             }
         }
