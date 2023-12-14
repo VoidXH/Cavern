@@ -32,6 +32,7 @@ rd /s /q CavernSamples\WAVChannelReorderer\bin
 rd /s /q CavernSamples\WAVChannelReorderer\obj
 rd /s /q CavernSamples\WavefrontSimulator\bin
 rd /s /q CavernSamples\WavefrontSimulator\obj
+rd /s /q TestResults
 rd /s /q Tests\Test.Cavern\bin
 rd /s /q Tests\Test.Cavern\obj
 rd /s /q Tests\Test.Cavern.Format\bin
