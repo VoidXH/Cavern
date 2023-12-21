@@ -27,8 +27,11 @@
     <ProjectReference Include="..\CavernUnity DLL\CavernUnity DLL.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="UnityEditor">
+      <HintPath>..\..\..\2022.3.15f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\2022.3.12f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\2022.3.15f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
