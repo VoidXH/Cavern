@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using Cavern.QuickEQ.EQCurves;
 
@@ -135,29 +136,26 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Make sure the EQ won't go over the desired <paramref name="peak"/>.
         /// </summary>
-        public void LimitPeaks(double peak) {
-            for (int i = 0, c = bands.Count; i < c; i++) {
-                if (bands[i].Gain > peak) {
-                    bands[i] = new Band(bands[i].Frequency, peak);
-                }
-            }
-            if (PeakGain > peak) {
-                PeakGain = peak;
-            }
+        public void LimitPeaks(double peak) => LimitPeaks(0, bands.Count, peak);
+
+        /// <summary>
+        /// Make sure the EQ won't go over the desired <paramref name="peak"/> between the frequency limits.
+        /// </summary>
+        public void LimitPeaks(double peak, double startFreq, double endFreq) {
+            (int startBand, int endBand) = GetBandLimits(startFreq, endFreq);
+            LimitPeaks(startBand, endBand, peak);
         }
 
         /// <summary>
         /// Make sure that in the given range, all subsequent gains are smaller.
         /// </summary>
         public void MonotonousDecrease(double startFreq, double endFreq) {
-            int last = GetFirstBand(endFreq);
-            if (last == -1) {
-                last = bands.Count - 1;
-            }
-            for (int first = GetFirstBand(startFreq); first < last; last--) {
+            (int first, int last) = GetBandLimits(startFreq, endFreq);
+            while (first < last) {
                 if (bands[last - 1].Gain < bands[last].Gain) {
                     bands[last - 1] = new Band(bands[last - 1].Frequency, bands[last].Gain);
                 }
+                last--;
             }
         }
 
@@ -263,7 +261,7 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Get which band is the first after a given <paramref name="freq"/>uency. Returns -1 if such a band was not found.
+        /// Get which band index is the first after a given <paramref name="freq"/>uency. Returns -1 if such a band was not found.
         /// </summary>
         int GetFirstBand(double freq) {
             for (int i = 0, c = bands.Count; i < c; i++) {
@@ -272,6 +270,21 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Get the band index range corresponding to the selected frequency limits.
+        /// </summary>
+        (int startBand, int endBand) GetBandLimits(double startFreq, double endFreq) {
+            int first = GetFirstBand(startFreq);
+            if (first == -1) {
+                return (-1, -1);
+            }
+            int last = GetFirstBand(endFreq);
+            if (last == -1) {
+                last = bands.Count - 1;
+            }
+            return (first, last);
         }
 
         /// <summary>
@@ -285,6 +298,22 @@ namespace Cavern.QuickEQ.Equalization {
                 return result + targetCurve.GetAverageLevel(clearStartFreq, clearEndFreq, (clearEndFreq - clearStartFreq) / 50);
             }
             return result;
+        }
+
+        /// <summary>
+        /// Make sure the EQ won't go over the desired <paramref name="peak"/> between the band limits.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void LimitPeaks(int startBand, int endBand, double peak) {
+            while (startBand < endBand) {
+                if (bands[startBand].Gain > peak) {
+                    bands[startBand] = new Band(bands[startBand].Frequency, peak);
+                }
+                startBand++;
+            }
+            if (PeakGain > peak) {
+                PeakGain = peak;
+            }
         }
     }
 }

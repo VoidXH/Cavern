@@ -1,7 +1,7 @@
 ﻿using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
-namespace Test.Cavern.QuickEQ {
+namespace Test.Cavern.QuickEQ.Equalization {
     /// <summary>
     /// Tests the <see cref="Equalizer"/> class.
     /// </summary>
@@ -24,6 +24,28 @@ namespace Test.Cavern.QuickEQ {
         public void GetAverageLevel() {
             Equalizer equalizer = Create(20, 20000, 100, 10);
             Assert.AreEqual(8.760460922297078, equalizer.GetAverageLevel(100, 500), Consts.delta);
+        }
+
+        /// <summary>
+        /// Tests if <see cref="Equalizer.LimitPeaks(double)"/> works as intended.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void LimitPeaks() {
+            Equalizer equalizer = Create(20, 20000, 10, 10);
+            equalizer.LimitPeaks(3);
+            Compare(equalizer, 0, 3, 3, 1.4112, -7.568025, -9.589243, -2.794155, 3, 3, 3);
+        }
+
+        /// <summary>
+        /// Tests if <see cref="Equalizer.LimitPeaks(double, double, double)"/> works as intended.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void LimitPeaksRange() {
+            Equalizer equalizer = Create(20, 20000, 10, 10);
+            equalizer.LimitPeaks(6, 0, 10000);
+            Compare(equalizer, 0, 6, 6, 1.4112, -7.568025, -9.589243, -2.794155, 6.569866, 9.893582, 4.121185);
+            equalizer.LimitPeaks(3, 10000, 100000);
+            Compare(equalizer, 0, 6, 6, 1.4112, -7.568025, -9.589243, -2.794155, 3, 3, 4.121185);
         }
 
         /// <summary>
