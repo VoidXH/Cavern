@@ -109,4 +109,6 @@
     <system:String x:Key="CMeUT">The Cavern API does not yet support displaying the metadata of the selected track.</system:String>
     <system:String x:Key="JocWa">This file had some parts which were coded in sparse JOC. This part of the E-AC-3 standard is
         not correctly documented, thus can't be decoded, and was muted. Small distortions in the audio are expected.</system:String>
+    <system:String x:Key="RenEr">The audio at {0} could not be rendered. Processing will continue, but the track won't be intact
+        after that timestamp. The exact error: {1}</system:String>
 </ResourceDictionary>

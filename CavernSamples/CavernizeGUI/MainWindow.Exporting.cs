@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading;
 
 using Cavern;
 using Cavern.Filters;
@@ -18,7 +19,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Keeps track of export time and evaluates performance.
         /// </summary>
-        class Progressor {
+        class Progressor(long length, Listener listener, TaskEngine taskEngine) {
             /// <summary>
             /// Samples rendered so far.
             /// </summary>
@@ -32,37 +33,27 @@ namespace CavernizeGUI {
             /// <summary>
             /// Multiplier of the content length to get the progress ratio.
             /// </summary>
-            readonly double samplesToProgress;
+            readonly double samplesToProgress = 1.0 / length;
 
             /// <summary>
             /// Converts samples to seconds.
             /// </summary>
-            readonly double samplesToSeconds;
+            readonly double samplesToSeconds = 1.0 / listener.SampleRate;
 
             /// <summary>
             /// Samples processed each frame.
             /// </summary>
-            readonly long updateRate;
+            readonly long updateRate = listener.UpdateRate;
 
             /// <summary>
             /// UI updater instance.
             /// </summary>
-            readonly TaskEngine taskEngine;
+            readonly TaskEngine taskEngine = taskEngine;
 
             /// <summary>
             /// Samples until next UI update.
             /// </summary>
             long untilUpdate = updateInterval;
-
-            /// <summary>
-            /// Constructs a progress keeper.
-            /// </summary>
-            public Progressor(long length, Listener listener, TaskEngine taskEngine) {
-                samplesToProgress = 1.0 / length;
-                samplesToSeconds = 1.0 / listener.SampleRate;
-                updateRate = listener.UpdateRate;
-                this.taskEngine = taskEngine;
-            }
 
             /// <summary>
             /// Report progress after each listener update.
@@ -134,8 +125,21 @@ namespace CavernizeGUI {
             }
             // TODO: override multichannel process for the fast convolution filter to prevent reallocation
 
+            bool wasError = false;
             while (progressor.Rendered < target.Length) {
-                float[] result = listener.Render();
+                float[] result;
+                try {
+                    result = listener.Render();
+                } catch (Exception e) {
+                    if (!wasError) {
+                        wasError = true;
+                        ThreadPool.QueueUserWorkItem(x => { // Don't hold up background processing
+                            TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / listener.SampleRate);
+                            Dispatcher.Invoke(() => Error(string.Format((string)language["RenEr"], time, e.Message)));
+                        });
+                    }
+                    result = new float[Listener.Channels.Length * listener.UpdateRate];
+                }
 
                 // Alignment of split parts
                 if (target.Length - progressor.Rendered < listener.UpdateRate) {

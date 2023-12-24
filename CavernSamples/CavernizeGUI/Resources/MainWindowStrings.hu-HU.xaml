@@ -108,4 +108,6 @@
     <system:String x:Key="CMeUT">A Cavern API még nem támogatja a kiválasztott sáv metaadatainak megjelenítését.</system:String>
     <system:String x:Key="JocWa">A fájl néhány részét ritka JOC-ban kódolták. Az E-AC-3 szabványnak ezen része nincs helyesen
         dokumentálva, emiatt nem dekódolható, és le lett némítva. Kis torzítások várhatók a hangban.</system:String>
+    <system:String x:Key="RenEr">A hang nem renderelhető a következő ponton: {0}. A feldolgozás folytatódik, de a sáv
+        nem marad összefüggő ezután az idő után. A pontos hiba: {1}</system:String>
 </ResourceDictionary>
