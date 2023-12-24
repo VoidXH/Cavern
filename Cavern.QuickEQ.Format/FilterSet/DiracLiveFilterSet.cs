@@ -28,8 +28,7 @@ namespace Cavern.Format.FilterSet {
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
             for (int i = 0; i < Channels.Length; i++) {
                 var channelRef = (EqualizerChannelData)Channels[i];
-                channelRef.curve.ExportToDirac(Path.Combine(folder, $"{fileNameBase} {channelRef.name}.txt"),
-                    channelRef.gain, optionalHeader);
+                channelRef.curve.ExportToDirac(Path.Combine(folder, $"{fileNameBase} {channelRef.name}.txt"), 0, optionalHeader);
             }
         }
     }

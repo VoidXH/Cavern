@@ -44,9 +44,9 @@ namespace Cavern.QuickEQ.Equalization {
         /// Save this EQ to a file in the standard curve/calibration format.
         /// </summary>
         /// <param name="path">Export path of the file</param>
-        /// <param name="level">Gain at the center of the curve</param>
+        /// <param name="offset">Gain offset in decibels</param>
         /// <param name="header">Extra text to be added to the first line of the file</param>
-        public void Export(string path, double level, string header = null) {
+        public void Export(string path, double offset, string header = null) {
             int start = header != null ? 1 : 0, c = bands.Count;
             string[] calFile = new string[bands.Count + start];
             if (header != null) {
@@ -55,7 +55,8 @@ namespace Cavern.QuickEQ.Equalization {
 
             CultureInfo culture = CultureInfo.InvariantCulture;
             for (int band = 0; band < c; band++) {
-                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {bands[band].Gain.ToString(culture)}";
+                double level = bands[band].Gain + offset;
+                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {level.ToString(culture)}";
             }
             File.WriteAllLines(path, calFile);
         }
@@ -64,9 +65,9 @@ namespace Cavern.QuickEQ.Equalization {
         /// Save this EQ to a file in Dirac's curve format.
         /// </summary>
         /// <param name="path">Export path of the file</param>
-        /// <param name="level">Gain at the center of the curve</param>
+        /// <param name="offset">Gain offset in decibels</param>
         /// <param name="header">Extra text to be added to the first line of the file</param>
-        public void ExportToDirac(string path, double level, string header = null) {
+        public void ExportToDirac(string path, double offset, string header = null) {
             int start = header != null ? 2 : 1, c = bands.Count;
             string[] calFile = new string[1 + diracFooter.Length + bands.Count + start];
             if (header != null) {
@@ -76,7 +77,8 @@ namespace Cavern.QuickEQ.Equalization {
 
             CultureInfo culture = CultureInfo.InvariantCulture;
             for (int band = 0; band < c; band++) {
-                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {bands[band].Gain.ToString(culture)}";
+                double level = bands[band].Gain + offset;
+                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {level.ToString(culture)}";
             }
 
             Array.Copy(diracFooter, 0, calFile, start + c, diracFooter.Length);
