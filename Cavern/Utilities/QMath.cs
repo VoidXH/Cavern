@@ -144,7 +144,19 @@ namespace Cavern.Utilities {
         /// Convert decibels to voltage gain.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double DbToGain(double gain) => Math.Pow(10, gain * .05);
+
+        /// <summary>
+        /// Convert decibels to voltage gain.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float DbToGain(float gain) => MathF.Pow(10, gain * .05f);
+
+        /// <summary>
+        /// Convert voltage gain to decibels.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double GainToDb(double gain) => 20 * Math.Log10(gain);
 
         /// <summary>
         /// Convert voltage gain to decibels.

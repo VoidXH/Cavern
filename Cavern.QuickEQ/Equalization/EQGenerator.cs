@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
@@ -14,7 +13,7 @@ namespace Cavern.QuickEQ.Equalization {
     /// <summary>
     /// Equalizer generation functions.
     /// </summary>
-    public static class EQGenerator {
+    public static partial class EQGenerator {
         /// <summary>
         /// Generate an equalizer setting to flatten the processed response of
         /// <see cref="GraphUtils.SmoothGraph(float[], float, float, float)"/>. The maximum gain on any band
@@ -125,53 +124,6 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             return new Equalizer(bands, true);
-        }
-
-        /// <summary>
-        /// Get the average gains of multiple equalizers. The averaging happens in linear space.
-        /// </summary>
-        /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
-        public static Equalizer Average(params Equalizer[] sources) {
-            double[] bands = new double[sources[0].Bands.Count];
-            IReadOnlyList<Band> source = sources[0].Bands;
-            for (int i = 0; i < bands.Length; i++) {
-                bands[i] = Math.Pow(10, source[i].Gain * .05f);
-            }
-            for (int i = 1; i < sources.Length; i++) {
-                source = sources[i].Bands;
-                for (int j = 0; j < bands.Length; j++) {
-                    bands[j] += Math.Pow(10, source[j].Gain * .05f);
-                }
-            }
-
-            double div = 1.0 / sources.Length;
-            List<Band> result = new List<Band>(bands.Length);
-            for (int i = 0; i < bands.Length; i++) {
-                result.Add(new Band(source[i].Frequency, 20 * Math.Log10(bands[i] * div)));
-            }
-            return new Equalizer(result, true);
-        }
-
-        /// <summary>
-        /// Get the average gains of multiple equalizers, regardless of how many bands they have. The averaging happens in linear space.
-        /// </summary>
-        public static Equalizer AverageSafe(params Equalizer[] sources) {
-            List<Band> bands = new List<Band>();
-            double div = 1.0 / sources.Length;
-            for (int i = 0; i < sources.Length; i++) {
-                IReadOnlyList<Band> source = sources[i].Bands;
-                for (int j = 0, c = source.Count; j < c; j++) {
-                    double freq = source[j].Frequency,
-                        gain = 0;
-                    for (int other = 0; other < sources.Length; other++) {
-                        gain += Math.Pow(10, sources[other][freq] * .05f);
-                    }
-                    bands.Add(new Band(freq, 20 * Math.Log10(gain * div)));
-                }
-            }
-
-            bands.Sort();
-            return new Equalizer(bands.Distinct().ToList(), true);
         }
 
         /// <summary>
