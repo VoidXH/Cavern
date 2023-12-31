@@ -69,9 +69,9 @@ namespace Cavern.Format.FilterSet {
             ("Wide Surrounds", new[] { ReferenceChannel.WideLeft, ReferenceChannel.WideRight }),
             ("Side Surrounds", new[] { ReferenceChannel.SideLeft, ReferenceChannel.SideRight }),
             ("Rear Surrounds", new[] { ReferenceChannel.RearLeft, ReferenceChannel.RearRight }),
-            ("Heights", new[] { ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopSideLeft, ReferenceChannel.GodsVoice, ReferenceChannel.TopSideRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight }),
+            ("Front Heights", new[] { ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight }),
+            ("Side Heights", new[] { ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight }),
+            ("Rear Heights", new[] { ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight })
         };
     }
 }
