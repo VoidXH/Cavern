@@ -62,6 +62,9 @@ namespace CavernizeGUI.Elements {
                 case "qt":
                     AddTracksFromContainer(new MP4Reader(Path));
                     break;
+                case "mxf":
+                    AddTracksFromContainer(new MXFReader(Path));
+                    break;
                 case "wav":
                     RIFFWaveReader wavReader = new(Path);
                     tracks.Add(new Track(wavReader, wavReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE, 0));

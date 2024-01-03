@@ -12,9 +12,7 @@ namespace Cavern.Format.Container {
     /// Reads ISO-BMFF, the MP4 container's data structure.
     /// </summary>
     public class MP4Reader : ContainerReader {
-        /// <summary>
-        /// Returns the format of the loaded container.
-        /// </summary>
+        /// <inheritdoc/>
         public override Common.Container Type => Common.Container.MP4;
 
         /// <summary>

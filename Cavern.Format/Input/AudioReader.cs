@@ -17,7 +17,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Filter to all supported file types for open file dialogs. These are the containers supported by <see cref="Open(string)"/>.
         /// </summary>
-        public static readonly string filter = "*.ac3;*.eac3;*.ec3;*.laf;*.m4a;*.m4v;*.mka;*.mkv;*.mov;*.mp4;*.qt;*.wav;*.weba;*.webm";
+        public static readonly string filter = "*.ac3;*.eac3;*.ec3;*.laf;*.m4a;*.m4v;*.mka;*.mkv;*.mov;*.mp4;*.mxf;*.qt;*.wav;*.weba;*.webm";
 
         /// <summary>
         /// Content channel count.
@@ -83,6 +83,8 @@ namespace Cavern.Format {
                     return new LimitlessAudioFormatReader(reader);
                 case MatroskaTree.EBML_LE:
                     return OpenContainer(new MatroskaReader(reader));
+                case MXFConsts.universalLabel:
+                    return OpenContainer(new MXFReader(reader));
                 default:
                     throw new UnsupportedFormatException();
             }
@@ -114,10 +116,7 @@ namespace Cavern.Format {
         /// </summary>
         static AudioReader OpenContainer(ContainerReader reader) {
             Track track = reader.GetMainAudioTrack();
-            if (track == null) {
-                throw new NoProgramException();
-            }
-            return new AudioTrackReader(track, true);
+            return track == null ? throw new NoProgramException() : new AudioTrackReader(track, true);
         }
 
         /// <summary>

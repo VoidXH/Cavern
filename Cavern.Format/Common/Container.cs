@@ -15,5 +15,9 @@
         /// MP4 and QuickTime.
         /// </summary>
         MP4,
+        /// <summary>
+        /// Material eXchange Format.
+        /// </summary>
+        MXF,
     }
 }

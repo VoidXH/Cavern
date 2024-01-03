@@ -12,9 +12,7 @@ namespace Cavern.Format.Container {
     /// </summary>
     /// <see href="https://www.matroska.org/files/matroska_file_format_alexander_noe.pdf"/>
     public class MatroskaReader : ContainerReader {
-        /// <summary>
-        /// Returns the format of the loaded container.
-        /// </summary>
+        /// <inheritdoc/>
         public override Common.Container Type => Common.Container.Matroska;
 
         /// <summary>
