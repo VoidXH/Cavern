@@ -6,7 +6,7 @@ namespace Test.Cavern.QuickEQ.Crossover {
     /// <summary>
     /// Helper functions for testing Crossover derivatives.
     /// </summary>
-    class Utils {
+    static class Utils {
         public static void ImpulseResponse(CrossoverBase crossover, float expectedHighpassValue, float expectedLowpassValue) {
             const int fftSize = 256,
                 sampleRate = 48000,

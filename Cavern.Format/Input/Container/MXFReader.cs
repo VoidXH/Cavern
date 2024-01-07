@@ -14,7 +14,7 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// The pack containing the list of contained essences (track types).
         /// </summary>
-        PackRegistry header = null;
+        PackRegistry header;
 
         /// <summary>
         /// Reads a Material eXchange Format container's data structure.

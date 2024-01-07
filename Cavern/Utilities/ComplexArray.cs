@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -104,6 +105,21 @@ namespace Cavern.Utilities {
                     *lhs++ *= gain;
                 }
             }
+        }
+
+        /// <summary>
+        /// Get the root mean square of the values' magnitudes in a <see cref="Complex"/> <paramref name="array"/>.
+        /// </summary>
+        public static unsafe float GetRMSMagnitude(this Complex[] array) {
+            float sum = 0;
+            fixed (Complex* pArray = array) {
+                Complex* lhs = pArray,
+                    end = pArray + array.Length;
+                while (lhs != end) {
+                    sum += (*lhs++).SqrMagnitude;
+                }
+            }
+            return MathF.Sqrt(sum / array.Length);
         }
 
         /// <summary>
