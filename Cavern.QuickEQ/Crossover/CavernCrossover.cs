@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 
+using Cavern.QuickEQ.Equalization;
+
 namespace Cavern.QuickEQ.Crossover {
     /// <summary>
     /// A FIR brickwall crossover, first introduced in Cavern.
     /// </summary>
-    internal class CavernCrossover : BasicCrossover {
+    public class CavernCrossover : BasicCrossover {
         /// <summary>
         /// Creates a FIR brickwall crossover, first introduced in Cavern.
         /// </summary>
@@ -13,24 +15,31 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="subs">Channels to route bass to</param>
         public CavernCrossover(float[] frequencies, bool[] subs) : base(frequencies, subs) { }
 
-        /// <summary>
-        /// Add the filter's interpretation of highpass to the previously selected channel in a WIP configuration file.
-        /// </summary>
+        /// <inheritdoc/>
         public override void AddHighpass(List<string> wipConfig, float frequency) {
             float offsetFreq = frequency * .967741875f; // Removes crossover notch caused by FIR resolution
             wipConfig.Add($"GraphicEQ: {(offsetFreq - 1).ToString(CultureInfo.InvariantCulture)} -48;" +
                 $" {offsetFreq.ToString(CultureInfo.InvariantCulture)} 0");
         }
 
-        /// <summary>
-        /// Add the filter's interpretation of lowpass to the previously selected channel in a WIP configuration file.
-        /// </summary>
-        /// <remarks>Don't forget to call AddExtraOperations, this is generally the best place for it.</remarks>
+        /// <inheritdoc/>
+        public override float[] GetHighpass(int sampleRate, float frequency, int length) => new Equalizer(new List<Band> {
+            new Band(frequency * .967741875f, -48), // Removes crossover notch caused by FIR resolution
+            new Band(frequency, 0)
+        }, true).GetConvolution(sampleRate, length);
+
+        /// <inheritdoc/>
         public override void AddLowpass(List<string> wipConfig, float frequency) {
             float offsetFreq = frequency * 1.032258f; // Removes crossover notch caused by FIR resolution
             wipConfig.Add($"GraphicEQ: {offsetFreq.ToString(CultureInfo.InvariantCulture)} 0;" +
                 $" {(offsetFreq + 1).ToString(CultureInfo.InvariantCulture)} -48");
             AddExtraOperations(wipConfig);
         }
+
+        /// <inheritdoc/>
+        public override float[] GetLowpass(int sampleRate, float frequency, int length) => new Equalizer(new List<Band> {
+            new Band(frequency, 0),
+            new Band(frequency * 1.032258f, -48) // Removes crossover notch caused by FIR resolution
+        }, true).GetConvolution(sampleRate, length);
     }
 }

@@ -9,6 +9,11 @@ namespace Cavern.Filters {
     /// </summary>
     public abstract class BiquadFilter : Filter, ICloneable {
         /// <summary>
+        /// Sample rate of the filter.
+        /// </summary>
+        public int SampleRate { get; protected set; }
+
+        /// <summary>
         /// Center frequency (-3 dB point) of the filter.
         /// </summary>
         public double CenterFreq {
@@ -75,11 +80,6 @@ namespace Cavern.Filters {
         protected double gain;
 
         /// <summary>
-        /// Cached sample rate.
-        /// </summary>
-        protected int sampleRate;
-
-        /// <summary>
         /// History sample.
         /// </summary>
         protected float x1, x2, y1, y2;
@@ -107,7 +107,7 @@ namespace Cavern.Filters {
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
         protected BiquadFilter(int sampleRate, double centerFreq, double q, double gain) {
-            this.sampleRate = sampleRate;
+            SampleRate = sampleRate;
             Reset(centerFreq, q, gain);
         }
 
@@ -144,7 +144,7 @@ namespace Cavern.Filters {
             this.centerFreq = centerFreq;
             this.q = q;
             this.gain = gain;
-            float w0 = (float)(MathF.PI * 2 * centerFreq / sampleRate), cos = (float)Math.Cos(w0),
+            float w0 = (float)(MathF.PI * 2 * centerFreq / SampleRate), cos = (float)Math.Cos(w0),
                 alpha = (float)(Math.Sin(w0) / (q + q)), divisor = 1 / (1 + alpha);
             Reset(cos, alpha, divisor);
         }

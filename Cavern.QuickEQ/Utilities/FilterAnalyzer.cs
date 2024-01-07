@@ -239,7 +239,8 @@ namespace Cavern.QuickEQ.Utilities {
                 octaveRange = Math.Log(endFreq, 2) - Math.Log(startFreq, 2);
             int windowSize = (int)(graph.Length / (octaveRange / resolution + 1));
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
-                bands.Add(new Band(Math.Pow(10, startPow + powRange * pos), 20 * Math.Log10(graph[pos])));
+                double gain = graph[pos] != 0 ? 20 * Math.Log10(graph[pos]) : -150; // -150 dB is the lowest float value
+                bands.Add(new Band(Math.Pow(10, startPow + powRange * pos), gain));
             }
             bands.Reverse();
             return new Equalizer(bands, true);

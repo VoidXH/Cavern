@@ -15,9 +15,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="subs">Channels to route bass to</param>
         public BasicCrossover(float[] frequencies, bool[] subs) : base(frequencies, subs) { }
 
-        /// <summary>
-        /// Attach the crossover to an Equalizer APO configuration file in the making.
-        /// </summary>
+        /// <inheritdoc/>
         public override void ExportToEqualizerAPO(List<string> wipConfig) {
             (float frequency, string[] channelLabels)[] groups = GetCrossoverGroups();
             string[] targets = GetSubLabels();

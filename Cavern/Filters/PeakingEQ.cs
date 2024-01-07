@@ -32,7 +32,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Create a copy of this filter.
         /// </summary>
-        public override object Clone() => new PeakingEQ(sampleRate, centerFreq, q, gain);
+        public override object Clone() => new PeakingEQ(SampleRate, centerFreq, q, gain);
 
         /// <summary>
         /// Create a copy of this filter with a changed sampleRate.

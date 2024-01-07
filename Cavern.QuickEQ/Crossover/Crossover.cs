@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Cavern.Channels;
+using Cavern.Filters;
 
 namespace Cavern.QuickEQ.Crossover {
     /// <summary>
@@ -24,7 +25,7 @@ namespace Cavern.QuickEQ.Crossover {
     }
 
     /// <summary>
-    /// A crossover to modify an Equalizer APO configuration file with.
+    /// A crossover to be exported as FIR filters or written into an Equalizer APO configuration file.
     /// </summary>
     public abstract class Crossover {
         /// <summary>
@@ -68,12 +69,23 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
+        /// Generate a 2nd order impulse response for a simple filter.
+        /// </summary>
+        static float[] Simulate(BiquadFilter filter, int length) {
+            float[] impulse = new float[length];
+            impulse[0] = 1;
+            filter.Process(impulse);
+            ((BiquadFilter)filter.Clone()).Process(impulse);
+            return impulse;
+        }
+
+        /// <summary>
         /// Attach the crossover to an Equalizer APO configuration file in the making.
         /// </summary>
         public abstract void ExportToEqualizerAPO(List<string> wipConfig);
 
         /// <summary>
-        /// Add the filter's interpretation of highpass to the previously selected channel in a WIP configuration file.
+        /// Add the filter's interpretation of highpass to the previously selected channel in an Equalizer APO configuration file.
         /// </summary>
         public virtual void AddHighpass(List<string> wipConfig, float frequency) {
             string hpf = $"Filter: ON HP Fc {frequency} Hz";
@@ -82,7 +94,16 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
-        /// Add the filter's interpretation of lowpass to the previously selected channel in a WIP configuration file.
+        /// Get a FIR filter for the highpass part of the crossover.
+        /// </summary>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="frequency">Highpass cutoff point</param>
+        /// <param name="length">Filter length in samples</param>
+        public virtual float[] GetHighpass(int sampleRate, float frequency, int length) =>
+            Simulate(new Highpass(sampleRate, frequency), length);
+
+        /// <summary>
+        /// Add the filter's interpretation of lowpass to the previously selected channel in an Equalizer APO configuration file.
         /// </summary>
         /// <remarks>Don't forget to call <see cref="AddExtraOperations(List{string})"/>, this is generally the best place for it.</remarks>
         public virtual void AddLowpass(List<string> wipConfig, float frequency) {
@@ -91,6 +112,15 @@ namespace Cavern.QuickEQ.Crossover {
             wipConfig.Add(lpf);
             AddExtraOperations(wipConfig);
         }
+
+        /// <summary>
+        /// Get a FIR filter for the lowpass part of the crossover.
+        /// </summary>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="frequency">Lowpass cutoff point</param>
+        /// <param name="length">Filter length in samples</param>
+        public virtual float[] GetLowpass(int sampleRate, float frequency, int length) =>
+            Simulate(new Lowpass(sampleRate, frequency), length);
 
         /// <summary>
         /// Get the labels of channels to route bass to.

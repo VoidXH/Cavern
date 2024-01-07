@@ -32,7 +32,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Create a copy of this filter.
         /// </summary>
-        public override object Clone() => new LowShelf(sampleRate, centerFreq, q, gain);
+        public override object Clone() => new LowShelf(SampleRate, centerFreq, q, gain);
 
         /// <summary>
         /// Create a copy of this filter with a changed sampleRate.

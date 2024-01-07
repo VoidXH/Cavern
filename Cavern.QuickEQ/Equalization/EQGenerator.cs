@@ -191,7 +191,7 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             eq.Apply(filter, sampleRate);
-            using (FFTCache cache = new FFTCache(length)) {
+            using (FFTCache cache = new ThreadSafeFFTCache(length)) {
                 Measurements.MinimumPhaseSpectrum(filter, cache);
                 filter.InPlaceIFFT(cache);
             }
