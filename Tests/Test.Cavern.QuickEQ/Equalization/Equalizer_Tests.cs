@@ -27,6 +27,19 @@ namespace Test.Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Tests if <see cref="Equalizer.GetValleys(double, double)"/> works as intended.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void GetValleys() {
+            Equalizer equalizer = Create(20, 20000, 100, 10);
+            equalizer.DownsampleLogarithmically(1024, 20, 20000);
+            IReadOnlyList<(int startInclusive, int stopExclusive)> valleys = equalizer.GetValleys(10, 1);
+            Assert.AreEqual(15, valleys.Count);
+            Assert.AreEqual(492, valleys[0].startInclusive);
+            Assert.AreEqual(617, valleys[0].stopExclusive);
+        }
+
+        /// <summary>
         /// Tests if <see cref="Equalizer.LimitPeaks(double)"/> works as intended.
         /// </summary>
         [TestMethod, Timeout(1000)]

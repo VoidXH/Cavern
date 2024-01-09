@@ -27,7 +27,7 @@ namespace Cavern.QuickEQ.Equalization {
                 range = Math.Log(endFreq) - logStart;
             slope *= 1.44269504089f; // Slope /= log(2)
             double slopeMax = slope * range;
-            for (int i = GetFirstBand(startFreq), c = bands.Count; i < c; i++) {
+            for (int i = GetFirstBandSafe(startFreq), c = bands.Count; i < c; i++) {
                 if (bands[i].Frequency > endFreq) {
                     bands[i] = new Band(bands[i].Frequency, bands[i].Gain + slopeMax);
                 } else {
@@ -183,7 +183,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// Set the average gain of the curve to 0 dB between frequency limits.
         /// </summary>
         public void Normalize(double startFreq, double endFreq) {
-            int first = GetFirstBand(startFreq),
+            int first = GetFirstBandSafe(startFreq),
                 last = bands.Count;
             double total = 0;
             for (int i = first; i < last; i++) {
@@ -270,6 +270,14 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Get which band index is the first after a given <paramref name="freq"/>uency, or 0 if such a band was not found.
+        /// </summary>
+        int GetFirstBandSafe(double freq) {
+            int result = GetFirstBand(freq);
+            return result != -1 ? result : 0;
         }
 
         /// <summary>
