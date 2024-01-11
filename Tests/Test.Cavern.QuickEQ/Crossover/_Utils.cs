@@ -12,7 +12,7 @@ namespace Test.Cavern.QuickEQ.Crossover {
                 sampleRate = 48000,
                 crossoverFreq = 10000,
                 crossoverBand = fftSize * crossoverFreq / sampleRate;
-            FFTCache cache = new FFTCache(fftSize);
+            FFTCache cache = new(fftSize);
             Complex[] highpass = crossover.GetHighpass(sampleRate, crossoverFreq, fftSize).FFT(cache);
             Complex[] lowpass = crossover.GetLowpass(sampleRate, crossoverFreq, fftSize).FFT(cache);
 
