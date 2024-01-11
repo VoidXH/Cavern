@@ -33,40 +33,6 @@ namespace Cavern.QuickEQ.Equalization {
 		}
 
 		/// <summary>
-		/// Detects valleys as band index ranges in the spectrum by comparing this <see cref="Equalizer"/> with an oversmoothed version.
-		/// </summary>
-		/// <param name="depth">Minimum valley in decibels for a range to be considered a result</param>
-		/// <param name="oversmoothing">Compare the current <see cref="Equalizer"/>
-		/// to a version which is smoothed by this many octaves</param>
-		public List<(int startInclusive, int stopExclusive)> GetValleys(double depth, double oversmoothing) {
-			Equalizer smoothed = (Equalizer)Clone();
-			smoothed.Smooth(oversmoothing);
-			List<(int, int)> result = new List<(int, int)>();
-			IReadOnlyList<Band> dryBands = bands,
-				wetBands = smoothed.bands;
-			bool inValley = false;
-			int valleyStarted = 0;
-			double maxInValley = 0;
-			for (int i = 0, c = dryBands.Count; i < c; i++) {
-				double valley = wetBands[i].Gain - dryBands[i].Gain;
-				bool willBeInValley = valley > 0;
-				if (maxInValley < valley) {
-					maxInValley = valley;
-				}
-				if (inValley != willBeInValley) {
-					if (willBeInValley) {
-						maxInValley = valley;
-						valleyStarted = i;
-					} else if (inValley && maxInValley >= depth) {
-						result.Add((valleyStarted, i));
-					}
-					inValley = willBeInValley;
-				}
-			}
-			return result;
-		}
-
-		/// <summary>
 		/// Get the median level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>.
 		/// </summary>
 		public double GetMedianLevel(double minFreq, double maxFreq) {
@@ -121,13 +87,47 @@ namespace Cavern.QuickEQ.Equalization {
 				last--;
 			}
 			return (bands[first].Frequency, bands[last].Frequency);
-		}
+        }
 
-		/// <summary>
-		/// Get the average level between the <paramref name="firstBand"/> (inclusive) and <paramref name="lastBand"/> (exclusive),
-		/// calculated in voltage scale, returned in dB scale.
-		/// </summary>
-		double GetAverageLevel(int firstBand, int lastBand) {
+        /// <summary>
+        /// Detects valleys as band index ranges in the spectrum by comparing this <see cref="Equalizer"/> with an oversmoothed version.
+        /// </summary>
+        /// <param name="depth">Minimum valley in decibels for a range to be considered a result</param>
+        /// <param name="oversmoothing">Compare the current <see cref="Equalizer"/>
+        /// to a version which is smoothed by this many octaves</param>
+        public List<(int startInclusive, int stopExclusive)> GetValleys(double depth, double oversmoothing) {
+            Equalizer smoothed = (Equalizer)Clone();
+            smoothed.Smooth(oversmoothing);
+            List<(int, int)> result = new List<(int, int)>();
+            IReadOnlyList<Band> dryBands = bands,
+                wetBands = smoothed.bands;
+            bool inValley = false;
+            int valleyStarted = 0;
+            double maxInValley = 0;
+            for (int i = 0, c = dryBands.Count; i < c; i++) {
+                double valley = wetBands[i].Gain - dryBands[i].Gain;
+                bool willBeInValley = valley > 0;
+                if (maxInValley < valley) {
+                    maxInValley = valley;
+                }
+                if (inValley != willBeInValley) {
+                    if (willBeInValley) {
+                        maxInValley = valley;
+                        valleyStarted = i;
+                    } else if (inValley && maxInValley >= depth) {
+                        result.Add((valleyStarted, i));
+                    }
+                    inValley = willBeInValley;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Get the average level between the <paramref name="firstBand"/> (inclusive) and <paramref name="lastBand"/> (exclusive),
+        /// calculated in voltage scale, returned in dB scale.
+        /// </summary>
+        double GetAverageLevel(int firstBand, int lastBand) {
 			double sum = 0;
 			int n = 0;
 			while (firstBand < lastBand) {
