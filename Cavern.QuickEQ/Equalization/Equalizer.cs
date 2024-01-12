@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Cavern.QuickEQ.EQCurves;
@@ -14,7 +15,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// Bands that make up this equalizer.
         /// </summary>
         public IReadOnlyList<Band> Bands => bands;
-        readonly List<Band> bands = new List<Band>();
+        readonly List<Band> bands;
 
         /// <summary>
         /// Gets the gain at a given frequency.
@@ -83,7 +84,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Equalizer data collector and exporter.
         /// </summary>
-        public Equalizer() { }
+        public Equalizer() => bands = new List<Band>();
 
         /// <summary>
         /// Equalizer data collector and exporter from a previously created set of bands.
@@ -97,6 +98,11 @@ namespace Cavern.QuickEQ.Equalization {
             this.bands = bands;
             RecalculatePeakGain();
         }
+
+        /// <summary>
+        /// Equalizer data collector and exporter from a binary stream created with <see cref="BinarySerialize(BinaryWriter, bool)"/>.
+        /// </summary>
+        public Equalizer(BinaryReader reader) : this() => BinaryDeserialize(reader);
 
         /// <summary>
         /// Create a copy of this EQ with the same bands.

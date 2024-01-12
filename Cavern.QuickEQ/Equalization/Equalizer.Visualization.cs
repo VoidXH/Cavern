@@ -39,6 +39,46 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Deserialize this EQ from a binary stream written with <see cref="BinarySerialize(BinaryWriter, bool)"/>.
+        /// </summary>
+        /// <param name="reader"></param>
+        public void BinaryDeserialize(BinaryReader reader) {
+            int bandc = reader.ReadInt32();
+            bands.Clear();
+            if (bandc > 0) { // Lossy
+                for (int i = 0; i < bandc; i++) {
+                    bands.Add(new Band(reader.ReadSingle(), reader.ReadSingle()));
+                }
+            } else {
+                bandc = -bandc;
+                for (int i = 0; i < bandc; i++) {
+                    bands.Add(new Band(reader.ReadDouble(), reader.ReadDouble()));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Serialize this EQ to any binary stream to later be deserialized with <see cref="BinaryDeserialize(BinaryReader)"/>.
+        /// </summary>
+        /// <param name="writer">Output writer instance</param>
+        /// <param name="lossy">Use single precision instead of double for minimal data loss and half stream sizes</param>
+        public void BinarySerialize(BinaryWriter writer, bool lossy = false) {
+            if (lossy) {
+                writer.Write(bands.Count);
+                for (int i = 0, c = bands.Count; i < c; i++) {
+                    writer.Write((float)bands[i].Frequency);
+                    writer.Write((float)bands[i].Gain);
+                }
+            } else {
+                writer.Write(-bands.Count);
+                for (int i = 0, c = bands.Count; i < c; i++) {
+                    writer.Write(bands[i].Frequency);
+                    writer.Write(bands[i].Gain);
+                }
+            }
+        }
+
+        /// <summary>
         /// Save this EQ to a file in the standard curve/calibration format.
         /// </summary>
         /// <param name="path">Export path of the file</param>
