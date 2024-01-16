@@ -81,12 +81,7 @@ namespace Cavern.QuickEQ.Crossover {
             float bestValue = 0,
                 bestFrequency = 0;
             for (float freq = minFreq; freq <= maxFreq; freq += precision) {
-                Complex[] lowCurrent = lowTransfer.FastClone();
-                Complex[] highCurrent = highTransfer.FastClone();
-                lowCurrent.Convolve(type.GetLowpass(sampleRate, freq, cache.Size).FFT(cache));
-                highCurrent.Convolve(type.GetHighpass(sampleRate, freq, cache.Size).FFT(cache));
-                lowCurrent.Add(highCurrent);
-                float value = lowCurrent.GetRMSMagnitude();
+                float value = GetCrossoverValue(type, lowTransfer, highTransfer, sampleRate, freq, cache);
                 if (bestValue < value) {
                     bestValue = value;
                     bestFrequency = freq;
@@ -136,7 +131,8 @@ namespace Cavern.QuickEQ.Crossover {
         /// </summary>
         /// <param name="measurement">Measurements or simulations at the reference position</param>
         /// <param name="channels">The channel layout where the <paramref name="measurement"/> was taken</param>
-        static Complex[] GetCombinedLFETransfer(MeasurementPosition measurement, Channel[] channels) {
+        /// <remarks>This function does account for the 10 dB gain of LFE channels.</remarks>
+        protected static Complex[] GetCombinedLFETransfer(MeasurementPosition measurement, Channel[] channels) {
             Complex[] subs = null;
             for (int i = 0; i < channels.Length; i++) {
                 if (channels[i].LFE) {
@@ -147,7 +143,36 @@ namespace Cavern.QuickEQ.Crossover {
                     }
                 }
             }
+
+            subs?.Gain(Crossover.minus10dB);
             return subs;
+        }
+
+        /// <summary>
+        /// Calculate a single crossover point's score for comparing it to others.
+        /// </summary>
+        /// <param name="type">An instance of the used crossover type</param>
+        /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
+        /// <param name="highTransfer">Transfer function of the high-frequency path</param>
+        /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
+        /// <param name="freq">Crossover point frequency to score</param>
+        /// <param name="cache">Preallocated FFT cache for optimization</param>
+        protected static float GetCrossoverValue(Crossover type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate, float freq,
+            FFTCache cache) {
+            Complex[] lowCurrent = lowTransfer.FastClone();
+            Complex[] highCurrent = highTransfer.FastClone();
+            Complex[] work = new Complex[lowCurrent.Length];
+
+            type.GetLowpass(sampleRate, freq, cache.Size).ParseForFFT(work);
+            work.InPlaceFFT(cache);
+            lowCurrent.Convolve(work);
+
+            type.GetHighpass(sampleRate, freq, cache.Size).ParseForFFT(work);
+            work.InPlaceFFT(cache);
+            highCurrent.Convolve(work);
+
+            lowCurrent.Add(highCurrent);
+            return lowCurrent.GetRMSMagnitude();
         }
 
         /// <summary>
@@ -174,14 +199,13 @@ namespace Cavern.QuickEQ.Crossover {
         /// <returns>The frequencies where each channel's crossover should be positioned or null if
         /// bypassing the crossover is recommended</returns>
         /// <remarks>This function does account for the 10 dB gain of LFE channels.</remarks>
-        public float[] FindCrossoverFrequencies(MeasurementPosition measurement, Channel[] channels, FFTCachePool pool) {
+        public virtual float[] FindCrossoverFrequencies(MeasurementPosition measurement, Channel[] channels, FFTCachePool pool) {
             channels ??= ChannelPrototype.ToLayout(ChannelPrototype.GetStandardMatrix(measurement.Length));
             Complex[] subs = GetCombinedLFETransfer(measurement, channels);
             if (subs == null) {
                 return null;
             }
 
-            subs.Gain(Crossover.minus10dB);
             float[] result = new float[channels.Length];
             Parallelizer.For(0, channels.Length, i => {
                 if (!channels[i].LFE) {
