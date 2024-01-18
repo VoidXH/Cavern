@@ -5,24 +5,16 @@ namespace Cavern.Format.FilterSet {
     /// IIR filter set for StormAudio hardware.
     /// </summary>
     public class StormAudioFilterSet : IIRFilterSet {
-        /// <summary>
-        /// Maximum number of peaking EQ filters per channel.
-        /// </summary>
+        /// <inheritdoc/>
         public override int Bands => 12;
 
-        /// <summary>
-        /// Minimum gain of a single peaking EQ band in decibels.
-        /// </summary>
+        /// <inheritdoc/>
         public override double MinGain => -18;
 
-        /// <summary>
-        /// Maximum gain of a single peaking EQ band in decibels.
-        /// </summary>
+        /// <inheritdoc/>
         public override double MaxGain => 18;
 
-        /// <summary>
-        /// Round the gains to this precision.
-        /// </summary>
+        /// <inheritdoc/>
         public override double GainPrecision => .5;
 
         /// <summary>
@@ -36,7 +28,7 @@ namespace Cavern.Format.FilterSet {
         public StormAudioFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
-        /// IIR filter set for StormAudio processors with a given number of channels.
+        /// IIR filter set for StormAudio processors with a given set of channels.
         /// </summary>
         public StormAudioFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 

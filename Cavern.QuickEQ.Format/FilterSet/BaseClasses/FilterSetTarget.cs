@@ -70,6 +70,10 @@
         /// </summary>
         Emotiva,
         /// <summary>
+        /// Monoprice Monolith HTP-1 processors.
+        /// </summary>
+        MonolithHTP1,
+        /// <summary>
         /// StormAudio ISP processors.
         /// </summary>
         StormAudio,
