@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+
+using Cavern.Filters.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -29,22 +32,22 @@ namespace Cavern.Filters {
         /// <param name="gain">Gain of the filter in decibels</param>
         public HighShelf(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
 
-        /// <summary>
-        /// Create a copy of this filter.
-        /// </summary>
+        /// <inheritdoc/>
         public override object Clone() => new HighShelf(SampleRate, centerFreq, q, gain);
 
-        /// <summary>
-        /// Create a copy of this filter with a changed sampleRate.
-        /// </summary>
+        /// <inheritdoc/>
         public override object Clone(int sampleRate) => new HighShelf(sampleRate, centerFreq, q, gain);
 
-        /// <summary>
-        /// Reset the parameters specifically for the derived filter.
-        /// </summary>
-        /// <param name="cosW0">Cosine of omega0</param>
-        /// <param name="alpha">Value of the alpha parameter</param>
-        /// <param name="_">Would be the divisor, but it's calculated differently for this filter</param>
+        /// <inheritdoc/>
+        public override void ExportToEqualizerAPO(List<string> wipConfig) {
+            if (q == QFactor.reference) {
+                wipConfig.Add($"Filter: ON HS Fc {centerFreq} Hz Gain {gain} dB");
+            } else {
+                wipConfig.Add($"Filter: ON HSC {QFactor.ToSlope(q, gain)} dB Fc {centerFreq} Hz Gain {gain} dB");
+            }
+        }
+
+        /// <inheritdoc/>
         protected override void Reset(float cosW0, float alpha, float _) {
             float a = (float)Math.Pow(10, gain * .025f),
                 slope = 2 * (float)Math.Sqrt(a) * alpha,

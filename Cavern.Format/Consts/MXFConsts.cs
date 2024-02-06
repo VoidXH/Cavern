@@ -14,7 +14,7 @@
         public const int universalLabelLE = 0x060E2B34;
 
         /// <summary>
-        /// Registry header of immersive audio elements.
+        /// Registry header of value dictionaries.
         /// </summary>
         public const int packRegistry = 0x02050101;
 

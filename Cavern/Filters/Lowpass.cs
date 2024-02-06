@@ -1,4 +1,8 @@
-﻿namespace Cavern.Filters {
+﻿using System.Collections.Generic;
+
+using Cavern.Filters.Utilities;
+
+namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order lowpass filter.
     /// </summary>
@@ -27,22 +31,22 @@
         /// <param name="gain">Gain of the filter in decibels</param>
         public Lowpass(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
 
-        /// <summary>
-        /// Create a copy of this filter.
-        /// </summary>
+        /// <inheritdoc/>
         public override object Clone() => new Lowpass(SampleRate, centerFreq, q, gain);
 
-        /// <summary>
-        /// Create a copy of this filter with a changed sampleRate.
-        /// </summary>
+        /// <inheritdoc/>
         public override object Clone(int sampleRate) => new Lowpass(sampleRate, centerFreq, q, gain);
 
-        /// <summary>
-        /// Reset the parameters specifically for the derived filter.
-        /// </summary>
-        /// <param name="cosW0">Cosine of omega0</param>
-        /// <param name="alpha">Value of the alpha parameter</param>
-        /// <param name="divisor">1 / a0, as a0 is the same for all biquad filters</param>
+        /// <inheritdoc/>
+        public override void ExportToEqualizerAPO(List<string> wipConfig) {
+            if (q == QFactor.reference) {
+                wipConfig.Add($"Filter: ON LP Fc {centerFreq} Hz");
+            } else {
+                wipConfig.Add($"Filter: ON LPQ Fc {centerFreq} Hz Q {q}");
+            }
+        }
+
+        /// <inheritdoc/>
         protected override void Reset(float cosW0, float alpha, float divisor) => SetupPass(cosW0, alpha, divisor, 1 - cosW0);
     }
 }

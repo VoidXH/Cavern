@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -29,22 +30,16 @@ namespace Cavern.Filters {
         /// <param name="gain">Gain of the filter in decibels</param>
         public Notch(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
 
-        /// <summary>
-        /// Create a copy of this filter.
-        /// </summary>
+        /// <inheritdoc/>
         public override object Clone() => new Notch(SampleRate, centerFreq, q, gain);
 
-        /// <summary>
-        /// Create a copy of this filter with a changed sampleRate.
-        /// </summary>
+        /// <inheritdoc/>
         public override object Clone(int sampleRate) => new Notch(sampleRate, centerFreq, q, gain);
 
-        /// <summary>
-        /// Reset the parameters specifically for the derived filter.
-        /// </summary>
-        /// <param name="cosW0">Cosine of omega0</param>
-        /// <param name="alpha">Value of the alpha parameter</param>
-        /// <param name="divisor">1 / a0, as a0 is the same for all biquad filters</param>
+        /// <inheritdoc/>
+        public override void ExportToEqualizerAPO(List<string> wipConfig) => wipConfig.Add($"Filter: ON NO Fc {centerFreq} Hz Q {q}");
+
+        /// <inheritdoc/>
         protected override void Reset(float cosW0, float alpha, float divisor) {
             b0 = (float)Math.Pow(10, gain * .05f) * divisor;
             a1 = b1 = -2 * cosW0 * (b2 = divisor);

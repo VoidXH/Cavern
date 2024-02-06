@@ -7,12 +7,26 @@ namespace Test.Cavern.Filters {
     [TestClass]
     public class QFactor_Tests {
         /// <summary>
-        /// Tests if conversions work correctly.
+        /// Tests if bandwidth conversions work correctly.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void TrailingZeros() {
-            Assert.AreEqual(0.1442094593213907, QFactor.ToBandwidth(10), Consts.delta);
-            Assert.AreEqual(10, QFactor.FromBandwidth(0.1442094593213907), Consts.delta);
+        public void Bandwidth() {
+            const double inQ = 10,
+                inBandwidth = 0.1442094593213907;
+            Assert.AreEqual(inBandwidth, QFactor.ToBandwidth(inQ), Consts.delta);
+            Assert.AreEqual(inQ, QFactor.FromBandwidth(inBandwidth), Consts.delta);
+        }
+
+        /// <summary>
+        /// Tests if slope conversions work correctly.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void Slope() {
+            const double inQ = 10,
+                inSlope = 4.9293152597075665,
+                gain = 6;
+            Assert.AreEqual(inSlope, QFactor.ToSlope(inQ, gain), Consts.delta);
+            Assert.AreEqual(inQ, QFactor.FromSlope(inSlope, gain), Consts.delta);
         }
     }
 }

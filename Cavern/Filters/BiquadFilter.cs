@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
+using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter.
     /// </summary>
-    public abstract class BiquadFilter : Filter, ICloneable {
+    public abstract class BiquadFilter : Filter, ICloneable, IEqualizerAPOFilter {
         /// <summary>
         /// Sample rate of the filter.
         /// </summary>
@@ -149,12 +151,7 @@ namespace Cavern.Filters {
             Reset(cos, alpha, divisor);
         }
 
-        /// <summary>
-        /// Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
-        /// <param name="channel">Channel to filter</param>
-        /// <param name="channels">Total channels</param>
+        /// <inheritdoc/>
         public override void Process(float[] samples, int channel, int channels) {
             for (int sample = channel; sample < samples.Length; sample += channels) {
                 float thisSample = samples[sample];
@@ -172,9 +169,13 @@ namespace Cavern.Filters {
         public abstract object Clone();
 
         /// <summary>
-        /// Create a copy of this filter with a changed sampleRate.
+        /// Create a copy of this filter with a changed <see cref="SampleRate"/>.
         /// </summary>
+        /// <param name="sampleRate">Sample rate of the new filter</param>
         public abstract object Clone(int sampleRate);
+
+        /// <inheritdoc/>
+        public abstract void ExportToEqualizerAPO(List<string> wipConfig);
 
         /// <summary>
         /// Reset the parameters specifically for the derived filter.

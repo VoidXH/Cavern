@@ -54,6 +54,16 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
+        /// Convert Q-factor to steepness in decibels/octave.
+        /// </summary>
+        /// <param name="qFactor">Filter Q-factor</param>
+        /// <param name="gain">Filter gain in decibels</param>
+        public static double ToSlope(double qFactor, double gain) {
+            double a = Math.Pow(10, gain * .05f);
+            return 1.0 / ((1 / (qFactor * qFactor) - 2) / (a + 1 / a) + 1);
+        }
+
+        /// <summary>
         /// Sqrt(2)/2, the Q factor for maximum flatness.
         /// </summary>
         public const double reference = .7071067811865475;

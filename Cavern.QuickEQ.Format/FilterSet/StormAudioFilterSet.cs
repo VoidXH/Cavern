@@ -6,7 +6,7 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class StormAudioFilterSet : IIRFilterSet {
         /// <inheritdoc/>
-        public override int Bands => 12;
+        public override int Bands => 16;
 
         /// <inheritdoc/>
         public override double MinGain => -18;

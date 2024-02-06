@@ -4,6 +4,7 @@ using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Filters.Interfaces;
 
 namespace Cavern.QuickEQ.Crossover {
     /// <summary>
@@ -27,7 +28,7 @@ namespace Cavern.QuickEQ.Crossover {
     /// <summary>
     /// A crossover to be exported as FIR filters or written into an Equalizer APO configuration file.
     /// </summary>
-    public abstract class Crossover {
+    public abstract class Crossover : IEqualizerAPOFilter {
         /// <summary>
         /// Extra Equalizer APO commands to be performed on crossovered channels, like adding Sealing as convolution.
         /// </summary>
@@ -79,9 +80,7 @@ namespace Cavern.QuickEQ.Crossover {
             return impulse;
         }
 
-        /// <summary>
-        /// Attach the crossover to an Equalizer APO configuration file in the making.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract void ExportToEqualizerAPO(List<string> wipConfig);
 
         /// <summary>

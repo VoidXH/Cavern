@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -29,22 +30,17 @@ namespace Cavern.Filters {
         /// <param name="gain">Gain of the filter in decibels</param>
         public PeakingEQ(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
 
-        /// <summary>
-        /// Create a copy of this filter.
-        /// </summary>
+        /// <inheritdoc/>
         public override object Clone() => new PeakingEQ(SampleRate, centerFreq, q, gain);
 
-        /// <summary>
-        /// Create a copy of this filter with a changed sampleRate.
-        /// </summary>
+        /// <inheritdoc/>
         public override object Clone(int sampleRate) => new PeakingEQ(sampleRate, centerFreq, q, gain);
 
-        /// <summary>
-        /// Reset the parameters specifically for the derived filter.
-        /// </summary>
-        /// <param name="cosW0">Cosine of omega0</param>
-        /// <param name="alpha">Value of the alpha parameter</param>
-        /// <param name="_">Would be the divisor, but it's calculated differently for this filter</param>
+        /// <inheritdoc/>
+        public override void ExportToEqualizerAPO(List<string> wipConfig) =>
+            wipConfig.Add($"Filter: ON PK Fc {centerFreq} Hz Gain {gain} dB Q {q}");
+
+        /// <inheritdoc/>
         protected override void Reset(float cosW0, float alpha, float _) {
             float a = (float)Math.Pow(10, gain * .025f); // gain is doubled for some reason
             float divisor = 1 / (1 + alpha / a);
