@@ -91,6 +91,47 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
+        /// Find the lowest crossover point on a system by comparing all channels to each other and
+        /// checking until what frequency they are similar.
+        /// </summary>
+        /// <param name="channels">Transfer functions of each channel - lengths must match</param>
+        /// <param name="refChannel">The channel index of where crossovered bass goes</param>
+        /// <param name="sampleRate">Measurement sample rate</param>
+        /// <param name="minFreq">Minimum checked frequency</param>
+        /// <param name="allowedError">Ratio of change in spectrum between channels is allowed to consider them the same</param>
+        public static float FindExistingCrossover(Complex[][] channels, int refChannel, int sampleRate, float minFreq, float allowedError) {
+            allowedError *= allowedError; // Work with squared magnitudes
+            Complex[] reference = channels[refChannel];
+            float[] work = new float[reference.Length];
+            int checkedFrom = (int)(minFreq / sampleRate * work.Length);
+            int minBand = work.Length >> 1;
+            for (int i = 0; i < channels.Length; i++) {
+                if (i == refChannel) {
+                    continue;
+                }
+                Complex[] other = channels[i];
+                for (int j = checkedFrom; j < minBand; j++) { // Convert to squared deconvolution magnitude
+                    work[j] = (reference[j] * (1 / other[j].Magnitude)).SqrMagnitude;
+                }
+                for (int j = 0; j < checkedFrom; j++) {
+                    work[j] = work[checkedFrom]; // So smoothing won't cause issues
+                }
+                work = GraphUtils.SmoothUniform(work, Math.Max(reference.Length * 10 / sampleRate, 1));
+                float upperError = allowedError * work[checkedFrom],
+                    lowerError = 1 / allowedError * work[checkedFrom];
+                for (int band = checkedFrom; i < minBand; band++) {
+                    if (work[band] > upperError || work[band] < lowerError) {
+                        if (minBand > band) {
+                            minBand = band;
+                        }
+                        break;
+                    }
+                }
+            }
+            return (float)minBand / work.Length * sampleRate;
+        }
+
+        /// <summary>
         /// Group the channels by a binary function (for example, screen and surround channels), and get their average crossover
         /// frequencies or 0 if a group has no channels.
         /// </summary>
