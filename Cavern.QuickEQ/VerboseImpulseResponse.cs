@@ -12,6 +12,7 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Raw impulse response on the complex plane.
         /// </summary>
+        /// <remarks>This is not the transfer function, not the FFT of the impulse response, but the response itself.</remarks>
         public Complex[] ComplexResponse {
             get {
                 if (complexResponse != null) {

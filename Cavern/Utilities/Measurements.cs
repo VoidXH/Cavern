@@ -24,6 +24,27 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Fast Fourier transform many 2D signals.
+        /// </summary>
+        public static Complex[][] FFT(this Complex[][] samples, bool parallel) {
+            Complex[][] result = new Complex[samples.Length][];
+            if (parallel) {
+                using FFTCache cache = new ThreadSafeFFTCache(samples[0].Length);
+                for (int i = 0; i < result.Length; i++) {
+                    result[i] = samples[i].FFT(cache);
+                }
+            } else {
+                using FFTCachePool pool = new FFTCachePool(samples[0].Length);
+                Parallelizer.For(0, result.Length, i => {
+                    FFTCache cache = pool.Lease();
+                    result[i] = samples[i].FFT(cache);
+                    pool.Return(cache);
+                });
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Fast Fourier transform a 1D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static Complex[] FFT(this float[] samples) {
