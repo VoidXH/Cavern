@@ -119,7 +119,7 @@ namespace Cavern.QuickEQ.Crossover {
                 work = GraphUtils.SmoothUniform(work, Math.Max(reference.Length * 10 / sampleRate, 1));
                 float upperError = allowedError * work[checkedFrom],
                     lowerError = 1 / allowedError * work[checkedFrom];
-                for (int band = checkedFrom; i < minBand; band++) {
+                for (int band = checkedFrom; band < minBand; band++) {
                     if (work[band] > upperError || work[band] < lowerError) {
                         if (minBand > band) {
                             minBand = band;
