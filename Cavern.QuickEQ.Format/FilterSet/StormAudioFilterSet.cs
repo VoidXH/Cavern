@@ -35,7 +35,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
-        protected override string GetLabel(int channel) => Channels[channel].reference switch {
+        protected override string GetLabel(int channel) => Channels[channel].name ?? Channels[channel].reference switch {
             ReferenceChannel.FrontLeft => "LF",
             ReferenceChannel.FrontRight => "RF",
             ReferenceChannel.FrontCenter => "CF",
