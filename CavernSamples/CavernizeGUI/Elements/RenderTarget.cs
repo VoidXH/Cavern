@@ -92,7 +92,11 @@ namespace CavernizeGUI.Elements {
         /// Default render targets.
         /// </summary>
         /// <remarks>Top rears are used instead of sides for smooth height transitions and WAVEFORMATEXTENSIBLE support.</remarks>
-        public static readonly RenderTarget[] Targets = {
+        public static readonly RenderTarget[] Targets = [
+            new RenderTarget("3.1.2", [
+                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
+                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
+            ]),
             new RenderTarget("4.0.4", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
                 ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
@@ -155,6 +159,6 @@ namespace CavernizeGUI.Elements {
             new RenderTarget("9.1.6 for WAVE", ChannelPrototype.wav916),
             new DriverRenderTarget(),
             new VirtualizerRenderTarget()
-        };
+        ];
     }
 }
