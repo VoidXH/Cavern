@@ -5,7 +5,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order allpass filter.
     /// </summary>
-    public class Allpass : BiquadFilter {
+    public class Allpass : PhaseSwappableBiquadFilter {
         /// <summary>
         /// Simple first-order allpass filter with maximum flatness and no additional gain.
         /// </summary>
@@ -41,10 +41,17 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         protected override void Reset(float cosW0, float alpha, float divisor) {
-            a2 = (1 - alpha) * divisor;
-            b0 = (float)Math.Pow(10, gain * .05f) * a2;
+            if (phaseSwapped) {
+                divisor = 1 / (1 - alpha);
+                a2 = (1 + alpha) * divisor;
+                b0 = 1;
+                b2 = (float)Math.Pow(10, gain * .05f) * a2;
+            } else {
+                a2 = (1 - alpha) * divisor;
+                b0 = (float)Math.Pow(10, gain * .05f) * a2;
+                b2 = 1;
+            }
             a1 = b1 = -2 * cosW0 * divisor;
-            b2 = 1;
         }
     }
 }
