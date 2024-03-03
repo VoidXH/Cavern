@@ -54,7 +54,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Equalizer Max(params Equalizer[] sources) => MinMax(sources, true);
+        public static Equalizer Max(params Equalizer[] sources) => MinMax(sources, false);
 
         /// <summary>
         /// Get the minimum at each band for multiple equalizers.
@@ -97,7 +97,7 @@ namespace Cavern.QuickEQ.Equalization {
             IReadOnlyList<Band>[] bands = sources.Select(x => x.Bands).ToArray();
             List<Band> output = new List<Band>();
             for (int i = 0, c = bands[0].Count; i < c; i++) {
-                double gain = double.MaxValue;
+                double gain = min ? double.MaxValue : double.MinValue;
                 for (int j = 0; j < bands.Length; j++) {
                     if (min ? gain > bands[j][i].Gain : gain < bands[j][i].Gain) {
                         gain = bands[j][i].Gain;
