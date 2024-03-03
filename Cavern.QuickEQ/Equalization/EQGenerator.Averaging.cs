@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
 
@@ -10,6 +11,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// Get the average gains of multiple equalizers. The averaging happens in linear space.
         /// </summary>
         /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer Average(params Equalizer[] sources) {
             double mul = 1.0 / sources[0].Bands.Count;
             return Average(QMath.DbToGain, x => QMath.GainToDb(x * mul), sources);
@@ -19,6 +21,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// Get the average gains of multiple equalizers. The averaging happens in linear space and an RMS value is taken.
         /// </summary>
         /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer AverageRMS(params Equalizer[] sources) {
             double mul = 1.0 / sources.Length;
             return Average(RMSAddition, x => QMath.GainToDb(Math.Sqrt(x) * mul), sources);
@@ -47,6 +50,20 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Get the maximum at each band for multiple equalizers.
+        /// </summary>
+        /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Equalizer Max(params Equalizer[] sources) => MinMax(sources, true);
+
+        /// <summary>
+        /// Get the minimum at each band for multiple equalizers.
+        /// </summary>
+        /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Equalizer Min(params Equalizer[] sources) => MinMax(sources, true);
+
+        /// <summary>
         /// Get the average gains of multiple equalizers by a custom averaging function.
         /// </summary>
         /// <param name="addition">Transformation when a value is added to the average calculation</param>
@@ -71,6 +88,24 @@ namespace Cavern.QuickEQ.Equalization {
                 result.Add(new Band(source[i].Frequency, division(bands[i])));
             }
             return new Equalizer(result, true);
+        }
+
+        /// <summary>
+        /// Inner workings of <see cref="Min(Equalizer[])"/> and <see cref="Max(Equalizer[])"/>, as the only difference is the check.
+        /// </summary>
+        static Equalizer MinMax(Equalizer[] sources, bool min) {
+            IReadOnlyList<Band>[] bands = sources.Select(x => x.Bands).ToArray();
+            List<Band> output = new List<Band>();
+            for (int i = 0, c = bands[0].Count; i < c; i++) {
+                double gain = double.MaxValue;
+                for (int j = 0; j < bands.Length; j++) {
+                    if (min ? gain > bands[j][i].Gain : gain < bands[j][i].Gain) {
+                        gain = bands[j][i].Gain;
+                    }
+                }
+                output.Add(new Band(bands[0][i].Frequency, gain));
+            }
+            return new Equalizer(output, true);
         }
 
         /// <summary>

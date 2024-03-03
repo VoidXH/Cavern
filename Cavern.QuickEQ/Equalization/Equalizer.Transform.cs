@@ -77,7 +77,7 @@ namespace Cavern.QuickEQ.Equalization {
         public void DownsampleLogarithmically(int numberOfBands, double startFreq, double endFreq) {
             double mul = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (numberOfBands - 1));
             List<Band> newBands = new List<Band>();
-            for (int i = 0; i < numberOfBands; ++i) {
+            for (int i = 0; i < numberOfBands; i++) {
                 newBands.Add(new Band(startFreq, this[startFreq]));
                 startFreq *= mul;
             }
@@ -261,6 +261,21 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Get the band index range corresponding to the selected frequency limits.
+        /// </summary>
+        internal (int startBand, int endBand) GetBandLimits(double startFreq, double endFreq) {
+            int first = GetFirstBand(startFreq);
+            if (first == -1) {
+                return (-1, -1);
+            }
+            int last = GetFirstBand(endFreq);
+            if (last == -1) {
+                last = bands.Count - 1;
+            }
+            return (first, last);
+        }
+
+        /// <summary>
         /// Get which band index is the first after a given <paramref name="freq"/>uency. Returns -1 if such a band was not found.
         /// </summary>
         int GetFirstBand(double freq) {
@@ -278,21 +293,6 @@ namespace Cavern.QuickEQ.Equalization {
         int GetFirstBandSafe(double freq) {
             int result = GetFirstBand(freq);
             return result != -1 ? result : 0;
-        }
-
-        /// <summary>
-        /// Get the band index range corresponding to the selected frequency limits.
-        /// </summary>
-        (int startBand, int endBand) GetBandLimits(double startFreq, double endFreq) {
-            int first = GetFirstBand(startFreq);
-            if (first == -1) {
-                return (-1, -1);
-            }
-            int last = GetFirstBand(endFreq);
-            if (last == -1) {
-                last = bands.Count - 1;
-            }
-            return (first, last);
         }
 
         /// <summary>
