@@ -92,7 +92,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         /// <param name="startFreq">Bottom cutoff frequency</param>
         /// <param name="endFreq">Top cutoff frequency</param>
-        public void Limit(double startFreq, double endFreq) => Limit(startFreq, endFreq, null);
+        public void Limit(double startFreq, double endFreq) => Limit(startFreq, endFreq, null, false);
 
         /// <summary>
         /// Limit the application range of the EQ, and conform the gain of the cut parts to the target curve.
@@ -100,13 +100,25 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="startFreq">Bottom cutoff frequency</param>
         /// <param name="endFreq">Top cutoff frequency</param>
         /// <param name="targetCurve">If set, the cuts will conform to this curve</param>
-        public void Limit(double startFreq, double endFreq, EQCurve targetCurve) {
+        public void Limit(double startFreq, double endFreq, EQCurve targetCurve) =>
+            Limit(startFreq, endFreq, targetCurve, true);
+
+        /// <summary>
+        /// Limit the application range of the EQ, and optionally conform the gain of the cut parts to the target curve.
+        /// </summary>
+        /// <param name="startFreq">Bottom cutoff frequency</param>
+        /// <param name="endFreq">Top cutoff frequency</param>
+        /// <param name="targetCurve">If set, the cuts will conform to this curve</param>
+        /// <param name="conformGain">Add side bands so the tonal balance will stay the same outside the EQ's effective range</param>
+        public void Limit(double startFreq, double endFreq, EQCurve targetCurve, bool conformGain) {
             int i = GetFirstBand(startFreq),
                 c = bands.Count;
 
             double newStartGain = double.NaN;
             if (i > 0) {
-                newStartGain = GetConformGain(0, i, targetCurve);
+                if (conformGain) {
+                    newStartGain = GetConformGain(0, i, targetCurve);
+                }
                 bands.RemoveRange(0, i);
                 c -= i;
             }
@@ -115,7 +127,7 @@ namespace Cavern.QuickEQ.Equalization {
             for (i = c - 1; i >= 0; i--) {
                 if (bands[i].Frequency < endFreq) {
                     if (i + 1 != c) {
-                        if (c - i > 2) {
+                        if (conformGain && c - i > 2) {
                             newEndGain = GetConformGain(i + 1, c - 1, targetCurve);
                         }
                         bands.RemoveRange(i + 1, c - (i + 1));
