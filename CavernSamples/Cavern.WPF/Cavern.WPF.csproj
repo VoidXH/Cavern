@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Authors>VoidX</Authors>
+		<Description>WPF windows to be used in Cavern Samples.</Description>
+		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>audio;sound;rendering;spatial audio;surround sound</PackageTags>
+		<NeutralLanguage>en</NeutralLanguage>
+		<Nullable>disable</Nullable>
+		<UseWPF>true</UseWPF>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="Controls\**" />
+	  <EmbeddedResource Remove="Controls\**" />
+	  <None Remove="Controls\**" />
+	  <Page Remove="Controls\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
+	  <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+	</ItemGroup>
+</Project>

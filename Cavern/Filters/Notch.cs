@@ -41,7 +41,7 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         protected override void Reset(float cosW0, float alpha, float divisor) {
-            b0 = (float)Math.Pow(10, gain * .05f) * divisor;
+            b0 = (float)Math.Pow(10, gain * .025f) * divisor;
             a1 = b1 = -2 * cosW0 * (b2 = divisor);
             a2 = (1 - alpha) * divisor;
         }

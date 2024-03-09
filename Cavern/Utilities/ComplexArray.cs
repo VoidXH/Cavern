@@ -175,5 +175,14 @@ namespace Cavern.Utilities {
                 array[i] = new Complex(1);
             }
         }
+
+        /// <summary>
+        /// Swap the real and imaginary planes.
+        /// </summary>
+        public static void SwapDimensions(this Complex[] array) {
+            for (int i = 0; i < array.Length; i++) {
+                (array[i].Real, array[i].Imaginary) = (array[i].Imaginary, array[i].Real);
+            }
+        }
     }
 }

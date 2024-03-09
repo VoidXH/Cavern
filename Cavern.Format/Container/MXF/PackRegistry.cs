@@ -8,12 +8,12 @@ namespace Cavern.Format.Container.MXF {
     /// </summary>
     internal class PackRegistry : KeyLengthValueSMPTE {
         /// <summary>
-        /// If the <see cref="Key"/> represents a partition (the registry is a pack), gets its status.
+        /// If the <see cref="KeyLengthValueSMPTE.Key"/> represents a partition (the registry is a pack), gets its status.
         /// </summary>
         public bool PartitionOpen => (Key.item & 0x100) != 0;
 
         /// <summary>
-        /// If the <see cref="Key"/> represents a partition (the registry is a pack), gets its openness.
+        /// If the <see cref="KeyLengthValueSMPTE.Key"/> represents a partition (the registry is a pack), gets its openness.
         /// </summary>
         public bool PartitionComplete => (Key.item & 0x600) == 0x300 || (Key.item & 0x600) == 0x400;
 

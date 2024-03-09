@@ -44,13 +44,11 @@ namespace Cavern.Filters {
             if (phaseSwapped) {
                 divisor = 1 / (1 - alpha);
                 a2 = (1 + alpha) * divisor;
-                b0 = 1;
-                b2 = (float)Math.Pow(10, gain * .05f) * a2;
             } else {
                 a2 = (1 - alpha) * divisor;
-                b0 = (float)Math.Pow(10, gain * .05f) * a2;
-                b2 = 1;
             }
+            b0 = (float)Math.Pow(10, gain * .025f) * a2;
+            b2 = 1; // For APF, b2 = a0, and coefficients are divided by a0
             a1 = b1 = -2 * cosW0 * divisor;
         }
     }

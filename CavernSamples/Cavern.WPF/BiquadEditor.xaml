@@ -1,0 +1,26 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Cavern.WPF"
+        x:Class="Cavern.WPF.BiquadEditor"
+        mc:Ignorable="d"
+        Title="Biquad Editor" Width="536" Height="370">
+    <Grid>
+        <Image x:Name="image" Margin="10,10,0,0" Height="200" HorizontalAlignment="Left" VerticalAlignment="Top" Width="500"/>
+        <TextBlock Margin="10,218,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Filter type:"/>
+        <ComboBox x:Name="filterTypes" Margin="130,215,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" SelectionChanged="FilterTypeChanged"/>
+        <TextBlock Margin="10,243,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Center frequency:"/>
+        <TextBox x:Name="centerFreq" Margin="130,242,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Text="632.456"
+                 TextChanged="NumericFilterDataChanged"/>
+        <TextBlock Margin="10,266,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Q factor:"/>
+        <TextBox x:Name="q" Margin="130,265,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Text="0.707"
+                 TextChanged="NumericFilterDataChanged"/>
+        <TextBlock Margin="10,289,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Gain (dB):"/>
+        <TextBox x:Name="gain" Margin="130,288,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Text="0"
+                 TextChanged="NumericFilterDataChanged"/>
+        <CheckBox x:Name="swapPhase" Margin="10,311,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Swap phase"
+                  Checked="PhaseSwapChanged" Unchecked="PhaseSwapChanged"/>
+    </Grid>
+</Window>
