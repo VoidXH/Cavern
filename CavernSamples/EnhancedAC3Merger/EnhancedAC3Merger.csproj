@@ -1,43 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <Copyright>Copyright © VoidX 2023</Copyright>
-    <Description>Combines multiple tracks into a channel-based spatial E-AC-3 file up to 16 specific channels.</Description>
-    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <DebugType>full</DebugType>
-    <Authors>VoidX</Authors>
-    <Product>Enhanced AC-3 Merger</Product>
-    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <NeutralLanguage>en</NeutralLanguage>
-    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\CavernizeGUI\Tools\FFmpeg.cs" Link="Tools\FFmpeg.cs" />
-    <Compile Include="..\VoidX.WPF\EnumToTitleCase.cs" Link="Tools\EnumToTitleCase.cs" />
-    <Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tools\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<Description>Combines multiple tracks into a channel-based spatial E-AC-3 file up to 16 specific channels.</Description>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<DebugType>full</DebugType>
+		<Authors>VoidX</Authors>
+		<Product>Enhanced AC-3 Merger</Product>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\CavernizeGUI\Tools\FFmpeg.cs" Link="Tools\FFmpeg.cs" />
+		<Compile Include="..\VoidX.WPF\EnumToTitleCase.cs" Link="Tools\EnumToTitleCase.cs" />
+		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Tools\" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 </Project>

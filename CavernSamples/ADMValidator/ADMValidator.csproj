@@ -1,24 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <Authors>VoidX</Authors>
-    <Product>ADM Validator</Product>
-    <Description>Checks if ADM BWF files match the standard, and logs all compliance failures.</Description>
-    <Copyright>Copyright © VoidX 2023</Copyright>
-    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <NeutralLanguage>en</NeutralLanguage>
-    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\..\Cavern.Format\Consts\RIFFWaveConsts.cs" Link="RIFFWaveConsts.cs" />
-    <Compile Include="..\..\Cavern.Format\Utilities\StreamExtensions.cs" Link="StreamExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<Authors>VoidX</Authors>
+		<Product>ADM Validator</Product>
+		<Description>Checks if ADM BWF files match the standard, and logs all compliance failures.</Description>
+		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\..\Cavern.Format\Consts\RIFFWaveConsts.cs" Link="RIFFWaveConsts.cs" />
+		<Compile Include="..\..\Cavern.Format\Utilities\StreamExtensions.cs" Link="StreamExtensions.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+	</ItemGroup>
 </Project>

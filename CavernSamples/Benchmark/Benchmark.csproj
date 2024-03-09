@@ -1,29 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <Authors>VoidX</Authors>
-    <Product>Cavern Benchmark</Product>
-    <Description>Evaluates Cavern's performance on your system in various use cases.</Description>
-    <Copyright>Copyright © VoidX 2023</Copyright>
-    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <NeutralLanguage>en</NeutralLanguage>
-    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\VoidX.WPF\NumericUpDown.xaml.cs" Link="Tools\NumericUpDown.xaml.cs" />
-    <Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="..\VoidX.WPF\NumericUpDown.xaml" Link="Tools\NumericUpDown.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<Authors>VoidX</Authors>
+		<Product>Cavern Benchmark</Product>
+		<Description>Evaluates Cavern's performance on your system in various use cases.</Description>
+		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\VoidX.WPF\NumericUpDown.xaml.cs" Link="Tools\NumericUpDown.xaml.cs" />
+		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<Page Include="..\VoidX.WPF\NumericUpDown.xaml" Link="Tools\NumericUpDown.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+	</ItemGroup>
 </Project>

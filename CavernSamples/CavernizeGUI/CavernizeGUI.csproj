@@ -1,64 +1,62 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<Description>Sample GUI spatial upconverter with Cavern's renderer.</Description>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<DebugType>full</DebugType>
+		<Authors>VoidX</Authors>
+		<Product>Cavernize</Product>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+		<StartupObject>CavernizeGUI.Program</StartupObject>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
-    <Copyright>Copyright © VoidX 2023</Copyright>
-    <Description>Sample GUI spatial upconverter with Cavern's renderer.</Description>
-    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <DebugType>full</DebugType>
-    <Authors>VoidX</Authors>
-    <Product>Cavernize</Product>
-    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <NeutralLanguage>en</NeutralLanguage>
-    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
-    <StartupObject>CavernizeGUI.Program</StartupObject>
-  </PropertyGroup>
+	<ItemGroup>
+		<None Remove="Resources\CavernLogo.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Resources\CavernLogo.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
-    <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Resources\CavernLogo.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Resources\CavernLogo.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="Resources\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+		<Compile Update="Resources\UpmixingSettings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>UpmixingSettings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Resources\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Update="Resources\UpmixingSettings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>UpmixingSettings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Resources\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Update="Resources\UpmixingSettings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>UpmixingSettings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
+	<ItemGroup>
+		<None Update="Resources\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+		<None Update="Resources\UpmixingSettings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>UpmixingSettings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 </Project>

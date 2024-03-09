@@ -1,38 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
-    <Copyright>Copyright © VoidX 2023</Copyright>
-    <Description>Drastically corrects the spectra of impulse responses while keeping time-domain anomalies.</Description>
-    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <DebugType>full</DebugType>
-    <Authors>VoidX</Authors>
-    <Product>Impulse Flattener</Product>
-    <PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <NeutralLanguage>en</NeutralLanguage>
-    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
-    <ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
-    <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<Description>Drastically corrects the spectra of impulse responses while keeping time-domain anomalies.</Description>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<DebugType>full</DebugType>
+		<Authors>VoidX</Authors>
+		<Product>Impulse Flattener</Product>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+		<ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
+		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 </Project>
