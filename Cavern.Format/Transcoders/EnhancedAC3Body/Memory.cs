@@ -139,8 +139,6 @@ namespace Cavern.Format.Transcoders {
         int[] fgaincod;
         int[] frmchexpstr;
         int[] fsnroffst;
-        int[] gainrng;
-        int[] lfeexps;
         int[] mstrcplco;
         int[] mstrspxco;
         int[] nchgrps;
@@ -152,7 +150,6 @@ namespace Cavern.Format.Transcoders {
         int[][] cplco;
         int[][] cplcoexp;
         int[][] cplcomant;
-        int[][] exps;
         int[][] spxcoexp;
         int[][] spxcomant;
 
@@ -225,14 +222,11 @@ namespace Cavern.Format.Transcoders {
             deltba = new DeltaBitAllocation[channels];
             dithflag = new bool[channels];
             endmant = new int[channels];
-            exps = new int[channels][];
             fgaincod = new int[channels];
             firstcplcos = new bool[channels];
             firstspxcos = new bool[channels];
             frmchexpstr = new int[channels];
             fsnroffst = new int[channels];
-            gainrng = new int[channels];
-            lfeexps = new int[nlfegrps + 1];
             lfeexpstr = new bool[blocks];
             mstrcplco = new int[channels];
             mstrspxco = new int[channels];
@@ -261,7 +255,6 @@ namespace Cavern.Format.Transcoders {
                 cplcoexp[channel] = new int[cplbndstrc.Length];
                 cplcomant[channel] = new int[cplbndstrc.Length];
                 deltba[channel].Reset();
-                exps[channel] = new int[maxAllocationSize];
             }
         }
 

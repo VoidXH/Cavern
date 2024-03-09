@@ -152,30 +152,30 @@ namespace Cavern.Format.Transcoders {
                                 bap1Next = bap1[extractor.Read(bap1Bits)];
                                 bap1Pos = 0;
                             }
-                            target[bin] = (bap1Next[bap1Pos] >> exp[bin]) * BitConversions.fromInt24;
+                            target[bin] = (bap1Next[bap1Pos] >> exponents[bin]) * BitConversions.fromInt24;
                             break;
                         case 2:
                             if (++bap2Pos == 3) {
                                 bap2Next = bap2[extractor.Read(bap2Bits)];
                                 bap2Pos = 0;
                             }
-                            target[bin] = (bap2Next[bap2Pos] >> exp[bin]) * BitConversions.fromInt24;
+                            target[bin] = (bap2Next[bap2Pos] >> exponents[bin]) * BitConversions.fromInt24;
                             break;
                         case 3:
-                            target[bin] = (bap3[extractor.Read(bap3Bits)] >> exp[bin]) * BitConversions.fromInt24;
+                            target[bin] = (bap3[extractor.Read(bap3Bits)] >> exponents[bin]) * BitConversions.fromInt24;
                             break;
                         case 4:
                             if (++bap4Pos == 2) {
                                 bap4Next = bap4[extractor.Read(bap4Bits)];
                                 bap4Pos = 0;
                             }
-                            target[bin] = (bap4Next[bap4Pos] >> exp[bin]) * BitConversions.fromInt24;
+                            target[bin] = (bap4Next[bap4Pos] >> exponents[bin]) * BitConversions.fromInt24;
                             break;
                         case 5:
-                            target[bin] = (bap5[extractor.Read(bap5Bits)] >> exp[bin]) * BitConversions.fromInt24;
+                            target[bin] = (bap5[extractor.Read(bap5Bits)] >> exponents[bin]) * BitConversions.fromInt24;
                             break;
                         default: // Asymmetric quantization
-                            target[bin] = ((extractor.Read(bitsToRead[bap[bin]]) << (32 - bitsToRead[bap[bin]])) >> exp[bin])
+                            target[bin] = ((extractor.Read(bitsToRead[bap[bin]]) << (32 - bitsToRead[bap[bin]])) >> exponents[bin])
                                 * BitConversions.fromInt32;
                             break;
                     }

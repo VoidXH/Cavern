@@ -76,28 +76,19 @@ namespace Cavern.Format.Transcoders {
             // Exponents
             ParseParametricBitAllocation(block);
             if (cplinu[block] && cplexpstr[block] != ExpStrat.Reuse) {
-                cplexps[0] = extractor.Read(4);
-                for (int group = 0; group < ncplgrps;) {
-                    cplexps[++group] = extractor.Read(7);
-                }
+                couplingAllocation.ReadCouplingExponents(extractor, cplexpstr[block], cplstrtmant, ncplgrps);
             }
 
             // Exponents for full bandwidth channels
             for (int channel = 0; channel < channels.Length; channel++) {
                 if (chexpstr[block][channel] != ExpStrat.Reuse) {
-                    exps[channel][0] = extractor.Read(4);
-                    for (int group = 0; group < nchgrps[channel];) {
-                        exps[channel][++group] = extractor.Read(7);
-                    }
-                    gainrng[channel] = extractor.Read(2);
+                    allocation[channel].ReadChannelExponents(extractor, chexpstr[block][channel], nchgrps[channel]);
                 }
             }
 
             // Exponents for LFE channel
             if (header.LFE && lfeexpstr[block]) {
-                lfeexps[0] = extractor.Read(4);
-                lfeexps[1] = extractor.Read(7);
-                lfeexps[2] = extractor.Read(7);
+                lfeAllocation.ReadLFEExponents(extractor);
             }
 
             // Bit allocation parametric information
@@ -252,16 +243,14 @@ namespace Cavern.Format.Transcoders {
             bap2Pos = 2;
             bap4Pos = 1;
 
-            // TODO: optimize for reallocation - currently it doesn't reallocate all the time when needed
-            if (cplinu[block]) { // && cplexpstr[block] != ExpStrat.Reuse)
-                AllocateCoupling(cplexpstr[block]);
+            if (cplinu[block]) {
+                AllocateCoupling();
             }
 
             bool got_cplchan = false;
             for (int channel = 0; channel < channels.Length; channel++) {
                 if (chahtinu[channel] == 0) {
-                    //if (chexpstr[block][channel] != ExpStrat.Reuse)
-                        Allocate(channel, chexpstr[block][channel]);
+                    Allocate(channel);
                     allocation[channel].ReadTransformCoeffs(extractor, channelOutput[channel], 0, endmant[channel]);
                 } else {
                     throw new UnsupportedFeatureException("AHT");
@@ -293,8 +282,7 @@ namespace Cavern.Format.Transcoders {
             // Combined mantissa and output handling for LFE
             if (header.LFE) {
                 if (lfeahtinu == 0) {
-                    //if (lfeexpstr[block])
-                        AllocateLFE();
+                    AllocateLFE();
                     lfeAllocation.ReadTransformCoeffs(extractor, lfeOutput, lfestrtmant, lfeendmant);
                     lfeAllocation.IMDCT512(lfeOutput);
                     Array.Copy(lfeOutput, 0, LFEResult, block * 256, 256);

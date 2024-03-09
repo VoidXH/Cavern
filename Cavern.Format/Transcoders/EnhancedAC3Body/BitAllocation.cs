@@ -4,24 +4,23 @@ using Cavern.Utilities;
 
 namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Body {
-        void Allocate(int channel, ExpStrat expstr) {
+        void Allocate(int channel) {
             if (csnroffst == 0 && fsnroffst[channel] == 0) {
                 allocation[channel].bap.Clear();
                 return;
             }
             int snroffset = (((csnroffst - 15) << 4) + fsnroffst[channel]) << 2;
-            Allocate(0, endmant[channel], fastgain[fgaincod[channel]], snroffset, exps[channel], nchgrps[channel],
-                exps[channel][0], expstr, allocation[channel], deltba[channel], 0, 0, false);
+            Allocate(0, endmant[channel], fastgain[fgaincod[channel]], snroffset, allocation[channel], deltba[channel], 0, 0);
         }
 
-        void AllocateCoupling(ExpStrat expstr) {
+        void AllocateCoupling() {
             if (csnroffst == 0 && cplfsnroffst == 0) {
                 couplingAllocation.bap.Clear();
                 return;
             }
             int snroffset = (((csnroffst - 15) << 4) + cplfsnroffst) << 2;
-            Allocate(cplstrtmant, cplendmant, fastgain[cplfgaincod], snroffset, cplexps, ncplgrps, cplexps[0] << 1,
-                expstr, couplingAllocation, cpldeltba, (cplfleak << 8) + 768, (cplsleak << 8) + 768, true);
+            Allocate(cplstrtmant, cplendmant, fastgain[cplfgaincod], snroffset, couplingAllocation, cpldeltba,
+                (cplfleak << 8) + 768, (cplsleak << 8) + 768);
         }
 
         void AllocateLFE() {
@@ -30,36 +29,11 @@ namespace Cavern.Format.Transcoders {
                 return;
             }
             int snroffset = (((csnroffst - 15) << 4) + lfefsnroffst) << 2;
-            Allocate(lfestrtmant, lfeendmant, fastgain[lfefgaincod], snroffset, lfeexps, nlfegrps, lfeexps[0],
-                ExpStrat.D15, lfeAllocation, lfedeltba, 0, 0, false);
+            Allocate(lfestrtmant, lfeendmant, fastgain[lfefgaincod], snroffset, lfeAllocation, lfedeltba, 0, 0);
         }
 
-        void Allocate(int start, int end, int fgain, int snroffset, int[] gexp, int ngrps, int absexp,
-            ExpStrat expstr, Allocation allocation, DeltaBitAllocation dba, int fastleak, int slowleak, bool coupling) {
-            // Unpack the mapped values
-            int[] dexp = allocation.dexp;
-            for (int grp = 0; grp < ngrps; ++grp) {
-                int expacc = gexp[grp + 1];
-                dexp[grp * 3] = expacc / 25;
-                expacc -= 25 * dexp[grp * 3];
-                dexp[grp * 3 + 1] = expacc / 5;
-                expacc -= (5 * dexp[grp * 3 + 1]);
-                dexp[grp * 3 + 2] = expacc;
-            }
-
-            // Expand to full absolute exponent array
-            int i, j;
-            int grpsize = expstr != ExpStrat.D45 ? (int)expstr : 4;
-            int[] exp = allocation.exp;
-            exp[0] = absexp;
-            int expOffset = coupling ? start : (start + 1);
-            for (i = 0; i < (ngrps * 3); ++i) {
-                absexp += dexp[i] - 2; // Convert from differentials to absolutes using unbiased mapped values
-                for (j = 0; j < grpsize; ++j) {
-                    exp[expOffset++] = absexp;
-                }
-            }
-
+        void Allocate(int start, int end, int fgain, int snroffset,
+            Allocation allocation, DeltaBitAllocation dba, int fastleak, int slowleak) {
             // Initialization
             int sdecay = slowdec[sdcycod];
             int fdecay = fastdec[fdcycod];
@@ -67,28 +41,10 @@ namespace Cavern.Format.Transcoders {
             int dbknee = dbpbtab[dbpbcod];
             int floor = floortab[floorcod];
 
-            // Exponent mapping into psd
-            int[] psd = allocation.psd;
-            for (int bin = start; bin < end; ++bin) {
-                psd[bin] = 3072 - (exp[bin] << 7);
-            }
-
-            // psd integration
-            int[] bndpsd = allocation.bndpsd;
-            j = start;
-            int k = masktab[start];
-            int lastbin;
-            do {
-                lastbin = Math.Min(bndtab[k], end);
-                bndpsd[k] = psd[j++];
-                for (i = j; i < lastbin; ++i, ++j) {
-                    bndpsd[k] = LogAdd(bndpsd[k], psd[j]);
-                }
-                ++k;
-            } while (end > lastbin);
-
             // Compute excitation function
-            int[] excite = allocation.excite;
+            int[] psd = allocation.psd,
+                bndpsd = allocation.integratedPSD,
+                excite = allocation.excite;
             int bndstrt = masktab[start];
             int bndend = masktab[end - 1] + 1;
             int begin;
@@ -98,7 +54,7 @@ namespace Cavern.Format.Transcoders {
                 lowcomp = CalcLowcomp(lowcomp, bndpsd[1], bndpsd[2], 1);
                 excite[1] = bndpsd[1] - fgain - lowcomp;
                 begin = 7;
-                for (int bin = 2; bin < 7; ++bin) {
+                for (int bin = 2; bin < 7; bin++) {
                     if (bndend != 7 || bin != 6) {
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
                     }
@@ -110,7 +66,7 @@ namespace Cavern.Format.Transcoders {
                         break;
                     }
                 }
-                for (int bin = begin, bins = Math.Min(bndend, 22); bin < bins; ++bin) {
+                for (int bin = begin, bins = Math.Min(bndend, 22); bin < bins; bin++) {
                     if (bndend != 7 || bin != 6) {
                         lowcomp = CalcLowcomp(lowcomp, bndpsd[bin], bndpsd[bin + 1], bin);
                     }
@@ -122,7 +78,7 @@ namespace Cavern.Format.Transcoders {
             } else { // Coupling channel
                 begin = bndstrt;
             }
-            for (int bin = begin; bin < bndend; ++bin) {
+            for (int bin = begin; bin < bndend; bin++) {
                 fastleak = Math.Max(fastleak - fdecay, bndpsd[bin] - fgain);
                 slowleak = Math.Max(slowleak - sdecay, bndpsd[bin] - sgain);
                 excite[bin] = Math.Max(fastleak, slowleak);
@@ -130,7 +86,7 @@ namespace Cavern.Format.Transcoders {
 
             // Compute masking curve
             int[] mask = allocation.mask;
-            for (int bin = bndstrt; bin < bndend; ++bin) {
+            for (int bin = bndstrt; bin < bndend; bin++) {
                 if (bndpsd[bin] < dbknee) {
                     excite[bin] += (dbknee - bndpsd[bin]) >> 2;
                 }
@@ -142,10 +98,10 @@ namespace Cavern.Format.Transcoders {
                 int[] offset = dba.Offset;
                 int[] length = dba.Length;
                 int[] bitAllocation = dba.BitAllocation;
-                for (int band = bndstrt, seg = 0; seg < offset.Length; ++seg) {
+                for (int band = bndstrt, seg = 0; seg < offset.Length; seg++) {
                     band += offset[seg];
                     int delta = bitAllocation[seg] >= 4 ? (bitAllocation[seg] - 3) << 7 : ((bitAllocation[seg] - 4) << 7);
-                    for (k = 0; k < length[seg]; ++k) {
+                    for (int k = 0; k < length[seg]; k++) {
                         mask[band++] += delta;
                     }
                 }
@@ -153,8 +109,9 @@ namespace Cavern.Format.Transcoders {
 
             // Compute bit allocation
             byte[] bap = allocation.bap;
-            i = start;
-            j = masktab[start];
+            int i = start,
+                j = masktab[start],
+                lastbin;
             do {
                 lastbin = Math.Min(bndtab[j], end);
                 int masked = mask[j] - snroffset - floor;
@@ -173,7 +130,7 @@ namespace Cavern.Format.Transcoders {
             Array.Clear(bap, i, bap.Length - i);
         }
 
-        int LogAdd(int a, int b) {
+        static int LogAdd(int a, int b) {
             int c = a - b;
             int address = Math.Min(Math.Abs(c) >> 1, 255);
             if (c >= 0) {
@@ -182,7 +139,7 @@ namespace Cavern.Format.Transcoders {
             return b + latab[address];
         }
 
-        int CalcLowcomp(int a, int b0, int b1, int bin) {
+        static int CalcLowcomp(int a, int b0, int b1, int bin) {
             if (bin < 7) {
                 if (b0 + 256 == b1) {
                     return 384;

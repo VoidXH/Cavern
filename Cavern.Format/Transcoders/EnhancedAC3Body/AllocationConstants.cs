@@ -5,10 +5,6 @@ using Cavern.Utilities;
 namespace Cavern.Format.Transcoders {
     partial class EnhancedAC3Body {
         partial class Allocation {
-            public readonly int[] dexp;
-            public readonly int[] exp;
-            public readonly int[] psd;
-            public readonly int[] bndpsd;
             public readonly int[] excite;
             public readonly int[] mask;
             public readonly byte[] bap;
@@ -104,10 +100,10 @@ namespace Cavern.Format.Transcoders {
             public Allocation(EnhancedAC3Body host, int maxLength) {
                 this.host = host;
 
-                dexp = new int[maxLength];
-                exp = new int[maxLength];
+                groupedExponents = new int[maxLength];
+                exponents = new int[maxLength];
                 psd = new int[maxLength];
-                bndpsd = new int[maxLength];
+                integratedPSD = new int[maxLength];
                 excite = new int[maxLength];
                 mask = new int[maxLength];
                 bap = new byte[maxLength];

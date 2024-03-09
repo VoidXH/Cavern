@@ -73,16 +73,18 @@ namespace Cavern.Format.Transcoders {
             // Exponents for full bandwidth channels
             for (int channel = 0; channel < channels.Length; channel++) {
                 if (chexpstr[block][channel] != ExpStrat.Reuse) {
-                    planter.Write(exps[channel][0], 4);
-                    for (int group = 0; group < nchgrps[channel];) {
-                        planter.Write(exps[channel][++group], 7);
+                    planter.Write(allocation[channel].absoluteExponent, 4);
+                    int[] exps = allocation[channel].groupedExponents;
+                    for (int group = 0; group < nchgrps[channel]; group++) {
+                        planter.Write(exps[group], 7);
                     }
-                    planter.Write(gainrng[channel], 2);
+                    planter.Write(0, 2); // gainrng, unused
                 }
             }
 
             // Exponents for LFE channel
             if (header.LFE && lfeexpstr[block]) {
+                int[] lfeexps = lfeAllocation.groupedExponents;
                 planter.Write(lfeexps[0], 4);
                 planter.Write(lfeexps[1], 7);
                 planter.Write(lfeexps[2], 7);

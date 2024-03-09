@@ -61,7 +61,7 @@ namespace Cavern.Format.Transcoders {
                 LFEResult = new float[header.Blocks * 256];
             }
 
-            if (exps == null) { // If caches don't exist, create them
+            if (chexpstr == null) { // If caches don't exist, create them
                 CreateCacheTables(header.Blocks, channels.Length);
             }
             if (header.Decoder == EnhancedAC3.Decoders.EAC3) {
