@@ -8,33 +8,6 @@ namespace Cavern.Format.Transcoders {
         // Convert bitstream data to allocation data
         partial class Allocation {
             /// <summary>
-            /// Reference exponent for decoding others with offsets (absexp).
-            /// </summary>
-            public int absoluteExponent;
-
-            /// <summary>
-            /// Grouped exponents read from the bitstream (gexp/exps). A 7-bit encoded exponent data contains 3 consecutive exponents.
-            /// </summary>
-            /// <remarks>Handling of this array differs from the reference code,
-            /// the first element is extracted to <see cref="absoluteExponent"/>.</remarks>
-            public readonly int[] groupedExponents;
-
-            /// <summary>
-            /// Fully decoded, final exponents, used for shifting mantissas to place (exp).
-            /// </summary>
-            public readonly int[] exponents;
-
-            /// <summary>
-            /// Exponents mapped for power spectral density.
-            /// </summary>
-            public readonly int[] psd;
-
-            /// <summary>
-            /// PSD summed for each masked band (bndpsd).
-            /// </summary>
-            public readonly int[] integratedPSD;
-
-            /// <summary>
             /// Read grouped full-range channel exponent data from the bitstream and decode it.
             /// </summary>
             public void ReadChannelExponents(BitExtractor extractor, ExpStrat expstr, int nchgrps) {

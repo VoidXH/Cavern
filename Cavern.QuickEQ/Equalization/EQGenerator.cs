@@ -205,7 +205,7 @@ namespace Cavern.QuickEQ.Equalization {
         public static Equalizer FromCalibration(string[] lines) {
             List<Band> bands = new List<Band>();
             for (int line = 0; line < lines.Length; ++line) {
-                string[] nums = lines[line].Trim().Split(' ', '\t');
+                string[] nums = lines[line].Trim().Split(new char[] { ' ', '\t' });
                 if (nums.Length > 1 && double.TryParse(nums[0].Replace(',', '.'), NumberStyles.Any,
                     CultureInfo.InvariantCulture, out double freq) && double.TryParse(nums[1].Replace(',', '.'), NumberStyles.Any,
                     CultureInfo.InvariantCulture, out double gain)) {

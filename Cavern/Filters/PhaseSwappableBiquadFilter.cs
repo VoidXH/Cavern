@@ -17,7 +17,7 @@
         /// <summary>
         /// State of phase swapping to be used when the filter is reset.
         /// </summary>
-        protected bool phaseSwapped = false;
+        protected bool phaseSwapped;
 
         /// <inheritdoc/>
         protected PhaseSwappableBiquadFilter(int sampleRate, double centerFreq) : base(sampleRate, centerFreq) { }

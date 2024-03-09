@@ -123,7 +123,6 @@ namespace CavernizeGUI {
             if (writer != null) {
                 writeCache = new float[blockSize];
             }
-            // TODO: override multichannel process for the fast convolution filter to prevent reallocation
 
             bool wasError = false;
             while (progressor.Rendered < target.Length) {
