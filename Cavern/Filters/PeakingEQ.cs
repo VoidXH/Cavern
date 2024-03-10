@@ -42,7 +42,7 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         protected override void Reset(float cosW0, float alpha, float _) {
-            float a = (float)Math.Pow(10, gain * .025f); // gain is doubled for some reason
+            float a = (float)Math.Pow(10, gain * .025f); // A = sqrt(gain), hence /40 instead of /20
             float divisor = 1 / (1 + alpha / a);
             b0 = (1 + alpha * a) * divisor;
             b2 = (1 - alpha * a) * divisor;

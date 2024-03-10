@@ -4,17 +4,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 using Cavern;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format;
+using Cavern.WPF;
 
 using Color = System.Drawing.Color;
 
@@ -56,7 +53,7 @@ namespace WavefrontSimulator {
             }
         }
 
-        readonly List<Simulated> data = new();
+        readonly List<Simulated> data = [];
         int sampleRate;
 
         float wallLength = 5;
@@ -123,20 +120,6 @@ namespace WavefrontSimulator {
             }
         }
 
-        [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool DeleteObject([In] IntPtr hObject);
-
-        static ImageSource ToImageSource(Bitmap bmp) {
-            IntPtr handle = bmp.GetHbitmap();
-            try {
-                return Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty,
-                    BitmapSizeOptions.FromEmptyOptions());
-            } finally {
-                DeleteObject(handle);
-            }
-        }
-
         void Render(object _, RoutedEventArgs e) {
             if (data.Count == 0) {
                 MessageBox.Show("No impulse responses were imported.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -180,8 +163,8 @@ namespace WavefrontSimulator {
             }
 
             float uniformityValue = 0, center = (maxGain - minGain) * .5f, middle = minGain + center;
-            for (int x = 0; x < size; ++x) {
-                for (int y = 0; y < size; ++y) {
+            for (int x = 0; x < size; x++) {
+                for (int y = 0; y < size; y++) {
                     float addition = MathF.Abs(gains[x, y] - middle);
                     if (!float.IsNaN(addition)) {
                         uniformityValue += addition;
@@ -193,14 +176,14 @@ namespace WavefrontSimulator {
 
             Bitmap output = new Bitmap(size, size);
             maxGain -= minGain;
-            for (int x = 0; x < size; ++x) {
-                for (int y = 0; y < size; ++y) {
+            for (int x = 0; x < size; x++) {
+                for (int y = 0; y < size; y++) {
                     float pxval = (gains[x, y] - minGain) / maxGain;
                     output.SetPixel(x, size - y - 1, DrawPixel(pxval));
                 }
             }
             image.Tag = output;
-            image.Source = ToImageSource(output);
+            image.Source = BitmapUtils.ToImageSource(output);
         }
 
         void ExportRender(object sender, RoutedEventArgs e) {

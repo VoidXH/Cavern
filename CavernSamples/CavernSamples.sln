@@ -43,6 +43,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.QuickEQ.Format", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernizeLive", "CavernizeLive\CavernizeLive.csproj", "{21AFB2EA-E96F-4C12-A526-064FA498B6EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.WPF", "Cavern.WPF\Cavern.WPF.csproj", "{5FC6E1C8-A43F-4A6B-9C84-6A154B7128DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +115,10 @@ Global
 		{21AFB2EA-E96F-4C12-A526-064FA498B6EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21AFB2EA-E96F-4C12-A526-064FA498B6EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21AFB2EA-E96F-4C12-A526-064FA498B6EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FC6E1C8-A43F-4A6B-9C84-6A154B7128DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FC6E1C8-A43F-4A6B-9C84-6A154B7128DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FC6E1C8-A43F-4A6B-9C84-6A154B7128DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FC6E1C8-A43F-4A6B-9C84-6A154B7128DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,6 +128,7 @@ Global
 		{E87A8995-3B65-497B-A808-4DDED25D2ADE} = {A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}
 		{B657F4AC-A378-486F-9355-937499DDD335} = {A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}
 		{24E5737B-A035-4EC4-BA8E-21375BC81219} = {A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}
+		{5FC6E1C8-A43F-4A6B-9C84-6A154B7128DF} = {A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A9DF7132-D463-434C-B1DF-279D324EE921}

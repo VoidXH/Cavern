@@ -1,4 +1,6 @@
-﻿namespace Cavern.Format.Consts {
+﻿using Cavern.Format.Container.MXF;
+
+namespace Cavern.Format.Consts {
     /// <summary>
     /// Constant values used for Material eXchange Format.
     /// </summary>

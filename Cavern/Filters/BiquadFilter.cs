@@ -114,6 +114,26 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
+        /// Construct a <see cref="BiquadFilter"/> with the desired parameters.
+        /// </summary>
+        /// <param name="type">Selected kind of biquad filter</param>
+        /// <param name="sampleRate">Audio sample rate</param>
+        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
+        /// <param name="q">Q-factor of the filter</param>
+        /// <param name="gain">Gain of the filter in decibels</param>
+        public static BiquadFilter Create(BiquadFilterType type, int sampleRate, double centerFreq, double q, double gain) => type switch {
+            BiquadFilterType.Allpass => new Allpass(sampleRate, centerFreq, q, gain),
+            BiquadFilterType.Bandpass => new Bandpass(sampleRate, centerFreq, q, gain),
+            BiquadFilterType.Highpass => new Highpass(sampleRate, centerFreq, q, gain),
+            BiquadFilterType.HighShelf => new HighShelf(sampleRate, centerFreq, q, gain),
+            BiquadFilterType.Lowpass => new Lowpass(sampleRate, centerFreq, q, gain),
+            BiquadFilterType.LowShelf => new LowShelf(sampleRate, centerFreq, q, gain),
+            BiquadFilterType.Notch => new Notch(sampleRate, centerFreq, q, gain),
+            BiquadFilterType.PeakingEQ => new PeakingEQ(sampleRate, centerFreq, q, gain),
+            _ => throw new ArgumentOutOfRangeException(nameof(type))
+        };
+
+        /// <summary>
         /// Wipe the history to prevent clipping when applying the same filter for a new signal.
         /// </summary>
         public void Reset() {
@@ -195,7 +215,7 @@ namespace Cavern.Filters {
             a2 = (1 - alpha) * divisor;
             b1 = b1Pre * divisor;
             b2 = Math.Abs(b1) * .5f;
-            b0 = MathF.Pow(10, (float)gain * .05f) * b2;
+            b0 = MathF.Pow(10, (float)gain * .025f) * b2;
         }
 
         /// <summary>
