@@ -1,7 +1,8 @@
 name: Build
 
 on:
-  push
+  - push
+  - workflow_dispatch
 
 env:
   BUILD_CONFIGURATION: Release
@@ -36,27 +37,33 @@ jobs:
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} "Cavern.sln"
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} "Cavern.Format/Cavern.Format.csproj"
 
+    - name: Download base build
+      shell: powershell
+      run: |
+        Invoke-WebRequest -Method Get -Uri "https://cavern.sbence.hu/index.php?t=115&dl=cavern64" -OutFile cavern64.zip -UseBasicParsing
+        mkdir build/Release
+        7z x -obuild/Release cavern64.zip
+        Remove-Item -Path "cavern64.zip"
+
     - name: Collect artifacts
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        mkdir build/Release/Cavern_Data/Managed
         copy "Cavern.QuickEQ/bin/Release/netstandard2.1/Cavern.dll" "build/Release/Cavern_Data/Managed/Cavern.dll"
         copy "Cavern.QuickEQ/bin/Release/netstandard2.1/Cavern.QuickEQ.dll" "build/Release/Cavern_Data/Managed/Cavern.QuickEQ.dll"
         copy "Cavern.Format/bin/Release/netstandard2.1/Cavern.Format.dll" "build/Release/Cavern_Data/Managed/Cavern.Format.dll"
-        mkdir build/Release/Cavern_Data/Plugins/x86_64
         copy "Cavern.QuickEQ/bin/Release/CavernAmp.dll" "build/Release/Cavern_Data/Plugins/x86_64/CavernAmp.dll"
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
       with:
-        name: "cavern64"
+        name: "Cavern-Win64_${{steps.date.outputs.CurrentDate}}@${{steps.vars.outputs.ShortHash}}"
         path: "build/Release/"
 
     - name: Compress artifacts
       uses: vimtor/action-zip@v1
       with:
         files: "build/Release/"
-        dest: "build/cavern64_${{steps.date.outputs.CurrentDate}}-${{steps.vars.outputs.ShortHash}}.zip"
+        dest: "build/Cavern-Win64.zip"
 
     - name: GitHub pre-release
       uses: "marvinpinto/action-automatic-releases@latest"
@@ -64,5 +71,5 @@ jobs:
         repo_token: "${{secrets.GITHUB_TOKEN}}"
         automatic_release_tag: "latest"
         prerelease: true
-        title: "Cavern [${{steps.date.outputs.CurrentDate}}]-${{steps.vars.outputs.ShortHash}}"
-        files: "build/*"
+        title: "Cavern @${{steps.vars.outputs.ShortHash}}[${{steps.date.outputs.CurrentDate}}]"
+        files: "build/*.zip"
