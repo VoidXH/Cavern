@@ -14,8 +14,9 @@ namespace Cavern.QuickEQ.EQCurves {
         /// Create a target EQ from raw frequency responses, by averaging and smoothing the channels.
         /// </summary>
         static Equalizer MakeCurve(Equalizer[] sourceFrequencyResponses) {
-            Equalizer target = EQGenerator.Average(sourceFrequencyResponses);
+            Equalizer target = EQGenerator.AverageRMS(sourceFrequencyResponses);
             target.Smooth(.75);
+            target.Normalize(500, 10000);
             return target;
         }
     }
