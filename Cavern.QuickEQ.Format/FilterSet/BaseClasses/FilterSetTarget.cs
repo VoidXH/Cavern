@@ -1,4 +1,6 @@
-﻿namespace Cavern.Format.FilterSet {
+﻿using System;
+
+namespace Cavern.Format.FilterSet {
     /// <summary>
     /// Supported software/hardware to export filters to.
     /// </summary>
@@ -115,5 +117,45 @@
         /// Processors supporting the latest YPAO with additional fine tuning PEQs.
         /// </summary>
         YPAO,
+    }
+
+    /// <summary>
+    /// Extension functions for the <see cref="FilterSetTarget"/> enum.
+    /// </summary>
+    public static class FilterSetTargetExtensions {
+        /// <summary>
+        /// Convert the <paramref name="target"/> device to its name.
+        /// </summary>
+        public static string GetDeviceName(this FilterSetTarget target) => GetDeviceNameSafe(target) ?? throw new DeltaSetException();
+
+        /// <summary>
+        /// Convert the <paramref name="target"/> device to its name, and return null when the device is not available for single-measurement
+        /// export, allowing for easier filtering of targets.
+        /// </summary>
+        public static string GetDeviceNameSafe(this FilterSetTarget target) => target switch {
+            FilterSetTarget.Generic => "Generic Peaking EQ",
+            FilterSetTarget.GenericEqualizer => "Generic Equalizer",
+            FilterSetTarget.EqualizerAPO_EQ => "Equalizer APO - Graphic EQ",
+            FilterSetTarget.EqualizerAPO_FIR => "Equalizer APO - Convolution",
+            FilterSetTarget.EqualizerAPO_IIR => "Equalizer APO - Peaking EQ",
+            FilterSetTarget.CamillaDSP => "CamillaDSP - Convolution",
+            FilterSetTarget.AUNBandEQ => "AU N-Band EQ",
+            FilterSetTarget.MiniDSP2x4Advanced => "MiniDSP 2x4 Adv.",
+            FilterSetTarget.MiniDSP2x4AdvancedLite => "MiniDSP 2x4 Adv. Lite",
+            FilterSetTarget.MiniDSP2x4HD => "MiniDSP 2x4 HD",
+            FilterSetTarget.MiniDSP2x4HDLite => "MiniDSP 2x4 HD Lite",
+            FilterSetTarget.MiniDSPDDRC88A => "MiniDSP DDRC-88A",
+            FilterSetTarget.Emotiva => "Emotiva",
+            FilterSetTarget.MonolithHTP1 => "Monoprice Monolith HTP-1",
+            FilterSetTarget.StormAudio => "StormAudio",
+            FilterSetTarget.BehringerNX => "Behringer NX series",
+            FilterSetTarget.DiracLive => null,
+            FilterSetTarget.DiracLiveBassControl => null,
+            FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
+            FilterSetTarget.MultEQXRaw => "MultEQ-X - Peaking EQ",
+            FilterSetTarget.MultEQXTarget => "MultEQ-X - Filter curves",
+            FilterSetTarget.YPAO => "YPAO",
+            _ => throw new NotSupportedException()
+        };
     }
 }

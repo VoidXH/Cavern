@@ -134,7 +134,8 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Setup a channel's curve with additional gain/delay, and a custom name.
         /// </summary>
-        public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain, int delaySamples, bool switchPolarity, string name) {
+        public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain, int delaySamples,
+            bool switchPolarity, string name) {
             for (int i = 0; i < Channels.Length; ++i) {
                 if (Channels[i].reference == channel) {
                     EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
