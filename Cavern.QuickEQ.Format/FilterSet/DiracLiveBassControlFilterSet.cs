@@ -12,6 +12,11 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class DiracLiveBassControlFilterSet : DiracLiveFilterSet {
         /// <summary>
+        /// Some versions of DLBC combine all heights to a single group. This option creates such an export.
+        /// </summary>
+        public bool CombineHeights { get; set; }
+
+        /// <summary>
         /// A filter set exporting raw <see cref="Equalizer"/>s for Dirac Live Bass Control.
         /// </summary>
         public DiracLiveBassControlFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
@@ -30,6 +35,8 @@ namespace Cavern.Format.FilterSet {
                 fileNameBase = Path.GetFileName(path);
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
 
+            (string name, ReferenceChannel[] channels)[] channelGroups =
+                CombineHeights ? groupsWithCombinedHeights : groupsWithSeparateHeights;
             List<Equalizer>[] groups = new List<Equalizer>[channelGroups.Length];
             List<(Equalizer curve, string name)> standalones = new List<(Equalizer, string)>();
             for (int i = 0; i < Channels.Length; i++) {
@@ -62,9 +69,9 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// The channels that are combined into one EQ group for DLBC.
+        /// The channels that are combined into one EQ group for DLBC versions where the height pairs are separate groups.
         /// </summary>
-        static readonly (string name, ReferenceChannel[] channels)[] channelGroups = {
+        static readonly (string name, ReferenceChannel[] channels)[] groupsWithSeparateHeights = {
             ("Fronts", new[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight }),
             ("Wide Surrounds", new[] { ReferenceChannel.WideLeft, ReferenceChannel.WideRight }),
             ("Side Surrounds", new[] { ReferenceChannel.SideLeft, ReferenceChannel.SideRight }),
@@ -72,6 +79,19 @@ namespace Cavern.Format.FilterSet {
             ("Front Heights", new[] { ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight }),
             ("Side Heights", new[] { ReferenceChannel.TopSideLeft, ReferenceChannel.TopSideRight }),
             ("Rear Heights", new[] { ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight })
+        };
+
+        /// <summary>
+        /// The channels that are combined into one EQ group for DLBC versions where there are no different height pair groups.
+        /// </summary>
+        static readonly (string name, ReferenceChannel[] channels)[] groupsWithCombinedHeights = {
+            ("Fronts", new[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight }),
+            ("Wide Surrounds", new[] { ReferenceChannel.WideLeft, ReferenceChannel.WideRight }),
+            ("Side Surrounds", new[] { ReferenceChannel.SideLeft, ReferenceChannel.SideRight }),
+            ("Rear Surrounds", new[] { ReferenceChannel.RearLeft, ReferenceChannel.RearRight }),
+            ("Heights", new[] { ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight,
+                ReferenceChannel.TopSideLeft, ReferenceChannel.GodsVoice, ReferenceChannel.TopSideRight,
+                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight }),
         };
     }
 }

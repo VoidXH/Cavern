@@ -102,6 +102,12 @@ namespace Cavern.Format.FilterSet {
         /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
         DiracLiveBassControl,
         /// <summary>
+        /// Processors supporting Dirac Live Bass Control. DLBC requires some channels to be merged into groups.
+        /// This version of DLBC merges even more than the regular, all heights are a single group.
+        /// </summary>
+        /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
+        DiracLiveBassControlCombined,
+        /// <summary>
         /// Processors supporting Audyssey MultEQ-X, MultEQ-X config file.
         /// </summary>
         MultEQX,
@@ -151,6 +157,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.BehringerNX => "Behringer NX series",
             FilterSetTarget.DiracLive => null,
             FilterSetTarget.DiracLiveBassControl => null,
+            FilterSetTarget.DiracLiveBassControlCombined => null,
             FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
             FilterSetTarget.MultEQXRaw => "MultEQ-X - Peaking EQ",
             FilterSetTarget.MultEQXTarget => "MultEQ-X - Filter curves",

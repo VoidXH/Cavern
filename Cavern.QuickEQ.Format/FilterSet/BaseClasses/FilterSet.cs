@@ -89,6 +89,9 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLive => new DiracLiveFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLiveBassControl => new DiracLiveBassControlFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLiveBassControlCombined => new DiracLiveBassControlFilterSet(channels, sampleRate) {
+                    CombineHeights = true
+                },
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
@@ -120,6 +123,9 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLive => new DiracLiveFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLiveBassControl => new DiracLiveBassControlFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLiveBassControlCombined => new DiracLiveBassControlFilterSet(channels, sampleRate) {
+                    CombineHeights = true
+                },
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
