@@ -63,8 +63,6 @@ namespace Cavern.Format.JSON {
                         break;
                     case '}':
                         return result;
-                    default:
-                        break;
                 }
 
                 offset++;
