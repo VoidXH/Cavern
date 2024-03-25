@@ -83,6 +83,12 @@ namespace Cavern.Format.FilterSet {
             ReferenceChannel.RearRight => "rightBack",
             ReferenceChannel.SideLeft => "leftSurround",
             ReferenceChannel.SideRight => "rightSurround",
+            ReferenceChannel.TopFrontLeft => "leftFrontHeight",
+            ReferenceChannel.TopFrontRight => "rightFrontHeight",
+            ReferenceChannel.TopSideLeft => "leftMiddleHeight",
+            ReferenceChannel.TopSideRight => "rightMiddleHeight",
+            ReferenceChannel.TopRearLeft => "leftRearHeight",
+            ReferenceChannel.TopRearRight => "rightRearHeight",
             _ => base.GetLabel(channel)
         };
     }
