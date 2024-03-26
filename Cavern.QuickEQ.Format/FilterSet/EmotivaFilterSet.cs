@@ -14,7 +14,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Maximum number of peaking EQ filters per channel.
         /// </summary>
-        public override int Bands => 12;
+        public override int Bands => 11;
 
         /// <summary>
         /// Minimum gain of a single peaking EQ band in decibels.
