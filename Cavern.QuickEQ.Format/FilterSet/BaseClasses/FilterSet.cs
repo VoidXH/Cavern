@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -45,6 +46,12 @@ namespace Cavern.Format.FilterSet {
         /// The number of channels to EQ.
         /// </summary>
         public int ChannelCount => Channels.Length;
+
+        /// <summary>
+        /// Some targets use the user's culture in their exports. These targets should override this value with
+        /// the desired export culture, <see cref="CultureInfo.CurrentCulture"/> by default.
+        /// </summary>
+        public CultureInfo Culture { get; protected set; } = CultureInfo.InvariantCulture;
 
         /// <summary>
         /// Extension of the root file or the single-file export. This should be displayed on export dialogs.

@@ -158,7 +158,7 @@ namespace Cavern.Format.FilterSet {
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
             for (int i = 0; i < Channels.Length; i++) {
                 EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
-                channelRef.curve.Export(Path.Combine(folder, $"{fileNameBase} {Channels[i].name}.txt"), 0, optionalHeader);
+                channelRef.curve.Export(Path.Combine(folder, $"{fileNameBase} {Channels[i].name}.txt"), 0, optionalHeader, Culture);
             }
         }
 

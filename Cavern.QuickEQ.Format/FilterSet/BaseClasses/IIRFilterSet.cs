@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 
 using Cavern.Channels;
@@ -174,15 +173,15 @@ namespace Cavern.Format.FilterSet {
                 for (int j = 0; j < filters.Length; j++) {
                     string freq;
                     if (filters[j].CenterFreq < 100) {
-                        freq = filters[j].CenterFreq.ToString("0.00");
+                        freq = filters[j].CenterFreq.ToString("0.00", Culture);
                     } else if (filters[j].CenterFreq < 1000) {
-                        freq = filters[j].CenterFreq.ToString("0.0");
+                        freq = filters[j].CenterFreq.ToString("0.0", Culture);
                     } else {
-                        freq = filters[j].CenterFreq.ToString("0");
+                        freq = filters[j].CenterFreq.ToString("0", Culture);
                     }
                     channelData.Add(string.Format("Filter {0,2}: ON  PK       Fc {1,7} Hz  Gain {2,6} dB  Q {3,6}",
-                        j + 1, freq, filters[j].Gain.ToString("0.00", CultureInfo.InvariantCulture),
-                        Math.Max(Math.Round(filters[j].Q * 4) / 4, .25).ToString("0.00", CultureInfo.InvariantCulture)));
+                        j + 1, freq, filters[j].Gain.ToString("0.00", Culture),
+                        Math.Max(Math.Round(filters[j].Q * 4) / 4, .25).ToString("0.00", Culture)));
                 }
                 for (int j = filters.Length; j < Bands;) {
                     channelData.Add($"Filter {++j}: OFF None");
