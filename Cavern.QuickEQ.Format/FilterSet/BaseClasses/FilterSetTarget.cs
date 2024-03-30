@@ -163,8 +163,8 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.DiracLiveBassControl => null,
             FilterSetTarget.DiracLiveBassControlCombined => null,
             FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
-            FilterSetTarget.MultEQXRaw => "MultEQ-X - Peaking EQ",
-            FilterSetTarget.MultEQXTarget => "MultEQ-X - Filter curves",
+            FilterSetTarget.MultEQXRaw => "MultEQ-X - peaking EQ",
+            FilterSetTarget.MultEQXTarget => "MultEQ-X - filter curves",
             FilterSetTarget.YPAO => "YPAO - free bands",
             FilterSetTarget.YPAOLite => "YPAO - fixed bands",
             _ => throw new NotSupportedException()
