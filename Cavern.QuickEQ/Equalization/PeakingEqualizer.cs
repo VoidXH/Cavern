@@ -141,7 +141,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Create a peaking EQ filter set with constant bandwidth between the frequencies. This mimics legacy x-band EQs.
         /// </summary>
-        public PeakingEQ[] GetPeakingEQ(int sampleRate, double firstBand, int bandsPerOctave, int bands) {
+        public PeakingEQ[] GetPeakingEQ(int sampleRate, double firstBand, double bandsPerOctave, int bands) {
             float[] target = source.Visualize(MinFrequency, MaxFrequency, 1024);
             PeakingEQ[] result = new PeakingEQ[bands];
             double bandwidth = 1.0 / bandsPerOctave;

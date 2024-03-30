@@ -123,6 +123,10 @@ namespace Cavern.Format.FilterSet {
         /// Processors supporting the latest YPAO with additional fine tuning PEQs.
         /// </summary>
         YPAO,
+        /// <summary>
+        /// Older Yamaha processors with fixed 7 bands.
+        /// </summary>
+        YPAOLite,
     }
 
     /// <summary>
@@ -161,7 +165,8 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
             FilterSetTarget.MultEQXRaw => "MultEQ-X - Peaking EQ",
             FilterSetTarget.MultEQXTarget => "MultEQ-X - Filter curves",
-            FilterSetTarget.YPAO => "YPAO",
+            FilterSetTarget.YPAO => "YPAO - free bands",
+            FilterSetTarget.YPAOLite => "YPAO - fixed bands",
             _ => throw new NotSupportedException()
         };
     }

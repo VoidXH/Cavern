@@ -103,6 +103,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
+                FilterSetTarget.YPAOLite => new YPAOLiteFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
         }
@@ -137,6 +138,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
+                FilterSetTarget.YPAOLite => new YPAOLiteFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
         }

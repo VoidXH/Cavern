@@ -1,5 +1,6 @@
-﻿using Cavern.Filters;
-using System.Numerics;
+﻿using System.Numerics;
+
+using Cavern.Filters;
 
 namespace Cavern.Remapping {
     /// <summary>
