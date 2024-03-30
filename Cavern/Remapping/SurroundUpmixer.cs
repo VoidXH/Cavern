@@ -95,7 +95,7 @@ namespace Cavern.Remapping {
         /// Get the input samples, place the upmixed targets in space, and return their samples.
         /// </summary>
         protected override float[][] UpdateSources(int samplesPerSource) {
-            float[][] input = GetNewSamples(samplesPerSource);
+            float[][] input = OnSamplesNeeded(samplesPerSource);
             for (int i = 0; i < input.Length; i++) {
                 if (sourceRouting[i] != -1) {
                     Array.Copy(input[i], output[sourceRouting[i]], input[i].Length);

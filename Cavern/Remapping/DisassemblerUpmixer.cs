@@ -23,10 +23,23 @@ namespace Cavern.Remapping {
         readonly int sampleRate;
 
         /// <summary>
+        /// Uses <see cref="SpectralDisassembler"/>s to create a better quality upmix than matrixing,
+        /// with automatically circularly allocated channel pairs for each layer.
+        /// </summary>
+        /// <param name="positions">Location of the input channels in the environment, using the position of source input channels,
+        /// <see cref="Listener.Channels"/> if it's a locally rendered environment</param>
+        /// <param name="intermediateSourceCount">Number of bands to separate</param>
+        /// <param name="sampleRate">Content sample rate</param>
+        public DisassemblerUpmixer(Vector3[] positions, int intermediateSourceCount, int sampleRate) :
+            this(positions, GetLayeredPairs(positions), intermediateSourceCount, sampleRate) { }
+
+        /// <summary>
         /// Uses <see cref="SpectralDisassembler"/>s to create a better quality upmix than matrixing.
         /// </summary>
-        /// <param name="positions">Location of the input channels in the environment</param>
-        /// <param name="pairs">Pairs of indices of later given inputs to recreate the space between</param>
+        /// <param name="positions">Location of the input channels in the environment, using the position of source input channels,
+        /// <see cref="Listener.Channels"/> if it's a locally rendered environment</param>
+        /// <param name="pairs">Pairs of indices of later given inputs to recreate the space between, recommended to map around each
+        /// channel layer in a circular pattern with <see cref="PairBasedUpmixer.GetLayeredPairs(Vector3[])"/></param>
         /// <param name="intermediateSourceCount">Number of bands to separate</param>
         /// <param name="sampleRate">Content sample rate</param>
         public DisassemblerUpmixer(Vector3[] positions, (int, int)[] pairs, int intermediateSourceCount, int sampleRate) :
@@ -43,7 +56,7 @@ namespace Cavern.Remapping {
         /// </summary>
         protected override float[][] UpdateSources(int samplesPerSource) {
             float smoothFactor = Cavernize.CalculateSmoothingFactor(sampleRate, samplesPerSource, smoothness);
-            float[][] inputs = GetNewSamples(samplesPerSource);
+            float[][] inputs = OnSamplesNeeded(samplesPerSource);
             int source = 0;
             for (int i = 0; i < disassemblers.Length; i++) {
                 disassemblers[i].smoothnessFactor = smoothFactor;
@@ -54,7 +67,7 @@ namespace Cavern.Remapping {
                 for (int j = 0; j < intermediates.Length; j++) {
                     IntermediateSources[source].Position = Vector3.Lerp(positions[pairA], positions[pairB], intermediates[j].panning);
                     output[source] = intermediates[j].samples;
-                    ++source;
+                    source++;
                 }
             }
             return output;

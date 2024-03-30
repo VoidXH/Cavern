@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 
 using Cavern.Utilities;
@@ -9,10 +10,23 @@ namespace Cavern.Remapping {
     /// </summary>
     public class NearestUpmixer : PairBasedUpmixer {
         /// <summary>
+        /// Upmixes channels with interpolated positions between sources,
+        /// with automatically circularly allocated channel pairs for each layer.
+        /// </summary>
+        /// <param name="positions">Location of the input channels in the environment, using the position of source input channels,
+        /// <see cref="Listener.Channels"/> if it's a locally rendered environment</param>
+        /// <param name="intermediateSourceCount">Number of bands to separate</param>
+        /// <param name="sampleRate">Content sample rate</param>
+        public NearestUpmixer(Vector3[] positions, int intermediateSourceCount, int sampleRate) :
+            this(positions, GetLayeredPairs(positions), intermediateSourceCount, sampleRate) { }
+
+        /// <summary>
         /// Upmixes channels with interpolated positions between sources.
         /// </summary>
-        /// <param name="positions">Location of the input channels in the environment</param>
-        /// <param name="pairs">Pairs of indices of later given inputs to recreate the space between</param>
+        /// <param name="positions">Location of the input channels in the environment, using the position of source input channels,
+        /// <see cref="Listener.Channels"/> if it's a locally rendered environment</param>
+        /// <param name="pairs">Pairs of indices of later given inputs to recreate the space between, recommended to map around each
+        /// channel layer in a circular pattern with <see cref="PairBasedUpmixer.GetLayeredPairs(Vector3[])"/></param>
         /// <param name="intermediateSourceCount">Number of bands to separate</param>
         /// <param name="sampleRate">Content sample rate</param>
         public NearestUpmixer(Vector3[] positions, (int, int)[] pairs, int intermediateSourceCount, int sampleRate) :
@@ -22,7 +36,7 @@ namespace Cavern.Remapping {
         /// Get the input samples, place the upmixed targets in space, and return their samples.
         /// </summary>
         protected override float[][] UpdateSources(int samplesPerSource) {
-            float[][] inputs = GetNewSamples(samplesPerSource);
+            float[][] inputs = OnSamplesNeeded(samplesPerSource);
             int intermediateSourceCount = IntermediateSources.Length / pairs.Length;
             int source = 0;
             for (int pair = 0; pair < pairs.Length; pair++) {
