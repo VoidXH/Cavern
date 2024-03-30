@@ -5,7 +5,7 @@ namespace Cavern.Remapping {
     /// <summary>
     /// Gets the next few samples of multiple related <see cref="Source"/>s.
     /// </summary>
-    internal class SourceSetPinger {
+    internal sealed class SourceSetPinger {
         /// <summary>
         /// A dummy listener to forcefully get source samples.
         /// </summary>
@@ -19,7 +19,7 @@ namespace Cavern.Remapping {
         /// <summary>
         /// Sources to ping. Don't attach these to a <see cref="Listener"/> anywhere else.
         /// </summary>
-        Source[] sources;
+        readonly Source[] sources;
 
         /// <summary>
         /// Gets the next few samples of multiple related <see cref="Source"/>s.
