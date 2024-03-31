@@ -16,6 +16,9 @@ namespace Cavern.Format.FilterSet {
         /// <inheritdoc/>
         public override double MaxGain => 6;
 
+        /// <inheritdoc/>
+        public override double GainPrecision => .01;
+
         /// <summary>
         /// Limit the number of bands exported for the LFE channel.
         /// </summary>
@@ -74,7 +77,8 @@ namespace Cavern.Format.FilterSet {
         public PeakingEQ[] CalculateFilters(Equalizer targetToReach) {
             PeakingEQ[] result = new PeakingEqualizer(targetToReach) {
                 MinGain = MinGain,
-                MaxGain = MaxGain
+                MaxGain = MaxGain,
+                GainPrecision = GainPrecision
             }.GetPeakingEQ(SampleRate, firstBand, bandsPerOctave, bandCount);
 
             IReadOnlyList<Band> bands = targetToReach.Bands;
