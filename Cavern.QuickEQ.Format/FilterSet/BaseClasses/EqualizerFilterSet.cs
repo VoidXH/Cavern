@@ -47,27 +47,19 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Construct a room correction with EQ curves for each channel for a room with the target number of channels.
         /// </summary>
-        public EqualizerFilterSet(int channels, int sampleRate) : base(sampleRate) {
-            Channels = new EqualizerChannelData[channels];
-            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
-            for (int i = 0; i < matrix.Length; i++) {
-                Channels[i] = new EqualizerChannelData {
-                    reference = matrix[i]
-                };
-            }
-        }
+        public EqualizerFilterSet(int channels, int sampleRate) : base(sampleRate) => Initialize<EqualizerChannelData>(channels);
 
         /// <summary>
         /// Construct a room correction with EQ curves for each channel for a room with the target reference channels.
         /// </summary>
-        public EqualizerFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) {
-            Channels = new EqualizerChannelData[channels.Length];
-            for (int i = 0; i < channels.Length; i++) {
-                Channels[i] = new EqualizerChannelData {
-                    reference = channels[i]
-                };
-            }
-        }
+        public EqualizerFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) =>
+            Initialize<EqualizerChannelData>(channels);
+
+        /// <summary>
+        /// Construct an <see cref="EqualizerFilterSet"/> without the data of <see cref="Channels"/> pre-created.
+        /// This is useful when you also derive <see cref="EqualizerChannelData"/> and call <see cref="FilterSet.Initialize{T}"/>.
+        /// </summary>
+        protected EqualizerFilterSet(int sampleRate) : base(sampleRate) { }
 
         /// <summary>
         /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.

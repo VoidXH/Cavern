@@ -27,27 +27,12 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target number of channels.
         /// </summary>
-        protected FIRFilterSet(int channels, int sampleRate) : base(sampleRate) {
-            Channels = new FIRChannelData[channels];
-            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
-            for (int i = 0; i < matrix.Length; i++) {
-                Channels[i] = new FIRChannelData {
-                    reference = matrix[i]
-                };
-            }
-        }
+        protected FIRFilterSet(int channels, int sampleRate) : base(sampleRate) => Initialize<FIRChannelData>(channels);
 
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target reference channels.
         /// </summary>
-        protected FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) {
-            Channels = new FIRChannelData[channels.Length];
-            for (int i = 0; i < channels.Length; i++) {
-                Channels[i] = new FIRChannelData {
-                    reference = channels[i]
-                };
-            }
-        }
+        protected FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) => Initialize<FIRChannelData>(channels);
 
         /// <summary>
         /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.

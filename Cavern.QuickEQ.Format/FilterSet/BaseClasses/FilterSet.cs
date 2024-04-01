@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using Cavern.Channels;
 using Cavern.Filters;
@@ -157,6 +158,33 @@ namespace Cavern.Format.FilterSet {
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
         protected virtual void RootFileExtension(int channel, List<string> result) { }
+
+        /// <summary>
+        /// Initialize the data holders of <see cref="Channels"/> with the default <see cref="ReferenceChannel"/>s.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void Initialize<T>(int channels) where T : ChannelData, new() {
+            Channels = new T[channels];
+            ReferenceChannel[] matrix = ChannelPrototype.GetStandardMatrix(channels);
+            for (int i = 0; i < channels; i++) {
+                Channels[i] = new T {
+                    reference = matrix[i]
+                };
+            }
+        }
+
+        /// <summary>
+        /// Initialize the data holders of <see cref="Channels"/> with the correct <see cref="ReferenceChannel"/>s.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void Initialize<T>(ReferenceChannel[] channels) where T : ChannelData, new() {
+            Channels = new T[channels.Length];
+            for (int i = 0; i < channels.Length; i++) {
+                Channels[i] = new T {
+                    reference = channels[i]
+                };
+            }
+        }
 
         /// <summary>
         /// Get the delay for a given channel in milliseconds instead of samples.

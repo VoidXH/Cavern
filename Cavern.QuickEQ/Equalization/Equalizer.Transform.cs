@@ -10,7 +10,8 @@ namespace Cavern.QuickEQ.Equalization {
         /// Add the two <see cref="Equalizer"/>s together.
         /// </summary>
         /// <remarks>Matching frequencies have to be guaranteed before calling this function with
-        /// <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
+        /// <see cref="HasTheSameFrequenciesAs(Equalizer)"/>. For a safe version that allows different bands,
+        /// use <see cref="Merge(Equalizer)"/>.</remarks>
         public void AddCurve(Equalizer other) {
             List<Band> otherBands = other.bands;
             for (int i = 0, c = bands.Count; i < c; i++) {

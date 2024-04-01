@@ -212,6 +212,8 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Merge this Equalizer with another, summing their gains.
         /// </summary>
+        /// <remarks>For a faster version when both <see cref="Equalizer"/>s have the same bands, use
+        /// <see cref="AddCurve(Equalizer)"/> for optimization.</remarks>
         public Equalizer Merge(Equalizer with) {
             List<Band> output = new List<Band>();
             for (int band = 0, bandc = bands.Count; band < bandc; ++band) {
