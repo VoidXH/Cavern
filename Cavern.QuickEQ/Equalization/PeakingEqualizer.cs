@@ -46,6 +46,9 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         public int Iterations { get; set; } = 8;
 
+        /// <summary>
+        /// Input curve to approximate.
+        /// </summary>
         readonly Equalizer source;
 
         /// <summary>
@@ -58,6 +61,9 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         double logMinFreq;
 
+        /// <summary>
+        /// Filter frequency response generator.
+        /// </summary>
         FilterAnalyzer analyzer;
 
         /// <summary>
@@ -141,7 +147,18 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Create a peaking EQ filter set with constant bandwidth between the frequencies. This mimics legacy x-band EQs.
         /// </summary>
-        public PeakingEQ[] GetPeakingEQ(int sampleRate, double firstBand, double bandsPerOctave, int bands) {
+        public PeakingEQ[] GetPeakingEQ(int sampleRate, double firstBand, double bandsPerOctave, int bands) =>
+            GetPeakingEQ(sampleRate, firstBand, bandsPerOctave, bands, false);
+
+        /// <summary>
+        /// Create a peaking EQ filter set with constant bandwidth between the frequencies. This mimics legacy x-band EQs.
+        /// </summary>
+        /// <param name="sampleRate">Filter generation sample rate, if the filter would be used for playback/simulation after</param>
+        /// <param name="firstBand">Frequency of the first filter band</param>
+        /// <param name="bandsPerOctave">Gap between filter bands in octaves</param>
+        /// <param name="bands">Total number of output bands</param>
+        /// <param name="roundFrequencies">Round filter center frequencies to the first two digits, as it's done in some GEQs</param>
+        public PeakingEQ[] GetPeakingEQ(int sampleRate, double firstBand, double bandsPerOctave, int bands, bool roundFrequencies) {
             float[] target = source.Visualize(MinFrequency, MaxFrequency, 1024);
             PeakingEQ[] result = new PeakingEQ[bands];
             double bandwidth = 1.0 / bandsPerOctave;
@@ -149,6 +166,10 @@ namespace Cavern.QuickEQ.Equalization {
             analyzer = new FilterAnalyzer(null, sampleRate);
             for (int i = 0; i < bands; i++) {
                 double freq = firstBand * Math.Pow(2, i * bandwidth);
+                if (roundFrequencies) {
+                    int magnitude = (int)Math.Pow(10, Math.Floor(Math.Log10(freq)) - 1);
+                    freq = Math.Round(freq / magnitude) * magnitude;
+                }
                 result[i] = BruteForceGain(ref target, freq, q);
             }
             analyzer.Dispose();

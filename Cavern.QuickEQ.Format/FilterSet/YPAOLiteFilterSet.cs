@@ -11,6 +11,9 @@ namespace Cavern.Format.FilterSet {
         /// <inheritdoc/>
         public override double GainPrecision => .5;
 
+        /// <inheritdoc/>
+        public override bool RoundedBands => true;
+
         /// <summary>
         /// Filter set limited to 4/3 octave band choices for some versions of YPAO.
         /// </summary>

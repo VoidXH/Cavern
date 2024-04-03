@@ -20,6 +20,11 @@ namespace Cavern.Format.FilterSet {
         public override double GainPrecision => .01;
 
         /// <summary>
+        /// Round filter center frequencies to the nearest whole number.
+        /// </summary>
+        public virtual bool RoundedBands { get; }
+
+        /// <summary>
         /// Limit the number of bands exported for the LFE channel.
         /// </summary>
         protected int LFEBands { get; set; }
@@ -79,7 +84,7 @@ namespace Cavern.Format.FilterSet {
                 MinGain = MinGain,
                 MaxGain = MaxGain,
                 GainPrecision = GainPrecision
-            }.GetPeakingEQ(SampleRate, firstBand, bandsPerOctave, bandCount);
+            }.GetPeakingEQ(SampleRate, firstBand, bandsPerOctave, bandCount, RoundedBands);
 
             IReadOnlyList<Band> bands = targetToReach.Bands;
             double maxFreq = bands.Count != 0 ? bands[^1].Frequency : 0;

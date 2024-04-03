@@ -127,13 +127,8 @@ namespace Cavern.Format.FilterSet {
         public void SetupChannel(ReferenceChannel channel, BiquadFilter[] filters,
             double gain, int delaySamples, bool switchPolarity, string name) {
             for (int i = 0; i < Channels.Length; i++) {
-                IIRChannelData channelRef = (IIRChannelData)Channels[i];
-                if (channelRef.reference == channel) {
-                    channelRef.filters = filters;
-                    channelRef.gain = gain;
-                    channelRef.delaySamples = delaySamples;
-                    channelRef.switchPolarity = switchPolarity;
-                    channelRef.name = name;
+                if (Channels[i].reference == channel) {
+                    SetupChannel(i, filters, gain, delaySamples, switchPolarity, name);
                     return;
                 }
             }
