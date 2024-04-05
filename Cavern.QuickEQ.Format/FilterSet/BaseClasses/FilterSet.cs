@@ -80,6 +80,7 @@ namespace Cavern.Format.FilterSet {
         public static FilterSet Create(FilterSetTarget device, int channels, int sampleRate) {
             return device switch {
                 FilterSetTarget.Generic => new IIRFilterSet(channels, sampleRate),
+                FilterSetTarget.GenericConvolution => new FIRFilterSet(channels, sampleRate),
                 FilterSetTarget.GenericEqualizer => new EqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_EQ => new EqualizerAPOEqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
@@ -115,6 +116,7 @@ namespace Cavern.Format.FilterSet {
         public static FilterSet Create(FilterSetTarget device, ReferenceChannel[] channels, int sampleRate) {
             return device switch {
                 FilterSetTarget.Generic => new IIRFilterSet(channels, sampleRate),
+                FilterSetTarget.GenericConvolution => new FIRFilterSet(channels, sampleRate),
                 FilterSetTarget.GenericEqualizer => new EqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_EQ => new EqualizerAPOEqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),

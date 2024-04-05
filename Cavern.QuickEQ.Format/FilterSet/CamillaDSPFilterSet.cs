@@ -9,9 +9,7 @@ namespace Cavern.Format.FilterSet {
     /// Convolution filter set for CamillaDSP.
     /// </summary>
     public class CamillaDSPFilterSet : FIRFilterSet {
-        /// <summary>
-        /// Extension of the single-file export. This should be displayed on export dialogs.
-        /// </summary>
+        /// <inheritdoc/>
         public override string FileExtension => "yml";
 
         /// <summary>
@@ -24,9 +22,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public CamillaDSPFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
-        /// <summary>
-        /// Export the filter set to a target file.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
                 fileNameBase = Path.GetFileName(path);
@@ -64,7 +60,7 @@ namespace Cavern.Format.FilterSet {
                     }
                 }
 
-                RIFFWaveWriter.Write(Path.Combine(folder, filterPath), channelRef.filter, 1, SampleRate, BitDepth.Float32);
+                RIFFWaveWriter.Write(filterPath, channelRef.filter, 1, SampleRate, BitDepth.Float32);
             }
 
             configFile.Add("pipeline:");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using Cavern.Channels;
 using Cavern.Filters;
@@ -8,7 +9,10 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// Room correction filter data with a finite impulse response (convolution) filter for each channel.
     /// </summary>
-    public abstract class FIRFilterSet : FilterSet {
+    public class FIRFilterSet : FilterSet {
+        /// <inheritdoc/>
+        public override string FileExtension => "wav";
+
         /// <summary>
         /// All information needed for a channel.
         /// </summary>
@@ -27,12 +31,12 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target number of channels.
         /// </summary>
-        protected FIRFilterSet(int channels, int sampleRate) : base(sampleRate) => Initialize<FIRChannelData>(channels);
+        public FIRFilterSet(int channels, int sampleRate) : base(sampleRate) => Initialize<FIRChannelData>(channels);
 
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target reference channels.
         /// </summary>
-        protected FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) => Initialize<FIRChannelData>(channels);
+        public FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) => Initialize<FIRChannelData>(channels);
 
         /// <summary>
         /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
@@ -97,11 +101,23 @@ namespace Cavern.Format.FilterSet {
         public void SetupChannel(ReferenceChannel channel, float[] filter, int delaySamples, string name) {
             for (int i = 0; i < Channels.Length; ++i) {
                 if (Channels[i].reference == channel) {
-                    ((FIRChannelData)Channels[i]).filter = filter;
-                    Channels[i].delaySamples = delaySamples;
-                    Channels[i].name = name;
+                    SetupChannel(i, filter, delaySamples, name);
                     return;
                 }
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void Export(string path) {
+            string folder = Path.GetDirectoryName(path),
+                fileNameBase = Path.GetFileName(path);
+            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+
+            for (int i = 0; i < Channels.Length; i++) {
+                FIRChannelData channelRef = (FIRChannelData)Channels[i];
+                string label = channelRef.name ?? EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
+                    filterPath = Path.Combine(folder, $"{fileNameBase} {label}.wav");
+                RIFFWaveWriter.Write(filterPath, channelRef.filter, 1, SampleRate, BitDepth.Float32);
             }
         }
     }

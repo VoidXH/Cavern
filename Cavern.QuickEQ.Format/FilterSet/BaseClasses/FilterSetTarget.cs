@@ -12,6 +12,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         Generic,
         /// <summary>
+        /// IIR filter sets in the commonly accepted WAVE file format for maximum compatibility.
+        /// </summary>
+        GenericConvolution,
+        /// <summary>
         /// Equalization curve sets in a commonly accepted format for maximum compatibility.
         /// </summary>
         GenericEqualizer,
@@ -144,6 +148,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public static string GetDeviceNameSafe(this FilterSetTarget target) => target switch {
             FilterSetTarget.Generic => "Generic Peaking EQ",
+            FilterSetTarget.GenericConvolution => "Generic Convolution",
             FilterSetTarget.GenericEqualizer => "Generic Equalizer",
             FilterSetTarget.EqualizerAPO_EQ => "Equalizer APO - Graphic EQ",
             FilterSetTarget.EqualizerAPO_FIR => "Equalizer APO - Convolution",
