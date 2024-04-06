@@ -220,7 +220,10 @@ namespace Cavern.Format.Container.Matroska {
         public byte[] GetRawData(Stream reader) {
             reader.Position = nextTag;
             byte[] result = new byte[end - nextTag];
-            reader.Read(result);
+            int read = reader.Read(result);
+            if (read != result.Length) {
+                throw new EndOfStreamException();
+            }
             return result;
         }
 

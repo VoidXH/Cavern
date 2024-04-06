@@ -79,7 +79,10 @@ namespace Cavern.Format.Container.MP4 {
         public byte[] GetRawData(Stream reader) {
             reader.Position = position;
             byte[] result = new byte[Length];
-            reader.Read(result);
+            int read = reader.Read(result);
+            if (read != result.Length) {
+                throw new EndOfStreamException();
+            }
             return result;
         }
 

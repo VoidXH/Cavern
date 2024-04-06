@@ -207,12 +207,12 @@ namespace Cavern.Virtualizer {
             for (int channel = 0; channel < channels; channel++) {
                 if (spatialChannels[channel].active) {
                     float[] original = originalSplit[channel],
-                        left = leftSplit[channel],
-                        right = rightSplit[channel];
+                        leftSamples = leftSplit[channel],
+                        rightSamples = rightSplit[channel];
                     for (int sample = 0; sample < blockSize; sample++) {
                         float unspatialized = original[sample] * .5f;
-                        output[sample * channels] += left[sample] + unspatialized;
-                        output[sample * channels + 1] += right[sample] + unspatialized;
+                        output[sample * channels] += leftSamples[sample] + unspatialized;
+                        output[sample * channels + 1] += rightSamples[sample] + unspatialized;
                     }
                 } else {
                     WaveformUtils.Mix(originalSplit[channel], output, channel, channels, 1);

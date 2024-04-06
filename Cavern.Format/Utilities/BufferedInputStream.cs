@@ -315,7 +315,10 @@ namespace Cavern.Format.Utilities {
                     // Read the target block
                     stream.Position = readBlockFrom;
                     byte[] newBlock = new byte[blockSize];
-                    stream.Read(newBlock, 0, blockSize);
+                    int read = stream.Read(newBlock, 0, blockSize);
+                    if (read != blockSize) {
+                        throw new EndOfStreamException();
+                    }
 
                     // Put the target block in the buffer, and handle if it has moved
                     lock (blockLock) {

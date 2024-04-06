@@ -69,7 +69,7 @@ namespace Cavern.QuickEQ {
         /// Recording of a QuickEQ measurement. If single-channel, it's a microphone recording of a QuickEQ measurement.
         /// If multichannel, it's an exported measurement from Cavern.
         /// </summary>
-        readonly float[][] data;
+        readonly MultichannelWaveform data;
 
         /// <summary>
         /// Sweeper instance to put the results in.
@@ -84,10 +84,10 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Start importing a previous measurement. Status can be tracked in <see cref="Status"/>.
         /// </summary>
-        /// <param name="samples">Single-channel microphone recording of a QuickEQ measurement</param>
+        /// <param name="samples">Recording of a QuickEQ measurement, see the summary of <see cref="data"/></param>
         /// <param name="sampleRate">Sample rate of <paramref name="samples"/></param>
         /// <param name="sweeper">Sweeper instance to put the results in</param>
-        public MeasurementImporter(float[][] samples, int sampleRate, SpeakerSweeper sweeper) {
+        public MeasurementImporter(MultichannelWaveform samples, int sampleRate, SpeakerSweeper sweeper) {
             data = samples;
             this.sweeper = sweeper;
             sweeper.SampleRate = sampleRate;
@@ -121,15 +121,15 @@ namespace Cavern.QuickEQ {
         static float[] GetRMSBlocks(float[] data) {
             int blocks = data.Length / blockSize;
             float[] RMSs = new float[blocks];
-            for (int block = 0; block < blocks; ++block) {
+            for (int block = 0; block < blocks; block++) {
                 float RMSHere = 0;
-                for (int pos = block * blockSize, end = pos + blockSize; pos < end; ++pos) {
+                for (int pos = block * blockSize, end = pos + blockSize; pos < end; pos++) {
                     RMSHere += data[pos] * data[pos];
                 }
                 RMSs[block] = (float)Math.Sqrt(RMSHere / blockSize);
             }
             --blocks;
-            for (int block = 1; block < blocks; ++block) { // Ghetto smoothing
+            for (int block = 1; block < blocks; block++) { // Ghetto smoothing
                 RMSs[block] = (RMSs[block - 1] + RMSs[block] + RMSs[block + 1]) * .33f;
             }
             return RMSs;
@@ -141,9 +141,9 @@ namespace Cavern.QuickEQ {
         static float GetNoiseLevel(float[] rmsBlocks) {
             int zeroBlocks = 0;
             float average = 0, peak = float.PositiveInfinity;
-            for (int block = 0; block < rmsBlocks.Length; ++block) {
+            for (int block = 0; block < rmsBlocks.Length; block++) {
                 if (rmsBlocks[block] == 0) {
-                    ++zeroBlocks;
+                    zeroBlocks++;
                 } else {
                     if (peak > rmsBlocks[block]) {
                         peak = rmsBlocks[block];
@@ -162,7 +162,7 @@ namespace Cavern.QuickEQ {
         static List<Ramp> GetRamps(float[] samples, float highLevel) {
             List<Ramp> ramps = new List<Ramp>();
             bool lastRising = false;
-            for (int sample = 0; sample < samples.Length; ++sample) {
+            for (int sample = 0; sample < samples.Length; sample++) {
                 if (samples[sample] <= highLevel) {
                     if (lastRising) {
                         ramps.Add(new Ramp(lastRising = false, sample * blockSize));
@@ -193,7 +193,7 @@ namespace Cavern.QuickEQ {
         static int GetFFTSize(List<Ramp> ramps) {
             int peakRampDist = 0,
                 mainRampDist = 0; // The LFE measurement may be the highest distance, so we're looking for the second highest
-            for (int ramp = 1; ramp < ramps.Count; ++ramp) {
+            for (int ramp = 1; ramp < ramps.Count; ramp++) {
                 int rampDist = ramps[ramp].position - ramps[ramp - 1].position;
                 if (peakRampDist < rampDist) {
                     mainRampDist = peakRampDist;
@@ -220,7 +220,7 @@ namespace Cavern.QuickEQ {
 
             sweeper.OverwriteSweeper(Channels, FFTSize);
             Status = MeasurementImporterStatus.Processing;
-            for (; ProcessedChannel < Channels; ++ProcessedChannel) {
+            for (; ProcessedChannel < Channels; ProcessedChannel++) {
                 float[] samples = new float[samplesPerCh];
                 Array.Copy(data, offset + ProcessedChannel * samplesPerCh, samples, 0, samplesPerCh);
                 sweeper.OverwriteChannel(ProcessedChannel, samples);
@@ -235,12 +235,12 @@ namespace Cavern.QuickEQ {
             Channels = 0;
             int lastSample = data[0].Length - 1;
             while (data[0][lastSample] == 0 && lastSample > 0) {
-                --lastSample;
+                lastSample--;
             }
-            for (int channel = 1; channel < data.Length; ++channel) {
+            for (int channel = 1; channel < data.Channels; channel++) {
                 int firstSample = 0;
                 while (data[channel][firstSample] == 0 && firstSample < lastSample) {
-                    ++firstSample;
+                    firstSample++;
                 }
                 if (firstSample < lastSample) {
                     Channels = channel;
@@ -248,18 +248,18 @@ namespace Cavern.QuickEQ {
                 }
             }
             if (Channels == 0) {
-                Channels = data.Length;
+                Channels = data.Channels;
             }
-            if (Channels != data.Length) {
+            if (Channels != data.Channels) {
                 MultiMeasurement = true;
             }
 
-            int measurements = data.Length / Channels,
+            int measurements = data.Channels / Channels,
                 samplesPerCh = data[0].Length / Channels;
             Status = MeasurementImporterStatus.Processing;
-            for (int measurement = 0; measurement < measurements; ++measurement) {
+            for (int measurement = 0; measurement < measurements; measurement++) {
                 sweeper.OverwriteSweeper(Channels, samplesPerCh >> 1);
-                for (ProcessedChannel = 0; ProcessedChannel < Channels; ++ProcessedChannel) {
+                for (ProcessedChannel = 0; ProcessedChannel < Channels; ProcessedChannel++) {
                     float[] samples = new float[samplesPerCh];
                     Array.Copy(data[ProcessedChannel + measurement * Channels],
                         samplesPerCh * ProcessedChannel, samples, 0, samplesPerCh);
@@ -274,7 +274,7 @@ namespace Cavern.QuickEQ {
         /// Process the <see cref="data"/> and set up the <see cref="sweeper"/>.
         /// </summary>
         void Process() {
-            if (data.Length == 1) {
+            if (data.Channels == 1) {
                 ProcessRecording(data[0]);
             } else {
                 ProcessExport();

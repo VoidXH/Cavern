@@ -73,6 +73,25 @@ namespace Cavern.QuickEQ.Utilities {
         int endIndex;
 
         /// <summary>
+        /// Detects pink noise in sequential blocks of samples between the recommended 100 Hz and 16 kHz.
+        /// </summary>
+        /// <param name="blockSize">Size of the sequential audio blocks that will be supplied to
+        /// <see cref="GetProbability(float[])"/></param>
+        /// <param name="sampleRate">Sample rate of the continuous signal that arrives block by block</param>
+        /// <remarks>All sample blocks have to match the block size set here. The block size has to be a power of 2 for FFT.</remarks>
+        public PinkNoiseDetector(int blockSize, int sampleRate) : this(blockSize, sampleRate, null, 100, 16000) { }
+
+        /// <summary>
+        /// Detects pink noise in sequential blocks of samples between the recommended 100 Hz and 16 kHz
+        /// with a custom <see cref="FFTCache"/> used for optimizing performance.
+        /// </summary>
+        /// <param name="blockSize">Size of the sequential audio blocks that will be supplied to
+        /// <see cref="GetProbability(float[])"/></param>
+        /// <param name="sampleRate">Sample rate of the continuous signal that arrives block by block</param>
+        /// <param name="cache">FFT preallocation for performance</param>
+        public PinkNoiseDetector(int blockSize, int sampleRate, FFTCache cache) : this(blockSize, sampleRate, cache, 100, 16000) { }
+
+        /// <summary>
         /// Detects pink noise in sequential blocks of samples.
         /// </summary>
         /// <param name="blockSize">Size of the sequential audio blocks that will be supplied to
@@ -82,7 +101,7 @@ namespace Cavern.QuickEQ.Utilities {
         /// <param name="minFreq">Minimum noise detection frequency</param>
         /// <param name="maxFreq">Maximum noise detection frequency</param>
         /// <remarks>All sample blocks have to match the block size set here. The block size has to be a power of 2 for FFT.</remarks>
-        public PinkNoiseDetector(int blockSize, int sampleRate, FFTCache cache = null, float minFreq = 100, float maxFreq = 16000) {
+        public PinkNoiseDetector(int blockSize, int sampleRate, FFTCache cache, float minFreq, float maxFreq) {
             reference = new float[blockSize >> 1];
             for (int i = 0; i < reference.Length;) {
                 reference[i] = .01f / ++i; // Pink noise spectrum starts at -20 dB

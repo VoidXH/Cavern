@@ -10,7 +10,7 @@ namespace CavernizeGUI.CommandLine {
         /// </summary>
         public static Command[] CommandPool {
             get {
-                commandPool ??= new Command[] {
+                commandPool ??= [
                     new HelpCommand(),
                     new InputCommand(),
                     new FormatCommand(),
@@ -22,10 +22,11 @@ namespace CavernizeGUI.CommandLine {
                     new CavernizeCommand(),
                     new EffectCommand(),
                     new SmoothnessCommand(),
+                    new SpeakerVirtualizerCommand(),
 
                     // Hidden commands
                     new OverrideBedCommand(),
-                };
+                ];
                 return commandPool;
             }
         }

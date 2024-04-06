@@ -84,7 +84,10 @@ namespace Cavern.Format.Common {
                 blockCache = new byte[output.Position];
             }
             output.Position = 0; // For reading
-            output.Read(blockCache);
+            int read = output.Read(blockCache);
+            if (read != blockCache.Length) {
+                throw new EndOfStreamException();
+            }
             output.Position = 0; // For overwriting
             blocksWritten++;
             return blockCache;

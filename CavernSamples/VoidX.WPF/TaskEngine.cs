@@ -95,7 +95,6 @@ namespace VoidX.WPF {
             } catch {
                 // There are cases, like the open file dialog, where cancellation is not possible. The OS will free it anyway.
             }
-            GC.SuppressFinalize(this);
         }
     }
 }

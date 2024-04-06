@@ -9,16 +9,11 @@ namespace CavernizeGUI.CommandLine.HiddenCommands {
     /// <summary>
     /// A hacked version of <see cref="AudioFile"/> that loads the <see cref="overrider"/> stream.
     /// </summary>
-    public class OverrideBedFile : AudioFile {
+    public class OverrideBedFile(string path, AudioReader overrider) : AudioFile(path) {
         /// <summary>
         /// Stream to override the PCM data with. Only applies to the source PCM data, not the JOC-decoded objects.
         /// </summary>
-        readonly AudioReader overrider;
-
-        /// <summary>
-        /// A hacked version of <see cref="AudioFile"/> that loads the <see cref="overrider"/> stream.
-        /// </summary>
-        public OverrideBedFile(string path, AudioReader overrider) : base(path) => this.overrider = overrider;
+        readonly AudioReader overrider = overrider;
 
         /// <summary>
         /// Reloads the tracklist to be able to start reading from the beginning.

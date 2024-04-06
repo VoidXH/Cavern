@@ -23,11 +23,6 @@ namespace Cavern.Format.Decoders {
         public Vector3[] ObjectPositions { get; }
 
         /// <summary>
-        /// Description of each imported channel/object.
-        /// </summary>
-        readonly Channel[] channels;
-
-        /// <summary>
         /// Bytes used before each second of samples to determine which channels are actually exported.
         /// </summary>
         readonly int layoutByteCount;
@@ -79,7 +74,7 @@ namespace Cavern.Format.Decoders {
             stream.ReadByte(); // Channel mode indicator (skipped)
             trackCount = stream.ReadInt32();
             layoutByteCount = (trackCount & 7) == 0 ? trackCount >> 3 : ((trackCount >> 3) + 1);
-            channels = new Channel[trackCount];
+            Channel[] channels = new Channel[trackCount];
             for (int channel = 0; channel < trackCount; channel++) {
                 float x = stream.ReadSingle();
                 if (float.IsNaN(x) && ChannelCount == 0) {

@@ -1,5 +1,4 @@
 ﻿using Cavern.Format;
-using System.Diagnostics;
 using System.IO;
 
 namespace CavernizeGUI.CommandLine.HiddenCommands {

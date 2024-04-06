@@ -428,9 +428,17 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Ask for update ticks.
+        /// Ask for update ticks for a single frame.
         /// </summary>
-        public float[] Render(int frames = 1) {
+        /// <remarks>The output size is <see cref="UpdateRate"/> * <see cref="Channels"/>.Length.</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public float[] Render() => Render(1);
+
+        /// <summary>
+        /// Ask for update ticks for multiple frames.
+        /// </summary>
+        /// <remarks>The output size is <paramref name="frames"/> * <see cref="UpdateRate"/> * <see cref="Channels"/>.Length.</remarks>
+        public float[] Render(int frames) {
             if (SampleRate < 44100 || UpdateRate < 16) { // Don't work with wrong settings
                 return null;
             }

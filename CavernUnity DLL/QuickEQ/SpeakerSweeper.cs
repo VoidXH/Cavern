@@ -256,9 +256,9 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Import a full external measurement.
         /// </summary>
-        public void Overwrite(float[][] responses) {
-            OverwriteSweeper(responses.Length, responses[0].Length >> 1);
-            for (int channel = 0; channel < responses.Length; ++channel) {
+        public void Overwrite(MultichannelWaveform responses) {
+            OverwriteSweeper(responses.Channels, responses[0].Length >> 1);
+            for (int channel = 0; channel < responses.Channels; channel++) {
                 OverwriteChannel(channel, responses[channel]);
             }
         }
