@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Filters;
 using Cavern.Utilities;
@@ -96,12 +97,39 @@ namespace Cavern.Virtualizer {
         }
 
         /// <summary>
+        /// Change the virtualized layout based on <see cref="Listener.Channels"/>, with added virtualized heights. Ground channels
+        /// will not be virtualized. This can be used for conveying height information on legacy surround sound systems such as 5.1 or 7.1.
+        /// </summary>
+        public static void SetupForSpeakers() {
+            List<VirtualChannel> channels = new List<VirtualChannel>();
+
+            // Add ground channels (non-virtualized)
+            Channel[] source = Listener.Channels;
+            for (int i = 0; i < source.Length; i++) {
+                if (source[i].X == 0 || source[i].LFE) {
+                    channels.Add(new VirtualChannel(source[i].X, source[i].Y));
+                } else {
+                    throw new NonGroundChannelPresentException();
+                }
+            }
+
+            // Add height channels (virtualized)
+            for (int i = 0; i < SpatialChannels.Length; i++) {
+                if (spatialChannels[i].x != 0) {
+                    channels.Add(spatialChannels[i]);
+                }
+            }
+
+            SpatialChannels = channels.ToArray();
+        }
+
+        /// <summary>
         /// Set up virtual channel set for the virtualization filters.
         /// </summary>
         public void SetLayout() {
             bool setAgain = centerDelay == null;
             if (Listener.Channels.Length == SpatialChannels.Length) {
-                for (int channel = 0; channel < SpatialChannels.Length; ++channel) {
+                for (int channel = 0; channel < SpatialChannels.Length; channel++) {
                     if (Listener.Channels[channel].X != SpatialChannels[channel].x ||
                         Listener.Channels[channel].Y != SpatialChannels[channel].y) {
                         setAgain = true;
@@ -117,7 +145,7 @@ namespace Cavern.Virtualizer {
 
             centerDelay = new Delay(.0075f, FilterSampleRate);
             Channel[] newChannels = new Channel[SpatialChannels.Length];
-            for (int channel = 0; channel < SpatialChannels.Length; ++channel) {
+            for (int channel = 0; channel < SpatialChannels.Length; channel++) {
                 newChannels[channel] = new Channel(SpatialChannels[channel].x, SpatialChannels[channel].y);
                 if (SpatialChannels[channel].x == 0) {
                     if (SpatialChannels[channel].y == 0) {
@@ -133,7 +161,7 @@ namespace Cavern.Virtualizer {
             originalSplit = new float[SpatialChannels.Length][];
             leftSplit = new float[SpatialChannels.Length][];
             rightSplit = new float[SpatialChannels.Length][];
-            for (int channel = 0; channel < SpatialChannels.Length; ++channel) {
+            for (int channel = 0; channel < SpatialChannels.Length; channel++) {
                 rightSplit[channel] = new float[0];
             }
             originalSplit[0] = new float[0];
@@ -151,14 +179,14 @@ namespace Cavern.Virtualizer {
             }
 
             if (originalSplit[0].Length != blockSize) {
-                for (int channel = 0; channel < channels; ++channel) {
+                for (int channel = 0; channel < channels; channel++) {
                     originalSplit[channel] = new float[blockSize];
                 }
                 delayedCenter = new float[blockSize];
             }
 
-            for (int sample = 0, outSample = 0; sample < blockSize; ++sample) {
-                for (int channel = 0; channel < channels; ++channel, ++outSample) {
+            for (int sample = 0, outSample = 0; sample < blockSize; sample++) {
+                for (int channel = 0; channel < channels; channel++, outSample++) {
                     originalSplit[channel][sample] = output[outSample];
                 }
             }
@@ -176,12 +204,18 @@ namespace Cavern.Virtualizer {
 
             // Stereo downmix
             output.Clear();
-            for (int sample = 0; sample < blockSize; ++sample) {
-                int leftOut = sample * channels, rightOut = leftOut + 1;
-                for (int channel = 0; channel < channels; ++channel) {
-                    float unspatialized = originalSplit[channel][sample] * .5f;
-                    output[leftOut] += leftSplit[channel][sample] + unspatialized;
-                    output[rightOut] += rightSplit[channel][sample] + unspatialized;
+            for (int channel = 0; channel < channels; channel++) {
+                if (spatialChannels[channel].active) {
+                    float[] original = originalSplit[channel],
+                        left = leftSplit[channel],
+                        right = rightSplit[channel];
+                    for (int sample = 0; sample < blockSize; sample++) {
+                        float unspatialized = original[sample] * .5f;
+                        output[sample * channels] += left[sample] + unspatialized;
+                        output[sample * channels + 1] += right[sample] + unspatialized;
+                    }
+                } else {
+                    WaveformUtils.Mix(originalSplit[channel], output, channel, channels, 1);
                 }
             }
         }
@@ -190,8 +224,12 @@ namespace Cavern.Virtualizer {
         /// Split and convolve a single channel by ID.
         /// </summary>
         void ProcessChannel(int channel) {
+            if (!SpatialChannels[channel].active) {
+                return;
+            }
+
             // Select the retain range
-            Crossover lowCrossover = SpatialChannels[channel].Crossover;
+            Crossover lowCrossover = spatialChannels[channel].Crossover;
             lowCrossover.Process(originalSplit[channel]);
             originalSplit[channel] = lowCrossover.LowOutput;
 
@@ -201,7 +239,7 @@ namespace Cavern.Virtualizer {
             }
             leftSplit[channel] = lowCrossover.HighOutput;
             Array.Copy(leftSplit[channel], rightSplit[channel], blockSize);
-            SpatialChannels[channel].Filter.Process(leftSplit[channel], rightSplit[channel]);
+            spatialChannels[channel].Filter.Process(leftSplit[channel], rightSplit[channel]);
         }
 
         /// <summary>

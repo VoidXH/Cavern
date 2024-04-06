@@ -15,8 +15,9 @@ using Cavern.Utilities;
 using Cavern.Virtualizer;
 
 using CavernizeGUI.Elements;
-using Track = CavernizeGUI.Elements.Track;
 using CavernizeGUI.Resources;
+
+using Track = CavernizeGUI.Elements.Track;
 
 namespace CavernizeGUI {
     partial class MainWindow {
@@ -72,6 +73,15 @@ namespace CavernizeGUI {
                 listener.SampleRate = roomCorrection == null ? target.SampleRate : roomCorrectionSampleRate;
             }
 
+            if (speakerVirtualizer.IsChecked) {
+                try {
+                    VirtualizerFilter.SetupForSpeakers();
+                } catch {
+                    throw new NonGroundChannelPresentException((string)language["SpViE"]);
+                }
+                listener.SampleRate = VirtualizerFilter.FilterSampleRate;
+            }
+
             listener.DetachAllSources();
             target.Attach(listener);
 
@@ -89,30 +99,22 @@ namespace CavernizeGUI {
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
             BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
             if (!codec.IsEnvironmental()) {
-                blockSize = FiltersUsed ? roomCorrection[0].Length : defaultWriteCacheLength;
-                if (blockSize < listener.UpdateRate) {
-                    blockSize = listener.UpdateRate;
-                } else if (blockSize % listener.UpdateRate != 0) {
-                    // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
-                    blockSize += listener.UpdateRate - blockSize % listener.UpdateRate;
-                }
-                blockSize *= Listener.HeadphoneVirtualizer ? VirtualizerFilter.VirtualChannels : Listener.Channels.Length;
-
+                SetBlockSize();
                 string exportFormat = path[^4..].ToLower(CultureInfo.InvariantCulture);
                 bool mkvTarget = exportFormat.Equals(".mkv");
                 string exportName = mkvTarget ? path[..^4] + waveExtension : path;
+                int channelCount = activeRenderTarget.OutputChannels;
                 AudioWriter writer;
                 if (mkvTarget && target.Container == Container.Matroska && (codec == Codec.PCM_LE || codec == Codec.PCM_Float)) {
-                    AudioWriterIntoContainer container = new AudioWriterIntoContainer(path, target.GetVideoTracks(), codec,
-                        blockSize, Listener.Channels.Length, target.Length, target.SampleRate, bits) {
+                    writer = new AudioWriterIntoContainer(path, target.GetVideoTracks(), codec,
+                        blockSize, channelCount, target.Length, target.SampleRate, bits) {
                         NewTrackName = $"Cavern {activeRenderTarget.Name} render"
                     };
-                    writer = container;
                 } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
-                    writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels[..activeRenderTarget.OutputChannels],
+                    writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels[..channelCount],
                         target.Length, listener.SampleRate, bits);
                 } else {
-                    writer = AudioWriter.Create(exportName, activeRenderTarget.OutputChannels,
+                    writer = AudioWriter.Create(exportName, channelCount,
                         target.Length, listener.SampleRate, bits);
                 }
                 if (writer == null) {
@@ -142,7 +144,7 @@ namespace CavernizeGUI {
                                 staticObjects[i] = (staticChannels[i], allObjects[i]);
                             }
                         } else {
-                            staticObjects = Array.Empty<(ReferenceChannel, Source)>();
+                            staticObjects = [];
                         }
                         transcoder = new DolbyAtmosBWFWriter(path, listener, target.Length, bits, staticObjects);
                         break;
@@ -193,6 +195,7 @@ namespace CavernizeGUI {
                     }
                 }
             } else {
+                SetBlockSize();
                 try {
                     return () => RenderTask(target, null, false, false, null);
                 } catch (Exception e) {
@@ -201,6 +204,22 @@ namespace CavernizeGUI {
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Setup write cache block size depending on active settings.
+        /// </summary>
+        void SetBlockSize() {
+            blockSize = FiltersUsed ? roomCorrection[0].Length : defaultWriteCacheLength;
+            if (blockSize < listener.UpdateRate) {
+                blockSize = listener.UpdateRate;
+            } else if (blockSize % listener.UpdateRate != 0) {
+                // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
+                blockSize += listener.UpdateRate - blockSize % listener.UpdateRate;
+            }
+
+            bool virtualizerFilterUsed = Listener.HeadphoneVirtualizer || speakerVirtualizer.IsChecked;
+            blockSize *= virtualizerFilterUsed ? VirtualizerFilter.VirtualChannels : Listener.Channels.Length;
         }
 
         /// <summary>

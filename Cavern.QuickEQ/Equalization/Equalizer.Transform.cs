@@ -156,6 +156,9 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         public void LimitPeaks(double peak, double startFreq, double endFreq) {
             (int startBand, int endBand) = GetBandLimits(startFreq, endFreq);
+            if (startBand == -1 && endBand == -1) {
+                return; // The frequency range is not on the curve
+            }
             LimitPeaks(startBand, endBand, peak);
         }
 

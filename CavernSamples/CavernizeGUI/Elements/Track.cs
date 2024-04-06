@@ -108,9 +108,9 @@ namespace CavernizeGUI.Elements {
                 FormatHeader = Renderer.HasObjects ? (string)strings["ObTra"] : (string)strings["ChTra"];
             }
 
-            ReferenceChannel[] beds = Renderer != null ? Renderer.GetChannels() : Array.Empty<ReferenceChannel>();
+            ReferenceChannel[] beds = Renderer != null ? Renderer.GetChannels() : [];
             string bedList = string.Join(' ', ChannelPrototype.GetShortNames(beds));
-            List<(string, string)> builder = new();
+            List<(string, string)> builder = [];
             if (eac3 != null && eac3.HasObjects) {
                 builder.Add(((string)strings["SouCh"], $"{beds.Length} - {bedList}"));
                 string[] newBeds = ChannelPrototype.GetShortNames(eac3.GetStaticChannels());
@@ -159,13 +159,13 @@ namespace CavernizeGUI.Elements {
                 RunningChannelSeparator separator = new RunningChannelSeparator(channels.Length) {
                     GetSamples = input => reader.ReadBlock(input, 0, input.Length)
                 };
-                upmixer.OnSamplesNeeded += updateRate => separator.Update(updateRate);
+                upmixer.OnSamplesNeeded = updateRate => separator.Update(updateRate);
 
                 listener.LFESeparation = channels.Contains(ReferenceChannel.ScreenLFE); // Apply crossover if LFE is not present
                 attachables = upmixer.IntermediateSources;
             } else {
                 listener.LFESeparation = true;
-                attachables = Renderer.Objects.ToArray();
+                attachables = [.. Renderer.Objects];
             }
 
             if (UpmixingSettings.Default.Cavernize && !Renderer.HasObjects) {
@@ -209,7 +209,7 @@ namespace CavernizeGUI.Elements {
         public override string ToString() {
             ResourceDictionary strings = Consts.Language.GetTrackStrings();
             string codecName = (string)strings[Codec.ToString()] ??
-                (formatNames.ContainsKey(Codec) ? formatNames[Codec] : Codec.ToString());
+                (formatNames.TryGetValue(Codec, out string? value) ? value : Codec.ToString());
             string objects = Renderer != null && Renderer.HasObjects ? " " + strings["WiObj"] : string.Empty;
             return string.IsNullOrEmpty(Language) ? codecName : $"{codecName}{objects} ({Language})";
         }

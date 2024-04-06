@@ -79,7 +79,7 @@ namespace Cavern.Format.Container {
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
         public override void WriteBlock(float[] samples, long from, long to) {
-            track.EncodeNextBlock(samples);
+            track.EncodeNextBlock(samples, from, to);
             container.WriteBlock(track.timeStep);
         }
 

@@ -8,13 +8,14 @@ namespace VoidX.WPF {
     /// <summary>
     /// Progress reporter and job handler.
     /// </summary>
-    public class TaskEngine : IDisposable {
+    /// <remarks>Set the progress bar and status label to enable progress reporting on the UI.</remarks>
+    public class TaskEngine(ProgressBar progressBar, TaskbarItemInfo taskbar, TextBlock progressLabel) : IDisposable {
         static readonly TimeSpan lazyStatusDelta = new TimeSpan(0, 0, 1);
         static readonly TimeSpan progressUpdateRate = new(0, 0, 0, 0, 16); // About 60 FPS
 
-        readonly ProgressBar progressBar;
-        readonly TaskbarItemInfo taskbar;
-        readonly TextBlock progressLabel;
+        readonly ProgressBar progressBar = progressBar;
+        readonly TaskbarItemInfo taskbar = taskbar;
+        readonly TextBlock progressLabel = progressLabel;
 
         Task operation;
         DateTime lastLazyStatus = DateTime.MinValue;
@@ -38,15 +39,6 @@ namespace VoidX.WPF {
                 taskbar?.Dispatcher.Invoke(() => taskbar.ProgressValue = value < 1 ? value : 0);
                 progressBar?.Dispatcher.Invoke(() => progressBar.Value = value);
             }
-        }
-
-        /// <summary>
-        /// Set the progress bar and status label to enable progress reporting on the UI.
-        /// </summary>
-        public TaskEngine(ProgressBar progressBar, TaskbarItemInfo taskbar, TextBlock progressLabel) {
-            this.progressBar = progressBar;
-            this.taskbar = taskbar;
-            this.progressLabel = progressLabel;
         }
 
         /// <summary>

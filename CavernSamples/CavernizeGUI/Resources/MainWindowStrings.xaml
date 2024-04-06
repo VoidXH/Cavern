@@ -5,6 +5,7 @@
     <system:String x:Key="MenuR">_Rendering</system:String>
     <system:String x:Key="Upmix">_Upmixing setup</system:String>
     <system:String x:Key="LoadV">Load HRTF/HRIR sets for the _Virtualizer</system:String>
+    <system:String x:Key="SpVir">_Height virtualization on speakers</system:String>
     <system:String x:Key="FiltH">Apply output _filters</system:String>
     <system:String x:Key="FiltT">Load a set of convolution EQs exported from QuickEQ for the target system
         to be used as a burnt-in room correction in the converted content.</system:String>
@@ -111,4 +112,6 @@
         not correctly documented, thus can't be decoded, and was muted. Small distortions in the audio are expected.</system:String>
     <system:String x:Key="RenEr">The audio at {0} could not be rendered. Processing will continue, but the track won't be intact
         after that timestamp. The exact error: {1}</system:String>
+    <system:String x:Key="SpViE">The active layout does not support height virtualization on speakers. Either disable the
+        option or choose a layout with ground channels only.</system:String>
 </ResourceDictionary>

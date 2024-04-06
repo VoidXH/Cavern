@@ -108,7 +108,8 @@ namespace CavernizeGUI {
             // Virtualization is done with the buffer instead of each update in the listener to optimize FFT sizes
             VirtualizerFilter virtualizer = null;
             Normalizer normalizer = null;
-            if (Listener.HeadphoneVirtualizer) {
+            bool virtualizerState = Listener.HeadphoneVirtualizer;
+            if (virtualizerState || Dispatcher.Invoke(() => speakerVirtualizer.IsChecked)) {
                 Listener.HeadphoneVirtualizer = false;
                 virtualizer = new VirtualizerFilter();
                 virtualizer.SetLayout();
@@ -120,9 +121,7 @@ namespace CavernizeGUI {
             int cachePosition = 0;
             float[] writeCache = null;
             bool flush = false;
-            if (writer != null) {
-                writeCache = new float[blockSize];
-            }
+            writeCache = new float[blockSize];
 
             bool wasError = false;
             while (progressor.Rendered < target.Length) {
@@ -146,28 +145,28 @@ namespace CavernizeGUI {
                     flush = true;
                 }
 
-                if (writer != null) {
-                    Array.Copy(result, 0, writeCache, cachePosition, result.Length);
-                    cachePosition += result.Length;
-                    if (cachePosition == writeCache.Length || flush) {
-                        filters?.Process(writeCache);
+                Array.Copy(result, 0, writeCache, cachePosition, result.Length);
+                cachePosition += result.Length;
+                if (cachePosition == writeCache.Length || flush) {
+                    filters?.Process(writeCache);
 
-                        if (virtualizer == null) {
-                            if (renderTarget is not DownmixedRenderTarget downmix) {
-                                writer.WriteBlock(writeCache, 0, cachePosition);
-                            } else {
-                                downmix.PerformMerge(writeCache);
-                                writer.WriteChannelLimitedBlock(writeCache, downmix.OutputChannels,
-                                    Listener.Channels.Length, 0, cachePosition);
-                            }
+                    if (virtualizer == null) {
+                        if (renderTarget is not DownmixedRenderTarget downmix) {
+                            writer?.WriteBlock(writeCache, 0, cachePosition);
                         } else {
-                            virtualizer.Process(writeCache, listener.SampleRate);
-                            normalizer.Process(writeCache);
-                            writer.WriteChannelLimitedBlock(writeCache, 2, Listener.Channels.Length, 0, cachePosition);
+                            downmix.PerformMerge(writeCache);
+                            writer?.WriteChannelLimitedBlock(writeCache, downmix.OutputChannels,
+                                Listener.Channels.Length, 0, cachePosition);
                         }
-                        cachePosition = 0;
+                    } else {
+                        virtualizer.Process(writeCache, listener.SampleRate);
+                        normalizer.Process(writeCache);
+                        writer?.WriteChannelLimitedBlock(writeCache, renderTarget.OutputChannels,
+                            Listener.Channels.Length, 0, cachePosition);
                     }
+                    cachePosition = 0;
                 }
+
                 if (progressor.Rendered > secondFrame) {
                     stats.Update(result);
                 }
@@ -187,7 +186,7 @@ namespace CavernizeGUI {
             }
 
             writer?.Dispose();
-            if (virtualizer != null) {
+            if (virtualizerState) {
                 Listener.HeadphoneVirtualizer = true;
             }
             return stats;

@@ -19,6 +19,7 @@
             <MenuItem Header="{StaticResource MenuR}">
                 <MenuItem Header="{StaticResource Upmix}" Click="OpenUpmixSetup"/>
                 <MenuItem x:Name="hrir" Header="{StaticResource LoadV}" Click="LoadHRIR"/>
+                <MenuItem x:Name="speakerVirtualizer" IsCheckable="True" Header="{StaticResource SpVir}"/>
                 <MenuItem x:Name="filters" Header="{StaticResource FiltH}" ToolTip="{StaticResource FiltT}" Click="LoadFilters"/>
                 <Separator/>
                 <MenuItem x:Name="dynamicOnly" IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}"/>

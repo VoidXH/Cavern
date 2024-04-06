@@ -30,11 +30,28 @@ namespace Cavern.Virtualizer {
         public float y;
 
         /// <summary>
+        /// This channel should be virtualized and downmixed to stereo.
+        /// </summary>
+        public bool active;
+
+        /// <summary>
+        /// Constructs a virtual channel with disabled virtualization.
+        /// </summary>
+        public VirtualChannel(float x, float y) {
+            this.x = x;
+            this.y = y;
+            active = false;
+            Crossover = null;
+            Filter = null;
+        }
+
+        /// <summary>
         /// Constructs a virtualizable channel with impulse responses for both ears.
         /// </summary>
         public VirtualChannel(float x, float y, float[] leftEarIR, float[] rightEarIR, int sampleRate, float crossoverFrequency) {
             this.x = x;
             this.y = y;
+            active = true;
             Crossover = new Crossover(sampleRate, crossoverFrequency);
             Filter = new DualConvolver(leftEarIR, rightEarIR, y % 180 > 0 ? GetDelay(y % 180) : 0, y < 0 ? GetDelay(-y) : 0);
         }
@@ -95,7 +112,7 @@ namespace Cavern.Virtualizer {
                 MultichannelWaveform[] splits = hrir.Split(rPeak - lPeak);
                 int lastToKeep = splits.Length;
                 while (lastToKeep > 1 && splits[lastToKeep - 1].IsMute()) {
-                    --lastToKeep;
+                    lastToKeep--;
                 }
                 if (splits.Length != lastToKeep) {
                     splits = splits[..lastToKeep];
@@ -132,16 +149,16 @@ namespace Cavern.Virtualizer {
         }
 
         /// <summary>
+        /// Check if the two virtual channels handle the same source channel position.
+        /// </summary>
+        public readonly bool Equals(VirtualChannel other) => x == other.x && y == other.y;
+
+        /// <summary>
         /// Get the secondary ear's delay by angle of attack.
         /// </summary>
         /// <remarks>This formula is based on measurements and the sine wave's usability was disproven.
         /// See Bence S. (2022). Extending HRTF with distance simulation based on ray-tracing.</remarks>
         static int GetDelay(float angle) => (int)((90 - Math.Abs(angle - 90)) / 2.7f);
-
-        /// <summary>
-        /// Check if the two virtual channels handle the same source channel position.
-        /// </summary>
-        public bool Equals(VirtualChannel other) => x == other.x && y == other.y;
 
         /// <summary>
         /// Precalculated -10 dB as voltage gain. Used by angle gain post-processing.

@@ -5,6 +5,7 @@
     <system:String x:Key="MenuR">_Renderelés</system:String>
     <system:String x:Key="Upmix">_Felkeverési beállítások</system:String>
     <system:String x:Key="LoadV">HRTF/HRIR szettek betöltése a _Virtualizálóba</system:String>
+    <system:String x:Key="SpVir">_Magasság virtualizálása hangszórókon</system:String>
     <system:String x:Key="FiltH">Kimeneti _szűrők alkalmazása</system:String>
     <system:String x:Key="FiltT">Betölt egy konvolúciós EQ szettet, amit a QuickEQ exportált a célrendszerhez,
         majd ezt használja a konvertált fájlba beégetett szobakorrekcióként.</system:String>
@@ -110,4 +111,6 @@
         dokumentálva, emiatt nem dekódolható, és le lett némítva. Kis torzítások várhatók a hangban.</system:String>
     <system:String x:Key="RenEr">A hang nem renderelhető a következő ponton: {0}. A feldolgozás folytatódik, de a sáv
         nem marad összefüggő ezután az idő után. A pontos hiba: {1}</system:String>
+    <system:String x:Key="SpViE">A jelenlegi kiosztás nem támogatja magasság virtualizálását hangszórókon. Kapcsold ki ezt az opciót, vagy
+        használj olyan kiosztást, ahol minden csatorna a földön van.</system:String>
 </ResourceDictionary>
