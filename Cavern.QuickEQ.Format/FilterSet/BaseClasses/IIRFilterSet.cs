@@ -59,7 +59,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// An optional text to add to the first line of every exported channel filter set.
         /// </summary>
-        protected virtual string Header => null;
+        public string Header { get; set; }
 
         /// <summary>
         /// Construct a room correction with IIR filter sets for each channel for a room with the target number of channels.

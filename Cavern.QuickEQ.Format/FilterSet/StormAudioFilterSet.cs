@@ -18,19 +18,14 @@ namespace Cavern.Format.FilterSet {
         public override double GainPrecision => .5;
 
         /// <summary>
-        /// Mandatory marker in each file to be accepted by the processor.
-        /// </summary>
-        protected override string Header => "Equaliser: StormAudio";
-
-        /// <summary>
         /// IIR filter set for StormAudio processors with a given number of channels.
         /// </summary>
-        public StormAudioFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+        public StormAudioFilterSet(int channels, int sampleRate) : base(channels, sampleRate) => Header = header;
 
         /// <summary>
         /// IIR filter set for StormAudio processors with a given set of channels.
         /// </summary>
-        public StormAudioFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
+        public StormAudioFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) => Header = header;
 
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
@@ -54,5 +49,10 @@ namespace Cavern.Format.FilterSet {
             ReferenceChannel.TopRearRight => "RBT",
             _ => base.GetLabel(channel)
         };
+
+        /// <summary>
+        /// Mandatory first line in the exports, otherwise the processor won't import them.
+        /// </summary>
+        const string header = "Equaliser: StormAudio";
     }
 }
