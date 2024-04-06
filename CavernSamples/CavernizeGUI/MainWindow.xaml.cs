@@ -26,7 +26,6 @@ using VoidX.WPF;
 
 using Path = System.IO.Path;
 using Track = CavernizeGUI.Elements.Track;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {

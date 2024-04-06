@@ -541,7 +541,7 @@ namespace Cavern {
         /// Version and creator information.
         /// </summary>
         /// <remarks>Hardcoded, because version reading is unsupported for .NET Standard projects</remarks>
-        const string info = "Cavern v2.0 by VoidX (cavern.sbence.hu)";
+        const string info = "Cavern v2.0.2 by VoidX (cavern.sbence.hu)";
 
         /// <summary>
         /// Default value of <see cref="MaximumSources"/>.

@@ -113,4 +113,6 @@
         nem marad összefüggő ezután az idő után. A pontos hiba: {1}</system:String>
     <system:String x:Key="SpViE">A jelenlegi kiosztás nem támogatja magasság virtualizálását hangszórókon. Kapcsold ki ezt az opciót, vagy
         használj olyan kiosztást, ahol minden csatorna a földön van.</system:String>
+    <system:String x:Key="Atm4G">Egy 4 GB-nál nagyobb Dolby Atmos ADM BWF fájlt hoztál létre. Ez ismeretlen okokból nem importálható egyenesen
+        DAW környezetekbe. Használd a Dolby Atmos Conversion Tool-t, hogy újrakonvertáld a fájlt egy támogatott struktúrába.</system:String>
 </ResourceDictionary>

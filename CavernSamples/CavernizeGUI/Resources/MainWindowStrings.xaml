@@ -114,4 +114,6 @@
         after that timestamp. The exact error: {1}</system:String>
     <system:String x:Key="SpViE">The active layout does not support height virtualization on speakers. Either disable the
         option or choose a layout with ground channels only.</system:String>
+    <system:String x:Key="Atm4G">You have created a Dolby Atmos ADM BWF file over 4 GB. This, for an unknown reason, can't be
+        imported directly to DAWs. Use the Dolby Atmos Conversion Tool to reconvert the file to a supported structure.</system:String>
 </ResourceDictionary>

@@ -152,7 +152,7 @@ namespace CavernizeGUI {
                         Error((string)language["UnCod"]);
                         return null;
                 }
-                return () => TranscodeTask(target, transcoder);
+                return () => TranscodeTask(target, transcoder, path);
             }
         }
 
@@ -279,13 +279,16 @@ namespace CavernizeGUI {
         /// <summary>
         /// Decode the source and export it to an object-based format.
         /// </summary>
-        void TranscodeTask(Track target, EnvironmentWriter writer) {
+        void TranscodeTask(Track target, EnvironmentWriter writer, string path) {
             taskEngine.Progress = 0;
             taskEngine.UpdateStatus((string)language["Start"]);
 
             RenderStats stats;
             if (writer is BroadcastWaveFormatWriter bwf) {
                 stats = WriteTranscode(target, bwf);
+                if (bwf is DolbyAtmosBWFWriter && new FileInfo(path).Length > 4L * 1024 * 1024 * 1024) {
+                    Dispatcher.Invoke(() => Error((string)language["Atm4G"]));
+                }
             } else {
                 stats = WriteTranscode(target, writer);
             }
