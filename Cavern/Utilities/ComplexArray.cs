@@ -83,12 +83,16 @@ namespace Cavern.Utilities {
         public static unsafe void Convolve(this Complex[] source, Complex[] other) {
             fixed (Complex* pSource = source)
             fixed (Complex* pOther = other) {
-                Complex* end = pSource + source.Length;
-                int halfSize = Vector<float>.Count >> 1;
-                if (halfSize == 0 || CavernAmp.IsMono()) {
-                    ConvolveMono(pSource, pOther, end);
-                } else {
-                    Convolve(pSource, pOther, end);
+                Complex* lhs = pSource,
+                    rhs = pOther,
+                    end = pSource + source.Length;
+                while (lhs != end) {
+                    float oldReal = lhs->Real;
+                    // Don't try to further optimize this, System.Numerics classes don't have complex multiplication functions with floats
+                    lhs->Real = lhs->Real * rhs->Real - lhs->Imaginary * rhs->Imaginary;
+                    lhs->Imaginary = oldReal * rhs->Imaginary + lhs->Imaginary * rhs->Real;
+                    lhs++;
+                    rhs++;
                 }
             }
         }
@@ -203,36 +207,6 @@ namespace Cavern.Utilities {
         public static void SwapDimensions(this Complex[] array) {
             for (int i = 0; i < array.Length; i++) {
                 (array[i].Real, array[i].Imaginary) = (array[i].Imaginary, array[i].Real);
-            }
-        }
-
-        /// <summary>
-        /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
-        /// </summary>
-        /// <param name="source">Array with the left hand side of the convolution, where the result will be placed</param>
-        /// <param name="other">Right hand side of the convolution</param>
-        /// <param name="end">Exclusive last position of the <paramref name="source"/> array</param>
-        static unsafe void Convolve(Complex* source, Complex* other, Complex* end) {
-            Vector2* sourceVec = (Vector2*)source,
-                otherVec = (Vector2*)other;
-            while (source != end) {
-                *source++ *= *other++;
-            }
-        }
-
-        /// <summary>
-        /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
-        /// </summary>
-        /// <param name="source">Array with the left hand side of the convolution, where the result will be placed</param>
-        /// <param name="other">Right hand side of the convolution</param>
-        /// <param name="end">Exclusive last position of the <paramref name="source"/> array</param>
-        static unsafe void ConvolveMono(Complex* source, Complex* other, Complex* end) {
-            while (source != end) {
-                float oldReal = source->Real;
-                source->Real = source->Real * other->Real - source->Imaginary * other->Imaginary;
-                source->Imaginary = oldReal * other->Imaginary + source->Imaginary * other->Real;
-                source++;
-                other++;
             }
         }
     }
