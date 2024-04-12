@@ -35,10 +35,7 @@ namespace Test.Cavern {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void FFT_IFFT_Sine() {
-            float[] signal = new float[32];
-            for (int i = 0; i < signal.Length; i++) {
-                signal[i] = MathF.Cos(2 * MathF.PI * i / signal.Length);
-            }
+            float[] signal = Generators.Sine(32);
 
             using FFTCache cache = new FFTCache(signal.Length);
             Complex[] fft = signal.FFT(cache);

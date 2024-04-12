@@ -5,6 +5,30 @@ using System.Runtime.CompilerServices;
 namespace Cavern.Utilities {
     public static partial class Measurements {
         /// <summary>
+        /// FFT processor selector.
+        /// </summary>
+        static void ProcessFFT(Complex[] samples, FFTCache cache) {
+            if (samples.Length > 8) {
+                if (CavernAmp.IsMono()) {
+                    ProcessFFT_Mono(samples, cache, QMath.Log2(samples.Length) - 1);
+                } else {
+                    ProcessFFT(samples, cache, QMath.Log2(samples.Length) - 1);
+                }
+            } else {
+                ProcessFFTSmall(samples);
+            }
+        }
+
+        /// <summary>
+        /// Outputs IFFT(X) * N.
+        /// </summary>
+        static void ProcessIFFT(Complex[] samples, FFTCache cache) {
+            samples.Conjugate();
+            ProcessFFT(samples, cache);
+            samples.Conjugate();
+        }
+
+        /// <summary>
         /// Actual FFT processing, somewhat in-place.
         /// </summary>
         static unsafe void ProcessFFT(Complex[] samples, FFTCache cache, int depth) {
@@ -48,7 +72,7 @@ namespace Cavern.Utilities {
                     sinCache = pSinCache;
 
                 // SIMD pass
-                while (result < endSimd) {
+                while (result <= endSimd) {
                     Vector<float> oddRight = new Vector<float>(new Span<float>((float*)oddRef - 1, Vector<float>.Count)),
                         oddVec = new Vector<float>(new Span<float>((float*)oddRef, Vector<float>.Count)),
                         oddLeft = new Vector<float>(new Span<float>((float*)oddRef + 1, Vector<float>.Count));

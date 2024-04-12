@@ -92,15 +92,25 @@ namespace Cavern.Utilities {
                 }
             }
 
+            EnsureMasks();
+            CreateCacheArrays(size);
+        }
+
+        /// <summary>
+        /// Recreate the even and odd vector masks if they don't yet exist.
+        /// </summary>
+        internal static void EnsureMasks() {
+            if (evenMask[1] != 0) {
+                return;
+            }
+
             float[] maskSource = new float[Vector<float>.Count + 1];
             for (int i = 0; i < maskSource.Length; i++) {
-                int even = (i & 1) == 0 ? 1 : 0;
-                maskSource[i] = even;
+                int odd = i & 1;
+                maskSource[i] = odd;
             }
-            evenMask = new Vector<float>(maskSource);
-            oddMask = new Vector<float>(maskSource, 1);
-
-            CreateCacheArrays(size);
+            evenMask = new Vector<float>(maskSource, 1);
+            oddMask = new Vector<float>(maskSource);
         }
 
         /// <summary>

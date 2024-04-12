@@ -58,7 +58,7 @@ namespace Test.Cavern.QuickEQ.Equalization {
             equalizer.LimitPeaks(6, 0, 10000);
             Compare(equalizer, 0, 6, 6, 1.4112, -7.568025, -9.589243, -2.794155, 6.569866, 9.893582, 4.121185);
             equalizer.LimitPeaks(3, 10000, 100000);
-            Compare(equalizer, 0, 6, 6, 1.4112, -7.568025, -9.589243, -2.794155, 3, 3, 4.121185);
+            Compare(equalizer, 0, 6, 6, 1.4112, -7.568025, -9.589243, -2.794155, 3, 3, 3);
         }
 
         /// <summary>

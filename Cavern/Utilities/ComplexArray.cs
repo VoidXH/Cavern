@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -64,20 +65,30 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Take a linear-phase frequency response and convert it into a phase response.
+        /// </summary>
+        public static void ConvertToPhase(this Complex[] spectrum) {
+            int halfLength = spectrum.Length >> 1;
+            for (int i = 0; i < halfLength; i++) {
+                spectrum[i] = Complex.UnitPhase(spectrum[i].Real);
+            }
+            for (int i = halfLength; i < spectrum.Length; i++) {
+                spectrum[i] = new Complex(MathF.Cos(spectrum[i].Real), -MathF.Sin(spectrum[i].Real));
+            }
+        }
+
+        /// <summary>
         /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
         /// </summary>
         public static unsafe void Convolve(this Complex[] source, Complex[] other) {
             fixed (Complex* pSource = source)
             fixed (Complex* pOther = other) {
-                Complex* lhs = pSource,
-                    rhs = pOther,
-                    end = pSource + source.Length;
-                while (lhs != end) {
-                    float oldReal = lhs->Real;
-                    lhs->Real = lhs->Real * rhs->Real - lhs->Imaginary * rhs->Imaginary;
-                    lhs->Imaginary = oldReal * rhs->Imaginary + lhs->Imaginary * rhs->Real;
-                    lhs++;
-                    rhs++;
+                Complex* end = pSource + source.Length;
+                int halfSize = Vector<float>.Count >> 1;
+                if (halfSize == 0 || CavernAmp.IsMono()) {
+                    ConvolveMono(pSource, pOther, end);
+                } else {
+                    Convolve(pSource, pOther, end);
                 }
             }
         }
@@ -92,6 +103,16 @@ namespace Cavern.Utilities {
                 source[i].Real = (source[i].Real * other[i].Real + source[i].Imaginary * other[i].Imaginary) * multiplier;
                 source[i].Imaginary = (source[i].Imaginary * other[i].Real - oldReal * other[i].Imaginary) * multiplier;
             }
+        }
+
+        /// <summary>
+        /// Take the first derivative of the <paramref name="source"/> in-place.
+        /// </summary>
+        public static void Derive(this Complex[] source) {
+            for (int i = 0, c = source.Length - 1; i < c; i++) {
+                source[i] = source[i + 1] - source[i];
+            }
+            source[^1] = source[^2];
         }
 
         /// <summary>
@@ -182,6 +203,36 @@ namespace Cavern.Utilities {
         public static void SwapDimensions(this Complex[] array) {
             for (int i = 0; i < array.Length; i++) {
                 (array[i].Real, array[i].Imaginary) = (array[i].Imaginary, array[i].Real);
+            }
+        }
+
+        /// <summary>
+        /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
+        /// </summary>
+        /// <param name="source">Array with the left hand side of the convolution, where the result will be placed</param>
+        /// <param name="other">Right hand side of the convolution</param>
+        /// <param name="end">Exclusive last position of the <paramref name="source"/> array</param>
+        static unsafe void Convolve(Complex* source, Complex* other, Complex* end) {
+            Vector2* sourceVec = (Vector2*)source,
+                otherVec = (Vector2*)other;
+            while (source != end) {
+                *source++ *= *other++;
+            }
+        }
+
+        /// <summary>
+        /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
+        /// </summary>
+        /// <param name="source">Array with the left hand side of the convolution, where the result will be placed</param>
+        /// <param name="other">Right hand side of the convolution</param>
+        /// <param name="end">Exclusive last position of the <paramref name="source"/> array</param>
+        static unsafe void ConvolveMono(Complex* source, Complex* other, Complex* end) {
+            while (source != end) {
+                float oldReal = source->Real;
+                source->Real = source->Real * other->Real - source->Imaginary * other->Imaginary;
+                source->Imaginary = oldReal * other->Imaginary + source->Imaginary * other->Real;
+                source++;
+                other++;
             }
         }
     }

@@ -12,8 +12,8 @@ namespace Test.Cavern.Filters {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void FastConvolverMono() {
-            float[] dirac = new float[] { 1, 0, 0, 0 };
-            float[] step = new float[] { 1, .75f, .5f, 2 };
+            float[] dirac = [1, 0, 0, 0];
+            float[] step = [1, .75f, .5f, 2];
             new FastConvolver(step).Process(dirac);
             CollectionAssert.AreEqual(step, dirac);
         }
@@ -23,8 +23,8 @@ namespace Test.Cavern.Filters {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void FastConvolverStereo() {
-            float[] dirac = new float[] { 1, .5f, 0, 1, 0, 1, 0, .5f };
-            float[] step = new float[] { 1, .75f, .5f, 2 };
+            float[] dirac = [1, .5f, 0, 1, 0, 1, 0, .5f];
+            float[] step = [1, .75f, .5f, 2];
             new FastConvolver(step).Process(dirac, 0, 2);
 
             float[] left = new float[step.Length];

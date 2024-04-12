@@ -52,16 +52,6 @@ namespace Cavern.Utilities {
         public static void CopyTo<T>(this T[] source, T[] target) => Array.Copy(source, target, source.Length);
 
         /// <summary>
-        /// Clones an array about twice as fast as <see cref="Array.Clone"/>.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] FastClone<T>(this T[] source) {
-            T[] clone = new T[source.Length];
-            Array.Copy(source, clone, source.Length);
-            return clone;
-        }
-
-        /// <summary>
         /// Deep copies a 1-dimensional array.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,6 +72,26 @@ namespace Cavern.Utilities {
             for (int i = 0; i < clone.Length; i++) {
                 clone[i] = clone[i].FastClone();
             }
+            return clone;
+        }
+
+        /// <summary>
+        /// Take the first derivative of the <paramref name="source"/> in-place.
+        /// </summary>
+        public static void Derive(this float[] source) {
+            for (int i = 0, c = source.Length - 1; i < c; i++) {
+                source[i] = source[i + 1] - source[i];
+            }
+            source[^1] = source[^2];
+        }
+
+        /// <summary>
+        /// Clones an array about twice as fast as <see cref="Array.Clone"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] FastClone<T>(this T[] source) {
+            T[] clone = new T[source.Length];
+            Array.Copy(source, clone, source.Length);
             return clone;
         }
 
