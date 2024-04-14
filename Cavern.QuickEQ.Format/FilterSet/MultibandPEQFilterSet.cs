@@ -63,6 +63,21 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Construct a traditional multiband eqalizer with constant bandwidth bands.
         /// </summary>
+        /// <param name="channels">Number of channels in the target system</param>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="firstBand">Frequency of the first exported band</param>
+        /// <param name="bandsPerOctave">Number of bands for each octave</param>
+        /// <param name="bandCount">Number of total bands</param>
+        /// <param name="roundedBands">Round filter center frequencies to the nearest whole number</param>
+        public MultibandPEQFilterSet(int channels, int sampleRate, double firstBand, double bandsPerOctave, int bandCount,
+            bool roundedBands) :
+            this(channels, sampleRate, firstBand, bandsPerOctave, bandCount) {
+            RoundedBands = roundedBands;
+        }
+
+        /// <summary>
+        /// Construct a traditional multiband eqalizer with constant bandwidth bands.
+        /// </summary>
         /// <param name="channels">Channels in the target system</param>
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="firstBand">Frequency of the first exported band</param>
@@ -74,6 +89,21 @@ namespace Cavern.Format.FilterSet {
             this.bandsPerOctave = bandsPerOctave;
             this.bandCount = bandCount;
             LFEBands = bandCount;
+        }
+
+        /// <summary>
+        /// Construct a traditional multiband eqalizer with constant bandwidth bands.
+        /// </summary>
+        /// <param name="channels">Channels in the target system</param>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="firstBand">Frequency of the first exported band</param>
+        /// <param name="bandsPerOctave">Number of bands for each octave</param>
+        /// <param name="bandCount">Number of total bands</param>
+        /// <param name="roundedBands">Round filter center frequencies to the nearest whole number</param>
+        public MultibandPEQFilterSet(ReferenceChannel[] channels, int sampleRate, double firstBand, double bandsPerOctave, int bandCount,
+            bool roundedBands) :
+            this(channels, sampleRate, firstBand, bandsPerOctave, bandCount) {
+            RoundedBands = roundedBands;
         }
 
         /// <summary>
