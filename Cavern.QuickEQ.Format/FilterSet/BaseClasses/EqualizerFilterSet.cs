@@ -57,7 +57,7 @@ namespace Cavern.Format.FilterSet {
 
         /// <summary>
         /// Construct an <see cref="EqualizerFilterSet"/> without the data of <see cref="Channels"/> pre-created.
-        /// This is useful when you also derive <see cref="EqualizerChannelData"/> and call <see cref="FilterSet.Initialize{T}"/>.
+        /// This is useful when you also derive <see cref="EqualizerChannelData"/> and call <see cref="FilterSet.Initialize{T}(int)"/>.
         /// </summary>
         protected EqualizerFilterSet(int sampleRate) : base(sampleRate) { }
 

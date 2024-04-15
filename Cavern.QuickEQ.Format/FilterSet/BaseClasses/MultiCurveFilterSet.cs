@@ -87,14 +87,14 @@ namespace Cavern.Format.FilterSet {
             for (int i = 0; i < Channels.Length; i++) {
                 MultiCurveChannelData channelRef = (MultiCurveChannelData)Channels[i];
                 if (!ForceAdditionals && channelRef.curve != null) {
-                    string fileName = Path.Combine(folder, $"{fileNameBase} {Channels[i].name}{Postfix}.txt");
+                    string fileName = Path.Combine(folder, $"{fileNameBase} {GetLabel(i)}{Postfix}.txt");
                     channelRef.curve.Export(fileName, 0, optionalHeader, Culture);
                 }
 
                 (Equalizer curve, string postfix)[] additionals = channelRef.additionalCurves;
                 if (additionals != null) {
                     for (int j = 0; j < additionals.Length; j++) {
-                        string fileName = Path.Combine(folder, $"{fileNameBase} {Channels[i].name}{additionals[j].postfix}.txt");
+                        string fileName = Path.Combine(folder, $"{fileNameBase} {GetLabel(i)}{additionals[j].postfix}.txt");
                         additionals[j].curve.Export(fileName, 0, optionalHeader, Culture);
                     }
                 }

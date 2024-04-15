@@ -47,6 +47,11 @@ namespace Cavern.QuickEQ.Equalization {
         public int Iterations { get; set; } = 8;
 
         /// <summary>
+        /// Number of output bands if <see cref="GetPeakingEQ(int)"/> is called. In that case, there will be one band for each input.
+        /// </summary>
+        public int Bands => source.Bands.Count;
+
+        /// <summary>
         /// Input curve to approximate.
         /// </summary>
         readonly Equalizer source;
