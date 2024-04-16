@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
@@ -75,6 +78,28 @@ namespace Cavern.QuickEQ.Equalization {
         /// Generates peaking EQ filter sets that try to match <see cref="Equalizer"/> curves.
         /// </summary>
         public PeakingEqualizer(Equalizer source) => this.source = source;
+
+        /// <summary>
+        /// Parse a file created in the standard PEQ filter list format.
+        /// </summary>
+        public static PeakingEQ[] ParseEQFile(string path) => ParseEQFile(File.ReadLines(path));
+
+        /// <summary>
+        /// Parse a file created in the standard PEQ filter list format.
+        /// </summary>
+        public static PeakingEQ[] ParseEQFile(IEnumerable<string> lines) {
+            List<PeakingEQ> result = new List<PeakingEQ>();
+            foreach (string line in lines) {
+                string[] parts = line.Split(new char[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 11 && parts[0] == "Filter" && parts[2] == "ON" && parts[3] == "PK" &&
+                    double.TryParse(parts[5], NumberStyles.Any, CultureInfo.InvariantCulture, out double freq) &&
+                    double.TryParse(parts[8], NumberStyles.Any, CultureInfo.InvariantCulture, out double gain) &&
+                    double.TryParse(parts[11], NumberStyles.Any, CultureInfo.InvariantCulture, out double q)) {
+                    result.Add(new PeakingEQ(Listener.DefaultSampleRate, freq, q, gain));
+                }
+            }
+            return result.ToArray();
+        }
 
         /// <summary>
         /// Create a peaking EQ filter set with bands placed at optimal frequencies to approximate the drawn EQ curve.

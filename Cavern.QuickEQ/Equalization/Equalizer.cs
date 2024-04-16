@@ -176,14 +176,19 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Compares the two EQs if they have values at the same frequencies.
         /// </summary>
-        public bool HasTheSameFrequenciesAs(Equalizer other) {
+        public bool HasTheSameFrequenciesAs(Equalizer other) => HasTheSameFrequenciesAs(other, .0000001);
+
+        /// <summary>
+        /// Compares the two EQs if they have values at the same frequencies.
+        /// </summary>
+        public bool HasTheSameFrequenciesAs(Equalizer other, double maxError) {
             List<Band> otherBands = other.bands;
             int bandCount = bands.Count;
             if (bandCount != otherBands.Count) {
                 return false;
             }
             for (int i = 0; i < bandCount; i++) {
-                if (bands[i].Frequency != otherBands[i].Frequency) {
+                if (Math.Abs(bands[i].Frequency - otherBands[i].Frequency) > maxError) {
                     return false;
                 }
             }

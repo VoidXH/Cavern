@@ -32,6 +32,23 @@ namespace Cavern.QuickEQ.Equalization {
 			return GetAverageLevel(minFreq, maxFreq);
 		}
 
+        /// <summary>
+        /// Get the maximum difference between the gains of two <see cref="Equalizer"/>s at the same band.
+        /// </summary>
+        /// <remarks>Matching frequencies have to be guaranteed before calling this function with
+        /// <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
+        public double GetMaximumDifference(Equalizer from) {
+            List<Band> otherBands = from.bands;
+			double max = Math.Abs(bands[0].Gain - otherBands[0].Gain);
+            for (int i = 1, c = bands.Count; i < c; i++) {
+				double current = Math.Abs(bands[i].Gain - otherBands[i].Gain);
+				if (max < current) {
+					max = current;
+				}
+			}
+			return max;
+		}
+
 		/// <summary>
 		/// Get the median level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>.
 		/// </summary>
