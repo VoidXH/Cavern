@@ -49,10 +49,31 @@ namespace Cavern.QuickEQ.Equalization {
 			return max;
 		}
 
-		/// <summary>
-		/// Get the median level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>.
-		/// </summary>
-		public double GetMedianLevel(double minFreq, double maxFreq) {
+        /// <summary>
+        /// Get the maximum difference between the gains of two <see cref="Equalizer"/>s at the same band.
+        /// </summary>
+        /// <param name="from">Compare with this <see cref="Equalizer"/></param>
+        /// <param name="startFreq">First frequency to consider when calculating the maximum difference</param>
+		/// <param name="endFreq">Last frequency to consider when calculating the maximum difference</param>
+        /// <remarks>Matching frequencies have to be guaranteed before calling this function with
+        /// <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
+        public double GetMaximumDifference(Equalizer from, double startFreq, double endFreq) {
+            List<Band> otherBands = from.bands;
+            (int first, int last) = GetBandLimits(startFreq, endFreq);
+            double max = 0;
+            for (int i = first, c = last; i < c; i++) {
+                double current = Math.Abs(bands[i].Gain - otherBands[i].Gain);
+                if (max < current) {
+                    max = current;
+                }
+            }
+            return max;
+        }
+
+        /// <summary>
+        /// Get the median level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>.
+        /// </summary>
+        public double GetMedianLevel(double minFreq, double maxFreq) {
 			int i = 0, c = bands.Count;
 			while (i < c && bands[i].Frequency < minFreq) {
 				i++;

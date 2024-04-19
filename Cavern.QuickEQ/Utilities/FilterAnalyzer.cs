@@ -59,7 +59,7 @@ namespace Cavern.QuickEQ.Utilities {
         FFTCache Cache {
             get {
                 if (cache == null) {
-                    return cache = new FFTCache(Resolution);
+                    return cache = new ThreadSafeFFTCache(Resolution);
                 }
                 return cache;
             }

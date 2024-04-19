@@ -16,7 +16,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Basic information needed for a channel.
         /// </summary>
-        protected abstract class ChannelData {
+        public abstract class ChannelData {
             /// <summary>
             /// The reference channel describing this channel or <see cref="ReferenceChannel.Unknown"/> if not applicable.
             /// </summary>
@@ -36,7 +36,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Applied filters for each channel in the configuration file.
         /// </summary>
-        protected ChannelData[] Channels { get; set; }
+        public ChannelData[] Channels { get; protected set; }
 
         /// <summary>
         /// Sample rate of the filter set.
@@ -106,6 +106,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAOLite => new YPAOLiteFilterSet(channels, sampleRate),
+                FilterSetTarget.Multiband31 => new Multiband31FilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
         }
@@ -142,6 +143,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAOLite => new YPAOLiteFilterSet(channels, sampleRate),
+                FilterSetTarget.Multiband31 => new Multiband31FilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
         }

@@ -21,7 +21,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Channel data containing additionally exported curves.
         /// </summary>
-        protected class MultiCurveChannelData : EqualizerChannelData {
+        public class MultiCurveChannelData : EqualizerChannelData {
             /// <summary>
             /// Extra curves and their file name postfixes to be exported additionally to the channel's result.
             /// </summary>

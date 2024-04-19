@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.Format.FilterSet {
@@ -23,6 +26,13 @@ namespace Cavern.Format.FilterSet {
         /// Round filter center frequencies to the nearest whole number.
         /// </summary>
         public virtual bool RoundedBands { get; }
+
+        /// <summary>
+        /// Some devices don't have the EQ bands spaced properly, or the generated bands have rounding errors.
+        /// Using the incorrect, but actually present frequencies is possible here by adding a set of frequency pairs
+        /// with the old being the generated/exported frequency, and the new being the frequency used by the device.
+        /// </summary>
+        public (double oldFreq, double newFreq)[] FreqOverrides { get; set; }
 
         /// <summary>
         /// Limit the number of bands exported for the LFE channel.
@@ -107,13 +117,64 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
+        /// Parse a multiband PEQ filter set from a file which was exported with <see cref="Export(string)"/> from this class.
+        /// </summary>
+        /// <param name="path">Full path of the input file</param>
+        /// <param name="sampleRate">Sample rate to create the <see cref="PeakingEQ"/> instances at</param>
+        public MultibandPEQFilterSet(string path, int sampleRate) : base(0, sampleRate) {
+            string lastLine = string.Empty;
+            string lastChannelName = null;
+            List<PeakingEQ> lastChannel = null;
+            List<IIRChannelData> channels = new List<IIRChannelData>();
+            string[] linesIn = File.ReadAllLines(path);
+            // Adds an empty last line so the channel adding code doesn't have to be used at two places
+            IEnumerable<string> lines = linesIn.Append(string.Empty);
+            foreach (string line in lines) {
+                if (line.Length > 0 && line[0] == '=') {
+                    lastChannelName = lastLine;
+                    lastChannel = new List<PeakingEQ>();
+                } else {
+                    int split = line.IndexOf('\t');
+                    if (split == -1) {
+                        if (lastChannelName == null) {
+                            lastLine = line;
+                            continue;
+                        }
+
+                        for (int i = 0, c = lastChannel.Count - 1; i < c; i++) {
+                            lastChannel[i].Q = QFactor.FromBandwidth(Math.Log(lastChannel[i + 1].CenterFreq / lastChannel[i].CenterFreq, 2));
+                        }
+                        lastChannel[^1].Q = lastChannel[^2].Q;
+                        channels.Add(new IIRChannelData() {
+                            name = lastChannelName,
+                            filters = lastChannel.ToArray(),
+                            reference = ReferenceChannel.Unknown
+                        });
+
+                        lastChannelName = null;
+                        continue;
+                    }
+
+                    double freq = double.Parse(line[..line.IndexOf(' ')]);
+                    double gain = double.Parse(line[(split + 1)..line.LastIndexOf(' ')]);
+                    lastChannel.Add(new PeakingEQ(sampleRate, freq, QFactor.reference, gain));
+                }
+
+                lastLine = line;
+            }
+
+            Channels = channels.ToArray();
+        }
+
+        /// <summary>
         /// Create the filters that should be used when setting up a channel.
         /// </summary>
         public PeakingEQ[] CalculateFilters(Equalizer targetToReach) {
             PeakingEQ[] result = new PeakingEqualizer(targetToReach) {
                 MinGain = MinGain,
                 MaxGain = MaxGain,
-                GainPrecision = GainPrecision
+                GainPrecision = GainPrecision,
+                FreqOverrides = FreqOverrides
             }.GetPeakingEQ(SampleRate, firstBand, bandsPerOctave, bandCount, RoundedBands);
 
             IReadOnlyList<Band> bands = targetToReach.Bands;

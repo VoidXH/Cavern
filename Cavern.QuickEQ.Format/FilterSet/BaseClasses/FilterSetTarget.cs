@@ -93,7 +93,7 @@ namespace Cavern.Format.FilterSet {
         BehringerNX,
 
         // -------------------------------------------------------------------------
-        // Others ------------------------------------------------------------------
+        // Room correction software ------------------------------------------------
         // -------------------------------------------------------------------------
         /// <summary>
         /// Processors supporting Dirac Live.
@@ -131,6 +131,14 @@ namespace Cavern.Format.FilterSet {
         /// Older Yamaha processors with fixed 7 bands.
         /// </summary>
         YPAOLite,
+
+        // -------------------------------------------------------------------------
+        // Others ------------------------------------------------------------------
+        // -------------------------------------------------------------------------
+        /// <summary>
+        /// Traditional 31-band graphic equalizer.
+        /// </summary>
+        Multiband31,
     }
 
     /// <summary>
@@ -150,10 +158,10 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.Generic => "Generic Peaking EQ",
             FilterSetTarget.GenericConvolution => "Generic Convolution",
             FilterSetTarget.GenericEqualizer => "Generic Equalizer",
-            FilterSetTarget.EqualizerAPO_EQ => "Equalizer APO - Graphic EQ",
-            FilterSetTarget.EqualizerAPO_FIR => "Equalizer APO - Convolution",
-            FilterSetTarget.EqualizerAPO_IIR => "Equalizer APO - Peaking EQ",
-            FilterSetTarget.CamillaDSP => "CamillaDSP - Convolution",
+            FilterSetTarget.EqualizerAPO_EQ => "Equalizer APO - graphic EQ",
+            FilterSetTarget.EqualizerAPO_FIR => "Equalizer APO - convolution",
+            FilterSetTarget.EqualizerAPO_IIR => "Equalizer APO - peaking EQ",
+            FilterSetTarget.CamillaDSP => "CamillaDSP - convolution",
             FilterSetTarget.AUNBandEQ => "AU N-Band EQ",
             FilterSetTarget.MiniDSP2x4Advanced => "MiniDSP 2x4 Adv.",
             FilterSetTarget.MiniDSP2x4AdvancedLite => "MiniDSP 2x4 Adv. Lite",
@@ -172,6 +180,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MultEQXTarget => "MultEQ-X - filter curves",
             FilterSetTarget.YPAO => "YPAO - free bands",
             FilterSetTarget.YPAOLite => "YPAO - fixed bands",
+            FilterSetTarget.Multiband31 => "31-band graphic EQ",
             _ => throw new NotSupportedException()
         };
     }

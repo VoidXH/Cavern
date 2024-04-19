@@ -16,7 +16,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All information needed for a channel.
         /// </summary>
-        protected class FIRChannelData : ChannelData, IEquatable<FIRChannelData> {
+        public class FIRChannelData : ChannelData, IEquatable<FIRChannelData> {
             /// <summary>
             /// Applied convolution filter to this channel.
             /// </summary>

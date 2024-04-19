@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
@@ -50,6 +51,15 @@ namespace Cavern.QuickEQ.Equalization {
         public int Iterations { get; set; } = 8;
 
         /// <summary>
+        /// Some devices don't have the EQ bands spaced properly, or the generated bands have rounding errors.
+        /// Using the incorrect, but actually present frequencies is possible here by adding a set of frequency pairs
+        /// with the old being the generated/exported frequency, and the new being the frequency used by the device.
+        /// </summary>
+        /// <remarks>This only affects <see cref="GetPeakingEQ(int, double, double, int)"/> and
+        /// <see cref="GetPeakingEQ(int, double, double, int, bool)"/></remarks>
+        public (double oldFreq, double newFreq)[] FreqOverrides { get; set; }
+
+        /// <summary>
         /// Number of output bands if <see cref="GetPeakingEQ(int)"/> is called. In that case, there will be one band for each input.
         /// </summary>
         public int Bands => source.Bands.Count;
@@ -90,7 +100,7 @@ namespace Cavern.QuickEQ.Equalization {
         public static PeakingEQ[] ParseEQFile(IEnumerable<string> lines) {
             List<PeakingEQ> result = new List<PeakingEQ>();
             foreach (string line in lines) {
-                string[] parts = line.Split(new char[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] parts = line.Split(new[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length > 11 && parts[0] == "Filter" && parts[2] == "ON" && parts[3] == "PK" &&
                     double.TryParse(parts[5], NumberStyles.Any, CultureInfo.InvariantCulture, out double freq) &&
                     double.TryParse(parts[8], NumberStyles.Any, CultureInfo.InvariantCulture, out double gain) &&
@@ -200,6 +210,12 @@ namespace Cavern.QuickEQ.Equalization {
                     int magnitude = (int)Math.Pow(10, Math.Floor(Math.Log10(freq)) - 1);
                     freq = Math.Round(freq / magnitude) * magnitude;
                 }
+
+                double freqOverride;
+                if (FreqOverrides != null && (freqOverride = FreqOverrides.FirstOrDefault(x => x.oldFreq == freq).newFreq) != default) {
+                    freq = freqOverride;
+                }
+
                 result[i] = BruteForceGain(ref target, freq, q);
             }
             analyzer.Dispose();

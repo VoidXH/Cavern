@@ -11,9 +11,9 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class IIRFilterSet : FilterSet {
         /// <summary>
-        /// All information needed for a channel.
+        /// All information needed for a channel filtered with IIR filters.
         /// </summary>
-        protected class IIRChannelData : ChannelData, IEquatable<IIRChannelData> {
+        public class IIRChannelData : ChannelData, IEquatable<IIRChannelData> {
             /// <summary>
             /// Applied filter set for the channel.
             /// </summary>

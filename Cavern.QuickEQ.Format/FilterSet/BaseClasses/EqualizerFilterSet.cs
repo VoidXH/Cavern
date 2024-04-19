@@ -21,7 +21,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Required data for each exported channel.
         /// </summary>
-        protected class EqualizerChannelData : ChannelData, IEquatable<EqualizerChannelData> {
+        public class EqualizerChannelData : ChannelData, IEquatable<EqualizerChannelData> {
             /// <summary>
             /// Applied equalization filter for the channel, using which is resulting in the expected target response.
             /// </summary>
