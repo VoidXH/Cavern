@@ -145,7 +145,7 @@ namespace Cavern.Format.FilterSet {
                             lastChannel[i].Q = QFactor.FromBandwidth(Math.Log(lastChannel[i + 1].CenterFreq / lastChannel[i].CenterFreq, 2));
                         }
                         lastChannel[^1].Q = lastChannel[^2].Q;
-                        channels.Add(new IIRChannelData() {
+                        channels.Add(new IIRChannelData {
                             name = lastChannelName,
                             filters = lastChannel.ToArray(),
                             reference = ReferenceChannel.Unknown
