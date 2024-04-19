@@ -44,7 +44,7 @@ namespace Cavern.Format.FilterSet {
                 for (int j = 0; j < filters.Length;) {
                     BiquadFilter filter = filters[j];
                     result.Add($"Filter {++j} - Frequency: {frequencies.Nearest((float)filter.CenterFreq)}, Q factor: " +
-                        $"{qFactors.Nearest((float)filter.Q)}, gain: {filter.Gain}");
+                        $"{qFactors.Nearest((float)filter.Q)}, gain: {filter.Gain} dB");
                 }
             }
             File.WriteAllLines(path, result);
