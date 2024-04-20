@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
@@ -171,15 +172,56 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
+        /// Export the filter set for manual per-band import, formatted as a single text to be displayed.
+        /// </summary>
+        public virtual string Export() => Export(false);
+
+        /// <summary>
+        /// Export the filter set for manual per-band import, formatted as a single text to be displayed.
+        /// </summary>
+        /// <param name="gainOnly">Don't export the Q factor - this is useful when they are all the same,
+        /// like for <see cref="Multiband31FilterSet"/></param>
+        protected virtual string Export(bool gainOnly) {
+            StringBuilder result = new StringBuilder("Set up the channels according to this configuration.").AppendLine();
+            for (int i = 0; i < Channels.Length; i++) {
+                IIRChannelData channelRef = (IIRChannelData)Channels[i];
+                result.AppendLine(string.Empty);
+                string chName = GetLabel(i);
+                result.AppendLine(chName);
+                result.AppendLine(new string('=', chName.Length));
+                RootFileExtension(i, result);
+                if (channelRef.delaySamples != 0) {
+                    result.AppendLine("Delay: " + GetDelay(i).ToString("0.00 ms", Culture));
+                }
+
+                BiquadFilter[] bands = channelRef.filters;
+                if (gainOnly) {
+                    for (int j = 0; j < bands.Length; j++) {
+                        result.AppendLine($"{bands[j].CenterFreq.ToString("0",Culture)} Hz:\t{bands[j].Gain.ToString("0.00", Culture)} dB");
+                    }
+                } else {
+                    for (int j = 0; j < bands.Length;) {
+                        BiquadFilter filter = bands[j];
+                        result.AppendLine($"Filter {++j}:").
+                            AppendLine($"- Frequency: {filter.CenterFreq.ToString("0", Culture)} Hz").
+                            AppendLine("- Q factor: " + filter.Q.ToString("0.00", Culture)).
+                            AppendLine($"- Gain: {filter.Gain.ToString("0.00", Culture)} dB");
+                    }
+                }
+            }
+            return result.ToString();
+        }
+
+        /// <summary>
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
-        protected override void RootFileExtension(int channel, List<string> result) {
+        protected override void RootFileExtension(int channel, StringBuilder result) {
             IIRChannelData channelRef = (IIRChannelData)Channels[channel];
             if (channelRef.gain != 0) {
-                result.Add("Gain: " + channelRef.gain.ToString("0.00 dB"));
+                result.AppendLine("Gain: " + channelRef.gain.ToString("0.00 dB"));
             }
             if (channelRef.switchPolarity) {
-                result.Add("Switch polarity");
+                result.AppendLine("Switch polarity");
             }
         }
     }

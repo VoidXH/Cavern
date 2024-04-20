@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
 using Cavern.Channels;
 using Cavern.Filters;
@@ -32,23 +31,20 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public YPAOFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
-        /// <summary>
-        /// Export the filter set to a target file. This is the standard IIR filter set format
-        /// </summary>
-        public override void Export(string path) {
-            List<string> result = new List<string> { "Use the following manual filters for each channel." };
+        /// <inheritdoc/>
+        protected override string Export(bool gainOnly) {
             for (int i = 0; i < Channels.Length; i++) {
-                result.Add(string.Empty);
-                result.Add(GetLabel(i) + ':');
                 BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
-                for (int j = 0; j < filters.Length;) {
-                    BiquadFilter filter = filters[j];
-                    result.Add($"Filter {++j} - Frequency: {frequencies.Nearest((float)filter.CenterFreq)}, Q factor: " +
-                        $"{qFactors.Nearest((float)filter.Q)}, gain: {filter.Gain} dB");
+                for (int j = 0; j < filters.Length; j++) {
+                    filters[j].Reset(frequencies.Nearest((float)filters[j].CenterFreq), qFactors.Nearest((float)filters[j].Q),
+                        filters[j].Gain);
                 }
             }
-            File.WriteAllLines(path, result);
+            return base.Export(gainOnly);
         }
+
+        /// <inheritdoc/>
+        public override void Export(string path) => File.WriteAllText(path, Export(false));
 
         /// <summary>
         /// All the possible bands that can be selected for YPAO. These are 1/3 octaves apart.
@@ -61,6 +57,6 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All the possible Q-factors that can be selected for YPAO.
         /// </summary>
-        static readonly float[] qFactors = { 0.5f, 0.630f, 0.794f, 1f, 1.260f, 1.587f, 2f, 2.520f, 3.175f, 4f, 5.040f, 6.350f, 8f, 10.08f };
+        static readonly float[] qFactors = { 0.5f, 0.63f, 0.794f, 1f, 1.26f, 1.587f, 2f, 2.520f, 3.175f, 4f, 5.04f, 6.350f, 8f, 10.08f };
     }
 }

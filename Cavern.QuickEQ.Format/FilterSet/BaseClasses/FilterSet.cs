@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
@@ -161,7 +162,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
-        protected virtual void RootFileExtension(int channel, List<string> result) { }
+        protected virtual void RootFileExtension(int channel, StringBuilder result) { }
 
         /// <summary>
         /// Initialize the data holders of <see cref="Channels"/> with the default <see cref="ReferenceChannel"/>s.
@@ -201,25 +202,26 @@ namespace Cavern.Format.FilterSet {
         protected void CreateRootFile(string path, string filterFileExtension) {
             string fileNameBase = Path.GetFileName(path);
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
-            List<string> result = new List<string>();
+            StringBuilder result = new StringBuilder();
             bool hasAnything = false,
                 hasDelays = false;
             for (int i = 0, c = Channels.Length; i < c; i++) {
-                result.Add(string.Empty);
-                result.Add("Channel: " + GetLabel(i));
+                result.AppendLine(string.Empty);
+                result.AppendLine("Channel: " + GetLabel(i));
                 if (Channels[i].delaySamples != 0) {
-                    result.Add("Delay: " + GetDelay(i).ToString("0.0 ms"));
+                    result.AppendLine("Delay: " + GetDelay(i).ToString("0.0 ms"));
                     hasAnything = true;
                     hasDelays = true;
                 }
-                int before = result.Count;
+                int before = result.Length;
                 RootFileExtension(i, result);
-                hasAnything |= result.Count != before;
+                hasAnything |= result.Length != before;
             }
             if (hasAnything) {
-                File.WriteAllLines(path, result.Prepend(hasDelays ?
+                File.WriteAllText(path, (hasDelays ?
                     $"Set up levels and delays by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ." :
-                    $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ."));
+                    $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ.") +
+                    result.ToString());
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
@@ -157,10 +157,10 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
-        protected override void RootFileExtension(int channel, List<string> result) {
+        protected override void RootFileExtension(int channel, StringBuilder result) {
             EqualizerChannelData channelRef = (EqualizerChannelData)Channels[channel];
             if (channelRef.gain != 0) {
-                result.Add("Level: " + channelRef.gain.ToString("0.0 dB"));
+                result.AppendLine("Level: " + channelRef.gain.ToString("0.0 dB"));
             }
         }
     }

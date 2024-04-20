@@ -155,8 +155,8 @@ namespace Cavern.Format.FilterSet {
                         continue;
                     }
 
-                    double freq = double.Parse(line[..line.IndexOf(' ')]);
-                    double gain = double.Parse(line[(split + 1)..line.LastIndexOf(' ')]);
+                    double freq = double.Parse(line[..line.IndexOf(' ')], Culture);
+                    double gain = double.Parse(line[(split + 1)..line.LastIndexOf(' ')], Culture);
                     lastChannel.Add(new PeakingEQ(sampleRate, freq, QFactor.reference, gain));
                 }
 
@@ -169,13 +169,13 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Create the filters that should be used when setting up a channel.
         /// </summary>
-        public PeakingEQ[] CalculateFilters(Equalizer targetToReach) {
+        public PeakingEQ[] CalculateFilters(Equalizer targetToReach, bool lfe) {
             PeakingEQ[] result = new PeakingEqualizer(targetToReach) {
                 MinGain = MinGain,
                 MaxGain = MaxGain,
                 GainPrecision = GainPrecision,
                 FreqOverrides = FreqOverrides
-            }.GetPeakingEQ(SampleRate, firstBand, bandsPerOctave, bandCount, RoundedBands);
+            }.GetPeakingEQ(SampleRate, firstBand, bandsPerOctave, lfe ? LFEBands : bandCount, RoundedBands);
 
             IReadOnlyList<Band> bands = targetToReach.Bands;
             double maxFreq = bands.Count != 0 ? bands[^1].Frequency : 0;
@@ -188,30 +188,10 @@ namespace Cavern.Format.FilterSet {
             return result;
         }
 
-        /// <summary>
-        /// Export the filter set to a target file. Since these settings have to be manually entered, no separation is needed.
-        /// </summary>
-        public override void Export(string path) {
-            List<string> result = new List<string> {
-                $"Set up the {bandCount} bands for each channel from this file."
-            };
-            for (int i = 0; i < Channels.Length; i++) {
-                IIRChannelData channelRef = (IIRChannelData)Channels[i];
-                result.Add(string.Empty);
-                string chName = GetLabel(i);
-                result.Add(chName);
-                result.Add(new string('=', chName.Length));
-                RootFileExtension(i, result);
-                if (channelRef.delaySamples != 0) {
-                    result.Add("Delay: " + GetDelay(i).ToString("0.00 ms"));
-                }
-                BiquadFilter[] bands = channelRef.filters;
-                int bandc = channelRef.reference != ReferenceChannel.ScreenLFE ? bands.Length : LFEBands;
-                for (int j = 0; j < bandc; j++) {
-                    result.Add($"{bands[j].CenterFreq:0} Hz:\t{bands[j].Gain:0.00} dB");
-                }
-            }
-            File.WriteAllLines(path, result);
-        }
+        /// <inheritdoc/>
+        public override string Export() => Export(true);
+
+        /// <inheritdoc/>
+        public override void Export(string path) => File.WriteAllText(path, Export());
     }
 }

@@ -16,7 +16,7 @@ namespace Cavern.Format.FilterSet {
             base(channels, sampleRate, 19.6862664, 3, 31, roundedBands) => Prepare();
 
         /// <inheritdoc/>
-        public Multiband31FilterSet(ReferenceChannel[] channels, int sampleRate) : this(channels, sampleRate, true) => Prepare();
+        public Multiband31FilterSet(ReferenceChannel[] channels, int sampleRate) : this(channels, sampleRate, true) { }
 
         /// <inheritdoc/>
         public Multiband31FilterSet(ReferenceChannel[] channels, int sampleRate, bool roundedBands) :
@@ -25,18 +25,21 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Set up the rounding corrections to what most 31-band EQs use.
         /// </summary>
-        void Prepare() => FreqOverrides = new[] {
-            (31.0, 31.5),
-            (39, 40),
-            (62, 63),
-            (79, 80),
-            (99, 100),
-            (120, 125),
-            (310, 315),
-            (790, 800),
-            (1300, 1250),
-            (3200, 3150),
-            (13000, 12500)
-        };
+        void Prepare() {
+            FreqOverrides = new[] {
+                (31.0, 31.5),
+                (39, 40),
+                (62, 63),
+                (79, 80),
+                (99, 100),
+                (120, 125),
+                (310, 315),
+                (790, 800),
+                (1300, 1250),
+                (3200, 3150),
+                (13000, 12500)
+            };
+            LFEBands = 9;
+        }
     }
 }
