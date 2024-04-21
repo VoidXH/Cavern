@@ -17,7 +17,9 @@
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top" Height="20">
-            <MenuItem Header="{StaticResource MFile}"/>
+            <MenuItem Header="{StaticResource MFile}">
+                <MenuItem Header="{StaticResource OpCfg}" Click="LoadConfiguration"/>
+            </MenuItem>
         </Menu>
         <DockPanel DockPanel.Dock="Right" Width="250">
             <TextBlock x:Name="selectedNode" DockPanel.Dock="Top" Style="{StaticResource Header}" Margin="5" Text="{StaticResource NNode}"/>

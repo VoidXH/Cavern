@@ -1,8 +1,12 @@
 ﻿using Microsoft.Msagl.Drawing;
+using Microsoft.Win32;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using Cavern;
+using Cavern.Format.ConfigurationFile;
 
 using FilterStudio.Graphs;
 
@@ -30,6 +34,15 @@ namespace FilterStudio {
                 return;
             }
             selectedNode.Text = node.LabelText;
+        }
+
+        void LoadConfiguration(object _, RoutedEventArgs e) {
+            OpenFileDialog dialog = new() {
+                Filter = (string)language["OpFil"]
+            };
+            if (dialog.ShowDialog().Value) {
+                ConfigurationFile file = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
+            }
         }
 
         void GraphClick(object _, MouseButtonEventArgs e) {

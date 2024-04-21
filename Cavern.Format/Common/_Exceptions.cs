@@ -64,15 +64,22 @@ namespace Cavern.Format.Common {
     }
 
     /// <summary>
-    /// Tells if some channels are not supported by the export format.
+    /// Tells if some channels are not supported by the operation or the export format.
     /// </summary>
     public class InvalidChannelException : Exception {
         const string message = "Some channels ({0}) are not supported by the export format.";
+
+        const string messageForOperation = "A channel ({0}) is not supported by the operation.";
 
         /// <summary>
         /// Tells if some channels are not supported by the export format.
         /// </summary>
         public InvalidChannelException(ReferenceChannel[] channels) : base(string.Format(message, string.Join(", ", channels))) { }
+
+        /// <summary>
+        /// Tells if a channel is not supported by the operation.
+        /// </summary>
+        public InvalidChannelException(string name) : base(string.Format(messageForOperation, name)) { }
     }
 
     /// <summary>

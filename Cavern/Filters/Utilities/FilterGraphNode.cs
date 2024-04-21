@@ -47,6 +47,16 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
+        /// Append a filter to process this filter's result in the filter graph and return the new node containing that filter.
+        /// </summary>
+        public FilterGraphNode AddChild(Filter filter) {
+            FilterGraphNode node = new FilterGraphNode(filter);
+            children.Add(node);
+            node.parents.Add(this);
+            return node;
+        }
+
+        /// <summary>
         /// Append this node to process a new <paramref name="parent"/>'s result too in the filter graph.
         /// </summary>
         public void AddParent(FilterGraphNode parent) {

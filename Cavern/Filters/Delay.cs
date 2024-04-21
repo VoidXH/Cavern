@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+using Cavern.Filters.Interfaces;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Delays the audio.
     /// </summary>
-    public class Delay : Filter {
+    public class Delay : Filter, IEqualizerAPOFilter {
         /// <summary>
         /// Delay in samples.
         /// </summary>
@@ -21,6 +25,11 @@ namespace Cavern.Filters {
         /// Cached samples for the next block. Alternates between two arrays to prevent memory allocation.
         /// </summary>
         readonly float[][] cache = new float[2][];
+
+        /// <summary>
+        /// If the filter was set up with a time delay, this is the sample rate that was used for it.
+        /// </summary>
+        readonly int sampleRate;
 
         /// <summary>
         /// The used cache (0 or 1).
@@ -40,7 +49,10 @@ namespace Cavern.Filters {
         /// <summary>
         /// Create a delay for a given length in seconds.
         /// </summary>
-        public Delay(double time, int sampleRate) => RecreateCaches((int)(time * sampleRate + .5f));
+        public Delay(double time, int sampleRate) {
+            this.sampleRate = sampleRate;
+            RecreateCaches((int)(time * sampleRate + .5f));
+        }
 
         /// <summary>
         /// Apply delay on an array of samples. One filter should be applied to only one continuous stream of samples.
@@ -72,5 +84,18 @@ namespace Cavern.Filters {
                 Array.Copy(cacheToFill, 0, cacheToDrain, delaySamples - samples.Length, samples.Length);
             }
         }
+
+        /// <inheritdoc/>
+        public override string ToString() {
+            if (sampleRate == 0) {
+                return $"Delay: {DelaySamples} samples";
+            } else {
+                string delay = ((double)DelaySamples / sampleRate).ToString(CultureInfo.InvariantCulture);
+                return $"Delay: {delay} ms";
+            }
+        }
+
+        /// <inheritdoc/>
+        public void ExportToEqualizerAPO(List<string> wipConfig) => wipConfig.Add(ToString());
     }
 }

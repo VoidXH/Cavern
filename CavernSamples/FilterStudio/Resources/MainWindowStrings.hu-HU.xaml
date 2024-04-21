@@ -2,5 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:String x:Key="MFile">_Fájl</system:String>
+	<system:String x:Key="OpCfg">_Konfigurációs fájl megnyitása</system:String>
+	<system:String x:Key="OpFil">Equalizer APO konfigurációk|*.txt</system:String>
     <system:String x:Key="NNode">Nincs kiválasztva csúcspont.</system:String>
 </ResourceDictionary>
