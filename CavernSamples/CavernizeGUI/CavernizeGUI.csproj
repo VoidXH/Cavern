@@ -33,7 +33,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Resource Include="Resources\CavernLogo.png" />
+		<Resource Include="..\_Common\CavernLogo.png"  Link="Resources\CavernLogo.png"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Page Include="..\_Common\Styles.xaml" Link="Resources\Styles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
 	</ItemGroup>
 
 	<ItemGroup>

@@ -5,8 +5,8 @@
         <Setter Property="FontWeight" Value="Normal"/>
     </Style>
     <Style TargetType="CheckBox">
-        <Setter Property="Foreground" Value="White"/>
         <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="ComboBox">
         <Setter Property="FontWeight" Value="Normal"/>
@@ -39,6 +39,7 @@
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontWeight" Value="DemiBold"/>
+        <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="TreeView">
         <Setter Property="Background" Value="#222222"/>

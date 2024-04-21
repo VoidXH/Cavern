@@ -1,10 +1,11 @@
-﻿using EQAPOtoFIR.Dialogs;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
 using Cavern.Format;
+
+using EQAPOtoFIR.Dialogs;
 
 namespace EQAPOtoFIR {
     /// <summary>

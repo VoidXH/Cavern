@@ -17,4 +17,15 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="AutomaticGraphLayout.WpfGraphControl" Version="1.1.12" />
+	</ItemGroup>
+	<ItemGroup>
+		<Resource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<Page Include="..\_Common\Styles.xaml" Link="Resources\Styles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
 </Project>
