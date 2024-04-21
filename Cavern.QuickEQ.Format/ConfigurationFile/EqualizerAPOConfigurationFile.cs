@@ -27,7 +27,7 @@ namespace Cavern.Format.ConfigurationFile {
                     continue;
                 }
 
-                switch (split[0].ToLower()) {
+                switch (split[0].ToLower(CultureInfo.InvariantCulture)) {
                     case "channel":
                         string[] channels = split[1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
                         activeChannels.Clear();
@@ -45,7 +45,7 @@ namespace Cavern.Format.ConfigurationFile {
                         break;
                     case "delay":
                         double delay = double.Parse(split[1].Replace(',', '.'), CultureInfo.InvariantCulture);
-                        switch (split[2].ToLower()) {
+                        switch (split[2].ToLower(CultureInfo.InvariantCulture)) {
                             case "ms":
                                 AddFilter(lastNodes, activeChannels, new Delay(delay, sampleRate));
                                 break;
