@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 using Cavern.Filters.Interfaces;
 
@@ -52,6 +53,25 @@ namespace Cavern.Filters {
         public Delay(double time, int sampleRate) {
             this.sampleRate = sampleRate;
             RecreateCaches((int)(time * sampleRate + .5f));
+        }
+
+        /// <summary>
+        /// Parse a Delay line of Equalizer APO to a Cavern <see cref="Delay"/> filter.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Delay FromEqualizerAPO(string line, int sampleRate) =>
+            FromEqualizerAPO(line.Split(' ', StringSplitOptions.RemoveEmptyEntries), sampleRate);
+
+        /// <summary>
+        /// Parse a Delay line of Equalizer APO which was split at spaces to a Cavern <see cref="Delay"/> filter.
+        /// </summary>
+        public static Delay FromEqualizerAPO(string[] splitLine, int sampleRate) {
+            double delay = double.Parse(splitLine[1].Replace(',', '.'), CultureInfo.InvariantCulture);
+            return splitLine[2].ToLower(CultureInfo.InvariantCulture) switch {
+                "ms" => new Delay(delay, sampleRate),
+                "samples" => new Delay((int)delay),
+                _ => throw new ArgumentOutOfRangeException(splitLine[0]),
+            };
         }
 
         /// <summary>

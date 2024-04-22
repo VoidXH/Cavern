@@ -11,7 +11,7 @@ namespace FilterStudio.Graphs {
     /// <summary>
     /// Utilities for converting structures from Cavern to MSAGL.
     /// </summary>
-    public class Parsing {
+    public static class Parsing {
         /// <summary>
         /// Parse a WPF background brush's color to MSAGL.
         /// </summary>
@@ -20,13 +20,12 @@ namespace FilterStudio.Graphs {
         /// <summary>
         /// Convert a <see cref="ConfigurationFile"/>'s filter graph to an MSAGL <see cref="Graph"/>.
         /// </summary>
-        /// <param name="source">Filter graph to convert</param>
+        /// <param name="rootNodes">Filter graph to convert, from <see cref="ConfigurationFile.InputChannels"/></param>
         /// <param name="background">Graph background color</param>
-        public static Graph ParseConfigurationFile(ConfigurationFile source, Color background) {
+        public static Graph ParseConfigurationFile((string name, FilterGraphNode root)[] rootNodes, Color background) {
             Graph result = new();
             result.Attr.BackgroundColor = background;
 
-            (string name, FilterGraphNode root)[] rootNodes = source.InputChannels;
             for (int i = 0; i < rootNodes.Length; i++) {
                 result.AddNode(new StyledNode(rootNodes[i].name, rootNodes[i].name));
                 IReadOnlyList<FilterGraphNode> children = rootNodes[i].root.Children;
@@ -45,8 +44,17 @@ namespace FilterStudio.Graphs {
         /// <param name="target">Graph to display the node on</param>
         static void AddToGraph(string parent, FilterGraphNode source, Graph target) {
             string uid = source.GetHashCode().ToString();
-            StyledNode node = new StyledNode(uid, source.ToString());
-            target.AddNode(node);
+            if (target.FindNode(uid) == null) {
+                Node node = new StyledNode(uid, source.ToString());
+                target.AddNode(node);
+            }
+
+            foreach (Edge edge in target.Edges) {
+                if (edge.Source == parent && edge.Target == uid) {
+                    return; // Already displayed path
+                }
+            }
+
             new StyledEdge(target, parent, uid);
             for (int i = 0, c = source.Children.Count; i < c; i++) {
                 AddToGraph(uid, source.Children[i], target);

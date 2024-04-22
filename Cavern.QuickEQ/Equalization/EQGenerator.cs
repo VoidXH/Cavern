@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
@@ -25,6 +26,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="endFreq">Frequency at the end of the graph</param>
         /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
         /// <param name="targetGain">Target EQ level</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer AutoCorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve,
             float targetGain) => AutoCorrectGraph(graph, startFreq, endFreq, targetCurve, targetGain, 6);
 
@@ -71,6 +73,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="endFreq">Frequency at the end of the graph</param>
         /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
         /// <param name="targetGain">Target EQ level</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer CorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain) =>
             CorrectGraph(graph, startFreq, endFreq, targetCurve, targetGain, 1 / 3f, 6);
 
@@ -86,6 +89,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="targetCurve">Match the frequency response to this EQ curve</param>
         /// <param name="targetGain">Target EQ level</param>
         /// <param name="resolution">Band diversity in octaves</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer CorrectGraph(float[] graph, double startFreq, double endFreq, EQCurve targetCurve, float targetGain,
             double resolution) => CorrectGraph(graph, startFreq, endFreq, targetCurve, targetGain, resolution, 6);
 
@@ -169,18 +173,6 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Parse an Equalizer from a linear transfer function.
-        /// </summary>
-        public static Equalizer FromTransferFunction(Complex[] source, int sampleRate) {
-            List<Band> bands = new List<Band>();
-            double step = (double)sampleRate / (source.Length - 1);
-            for (int entry = 0, end = source.Length >> 1; entry < end; entry++) {
-                bands.Add(new Band(step * entry, 20 * Math.Log10(source[entry].Magnitude)));
-            }
-            return new Equalizer(bands, true);
-        }
-
-        /// <summary>
         /// Parse a calibration array where entries are in frequency-gain (dB) pairs.
         /// </summary>
         public static Equalizer FromCalibration(float[] source) {
@@ -196,6 +188,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// Parse a calibration text where each line is a frequency-gain (dB) pair.
         /// </summary>
         /// <param name="contents">Contents of the calibration file</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer FromCalibration(string contents) => FromCalibration(contents.Split("\n"));
 
         /// <summary>
@@ -220,7 +213,29 @@ namespace Cavern.QuickEQ.Equalization {
         /// Parse a calibration file where each line is a frequency-gain (dB) pair, and the lines are sorted ascending by frequency.
         /// </summary>
         /// <param name="path">Path to the calibration file</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer FromCalibrationFile(string path) => FromCalibration(File.ReadAllLines(path));
+
+        /// <summary>
+        /// Parse a Graphic EQ line of Equalizer APO to a Cavern <see cref="Equalizer"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Equalizer FromEqualizerAPO(string line) => FromEqualizerAPO(line.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        /// <summary>
+        /// Parse a Graphic EQ line of Equalizer APO which was split at spaces to a Cavern <see cref="Equalizer"/>.
+        /// </summary>
+        public static Equalizer FromEqualizerAPO(string[] splitLine) {
+            float[] toParse = new float[splitLine.Length - 1];
+            for (int i = 1; i < splitLine.Length; i++) {
+                if (splitLine[i][^1] == ';') {
+                    toParse[i - 1] = float.Parse(splitLine[i][..^1].Replace(',', '.'), CultureInfo.InvariantCulture);
+                } else {
+                    toParse[i - 1] = float.Parse(splitLine[i].Replace(',', '.'), CultureInfo.InvariantCulture);
+                }
+            }
+            return FromCalibration(toParse);
+        }
 
         /// <summary>
         /// Parse an Equalizer from a drawn graph.
@@ -228,6 +243,18 @@ namespace Cavern.QuickEQ.Equalization {
         public static Equalizer FromGraph(float[] source, double startFreq, double endFreq) {
             List<Band> bands = new List<Band>();
             GraphUtils.ForEachLog(source, startFreq, endFreq, (double freq, ref float gain) => bands.Add(new Band(freq, gain)));
+            return new Equalizer(bands, true);
+        }
+
+        /// <summary>
+        /// Parse an Equalizer from a linear transfer function.
+        /// </summary>
+        public static Equalizer FromTransferFunction(Complex[] source, int sampleRate) {
+            List<Band> bands = new List<Band>();
+            double step = (double)sampleRate / (source.Length - 1);
+            for (int entry = 0, end = source.Length >> 1; entry < end; entry++) {
+                bands.Add(new Band(step * entry, 20 * Math.Log10(source[entry].Magnitude)));
+            }
             return new Equalizer(bands, true);
         }
 
@@ -263,6 +290,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] GetConvolution(this Equalizer eq, int sampleRate) =>
             eq.GetConvolution(sampleRate, 1024, 1, null);
 
@@ -273,6 +301,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
         /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length) =>
             eq.GetConvolution(sampleRate, length, 1, null);
 
@@ -284,6 +313,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
         /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
         /// <param name="gain">Signal voltage multiplier</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length, float gain) =>
             eq.GetConvolution(sampleRate, length, gain, null);
 
@@ -323,6 +353,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate) =>
             eq.GetLinearConvolution(sampleRate, 1024, 1, null);
 
@@ -333,6 +364,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
         /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length) =>
             eq.GetLinearConvolution(sampleRate, length, 1, null);
 
@@ -344,6 +376,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
         /// <param name="length">Length of the convolution filter in samples, must be a power of 2</param>
         /// <param name="gain">Signal voltage multiplier</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] GetLinearConvolution(this Equalizer eq, int sampleRate, int length, float gain) =>
             eq.GetLinearConvolution(sampleRate, length, gain, null);
 
@@ -379,6 +412,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
         /// <param name="sampleRate">Target system sample rate</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static PeakingEQ[] GetPeakingEQ(this Equalizer eq, int sampleRate) => eq.GetPeakingEQ(sampleRate, 2);
 
         /// <summary>

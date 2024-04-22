@@ -18,7 +18,7 @@ namespace Cavern.Filters.Utilities {
         /// <summary>
         /// The wrapped filter.
         /// </summary>
-        public Filter Filter { get; }
+        public Filter Filter { get; set; }
 
         /// <summary>
         /// Filters that add their results together before being processed by this filter and going forward in the filter graph.
@@ -63,6 +63,19 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
+        /// Remove the connection of this node from the <paramref name="child"/>.
+        /// </summary>
+        /// <param name="child">The child to remove</param>
+        /// <param name="mergeConnections">Connect the children of the removed <paramref name="child"/> to this node</param>
+        public void DetachChild(FilterGraphNode child, bool mergeConnections) {
+            children.Remove(child);
+            child.parents.Remove(this);
+            if (mergeConnections) {
+                children.AddRange(child.children);
+            }
+        }
+
+        /// <summary>
         /// Remove the connection of this node from all <see cref="children"/>.
         /// </summary>
         public void DetachChildren() {
@@ -91,6 +104,6 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <inheritdoc/>
-        public override string ToString() => Filter.ToString();
+        public override string ToString() => Filter != null ? Filter.ToString() : "Merge";
     }
 }

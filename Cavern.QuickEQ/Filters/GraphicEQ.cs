@@ -1,4 +1,7 @@
-﻿using Cavern.QuickEQ.Equalization;
+﻿using System.Globalization;
+using System.Runtime.CompilerServices;
+
+using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -30,10 +33,24 @@ namespace Cavern.Filters {
         public GraphicEQ(Equalizer equalizer, int sampleRate, int filterLength) :
             base(equalizer.GetConvolution(sampleRate, filterLength)) => Equalizer = equalizer;
 
+        /// <summary>
+        /// Parse a Graphic EQ line of Equalizer APO to a Cavern <see cref="GraphicEQ"/> filter.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GraphicEQ FromEqualizerAPO(string line, int sampleRate) =>
+            FromEqualizerAPO(line.Split(' ', System.StringSplitOptions.RemoveEmptyEntries), sampleRate);
+
+        /// <summary>
+        /// Parse a Graphic EQ line of Equalizer APO which was split at spaces to a Cavern <see cref="GraphicEQ"/> filter.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static GraphicEQ FromEqualizerAPO(string[] splitLine, int sampleRate) =>
+            new GraphicEQ(EQGenerator.FromEqualizerAPO(splitLine), sampleRate);
+
         /// <inheritdoc/>
         public override string ToString() {
             double roundedPeak = (int)(Equalizer.PeakGain * 100 + .5) * .01;
-            return $"Graphic EQ: {Equalizer.Bands.Count} bands, {roundedPeak} dB peak";
+            return $"Graphic EQ: {Equalizer.Bands.Count} bands, {roundedPeak.ToString(CultureInfo.InvariantCulture)} dB peak";
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Linq;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
-using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
     /// <summary>
@@ -22,6 +22,18 @@ namespace Cavern.Format.ConfigurationFile {
         public EqualizerAPOConfigurationFile(string path, int sampleRate) : base(channelLabels) {
             Dictionary<string, FilterGraphNode> lastNodes = InputChannels.ToDictionary(x => x.name, x => x.root);
             List<string> activeChannels = channelLabels.ToList();
+            AddConfigFile(path, lastNodes, activeChannels, sampleRate);
+
+            for (int i = 0; i < channelLabels.Length; i++) { // Output markers
+                lastNodes[channelLabels[i]].AddChild(new FilterGraphNode(new BypassFilter(channelLabels[i] + '\'')));
+            }
+            Optimize();
+        }
+
+        /// <summary>
+        /// Read a configuration file and append it to the previously parsed configuration.
+        /// </summary>
+        void AddConfigFile(string path, Dictionary<string, FilterGraphNode> lastNodes, List<string> activeChannels, int sampleRate) {
             foreach (string line in File.ReadLines(path)) {
                 string[] split = line.Split(new[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (split.Length <= 1) {
@@ -29,19 +41,22 @@ namespace Cavern.Format.ConfigurationFile {
                 }
 
                 switch (split[0].ToLower(CultureInfo.InvariantCulture)) {
+                    case "include":
+                        string included = Path.Combine(Path.GetDirectoryName(path), string.Join(' ', split, 1, split.Length - 1));
+                        AddConfigFile(included, lastNodes, activeChannels, sampleRate);
+                        break;
                     case "channel":
-                        string[] channels = split[1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
                         activeChannels.Clear();
-                        if (channels.Length == 1 && channels[0].ToLower(CultureInfo.InvariantCulture) == "all") {
+                        if (split.Length == 2 && split[1].ToLower(CultureInfo.InvariantCulture) == "all") {
                             activeChannels.AddRange(channelLabels);
                             continue;
                         }
 
-                        for (int i = 0; i < channels.Length; i++) {
-                            if (lastNodes.ContainsKey(channels[i])) {
-                                activeChannels.Add(channels[i]);
+                        for (int i = 1; i < split.Length; i++) {
+                            if (lastNodes.ContainsKey(split[i])) {
+                                activeChannels.Add(split[i]);
                             } else {
-                                throw new InvalidChannelException(channels[i]);
+                                throw new InvalidChannelException(split[i]);
                             }
                         }
                         break;
@@ -50,29 +65,35 @@ namespace Cavern.Format.ConfigurationFile {
                         AddFilter(lastNodes, activeChannels, new Gain(gain));
                         break;
                     case "delay":
-                        double delay = double.Parse(split[1].Replace(',', '.'), CultureInfo.InvariantCulture);
-                        switch (split[2].ToLower(CultureInfo.InvariantCulture)) {
-                            case "ms":
-                                AddFilter(lastNodes, activeChannels, new Delay(delay, sampleRate));
-                                break;
-                            case "samples":
-                                AddFilter(lastNodes, activeChannels, new Delay((int)delay));
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException(split[0]);
+                        AddFilter(lastNodes, activeChannels, Delay.FromEqualizerAPO(split, sampleRate));
+                        break;
+                    case "copy":
+                        Dictionary<string, FilterGraphNode> oldLastNodes = lastNodes.ToDictionary(x => x.Key, x => x.Value);
+                        for (int i = 1; i < split.Length; i++) {
+                            string[] copy = split[i].Split(new[] { '=', '+' });
+                            FilterGraphNode target = new FilterGraphNode(null);
+                            for (int j = 1; j < copy.Length; j++) {
+                                string channel;
+                                int mul = copy[j].IndexOf('*');
+                                if (mul != -1) {
+                                    channel = copy[j][(mul + 1)..];
+                                    double copyGain = double.Parse(copy[j][..mul].Replace(',', '.'), CultureInfo.InvariantCulture);
+                                    FilterGraphNode gainFilter = new FilterGraphNode(new Gain(QMath.GainToDb(copyGain)));
+                                    gainFilter.AddParent(oldLastNodes[channel]);
+                                    target.AddParent(gainFilter);
+                                } else {
+                                    channel = copy[j];
+                                    target.AddParent(oldLastNodes[channel]);
+                                }
+                            }
+                            if (!lastNodes.ContainsKey(copy[0])) {
+                                target.Filter = new BypassFilter(copy[0]);
+                            }
+                            lastNodes[copy[0]] = target;
                         }
                         break;
                     case "graphiceq":
-                        float[] toParse = new float[split.Length - 1];
-                        for (int i = 1; i < split.Length; i++) {
-                            if (split[i][^1] == ';') {
-                                toParse[i - 1] = float.Parse(split[i][..^1], CultureInfo.InvariantCulture);
-                            } else {
-                                toParse[i - 1] = float.Parse(split[i], CultureInfo.InvariantCulture);
-                            }
-                        }
-                        Equalizer parsed = EQGenerator.FromCalibration(toParse);
-                        AddFilter(lastNodes, activeChannels, new GraphicEQ(parsed, sampleRate));
+                        AddFilter(lastNodes, activeChannels, GraphicEQ.FromEqualizerAPO(split, sampleRate));
                         break;
                 }
             }
@@ -82,8 +103,15 @@ namespace Cavern.Format.ConfigurationFile {
         /// Add a filter to the currently active channels.
         /// </summary>
         void AddFilter(Dictionary<string, FilterGraphNode> lastNodes, List<string> channels, Filter filter) {
+            List<FilterGraphNode> addedTo = new List<FilterGraphNode>();
             for (int i = 0, c = channels.Count; i < c; i++) {
-                lastNodes[channels[i]] = lastNodes[channels[i]].AddChild(filter);
+                FilterGraphNode oldLastNode = lastNodes[channels[i]];
+                if (addedTo.Contains(oldLastNode)) {
+                    lastNodes[channels[i]] = oldLastNode.Children[^1]; // The channel pipelines were merged with a Copy filter
+                } else {
+                    lastNodes[channels[i]] = oldLastNode.AddChild(filter);
+                    addedTo.Add(oldLastNode);
+                }
             }
         }
 
