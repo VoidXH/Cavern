@@ -15,10 +15,14 @@
         public BypassFilter(string name) => this.name = name;
 
         /// <inheritdoc/>
-        public override void Process(float[] samples) { }
+        public override void Process(float[] samples) {
+            // Bypass
+        }
 
         /// <inheritdoc/>
-        public override void Process(float[] samples, int channel, int channels) { }
+        public override void Process(float[] samples, int channel, int channels) {
+            // Bypass
+        }
 
         /// <inheritdoc/>
         public override string ToString() => name;
