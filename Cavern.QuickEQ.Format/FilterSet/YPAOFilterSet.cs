@@ -50,7 +50,7 @@ namespace Cavern.Format.FilterSet {
         /// All the possible bands that can be selected for YPAO. These are 1/3 octaves apart.
         /// </summary>
         static readonly float[] frequencies = {
-            39.4f, 49.6f, 62.5f, 78.7f, 99.2f, 125.0f, 157.5f, 198.4f, 250, 315, 396.9f, 500, 630, 793.7f,
+            15.6f, 19.7f, 24.8f, 31.3f, 39.4f, 49.6f, 62.5f, 78.7f, 99.2f, 125.0f, 157.5f, 198.4f, 250, 315, 396.9f, 500, 630, 793.7f,
             1000, 1260, 1590, 2000, 2520, 3170, 4000, 5040, 6350, 8000, 10100, 12700, 16000
         };
 
