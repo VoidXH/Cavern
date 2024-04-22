@@ -34,9 +34,7 @@ namespace Cavern.Filters.Utilities {
         /// Wraps a filter to be handled in a multichannel complex filter set, such as equalizer platform configuration files.
         /// </summary>
         /// <param name="filter">The wrapped filter</param>
-        public FilterGraphNode(Filter filter) {
-            Filter = filter;
-        }
+        public FilterGraphNode(Filter filter) => Filter = filter;
 
         /// <summary>
         /// Append a node to process this filter's result in the filter graph.
@@ -91,5 +89,8 @@ namespace Cavern.Filters.Utilities {
             DetachChildren();
             DetachParents();
         }
+
+        /// <inheritdoc/>
+        public override string ToString() => Filter.ToString();
     }
 }

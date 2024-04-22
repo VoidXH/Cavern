@@ -7,6 +7,7 @@ using System.Linq;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
+using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.Format.ConfigurationFile {
     /// <summary>
@@ -31,6 +32,11 @@ namespace Cavern.Format.ConfigurationFile {
                     case "channel":
                         string[] channels = split[1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
                         activeChannels.Clear();
+                        if (channels.Length == 1 && channels[0].ToLower(CultureInfo.InvariantCulture) == "all") {
+                            activeChannels.AddRange(channelLabels);
+                            continue;
+                        }
+
                         for (int i = 0; i < channels.Length; i++) {
                             if (lastNodes.ContainsKey(channels[i])) {
                                 activeChannels.Add(channels[i]);
@@ -55,6 +61,18 @@ namespace Cavern.Format.ConfigurationFile {
                             default:
                                 throw new ArgumentOutOfRangeException(split[0]);
                         }
+                        break;
+                    case "graphiceq":
+                        float[] toParse = new float[split.Length - 1];
+                        for (int i = 1; i < split.Length; i++) {
+                            if (split[i][^1] == ';') {
+                                toParse[i - 1] = float.Parse(split[i][..^1], CultureInfo.InvariantCulture);
+                            } else {
+                                toParse[i - 1] = float.Parse(split[i], CultureInfo.InvariantCulture);
+                            }
+                        }
+                        Equalizer parsed = EQGenerator.FromCalibration(toParse);
+                        AddFilter(lastNodes, activeChannels, new GraphicEQ(parsed, sampleRate));
                         break;
                 }
             }

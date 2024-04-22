@@ -50,9 +50,13 @@ namespace Cavern.Filters {
         }
 
         /// <inheritdoc/>
-        public override string ToString() => $"Gain: {GainValue.ToString(CultureInfo.InvariantCulture)} dB";
+        public override string ToString() {
+            double rounded = (int)(GainValue * 100 + .5) * .01;
+            return $"Gain: {rounded.ToString(CultureInfo.InvariantCulture)} dB";
+        }
 
         /// <inheritdoc/>
-        public void ExportToEqualizerAPO(List<string> wipConfig) => wipConfig.Add(ToString());
+        public void ExportToEqualizerAPO(List<string> wipConfig) =>
+            wipConfig.Add($"Gain: {GainValue.ToString(CultureInfo.InvariantCulture)} dB");
     }
 }

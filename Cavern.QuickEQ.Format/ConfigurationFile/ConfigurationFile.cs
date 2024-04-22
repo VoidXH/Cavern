@@ -8,6 +8,8 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Root nodes of each channel, start attaching their filters as a children chain.
         /// </summary>
+        /// <remarks>The root node has a null filter, it's only used to mark in a single instance if the channel is
+        /// processed on two separate pipelines from the root.</remarks>
         public (string name, FilterGraphNode root)[] InputChannels { get; }
 
         /// <summary>

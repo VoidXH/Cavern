@@ -19,13 +19,6 @@ namespace FilterStudio {
 
         public MainWindow() {
             InitializeComponent();
-            Graph show = new();
-            graph.Graph = show;
-            System.Windows.Media.Color sourceColor = ((SolidColorBrush)Background).Color;
-            show.Attr.BackgroundColor = new Microsoft.Msagl.Drawing.Color(sourceColor.R, sourceColor.G, sourceColor.B);
-            show.AddNode(new StyledNode("A", "Root"));
-            show.AddNode(new StyledNode("B", "Child"));
-            new StyledEdge(show, "A", "B");
         }
 
         void OnNodeSelected(Node node) {
@@ -42,6 +35,7 @@ namespace FilterStudio {
             };
             if (dialog.ShowDialog().Value) {
                 ConfigurationFile file = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
+                graph.Graph = Parsing.ParseConfigurationFile(file, Parsing.ParseBackground((SolidColorBrush)Background));
             }
         }
 
