@@ -96,10 +96,15 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
+        /// Remove this node from the filter graph, and connect the parents and children directly.
+        /// </summary>
+        public void DetachFromGraph() => DetachFromGraph(true);
+
+        /// <summary>
         /// Remove this node from the filter graph, from both parents and children.
         /// </summary>
         /// <param name="mergeConnections">Connect the parents and children together</param>
-        public void DetachFromGraph(bool mergeConnections = true) {
+        public void DetachFromGraph(bool mergeConnections) {
             if (mergeConnections) {
                 for (int i = 0, c = parents.Count; i < c; i++) {
                     for (int j = 0, c2 = children.Count; j < c2; j++) {
