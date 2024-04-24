@@ -1,5 +1,4 @@
-﻿using Microsoft.Msagl.Drawing;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -22,6 +21,11 @@ namespace FilterStudio {
         static readonly ResourceDictionary language = Consts.Language.GetMainWindowStrings();
 
         /// <summary>
+        /// The currently selected filter's node.
+        /// </summary>
+        StyledNode SelectedFilter => (StyledNode)graph.Graph?.Nodes.FirstOrDefault(x => x.Attr.LineWidth > 1);
+
+        /// <summary>
         /// Each channel's full filter graph.
         /// </summary>
         (string name, FilterGraphNode root)[] rootNodes;
@@ -34,14 +38,28 @@ namespace FilterStudio {
         }
 
         /// <summary>
+        /// Displays an error message.
+        /// </summary>
+        static void Error(string message) => MessageBox.Show(message, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+
+        /// <summary>
         /// When selecting a <paramref name="node"/>, open it for modification.
         /// </summary>
-        void OnNodeSelected(Node node) {
+        void OnNodeSelected() {
+            StyledNode node = SelectedFilter;
             if (node == null) {
                 selectedNode.Text = (string)language["NNode"];
                 return;
             }
             selectedNode.Text = node.LabelText;
+        }
+
+        /// <summary>
+        /// Updates the graph based on the <see cref="rootNodes"/>.
+        /// </summary>
+        void ReloadGraph() {
+            graph.Graph = Parsing.ParseConfigurationFile(rootNodes, Parsing.ParseBackground((SolidColorBrush)Background));
+            OnNodeSelected();
         }
 
         /// <summary>
@@ -55,8 +73,22 @@ namespace FilterStudio {
                 ConfigurationFile file = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
 
                 rootNodes = file.InputChannels;
-                graph.Graph = Parsing.ParseConfigurationFile(rootNodes, Parsing.ParseBackground((SolidColorBrush)Background));
+                ReloadGraph();
             }
+        }
+
+        /// <summary>
+        /// Delete the currently selected node.
+        /// </summary>
+        void DeleteNode(object _, RoutedEventArgs e) {
+            StyledNode node = SelectedFilter;
+            if (node == null || node.Filter == null) {
+                Error((string)language["NFNod"]);
+                return;
+            }
+
+            node.Filter.DetachFromGraph();
+            ReloadGraph();
         }
 
         /// <summary>
@@ -64,7 +96,7 @@ namespace FilterStudio {
         /// </summary>
         void GraphClick(object _, MouseButtonEventArgs e) {
             Dispatcher.BeginInvoke(() => { // Call after the graph has handled it
-                OnNodeSelected(graph.Graph?.Nodes.FirstOrDefault(x => x.Attr.LineWidth > 1));
+                OnNodeSelected();
             });
         }
     }

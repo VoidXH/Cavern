@@ -47,10 +47,7 @@ namespace Cavern.Format.ConfigurationFile {
         bool Optimize(FilterGraphNode node) {
             bool optimized = false;
             if (node.Filter == null) {
-                IReadOnlyList<FilterGraphNode> parents = node.Parents;
-                while (parents.Count != 0) {
-                    parents[0].DetachChild(node, true);
-                }
+                node.DetachFromGraph();
                 optimized = true;
             }
 

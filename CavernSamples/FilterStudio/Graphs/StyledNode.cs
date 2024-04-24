@@ -1,5 +1,7 @@
 ﻿using Microsoft.Msagl.Drawing;
 
+using Cavern.Filters.Utilities;
+
 namespace FilterStudio.Graphs {
     /// <summary>
     /// An MSAGL <see cref="Node"/> with display properties aligned for this application.
@@ -17,6 +19,11 @@ namespace FilterStudio.Graphs {
                 Label.FontColor = value;
             }
         }
+
+        /// <summary>
+        /// If this node represents a filter and not a label, this property is set to that specific node.
+        /// </summary>
+        public FilterGraphNode Filter { get; set; }
 
         /// <summary>
         /// An MSAGL <see cref="Node"/> with display properties aligned for this application.

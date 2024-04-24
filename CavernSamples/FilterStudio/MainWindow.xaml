@@ -20,6 +20,9 @@
             <MenuItem Header="{StaticResource MFile}">
                 <MenuItem Header="{StaticResource OpCfg}" Click="LoadConfiguration"/>
             </MenuItem>
+            <MenuItem Header="{StaticResource MGrap}">
+                <MenuItem Header="{StaticResource OpDel}" Click="DeleteNode"/>
+            </MenuItem>
         </Menu>
         <DockPanel DockPanel.Dock="Right" Width="250">
             <TextBlock x:Name="selectedNode" DockPanel.Dock="Top" Style="{StaticResource Header}" Margin="5" Text="{StaticResource NNode}"/>

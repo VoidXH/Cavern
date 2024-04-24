@@ -45,7 +45,9 @@ namespace FilterStudio.Graphs {
         static void AddToGraph(string parent, FilterGraphNode source, Graph target) {
             string uid = source.GetHashCode().ToString();
             if (target.FindNode(uid) == null) {
-                Node node = new StyledNode(uid, source.ToString());
+                StyledNode node = new StyledNode(uid, source.ToString()) {
+                    Filter = source
+                };
                 target.AddNode(node);
             }
 

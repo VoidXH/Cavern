@@ -3,6 +3,10 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:String x:Key="MFile">_File</system:String>
     <system:String x:Key="OpCfg">_Open configuration file</system:String>
+    <system:String x:Key="MGrap">_Graph</system:String>
+    <system:String x:Key="OpDel">_Delete filter</system:String>
     <system:String x:Key="OpFil">Equalizer APO configurations|*.txt</system:String>
+    <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="NNode">No node selected.</system:String>
+    <system:String x:Key="NFNod">Please select a filter node first.</system:String>
 </ResourceDictionary>
