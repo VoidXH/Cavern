@@ -11,6 +11,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.
         /// </summary>
+        /// <param name="samples">Input samples</param>
         public virtual void Process(float[] samples) => Process(samples, 0, 1);
 
         /// <summary>

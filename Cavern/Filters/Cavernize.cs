@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -8,6 +9,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Height separation effect strength.
         /// </summary>
+        [DisplayName("Effect (ratio)")]
         public float Effect { get; set; } = .75f;
 
         /// <summary>
@@ -16,11 +18,13 @@ namespace Cavern.Filters {
         /// </summary>
         /// <remarks>The default value is calculated with 0.8 smoothness, with an update rate of 240 at
         /// 48 kHz sampling.</remarks>
+        [DisplayName("Smoothing factor (ratio)")]
         public float SmoothFactor { get; set; } = .0229349384f;
 
         /// <summary>
         /// Keep all frequencies below this on the ground.
         /// </summary>
+        [DisplayName("Ground crossover (Hz)")]
         public double GroundCrossover {
             get => crossover.Frequency;
             set => crossover.Frequency = value;

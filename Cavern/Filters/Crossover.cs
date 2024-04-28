@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -13,6 +14,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Crossover frequency.
         /// </summary>
+        [DisplayName("Frequency (Hz)")]
         public double Frequency {
             get => lowpasses[0].CenterFreq;
             set {
@@ -27,6 +29,7 @@ namespace Cavern.Filters {
         /// </summary>
         /// <remarks>A value of 2 is recommended for notch prevention when mixing
         /// <see cref="LowOutput"/> and <see cref="HighOutput"/> back together.</remarks>
+        [DisplayName("Order")]
         public int Order {
             get => lowpasses.Length;
             set => RecreateFilters(lowpasses[0].CenterFreq, value);

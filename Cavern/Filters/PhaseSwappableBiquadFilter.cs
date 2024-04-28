@@ -1,4 +1,6 @@
-﻿namespace Cavern.Filters {
+﻿using System.ComponentModel;
+
+namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter with the option to invert the phase response.
     /// </summary>
@@ -6,6 +8,7 @@
         /// <summary>
         /// Biquad filters usually achieve their effect by delaying lower frequencies. Phase swapping delays higher frequencies.
         /// </summary>
+        [DisplayName("Phase-swapped")]
         public bool PhaseSwapped {
             get => phaseSwapped;
             set {

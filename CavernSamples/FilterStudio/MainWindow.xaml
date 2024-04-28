@@ -26,7 +26,7 @@
         </Menu>
         <DockPanel DockPanel.Dock="Right" Width="250">
             <TextBlock x:Name="selectedNode" DockPanel.Dock="Top" Style="{StaticResource Header}" Margin="5" Text="{StaticResource NNode}"/>
-            <DataGrid x:Name="properties"/>
+            <DataGrid x:Name="properties" CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" ColumnWidth="*"/>
         </DockPanel>
         <agl:AutomaticGraphLayoutControl x:Name="graph" PreviewMouseUp="GraphClick"/>
     </DockPanel>

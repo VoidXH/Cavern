@@ -44,9 +44,7 @@ namespace Cavern.Filters {
             return convolved;
         }
 
-        /// <summary>
-        /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
             float[] convolved;
             if (delay == 0) {

@@ -1,12 +1,15 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
 using Cavern;
+using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
+using VoidX.WPF;
 
 using FilterStudio.Graphs;
 
@@ -47,11 +50,14 @@ namespace FilterStudio {
         /// </summary>
         void OnNodeSelected() {
             StyledNode node = SelectedFilter;
-            if (node == null) {
+            if (node == null || node.Filter == null) {
                 selectedNode.Text = (string)language["NNode"];
+                properties.ItemsSource = Array.Empty<object>();
                 return;
             }
+
             selectedNode.Text = node.LabelText;
+            properties.ItemsSource = new ObjectToDataGrid(node.Filter.Filter, FilterPropertyChanged, e => Error(e.Message));
         }
 
         /// <summary>
@@ -60,6 +66,22 @@ namespace FilterStudio {
         void ReloadGraph() {
             graph.Graph = Parsing.ParseConfigurationFile(rootNodes, Parsing.ParseBackground((SolidColorBrush)Background));
             OnNodeSelected();
+        }
+
+        /// <summary>
+        /// Update the name of a filter when any property of it was modified.
+        /// </summary>
+        void FilterPropertyChanged() {
+            StyledNode node = SelectedFilter;
+            Filter modified = node?.Filter?.Filter;
+            if (modified != null) {
+                string newDisplayName = modified.ToString();
+                if (node.LabelText != newDisplayName) {
+                    node.LabelText = newDisplayName;
+                    selectedNode.Text = node.LabelText;
+                    ReloadGraph();
+                }
+            }
         }
 
         /// <summary>

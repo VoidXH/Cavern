@@ -70,7 +70,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// The corresponding JSON label for each supported channel.
         /// </summary>
-        readonly static Dictionary<ReferenceChannel, string> channelLabels = new Dictionary<ReferenceChannel, string> {
+        static readonly Dictionary<ReferenceChannel, string> channelLabels = new Dictionary<ReferenceChannel, string> {
             [ReferenceChannel.FrontLeft] = "lf",
             [ReferenceChannel.FrontRight] = "rf",
             [ReferenceChannel.FrontCenter] = "c",

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -9,11 +10,13 @@ namespace Cavern.Filters {
         /// <summary>
         /// Wet mix multiplier.
         /// </summary>
+        [DisplayName("Alpha (ratio)")]
         public double Alpha { get; set; }
 
         /// <summary>
         /// Delay in samples.
         /// </summary>
+        [DisplayName("K (samples)")]
         public int K {
             get => delay.DelaySamples;
             set => delay.DelaySamples = value;
@@ -22,6 +25,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// First minimum point.
         /// </summary>
+        [DisplayName("Frequency (Hz)")]
         public double Frequency {
             get => sampleRate * .5 / K;
             set => K = (int)(.5 / (value / sampleRate) + 1);
@@ -66,9 +70,7 @@ namespace Cavern.Filters {
             delay = new Delay((int)(.5 / (frequency / sampleRate) + 1));
         }
 
-        /// <summary>
-        /// Apply comb on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
             if (cache.Length != samples.Length) {
                 cache = new float[samples.Length];
@@ -77,7 +79,7 @@ namespace Cavern.Filters {
             delay.Process(cache);
             float alpha = (float)Alpha,
                 divisor = 1 / (1 + alpha);
-            for (int sample = 0; sample < samples.Length; ++sample) {
+            for (int sample = 0; sample < samples.Length; sample++) {
                 samples[sample] = (samples[sample] + cache[sample] * alpha) * divisor;
             }
         }

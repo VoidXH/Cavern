@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
@@ -13,14 +14,45 @@ namespace Cavern.Filters {
         /// <summary>
         /// Delay in samples.
         /// </summary>
+        [DisplayName("Delay (samples)")]
         public int DelaySamples {
             get => cache[0].Length;
             set {
                 if (cache[0].Length != value) {
                     RecreateCaches(value);
+                    delayMs = double.NaN;
                 }
             }
         }
+
+        /// <summary>
+        /// Delay in milliseconds.
+        /// </summary>
+        [DisplayName("Delay (ms)")]
+        public double DelayMs {
+            get {
+                if (!double.IsNaN(delayMs)) {
+                    return delayMs;
+                }
+                if (sampleRate == 0) {
+                    throw new SampleRateNotSetException();
+                }
+                return DelaySamples / (double)sampleRate * 1000;
+            }
+
+            set {
+                if (sampleRate == 0) {
+                    throw new SampleRateNotSetException();
+                }
+                DelaySamples = (int)Math.Round(value * sampleRate * .001);
+                delayMs = value;
+            }
+        }
+
+        /// <summary>
+        /// When the filter was created with a precise delay that is not a round value in samples, display this instead.
+        /// </summary>
+        double delayMs;
 
         /// <summary>
         /// Cached samples for the next block. Alternates between two arrays to prevent memory allocation.
@@ -45,14 +77,18 @@ namespace Cavern.Filters {
         /// <summary>
         /// Create a delay for a given length in samples.
         /// </summary>
-        public Delay(int samples) => RecreateCaches(samples);
+        public Delay(int samples) {
+            delayMs = double.NaN;
+            RecreateCaches(samples);
+        }
 
         /// <summary>
         /// Create a delay for a given length in seconds.
         /// </summary>
         public Delay(double time, int sampleRate) {
             this.sampleRate = sampleRate;
-            RecreateCaches((int)(time * sampleRate + .5f));
+            delayMs = time;
+            RecreateCaches((int)(time * sampleRate * .001 + .5));
         }
 
         /// <summary>
@@ -110,7 +146,7 @@ namespace Cavern.Filters {
             if (sampleRate == 0) {
                 return $"Delay: {DelaySamples} samples";
             } else {
-                string delay = ((double)DelaySamples / sampleRate).ToString(CultureInfo.InvariantCulture);
+                string delay = DelayMs.ToString(CultureInfo.InvariantCulture);
                 return $"Delay: {delay} ms";
             }
         }

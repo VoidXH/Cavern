@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 using Cavern.Filters.Interfaces;
@@ -18,6 +19,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Center frequency (-3 dB point) of the filter.
         /// </summary>
+        [DisplayName("Center frequency (Hz)")]
         public double CenterFreq {
             get => centerFreq;
             set => Reset(value, q, gain);
@@ -26,6 +28,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Q-factor of the filter.
         /// </summary>
+        [DisplayName("Q-factor")]
         public double Q {
             get => q;
             set => Reset(centerFreq, value, gain);
@@ -34,6 +37,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Gain of the filter in decibels.
         /// </summary>
+        [DisplayName("Gain (dB)")]
         public double Gain {
             get => gain;
             set => Reset(centerFreq, q, value);

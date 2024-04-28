@@ -18,9 +18,7 @@
         /// <param name="order">Number of filters per pass, 2 is recommended for mixing notch prevention</param>
         public DebugCrossover(int sampleRate, double frequency, int order) : base(sampleRate, frequency, order) { }
 
-        /// <summary>
-        /// Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
             base.Process(samples);
             for (int i = 0; i < samples.Length; ++i) {
@@ -28,12 +26,7 @@
             }
         }
 
-        /// <summary>
-        /// Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
-        /// <param name="channel">Channel to filter</param>
-        /// <param name="channels">Total channels</param>
+        /// <inheritdoc/>
         public override void Process(float[] samples, int channel, int channels) {
             base.Process(samples, channel, channels);
             for (int sample = channel; sample < samples.Length; sample += channels) {

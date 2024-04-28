@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 
 using Cavern.Filters.Interfaces;
@@ -12,6 +13,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Filter gain in decibels.
         /// </summary>
+        [DisplayName("Gain (dB)")]
         public double GainValue {
             get => 20 * Math.Log10(gainValue);
             set => gainValue = (float)Math.Pow(10, value * .05);
@@ -28,21 +30,14 @@ namespace Cavern.Filters {
         /// <param name="gain">Filter gain in decibels</param>
         public Gain(double gain) => GainValue = gain;
 
-        /// <summary>
-        /// Apply gain on an array of samples. This filter can be used on multiple streams.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
-            for (int sample = 0; sample < samples.Length; ++sample) {
+            for (int sample = 0; sample < samples.Length; sample++) {
                 samples[sample] *= gainValue;
             }
         }
 
-        /// <summary>
-        /// Apply gain on an array of samples. This filter can be used on multiple streams.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
-        /// <param name="channel">Channel to filter</param>
-        /// <param name="channels">Total channels</param>
+        /// <inheritdoc/>
         public override void Process(float[] samples, int channel, int channels) {
             for (int sample = channel; sample < samples.Length; sample += channels) {
                 samples[sample] *= gainValue;
@@ -50,10 +45,7 @@ namespace Cavern.Filters {
         }
 
         /// <inheritdoc/>
-        public override string ToString() {
-            double rounded = (int)(GainValue * 100 + .5) * .01;
-            return $"Gain: {rounded.ToString(CultureInfo.InvariantCulture)} dB";
-        }
+        public override string ToString() => $"Gain: {GainValue.ToString("0.00", CultureInfo.InvariantCulture)} dB";
 
         /// <inheritdoc/>
         public void ExportToEqualizerAPO(List<string> wipConfig) =>
