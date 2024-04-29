@@ -26,5 +26,32 @@ namespace Cavern.Channels {
             (channel >= ReferenceChannel.TopFrontLeft && channel <= ReferenceChannel.TopSideRight) ||
             channel == ReferenceChannel.TopFrontCenter || channel == ReferenceChannel.GodsVoice ||
             (channel >= ReferenceChannel.TopRearLeft && channel <= ReferenceChannel.TopRearCenter);
+
+        /// <summary>
+        /// Converts a standard channel shorthand to a <see cref="ReferenceChannel"/>.
+        /// </summary>
+        public static ReferenceChannel FromStandardName(string name) {
+            switch (name) {
+                case ChannelPrototype.frontLeftMark:
+                    return ReferenceChannel.FrontLeft;
+                case ChannelPrototype.frontRightMark:
+                    return ReferenceChannel.FrontRight;
+                case ChannelPrototype.frontCenterMark:
+                    return ReferenceChannel.FrontCenter;
+                case ChannelPrototype.screenLFEMark:
+                case ChannelPrototype.subwooferMark:
+                    return ReferenceChannel.ScreenLFE;
+                case ChannelPrototype.rearLeftMark:
+                    return ReferenceChannel.RearLeft;
+                case ChannelPrototype.rearRightMark:
+                    return ReferenceChannel.RearRight;
+                case ChannelPrototype.sideLeftMark:
+                    return ReferenceChannel.SideLeft;
+                case ChannelPrototype.sideRightMark:
+                    return ReferenceChannel.SideRight;
+                default:
+                    return ReferenceChannel.Unknown;
+            }
+        }
     }
 }

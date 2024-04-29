@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Cavernize" Height="455" Width="900" Background="#696969">
+        Title="Cavernize" Height="465" Width="900" Background="#696969">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -15,8 +15,8 @@
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
-        <Menu DockPanel.Dock="Top" Height="20">
-            <MenuItem Header="{StaticResource MenuR}">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="{StaticResource MenuR}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Header="{StaticResource Upmix}" Click="OpenUpmixSetup"/>
                 <MenuItem x:Name="hrir" Header="{StaticResource LoadV}" Click="LoadHRIR"/>
                 <MenuItem x:Name="speakerVirtualizer" IsCheckable="True" Header="{StaticResource SpVir}"/>
@@ -34,7 +34,7 @@
                 <MenuItem x:Name="grading" IsCheckable="True" Header="{StaticResource DeGrH}" ToolTip="{StaticResource DeGrT}"/>
                 <MenuItem Header="{StaticResource PReSh}" Click="ShowPostRenderReport"/>
             </MenuItem>
-            <MenuItem Header="{StaticResource MenuH}">
+            <MenuItem Header="{StaticResource MenuH}" Style="{StaticResource RootMenuItem}">
                 <MenuItem x:Name="checkUpdates" IsCheckable="True" Header="{StaticResource ChkUp}" ToolTip="{StaticResource ChkTt}"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource UsrGu}" Click="Guide"/>
@@ -64,8 +64,7 @@
                             <TextBlock Margin="10,37,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
                                        Text="{StaticResource RndTg}"/>
                             <ComboBox x:Name="renderTarget" Margin="90,34,10,0" VerticalAlignment="Top"
-                                      DropDownOpened="OnRenderTargetOpened" SelectionChanged="OnRenderTargetSelected"
-                                      Template="{DynamicResource DarkComboBox}" ItemContainerStyle="{DynamicResource DarkComboBoxItem}"/>
+                                      DropDownOpened="OnRenderTargetOpened" SelectionChanged="OnRenderTargetSelected"/>
                             <Canvas Margin="29,66,29,0" VerticalAlignment="Top" Width="170" Height="160">
                                 <Rectangle Width="76" Height="50" Canvas.Left="46" Canvas.Top="00" Stroke="White"/>
                                 <Ellipse x:Name="frontLeft"  Width="10" Height="10" Fill="Red" Canvas.Left="51" Canvas.Top="30"/>
@@ -117,13 +116,11 @@
                                 <TextBlock Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                            Text="{StaticResource OpTrk}" TextWrapping="NoWrap"/>
                                 <ComboBox x:Name="tracks" Margin="55,0,10,0" VerticalAlignment="Top"
-                                          ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                                          Template="{DynamicResource DarkComboBox}" SelectionChanged="OnTrackSelected"/>
+                                          SelectionChanged="OnTrackSelected"/>
                                 <TextBlock Margin="0,30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                                            Text="{StaticResource OpOut}" TextWrapping="NoWrap"/>
                                 <ComboBox x:Name="audio" Margin="55,27,10,0" VerticalAlignment="Top"
-                                          ItemContainerStyle="{DynamicResource DarkComboBoxItem}"
-                                          Template="{DynamicResource DarkComboBox}" SelectionChanged="OnOutputSelected"/>
+                                          SelectionChanged="OnOutputSelected"/>
                                 <TextBlock x:Name="trackCodec" Margin="0,54,0,0" VerticalAlignment="Top"
                                            FontWeight="Bold" TextWrapping="Wrap"/>
                                 <TextBlock x:Name="trackTable1Title" Margin="0,75,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"

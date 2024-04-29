@@ -6,6 +6,9 @@ namespace Cavern.Filters {
     /// Simple first-order allpass filter.
     /// </summary>
     public class Allpass : PhaseSwappableBiquadFilter {
+        /// <inheritdoc/>
+        public override BiquadFilterType FilterType => BiquadFilterType.Allpass;
+
         /// <summary>
         /// Simple first-order allpass filter with maximum flatness and no additional gain.
         /// </summary>

@@ -106,11 +106,14 @@ namespace FilterStudio {
             StyledNode node = SelectedFilter;
             if (node == null || node.Filter == null) {
                 Error((string)language["NFNod"]);
-                return;
+            } else if (node.Filter.Filter is InputChannel) {
+                Error((string)language["NFInp"]);
+            } else if (node.Filter.Filter is OutputChannel) {
+                Error((string)language["NFOut"]);
+            } else {
+                node.Filter.DetachFromGraph();
+                ReloadGraph();
             }
-
-            node.Filter.DetachFromGraph();
-            ReloadGraph();
         }
 
         /// <summary>

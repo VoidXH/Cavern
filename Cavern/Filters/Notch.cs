@@ -6,6 +6,9 @@ namespace Cavern.Filters {
     /// Simple first-order notch filter.
     /// </summary>
     public class Notch : BiquadFilter {
+        /// <inheritdoc/>
+        public override BiquadFilterType FilterType => BiquadFilterType.Notch;
+
         /// <summary>
         /// Simple first-order notch filter with maximum flatness and no additional gain.
         /// </summary>

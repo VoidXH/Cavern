@@ -27,7 +27,9 @@ namespace FilterStudio.Graphs {
             result.Attr.BackgroundColor = background;
 
             for (int i = 0; i < rootNodes.Length; i++) {
-                result.AddNode(new StyledNode(rootNodes[i].name, rootNodes[i].name));
+                result.AddNode(new StyledNode(rootNodes[i].name, rootNodes[i].root.ToString()) {
+                    Filter = rootNodes[i].root
+                });
                 IReadOnlyList<FilterGraphNode> children = rootNodes[i].root.Children;
                 for (int j = 0, c = children.Count; j < c; j++) {
                     AddToGraph(rootNodes[i].name, children[j], result);

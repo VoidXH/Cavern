@@ -8,6 +8,9 @@ namespace Cavern.Filters {
     /// Simple first-order high shelf filter.
     /// </summary>
     public class HighShelf : BiquadFilter {
+        /// <inheritdoc/>
+        public override BiquadFilterType FilterType => BiquadFilterType.HighShelf;
+
         /// <summary>
         /// Simple first-order high shelf filter with maximum flatness and no additional gain.
         /// </summary>

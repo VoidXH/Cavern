@@ -7,6 +7,9 @@ namespace Cavern.Filters {
     /// Simple first-order lowpass filter.
     /// </summary>
     public class Lowpass : BiquadFilter {
+        /// <inheritdoc/>
+        public override BiquadFilterType FilterType => BiquadFilterType.Lowpass;
+
         /// <summary>
         /// Simple first-order lowpass filter with maximum flatness and no additional gain.
         /// </summary>

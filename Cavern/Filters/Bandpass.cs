@@ -8,6 +8,9 @@ namespace Cavern.Filters {
     /// Simple first-order bandpass filter.
     /// </summary>
     public class Bandpass : BiquadFilter {
+        /// <inheritdoc/>
+        public override BiquadFilterType FilterType => BiquadFilterType.Bandpass;
+
         /// <summary>
         /// Simple first-order bandpass filter with maximum flatness and no additional gain.
         /// </summary>

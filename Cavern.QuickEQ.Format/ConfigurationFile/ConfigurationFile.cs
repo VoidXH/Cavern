@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using Cavern.Channels;
+using Cavern.Filters;
 using Cavern.Filters.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
@@ -17,10 +19,10 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Create an empty configuration file with the passed input channel names/labels.
         /// </summary>
-        public ConfigurationFile(string[] inputs) {
+        protected ConfigurationFile(string[] inputs) {
             InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
-                InputChannels[i] = (inputs[i], new FilterGraphNode(null));
+                InputChannels[i] = (inputs[i], new FilterGraphNode(new InputChannel(inputs[i])));
             }
         }
 

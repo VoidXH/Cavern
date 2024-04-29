@@ -6,6 +6,9 @@ namespace Cavern.Filters {
     /// Simple first-order peaking filter.
     /// </summary>
     public class PeakingEQ : BiquadFilter {
+        /// <inheritdoc/>
+        public override BiquadFilterType FilterType => BiquadFilterType.PeakingEQ;
+
         /// <summary>
         /// Simple first-order peaking filter with maximum flatness and no additional gain.
         /// </summary>

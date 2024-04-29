@@ -120,13 +120,13 @@ namespace CavernizeGUI {
                 [ReferenceChannel.TopRearCenter] = topRearCenter,
                 [ReferenceChannel.TopRearRight] = topRearRight
             };
-            trackInfo = new (TextBlock, TextBlock)[] {
+            trackInfo = [
                 (trackTable1Title, trackTable1Value),
                 (trackTable2Title, trackTable2Value),
                 (trackTable3Title, trackTable3Value),
                 (trackTable4Title, trackTable4Value),
                 (trackTable5Title, trackTable5Value)
-            };
+            ];
 
             audio.ItemsSource = ExportFormat.Formats;
             audio.SelectedIndex = Settings.Default.outputCodec;

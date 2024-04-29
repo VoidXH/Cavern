@@ -10,7 +10,6 @@ using Cavern.QuickEQ.Graphing;
 using Cavern.QuickEQ.Graphing.Overlays;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
-
 using Color = System.Windows.Media.Color;
 
 namespace Cavern.WPF {
@@ -29,10 +28,30 @@ namespace Cavern.WPF {
         readonly GraphRenderer renderer;
 
         /// <summary>
-        /// Biquad filter customization/editor window.
+        /// ARGB color of the displayed spectrum graph.
         /// </summary>
-        public BiquadEditor() {
+        readonly uint spectrumColor;
+
+        /// <summary>
+        /// ARGB color of the displayed phase graph.
+        /// </summary>
+        readonly uint phaseColor;
+
+        /// <summary>
+        /// Biquad filter customization/editor window with default colors.
+        /// </summary>
+        public BiquadEditor() : this(0xFF00FF00, 0xFFFF0000) { }
+
+        /// <summary>
+        /// Biquad filter customization/editor window with custom colors.
+        /// </summary>
+        public BiquadEditor(uint spectrumColor, uint phaseColor) {
             InitializeComponent();
+            this.spectrumColor = spectrumColor;
+            spectrumColorDisplay.Background = new SolidColorBrush(ColorUtils.ToColor(spectrumColor));
+            this.phaseColor = phaseColor;
+            phaseColorDisplay.Background = new SolidColorBrush(ColorUtils.ToColor(phaseColor));
+
             renderer = new GraphRenderer((int)(image.Width + .5), (int)(image.Height + .5)) {
                 DynamicRange = 50,
                 Peak = 25,
@@ -72,9 +91,9 @@ namespace Cavern.WPF {
                 return true; // Initializing, no need for checks
             }
 
-            if (double.TryParse(this.centerFreq.Text, CultureInfo.InvariantCulture, out double centerFreq) &&
-                double.TryParse(this.q.Text, CultureInfo.InvariantCulture, out double q) &&
-                double.TryParse(this.gain.Text, CultureInfo.InvariantCulture, out double gain)) {
+            if (double.TryParse(this.centerFreq.Text.Replace(',', '.'), CultureInfo.InvariantCulture, out double centerFreq) &&
+                double.TryParse(this.q.Text.Replace(',', '.'), CultureInfo.InvariantCulture, out double q) &&
+                double.TryParse(this.gain.Text.Replace(',', '.'), CultureInfo.InvariantCulture, out double gain)) {
                 Filter = BiquadFilter.Create((BiquadFilterType)filterTypes.SelectedItem, 48000, centerFreq, q, gain);
                 if (Filter is PhaseSwappableBiquadFilter swappable) {
                     swappable.PhaseSwapped = swapPhase.IsChecked.Value;
@@ -92,16 +111,35 @@ namespace Cavern.WPF {
             renderer.Clear();
             FilterAnalyzer analyzer = new FilterAnalyzer(Filter, Filter.SampleRate);
             Complex[] transferFunction = analyzer.GetFrequencyResponse();
-            renderer.AddCurve(EQGenerator.FromTransferFunction(transferFunction, Filter.SampleRate), 0xFF0000FF);
+            renderer.AddCurve(EQGenerator.FromTransferFunction(transferFunction, Filter.SampleRate), spectrumColor);
 
             for (int i = 0; i < transferFunction.Length; i++) {
                 // Phase hacked into gain, -25 dB = -pi, 25 dB = pi
                 transferFunction[i] = new Complex(QMath.DbToGain(transferFunction[i].Phase * 25 / MathF.PI));
             }
-            renderer.AddCurve(EQGenerator.FromTransferFunction(transferFunction, Filter.SampleRate), 0xFF00FF00);
+            renderer.AddCurve(EQGenerator.FromTransferFunction(transferFunction, Filter.SampleRate), phaseColor);
 
             Bitmap bitmap = renderer.Pixels.ToBitmap(renderer.Width, renderer.Height);
             image.Source = BitmapUtils.ToImageSource(bitmap);
         }
+
+        /// <summary>
+        /// When a <see cref="CheckBox"/> can't be disabled because of background color setting,
+        /// use this check handler to never let it be checked.
+        /// </summary>
+        void DisableCheck(object sender, RoutedEventArgs _) => ((CheckBox)sender).IsChecked = false;
+
+        /// <summary>
+        /// Closes the dialog with the filter selected.
+        /// </summary>
+        void OK(object _, RoutedEventArgs e) {
+            DialogResult = true;
+            Close();
+        }
+
+        /// <summary>
+        /// Closes the dialog with no filter selected.
+        /// </summary>
+        void Cancel(object _, RoutedEventArgs e) => Close();
     }
 }

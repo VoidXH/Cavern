@@ -11,7 +11,7 @@ namespace Cavern.WPF {
     /// <summary>
     /// Extension functions for interoperability between Cavern's raw ARGB pixel arrays and WPF's <see cref="Bitmap"/>.
     /// </summary>
-    public static class BitmapUtils {
+    public static partial class BitmapUtils {
         /// <summary>
         /// Convert an array of ARGB pixels to a <see cref="Bitmap"/>.
         /// </summary>
@@ -42,9 +42,9 @@ namespace Cavern.WPF {
         /// <summary>
         /// Free up a Hbitmap after a conversion is finished.
         /// </summary>
-        [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
+        [LibraryImport("gdi32.dll", EntryPoint = "DeleteObject")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool DeleteObject([In] IntPtr hObject);
+        private static partial bool DeleteObject(IntPtr hObject);
     }
 #pragma warning restore CA1416 // Validate platform compatibility
 }

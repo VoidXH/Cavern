@@ -71,6 +71,11 @@ namespace Cavern.Filters {
 #pragma warning restore IDE1006 // Naming Styles
 
         /// <summary>
+        /// The enumerated type of this filter.
+        /// </summary>
+        public abstract BiquadFilterType FilterType { get; }
+
+        /// <summary>
         /// Center frequency (-3 dB point) of the filter.
         /// </summary>
         protected double centerFreq;
@@ -225,6 +230,6 @@ namespace Cavern.Filters {
         /// <summary>
         /// Display the filter's parameters when converting to string.
         /// </summary>
-        public override string ToString() => $"Biquad filter at {centerFreq} Hz, Q: {q}, gain: {gain} dB";
+        public override string ToString() => $"{FilterType} at {centerFreq} Hz, Q: {q}, gain: {gain} dB";
     }
 }

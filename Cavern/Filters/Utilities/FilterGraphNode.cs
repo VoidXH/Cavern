@@ -37,6 +37,28 @@ namespace Cavern.Filters.Utilities {
         public FilterGraphNode(Filter filter) => Filter = filter;
 
         /// <summary>
+        /// Place a <see cref="FilterGraphNode"/> between this and the <see cref="children"/>.
+        /// </summary>
+        public void AddBeforeChildren(FilterGraphNode newChild) {
+            newChild.children.AddRange(children);
+            for (int i = 0, c = children.Count; i < c; i++) {
+                children[i].parents.Clear();
+                children[i].parents.Add(newChild);
+            }
+            children.Clear();
+            AddChild(newChild);
+        }
+
+        /// <summary>
+        /// Place a <paramref name="filter"/> between this and the <see cref="children"/> and return the new node containing that filter.
+        /// </summary>
+        public FilterGraphNode AddBeforeChildren(Filter filter) {
+            FilterGraphNode node = new FilterGraphNode(filter);
+            AddBeforeChildren(node);
+            return node;
+        }
+
+        /// <summary>
         /// Append a node to process this filter's result in the filter graph.
         /// </summary>
         public void AddChild(FilterGraphNode child) {

@@ -16,11 +16,18 @@
         </ResourceDictionary>
     </Window.Resources>
     <DockPanel>
-        <Menu DockPanel.Dock="Top" Height="20">
-            <MenuItem Header="{StaticResource MFile}">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="{StaticResource MFile}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Header="{StaticResource OpCfg}" Click="LoadConfiguration"/>
             </MenuItem>
-            <MenuItem Header="{StaticResource MGrap}">
+            <MenuItem Header="{StaticResource MFilt}" Style="{StaticResource RootMenuItem}">
+                <MenuItem x:Name="filterShift" IsCheckable="True" Header="{StaticResource FShif}"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource FGain}" Click="AddGain"/>
+                <MenuItem Header="{StaticResource FDela}" Click="AddDelay"/>
+                <MenuItem Header="{StaticResource FBiqu}" Click="AddBiquad"/>
+            </MenuItem>
+            <MenuItem Header="{StaticResource MGrap}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Header="{StaticResource OpDel}" Click="DeleteNode"/>
             </MenuItem>
         </Menu>

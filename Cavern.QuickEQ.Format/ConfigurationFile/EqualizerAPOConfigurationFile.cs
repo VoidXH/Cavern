@@ -25,7 +25,7 @@ namespace Cavern.Format.ConfigurationFile {
             AddConfigFile(path, lastNodes, activeChannels, sampleRate);
 
             for (int i = 0; i < channelLabels.Length; i++) { // Output markers
-                lastNodes[channelLabels[i]].AddChild(new FilterGraphNode(new BypassFilter(channelLabels[i] + '\'')));
+                lastNodes[channelLabels[i]].AddChild(new FilterGraphNode(new OutputChannel(channelLabels[i])));
             }
             Optimize();
         }

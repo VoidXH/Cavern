@@ -3,10 +3,21 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:String x:Key="MFile">_Fájl</system:String>
 	<system:String x:Key="OpCfg">_Konfigurációs fájl megnyitása</system:String>
+
+    <system:String x:Key="MFilt">_Szűrő hozzáadása</system:String>
+    <system:String x:Key="FShif">_Párhuzamos hozzáadás (Shift nyomva tartásával azonos)</system:String>
+    <system:String x:Key="FGain">_Erősítés</system:String>
+    <system:String x:Key="FDela">_Késleltetés</system:String>
+    <system:String x:Key="FBiqu">E_gyszerű parametrikus szűrő</system:String>
+
     <system:String x:Key="MGrap">_Gráf</system:String>
-    <system:String x:Key="OpDel">Szűrő _törlése</system:String>
+    <system:String x:Key="OpDel">_Kiválasztott szűrő törlése</system:String>
+
     <system:String x:Key="OpFil">Equalizer APO konfigurációk|*.txt</system:String>
     <system:String x:Key="Error">Hiba</system:String>
     <system:String x:Key="NNode">Nincs kiválasztva csúcspont.</system:String>
     <system:String x:Key="NFNod">Kérlek, előbb jelölj ki egy szűrő csúcspontot.</system:String>
+    <system:String x:Key="NFLas">Kimenetek után nem adható hozzá szűrő.</system:String>
+    <system:String x:Key="NFInp">Egy csatorna bemenete nem törölhető.</system:String>
+    <system:String x:Key="NFOut">Egy csatorna kimenete nem törölhető.</system:String>
 </ResourceDictionary>
