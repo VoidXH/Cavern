@@ -8,6 +8,9 @@ namespace Cavern.Filters {
     /// <remarks>This filter is part of the Cavern.QuickEQ.Format library and is not available in the Cavern library's Filters namespace,
     /// because it shall only be created by <see cref="ConfigurationFile"/>s.</remarks>
     public class InputChannel : BypassFilter {
+        /// <inheritdoc/>
+        public override bool LinearTimeInvariant => false;
+
         /// <summary>
         /// The channel for which this filter marks the beginning of the filter pipeline.
         /// </summary>

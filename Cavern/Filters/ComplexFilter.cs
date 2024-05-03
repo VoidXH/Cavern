@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Multiple filters in series.
     /// </summary>
     public class ComplexFilter : Filter {
+        /// <inheritdoc/>
+        public override bool LinearTimeInvariant => Filters.All(x => x.LinearTimeInvariant);
+
         /// <summary>
         /// Filters to apply on the output.
         /// </summary>

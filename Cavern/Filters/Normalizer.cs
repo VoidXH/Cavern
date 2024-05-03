@@ -7,6 +7,9 @@ namespace Cavern.Filters {
     /// Makes sure the content always stays as close to 0 dB as possible.
     /// </summary>
     public class Normalizer : Filter {
+        /// <inheritdoc/>
+        public override bool LinearTimeInvariant => false;
+
         /// <summary>
         /// Gain increment per frame, should be decay rate * update rate / sample rate.
         /// </summary>

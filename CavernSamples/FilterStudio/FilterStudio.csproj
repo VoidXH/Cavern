@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
-		<Nullable>enable</Nullable>
+		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
@@ -17,6 +17,10 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Compile Include="..\VoidX.WPF\ObjectToDataGrid.cs" Link="VoidX.WPF\ObjectToDataGrid.cs" />
+	  <Compile Include="..\VoidX.WPF\QuickContextMenu.cs" Link="VoidX.WPF\QuickContextMenu.cs" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="AutomaticGraphLayout.WpfGraphControl" Version="1.1.12" />
 	</ItemGroup>

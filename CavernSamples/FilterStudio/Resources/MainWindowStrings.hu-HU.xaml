@@ -6,12 +6,18 @@
 
     <system:String x:Key="MFilt">_Szűrő hozzáadása</system:String>
     <system:String x:Key="FShif">_Párhuzamos hozzáadás (Shift nyomva tartásával azonos)</system:String>
+    <system:String x:Key="FLabe">_Címke</system:String>
     <system:String x:Key="FGain">_Erősítés</system:String>
     <system:String x:Key="FDela">_Késleltetés</system:String>
     <system:String x:Key="FBiqu">E_gyszerű parametrikus szűrő</system:String>
 
     <system:String x:Key="MGrap">_Gráf</system:String>
+    <system:String x:Key="OpRec">Középre _mozgatás</system:String>
     <system:String x:Key="OpDel">_Kiválasztott szűrő törlése</system:String>
+    <system:String x:Key="CoDel">_Törlés</system:String>
+
+    <system:String x:Key="Help1">Jobb klikkelj egy szűrőre, hogy új szűrőútvonalat indíts belőle.</system:String>
+    <system:String x:Key="Help2">Jobb klikkelj egy nyílra, hogy új szűrőt adj hozzá két szűrő közé.</system:String>
 
     <system:String x:Key="OpFil">Equalizer APO konfigurációk|*.txt</system:String>
     <system:String x:Key="Error">Hiba</system:String>
@@ -20,4 +26,5 @@
     <system:String x:Key="NFLas">Kimenetek után nem adható hozzá szűrő.</system:String>
     <system:String x:Key="NFInp">Egy csatorna bemenete nem törölhető.</system:String>
     <system:String x:Key="NFOut">Egy csatorna kimenete nem törölhető.</system:String>
+    <system:String x:Key="NLabe">Új címke</system:String>
 </ResourceDictionary>

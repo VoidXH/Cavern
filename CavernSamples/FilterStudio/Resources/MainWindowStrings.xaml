@@ -6,12 +6,18 @@
 
     <system:String x:Key="MFilt">_Add filter</system:String>
     <system:String x:Key="FShif">_Add in parallel (same as holding Shift)</system:String>
+    <system:String x:Key="FLabe">_Label</system:String>
     <system:String x:Key="FGain">_Gain</system:String>
     <system:String x:Key="FDela">_Delay</system:String>
     <system:String x:Key="FBiqu">_Basic parametric filter</system:String>
 
     <system:String x:Key="MGrap">_Graph</system:String>
+    <system:String x:Key="OpRec">_Recenter</system:String>
     <system:String x:Key="OpDel">_Delete selected filter</system:String>
+    <system:String x:Key="CoDel">_Delete</system:String>
+
+    <system:String x:Key="Help1">Right click a filter to start a new path from it with a new filter.</system:String>
+    <system:String x:Key="Help2">Right click an arrow to add a filter between two filters.</system:String>
 
     <system:String x:Key="OpFil">Equalizer APO configurations|*.txt</system:String>
     <system:String x:Key="Error">Error</system:String>
@@ -20,4 +26,5 @@
     <system:String x:Key="NFLas">Filters can't be added after an output.</system:String>
     <system:String x:Key="NFInp">The input of a channel can't be deleted.</system:String>
     <system:String x:Key="NFOut">The output of a channel can't be deleted.</system:String>
+    <system:String x:Key="NLabe">New label</system:String>
 </ResourceDictionary>

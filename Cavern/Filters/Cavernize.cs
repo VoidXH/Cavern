@@ -6,6 +6,9 @@ namespace Cavern.Filters {
     /// Separates ground and height data for a channel of a regular surround mix.
     /// </summary>
     public class Cavernize : Filter {
+        /// <inheritdoc/>
+        public override bool LinearTimeInvariant => false;
+
         /// <summary>
         /// Height separation effect strength.
         /// </summary>

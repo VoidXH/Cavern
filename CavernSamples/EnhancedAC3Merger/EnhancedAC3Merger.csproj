@@ -25,9 +25,6 @@
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<Folder Include="Tools\" />
-	</ItemGroup>
-	<ItemGroup>
 		<Compile Update="Settings.Designer.cs">
 			<DesignTimeSharedInput>True</DesignTimeSharedInput>
 			<AutoGen>True</AutoGen>

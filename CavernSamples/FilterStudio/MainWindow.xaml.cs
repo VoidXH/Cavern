@@ -1,5 +1,8 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.Msagl.Drawing;
+using Microsoft.Msagl.WpfGraphControl;
+using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -26,7 +29,12 @@ namespace FilterStudio {
         /// <summary>
         /// The currently selected filter's node.
         /// </summary>
-        StyledNode SelectedFilter => (StyledNode)graph.Graph?.Nodes.FirstOrDefault(x => x.Attr.LineWidth > 1);
+        StyledNode SelectedFilter => (StyledNode)viewer.Graph?.Nodes.FirstOrDefault(x => x.Attr.LineWidth > 1);
+
+        /// <summary>
+        /// Handles displaying and manipulating the graph.
+        /// </summary>
+        readonly GraphViewer viewer;
 
         /// <summary>
         /// Each channel's full filter graph.
@@ -38,6 +46,8 @@ namespace FilterStudio {
         /// </summary>
         public MainWindow() {
             InitializeComponent();
+            viewer = new GraphViewer();
+            viewer.BindToPanel(graph);
         }
 
         /// <summary>
@@ -64,8 +74,20 @@ namespace FilterStudio {
         /// Updates the graph based on the <see cref="rootNodes"/>.
         /// </summary>
         void ReloadGraph() {
-            graph.Graph = Parsing.ParseConfigurationFile(rootNodes, Parsing.ParseBackground((SolidColorBrush)Background));
-            OnNodeSelected();
+            if (rootNodes != null) {
+                viewer.Graph = Parsing.ParseConfigurationFile(rootNodes, Parsing.ParseBackground((SolidColorBrush)Background));
+                OnNodeSelected();
+            }
+        }
+
+        /// <summary>
+        /// Force select a node on the graph by <paramref name="uid"/>.
+        /// </summary>
+        void SelectNode(string uid) {
+            viewer.Graph.FindNode(uid).Attr.LineWidth = 2;
+            Dispatcher.BeginInvoke(() => { // Call after the graph was redrawn
+                OnNodeSelected();
+            });
         }
 
         /// <summary>
@@ -80,6 +102,7 @@ namespace FilterStudio {
                     node.LabelText = newDisplayName;
                     selectedNode.Text = node.LabelText;
                     ReloadGraph();
+                    SelectNode(node.Id);
                 }
             }
         }
@@ -100,10 +123,15 @@ namespace FilterStudio {
         }
 
         /// <summary>
+        /// When the user lost the graph because it was moved outside the screen, this function redisplays it in the center of the frame.
+        /// </summary>
+        void Recenter(object _, RoutedEventArgs e) => ReloadGraph();
+
+        /// <summary>
         /// Delete the currently selected node.
         /// </summary>
-        void DeleteNode(object _, RoutedEventArgs e) {
-            StyledNode node = SelectedFilter;
+        void DeleteNode(object sender, RoutedEventArgs e) {
+            StyledNode node = GetSelectedNode(sender);
             if (node == null || node.Filter == null) {
                 Error((string)language["NFNod"]);
             } else if (node.Filter.Filter is InputChannel) {
@@ -120,9 +148,28 @@ namespace FilterStudio {
         /// Hack to provide a Click event for MSAGL's WPF library.
         /// </summary>
         void GraphClick(object _, MouseButtonEventArgs e) {
-            Dispatcher.BeginInvoke(() => { // Call after the graph has handled it
-                OnNodeSelected();
-            });
+            if (e.ChangedButton == MouseButton.Left) {
+                StyledNode node = SelectedFilter;
+                if (node != null) {
+                    node.Attr.LineWidth = 1; // Nodes selected with SelectNode are not actually selected, just were widened
+                }
+                Dispatcher.BeginInvoke(() => { // Call after the graph has handled it
+                    OnNodeSelected();
+                });
+            } else {
+                IViewerObject element = viewer.ObjectUnderMouseCursor;
+                List<(string, Action<object, RoutedEventArgs>)> menuItems = [
+                    ((string)language["FLabe"], (_, e) => AddLabel(element, e)),
+                    ((string)language["FGain"], (_, e) => AddGain(element, e)),
+                    ((string)language["FDela"], (_, e) => AddDelay(element, e)),
+                    ((string)language["FBiqu"], (_, e) => AddBiquad(element, e)),
+                ];
+                if (element is IViewerNode) {
+                    menuItems.Add((null, null));
+                    menuItems.Add(((string)language["CoDel"], (_, e) => DeleteNode(element, e)));
+                }
+                QuickContextMenu.Show(menuItems);
+            }
         }
     }
 }
