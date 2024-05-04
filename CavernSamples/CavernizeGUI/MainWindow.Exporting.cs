@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 using System.Threading;
 
@@ -122,7 +121,8 @@ namespace CavernizeGUI {
             int cachePosition = 0;
             float[] writeCache = null;
             bool flush = false;
-            writeCache = new float[blockSize];
+            // The size of writeCache makes sure ContainerWriters get correct sized blocks when written with WriteChannelLimitedBlock
+            writeCache = new float[blockSize / renderTarget.OutputChannels * Listener.Channels.Length];
 
             bool wasError = false;
             while (progressor.Rendered < target.Length) {

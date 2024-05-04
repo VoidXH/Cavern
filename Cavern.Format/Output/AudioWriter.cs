@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Container;
 
@@ -114,7 +115,10 @@ namespace Cavern.Format {
         /// <param name="channels">Channel count of the input array</param>
         /// <param name="from">Start position in the input array (inclusive)</param>
         /// <param name="to">End position in the input array (exclusive)</param>
-        /// <remarks>This function is destructive, <paramref name="samples"/> will be unusable after the operation.</remarks>
+        /// <remarks>This function is destructive, <paramref name="samples"/> will be unusable after the operation.
+        /// Also, make sure when this <see cref="AudioWriter"/> is writing into a <see cref="ContainerWriter"/>, its
+        /// <see cref="RenderTrack.timeStep"/> is set correctly - not to a multiple of <paramref name="channels"/>,
+        /// but <paramref name="channelLimit"/>.</remarks>
         public virtual void WriteChannelLimitedBlock(float[] samples, int channelLimit, int channels, long from, long to) {
             long targetSample = from;
             for (long sourceSample = from; sourceSample < to; sourceSample += channels) {
