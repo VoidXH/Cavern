@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fs="clr-namespace:FilterStudio.Graphs"
         mc:Ignorable="d"
         Title="Cavern Filter Studio" Width="1024" Height="768" Background="#696969">
     <Window.Resources>
@@ -41,9 +42,7 @@
             <DataGrid Name="properties" CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" ColumnWidth="*"/>
         </DockPanel>
         <Grid>
-            <ScrollViewer VerticalScrollBarVisibility="Disabled">
-                <DockPanel Name="graph" PreviewMouseUp="GraphClick"/>
-            </ScrollViewer>
+            <fs:ManipulatableGraph x:Name="graph"/>
             <TextBlock Name="help1" Margin="10,0,0,30" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help1}"/>
             <TextBlock Name="help2" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help2}"/>
         </Grid>

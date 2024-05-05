@@ -45,24 +45,10 @@ namespace FilterStudio {
         }
 
         /// <summary>
-        /// Context menu options pass the selected node in their <paramref name="sender"/> parameter. Use this function to get the actually
-        /// selected node, not the one that was last left-clicked.
-        /// </summary>
-        StyledNode GetSelectedNode(object sender) {
-            if (sender is IViewerNode hoverNode) { // Context menu, node = parallel
-                return (StyledNode)hoverNode.Node;
-            } else if (sender is IViewerEdge edge) { // Context menu, edge = inline
-                return (StyledNode)viewer.Graph.FindNode(edge.Edge.Source);
-            } else { // Window
-                return SelectedFilter;
-            }
-        }
-
-        /// <summary>
         /// Checks to perform before a filter can be added. If an error happens, returns its message, otherwise null.
         /// </summary>
         string PreFilterAddingChecks(object sender) {
-            StyledNode node = GetSelectedNode(sender);
+            StyledNode node = graph.GetSelectedNode(sender);
             if (node == null) {
                 return (string)language["NNode"];
             } else if (node.Filter.Filter is OutputChannel) {
@@ -87,14 +73,14 @@ namespace FilterStudio {
         /// When the <see cref="PreFilterAddingChecks"/> have passed, and the filter has been determined, add it to the graph.
         /// </summary>
         void FinalizeFilter(object sender, Filter filter) {
-            if (sender is IViewerNode node) { // Context menu, node = parallel
-                ((StyledNode)node.Node).Filter.AddChild(filter);
-            } else if (sender is IViewerEdge edge) { // Context menu, edge = inline
-                ((StyledNode)viewer.Graph.FindNode(edge.Edge.Source)).Filter.AddBeforeChildren(filter);
+            if (sender is StyledNode node) { // Context menu, node = parallel
+                node.Filter.AddChild(filter);
+            } else if (sender is Edge edge) { // Context menu, edge = inline
+                ((StyledNode)graph.Graph.FindNode(edge.Source)).Filter.AddBeforeChildren(filter);
             } else if (filterShift.IsChecked || Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) {
-                SelectedFilter.Filter.AddChild(filter);
+                graph.SelectedNode.Filter.AddChild(filter);
             } else {
-                SelectedFilter.Filter.AddBeforeChildren(filter);
+                graph.SelectedNode.Filter.AddBeforeChildren(filter);
             }
             ReloadGraph();
         }
