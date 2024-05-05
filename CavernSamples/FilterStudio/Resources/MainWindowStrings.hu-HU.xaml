@@ -16,6 +16,10 @@
     <system:String x:Key="OpDel">_Kiválasztott szűrő törlése</system:String>
     <system:String x:Key="CoDel">_Törlés</system:String>
 
+    <system:String x:Key="MHelp">Sú_gó</system:String>
+    <system:String x:Key="OpShI">_Segítség mutatása</system:String>
+    <system:String x:Key="OpAbo">_Névjegy</system:String>
+
     <system:String x:Key="Help1">Jobb klikkelj egy szűrőre, hogy új szűrőútvonalat indíts belőle.</system:String>
     <system:String x:Key="Help2">Jobb klikkelj egy nyílra, hogy új szűrőt adj hozzá két szűrő közé.</system:String>
 
@@ -27,4 +31,6 @@
     <system:String x:Key="NFInp">Egy csatorna bemenete nem törölhető.</system:String>
     <system:String x:Key="NFOut">Egy csatorna kimenete nem törölhető.</system:String>
     <system:String x:Key="NLabe">Új címke</system:String>
+
+    <system:String x:Key="HAbou">Névjegy</system:String>
 </ResourceDictionary>

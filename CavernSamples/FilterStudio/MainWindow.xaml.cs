@@ -12,9 +12,11 @@ using Cavern;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
+using Cavern.Utilities;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
+using FilterStudio.Resources;
 
 namespace FilterStudio {
     /// <summary>
@@ -42,18 +44,38 @@ namespace FilterStudio {
         (string name, FilterGraphNode root)[] rootNodes;
 
         /// <summary>
+        /// Any setting has changed in the application and it should be saved.
+        /// </summary>
+        bool settingChanged;
+
+        /// <summary>
         /// Main window of Cavern Filter Studio.
         /// </summary>
         public MainWindow() {
             InitializeComponent();
             viewer = new GraphViewer();
             viewer.BindToPanel(graph);
+
+            showInstructions.IsChecked = Settings.Default.showInstructions;
+            SetInstructions(null, null);
+            Settings.Default.SettingChanging += (_, e) => settingChanged |= !Settings.Default[e.SettingName].Equals(e.NewValue);
         }
 
         /// <summary>
         /// Displays an error message.
         /// </summary>
         static void Error(string message) => MessageBox.Show(message, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+
+        /// <summary>
+        /// Save persistent settings on quit.
+        /// </summary>
+        protected override void OnClosed(EventArgs e) {
+            Settings.Default.showInstructions = showInstructions.IsChecked;
+            if (settingChanged) {
+                Settings.Default.Save();
+            }
+            base.OnClosed(e);
+        }
 
         /// <summary>
         /// When selecting a <paramref name="node"/>, open it for modification.
@@ -121,6 +143,20 @@ namespace FilterStudio {
                 ReloadGraph();
             }
         }
+
+        /// <summary>
+        /// Handle when the instructions are enabled or disabled.
+        /// </summary>
+        void SetInstructions(object _, RoutedEventArgs e) {
+            Visibility instructions = showInstructions.IsChecked ? Visibility.Visible : Visibility.Hidden;
+            help1.Visibility = instructions;
+            help2.Visibility = instructions;
+        }
+
+        /// <summary>
+        /// Shows information about the used Cavern library and its version.
+        /// </summary>
+        void About(object _, RoutedEventArgs e) => MessageBox.Show(Listener.Info, (string)language["HAbou"]);
 
         /// <summary>
         /// When the user lost the graph because it was moved outside the screen, this function redisplays it in the center of the frame.

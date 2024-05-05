@@ -16,6 +16,10 @@
     <system:String x:Key="OpDel">_Delete selected filter</system:String>
     <system:String x:Key="CoDel">_Delete</system:String>
 
+    <system:String x:Key="MHelp">_Help</system:String>
+    <system:String x:Key="OpShI">_Show instructions</system:String>
+    <system:String x:Key="OpAbo">_About</system:String>
+
     <system:String x:Key="Help1">Right click a filter to start a new path from it with a new filter.</system:String>
     <system:String x:Key="Help2">Right click an arrow to add a filter between two filters.</system:String>
 
@@ -27,4 +31,6 @@
     <system:String x:Key="NFInp">The input of a channel can't be deleted.</system:String>
     <system:String x:Key="NFOut">The output of a channel can't be deleted.</system:String>
     <system:String x:Key="NLabe">New label</system:String>
+
+    <system:String x:Key="HAbou">About</system:String>
 </ResourceDictionary>
