@@ -14,7 +14,7 @@ namespace FilterStudio {
         /// <summary>
         /// When selecting a node, open it for modification.
         /// </summary>
-        void GraphLeftClick(object element) {
+        void GraphLeftClick(object _) {
             StyledNode node = graph.SelectedNode;
             if (node == null || node.Filter == null) {
                 selectedNode.Text = (string)language["NNode"];

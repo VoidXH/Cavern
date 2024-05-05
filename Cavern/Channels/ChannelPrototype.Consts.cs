@@ -260,8 +260,11 @@ namespace Cavern.Channels {
         /// Semi-standard (Equalizer APO) channel names.
         /// </summary>
         internal const string frontLeftMark = "L",
+            frontLeftMarkFull = "FL",
             frontRightMark = "R",
+            frontRightMarkFull = "FR",
             frontCenterMark = "C",
+            frontCenterMarkFull = "FC",
             screenLFEMark = "LFE",
             subwooferMark = "SUB",
             rearLeftMark = "RL",

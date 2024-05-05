@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:String x:Key="MFile">_File</system:String>
+    <system:String x:Key="OpNew">_New configuration</system:String>
     <system:String x:Key="OpCfg">_Open configuration file</system:String>
 
     <system:String x:Key="MFilt">_Add filter</system:String>
@@ -9,7 +10,7 @@
     <system:String x:Key="FLabe">_Label</system:String>
     <system:String x:Key="FGain">_Gain</system:String>
     <system:String x:Key="FDela">_Delay</system:String>
-    <system:String x:Key="FBiqu">_Basic parametric filter</system:String>
+    <system:String x:Key="FBiqu">_Basic parametric filter...</system:String>
 
     <system:String x:Key="MGrap">_Graph</system:String>
     <system:String x:Key="OpRec">_Recenter</system:String>

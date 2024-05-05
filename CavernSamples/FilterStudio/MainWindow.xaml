@@ -18,6 +18,7 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{StaticResource MFile}" Style="{StaticResource RootMenuItem}">
+                <MenuItem Header="{StaticResource OpNew}" Click="NewConfiguration"/>
                 <MenuItem Header="{StaticResource OpCfg}" Click="LoadConfiguration"/>
             </MenuItem>
             <MenuItem Header="{StaticResource MFilt}" Style="{StaticResource RootMenuItem}">

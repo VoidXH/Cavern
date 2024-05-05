@@ -31,6 +31,7 @@ namespace FilterStudio.Graphs {
         /// <summary>
         /// Handle to MSAGL.
         /// </summary>
+        /// <remarks>Setting to null doesn't clear the last displayed graph.</remarks>
         public Graph Graph {
             get => viewer.Graph;
             set {
@@ -38,12 +39,6 @@ namespace FilterStudio.Graphs {
                 OnLeftClick?.Invoke(null); // Says nothing is selected now, nothing has a thick border on redraw
             }
         }
-
-        /// <summary>
-        /// An inner panel that acts as a window for the graph. The <see cref="ScrollViewer"/> is the curtain,
-        /// it keeps the graph in the bounds of the control wherever the user moves it.
-        /// </summary>
-        readonly DockPanel panel;
 
         /// <summary>
         /// Handles displaying and manipulating the graph.
@@ -55,7 +50,9 @@ namespace FilterStudio.Graphs {
         /// </summary>
         public ManipulatableGraph() {
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            panel = new DockPanel();
+            // An inner panel that acts as a window for the graph. The ScrollViewer is the curtain,
+            // it keeps the graph in the bounds of the control wherever the user moves it.
+            DockPanel panel = new();
             AddChild(panel);
             viewer = new GraphViewer();
             viewer.BindToPanel(panel);

@@ -60,6 +60,14 @@ namespace FilterStudio {
         }
 
         /// <summary>
+        /// Create a new empty configuration.
+        /// </summary>
+        void NewConfiguration(object _, RoutedEventArgs e) {
+            rootNodes = new CavernFilterStudioConfigurationFile(8).InputChannels;
+            ReloadGraph();
+        }
+
+        /// <summary>
         /// Open a configuration file of known formats.
         /// </summary>
         void LoadConfiguration(object _, RoutedEventArgs e) {

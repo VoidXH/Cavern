@@ -33,10 +33,13 @@ namespace Cavern.Channels {
         public static ReferenceChannel FromStandardName(string name) {
             switch (name) {
                 case ChannelPrototype.frontLeftMark:
+                case ChannelPrototype.frontLeftMarkFull:
                     return ReferenceChannel.FrontLeft;
                 case ChannelPrototype.frontRightMark:
+                case ChannelPrototype.frontRightMarkFull:
                     return ReferenceChannel.FrontRight;
                 case ChannelPrototype.frontCenterMark:
+                case ChannelPrototype.frontCenterMarkFull:
                     return ReferenceChannel.FrontCenter;
                 case ChannelPrototype.screenLFEMark:
                 case ChannelPrototype.subwooferMark:

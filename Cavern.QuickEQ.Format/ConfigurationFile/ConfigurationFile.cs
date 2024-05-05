@@ -17,6 +17,16 @@ namespace Cavern.Format.ConfigurationFile {
         public (string name, FilterGraphNode root)[] InputChannels { get; }
 
         /// <summary>
+        /// Create an empty configuration file with the passed input channels.
+        /// </summary>
+        protected ConfigurationFile(ReferenceChannel[] inputs) {
+            InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
+            for (int i = 0; i < inputs.Length; i++) {
+                InputChannels[i] = (inputs[i].GetShortName(), new FilterGraphNode(new InputChannel(inputs[i])));
+            }
+        }
+
+        /// <summary>
         /// Create an empty configuration file with the passed input channel names/labels.
         /// </summary>
         protected ConfigurationFile(string[] inputs) {

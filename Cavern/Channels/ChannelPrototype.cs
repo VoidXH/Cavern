@@ -69,10 +69,13 @@ namespace Cavern.Channels {
         public static ChannelPrototype FromStandardName(string name) {
             switch (name) {
                 case frontLeftMark:
+                case frontLeftMarkFull:
                     return FrontLeft;
                 case frontRightMark:
+                case frontRightMarkFull:
                     return FrontRight;
                 case frontCenterMark:
+                case frontCenterMarkFull:
                     return FrontCenter;
                 case screenLFEMark:
                 case subwooferMark:
