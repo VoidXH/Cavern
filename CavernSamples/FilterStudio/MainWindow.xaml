@@ -28,10 +28,17 @@
                 <MenuItem Header="{StaticResource FGain}" Click="AddGain"/>
                 <MenuItem Header="{StaticResource FDela}" Click="AddDelay"/>
                 <MenuItem Header="{StaticResource FBiqu}" Click="AddBiquad"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource OpDel}" Click="DeleteNode"/>
             </MenuItem>
             <MenuItem Header="{StaticResource MGrap}" Style="{StaticResource RootMenuItem}">
+                <MenuItem Header="{StaticResource SmDir}">
+                    <MenuItem Header="{StaticResource SOpTB}" Click="SetDirectionTB"/>
+                    <MenuItem Header="{StaticResource SOpLR}" Click="SetDirectionLR"/>
+                    <MenuItem Header="{StaticResource SOpBT}" Click="SetDirectionBT"/>
+                    <MenuItem Header="{StaticResource SOpRL}" Click="SetDirectionRL"/>
+                </MenuItem>
                 <MenuItem Header="{StaticResource OpRec}" Click="Recenter"/>
-                <MenuItem Header="{StaticResource OpDel}" Click="DeleteNode"/>
             </MenuItem>
             <MenuItem Header="{StaticResource MHelp}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Name="showInstructions" IsCheckable="True" Header="{StaticResource OpShI}" Click="SetInstructions"/>
@@ -43,7 +50,9 @@
             <DataGrid Name="properties" CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" ColumnWidth="*"/>
         </DockPanel>
         <Grid>
-            <fs:ManipulatableGraph x:Name="graph"/>
+            <fs:PipelineEditor VerticalAlignment="Top" Height="100" x:Name="pipeline"/>
+            <Separator Margin="0,99,0,0" VerticalAlignment="Top"/>
+            <fs:ManipulatableGraph Margin="0,100,0,0" x:Name="graph"/>
             <TextBlock Name="help1" Margin="10,0,0,30" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help1}"/>
             <TextBlock Name="help2" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help2}"/>
         </Grid>

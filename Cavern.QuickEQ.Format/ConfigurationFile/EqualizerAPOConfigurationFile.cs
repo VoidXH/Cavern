@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
+using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
@@ -19,7 +20,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         /// <param name="path">Filesystem location of the configuration file</param>
         /// <param name="sampleRate">The sample rate to use when</param>
-        public EqualizerAPOConfigurationFile(string path, int sampleRate) : base(channelLabels) {
+        public EqualizerAPOConfigurationFile(string path, int sampleRate) : base(Path.GetFileName(path), channelLabels) {
             Dictionary<string, FilterGraphNode> lastNodes = InputChannels.ToDictionary(x => x.name, x => x.root);
             List<string> activeChannels = channelLabels.ToList();
             AddConfigFile(path, lastNodes, activeChannels, sampleRate);
@@ -43,6 +44,7 @@ namespace Cavern.Format.ConfigurationFile {
                 switch (split[0].ToLower(CultureInfo.InvariantCulture)) {
                     case "include":
                         string included = Path.Combine(Path.GetDirectoryName(path), string.Join(' ', split, 1, split.Length - 1));
+                        CreateSplit(Path.GetFileName(included), lastNodes);
                         AddConfigFile(included, lastNodes, activeChannels, sampleRate);
                         break;
                     case "channel":
@@ -112,6 +114,21 @@ namespace Cavern.Format.ConfigurationFile {
                     lastNodes[channels[i]] = oldLastNode.AddChild(filter);
                     addedTo.Add(oldLastNode);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Mark the current point of the configuration as the beginning of the next section of filters or next pipeline step.
+        /// </summary>
+        void CreateSplit(string name, Dictionary<string, FilterGraphNode> lastNodes) {
+            KeyValuePair<string, FilterGraphNode>[] outputs =
+                lastNodes.Where(x => ReferenceChannelExtensions.FromStandardName(x.Key) != ReferenceChannel.Unknown).ToArray();
+            for (int i = 0; i < outputs.Length; i++) {
+                lastNodes[outputs[i].Key] = lastNodes[outputs[i].Key].AddChild(new OutputChannel(outputs[i].Key));
+            }
+            CreateNewSplitPoint(name);
+            for (int i = 0; i < outputs.Length; i++) {
+                lastNodes[outputs[i].Key] = lastNodes[outputs[i].Key].Children[0];
             }
         }
 

@@ -63,9 +63,13 @@ namespace FilterStudio.Graphs {
         /// </summary>
         public void SelectNode(string uid) {
             Node node = viewer.Graph.FindNode(uid);
+            if (node == null) {
+                return;
+            }
+
             node.Attr.LineWidth = 2;
             Dispatcher.BeginInvoke(() => { // Call after the graph was redrawn
-                OnLeftClick(node);
+                OnLeftClick?.Invoke(node);
             });
         }
 

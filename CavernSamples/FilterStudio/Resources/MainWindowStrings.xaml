@@ -5,17 +5,22 @@
     <system:String x:Key="OpNew">_New configuration</system:String>
     <system:String x:Key="OpCfg">_Open configuration file</system:String>
 
-    <system:String x:Key="MFilt">_Add filter</system:String>
+    <system:String x:Key="MFilt">F_ilters</system:String>
     <system:String x:Key="FShif">_Add in parallel (same as holding Shift)</system:String>
     <system:String x:Key="FLabe">_Label</system:String>
     <system:String x:Key="FGain">_Gain</system:String>
     <system:String x:Key="FDela">_Delay</system:String>
     <system:String x:Key="FBiqu">_Basic parametric filter...</system:String>
-
-    <system:String x:Key="MGrap">_Graph</system:String>
-    <system:String x:Key="OpRec">_Recenter</system:String>
     <system:String x:Key="OpDel">_Delete selected filter</system:String>
     <system:String x:Key="CoDel">_Delete</system:String>
+
+    <system:String x:Key="MGrap">_Graph</system:String>
+    <system:String x:Key="SmDir">_Direction</system:String>
+    <system:String x:Key="SOpTB">_Top to bottom</system:String>
+    <system:String x:Key="SOpLR">_Left to right</system:String>
+    <system:String x:Key="SOpBT">_Bottom to top</system:String>
+    <system:String x:Key="SOpRL">_Right to left</system:String>
+    <system:String x:Key="OpRec">_Recenter</system:String>
 
     <system:String x:Key="MHelp">_Help</system:String>
     <system:String x:Key="OpShI">_Show instructions</system:String>
@@ -31,6 +36,10 @@
     <system:String x:Key="NFLas">Filters can't be added after an output.</system:String>
     <system:String x:Key="NFInp">The input of a channel can't be deleted.</system:String>
     <system:String x:Key="NFOut">The output of a channel can't be deleted.</system:String>
+
+    <system:String x:Key="NSNew">New</system:String>
+    <system:String x:Key="NInpu">Input</system:String>
+    <system:String x:Key="NOutp">Output</system:String>
     <system:String x:Key="NLabe">New label</system:String>
 
     <system:String x:Key="HAbou">About</system:String>

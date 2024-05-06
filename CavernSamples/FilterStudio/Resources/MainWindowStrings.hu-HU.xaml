@@ -5,17 +5,22 @@
     <system:String x:Key="OpNew">_Új konfiguráció</system:String>
 	<system:String x:Key="OpCfg">_Konfigurációs fájl megnyitása</system:String>
 
-    <system:String x:Key="MFilt">_Szűrő hozzáadása</system:String>
+    <system:String x:Key="MFilt">_Szűrők</system:String>
     <system:String x:Key="FShif">_Párhuzamos hozzáadás (Shift nyomva tartásával azonos)</system:String>
     <system:String x:Key="FLabe">_Címke</system:String>
     <system:String x:Key="FGain">_Erősítés</system:String>
     <system:String x:Key="FDela">_Késleltetés</system:String>
     <system:String x:Key="FBiqu">E_gyszerű parametrikus szűrő...</system:String>
+    <system:String x:Key="OpDel">Kiválasztott szűrő _törlése</system:String>
+    <system:String x:Key="CoDel">_Törlés</system:String>
 
     <system:String x:Key="MGrap">_Gráf</system:String>
-    <system:String x:Key="OpRec">Középre _mozgatás</system:String>
-    <system:String x:Key="OpDel">_Kiválasztott szűrő törlése</system:String>
-    <system:String x:Key="CoDel">_Törlés</system:String>
+    <system:String x:Key="SmDir">_Irány</system:String>
+    <system:String x:Key="SOpTB">_Fentről le</system:String>
+    <system:String x:Key="SOpLR">_Balról jobbra</system:String>
+    <system:String x:Key="SOpBT">_Lentről fel</system:String>
+    <system:String x:Key="SOpRL">_Jobbról balra</system:String>
+    <system:String x:Key="OpRec">_Középre mozgatás</system:String>
 
     <system:String x:Key="MHelp">Sú_gó</system:String>
     <system:String x:Key="OpShI">_Segítség mutatása</system:String>
@@ -31,6 +36,10 @@
     <system:String x:Key="NFLas">Kimenetek után nem adható hozzá szűrő.</system:String>
     <system:String x:Key="NFInp">Egy csatorna bemenete nem törölhető.</system:String>
     <system:String x:Key="NFOut">Egy csatorna kimenete nem törölhető.</system:String>
+
+    <system:String x:Key="NSNew">Új</system:String>
+    <system:String x:Key="NInpu">Bemenet</system:String>
+    <system:String x:Key="NOutp">Kimenet</system:String>
     <system:String x:Key="NLabe">Új címke</system:String>
 
     <system:String x:Key="HAbou">Névjegy</system:String>

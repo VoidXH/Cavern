@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Media;
 
+using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
 
@@ -21,18 +22,17 @@ namespace FilterStudio.Graphs {
         /// Convert a <see cref="ConfigurationFile"/>'s filter graph to an MSAGL <see cref="Graph"/>.
         /// </summary>
         /// <param name="rootNodes">Filter graph to convert, from <see cref="ConfigurationFile.InputChannels"/></param>
-        /// <param name="background">Graph background color</param>
-        public static Graph ParseConfigurationFile((string name, FilterGraphNode root)[] rootNodes, Color background) {
+        public static Graph ParseConfigurationFile(FilterGraphNode[] rootNodes) {
             Graph result = new();
-            result.Attr.BackgroundColor = background;
-
             for (int i = 0; i < rootNodes.Length; i++) {
-                result.AddNode(new StyledNode(rootNodes[i].name, rootNodes[i].root.ToString()) {
-                    Filter = rootNodes[i].root
+                string uid = rootNodes[i].GetHashCode().ToString();
+                result.AddNode(new StyledNode(uid, rootNodes[i].ToString()) {
+                    Filter = rootNodes[i]
                 });
-                IReadOnlyList<FilterGraphNode> children = rootNodes[i].root.Children;
+
+                IReadOnlyList<FilterGraphNode> children = rootNodes[i].Children;
                 for (int j = 0, c = children.Count; j < c; j++) {
-                    AddToGraph(rootNodes[i].name, children[j], result);
+                    AddToGraph(uid, children[j], result);
                 }
             }
             return result;
@@ -60,6 +60,10 @@ namespace FilterStudio.Graphs {
             }
 
             new StyledEdge(target, parent, uid);
+
+            if (source.Filter is OutputChannel) {
+                return; // Filters after output channels are part of different splits
+            }
             for (int i = 0, c = source.Children.Count; i < c; i++) {
                 AddToGraph(uid, source.Children[i], target);
             }

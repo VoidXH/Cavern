@@ -1,11 +1,14 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.Msagl.Drawing;
+using Microsoft.Win32;
 using System;
 using System.Windows;
+using System.Windows.Media;
 
 using Cavern;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
+using Cavern.Utilities;
 
 using FilterStudio.Graphs;
 using FilterStudio.Resources;
@@ -23,7 +26,7 @@ namespace FilterStudio {
         /// <summary>
         /// Each channel's full filter graph.
         /// </summary>
-        (string name, FilterGraphNode root)[] rootNodes;
+        FilterGraphNode[] rootNodes;
 
         /// <summary>
         /// Any setting has changed in the application and it should be saved.
@@ -35,6 +38,9 @@ namespace FilterStudio {
         /// </summary>
         public MainWindow() {
             InitializeComponent();
+            pipeline.OnSplitChanged += SplitChanged;
+            pipeline.background = Parsing.ParseBackground((SolidColorBrush)Background);
+            pipeline.language = language;
             graph.OnLeftClick += GraphLeftClick;
             graph.OnRightClick += GraphRightClick;
 
@@ -63,7 +69,7 @@ namespace FilterStudio {
         /// Create a new empty configuration.
         /// </summary>
         void NewConfiguration(object _, RoutedEventArgs e) {
-            rootNodes = new CavernFilterStudioConfigurationFile(8).InputChannels;
+            rootNodes = new CavernFilterStudioConfigurationFile((string)language["NSNew"], 8).InputChannels.GetItem2s();
             ReloadGraph();
         }
 
@@ -77,15 +83,9 @@ namespace FilterStudio {
             if (dialog.ShowDialog().Value) {
                 ConfigurationFile file = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
 
-                rootNodes = file.InputChannels;
-                ReloadGraph();
+                pipeline.Source = file;
             }
         }
-
-        /// <summary>
-        /// When the user lost the graph because it was moved outside the screen, this function redisplays it in the center of the frame.
-        /// </summary>
-        void Recenter(object _, RoutedEventArgs e) => ReloadGraph();
 
         /// <summary>
         /// Delete the currently selected node.
@@ -117,6 +117,14 @@ namespace FilterStudio {
         /// Shows information about the used Cavern library and its version.
         /// </summary>
         void About(object _, RoutedEventArgs e) => MessageBox.Show(Listener.Info, (string)language["HAbou"]);
+
+        /// <summary>
+        /// A different split of the edited file is selected.
+        /// </summary>
+        void SplitChanged(FilterGraphNode[] splitRoots) {
+            rootNodes = splitRoots;
+            ReloadGraph();
+        }
 
         /// <summary>
         /// Update the name of a filter when any property of it was modified.

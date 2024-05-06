@@ -8,9 +8,10 @@ namespace Cavern.Format.ConfigurationFile {
     /// </summary>
     public class CavernFilterStudioConfigurationFile : ConfigurationFile {
         /// <summary>
-        /// Cavern Filter Studio's own export format for full grouped filter pipelines.
+        /// Create an empty file for a standard layout.
         /// </summary>
-        public CavernFilterStudioConfigurationFile(int channelCount) : base(ChannelPrototype.GetStandardMatrix(channelCount)) {
+        public CavernFilterStudioConfigurationFile(string name, int channelCount) :
+            base(name, ChannelPrototype.GetStandardMatrix(channelCount)) {
             for (int i = 0; i < channelCount; i++) { // Output markers
                 InputChannels[i].root.AddChild(new FilterGraphNode(new OutputChannel(InputChannels[i].name)));
             }

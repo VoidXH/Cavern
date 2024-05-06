@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
     /// <summary>
@@ -12,28 +14,55 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Root nodes of each channel, start attaching their filters as a children chain.
         /// </summary>
-        /// <remarks>The root node has a null filter, it's only used to mark in a single instance if the channel is
-        /// processed on two separate pipelines from the root.</remarks>
         public (string name, FilterGraphNode root)[] InputChannels { get; }
+
+        /// <summary>
+        /// Named points where the configuration file can be separated to new sections. Split points only consist of input nodes after the
+        /// previous split point's output nodes.
+        /// </summary>
+        public IReadOnlyList<(string name, FilterGraphNode[] roots)> SplitPoints { get; }
 
         /// <summary>
         /// Create an empty configuration file with the passed input channels.
         /// </summary>
-        protected ConfigurationFile(ReferenceChannel[] inputs) {
+        protected ConfigurationFile(string name, ReferenceChannel[] inputs) {
             InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
                 InputChannels[i] = (inputs[i].GetShortName(), new FilterGraphNode(new InputChannel(inputs[i])));
             }
+
+            SplitPoints = new List<(string, FilterGraphNode[])> {
+                (name, InputChannels.GetItem2s())
+            };
         }
 
         /// <summary>
         /// Create an empty configuration file with the passed input channel names/labels.
         /// </summary>
-        protected ConfigurationFile(string[] inputs) {
+        protected ConfigurationFile(string name, string[] inputs) {
             InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
                 InputChannels[i] = (inputs[i], new FilterGraphNode(new InputChannel(inputs[i])));
             }
+
+            SplitPoints = new List<(string, FilterGraphNode[])> {
+                (name, InputChannels.GetItem2s())
+            };
+        }
+
+        /// <summary>
+        /// Adds an entry to the <see cref="SplitPoints"/> with the current state of the configuration, creating new
+        /// <see cref="InputChannel"/>s after each existing <see cref="OutputChannel"/>.
+        /// </summary>
+        /// <remarks>If you keep track of your currently handled output nodes, set them to their children,
+        /// because new input nodes are created in this function.</remarks>
+        protected void CreateNewSplitPoint(string name) {
+            FilterGraphNode[] nodes =
+                FilterGraphNodeUtils.MapGraph(InputChannels.Select(x => x.root)).Where(x => x.Filter is OutputChannel).ToArray();
+            for (int i = 0; i < nodes.Length; i++) {
+                nodes[i] = nodes[i].AddChild(new InputChannel(((OutputChannel)nodes[i].Filter).Channel));
+            }
+            ((List<(string, FilterGraphNode[])>)SplitPoints).Add((name, nodes));
         }
 
         /// <summary>

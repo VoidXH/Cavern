@@ -45,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.WPF", "Cavern.WPF\Ca
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microprojects", "Microprojects", "{679D71F9-B8C0-4D52-B3C8-8DE338E3888C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilterStudio", "FilterStudio\FilterStudio.csproj", "{5F0DDE27-A6F0-4A6D-B7D6-BB7E3AC95471}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FilterStudio", "FilterStudio\FilterStudio.csproj", "{5F0DDE27-A6F0-4A6D-B7D6-BB7E3AC95471}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

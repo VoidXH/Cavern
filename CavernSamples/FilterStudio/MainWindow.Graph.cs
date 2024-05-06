@@ -1,8 +1,7 @@
 ﻿using Microsoft.Msagl.Drawing;
+using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Media;
-using System;
 
 using VoidX.WPF;
 
@@ -11,6 +10,44 @@ using FilterStudio.Graphs;
 namespace FilterStudio {
     // Handlers of the filter graph control
     partial class MainWindow {
+        /// <summary>
+        /// The direction where the graph tree is layed out.
+        /// </summary>
+        LayerDirection graphDirection;
+
+        /// <summary>
+        /// Change the direction where the graph tree is layed out to top to bottom.
+        /// </summary>
+        void SetDirectionTB(object _, RoutedEventArgs e) => SetDirection(LayerDirection.TB);
+
+        /// <summary>
+        /// Change the direction where the graph tree is layed out to left to right.
+        /// </summary>
+        void SetDirectionLR(object _, RoutedEventArgs e) => SetDirection(LayerDirection.LR);
+
+        /// <summary>
+        /// Change the direction where the graph tree is layed out to bottom to top.
+        /// </summary>
+        void SetDirectionBT(object _, RoutedEventArgs e) => SetDirection(LayerDirection.BT);
+
+        /// <summary>
+        /// Change the direction where the graph tree is layed out to right to left.
+        /// </summary>
+        void SetDirectionRL(object _, RoutedEventArgs e) => SetDirection(LayerDirection.RL);
+
+        /// <summary>
+        /// Change the direction where the graph tree is layed out.
+        /// </summary>
+        void SetDirection(LayerDirection direction) {
+            graphDirection = direction;
+            ReloadGraph();
+        }
+
+        /// <summary>
+        /// When the user lost the graph because it was moved outside the screen, this function redisplays it in the center of the frame.
+        /// </summary>
+        void Recenter(object _, RoutedEventArgs e) => ReloadGraph();
+
         /// <summary>
         /// When selecting a node, open it for modification.
         /// </summary>
@@ -48,7 +85,10 @@ namespace FilterStudio {
         /// </summary>
         void ReloadGraph() {
             if (rootNodes != null) {
-                graph.Graph = Parsing.ParseConfigurationFile(rootNodes, Parsing.ParseBackground((SolidColorBrush)Background));
+                Graph newGraph = Parsing.ParseConfigurationFile(rootNodes);
+                newGraph.Attr.BackgroundColor = pipeline.background;
+                newGraph.Attr.LayerDirection = graphDirection;
+                graph.Graph = newGraph;
             }
         }
     }
