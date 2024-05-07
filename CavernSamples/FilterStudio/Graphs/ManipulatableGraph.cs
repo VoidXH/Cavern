@@ -112,5 +112,14 @@ namespace FilterStudio.Graphs {
                 OnRightClick?.Invoke(param);
             }
         }
+
+        /// <summary>
+        /// Hack to disable drag and drop as positions can't be preserved between graph updates.
+        /// </summary>
+        protected override void OnPreviewMouseMove(MouseEventArgs e) {
+            if (e.LeftButton == MouseButtonState.Pressed) {
+                e.Handled = true;
+            }
+        }
     }
 }

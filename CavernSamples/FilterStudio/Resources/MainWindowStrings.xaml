@@ -2,8 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:String x:Key="MFile">_File</system:String>
-    <system:String x:Key="OpNew">_New configuration</system:String>
-    <system:String x:Key="OpCfg">_Open configuration file</system:String>
+    <system:String x:Key="OpNew">_New configuration file</system:String>
+    <system:String x:Key="OpCfg">_Open configuration file...</system:String>
+    <system:String x:Key="OpChs">_Select channels...</system:String>
 
     <system:String x:Key="MFilt">F_ilters</system:String>
     <system:String x:Key="FShif">_Add in parallel (same as holding Shift)</system:String>
@@ -31,6 +32,9 @@
 
     <system:String x:Key="OpFil">Equalizer APO configurations|*.txt</system:String>
     <system:String x:Key="Error">Error</system:String>
+    <system:String x:Key="NOpen">A configuration file is already being edited.
+The channel configuration will only be applied when you create a new configuration file.</system:String>
+    <system:String x:Key="NChan">No channels were selected, the channel configuration wasn't changed.</system:String>
     <system:String x:Key="NNode">No node selected.</system:String>
     <system:String x:Key="NFNod">Please select a filter node first.</system:String>
     <system:String x:Key="NFLas">Filters can't be added after an output.</system:String>

@@ -40,6 +40,10 @@ namespace FilterStudio {
         /// </summary>
         void SetDirection(LayerDirection direction) {
             graphDirection = direction;
+            dirTB.IsChecked = direction == LayerDirection.TB;
+            dirLR.IsChecked = direction == LayerDirection.LR;
+            dirBT.IsChecked = direction == LayerDirection.BT;
+            dirRL.IsChecked = direction == LayerDirection.RL;
             ReloadGraph();
         }
 

@@ -34,5 +34,29 @@ namespace FilterStudio.Resources {
                 this["showInstructions"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public byte graphDirection {
+            get {
+                return ((byte)(this["graphDirection"]));
+            }
+            set {
+                this["graphDirection"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("255")]
+        public int channels {
+            get {
+                return ((int)(this["channels"]));
+            }
+            set {
+                this["channels"] = value;
+            }
+        }
     }
 }

@@ -5,9 +5,15 @@
     <Compile Update="BiquadEditor.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="ChannelSelector.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="BiquadEditor.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ChannelSelector.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

@@ -32,7 +32,7 @@ namespace FilterStudio {
         void AddBiquad(object sender, RoutedEventArgs e) {
             string error = PreFilterAddingChecks(sender);
             if (error == null) {
-                BiquadEditor editor = new BiquadEditor {
+                BiquadEditor editor = new() {
                     Background = Background,
                     Resources = Resources
                 };

@@ -1,10 +1,37 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System;
+using System.Text;
 
 namespace Cavern.Channels {
     /// <summary>
     /// Extension functions for reference channels.
     /// </summary>
     public static class ReferenceChannelExtensions {
+        /// <summary>
+        /// Unpack a set of <see cref="ReferenceChannel"/>s from a mask made with <see cref="GetMask(ReferenceChannel[])"/>.
+        /// </summary>
+        public static ReferenceChannel[] FromMask(int mask) {
+            List<ReferenceChannel> result = new List<ReferenceChannel>();
+            int channels = Enum.GetValues(typeof(ReferenceChannel)).Length;
+            for (int i = 0; i < channels; i++) {
+                if ((mask & (1 << i)) != 0) {
+                    result.Add((ReferenceChannel)i);
+                }
+            }
+            return result.ToArray();
+        }
+
+        /// <summary>
+        /// Convert a set of <see cref="ReferenceChannel"/>s to a channel mask that can be decoded with <see cref="FromMask(int)"/>.
+        /// </summary>
+        public static int GetMask(this ReferenceChannel[] channels) {
+            int result = 0;
+            for (int i = 0; i < channels.Length; i++) {
+                result |= 1 << (int)channels[i];
+            }
+            return result;
+        }
+
         /// <summary>
         /// Get the first letters of each word in the channel's name, like TFL from Top Front Left.
         /// </summary>

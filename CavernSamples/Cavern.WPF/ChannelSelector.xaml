@@ -1,0 +1,73 @@
+﻿<Window x:Class="Cavern.WPF.ChannelSelector"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Channel Selector" Width="570" Height="350">
+    <Window.Resources>
+        <Style x:Key="x2" TargetType="CheckBox">
+            <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+            <Setter Property="LayoutTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="2" ScaleY="2" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <TextBlock Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="230"
+                   Text="Ground layer" TextAlignment="Center" FontSize="15"/>
+        <Rectangle Margin="26,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="200" Stroke="Black"/>
+        <CheckBox Name="frontLeft" Margin="10,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Front left"/>
+        <CheckBox Name="frontLeftCenter" Margin="60,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Front left center"/>
+        <CheckBox Name="frontCenter" Margin="110,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Front center"/>
+        <CheckBox Name="frontRightCenter" Margin="160,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Front right center"/>
+        <CheckBox Name="frontRight" Margin="210,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Front right"/>
+        <CheckBox Name="wideLeft" Margin="10,85,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Wide left"/>
+        <CheckBox Name="wideRight" Margin="210,85,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Wide right"/>
+        <CheckBox Name="sideLeft" Margin="10,135,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Side left"/>
+        <CheckBox Name="screenLFE" Margin="110,135,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="LFE"/>
+        <CheckBox Name="sideRight" Margin="210,135,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Side right"/>
+        <CheckBox Name="rearLeft" Margin="10,235,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Rear left"/>
+        <CheckBox Name="rearCenter" Margin="110,235,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Rear center"/>
+        <CheckBox Name="rearRight" Margin="210,235,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Rear right"/>
+        <TextBlock Margin="310,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="230"
+                   Text="Top layer" TextAlignment="Center" FontSize="15"/>
+        <Rectangle Margin="326,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="200" Stroke="Black"/>
+        <CheckBox Name="topFrontLeft" Margin="310,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Top front left"/>
+        <CheckBox Name="topFrontCenter" Margin="410,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Top front center"/>
+        <CheckBox Name="topFrontRight" Margin="510,35,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Top front right"/>
+        <CheckBox Name="topSideLeft" Margin="310,135,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Top side left"/>
+        <CheckBox Name="godsVoice" Margin="410,135,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="God's voice"/>
+        <CheckBox Name="topSideRight" Margin="510,135,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Top side right"/>
+        <CheckBox Name="topRearLeft" Margin="310,235,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Top rear left"/>
+        <CheckBox Name="topRearCenter" Margin="410,235,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Top rear center"/>
+        <CheckBox Name="topRearRight" Margin="510,235,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource x2}"
+                  ToolTip="Top rear right"/>
+        <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="OK" Click="OK"/>
+        <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Cancel"
+                Click="Cancel"/>
+    </Grid>
+</Window>

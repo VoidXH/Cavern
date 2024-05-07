@@ -5,10 +5,11 @@ using System.Windows;
 using System.Windows.Media;
 
 using Cavern;
+using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
-using Cavern.Utilities;
+using Cavern.WPF;
 
 using FilterStudio.Graphs;
 using FilterStudio.Resources;
@@ -22,6 +23,11 @@ namespace FilterStudio {
         /// Source of language strings.
         /// </summary>
         static readonly ResourceDictionary language = Consts.Language.GetMainWindowStrings();
+
+        /// <summary>
+        /// The user-selected channels used when new configurations are created.
+        /// </summary>
+        ReferenceChannel[] channels;
 
         /// <summary>
         /// Each channel's full filter graph.
@@ -46,6 +52,8 @@ namespace FilterStudio {
 
             showInstructions.IsChecked = Settings.Default.showInstructions;
             SetInstructions(null, null);
+            SetDirection((LayerDirection)Settings.Default.graphDirection);
+            channels = ReferenceChannelExtensions.FromMask(Settings.Default.channels);
             Settings.Default.SettingChanging += (_, e) => settingChanged |= !Settings.Default[e.SettingName].Equals(e.NewValue);
         }
 
@@ -59,6 +67,7 @@ namespace FilterStudio {
         /// </summary>
         protected override void OnClosed(EventArgs e) {
             Settings.Default.showInstructions = showInstructions.IsChecked;
+            Settings.Default.graphDirection = (byte)graphDirection;
             if (settingChanged) {
                 Settings.Default.Save();
             }
@@ -69,7 +78,7 @@ namespace FilterStudio {
         /// Create a new empty configuration.
         /// </summary>
         void NewConfiguration(object _, RoutedEventArgs e) {
-            rootNodes = new CavernFilterStudioConfigurationFile((string)language["NSNew"], 8).InputChannels.GetItem2s();
+            pipeline.Source = new CavernFilterStudioConfigurationFile((string)language["NSNew"], channels);
             ReloadGraph();
         }
 
@@ -84,6 +93,30 @@ namespace FilterStudio {
                 ConfigurationFile file = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
 
                 pipeline.Source = file;
+            }
+        }
+
+        /// <summary>
+        /// Select the channels that are available in the system.
+        /// </summary>
+        void SelectChannels(object _, RoutedEventArgs e) {
+            if (pipeline.Source != null) {
+                Error((string)language["NOpen"]);
+            }
+
+            ChannelSelector dialog = new() {
+                Background = Background,
+                Resources = Resources,
+                SelectedChannels = channels
+            };
+            if (dialog.ShowDialog().Value) {
+                ReferenceChannel[] newChannels = dialog.SelectedChannels;
+                if (newChannels.Length != 0) {
+                    channels = newChannels;
+                    Settings.Default.channels = channels.GetMask();
+                } else {
+                    Error((string)language["NChan"]);
+                }
             }
         }
 

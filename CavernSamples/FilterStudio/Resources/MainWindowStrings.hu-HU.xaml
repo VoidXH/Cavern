@@ -2,8 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:String x:Key="MFile">_Fájl</system:String>
-    <system:String x:Key="OpNew">_Új konfiguráció</system:String>
-	<system:String x:Key="OpCfg">_Konfigurációs fájl megnyitása</system:String>
+    <system:String x:Key="OpNew">_Új konfigurációs fájl</system:String>
+	<system:String x:Key="OpCfg">_Konfigurációs fájl megnyitása...</system:String>
+    <system:String x:Key="OpChs">_Csatornák kiválasztása...</system:String>
 
     <system:String x:Key="MFilt">_Szűrők</system:String>
     <system:String x:Key="FShif">_Párhuzamos hozzáadás (Shift nyomva tartásával azonos)</system:String>
@@ -31,6 +32,9 @@
 
     <system:String x:Key="OpFil">Equalizer APO konfigurációk|*.txt</system:String>
     <system:String x:Key="Error">Hiba</system:String>
+    <system:String x:Key="NOpen">Egy konfigurációs fájl szerkesztés alatt van.
+A csatornakonfiguráció csak új konfigurációs fájl létrehozásakor lesz alkalmazva.</system:String>
+    <system:String x:Key="NChan">Nem lettek kiválasztva csatornák, a csatornakonfiguráció nem változott.</system:String>
     <system:String x:Key="NNode">Nincs kiválasztva csúcspont.</system:String>
     <system:String x:Key="NFNod">Kérlek, előbb jelölj ki egy szűrő csúcspontot.</system:String>
     <system:String x:Key="NFLas">Kimenetek után nem adható hozzá szűrő.</system:String>

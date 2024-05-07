@@ -20,6 +20,7 @@
             <MenuItem Header="{StaticResource MFile}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Header="{StaticResource OpNew}" Click="NewConfiguration"/>
                 <MenuItem Header="{StaticResource OpCfg}" Click="LoadConfiguration"/>
+                <MenuItem Header="{StaticResource OpChs}" Click="SelectChannels"/>
             </MenuItem>
             <MenuItem Header="{StaticResource MFilt}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Name="filterShift" IsCheckable="True" Header="{StaticResource FShif}"/>
@@ -33,10 +34,10 @@
             </MenuItem>
             <MenuItem Header="{StaticResource MGrap}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Header="{StaticResource SmDir}">
-                    <MenuItem Header="{StaticResource SOpTB}" Click="SetDirectionTB"/>
-                    <MenuItem Header="{StaticResource SOpLR}" Click="SetDirectionLR"/>
-                    <MenuItem Header="{StaticResource SOpBT}" Click="SetDirectionBT"/>
-                    <MenuItem Header="{StaticResource SOpRL}" Click="SetDirectionRL"/>
+                    <MenuItem Name="dirTB" Header="{StaticResource SOpTB}" IsCheckable="True" Click="SetDirectionTB"/>
+                    <MenuItem Name="dirLR" Header="{StaticResource SOpLR}" IsCheckable="True" Click="SetDirectionLR"/>
+                    <MenuItem Name="dirBT" Header="{StaticResource SOpBT}" IsCheckable="True" Click="SetDirectionBT"/>
+                    <MenuItem Name="dirRL" Header="{StaticResource SOpRL}" IsCheckable="True" Click="SetDirectionRL"/>
                 </MenuItem>
                 <MenuItem Header="{StaticResource OpRec}" Click="Recenter"/>
             </MenuItem>
