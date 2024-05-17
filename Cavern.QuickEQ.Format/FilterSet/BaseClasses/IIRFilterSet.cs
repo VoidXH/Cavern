@@ -197,7 +197,7 @@ namespace Cavern.Format.FilterSet {
                 BiquadFilter[] bands = channelRef.filters;
                 if (gainOnly) {
                     for (int j = 0; j < bands.Length; j++) {
-                        result.AppendLine($"{bands[j].CenterFreq.ToString("0",Culture)} Hz:\t{bands[j].Gain.ToString("0.00", Culture)} dB");
+                        result.AppendLine($"{bands[j].CenterFreq.ToString("0", Culture)} Hz:\t{bands[j].Gain.ToString("0.00", Culture)} dB");
                     }
                 } else {
                     for (int j = 0; j < bands.Length;) {
