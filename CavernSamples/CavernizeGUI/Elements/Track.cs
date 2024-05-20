@@ -117,20 +117,20 @@ namespace CavernizeGUI.Elements {
                 builder.Add(((string)strings["MatBe"], $"{newBeds.Length} - {string.Join(' ', newBeds)}"));
                 builder.Add(((string)strings["MatOb"], eac3.DynamicObjects.ToString()));
             } else {
-                if (Renderer != null && beds.Length != Renderer.Objects.Count) {
+                if (Renderer != null && beds.Length != Renderer.Objects.Count) { // Generic object-based format: bed and object lines
                     if (beds.Length > 0) {
                         builder.Add(((string)strings["SouBe"], $"{beds.Length} - {bedList}"));
                     }
                     builder.Add(((string)strings["SouDy"], (Renderer.Objects.Count - beds.Length).ToString()));
-                } else if (beds.Length > 0) {
+                } else if (beds.Length > 0) { // Generic channel-based format of known channels
                     builder.Add(((string)strings["Chans"], $"{beds.Length} - {bedList}"));
-                } else {
-                    builder.Add(((string)strings["ChCnt"], reader.ChannelCount.ToString()));
+                } else { // Generic channel-based format of unknown channels
+                    builder.Add(((string)strings["Chans"], reader.ChannelCount.ToString()));
                 }
             }
             builder.Add(((string)strings["TraLe"], TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString()));
             builder.Add(((string)strings["TraFs"], reader.SampleRate + " Hz"));
-            Details = builder.ToArray();
+            Details = [.. builder];
         }
 
         /// <summary>

@@ -47,8 +47,9 @@ namespace CavernizeGUI {
                 throw new TrackException((string)language["FFOnl"]);
             }
 
-            ((RenderTarget)renderTarget.SelectedItem).Apply();
-            if (format.MaxChannels < Listener.Channels.Length) {
+            RenderTarget selectedRenderTarget = (RenderTarget)renderTarget.SelectedItem;
+            selectedRenderTarget.Apply();
+            if (selectedRenderTarget is not VirtualizerRenderTarget && format.MaxChannels < Listener.Channels.Length) {
                 throw new TrackException(string.Format((string)language["ChCnt"], Listener.Channels.Length, format.MaxChannels));
             }
 
