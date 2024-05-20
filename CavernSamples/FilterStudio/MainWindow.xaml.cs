@@ -49,6 +49,7 @@ namespace FilterStudio {
             pipeline.language = language;
             graph.OnLeftClick += GraphLeftClick;
             graph.OnRightClick += GraphRightClick;
+            graph.OnConnect += GraphConnect;
 
             showInstructions.IsChecked = Settings.Default.showInstructions;
             SetInstructions(null, null);
@@ -121,29 +122,13 @@ namespace FilterStudio {
         }
 
         /// <summary>
-        /// Delete the currently selected node.
-        /// </summary>
-        void DeleteNode(object sender, RoutedEventArgs e) {
-            StyledNode node = graph.GetSelectedNode(sender);
-            if (node == null || node.Filter == null) {
-                Error((string)language["NFNod"]);
-            } else if (node.Filter.Filter is InputChannel) {
-                Error((string)language["NFInp"]);
-            } else if (node.Filter.Filter is OutputChannel) {
-                Error((string)language["NFOut"]);
-            } else {
-                node.Filter.DetachFromGraph();
-                ReloadGraph();
-            }
-        }
-
-        /// <summary>
         /// Handle when the instructions are enabled or disabled.
         /// </summary>
         void SetInstructions(object _, RoutedEventArgs e) {
             Visibility instructions = showInstructions.IsChecked ? Visibility.Visible : Visibility.Hidden;
             help1.Visibility = instructions;
             help2.Visibility = instructions;
+            help3.Visibility = instructions;
         }
 
         /// <summary>

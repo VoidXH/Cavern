@@ -29,6 +29,7 @@
 
     <system:String x:Key="Help1">Right click a filter to start a new path from it with a new filter.</system:String>
     <system:String x:Key="Help2">Right click an arrow to add a filter between two filters.</system:String>
+    <system:String x:Key="Help3">Drag and drop from one filter to another to connect them.</system:String>
 
     <system:String x:Key="OpFil">Equalizer APO configurations|*.txt</system:String>
     <system:String x:Key="Error">Error</system:String>
@@ -40,6 +41,9 @@ The channel configuration will only be applied when you create a new configurati
     <system:String x:Key="NFLas">Filters can't be added after an output.</system:String>
     <system:String x:Key="NFInp">The input of a channel can't be deleted.</system:String>
     <system:String x:Key="NFOut">The output of a channel can't be deleted.</system:String>
+    <system:String x:Key="NCInp">Filters cannot be connected to inputs.</system:String>
+    <system:String x:Key="NCOut">Outputs cannot be connected to filters.</system:String>
+    <system:String x:Key="NLoop">This connection is invalid, because it would cause a cycle in the graph.</system:String>
 
     <system:String x:Key="NSNew">New</system:String>
     <system:String x:Key="NInpu">Input</system:String>

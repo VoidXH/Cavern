@@ -24,9 +24,19 @@ namespace FilterStudio.Graphs {
         public event Action<object> OnRightClick;
 
         /// <summary>
+        /// When the user connects a parent (first parameter) and child (second parameter) nodes, this function is called.
+        /// </summary>
+        public event Action<StyledNode, StyledNode> OnConnect;
+
+        /// <summary>
         /// The currently selected node is determined by border line thickness.
         /// </summary>
         public StyledNode SelectedNode => (StyledNode)viewer.Graph?.Nodes.FirstOrDefault(x => x.Attr.LineWidth > 1);
+
+        /// <summary>
+        /// The user started dragging from this node.
+        /// </summary>
+        StyledNode dragStart;
 
         /// <summary>
         /// Handle to MSAGL.
@@ -95,6 +105,9 @@ namespace FilterStudio.Graphs {
             IViewerObject element = viewer.ObjectUnderMouseCursor;
             object param = null;
             if (element is IViewerNode vnode) {
+                if (dragStart != null && vnode.Node != dragStart) {
+                    OnConnect?.Invoke(dragStart, (StyledNode)vnode.Node);
+                }
                 param = vnode.Node;
             } else if (element is IViewerEdge edge) {
                 param = edge.Edge;
@@ -121,5 +134,11 @@ namespace FilterStudio.Graphs {
                 e.Handled = true;
             }
         }
+
+        /// <summary>
+        /// Starts to track dragging a new edge from a node.
+        /// </summary>
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) =>
+            dragStart = (StyledNode)(viewer.ObjectUnderMouseCursor as IViewerNode)?.Node;
     }
 }

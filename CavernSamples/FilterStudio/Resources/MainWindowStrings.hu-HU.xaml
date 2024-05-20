@@ -29,6 +29,7 @@
 
     <system:String x:Key="Help1">Jobb klikkelj egy szűrőre, hogy új szűrőútvonalat indíts belőle.</system:String>
     <system:String x:Key="Help2">Jobb klikkelj egy nyílra, hogy új szűrőt adj hozzá két szűrő közé.</system:String>
+    <system:String x:Key="Help3">Húzz egy szűrőt lenyomott egérgombbal a másikba, hogy összekösd őket.</system:String>
 
     <system:String x:Key="OpFil">Equalizer APO konfigurációk|*.txt</system:String>
     <system:String x:Key="Error">Hiba</system:String>
@@ -40,6 +41,9 @@ A csatornakonfiguráció csak új konfigurációs fájl létrehozásakor lesz al
     <system:String x:Key="NFLas">Kimenetek után nem adható hozzá szűrő.</system:String>
     <system:String x:Key="NFInp">Egy csatorna bemenete nem törölhető.</system:String>
     <system:String x:Key="NFOut">Egy csatorna kimenete nem törölhető.</system:String>
+    <system:String x:Key="NCInp">Szűrök nem köthetők bemenetbe.</system:String>
+    <system:String x:Key="NCOut">Kimenetek nem köthetők szűrőkbe.</system:String>
+    <system:String x:Key="NLoop">Ez az összeköttetés érvénytelen, mert kört okozna a gráfban.</system:String>
 
     <system:String x:Key="NSNew">Új</system:String>
     <system:String x:Key="NInpu">Bemenet</system:String>

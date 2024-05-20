@@ -54,8 +54,9 @@
             <fs:PipelineEditor VerticalAlignment="Top" Height="100" x:Name="pipeline"/>
             <Separator Margin="0,99,0,0" VerticalAlignment="Top"/>
             <fs:ManipulatableGraph Margin="0,100,0,0" x:Name="graph"/>
-            <TextBlock Name="help1" Margin="10,0,0,30" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help1}"/>
-            <TextBlock Name="help2" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help2}"/>
+            <TextBlock Name="help1" Margin="10,0,0,50" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help1}"/>
+            <TextBlock Name="help2" Margin="10,0,0,30" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help2}"/>
+            <TextBlock Name="help3" Margin="10,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help3}"/>
         </Grid>
     </DockPanel>
 </Window>

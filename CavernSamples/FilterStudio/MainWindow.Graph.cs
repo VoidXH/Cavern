@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 
+using Cavern.Filters;
+using Cavern.Filters.Utilities;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
@@ -53,6 +55,33 @@ namespace FilterStudio {
         void Recenter(object _, RoutedEventArgs e) => ReloadGraph();
 
         /// <summary>
+        /// Delete the currently selected node.
+        /// </summary>
+        void DeleteNode(object sender, RoutedEventArgs e) {
+            StyledNode node = graph.GetSelectedNode(sender);
+            if (node == null || node.Filter == null) {
+                Error((string)language["NFNod"]);
+            } else if (node.Filter.Filter is InputChannel) {
+                Error((string)language["NFInp"]);
+            } else if (node.Filter.Filter is OutputChannel) {
+                Error((string)language["NFOut"]);
+            } else {
+                node.Filter.DetachFromGraph();
+                ReloadGraph();
+            }
+        }
+
+        /// <summary>
+        /// Delete the selected edge.
+        /// </summary>
+        void DeleteEdge(Edge edge) {
+            FilterGraphNode parent = ((StyledNode)edge.SourceNode).Filter,
+                child = ((StyledNode)edge.TargetNode).Filter;
+            parent.DetachChild(child, false);
+            ReloadGraph();
+        }
+
+        /// <summary>
         /// When selecting a node, open it for modification.
         /// </summary>
         void GraphLeftClick(object _) {
@@ -71,17 +100,45 @@ namespace FilterStudio {
         /// Display the context menu when the graph is right clicked.
         /// </summary>
         void GraphRightClick(object element) {
+            if (element is not Node && element is not Edge) {
+                return;
+            }
+
             List<(string, Action<object, RoutedEventArgs>)> menuItems = [
                     ((string)language["FLabe"], (_, e) => AddLabel(element, e)),
                     ((string)language["FGain"], (_, e) => AddGain(element, e)),
                     ((string)language["FDela"], (_, e) => AddDelay(element, e)),
                     ((string)language["FBiqu"], (_, e) => AddBiquad(element, e)),
+                    (null, null) // Separator for deletion
                 ];
             if (element is Node) {
-                menuItems.Add((null, null));
                 menuItems.Add(((string)language["CoDel"], (_, e) => DeleteNode(element, e)));
+            } else {
+                menuItems.Add(((string)language["CoDel"], (_, e) => DeleteEdge((Edge)element)));
             }
             QuickContextMenu.Show(menuItems);
+        }
+
+        /// <summary>
+        /// Handle creating a user-selected connection.
+        /// </summary>
+        void GraphConnect(StyledNode parent, StyledNode child) {
+            if (child.Filter.Filter is InputChannel) {
+                Error((string)language["NCInp"]);
+                return;
+            }
+            if (parent.Filter.Filter is OutputChannel) {
+                Error((string)language["NCOut"]);
+                return;
+            }
+
+            parent.Filter.AddChild(child.Filter);
+            if (FilterGraphNodeUtils.HasCycles(rootNodes)) {
+                Error((string)language["NLoop"]);
+                parent.Filter.DetachChild(child.Filter, false);
+            } else {
+                ReloadGraph();
+            }
         }
 
         /// <summary>
