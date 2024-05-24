@@ -167,7 +167,7 @@ namespace FilterStudio.Graphs {
             }
 
             Point clickPos = e.GetPosition(this);
-            connection = new Line() {
+            connection = new Line {
                 IsHitTestVisible = false,
                 Stroke = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255)),
                 X1 = clickPos.X,
