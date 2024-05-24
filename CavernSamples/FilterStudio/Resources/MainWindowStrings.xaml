@@ -22,6 +22,7 @@
     <system:String x:Key="SOpBT">_Bottom to top</system:String>
     <system:String x:Key="SOpRL">_Right to left</system:String>
     <system:String x:Key="OpRec">_Recenter</system:String>
+    <system:String x:Key="OpCon">_Convert to convolution (merging, irreversible)</system:String>
 
     <system:String x:Key="MHelp">_Help</system:String>
     <system:String x:Key="OpShI">_Show instructions</system:String>

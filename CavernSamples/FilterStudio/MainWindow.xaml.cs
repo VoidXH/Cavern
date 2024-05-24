@@ -1,6 +1,7 @@
 ﻿using Microsoft.Msagl.Drawing;
 using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 
@@ -135,6 +136,14 @@ namespace FilterStudio {
         /// Shows information about the used Cavern library and its version.
         /// </summary>
         void About(object _, RoutedEventArgs e) => MessageBox.Show(Listener.Info, (string)language["HAbou"]);
+
+        /// <summary>
+        /// Open Cavern's website.
+        /// </summary>
+        void Ad(object _, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
+            FileName = "https://cavern.sbence.hu",
+            UseShellExecute = true
+        });
 
         /// <summary>
         /// A different split of the edited file is selected.

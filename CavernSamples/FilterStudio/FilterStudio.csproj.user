@@ -7,13 +7,30 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Windows\ConvolutionLengthDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="..\VoidX.WPF\NumericUpDown.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="..\_Common\Styles.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Resources\DialogStrings.hu-HU.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\DialogStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Resources\MainWindowStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\ConvolutionLengthDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

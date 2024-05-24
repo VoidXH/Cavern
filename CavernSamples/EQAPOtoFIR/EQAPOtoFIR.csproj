@@ -18,6 +18,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Include="..\VoidX.WPF\FFTSize.cs" Link="Controls\FFTSize.cs" />
 		<Compile Include="..\VoidX.WPF\NumericUpDown.xaml.cs" Link="Controls\NumericUpDown.xaml.cs" />
 	</ItemGroup>
 

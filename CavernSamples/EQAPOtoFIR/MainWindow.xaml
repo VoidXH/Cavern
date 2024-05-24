@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:EQAPOtoFIR"
         xmlns:voidx="clr-namespace:VoidX.WPF"
         mc:Ignorable="d"
         Title="Equalizer APO to FIR" Height="286" Width="404">
@@ -19,7 +18,7 @@
             <voidx:NumericUpDown x:Name="sampleRate" Minimum="8000" Value="48000" Maximum="384000" />
         </GroupBox>
         <GroupBox Header="FFT size" HorizontalAlignment="Left" Height="45" Margin="10,107,0,0" VerticalAlignment="Top" Width="100">
-            <local:FFTSize x:Name="fftSize" Minimum="512" Value="65536" Maximum="1024576" />
+            <voidx:FFTSize x:Name="fftSize" Minimum="512" Value="65536" Maximum="1024576" />
         </GroupBox>
         <GroupBox Header="Bit depth" HorizontalAlignment="Left" Height="95" Margin="115,57,0,0" VerticalAlignment="Top" Width="100">
             <Grid>

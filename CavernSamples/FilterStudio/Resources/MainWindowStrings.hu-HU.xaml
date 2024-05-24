@@ -22,6 +22,7 @@
     <system:String x:Key="SOpBT">_Lentről fel</system:String>
     <system:String x:Key="SOpRL">_Jobbról balra</system:String>
     <system:String x:Key="OpRec">_Középre mozgatás</system:String>
+    <system:String x:Key="OpCon">K_onvertálás konvolúcióvá (egyesítés, visszavonhatatlan)</system:String>
 
     <system:String x:Key="MHelp">Sú_gó</system:String>
     <system:String x:Key="OpShI">_Segítség mutatása</system:String>

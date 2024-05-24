@@ -8,6 +8,9 @@ namespace FilterStudio {
         /// <summary>
         /// Set the language strings with the app launch.
         /// </summary>
-        public App() => Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
+        public App() {
+            Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
+            Resources.MergedDictionaries.Add(Consts.Language.GetDialogStrings());
+        }
     }
 }

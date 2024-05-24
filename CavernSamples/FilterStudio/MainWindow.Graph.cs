@@ -1,13 +1,16 @@
 ﻿using Microsoft.Msagl.Drawing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.Utilities;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
+using FilterStudio.Windows;
 
 namespace FilterStudio {
     // Handlers of the filter graph control
@@ -55,6 +58,17 @@ namespace FilterStudio {
         void Recenter(object _, RoutedEventArgs e) => ReloadGraph();
 
         /// <summary>
+        /// Converts all filters to convolutions and merges them downwards if they only have a single child.
+        /// </summary>
+        void ConvertToConvolution(object _, RoutedEventArgs e) {
+            ConvolutionLengthDialog length = new();
+            if (length.ShowDialog().Value) {
+                FilterGraphNodeUtils.ConvertToConvolution(rootNodes, length.Size);
+                ReloadGraph();
+            }
+        }
+
+        /// <summary>
         /// Delete the currently selected node.
         /// </summary>
         void DeleteNode(object sender, RoutedEventArgs e) {
@@ -78,6 +92,12 @@ namespace FilterStudio {
             FilterGraphNode parent = ((StyledNode)edge.SourceNode).Filter,
                 child = ((StyledNode)edge.TargetNode).Filter;
             parent.DetachChild(child, false);
+
+            if (child.Parents.Count == 0) {
+                int lastNode = rootNodes.Length;
+                Array.Resize(ref rootNodes, lastNode + 1);
+                rootNodes[lastNode] = child;
+            }
             ReloadGraph();
         }
 
@@ -114,7 +134,7 @@ namespace FilterStudio {
             if (element is Node) {
                 menuItems.Add(((string)language["CoDel"], (_, e) => DeleteNode(element, e)));
             } else {
-                menuItems.Add(((string)language["CoDel"], (_, e) => DeleteEdge((Edge)element)));
+                menuItems.Add(((string)language["CoDel"], (_, __) => DeleteEdge((Edge)element)));
             }
             QuickContextMenu.Show(menuItems);
         }
@@ -130,6 +150,13 @@ namespace FilterStudio {
             if (parent.Filter.Filter is OutputChannel) {
                 Error((string)language["NCOut"]);
                 return;
+            }
+            if (parent.Filter.Children.Contains(child.Filter)) {
+                return; // Would be a duplicate edge
+            }
+
+            if (child.Filter.Parents.Count == 0) {
+                ArrayExtensions.Remove(ref rootNodes, child.Filter);
             }
 
             parent.Filter.AddChild(child.Filter);

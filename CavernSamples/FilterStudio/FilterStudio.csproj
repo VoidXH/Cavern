@@ -18,6 +18,8 @@
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Include="..\VoidX.WPF\FFTSize.cs" Link="VoidX.WPF\FFTSize.cs" />
+	  <Compile Include="..\VoidX.WPF\NumericUpDown.xaml.cs" Link="VoidX.WPF\NumericUpDown.xaml.cs" />
 	  <Compile Include="..\VoidX.WPF\ObjectToDataGrid.cs" Link="VoidX.WPF\ObjectToDataGrid.cs" />
 	  <Compile Include="..\VoidX.WPF\QuickContextMenu.cs" Link="VoidX.WPF\QuickContextMenu.cs" />
 	</ItemGroup>
@@ -28,6 +30,9 @@
 		<Resource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
 	</ItemGroup>
 	<ItemGroup>
+		<Page Include="..\VoidX.WPF\NumericUpDown.xaml" Link="VoidX.WPF\NumericUpDown.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Include="..\_Common\Styles.xaml" Link="Resources\Styles.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>

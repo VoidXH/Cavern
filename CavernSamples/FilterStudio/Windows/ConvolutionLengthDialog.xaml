@@ -1,0 +1,25 @@
+﻿<Window x:Class="FilterStudio.Windows.ConvolutionLengthDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:voidx="clr-namespace:VoidX.WPF"
+        mc:Ignorable="d"
+        Title="{StaticResource TConv}" Width="400" Height="110" Background="#696969">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <d:ResourceDictionary Source="../Resources/DialogStrings.xaml"/>
+                <ResourceDictionary Source="../Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <TextBlock Margin="10,14,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{StaticResource DConv}"/>
+        <voidx:FFTSize x:Name="size" Margin="0,10,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                       Minimum="512" Value="65536" Maximum="1048576" Width="70"/>
+        <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="OK" Click="OK"/>
+        <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Cancel"
+                Click="Cancel"/>
+    </Grid>
+</Window>

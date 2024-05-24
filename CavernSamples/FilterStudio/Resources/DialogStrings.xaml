@@ -1,0 +1,6 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="TConv">Convolution length</system:String>
+    <system:String x:Key="DConv">Number of convolution samples for each filter:</system:String>
+</ResourceDictionary>

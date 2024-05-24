@@ -13,6 +13,11 @@ namespace FilterStudio.Consts {
         public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= GetFor("MainWindowStrings");
 
         /// <summary>
+        /// Get the translations of dialogs.
+        /// </summary>
+        public static ResourceDictionary GetDialogStrings() => dialogCache ??= GetFor("DialogStrings");
+
+        /// <summary>
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
         /// </summary>
         static ResourceDictionary GetFor(string resource) {
@@ -33,5 +38,10 @@ namespace FilterStudio.Consts {
         /// The loaded translation of the <see cref="MainWindow"/> for reuse.
         /// </summary>
         static ResourceDictionary mainWindowCache;
+
+        /// <summary>
+        /// The loaded translation of the dialogs for reuse.
+        /// </summary>
+        static ResourceDictionary dialogCache;
     }
 }

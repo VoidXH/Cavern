@@ -40,6 +40,8 @@
                     <MenuItem Name="dirRL" Header="{StaticResource SOpRL}" IsCheckable="True" Click="SetDirectionRL"/>
                 </MenuItem>
                 <MenuItem Header="{StaticResource OpRec}" Click="Recenter"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource OpCon}" Click="ConvertToConvolution"/>
             </MenuItem>
             <MenuItem Header="{StaticResource MHelp}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Name="showInstructions" IsCheckable="True" Header="{StaticResource OpShI}" Click="SetInstructions"/>
@@ -47,6 +49,8 @@
             </MenuItem>
         </Menu>
         <DockPanel DockPanel.Dock="Right" Width="250">
+            <Image DockPanel.Dock="Top" Margin="0,5,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="169"
+                Source="{StaticResource Logo}" MouseDown="Ad"/>
             <TextBlock Name="selectedNode" DockPanel.Dock="Top" Style="{StaticResource Header}" Margin="5" Text="{StaticResource NNode}"/>
             <DataGrid Name="properties" CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" ColumnWidth="*"/>
         </DockPanel>

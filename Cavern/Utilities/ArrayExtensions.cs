@@ -144,6 +144,23 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Removes a <paramref name="value"/> from an <paramref name="array"/> if it contains it.
+        /// </summary>
+        public static void Remove<T>(ref T[] array, T value) {
+            for (int i = 0; i < array.Length; i++) {
+                if (!array[i].Equals(value)) {
+                    continue;
+                }
+
+                T[] replacement = new T[array.Length - 1];
+                Array.Copy(array, 0, replacement, 0, i);
+                Array.Copy(array, i + 1, replacement, i, array.Length - i - 1);
+                array = replacement;
+                return;
+            }
+        }
+
+        /// <summary>
         /// Remove the 0 or default elements from the end of an array.
         /// </summary>
         public static void RemoveZeros<T>(ref T[] arr) where T : IComparable {

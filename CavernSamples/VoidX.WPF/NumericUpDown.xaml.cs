@@ -40,7 +40,7 @@ namespace VoidX.WPF {
                 CheckValue();
             }
         }
-        int value = 10;
+        protected int value = 10;
         int oldValue;
 
         /// <summary>
@@ -62,7 +62,27 @@ namespace VoidX.WPF {
         /// </summary>
         public event OnValueChanged ValueChanged;
 
-        void CheckValue() {
+        /// <summary>
+        /// Validate when the user enters a value.
+        /// </summary>
+        void ManualUpdate(object sender, TextChangedEventArgs e) {
+            for (int i = 0; i < valueField.Text.Length; ++i) {
+                if ((valueField.Text[i] < '0' || valueField.Text[i] > '9') && (i != 0 || valueField.Text[i] != '-')) {
+                    valueField.Text = valueField.Text.Remove(i, 1);
+                    ManualUpdate(sender, e);
+                    return;
+                }
+            }
+            if (valueField.Text.Length != 0 && !valueField.Text.Equals("-")) {
+                value = int.Parse(valueField.Text);
+                CheckValue();
+            }
+        }
+
+        /// <summary>
+        /// Clamp the value between limits.
+        /// </summary>
+        protected virtual void CheckValue() {
             if (Minimum <= Maximum) {
                 if (value < Minimum) {
                     value = Minimum;
@@ -79,22 +99,14 @@ namespace VoidX.WPF {
             }
         }
 
-        void Increase(object sender, RoutedEventArgs e) => ++Value;
+        /// <summary>
+        /// Increase the current value by one step.
+        /// </summary>
+        protected virtual void Increase(object sender, RoutedEventArgs e) => ++Value;
 
-        void Decrease(object sender, RoutedEventArgs e) => --Value;
-
-        void ManualUpdate(object sender, TextChangedEventArgs e) {
-            for (int i = 0; i < valueField.Text.Length; ++i) {
-                if ((valueField.Text[i] < '0' || valueField.Text[i] > '9') && (i != 0 || valueField.Text[i] != '-')) {
-                    valueField.Text = valueField.Text.Remove(i, 1);
-                    ManualUpdate(sender, e);
-                    return;
-                }
-            }
-            if (valueField.Text.Length != 0 && !valueField.Text.Equals("-")) {
-                value = int.Parse(valueField.Text);
-                CheckValue();
-            }
-        }
+        /// <summary>
+        /// Decrease the current value by one step.
+        /// </summary>
+        protected virtual void Decrease(object sender, RoutedEventArgs e) => --Value;
     }
 }

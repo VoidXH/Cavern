@@ -2,8 +2,11 @@
 using Microsoft.Msagl.WpfGraphControl;
 using System;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace FilterStudio.Graphs {
     /// <summary>
@@ -34,6 +37,17 @@ namespace FilterStudio.Graphs {
         public StyledNode SelectedNode => (StyledNode)viewer.Graph?.Nodes.FirstOrDefault(x => x.Attr.LineWidth > 1);
 
         /// <summary>
+        /// An inner panel that acts as a window for the graph. The ScrollViewer is the curtain,
+        /// it keeps the graph in the bounds of the control wherever the user moves it.
+        /// </summary>
+        readonly DockPanel panel = new();
+
+        /// <summary>
+        /// Visual representation of connecting two nodes in progress.
+        /// </summary>
+        Line connection;
+
+        /// <summary>
         /// The user started dragging from this node.
         /// </summary>
         StyledNode dragStart;
@@ -60,9 +74,6 @@ namespace FilterStudio.Graphs {
         /// </summary>
         public ManipulatableGraph() {
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            // An inner panel that acts as a window for the graph. The ScrollViewer is the curtain,
-            // it keeps the graph in the bounds of the control wherever the user moves it.
-            DockPanel panel = new();
             AddChild(panel);
             viewer = new GraphViewer();
             viewer.BindToPanel(panel);
@@ -102,6 +113,11 @@ namespace FilterStudio.Graphs {
         /// Hack to provide a Click event for MSAGL's WPF library.
         /// </summary>
         protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
+            if (connection != null) {
+                panel.Children.Remove(connection);
+                connection = null;
+            }
+
             IViewerObject element = viewer.ObjectUnderMouseCursor;
             object param = null;
             if (element is IViewerNode vnode) {
@@ -133,12 +149,33 @@ namespace FilterStudio.Graphs {
             if (e.LeftButton == MouseButtonState.Pressed) {
                 e.Handled = true;
             }
+
+            if (connection != null) {
+                Point clickPos = e.GetPosition(this);
+                connection.X2 = clickPos.X;
+                connection.Y2 = clickPos.Y;
+            }
         }
 
         /// <summary>
         /// Starts to track dragging a new edge from a node.
         /// </summary>
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) =>
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
             dragStart = (StyledNode)(viewer.ObjectUnderMouseCursor as IViewerNode)?.Node;
+            if (dragStart == null) {
+                return;
+            }
+
+            Point clickPos = e.GetPosition(this);
+            connection = new Line() {
+                IsHitTestVisible = false,
+                Stroke = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 255, 255)),
+                X1 = clickPos.X,
+                Y1 = clickPos.Y,
+                X2 = clickPos.X,
+                Y2 = clickPos.Y
+            };
+            panel.Children.Add(connection);
+        }
     }
 }
