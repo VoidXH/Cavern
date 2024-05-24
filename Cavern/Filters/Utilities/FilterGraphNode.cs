@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
+
+using Cavern.Utilities;
 
 namespace Cavern.Filters.Utilities {
     /// <summary>
@@ -162,6 +165,7 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <inheritdoc/>
-        public override string ToString() => Filter != null ? Filter.ToString() : "Merge";
+        public override string ToString() => Filter != null ?
+            (Filter is ILocalizableToString loc ? loc.ToString(CultureInfo.CurrentCulture) : Filter.ToString()) : "Merge";
     }
 }

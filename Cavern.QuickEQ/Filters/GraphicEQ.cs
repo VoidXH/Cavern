@@ -52,5 +52,14 @@ namespace Cavern.Filters {
             double roundedPeak = (int)(Equalizer.PeakGain * 100 + .5) * .01;
             return $"Graphic EQ: {Equalizer.Bands.Count} bands, {roundedPeak.ToString(CultureInfo.InvariantCulture)} dB peak";
         }
+
+        /// <inheritdoc/>
+        public override string ToString(CultureInfo culture) {
+            double roundedPeak = (int)(Equalizer.PeakGain * 100 + .5) * .01;
+            return culture.Name switch {
+                "hu-HU" => $"Grafikus EQ: {Equalizer.Bands.Count} sáv, {roundedPeak} dB csúcs",
+                _ => ToString()
+            };
+        }
     }
 }

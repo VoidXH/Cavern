@@ -4,12 +4,13 @@ using System.ComponentModel;
 using System.Globalization;
 
 using Cavern.Filters.Interfaces;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Signal level multiplier filter.
     /// </summary>
-    public class Gain : Filter, IEqualizerAPOFilter {
+    public class Gain : Filter, IEqualizerAPOFilter, ILocalizableToString {
         /// <summary>
         /// Filter gain in decibels.
         /// </summary>
@@ -50,5 +51,11 @@ namespace Cavern.Filters {
         /// <inheritdoc/>
         public void ExportToEqualizerAPO(List<string> wipConfig) =>
             wipConfig.Add($"Gain: {GainValue.ToString(CultureInfo.InvariantCulture)} dB");
+
+        /// <inheritdoc/>
+        public string ToString(CultureInfo culture) => culture.Name switch {
+            "hu-HU" => $"Erősítés: {GainValue.ToString("0.00", CultureInfo.InvariantCulture)} dB",
+            _ => ToString()
+        };
     }
 }

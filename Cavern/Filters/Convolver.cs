@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
+
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -7,7 +10,7 @@ namespace Cavern.Filters {
     /// </summary>
     /// <remarks>This filter is performing convolution by definition, which is faster if the window size is very small.
     /// For most cases, <see cref="FastConvolver"/> is preferred.</remarks>
-    public class Convolver : Filter {
+    public class Convolver : Filter, ILocalizableToString {
         /// <summary>
         /// Additional impulse delay in samples.
         /// </summary>
@@ -93,6 +96,15 @@ namespace Cavern.Filters {
             }
             Finalize(samples, convolved);
         }
+
+        /// <inheritdoc/>
+        public override string ToString() => "Convolution";
+
+        /// <inheritdoc/>
+        public string ToString(CultureInfo culture) => culture.Name switch {
+            "hu-HU" => "Konvolúció",
+            _ => ToString()
+        };
 
         /// <summary>
         /// Output the result and handle the future.

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
@@ -10,7 +11,7 @@ namespace Cavern.Filters {
     /// <remarks>This filter is using the overlap and add method using FFTs, with non-thread-safe caches.
     /// For a thread-safe fast convolver, use <see cref="ThreadSafeFastConvolver"/>. This filter is also
     /// only for a single channel, use <see cref="MultichannelConvolver"/> for multichannel signals.</remarks>
-    public partial class FastConvolver : Filter, IDisposable {
+    public partial class FastConvolver : Filter, IDisposable, ILocalizableToString {
         /// <summary>
         /// CavernAmp instance of a FastConvolver.
         /// </summary>
@@ -111,6 +112,15 @@ namespace Cavern.Filters {
                 CavernAmp.FastConvolver_Dispose(native);
             }
         }
+
+        /// <inheritdoc/>
+        public override string ToString() => "Convolution";
+
+        /// <inheritdoc/>
+        public virtual string ToString(CultureInfo culture) => culture.Name switch {
+            "hu-HU" => "Konvolúció",
+            _ => ToString()
+        };
 
         /// <summary>
         /// In case there are more input samples than the size of the filter, split it in parts.

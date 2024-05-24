@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter.
     /// </summary>
-    public abstract class BiquadFilter : Filter, ICloneable, IEqualizerAPOFilter {
+    public abstract class BiquadFilter : Filter, ICloneable, IEqualizerAPOFilter, ILocalizableToString {
         /// <summary>
         /// Sample rate of the filter.
         /// </summary>
@@ -231,5 +233,11 @@ namespace Cavern.Filters {
         /// Display the filter's parameters when converting to string.
         /// </summary>
         public override string ToString() => $"{FilterType} at {centerFreq} Hz, Q: {q}, gain: {gain} dB";
+
+        /// <inheritdoc/>
+        public string ToString(CultureInfo culture) => culture.Name switch {
+            "hu-HU" => $"{FilterType} {centerFreq} Hz-en, Q: {q}, erősítés: {gain} dB",
+            _ => ToString()
+        };
     }
 }

@@ -5,12 +5,13 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 
 using Cavern.Filters.Interfaces;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Delays the audio.
     /// </summary>
-    public class Delay : Filter, IEqualizerAPOFilter {
+    public class Delay : Filter, IEqualizerAPOFilter, ILocalizableToString {
         /// <summary>
         /// Delay in samples.
         /// </summary>
@@ -150,6 +151,12 @@ namespace Cavern.Filters {
                 return $"Delay: {delay} ms";
             }
         }
+
+        /// <inheritdoc/>
+        public string ToString(CultureInfo culture) => culture.Name switch {
+            "hu-HU" => sampleRate == 0 ? $"Késleltetés: {DelaySamples} minta" : $"Késleltetés: {DelayMs} ms",
+            _ => ToString()
+        };
 
         /// <inheritdoc/>
         public void ExportToEqualizerAPO(List<string> wipConfig) => wipConfig.Add(ToString());
