@@ -142,7 +142,8 @@ namespace Cavern.Format.FilterSet {
                         }
 
                         for (int i = 0, c = lastChannel.Count - 1; i < c; i++) {
-                            lastChannel[i].Q = QFactor.FromBandwidth(Math.Log(lastChannel[i + 1].CenterFreq / lastChannel[i].CenterFreq, 2));
+                            lastChannel[i].Q =
+                                1.5 * QFactor.FromBandwidth(Math.Log(lastChannel[i + 1].CenterFreq / lastChannel[i].CenterFreq, 2));
                         }
                         lastChannel[^1].Q = lastChannel[^2].Q;
                         channels.Add(new IIRChannelData {
@@ -183,6 +184,34 @@ namespace Cavern.Format.FilterSet {
                 if (result[i].CenterFreq > maxFreq) {
                     result[i].Gain = result[i - 1].Gain;
                 }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Sample the filters that should be used when setting up a channel from the <paramref name="targetToReach"/>'s band center points.
+        /// This can provide better and faster results than brute force when the smoothing is high enough
+        /// (about the bandwidth of this filter set).
+        /// </summary>
+        public PeakingEQ[] SampleFilters(Equalizer targetToReach, bool lfe) {
+            int bands = lfe ? LFEBands : bandCount;
+            PeakingEQ[] result = new PeakingEQ[bands];
+            double bandwidth = 1.0 / bandsPerOctave;
+            double q = QFactor.FromBandwidth(bandwidth);
+            for (int i = 0; i < bands; i++) {
+                double freq = firstBand * Math.Pow(2, i * bandwidth);
+                if (RoundedBands) {
+                    int magnitude = (int)Math.Pow(10, Math.Floor(Math.Log10(freq)) - 1);
+                    freq = Math.Round(freq / magnitude) * magnitude;
+                }
+
+                double freqOverride;
+                if (FreqOverrides != null && (freqOverride = FreqOverrides.FirstOrDefault(x => x.oldFreq == freq).newFreq) != default) {
+                    freq = freqOverride;
+                }
+
+                result[i] = new PeakingEQ(SampleRate, freq, q, Math.Clamp(targetToReach[freq], MinGain, MaxGain));
             }
 
             return result;
