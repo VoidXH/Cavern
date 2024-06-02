@@ -102,6 +102,16 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
+        /// Append multiple nodes to process this filter's result in the filter graph.
+        /// </summary>
+        public void AddChildren(IEnumerable<FilterGraphNode> addedChildren) {
+            children.AddRange(addedChildren);
+            foreach (FilterGraphNode child in addedChildren) {
+                child.parents.Add(this);
+            }
+        }
+
+        /// <summary>
         /// Append this node to process a new <paramref name="parent"/>'s result too in the filter graph.
         /// </summary>
         public void AddParent(FilterGraphNode parent) {

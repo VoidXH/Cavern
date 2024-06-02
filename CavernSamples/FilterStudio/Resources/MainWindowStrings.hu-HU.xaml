@@ -24,6 +24,11 @@
     <system:String x:Key="OpRec">_Középre mozgatás</system:String>
     <system:String x:Key="OpCon">K_onvertálás konvolúcióvá (egyesítés, visszavonhatatlan)</system:String>
 
+    <system:String x:Key="MPipe">Szű_rőszettek</system:String>
+    <system:String x:Key="OpCle">Kiválasztott szett _kiürítése</system:String>
+    <system:String x:Key="CoCle">_Kiürítés</system:String>
+    <system:String x:Key="OpDeP">Kiválasztott szett _törlése</system:String>
+
     <system:String x:Key="MHelp">Sú_gó</system:String>
     <system:String x:Key="OpShI">_Segítség mutatása</system:String>
     <system:String x:Key="OpAbo">_Névjegy</system:String>
@@ -39,12 +44,16 @@ A csatornakonfiguráció csak új konfigurációs fájl létrehozásakor lesz al
     <system:String x:Key="NChan">Nem lettek kiválasztva csatornák, a csatornakonfiguráció nem változott.</system:String>
     <system:String x:Key="NNode">Nincs kiválasztva csúcspont.</system:String>
     <system:String x:Key="NFNod">Kérlek, előbb jelölj ki egy szűrő csúcspontot.</system:String>
+    <system:String x:Key="NPNod">Kérlek, előbb jelölj ki egy lépést.</system:String>
     <system:String x:Key="NFLas">Kimenetek után nem adható hozzá szűrő.</system:String>
     <system:String x:Key="NFInp">Egy csatorna bemenete nem törölhető.</system:String>
     <system:String x:Key="NFOut">Egy csatorna kimenete nem törölhető.</system:String>
     <system:String x:Key="NCInp">Szűrök nem köthetők bemenetbe.</system:String>
     <system:String x:Key="NCOut">Kimenetek nem köthetők szűrőkbe.</system:String>
     <system:String x:Key="NLoop">Ez az összeköttetés érvénytelen, mert kört okozna a gráfban.</system:String>
+    <system:String x:Key="NLaSP">Az utolsó megmaradt lépés nem törölhető.</system:String>
+    <system:String x:Key="NLaEd">Az utolsó megmaradt kapcsolat nem törölhető.</system:String>
+    <system:String x:Key="NPiSi">Ez a művelet érvénytelen a szűrőszett lépések bemeneti és kimeneti pontján.</system:String>
 
     <system:String x:Key="NSNew">Új</system:String>
     <system:String x:Key="NInpu">Bemenet</system:String>

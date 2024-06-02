@@ -91,6 +91,10 @@ namespace FilterStudio {
         void DeleteEdge(Edge edge) {
             FilterGraphNode parent = ((StyledNode)edge.SourceNode).Filter,
                 child = ((StyledNode)edge.TargetNode).Filter;
+            if (parent.Children.Count == 1 && child.Parents.Count == 1 && parent.Filter is InputChannel && child.Filter is OutputChannel) {
+                Error((string)language["NLaEd"]);
+                return;
+            }
             parent.DetachChild(child, false);
 
             if (child.Parents.Count == 0) {

@@ -45,6 +45,7 @@ namespace FilterStudio {
         /// </summary>
         public MainWindow() {
             InitializeComponent();
+            pipeline.OnRightClick += PipelineRightClick;
             pipeline.OnSplitChanged += SplitChanged;
             pipeline.background = Parsing.ParseBackground((SolidColorBrush)Background);
             pipeline.language = language;

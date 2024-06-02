@@ -32,6 +32,11 @@
                 <Separator/>
                 <MenuItem Header="{StaticResource OpDel}" Click="DeleteNode"/>
             </MenuItem>
+            <MenuItem Header="{StaticResource MPipe}" Style="{StaticResource RootMenuItem}">
+                <Separator/>
+                <MenuItem Header="{StaticResource OpCle}" Click="ClearStep"/>
+                <MenuItem Header="{StaticResource OpDeP}" Click="DeleteStep"/>
+            </MenuItem>
             <MenuItem Header="{StaticResource MGrap}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Header="{StaticResource SmDir}">
                     <MenuItem Name="dirTB" Header="{StaticResource SOpTB}" IsCheckable="True" Click="SetDirectionTB"/>
@@ -55,7 +60,7 @@
             <DataGrid Name="properties" CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" ColumnWidth="*"/>
         </DockPanel>
         <Grid>
-            <fs:PipelineEditor VerticalAlignment="Top" Height="100" x:Name="pipeline"/>
+            <fs:PipelineEditor x:Name="pipeline" VerticalAlignment="Top" Height="100" AllowConnection="False"/>
             <Separator Margin="0,99,0,0" VerticalAlignment="Top"/>
             <fs:ManipulatableGraph Margin="0,100,0,0" x:Name="graph"/>
             <TextBlock Name="help1" Margin="10,0,0,50" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help1}"/>

@@ -14,6 +14,11 @@ namespace FilterStudio.Graphs {
     /// </summary>
     public class ManipulatableGraph : ScrollViewer {
         /// <summary>
+        /// Allow the user to connect nodes together and call <see cref="OnConnect"/> after that.
+        /// </summary>
+        public bool AllowConnection { get; set; } = true;
+
+        /// <summary>
         /// Called when the user left-clicks anywhere in the graph control bounds, passes the clicked edge or node.
         /// If the click doesn't hit any graph element, the <see cref="object"/> will be null.
         /// </summary>
@@ -161,6 +166,9 @@ namespace FilterStudio.Graphs {
         /// Starts to track dragging a new edge from a node.
         /// </summary>
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+            if (!AllowConnection) {
+                return;
+            }
             dragStart = (StyledNode)(viewer.ObjectUnderMouseCursor as IViewerNode)?.Node;
             if (dragStart == null) {
                 return;
