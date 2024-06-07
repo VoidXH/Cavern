@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="x2" TargetType="CheckBox">
+        <Setter Property="ToolTipService.InitialShowDelay" Value="0"/>
+        <Setter Property="LayoutTransform">
+            <Setter.Value>
+                <ScaleTransform ScaleX="2" ScaleY="2" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

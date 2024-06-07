@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="FType">Szűrő típusa:</system:String>
+    <system:String x:Key="CenFr">Középfrekvencia:</system:String>
+    <system:String x:Key="QFact">Jósági tényező:</system:String>
+    <system:String x:Key="GainD">Erősítés (dB):</system:String>
+    <system:String x:Key="SwapP">Fázis felcserélése</system:String>
+    <system:String x:Key="Spect">Spektrum</system:String>
+    <system:String x:Key="Phase">Fázis</system:String>
+</ResourceDictionary>

@@ -1,0 +1,28 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="GroLa">Alsó réteg</system:String>
+    <system:String x:Key="SpGFL">Első bal</system:String>
+    <system:String x:Key="SpFLC">Első balközép</system:String>
+    <system:String x:Key="SpGFC">Első közép</system:String>
+    <system:String x:Key="SpFRC">Első jobbközép</system:String>
+    <system:String x:Key="SpGFR">Első jobb</system:String>
+    <system:String x:Key="SpGWL">Széles bal</system:String>
+    <system:String x:Key="SpGWR">Széles jobb</system:String>
+    <system:String x:Key="SpGSL">Oldalsó bal</system:String>
+    <system:String x:Key="SpLFE">LFE</system:String>
+    <system:String x:Key="SpGSR">Oldalsó jobb</system:String>
+    <system:String x:Key="SpGRL">Hátsó bal</system:String>
+    <system:String x:Key="SpGRC">Hátsó közép</system:String>
+    <system:String x:Key="SpGRR">Hátsó jobb</system:String>
+    <system:String x:Key="TopLa">Felső réteg</system:String>
+    <system:String x:Key="SpTFL">Felső első bal</system:String>
+    <system:String x:Key="SpTFC">Felső első közép</system:String>
+    <system:String x:Key="SpTFR">Felső első jobb</system:String>
+    <system:String x:Key="SpTSL">Felső oldalsó bal</system:String>
+    <system:String x:Key="SpTGV">Úrhang</system:String>
+    <system:String x:Key="SpTSR">Felső oldalsó jobb</system:String>
+    <system:String x:Key="SpTRL">Felső hátsó bal</system:String>
+    <system:String x:Key="SpTRC">Felső hátsó közép</system:String>
+    <system:String x:Key="SpTRR">Felső hátsó jobb</system:String>
+</ResourceDictionary>

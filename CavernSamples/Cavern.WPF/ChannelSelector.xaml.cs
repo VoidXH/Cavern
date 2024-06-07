@@ -32,6 +32,11 @@ namespace Cavern.WPF {
         /// Channel layout selector dialog.
         /// </summary>
         public ChannelSelector() {
+            Resources.MergedDictionaries.Add(new() {
+                Source = new Uri($"/Cavern.WPF;component/Resources/ChannelSelectorStyle.xaml", UriKind.RelativeOrAbsolute)
+            });
+            Resources.MergedDictionaries.Add(Consts.Language.GetCommonStrings());
+            Resources.MergedDictionaries.Add(Consts.Language.GetChannelSelectorStrings());
             InitializeComponent();
             channelMap = new Dictionary<ReferenceChannel, CheckBox> {
                 [ReferenceChannel.FrontLeft] = frontLeft,

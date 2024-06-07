@@ -1,0 +1,28 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="GroLa">Ground layer</system:String>
+    <system:String x:Key="SpGFL">Front left</system:String>
+    <system:String x:Key="SpFLC">Front left center</system:String>
+    <system:String x:Key="SpGFC">Front center</system:String>
+    <system:String x:Key="SpFRC">Front right center</system:String>
+    <system:String x:Key="SpGFR">Front right</system:String>
+    <system:String x:Key="SpGWL">Wide left</system:String>
+    <system:String x:Key="SpGWR">Wide right</system:String>
+    <system:String x:Key="SpGSL">Side left</system:String>
+    <system:String x:Key="SpLFE">LFE</system:String>
+    <system:String x:Key="SpGSR">Side right</system:String>
+    <system:String x:Key="SpGRL">Rear left</system:String>
+    <system:String x:Key="SpGRC">Rear center</system:String>
+    <system:String x:Key="SpGRR">Rear right</system:String>
+    <system:String x:Key="TopLa">Top layer</system:String>
+    <system:String x:Key="SpTFL">Top front left</system:String>
+    <system:String x:Key="SpTFC">Top front center</system:String>
+    <system:String x:Key="SpTFR">Top front right</system:String>
+    <system:String x:Key="SpTSL">Top side left</system:String>
+    <system:String x:Key="SpTGV">God's voice</system:String>
+    <system:String x:Key="SpTSR">Top side right</system:String>
+    <system:String x:Key="SpTRL">Top rear left</system:String>
+    <system:String x:Key="SpTRC">Top rear center</system:String>
+    <system:String x:Key="SpTRR">Top rear right</system:String>
+</ResourceDictionary>

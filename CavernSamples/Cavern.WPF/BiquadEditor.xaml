@@ -3,32 +3,35 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Cavern.WPF"
         x:Class="Cavern.WPF.BiquadEditor"
         mc:Ignorable="d"
         Title="Biquad Editor" Width="536" Height="372">
+    <Window.Resources>
+        <d:ResourceDictionary Source="Resources/BiquadEditorStrings.xaml"/>
+    </Window.Resources>
     <Grid>
         <Image x:Name="image" Margin="10,10,0,0" Height="200" HorizontalAlignment="Left" VerticalAlignment="Top" Width="500"/>
-        <TextBlock Margin="10,218,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Filter type:"/>
+        <TextBlock Margin="10,218,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{StaticResource FType}"/>
         <ComboBox x:Name="filterTypes" Margin="130,215,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120"
                   SelectionChanged="FilterTypeChanged"/>
-        <TextBlock Margin="10,243,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Center frequency:"/>
+        <TextBlock Margin="10,243,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{StaticResource CenFr}"/>
         <TextBox x:Name="centerFreq" Margin="130,242,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Text="632.456"
                  TextChanged="NumericFilterDataChanged"/>
-        <TextBlock Margin="10,266,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Q factor:"/>
+        <TextBlock Margin="10,266,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{StaticResource QFact}"/>
         <TextBox x:Name="q" Margin="130,265,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Text="0.707"
                  TextChanged="NumericFilterDataChanged"/>
-        <TextBlock Margin="10,289,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Gain (dB):"/>
+        <TextBlock Margin="10,289,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{StaticResource GainD}"/>
         <TextBox x:Name="gain" Margin="130,288,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Text="0"
                  TextChanged="NumericFilterDataChanged"/>
-        <CheckBox x:Name="swapPhase" Margin="10,311,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Swap phase"
+        <CheckBox x:Name="swapPhase" Margin="10,311,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="{StaticResource SwapP}"
                   Checked="PhaseSwapChanged" Unchecked="PhaseSwapChanged"/>
         <CheckBox x:Name="spectrumColorDisplay" Margin="0,215,10,0" HorizontalAlignment="Right" VerticalAlignment="Top" Width="100"
-                  Content="Spectrum" Checked="DisableCheck"/>
+                  Content="{StaticResource Spect}" Checked="DisableCheck"/>
         <CheckBox x:Name="phaseColorDisplay" Margin="0,235,10,0" HorizontalAlignment="Right" VerticalAlignment="Top" Width="100"
-                  Content="Phase" Checked="DisableCheck"/>
-        <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="OK" Click="OK"/>
-        <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Cancel"
-                Click="Cancel"/>
+                  Content="{StaticResource Phase}" Checked="DisableCheck"/>
+        <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Content="{StaticResource BtnOk}" Click="OK"/>
+        <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Content="{StaticResource BtnCa}" Click="Cancel"/>
     </Grid>
 </Window>

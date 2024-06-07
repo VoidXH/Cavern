@@ -10,6 +10,7 @@ using Cavern.QuickEQ.Graphing;
 using Cavern.QuickEQ.Graphing.Overlays;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
+
 using Color = System.Windows.Media.Color;
 
 namespace Cavern.WPF {
@@ -46,6 +47,8 @@ namespace Cavern.WPF {
         /// Biquad filter customization/editor window with custom colors.
         /// </summary>
         public BiquadEditor(uint spectrumColor, uint phaseColor) {
+            Resources.MergedDictionaries.Add(Consts.Language.GetCommonStrings());
+            Resources.MergedDictionaries.Add(Consts.Language.GetBiquadEditorStrings());
             InitializeComponent();
             this.spectrumColor = spectrumColor;
             spectrumColorDisplay.Background = new SolidColorBrush(ColorUtils.ToColor(spectrumColor));
