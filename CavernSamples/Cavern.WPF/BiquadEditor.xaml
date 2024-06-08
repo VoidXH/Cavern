@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:Class="Cavern.WPF.BiquadEditor"
         mc:Ignorable="d"
-        Title="Biquad Editor" Width="536" Height="372">
+        Title="{StaticResource Title}" Width="536" Height="372">
     <Window.Resources>
         <d:ResourceDictionary Source="Resources/BiquadEditorStrings.xaml"/>
     </Window.Resources>

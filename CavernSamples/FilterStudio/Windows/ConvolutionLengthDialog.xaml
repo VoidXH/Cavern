@@ -7,12 +7,12 @@
         mc:Ignorable="d"
         Title="{StaticResource TConv}" Width="400" Height="110" Background="#696969">
     <Window.Resources>
-        <ResourceDictionary>
+        <d:ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <d:ResourceDictionary Source="../Resources/DialogStrings.xaml"/>
+                <ResourceDictionary Source="../Resources/DialogStrings.xaml"/>
                 <ResourceDictionary Source="../Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        </d:ResourceDictionary>
     </Window.Resources>
     <Grid>
         <TextBlock Margin="10,14,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{StaticResource DConv}"/>

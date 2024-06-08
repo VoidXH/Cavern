@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace FilterStudio.Windows {
     /// <summary>
@@ -13,7 +14,13 @@ namespace FilterStudio.Windows {
         /// <summary>
         /// Shows a filter length selector when converting a filter graph to convolution filters.
         /// </summary>
-        public ConvolutionLengthDialog() => InitializeComponent();
+        public ConvolutionLengthDialog() {
+            Resources.MergedDictionaries.Add(new() {
+                Source = new Uri($";component/Resources/Styles.xaml", UriKind.RelativeOrAbsolute)
+            });
+            Resources.MergedDictionaries.Add(Consts.Language.GetConvolutionLengthDialogStrings());
+            InitializeComponent();
+        }
 
         /// <summary>
         /// Closes the dialog with the filter selected.

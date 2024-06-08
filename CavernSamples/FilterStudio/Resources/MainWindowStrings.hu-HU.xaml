@@ -25,6 +25,7 @@
     <system:String x:Key="OpCon">K_onvertálás konvolúcióvá (egyesítés, visszavonhatatlan)</system:String>
 
     <system:String x:Key="MPipe">Szű_rőszettek</system:String>
+    <system:String x:Key="OpAdP">Ü_res szett hozzáadása a kiválasztott szett elé</system:String>
     <system:String x:Key="OpCle">Kiválasztott szett _kiürítése</system:String>
     <system:String x:Key="CoCle">_Kiürítés</system:String>
     <system:String x:Key="OpDeP">Kiválasztott szett _törlése</system:String>
@@ -43,8 +44,10 @@
 A csatornakonfiguráció csak új konfigurációs fájl létrehozásakor lesz alkalmazva.</system:String>
     <system:String x:Key="NChan">Nem lettek kiválasztva csatornák, a csatornakonfiguráció nem változott.</system:String>
     <system:String x:Key="NNode">Nincs kiválasztva csúcspont.</system:String>
+    <system:String x:Key="NoCon">Kérlek, előbb hozz létre vagy tölts be egy konfigurációs fájlt.</system:String>
     <system:String x:Key="NFNod">Kérlek, előbb jelölj ki egy szűrő csúcspontot.</system:String>
     <system:String x:Key="NPNod">Kérlek, előbb jelölj ki egy lépést.</system:String>
+    <system:String x:Key="NFFir">Bemenet elé nem adható hozzá szűrőszett lépés.</system:String>
     <system:String x:Key="NFLas">Kimenetek után nem adható hozzá szűrő.</system:String>
     <system:String x:Key="NFInp">Egy csatorna bemenete nem törölhető.</system:String>
     <system:String x:Key="NFOut">Egy csatorna kimenete nem törölhető.</system:String>

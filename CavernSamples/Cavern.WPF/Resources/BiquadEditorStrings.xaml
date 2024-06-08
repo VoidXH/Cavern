@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="Title">Biquad Filter Editor</system:String>
     <system:String x:Key="FType">Filter type:</system:String>
     <system:String x:Key="CenFr">Center frequency:</system:String>
     <system:String x:Key="QFact">Q factor:</system:String>

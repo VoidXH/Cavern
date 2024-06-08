@@ -25,6 +25,7 @@
     <system:String x:Key="OpCon">_Convert to convolution (merging, irreversible)</system:String>
 
     <system:String x:Key="MPipe">Filter _sets</system:String>
+    <system:String x:Key="OpAdP">_Add empty set before the selected set</system:String>
     <system:String x:Key="OpCle">_Clear selected set</system:String>
     <system:String x:Key="CoCle">_Clear</system:String>
     <system:String x:Key="OpDeP">_Delete selected set</system:String>
@@ -43,8 +44,10 @@
 The channel configuration will only be applied when you create a new configuration file.</system:String>
     <system:String x:Key="NChan">No channels were selected, the channel configuration wasn't changed.</system:String>
     <system:String x:Key="NNode">No node selected.</system:String>
+    <system:String x:Key="NoCon">Please create or load a configuration file first.</system:String>
     <system:String x:Key="NFNod">Please select a filter node first.</system:String>
     <system:String x:Key="NPNod">Please select a step first.</system:String>
+    <system:String x:Key="NFFir">Filter set steps can't be added before the input.</system:String>
     <system:String x:Key="NFLas">Filters can't be added after an output.</system:String>
     <system:String x:Key="NFInp">The input of a channel can't be deleted.</system:String>
     <system:String x:Key="NFOut">The output of a channel can't be deleted.</system:String>
