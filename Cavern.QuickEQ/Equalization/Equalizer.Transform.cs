@@ -39,6 +39,7 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>
         /// Set this equalizer so if the <paramref name="other"/> is linear, this will be the difference from it.
+        /// This is calculated by LHS (this instance) - RHS (<paramref name="other"/>) for each value.
         /// </summary>
         /// <remarks>Matching frequencies have to be guaranteed before calling this function with
         /// <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>

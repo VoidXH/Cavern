@@ -43,7 +43,7 @@ namespace Cavern.Filters.Utilities {
         /// Place a <see cref="FilterGraphNode"/> between this and the <see cref="parents"/>.
         /// </summary>
         public void AddAfterParents(FilterGraphNode newParent) {
-            newParent.parents.AddRange(children);
+            newParent.parents.AddRange(parents);
             for (int i = 0, c = parents.Count; i < c; i++) {
                 parents[i].children.Clear();
                 parents[i].children.Add(newParent);

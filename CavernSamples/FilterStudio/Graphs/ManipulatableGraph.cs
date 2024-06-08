@@ -93,6 +93,11 @@ namespace FilterStudio.Graphs {
                 return;
             }
 
+            foreach (Node other in Graph.Nodes) {
+                if (other.Attr.LineWidth != 1) {
+                    other.Attr.LineWidth = 1;
+                }
+            }
             node.Attr.LineWidth = 2;
             Dispatcher.BeginInvoke(() => { // Call after the graph was redrawn
                 OnLeftClick?.Invoke(node);

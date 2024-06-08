@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.Windows;
 
+using FilterStudio.Windows;
+
 namespace FilterStudio.Consts {
     /// <summary>
     /// Handle fetching of language strings and translations.
@@ -13,9 +15,10 @@ namespace FilterStudio.Consts {
         public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= GetFor("MainWindowStrings");
 
         /// <summary>
-        /// Get the translations of dialogs.
+        /// Get the <see cref="ConvolutionLengthDialog"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetDialogStrings() => dialogCache ??= GetFor("DialogStrings");
+        public static ResourceDictionary GetConvolutionLengthDialogStrings() =>
+            convolutionLengthDialogCache ??= GetFor("ConvolutionLengthDialogStrings");
 
         /// <summary>
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
@@ -40,8 +43,8 @@ namespace FilterStudio.Consts {
         static ResourceDictionary mainWindowCache;
 
         /// <summary>
-        /// The loaded translation of the dialogs for reuse.
+        /// The loaded translation of the <see cref="ConvolutionLengthDialog"/> for reuse.
         /// </summary>
-        static ResourceDictionary dialogCache;
+        static ResourceDictionary convolutionLengthDialogCache;
     }
 }

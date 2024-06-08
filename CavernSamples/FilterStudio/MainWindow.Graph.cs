@@ -61,9 +61,14 @@ namespace FilterStudio {
         /// Converts all filters to convolutions and merges them downwards if they only have a single child.
         /// </summary>
         void ConvertToConvolution(object _, RoutedEventArgs e) {
+            if (pipeline.Source == null) {
+                Error((string)language["NoCon"]);
+                return;
+            }
+
             ConvolutionLengthDialog length = new();
             if (length.ShowDialog().Value) {
-                FilterGraphNodeUtils.ConvertToConvolution(rootNodes, length.Size);
+                FilterGraphNodeUtils.ConvertToConvolution(pipeline.Source.SplitPoints[0].roots, length.Size);
                 ReloadGraph();
             }
         }

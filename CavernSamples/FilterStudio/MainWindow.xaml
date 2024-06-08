@@ -33,6 +33,7 @@
                 <MenuItem Header="{StaticResource OpDel}" Click="DeleteNode"/>
             </MenuItem>
             <MenuItem Header="{StaticResource MPipe}" Style="{StaticResource RootMenuItem}">
+                <MenuItem Header="{StaticResource OpAdP}" Click="AddStep"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpCle}" Click="ClearStep"/>
                 <MenuItem Header="{StaticResource OpDeP}" Click="DeleteStep"/>

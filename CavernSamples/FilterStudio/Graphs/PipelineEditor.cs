@@ -40,7 +40,7 @@ namespace FilterStudio.Graphs {
             set {
                 source = value;
                 RecreateGraph();
-                SelectNode(source.SplitPoints[0].roots.GetHashCode().ToString());
+                SelectNode("0");
                 OnSplitChanged?.Invoke(source.SplitPoints[0].roots);
             }
         }
@@ -62,16 +62,16 @@ namespace FilterStudio.Graphs {
             graph.Attr.BackgroundColor = background;
             graph.Attr.LayerDirection = LayerDirection.LR;
 
-            string lastUid = "a";
+            string lastUid = inNodeUid;
             graph.AddNode(new StyledNode(lastUid, (string)language["NInpu"]));
             for (int i = 0, c = splits.Count; i < c; i++) {
-                string newUid = splits[i].roots.GetHashCode().ToString();
+                string newUid = i.ToString();
                 graph.AddNode(new StyledNode(newUid, splits[i].name));
                 new StyledEdge(graph, lastUid, newUid);
                 lastUid = newUid;
             }
-            graph.AddNode(new StyledNode("b", (string)language["NOutp"]));
-            new StyledEdge(graph, lastUid, "b");
+            graph.AddNode(new StyledNode(outNodeUid, (string)language["NOutp"]));
+            new StyledEdge(graph, lastUid, outNodeUid);
             Graph = graph;
         }
 
@@ -83,10 +83,20 @@ namespace FilterStudio.Graphs {
                 return;
             }
 
-            if (int.TryParse(node.Id, out int rootCode)) {
-                (string _, FilterGraphNode[] roots) = source.SplitPoints.FirstOrDefault(x => x.roots.GetHashCode() == rootCode);
+            if (int.TryParse(node.Id, out int root)) {
+                (string _, FilterGraphNode[] roots) = source.SplitPoints[root];
                 OnSplitChanged?.Invoke(roots);
             }
         }
+
+        /// <summary>
+        /// UID of the node that represents the filter set input.
+        /// </summary>
+        internal const string inNodeUid = "in";
+
+        /// <summary>
+        /// UID of the node that represents the filter set output.
+        /// </summary>
+        internal const string outNodeUid = "out";
     }
 }

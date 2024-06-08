@@ -52,23 +52,41 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
-        /// Removes one of the <see cref="SplitPoints"/> by <paramref name="name"/> and clears all the filters it contains.
+        /// Add a new split with a custom <paramref name="name"/> at a specific <paramref name="index"/> of <see cref="SplitPoints"/>.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">The <paramref name="name"/> was not found
-        /// among the <see cref="SplitPoints"/></exception>
-        /// <exception cref="IndexOutOfRangeException">The last split point can't be removed. To bypass this restriction,
-        /// you could add an empty split point and remove the previous last one.</exception>
-        public void ClearSplitPoint(string name) {
-            int pos = GetSplitPointIndexByName(name);
-            if (pos == SplitPoints.Count - 1) { // Last split can be cleared and replaced with new outputs.
-                FilterGraphNode[] roots = SplitPoints[pos].roots;
+        public void AddSplitPoint(int index, string name) {
+            if (index != SplitPoints.Count) {
+                List<(string name, FilterGraphNode[] roots)> splits = (List<(string, FilterGraphNode[])>)SplitPoints;
+                FilterGraphNode[] start = (FilterGraphNode[])splits[index].roots.Clone();
+                for (int i = 0; i < start.Length; i++) {
+                    ReferenceChannel channel = ((InputChannel)start[i].Filter).Channel;
+                    start[i] = start[i].AddAfterParents(new OutputChannel(channel)).AddAfterParents(new InputChannel(channel));
+                }
+                splits.Insert(index, (name, start));
+            } else {
+                CreateNewSplitPoint(name);
+                FilterGraphNode[] end = SplitPoints[^1].roots;
+                for (int i = 0; i < end.Length; i++) {
+                    ReferenceChannel channel = ((InputChannel)end[i].Filter).Channel;
+                    end[i].AddChild(new OutputChannel(channel));
+                }
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Clears all filters in one of the <see cref="SplitPoints"/> by <paramref name="index"/>.
+        /// </summary>
+        public void ClearSplitPoint(int index) {
+            if (index == SplitPoints.Count - 1) { // Last split can be cleared and replaced with new outputs
+                FilterGraphNode[] roots = SplitPoints[index].roots;
                 for (int i = 0; i < roots.Length; i++) {
                     roots[i].DetachChildren();
                     roots[i].AddChild(new OutputChannel(((InputChannel)roots[i].Filter).Channel));
                 }
             } else { // General case: clear the children and use the next split to fetch the outputs
-                FilterGraphNode[] roots = SplitPoints[pos].roots,
-                    next = SplitPoints[pos + 1].roots;
+                FilterGraphNode[] roots = SplitPoints[index].roots,
+                    next = SplitPoints[index + 1].roots;
                 for (int i = 0; i < roots.Length; i++) {
                     ReferenceChannel channel = ((InputChannel)roots[i].Filter).Channel;
                     FilterGraphNode equivalent = next.First(x => ((InputChannel)x.Filter).Channel == channel);
@@ -81,26 +99,30 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
-        /// Removes one of the <see cref="SplitPoints"/> by <paramref name="name"/> and clears all the filters it contains.
+        /// Clears all filters in one of the <see cref="SplitPoints"/> by <paramref name="name"/>.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">The <paramref name="name"/> was not found
         /// among the <see cref="SplitPoints"/></exception>
+        public void ClearSplitPoint(string name) => ClearSplitPoint(GetSplitPointIndexByName(name));
+
+        /// <summary>
+        /// Removes one of the <see cref="SplitPoints"/> by <paramref name="index"/> and clears all the filters it contains.
+        /// </summary>
         /// <exception cref="IndexOutOfRangeException">The last split point can't be removed. To bypass this restriction,
         /// you could add an empty split point and remove the previous last one.</exception>
-        public void RemoveSplitPoint(string name) {
+        public void RemoveSplitPoint(int index) {
             if (SplitPoints.Count == 1) {
                 throw new IndexOutOfRangeException();
             }
 
-            int pos = GetSplitPointIndexByName(name);
-            if (pos == SplitPoints.Count - 1) { // Last split can be just removed
-                FilterGraphNode[] roots = SplitPoints[pos].roots;
+            if (index == SplitPoints.Count - 1) { // Last split can be just removed
+                FilterGraphNode[] roots = SplitPoints[index].roots;
                 for (int i = 0; i < roots.Length; i++) {
                     roots[i].DetachFromGraph(false);
                 }
             } else { // General case: transfer children from the next set of roots, then swap roots
-                FilterGraphNode[] roots = SplitPoints[pos].roots,
-                    next = SplitPoints[pos + 1].roots;
+                FilterGraphNode[] roots = SplitPoints[index].roots,
+                    next = SplitPoints[index + 1].roots;
                 for (int i = 0; i < roots.Length; i++) {
                     ReferenceChannel channel = ((InputChannel)roots[i].Filter).Channel;
                     FilterGraphNode equivalent = next.First(x => ((InputChannel)x.Filter).Channel == channel);
@@ -110,10 +132,19 @@ namespace Cavern.Format.ConfigurationFile {
                     equivalent.DetachChildren();
                     roots[i].AddChildren(oldChildren);
                 }
-                ((List<(string, FilterGraphNode[])>)SplitPoints)[pos + 1] = (SplitPoints[pos + 1].name, roots);
+                ((List<(string, FilterGraphNode[])>)SplitPoints)[index + 1] = (SplitPoints[index + 1].name, roots);
             }
-            ((List<(string, FilterGraphNode[])>)SplitPoints).RemoveAt(pos);
+            ((List<(string, FilterGraphNode[])>)SplitPoints).RemoveAt(index);
         }
+
+        /// <summary>
+        /// Removes one of the <see cref="SplitPoints"/> by <paramref name="name"/> and clears all the filters it contains.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">The <paramref name="name"/> was not found
+        /// among the <see cref="SplitPoints"/></exception>
+        /// <exception cref="IndexOutOfRangeException">The last split point can't be removed. To bypass this restriction,
+        /// you could add an empty split point and remove the previous last one.</exception>
+        public void RemoveSplitPoint(string name) => RemoveSplitPoint(GetSplitPointIndexByName(name));
 
         /// <summary>
         /// Adds an entry to the <see cref="SplitPoints"/> with the current state of the configuration, creating new
@@ -123,7 +154,8 @@ namespace Cavern.Format.ConfigurationFile {
         /// because new input nodes are created in this function.</remarks>
         protected void CreateNewSplitPoint(string name) {
             FilterGraphNode[] nodes =
-                FilterGraphNodeUtils.MapGraph(InputChannels.Select(x => x.root)).Where(x => x.Filter is OutputChannel).ToArray();
+                FilterGraphNodeUtils.MapGraph(InputChannels.Select(x => x.root))
+                .Where(x => x.Filter is OutputChannel && x.Children.Count == 0).ToArray();
             for (int i = 0; i < nodes.Length; i++) {
                 nodes[i] = nodes[i].AddChild(new InputChannel(((OutputChannel)nodes[i].Filter).Channel));
             }
