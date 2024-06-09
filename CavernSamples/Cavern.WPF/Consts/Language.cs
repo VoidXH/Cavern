@@ -1,11 +1,13 @@
 ﻿using System.Globalization;
 using System.Windows;
 
+using Cavern.Channels;
+
 namespace Cavern.WPF.Consts {
     /// <summary>
     /// Handle fetching of language strings and translations.
     /// </summary>
-    static class Language {
+    public static class Language {
         /// <summary>
         /// Get the shared translation between windows.
         /// </summary>
@@ -20,6 +22,38 @@ namespace Cavern.WPF.Consts {
         /// Get the <see cref="ChannelSelector"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetChannelSelectorStrings() => channelSelectorCache ??= GetFor("ChannelSelectorStrings");
+
+        /// <summary>
+        /// Return a channel's name in the user's language or fall back to its short name.
+        /// </summary>
+        public static string Translate(this ReferenceChannel channel) {
+            ResourceDictionary dictionary = GetChannelSelectorStrings();
+            return channel switch {
+                ReferenceChannel.FrontLeft => (string)dictionary["SpGFL"],
+                ReferenceChannel.FrontLeftCenter => (string)dictionary["SpFLC"],
+                ReferenceChannel.FrontCenter => (string)dictionary["SpGFC"],
+                ReferenceChannel.FrontRightCenter => (string)dictionary["SpFRC"],
+                ReferenceChannel.FrontRight => (string)dictionary["SpGFR"],
+                ReferenceChannel.WideLeft => (string)dictionary["SpGWL"],
+                ReferenceChannel.WideRight => (string)dictionary["SpGWR"],
+                ReferenceChannel.SideLeft => (string)dictionary["SpGSL"],
+                ReferenceChannel.ScreenLFE => (string)dictionary["SpLFE"],
+                ReferenceChannel.SideRight => (string)dictionary["SpGSR"],
+                ReferenceChannel.RearLeft => (string)dictionary["SpGRL"],
+                ReferenceChannel.RearCenter => (string)dictionary["SpGRC"],
+                ReferenceChannel.RearRight => (string)dictionary["SpGRR"],
+                ReferenceChannel.TopFrontLeft => (string)dictionary["SpTFL"],
+                ReferenceChannel.TopFrontCenter => (string)dictionary["SpTFC"],
+                ReferenceChannel.TopFrontRight => (string)dictionary["SpTFR"],
+                ReferenceChannel.TopSideLeft => (string)dictionary["SpTSL"],
+                ReferenceChannel.GodsVoice => (string)dictionary["SpTGV"],
+                ReferenceChannel.TopSideRight => (string)dictionary["SpTSR"],
+                ReferenceChannel.TopRearLeft => (string)dictionary["SpTRL"],
+                ReferenceChannel.TopRearCenter => (string)dictionary["SpTRC"],
+                ReferenceChannel.TopRearRight => (string)dictionary["SpTRR"],
+                _ => channel.GetShortName()
+            };
+        }
 
         /// <summary>
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.

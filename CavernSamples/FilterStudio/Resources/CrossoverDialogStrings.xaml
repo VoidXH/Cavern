@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="Title">Crossover</system:String>
+    <system:String x:Key="ChLis">Channels</system:String>
+    <system:String x:Key="EnaCr">Enable crossover</system:String>
+    <system:String x:Key="TarCh">Crossover low frequencies to this channel:</system:String>
+</ResourceDictionary>

@@ -34,6 +34,7 @@
             </MenuItem>
             <MenuItem Header="{StaticResource MPipe}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Header="{StaticResource OpAdP}" Click="AddStep"/>
+                <MenuItem Header="{StaticResource OpAdC}" Click="AddCrossover"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpCle}" Click="ClearStep"/>
                 <MenuItem Header="{StaticResource OpDeP}" Click="DeleteStep"/>

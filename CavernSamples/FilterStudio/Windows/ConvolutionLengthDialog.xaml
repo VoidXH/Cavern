@@ -9,7 +9,7 @@
     <Window.Resources>
         <d:ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Resources/DialogStrings.xaml"/>
+                <ResourceDictionary Source="../Resources/ConvolutionLengthDialogStrings.xaml"/>
                 <ResourceDictionary Source="../Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </d:ResourceDictionary>

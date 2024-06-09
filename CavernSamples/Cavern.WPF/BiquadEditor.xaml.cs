@@ -10,6 +10,7 @@ using Cavern.QuickEQ.Graphing;
 using Cavern.QuickEQ.Graphing.Overlays;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
+using Cavern.WPF.BaseClasses;
 
 using Color = System.Windows.Media.Color;
 
@@ -17,7 +18,7 @@ namespace Cavern.WPF {
     /// <summary>
     /// Biquad filter customization/editor window.
     /// </summary>
-    public partial class BiquadEditor : Window {
+    public partial class BiquadEditor : OkCancelDialog {
         /// <summary>
         /// The filter created by the user's inputs.
         /// </summary>
@@ -131,18 +132,5 @@ namespace Cavern.WPF {
         /// use this check handler to never let it be checked.
         /// </summary>
         void DisableCheck(object sender, RoutedEventArgs _) => ((CheckBox)sender).IsChecked = false;
-
-        /// <summary>
-        /// Closes the dialog with the filter selected.
-        /// </summary>
-        void OK(object _, RoutedEventArgs e) {
-            DialogResult = true;
-            Close();
-        }
-
-        /// <summary>
-        /// Closes the dialog with no filter selected.
-        /// </summary>
-        void Cancel(object _, RoutedEventArgs e) => Close();
     }
 }

@@ -70,7 +70,6 @@ namespace Cavern.Format.ConfigurationFile {
                     ReferenceChannel channel = ((InputChannel)end[i].Filter).Channel;
                     end[i].AddChild(new OutputChannel(channel));
                 }
-                return;
             }
         }
 

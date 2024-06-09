@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows;
 
 using FilterStudio.Windows;
+using FilterStudio.Windows.PipelineSteps;
 
 namespace FilterStudio.Consts {
     /// <summary>
@@ -19,6 +20,12 @@ namespace FilterStudio.Consts {
         /// </summary>
         public static ResourceDictionary GetConvolutionLengthDialogStrings() =>
             convolutionLengthDialogCache ??= GetFor("ConvolutionLengthDialogStrings");
+
+        /// <summary>
+        /// Get the <see cref="CrossoverDialog"/>'s translation.
+        /// </summary>
+        public static ResourceDictionary GetCrossoverDialogStrings() =>
+            crossoverDialogCache ??= GetFor("CrossoverDialogStrings");
 
         /// <summary>
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
@@ -46,5 +53,10 @@ namespace FilterStudio.Consts {
         /// The loaded translation of the <see cref="ConvolutionLengthDialog"/> for reuse.
         /// </summary>
         static ResourceDictionary convolutionLengthDialogCache;
+
+        /// <summary>
+        /// The loaded translation of the <see cref="CrossoverDialog"/> for reuse.
+        /// </summary>
+        static ResourceDictionary crossoverDialogCache;
     }
 }

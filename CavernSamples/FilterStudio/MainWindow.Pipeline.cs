@@ -6,6 +6,7 @@ using System.Windows;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
+using FilterStudio.Windows.PipelineSteps;
 
 namespace FilterStudio {
     // Handlers of the pipeline graph control
@@ -13,26 +14,23 @@ namespace FilterStudio {
         /// <summary>
         /// Add a new empty pipeline step after the selected node.
         /// </summary>
-        void AddStep(object sender, RoutedEventArgs e) {
-            StyledNode node = pipeline.GetSelectedNode(sender);
-            if (node == null) {
-                Error((string)language["NPNod"]);
-                return;
-            }
-
-            if (!int.TryParse(node.Id, out int uid)) {
-                if (node.Id == PipelineEditor.inNodeUid) {
-                    Error((string)language["NPNod"]);
-                    return;
-                } else {
-                    uid = pipeline.Source.SplitPoints.Count;
-                }
-            }
-
+        void AddStep(object sender, RoutedEventArgs e) => PipelineAddition(sender, (uid) => {
             pipeline.Source.AddSplitPoint(uid, (string)language["NSNew"]);
-            pipeline.Source = pipeline.Source; // Force a reload of the pipeline graph
-            pipeline.SelectNode(uid.ToString()); // Force a reload of the filter graph on the new step
-        }
+            return true;
+        });
+
+        /// <summary>
+        /// Add a new crossover step after the selected node.
+        /// </summary>
+        void AddCrossover(object sender, RoutedEventArgs e) => PipelineAddition(sender, (uid) => {
+            CrossoverDialog dialog = new(GetChannels());
+            if (!dialog.ShowDialog().Value) {
+                return false;
+            }
+
+            // TODO: create the crossover graph, using grouping by frequencies -> make it in Cavern.QuickEQ.Format to be reused
+            return true;
+        });
 
         /// <summary>
         /// Clear the currently selected pipeline step (remove all its filters).
@@ -78,6 +76,33 @@ namespace FilterStudio {
         }
 
         /// <summary>
+        /// Add a new step in the pipeline before the currently selected node.
+        /// </summary>
+        /// <param name="sender">Either the selected node or a control if not called from a right-click menu</param>
+        /// <param name="addBeforeUid">Tries to add the step to the pipeline and returns if the addition was successful</param>
+        void PipelineAddition(object sender, Func<int, bool> addBeforeUid) {
+            StyledNode node = pipeline.GetSelectedNode(sender);
+            if (node == null) {
+                Error((string)language["NPNod"]);
+                return;
+            }
+
+            if (!int.TryParse(node.Id, out int uid)) {
+                if (node.Id == PipelineEditor.inNodeUid) {
+                    Error((string)language["NPNod"]);
+                    return;
+                } else {
+                    uid = pipeline.Source.SplitPoints.Count;
+                }
+            }
+
+            if (addBeforeUid(uid)) {
+                pipeline.Source = pipeline.Source; // Force a reload of the pipeline graph
+                pipeline.SelectNode(uid.ToString()); // Force a reload of the filter graph on the new step
+            }
+        }
+
+        /// <summary>
         /// Handle right-clicking on a pipeline <paramref name="element"/>.
         /// </summary>
         void PipelineRightClick(object element) {
@@ -87,6 +112,7 @@ namespace FilterStudio {
 
             List<(string, Action<object, RoutedEventArgs>)> menuItems = [
                 ((string)language["OpAdP"], (_, e) => AddStep(element, e)),
+                ((string)language["OpAdC"], (_, e) => AddCrossover(element, e)),
                 (null, null), // Separator for deletion
                 ((string)language["CoCle"], (_, e) => ClearStep(element, e)),
                 ((string)language["CoDel"], (_, e) => DeleteStep(element, e))

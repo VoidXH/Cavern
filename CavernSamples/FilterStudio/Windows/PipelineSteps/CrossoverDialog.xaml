@@ -1,0 +1,29 @@
+﻿<base:OkCancelDialog x:Class="FilterStudio.Windows.PipelineSteps.CrossoverDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:base="clr-namespace:Cavern.WPF.BaseClasses;assembly=Cavern.WPF"
+        mc:Ignorable="d"
+        Title="{StaticResource Title}" Width="450" Height="450" Background="#696969">
+    <d:Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/Styles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/VoidX.WPF;component/Resources/CommonStrings.xaml"/>
+                <ResourceDictionary Source="../../Resources/CrossoverDialogStrings.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </d:Window.Resources>
+    <Grid>
+        <TextBlock x:Name="renderSettingsHeader" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" d:Height="24"
+                   Style="{StaticResource Header}" Text="{StaticResource ChLis}"/>
+        <ListView Name="channels" Margin="10,39,10,62"/>
+        <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Content="{StaticResource BtnOk}" Click="OK"/>
+        <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Content="{StaticResource BtnCa}" Click="Cancel"/>
+        <TextBlock Margin="0,0,160,38" HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="{StaticResource TarCh}"/>
+        <ComboBox x:Name="targetChannel" Margin="0,0,10,35" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="145"/>
+    </Grid>
+</base:OkCancelDialog>

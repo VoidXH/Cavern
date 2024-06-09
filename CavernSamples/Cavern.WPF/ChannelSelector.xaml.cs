@@ -2,12 +2,13 @@
 using System.Windows.Controls;
 
 using Cavern.Channels;
+using Cavern.WPF.BaseClasses;
 
 namespace Cavern.WPF {
     /// <summary>
     /// Channel layout selector dialog.
     /// </summary>
-    public partial class ChannelSelector : Window {
+    public partial class ChannelSelector : OkCancelDialog {
         /// <summary>
         /// Set when OK is clicked, contains the channels selected by the user.
         /// </summary>
@@ -63,18 +64,5 @@ namespace Cavern.WPF {
                 [ReferenceChannel.TopRearRight] = topRearRight,
             };
         }
-
-        /// <summary>
-        /// Closes the dialog with the filter selected.
-        /// </summary>
-        void OK(object _, RoutedEventArgs e) {
-            DialogResult = true;
-            Close();
-        }
-
-        /// <summary>
-        /// Closes the dialog with no filter selected.
-        /// </summary>
-        void Cancel(object _, RoutedEventArgs e) => Close();
     }
 }

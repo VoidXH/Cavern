@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -170,5 +171,10 @@ namespace FilterStudio {
                 }
             }
         }
+
+        /// <summary>
+        /// Get the channels that are used in the current configuration or will be used when a new configuration will be created.
+        /// </summary>
+        ReferenceChannel[] GetChannels() => rootNodes == null ? channels : rootNodes.Select(x => ((InputChannel)x.Filter).Channel).ToArray();
     }
 }

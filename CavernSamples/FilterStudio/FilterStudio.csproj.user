@@ -10,6 +10,12 @@
     <Compile Update="Windows\ConvolutionLengthDialog.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Windows\PipelineSteps\CrossoverDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Windows\PipelineSteps\CrossoverSetup.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="..\VoidX.WPF\NumericUpDown.xaml">
@@ -27,10 +33,22 @@
     <Page Update="Resources\ConvolutionLengthDialogStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Resources\CrossoverDialogStrings.hu-HU.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\CrossoverDialogStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Resources\MainWindowStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Windows\ConvolutionLengthDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\PipelineSteps\CrossoverDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\PipelineSteps\CrossoverSetup.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

@@ -1,8 +1,9 @@
-﻿<Window
+﻿<base:OkCancelDialog
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:base="clr-namespace:Cavern.WPF.BaseClasses"
         x:Class="Cavern.WPF.BiquadEditor"
         mc:Ignorable="d"
         Title="{StaticResource Title}" Width="536" Height="372">
@@ -34,4 +35,4 @@
         <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Content="{StaticResource BtnCa}" Click="Cancel"/>
     </Grid>
-</Window>
+</base:OkCancelDialog>

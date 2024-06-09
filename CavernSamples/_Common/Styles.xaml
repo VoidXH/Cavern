@@ -294,6 +294,9 @@
     <Style TargetType="ListBox">
         <Setter Property="Background" Value="#303030"/>
     </Style>
+    <Style TargetType="ListView">
+        <Setter Property="Background" Value="#303030"/>
+    </Style>
     <Style TargetType="Menu">
         <Setter Property="Background" Value="#353535"/>
         <Setter Property="Height" Value="30"/>
