@@ -8,7 +8,7 @@ namespace Cavern.QuickEQ.Crossover {
     /// <summary>
     /// The generally used 2nd order highpass/lowpass, but without the phase distortions by applying the spectrum with FIR filters.
     /// </summary>
-    public class SyntheticBiquadCrossover : BasicCrossover {
+    public class SyntheticBiquadCrossover : Crossover {
         /// <summary>
         /// Creates a phase distortion-less <see cref="BasicCrossover"/>.
         /// </summary>

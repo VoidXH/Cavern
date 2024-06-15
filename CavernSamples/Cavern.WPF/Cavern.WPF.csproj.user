@@ -37,5 +37,11 @@
     <Page Update="Resources\CommonStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Resources\CrossoverStrings.hu-HU.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\CrossoverStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 </Project>

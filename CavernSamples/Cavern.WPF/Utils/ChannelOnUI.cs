@@ -9,7 +9,7 @@ namespace Cavern.WPF.Utils {
         /// <summary>
         /// The displayed channel.
         /// </summary>
-        public ReferenceChannel Channel = channel;
+        public ReferenceChannel Channel => channel;
 
         /// <inheritdoc/>
         public override string ToString() => Channel.Translate();

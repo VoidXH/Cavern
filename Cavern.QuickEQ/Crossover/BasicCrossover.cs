@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using Cavern.Filters;
 
 namespace Cavern.QuickEQ.Crossover {
     /// <summary>
@@ -16,31 +14,9 @@ namespace Cavern.QuickEQ.Crossover {
         public BasicCrossover(float[] frequencies, bool[] subs) : base(frequencies, subs) { }
 
         /// <inheritdoc/>
-        public override void ExportToEqualizerAPO(List<string> wipConfig) {
-            (float frequency, string[] channelLabels)[] groups = GetCrossoverGroups();
-            string[] targets = GetSubLabels();
-            string subGain = (MathF.Sqrt(1f / targets.Length) * minus10dB).ToString("0.000", CultureInfo.InvariantCulture);
+        public override Filter GetHighpassOptimized(int sampleRate, float frequency, int length) => new Highpass(sampleRate, frequency);
 
-            List<string> outputMix = new List<string>();
-            for (int i = 0; i < groups.Length; i++) {
-                if (subs[i] || groups[i].frequency <= 0) {
-                    continue;
-                }
-
-                wipConfig.Add($"Copy: XO{i + 1}={string.Join('+', groups[i].channelLabels)}");
-                wipConfig.Add("Channel: " + string.Join(" ", groups[i].channelLabels));
-                AddHighpass(wipConfig, groups[i].frequency);
-                wipConfig.Add("Channel: XO" + (i + 1));
-                AddLowpass(wipConfig, groups[i].frequency);
-                outputMix.Add($"{subGain}*XO{i + 1}");
-            }
-
-            if (outputMix.Count > 0) {
-                string mix = string.Join('+', outputMix);
-                for (int i = 0; i < targets.Length; i++) {
-                    wipConfig.Add($"Copy: {targets[i]}={targets[i]}+{mix}");
-                }
-            }
-        }
+        /// <inheritdoc/>
+        public override Filter GetLowpassOptimized(int sampleRate, float frequency, int length) => new Lowpass(sampleRate, frequency);
     }
 }

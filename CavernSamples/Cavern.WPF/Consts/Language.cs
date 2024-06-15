@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
+using System.Threading.Channels;
 using System.Windows;
 
 using Cavern.Channels;
+using Cavern.QuickEQ.Crossover;
 
 namespace Cavern.WPF.Consts {
     /// <summary>
@@ -22,6 +24,11 @@ namespace Cavern.WPF.Consts {
         /// Get the <see cref="ChannelSelector"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetChannelSelectorStrings() => channelSelectorCache ??= GetFor("ChannelSelectorStrings");
+
+        /// <summary>
+        /// Get the translations related to crossover handling.
+        /// </summary>
+        public static ResourceDictionary GetCrossoverStrings() => crossoverCache ??= GetFor("CrossoverStrings");
 
         /// <summary>
         /// Return a channel's name in the user's language or fall back to its short name.
@@ -56,6 +63,19 @@ namespace Cavern.WPF.Consts {
         }
 
         /// <summary>
+        /// Return a crossover type's name in the user's language or fall back to its enum name.
+        /// </summary>
+        public static string Translate(this CrossoverType type) {
+            ResourceDictionary dictionary = GetCrossoverStrings();
+            return type switch {
+                CrossoverType.Biquad => (string)dictionary["TyBiq"],
+                CrossoverType.Cavern => "Cavern",
+                CrossoverType.SyntheticBiquad => (string)dictionary["TySBi"],
+                _ => type.ToString()
+            };
+        }
+
+        /// <summary>
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
         /// </summary>
         static ResourceDictionary GetFor(string resource) {
@@ -86,5 +106,10 @@ namespace Cavern.WPF.Consts {
         /// The loaded translation of the <see cref="ChannelSelector"/> for reuse.
         /// </summary>
         static ResourceDictionary channelSelectorCache;
+
+        /// <summary>
+        /// The loaded translation of crossover handling for reuse.
+        /// </summary>
+        static ResourceDictionary crossoverCache;
     }
 }

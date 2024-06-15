@@ -4,5 +4,6 @@
     <system:String x:Key="Title">Crossover</system:String>
     <system:String x:Key="ChLis">Channels</system:String>
     <system:String x:Key="EnaCr">Enable crossover</system:String>
+    <system:String x:Key="CroTy">Crossover type:</system:String>
     <system:String x:Key="TarCh">Crossover low frequencies to this channel:</system:String>
 </ResourceDictionary>

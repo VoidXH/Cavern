@@ -27,6 +27,7 @@
     <system:String x:Key="MPipe">Szű_rőszettek</system:String>
     <system:String x:Key="OpAdP">Ü_res szett hozzáadása a kiválasztott szett elé</system:String>
     <system:String x:Key="OpAdC">K_eresztváltó hozzáadása a kiválasztott szett elé</system:String>
+    <system:String x:Key="LabXO">Keresztváltó</system:String>
     <system:String x:Key="OpCle">Kiválasztott szett _kiürítése</system:String>
     <system:String x:Key="CoCle">_Kiürítés</system:String>
     <system:String x:Key="OpDeP">Kiválasztott szett _törlése</system:String>

@@ -5,6 +5,7 @@ using System.Linq;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.Format.Common;
 using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
@@ -103,6 +104,19 @@ namespace Cavern.Format.ConfigurationFile {
         /// <exception cref="ArgumentOutOfRangeException">The <paramref name="name"/> was not found
         /// among the <see cref="SplitPoints"/></exception>
         public void ClearSplitPoint(string name) => ClearSplitPoint(GetSplitPointIndexByName(name));
+
+        /// <summary>
+        /// Get the node for a split point's (referenced with an <paramref name="index"/>) given <paramref name="channel"/>.
+        /// </summary>
+        public FilterGraphNode GetSplitPointRoot(int index, ReferenceChannel channel) {
+            FilterGraphNode[] roots = SplitPoints[index].roots;
+            for (int i = 0; i < roots.Length; i++) {
+                if (((InputChannel)roots[i].Filter).Channel == channel) {
+                    return roots[i];
+                }
+            }
+            throw new InvalidChannelException(new[] { channel });
+        }
 
         /// <summary>
         /// Removes one of the <see cref="SplitPoints"/> by <paramref name="index"/> and clears all the filters it contains.

@@ -7,7 +7,7 @@ namespace Cavern.QuickEQ.Crossover {
     /// <summary>
     /// A FIR brickwall crossover, first introduced in Cavern.
     /// </summary>
-    public class CavernCrossover : BasicCrossover {
+    public class CavernCrossover : Crossover {
         /// <summary>
         /// Creates a FIR brickwall crossover, first introduced in Cavern.
         /// </summary>

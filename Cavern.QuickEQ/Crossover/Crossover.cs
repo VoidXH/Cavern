@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 using Cavern.Channels;
@@ -80,8 +81,35 @@ namespace Cavern.QuickEQ.Crossover {
             return impulse;
         }
 
-        /// <inheritdoc/>
-        public abstract void ExportToEqualizerAPO(List<string> wipConfig);
+        /// <summary>
+        /// Append the completed crossover to a work-in-progress Equalizer APO configuration file.
+        /// </summary>
+        public virtual void ExportToEqualizerAPO(List<string> wipConfig) {
+            (float frequency, string[] channelLabels)[] groups = GetCrossoverGroups();
+            string[] targets = GetSubLabels();
+            string subGain = (MathF.Sqrt(1f / targets.Length) * minus10dB).ToString("0.000", CultureInfo.InvariantCulture);
+
+            List<string> outputMix = new List<string>();
+            for (int i = 0; i < groups.Length; i++) {
+                if (subs[i] || groups[i].frequency <= 0) {
+                    continue;
+                }
+
+                wipConfig.Add($"Copy: XO{i + 1}={string.Join('+', groups[i].channelLabels)}");
+                wipConfig.Add("Channel: " + string.Join(" ", groups[i].channelLabels));
+                AddHighpass(wipConfig, groups[i].frequency);
+                wipConfig.Add("Channel: XO" + (i + 1));
+                AddLowpass(wipConfig, groups[i].frequency);
+                outputMix.Add($"{subGain}*XO{i + 1}");
+            }
+
+            if (outputMix.Count > 0) {
+                string mix = string.Join('+', outputMix);
+                for (int i = 0; i < targets.Length; i++) {
+                    wipConfig.Add($"Copy: {targets[i]}={targets[i]}+{mix}");
+                }
+            }
+        }
 
         /// <summary>
         /// Add the filter's interpretation of highpass to the previously selected channel in an Equalizer APO configuration file.
@@ -102,6 +130,15 @@ namespace Cavern.QuickEQ.Crossover {
             Simulate(new Highpass(sampleRate, frequency), length);
 
         /// <summary>
+        /// Get the most quickly processed version of this crossover's highpass.
+        /// </summary>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="frequency">Lowpass cutoff point</param>
+        /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
+        public virtual Filter GetHighpassOptimized(int sampleRate, float frequency, int length) =>
+            new FastConvolver(GetHighpass(sampleRate, frequency, length));
+
+        /// <summary>
         /// Add the filter's interpretation of lowpass to the previously selected channel in an Equalizer APO configuration file.
         /// </summary>
         /// <remarks>Don't forget to call <see cref="AddExtraOperations(List{string})"/>, this is generally the best place for it.</remarks>
@@ -120,6 +157,15 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="length">Filter length in samples</param>
         public virtual float[] GetLowpass(int sampleRate, float frequency, int length) =>
             Simulate(new Lowpass(sampleRate, frequency), length);
+
+        /// <summary>
+        /// Get the most quickly processed version of this crossover's lowpass.
+        /// </summary>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="frequency">Lowpass cutoff point</param>
+        /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
+        public virtual Filter GetLowpassOptimized(int sampleRate, float frequency, int length) =>
+            new FastConvolver(GetLowpass(sampleRate, frequency, length));
 
         /// <summary>
         /// Get the labels of channels to route bass to.

@@ -18,11 +18,13 @@
     <Grid>
         <TextBlock x:Name="renderSettingsHeader" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" d:Height="24"
                    Style="{StaticResource Header}" Text="{StaticResource ChLis}"/>
-        <ListView Name="channels" Margin="10,39,10,62"/>
+        <ListView Name="channels" Margin="10,39,10,89"/>
         <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Content="{StaticResource BtnOk}" Click="OK"/>
         <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Content="{StaticResource BtnCa}" Click="Cancel"/>
+        <TextBlock Margin="0,0,160,65" HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="{StaticResource CroTy}"/>
+        <ComboBox x:Name="crossoverType" Margin="0,0,10,62" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="145"/>
         <TextBlock Margin="0,0,160,38" HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="{StaticResource TarCh}"/>
         <ComboBox x:Name="targetChannel" Margin="0,0,10,35" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="145"/>
     </Grid>

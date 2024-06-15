@@ -1,8 +1,12 @@
 ﻿using Microsoft.Msagl.Drawing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 
+using Cavern;
+using Cavern.Format.ConfigurationFile.Presets;
+using Cavern.QuickEQ.Crossover;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
@@ -28,7 +32,9 @@ namespace FilterStudio {
                 return false;
             }
 
-            // TODO: create the crossover graph, using grouping by frequencies -> make it in Cavern.QuickEQ.Format to be reused
+            CrossoverFilterSet crossover = new((string)language["LabXO"], dialog.Type, Listener.DefaultSampleRate, 65536, dialog.Target,
+                dialog.Crossovers.Where(x => x.frequency != null).Select(x => (x.channel, (float)x.frequency)).ToArray());
+            crossover.Add(pipeline.Source, uid);
             return true;
         });
 
