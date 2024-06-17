@@ -81,10 +81,14 @@ namespace Cavern.Format.ConfigurationFile {
                                 int mul = copy[j].IndexOf('*');
                                 if (mul != -1) {
                                     channel = copy[j][(mul + 1)..];
-                                    double copyGain = double.Parse(copy[j][..mul].Replace(',', '.'), CultureInfo.InvariantCulture);
-                                    FilterGraphNode gainFilter = new FilterGraphNode(new Gain(QMath.GainToDb(copyGain)));
-                                    gainFilter.AddParent(oldLastNodes[channel]);
-                                    target.AddParent(gainFilter);
+                                    double copyGain = double.Parse(copy[j][..mul].Replace(',', '.'), CultureInfo.InvariantCulture),
+                                        gainDb = QMath.GainToDb(Math.Abs(copyGain));
+                                    Gain gainFilter = new Gain(gainDb) {
+                                        Invert = gainDb >= 0
+                                    };
+                                    FilterGraphNode gainNode = new FilterGraphNode(gainFilter);
+                                    gainNode.AddParent(oldLastNodes[channel]);
+                                    target.AddParent(gainNode);
                                 } else {
                                     channel = copy[j];
                                     target.AddParent(oldLastNodes[channel]);

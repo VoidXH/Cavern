@@ -16,8 +16,16 @@ namespace Cavern.Filters {
         /// </summary>
         [DisplayName("Gain (dB)")]
         public double GainValue {
-            get => 20 * Math.Log10(gainValue);
+            get => 20 * Math.Log10(Math.Abs(gainValue));
             set => gainValue = (float)Math.Pow(10, value * .05);
+        }
+
+        /// <summary>
+        /// Invert the phase in addition to changing gain.
+        /// </summary>
+        public bool Invert {
+            get => gainValue < 0;
+            set => gainValue = value ? Math.Abs(gainValue) : -Math.Abs(gainValue);
         }
 
         /// <summary>
