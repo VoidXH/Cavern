@@ -41,8 +41,8 @@ namespace Cavern.Filters {
         /// Sample with fixed shelf: Filter: ON LS Fc 100 Hz Gain 0 dB
         /// Sample with custom shelf: Filter: ON LSC 12 dB Fc 100 Hz Gain 0 dB
         /// </summary>
-        public static LowShelf FromEqualizerAPO(string[] splitLine, int sampleRate) {
-            string type = splitLine[2].ToLower();
+        public static new LowShelf FromEqualizerAPO(string[] splitLine, int sampleRate) {
+            string type = splitLine[2].ToLowerInvariant();
             if (type == "ls" && QMath.TryParseDouble(splitLine[4], out double freq) && QMath.TryParseDouble(splitLine[5], out double gain)) {
                 return new LowShelf(sampleRate, freq, QFactor.FromSlope(0.9, gain));
             } else if (type == "lsc" && QMath.TryParseDouble(splitLine[3], out double slope) &&

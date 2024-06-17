@@ -29,13 +29,13 @@ namespace CavernizeGUI.CommandLine {
                 Execute(value, app);
                 return;
             }
-            if (args[offset].ToLower(CultureInfo.InvariantCulture).Equals(true1) ||
-                args[offset].ToLower(CultureInfo.InvariantCulture).Equals(true2)) {
+            if (args[offset].ToLowerInvariant().Equals(true1) ||
+                args[offset].ToLowerInvariant().Equals(true2)) {
                 Execute(true, app);
                 return;
             }
-            if (args[offset].ToLower(CultureInfo.InvariantCulture).Equals(false1) ||
-                args[offset].ToLower(CultureInfo.InvariantCulture).Equals(false2)) {
+            if (args[offset].ToLowerInvariant().Equals(false1) ||
+                args[offset].ToLowerInvariant().Equals(false2)) {
                 Execute(false, app);
                 return;
             }

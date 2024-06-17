@@ -41,8 +41,8 @@ namespace Cavern.Filters {
         /// Sample with fixed Q factor: Filter: ON LP Fc 100 Hz
         /// Sample with custom Q factor: Filter: ON LPQ Fc 100 Hz Q 0.7071
         /// </summary>
-        public static Lowpass FromEqualizerAPO(string[] splitLine, int sampleRate) {
-            string type = splitLine[2].ToLower();
+        public static new Lowpass FromEqualizerAPO(string[] splitLine, int sampleRate) {
+            string type = splitLine[2].ToLowerInvariant();
             if (type == "lp" && QMath.TryParseDouble(splitLine[4], out double freq)) {
                 return new Lowpass(sampleRate, freq);
             } else if (type == "lpq" && QMath.TryParseDouble(splitLine[4], out freq) && QMath.TryParseDouble(splitLine[7], out double q)) {

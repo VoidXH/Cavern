@@ -106,7 +106,7 @@ namespace Cavern.Filters {
             if (splitLine.Length < 3 || !QMath.TryParseDouble(splitLine[1], out double delay)) {
                 throw new FormatException(nameof(splitLine));
             }
-            return splitLine[2].ToLower(CultureInfo.InvariantCulture) switch {
+            return splitLine[2].ToLowerInvariant() switch {
                 "ms" => new Delay(delay, sampleRate),
                 "samples" => new Delay((int)delay),
                 _ => throw new ArgumentOutOfRangeException(splitLine[0]),

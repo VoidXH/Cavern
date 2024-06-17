@@ -41,7 +41,7 @@ namespace Cavern.Format.ConfigurationFile {
                     continue;
                 }
 
-                switch (split[0].ToLower(CultureInfo.InvariantCulture)) {
+                switch (split[0].ToLowerInvariant()) {
                     // Control
                     case "include":
                         string included = Path.Combine(Path.GetDirectoryName(path), string.Join(' ', split, 1, split.Length - 1));
@@ -50,7 +50,7 @@ namespace Cavern.Format.ConfigurationFile {
                         break;
                     case "channel":
                         activeChannels.Clear();
-                        if (split.Length == 2 && split[1].ToLower(CultureInfo.InvariantCulture) == "all") {
+                        if (split.Length == 2 && split[1].ToLowerInvariant() == "all") {
                             activeChannels.AddRange(channelLabels);
                             continue;
                         }

@@ -39,7 +39,7 @@ namespace Cavern.Filters {
         /// Parse a Filter line of Equalizer APO which was split at spaces to a Cavern <see cref="Allpass"/> filter.<br />
         /// Sample: ON AP Fc 100 Hz Q 10
         /// </summary>
-        public static Allpass FromEqualizerAPO(string[] splitLine, int sampleRate) {
+        public static new Allpass FromEqualizerAPO(string[] splitLine, int sampleRate) {
             if (QMath.TryParseDouble(splitLine[4], out double freq) && QMath.TryParseDouble(splitLine[7], out double q)) {
                 return new Allpass(sampleRate, freq, q);
             }

@@ -101,7 +101,7 @@ namespace CavernizeGUI {
             BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
             if (!codec.IsEnvironmental()) {
                 SetBlockSize(activeRenderTarget);
-                string exportFormat = path[^4..].ToLower(CultureInfo.InvariantCulture);
+                string exportFormat = path[^4..].ToLowerInvariant();
                 bool mkvTarget = exportFormat.Equals(".mkv");
                 string exportName = mkvTarget ? path[..^4] + waveExtension : path;
                 int channelCount = activeRenderTarget.OutputChannels;
@@ -257,7 +257,7 @@ namespace CavernizeGUI {
                     targetCodec += massivelyMultichannel;
                 }
 
-                if (writer is RIFFWaveWriter && finalName[^4..].ToLower(CultureInfo.InvariantCulture).Equals(".mkv")) {
+                if (writer is RIFFWaveWriter && finalName[^4..].ToLowerInvariant().Equals(".mkv")) {
                     string exportedAudio = finalName[..^4] + waveExtension;
                     taskEngine.UpdateStatus("Merging to final container...");
                     if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c:v copy -c:a {2} " +

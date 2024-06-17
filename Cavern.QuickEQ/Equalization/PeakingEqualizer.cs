@@ -101,10 +101,9 @@ namespace Cavern.QuickEQ.Equalization {
             List<PeakingEQ> result = new List<PeakingEQ>();
             foreach (string line in lines) {
                 string[] parts = line.Split(new[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length > 11 && parts[0].ToLower() == "filter" && parts[2].ToLower() == "on" && parts[3].ToLower() == "pk" &&
-                    QMath.TryParseDouble(parts[5], out double freq) &&
-                    QMath.TryParseDouble(parts[8], out double gain) &&
-                    QMath.TryParseDouble(parts[11], out double q)) {
+                if (parts.Length > 11 && parts[0].ToLowerInvariant() == "filter" && parts[2].ToLowerInvariant() == "on" &&
+                    parts[3].ToLowerInvariant() == "pk" && QMath.TryParseDouble(parts[5], out double freq) &&
+                    QMath.TryParseDouble(parts[8], out double gain) && QMath.TryParseDouble(parts[11], out double q)) {
                     result.Add(new PeakingEQ(Listener.DefaultSampleRate, freq, q, gain));
                 }
             }

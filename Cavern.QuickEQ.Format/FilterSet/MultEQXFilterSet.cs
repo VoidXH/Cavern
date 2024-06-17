@@ -128,7 +128,7 @@ namespace Cavern.Format.FilterSet {
                     label.pairDesignation, label.pair, label.location,
                     channelRef.gain.ToString(CultureInfo.InvariantCulture),
                     GetDelay(channel).ToString(CultureInfo.InvariantCulture),
-                    channelRef.switchPolarity.ToString().ToLower()));
+                    channelRef.switchPolarity.ToString().ToLowerInvariant()));
                 if (++channel != guids.Length) {
                     result.AppendLine(",");
                 } else {

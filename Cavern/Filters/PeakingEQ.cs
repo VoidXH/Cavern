@@ -41,7 +41,7 @@ namespace Cavern.Filters {
         /// Sample with Q factor: Filter: ON PK Fc 100 Hz Gain 0 dB Q 10<br />
         /// Sample with bandwidth: Filter: ON PK Fc 100 Hz Gain 0 dB BW Oct 0.1442
         /// </summary>
-        public static PeakingEQ FromEqualizerAPO(string[] splitLine, int sampleRate) {
+        public static new PeakingEQ FromEqualizerAPO(string[] splitLine, int sampleRate) {
             if (QMath.TryParseDouble(splitLine[4], out double freq) && QMath.TryParseDouble(splitLine[7], out double gain)) {
                 if (splitLine[9].Equals("Q") && QMath.TryParseDouble(splitLine[10], out double q)) {
                     return new PeakingEQ(sampleRate, freq, q, gain);

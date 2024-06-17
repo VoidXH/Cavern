@@ -41,7 +41,7 @@ namespace Cavern.Filters {
         /// Sample with default Q-factor: Filter: ON NO Fc 100 Hz
         /// Sample with custom Q-factor: Filter: ON NO Fc 100 Hz Q 30
         /// </summary>
-        public static Notch FromEqualizerAPO(string[] splitLine, int sampleRate) {
+        public static new Notch FromEqualizerAPO(string[] splitLine, int sampleRate) {
             if (QMath.TryParseDouble(splitLine[4], out double freq)) {
                 if (splitLine.Length < 7) {
                     return new Notch(sampleRate, freq, 30);

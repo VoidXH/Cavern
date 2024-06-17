@@ -41,7 +41,7 @@ namespace Cavern.Filters {
         /// Sample: Filter: ON BP Fc 100 Hz
         /// Sample with Q-factor: Filter: ON BP Fc 100 Hz Q 10
         /// </summary>
-        public static Bandpass FromEqualizerAPO(string[] splitLine, int sampleRate) {
+        public static new Bandpass FromEqualizerAPO(string[] splitLine, int sampleRate) {
             if (QMath.TryParseDouble(splitLine[4], out double freq)) {
                 if (splitLine.Length < 7) {
                     return new Bandpass(sampleRate, freq);

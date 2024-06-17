@@ -148,7 +148,7 @@ namespace Cavern.Filters {
         /// Parse a Filter line of Equalizer APO which was split at spaces to a Cavern <see cref="BiquadFilter"/> filter,
         /// detecting its type.<br />
         /// </summary>
-        public static BiquadFilter FromEqualizerAPO(string[] splitLine, int sampleRate) => splitLine[2].ToUpper() switch {
+        public static BiquadFilter FromEqualizerAPO(string[] splitLine, int sampleRate) => splitLine[2].ToUpperInvariant() switch {
             "PK" => PeakingEQ.FromEqualizerAPO(splitLine, sampleRate),
             "LP" => Lowpass.FromEqualizerAPO(splitLine, sampleRate),
             "LPQ" => Lowpass.FromEqualizerAPO(splitLine, sampleRate),
