@@ -94,9 +94,13 @@ namespace FilterStudio {
                 Filter = (string)language["OpFil"]
             };
             if (dialog.ShowDialog().Value) {
-                ConfigurationFile file = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
+                try {
+                    ConfigurationFile file = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
 
-                pipeline.Source = file;
+                    pipeline.Source = file;
+                } catch {
+                    Error((string)language["NLoad"]);
+                }
             }
         }
 

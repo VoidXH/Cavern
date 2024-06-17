@@ -62,7 +62,7 @@
             <DataGrid Name="properties" CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" ColumnWidth="*"/>
         </DockPanel>
         <Grid>
-            <fs:PipelineEditor x:Name="pipeline" VerticalAlignment="Top" Height="100" AllowConnection="False"/>
+            <fs:PipelineEditor x:Name="pipeline" VerticalAlignment="Top" Height="100" AllowConnection="False" AllowMovement="False"/>
             <Separator Margin="0,99,0,0" VerticalAlignment="Top"/>
             <fs:ManipulatableGraph Margin="0,100,0,0" x:Name="graph"/>
             <TextBlock Name="help1" Margin="10,0,0,50" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="{StaticResource Help1}"/>

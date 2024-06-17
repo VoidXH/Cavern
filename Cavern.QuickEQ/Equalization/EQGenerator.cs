@@ -199,9 +199,7 @@ namespace Cavern.QuickEQ.Equalization {
             List<Band> bands = new List<Band>();
             for (int line = 0; line < lines.Length; ++line) {
                 string[] nums = lines[line].Trim().Split(new[] { ' ', '\t' });
-                if (nums.Length > 1 && double.TryParse(nums[0].Replace(',', '.'), NumberStyles.Any,
-                    CultureInfo.InvariantCulture, out double freq) && double.TryParse(nums[1].Replace(',', '.'), NumberStyles.Any,
-                    CultureInfo.InvariantCulture, out double gain)) {
+                if (nums.Length > 1 && QMath.TryParseDouble(nums[0], out double freq) && QMath.TryParseDouble(nums[1], out double gain)) {
                     bands.Add(new Band(freq, gain));
                 }
             }
@@ -229,9 +227,9 @@ namespace Cavern.QuickEQ.Equalization {
             float[] toParse = new float[splitLine.Length - 1];
             for (int i = 1; i < splitLine.Length; i++) {
                 if (splitLine[i][^1] == ';') {
-                    toParse[i - 1] = float.Parse(splitLine[i][..^1].Replace(',', '.'), CultureInfo.InvariantCulture);
+                    toParse[i - 1] = QMath.ParseFloat(splitLine[i][..^1]);
                 } else {
-                    toParse[i - 1] = float.Parse(splitLine[i].Replace(',', '.'), CultureInfo.InvariantCulture);
+                    toParse[i - 1] = QMath.ParseFloat(splitLine[i]);
                 }
             }
             return FromCalibration(toParse);

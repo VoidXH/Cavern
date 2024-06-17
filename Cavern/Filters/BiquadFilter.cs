@@ -145,6 +145,26 @@ namespace Cavern.Filters {
         };
 
         /// <summary>
+        /// Parse a Filter line of Equalizer APO which was split at spaces to a Cavern <see cref="BiquadFilter"/> filter,
+        /// detecting its type.<br />
+        /// </summary>
+        public static BiquadFilter FromEqualizerAPO(string[] splitLine, int sampleRate) => splitLine[2].ToUpper() switch {
+            "PK" => PeakingEQ.FromEqualizerAPO(splitLine, sampleRate),
+            "LP" => Lowpass.FromEqualizerAPO(splitLine, sampleRate),
+            "LPQ" => Lowpass.FromEqualizerAPO(splitLine, sampleRate),
+            "HP" => Highpass.FromEqualizerAPO(splitLine, sampleRate),
+            "HPQ" => Highpass.FromEqualizerAPO(splitLine, sampleRate),
+            "BP" => Bandpass.FromEqualizerAPO(splitLine, sampleRate),
+            "LS" => LowShelf.FromEqualizerAPO(splitLine, sampleRate),
+            "LSC" => LowShelf.FromEqualizerAPO(splitLine, sampleRate),
+            "HS" => HighShelf.FromEqualizerAPO(splitLine, sampleRate),
+            "HSC" => HighShelf.FromEqualizerAPO(splitLine, sampleRate),
+            "NO" => Notch.FromEqualizerAPO(splitLine, sampleRate),
+            "AP" => Allpass.FromEqualizerAPO(splitLine, sampleRate),
+            _ => throw new ArgumentOutOfRangeException(splitLine[2])
+        };
+
+        /// <summary>
         /// Wipe the history to prevent clipping when applying the same filter for a new signal.
         /// </summary>
         public void Reset() {

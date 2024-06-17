@@ -424,6 +424,12 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Try to parse a double value regardless of the system's culture.
+        /// </summary>
+        public static bool TryParseDouble(string from, out double num) =>
+            double.TryParse(from.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out num);
+
+        /// <summary>
         /// Conversion array for <see cref="BitsAfterMSB(int)"/>.
         /// </summary>
         static readonly byte[] bitsAfterMSBHack = { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,

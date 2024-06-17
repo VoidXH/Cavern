@@ -19,6 +19,11 @@ namespace FilterStudio.Graphs {
         public bool AllowConnection { get; set; } = true;
 
         /// <summary>
+        /// Allow the user to drag the graph or nodes to move them around the screen.
+        /// </summary>
+        public bool AllowMovement { get; set; } = true;
+
+        /// <summary>
         /// Called when the user left-clicks anywhere in the graph control bounds, passes the clicked edge or node.
         /// If the click doesn't hit any graph element, the <see cref="object"/> will be null.
         /// </summary>
@@ -156,11 +161,15 @@ namespace FilterStudio.Graphs {
         /// Hack to disable drag and drop as positions can't be preserved between graph updates.
         /// </summary>
         protected override void OnPreviewMouseMove(MouseEventArgs e) {
-            if (e.LeftButton == MouseButtonState.Pressed) {
+            if (!AllowMovement) {
                 e.Handled = true;
             }
 
             if (connection != null) {
+                if (e.LeftButton == MouseButtonState.Pressed) {
+                    e.Handled = true;
+                }
+
                 Point clickPos = e.GetPosition(this);
                 connection.X2 = clickPos.X;
                 connection.Y2 = clickPos.Y;

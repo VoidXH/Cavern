@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.Filters.Utilities;
+using Cavern.Utilities;
+
 namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order peaking filter.
@@ -32,6 +35,22 @@ namespace Cavern.Filters {
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
         public PeakingEQ(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
+
+        /// <summary>
+        /// Parse a Filter line of Equalizer APO which was split at spaces to a Cavern <see cref="PeakingEQ"/> filter.<br />
+        /// Sample with Q factor: Filter: ON PK Fc 100 Hz Gain 0 dB Q 10<br />
+        /// Sample with bandwidth: Filter: ON PK Fc 100 Hz Gain 0 dB BW Oct 0.1442
+        /// </summary>
+        public static PeakingEQ FromEqualizerAPO(string[] splitLine, int sampleRate) {
+            if (QMath.TryParseDouble(splitLine[4], out double freq) && QMath.TryParseDouble(splitLine[7], out double gain)) {
+                if (splitLine[9].Equals("Q") && QMath.TryParseDouble(splitLine[10], out double q)) {
+                    return new PeakingEQ(sampleRate, freq, q, gain);
+                } else if (splitLine[9].Equals("BW") && QMath.TryParseDouble(splitLine[11], out double bw)) {
+                    return new PeakingEQ(sampleRate, freq, QFactor.FromBandwidth(bw), gain);
+                }
+            }
+            throw new FormatException(nameof(splitLine));
+        }
 
         /// <inheritdoc/>
         public override object Clone() => new PeakingEQ(SampleRate, centerFreq, q, gain);

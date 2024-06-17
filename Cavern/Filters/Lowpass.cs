@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Filters.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -33,6 +35,21 @@ namespace Cavern.Filters {
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
         public Lowpass(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
+
+        /// <summary>
+        /// Parse a Filter line of Equalizer APO which was split at spaces to a Cavern <see cref="Lowpass"/> filter.<br />
+        /// Sample with fixed Q factor: Filter: ON LP Fc 100 Hz
+        /// Sample with custom Q factor: Filter: ON LPQ Fc 100 Hz Q 0.7071
+        /// </summary>
+        public static Lowpass FromEqualizerAPO(string[] splitLine, int sampleRate) {
+            string type = splitLine[2].ToLower();
+            if (type == "lp" && QMath.TryParseDouble(splitLine[4], out double freq)) {
+                return new Lowpass(sampleRate, freq);
+            } else if (type == "lpq" && QMath.TryParseDouble(splitLine[4], out freq) && QMath.TryParseDouble(splitLine[7], out double q)) {
+                return new Lowpass(sampleRate, freq, q);
+            }
+            throw new FormatException(nameof(splitLine));
+        }
 
         /// <inheritdoc/>
         public override object Clone() => new Lowpass(SampleRate, centerFreq, q, gain);

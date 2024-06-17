@@ -55,7 +55,7 @@ namespace FilterStudio {
         /// <summary>
         /// When the user lost the graph because it was moved outside the screen, this function redisplays it in the center of the frame.
         /// </summary>
-        void Recenter(object _, RoutedEventArgs e) => ReloadGraph();
+        void Recenter(object _, RoutedEventArgs e) => pipeline.Source = pipeline.Source;
 
         /// <summary>
         /// Converts all filters to convolutions and merges them downwards if they only have a single child.

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.Filters.Utilities;
+using Cavern.Utilities;
+
 namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order notch filter.
@@ -32,6 +35,22 @@ namespace Cavern.Filters {
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
         public Notch(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
+
+        /// <summary>
+        /// Parse a Filter line of Equalizer APO which was split at spaces to a Cavern <see cref="Notch"/> filter.<br />
+        /// Sample with default Q-factor: Filter: ON NO Fc 100 Hz
+        /// Sample with custom Q-factor: Filter: ON NO Fc 100 Hz Q 30
+        /// </summary>
+        public static Notch FromEqualizerAPO(string[] splitLine, int sampleRate) {
+            if (QMath.TryParseDouble(splitLine[4], out double freq)) {
+                if (splitLine.Length < 7) {
+                    return new Notch(sampleRate, freq, 30);
+                } else if (QMath.TryParseDouble(splitLine[7], out double q)) {
+                    return new Notch(sampleRate, freq, q);
+                }
+            }
+            throw new FormatException(nameof(splitLine));
+        }
 
         /// <inheritdoc/>
         public override object Clone() => new Notch(SampleRate, centerFreq, q, gain);

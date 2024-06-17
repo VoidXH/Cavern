@@ -44,6 +44,7 @@
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="NOpen">A configuration file is already being edited.
 The channel configuration will only be applied when you create a new configuration file.</system:String>
+    <system:String x:Key="NLoad">Loading the configuration file has failed: {0}</system:String>
     <system:String x:Key="NChan">No channels were selected, the channel configuration wasn't changed.</system:String>
     <system:String x:Key="NNode">No node selected.</system:String>
     <system:String x:Key="NoCon">Please create or load a configuration file first.</system:String>

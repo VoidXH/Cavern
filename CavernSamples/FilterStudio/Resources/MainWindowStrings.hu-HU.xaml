@@ -44,6 +44,7 @@
     <system:String x:Key="Error">Hiba</system:String>
     <system:String x:Key="NOpen">Egy konfigurációs fájl szerkesztés alatt van.
 A csatornakonfiguráció csak új konfigurációs fájl létrehozásakor lesz alkalmazva.</system:String>
+    <system:String x:Key="NLoad">A konfigurációs fájl betöltése nem sikerült: {0}</system:String>
     <system:String x:Key="NChan">Nem lettek kiválasztva csatornák, a csatornakonfiguráció nem változott.</system:String>
     <system:String x:Key="NNode">Nincs kiválasztva csúcspont.</system:String>
     <system:String x:Key="NoCon">Kérlek, előbb hozz létre vagy tölts be egy konfigurációs fájlt.</system:String>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Cavern.Filters.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -34,6 +35,22 @@ namespace Cavern.Filters {
         /// <param name="q">Q-factor of the filter</param>
         /// <param name="gain">Gain of the filter in decibels</param>
         public Bandpass(int sampleRate, double centerFreq, double q, double gain) : base(sampleRate, centerFreq, q, gain) { }
+
+        /// <summary>
+        /// Parse a Filter line of Equalizer APO which was split at spaces to a Cavern <see cref="Bandpass"/> filter.<br />
+        /// Sample: Filter: ON BP Fc 100 Hz
+        /// Sample with Q-factor: Filter: ON BP Fc 100 Hz Q 10
+        /// </summary>
+        public static Bandpass FromEqualizerAPO(string[] splitLine, int sampleRate) {
+            if (QMath.TryParseDouble(splitLine[4], out double freq)) {
+                if (splitLine.Length < 7) {
+                    return new Bandpass(sampleRate, freq);
+                } else if (QMath.TryParseDouble(splitLine[7], out double q)) {
+                    return new Bandpass(sampleRate, freq, q);
+                }
+            }
+            throw new FormatException(nameof(splitLine));
+        }
 
         /// <inheritdoc/>
         public override object Clone() => new Bandpass(SampleRate, centerFreq, q, gain);

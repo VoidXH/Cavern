@@ -103,7 +103,9 @@ namespace Cavern.Filters {
         /// Parse a Delay line of Equalizer APO which was split at spaces to a Cavern <see cref="Delay"/> filter.
         /// </summary>
         public static Delay FromEqualizerAPO(string[] splitLine, int sampleRate) {
-            double delay = double.Parse(splitLine[1].Replace(',', '.'), CultureInfo.InvariantCulture);
+            if (splitLine.Length < 3 || !QMath.TryParseDouble(splitLine[1], out double delay)) {
+                throw new FormatException(nameof(splitLine));
+            }
             return splitLine[2].ToLower(CultureInfo.InvariantCulture) switch {
                 "ms" => new Delay(delay, sampleRate),
                 "samples" => new Delay((int)delay),

@@ -38,6 +38,9 @@ namespace FilterStudio.Graphs {
         public ConfigurationFile Source {
             get => source;
             set {
+                if (value == null) {
+                    return;
+                }
                 source = value;
                 RecreateGraph();
                 SelectNode("0");

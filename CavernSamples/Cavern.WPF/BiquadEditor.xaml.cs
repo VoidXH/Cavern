@@ -95,9 +95,8 @@ namespace Cavern.WPF {
                 return true; // Initializing, no need for checks
             }
 
-            if (double.TryParse(this.centerFreq.Text.Replace(',', '.'), CultureInfo.InvariantCulture, out double centerFreq) &&
-                double.TryParse(this.q.Text.Replace(',', '.'), CultureInfo.InvariantCulture, out double q) &&
-                double.TryParse(this.gain.Text.Replace(',', '.'), CultureInfo.InvariantCulture, out double gain)) {
+            if (QMath.TryParseDouble(this.centerFreq.Text, out double centerFreq) && QMath.TryParseDouble(this.q.Text, out double q) &&
+                QMath.TryParseDouble(this.gain.Text, out double gain)) {
                 Filter = BiquadFilter.Create((BiquadFilterType)filterTypes.SelectedItem, 48000, centerFreq, q, gain);
                 if (Filter is PhaseSwappableBiquadFilter swappable) {
                     swappable.PhaseSwapped = swapPhase.IsChecked.Value;

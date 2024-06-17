@@ -42,6 +42,7 @@ namespace Cavern.Format.ConfigurationFile {
                 }
 
                 switch (split[0].ToLower(CultureInfo.InvariantCulture)) {
+                    // Control
                     case "include":
                         string included = Path.Combine(Path.GetDirectoryName(path), string.Join(' ', split, 1, split.Length - 1));
                         CreateSplit(Path.GetFileNameWithoutExtension(included), lastNodes);
@@ -62,6 +63,7 @@ namespace Cavern.Format.ConfigurationFile {
                             }
                         }
                         break;
+                    // Basic filters
                     case "preamp":
                         double gain = double.Parse(split[1].Replace(',', '.'), CultureInfo.InvariantCulture);
                         AddFilter(lastNodes, activeChannels, new Gain(gain));
@@ -94,8 +96,17 @@ namespace Cavern.Format.ConfigurationFile {
                             lastNodes[copy[0]] = target;
                         }
                         break;
+                    // Parametric filters
+                    case "filter":
+                        AddFilter(lastNodes, activeChannels, BiquadFilter.FromEqualizerAPO(split, sampleRate));
+                        break;
+                    // Graphic equalizers
                     case "graphiceq":
                         AddFilter(lastNodes, activeChannels, GraphicEQ.FromEqualizerAPO(split, sampleRate));
+                        break;
+                    case "convolution":
+                        string convolution = Path.Combine(Path.GetDirectoryName(path), line[(line.IndexOf(' ') + 1)..]);
+                        AddFilter(lastNodes, activeChannels, new FastConvolver(AudioReader.Open(convolution).Read()));
                         break;
                 }
             }
