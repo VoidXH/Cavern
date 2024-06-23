@@ -141,7 +141,8 @@ To open any supported audio file for reading, use the following static function:
 ```
 AudioReader reader = AudioReader.Open(string path);
 ```
-After opening a file, the following workflows are available.
+There is an overload for `AudioReader.Open` to read audio files from an
+arbitrary `Stream`. After opening a file, the following workflows are available.
 
 ##### Getting all samples
 The `Read()` function of an `AudioReader` returns all samples from the file in
@@ -191,10 +192,9 @@ component browser, under audio, and they will automatically add all their Unity
 dependencies.
 
 ## Development documents
+* [Documentations of specific use-cases](./docs)
 * [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
 * [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
-* [Limitless Audio Format](./docs/Limitless%20Audio%20Format.md) for storing Cavern mixes in a CPU-effective spatial format
-* [Cavern DCP channel order](./docs/Cavern%20DCP%20channel%20order.md) compared to DCP standards
 
 ## Disclaimers
 ### Code
@@ -215,3 +215,7 @@ downloaded from the [Cavern website](http://cavern.sbence.hu).
 ## Licence
 By downloading, using, copying, modifying, or compiling the source code or a
 build, you are accepting the licence [available here](LICENSE.md).
+
+This licence heavily discourages commercial usage. If you're not supporting the
+open source community with your work, you will need to contact the original
+author for a Cavern Pro licence through the Cavern website's contact form.
