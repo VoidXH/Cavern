@@ -20,19 +20,19 @@ namespace Cavern.Utilities {
         /// Magnitude of the complex number (spectrum for FFT).
         /// </summary>
         public float Magnitude {
-            get => MathF.Sqrt(Real * Real + Imaginary * Imaginary);
+            readonly get => MathF.Sqrt(Real * Real + Imaginary * Imaginary);
             set => this *= value / Magnitude;
         }
 
         /// <summary>
         /// Direction of the complex number (phase for FFT).
         /// </summary>
-        public float Phase => MathF.Atan2(Imaginary, Real);
+        public readonly float Phase => MathF.Atan2(Imaginary, Real);
 
         /// <summary>
         /// Squared magnitude of the complex number.
         /// </summary>
-        public float SqrMagnitude => Real * Real + Imaginary * Imaginary;
+        public readonly float SqrMagnitude => Real * Real + Imaginary * Imaginary;
 
         /// <summary>
         /// Complex number from a scalar.
@@ -114,7 +114,7 @@ namespace Cavern.Utilities {
         /// True if the number is 0 + 0i.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsZero() => Real == 0 && Imaginary == 0;
+        public readonly bool IsZero() => Real == 0 && Imaginary == 0;
 
         /// <summary>
         /// Get the complex logarithm of a real number.
@@ -153,7 +153,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Calculate 1 / z.
         /// </summary>
-        public Complex Invert() {
+        public readonly Complex Invert() {
             float mul = 1 / (Real * Real + Imaginary * Imaginary);
             return new Complex(Real * mul, Imaginary * mul);
         }
@@ -171,26 +171,26 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Compare thie number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.
         /// </summary>
-        public int CompareTo(float other) => Magnitude.CompareTo(other);
+        public readonly int CompareTo(float other) => Magnitude.CompareTo(other);
 
         /// <summary>
         /// Compare thie number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.
         /// </summary>
-        public int CompareTo(Complex other) => Magnitude.CompareTo(other.Magnitude);
+        public readonly int CompareTo(Complex other) => Magnitude.CompareTo(other.Magnitude);
 
         /// <summary>
         /// Check if this number equals an <paramref name="other"/>.
         /// </summary>
-        public bool Equals(float other) => Real == other && Imaginary == 0;
+        public readonly bool Equals(float other) => Real == other && Imaginary == 0;
 
         /// <summary>
         /// Check if this number equals an <paramref name="other"/>.
         /// </summary>
-        public bool Equals(Complex other) => Real == other.Real && Imaginary == other.Imaginary;
+        public readonly bool Equals(Complex other) => Real == other.Real && Imaginary == other.Imaginary;
 
         /// <summary>
         /// Display the complex number.
         /// </summary>
-        public override string ToString() => string.Format(Imaginary >= 0 ? "{0}+{1}i" : "{0}{1}i", Real, Imaginary);
+        public override readonly string ToString() => string.Format(Imaginary >= 0 ? "{0}+{1}i" : "{0}{1}i", Real, Imaginary);
     }
 }

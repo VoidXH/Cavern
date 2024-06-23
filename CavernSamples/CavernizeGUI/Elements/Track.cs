@@ -176,9 +176,7 @@ namespace CavernizeGUI.Elements {
                 attachables = cavernizer.IntermediateSources;
             }
 
-            for (int i = 0; i < attachables.Length; i++) {
-                listener.AttachSource(attachables[i]);
-            }
+            listener.AttachSources(attachables);
         }
 
         /// <summary>

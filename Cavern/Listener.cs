@@ -384,6 +384,15 @@ namespace Cavern {
         }
 
         /// <summary>
+        /// Attach multiple sources to this listener.
+        /// </summary>
+        public void AttachSources(IEnumerable<Source> sources) {
+            foreach (Source source in sources) {
+                AttachSource(source);
+            }
+        }
+
+        /// <summary>
         /// Attach a source to this listener, to the first place of the processing queue.
         /// </summary>
         public void AttachPrioritySource(Source source) {
