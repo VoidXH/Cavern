@@ -63,7 +63,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// If the filter was set up with a time delay, this is the sample rate that was used for it.
         /// </summary>
-        readonly int sampleRate;
+        int sampleRate;
 
         /// <summary>
         /// The used cache (0 or 1).
@@ -108,7 +108,9 @@ namespace Cavern.Filters {
             }
             return splitLine[2].ToLowerInvariant() switch {
                 "ms" => new Delay(delay, sampleRate),
-                "samples" => new Delay((int)delay),
+                "samples" => new Delay((int)delay) {
+                    sampleRate = sampleRate
+                },
                 _ => throw new ArgumentOutOfRangeException(splitLine[0]),
             };
         }
@@ -146,7 +148,7 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override string ToString() {
-            if (sampleRate == 0) {
+            if (double.IsNaN(delayMs)) {
                 return $"Delay: {DelaySamples} samples";
             } else {
                 string delay = DelayMs.ToString(CultureInfo.InvariantCulture);
@@ -156,7 +158,7 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public string ToString(CultureInfo culture) => culture.Name switch {
-            "hu-HU" => sampleRate == 0 ? $"Késleltetés: {DelaySamples} minta" : $"Késleltetés: {DelayMs} ms",
+            "hu-HU" => double.IsNaN(delayMs) ? $"Késleltetés: {DelaySamples} minta" : $"Késleltetés: {DelayMs} ms",
             _ => ToString()
         };
 
