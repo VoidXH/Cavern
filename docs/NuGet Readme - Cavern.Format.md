@@ -22,7 +22,8 @@ To open any supported audio file for reading, use the following static function:
 ```
 AudioReader reader = AudioReader.Open(string path);
 ```
-After opening a file, the following workflows are available.
+There is an overload for `AudioReader.Open` to read audio files from an
+arbitrary `Stream`. After opening a file, the following workflows are available.
 
 #### Getting all samples
 The `Read()` function of an `AudioReader` returns all samples from the file in
