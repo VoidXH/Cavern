@@ -12,7 +12,7 @@ namespace Cavern.Format.ConfigurationFile {
     /// <summary>
     /// Full parsed setup of a freely configurable system-wide equalizer or audio processor software.
     /// </summary>
-    public abstract class ConfigurationFile {
+    public abstract class ConfigurationFile : IExportable {
         /// <summary>
         /// Root nodes of each channel, start attaching their filters as a children chain.
         /// </summary>
@@ -24,9 +24,24 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         public IReadOnlyList<(string name, FilterGraphNode[] roots)> SplitPoints { get; }
 
+        /// <inheritdoc/>
+        public abstract string FileExtension { get; }
+
+        /// <summary>
+        /// Copy constructor from any <paramref name="other"/> configuration file.
+        /// </summary>
+        protected ConfigurationFile(ConfigurationFile other) {
+            // TODO: deep copy
+            InputChannels = other.InputChannels.FastClone();
+            SplitPoints = other.SplitPoints.ToList();
+        }
+
         /// <summary>
         /// Create an empty configuration file with the passed input channels.
         /// </summary>
+        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
+        /// be an initial configuration. Refer to the code of <see cref="CavernFilterStudioConfigurationFile(string, ReferenceChannel[])"/>
+        /// for how to add closing <see cref="OutputChannel"/>s.</remarks>
         protected ConfigurationFile(string name, ReferenceChannel[] inputs) {
             InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
@@ -41,6 +56,9 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Create an empty configuration file with the passed input channel names/labels.
         /// </summary>
+        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
+        /// be an initial configuration. Refer to the code of <see cref="EqualizerAPOConfigurationFile(string, int)"/> for how to implement
+        /// addition and finishing up with closing <see cref="OutputChannel"/>s.</remarks>
         protected ConfigurationFile(string name, string[] inputs) {
             InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
@@ -51,6 +69,9 @@ namespace Cavern.Format.ConfigurationFile {
                 (name, InputChannels.GetItem2s())
             };
         }
+
+        /// <inheritdoc/>
+        public abstract void Export(string path);
 
         /// <summary>
         /// Add a new split with a custom <paramref name="name"/> at a specific <paramref name="index"/> of <see cref="SplitPoints"/>.
@@ -104,6 +125,37 @@ namespace Cavern.Format.ConfigurationFile {
         /// <exception cref="ArgumentOutOfRangeException">The <paramref name="name"/> was not found
         /// among the <see cref="SplitPoints"/></exception>
         public void ClearSplitPoint(string name) => ClearSplitPoint(GetSplitPointIndexByName(name));
+
+        /// <summary>
+        /// Remove any splits, leave only one continuous graph of filters.
+        /// </summary>
+        public void MergeSplitPoints() {
+            int c = SplitPoints.Count;
+            if (c <= 1) {
+                return;
+            }
+
+            for (int i = 1; i < c; i++) {
+                FilterGraphNode[] roots = SplitPoints[i].roots;
+                for (int j = 0; j < roots.Length; j++) {
+                    roots[j].Parents[0].DetachFromGraph(); // Output of the previous split
+                    roots[j].DetachFromGraph(); // Input of the current split
+                }
+            }
+            ((List<(string, FilterGraphNode[])>)SplitPoints).RemoveRange(1, SplitPoints.Count - 1);
+        }
+
+        /// <summary>
+        /// Get the index of a given <paramref name="channel"/> in the configuration. This is the input and output it's wired to.
+        /// </summary>
+        public int GetChannelIndex(ReferenceChannel channel) {
+            for (int i = 0; i < InputChannels.Length; i++) {
+                if (((InputChannel)InputChannels[i].root.Filter).Channel == channel) {
+                    return i;
+                }
+            }
+            throw new ArgumentOutOfRangeException(nameof(channel));
+        }
 
         /// <summary>
         /// Get the node for a split point's (referenced with an <paramref name="index"/>) given <paramref name="channel"/>.
@@ -176,9 +228,94 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Add the neccessary <see cref="OutputChannel"/> entries for an empty configuration file.
+        /// </summary>
+        protected void FinishEmpty(ReferenceChannel[] channels) {
+            for (int i = 0; i < channels.Length; i++) {
+                InputChannels[i].root.AddChild(new FilterGraphNode(new OutputChannel(channels[i])));
+            }
+        }
+
+        /// <summary>
+        /// Get the nodes in topological order in which they can be exported to a linear description of the graph. This means that for
+        /// each node that does a merge of two inputs (has multiple parents) will contain the full graph of its parents. The returned
+        /// array has two values for each node: the node itself, and the channel index. This index can be negative: that means a virtual
+        /// channel.
+        /// </summary>
+        protected (FilterGraphNode node, int channel)[] GetExportOrder() {
+            List<FilterGraphNode> orderedNodes = new List<FilterGraphNode>();
+            HashSet<FilterGraphNode> visitedNodes = new HashSet<FilterGraphNode>();
+
+            void VisitNode(FilterGraphNode node) {
+                if (visitedNodes.Contains(node)) {
+                    return;
+                }
+                visitedNodes.Add(node);
+                foreach (FilterGraphNode child in node.Children) {
+                    VisitNode(child);
+                }
+                orderedNodes.Add(node);
+            }
+
+            for (int i = InputChannels.Length - 1; i >= 0; i--) { // The reverse will have the channels in order
+                VisitNode(InputChannels[i].root);
+            }
+
+            (FilterGraphNode node, int channel)[] result = new (FilterGraphNode, int)[orderedNodes.Count];
+            Dictionary<int, FilterGraphNode> lastNodes = new Dictionary<int, FilterGraphNode>(); // For channel indices
+            for (int i = 0, c = result.Length - 1; i <= c; i++) {
+                FilterGraphNode source = orderedNodes[c - i];
+                int channelIndex = 0;
+                if (source.Children.Count == 0 && source.Filter is OutputChannel output) { // Actual exit node, not terminated virtual ch
+                    channelIndex = GetChannelIndex(output.Channel);
+                } else if (source.Parents.Count == 0) { // Entry node
+                    channelIndex = GetChannelIndex(((InputChannel)source.Filter).Channel);
+                } else if (source.Parents.Count == 1 && source.Parents[0].Children.Count == 1) { // Direct path
+                    FilterGraphNode parent = source.Parents[0];
+                    foreach (KeyValuePair<int, FilterGraphNode> node in lastNodes) {
+                        if (node.Value == parent) {
+                            channelIndex = node.Key;
+                        }
+                    }
+                } else { // Either merge node or exit from a split: new virtual channel
+                    channelIndex = lastNodes.Keys.Min() - 1;
+                }
+                lastNodes[channelIndex] = source;
+                result[i] = (source, channelIndex);
+            }
+
+            // Channel slot optimization: two non-parallel virtual channels should only occupy one virtual channel, but at different times
+            // TODO: easy, find ranges, and it's the standard scheduling problem from uni - make use of the channel's path if it's unused
+            return result;
+        }
+
+        /// <summary>
         /// Remove as many merge nodes (null filters) as possible.
         /// </summary>
         protected void Optimize() {
+            /// <summary>
+            /// Recursive part of this function.
+            /// </summary>
+            /// <returns>Optimization was done and the children of the passed <paramref name="node"/> was modified.
+            /// This means the currently processed element was removed and new were added, so the loop counter shouldn't increase
+            /// in the iteration where this function was called from.</returns>
+            static bool Optimize(FilterGraphNode node) {
+                bool optimized = false;
+                if (node.Filter == null) {
+                    node.DetachFromGraph();
+                    optimized = true;
+                }
+
+                IReadOnlyList<FilterGraphNode> children = node.Children;
+                for (int i = 0, c = children.Count; i < c; i++) {
+                    if (Optimize(children[i])) {
+                        optimized = true;
+                        i--;
+                    }
+                }
+                return optimized;
+            }
+
             for (int i = 0; i < InputChannels.Length; i++) {
                 IReadOnlyList<FilterGraphNode> children = InputChannels[i].root.Children;
                 for (int j = 0, c = children.Count; j < c;) {
@@ -187,29 +324,6 @@ namespace Cavern.Format.ConfigurationFile {
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Recursive part of <see cref="Optimize()"/>.
-        /// </summary>
-        /// <returns>Optimization was done and the children of the passed <paramref name="node"/> was modified.
-        /// This means the currently processed element was removed and new were added, so the loop counter shouldn't increase
-        /// in the iteration where this function was called from.</returns>
-        bool Optimize(FilterGraphNode node) {
-            bool optimized = false;
-            if (node.Filter == null) {
-                node.DetachFromGraph();
-                optimized = true;
-            }
-
-            IReadOnlyList<FilterGraphNode> children = node.Children;
-            for (int i = 0, c = children.Count; i < c; i++) {
-                if (Optimize(children[i])) {
-                    optimized = true;
-                    i--;
-                }
-            }
-            return optimized;
         }
 
         /// <summary>

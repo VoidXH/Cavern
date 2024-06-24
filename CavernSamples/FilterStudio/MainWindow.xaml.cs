@@ -105,6 +105,21 @@ namespace FilterStudio {
         }
 
         /// <summary>
+        /// Export the configuration file to a new path.
+        /// </summary>
+        void ExportConfiguration(object _, RoutedEventArgs e) {
+            if (pipeline.Source == null) {
+                Error((string)language["NoCon"]);
+                return;
+            }
+
+            // TODO: file picker
+            ConfigurationFile export = new ConvolutionBoxFormat(pipeline.Source);
+            export.MergeSplitPoints();
+            export.Export(null);
+        }
+
+        /// <summary>
         /// Select the channels that are available in the system.
         /// </summary>
         void SelectChannels(object _, RoutedEventArgs e) {

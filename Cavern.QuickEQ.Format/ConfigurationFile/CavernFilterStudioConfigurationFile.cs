@@ -1,12 +1,18 @@
 ﻿using Cavern.Channels;
-using Cavern.Filters.Utilities;
-using Cavern.Filters;
 
 namespace Cavern.Format.ConfigurationFile {
     /// <summary>
     /// Cavern Filter Studio's own export format for full grouped filter pipelines.
     /// </summary>
-    public class CavernFilterStudioConfigurationFile : ConfigurationFile {
+    public sealed class CavernFilterStudioConfigurationFile : ConfigurationFile {
+        /// <inheritdoc/>
+        public override string FileExtension => ".cfs";
+
+        /// <summary>
+        /// Convert an<paramref name="other"/> configuration file to Cavern's format.
+        /// </summary>
+        public CavernFilterStudioConfigurationFile(ConfigurationFile other) : base(other) { }
+
         /// <summary>
         /// Create an empty file for a standard layout.
         /// </summary>
@@ -16,11 +22,12 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Create an empty file for a custom layout.
         /// </summary>
-        public CavernFilterStudioConfigurationFile(string name, params ReferenceChannel[] channels) :
-            base(name, channels) {
-            for (int i = 0; i < channels.Length; i++) { // Output markers
-                InputChannels[i].root.AddChild(new FilterGraphNode(new OutputChannel(channels[i])));
-            }
+        public CavernFilterStudioConfigurationFile(string name, params ReferenceChannel[] channels) : base(name, channels) =>
+            FinishEmpty(channels);
+
+        /// <inheritdoc/>
+        public override void Export(string path) {
+            throw new System.NotImplementedException();
         }
     }
 }

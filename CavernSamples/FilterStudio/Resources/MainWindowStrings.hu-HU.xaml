@@ -4,6 +4,7 @@
     <system:String x:Key="MFile">_Fájl</system:String>
     <system:String x:Key="OpNew">_Új konfigurációs fájl</system:String>
 	<system:String x:Key="OpCfg">_Konfigurációs fájl megnyitása...</system:String>
+    <system:String x:Key="OpSaA">Konfigurációs fájl mentése _másként...</system:String>
     <system:String x:Key="OpChs">_Csatornák kiválasztása...</system:String>
 
     <system:String x:Key="MFilt">_Szűrők</system:String>

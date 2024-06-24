@@ -6,12 +6,13 @@ using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Format.Common;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
     /// A filter set containing equalization info for each channel of a system.
     /// </summary>
-    public abstract class FilterSet {
+    public abstract class FilterSet : IExportable {
         /// <summary>
         /// Basic information needed for a channel.
         /// </summary>
@@ -53,9 +54,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public CultureInfo Culture { get; protected set; } = CultureInfo.InvariantCulture;
 
-        /// <summary>
-        /// Extension of the root file or the single-file export. This should be displayed on export dialogs.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual string FileExtension => "txt";
 
         /// <summary>
@@ -63,9 +62,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         protected FilterSet(int sampleRate) => SampleRate = sampleRate;
 
-        /// <summary>
-        /// Export the filter set to a target file.
-        /// </summary>
+        /// <inheritdoc/>
         public abstract void Export(string path);
 
         /// <summary>

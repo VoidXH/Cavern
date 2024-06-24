@@ -14,12 +14,20 @@ namespace Cavern.Format.ConfigurationFile {
     /// <summary>
     /// Parsed single Equalizer APO configuration file.
     /// </summary>
-    public class EqualizerAPOConfigurationFile : ConfigurationFile {
+    public sealed class EqualizerAPOConfigurationFile : ConfigurationFile {
+        /// <inheritdoc/>
+        public override string FileExtension => ".txt";
+
+        /// <summary>
+        /// Convert an<paramref name="other"/> configuration file to Equalizer APO's format.
+        /// </summary>
+        public EqualizerAPOConfigurationFile(ConfigurationFile other) : base(other) { }
+
         /// <summary>
         /// Parse a single Equalizer APO configuration file.
         /// </summary>
         /// <param name="path">Filesystem location of the configuration file</param>
-        /// <param name="sampleRate">The sample rate to use when</param>
+        /// <param name="sampleRate">The sample rate to use for the internally created filters</param>
         public EqualizerAPOConfigurationFile(string path, int sampleRate) : base(Path.GetFileNameWithoutExtension(path), channelLabels) {
             Dictionary<string, FilterGraphNode> lastNodes = InputChannels.ToDictionary(x => x.name, x => x.root);
             List<string> activeChannels = channelLabels.ToList();
@@ -29,6 +37,11 @@ namespace Cavern.Format.ConfigurationFile {
                 lastNodes[channelLabels[i]].AddChild(new FilterGraphNode(new OutputChannel(channelLabels[i])));
             }
             Optimize();
+        }
+
+        /// <inheritdoc/>
+        public override void Export(string path) {
+            throw new NotImplementedException();
         }
 
         /// <summary>
