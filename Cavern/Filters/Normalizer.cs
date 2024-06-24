@@ -30,9 +30,7 @@ namespace Cavern.Filters {
         /// </summary>
         public Normalizer(bool limiterOnly) => this.limiterOnly = limiterOnly;
 
-        /// <summary>
-        /// Apply normalization on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
             float max = Math.Abs(samples[0]), absSample;
             for (int sample = 1; sample < samples.Length; sample++) {
@@ -51,5 +49,8 @@ namespace Cavern.Filters {
                 lastGain = 1;
             }
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => new Normalizer(limiterOnly);
     }
 }

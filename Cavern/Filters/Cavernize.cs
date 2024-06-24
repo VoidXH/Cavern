@@ -10,6 +10,11 @@ namespace Cavern.Filters {
         public override bool LinearTimeInvariant => false;
 
         /// <summary>
+        /// Sample rate of the system this filter is used on.
+        /// </summary>
+        public int SampleRate => crossover.SampleRate;
+
+        /// <summary>
         /// Height separation effect strength.
         /// </summary>
         [DisplayName("Effect (ratio)")]
@@ -101,10 +106,7 @@ namespace Cavern.Filters {
             SmoothFactor =
                 1.001f - (updateRate + (crossover.SampleRate - updateRate) * MathF.Pow(smoothness, .1f)) / crossover.SampleRate;
 
-        /// <summary>
-        /// Cavernize an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
             crossover.Process(samples);
             float maxDepth = .0001f, maxHeight = .0001f, absHigh, absLow;
@@ -131,6 +133,9 @@ namespace Cavern.Filters {
             }
             Height = (maxHeight - Height) * SmoothFactor + Height;
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => new Cavernize(SampleRate, (float)GroundCrossover);
 
         /// <summary>
         /// Create empty outputs for a given <paramref name="updateRate"/>> in case they are

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 using Cavern.Utilities;
@@ -7,7 +8,7 @@ namespace Cavern.Filters.Utilities {
     /// <summary>
     /// Wraps a filter to be handled in a multichannel complex filter set, such as equalizer platform configuration files.
     /// </summary>
-    public class FilterGraphNode {
+    public class FilterGraphNode : ICloneable {
         /// <summary>
         /// Filters that add their results together before being processed by this filter and going forward in the filter graph.
         /// </summary>
@@ -173,6 +174,9 @@ namespace Cavern.Filters.Utilities {
             DetachChildren();
             DetachParents();
         }
+
+        /// <inheritdoc/>
+        public object Clone() => new FilterGraphNode((Filter)Filter.Clone());
 
         /// <inheritdoc/>
         public override string ToString() => Filter != null ?

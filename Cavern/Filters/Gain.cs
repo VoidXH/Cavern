@@ -54,6 +54,11 @@ namespace Cavern.Filters {
         }
 
         /// <inheritdoc/>
+        public override object Clone() => new Gain(GainValue) {
+            Invert = Invert
+        };
+
+        /// <inheritdoc/>
         public override string ToString() => $"Gain: {GainValue.ToString("0.00", CultureInfo.InvariantCulture)} dB";
 
         /// <inheritdoc/>

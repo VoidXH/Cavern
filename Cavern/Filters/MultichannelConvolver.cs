@@ -1,4 +1,6 @@
-﻿using Cavern.Utilities;
+﻿using System.Linq;
+
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -44,22 +46,21 @@ namespace Cavern.Filters {
             return new MultichannelWaveform(results);
         }
 
-        /// <summary>
-        /// Apply the convolution filter of each channel on a multichannel signal with a matching channel count.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
             this.samples = samples;
             threader.For(0, workers.Length);
         }
 
-        /// <summary>
-        /// Apply a single channel's filter only on a multichannel signal's same channel.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
-        /// <param name="channel">Channel to filter</param>
-        /// <param name="channels">Total channels</param>
+        /// <inheritdoc/>
         public override void Process(float[] samples, int channel, int channels) =>
             workers[channel].Process(samples, channel, channels);
+
+        /// <inheritdoc/>
+        public override object Clone() {
+            float[][] impulses = workers.Select(x => x.Impulse).ToArray();
+            return new MultichannelConvolver(new MultichannelWaveform(impulses));
+        }
 
         /// <summary>
         /// The operation the <see cref="workers"/> perform.

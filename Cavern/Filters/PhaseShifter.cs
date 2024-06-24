@@ -26,5 +26,8 @@ namespace Cavern.Filters {
             }
             return result;
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => new PhaseShifter(Length);
     }
 }

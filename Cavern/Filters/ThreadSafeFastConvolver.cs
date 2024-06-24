@@ -20,5 +20,8 @@ namespace Cavern.Filters {
         /// Create the FFT cache used for accelerating the convolution in Fourier-space.
         /// </summary>
         public override FFTCache CreateCache(int fftSize) => new ThreadSafeFFTCache(fftSize);
+
+        /// <inheritdoc/>
+        public override object Clone() => new ThreadSafeFastConvolver(Impulse, Delay);
     }
 }

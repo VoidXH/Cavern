@@ -115,9 +115,7 @@ namespace Cavern.Filters {
             };
         }
 
-        /// <summary>
-        /// Apply delay on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
             int delaySamples = cache[0].Length;
             float[] cacheToFill = cache[1 - usedCache], cacheToDrain = cache[usedCache];
@@ -145,6 +143,9 @@ namespace Cavern.Filters {
                 Array.Copy(cacheToFill, 0, cacheToDrain, delaySamples - samples.Length, samples.Length);
             }
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => double.IsNaN(delayMs) ? new Delay(DelaySamples) : new Delay(DelayMs, sampleRate);
 
         /// <inheritdoc/>
         public override string ToString() {

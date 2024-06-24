@@ -93,12 +93,7 @@ namespace Cavern.Filters {
             HighOutput = new float[updateRate];
         }
 
-        /// <summary>
-        /// Apply crossover on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
-        /// <param name="channel">Channel to filter</param>
-        /// <param name="channels">Total channels</param>
+        /// <inheritdoc/>
         public override void Process(float[] samples, int channel, int channels) {
             int sampleCount = samples.Length;
             if (sampleCount != LowOutput.Length) {
@@ -138,5 +133,8 @@ namespace Cavern.Filters {
             lows = LowOutput;
             highs = HighOutput;
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => new Crossover(SampleRate, Frequency, Order);
     }
 }

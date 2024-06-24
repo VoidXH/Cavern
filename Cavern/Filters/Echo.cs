@@ -99,12 +99,7 @@ namespace Cavern.Filters {
         /// <param name="delay">Delay between echoes in seconds</param>
         public void Reset(double strength, double delay) => Reset(strength, (int)(delay * sampleRate));
 
-        /// <summary>
-        /// Apply echo on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
-        /// <param name="channel">Channel to filter</param>
-        /// <param name="channels">Total channels</param>
+        /// <inheritdoc/>
         public override void Process(float[] samples, int channel, int channels) {
             if (delay <= 0) {
                 return;
@@ -116,5 +111,8 @@ namespace Cavern.Filters {
                 cachePos = (cachePos + 1) % delay;
             }
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => new Echo(sampleRate, Strength, delay);
     }
 }

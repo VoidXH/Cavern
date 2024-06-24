@@ -54,5 +54,8 @@ namespace Cavern.Filters {
             }
             Finalize(samples, convolved);
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => new SpikeConvolver((float[])impulse.Clone(), delay);
     }
 }

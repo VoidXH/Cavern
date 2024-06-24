@@ -13,6 +13,21 @@ namespace Cavern.Filters {
     /// only for a single channel, use <see cref="MultichannelConvolver"/> for multichannel signals.</remarks>
     public partial class FastConvolver : Filter, IDisposable, ILocalizableToString {
         /// <summary>
+        /// Get a clone of the <see cref="filter"/>'s impulse response.
+        /// </summary>
+        public float[] Impulse => Measurements.GetRealPart(filter.IFFT(cache));
+
+        /// <summary>
+        /// Number of samples in the impulse response.
+        /// </summary>
+        public int Length => filter.Length;
+
+        /// <summary>
+        /// Added filter delay to the impulse, in samples.
+        /// </summary>
+        public int Delay => delay;
+
+        /// <summary>
         /// CavernAmp instance of a FastConvolver.
         /// </summary>
         readonly IntPtr native;
@@ -38,18 +53,21 @@ namespace Cavern.Filters {
         readonly FFTCache cache;
 
         /// <summary>
-        /// Delay applied with the convolution.
+        /// Added filter delay to the impulse, in samples.
         /// </summary>
         readonly int delay;
 
         /// <summary>
         /// Constructs an optimized convolution with no delay.
         /// </summary>
+        /// <param name="impulse">Impulse response of the desired filter</param>
         public FastConvolver(float[] impulse) : this(impulse, 0) { }
 
         /// <summary>
         /// Constructs an optimized convolution with added delay.
         /// </summary>
+        /// <param name="impulse">Impulse response of the desired filter</param>
+        /// <param name="delay">Added filter delay to the impulse, in samples</param>
         public FastConvolver(float[] impulse, int delay) {
             if (CavernAmp.Available && CavernAmp.IsMono()) { // CavernAmp only improves performance when the runtime has no SIMD
                 native = CavernAmp.FastConvolver_Create(impulse, delay);
@@ -103,6 +121,9 @@ namespace Cavern.Filters {
                 ProcessTimeslot(samples, channel, channels, start, Math.Min(end, start += filter.Length >> 1));
             }
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => new FastConvolver(Impulse, delay);
 
         /// <summary>
         /// Free up the native resources if they were used.

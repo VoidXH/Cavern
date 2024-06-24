@@ -12,7 +12,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter.
     /// </summary>
-    public abstract class BiquadFilter : Filter, ICloneable, IEqualizerAPOFilter, ILocalizableToString {
+    public abstract class BiquadFilter : Filter, IEqualizerAPOFilter, ILocalizableToString {
         /// <summary>
         /// Sample rate of the filter.
         /// </summary>
@@ -213,11 +213,6 @@ namespace Cavern.Filters {
                 x1 = thisSample;
             }
         }
-
-        /// <summary>
-        /// Create a copy of this filter.
-        /// </summary>
-        public abstract object Clone();
 
         /// <summary>
         /// Create a copy of this filter with a changed <see cref="SampleRate"/>.

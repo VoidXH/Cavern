@@ -25,6 +25,9 @@
         }
 
         /// <inheritdoc/>
+        public override object Clone() => new BypassFilter(Name);
+
+        /// <inheritdoc/>
         public override string ToString() => Name;
     }
 }

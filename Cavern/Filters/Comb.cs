@@ -83,5 +83,8 @@ namespace Cavern.Filters {
                 samples[sample] = (samples[sample] + cache[sample] * alpha) * divisor;
             }
         }
+
+        /// <inheritdoc/>
+        public override object Clone() => new Comb(sampleRate, K, Alpha);
     }
 }
