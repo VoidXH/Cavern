@@ -9,7 +9,7 @@ namespace Cavern.Filters.Utilities {
         /// <summary>
         /// Convert the filter graph's filters to convolutions, and merge chains together to a single filter.
         /// </summary>
-        public static void ConvertToConvolution(IEnumerable<FilterGraphNode> rootNodes, int filterLength) {
+        public static void ConvertToConvolution(this IEnumerable<FilterGraphNode> rootNodes, int filterLength) {
             HashSet<FilterGraphNode> visited = new HashSet<FilterGraphNode>();
             Queue<FilterGraphNode> queue = new Queue<FilterGraphNode>(rootNodes);
             while (queue.Count > 0) {
@@ -29,10 +29,44 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
+        /// Creates a copy of the complete graph with no overlapping memory with the old <paramref name="rootNodes"/>.
+        /// </summary>
+        public static IEnumerable<FilterGraphNode> DeepCopy(this IEnumerable<FilterGraphNode> rootNodes) =>
+            DeepCopyWithMapping(rootNodes).rootNodes;
+
+        /// <summary>
+        /// Creates a copy of the complete graph with no overlapping memory with the old <paramref name="rootNodes"/>,
+        /// and also results which old root <see cref="FilterGraphNode"/> maps to which new one.
+        /// </summary>
+        public static (IEnumerable<FilterGraphNode> rootNodes, Dictionary<FilterGraphNode, FilterGraphNode> mapping)
+            DeepCopyWithMapping(this IEnumerable<FilterGraphNode> rootNodes) {
+            Dictionary<FilterGraphNode, FilterGraphNode> mapping = new Dictionary<FilterGraphNode, FilterGraphNode>();
+
+            FilterGraphNode CopyNode(FilterGraphNode source) {
+                if (mapping.ContainsKey(source)) {
+                    return mapping[source];
+                }
+
+                FilterGraphNode copy = new FilterGraphNode((Filter)source.Filter.Clone());
+                mapping[source] = copy;
+                foreach (var child in source.Children) {
+                    copy.AddChild(CopyNode(child));
+                }
+                return copy;
+            }
+
+            List<FilterGraphNode> result = new List<FilterGraphNode>();
+            foreach (var rootNode in rootNodes) {
+                result.Add(CopyNode(rootNode));
+            }
+            return (result, mapping);
+        }
+
+        /// <summary>
         /// Check if the graph has cycles.
         /// </summary>
         /// <param name="rootNodes">All nodes which have no parents</param>
-        public static bool HasCycles(IEnumerable<FilterGraphNode> rootNodes) {
+        public static bool HasCycles(this IEnumerable<FilterGraphNode> rootNodes) {
             HashSet<FilterGraphNode> visited = new HashSet<FilterGraphNode>(),
                 inProgress = new HashSet<FilterGraphNode>();
             foreach (FilterGraphNode node in rootNodes) {
@@ -49,7 +83,7 @@ namespace Cavern.Filters.Utilities {
         /// Get all nodes in a filter graph knowing the root nodes.
         /// </summary>
         /// <param name="rootNodes">All nodes which have no parents</param>
-        public static HashSet<FilterGraphNode> MapGraph(IEnumerable<FilterGraphNode> rootNodes) {
+        public static HashSet<FilterGraphNode> MapGraph(this IEnumerable<FilterGraphNode> rootNodes) {
             HashSet<FilterGraphNode> visited = new HashSet<FilterGraphNode>();
             Queue<FilterGraphNode> queue = new Queue<FilterGraphNode>(rootNodes);
             while (queue.Count > 0) {

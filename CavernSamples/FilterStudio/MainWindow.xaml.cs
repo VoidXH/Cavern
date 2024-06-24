@@ -115,7 +115,6 @@ namespace FilterStudio {
 
             // TODO: file picker
             ConfigurationFile export = new ConvolutionBoxFormat(pipeline.Source);
-            export.MergeSplitPoints();
             export.Export(null);
         }
 

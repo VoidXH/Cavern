@@ -31,9 +31,9 @@ namespace Cavern.Format.ConfigurationFile {
         /// Copy constructor from any <paramref name="other"/> configuration file.
         /// </summary>
         protected ConfigurationFile(ConfigurationFile other) {
-            // TODO: deep copy
-            InputChannels = other.InputChannels.FastClone();
-            SplitPoints = other.SplitPoints.ToList();
+            Dictionary<FilterGraphNode, FilterGraphNode> mapping = other.InputChannels.GetItem2s().DeepCopyWithMapping().mapping;
+            InputChannels = other.InputChannels.Select(x => (x.name, mapping[x.root])).ToArray();
+            SplitPoints = other.SplitPoints.Select(x => (x.name, x.roots.Select(x => mapping[x]).ToArray())).ToList();
         }
 
         /// <summary>
@@ -218,8 +218,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <remarks>If you keep track of your currently handled output nodes, set them to their children,
         /// because new input nodes are created in this function.</remarks>
         protected void CreateNewSplitPoint(string name) {
-            FilterGraphNode[] nodes =
-                FilterGraphNodeUtils.MapGraph(InputChannels.Select(x => x.root))
+            FilterGraphNode[] nodes = InputChannels.Select(x => x.root).MapGraph()
                 .Where(x => x.Filter is OutputChannel && x.Children.Count == 0).ToArray();
             for (int i = 0; i < nodes.Length; i++) {
                 nodes[i] = nodes[i].AddChild(new InputChannel(((OutputChannel)nodes[i].Filter).Channel));

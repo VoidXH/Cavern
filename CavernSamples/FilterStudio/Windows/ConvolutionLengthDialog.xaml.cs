@@ -19,6 +19,7 @@ namespace FilterStudio.Windows {
                 Source = new Uri($";component/Resources/Styles.xaml", UriKind.RelativeOrAbsolute)
             });
             Resources.MergedDictionaries.Add(Consts.Language.GetConvolutionLengthDialogStrings());
+            Resources.MergedDictionaries.Add(Cavern.WPF.Consts.Language.GetCommonStrings());
             InitializeComponent();
         }
 

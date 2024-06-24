@@ -9,8 +9,9 @@
     <Window.Resources>
         <d:ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Resources/ConvolutionLengthDialogStrings.xaml"/>
                 <ResourceDictionary Source="../Resources/Styles.xaml"/>
+                <ResourceDictionary Source="../Resources/ConvolutionLengthDialogStrings.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/VoidX.WPF;component/Resources/CommonStrings.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </d:ResourceDictionary>
     </Window.Resources>
@@ -18,8 +19,9 @@
         <TextBlock Margin="10,14,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{StaticResource DConv}"/>
         <voidx:FFTSize x:Name="size" Margin="0,10,10,0" HorizontalAlignment="Right" VerticalAlignment="Top"
                        Minimum="512" Value="65536" Maximum="1048576" Width="70"/>
-        <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="OK" Click="OK"/>
-        <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="Cancel"
-                Click="Cancel"/>
+        <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Content="{StaticResource BtnOk}" Click="OK"/>
+        <Button Margin="0,0,10,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Content="{StaticResource BtnCa}" Click="Cancel"/>
     </Grid>
 </Window>

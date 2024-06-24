@@ -1,5 +1,8 @@
-﻿using Cavern.Channels;
+﻿using System.Globalization;
+
+using Cavern.Channels;
 using Cavern.Format.ConfigurationFile;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -7,7 +10,7 @@ namespace Cavern.Filters {
     /// </summary>
     /// <remarks>This filter is part of the Cavern.QuickEQ.Format library and is not available in the Cavern library's Filters namespace,
     /// because it shall only be created by <see cref="ConfigurationFile"/>s.</remarks>
-    public class InputChannel : BypassFilter {
+    public class InputChannel : BypassFilter, ILocalizableToString {
         /// <inheritdoc/>
         public override bool LinearTimeInvariant => false;
 
@@ -29,5 +32,14 @@ namespace Cavern.Filters {
         protected internal InputChannel(string channel) :
             base(ReferenceChannelExtensions.FromStandardName(channel).GetShortName() + " input") =>
             Channel = ReferenceChannelExtensions.FromStandardName(channel);
+
+        /// <inheritdoc/>
+        public override object Clone() => new InputChannel(Channel);
+
+        /// <inheritdoc/>
+        public string ToString(CultureInfo culture) => culture.Name switch {
+            "hu-HU" => Channel.GetShortName() + " bemenet",
+            _ => Channel.GetShortName() + " input",
+        };
     }
 }

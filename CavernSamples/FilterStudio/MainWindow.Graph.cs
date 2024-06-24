@@ -68,7 +68,7 @@ namespace FilterStudio {
 
             ConvolutionLengthDialog length = new();
             if (length.ShowDialog().Value) {
-                FilterGraphNodeUtils.ConvertToConvolution(pipeline.Source.SplitPoints[0].roots, length.Size);
+                pipeline.Source.SplitPoints[0].roots.ConvertToConvolution(length.Size);
                 ReloadGraph();
             }
         }
@@ -169,7 +169,7 @@ namespace FilterStudio {
             }
 
             parent.Filter.AddChild(child.Filter);
-            if (FilterGraphNodeUtils.HasCycles(rootNodes)) {
+            if (rootNodes.HasCycles()) {
                 Error((string)language["NLoop"]);
                 parent.Filter.DetachChild(child.Filter, false);
             } else {
