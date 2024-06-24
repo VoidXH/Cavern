@@ -4,7 +4,7 @@
     <system:String x:Key="MFile">_File</system:String>
     <system:String x:Key="OpNew">_New configuration file</system:String>
     <system:String x:Key="OpCfg">_Open configuration file...</system:String>
-    <system:String x:Key="OpSaA">Save configuration file _as...</system:String>
+    <system:String x:Key="OpSaA">Save configuration file _for</system:String>
     <system:String x:Key="OpChs">_Select channels...</system:String>
 
     <system:String x:Key="MFilt">F_ilters</system:String>

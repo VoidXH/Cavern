@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 using Cavern;
@@ -105,17 +106,52 @@ namespace FilterStudio {
         }
 
         /// <summary>
+        /// Export the configuration file to a new path in <see cref="CavernFilterStudioConfigurationFile"/>.
+        /// </summary>
+        void ExportCavernFilterStudio(object source, RoutedEventArgs e) =>
+            ExportConfiguration(source, () => new CavernFilterStudioConfigurationFile(pipeline.Source));
+
+        /// <summary>
+        /// Export the configuration file to a new path in <see cref="ConvolutionBoxFormatConfigurationFile"/>.
+        /// </summary>
+        void ExportConvolutionBoxFormat(object source, RoutedEventArgs e) =>
+            ExportConfiguration(source, () => new ConvolutionBoxFormatConfigurationFile(pipeline.Source));
+
+        /// <summary>
+        /// Export the configuration file to a new path in <see cref="EqualizerAPOConfigurationFile"/>.
+        /// </summary>
+        void ExportEqualizerAPO(object source, RoutedEventArgs e) =>
+            ExportConfiguration(source, () => new EqualizerAPOConfigurationFile(pipeline.Source));
+
+        /// <summary>
         /// Export the configuration file to a new path.
         /// </summary>
-        void ExportConfiguration(object _, RoutedEventArgs e) {
+        /// <param name="generator">Creates the <see cref="ConfigurationFile"/> for export in the target format</param>
+        void ExportConfiguration(object source, Func<ConfigurationFile> generator) {
             if (pipeline.Source == null) {
                 Error((string)language["NoCon"]);
                 return;
             }
 
-            // TODO: file picker
-            ConfigurationFile export = new ConvolutionBoxFormat(pipeline.Source);
-            export.Export(null);
+            ConfigurationFile file;
+            try {
+                file = generator();
+            } catch (Exception e) {
+                Error(e.Message);
+                return;
+            }
+
+            SaveFileDialog dialog = new SaveFileDialog() {
+                FileName = $"{file.SplitPoints[0].name}.{file.FileExtension}",
+                Filter = $"{((MenuItem)source).Header}|*.{file.FileExtension}"
+            };
+            if (dialog.ShowDialog().Value) {
+                try {
+                    file.Export(dialog.FileName);
+                } catch (Exception e) {
+                    Error(e.Message);
+                }
+            }
         }
 
         /// <summary>

@@ -20,7 +20,11 @@
             <MenuItem Header="{StaticResource MFile}" Style="{StaticResource RootMenuItem}">
                 <MenuItem Header="{StaticResource OpNew}" Click="NewConfiguration"/>
                 <MenuItem Header="{StaticResource OpCfg}" Click="LoadConfiguration"/>
-                <MenuItem Header="{StaticResource OpSaA}" Click="ExportConfiguration"/>
+                <MenuItem Header="{StaticResource OpSaA}">
+                    <MenuItem Header="Cavern Filter Studio" Click="ExportCavernFilterStudio"/>
+                    <MenuItem Header="Convolution Box Format" Click="ExportConvolutionBoxFormat"/>
+                    <MenuItem Header="Equalizer APO" Click="ExportEqualizerAPO"/>
+                </MenuItem>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpChs}" Click="SelectChannels"/>
             </MenuItem>

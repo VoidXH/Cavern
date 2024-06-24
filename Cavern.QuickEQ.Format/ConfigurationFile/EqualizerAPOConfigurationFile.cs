@@ -16,7 +16,7 @@ namespace Cavern.Format.ConfigurationFile {
     /// </summary>
     public sealed class EqualizerAPOConfigurationFile : ConfigurationFile {
         /// <inheritdoc/>
-        public override string FileExtension => ".txt";
+        public override string FileExtension => "txt";
 
         /// <summary>
         /// Convert an<paramref name="other"/> configuration file to Equalizer APO's format.

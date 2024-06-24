@@ -6,7 +6,7 @@ namespace Cavern.Format.ConfigurationFile {
     /// </summary>
     public sealed class CavernFilterStudioConfigurationFile : ConfigurationFile {
         /// <inheritdoc/>
-        public override string FileExtension => ".cfs";
+        public override string FileExtension => "cfs";
 
         /// <summary>
         /// Convert an<paramref name="other"/> configuration file to Cavern's format.

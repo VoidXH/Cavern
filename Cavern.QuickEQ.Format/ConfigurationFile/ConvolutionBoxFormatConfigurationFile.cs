@@ -7,21 +7,21 @@ namespace Cavern.Format.ConfigurationFile {
     /// <summary>
     /// A file format only supporting matrix mixing and convolution filters.
     /// </summary>
-    public sealed class ConvolutionBoxFormat : ConfigurationFile {
+    public sealed class ConvolutionBoxFormatConfigurationFile : ConfigurationFile {
         /// <inheritdoc/>
-        public override string FileExtension => ".cbf";
+        public override string FileExtension => "cbf";
 
         /// <summary>
         /// Convert an<paramref name="other"/> configuration file to Convolution Box Format with the default convoltion length of
         /// 65536 samples.
         /// </summary>
-        public ConvolutionBoxFormat(ConfigurationFile other) : this(other, 65536) { }
+        public ConvolutionBoxFormatConfigurationFile(ConfigurationFile other) : this(other, 65536) { }
 
         /// <summary>
         /// Convert an<paramref name="other"/> configuration file to Convolution Box Format with a custom
         /// <paramref name="convolutionLength"/>.
         /// </summary>
-        public ConvolutionBoxFormat(ConfigurationFile other, int convolutionLength) : base(other) {
+        public ConvolutionBoxFormatConfigurationFile(ConfigurationFile other, int convolutionLength) : base(other) {
             MergeSplitPoints();
             Optimize();
             SplitPoints[0].roots.ConvertToConvolution(convolutionLength);
@@ -30,7 +30,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Create an empty file for a custom layout.
         /// </summary>
-        public ConvolutionBoxFormat(string name, ReferenceChannel[] inputs) : base(name, inputs) => FinishEmpty(inputs);
+        public ConvolutionBoxFormatConfigurationFile(string name, ReferenceChannel[] inputs) : base(name, inputs) => FinishEmpty(inputs);
 
         /// <inheritdoc/>
         public override void Export(string path) {

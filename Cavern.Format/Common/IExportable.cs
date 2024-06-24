@@ -5,7 +5,7 @@
     public interface IExportable {
         /// <summary>
         /// Extension of the main file created with <see cref="Export(string)"/>. If multiple files are created, this is the extension of
-        /// the root file. This should be displayed on export dialogs.
+        /// the root file. This should be displayed on export dialogs. This value shall not include the dot before the extension.
         /// </summary>
         public string FileExtension { get; }
 
