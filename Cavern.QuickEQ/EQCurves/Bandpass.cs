@@ -42,7 +42,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <param name="sampleRate">Sample rate of the system to be EQ'd</param>
         /// <param name="resolution">Sample resolution for <see cref="this[double]"/>, must be a power of 2</param>
         /// <param name="q">Q-factor of the filter</param>
-        /// <param name="order">Each order increases the slope with 6 dB/octave</param>
+        /// <param name="order">Each order increases the slope with 12 dB/octave</param>
         /// <param name="gain">Filter gain</param>
         public Bandpass(double lowFreq, double highFreq, int sampleRate, int resolution, double q, int order, double gain) {
             positioner = resolution * 2.0 / sampleRate;

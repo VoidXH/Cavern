@@ -27,9 +27,8 @@ namespace Cavern.Filters {
         /// </summary>
         public double Q => lowpasses[0].Q;
 
-        // TODO: is it really 6 dB?
         /// <summary>
-        /// Each order increases the slope with 6 dB/octave.
+        /// Each order increases the slope with 12 dB/octave.
         /// </summary>
         public int Order {
             get => highpasses.Length;
@@ -59,7 +58,7 @@ namespace Cavern.Filters {
         /// <param name="highFreq">High frequency (lowpass) cutoff knee</param>
         /// <param name="sampleRate">Sample rate of the system to be EQ'd</param>
         public BandpassFlat(double lowFreq, double highFreq, int sampleRate) :
-            this(lowFreq, highFreq, sampleRate, QFactor.reference, 4, 0) { }
+            this(lowFreq, highFreq, sampleRate, QFactor.reference, 2, 0) { }
 
         /// <summary>
         /// Combination of a lowpass and a highpass filter with custom Q-factor and slope, but no additional gain.
@@ -68,7 +67,7 @@ namespace Cavern.Filters {
         /// <param name="highFreq">High frequency (lowpass) cutoff knee</param>
         /// <param name="sampleRate">Sample rate of the system to be EQ'd</param>
         /// <param name="q">Q-factor of each filter component</param>
-        /// <param name="order">Each order increases the slope with 6 dB/octave</param>
+        /// <param name="order">Each order increases the slope with 12 dB/octave</param>
         public BandpassFlat(double lowFreq, double highFreq, int sampleRate, double q, int order) :
             this(lowFreq, highFreq, sampleRate, q, order, 0) { }
 
@@ -79,7 +78,7 @@ namespace Cavern.Filters {
         /// <param name="highFreq">High frequency (lowpass) cutoff knee</param>
         /// <param name="sampleRate">Sample rate of the system to be EQ'd</param>
         /// <param name="q">Q-factor of each filter component</param>
-        /// <param name="order">Each order increases the slope with 6 dB/octave</param>
+        /// <param name="order">Each order increases the slope with 12 dB/octave</param>
         /// <param name="gain">Total filter gain</param>
         public BandpassFlat(double lowFreq, double highFreq, int sampleRate, double q, int order, double gain) {
             lowpasses = new Lowpass[order];
