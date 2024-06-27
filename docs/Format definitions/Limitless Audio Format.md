@@ -1,4 +1,5 @@
 # Limitless Audio Format Structure
+All values are little endian.
 * 9 bytes: "LIMITLESS" marker
 * Custom headers with their own markers. The "TAGS" marker is reserved for tags in a later specification.
 * 4 bytes: "HEAD" marker
