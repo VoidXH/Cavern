@@ -3,7 +3,7 @@ A file format for easy to implement DSP, only using channel copy and convolution
 filters. Channels are numbered from 0 to the number of system channels. Negative
 channel indices mean virtual channels, of which any number can be created.
 All values are little endian.
-* 4 bytes: "CBFM" marker
+* 4 bytes: "CBFM" marker (magic number: 0x4D464243)
 * 4 bytes: system sample rate, used for all convolutions
 * 4 bytes: number of filter entries
 

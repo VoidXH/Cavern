@@ -49,5 +49,10 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
         }
+
+        /// <summary>
+        /// CBFM marker.
+        /// </summary>
+        const int magicNumber = 0x4D464243;
     }
 }
