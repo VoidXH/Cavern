@@ -22,7 +22,13 @@ namespace Cavern.Format.ConfigurationFile {
         /// Named points where the configuration file can be separated to new sections. Split points only consist of input nodes after the
         /// previous split point's output nodes.
         /// </summary>
-        public IReadOnlyList<(string name, FilterGraphNode[] roots)> SplitPoints { get; }
+        public IReadOnlyList<(string name, FilterGraphNode[] roots)> SplitPoints => splitPoints;
+
+        /// <summary>
+        /// Named points where the configuration file can be separated to new sections. Split points only consist of input nodes after the
+        /// previous split point's output nodes.
+        /// </summary>
+        readonly List<(string name, FilterGraphNode[] roots)> splitPoints;
 
         /// <inheritdoc/>
         public abstract string FileExtension { get; }
@@ -33,7 +39,19 @@ namespace Cavern.Format.ConfigurationFile {
         protected ConfigurationFile(ConfigurationFile other) {
             Dictionary<FilterGraphNode, FilterGraphNode> mapping = other.InputChannels.GetItem2s().DeepCopyWithMapping().mapping;
             InputChannels = other.InputChannels.Select(x => (x.name, mapping[x.root])).ToArray();
-            SplitPoints = other.SplitPoints.Select(x => (x.name, x.roots.Select(x => mapping[x]).ToArray())).ToList();
+            splitPoints = other.SplitPoints.Select(x => (x.name, x.roots.Select(x => mapping[x]).ToArray())).ToList();
+        }
+
+        /// <summary>
+        /// Construct a configuration file from a complete filter graph, with references to its <paramref name="inputChannels"/>.
+        /// </summary>
+        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. Refer to the constructors of
+        /// <see cref="CavernFilterStudioConfigurationFile"/> for how to add closing <see cref="OutputChannel"/>s.</remarks>
+        protected ConfigurationFile(string name, (string name, FilterGraphNode root)[] inputChannels) {
+            InputChannels = inputChannels;
+            splitPoints = new List<(string, FilterGraphNode[])> {
+                (name, InputChannels.GetItem2s())
+            };
         }
 
         /// <summary>
@@ -48,7 +66,7 @@ namespace Cavern.Format.ConfigurationFile {
                 InputChannels[i] = (inputs[i].GetShortName(), new FilterGraphNode(new InputChannel(inputs[i])));
             }
 
-            SplitPoints = new List<(string, FilterGraphNode[])> {
+            splitPoints = new List<(string, FilterGraphNode[])> {
                 (name, InputChannels.GetItem2s())
             };
         }
@@ -65,7 +83,7 @@ namespace Cavern.Format.ConfigurationFile {
                 InputChannels[i] = (inputs[i], new FilterGraphNode(new InputChannel(inputs[i])));
             }
 
-            SplitPoints = new List<(string, FilterGraphNode[])> {
+            splitPoints = new List<(string, FilterGraphNode[])> {
                 (name, InputChannels.GetItem2s())
             };
         }
@@ -78,13 +96,12 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         public void AddSplitPoint(int index, string name) {
             if (index != SplitPoints.Count) {
-                List<(string name, FilterGraphNode[] roots)> splits = (List<(string, FilterGraphNode[])>)SplitPoints;
-                FilterGraphNode[] start = (FilterGraphNode[])splits[index].roots.Clone();
+                FilterGraphNode[] start = (FilterGraphNode[])splitPoints[index].roots.Clone();
                 for (int i = 0; i < start.Length; i++) {
                     ReferenceChannel channel = ((InputChannel)start[i].Filter).Channel;
                     start[i] = start[i].AddAfterParents(new OutputChannel(channel)).AddAfterParents(new InputChannel(channel));
                 }
-                splits.Insert(index, (name, start));
+                splitPoints.Insert(index, (name, start));
             } else {
                 CreateNewSplitPoint(name);
                 FilterGraphNode[] end = SplitPoints[^1].roots;
@@ -142,7 +159,7 @@ namespace Cavern.Format.ConfigurationFile {
                     roots[j].DetachFromGraph(); // Input of the current split
                 }
             }
-            ((List<(string, FilterGraphNode[])>)SplitPoints).RemoveRange(1, SplitPoints.Count - 1);
+            splitPoints.RemoveRange(1, SplitPoints.Count - 1);
         }
 
         /// <summary>
@@ -197,9 +214,9 @@ namespace Cavern.Format.ConfigurationFile {
                     equivalent.DetachChildren();
                     roots[i].AddChildren(oldChildren);
                 }
-                ((List<(string, FilterGraphNode[])>)SplitPoints)[index + 1] = (SplitPoints[index + 1].name, roots);
+                splitPoints[index + 1] = (SplitPoints[index + 1].name, roots);
             }
-            ((List<(string, FilterGraphNode[])>)SplitPoints).RemoveAt(index);
+            splitPoints.RemoveAt(index);
         }
 
         /// <summary>
@@ -223,7 +240,7 @@ namespace Cavern.Format.ConfigurationFile {
             for (int i = 0; i < nodes.Length; i++) {
                 nodes[i] = nodes[i].AddChild(new InputChannel(((OutputChannel)nodes[i].Filter).Channel));
             }
-            ((List<(string, FilterGraphNode[])>)SplitPoints).Add((name, nodes));
+            splitPoints.Add((name, nodes));
         }
 
         /// <summary>
@@ -262,6 +279,7 @@ namespace Cavern.Format.ConfigurationFile {
 
             (FilterGraphNode node, int channel)[] result = new (FilterGraphNode, int)[orderedNodes.Count];
             Dictionary<int, FilterGraphNode> lastNodes = new Dictionary<int, FilterGraphNode>(); // For channel indices
+            int lowestChannel = 0;
             for (int i = 0, c = result.Length - 1; i <= c; i++) {
                 FilterGraphNode source = orderedNodes[c - i];
                 int channelIndex = 0;
@@ -277,14 +295,13 @@ namespace Cavern.Format.ConfigurationFile {
                         }
                     }
                 } else { // Either merge node or exit from a split: new virtual channel
-                    channelIndex = lastNodes.Keys.Min() - 1;
+                    channelIndex = --lowestChannel;
                 }
                 lastNodes[channelIndex] = source;
                 result[i] = (source, channelIndex);
             }
 
-            // Channel slot optimization: two non-parallel virtual channels should only occupy one virtual channel, but at different times
-            // TODO: easy, find ranges, and it's the standard scheduling problem from uni - make use of the channel's path if it's unused
+            result.OptimizeChannelUse();
             return result;
         }
 

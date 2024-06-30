@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Cavern.Filters.Utilities {
@@ -99,6 +100,71 @@ namespace Cavern.Filters.Utilities {
             }
 
             return visited;
+        }
+
+        /// <summary>
+        /// Channel slot optimization: two non-parallel virtual channels should only occupy one virtual channel, but at different times.
+        /// </summary>
+        /// <param name="mapping">Node - channel mapping to optimize, virtual channels take negative indices</param>
+        public static void OptimizeChannelUse(this (FilterGraphNode node, int channel)[] mapping) {
+            int virtualChannels = -mapping.Min(x => x.channel);
+
+            // Partition channels to "time" intervals (mapping indices)
+            (int channel, int first, int last)[] intervals = new (int, int, int)[virtualChannels];
+            for (int i = 0; i < intervals.Length; i++) {
+                intervals[i].channel = -1 - i;
+                intervals[i].first = -1;
+            }
+            for (int i = 0; i < mapping.Length; i++) {
+                int interval = -1 - mapping[i].channel;
+                if (interval < 0) {
+                    continue; // Virtual channels only
+                }
+                if (intervals[interval].first == -1) {
+                    intervals[interval].first = i;
+                }
+                intervals[interval].last = i;
+            }
+
+            // True creation is when the channel was separated, and true disappearance is when the channel was merged back
+            for (int i = 0; i < intervals.Length; i++) {
+                FilterGraphNode firstNode = mapping[intervals[i].first].node,
+                    lastNode = mapping[intervals[i].last].node;
+                for (int j = 0; j < mapping.Length; j++) {
+                    if (mapping[j].node.Children.Contains(firstNode)) {
+                        intervals[i].first = j;
+                    }
+                    if (mapping[j].node.Parents.Contains(lastNode)) {
+                        intervals[i].last = j; // Might never be merged, but it's not a problem, we get our thread back faster
+                    }
+                }
+            }
+
+            // Interval graph optimization problem
+            Array.Sort(intervals, (a, b) => {
+                int first = a.first.CompareTo(b.first);
+                return first != 0 ? first : a.last.CompareTo(b.last);
+            });
+
+            List<int> channelUsedUntil = new List<int>();
+            for (int i = 0; i < intervals.Length; i++) {
+                int slots = channelUsedUntil.Count,
+                    needFrom = intervals[i].first;
+                bool handled = false;
+                for (int slot = 0; slot < slots; slot++) {
+                    if (channelUsedUntil[slot] <= needFrom) {
+                        intervals[i].channel = -1 - slot;
+                        channelUsedUntil[slot] = intervals[i].last;
+                        handled = true;
+                        break;
+                    }
+                }
+
+                if (!handled) {
+                    channelUsedUntil.Add(intervals[i].last);
+                    intervals[i].channel = -channelUsedUntil.Count;
+                }
+            }
         }
 
         /// <summary>

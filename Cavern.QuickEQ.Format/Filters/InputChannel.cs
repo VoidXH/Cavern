@@ -10,36 +10,34 @@ namespace Cavern.Filters {
     /// </summary>
     /// <remarks>This filter is part of the Cavern.QuickEQ.Format library and is not available in the Cavern library's Filters namespace,
     /// because it shall only be created by <see cref="ConfigurationFile"/>s.</remarks>
-    public class InputChannel : BypassFilter, ILocalizableToString {
-        /// <inheritdoc/>
-        public override bool LinearTimeInvariant => false;
-
+    public class InputChannel : EndpointFilter, ILocalizableToString {
         /// <summary>
-        /// The channel for which this filter marks the beginning of the filter pipeline.
+        /// Marks an input channel on a parsed <see cref="ConfigurationFile"/> graph.
         /// </summary>
-        public ReferenceChannel Channel { get; }
+        /// <param name="channel">The channel for which this filter marks the beginning of the filter pipeline</param>
+        protected internal InputChannel(ReferenceChannel channel) : base(channel, kind) { }
 
         /// <summary>
         /// Marks an input channel on a parsed <see cref="ConfigurationFile"/> graph.
         /// </summary>
         /// <param name="channel">The channel for which this filter marks the beginning of the filter pipeline</param>
-        protected internal InputChannel(ReferenceChannel channel) : base(channel.GetShortName() + " input") => Channel = channel;
+        protected internal InputChannel(string channel) : base(channel, kind) { }
+
+        /// <inheritdoc/>
+        public override object Clone() => Channel != ReferenceChannel.Unknown ? new InputChannel(Channel) : new InputChannel(ChannelName);
+
+        /// <inheritdoc/>
+        public string ToString(CultureInfo culture) {
+            string name = Channel != ReferenceChannel.Unknown ? Channel.GetShortName() : ChannelName;
+            return culture.Name switch {
+                "hu-HU" => name + " bemenet",
+                _ => $"{name} {kind}",
+            };
+        }
 
         /// <summary>
-        /// Marks an input channel on a parsed <see cref="ConfigurationFile"/> graph.
+        /// Kind of this endpoint.
         /// </summary>
-        /// <param name="channel">The channel for which this filter marks the beginning of the filter pipeline</param>
-        protected internal InputChannel(string channel) :
-            base(ReferenceChannelExtensions.FromStandardName(channel).GetShortName() + " input") =>
-            Channel = ReferenceChannelExtensions.FromStandardName(channel);
-
-        /// <inheritdoc/>
-        public override object Clone() => new InputChannel(Channel);
-
-        /// <inheritdoc/>
-        public string ToString(CultureInfo culture) => culture.Name switch {
-            "hu-HU" => Channel.GetShortName() + " bemenet",
-            _ => Channel.GetShortName() + " input",
-        };
+        const string kind = "input";
     }
 }

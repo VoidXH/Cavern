@@ -96,9 +96,12 @@ namespace FilterStudio {
             };
             if (dialog.ShowDialog().Value) {
                 try {
-                    ConfigurationFile file = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
-
-                    pipeline.Source = file;
+                    // TODO: magic number check instead
+                    if (dialog.FileName.EndsWith(".cbf")) {
+                        pipeline.Source = new ConvolutionBoxFormatConfigurationFile(dialog.FileName);
+                    } else {
+                        pipeline.Source = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
+                    }
                 } catch {
                     Error((string)language["NLoad"]);
                 }
@@ -115,7 +118,7 @@ namespace FilterStudio {
         /// Export the configuration file to a new path in <see cref="ConvolutionBoxFormatConfigurationFile"/>.
         /// </summary>
         void ExportConvolutionBoxFormat(object source, RoutedEventArgs e) =>
-            ExportConfiguration(source, () => new ConvolutionBoxFormatConfigurationFile(pipeline.Source));
+            ExportConfiguration(source, () => new ConvolutionBoxFormatConfigurationFile(pipeline.Source, Listener.DefaultSampleRate));
 
         /// <summary>
         /// Export the configuration file to a new path in <see cref="EqualizerAPOConfigurationFile"/>.
@@ -148,6 +151,7 @@ namespace FilterStudio {
             if (dialog.ShowDialog().Value) {
                 try {
                     file.Export(dialog.FileName);
+                    MessageBox.Show((string)language["ExSuc"]);
                 } catch (Exception e) {
                     Error(e.Message);
                 }

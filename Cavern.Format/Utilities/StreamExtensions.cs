@@ -13,7 +13,7 @@ namespace Cavern.Format.Utilities {
     /// <summary>
     /// Stream reading extension functions. Provides functionality similar to <see cref="BinaryReader"/> with better performance.
     /// </summary>
-    static class StreamExtensions {
+    public static class StreamExtensions {
         /// <summary>
         /// Read more than 2 GB into a buffer.
         /// </summary>

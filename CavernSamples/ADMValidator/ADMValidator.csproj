@@ -16,7 +16,6 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="..\..\Cavern.Format\Consts\RIFFWaveConsts.cs" Link="RIFFWaveConsts.cs" />
-		<Compile Include="..\..\Cavern.Format\Utilities\StreamExtensions.cs" Link="StreamExtensions.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />

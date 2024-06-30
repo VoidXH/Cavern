@@ -41,7 +41,9 @@
     <system:String x:Key="Help2">Right click an arrow to add a filter between two filters.</system:String>
     <system:String x:Key="Help3">Drag and drop from one filter to another to connect them.</system:String>
 
-    <system:String x:Key="OpFil">Equalizer APO configurations|*.txt</system:String>
+    <system:String x:Key="OpFil">All supported formats|*.cbf;*.txt|Convolution Box Format|*.cbf|Equalizer APO
+        configurations|*.txt</system:String>
+    <system:String x:Key="ExSuc">Export successful.</system:String>
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="NOpen">A configuration file is already being edited.
 The channel configuration will only be applied when you create a new configuration file.</system:String>
