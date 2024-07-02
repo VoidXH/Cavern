@@ -6,6 +6,7 @@ using System.Windows;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 using VoidX.WPF;
 
@@ -122,7 +123,13 @@ namespace FilterStudio {
             }
 
             selectedNode.Text = node.LabelText;
-            properties.ItemsSource = new ObjectToDataGrid(node.Filter.Filter, FilterPropertyChanged, e => Error(e.Message));
+            if (properties.ItemsSource is ObjectToDataGrid old) {
+                properties.BeginningEdit -= old.BeginningEdit;
+            }
+            ObjectToDataGrid propertySource = new ObjectToDataGrid(node.Filter.Filter, FilterPropertyChanged, e => Error(e.Message),
+                (typeof(Equalizer), EditEqualizer));
+            properties.ItemsSource = propertySource;
+            properties.BeginningEdit += propertySource.BeginningEdit;
         }
 
         /// <summary>
@@ -187,6 +194,14 @@ namespace FilterStudio {
                 newGraph.Attr.LayerDirection = graphDirection;
                 graph.Graph = newGraph;
             }
+        }
+
+        /// <summary>
+        /// Open the editor for an existing <see cref="Equalizer"/>.
+        /// </summary>
+        void EditEqualizer(object filter) {
+            Equalizer equalizer = (Equalizer)filter;
+            // TODO: editor
         }
     }
 }

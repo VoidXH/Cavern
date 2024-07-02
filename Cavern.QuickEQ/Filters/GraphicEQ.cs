@@ -14,24 +14,36 @@ namespace Cavern.Filters {
         /// Copy of the equalizer curve for further alignment.
         /// </summary>
         /// <remarks>Changing the bands on this <see cref="Equalizer"/> does not result in the recomputation of the convolution filter,
-        /// please recreate the filter instead.</remarks>
-        public Equalizer Equalizer { get; }
+        /// please use the setter instead.</remarks>
+        public Equalizer Equalizer {
+            get => equalizer;
+            set {
+                Impulse = value.GetConvolution(sampleRate, Length);
+                equalizer = value;
+            }
+        }
+        Equalizer equalizer;
+
+        /// <summary>
+        /// Sample rate at which this EQ is converted to a minimum-phase FIR filter.
+        /// </summary>
+        readonly int sampleRate;
 
         /// <summary>
         /// Convert an <paramref name="equalizer"/> to a 65536-sample convolution filter.
         /// </summary>
         /// <param name="equalizer">Desired frequency response change</param>
-        /// <param name="sampleRate">Sample rate of the filter</param>
+        /// <param name="sampleRate">Sample rate at which this EQ is converted to a minimum-phase FIR filter</param>
         public GraphicEQ(Equalizer equalizer, int sampleRate) : this(equalizer, sampleRate, 65536) { }
 
         /// <summary>
         /// Convert an <paramref name="equalizer"/> to a convolution filter.
         /// </summary>
         /// <param name="equalizer">Desired frequency response change</param>
-        /// <param name="sampleRate">Sample rate of the filter</param>
+        /// <param name="sampleRate">Sample rate at which this EQ is converted to a minimum-phase FIR filter</param>
         /// <param name="filterLength">Number of samples in the generated convolution filter, must be a power of 2</param>
         public GraphicEQ(Equalizer equalizer, int sampleRate, int filterLength) :
-            base(equalizer.GetConvolution(sampleRate, filterLength)) => Equalizer = equalizer;
+            base(equalizer.GetConvolution(sampleRate, filterLength)) => this.equalizer = equalizer;
 
         /// <summary>
         /// Parse a Graphic EQ line of Equalizer APO to a Cavern <see cref="GraphicEQ"/> filter.
