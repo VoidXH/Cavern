@@ -259,29 +259,16 @@ namespace Cavern.Format.ConfigurationFile {
         /// channel.
         /// </summary>
         protected (FilterGraphNode node, int channel)[] GetExportOrder() {
-            List<FilterGraphNode> orderedNodes = new List<FilterGraphNode>();
-            HashSet<FilterGraphNode> visitedNodes = new HashSet<FilterGraphNode>();
-
-            void VisitNode(FilterGraphNode node) {
-                if (visitedNodes.Contains(node)) {
-                    return;
-                }
-                visitedNodes.Add(node);
-                foreach (FilterGraphNode child in node.Children) {
-                    VisitNode(child);
-                }
-                orderedNodes.Add(node);
-            }
-
-            for (int i = InputChannels.Length - 1; i >= 0; i--) { // The reverse will have the channels in order
-                VisitNode(InputChannels[i].root);
+            List<FilterGraphNode> orderedNodes = InputChannels.GetItem2s().TopologicalSort();
+            if (!orderedNodes.IsTopologicalSort()) {
+                throw new DataMisalignedException();
             }
 
             (FilterGraphNode node, int channel)[] result = new (FilterGraphNode, int)[orderedNodes.Count];
             Dictionary<int, FilterGraphNode> lastNodes = new Dictionary<int, FilterGraphNode>(); // For channel indices
             int lowestChannel = 0;
-            for (int i = 0, c = result.Length - 1; i <= c; i++) {
-                FilterGraphNode source = orderedNodes[c - i];
+            for (int i = 0; i < result.Length; i++) {
+                FilterGraphNode source = orderedNodes[i];
                 int channelIndex = 0;
                 if (source.Children.Count == 0 && source.Filter is OutputChannel output) { // Actual exit node, not terminated virtual ch
                     channelIndex = GetChannelIndex(output.Channel);
