@@ -70,15 +70,14 @@ namespace Cavern.Format.ConfigurationFile {
             }
             stream.Position = 8; // Sample rate is read in the constructor
             int entries = stream.ReadInt32();
-            List<(string name, FilterGraphNode root)> inputChannels = new List<(string, FilterGraphNode)>();
+            List<(int index, FilterGraphNode root)> inputChannels = new List<(int, FilterGraphNode)>();
             Dictionary<int, FilterGraphNode> lastNodes = new Dictionary<int, FilterGraphNode>();
             FilterGraphNode GetChannel(int index) { // Get an actual channel's last node
                 if (lastNodes.ContainsKey(index)) {
                     return lastNodes[index];
                 }
-                string name = "CH" + (index + 1);
-                FilterGraphNode newChannel = new FilterGraphNode(new InputChannel(name));
-                inputChannels.Add((name, newChannel));
+                FilterGraphNode newChannel = new FilterGraphNode(new InputChannel("CH" + (index + 1)));
+                inputChannels.Add((index, newChannel));
                 return newChannel;
             }
 
@@ -118,7 +117,7 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
 
-            inputChannels.Sort((a, b) => a.name.CompareTo(b.name));
+            inputChannels.Sort((a, b) => a.index.CompareTo(b.index));
             foreach (KeyValuePair<int, FilterGraphNode> node in lastNodes) {
                 if (node.Key >= 0) {
                     // TODO: many points make input or output channels from channels, create them from names instead
@@ -130,7 +129,7 @@ namespace Cavern.Format.ConfigurationFile {
                     }
                 }
             }
-            return inputChannels.ToArray();
+            return inputChannels.Select(x => (((InputChannel)x.root.Filter).Name, x.root)).ToArray();
         }
 
         /// <inheritdoc/>
