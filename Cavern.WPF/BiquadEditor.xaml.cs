@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,6 +10,7 @@ using Cavern.QuickEQ.Graphing.Overlays;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 using Cavern.WPF.BaseClasses;
+using Cavern.WPF.Utils;
 
 using Color = System.Windows.Media.Color;
 

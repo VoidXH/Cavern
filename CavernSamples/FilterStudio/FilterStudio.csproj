@@ -39,7 +39,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Cavern.QuickEQ.Format\Cavern.QuickEQ.Format.csproj" />
-	  <ProjectReference Include="..\Cavern.WPF\Cavern.WPF.csproj" />
+	  <ProjectReference Include="..\..\Cavern.WPF\Cavern.WPF.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Update="Resources\Settings.Designer.cs">

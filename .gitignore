@@ -9,6 +9,8 @@ Cavern.QuickEQ.Format/bin/
 Cavern.QuickEQ.Format/obj/
 Cavern.QuickEQ/bin/
 Cavern.QuickEQ/obj/
+Cavern.WPF/bin/
+Cavern.WPF/obj/
 Cavern/bin/
 Cavern/obj/
 CavernAmp/bin/Release/libCavernAmp.a
@@ -22,8 +24,6 @@ CavernSamples/ADMValidator/bin/
 CavernSamples/ADMValidator/obj/
 CavernSamples/Benchmark/bin/
 CavernSamples/Benchmark/obj/
-CavernSamples/Cavern.WPF/bin/
-CavernSamples/Cavern.WPF/obj/
 CavernSamples/CavernizeGUI/bin/
 CavernSamples/CavernizeGUI/obj/
 CavernSamples/CavernizeLive/bin/

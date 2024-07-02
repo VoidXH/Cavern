@@ -6,7 +6,7 @@ using System.Windows;
 
 using Image = System.Windows.Controls.Image;
 
-namespace Cavern.WPF {
+namespace Cavern.WPF.Utils {
 #pragma warning disable CA1416 // Validate platform compatibility
     /// <summary>
     /// Extension functions for interoperability between Cavern's raw ARGB pixel arrays and WPF's <see cref="Bitmap"/>.

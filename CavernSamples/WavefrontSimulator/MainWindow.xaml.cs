@@ -11,7 +11,7 @@ using Cavern;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format;
-using Cavern.WPF;
+using Cavern.WPF.Utils;
 
 using Color = System.Drawing.Color;
 
