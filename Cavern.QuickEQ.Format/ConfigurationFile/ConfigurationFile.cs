@@ -265,26 +265,17 @@ namespace Cavern.Format.ConfigurationFile {
             }
 
             (FilterGraphNode node, int channel)[] result = new (FilterGraphNode, int)[orderedNodes.Count];
-            Dictionary<int, FilterGraphNode> lastNodes = new Dictionary<int, FilterGraphNode>(); // For channel indices
             int lowestChannel = 0;
             for (int i = 0; i < result.Length; i++) {
                 FilterGraphNode source = orderedNodes[i];
-                int channelIndex = 0;
+                int channelIndex;
                 if (source.Children.Count == 0 && source.Filter is OutputChannel output) { // Actual exit node, not terminated virtual ch
                     channelIndex = GetChannelIndex(output.Channel);
                 } else if (source.Parents.Count == 0) { // Entry node
                     channelIndex = GetChannelIndex(((InputChannel)source.Filter).Channel);
-                } else if (source.Parents.Count == 1 && source.Parents[0].Children.Count == 1) { // Direct path
-                    FilterGraphNode parent = source.Parents[0];
-                    foreach (KeyValuePair<int, FilterGraphNode> node in lastNodes) {
-                        if (node.Value == parent) {
-                            channelIndex = node.Key;
-                        }
-                    }
-                } else { // Either merge node or exit from a split: new virtual channel
+                } else { // TODO: greedily keep direct paths on the same channel index, don't have all filters on separate nodes
                     channelIndex = --lowestChannel;
                 }
-                lastNodes[channelIndex] = source;
                 result[i] = (source, channelIndex);
             }
 

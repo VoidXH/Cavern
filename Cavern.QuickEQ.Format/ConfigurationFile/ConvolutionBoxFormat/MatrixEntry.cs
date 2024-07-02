@@ -81,6 +81,11 @@ namespace Cavern.Format.ConfigurationFile.ConvolutionBoxFormat {
             for (int i = 0, c = mixes.Count; i < c; i++) {
                 int source = mixes[i].source;
                 int[] targets = mixes[i].targets;
+                if (targets.Length == 0) {
+                    toRemove.Add(i);
+                    continue;
+                }
+
                 for (int target = 0; target < targets.Length; target++) {
                     for (int j = i + 1; j < c; j++) {
                         if (toRemove.Contains(j)) {
@@ -101,10 +106,11 @@ namespace Cavern.Format.ConfigurationFile.ConvolutionBoxFormat {
                     }
                 }
             }
+
             toRemove.Sort();
             for (int i = toRemove.Count - 1; i >= 0; i--) {
                 mixes.RemoveAt(toRemove[i]);
             }
-         }
+        }
     }
 }

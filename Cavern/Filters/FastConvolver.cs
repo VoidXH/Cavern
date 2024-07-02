@@ -15,7 +15,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Get a clone of the <see cref="filter"/>'s impulse response.
         /// </summary>
-        public float[] Impulse => Measurements.GetRealPart(filter.IFFT(cache));
+        public float[] Impulse => Measurements.GetRealPartHalf(filter.IFFT(cache)); // The constructor doubles the length
 
         /// <summary>
         /// Number of samples in the impulse response.

@@ -56,6 +56,7 @@ namespace Cavern.Format.ConfigurationFile {
             using FileStream stream = File.OpenRead(path);
             stream.Position = 4;
             sampleRate = stream.ReadInt32();
+            Optimize();
         }
 
         /// <summary>
@@ -81,8 +82,15 @@ namespace Cavern.Format.ConfigurationFile {
                 return newChannel;
             }
 
+#if DEBUG // Seeing all entries is better for debugging, but hurts memory usage
+            CBFEntry[] allEntries = Enumerable.Range(0, entries).Select(x => CBFEntry.Read(stream)).ToArray();
+#endif
             for (int i = 0; i < entries; i++) {
+#if DEBUG
+                CBFEntry entry = allEntries[i];
+#else
                 CBFEntry entry = CBFEntry.Read(stream);
+#endif
                 if (entry is MatrixEntry matrix) {
                     Dictionary<int, FilterGraphNode> createdNodes = new Dictionary<int, FilterGraphNode>();
                     for (int mix = 0, c = matrix.Mixes.Count; mix < c; mix++) {
@@ -110,10 +118,16 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
 
-            for (int i = 0, c = inputChannels.Count; i < c; i++) {
-                if (i >= 0) {
+            inputChannels.Sort((a, b) => a.name.CompareTo(b.name));
+            foreach (KeyValuePair<int, FilterGraphNode> node in lastNodes) {
+                if (node.Key >= 0) {
                     // TODO: many points make input or output channels from channels, create them from names instead
-                    lastNodes[i].AddChild(new OutputChannel(((InputChannel)inputChannels[i].root.Filter).ChannelName));
+                    OutputChannel outputFilter = new OutputChannel(((InputChannel)inputChannels[node.Key].root.Filter).ChannelName);
+                    if (node.Value.Filter == null) {
+                        node.Value.Filter = outputFilter;
+                    } else {
+                        node.Value.AddChild(outputFilter);
+                    }
                 }
             }
             return inputChannels.ToArray();
@@ -124,15 +138,6 @@ namespace Cavern.Format.ConfigurationFile {
             ValidateForExport();
             (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
             List<CBFEntry> entries = new List<CBFEntry>();
-
-            MatrixEntry GetMixer() { // Get the last entry if it's a mixer of make a new and return that
-                int count = entries.Count;
-                if (count == 0 || !(entries[count - 1] is MatrixEntry result)) {
-                    result = new MatrixEntry();
-                    entries.Add(result);
-                }
-                return result;
-            }
 
             int GetIndex(FilterGraphNode node) { // Get filter index by node
                 for (int i = 0; i < exportOrder.Length; i++) {
@@ -145,30 +150,17 @@ namespace Cavern.Format.ConfigurationFile {
 
             for (int i = 0; i < exportOrder.Length; i++) {
                 int channel = exportOrder[i].channel;
-                // TODO: fix the broken copy filter order
-                IReadOnlyList<FilterGraphNode> parents = exportOrder[i].node.Parents;
-                if (parents.Count > 1) {
-                    GetMixer().Expand(parents.Select(x => GetIndex(x)).ToArray(), channel);
-                }
+                // Keeping only incoming nodes is a full solution - optimizing for that few bytes of space would be possible if you're bored
+                int[] parents = exportOrder[i].node.Parents.Select(x => GetIndex(x)).ToArray();
+                MatrixEntry mixer = new MatrixEntry();
+                mixer.Expand(parents, channel);
+                entries.Add(mixer);
 
                 Filter filter = exportOrder[i].node.Filter;
                 if (filter is FastConvolver fastConvolver) {
                     entries.Add(new ConvolutionEntry(channel, fastConvolver.Impulse));
                 } else if (filter is Convolver convolver) {
                     entries.Add(new ConvolutionEntry(channel, convolver.Impulse));
-                }
-
-                IReadOnlyList<FilterGraphNode> children = exportOrder[i].node.Children;
-                int totalChildren = children.Count;
-                if (totalChildren > 1) {
-                    GetMixer().Expand(channel, children
-                        .Where(x => x.Parents.Count == 1) // When this is not the case, the parent copy above will happen
-                        .Select(x => GetIndex(x)).ToArray());
-                } else if (totalChildren == 1) {
-                    int targetChannel = GetIndex(children[0]);
-                    if (channel != targetChannel) {
-                        GetMixer().Expand(channel, targetChannel);
-                    }
                 }
             }
 
