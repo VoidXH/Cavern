@@ -24,7 +24,7 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="channel">The channel for which this filter marks the beginning of the filter pipeline</param>
         /// <param name="kind">Type of this endpoint</param>
-        internal EndpointFilter(ReferenceChannel channel, string kind) : base($"{channel.GetShortName()} {kind}") {
+        private protected EndpointFilter(ReferenceChannel channel, string kind) : base($"{channel.GetShortName()} {kind}") {
             Channel = channel;
             ChannelName = channel.GetShortName();
         }
@@ -34,7 +34,7 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="channel">The channel for which this filter marks the beginning of the filter pipeline</param>
         /// <param name="kind">Type of this endpoint</param>
-        internal EndpointFilter(string channel, string kind) : base($"{ParseName(channel)} {kind}") {
+        private protected EndpointFilter(string channel, string kind) : base($"{ParseName(channel)} {kind}") {
             Channel = ReferenceChannelExtensions.FromStandardName(channel);
             ChannelName = ParseName(channel);
         }
