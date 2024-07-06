@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
-namespace Cavern.WPF {
+namespace Cavern.WPF.Utils {
     /// <summary>
     /// Extension functions for interoperability between Cavern's raw ARGB pixel arrays and WPF's <see cref="Color"/>.
     /// </summary>
