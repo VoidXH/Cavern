@@ -80,6 +80,7 @@ namespace Cavern.WPF.Utils {
         /// Allows a <see cref="DataGrid"/> to edit an <see cref="Equalizer"/> instance.
         /// </summary>
         public EqualizerToDataGrid(DataGrid dataGrid, Equalizer source) {
+            this.dataGrid = dataGrid;
             this.source = source;
             dataGrid.RowEditEnding += EditEnding;
             dataGrid.KeyDown += KeyDown;
@@ -100,7 +101,6 @@ namespace Cavern.WPF.Utils {
             if (e.EditAction != DataGridEditAction.Commit) {
                 return;
             }
-            DataGrid dataGrid = (DataGrid)sender;
             dataGrid.Dispatcher.BeginInvoke(() => {
                 if (dataGrid.CommitEdit(DataGridEditingUnit.Row, true)) {
                     Reload();
