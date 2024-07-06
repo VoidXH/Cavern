@@ -102,8 +102,8 @@ namespace FilterStudio {
                     } else {
                         pipeline.Source = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
                     }
-                } catch {
-                    Error((string)language["NLoad"]);
+                } catch (Exception ex) {
+                    Error(string.Format((string)language["NLoad"], ex.Message));
                 }
             }
         }

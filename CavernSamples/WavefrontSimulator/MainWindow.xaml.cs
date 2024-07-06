@@ -183,7 +183,7 @@ namespace WavefrontSimulator {
                 }
             }
             image.Tag = output;
-            image.Source = BitmapUtils.ToImageSource(output);
+            image.Source = output.ToImageSource();
         }
 
         void ExportRender(object sender, RoutedEventArgs e) {

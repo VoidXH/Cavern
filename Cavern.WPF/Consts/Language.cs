@@ -30,6 +30,11 @@ namespace Cavern.WPF.Consts {
         public static ResourceDictionary GetCrossoverStrings() => crossoverCache ??= GetFor("CrossoverStrings");
 
         /// <summary>
+        /// Get the <see cref="EQEditor"/>'s translation.
+        /// </summary>
+        public static ResourceDictionary GetEQEditorStrings() => eqEditorCache ??= GetFor("EQEditorStrings");
+
+        /// <summary>
         /// Return a channel's name in the user's language or fall back to its short name.
         /// </summary>
         public static string Translate(this ReferenceChannel channel) {
@@ -110,5 +115,10 @@ namespace Cavern.WPF.Consts {
         /// The loaded translation of crossover handling for reuse.
         /// </summary>
         static ResourceDictionary crossoverCache;
+
+        /// <summary>
+        /// The loaded translation of the <see cref="EQEditor"/> for reuse.
+        /// </summary>
+        static ResourceDictionary eqEditorCache;
     }
 }

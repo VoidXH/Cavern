@@ -123,7 +123,7 @@ namespace Cavern.WPF {
             renderer.AddCurve(EQGenerator.FromTransferFunction(transferFunction, Filter.SampleRate), phaseColor);
 
             Bitmap bitmap = renderer.Pixels.ToBitmap(renderer.Width, renderer.Height);
-            image.Source = BitmapUtils.ToImageSource(bitmap);
+            image.Source = bitmap.ToImageSource();
         }
 
         /// <summary>

@@ -134,12 +134,14 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         void AddFilter(Dictionary<string, FilterGraphNode> lastNodes, List<string> channels, Filter filter) {
             List<FilterGraphNode> addedTo = new List<FilterGraphNode>();
+            bool clone = false; // Filters have to be individually editable on different paths = make copies after the first was set
             for (int i = 0, c = channels.Count; i < c; i++) {
                 FilterGraphNode oldLastNode = lastNodes[channels[i]];
                 if (addedTo.Contains(oldLastNode)) {
                     lastNodes[channels[i]] = oldLastNode.Children[^1]; // The channel pipelines were merged with a Copy filter
                 } else {
-                    lastNodes[channels[i]] = oldLastNode.AddChild(filter);
+                    lastNodes[channels[i]] = oldLastNode.AddChild(clone ? (Filter)filter.Clone() : filter);
+                    clone = true;
                     addedTo.Add(oldLastNode);
                 }
             }

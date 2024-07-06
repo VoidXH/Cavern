@@ -29,7 +29,7 @@ namespace Cavern.WPF.Utils {
         /// <summary>
         /// Convert a <see cref="Bitmap"/> to a format usable as a source for an <see cref="Image"/>.
         /// </summary>
-        public static BitmapSource ToImageSource(Bitmap bitmap) {
+        public static BitmapSource ToImageSource(this Bitmap bitmap) {
             IntPtr handle = bitmap.GetHbitmap();
             try {
                 return Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty,

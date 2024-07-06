@@ -4,6 +4,7 @@ using System.Windows.Input;
 
 using Cavern;
 using Cavern.Filters;
+using Cavern.QuickEQ.Equalization;
 using Cavern.WPF;
 
 using FilterStudio.Graphs;
@@ -38,6 +39,25 @@ namespace FilterStudio {
                 };
                 if (editor.ShowDialog().Value) {
                     FinalizeFilter(sender, editor.Filter);
+                }
+            } else {
+                Error(error);
+            }
+        }
+
+        /// <summary>
+        /// Add a new <see cref="GraphicEQ"/> to the graph.
+        /// </summary>
+        void AddGraphicEQ(object sender, RoutedEventArgs e) {
+            string error = PreFilterAddingChecks(sender);
+            if (error == null) {
+                Equalizer eq = new();
+                EQEditor editor = new(eq) {
+                    Background = Background,
+                    Resources = Resources
+                };
+                if (editor.ShowDialog().Value) {
+                    FinalizeFilter(sender, new GraphicEQ(eq, Listener.DefaultSampleRate));
                 }
             } else {
                 Error(error);

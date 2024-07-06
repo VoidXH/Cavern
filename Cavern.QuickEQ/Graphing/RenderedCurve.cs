@@ -43,15 +43,22 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
+        /// Apply the changes to the set <see cref="Curve"/> to the displayed graph and optionally <paramref name="redraw"/> it.
+        /// </summary>
+        public void Update(bool redraw) {
+            ReRenderFull();
+            if (redraw) {
+                Parent.DrawAll();
+            }
+        }
+
+        /// <summary>
         /// Change the <paramref name="curve"/> displayed by this unit of the graph,
         /// and optionally <paramref name="redraw"/> the entire graph.
         /// </summary>
         public void Update(Equalizer curve, bool redraw) {
             Curve = curve;
-            ReRenderFull();
-            if (redraw) {
-                Parent.DrawAll();
-            }
+            Update(redraw);
         }
 
         /// <summary>

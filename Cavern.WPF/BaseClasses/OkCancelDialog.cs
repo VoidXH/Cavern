@@ -16,6 +16,6 @@ namespace Cavern.WPF.BaseClasses {
         /// <summary>
         /// Closes the dialog with no change applied.
         /// </summary>
-        protected void Cancel(object _, RoutedEventArgs e) => Close();
+        protected virtual void Cancel(object _, RoutedEventArgs e) => Close();
     }
 }

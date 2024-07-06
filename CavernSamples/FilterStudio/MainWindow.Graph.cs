@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
+using Cavern.WPF;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
@@ -115,6 +117,10 @@ namespace FilterStudio {
         /// When selecting a node, open it for modification.
         /// </summary>
         void GraphLeftClick(object _) {
+            if (properties.ItemsSource is ObjectToDataGrid old) {
+                properties.BeginningEdit -= old.BeginningEdit;
+            }
+
             StyledNode node = graph.SelectedNode;
             if (node == null || node.Filter == null) {
                 selectedNode.Text = (string)language["NNode"];
@@ -123,9 +129,6 @@ namespace FilterStudio {
             }
 
             selectedNode.Text = node.LabelText;
-            if (properties.ItemsSource is ObjectToDataGrid old) {
-                properties.BeginningEdit -= old.BeginningEdit;
-            }
             ObjectToDataGrid propertySource = new ObjectToDataGrid(node.Filter.Filter, FilterPropertyChanged, e => Error(e.Message),
                 (typeof(Equalizer), EditEqualizer));
             properties.ItemsSource = propertySource;
@@ -145,6 +148,7 @@ namespace FilterStudio {
                     ((string)language["FGain"], (_, e) => AddGain(element, e)),
                     ((string)language["FDela"], (_, e) => AddDelay(element, e)),
                     ((string)language["FBiqu"], (_, e) => AddBiquad(element, e)),
+                    ((string)language["FGrEQ"], (_, e) => AddGraphicEQ(element, e)),
                     (null, null) // Separator for deletion
                 ];
             if (element is Node) {
@@ -200,8 +204,29 @@ namespace FilterStudio {
         /// Open the editor for an existing <see cref="Equalizer"/>.
         /// </summary>
         void EditEqualizer(object filter) {
-            Equalizer equalizer = (Equalizer)filter;
-            // TODO: editor
+            EQEditor editor = new((Equalizer)filter) {
+                Background = Background,
+                Resources = Resources
+            };
+            if (editor.ShowDialog().Value) {
+                StyledNode node = graph.SelectedNode;
+                ReloadGraph();
+                graph.SelectNode(node.Id);
+            }
+        }
+
+        /// <summary>
+        /// Apply localization to the headers of property editor columns.
+        /// </summary>
+        void OnPropertyColumnsGenerating(object _, DataGridAutoGeneratingColumnEventArgs e) {
+            switch (e.PropertyName) {
+                case nameof(PropertyDisplay.Property):
+                    e.Column.Header = (string)language["TProp"];
+                    break;
+                case nameof(PropertyDisplay.Value):
+                    e.Column.Header = (string)language["TValu"];
+                    break;
+            }
         }
     }
 }

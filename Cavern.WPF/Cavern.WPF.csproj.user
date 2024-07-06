@@ -8,12 +8,18 @@
     <Compile Update="ChannelSelector.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="EQEditor.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="BiquadEditor.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="ChannelSelector.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="EQEditor.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Resources\BiquadEditorStrings.hu-HU.xaml">
@@ -41,6 +47,12 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Resources\CrossoverStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\EQEditorStrings.hu-HU.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\EQEditorStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

@@ -60,6 +60,9 @@ namespace Cavern.Filters {
             new GraphicEQ(EQGenerator.FromEqualizerAPO(splitLine), sampleRate);
 
         /// <inheritdoc/>
+        public override object Clone() => new GraphicEQ((Equalizer)equalizer.Clone(), sampleRate);
+
+        /// <inheritdoc/>
         public override string ToString() {
             double roundedPeak = (int)(Equalizer.PeakGain * 100 + .5) * .01;
             return $"Graphic EQ: {Equalizer.Bands.Count} bands, {roundedPeak.ToString(CultureInfo.InvariantCulture)} dB peak";

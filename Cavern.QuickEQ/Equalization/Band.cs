@@ -6,7 +6,7 @@ namespace Cavern.QuickEQ.Equalization {
     /// </summary>
     public readonly struct Band : IComparable<Band> {
         /// <summary>
-        /// Position of the band.
+        /// Position of the band in Hz.
         /// </summary>
         public readonly double Frequency { get; }
         /// <summary>
