@@ -31,7 +31,7 @@ namespace Cavern.QuickEQ {
                 if (response != null) {
                     return response;
                 }
-                return response = Measurements.GetRealPart(ComplexResponse);
+                return response = Measurements.GetRealPart(ComplexResponse.IFFT());
             }
         }
         float[] response;

@@ -25,6 +25,11 @@ namespace Cavern.WPF.Consts {
         public static ResourceDictionary GetChannelSelectorStrings() => channelSelectorCache ??= GetFor("ChannelSelectorStrings");
 
         /// <summary>
+        /// Get the <see cref="ConvolutionEditor"/>'s translation.
+        /// </summary>
+        public static ResourceDictionary GetConvolutionEditorStrings() => convolutionEditorCache ??= GetFor("ConvolutionEditorStrings");
+
+        /// <summary>
         /// Get the translations related to crossover handling.
         /// </summary>
         public static ResourceDictionary GetCrossoverStrings() => crossoverCache ??= GetFor("CrossoverStrings");
@@ -33,6 +38,12 @@ namespace Cavern.WPF.Consts {
         /// Get the <see cref="EQEditor"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetEQEditorStrings() => eqEditorCache ??= GetFor("EQEditorStrings");
+
+        /// <summary>
+        /// Show an error <paramref name="message"/> with the title in the user's language.
+        /// </summary>
+        public static void Error(string message) =>
+            MessageBox.Show(message, (string)GetCommonStrings()["TErro"], MessageBoxButton.OK, MessageBoxImage.Error);
 
         /// <summary>
         /// Return a channel's name in the user's language or fall back to its short name.
@@ -110,6 +121,11 @@ namespace Cavern.WPF.Consts {
         /// The loaded translation of the <see cref="ChannelSelector"/> for reuse.
         /// </summary>
         static ResourceDictionary channelSelectorCache;
+
+        /// <summary>
+        /// The loaded translation of the <see cref="ConvolutionEditor"/> for reuse.
+        /// </summary>
+        static ResourceDictionary convolutionEditorCache;
 
         /// <summary>
         /// The loaded translation of crossover handling for reuse.

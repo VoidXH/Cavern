@@ -43,7 +43,10 @@ namespace Cavern.Filters {
         /// <param name="sampleRate">Sample rate at which this EQ is converted to a minimum-phase FIR filter</param>
         /// <param name="filterLength">Number of samples in the generated convolution filter, must be a power of 2</param>
         public GraphicEQ(Equalizer equalizer, int sampleRate, int filterLength) :
-            base(equalizer.GetConvolution(sampleRate, filterLength)) => this.equalizer = equalizer;
+            base(equalizer.GetConvolution(sampleRate, filterLength)) {
+            this.equalizer = equalizer;
+            this.sampleRate = sampleRate;
+        }
 
         /// <summary>
         /// Parse a Graphic EQ line of Equalizer APO to a Cavern <see cref="GraphicEQ"/> filter.

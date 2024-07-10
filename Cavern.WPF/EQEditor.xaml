@@ -4,8 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:base="clr-namespace:Cavern.WPF.BaseClasses"
+        xmlns:cavern="clr-namespace:Cavern.WPF.Controls"
         mc:Ignorable="d"
-        Title="{StaticResource Title}" Width="600" Height="300" SizeChanged="OnResize">
+        Title="{StaticResource Title}" Width="600" Height="300">
     <Window.Resources>
         <d:ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -19,10 +20,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Image Name="image" MinWidth="300" MinHeight="200"/>
+        <cavern:GraphRendererControl x:Name="image"/>
         <DataGrid Name="bands" Margin="0,0,0,40" Grid.Column="1" CanUserReorderColumns="False" CanUserResizeRows="False"
                   CanUserSortColumns="False" ColumnWidth="*" AutoGeneratingColumn="OnPropertyColumnsGenerating"/>
         <Button Grid.Column="1" Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"

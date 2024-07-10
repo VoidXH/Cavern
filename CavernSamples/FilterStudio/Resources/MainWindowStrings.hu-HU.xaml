@@ -14,6 +14,7 @@
     <system:String x:Key="FDela">_Késleltetés</system:String>
     <system:String x:Key="FBiqu">E_gyszerű parametrikus szűrő...</system:String>
     <system:String x:Key="FGrEQ">_Grafikus EQ...</system:String>
+    <system:String x:Key="FConv">K_onvolúció...</system:String>
     <system:String x:Key="OpDel">Kiválasztott szűrő _törlése</system:String>
     <system:String x:Key="CoDel">_Törlés</system:String>
 

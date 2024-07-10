@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fs="clr-namespace:FilterStudio.Graphs"
         mc:Ignorable="d"
-        Title="Cavern Filter Studio" Width="1024" Height="768" Background="#696969">
+        Title="Cavern Filter Studio" Width="1024" Height="768" WindowState="Maximized" Background="#696969">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -36,6 +36,7 @@
                 <MenuItem Header="{StaticResource FDela}" Click="AddDelay"/>
                 <MenuItem Header="{StaticResource FBiqu}" Click="AddBiquad"/>
                 <MenuItem Header="{StaticResource FGrEQ}" Click="AddGraphicEQ"/>
+                <MenuItem Header="{StaticResource FConv}" Click="AddConvolution"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpDel}" Click="DeleteNode"/>
             </MenuItem>

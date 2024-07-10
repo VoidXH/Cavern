@@ -62,7 +62,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Get the gains of frequencies in a signal after FFT.
+        /// Get the angles of frequencies in a signal after FFT.
         /// </summary>
         public static float[] GetPhase(Complex[] samples) {
             float[] output = new float[samples.Length / 2];

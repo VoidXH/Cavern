@@ -65,6 +65,21 @@ namespace FilterStudio {
         }
 
         /// <summary>
+        /// Add a new <see cref="FastConvolver"/> to the graph.
+        /// </summary>
+        void AddConvolution(object sender, RoutedEventArgs e) {
+            string error = PreFilterAddingChecks(sender);
+            if (error == null) {
+                ConvolutionEditor editor = new(null, Listener.DefaultSampleRate);
+                if (editor.ShowDialog().Value && editor.Impulse != null) {
+                    FinalizeFilter(sender, new FastConvolver(editor.Impulse));
+                }
+            } else {
+                Error(error);
+            }
+        }
+
+        /// <summary>
         /// Checks to perform before a filter can be added. If an error happens, returns its message, otherwise null.
         /// </summary>
         string PreFilterAddingChecks(object sender) {

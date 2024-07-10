@@ -11,9 +11,10 @@
     <system:String x:Key="FShif">_Add in parallel (same as holding Shift)</system:String>
     <system:String x:Key="FLabe">_Label</system:String>
     <system:String x:Key="FGain">_Gain</system:String>
-    <system:String x:Key="FDela">_Delay</system:String>
+    <system:String x:Key="FDela">Dela_y</system:String>
     <system:String x:Key="FBiqu">_Basic parametric filter...</system:String>
     <system:String x:Key="FGrEQ">Graphic _EQ...</system:String>
+    <system:String x:Key="FConv">_Convolution...</system:String>
     <system:String x:Key="OpDel">_Delete selected filter</system:String>
     <system:String x:Key="CoDel">_Delete</system:String>
 

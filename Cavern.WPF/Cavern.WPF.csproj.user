@@ -8,6 +8,12 @@
     <Compile Update="ChannelSelector.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Controls\GraphRendererControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="ConvolutionEditor.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="EQEditor.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -17,6 +23,12 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="ChannelSelector.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Controls\GraphRendererControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ConvolutionEditor.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="EQEditor.xaml">
@@ -41,6 +53,12 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Resources\CommonStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\ConvolutionEditorStrings.hu-HU.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\ConvolutionEditorStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Resources\CrossoverStrings.hu-HU.xaml">

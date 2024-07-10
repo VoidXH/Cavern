@@ -17,7 +17,7 @@ namespace Cavern.Filters {
         /// </summary>
         public float[] Impulse {
             get => Measurements.GetRealPartHalf(filter.IFFT(cache)); // The setter doubles the length
-            protected set {
+            set {
                 Dispose();
                 if (CavernAmp.Available && CavernAmp.IsMono()) { // CavernAmp only improves performance when the runtime has no SIMD
                     native = CavernAmp.FastConvolver_Create(value, delay);

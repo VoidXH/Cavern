@@ -94,6 +94,14 @@ namespace Cavern.WPF.Utils {
         }
 
         /// <summary>
+        /// Handle the Delete key.
+        /// </summary>
+        protected override void RemoveItem(int index) {
+            source.RemoveBand(source.Bands[index]);
+            Reload();
+        }
+
+        /// <summary>
         /// Called when the user has added a new <see cref="Band"/> to the <see cref="Equalizer"/>. Because at this point,
         /// the <see cref="BandProxy"/> doesn't have its values set, a commit has to be forced to do it.
         /// </summary>
@@ -112,7 +120,7 @@ namespace Cavern.WPF.Utils {
         /// Handle when the user wants to delete the selected band by pressing Backspace or Delete.
         /// </summary>
         void KeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Back || e.Key == Key.Delete) {
+            if (e.Key == Key.Back) {
                 DataGrid dataGrid = (DataGrid)sender;
                 if (dataGrid.SelectedItem is BandProxy proxy) {
                     source.RemoveBand(proxy.ToBand());

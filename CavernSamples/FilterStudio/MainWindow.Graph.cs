@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
+using Cavern;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.Equalization;
@@ -130,7 +131,8 @@ namespace FilterStudio {
 
             selectedNode.Text = node.LabelText;
             ObjectToDataGrid propertySource = new ObjectToDataGrid(node.Filter.Filter, FilterPropertyChanged, e => Error(e.Message),
-                (typeof(Equalizer), EditEqualizer));
+                (typeof(Equalizer), EditEqualizer),
+                (typeof(float[]), EditConvolution));
             properties.ItemsSource = propertySource;
             properties.BeginningEdit += propertySource.BeginningEdit;
         }
@@ -149,6 +151,7 @@ namespace FilterStudio {
                     ((string)language["FDela"], (_, e) => AddDelay(element, e)),
                     ((string)language["FBiqu"], (_, e) => AddBiquad(element, e)),
                     ((string)language["FGrEQ"], (_, e) => AddGraphicEQ(element, e)),
+                    ((string)language["FConv"], (_, e) => AddConvolution(element, e)),
                     (null, null) // Separator for deletion
                 ];
             if (element is Node) {
@@ -210,8 +213,31 @@ namespace FilterStudio {
             };
             if (editor.ShowDialog().Value) {
                 StyledNode node = graph.SelectedNode;
+                if (node.Filter.Filter is GraphicEQ eq) {
+                    eq.Equalizer = eq.Equalizer;
+                }
                 ReloadGraph();
                 graph.SelectNode(node.Id);
+            }
+        }
+
+        /// <summary>
+        /// Open the editor for an existing set of convolution samples. If a node is selected, its <see cref="Convolver"/> or
+        /// <see cref="FastConvolver"/> filter can be updated.
+        /// </summary>
+        void EditConvolution(object convolution) {
+            float[] samples = (float[])convolution;
+            ConvolutionEditor editor = new(samples, Listener.DefaultSampleRate) {
+                Background = Background,
+                Resources = Resources
+            };
+            if (editor.ShowDialog().Value) {
+                FilterGraphNode node = graph.SelectedNode.Filter;
+                if (node.Filter is Convolver convolver) {
+                    convolver.Impulse = editor.Impulse;
+                } else if (node.Filter is FastConvolver fastConvolver) {
+                    fastConvolver.Impulse = editor.Impulse;
+                }
             }
         }
 
