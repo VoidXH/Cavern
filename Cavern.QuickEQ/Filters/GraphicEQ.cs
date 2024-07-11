@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 using Cavern.QuickEQ.Equalization;
 
@@ -23,6 +24,24 @@ namespace Cavern.Filters {
             }
         }
         Equalizer equalizer;
+
+        /// <summary>
+        /// Get a clone of the <see cref="filter"/>'s impulse response.
+        /// </summary>
+        [IgnoreDataMember]
+        public new float[] Impulse {
+            get => base.Impulse;
+            set => base.Impulse = value;
+        }
+
+        /// <summary>
+        /// Added filter delay to the impulse, in samples.
+        /// </summary>
+        [IgnoreDataMember]
+        public new int Delay {
+            get => base.Delay;
+            set => base.Delay = value;
+        }
 
         /// <summary>
         /// Sample rate at which this EQ is converted to a minimum-phase FIR filter.

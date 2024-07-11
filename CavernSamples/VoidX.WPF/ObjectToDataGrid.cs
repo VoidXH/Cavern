@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Windows.Controls;
 
 using FilterStudio;
@@ -122,6 +123,10 @@ namespace VoidX.WPF {
             PropertyInfo[] properties = source.GetType().GetProperties();
             for (int i = 0; i < properties.Length; i++) {
                 PropertyInfo property = properties[i];
+                if (property.GetCustomAttribute<IgnoreDataMemberAttribute>() != null) {
+                    continue;
+                }
+
                 if (property.SetMethod != null && property.SetMethod.IsPublic) {
                     (Type type, Action<object> editor) = customFields.FirstOrDefault(x => x.type == property.PropertyType);
                     if (editor == null) {
