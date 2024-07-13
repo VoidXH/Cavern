@@ -265,6 +265,7 @@
     </Style>
     <Style TargetType="DataGrid">
         <Setter Property="Background" Value="#696969"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="HorizontalGridLinesBrush" Value="White"/>
         <Setter Property="VerticalGridLinesBrush" Value="White"/>
@@ -272,13 +273,23 @@
     <Style TargetType="DataGridCell">
         <Setter Property="Background" Value="#696969"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="1"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="1,6,0,6"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type DataGridCell}">
+                    <Border Padding="{TemplateBinding Padding}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
     <Style TargetType="DataGridColumnHeader">
         <Setter Property="Background" Value="#353535"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Padding" Value="3,8,0,8"/>
+        <Setter Property="Padding" Value="4,8,0,8"/>
     </Style>
     <Style TargetType="DataGridRowHeader">
         <Setter Property="Width" Value="0"/>
