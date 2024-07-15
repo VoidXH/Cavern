@@ -1,7 +1,9 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
+using Cavern.Filters.Interfaces;
 using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.Filters {
@@ -10,7 +12,7 @@ namespace Cavern.Filters {
     /// </summary>
     /// <remarks>This filter is part of the Cavern.QuickEQ library and is not available in the Cavern library's Filters namespace,
     /// because it requires QuickEQ library functions.</remarks>
-    public class GraphicEQ : FastConvolver {
+    public class GraphicEQ : FastConvolver, IEqualizerAPOFilter {
         /// <summary>
         /// Copy of the equalizer curve for further alignment.
         /// </summary>
@@ -83,6 +85,9 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => new GraphicEQ((Equalizer)equalizer.Clone(), sampleRate);
+
+        /// <inheritdoc/>
+        public void ExportToEqualizerAPO(List<string> wipConfig) => wipConfig.Add(equalizer.ExportToEqualizerAPO());
 
         /// <inheritdoc/>
         public override string ToString() {

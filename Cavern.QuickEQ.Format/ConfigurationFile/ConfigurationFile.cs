@@ -88,7 +88,15 @@ namespace Cavern.Format.ConfigurationFile {
             };
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Export this configuration to a target file. The general formula for most formats is:
+        /// <list type="bullet">
+        ///     <item>Get the filters in exportable order with <see cref="GetExportOrder"/>. This guarantees that all filters will be
+        ///     handled in an order where all their parents were already exported.</item>
+        ///     <item>For each entry, the parent channel indices can be queried with <see cref="GetExportedParents"/>. Handling parent
+        ///     connections shall be before exporting said filter, because the filter is between the parents and children.</item>
+        /// </list>
+        /// </summary>
         public abstract void Export(string path);
 
         /// <summary>
@@ -282,6 +290,20 @@ namespace Cavern.Format.ConfigurationFile {
             result.OptimizeChannelUse();
             return result;
         }
+
+        /// <summary>
+        /// Get the channels of the <see cref="FilterGraphNode"/> at a given <paramref name="index"/> in an <paramref name="exportOrder"/>
+        /// created with <see cref="GetExportOrder"/>.
+        /// </summary>
+        protected int[] GetExportedParents((FilterGraphNode node, int channel)[] exportOrder, int index) =>
+            exportOrder[index].node.Parents.Select(x => {
+                for (int i = 0; i < exportOrder.Length; i++) {
+                    if (exportOrder[i].node == x) {
+                        return exportOrder[i].channel;
+                    }
+                }
+                throw new KeyNotFoundException();
+            }).ToArray();
 
         /// <summary>
         /// Remove as many merge nodes (null filters) as possible.

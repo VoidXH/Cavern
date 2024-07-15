@@ -6,6 +6,7 @@ using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
 using Cavern.Utilities;
@@ -41,7 +42,56 @@ namespace Cavern.Format.ConfigurationFile {
 
         /// <inheritdoc/>
         public override void Export(string path) {
-            throw new NotImplementedException();
+            string GetChannelLabel(int channel) { // Convert index to label
+                if (channel < 0) {
+                    return "V" + -channel;
+                } else {
+                    return InputChannels[channel].name;
+                }
+            }
+
+            List<string> result = new List<string>();
+            void AppendSelector(string newLine) { // Add this step, and overwrite the previous line if it selected an unfiltered channel
+                int last = result.Count - 1;
+                if (last != -1 && result[last].StartsWith(channelFilter)) {
+                    result[last] = newLine; // No filter comes after this selector, overwrite it
+                } else {
+                    result.Add(newLine);
+                }
+            }
+
+            (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
+            int lastChannel = int.MaxValue;
+            for (int i = 0; i < exportOrder.Length; i++) {
+                int channel = exportOrder[i].channel;
+                int[] parents = GetExportedParents(exportOrder, i);
+                if (parents.Length == 0 || (parents.Length == 1 && parents[0] == channel)) {
+                    // If there are no parents or the single parent is from the same channel, don't mix
+                } else {
+                    AppendSelector($"Copy: {GetChannelLabel(channel)}={string.Join('+', parents.Select(GetChannelLabel))}");
+                }
+
+                if (channel != lastChannel) { // When the channel has changed, select it
+                    AppendSelector(channelFilter + GetChannelLabel(channel));
+                    lastChannel = channel;
+                }
+
+                Filter baseFilter = exportOrder[i].node.Filter;
+                if (baseFilter == null || baseFilter is BypassFilter) {
+                    continue;
+                }
+                if (baseFilter is IEqualizerAPOFilter filter) {
+                    filter.ExportToEqualizerAPO(result);
+                } else {
+                    throw new NotEqualizerAPOFilterException(baseFilter);
+                }
+            }
+
+            int last = result.Count - 1;
+            if (last != -1 && result[last].StartsWith(channelFilter)) {
+                result.RemoveAt(last); // A selector of a bypass might remain
+            }
+            File.WriteAllLines(path, result);
         }
 
         /// <summary>
@@ -166,5 +216,10 @@ namespace Cavern.Format.ConfigurationFile {
         /// Default initial channels in Equalizer APO.
         /// </summary>
         static readonly string[] channelLabels = { "L", "R", "C", "SUB", "RL", "RR", "SL", "SR" };
+
+        /// <summary>
+        /// Prefix for channel selection lines in an Equalizer APO configuration file.
+        /// </summary>
+        const string channelFilter = "Channel: ";
     }
 }

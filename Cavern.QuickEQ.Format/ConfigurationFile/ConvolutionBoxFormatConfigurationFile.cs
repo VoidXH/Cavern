@@ -137,23 +137,17 @@ namespace Cavern.Format.ConfigurationFile {
             ValidateForExport();
             (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
             List<CBFEntry> entries = new List<CBFEntry>();
-
-            int GetIndex(FilterGraphNode node) { // Get filter index by node
-                for (int i = 0; i < exportOrder.Length; i++) {
-                    if (exportOrder[i].node == node) {
-                        return exportOrder[i].channel;
-                    }
-                }
-                throw new KeyNotFoundException();
-            }
-
             for (int i = 0; i < exportOrder.Length; i++) {
                 int channel = exportOrder[i].channel;
                 // Keeping only incoming nodes is a full solution - optimizing for that few bytes of space would be possible if you're bored
-                int[] parents = exportOrder[i].node.Parents.Select(x => GetIndex(x)).ToArray();
-                MatrixEntry mixer = new MatrixEntry();
-                mixer.Expand(parents, channel);
-                entries.Add(mixer);
+                int[] parents = GetExportedParents(exportOrder, i);
+                if (parents.Length == 0 || (parents.Length == 1 && parents[0] == channel)) {
+                    // If there are no parents or the single parent is from the same channel, don't mix
+                } else {
+                    MatrixEntry mixer = new MatrixEntry();
+                    mixer.Expand(parents, channel);
+                    entries.Add(mixer);
+                }
 
                 Filter filter = exportOrder[i].node.Filter;
                 if (filter is FastConvolver fastConvolver) {

@@ -49,6 +49,30 @@ namespace Cavern.Filters.Utilities {
         /// </summary>
         /// <param name="mapping">Node - channel mapping to optimize, virtual channels take negative indices</param>
         public static void OptimizeChannelUse(this (FilterGraphNode node, int channel)[] mapping) {
+            // Trivial: if a member's only parent is before it, don't assign it to a new virtual channel
+            int lowestChannel = 0;
+            for (int i = 0; i < mapping.Length; i++) {
+                if (mapping[i].channel >= 0) {
+                    continue; // Don't touch already assigned physical channels
+                }
+
+                FilterGraphNode node = mapping[i].node;
+                if (node.Parents.Count == 1) {
+                    FilterGraphNode parent = node.Parents[0];
+                    if (parent.Children.Count == 1 && parent.Children[0] == node) {
+                        for (int j = i - 1; j >= 0; j--) {
+                            if (mapping[j].node == parent) {
+                                mapping[i].channel = mapping[j].channel;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (mapping[i].channel < lowestChannel) { // Erases gaps in virtual channel indices
+                    mapping[i].channel = --lowestChannel;
+                }
+            }
+
             int virtualChannels = -mapping.Min(x => x.channel);
 
             // Partition channels to "time" intervals (mapping indices)

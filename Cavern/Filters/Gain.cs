@@ -63,7 +63,7 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public void ExportToEqualizerAPO(List<string> wipConfig) =>
-            wipConfig.Add($"Gain: {GainValue.ToString(CultureInfo.InvariantCulture)} dB");
+            wipConfig.Add($"Preamp: {GainValue.ToString(CultureInfo.InvariantCulture)} dB");
 
         /// <inheritdoc/>
         public string ToString(CultureInfo culture) => culture.Name switch {
