@@ -16,6 +16,9 @@
     <Compile Update="Windows\PipelineSteps\CrossoverSetup.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Windows\RenameDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="..\VoidX.WPF\NumericUpDown.xaml">
@@ -42,6 +45,12 @@
     <Page Update="Resources\MainWindowStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Resources\RenameDialogStrings.hu-HU.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources\RenameDialogStrings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Windows\ConvolutionLengthDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -49,6 +58,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Windows\PipelineSteps\CrossoverSetup.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Windows\RenameDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

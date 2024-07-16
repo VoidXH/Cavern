@@ -25,14 +25,17 @@
     <system:String x:Key="SOpBT">_Bottom to top</system:String>
     <system:String x:Key="SOpRL">_Right to left</system:String>
     <system:String x:Key="OpRec">_Recenter</system:String>
-    <system:String x:Key="OpCon">_Convert to convolution... (merging, irreversible)</system:String>
+    <system:String x:Key="OpCon">_Convert to convolution... (filter merging, irreversible)</system:String>
 
     <system:String x:Key="MPipe">Filter _sets</system:String>
     <system:String x:Key="OpAdP">_Add empty set before the selected set</system:String>
     <system:String x:Key="OpAdC">Add c_rossover before the selected set...</system:String>
     <system:String x:Key="LabXO">Crossover</system:String>
+    <system:String x:Key="OpMer">_Merge all sets (irreversible)</system:String>
     <system:String x:Key="OpCle">_Clear selected set</system:String>
     <system:String x:Key="CoCle">_Clear</system:String>
+    <system:String x:Key="OpRen">_Rename selected set</system:String>
+    <system:String x:Key="CoRen">_Rename</system:String>
     <system:String x:Key="OpDeP">_Delete selected set</system:String>
 
     <system:String x:Key="MHelp">_Help</system:String>

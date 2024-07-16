@@ -5,11 +5,12 @@ using System.Linq;
 using System.Windows;
 
 using Cavern;
+using Cavern.Filters;
 using Cavern.Format.ConfigurationFile.Presets;
-using Cavern.QuickEQ.Crossover;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
+using FilterStudio.Windows;
 using FilterStudio.Windows.PipelineSteps;
 
 namespace FilterStudio {
@@ -39,46 +40,55 @@ namespace FilterStudio {
         });
 
         /// <summary>
+        /// Merge all pipeline steps to one.
+        /// </summary>
+        void MergeSteps(object _, RoutedEventArgs e) {
+            pipeline.Source.MergeSplitPoints();
+            Reload(null, null);
+        }
+
+        /// <summary>
+        /// Rename the currently selected pipeline step through a popup.
+        /// </summary>
+        void RenameStep(object sender, RoutedEventArgs e) => PipelineAction(sender, uid => {
+            RenameDialog rename = new RenameDialog(pipeline.Source.SplitPoints[uid].name);
+            if (rename.ShowDialog().Value) {
+                pipeline.Source.RenameSplitPoint(uid, rename.NewName);
+            }
+        });
+
+        /// <summary>
         /// Clear the currently selected pipeline step (remove all its filters).
         /// </summary>
-        void ClearStep(object sender, RoutedEventArgs e) {
-            StyledNode node = pipeline.GetSelectedNode(sender);
-            if (node == null) {
-                Error((string)language["NPNod"]);
-                return;
-            }
-
-            if (int.TryParse(node.Id, out int uid)) {
-                pipeline.Source.ClearSplitPoint(uid);
-            } else {
-                Error((string)language["NPiSi"]);
-                return;
-            }
-            ReloadGraph(); // Force a reload of the filter graph
-        }
+        void ClearStep(object sender, RoutedEventArgs e) => PipelineAction(sender, pipeline.Source.ClearSplitPoint);
 
         /// <summary>
         /// Delete the currently selected step from the pipeline.
         /// </summary>
-        void DeleteStep(object sender, RoutedEventArgs e) {
+        void DeleteStep(object sender, RoutedEventArgs e) => PipelineAction(sender, uid => {
+            try {
+                pipeline.Source.RemoveSplitPoint(uid);
+            } catch (IndexOutOfRangeException) {
+                Error((string)language["NLaSP"]);
+            }
+        });
+
+        /// <summary>
+        /// Perform an action on a pipeline step, then reload both the pipeline and the graph.
+        /// </summary>
+        /// <param name="sender">Either the selection from the graph or the menu item initializing the operation</param>
+        /// <param name="action">What should happen with the pipeline step by its uid</param>
+        void PipelineAction(object sender, Action<int> action) {
             StyledNode node = pipeline.GetSelectedNode(sender);
             if (node == null) {
                 Error((string)language["NPNod"]);
-                return;
-            }
-
-            try {
-                pipeline.Source.RemoveSplitPoint(node.LabelText);
-            } catch (ArgumentOutOfRangeException) {
+            } else if (int.TryParse(node.Id, out int uid)) {
+                action(uid);
+                Reload(null, null);
+                pipeline.SelectNode(uid.ToString()); // Reselect the previously selected node if it's still present
+            } else {
                 Error((string)language["NPiSi"]);
-                return;
-            } catch (IndexOutOfRangeException) {
-                Error((string)language["NLaSP"]);
-                return;
             }
-
-            pipeline.Source = pipeline.Source; // Force a reload of the pipeline graph
-            ReloadGraph(); // Force a reload of the filter graph
         }
 
         /// <summary>
@@ -103,8 +113,8 @@ namespace FilterStudio {
             }
 
             if (addBeforeUid(uid)) {
-                pipeline.Source = pipeline.Source; // Force a reload of the pipeline graph
-                pipeline.SelectNode(uid.ToString()); // Force a reload of the filter graph on the new step
+                Reload(null, null);
+                pipeline.SelectNode(uid.ToString()); // Select the new step
             }
         }
 
@@ -120,6 +130,7 @@ namespace FilterStudio {
                 ((string)language["OpAdP"], (_, e) => AddStep(element, e)),
                 ((string)language["OpAdC"], (_, e) => AddCrossover(element, e)),
                 (null, null), // Separator for deletion
+                ((string)language["CoRen"], (_, e) => RenameStep(element, e)),
                 ((string)language["CoCle"], (_, e) => ClearStep(element, e)),
                 ((string)language["CoDel"], (_, e) => DeleteStep(element, e))
             ];

@@ -44,6 +44,9 @@
                 <MenuItem Header="{StaticResource OpAdP}" Click="AddStep"/>
                 <MenuItem Header="{StaticResource OpAdC}" Click="AddCrossover"/>
                 <Separator/>
+                <MenuItem Header="{StaticResource OpMer}" Click="MergeSteps"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource OpRen}" Click="RenameStep"/>
                 <MenuItem Header="{StaticResource OpCle}" Click="ClearStep"/>
                 <MenuItem Header="{StaticResource OpDeP}" Click="DeleteStep"/>
             </MenuItem>
@@ -54,7 +57,7 @@
                     <MenuItem Name="dirBT" Header="{StaticResource SOpBT}" IsCheckable="True" Click="SetDirectionBT"/>
                     <MenuItem Name="dirRL" Header="{StaticResource SOpRL}" IsCheckable="True" Click="SetDirectionRL"/>
                 </MenuItem>
-                <MenuItem Header="{StaticResource OpRec}" Click="Recenter"/>
+                <MenuItem Header="{StaticResource OpRec}" Click="Reload"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpCon}" Click="ConvertToConvolution"/>
             </MenuItem>

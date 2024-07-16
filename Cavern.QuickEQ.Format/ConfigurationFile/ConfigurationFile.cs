@@ -145,13 +145,6 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
-        /// Clears all filters in one of the <see cref="SplitPoints"/> by <paramref name="name"/>.
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">The <paramref name="name"/> was not found
-        /// among the <see cref="SplitPoints"/></exception>
-        public void ClearSplitPoint(string name) => ClearSplitPoint(GetSplitPointIndexByName(name));
-
-        /// <summary>
         /// Remove any splits, leave only one continuous graph of filters.
         /// </summary>
         public void MergeSplitPoints() {
@@ -169,6 +162,11 @@ namespace Cavern.Format.ConfigurationFile {
             }
             splitPoints.RemoveRange(1, SplitPoints.Count - 1);
         }
+
+        /// <summary>
+        /// Change the <paramref name="name"/> of an existing split point at a given <paramref name="index"/>.
+        /// </summary>
+        public void RenameSplitPoint(int index, string name) => splitPoints[index] = (name, splitPoints[index].roots);
 
         /// <summary>
         /// Get the index of a given <paramref name="channel"/> in the configuration. This is the input and output it's wired to.
@@ -226,15 +224,6 @@ namespace Cavern.Format.ConfigurationFile {
             }
             splitPoints.RemoveAt(index);
         }
-
-        /// <summary>
-        /// Removes one of the <see cref="SplitPoints"/> by <paramref name="name"/> and clears all the filters it contains.
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">The <paramref name="name"/> was not found
-        /// among the <see cref="SplitPoints"/></exception>
-        /// <exception cref="IndexOutOfRangeException">The last split point can't be removed. To bypass this restriction,
-        /// you could add an empty split point and remove the previous last one.</exception>
-        public void RemoveSplitPoint(string name) => RemoveSplitPoint(GetSplitPointIndexByName(name));
 
         /// <summary>
         /// Adds an entry to the <see cref="SplitPoints"/> with the current state of the configuration, creating new
@@ -340,20 +329,6 @@ namespace Cavern.Format.ConfigurationFile {
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Get the index in the <see cref="SplitPoints"/> list by a split point's <paramref name="name"/>.
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">The <paramref name="name"/> was not found
-        /// among the <see cref="SplitPoints"/></exception>
-        int GetSplitPointIndexByName(string name) {
-            for (int i = 0, c = SplitPoints.Count; i < c; i++) {
-                if (SplitPoints[i].name == name) {
-                    return i;
-                }
-            }
-            throw new ArgumentOutOfRangeException(nameof(name));
         }
     }
 }

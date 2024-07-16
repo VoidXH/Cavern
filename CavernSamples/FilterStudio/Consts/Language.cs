@@ -24,8 +24,12 @@ namespace FilterStudio.Consts {
         /// <summary>
         /// Get the <see cref="CrossoverDialog"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetCrossoverDialogStrings() =>
-            crossoverDialogCache ??= GetFor("CrossoverDialogStrings");
+        public static ResourceDictionary GetCrossoverDialogStrings() => crossoverDialogCache ??= GetFor("CrossoverDialogStrings");
+
+        /// <summary>
+        /// Get the <see cref="RenameDialog"/>'s translation.
+        /// </summary>
+        public static ResourceDictionary GetRenameDialogStrings() => renameDialogCache ??= GetFor("RenameDialogStrings");
 
         /// <summary>
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
@@ -58,5 +62,10 @@ namespace FilterStudio.Consts {
         /// The loaded translation of the <see cref="CrossoverDialog"/> for reuse.
         /// </summary>
         static ResourceDictionary crossoverDialogCache;
+
+        /// <summary>
+        /// The loaded translation of the <see cref="RenameDialog"/> for reuse.
+        /// </summary>
+        static ResourceDictionary renameDialogCache;
     }
 }

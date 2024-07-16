@@ -25,14 +25,17 @@
     <system:String x:Key="SOpBT">_Lentről fel</system:String>
     <system:String x:Key="SOpRL">_Jobbról balra</system:String>
     <system:String x:Key="OpRec">_Középre mozgatás</system:String>
-    <system:String x:Key="OpCon">K_onvertálás konvolúcióvá... (egyesítés, visszavonhatatlan)</system:String>
+    <system:String x:Key="OpCon">K_onvertálás konvolúcióvá... (szűrőegyesítés, visszavonhatatlan)</system:String>
 
     <system:String x:Key="MPipe">Szű_rőszettek</system:String>
     <system:String x:Key="OpAdP">Ü_res szett hozzáadása a kiválasztott szett elé</system:String>
     <system:String x:Key="OpAdC">K_eresztváltó hozzáadása a kiválasztott szett elé...</system:String>
     <system:String x:Key="LabXO">Keresztváltó</system:String>
+    <system:String x:Key="OpMer">_Összes szett egyesítése (visszavonhatatlan)</system:String>
     <system:String x:Key="OpCle">Kiválasztott szett _kiürítése</system:String>
     <system:String x:Key="CoCle">_Kiürítés</system:String>
+    <system:String x:Key="OpRen">Kiválasztott szett _átnevezése</system:String>
+    <system:String x:Key="CoRen">_Átnevezés</system:String>
     <system:String x:Key="OpDeP">Kiválasztott szett _törlése</system:String>
 
     <system:String x:Key="MHelp">Sú_gó</system:String>
