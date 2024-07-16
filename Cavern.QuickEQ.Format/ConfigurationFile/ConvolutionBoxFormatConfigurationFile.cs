@@ -122,7 +122,7 @@ namespace Cavern.Format.ConfigurationFile {
                 if (node.Key >= 0) {
                     // TODO: many points make input or output channels from channels, create them from names instead
                     OutputChannel outputFilter = new OutputChannel(((InputChannel)inputChannels[node.Key].root.Filter).ChannelName);
-                    if (node.Value.Filter == null) {
+                    if (node.Value.Filter == null && node.Value.Children.Count == 0) { // Only overwrite dead ends with outputs
                         node.Value.Filter = outputFilter;
                     } else {
                         node.Value.AddChild(outputFilter);
