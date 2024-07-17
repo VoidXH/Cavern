@@ -1,7 +1,10 @@
 ﻿using Microsoft.Msagl.Drawing;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,8 +13,11 @@ using System.Windows.Media;
 using Cavern;
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
+using Cavern.Format.Utilities;
+using Cavern.Utilities;
 using Cavern.WPF;
 
 using FilterStudio.Graphs;
@@ -22,6 +28,11 @@ namespace FilterStudio {
     /// Main window of Cavern Filter Studio.
     /// </summary>
     public partial class MainWindow : Window {
+        /// <summary>
+        /// The currently selected project sample rate.
+        /// </summary>
+        int SampleRate => (int)sampleRate.SelectedItem;
+
         /// <summary>
         /// Source of language strings.
         /// </summary>
@@ -59,8 +70,16 @@ namespace FilterStudio {
             SetInstructions(null, null);
             SetDirection((LayerDirection)Settings.Default.graphDirection);
             channels = ReferenceChannelExtensions.FromMask(Settings.Default.channels);
+            sampleRate.ItemsSource = sampleRates;
+            sampleRate.SelectedItem = Settings.Default.sampleRate;
             Settings.Default.SettingChanging += (_, e) => settingChanged |= !Settings.Default[e.SettingName].Equals(e.NewValue);
         }
+
+        /// <summary>
+        /// If a filter can be translated to the user's language, return that instead of a regular ToString.
+        /// </summary>
+        static string FilterToString(Filter filter) =>
+            filter is ILocalizableToString loc ? loc.ToString(CultureInfo.CurrentCulture) : filter.ToString();
 
         /// <summary>
         /// Displays an error message.
@@ -68,11 +87,18 @@ namespace FilterStudio {
         static void Error(string message) => MessageBox.Show(message, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
 
         /// <summary>
+        /// Warns the user about something potentially destructive happening, and asks them if they want to continue.
+        /// </summary>
+        static bool Warning(string question) =>
+            MessageBox.Show(question, (string)language["Warni"], MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
+
+        /// <summary>
         /// Save persistent settings on quit.
         /// </summary>
         protected override void OnClosed(EventArgs e) {
             Settings.Default.showInstructions = showInstructions.IsChecked;
             Settings.Default.graphDirection = (byte)graphDirection;
+            Settings.Default.sampleRate = (int)sampleRate.SelectedItem;
             if (settingChanged) {
                 Settings.Default.Save();
             }
@@ -96,12 +122,28 @@ namespace FilterStudio {
             };
             if (dialog.ShowDialog().Value) {
                 try {
-                    // TODO: magic number check instead
-                    if (dialog.FileName.EndsWith(".cbf")) {
-                        pipeline.Source = new ConvolutionBoxFormatConfigurationFile(dialog.FileName);
-                    } else {
-                        pipeline.Source = new EqualizerAPOConfigurationFile(dialog.FileName, Listener.DefaultSampleRate);
+                    ConfigurationFileType type = ConfigurationFileType.EqualizerAPO;
+                    using (FileStream file = File.OpenRead(dialog.FileName)) {
+                        int magicNumber = file.ReadInt32();
+                        if (magicNumber == ConvolutionBoxFormatConfigurationFile.syncWord) {
+                            type = ConfigurationFileType.ConvolutionBoxFormat;
+                        }
                     }
+
+                    ConfigurationFile import = type switch {
+                        ConfigurationFileType.ConvolutionBoxFormat => new ConvolutionBoxFormatConfigurationFile(dialog.FileName),
+                        _ => new EqualizerAPOConfigurationFile(dialog.FileName, SampleRate)
+                    };
+
+                    // Format-specific error checks
+                    if (import is ConvolutionBoxFormatConfigurationFile cbf) {
+                        sampleRate.SelectedItem = cbf.SampleRate;
+                        if ((int)sampleRate.SelectedItem != cbf.SampleRate) {
+                            Error((string)language["NUnSR"]);
+                        }
+                    }
+
+                    pipeline.Source = import;
                 } catch (Exception ex) {
                     Error(string.Format((string)language["NLoad"], ex.Message));
                 }
@@ -118,7 +160,7 @@ namespace FilterStudio {
         /// Export the configuration file to a new path in <see cref="ConvolutionBoxFormatConfigurationFile"/>.
         /// </summary>
         void ExportConvolutionBoxFormat(object source, RoutedEventArgs e) =>
-            ExportConfiguration(source, () => new ConvolutionBoxFormatConfigurationFile(pipeline.Source, Listener.DefaultSampleRate));
+            ExportConfiguration(source, () => new ConvolutionBoxFormatConfigurationFile(pipeline.Source, SampleRate));
 
         /// <summary>
         /// Export the configuration file to a new path in <see cref="EqualizerAPOConfigurationFile"/>.
@@ -127,12 +169,29 @@ namespace FilterStudio {
             ExportConfiguration(source, () => new EqualizerAPOConfigurationFile(pipeline.Source));
 
         /// <summary>
+        /// Makes sure the configuration file is ready for export, returns true if it is.
+        /// </summary>
+        bool ExportChecks() {
+            int systemSampleRate = SampleRate;
+            HashSet<FilterGraphNode> map = pipeline.Source.InputChannels.Select(x => x.root).MapGraph();
+            Filter mismatch = map.FirstOrDefault(x => x.Filter != null &&
+                x.Filter is ISampleRateDependentFilter sr && sr.SampleRate != systemSampleRate)?.Filter;
+            if (mismatch != null && !Warning(string.Format((string)language["WSaRe"], FilterToString(mismatch), systemSampleRate,
+                ((ISampleRateDependentFilter)mismatch).SampleRate))) {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Export the configuration file to a new path.
         /// </summary>
         /// <param name="generator">Creates the <see cref="ConfigurationFile"/> for export in the target format</param>
         void ExportConfiguration(object source, Func<ConfigurationFile> generator) {
             if (pipeline.Source == null) {
                 Error((string)language["NoCon"]);
+                return;
+            } else if (!ExportChecks()) {
                 return;
             }
 
@@ -152,6 +211,8 @@ namespace FilterStudio {
                 try {
                     file.Export(dialog.FileName);
                     MessageBox.Show((string)language["ExSuc"]);
+                } catch (UnsupportedFilterForExportException e) {
+                    Error(string.Format((string)language["NUnFi"], FilterToString(e.Filter)));
                 } catch (Exception e) {
                     Error(e.Message);
                 }
@@ -234,5 +295,10 @@ namespace FilterStudio {
         /// Get the channels that are used in the current configuration or will be used when a new configuration will be created.
         /// </summary>
         ReferenceChannel[] GetChannels() => rootNodes == null ? channels : rootNodes.Select(x => ((InputChannel)x.Filter).Channel).ToArray();
+
+        /// <summary>
+        /// All possible project sample rates.
+        /// </summary>
+        static readonly int[] sampleRates = [8000, 11025, 16000, 22050, 32000, 44100, 48000, 88200, 96000, 176400, 192000, 384000];
     }
 }

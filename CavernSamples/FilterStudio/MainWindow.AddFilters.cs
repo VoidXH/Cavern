@@ -25,7 +25,12 @@ namespace FilterStudio {
         /// <summary>
         /// Add a new <see cref="Delay"/> filter to the graph.
         /// </summary>
-        void AddDelay(object sender, RoutedEventArgs e) => AddFilter(sender, new Delay(0, Listener.DefaultSampleRate));
+        void AddDelay(object sender, RoutedEventArgs e) => AddFilter(sender, new Delay(0, SampleRate));
+
+        /// <summary>
+        /// Add a new <see cref="Echo"/> filter to the graph.
+        /// </summary>
+        void AddEcho(object sender, RoutedEventArgs e) => AddFilter(sender, new Echo(SampleRate));
 
         /// <summary>
         /// Add a new <see cref="BiquadFilter"/> to the graph.
@@ -57,7 +62,7 @@ namespace FilterStudio {
                     Resources = Resources
                 };
                 if (editor.ShowDialog().Value) {
-                    FinalizeFilter(sender, new GraphicEQ(eq, Listener.DefaultSampleRate));
+                    FinalizeFilter(sender, new GraphicEQ(eq, SampleRate));
                 }
             } else {
                 Error(error);
@@ -70,7 +75,7 @@ namespace FilterStudio {
         void AddConvolution(object sender, RoutedEventArgs e) {
             string error = PreFilterAddingChecks(sender);
             if (error == null) {
-                ConvolutionEditor editor = new(null, Listener.DefaultSampleRate);
+                ConvolutionEditor editor = new(null, SampleRate);
                 if (editor.ShowDialog().Value && editor.Impulse != null) {
                     FinalizeFilter(sender, new FastConvolver(editor.Impulse));
                 }

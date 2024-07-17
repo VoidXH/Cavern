@@ -8,7 +8,6 @@ Cavernize.
 [![Build Status](https://api.travis-ci.com/VoidXH/Cavern.svg?branch=master)](https://app.travis-ci.com/VoidXH/Cavern)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)](https://github.com/VoidXH/Cavern/releases/latest)
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/VoidXH/Cavern/latest)
-![Lines of Code](https://img.shields.io/tokei/lines/github/VoidXH/Cavern "Lines of Code")
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/087eefd2734a48c08e6b4b1006f84021)](https://app.codacy.com/gh/VoidXH/Cavern)
 
 [![NuGet - Cavern](https://img.shields.io/nuget/v/Cavern?label=NuGet%3A%20Cavern)](https://www.nuget.org/packages/Cavern/)

@@ -11,5 +11,8 @@
     <Setting Name="channels" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">255</Value>
     </Setting>
+    <Setting Name="sampleRate" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">48000</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

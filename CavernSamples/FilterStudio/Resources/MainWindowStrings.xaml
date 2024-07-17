@@ -12,9 +12,12 @@
     <system:String x:Key="FLabe">_Label</system:String>
     <system:String x:Key="FGain">_Gain</system:String>
     <system:String x:Key="FDela">Dela_y</system:String>
+    <system:String x:Key="FEcho">_Echo</system:String>
     <system:String x:Key="FBiqu">_Basic parametric filter...</system:String>
     <system:String x:Key="FGrEQ">Graphic _EQ...</system:String>
     <system:String x:Key="FConv">_Convolution...</system:String>
+    <system:String x:Key="OpCoF">Convert selected filter to convolution... (irreversible)</system:String>
+    <system:String x:Key="CoCoF">Convert to convolution... (irreversible)</system:String>
     <system:String x:Key="OpDel">_Delete selected filter</system:String>
     <system:String x:Key="CoDel">_Delete</system:String>
 
@@ -31,6 +34,8 @@
     <system:String x:Key="OpAdP">_Add empty set before the selected set</system:String>
     <system:String x:Key="OpAdC">Add c_rossover before the selected set...</system:String>
     <system:String x:Key="LabXO">Crossover</system:String>
+    <system:String x:Key="OpMeN">Merge selected with _next set (irreversible)</system:String>
+    <system:String x:Key="CoMeN">Merge with _next set (irreversible)</system:String>
     <system:String x:Key="OpMer">_Merge all sets (irreversible)</system:String>
     <system:String x:Key="OpCle">_Clear selected set</system:String>
     <system:String x:Key="CoCle">_Clear</system:String>
@@ -53,7 +58,7 @@
     <system:String x:Key="ExSuc">Export successful.</system:String>
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="NOpen">A configuration file is already being edited.
-The channel configuration will only be applied when you create a new configuration file.</system:String>
+        The channel configuration will only be applied when you create a new configuration file.</system:String>
     <system:String x:Key="NLoad">Loading the configuration file has failed: {0}</system:String>
     <system:String x:Key="NChan">No channels were selected, the channel configuration wasn't changed.</system:String>
     <system:String x:Key="NNode">No node selected.</system:String>
@@ -66,10 +71,20 @@ The channel configuration will only be applied when you create a new configurati
     <system:String x:Key="NFOut">The output of a channel can't be deleted.</system:String>
     <system:String x:Key="NCInp">Filters cannot be connected to inputs.</system:String>
     <system:String x:Key="NCOut">Outputs cannot be connected to filters.</system:String>
+    <system:String x:Key="NCoIn">Filter inputs cannot be converted.</system:String>
+    <system:String x:Key="NCoOu">Filter outputs cannot be converted.</system:String>
     <system:String x:Key="NLoop">This connection is invalid, because it would cause a cycle in the graph.</system:String>
     <system:String x:Key="NLaSP">The last remaining step can't be removed.</system:String>
+    <system:String x:Key="NLaMe">The last step can't be merged with the next step.</system:String>
     <system:String x:Key="NLaEd">The last remaining connection can't be removed.</system:String>
     <system:String x:Key="NPiSi">This operation is invalid on the entry and exit points of the filter set steps.</system:String>
+    <system:String x:Key="NUnSR">Unsupported sample rate. The configuration file was loaded, but it's likely corrupt.</system:String>
+    <system:String x:Key="NUnFi">The export format does not support this filter: {0}.
+        Converting it to a convolution will make the export possible.</system:String>
+
+    <system:String x:Key="Warni">Warning</system:String>
+    <system:String x:Key="WSaRe">The following filter's sample rate doesn't match the system sample rate: {0}. Instead of {1} Hz, it is {2} Hz.
+        This might corrupt the exported configuration file. Do you still want to export?</system:String>
 
     <system:String x:Key="NSNew">New</system:String>
     <system:String x:Key="NInpu">Input</system:String>

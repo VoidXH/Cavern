@@ -1,15 +1,25 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
+
+using Cavern.Filters.Interfaces;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Simple variable-order crossover.
     /// </summary>
-    public class Crossover : Filter {
-        /// <summary>
-        /// Cached filter sample rate.
-        /// </summary>
-        public int SampleRate { get; }
+    public class Crossover : Filter, ISampleRateDependentFilter {
+        /// <inheritdoc/>
+        [IgnoreDataMember]
+        public int SampleRate {
+            get => lowpasses[0].SampleRate;
+            set {
+                for (int i = 0; i < lowpasses.Length; i++) {
+                    lowpasses[i].SampleRate = value;
+                    highpasses[i].SampleRate = value;
+                }
+            }
+        }
 
         /// <summary>
         /// Crossover frequency.
@@ -18,7 +28,7 @@ namespace Cavern.Filters {
         public double Frequency {
             get => lowpasses[0].CenterFreq;
             set {
-                for (int i = 0; i < lowpasses.Length; ++i) {
+                for (int i = 0; i < lowpasses.Length; i++) {
                     lowpasses[i].CenterFreq = highpasses[i].CenterFreq = value;
                 }
             }
@@ -102,7 +112,7 @@ namespace Cavern.Filters {
             }
             Array.Copy(samples, LowOutput, sampleCount);
             Array.Copy(samples, HighOutput, sampleCount);
-            for (int i = 0; i < lowpasses.Length; ++i) {
+            for (int i = 0; i < lowpasses.Length; i++) {
                 lowpasses[i].Process(LowOutput, channel, channels);
                 highpasses[i].Process(HighOutput, channel, channels);
             }

@@ -62,6 +62,34 @@ namespace FilterStudio {
         void Reload(object _, RoutedEventArgs e) => pipeline.Source = pipeline.Source;
 
         /// <summary>
+        /// Convert the selected filter to convolution.
+        /// </summary>
+        void ConvertFilterToConvolution(object sender, RoutedEventArgs e) {
+            StyledNode node = graph.GetSelectedNode(sender);
+            if (node == null || node.Filter == null) {
+                Error((string)language["NFNod"]);
+                return;
+            }
+            if (node.Filter.Filter is InputChannel) {
+                Error((string)language["NCoIn"]);
+                return;
+            }
+            if (node.Filter.Filter is OutputChannel) {
+                Error((string)language["NCoOu"]);
+                return;
+            }
+
+            ConvolutionLengthDialog length = new();
+            if (length.ShowDialog().Value) {
+                float[] filter = new float[length.Size];
+                filter[0] = 1;
+                node.Filter.Filter.Process(filter);
+                node.Filter.Filter = new FastConvolver(filter);
+                ReloadGraph();
+            }
+        }
+
+        /// <summary>
         /// Converts all filters to convolutions and merges them downwards if they only have a single child.
         /// </summary>
         void ConvertToConvolution(object _, RoutedEventArgs e) {
@@ -149,9 +177,14 @@ namespace FilterStudio {
                     ((string)language["FLabe"], (_, e) => AddLabel(element, e)),
                     ((string)language["FGain"], (_, e) => AddGain(element, e)),
                     ((string)language["FDela"], (_, e) => AddDelay(element, e)),
+                    (null, null),
+                    ((string)language["FEcho"], (_, e) => AddEcho(element, e)),
+                    (null, null),
                     ((string)language["FBiqu"], (_, e) => AddBiquad(element, e)),
                     ((string)language["FGrEQ"], (_, e) => AddGraphicEQ(element, e)),
                     ((string)language["FConv"], (_, e) => AddConvolution(element, e)),
+                    (null, null),
+                    ((string)language["CoCoF"], (_, e) => ConvertFilterToConvolution(element, e)),
                     (null, null) // Separator for deletion
                 ];
             if (element is Node) {
@@ -227,7 +260,7 @@ namespace FilterStudio {
         /// </summary>
         void EditConvolution(object convolution) {
             float[] samples = (float[])convolution;
-            ConvolutionEditor editor = new(samples, Listener.DefaultSampleRate) {
+            ConvolutionEditor editor = new(samples, SampleRate) {
                 Background = Background,
                 Resources = Resources
             };

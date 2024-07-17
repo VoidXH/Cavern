@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
@@ -11,7 +12,13 @@ namespace Cavern.Filters {
     /// <summary>
     /// Delays the audio.
     /// </summary>
-    public class Delay : Filter, IEqualizerAPOFilter, ILocalizableToString {
+    public class Delay : Filter, IEqualizerAPOFilter, ISampleRateDependentFilter, ILocalizableToString {
+        /// <summary>
+        /// If the filter was set up with a time delay, this is the sample rate used to calculate the delay in samples.
+        /// </summary>
+        [IgnoreDataMember]
+        public int SampleRate { get; set; }
+
         /// <summary>
         /// Delay in samples.
         /// </summary>
@@ -35,17 +42,17 @@ namespace Cavern.Filters {
                 if (!double.IsNaN(delayMs)) {
                     return delayMs;
                 }
-                if (sampleRate == 0) {
+                if (SampleRate == 0) {
                     throw new SampleRateNotSetException();
                 }
-                return DelaySamples / (double)sampleRate * 1000;
+                return DelaySamples / (double)SampleRate * 1000;
             }
 
             set {
-                if (sampleRate == 0) {
+                if (SampleRate == 0) {
                     throw new SampleRateNotSetException();
                 }
-                DelaySamples = (int)Math.Round(value * sampleRate * .001);
+                DelaySamples = (int)Math.Round(value * SampleRate * .001);
                 delayMs = value;
             }
         }
@@ -59,11 +66,6 @@ namespace Cavern.Filters {
         /// Cached samples for the next block. Alternates between two arrays to prevent memory allocation.
         /// </summary>
         readonly float[][] cache = new float[2][];
-
-        /// <summary>
-        /// If the filter was set up with a time delay, this is the sample rate that was used for it.
-        /// </summary>
-        int sampleRate;
 
         /// <summary>
         /// The used cache (0 or 1).
@@ -87,7 +89,7 @@ namespace Cavern.Filters {
         /// Create a delay for a given length in seconds.
         /// </summary>
         public Delay(double time, int sampleRate) {
-            this.sampleRate = sampleRate;
+            this.SampleRate = sampleRate;
             delayMs = time;
             RecreateCaches((int)(time * sampleRate * .001 + .5));
         }
@@ -109,7 +111,7 @@ namespace Cavern.Filters {
             return splitLine[2].ToLowerInvariant() switch {
                 "ms" => new Delay(delay, sampleRate),
                 "samples" => new Delay((int)delay) {
-                    sampleRate = sampleRate
+                    SampleRate = sampleRate
                 },
                 _ => throw new ArgumentOutOfRangeException(splitLine[0]),
             };
@@ -145,7 +147,7 @@ namespace Cavern.Filters {
         }
 
         /// <inheritdoc/>
-        public override object Clone() => double.IsNaN(delayMs) ? new Delay(DelaySamples) : new Delay(DelayMs, sampleRate);
+        public override object Clone() => double.IsNaN(delayMs) ? new Delay(DelaySamples) : new Delay(DelayMs, SampleRate);
 
         /// <inheritdoc/>
         public override string ToString() {

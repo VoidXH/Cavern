@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Cavern.Filters.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.Filters {

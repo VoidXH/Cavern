@@ -1,18 +1,23 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
+
+using Cavern.Filters.Interfaces;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Separates ground and height data for a channel of a regular surround mix.
     /// </summary>
-    public class Cavernize : Filter {
+    public class Cavernize : Filter, ISampleRateDependentFilter {
         /// <inheritdoc/>
         public override bool LinearTimeInvariant => false;
 
-        /// <summary>
-        /// Sample rate of the system this filter is used on.
-        /// </summary>
-        public int SampleRate => crossover.SampleRate;
+        /// <inheritdoc/>
+        [IgnoreDataMember]
+        public int SampleRate {
+            get => crossover.SampleRate;
+            set => crossover.SampleRate = value;
+        }
 
         /// <summary>
         /// Height separation effect strength.

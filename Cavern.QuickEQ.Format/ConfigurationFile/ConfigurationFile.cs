@@ -145,6 +145,18 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Merge the filters of the split point at the given <paramref name="index"/> and the next one.
+        /// </summary>
+        public void MergeSplitPointWithNext(int index) {
+            FilterGraphNode[] roots = SplitPoints[index + 1].roots;
+            for (int j = 0; j < roots.Length; j++) {
+                roots[j].Parents[0].DetachFromGraph(); // Output of the split at the index
+                roots[j].DetachFromGraph(); // Input of the split at index + 1
+            }
+            splitPoints.RemoveAt(index + 1);
+        }
+
+        /// <summary>
         /// Remove any splits, leave only one continuous graph of filters.
         /// </summary>
         public void MergeSplitPoints() {
@@ -270,7 +282,7 @@ namespace Cavern.Format.ConfigurationFile {
                     channelIndex = GetChannelIndex(output.Channel);
                 } else if (source.Parents.Count == 0) { // Entry node
                     channelIndex = GetChannelIndex(((InputChannel)source.Filter).Channel);
-                } else { // TODO: greedily keep direct paths on the same channel index, don't have all filters on separate nodes
+                } else {
                     channelIndex = --lowestChannel;
                 }
                 result[i] = (source, channelIndex);

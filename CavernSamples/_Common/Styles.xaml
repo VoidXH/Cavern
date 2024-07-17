@@ -327,6 +327,8 @@
     </Style>
     <Style TargetType="StatusBar">
         <Setter Property="Background" Value="#353535"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="10,0,10,0"/>
     </Style>
     <Style TargetType="TextBlock">
         <Setter Property="FontWeight" Value="Normal"/>

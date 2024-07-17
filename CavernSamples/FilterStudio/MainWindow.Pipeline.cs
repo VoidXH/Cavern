@@ -33,10 +33,21 @@ namespace FilterStudio {
                 return false;
             }
 
-            CrossoverFilterSet crossover = new((string)language["LabXO"], dialog.Type, Listener.DefaultSampleRate, 65536, dialog.Target,
+            CrossoverFilterSet crossover = new((string)language["LabXO"], dialog.Type, SampleRate, 65536, dialog.Target,
                 dialog.Crossovers.Where(x => x.frequency != null).Select(x => (x.channel, (float)x.frequency)).ToArray());
             crossover.Add(pipeline.Source, uid);
             return true;
+        });
+
+        /// <summary>
+        /// Merge the selected pipeline step with the next.
+        /// </summary>
+        void MergeWithNext(object sender, RoutedEventArgs e) => PipelineAction(sender, uid => {
+            if (uid < pipeline.Source.SplitPoints.Count - 1) {
+                pipeline.Source.MergeSplitPointWithNext(uid);
+            } else {
+                Error((string)language["NLaMe"]);
+            }
         });
 
         /// <summary>
@@ -129,6 +140,8 @@ namespace FilterStudio {
             List<(string, Action<object, RoutedEventArgs>)> menuItems = [
                 ((string)language["OpAdP"], (_, e) => AddStep(element, e)),
                 ((string)language["OpAdC"], (_, e) => AddCrossover(element, e)),
+                (null, null),
+                ((string)language["CoMeN"], (_, e) => MergeWithNext(element, e)),
                 (null, null), // Separator for deletion
                 ((string)language["CoRen"], (_, e) => RenameStep(element, e)),
                 ((string)language["CoCle"], (_, e) => ClearStep(element, e)),

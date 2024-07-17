@@ -12,9 +12,12 @@
     <system:String x:Key="FLabe">_Címke</system:String>
     <system:String x:Key="FGain">_Erősítés</system:String>
     <system:String x:Key="FDela">_Késleltetés</system:String>
+    <system:String x:Key="FEcho">_Visszhang</system:String>
     <system:String x:Key="FBiqu">E_gyszerű parametrikus szűrő...</system:String>
     <system:String x:Key="FGrEQ">_Grafikus EQ...</system:String>
     <system:String x:Key="FConv">K_onvolúció...</system:String>
+    <system:String x:Key="OpCoF">Kiválasztott szűrő konvertálása konvolúcióvá... (visszavonhatatlan)</system:String>
+    <system:String x:Key="CoCoF">Konvertálás konvolúcióvá... (visszavonhatatlan)</system:String>
     <system:String x:Key="OpDel">Kiválasztott szűrő _törlése</system:String>
     <system:String x:Key="CoDel">_Törlés</system:String>
 
@@ -31,6 +34,8 @@
     <system:String x:Key="OpAdP">Ü_res szett hozzáadása a kiválasztott szett elé</system:String>
     <system:String x:Key="OpAdC">K_eresztváltó hozzáadása a kiválasztott szett elé...</system:String>
     <system:String x:Key="LabXO">Keresztváltó</system:String>
+    <system:String x:Key="OpMeN">Kiválasztott e_gyesítése a következő szettel (visszavonhatatlan)</system:String>
+    <system:String x:Key="CoMeN">E_gyesítés a következő szettel (visszavonhatatlan)</system:String>
     <system:String x:Key="OpMer">_Összes szett egyesítése (visszavonhatatlan)</system:String>
     <system:String x:Key="OpCle">Kiválasztott szett _kiürítése</system:String>
     <system:String x:Key="CoCle">_Kiürítés</system:String>
@@ -53,7 +58,7 @@
     <system:String x:Key="ExSuc">Sikeres export.</system:String>
     <system:String x:Key="Error">Hiba</system:String>
     <system:String x:Key="NOpen">Egy konfigurációs fájl szerkesztés alatt van.
-A csatornakonfiguráció csak új konfigurációs fájl létrehozásakor lesz alkalmazva.</system:String>
+        A csatornakonfiguráció csak új konfigurációs fájl létrehozásakor lesz alkalmazva.</system:String>
     <system:String x:Key="NLoad">A konfigurációs fájl betöltése nem sikerült: {0}</system:String>
     <system:String x:Key="NChan">Nem lettek kiválasztva csatornák, a csatornakonfiguráció nem változott.</system:String>
     <system:String x:Key="NNode">Nincs kiválasztva csúcspont.</system:String>
@@ -64,12 +69,23 @@ A csatornakonfiguráció csak új konfigurációs fájl létrehozásakor lesz al
     <system:String x:Key="NFLas">Kimenetek után nem adható hozzá szűrő.</system:String>
     <system:String x:Key="NFInp">Egy csatorna bemenete nem törölhető.</system:String>
     <system:String x:Key="NFOut">Egy csatorna kimenete nem törölhető.</system:String>
+    <system:String x:Key="NCoIn">Egy csatorna bemenete nem konvertálható.</system:String>
+    <system:String x:Key="NCoOu">Egy csatorna kimenete nem konvertálható.</system:String>
     <system:String x:Key="NCInp">Szűrök nem köthetők bemenetbe.</system:String>
     <system:String x:Key="NCOut">Kimenetek nem köthetők szűrőkbe.</system:String>
     <system:String x:Key="NLoop">Ez az összeköttetés érvénytelen, mert kört okozna a gráfban.</system:String>
     <system:String x:Key="NLaSP">Az utolsó megmaradt lépés nem törölhető.</system:String>
+    <system:String x:Key="NLaMe">Az utolsó lépés nem egyesíthető következő lépéssel.</system:String>
     <system:String x:Key="NLaEd">Az utolsó megmaradt kapcsolat nem törölhető.</system:String>
     <system:String x:Key="NPiSi">Ez a művelet érvénytelen a szűrőszett lépések bemeneti és kimeneti pontján.</system:String>
+    <system:String x:Key="NUnSR">Nem támogatott mintavételezési frekvencia.
+        A konfigurációs fájl betöltve, de valószínűleg sérült.</system:String>
+    <system:String x:Key="NUnFi">Az exportálási formátum nem támogatja ezt a szűrőt: {0}.
+        A konvolúcióvá konvertálása lehetővé teszi az exportot.</system:String>
+
+    <system:String x:Key="Warni">Figyelmeztetés</system:String>
+    <system:String x:Key="WSaRe">A következő szűrő mintavételezési frekvenciája nem egyezik a rendszerével: {0}. {1} Hz helyett {2} Hz.
+        Ez elronthatja az exportált konfigurációs fájlt. Biztosan exportálni szeretnél?</system:String>
 
     <system:String x:Key="NSNew">Új</system:String>
     <system:String x:Key="NInpu">Bemenet</system:String>

@@ -100,13 +100,14 @@ namespace Cavern.WPF {
                 return;
             }
 
-            impulseDisplay.AddCurve(EQGenerator.FromGraph(impulse, 20, 20000), 0xFF0000FF);
+            int maxFreq = Math.Min(sampleRate >> 1, 20000);
+            impulseDisplay.AddCurve(EQGenerator.FromGraph(impulse, 20, maxFreq), 0xFF0000FF);
             Complex[] fft = impulse.FFT();
             fftDisplay.AddCurve(EQGenerator.FromTransferFunction(fft, sampleRate), 0xFF00FF00);
             float[] phase = Measurements.GetPhase(fft);
-            float[] phaseGraph = GraphUtils.ConvertToGraph(phase, 20, 20000, sampleRate, 1024);
+            float[] phaseGraph = GraphUtils.ConvertToGraph(phase, 20, maxFreq, sampleRate, 1024);
             WaveformUtils.Gain(phaseGraph, 25 / MathF.PI);
-            fftDisplay.AddCurve(EQGenerator.FromGraph(phaseGraph, 20, 20000), 0xFFFF0000);
+            fftDisplay.AddCurve(EQGenerator.FromGraph(phaseGraph, 20, maxFreq), 0xFFFF0000);
 
             VerboseImpulseResponse verbose = new(fft);
             polarity.Text = string.Format((string)language["VPola"], verbose.Polarity ? '+' : '-');

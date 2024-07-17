@@ -34,9 +34,14 @@
                 <MenuItem Header="{StaticResource FLabe}" Click="AddLabel"/>
                 <MenuItem Header="{StaticResource FGain}" Click="AddGain"/>
                 <MenuItem Header="{StaticResource FDela}" Click="AddDelay"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource FEcho}" Click="AddEcho"/>
+                <Separator/>
                 <MenuItem Header="{StaticResource FBiqu}" Click="AddBiquad"/>
                 <MenuItem Header="{StaticResource FGrEQ}" Click="AddGraphicEQ"/>
                 <MenuItem Header="{StaticResource FConv}" Click="AddConvolution"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource OpCoF}" Click="ConvertFilterToConvolution"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpDel}" Click="DeleteNode"/>
             </MenuItem>
@@ -44,6 +49,7 @@
                 <MenuItem Header="{StaticResource OpAdP}" Click="AddStep"/>
                 <MenuItem Header="{StaticResource OpAdC}" Click="AddCrossover"/>
                 <Separator/>
+                <MenuItem Header="{StaticResource OpMeN}" Click="MergeWithNext"/>
                 <MenuItem Header="{StaticResource OpMer}" Click="MergeSteps"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpRen}" Click="RenameStep"/>
@@ -66,6 +72,10 @@
                 <MenuItem Header="{StaticResource OpAbo}" Click="About"/>
             </MenuItem>
         </Menu>
+        <StatusBar DockPanel.Dock="Bottom">
+            <TextBlock Text="System sample rate:"/>
+            <ComboBox Name="sampleRate"/>
+        </StatusBar>
         <DockPanel DockPanel.Dock="Right" Width="300">
             <Image DockPanel.Dock="Top" Margin="0,5,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="169"
                 Source="{StaticResource Logo}" MouseDown="Ad"/>

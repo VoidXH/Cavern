@@ -1,18 +1,37 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.ComponentModel;
+using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+
+using Cavern.Filters.Interfaces;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Simple echo/reverberation filter with delay.
     /// </summary>
-    public class Echo : Filter {
+    public class Echo : Filter, ISampleRateDependentFilter, ILocalizableToString {
+        /// <inheritdoc/>
+        [IgnoreDataMember]
+        public int SampleRate {
+            get => sampleRate;
+            set {
+                double oldDelayTime = DelayTime;
+                sampleRate = value;
+                DelayTime = oldDelayTime;
+            }
+        }
+        int sampleRate;
+
         /// <summary>
         /// Effect strength.
         /// </summary>
-        public double Strength;
+        public double Strength { get; set; }
 
         /// <summary>
         /// Delay between echoes in samples.
         /// </summary>
+        [DisplayName("Echo interval (samples)")]
         public int DelaySamples {
             get => delay;
             set => Reset(Strength, value);
@@ -21,15 +40,11 @@ namespace Cavern.Filters {
         /// <summary>
         /// Delay between echoes in seconds.
         /// </summary>
+        [DisplayName("Echo interval (seconds)")]
         public double DelayTime {
-            get => delay / (double)sampleRate;
+            get => delay / (double)SampleRate;
             set => Reset(Strength, value);
         }
-
-        /// <summary>
-        /// Cached audio sample rate.
-        /// </summary>
-        readonly int sampleRate;
 
         /// <summary>
         /// Samples to mix back to the next block.
@@ -114,5 +129,14 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => new Echo(sampleRate, Strength, delay);
+
+        /// <inheritdoc/>
+        public override string ToString() => $"Echo: {Strength}x, {DelayTime} s";
+
+        /// <inheritdoc/>
+        public string ToString(CultureInfo culture) => culture.Name switch {
+            "hu-HU" => $"Visszhang: {Strength}x, {DelayTime} mp",
+            _ => ToString()
+        };
     }
 }

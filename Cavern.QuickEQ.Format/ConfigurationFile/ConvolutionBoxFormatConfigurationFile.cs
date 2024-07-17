@@ -15,13 +15,18 @@ namespace Cavern.Format.ConfigurationFile {
     /// A file format only supporting matrix mixing and convolution filters.
     /// </summary>
     public sealed class ConvolutionBoxFormatConfigurationFile : ConfigurationFile {
+        /// <summary>
+        /// CBFM marker.
+        /// </summary>
+        public static readonly int syncWord = 0x4D464243;
+
         /// <inheritdoc/>
         public override string FileExtension => "cbf";
 
         /// <summary>
         /// Sample rate of the convolution filters used.
         /// </summary>
-        readonly int sampleRate;
+        public int SampleRate { get; private set; }
 
         /// <summary>
         /// Convert an<paramref name="other"/> configuration file to Convolution Box Format with the default convoltion length of
@@ -34,7 +39,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <paramref name="convolutionLength"/>.
         /// </summary>
         public ConvolutionBoxFormatConfigurationFile(ConfigurationFile other, int sampleRate, int convolutionLength) : base(other) {
-            this.sampleRate = sampleRate;
+            SampleRate = sampleRate;
             MergeSplitPoints();
             Optimize();
             SplitPoints[0].roots.ConvertToConvolution(convolutionLength);
@@ -44,7 +49,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Create an empty file for a custom layout.
         /// </summary>
         public ConvolutionBoxFormatConfigurationFile(string name, int sampleRate, ReferenceChannel[] inputs) : base(name, inputs) {
-            this.sampleRate = sampleRate;
+            SampleRate = sampleRate;
             FinishEmpty(inputs);
         }
 
@@ -55,7 +60,7 @@ namespace Cavern.Format.ConfigurationFile {
             // Dirty way of reading the sample rate after parsing
             using FileStream stream = File.OpenRead(path);
             stream.Position = 4;
-            sampleRate = stream.ReadInt32();
+            SampleRate = stream.ReadInt32();
             Optimize();
         }
 
@@ -65,7 +70,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <remarks>Merge nodes can be created, calling <see cref="ConfigurationFile.Optimize"/> is recommended.</remarks>
         static (string, FilterGraphNode)[] Parse(string path) {
             using FileStream stream = File.OpenRead(path);
-            if (stream.ReadInt32() != magicNumber) {
+            if (stream.ReadInt32() != syncWord) {
                 throw new SyncException();
             }
             stream.Position = 8; // Sample rate is read in the constructor
@@ -120,7 +125,6 @@ namespace Cavern.Format.ConfigurationFile {
             inputChannels.Sort((a, b) => a.index.CompareTo(b.index));
             foreach (KeyValuePair<int, FilterGraphNode> node in lastNodes) {
                 if (node.Key >= 0) {
-                    // TODO: many points make input or output channels from channels, create them from names instead
                     OutputChannel outputFilter = new OutputChannel(((InputChannel)inputChannels[node.Key].root.Filter).ChannelName);
                     if (node.Value.Filter == null && node.Value.Children.Count == 0) { // Only overwrite dead ends with outputs
                         node.Value.Filter = outputFilter;
@@ -158,8 +162,8 @@ namespace Cavern.Format.ConfigurationFile {
             }
 
             using FileStream file = File.Open(path, FileMode.Create);
-            file.WriteAny(magicNumber);
-            file.WriteAny(sampleRate);
+            file.WriteAny(syncWord);
+            file.WriteAny(SampleRate);
             int count = entries.Count;
             file.WriteAny(count);
             for (int i = 0; i < count; i++) {
@@ -168,7 +172,7 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
-        /// Throw an <see cref="UnsupportedFilterException"/> if it's not a convolution or a merge point.
+        /// Throw an <see cref="UnsupportedFilterForExportException"/> if it's not a convolution or a merge point.
         /// </summary>
         void ValidateForExport() {
             foreach (FilterGraphNode node in SplitPoints[0].roots.MapGraph()) {
@@ -177,10 +181,5 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
         }
-
-        /// <summary>
-        /// CBFM marker.
-        /// </summary>
-        const int magicNumber = 0x4D464243;
     }
 }

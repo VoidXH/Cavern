@@ -114,7 +114,7 @@ namespace Cavern.QuickEQ.Utilities {
         /// for example the result of <see cref="Measurements.GetSpectrum(Complex[])"/>.</remarks>
         public static float[] ConvertToGraph(float[] response, double startFreq, double endFreq, int sampleRate, int resultSize) {
             float[] graph = new float[resultSize];
-            double step = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / (graph.Length - 1)),
+            double step = Math.Pow(10, (Math.Log10(endFreq) - Math.Log10(startFreq)) / graph.Length),
                 positioner = response.Length * 2 / (double)sampleRate;
             for (int i = 0; i < graph.Length; ++i) {
                 graph[i] = response[(int)(startFreq * positioner)];
