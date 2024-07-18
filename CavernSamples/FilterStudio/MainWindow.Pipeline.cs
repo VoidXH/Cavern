@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 
-using Cavern;
-using Cavern.Filters;
 using Cavern.Format.ConfigurationFile.Presets;
 using VoidX.WPF;
 

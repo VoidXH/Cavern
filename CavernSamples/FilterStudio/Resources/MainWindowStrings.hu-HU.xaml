@@ -12,6 +12,7 @@
     <system:String x:Key="FLabe">_Címke</system:String>
     <system:String x:Key="FGain">_Erősítés</system:String>
     <system:String x:Key="FDela">_Késleltetés</system:String>
+    <system:String x:Key="FComb">_Fésű</system:String>
     <system:String x:Key="FEcho">_Visszhang</system:String>
     <system:String x:Key="FBiqu">E_gyszerű parametrikus szűrő...</system:String>
     <system:String x:Key="FGrEQ">_Grafikus EQ...</system:String>

@@ -12,6 +12,7 @@
     <system:String x:Key="FLabe">_Label</system:String>
     <system:String x:Key="FGain">_Gain</system:String>
     <system:String x:Key="FDela">Dela_y</system:String>
+    <system:String x:Key="FComb">Co_mb</system:String>
     <system:String x:Key="FEcho">_Echo</system:String>
     <system:String x:Key="FBiqu">_Basic parametric filter...</system:String>
     <system:String x:Key="FGrEQ">Graphic _EQ...</system:String>

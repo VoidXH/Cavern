@@ -59,7 +59,7 @@ namespace Cavern.Filters {
         };
 
         /// <inheritdoc/>
-        public override string ToString() => $"Gain: {GainValue.ToString("0.00", CultureInfo.InvariantCulture)} dB";
+        public override string ToString() => $"Gain: {QMath.ToStringLimitDecimals(GainValue, 2)} dB";
 
         /// <inheritdoc/>
         public void ExportToEqualizerAPO(List<string> wipConfig) =>
@@ -67,7 +67,7 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public string ToString(CultureInfo culture) => culture.Name switch {
-            "hu-HU" => $"Erősítés: {GainValue.ToString("0.00", CultureInfo.InvariantCulture)} dB",
+            "hu-HU" => $"Erősítés: {QMath.ToStringLimitDecimals(GainValue, 2)} dB",
             _ => ToString()
         };
     }

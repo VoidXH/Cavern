@@ -5,8 +5,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
-using Cavern;
 using Cavern.Filters;
+using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
@@ -84,7 +84,7 @@ namespace FilterStudio {
                 float[] filter = new float[length.Size];
                 filter[0] = 1;
                 node.Filter.Filter.Process(filter);
-                node.Filter.Filter = new FastConvolver(filter);
+                node.Filter.Filter = new FastConvolver(filter, SampleRate, 0);
                 ReloadGraph();
             }
         }
@@ -100,7 +100,7 @@ namespace FilterStudio {
 
             ConvolutionLengthDialog length = new();
             if (length.ShowDialog().Value) {
-                pipeline.Source.SplitPoints[0].roots.ConvertToConvolution(length.Size);
+                pipeline.Source.SplitPoints[0].roots.ConvertToConvolution(SampleRate, length.Size);
                 ReloadGraph();
             }
         }
@@ -178,6 +178,7 @@ namespace FilterStudio {
                     ((string)language["FGain"], (_, e) => AddGain(element, e)),
                     ((string)language["FDela"], (_, e) => AddDelay(element, e)),
                     (null, null),
+                    ((string)language["FComb"], (_, e) => AddComb(element, e)),
                     ((string)language["FEcho"], (_, e) => AddEcho(element, e)),
                     (null, null),
                     ((string)language["FBiqu"], (_, e) => AddBiquad(element, e)),
@@ -259,18 +260,13 @@ namespace FilterStudio {
         /// <see cref="FastConvolver"/> filter can be updated.
         /// </summary>
         void EditConvolution(object convolution) {
-            float[] samples = (float[])convolution;
-            ConvolutionEditor editor = new(samples, SampleRate) {
+            IConvolution filter = (IConvolution)graph.SelectedNode.Filter.Filter;
+            ConvolutionEditor editor = new(filter.Impulse, filter.SampleRate) {
                 Background = Background,
                 Resources = Resources
             };
             if (editor.ShowDialog().Value) {
-                FilterGraphNode node = graph.SelectedNode.Filter;
-                if (node.Filter is Convolver convolver) {
-                    convolver.Impulse = editor.Impulse;
-                } else if (node.Filter is FastConvolver fastConvolver) {
-                    fastConvolver.Impulse = editor.Impulse;
-                }
+                filter.Impulse = editor.Impulse;
             }
         }
 

@@ -1,19 +1,29 @@
 ﻿using Microsoft.Win32;
 using System.Windows;
 
+using Cavern.Filters.Interfaces;
+using Cavern.Format;
 using Cavern.QuickEQ;
 using Cavern.QuickEQ.Equalization;
 using Cavern.QuickEQ.Graphing.Overlays;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 using Cavern.WPF.BaseClasses;
-using Cavern.Format;
 
 namespace Cavern.WPF {
     /// <summary>
     /// Displays properties of a convolution's impulse response and allows loading a new set of samples.
     /// </summary>
-    public partial class ConvolutionEditor : OkCancelDialog {
+    public partial class ConvolutionEditor : OkCancelDialog, IConvolution {
+        /// <summary>
+        /// Sample rate of the <see cref="impulse"/>.
+        /// </summary>
+        public int SampleRate {
+            get => sampleRate;
+            set => throw new InvalidOperationException();
+        }
+        int sampleRate;
+
         /// <summary>
         /// Last displayed/loaded impulse response of a convolution filter.
         /// </summary>
@@ -31,11 +41,6 @@ namespace Cavern.WPF {
         /// or no new convolution samples are loaded, <see cref="Impulse"/> will return its original reference.
         /// </summary>
         readonly float[] originalImpulse;
-
-        /// <summary>
-        /// Sample rate of the <see cref="impulse"/>.
-        /// </summary>
-        readonly int sampleRate;
 
         /// <summary>
         /// Source of language strings.
@@ -77,11 +82,10 @@ namespace Cavern.WPF {
             if (dialog.ShowDialog().Value) {
                 AudioReader file = AudioReader.Open(dialog.FileName);
                 file.ReadHeader();
-                if (file.SampleRate != sampleRate) {
-                    Consts.Language.Error(string.Format((string)language["ESRat"], file.SampleRate, sampleRate));
-                } else if (file.ChannelCount != 1) {
+                if (file.ChannelCount != 1) {
                     Consts.Language.Error((string)language["EMono"]);
                 } else {
+                    sampleRate = file.SampleRate;
                     Impulse = file.Read();
                 }
             }

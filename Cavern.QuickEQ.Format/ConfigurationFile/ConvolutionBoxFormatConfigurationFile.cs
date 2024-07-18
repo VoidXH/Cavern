@@ -42,7 +42,7 @@ namespace Cavern.Format.ConfigurationFile {
             SampleRate = sampleRate;
             MergeSplitPoints();
             Optimize();
-            SplitPoints[0].roots.ConvertToConvolution(convolutionLength);
+            SplitPoints[0].roots.ConvertToConvolution(sampleRate, convolutionLength);
         }
 
         /// <summary>

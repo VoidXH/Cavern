@@ -1,12 +1,29 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
+using System.Runtime.Serialization;
+
+using Cavern.Filters.Interfaces;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Normalized feedforward comb filter.
     /// </summary>
     /// <remarks>The feedback comb filter is called <see cref="Echo"/>.</remarks>
-    public class Comb : Filter {
+    public class Comb : Filter, ISampleRateDependentFilter, ILocalizableToString {
+        /// <inheritdoc/>
+        [IgnoreDataMember]
+        public int SampleRate {
+            get => sampleRate;
+            set {
+                double oldFrequency = Frequency;
+                sampleRate = value;
+                Frequency = oldFrequency;
+            }
+        }
+        int sampleRate;
+
         /// <summary>
         /// Wet mix multiplier.
         /// </summary>
@@ -20,6 +37,15 @@ namespace Cavern.Filters {
         public int K {
             get => delay.DelaySamples;
             set => delay.DelaySamples = value;
+        }
+
+        /// <summary>
+        /// Delay in milliseconds.
+        /// </summary>
+        [DisplayName("K (ms)")]
+        public double DelayMs {
+            get => delay.DelayMs;
+            set => delay.DelayMs = value;
         }
 
         /// <summary>
@@ -42,11 +68,6 @@ namespace Cavern.Filters {
         float[] cache = new float[0];
 
         /// <summary>
-        /// Cached source sample rate.
-        /// </summary>
-        readonly int sampleRate;
-
-        /// <summary>
         /// Normalized feedforward comb filter.
         /// </summary>
         /// <param name="sampleRate">Source sample rate</param>
@@ -55,7 +76,9 @@ namespace Cavern.Filters {
         public Comb(int sampleRate, int K, double alpha) {
             this.sampleRate = sampleRate;
             Alpha = alpha;
-            delay = new Delay(K);
+            delay = new Delay(K) {
+                SampleRate = sampleRate
+            };
         }
 
         /// <summary>
@@ -67,7 +90,9 @@ namespace Cavern.Filters {
         public Comb(int sampleRate, double frequency, double alpha) {
             this.sampleRate = sampleRate;
             Alpha = alpha;
-            delay = new Delay((int)(.5 / (frequency / sampleRate) + 1));
+            delay = new Delay((int)(.5 / (frequency / sampleRate) + 1)) {
+                SampleRate = sampleRate
+            };
         }
 
         /// <inheritdoc/>
@@ -86,5 +111,15 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => new Comb(sampleRate, K, Alpha);
+
+        /// <inheritdoc/>
+        public override string ToString() =>
+            $"Comb: {QMath.ToStringLimitDecimals(Alpha, 3)}x, {QMath.ToStringLimitDecimals(DelayMs, 3)} ms";
+
+        /// <inheritdoc/>
+        public string ToString(CultureInfo culture) => culture.Name switch {
+            "hu-HU" => $"Fésű: {QMath.ToStringLimitDecimals(Alpha, 3)}x, {QMath.ToStringLimitDecimals(DelayMs, 3)} ms",
+            _ => ToString()
+        };
     }
 }

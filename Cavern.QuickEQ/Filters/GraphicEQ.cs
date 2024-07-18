@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -21,7 +22,7 @@ namespace Cavern.Filters {
         public Equalizer Equalizer {
             get => equalizer;
             set {
-                Impulse = value.GetConvolution(sampleRate, Length);
+                Impulse = value.GetConvolution(SampleRate, Length);
                 equalizer = value;
             }
         }
@@ -46,11 +47,6 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
-        /// Sample rate at which this EQ is converted to a minimum-phase FIR filter.
-        /// </summary>
-        readonly int sampleRate;
-
-        /// <summary>
         /// Convert an <paramref name="equalizer"/> to a 65536-sample convolution filter.
         /// </summary>
         /// <param name="equalizer">Desired frequency response change</param>
@@ -66,7 +62,7 @@ namespace Cavern.Filters {
         public GraphicEQ(Equalizer equalizer, int sampleRate, int filterLength) :
             base(equalizer.GetConvolution(sampleRate, filterLength)) {
             this.equalizer = equalizer;
-            this.sampleRate = sampleRate;
+            SampleRate = sampleRate;
         }
 
         /// <summary>
@@ -84,20 +80,19 @@ namespace Cavern.Filters {
             new GraphicEQ(EQGenerator.FromEqualizerAPO(splitLine), sampleRate);
 
         /// <inheritdoc/>
-        public override object Clone() => new GraphicEQ((Equalizer)equalizer.Clone(), sampleRate);
+        public override object Clone() => new GraphicEQ((Equalizer)equalizer.Clone(), SampleRate);
 
         /// <inheritdoc/>
         public void ExportToEqualizerAPO(List<string> wipConfig) => wipConfig.Add(equalizer.ExportToEqualizerAPO());
 
         /// <inheritdoc/>
         public override string ToString() {
-            double roundedPeak = (int)(Equalizer.PeakGain * 100 + .5) * .01;
-            return $"Graphic EQ: {Equalizer.Bands.Count} bands, {roundedPeak.ToString(CultureInfo.InvariantCulture)} dB peak";
+            return $"Graphic EQ: {Equalizer.Bands.Count} bands, {QMath.ToStringLimitDecimals(Equalizer.PeakGain, 3)} dB peak";
         }
 
         /// <inheritdoc/>
         public override string ToString(CultureInfo culture) {
-            double roundedPeak = (int)(Equalizer.PeakGain * 100 + .5) * .01;
+            string roundedPeak = QMath.ToStringLimitDecimals(Equalizer.PeakGain, 3);
             return culture.Name switch {
                 "hu-HU" => $"Grafikus EQ: {Equalizer.Bands.Count} sáv, {roundedPeak} dB csúcs",
                 _ => ToString()

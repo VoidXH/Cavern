@@ -7,7 +7,5 @@
     <system:String x:Key="VPhas">Fázis: {0}°</system:String>
     <system:String x:Key="VDela">Késleltetés: {0} minta</system:String>
 
-    <system:String x:Key="ESRat">A betöltött fájl {0} Hz-es mintavételi frekvenciája
-        nem egyezik a konfigurációs fájl {1} Hz-es mintavételi frekvenciájával.</system:String>
     <system:String x:Key="EMono">Csak monó fájlok támogatottak konvolúció importálásához.</system:String>
 </ResourceDictionary>

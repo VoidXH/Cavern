@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
+using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
 
 namespace Cavern.Filters {
@@ -11,7 +13,11 @@ namespace Cavern.Filters {
     /// <remarks>This filter is using the overlap and add method using FFTs, with non-thread-safe caches.
     /// For a thread-safe fast convolver, use <see cref="ThreadSafeFastConvolver"/>. This filter is also
     /// only for a single channel, use <see cref="MultichannelConvolver"/> for multichannel signals.</remarks>
-    public partial class FastConvolver : Filter, IDisposable, ILocalizableToString {
+    public partial class FastConvolver : Filter, IConvolution, IDisposable, ILocalizableToString {
+        /// <inheritdoc/>
+        [IgnoreDataMember]
+        public int SampleRate { get; set; }
+
         /// <summary>
         /// Get a clone of the <see cref="filter"/>'s impulse response.
         /// </summary>
@@ -96,6 +102,14 @@ namespace Cavern.Filters {
             this.delay = delay;
             Impulse = impulse;
         }
+
+        /// <summary>
+        /// Constructs an optimized convolution with added delay and sets the sample rate.
+        /// </summary>
+        /// <param name="impulse">Impulse response of the desired filter</param>
+        /// <param name="sampleRate">Sample rate of the <paramref name="impulse"/> response</param>
+        /// <param name="delay">Added filter delay to the impulse, in samples</param>
+        public FastConvolver(float[] impulse, int sampleRate, int delay) : this(impulse, delay) => SampleRate = sampleRate;
 
         /// <summary>
         /// Create the FFT cache used for accelerating the convolution in Fourier-space.

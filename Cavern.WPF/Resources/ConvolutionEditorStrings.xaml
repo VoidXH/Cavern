@@ -7,7 +7,5 @@
     <system:String x:Key="VPhas">Phase: {0}°</system:String>
     <system:String x:Key="VDela">Delay: {0} samples</system:String>
 
-    <system:String x:Key="ESRat">The loaded file's sample rate of {0} Hz does not match
-        the configuration file's sample rate of {1} Hz.</system:String>
     <system:String x:Key="EMono">Only mono files are supported for convolution import.</system:String>
 </ResourceDictionary>

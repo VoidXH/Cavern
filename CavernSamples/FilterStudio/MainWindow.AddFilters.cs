@@ -28,6 +28,11 @@ namespace FilterStudio {
         void AddDelay(object sender, RoutedEventArgs e) => AddFilter(sender, new Delay(0, SampleRate));
 
         /// <summary>
+        /// Add a new <see cref="Comb"/> filter to the graph.
+        /// </summary>
+        void AddComb(object sender, RoutedEventArgs e) => AddFilter(sender, new Comb(SampleRate, 1000, .1));
+
+        /// <summary>
         /// Add a new <see cref="Echo"/> filter to the graph.
         /// </summary>
         void AddEcho(object sender, RoutedEventArgs e) => AddFilter(sender, new Echo(SampleRate));
@@ -77,7 +82,7 @@ namespace FilterStudio {
             if (error == null) {
                 ConvolutionEditor editor = new(null, SampleRate);
                 if (editor.ShowDialog().Value && editor.Impulse != null) {
-                    FinalizeFilter(sender, new FastConvolver(editor.Impulse));
+                    FinalizeFilter(sender, new FastConvolver(editor.Impulse, SampleRate, 0));
                 }
             } else {
                 Error(error);

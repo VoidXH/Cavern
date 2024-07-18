@@ -131,11 +131,12 @@ namespace Cavern.Filters {
         public override object Clone() => new Echo(sampleRate, Strength, delay);
 
         /// <inheritdoc/>
-        public override string ToString() => $"Echo: {Strength}x, {DelayTime} s";
+        public override string ToString() =>
+            $"Echo: {QMath.ToStringLimitDecimals(Strength, 3)}x, {QMath.ToStringLimitDecimals(DelayTime, 3)} s";
 
         /// <inheritdoc/>
         public string ToString(CultureInfo culture) => culture.Name switch {
-            "hu-HU" => $"Visszhang: {Strength}x, {DelayTime} mp",
+            "hu-HU" => $"Visszhang: {QMath.ToStringLimitDecimals(Strength, 3)}x, {QMath.ToStringLimitDecimals(DelayTime, 3)} mp",
             _ => ToString()
         };
     }

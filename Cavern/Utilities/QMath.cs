@@ -411,6 +411,22 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Limit the number of decimal digits when a number is converted to string.
+        /// </summary>
+        public static string ToStringLimitDecimals(double value, int decimals) {
+            string result = value.ToString(CultureInfo.InvariantCulture);
+            int decimalPoint = result.IndexOf('.');
+            if (decimalPoint != -1) {
+                int cutoff = decimalPoint + decimals + 1;
+                if (cutoff < result.Length) {
+                    result = result[..cutoff];
+                }
+                result = result.TrimEnd('0', '.');
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Counts the trailing zeros in an integer.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

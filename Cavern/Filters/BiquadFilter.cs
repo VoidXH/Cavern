@@ -254,11 +254,13 @@ namespace Cavern.Filters {
         /// <summary>
         /// Display the filter's parameters when converting to string.
         /// </summary>
-        public override string ToString() => $"{FilterType} at {centerFreq} Hz, Q: {q}, gain: {gain} dB";
+        public override string ToString() =>
+            $"{FilterType} at {centerFreq} Hz, Q: {QMath.ToStringLimitDecimals(q, 3)}, gain: {QMath.ToStringLimitDecimals(gain, 2)} dB";
 
         /// <inheritdoc/>
         public string ToString(CultureInfo culture) => culture.Name switch {
-            "hu-HU" => $"{FilterType} {centerFreq} Hz-en, Q: {q}, erősítés: {gain} dB",
+            "hu-HU" =>
+            $"{FilterType} {centerFreq} Hz-en, Q: {QMath.ToStringLimitDecimals(q, 3)}, erősítés: {QMath.ToStringLimitDecimals(gain, 2)} dB",
             _ => ToString()
         };
     }

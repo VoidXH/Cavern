@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
+using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
 
 namespace Cavern.Filters {
@@ -10,18 +12,12 @@ namespace Cavern.Filters {
     /// </summary>
     /// <remarks>This filter is performing convolution by definition, which is faster if the window size is very small.
     /// For most cases, <see cref="FastConvolver"/> is preferred.</remarks>
-    public class Convolver : Filter, ILocalizableToString {
-        /// <summary>
-        /// Additional impulse delay in samples.
-        /// </summary>
-        public int Delay {
-            get => delay;
-            set => future = new float[impulse.Length + (delay = value)];
-        }
+    public class Convolver : Filter, IConvolution, ILocalizableToString {
+        /// <inheritdoc/>
+        [IgnoreDataMember]
+        public int SampleRate { get; set; }
 
-        /// <summary>
-        /// Impulse response to convolve with.
-        /// </summary>
+        /// <inheritdoc/>
         public float[] Impulse {
             get => impulse;
             set {
@@ -29,6 +25,14 @@ namespace Cavern.Filters {
                     future = new float[value.Length + delay];
                 }
             }
+        }
+
+        /// <summary>
+        /// Additional impulse delay in samples.
+        /// </summary>
+        public int Delay {
+            get => delay;
+            set => future = new float[impulse.Length + (delay = value)];
         }
 
         /// <summary>
@@ -55,6 +59,14 @@ namespace Cavern.Filters {
             this.impulse = impulse;
             Delay = delay;
         }
+
+        /// <summary>
+        /// Construct a convolver for a target impulse response.
+        /// </summary>
+        /// <param name="impulse">Impulse response to convolve with</param>
+        /// <param name="sampleRate">Sample rate of the <paramref name="impulse"/> response</param>
+        /// <param name="delay">Additional impulse delay in samples</param>
+        public Convolver(float[] impulse, int sampleRate, int delay) : this(impulse, delay) => SampleRate = sampleRate;
 
         /// <summary>
         /// Perform a convolution.

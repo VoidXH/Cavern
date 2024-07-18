@@ -35,6 +35,7 @@
                 <MenuItem Header="{StaticResource FGain}" Click="AddGain"/>
                 <MenuItem Header="{StaticResource FDela}" Click="AddDelay"/>
                 <Separator/>
+                <MenuItem Header="{StaticResource FComb}" Click="AddComb"/>
                 <MenuItem Header="{StaticResource FEcho}" Click="AddEcho"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource FBiqu}" Click="AddBiquad"/>

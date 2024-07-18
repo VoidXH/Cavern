@@ -17,6 +17,11 @@ namespace Cavern.Filters {
         public ThreadSafeFastConvolver(float[] impulse, int delay) : base(impulse, delay) { }
 
         /// <summary>
+        /// Constructs a thread-safe optimized convolution with added delay and sets the sample rate.
+        /// </summary>
+        public ThreadSafeFastConvolver(float[] impulse, int sampleRate, int delay) : base(impulse, sampleRate, delay) { }
+
+        /// <summary>
         /// Create the FFT cache used for accelerating the convolution in Fourier-space.
         /// </summary>
         public override FFTCache CreateCache(int fftSize) => new ThreadSafeFFTCache(fftSize);

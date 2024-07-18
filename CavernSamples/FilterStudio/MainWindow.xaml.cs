@@ -275,19 +275,20 @@ namespace FilterStudio {
         }
 
         /// <summary>
-        /// Update the name of a filter when any property of it was modified.
+        /// Update the UI to the changes that happened in the filter.
         /// </summary>
         void FilterPropertyChanged() {
             StyledNode node = graph.SelectedNode;
             Filter modified = node?.Filter?.Filter;
             if (modified != null) {
                 string newDisplayName = modified.ToString();
-                if (node.LabelText != newDisplayName) {
+                if (node.LabelText != newDisplayName) { // If the displayed name changed, reload the graph
                     node.LabelText = newDisplayName;
                     selectedNode.Text = node.LabelText;
                     ReloadGraph();
-                    graph.SelectNode(node.Id);
                 }
+                // Otherwise only the property panel
+                graph.SelectNode(node.Id);
             }
         }
 

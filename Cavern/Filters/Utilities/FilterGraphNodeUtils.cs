@@ -9,7 +9,7 @@ namespace Cavern.Filters.Utilities {
         /// <summary>
         /// Convert the filter graph's filters to convolutions, and merge chains together to a single filter.
         /// </summary>
-        public static void ConvertToConvolution(this IEnumerable<FilterGraphNode> rootNodes, int filterLength) {
+        public static void ConvertToConvolution(this IEnumerable<FilterGraphNode> rootNodes, int sampleRate, int filterLength) {
             HashSet<FilterGraphNode> visited = new HashSet<FilterGraphNode>();
             Queue<FilterGraphNode> queue = new Queue<FilterGraphNode>(rootNodes);
             while (queue.Count > 0) {
@@ -19,7 +19,7 @@ namespace Cavern.Filters.Utilities {
                 }
 
                 if (!(currentNode.Filter is BypassFilter || currentNode.Filter.GetType() == typeof(FastConvolver))) {
-                    ConvertToConvolution(currentNode, filterLength);
+                    ConvertToConvolution(currentNode, sampleRate, filterLength);
                 }
                 visited.Add(currentNode);
                 foreach (FilterGraphNode child in currentNode.Children) {
@@ -82,7 +82,7 @@ namespace Cavern.Filters.Utilities {
         /// <summary>
         /// Converts this filter to a convolution and upmerges all children until possible.
         /// </summary>
-        static void ConvertToConvolution(FilterGraphNode node, int filterLength) {
+        static void ConvertToConvolution(FilterGraphNode node, int sampleRate, int filterLength) {
             float[] impulse = new float[filterLength];
             impulse[0] = 1;
 
@@ -98,7 +98,7 @@ namespace Cavern.Filters.Utilities {
 
             FilterGraphNode[] newChildren = downmergeUntil.Children.ToArray();
             downmergeUntil.DetachChildren();
-            node.Filter = new FastConvolver(impulse);
+            node.Filter = new FastConvolver(impulse, sampleRate, 0);
             node.DetachChildren();
             for (int i = 0; i < newChildren.Length; i++) {
                 node.AddChild(newChildren[i]);
