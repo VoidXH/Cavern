@@ -53,6 +53,7 @@
     <system:String x:Key="Help1">Right click a filter to start a new path from it with a new filter.</system:String>
     <system:String x:Key="Help2">Right click an arrow to add a filter between two filters.</system:String>
     <system:String x:Key="Help3">Drag and drop from one filter to another to connect them.</system:String>
+    <system:String x:Key="SySaR">System sample rate:</system:String>
 
     <system:String x:Key="OpFil">All supported formats|*.cbf;*.cfs;*.txt|Cavern Filter Studio|*.cfs|Convolution Box Format|*.cbf|Equalizer APO
         configurations|*.txt</system:String>

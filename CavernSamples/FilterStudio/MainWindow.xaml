@@ -74,7 +74,7 @@
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
-            <TextBlock Text="System sample rate:"/>
+            <TextBlock Text="{StaticResource SySaR}"/>
             <ComboBox Name="sampleRate"/>
         </StatusBar>
         <DockPanel DockPanel.Dock="Right" Width="300">
