@@ -149,7 +149,7 @@ namespace Cavern.Filters {
         }
 
         /// <inheritdoc/>
-        public override object Clone() => new FastConvolver(Impulse, delay);
+        public override object Clone() => new FastConvolver(Impulse, SampleRate, delay);
 
         /// <summary>
         /// Free up the native resources if they were used.

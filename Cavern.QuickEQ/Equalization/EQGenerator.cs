@@ -329,11 +329,11 @@ namespace Cavern.QuickEQ.Equalization {
             length <<= 1;
             Complex[] filter = new Complex[length];
             if (initial == null) {
-                for (int i = 0; i < length; ++i) {
+                for (int i = 0; i < length; i++) {
                     filter[i].Real = gain; // FFT of DiracDelta(x)
                 }
             } else {
-                for (int i = 0; i < length; ++i) {
+                for (int i = 0; i < length; i++) {
                     filter[i].Real = initial[i].Magnitude * gain;
                 }
             }
@@ -341,6 +341,13 @@ namespace Cavern.QuickEQ.Equalization {
             using (FFTCache cache = new ThreadSafeFFTCache(length)) {
                 Measurements.MinimumPhaseSpectrum(filter, cache);
                 filter.InPlaceIFFT(cache);
+            }
+
+            // Hann windowing for increased precision
+            float mul = 2 * MathF.PI / length;
+            length >>= 1;
+            for (int i = 0; i < length; i++) {
+                filter[i].Real *= .5f * (1 + MathF.Cos(i * mul));
             }
             return Measurements.GetRealPartHalf(filter);
         }

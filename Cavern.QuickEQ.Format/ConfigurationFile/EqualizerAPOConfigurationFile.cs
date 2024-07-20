@@ -40,13 +40,88 @@ namespace Cavern.Format.ConfigurationFile {
             Optimize();
         }
 
+        /// <summary>
+        /// Add a filter to the currently active channels.
+        /// </summary>
+        static void AddFilter(Dictionary<string, FilterGraphNode> lastNodes, List<string> channels, Filter filter) {
+            List<FilterGraphNode> addedTo = new List<FilterGraphNode>();
+            bool clone = false; // Filters have to be individually editable on different paths = make copies after the first was set
+            for (int i = 0, c = channels.Count; i < c; i++) {
+                FilterGraphNode oldLastNode = lastNodes[channels[i]];
+                if (addedTo.Contains(oldLastNode)) {
+                    lastNodes[channels[i]] = oldLastNode.Children[^1]; // The channel pipelines were merged with a Copy filter
+                } else {
+                    lastNodes[channels[i]] = oldLastNode.AddChild(clone ? (Filter)filter.Clone() : filter);
+                    clone = true;
+                    addedTo.Add(oldLastNode);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Parse a Copy filter from the last <paramref name="split"/> of the configuration file. Mixing will be handled by edges and
+        /// <see cref="Gain"/> filters where needed.
+        /// </summary>
+        static void AddCopyFilter(Dictionary<string, FilterGraphNode> lastNodes, string[] split) {
+            Dictionary<string, FilterGraphNode> oldLastNodes = lastNodes.ToDictionary(x => x.Key, x => x.Value);
+            for (int i = 1; i < split.Length; i++) {
+                string[] copy = split[i].Split('=', '+');
+                FilterGraphNode target = new FilterGraphNode(null);
+                for (int j = 1; j < copy.Length; j++) {
+                    string channel;
+                    int mul = copy[j].IndexOf('*');
+                    if (mul != -1) {
+                        channel = copy[j][(mul + 1)..];
+                        double copyGain = double.Parse(copy[j][..mul].Replace(',', '.'), CultureInfo.InvariantCulture),
+                            gainDb = QMath.GainToDb(Math.Abs(copyGain));
+                        Gain gainFilter = new Gain(gainDb) {
+                            Invert = gainDb >= 0
+                        };
+                        FilterGraphNode gainNode = new FilterGraphNode(gainFilter);
+                        gainNode.AddParent(oldLastNodes[channel]);
+                        target.AddParent(gainNode);
+                    } else {
+                        channel = copy[j];
+                        target.AddParent(oldLastNodes[channel]);
+                    }
+                }
+                if (!lastNodes.ContainsKey(copy[0])) {
+                    target.Filter = new BypassFilter(copy[0]);
+                }
+                lastNodes[copy[0]] = target;
+            }
+        }
+
+        /// <summary>
+        /// Parse a Channel filter and make the next parsed filters only affect those channels.
+        /// </summary>
+        static void SelectChannels(Dictionary<string, FilterGraphNode> lastNodes, List<string> activeChannels, string[] split) {
+            activeChannels.Clear();
+            if (split.Length == 2 && split[1].ToLowerInvariant() == "all") {
+                activeChannels.AddRange(channelLabels);
+                return;
+            }
+
+            for (int i = 1; i < split.Length; i++) {
+                if (lastNodes.ContainsKey(split[i])) {
+                    activeChannels.Add(split[i]);
+                } else {
+                    throw new InvalidChannelException(split[i]);
+                }
+            }
+        }
+
         /// <inheritdoc/>
         public override void Export(string path) {
             string GetChannelLabel(int channel) { // Convert index to label
                 if (channel < 0) {
                     return "V" + -channel;
                 } else {
-                    return InputChannels[channel].name;
+                    if (channelLabels.Contains(InputChannels[channel].name) || channel > 7) {
+                        return InputChannels[channel].name;
+                    } else {
+                        return channelLabels[channel];
+                    }
                 }
             }
 
@@ -60,8 +135,12 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
 
+            string convolutionRoot = Path.GetFileNameWithoutExtension(path);
+            string ConvolutionFileName(int index) => $"{convolutionRoot}_{index}.wav";
+
             (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
             int lastChannel = int.MaxValue;
+            List<IConvolution> convolutions = new List<IConvolution>();
             for (int i = 0; i < exportOrder.Length; i++) {
                 int channel = exportOrder[i].channel;
                 int[] parents = GetExportedParents(exportOrder, i);
@@ -80,7 +159,10 @@ namespace Cavern.Format.ConfigurationFile {
                 if (baseFilter == null || baseFilter is BypassFilter) {
                     continue;
                 }
-                if (baseFilter is IEqualizerAPOFilter filter) {
+                if (baseFilter is IConvolution convolution) {
+                    result.Add(convolutionFilter + ConvolutionFileName(convolutions.Count));
+                    convolutions.Add(convolution);
+                } else if (baseFilter is IEqualizerAPOFilter filter) {
                     filter.ExportToEqualizerAPO(result);
                 } else {
                     throw new NotEqualizerAPOFilterException(baseFilter);
@@ -91,7 +173,13 @@ namespace Cavern.Format.ConfigurationFile {
             if (last != -1 && result[last].StartsWith(channelFilter)) {
                 result.RemoveAt(last); // A selector of a bypass might remain
             }
+
+            string folder = Path.GetDirectoryName(path);
             File.WriteAllLines(path, result);
+            for (int i = 0; i < convolutions.Count; i++) {
+                string convolutionFile = Path.Combine(folder, ConvolutionFileName(i));
+                RIFFWaveWriter.Write(convolutionFile, convolutions[i].Impulse, 1, convolutions[i].SampleRate, BitDepth.Float32);
+            }
         }
 
         /// <summary>
@@ -112,19 +200,7 @@ namespace Cavern.Format.ConfigurationFile {
                         AddConfigFile(included, lastNodes, activeChannels, sampleRate);
                         break;
                     case "channel":
-                        activeChannels.Clear();
-                        if (split.Length == 2 && split[1].ToLowerInvariant() == "all") {
-                            activeChannels.AddRange(channelLabels);
-                            continue;
-                        }
-
-                        for (int i = 1; i < split.Length; i++) {
-                            if (lastNodes.ContainsKey(split[i])) {
-                                activeChannels.Add(split[i]);
-                            } else {
-                                throw new InvalidChannelException(split[i]);
-                            }
-                        }
+                        SelectChannels(lastNodes, activeChannels, split);
                         break;
                     // Basic filters
                     case "preamp":
@@ -135,33 +211,7 @@ namespace Cavern.Format.ConfigurationFile {
                         AddFilter(lastNodes, activeChannels, Delay.FromEqualizerAPO(split, sampleRate));
                         break;
                     case "copy":
-                        Dictionary<string, FilterGraphNode> oldLastNodes = lastNodes.ToDictionary(x => x.Key, x => x.Value);
-                        for (int i = 1; i < split.Length; i++) {
-                            string[] copy = split[i].Split(new[] { '=', '+' });
-                            FilterGraphNode target = new FilterGraphNode(null);
-                            for (int j = 1; j < copy.Length; j++) {
-                                string channel;
-                                int mul = copy[j].IndexOf('*');
-                                if (mul != -1) {
-                                    channel = copy[j][(mul + 1)..];
-                                    double copyGain = double.Parse(copy[j][..mul].Replace(',', '.'), CultureInfo.InvariantCulture),
-                                        gainDb = QMath.GainToDb(Math.Abs(copyGain));
-                                    Gain gainFilter = new Gain(gainDb) {
-                                        Invert = gainDb >= 0
-                                    };
-                                    FilterGraphNode gainNode = new FilterGraphNode(gainFilter);
-                                    gainNode.AddParent(oldLastNodes[channel]);
-                                    target.AddParent(gainNode);
-                                } else {
-                                    channel = copy[j];
-                                    target.AddParent(oldLastNodes[channel]);
-                                }
-                            }
-                            if (!lastNodes.ContainsKey(copy[0])) {
-                                target.Filter = new BypassFilter(copy[0]);
-                            }
-                            lastNodes[copy[0]] = target;
-                        }
+                        AddCopyFilter(lastNodes, split);
                         break;
                     // Parametric filters
                     case "filter":
@@ -175,24 +225,6 @@ namespace Cavern.Format.ConfigurationFile {
                         string convolution = Path.Combine(Path.GetDirectoryName(path), line[(line.IndexOf(' ') + 1)..]);
                         AddFilter(lastNodes, activeChannels, new FastConvolver(AudioReader.Open(convolution).Read()));
                         break;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Add a filter to the currently active channels.
-        /// </summary>
-        void AddFilter(Dictionary<string, FilterGraphNode> lastNodes, List<string> channels, Filter filter) {
-            List<FilterGraphNode> addedTo = new List<FilterGraphNode>();
-            bool clone = false; // Filters have to be individually editable on different paths = make copies after the first was set
-            for (int i = 0, c = channels.Count; i < c; i++) {
-                FilterGraphNode oldLastNode = lastNodes[channels[i]];
-                if (addedTo.Contains(oldLastNode)) {
-                    lastNodes[channels[i]] = oldLastNode.Children[^1]; // The channel pipelines were merged with a Copy filter
-                } else {
-                    lastNodes[channels[i]] = oldLastNode.AddChild(clone ? (Filter)filter.Clone() : filter);
-                    clone = true;
-                    addedTo.Add(oldLastNode);
                 }
             }
         }
@@ -221,5 +253,10 @@ namespace Cavern.Format.ConfigurationFile {
         /// Prefix for channel selection lines in an Equalizer APO configuration file.
         /// </summary>
         const string channelFilter = "Channel: ";
+
+        /// <summary>
+        /// Prefix for convolution file selection lines in an Equalizer APO configuration file.
+        /// </summary>
+        const string convolutionFilter = "Convolution: ";
     }
 }

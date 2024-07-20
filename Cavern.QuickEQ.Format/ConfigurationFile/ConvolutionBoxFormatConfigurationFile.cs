@@ -73,8 +73,8 @@ namespace Cavern.Format.ConfigurationFile {
             if (stream.ReadInt32() != syncWord) {
                 throw new SyncException();
             }
-            stream.Position = 8; // Sample rate is read in the constructor
-            int entries = stream.ReadInt32();
+            int sampleRate = stream.ReadInt32(),
+                entries = stream.ReadInt32();
             List<(int index, FilterGraphNode root)> inputChannels = new List<(int, FilterGraphNode)>();
             Dictionary<int, FilterGraphNode> lastNodes = new Dictionary<int, FilterGraphNode>();
             FilterGraphNode GetChannel(int index) { // Get an actual channel's last node
@@ -113,7 +113,7 @@ namespace Cavern.Format.ConfigurationFile {
                 } else if (entry is ConvolutionEntry convolution) {
                     FilterGraphNode last = lastNodes.ContainsKey(convolution.Channel) ?
                         lastNodes[convolution.Channel] : GetChannel(convolution.Channel);
-                    FastConvolver filter = new FastConvolver(convolution.Filter);
+                    FastConvolver filter = new FastConvolver(convolution.Filter, sampleRate, 0);
                     if (last.Filter == null) {
                         last.Filter = filter;
                     } else {

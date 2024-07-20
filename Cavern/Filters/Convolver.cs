@@ -108,7 +108,7 @@ namespace Cavern.Filters {
         }
 
         /// <inheritdoc/>
-        public override object Clone() => new Convolver((float[])impulse.Clone(), delay);
+        public override object Clone() => new Convolver((float[])impulse.Clone(), SampleRate, delay);
 
         /// <inheritdoc/>
         public override string ToString() => "Convolution";

@@ -183,10 +183,18 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Get the index of a given <paramref name="channel"/> in the configuration. This is the input and output it's wired to.
         /// </summary>
-        public int GetChannelIndex(ReferenceChannel channel) {
-            for (int i = 0; i < InputChannels.Length; i++) {
-                if (((InputChannel)InputChannels[i].root.Filter).Channel == channel) {
-                    return i;
+        public int GetChannelIndex(EndpointFilter channel) {
+            if (channel.Channel != ReferenceChannel.Unknown) { // Faster if the reference is available
+                for (int i = 0; i < InputChannels.Length; i++) {
+                    if (((InputChannel)InputChannels[i].root.Filter).Channel == channel.Channel) {
+                        return i;
+                    }
+                }
+            } else {
+                for (int i = 0; i < InputChannels.Length; i++) {
+                    if (((InputChannel)InputChannels[i].root.Filter).ChannelName == channel.ChannelName) {
+                        return i;
+                    }
                 }
             }
             throw new ArgumentOutOfRangeException(nameof(channel));
@@ -279,9 +287,9 @@ namespace Cavern.Format.ConfigurationFile {
                 FilterGraphNode source = orderedNodes[i];
                 int channelIndex;
                 if (source.Children.Count == 0 && source.Filter is OutputChannel output) { // Actual exit node, not terminated virtual ch
-                    channelIndex = GetChannelIndex(output.Channel);
+                    channelIndex = GetChannelIndex(output);
                 } else if (source.Parents.Count == 0) { // Entry node
-                    channelIndex = GetChannelIndex(((InputChannel)source.Filter).Channel);
+                    channelIndex = GetChannelIndex((InputChannel)source.Filter);
                 } else {
                     channelIndex = --lowestChannel;
                 }
