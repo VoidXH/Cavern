@@ -1,8 +1,14 @@
-﻿namespace Cavern.Filters {
+﻿using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+
+using Cavern.Utilities;
+
+namespace Cavern.Filters {
     /// <summary>
     /// A filter that doesn't do anything. Used to display empty filter nodes with custom names, like the beginning of virtual channels.
     /// </summary>
-    public class BypassFilter : Filter {
+    public class BypassFilter : Filter, IXmlSerializable {
         /// <summary>
         /// Name of this filter node.
         /// </summary>
@@ -22,6 +28,25 @@
         /// <inheritdoc/>
         public override void Process(float[] samples, int channel, int channels) {
             // Bypass
+        }
+
+        /// <inheritdoc/>
+        public XmlSchema GetSchema() => null;
+
+        /// <inheritdoc/>
+        public virtual void ReadXml(XmlReader reader) {
+            while (reader.MoveToNextAttribute()) {
+                if (reader.Name == nameof(Name)) {
+                    Name = reader.Value;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual void WriteXml(XmlWriter writer) {
+            writer.WriteStartElement(nameof(BypassFilter));
+            writer.WriteAttributeString(nameof(Name), Name);
+            writer.WriteEndElement();
         }
 
         /// <inheritdoc/>

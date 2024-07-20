@@ -2,6 +2,9 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Xml.Schema;
+using System.Xml;
+using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
@@ -10,7 +13,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple echo/reverberation filter with delay.
     /// </summary>
-    public class Echo : Filter, ISampleRateDependentFilter, ILocalizableToString {
+    public class Echo : Filter, ILocalizableToString, IXmlSerializable, ISampleRateDependentFilter {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {
@@ -129,6 +132,35 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => new Echo(sampleRate, Strength, delay);
+
+        /// <inheritdoc/>
+        public XmlSchema GetSchema() => null;
+
+        /// <inheritdoc/>
+        public void ReadXml(XmlReader reader) {
+            while (reader.MoveToNextAttribute()) {
+                switch (reader.Name) {
+                    case nameof(SampleRate):
+                        SampleRate = int.Parse(reader.Value);
+                        break;
+                    case nameof(Strength):
+                        Strength = QMath.ParseDouble(reader.Value);
+                        break;
+                    case nameof(DelaySamples):
+                        DelaySamples = int.Parse(reader.Value);
+                        break;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public void WriteXml(XmlWriter writer) {
+            writer.WriteStartElement(nameof(Echo));
+            writer.WriteAttributeString(nameof(SampleRate), SampleRate.ToString());
+            writer.WriteAttributeString(nameof(Strength), Strength.ToString(CultureInfo.InvariantCulture));
+            writer.WriteAttributeString(nameof(DelaySamples), DelaySamples.ToString());
+            writer.WriteEndElement();
+        }
 
         /// <inheritdoc/>
         public override string ToString() =>

@@ -15,7 +15,8 @@ namespace Cavern.Format.ConfigurationFile {
     /// </summary>
     public abstract class ConfigurationFile : IExportable {
         /// <summary>
-        /// Root nodes of each channel, start attaching their filters as a children chain.
+        /// Root nodes of each channel, start attaching their filters as a children chain. These nodes must contain
+        /// <see cref="InputChannel"/> filters.
         /// </summary>
         public (string name, FilterGraphNode root)[] InputChannels { get; }
 
@@ -41,6 +42,16 @@ namespace Cavern.Format.ConfigurationFile {
             Dictionary<FilterGraphNode, FilterGraphNode> mapping = other.InputChannels.GetItem2s().DeepCopyWithMapping().mapping;
             InputChannels = other.InputChannels.Select(x => (x.name, mapping[x.root])).ToArray();
             splitPoints = other.SplitPoints.Select(x => (x.name, x.roots.Select(x => mapping[x]).ToArray())).ToList();
+        }
+
+        /// <summary>
+        /// Construct a configuration file from a complete filter graph, including splitting to <paramref name="splitPoints"/>.
+        /// </summary>
+        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. Refer to the constructors of
+        /// <see cref="CavernFilterStudioConfigurationFile"/> for how to add closing <see cref="OutputChannel"/>s.</remarks>
+        protected ConfigurationFile(List<(string name, FilterGraphNode[] roots)> splitPoints) {
+            InputChannels = splitPoints[0].roots.Select(x => (((InputChannel)x.Filter).Channel.GetShortName(), x)).ToArray();
+            this.splitPoints = splitPoints;
         }
 
         /// <summary>
@@ -313,18 +324,25 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Get the <see cref="FilterGraphNode"/> indices in the <paramref name="exportOrder"/> of the parents of the node at the
+        /// given <paramref name="index"/>.
+        /// </summary>
+        protected IEnumerable<int> GetExportedParentIndices((FilterGraphNode node, int channel)[] exportOrder, int index) =>
+            exportOrder[index].node.Parents.Select(x => {
+                for (int i = 0; i < exportOrder.Length; i++) {
+                    if (exportOrder[i].node == x) {
+                        return i;
+                    }
+                }
+                throw new KeyNotFoundException();
+            });
+
+        /// <summary>
         /// Get the channels of the <see cref="FilterGraphNode"/> at a given <paramref name="index"/> in an <paramref name="exportOrder"/>
         /// created with <see cref="GetExportOrder"/>.
         /// </summary>
         protected int[] GetExportedParents((FilterGraphNode node, int channel)[] exportOrder, int index) =>
-            exportOrder[index].node.Parents.Select(x => {
-                for (int i = 0; i < exportOrder.Length; i++) {
-                    if (exportOrder[i].node == x) {
-                        return exportOrder[i].channel;
-                    }
-                }
-                throw new KeyNotFoundException();
-            }).ToArray();
+            GetExportedParentIndices(exportOrder, index).Select(x => exportOrder[x].channel).ToArray();
 
         /// <summary>
         /// Remove as many merge nodes (null filters) as possible.

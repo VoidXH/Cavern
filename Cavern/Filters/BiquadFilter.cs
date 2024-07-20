@@ -4,6 +4,9 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
@@ -13,14 +16,14 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter.
     /// </summary>
-    public abstract class BiquadFilter : Filter, IEqualizerAPOFilter, ISampleRateDependentFilter, ILocalizableToString {
+    public abstract class BiquadFilter : Filter, IEqualizerAPOFilter, ILocalizableToString, ISampleRateDependentFilter, IXmlSerializable {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {
             get => sampleRate;
             set {
                 sampleRate = value;
-                Reset(value, q, gain);
+                Reset(centerFreq, q, gain);
             }
         }
         int sampleRate;
@@ -249,6 +252,40 @@ namespace Cavern.Filters {
             b1 = b1Pre * divisor;
             b2 = Math.Abs(b1) * .5f;
             b0 = MathF.Pow(10, (float)gain * .025f) * b2;
+        }
+
+        /// <inheritdoc/>
+        public XmlSchema GetSchema() => null;
+
+        /// <inheritdoc/>
+        public void ReadXml(XmlReader reader) {
+            while (reader.MoveToNextAttribute()) {
+                switch (reader.Name) {
+                    case nameof(SampleRate):
+                        sampleRate = int.Parse(reader.Value);
+                        break;
+                    case nameof(CenterFreq):
+                        centerFreq = QMath.ParseDouble(reader.Value);
+                        break;
+                    case nameof(Q):
+                        q = QMath.ParseDouble(reader.Value);
+                        break;
+                    case nameof(Gain):
+                        gain = QMath.ParseDouble(reader.Value);
+                        break;
+                }
+            }
+            Reset(centerFreq, q, gain);
+        }
+
+        /// <inheritdoc/>
+        public void WriteXml(XmlWriter writer) {
+            writer.WriteStartElement(FilterType.ToString());
+            writer.WriteAttributeString(nameof(SampleRate), sampleRate.ToString());
+            writer.WriteAttributeString(nameof(CenterFreq), centerFreq.ToString(CultureInfo.InvariantCulture));
+            writer.WriteAttributeString(nameof(Q), q.ToString(CultureInfo.InvariantCulture));
+            writer.WriteAttributeString(nameof(Gain), gain.ToString(CultureInfo.InvariantCulture));
+            writer.WriteEndElement();
         }
 
         /// <summary>

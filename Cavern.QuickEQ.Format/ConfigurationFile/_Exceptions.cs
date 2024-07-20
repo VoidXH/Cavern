@@ -8,7 +8,7 @@ namespace Cavern.Format.ConfigurationFile {
     /// </summary>
     public abstract class UnsupportedFilterForExportException : Exception {
         /// <summary>
-        /// The filter not supported by Equalizer APO.
+        /// The filter not supported by the <see cref="ConfigurationFile"/>.
         /// </summary>
         public Filter Filter { get; }
 
@@ -40,6 +40,18 @@ namespace Cavern.Format.ConfigurationFile {
         /// Thrown when an unsupported filter would be exported for Equalizer APO.
         /// </summary>
         public NotEqualizerAPOFilterException(Filter filter) : base(message + filter, filter) { }
+    }
+
+    /// <summary>
+    /// Thrown when an unsupported filter would be exported for Cavern Filter Studio.
+    /// </summary>
+    public class NotCavernFilterStudioFilterException : UnsupportedFilterForExportException {
+        const string message = "Cavern Filter Studio's format does not support the following filter: ";
+
+        /// <summary>
+        /// Thrown when an unsupported filter would be exported for Cavern Filter Studio.
+        /// </summary>
+        public NotCavernFilterStudioFilterException(Filter filter) : base(message + filter, filter) { }
     }
 
     /// <summary>

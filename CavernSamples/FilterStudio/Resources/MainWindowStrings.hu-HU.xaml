@@ -54,8 +54,8 @@
     <system:String x:Key="Help2">Jobb klikkelj egy nyílra, hogy új szűrőt adj hozzá két szűrő közé.</system:String>
     <system:String x:Key="Help3">Húzz egy szűrőt lenyomott egérgombbal a másikba, hogy összekösd őket.</system:String>
 
-    <system:String x:Key="OpFil">Minden támogatott formátum|*.cbf;*.txt|Convolution Box Format|*.cbf|Equalizer APO
-        konfigurációk|*.txt</system:String>
+    <system:String x:Key="OpFil">Minden támogatott formátum|*.cbf;*.cfs;*.txt|Cavern Filter Studio|*.cfs|Convolution Box Format|*.cbf|Equalizer
+        APO konfigurációk|*.txt</system:String>
     <system:String x:Key="Succe">Siker</system:String>
     <system:String x:Key="ExSuc">Sikeres export.</system:String>
     <system:String x:Key="Error">Hiba</system:String>

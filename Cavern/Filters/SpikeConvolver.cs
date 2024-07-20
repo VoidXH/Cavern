@@ -1,4 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Xml;
+
+using Cavern.Filters.Interfaces;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -57,5 +60,8 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => new SpikeConvolver((float[])impulse.Clone(), delay);
+
+        /// <inheritdoc/>
+        public override void WriteXml(XmlWriter writer) => this.WriteCommonXml(writer, nameof(SpikeConvolver));
     }
 }

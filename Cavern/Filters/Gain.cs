@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Xml.Schema;
+using System.Xml;
+using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
@@ -10,7 +13,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Signal level multiplier filter.
     /// </summary>
-    public class Gain : Filter, IEqualizerAPOFilter, ILocalizableToString {
+    public class Gain : Filter, IEqualizerAPOFilter, ILocalizableToString, IXmlSerializable {
         /// <summary>
         /// Filter gain in decibels.
         /// </summary>
@@ -57,6 +60,31 @@ namespace Cavern.Filters {
         public override object Clone() => new Gain(GainValue) {
             Invert = Invert
         };
+
+        /// <inheritdoc/>
+        public XmlSchema GetSchema() => null;
+
+        /// <inheritdoc/>
+        public void ReadXml(XmlReader reader) {
+            while (reader.MoveToNextAttribute()) {
+                switch (reader.Name) {
+                    case nameof(GainValue):
+                        GainValue = QMath.ParseDouble(reader.Value);
+                        break;
+                    case nameof(Invert):
+                        Invert = bool.Parse(reader.Value);
+                        break;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public void WriteXml(XmlWriter writer) {
+            writer.WriteStartElement(nameof(Gain));
+            writer.WriteAttributeString(nameof(GainValue), GainValue.ToString(CultureInfo.InvariantCulture));
+            writer.WriteAttributeString(nameof(Invert), Invert.ToString());
+            writer.WriteEndElement();
+        }
 
         /// <inheritdoc/>
         public override string ToString() => $"Gain: {QMath.ToStringLimitDecimals(GainValue, 2)} dB";

@@ -7,5 +7,10 @@
         /// Impulse response to convolve with.
         /// </summary>
         float[] Impulse { get; set; }
+
+        /// <summary>
+        /// Added delay to the filter's <see cref="Impulse"/>, in samples.
+        /// </summary>
+        int Delay { get; set; }
     }
 }

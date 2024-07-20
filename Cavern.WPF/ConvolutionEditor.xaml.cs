@@ -36,6 +36,9 @@ namespace Cavern.WPF {
         }
         float[] impulse;
 
+        /// <inheritdoc/>
+        public int Delay { get; set; }
+
         /// <summary>
         /// The initial value of <see cref="impulse"/> as received in the constructor. When the editing is cancelled,
         /// or no new convolution samples are loaded, <see cref="Impulse"/> will return its original reference.

@@ -1,5 +1,9 @@
 ﻿using Cavern.Channels;
 using Cavern.Format.ConfigurationFile;
+using Cavern.Utilities;
+
+using System;
+using System.Xml;
 
 namespace Cavern.Filters {
     /// <summary>
@@ -17,7 +21,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// The channel for which this filter marks the beginning of the filter pipeline.
         /// </summary>
-        public ReferenceChannel Channel { get; }
+        public ReferenceChannel Channel { get; protected set; }
 
         /// <summary>
         /// Marks an endpoint on a parsed <see cref="ConfigurationFile"/> graph.
@@ -37,6 +41,23 @@ namespace Cavern.Filters {
         private protected EndpointFilter(string channel, string kind) : base($"{ParseName(channel)} {kind}") {
             Channel = ReferenceChannelExtensions.FromStandardName(channel);
             ChannelName = ParseName(channel);
+        }
+
+        /// <inheritdoc/>
+        public override void ReadXml(XmlReader reader) {
+            while (reader.MoveToNextAttribute()) {
+                switch (reader.Name) {
+                    case nameof(Name):
+                        Name = reader.Value;
+                        break;
+                    case nameof(Channel):
+                        Channel = (ReferenceChannel)Enum.Parse(typeof(ReferenceChannel), reader.Value);
+                        break;
+                    case nameof(ChannelName):
+                        ChannelName = reader.Value;
+                        break;
+                }
+            }
         }
 
         /// <summary>

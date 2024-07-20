@@ -2,6 +2,9 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
@@ -11,7 +14,7 @@ namespace Cavern.Filters {
     /// Normalized feedforward comb filter.
     /// </summary>
     /// <remarks>The feedback comb filter is called <see cref="Echo"/>.</remarks>
-    public class Comb : Filter, ISampleRateDependentFilter, ILocalizableToString {
+    public class Comb : Filter, ILocalizableToString, ISampleRateDependentFilter, IXmlSerializable {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {
@@ -111,6 +114,35 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => new Comb(sampleRate, K, Alpha);
+
+        /// <inheritdoc/>
+        public XmlSchema GetSchema() => null;
+
+        /// <inheritdoc/>
+        public void ReadXml(XmlReader reader) {
+            while (reader.MoveToNextAttribute()) {
+                switch (reader.Name) {
+                    case nameof(SampleRate):
+                        sampleRate = int.Parse(reader.Value);
+                        break;
+                    case nameof(K):
+                        K = int.Parse(reader.Value);
+                        break;
+                    case nameof(Alpha):
+                        Alpha = QMath.ParseDouble(reader.Value);
+                        break;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public void WriteXml(XmlWriter writer) {
+            writer.WriteStartElement(nameof(Comb));
+            writer.WriteAttributeString(nameof(SampleRate), sampleRate.ToString());
+            writer.WriteAttributeString(nameof(K), K.ToString());
+            writer.WriteAttributeString(nameof(Alpha), Alpha.ToString(CultureInfo.InvariantCulture));
+            writer.WriteEndElement();
+        }
 
         /// <inheritdoc/>
         public override string ToString() =>

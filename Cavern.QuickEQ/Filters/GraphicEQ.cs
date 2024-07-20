@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Xml;
 
 using Cavern.Filters.Interfaces;
 using Cavern.QuickEQ.Equalization;
@@ -42,8 +44,8 @@ namespace Cavern.Filters {
         /// </summary>
         [IgnoreDataMember]
         public new int Delay {
-            get => base.Delay;
-            set => base.Delay = value;
+            get => 0;
+            set => throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -82,7 +84,7 @@ namespace Cavern.Filters {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static GraphicEQ FromEqualizerAPO(string line, int sampleRate) =>
-            FromEqualizerAPO(line.Split(' ', System.StringSplitOptions.RemoveEmptyEntries), sampleRate);
+            FromEqualizerAPO(line.Split(' ', StringSplitOptions.RemoveEmptyEntries), sampleRate);
 
         /// <summary>
         /// Parse a Graphic EQ line of Equalizer APO which was split at spaces to a Cavern <see cref="GraphicEQ"/> filter.
@@ -93,6 +95,28 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => new GraphicEQ((Equalizer)equalizer.Clone(), SampleRate);
+
+        /// <inheritdoc/>
+        public override void ReadXml(XmlReader reader) {
+            while (reader.MoveToNextAttribute()) {
+                switch (reader.Name) {
+                    case nameof(SampleRate):
+                        SampleRate = int.Parse(reader.Value);
+                        break;
+                    case nameof(Equalizer):
+                        Equalizer = EQGenerator.FromEqualizerAPO(reader.Value);
+                        break;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void WriteXml(XmlWriter writer) {
+            writer.WriteStartElement(nameof(GraphicEQ));
+            writer.WriteAttributeString(nameof(SampleRate), SampleRate.ToString());
+            writer.WriteAttributeString(nameof(Equalizer), equalizer.ExportToEqualizerAPO());
+            writer.WriteEndElement();
+        }
 
         /// <inheritdoc/>
         public void ExportToEqualizerAPO(List<string> wipConfig) => wipConfig.Add(equalizer.ExportToEqualizerAPO());

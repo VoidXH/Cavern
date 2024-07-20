@@ -2,6 +2,9 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
@@ -12,7 +15,7 @@ namespace Cavern.Filters {
     /// </summary>
     /// <remarks>This filter is performing convolution by definition, which is faster if the window size is very small.
     /// For most cases, <see cref="FastConvolver"/> is preferred.</remarks>
-    public class Convolver : Filter, IConvolution, ILocalizableToString {
+    public class Convolver : Filter, IConvolution, ILocalizableToString, IXmlSerializable {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate { get; set; }
@@ -109,6 +112,15 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => new Convolver((float[])impulse.Clone(), SampleRate, delay);
+
+        /// <inheritdoc/>
+        public XmlSchema GetSchema() => null;
+
+        /// <inheritdoc/>
+        public virtual void ReadXml(XmlReader reader) => this.ReadCommonXml(reader);
+
+        /// <inheritdoc/>
+        public virtual void WriteXml(XmlWriter writer) => this.WriteCommonXml(writer, nameof(Convolver));
 
         /// <inheritdoc/>
         public override string ToString() => "Convolution";

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Xml;
 
 using Cavern.Channels;
 using Cavern.Format.ConfigurationFile;
@@ -25,6 +26,15 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => Channel != ReferenceChannel.Unknown ? new InputChannel(Channel) : new InputChannel(ChannelName);
+
+        /// <inheritdoc/>
+        public override void WriteXml(XmlWriter writer) {
+            writer.WriteStartElement(nameof(InputChannel));
+            writer.WriteAttributeString(nameof(Name), Name);
+            writer.WriteAttributeString(nameof(Channel), Channel.ToString());
+            writer.WriteAttributeString(nameof(ChannelName), ChannelName);
+            writer.WriteEndElement();
+        }
 
         /// <inheritdoc/>
         public string ToString(CultureInfo culture) {

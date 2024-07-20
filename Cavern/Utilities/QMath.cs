@@ -248,15 +248,25 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Parse a double value regardless of the system's culture.
+        /// </summary>
+        public static double ParseDouble(string s) {
+            char separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
+            if (s.IndexOf(separator) >= 0) {
+                return Convert.ToDouble(s);
+            }
+            return Convert.ToDouble(s.Replace(',', '.'), CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
         /// Parse a float value regardless of the system's culture.
         /// </summary>
         public static float ParseFloat(string s) {
             char separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
-            int idx = s.IndexOf(separator);
-            if (idx >= 0) {
+            if (s.IndexOf(separator) >= 0) {
                 return Convert.ToSingle(s);
             }
-            return Convert.ToSingle(s.Replace(separator == '.' ? ',' : '.', separator));
+            return Convert.ToSingle(s.Replace(',', '.'), CultureInfo.InvariantCulture);
         }
 
         /// <summary>

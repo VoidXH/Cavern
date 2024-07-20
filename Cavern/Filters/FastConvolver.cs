@@ -2,6 +2,9 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
@@ -13,7 +16,7 @@ namespace Cavern.Filters {
     /// <remarks>This filter is using the overlap and add method using FFTs, with non-thread-safe caches.
     /// For a thread-safe fast convolver, use <see cref="ThreadSafeFastConvolver"/>. This filter is also
     /// only for a single channel, use <see cref="MultichannelConvolver"/> for multichannel signals.</remarks>
-    public partial class FastConvolver : Filter, IConvolution, IDisposable, ILocalizableToString {
+    public partial class FastConvolver : Filter, IConvolution, IDisposable, ILocalizableToString, IXmlSerializable {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate { get; set; }
@@ -46,13 +49,13 @@ namespace Cavern.Filters {
         /// </summary>
         public int Length => filter.Length;
 
-        /// <summary>
-        /// Added filter delay to the impulse, in samples.
-        /// </summary>
+        /// <inheritdoc/>
         public int Delay {
             get => delay;
             set {
-                future = new float[Length + value];
+                if (future == null || future.Length != Length + value) {
+                    future = new float[Length + value];
+                }
                 delay = value;
             }
         }
@@ -161,6 +164,15 @@ namespace Cavern.Filters {
                 cache?.Dispose();
             }
         }
+
+        /// <inheritdoc/>
+        public XmlSchema GetSchema() => null;
+
+        /// <inheritdoc/>
+        public virtual void ReadXml(XmlReader reader) => this.ReadCommonXml(reader);
+
+        /// <inheritdoc/>
+        public virtual void WriteXml(XmlWriter writer) => this.WriteCommonXml(writer, nameof(FastConvolver));
 
         /// <inheritdoc/>
         public override string ToString() => "Convolution";

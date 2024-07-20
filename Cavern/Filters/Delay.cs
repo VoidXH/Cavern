@@ -4,6 +4,9 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
@@ -12,7 +15,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Delays the audio.
     /// </summary>
-    public class Delay : Filter, IEqualizerAPOFilter, ISampleRateDependentFilter, ILocalizableToString {
+    public class Delay : Filter, IEqualizerAPOFilter, ISampleRateDependentFilter, ILocalizableToString, IXmlSerializable {
         /// <summary>
         /// If the filter was set up with a time delay, this is the sample rate used to calculate the delay in samples.
         /// </summary>
@@ -89,7 +92,7 @@ namespace Cavern.Filters {
         /// Create a delay for a given length in seconds.
         /// </summary>
         public Delay(double time, int sampleRate) {
-            this.SampleRate = sampleRate;
+            SampleRate = sampleRate;
             delayMs = time;
             RecreateCaches((int)(time * sampleRate * .001 + .5));
         }
@@ -148,6 +151,31 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() => double.IsNaN(delayMs) ? new Delay(DelaySamples) : new Delay(DelayMs, SampleRate);
+
+        /// <inheritdoc/>
+        public XmlSchema GetSchema() => null;
+
+        /// <inheritdoc/>
+        public void ReadXml(XmlReader reader) {
+            while (reader.MoveToNextAttribute()) {
+                switch (reader.Name) {
+                    case nameof(SampleRate):
+                        SampleRate = int.Parse(reader.Value);
+                        break;
+                    case nameof(DelaySamples):
+                        DelaySamples = int.Parse(reader.Value);
+                        break;
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public void WriteXml(XmlWriter writer) {
+            writer.WriteStartElement(nameof(Delay));
+            writer.WriteAttributeString(nameof(SampleRate), SampleRate.ToString());
+            writer.WriteAttributeString(nameof(DelaySamples), DelaySamples.ToString());
+            writer.WriteEndElement();
+        }
 
         /// <inheritdoc/>
         public override string ToString() {

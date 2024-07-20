@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 
 using Cavern.Utilities;
 
@@ -13,6 +14,56 @@ namespace Cavern.Filters {
         /// when used as convolution samples.
         /// </summary>
         public virtual bool LinearTimeInvariant => true;
+
+        /// <summary>
+        /// Using an XML <paramref name="reader"/> that is currently at an element start, return the described filter in the XML file.
+        /// </summary>
+        /// <exception cref="XmlException">The filter is unknown or the reading of the filter from XML is not implemented</exception>
+        public static Filter FromXml(XmlReader reader) {
+            Type filterType = Type.GetType("Cavern.Filters." + reader.Name);
+            if (filterType != null && typeof(BiquadFilter).IsAssignableFrom(filterType)) {
+                BiquadFilter filter = (BiquadFilter)Activator.CreateInstance(filterType, Listener.DefaultSampleRate, 100);
+                filter.ReadXml(reader);
+                return filter;
+            }
+
+            switch (reader.Name) {
+                case nameof(BypassFilter):
+                    BypassFilter bypass = new BypassFilter(string.Empty);
+                    bypass.ReadXml(reader);
+                    return bypass;
+                case nameof(Comb):
+                    Comb comb = new Comb(Listener.DefaultSampleRate, 0, 0);
+                    comb.ReadXml(reader);
+                    return comb;
+                case nameof(Convolver):
+                    Convolver convolver = new Convolver(Array.Empty<float>(), Listener.DefaultSampleRate);
+                    convolver.ReadXml(reader);
+                    return convolver;
+                case nameof(Delay):
+                    Delay delay = new Delay(0);
+                    delay.ReadXml(reader);
+                    return delay;
+                case nameof(Echo):
+                    Echo echo = new Echo(Listener.DefaultSampleRate);
+                    echo.ReadXml(reader);
+                    return echo;
+                case nameof(FastConvolver):
+                    FastConvolver fastConvolver = new FastConvolver(new float[2]);
+                    fastConvolver.ReadXml(reader);
+                    return fastConvolver;
+                case nameof(Gain):
+                    Gain gain = new Gain(0);
+                    gain.ReadXml(reader);
+                    return gain;
+                case nameof(SpikeConvolver):
+                    SpikeConvolver spikeConvolver = new SpikeConvolver(new float[0], 0);
+                    spikeConvolver.ReadXml(reader);
+                    return spikeConvolver;
+                default:
+                    throw new XmlException();
+            }
+        }
 
         /// <summary>
         /// Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.

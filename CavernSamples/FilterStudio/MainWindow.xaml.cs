@@ -131,12 +131,15 @@ namespace FilterStudio {
                     ConfigurationFileType type = ConfigurationFileType.EqualizerAPO;
                     using (FileStream file = File.OpenRead(dialog.FileName)) {
                         int magicNumber = file.ReadInt32();
-                        if (magicNumber == ConvolutionBoxFormatConfigurationFile.syncWord) {
+                        if (magicNumber == 0x3CBFBBEF) {
+                            type = ConfigurationFileType.CavernFilterStudio;
+                        } else if (magicNumber == ConvolutionBoxFormatConfigurationFile.syncWord) {
                             type = ConfigurationFileType.ConvolutionBoxFormat;
                         }
                     }
 
                     ConfigurationFile import = type switch {
+                        ConfigurationFileType.CavernFilterStudio => new CavernFilterStudioConfigurationFile(dialog.FileName),
                         ConfigurationFileType.ConvolutionBoxFormat => new ConvolutionBoxFormatConfigurationFile(dialog.FileName),
                         _ => new EqualizerAPOConfigurationFile(dialog.FileName, SampleRate)
                     };
