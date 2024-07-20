@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.Format.ConfigurationFile.Helpers;
 using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.Format.ConfigurationFile {
@@ -25,7 +26,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Import a Cavern Filter Studio configuration file from a <paramref name="path"/>.
         /// </summary>
-        public CavernFilterStudioConfigurationFile(string path) : base(ParseSplitPoints(path)) { }
+        public CavernFilterStudioConfigurationFile(string path) : base(ParseSplitPoints(path)) => FinishLazySetup(131072);
 
         /// <summary>
         /// Create an empty file for a standard layout.
@@ -104,7 +105,7 @@ namespace Cavern.Format.ConfigurationFile {
         static Filter ParseFilter(XmlReader reader) {
             switch (reader.Name) {
                 case nameof(GraphicEQ):
-                    GraphicEQ graphicEQ = new GraphicEQ(new Equalizer(), Listener.DefaultSampleRate);
+                    LazyGraphicEQ graphicEQ = new LazyGraphicEQ(new Equalizer(), Listener.DefaultSampleRate);
                     graphicEQ.ReadXml(reader);
                     return graphicEQ;
                 case nameof(InputChannel):
@@ -117,7 +118,7 @@ namespace Cavern.Format.ConfigurationFile {
                     return outputChannel;
                 default:
                     return Filter.FromXml(reader);
-            };
+            }
         }
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace Cavern.Format.ConfigurationFile {
             (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
             ValidateForExport(exportOrder);
 
-            XmlWriterSettings settings = new XmlWriterSettings() {
+            XmlWriterSettings settings = new XmlWriterSettings {
                 Indent = true
             };
             using XmlWriter writer = XmlWriter.Create(path, settings);
@@ -162,7 +163,7 @@ namespace Cavern.Format.ConfigurationFile {
                             return j;
                         }
                     }
-                    throw new IndexOutOfRangeException();
+                    throw new DataMisalignedException();
                 })));
                 writer.WriteEndElement();
             }
