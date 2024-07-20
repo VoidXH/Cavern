@@ -6,6 +6,7 @@ using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
+using Cavern.Format.ConfigurationFile.Helpers;
 using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
@@ -267,6 +268,17 @@ namespace Cavern.Format.ConfigurationFile {
             for (int i = 0; i < channels.Length; i++) {
                 InputChannels[i].root.AddChild(new FilterGraphNode(new OutputChannel(channels[i])));
             }
+        }
+
+        /// <summary>
+        /// Convert the lazy loadable <see cref="Filter"/>s to their real counterparts in parallel.
+        /// </summary>
+        protected void FinishLazySetup(int fftCacheSize) {
+            using FFTCachePool pool = new FFTCachePool(fftCacheSize);
+            FilterGraphNode[] nodes = InputChannels.Select(x => x.root).MapGraph().Where(x => x.Filter is ILazyLoadableFilter).ToArray();
+            Parallelizer.For(0, nodes.Length, i => {
+                nodes[i].Filter = ((ILazyLoadableFilter)nodes[i].Filter).CreateFilter(pool);
+            });
         }
 
         /// <summary>

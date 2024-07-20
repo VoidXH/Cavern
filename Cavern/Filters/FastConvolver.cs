@@ -114,7 +114,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Create the FFT cache used for accelerating the convolution in Fourier-space.
         /// </summary>
-        public virtual FFTCache CreateCache(int fftSize) => new FFTCache(fftSize);
+        public virtual FFTCache CreateCache(int fftSize) => new ThreadSafeFFTCache(fftSize);
 
         /// <summary>
         /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.

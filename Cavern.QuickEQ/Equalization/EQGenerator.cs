@@ -317,6 +317,17 @@ namespace Cavern.QuickEQ.Equalization {
 
         /// <summary>
         /// Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.
+        /// Additional gain will not be applied, and the filter's length will be the default of 1024 samples.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        /// <param name="cache">Reused FFT helper values for better performance - use the non-cache version for auto-calculation</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[] GetConvolution(this Equalizer eq, int sampleRate, FFTCache cache) =>
+            eq.GetConvolution(sampleRate, 1, null, cache);
+
+        /// <summary>
+        /// Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.
         /// The initial curve can be provided in Fourier-space.
         /// </summary>
         /// <param name="eq">Source <see cref="Equalizer"/></param>
@@ -325,9 +336,25 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="gain">Signal voltage multiplier</param>
         /// <param name="initial">Custom initial spectrum to apply the EQ on - phases will be corrected, this is not convolved,
         /// and has to be twice the size of <paramref name="length"/></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] GetConvolution(this Equalizer eq, int sampleRate, int length, float gain, Complex[] initial) {
-            length <<= 1;
-            Complex[] filter = new Complex[length];
+            using FFTCache cache = new ThreadSafeFFTCache(length << 1);
+            return eq.GetConvolution(sampleRate, gain, initial, cache);
+        }
+
+        /// <summary>
+        /// Gets a zero-delay convolution filter with minimally sacrificed phase that results in this EQ when applied.
+        /// The initial curve can be provided in Fourier-space.
+        /// </summary>
+        /// <param name="eq">Source <see cref="Equalizer"/></param>
+        /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
+        /// <param name="gain">Signal voltage multiplier</param>
+        /// <param name="initial">Custom initial spectrum to apply the EQ on - phases will be corrected, this is not convolved,
+        /// and has to be twice the size of <paramref name="length"/></param>
+        /// <param name="cache">Reused FFT helper values for better performance - use the non-cache version for auto-calculation</param>
+        public static float[] GetConvolution(this Equalizer eq, int sampleRate, float gain, Complex[] initial, FFTCache cache) {
+            int length = cache.Size;
+            Complex[] filter = new Complex[cache.Size];
             if (initial == null) {
                 for (int i = 0; i < length; i++) {
                     filter[i].Real = gain; // FFT of DiracDelta(x)
@@ -338,10 +365,8 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             eq.Apply(filter, sampleRate);
-            using (FFTCache cache = new ThreadSafeFFTCache(length)) {
-                Measurements.MinimumPhaseSpectrum(filter, cache);
-                filter.InPlaceIFFT(cache);
-            }
+            Measurements.MinimumPhaseSpectrum(filter, cache);
+            filter.InPlaceIFFT(cache);
 
             // Hann windowing for increased precision
             float mul = 2 * MathF.PI / length;

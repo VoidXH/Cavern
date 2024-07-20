@@ -9,6 +9,8 @@ using Cavern.Filters;
 using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
+using Cavern.Format.ConfigurationFile.Helpers;
+using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
@@ -38,6 +40,7 @@ namespace Cavern.Format.ConfigurationFile {
                 lastNodes[channelLabels[i]].AddChild(new FilterGraphNode(new OutputChannel(channelLabels[i])));
             }
             Optimize();
+            FinishLazySetup(131072);
         }
 
         /// <summary>
@@ -65,7 +68,7 @@ namespace Cavern.Format.ConfigurationFile {
         static void AddCopyFilter(Dictionary<string, FilterGraphNode> lastNodes, string[] split) {
             Dictionary<string, FilterGraphNode> oldLastNodes = lastNodes.ToDictionary(x => x.Key, x => x.Value);
             for (int i = 1; i < split.Length; i++) {
-                string[] copy = split[i].Split('=', '+');
+                string[] copy = split[i].Split(new[] { '=', '+' });
                 FilterGraphNode target = new FilterGraphNode(null);
                 for (int j = 1; j < copy.Length; j++) {
                     string channel;
@@ -111,11 +114,32 @@ namespace Cavern.Format.ConfigurationFile {
             }
         }
 
+        /// <summary>
+        /// Throw an <see cref="DuplicateLabelException"/> if the filter set contains a non-channel label twice.
+        /// </summary>
+        static void ValidateForExport((FilterGraphNode node, int _)[] exportOrder) {
+            HashSet<string> labels = new HashSet<string>();
+            for (int i = 0; i < exportOrder.Length; i++) {
+                if (exportOrder[i].node.Filter is BypassFilter label && !(label is EndpointFilter)) {
+                    if (labels.Contains(label.Name)) {
+                        throw new DuplicateLabelException(label.Name);
+                    } else {
+                        labels.Add(label.Name);
+                    }
+                }
+            }
+        }
+
         /// <inheritdoc/>
         public override void Export(string path) {
+            Dictionary<int, string> virtualChannelNames = new Dictionary<int, string>();
             string GetChannelLabel(int channel) { // Convert index to label
                 if (channel < 0) {
-                    return "V" + -channel;
+                    if (virtualChannelNames.ContainsKey(channel)) {
+                        return virtualChannelNames[channel];
+                    } else {
+                        throw new NotPreparedChannelException("V" + -channel);
+                    }
                 } else {
                     if (channelLabels.Contains(InputChannels[channel].name) || channel > 7) {
                         return InputChannels[channel].name;
@@ -139,10 +163,21 @@ namespace Cavern.Format.ConfigurationFile {
             string ConvolutionFileName(int index) => $"{convolutionRoot}_{index}.wav";
 
             (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
+            ValidateForExport(exportOrder);
             int lastChannel = int.MaxValue;
             List<IConvolution> convolutions = new List<IConvolution>();
             for (int i = 0; i < exportOrder.Length; i++) {
                 int channel = exportOrder[i].channel;
+                Filter baseFilter = exportOrder[i].node.Filter;
+                BypassFilter label = baseFilter is EndpointFilter ? null : baseFilter as BypassFilter;
+                if (channel < 0 && !virtualChannelNames.ContainsKey(channel)) {
+                    if (label == null) {
+                        virtualChannelNames[channel] = "V" + -channel;
+                    } else {
+                        virtualChannelNames[channel] = label.Name.Replace(" ", string.Empty);
+                    }
+                }
+
                 int[] parents = GetExportedParents(exportOrder, i);
                 if (parents.Length == 0 || (parents.Length == 1 && parents[0] == channel)) {
                     // If there are no parents or the single parent is from the same channel, don't mix
@@ -155,15 +190,14 @@ namespace Cavern.Format.ConfigurationFile {
                     lastChannel = channel;
                 }
 
-                Filter baseFilter = exportOrder[i].node.Filter;
                 if (baseFilter == null || baseFilter is BypassFilter) {
                     continue;
                 }
-                if (baseFilter is IConvolution convolution) {
+                if (baseFilter is IEqualizerAPOFilter filter) {
+                    filter.ExportToEqualizerAPO(result);
+                } else if (baseFilter is IConvolution convolution) {
                     result.Add(convolutionFilter + ConvolutionFileName(convolutions.Count));
                     convolutions.Add(convolution);
-                } else if (baseFilter is IEqualizerAPOFilter filter) {
-                    filter.ExportToEqualizerAPO(result);
                 } else {
                     throw new NotEqualizerAPOFilterException(baseFilter);
                 }
@@ -219,7 +253,7 @@ namespace Cavern.Format.ConfigurationFile {
                         break;
                     // Graphic equalizers
                     case "graphiceq":
-                        AddFilter(lastNodes, activeChannels, GraphicEQ.FromEqualizerAPO(split, sampleRate));
+                        AddFilter(lastNodes, activeChannels, new LazyGraphicEQ(EQGenerator.FromEqualizerAPO(split), sampleRate));
                         break;
                     case "convolution":
                         string convolution = Path.Combine(Path.GetDirectoryName(path), line[(line.IndexOf(' ') + 1)..]);

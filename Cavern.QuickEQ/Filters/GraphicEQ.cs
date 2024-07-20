@@ -66,6 +66,18 @@ namespace Cavern.Filters {
         }
 
         /// <summary>
+        /// Convert an <paramref name="equalizer"/> to a convolution filter, with optimal performance.
+        /// </summary>
+        /// <param name="equalizer">Desired frequency response change</param>
+        /// <param name="sampleRate">Sample rate at which this EQ is converted to a minimum-phase FIR filter</param>
+        /// <param name="cache">Reused FFT helper values for better performance - use the non-cache version for auto-calculation</param>
+        public GraphicEQ(Equalizer equalizer, int sampleRate, FFTCache cache) :
+            base(equalizer.GetConvolution(sampleRate, cache)) {
+            this.equalizer = equalizer;
+            SampleRate = sampleRate;
+        }
+
+        /// <summary>
         /// Parse a Graphic EQ line of Equalizer APO to a Cavern <see cref="GraphicEQ"/> filter.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -86,9 +98,8 @@ namespace Cavern.Filters {
         public void ExportToEqualizerAPO(List<string> wipConfig) => wipConfig.Add(equalizer.ExportToEqualizerAPO());
 
         /// <inheritdoc/>
-        public override string ToString() {
-            return $"Graphic EQ: {Equalizer.Bands.Count} bands, {QMath.ToStringLimitDecimals(Equalizer.PeakGain, 3)} dB peak";
-        }
+        public override string ToString() =>
+            $"Graphic EQ: {Equalizer.Bands.Count} bands, {QMath.ToStringLimitDecimals(Equalizer.PeakGain, 3)} dB peak";
 
         /// <inheritdoc/>
         public override string ToString(CultureInfo culture) {

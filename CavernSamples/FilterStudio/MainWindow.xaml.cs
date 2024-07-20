@@ -82,6 +82,12 @@ namespace FilterStudio {
             filter is ILocalizableToString loc ? loc.ToString(CultureInfo.CurrentCulture) : filter.ToString();
 
         /// <summary>
+        /// Displays a message for a successful operation.
+        /// </summary>
+        static void Success(string message) =>
+            MessageBox.Show(message, (string)language["Succe"], MessageBoxButton.OK, MessageBoxImage.Information);
+
+        /// <summary>
         /// Displays an error message.
         /// </summary>
         static void Error(string message) => MessageBox.Show(message, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
@@ -210,7 +216,7 @@ namespace FilterStudio {
             if (dialog.ShowDialog().Value) {
                 try {
                     file.Export(dialog.FileName);
-                    MessageBox.Show((string)language["ExSuc"]);
+                    Success((string)language["ExSuc"]);
                 } catch (UnsupportedFilterForExportException e) {
                     Error(string.Format((string)language["NUnFi"], FilterToString(e.Filter)));
                 } catch (Exception e) {

@@ -56,6 +56,7 @@
 
     <system:String x:Key="OpFil">Minden támogatott formátum|*.cbf;*.txt|Convolution Box Format|*.cbf|Equalizer APO
         konfigurációk|*.txt</system:String>
+    <system:String x:Key="Succe">Siker</system:String>
     <system:String x:Key="ExSuc">Sikeres export.</system:String>
     <system:String x:Key="Error">Hiba</system:String>
     <system:String x:Key="NOpen">Egy konfigurációs fájl szerkesztés alatt van.
