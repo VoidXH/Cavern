@@ -40,12 +40,12 @@
 		<ProjectReference Include="..\Cavern\Cavern.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<Reference Include="UnityEditor">
-			<HintPath>..\..\..\2022.3.15f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine">
-			<HintPath>..\..\..\2022.3.15f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
-		</Reference>
+	  <Reference Include="UnityEditor">
+	    <HintPath>..\..\..\2022.3.30f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
+	  </Reference>
+	  <Reference Include="UnityEngine">
+	    <HintPath>..\..\..\2022.3.30f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll bin\Release\CavernAmp.dll" IgnoreExitCode="true" />

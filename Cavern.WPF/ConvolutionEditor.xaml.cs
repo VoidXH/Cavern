@@ -116,7 +116,7 @@ namespace Cavern.WPF {
             WaveformUtils.Gain(phaseGraph, 25 / MathF.PI);
             fftDisplay.AddCurve(EQGenerator.FromGraph(phaseGraph, 20, maxFreq), 0xFFFF0000);
 
-            VerboseImpulseResponse verbose = new(fft);
+            VerboseImpulseResponse verbose = new(impulse);
             polarity.Text = string.Format((string)language["VPola"], verbose.Polarity ? '+' : '-');
             phaseDisplay.Text = string.Format((string)language["VPhas"], (180 / Math.PI * verbose.Phase).ToString("0.00"));
             delay.Text = string.Format((string)language["VDela"], verbose.Delay);

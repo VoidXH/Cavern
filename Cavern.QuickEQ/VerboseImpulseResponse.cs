@@ -31,7 +31,7 @@ namespace Cavern.QuickEQ {
                 if (response != null) {
                     return response;
                 }
-                return response = Measurements.GetRealPart(ComplexResponse.IFFT());
+                return response = Measurements.GetRealPart(ComplexResponse);
             }
         }
         float[] response;
@@ -219,7 +219,7 @@ namespace Cavern.QuickEQ {
         public static int GetDelay(float[] response) {
             int result = 0;
             float absPeak = float.NegativeInfinity, absHere;
-            for (int pos = 0; pos < response.Length; ++pos) {
+            for (int pos = 0; pos < response.Length; pos++) {
                 absHere = Math.Abs(response[pos]);
                 if (absPeak < absHere) {
                     absPeak = absHere;
@@ -237,7 +237,7 @@ namespace Cavern.QuickEQ {
                 List<Peak> peakList = new List<Peak>();
                 float[] raw = Response;
                 float last = Math.Abs(raw[0]), abs = Math.Abs(raw[1]);
-                for (int pos = 2; pos < raw.Length; ++pos) {
+                for (int pos = 2; pos < raw.Length; pos++) {
                     float next = Math.Abs(raw[pos]);
                     if (abs > last && abs > next) {
                         peakList.Add(new Peak(pos - 1, abs));
