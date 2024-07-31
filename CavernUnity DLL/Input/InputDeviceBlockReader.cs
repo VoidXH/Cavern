@@ -20,6 +20,11 @@ namespace Cavern.Input {
         public event AudioBlockDelegate Callback;
 
         /// <summary>
+        /// Called when the microphone is not recording anymore for any reason.
+        /// </summary>
+        public event Action OnMicrophoneDisconnected;
+
+        /// <summary>
         /// Recording has successfully started.
         /// </summary>
         public bool Active => buffer != null;
@@ -131,6 +136,11 @@ namespace Cavern.Input {
                 OnEnable(); // In case the microphone couldn't be started, try again continuously.
             }
             if (buffer == null) {
+                return;
+            }
+            if (!MultiplatformMicrophone.IsRecording(activeDevice)) {
+                buffer = null;
+                OnMicrophoneDisconnected?.Invoke();
                 return;
             }
 

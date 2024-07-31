@@ -60,15 +60,15 @@ namespace Test.Cavern.QuickEQ {
         /// <summary>
         /// A correct example of the Hann window's bounding area.
         /// </summary>
-        static readonly float[] hannResult = {
+        static readonly float[] hannResult = [
             0, 0.0954915f, 0.34549153f, 0.65450853f, 0.90450853f, 1, 0.9045085f, 0.65450853f, 0.34549144f, 0.09549138f
-        };
+        ];
 
         /// <summary>
         /// A correct example of the Tukey window's bounding area.
         /// </summary>
-        static readonly float[] tukeyResult = {
+        static readonly float[] tukeyResult = [
             0, 0.9045085f, 1, 1, 1, 1, 1, 1, 1, 0.904508233f
-        };
+        ];
     }
 }
