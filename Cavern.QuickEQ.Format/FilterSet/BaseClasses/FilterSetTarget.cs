@@ -72,6 +72,10 @@ namespace Cavern.Format.FilterSet {
         // AVRs and processors -----------------------------------------------------
         // -------------------------------------------------------------------------
         /// <summary>
+        /// Acurus Muse processors.
+        /// </summary>
+        AcurusMuse,
+        /// <summary>
         /// Emotiva XMC processors.
         /// </summary>
         Emotiva,
@@ -168,6 +172,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MiniDSP2x4HD => "MiniDSP 2x4 HD",
             FilterSetTarget.MiniDSP2x4HDLite => "MiniDSP 2x4 HD Lite",
             FilterSetTarget.MiniDSPDDRC88A => "MiniDSP DDRC-88A",
+            FilterSetTarget.AcurusMuse => "Acurus Muse",
             FilterSetTarget.Emotiva => "Emotiva",
             FilterSetTarget.MonolithHTP1 => "Monoprice Monolith HTP-1",
             FilterSetTarget.StormAudio => "StormAudio",

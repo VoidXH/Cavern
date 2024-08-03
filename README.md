@@ -29,7 +29,7 @@ Cavernize.
   * Supported software/hardware for EQ/filter set export:
     * PC: Equalizer APO, CamillaDSP
     * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD, MiniDSP DDRC-88A
-    * Processors: Emotiva, StormAudio, Monolith HTP-1
+    * Processors: Acurus Muse, Emotiva, Monolith HTP-1, StormAudio
     * Amplifiers: Behringer NX series
     * Others: Audyssey MultEQ-X, Dirac Live, YPAO
 * Direction and distance virtualization for headphones
