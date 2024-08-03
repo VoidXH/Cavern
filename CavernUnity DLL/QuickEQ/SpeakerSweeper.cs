@@ -219,6 +219,20 @@ namespace Cavern.QuickEQ {
         }
 
         /// <summary>
+        /// Get if any channel was clipping while measuring.
+        /// </summary>
+        /// <returns>For each channel if it was clipping.</returns>
+        public bool[] GetClippingChannels(bool parallel = true) {
+            bool[] result = new bool[ExcitementResponses.Length];
+            if (parallel) {
+                Parallelizer.For(0, result.Length, i => result[i] = WaveformUtils.GetPeakSigned(ExcitementResponses[i]) >= 1);
+            } else for (int i = 0; i < result.Length; i++) {
+                result[i] = WaveformUtils.GetPeakSigned(ExcitementResponses[i]) >= 1;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Get the frequency response of an external measurement that was performed with the current <see cref="sweepFFT"/>.
         /// </summary>
         public Complex[] GetFrequencyResponse(float[] samples, bool LFE) =>
@@ -285,7 +299,7 @@ namespace Cavern.QuickEQ {
             if (!measurementStarted) {
                 measurementStarted = true;
                 sweepers = new SweepChannel[Listener.Channels.Length];
-                for (int i = 0; i < Listener.Channels.Length; ++i) {
+                for (int i = 0; i < Listener.Channels.Length; i++) {
                     sweepers[i] = gameObject.AddComponent<SweepChannel>();
                     sweepers[i].Channel = i;
                     sweepers[i].Sweeper = this;
@@ -310,15 +324,15 @@ namespace Cavern.QuickEQ {
                 workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(fft, sweepFFTCache, result, sampleRate));
                 workers[Channel].Start();
                 if (++Channel == Listener.Channels.Length) {
-                    for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
+                    for (int channel = 0; channel < Listener.Channels.Length; channel++) {
                         workers[channel].Wait();
                     }
-                    for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
+                    for (int channel = 0; channel < Listener.Channels.Length; channel++) {
                         FreqResponses[channel] = workers[channel].Result.FreqResponse;
                         ImpResponses[channel] = workers[channel].Result.ImpResponse;
                         Destroy(sweepers[channel]);
                     }
-                    for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
+                    for (int channel = 0; channel < Listener.Channels.Length; channel++) {
                         workers[channel].Dispose();
                     }
                     sweepers = null;
@@ -336,7 +350,7 @@ namespace Cavern.QuickEQ {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() {
             if (sweepers != null && sweepers[0]) {
-                for (int channel = 0; channel < Listener.Channels.Length; ++channel) {
+                for (int channel = 0; channel < Listener.Channels.Length; channel++) {
                     Destroy(sweepers[channel]);
                 }
             }
