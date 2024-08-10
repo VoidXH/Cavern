@@ -49,14 +49,14 @@ namespace Cavern.Filters.Utilities {
 
                 FilterGraphNode copy = new FilterGraphNode((Filter)source.Filter.Clone());
                 mapping[source] = copy;
-                foreach (var child in source.Children) {
+                foreach (FilterGraphNode child in source.Children) {
                     copy.AddChild(CopyNode(child));
                 }
                 return copy;
             }
 
             List<FilterGraphNode> result = new List<FilterGraphNode>();
-            foreach (var rootNode in rootNodes) {
+            foreach (FilterGraphNode rootNode in rootNodes) {
                 result.Add(CopyNode(rootNode));
             }
             return (result, mapping);

@@ -6,6 +6,9 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class Multiband31FilterSet : MultibandPEQFilterSet {
         /// <inheritdoc/>
+        public override int LFEBands => 9;
+
+        /// <inheritdoc/>
         public Multiband31FilterSet(string path, int sampleRate) : base(path, sampleRate) => Prepare();
 
         /// <inheritdoc/>
@@ -39,7 +42,6 @@ namespace Cavern.Format.FilterSet {
                 (3200, 3150),
                 (13000, 12500)
             };
-            LFEBands = 9;
         }
     }
 }

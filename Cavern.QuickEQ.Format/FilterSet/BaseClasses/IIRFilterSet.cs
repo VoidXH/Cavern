@@ -43,6 +43,11 @@ namespace Cavern.Format.FilterSet {
         public virtual int Bands => 20;
 
         /// <summary>
+        /// Limit the number of bands exported for the LFE channel.
+        /// </summary>
+        public virtual int LFEBands => Bands;
+
+        /// <summary>
         /// Minimum gain of a single peaking EQ band in decibels.
         /// </summary>
         public virtual double MinGain => -20;
@@ -71,6 +76,11 @@ namespace Cavern.Format.FilterSet {
         /// Construct a room correction with IIR filter sets for each channel for a room with the target reference channels.
         /// </summary>
         public IIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) => Initialize<IIRChannelData>(channels);
+
+        /// <summary>
+        /// If the filter set's band count is dependent on which channel is selected, use this function instead of <see cref="Bands"/>.
+        /// </summary>
+        public virtual int GetBands(ReferenceChannel channel) => channel == ReferenceChannel.ScreenLFE ? LFEBands : Bands;
 
         /// <summary>
         /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.

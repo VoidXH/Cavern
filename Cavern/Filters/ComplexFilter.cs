@@ -24,6 +24,11 @@ namespace Cavern.Filters {
         /// </summary>
         public ComplexFilter(params Filter[] filters) => Filters.AddRange(filters);
 
+        /// <summary>
+        /// Create a usable filter set from a precreated collection.
+        /// </summary>
+        public ComplexFilter(IEnumerable<Filter> filters) => Filters.AddRange(filters);
+
         /// <inheritdoc/>
         public override void Process(float[] samples) {
             for (int filter = 0, filters = Filters.Count; filter < filters; ++filter) {

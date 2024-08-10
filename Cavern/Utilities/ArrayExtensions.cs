@@ -121,7 +121,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// From a <paramref name="source"/>, get which element is closest to a given <paramref name="value"/>.
+        /// From a sorted <paramref name="source"/>, get which element is closest to a given <paramref name="value"/>.
         /// </summary>
         public static float Nearest(this float[] source, float value) {
             int left = 0, right = source.Length - 1;

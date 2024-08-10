@@ -87,6 +87,10 @@ namespace Cavern.Format.FilterSet {
         /// StormAudio ISP processors.
         /// </summary>
         StormAudio,
+        /// <summary>
+        /// Tonewinner AT-series processors.
+        /// </summary>
+        TonewinnerAT,
 
         // -------------------------------------------------------------------------
         // Amplifiers --------------------------------------------------------------
@@ -176,6 +180,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.Emotiva => "Emotiva",
             FilterSetTarget.MonolithHTP1 => "Monoprice Monolith HTP-1",
             FilterSetTarget.StormAudio => "StormAudio",
+            FilterSetTarget.TonewinnerAT => "Tonewinner AT series",
             FilterSetTarget.BehringerNX => "Behringer NX series",
             FilterSetTarget.DiracLive => null,
             FilterSetTarget.DiracLiveBassControl => null,

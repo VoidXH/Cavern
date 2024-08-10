@@ -174,7 +174,7 @@ namespace Cavern.Cavern4D {
 
             // Seat rotation interpolation
             for (int row = 0; row < Rows; row++) {
-                var movement = SeatMovements[row];
+                SeatData[] movement = SeatMovements[row];
                 movement[0].Rotation.z =
                     Mathf.Clamp((movement[1].Height - movement[0].Height) * RotationConstant * 2, -MaxRotationSide, MaxRotationSide);
                 for (int column = 1; column < lastColumn; column++) {

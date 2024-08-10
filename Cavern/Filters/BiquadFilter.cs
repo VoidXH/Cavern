@@ -230,6 +230,11 @@ namespace Cavern.Filters {
         /// <param name="sampleRate">Sample rate of the new filter</param>
         public abstract object Clone(int sampleRate);
 
+        /// <summary>
+        /// Clone the filter with an inverse gain.
+        /// </summary>
+        public BiquadFilter GetInverse() => Create(FilterType, sampleRate, centerFreq, q, -gain);
+
         /// <inheritdoc/>
         public abstract void ExportToEqualizerAPO(List<string> wipConfig);
 

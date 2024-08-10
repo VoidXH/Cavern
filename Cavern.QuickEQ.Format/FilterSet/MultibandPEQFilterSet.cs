@@ -35,11 +35,6 @@ namespace Cavern.Format.FilterSet {
         public (double oldFreq, double newFreq)[] FreqOverrides { get; set; }
 
         /// <summary>
-        /// Limit the number of bands exported for the LFE channel.
-        /// </summary>
-        protected int LFEBands { get; set; }
-
-        /// <summary>
         /// Frequency of the first exported band.
         /// </summary>
         readonly double firstBand;
@@ -67,7 +62,6 @@ namespace Cavern.Format.FilterSet {
             this.firstBand = firstBand;
             this.bandsPerOctave = bandsPerOctave;
             this.bandCount = bandCount;
-            LFEBands = bandCount;
         }
 
         /// <summary>
@@ -98,7 +92,6 @@ namespace Cavern.Format.FilterSet {
             this.firstBand = firstBand;
             this.bandsPerOctave = bandsPerOctave;
             this.bandCount = bandCount;
-            LFEBands = bandCount;
         }
 
         /// <summary>
