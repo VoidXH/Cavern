@@ -431,7 +431,7 @@ namespace Cavern.Utilities {
                 if (cutoff < result.Length) {
                     result = result[..cutoff];
                 }
-                result = result.TrimEnd('0', '.');
+                result = result.TrimEnd('0').TrimEnd('.');
             }
             return result;
         }

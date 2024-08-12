@@ -5,6 +5,7 @@ using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -76,6 +77,19 @@ namespace Cavern.Format.FilterSet {
         /// Construct a room correction with IIR filter sets for each channel for a room with the target reference channels.
         /// </summary>
         public IIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) => Initialize<IIRChannelData>(channels);
+
+        /// <summary>
+        /// Convert a double to string with its maximum decimal places dependent on the base 10 logarithm.
+        /// </summary>
+        static string RangeDependentDecimals(double value) {
+            if (value < 100) {
+                return QMath.ToStringLimitDecimals(value, 2);
+            } else if (value < 1000) {
+                return QMath.ToStringLimitDecimals(value, 1);
+            } else {
+                return QMath.ToStringLimitDecimals(value, 0);
+            }
+        }
 
         /// <summary>
         /// If the filter set's band count is dependent on which channel is selected, use this function instead of <see cref="Bands"/>.
@@ -162,17 +176,10 @@ namespace Cavern.Format.FilterSet {
 
                 BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
                 for (int j = 0; j < filters.Length; j++) {
-                    string freq;
-                    if (filters[j].CenterFreq < 100) {
-                        freq = filters[j].CenterFreq.ToString("0.00", Culture);
-                    } else if (filters[j].CenterFreq < 1000) {
-                        freq = filters[j].CenterFreq.ToString("0.0", Culture);
-                    } else {
-                        freq = filters[j].CenterFreq.ToString("0", Culture);
-                    }
+                    string freq = RangeDependentDecimals(filters[j].CenterFreq);
                     channelData.Add(string.Format("Filter {0,2}: ON  PK       Fc {1,7} Hz  Gain {2,6} dB  Q {3,6}",
-                        j + 1, freq, filters[j].Gain.ToString("0.00", Culture),
-                        Math.Max(Math.Round(filters[j].Q * 4) / 4, .25).ToString("0.00", Culture)));
+                        j + 1, freq, QMath.ToStringLimitDecimals(filters[j].Gain, 2),
+                        QMath.ToStringLimitDecimals(Math.Max(Math.Round(filters[j].Q * 4) / 4, .25), 2)));
                 }
                 for (int j = filters.Length; j < Bands;) {
                     channelData.Add($"Filter {++j}: OFF None");
@@ -201,21 +208,22 @@ namespace Cavern.Format.FilterSet {
                 result.AppendLine(new string('=', chName.Length));
                 RootFileExtension(i, result);
                 if (channelRef.delaySamples != 0) {
-                    result.AppendLine("Delay: " + GetDelay(i).ToString("0.00 ms", Culture));
+                    result.AppendLine("Delay: " + QMath.ToStringLimitDecimals(GetDelay(i), 2));
                 }
 
                 BiquadFilter[] bands = channelRef.filters;
                 if (gainOnly) {
                     for (int j = 0; j < bands.Length; j++) {
-                        result.AppendLine($"{bands[j].CenterFreq.ToString("0", Culture)} Hz:\t{bands[j].Gain.ToString("0.00", Culture)} dB");
+                        string gain = QMath.ToStringLimitDecimals(bands[j].Gain, 2);
+                        result.AppendLine($"{RangeDependentDecimals(bands[j].CenterFreq)} Hz:\t{gain} dB");
                     }
                 } else {
                     for (int j = 0; j < bands.Length;) {
                         BiquadFilter filter = bands[j];
                         result.AppendLine($"Filter {++j}:").
-                            AppendLine($"- Frequency: {filter.CenterFreq.ToString("0", Culture)} Hz").
-                            AppendLine("- Q factor: " + filter.Q.ToString("0.00", Culture)).
-                            AppendLine($"- Gain: {filter.Gain.ToString("0.00", Culture)} dB");
+                            AppendLine($"- Frequency: {RangeDependentDecimals(filter.CenterFreq)} Hz").
+                            AppendLine("- Q factor: " + QMath.ToStringLimitDecimals(filter.Q, 2)).
+                            AppendLine($"- Gain: {QMath.ToStringLimitDecimals(filter.Gain, 2)} dB");
                     }
                 }
             }
@@ -228,7 +236,7 @@ namespace Cavern.Format.FilterSet {
         protected override void RootFileExtension(int channel, StringBuilder result) {
             IIRChannelData channelRef = (IIRChannelData)Channels[channel];
             if (channelRef.gain != 0) {
-                result.AppendLine("Gain: " + channelRef.gain.ToString("0.00 dB"));
+                result.AppendLine($"Gain: {QMath.ToStringLimitDecimals(channelRef.gain, 2)} dB");
             }
             if (channelRef.switchPolarity) {
                 result.AppendLine("Switch polarity");
