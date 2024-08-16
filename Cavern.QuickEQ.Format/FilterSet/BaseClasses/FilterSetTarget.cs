@@ -132,11 +132,15 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MultEQXTarget,
         /// <summary>
-        /// Processors supporting the latest YPAO with additional fine tuning PEQs.
+        /// Yamaha RX-A series AVRs.
+        /// </summary>
+        YamahaRXA,
+        /// <summary>
+        /// Yamaha RX series AVRs.
         /// </summary>
         YPAO,
         /// <summary>
-        /// Older Yamaha processors with fixed 7 bands.
+        /// Yamaha CX-A series AVRs.
         /// </summary>
         YPAOLite,
 
@@ -188,8 +192,9 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
             FilterSetTarget.MultEQXRaw => "MultEQ-X - peaking EQ",
             FilterSetTarget.MultEQXTarget => "MultEQ-X - filter curves",
-            FilterSetTarget.YPAO => "YPAO - free bands",
-            FilterSetTarget.YPAOLite => "YPAO - fixed bands",
+            FilterSetTarget.YamahaRXA => "Yamaha RX-A series",
+            FilterSetTarget.YPAO => "Yamaha RX series",
+            FilterSetTarget.YPAOLite => "Yamaha CX-A series",
             FilterSetTarget.Multiband31 => "31-band graphic EQ",
             _ => throw new NotSupportedException()
         };

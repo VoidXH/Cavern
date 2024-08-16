@@ -2,7 +2,7 @@
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
-    /// Filter set limited to 4/3 octave band choices for some versions of YPAO.
+    /// Filter set limited to 4/3 octave band choices for Yamaha CX-A series amplifiers.
     /// </summary>
     public class YPAOLiteFilterSet : MultibandPEQFilterSet {
         /// <inheritdoc/>
@@ -18,12 +18,12 @@ namespace Cavern.Format.FilterSet {
         public override bool RoundedBands => true;
 
         /// <summary>
-        /// Filter set limited to 4/3 octave band choices for some versions of YPAO.
+        /// Filter set limited to 4/3 octave band choices for Yamaha CX-A series amplifiers.
         /// </summary>
         public YPAOLiteFilterSet(int channels, int sampleRate) : base(channels, sampleRate, 62.5, .75, 7) { }
 
         /// <summary>
-        /// Filter set limited to 4/3 octave band choices for some versions of YPAO.
+        /// Filter set limited to 4/3 octave band choices for Yamaha CX-A series amplifiers.
         /// </summary>
         public YPAOLiteFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate, 62.5, .75, 7) { }
     }

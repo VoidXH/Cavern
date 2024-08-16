@@ -10,7 +10,7 @@ using Cavern.QuickEQ.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
-    /// Filter set limited to 1/3 octave band choices for some versions of YPAO.
+    /// Filter set limited to 1/3 octave band choices for Yamaha RX series AVRs (2015-2018).
     /// </summary>
     public class YPAOFilterSet : LimitedIIRFilterSet {
         /// <inheritdoc/>
@@ -27,7 +27,7 @@ namespace Cavern.Format.FilterSet {
 
         /// <inheritdoc/>
         public override double MinGain => minGain;
-        const double minGain = -6;
+        const double minGain = -20;
 
         /// <inheritdoc/>
         public override double GainPrecision => gainPrecision;
@@ -40,12 +40,12 @@ namespace Cavern.Format.FilterSet {
         protected override float[] QFactors => qFactors;
 
         /// <summary>
-        /// Filter set limited to 1/3 octave band choices for some versions of YPAO.
+        /// Filter set limited to 1/3 octave band choices for Yamaha RX series AVRs (2015-2018).
         /// </summary>
         public YPAOFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
-        /// Filter set limited to 1/3 octave band choices for some versions of YPAO.
+        /// Filter set limited to 1/3 octave band choices Yamaha RX series AVRs (2015-2018).
         /// </summary>
         public YPAOFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
@@ -93,7 +93,7 @@ namespace Cavern.Format.FilterSet {
         public override void Export(string path) => File.WriteAllText(path, Export(false));
 
         /// <summary>
-        /// All the possible bands that can be selected for YPAO. These are 1/3 octaves apart.
+        /// All the possible bands that can be selected for Yamaha RX series AVRs. These are 1/3 octaves apart.
         /// </summary>
         static readonly float[] frequencies = {
             15.6f, 19.7f, 24.8f, 31.3f, 39.4f, 49.6f, 62.5f, 78.7f, 99.2f, 125.0f, 157.5f, 198.4f, 250, 315, 396.9f, 500, 630, 793.7f,
@@ -106,7 +106,7 @@ namespace Cavern.Format.FilterSet {
         const int lastBandFreqsFrom = 15;
 
         /// <summary>
-        /// All the possible Q-factors that can be selected for YPAO.
+        /// All the possible Q-factors that can be selected for Yamaha RX series AVRs.
         /// </summary>
         static readonly float[] qFactors = { 0.5f, 0.63f, 0.794f, 1f, 1.26f, 1.587f, 2f, 2.520f, 3.175f, 4f, 5.04f, 6.350f, 8f, 10.08f };
     }
