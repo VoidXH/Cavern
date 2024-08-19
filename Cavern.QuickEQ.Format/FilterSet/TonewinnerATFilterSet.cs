@@ -88,6 +88,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// All the possible Q-factors that can be selected for this device.
         /// </summary>
-        static readonly float[] qFactors = { 0.5f, 0.63f, 0.794f, 1f, 1.26f, 1.587f, 2f, 2.520f, 3.175f, 4f, 5.04f, 6.350f, 8f, 10.08f };
+        static readonly float[] qFactors = { 0.12f, 25, 37, 50, 62, 75, 87, 1, 1.12f, 1.25f, 1.37f, 1.50f, 1.62f, 1.75f, 1.87f, 2, 2.25f,
+            2.50f, 2.75f, 3, 3.25f, 3.5f, 3.75f, 4, 4.25f, 4.5f, 4.75f, 5, 5.5f, 6, 6.5f, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24 };
     }
 }
