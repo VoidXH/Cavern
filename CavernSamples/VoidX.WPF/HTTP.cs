@@ -21,7 +21,9 @@ namespace VoidX.WPF {
                 if (response.IsSuccessStatusCode) {
                     return response.Content.ReadAsStringAsync().Result;
                 }
-            } catch { }
+            } catch {
+                return null;
+            }
             return null;
         }
 
@@ -49,7 +51,7 @@ namespace VoidX.WPF {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string POST(string url, HttpContent content, int timeoutSeconds = 5) {
-            using HttpClient client = new HttpClient() {
+            using HttpClient client = new HttpClient {
                 Timeout = TimeSpan.FromSeconds(timeoutSeconds)
             };
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url) {
@@ -60,7 +62,9 @@ namespace VoidX.WPF {
                 if (response.IsSuccessStatusCode) {
                     return response.Content.ReadAsStringAsync().Result;
                 }
-            } catch { }
+            } catch {
+                return null;
+            }
             return null;
         }
     }
