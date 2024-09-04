@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -21,22 +20,17 @@ namespace VoidX.WPF {
         /// </summary>
         /// <param name="lastCheck">Last time an update check was performed</param>
         /// <param name="onChecked">When the check was performed, call this function - used to keep track of the last check</param>
-        static async void CheckForUpdate(DateTime lastCheck, Action onChecked) {
+        static void CheckForUpdate(DateTime lastCheck, Action onChecked) {
             if (DateTime.Now < lastCheck + TimeSpan.FromDays(7)) {
                 return;
             }
 
-            HttpClient client = new();
-            HttpResponseMessage response;
-            try {
-                response = await client.GetAsync(updateLocation);
-            } catch {
+            string body = HTTP.GET(updateLocation);
+            if (!int.TryParse(body, out int version)) {
                 return;
             }
-            response.EnsureSuccessStatusCode();
-            string body = await response.Content.ReadAsStringAsync();
 
-            if (thisRevision < int.Parse(body)) {
+            if (thisRevision < version) {
                 if (MessageBox.Show("A new version is available! Do you want to download it?",
                     "Update available", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes) {
                     Process.Start(new ProcessStartInfo {

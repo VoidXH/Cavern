@@ -24,7 +24,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
+		<Compile Include="..\VoidX.WPF\FFmpeg.cs" Link="VoidX.WPF\FFmpeg.cs" />
+		<Compile Include="..\VoidX.WPF\HTTP.cs" Link="VoidX.WPF\HTTP.cs" />
+		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="VoidX.WPF\TaskEngine.cs" />
+		<Compile Include="..\VoidX.WPF\UpdateCheck.cs" Link="VoidX.WPF\UpdateCheck.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,7 +36,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Resource Include="..\_Common\CavernLogo.png"  Link="Resources\CavernLogo.png"/>
+		<Resource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
 	</ItemGroup>
 
 	<ItemGroup>
