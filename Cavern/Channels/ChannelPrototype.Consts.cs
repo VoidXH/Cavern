@@ -71,7 +71,7 @@ namespace Cavern.Channels {
             new Vector3(1, 0, .677419f), // WideRight
             new Vector3(-1, 1, -1), // TopRearLeft
             new Vector3(1, 1, -1), // TopRearRight
-            new Vector3(-1, 1, 0) // TopRearCenter
+            new Vector3(0, 1, -1) // TopRearCenter
         };
 
         /// <summary>

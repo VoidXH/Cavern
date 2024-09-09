@@ -59,7 +59,7 @@ These examples use the Cavern library to show how it works. The solution
 containing all sample projects is found at `CavernSamples/CavernSamples.sln`.
 The same build instructions apply as to the base project.
 
-Single-purpose sample codes are found under `docs/Code`.
+Single-purpose sample codes are found under `docs/Code samples`.
 
 ### Cavern for Unity
 Open the `CavernUnity DLL.sln` solution with Microsoft Visual Studio 2022.
@@ -191,8 +191,8 @@ component browser, under audio, and they will automatically add all their Unity
 dependencies.
 
 ## Development documents
-* [Documentations of specific use-cases](./docs)
-* [Scripting API](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
+* [Knowledge base](./docs)
+* [API browser](http://cavern.sbence.hu/cavern/doc.php?if=api/index) with descriptions of all public members for all public classes
 * [Virtualizer repository](https://github.com/VoidXH/HRTF) which contains the raw IR measurements and detailed information about their use
 
 ## Disclaimers
