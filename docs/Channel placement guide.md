@@ -6,6 +6,7 @@ industry's chosen rendering method, called balance-based rendering.
 
 ## How balance-based rendering works
 ![Balance-based renderer](img/rnd_balance.png)
+
 Point object sources are rendered in a bounding speaker box by the ratio between
 them. This requires a channel layout to be symmetric, because not only there are
 front/rear, upper/lower channel pairs, but a left/right also has to be found to
