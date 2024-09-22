@@ -7,6 +7,7 @@ using System.Text;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format.Common;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -62,6 +63,19 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         protected FilterSet(int sampleRate) => SampleRate = sampleRate;
 
+        /// <summary>
+        /// Convert a double to string with its maximum decimal places dependent on the base 10 logarithm.
+        /// </summary>
+        protected static string RangeDependentDecimals(double value) {
+            if (value < 100) {
+                return QMath.ToStringLimitDecimals(value, 2);
+            } else if (value < 1000) {
+                return QMath.ToStringLimitDecimals(value, 1);
+            } else {
+                return QMath.ToStringLimitDecimals(value, 0);
+            }
+        }
+
         /// <inheritdoc/>
         public abstract void Export(string path);
 
@@ -91,6 +105,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.AcurusMuse => new AcurusMuseFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.MonolithHTP1 => new MonolithHTP1FilterSet(channels, sampleRate),
+                FilterSetTarget.SonyES => new SonyESSeriesFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.TonewinnerAT => new TonewinnerATFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
@@ -131,6 +146,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.AcurusMuse => new AcurusMuseFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.MonolithHTP1 => new MonolithHTP1FilterSet(channels, sampleRate),
+                FilterSetTarget.SonyES => new SonyESSeriesFilterSet(channels, sampleRate),
                 FilterSetTarget.StormAudio => new StormAudioFilterSet(channels, sampleRate),
                 FilterSetTarget.TonewinnerAT => new TonewinnerATFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
@@ -159,6 +175,23 @@ namespace Cavern.Format.FilterSet {
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
         protected virtual string GetLabel(int channel) => Channels[channel].name ?? "CH" + (channel + 1);
+
+        /// <summary>
+        /// Insert channel header and basic information to a root file.
+        /// </summary>
+        /// <returns>Any information was exported.</returns>
+        protected bool RootFileChannelHeader(int channel, StringBuilder result) {
+            result.AppendLine(string.Empty);
+            string chName = GetLabel(channel);
+            result.AppendLine(chName);
+            result.AppendLine(new string('=', chName.Length));
+            RootFileExtension(channel, result);
+            if (Channels[channel].delaySamples != 0) {
+                result.AppendLine("Delay: " + QMath.ToStringLimitDecimals(GetDelay(channel), 2));
+                return true;
+            }
+            return false;
+        }
 
         /// <summary>
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
@@ -204,21 +237,11 @@ namespace Cavern.Format.FilterSet {
             string fileNameBase = Path.GetFileName(path);
             fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
             StringBuilder result = new StringBuilder();
-            bool hasAnything = false,
-                hasDelays = false;
+            bool hasDelays = false;
             for (int i = 0, c = Channels.Length; i < c; i++) {
-                result.AppendLine(string.Empty);
-                result.AppendLine("Channel: " + GetLabel(i));
-                if (Channels[i].delaySamples != 0) {
-                    result.AppendLine("Delay: " + GetDelay(i).ToString("0.0 ms"));
-                    hasAnything = true;
-                    hasDelays = true;
-                }
-                int before = result.Length;
-                RootFileExtension(i, result);
-                hasAnything |= result.Length != before;
+                hasDelays |= RootFileChannelHeader(i, result);
             }
-            if (hasAnything) {
+            if (result.Length != 0) {
                 File.WriteAllText(path, (hasDelays ?
                     $"Set up levels and delays by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ." :
                     $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ.") +

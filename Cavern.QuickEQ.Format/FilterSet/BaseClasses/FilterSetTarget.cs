@@ -84,6 +84,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MonolithHTP1,
         /// <summary>
+        /// Sony ES-series AVRs.
+        /// </summary>
+        SonyES,
+        /// <summary>
         /// StormAudio ISP processors.
         /// </summary>
         StormAudio,
@@ -183,6 +187,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.AcurusMuse => "Acurus Muse",
             FilterSetTarget.Emotiva => "Emotiva",
             FilterSetTarget.MonolithHTP1 => "Monoprice Monolith HTP-1",
+            FilterSetTarget.SonyES => "Sony ES series",
             FilterSetTarget.StormAudio => "StormAudio",
             FilterSetTarget.TonewinnerAT => "Tonewinner AT series",
             FilterSetTarget.BehringerNX => "Behringer NX series",

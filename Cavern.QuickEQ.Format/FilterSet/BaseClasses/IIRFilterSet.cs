@@ -79,19 +79,6 @@ namespace Cavern.Format.FilterSet {
         public IIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) => Initialize<IIRChannelData>(channels);
 
         /// <summary>
-        /// Convert a double to string with its maximum decimal places dependent on the base 10 logarithm.
-        /// </summary>
-        static string RangeDependentDecimals(double value) {
-            if (value < 100) {
-                return QMath.ToStringLimitDecimals(value, 2);
-            } else if (value < 1000) {
-                return QMath.ToStringLimitDecimals(value, 1);
-            } else {
-                return QMath.ToStringLimitDecimals(value, 0);
-            }
-        }
-
-        /// <summary>
         /// If the filter set's band count is dependent on which channel is selected, use this function instead of <see cref="Bands"/>.
         /// </summary>
         public virtual int GetBands(ReferenceChannel channel) => channel == ReferenceChannel.ScreenLFE ? LFEBands : Bands;
@@ -201,17 +188,8 @@ namespace Cavern.Format.FilterSet {
         protected virtual string Export(bool gainOnly) {
             StringBuilder result = new StringBuilder("Set up the channels according to this configuration.").AppendLine();
             for (int i = 0; i < Channels.Length; i++) {
-                IIRChannelData channelRef = (IIRChannelData)Channels[i];
-                result.AppendLine(string.Empty);
-                string chName = GetLabel(i);
-                result.AppendLine(chName);
-                result.AppendLine(new string('=', chName.Length));
-                RootFileExtension(i, result);
-                if (channelRef.delaySamples != 0) {
-                    result.AppendLine("Delay: " + QMath.ToStringLimitDecimals(GetDelay(i), 2));
-                }
-
-                BiquadFilter[] bands = channelRef.filters;
+                RootFileChannelHeader(i, result);
+                BiquadFilter[] bands = ((IIRChannelData)Channels[i]).filters;
                 if (gainOnly) {
                     for (int j = 0; j < bands.Length; j++) {
                         string gain = QMath.ToStringLimitDecimals(bands[j].Gain, 2);

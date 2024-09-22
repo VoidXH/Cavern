@@ -215,6 +215,11 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Set the RMS gain of the curve to 0 dB between frequency limits.
+        /// </summary>
+        public void NormalizeRMS(double startFreq, double endFreq) => Offset(-GetAverageLevel(startFreq, endFreq));
+
+        /// <summary>
         /// Change the frequencies contained in this <see cref="Equalizer"/>.
         /// </summary>
         /// <param name="frequencies">Use the frequencies of these bands</param>
