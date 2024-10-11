@@ -65,5 +65,23 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
                 width--;
             }
         }
+
+        /// <summary>
+        /// Draw a single dashed column at a width <paramref name="offset"/> of a developing image.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void DrawDashedColumn(GraphRenderer target, int offset, int width, int dashLength, uint color) {
+            uint[] pixels = target.Pixels;
+            while (width > 0) {
+                for (int y = 0, pos = offset, step = target.Width; y < target.Height; y++) {
+                    if (((y / dashLength) & 2) == 0) {
+                        pixels[pos] = color;
+                    }
+                    pos += step;
+                }
+                offset++;
+                width--;
+            }
+        }
     }
 }

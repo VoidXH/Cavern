@@ -9,7 +9,7 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
         /// <summary>
         /// Inner line stroke width.
         /// </summary>
-        readonly int gridWidth;
+        protected readonly int gridWidth;
 
         /// <summary>
         /// Number of rows drawn, including the frame lines.
