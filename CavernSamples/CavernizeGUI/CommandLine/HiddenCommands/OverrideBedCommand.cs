@@ -1,29 +1,22 @@
-﻿using Cavern.Format;
-using System.IO;
+﻿using System.IO;
+
+using Cavern.Format;
 
 namespace CavernizeGUI.CommandLine.HiddenCommands {
+    /// <summary>
+    /// Overrides the PCM source of JOC encoded objects in E-AC-3 tracks.
+    /// </summary>
     internal class OverrideBedCommand : HiddenCommand {
-        /// <summary>
-        /// Full name of the command, including a preceding character like '-' if exists.
-        /// </summary>
+        /// <inheritdoc/>
         public override string Name => "--override-bed";
 
-        /// <summary>
-        /// Number of parameters this command will use.
-        /// </summary>
+        /// <inheritdoc/>
         public override int Parameters => 1;
 
-        /// <summary>
-        /// Description of the command that is displayed in the command list (help).
-        /// </summary>
+        /// <inheritdoc/>
         public override string Help => "[Enhanced AC-3] Overrides the PCM source of JOC encoded objects.";
 
-        /// <summary>
-        /// Execute the command.
-        /// </summary>
-        /// <param name="args">List of all calling arguments for the software</param>
-        /// <param name="offset">The index of the first argument that is a parameter of this command</param>
-        /// <param name="app">Reference to the main window of the application - operations should be performed though the UI</param>
+        /// <inheritdoc/>
         public override void Execute(string[] args, int offset, MainWindow app) {
             if (!File.Exists(args[offset])) {
                 throw new FileNotFoundException(args[offset]);

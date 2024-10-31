@@ -40,7 +40,7 @@ namespace CavernizeGUI.CommandLine {
                 return;
             }
 
-            for (int i = RenderTarget.Targets.Length - 1; i >= 0; i--) { // Sides before fronts
+            for (int i = 0; i < RenderTarget.Targets.Length; i++) {
                 string name = RenderTarget.Targets[i].Name;
                 if (args[offset].Equals(name)) {
                     app.renderTarget.SelectedItem = RenderTarget.Targets[i];

@@ -217,18 +217,18 @@ namespace Cavern.Format.Transcoders {
 
             // Error checks
             if (block == 0) {
-                if (!cplstre[block]) {
+                if (!cplstre[block] && !CavernFormatGlobal.Unsafe) {
                     throw new DecoderException(1);
                 }
-                if (header.LFE && !lfeexpstr[block]) {
+                if (header.LFE && !lfeexpstr[block] && !CavernFormatGlobal.Unsafe) {
                     throw new DecoderException(10);
                 }
             }
             for (int channel = 0; channel < channels.Length; channel++) {
-                if (block == 0 && chexpstr[0][channel] == ExpStrat.Reuse) {
+                if (block == 0 && chexpstr[0][channel] == ExpStrat.Reuse && !CavernFormatGlobal.Unsafe) {
                     throw new DecoderException(8);
                 }
-                if (!chincpl[channel] && chbwcod[channel] > 60) {
+                if (!chincpl[channel] && chbwcod[channel] > 60 && !CavernFormatGlobal.Unsafe) {
                     throw new DecoderException(11);
                 }
             }

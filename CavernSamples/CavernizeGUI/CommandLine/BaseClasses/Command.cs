@@ -26,6 +26,7 @@ namespace CavernizeGUI.CommandLine {
 
                     // Hidden commands
                     new OverrideBedCommand(),
+                    new UnsafeCommand(),
                 ];
                 return commandPool;
             }

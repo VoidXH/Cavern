@@ -6,21 +6,12 @@ namespace CavernizeGUI.CommandLine.HiddenCommands {
     /// <summary>
     /// Converts an Enhanced AC-3 bitstream to raw samples, replaces the PCM data with external.
     /// </summary>
-    public class OverrideBedDecoder : EnhancedAC3Decoder {
-        /// <summary>
-        /// Stream to override the PCM data with. Only applies to the source PCM data, not the JOC-decoded objects.
-        /// </summary>
-        readonly AudioReader overrider;
-
-        /// <summary>
-        /// Converts an Enhanced AC-3 bitstream to raw samples, replaces the PCM data with external.
-        /// </summary>
-        public OverrideBedDecoder(BlockBuffer<byte> reader, long fileSize, AudioReader overrider) : base(reader, fileSize) =>
-            this.overrider = overrider;
-
-        /// <summary>
-        /// Decode a new frame if the cached samples are already fetched.
-        /// </summary>
+    /// <param name="reader">Accesses the linear E-AC-3 bitstream</param>
+    /// <param name="fileSize">Length of the E-AC-3 bitstream</param>
+    /// <param name="overrider">Stream to override the PCM data with - only applies to the source PCM data,
+    /// not the JOC-decoded objects</param>
+    public class OverrideBedDecoder(BlockBuffer<byte> reader, long fileSize, AudioReader overrider) : EnhancedAC3Decoder(reader, fileSize) {
+        /// <inheritdoc/>
         protected override float[] DecodeFrame() {
             float[] result = base.DecodeFrame();
             overrider?.ReadBlock(result, 0, result.Length);

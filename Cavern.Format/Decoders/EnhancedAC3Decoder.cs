@@ -68,6 +68,8 @@ namespace Cavern.Format.Decoders {
         /// Converts an Enhanced AC-3 bitstream to raw samples. When the file size is known, the length can be calculated
         /// from the bitrate assuming AC-3 is constant bitrate.
         /// </summary>
+        /// <param name="reader">Accesses the linear E-AC-3 bitstream</param>
+        /// <param name="fileSize">Length of the E-AC-3 bitstream</param>
         public EnhancedAC3Decoder(BlockBuffer<byte> reader, long fileSize) : base(reader) =>
             Length = fileSize / frameSize * FrameSize;
 
