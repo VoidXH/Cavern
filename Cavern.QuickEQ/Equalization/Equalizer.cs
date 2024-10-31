@@ -32,8 +32,9 @@ namespace Cavern.QuickEQ.Equalization {
                     ++nextBand;
                 }
                 if (nextBand != bandCount && nextBand != 0) {
-                    return QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain,
-                        QMath.LerpInverse(bands[prevBand].Frequency, bands[nextBand].Frequency, frequency));
+                    double logFrom = Math.Log(bands[prevBand].Frequency),
+                        logTo = Math.Log(bands[nextBand].Frequency);
+                    return QMath.Lerp(bands[prevBand].Gain, bands[nextBand].Gain, QMath.LerpInverse(logFrom, logTo, Math.Log(frequency)));
                 }
                 return bands[prevBand].Gain;
             }
