@@ -8,7 +8,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
     /// <summary>
     /// Generates various signals.
     /// </summary>
-    public class WaveformGenerator {
+    public static class WaveformGenerator {
         /// <summary>
         /// Generates a sine wave signal.
         /// </summary>
@@ -48,7 +48,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
             float[] result = WhiteNoise(workingLength);
             Equalizer eq = new Equalizer();
             const double startFreq = 10;
-            double nyquist = sampleRate / 2;
+            double nyquist = sampleRate / 2.0;
             eq.AddBand(new Band(startFreq, 0));
             // Pink noise bands lose 3 dB/octave, which is 10 dB/decade
             eq.AddBand(new Band(nyquist, -10 * Math.Log(nyquist) / Math.Log(startFreq)));
