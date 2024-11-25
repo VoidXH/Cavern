@@ -97,6 +97,7 @@ namespace Cavern.Format.Renderers {
             else {
                 for (int channel = 0; channel < outputMatrix.Length; channel++) {
                     Source source = new StreamMasterSource(reader, channel) {
+                        LFE = inputMatrix[channel] == ReferenceChannel.ScreenLFE,
                         Position = ChannelPrototype.AlternativePositions[(int)outputMatrix[channel]] * Listener.EnvironmentSize
                     };
                     objects.Add(source);
@@ -209,15 +210,11 @@ namespace Cavern.Format.Renderers {
             }
             // Channel-based rendering or fallback to it when OAMD or JOC can't be decoded correctly
             else {
-                for (int i = 0; i < outputMatrix.Length; i++) {
+                for (int i = 0; i < inputMatrix.Length; i++) {
+                    objects[i].Position = ChannelPrototype.AlternativePositions[(int)inputMatrix[i]] * Listener.EnvironmentSize;
                     timeslotResult[i] = inputData[i];
-                    objects[i].Position = ChannelPrototype.AlternativePositions[(int)outputMatrix[i]] * Listener.EnvironmentSize;
-                    if (ChannelPrototype.Mapping[(int)outputMatrix[i]].LFE) { // LFE is handled elsewhere
-                        objects[i].Position = default;
-                        timeslotResult[i].Clear();
-                    }
                 }
-                for (int i = outputMatrix.Length; i < timeslotResult.Length; i++) {
+                for (int i = inputMatrix.Length; i < timeslotResult.Length; i++) {
                     objects[i].Position = default;
                     timeslotResult[i].Clear();
                 }

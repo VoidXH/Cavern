@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Channels;
 using Cavern.Format.Common;
@@ -22,13 +23,13 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// <summary>
         /// Decoded object audio element metadata.
         /// </summary>
-        OAElementMD[] elements = new OAElementMD[0];
+        OAElementMD[] elements = Array.Empty<OAElementMD>();
 
         /// <summary>
         /// Bed channels used. The first dimension is the element ID, the second is one bit for each channel,
         /// in the order of <see cref="bedChannels"/>.
         /// </summary>
-        bool[][] bedAssignment;
+        bool[][] bedAssignment = Array.Empty<bool[]>();
 
         /// <summary>
         /// Use intermediate spatial format (ISF), which has a few fixed layouts.
