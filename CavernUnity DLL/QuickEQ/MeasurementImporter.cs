@@ -90,8 +90,10 @@ namespace Cavern.QuickEQ {
         public MeasurementImporter(MultichannelWaveform samples, int sampleRate, SpeakerSweeper sweeper) {
             data = samples;
             this.sweeper = sweeper;
-            sweeper.SampleRate = sampleRate;
-            sweeper.ImpResponses = new VerboseImpulseResponse[0];
+            if (sweeper) {
+                sweeper.SampleRate = sampleRate;
+                sweeper.ImpResponses = new VerboseImpulseResponse[0];
+            }
             runner = new Task(Process);
             runner.Start();
         }
@@ -258,14 +260,16 @@ namespace Cavern.QuickEQ {
                 samplesPerCh = data[0].Length / Channels;
             Status = MeasurementImporterStatus.Processing;
             for (int measurement = 0; measurement < measurements; measurement++) {
-                sweeper.OverwriteSweeper(Channels, samplesPerCh >> 1);
-                for (ProcessedChannel = 0; ProcessedChannel < Channels; ProcessedChannel++) {
-                    float[] samples = new float[samplesPerCh];
-                    Array.Copy(data[ProcessedChannel + measurement * Channels],
-                        samplesPerCh * ProcessedChannel, samples, 0, samplesPerCh);
-                    sweeper.OverwriteChannel(ProcessedChannel, samples);
+                if (sweeper) {
+                    sweeper.OverwriteSweeper(Channels, samplesPerCh >> 1);
+                    for (ProcessedChannel = 0; ProcessedChannel < Channels; ProcessedChannel++) {
+                        float[] samples = new float[samplesPerCh];
+                        Array.Copy(data[ProcessedChannel + measurement * Channels],
+                            samplesPerCh * ProcessedChannel, samples, 0, samplesPerCh);
+                        sweeper.OverwriteChannel(ProcessedChannel, samples);
+                    }
+                    sweeper.ResultAvailable = true;
                 }
-                sweeper.ResultAvailable = true;
                 OnMeasurement?.Invoke(measurement, measurements);
             }
         }

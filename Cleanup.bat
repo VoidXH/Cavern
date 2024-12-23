@@ -43,4 +43,6 @@ rd /s /q Tests\Test.Cavern.Format\bin
 rd /s /q Tests\Test.Cavern.Format\obj
 rd /s /q Tests\Test.Cavern.QuickEQ\bin
 rd /s /q Tests\Test.Cavern.QuickEQ\obj
+rd /s /q Tests\Test.CavernUnity\bin
+rd /s /q Tests\Test.CavernUnity\obj
 pause
