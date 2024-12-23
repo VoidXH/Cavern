@@ -220,14 +220,17 @@ namespace Cavern.QuickEQ {
             Channels = (end - offset) / samplesPerCh;
             offset = Math.Clamp(offset, 0, data.Length - Channels * samplesPerCh);
 
-            sweeper.OverwriteSweeper(Channels, FFTSize);
+            sweeper?.OverwriteSweeper(Channels, FFTSize);
             Status = MeasurementImporterStatus.Processing;
-            for (; ProcessedChannel < Channels; ProcessedChannel++) {
-                float[] samples = new float[samplesPerCh];
-                Array.Copy(data, offset + ProcessedChannel * samplesPerCh, samples, 0, samplesPerCh);
-                sweeper.OverwriteChannel(ProcessedChannel, samples);
+            if (sweeper) {
+                for (; ProcessedChannel < Channels; ProcessedChannel++) {
+                    float[] samples = new float[samplesPerCh];
+                    Array.Copy(data, offset + ProcessedChannel * samplesPerCh, samples, 0, samplesPerCh);
+                    sweeper.OverwriteChannel(ProcessedChannel, samples);
+                }
+                sweeper.ResultAvailable = true;
             }
-            sweeper.ResultAvailable = true;
+            OnMeasurement?.Invoke(0, 1);
         }
 
         /// <summary>
