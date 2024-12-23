@@ -129,7 +129,7 @@ namespace CavernizeGUI {
             ];
 
             audio.ItemsSource = ExportFormat.Formats;
-            audio.SelectedIndex = Settings.Default.outputCodec;
+            audio.SelectedIndex = Math.Clamp(Settings.Default.outputCodec + 2, 0, ExportFormat.Formats.Length);
 
             FFmpeg.ReadyText = (string)language["FFRea"];
             FFmpeg.NotReadyText = (string)language["FFNRe"];
@@ -140,7 +140,7 @@ namespace CavernizeGUI {
             };
 
             renderTarget.ItemsSource = RenderTarget.Targets;
-            renderTarget.SelectedIndex = Math.Min(Math.Max(0, Settings.Default.renderTarget + 3), RenderTarget.Targets.Length - 1);
+            renderTarget.SelectedIndex = Math.Clamp(Settings.Default.renderTarget + 3, 0, RenderTarget.Targets.Length - 1);
             renderSettings.IsEnabled = true; // Don't grey out initially
             queuedJobs.ItemsSource = jobs;
             taskEngine = new(progress, TaskbarItemInfo, status);
@@ -246,7 +246,7 @@ namespace CavernizeGUI {
             taskEngine?.Dispose();
             Settings.Default.ffmpegLocation = ffmpeg.Location;
             Settings.Default.renderTarget = renderTarget.SelectedIndex - 3;
-            Settings.Default.outputCodec = audio.SelectedIndex;
+            Settings.Default.outputCodec = audio.SelectedIndex - 2;
             Settings.Default.speakerVirtualizer = speakerVirtualizer.IsChecked;
             Settings.Default.force24Bit = force24Bit.IsChecked;
             Settings.Default.checkUpdates = checkUpdates.IsChecked;

@@ -22,6 +22,8 @@
     <system:String x:Key="PCM_LE">PCM (egész)</system:String>
 
     <!-- Export formats -->
+    <system:String x:Key="C_AC3">AC-3 (középszerű, támogat SPDIF-et)</system:String>
+    <system:String x:Key="CEAC3">Enhanced AC-3 (középszerű, támogat HDMI ARC-t)</system:String>
     <system:String x:Key="COpus">Opus (transzparens, kis méret)</system:String>
     <system:String x:Key="CFLAC">FLAC (veszteségmentes, nagy méret)</system:String>
     <system:String x:Key="CPCMI">PCM, egész (veszteségmentes, nagyobb méret)</system:String>

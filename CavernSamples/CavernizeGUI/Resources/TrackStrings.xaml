@@ -22,6 +22,8 @@
     <system:String x:Key="PCM_LE">PCM (integer)</system:String>
 
     <!-- Export formats -->
+    <system:String x:Key="C_AC3">AC-3 (mediocre, supports SPDIF)</system:String>
+    <system:String x:Key="CEAC3">Enhanced AC-3 (mediocre, supports HDMI ARC)</system:String>
     <system:String x:Key="COpus">Opus (transparent, small size)</system:String>
     <system:String x:Key="CFLAC">FLAC (lossless, large size)</system:String>
     <system:String x:Key="CPCMI">PCM, integer (lossless, larger size)</system:String>

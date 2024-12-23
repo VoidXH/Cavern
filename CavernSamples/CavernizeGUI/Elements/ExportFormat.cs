@@ -8,36 +8,26 @@ namespace CavernizeGUI.Elements {
     /// <summary>
     /// A supported export format with mapping to FFmpeg.
     /// </summary>
-    class ExportFormat {
+    class ExportFormat(Codec codec, string ffName, int maxChannels, string description) {
         /// <summary>
         /// Cavern-compatible marking of the format.
         /// </summary>
-        public Codec Codec { get; }
+        public Codec Codec { get; } = codec;
 
         /// <summary>
         /// Name of the format in FFmpeg.
         /// </summary>
-        public string FFName { get; }
+        public string FFName { get; } = ffName;
 
         /// <summary>
         /// Maximum channel count of the format, either limited by the format itself or any first or third party integration.
         /// </summary>
-        public int MaxChannels { get; }
+        public int MaxChannels { get; } = maxChannels;
 
         /// <summary>
         /// Information about the format (full name, quality, size).
         /// </summary>
-        public string Description { get; }
-
-        /// <summary>
-        /// A supported export format with mapping to FFmpeg.
-        /// </summary>
-        public ExportFormat(Codec codec, string ffName, int maxChannels, string description) {
-            Codec = codec;
-            FFName = ffName;
-            MaxChannels = maxChannels;
-            Description = description;
-        }
+        public string Description { get; } = description;
 
         /// <summary>
         /// Displays the format's information for ComboBoxes.
@@ -50,7 +40,9 @@ namespace CavernizeGUI.Elements {
         public static ExportFormat[] Formats {
             get {
                 ResourceDictionary strings = Language.GetTrackStrings();
-                return formats ??= new[] {
+                return formats ??= [
+                    new ExportFormat(Codec.AC3, "ac3", 6, (string)strings["C_AC3"]),
+                    new ExportFormat(Codec.EnhancedAC3, "eac3", 8, (string)strings["CEAC3"]),
                     new ExportFormat(Codec.Opus, "libopus", 64, (string)strings["COpus"]),
                     new ExportFormat(Codec.FLAC, "flac", 8, (string)strings["CFLAC"]),
                     new ExportFormat(Codec.PCM_LE, "pcm_s16le", 64, (string)strings["CPCMI"]),
@@ -58,7 +50,7 @@ namespace CavernizeGUI.Elements {
                     new ExportFormat(Codec.ADM_BWF, string.Empty, 128, (string)strings["CADMC"]),
                     new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, (string)strings["CADMA"]),
                     new ExportFormat(Codec.LimitlessAudio, string.Empty, int.MaxValue, (string)strings["C_LAF"]),
-                };
+                ];
             }
         }
 
