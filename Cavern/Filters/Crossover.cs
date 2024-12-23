@@ -12,14 +12,18 @@ namespace Cavern.Filters {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {
-            get => lowpasses[0].SampleRate;
+            get => sampleRate;
             set {
-                for (int i = 0; i < lowpasses.Length; i++) {
-                    lowpasses[i].SampleRate = value;
-                    highpasses[i].SampleRate = value;
+                sampleRate = value;
+                if (lowpasses != null) {
+                    for (int i = 0; i < lowpasses.Length; i++) {
+                        lowpasses[i].SampleRate = value;
+                        highpasses[i].SampleRate = value;
+                    }
                 }
             }
         }
+        int sampleRate;
 
         /// <summary>
         /// Crossover frequency.
