@@ -25,6 +25,14 @@ namespace Cavern {
         }
 
         /// <summary>
+        /// The length of a single channel's waveform.
+        /// </summary>
+        public int Length {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => signals[0].Length;
+        }
+
+        /// <summary>
         /// Each channel's waveform.
         /// </summary>
         readonly float[][] signals;

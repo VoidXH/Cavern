@@ -28,6 +28,15 @@ namespace Cavern.Format.Common {
     }
 
     /// <summary>
+    /// Tells if an operation can only handle complex numbers of which a single component is set.
+    /// </summary>
+    public class ComplexNumberFilledException : Exception {
+        const string message = "This operation can only handle complex numbers of which a single component is set.";
+
+        public ComplexNumberFilledException() : base(message) { }
+    }
+
+    /// <summary>
     /// Tells if the decoder ran into a predefined error code that is found in the decoder's documentation.
     /// </summary>
     public class DecoderException : Exception {

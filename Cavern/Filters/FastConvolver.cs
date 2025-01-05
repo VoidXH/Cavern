@@ -93,7 +93,35 @@ namespace Cavern.Filters {
         /// <summary>
         /// Constructs an optimized convolution with no delay.
         /// </summary>
+        /// <param name="filter">Transfer function of the desired filter</param>
+        public FastConvolver(Complex[] filter) : this(filter, 0) { }
+
+        /// <summary>
+        /// Constructs an optimized convolution with added delay.
+        /// </summary>
+        /// <param name="filter">Transfer function of the desired filter</param>
+        /// <param name="delay">Added filter delay to the impulse, in samples</param>
+        public FastConvolver(Complex[] filter, int delay) {
+            this.filter = filter;
+            present = new Complex[filter.Length];
+            cache = CreateCache(filter.Length);
+            Delay = delay;
+        }
+
+        /// <summary>
+        /// Constructs an optimized convolution with added delay and sets the sample rate.
+        /// </summary>
+        /// <param name="impulse">Transfer function of the desired filter</param>
+        /// <param name="sampleRate">Sample rate of the <paramref name="impulse"/> response</param>
+        /// <param name="delay">Added filter delay to the impulse, in samples</param>
+        public FastConvolver(Complex[] filter, int sampleRate, int delay) : this(filter, delay) => SampleRate = sampleRate;
+
+        /// <summary>
+        /// Constructs an optimized convolution with no delay.
+        /// </summary>
         /// <param name="impulse">Impulse response of the desired filter</param>
+        /// <remarks>This constructor transforms the <paramref name="impulse"/> to Fourier space. If you have a transfer function available, use
+        /// <see cref="FastConvolver(Complex[])"/> for optimal performance.</remarks>
         public FastConvolver(float[] impulse) : this(impulse, 0) { }
 
         /// <summary>
@@ -101,6 +129,8 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="impulse">Impulse response of the desired filter</param>
         /// <param name="delay">Added filter delay to the impulse, in samples</param>
+        /// <remarks>This constructor transforms the <paramref name="impulse"/> to Fourier space. If you have a transfer function available, use
+        /// <see cref="FastConvolver(Complex[], int)"/> for optimal performance.</remarks>
         public FastConvolver(float[] impulse, int delay) {
             this.delay = delay;
             Impulse = impulse;
@@ -112,6 +142,8 @@ namespace Cavern.Filters {
         /// <param name="impulse">Impulse response of the desired filter</param>
         /// <param name="sampleRate">Sample rate of the <paramref name="impulse"/> response</param>
         /// <param name="delay">Added filter delay to the impulse, in samples</param>
+        /// <remarks>This constructor transforms the <paramref name="impulse"/> to Fourier space. If you have a transfer function available, use
+        /// <see cref="FastConvolver(Complex[], int, int)"/> for optimal performance.</remarks>
         public FastConvolver(float[] impulse, int sampleRate, int delay) : this(impulse, delay) => SampleRate = sampleRate;
 
         /// <summary>
