@@ -175,7 +175,8 @@ namespace CavernizeGUI {
                 (ReferenceChannel source, ReferenceChannel posPhase, ReferenceChannel negPhase)[] matrixed = downmix.MatrixWirings;
                 for (int i = 0; i < matrixed.Length; i++) {
                     output.AppendLine(string.Format((string)language["ChCMx"],
-                        matrixed[i].source, matrixed[i].posPhase, matrixed[i].negPhase));
+                        ChannelPrototype.GetName(matrixed[i].source), ChannelPrototype.GetName(matrixed[i].posPhase),
+                        ChannelPrototype.GetName(matrixed[i].negPhase)));
                 }
             }
             MessageBox.Show(output.ToString(), (string)language["WrGui"]);

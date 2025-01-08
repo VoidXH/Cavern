@@ -34,6 +34,32 @@ namespace CavernizeGUI.Elements {
         public int OutputChannels { get; protected set; } = channels.Length;
 
         /// <summary>
+        /// Top rear channels are used as &quot;side&quot; channels as no true rears are available in some standard mappings or in WAVEFORMATEX channel masks.
+        /// These have to be mapped back to sides in some cases, for example, for the wiring popup.
+        /// </summary>
+        protected static ReferenceChannel[] GetNameMappedChannels(ReferenceChannel[] source) {
+            ReferenceChannel[] result = source.FastClone();
+            bool side = false, rear = false;
+            for (int i = 0; i < result.Length; i++) {
+                side |= result[i] == ReferenceChannel.TopSideLeft;
+                rear |= result[i] == ReferenceChannel.TopRearLeft;
+            }
+            if (side && rear) {
+                return result;
+            }
+
+            for (int i = 0; i < result.Length; i++) {
+                if (result[i] == ReferenceChannel.TopRearLeft) {
+                    result[i] = ReferenceChannel.TopSideLeft;
+                }
+                if (result[i] == ReferenceChannel.TopRearRight) {
+                    result[i] = ReferenceChannel.TopSideRight;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Apply this render target on the system's output.
         /// </summary>
         public virtual void Apply() {
@@ -56,27 +82,7 @@ namespace CavernizeGUI.Elements {
         /// Top rear channels are used as &quot;side&quot; channels as no true rears are available in standard mappings.
         /// These have to be mapped back to sides in some cases, for example, for the wiring popup.
         /// </summary>
-        public ReferenceChannel[] GetNameMappedChannels() {
-            ReferenceChannel[] result = WiredChannels.FastClone();
-            bool side = false, rear = false;
-            for (int i = 0; i < result.Length; i++) {
-                side |= result[i] == ReferenceChannel.TopSideLeft;
-                rear |= result[i] == ReferenceChannel.TopRearLeft;
-            }
-            if (side && rear) {
-                return result;
-            }
-
-            for (int i = 0; i < result.Length; i++) {
-                if (result[i] == ReferenceChannel.TopRearLeft) {
-                    result[i] = ReferenceChannel.TopSideLeft;
-                }
-                if (result[i] == ReferenceChannel.TopRearRight) {
-                    result[i] = ReferenceChannel.TopSideRight;
-                }
-            }
-            return result;
-        }
+        public ReferenceChannel[] GetNameMappedChannels() => GetNameMappedChannels(WiredChannels);
 
         /// <summary>
         /// Gets if a channel is actually present in the final file or just used for downmixing in <see cref="DownmixedRenderTarget"/>.

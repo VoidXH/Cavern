@@ -47,12 +47,13 @@ namespace CavernizeGUI.Elements {
                     }
                 }
 
+                ReferenceChannel[] mapped = GetNameMappedChannels(Channels);
                 (ReferenceChannel, ReferenceChannel, ReferenceChannel)[] result =
                     new (ReferenceChannel, ReferenceChannel, ReferenceChannel)[count];
                 count = 0;
                 for (int i = 0; i < merge.Length; i++) {
                     if (merge[i].source < 0) {
-                        result[count++] = (Channels[~merge[i].source], Channels[merge[i - 1].target], Channels[merge[i].target]);
+                        result[count++] = (mapped[~merge[i].source], mapped[merge[i - 1].target], mapped[merge[i].target]);
                     }
                 }
                 return result;

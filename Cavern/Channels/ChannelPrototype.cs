@@ -146,6 +146,11 @@ namespace Cavern.Channels {
         }
 
         /// <summary>
+        /// Convert a <see cref="ReferenceChannel"/> to the name of the channels.
+        /// </summary>
+        public static string GetName(ReferenceChannel source) => Mapping[(int)source].Name;
+
+        /// <summary>
         /// Convert a mapping of <see cref="ReferenceChannel"/>s to the names of the channels.
         /// </summary>
         public static string[] GetNames(ReferenceChannel[] source) {
