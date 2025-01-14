@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FilterStudio", "FilterStudi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern.WPF", "..\Cavern.WPF\Cavern.WPF.csproj", "{B07A6E64-9F9E-4389-9D6F-A4BDDA226E2B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernPipeServer", "CavernPipeServer\CavernPipeServer.csproj", "{235A0462-18BE-4B94-BC27-2B959442E6AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{B07A6E64-9F9E-4389-9D6F-A4BDDA226E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B07A6E64-9F9E-4389-9D6F-A4BDDA226E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B07A6E64-9F9E-4389-9D6F-A4BDDA226E2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{235A0462-18BE-4B94-BC27-2B959442E6AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{235A0462-18BE-4B94-BC27-2B959442E6AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{235A0462-18BE-4B94-BC27-2B959442E6AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{235A0462-18BE-4B94-BC27-2B959442E6AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,10 +2,10 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
-		<Nullable>enable</Nullable>
+		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
 		<Description>Sample GUI spatial upconverter with Cavern's renderer.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>
