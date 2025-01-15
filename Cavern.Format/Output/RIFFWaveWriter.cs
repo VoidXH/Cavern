@@ -356,13 +356,13 @@ namespace Cavern.Format {
 
             // Handle when a truncated signal was passed to the writer, fill the rest up with zero bytes
             if (samplesWritten < Length) {
-                long zerosToWrite = (Length - samplesWritten) * ChannelCount * (long)Bits;
+                long zerosToWrite = (Length - samplesWritten) * ChannelCount * ((long)Bits / 8);
                 while (zerosToWrite > 8) {
                     writer.WriteAny(0L);
                     zerosToWrite -= 8;
                 }
                 while (zerosToWrite-- > 0) {
-                    writer.WriteAny(0L);
+                    writer.WriteAny((byte)0);
                 }
             }
 
