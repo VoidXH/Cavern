@@ -75,7 +75,7 @@ namespace Cavern.Format {
             path[^3..] switch {
                 "laf" => new LimitlessAudioFormatWriter(path, length, sampleRate, bits, Listener.Channels),
                 "wav" => new RIFFWaveWriter(path, channelCount, length, sampleRate, bits),
-                _ => null,
+                _ => throw new UnsupportedContainerForWriteException(path[^3..])
             };
 
         /// <summary>

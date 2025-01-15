@@ -31,6 +31,18 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Read more than 2 GB into a buffer, wait until all bytes are available.
+        /// </summary>
+        public static void ReadAll(this Stream reader, byte[] buffer, long start, long length) {
+            long position = start;
+            length += start;
+            while (position != length) {
+                int step = (int)Math.Min(length - position, int.MaxValue);
+                position += reader.Read(buffer, 0, step);
+            }
+        }
+
+        /// <summary>
         /// Read a fixed-length ASCII string from the stream.
         /// </summary>
         public static string ReadASCII(this Stream reader, int length) {
@@ -44,10 +56,24 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Read a number of bytes from the stream.
         /// </summary>
+        /// <remarks>Doesn't wait until all bytes are available. For that case, use <see cref="ReadAllBytes(Stream, int)"/> instead.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte[] ReadBytes(this Stream reader, int length) {
             byte[] bytes = new byte[length];
             reader.Read(bytes);
+            return bytes;
+        }
+
+        /// <summary>
+        /// Read a number of bytes from the stream, wait until all bytes are available.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] ReadAllBytes(this Stream reader, int length) {
+            byte[] bytes = new byte[length];
+            int totalRead = 0;
+            while (totalRead < length) {
+                totalRead += reader.Read(bytes, totalRead, length - totalRead);
+            }
             return bytes;
         }
 

@@ -2,6 +2,7 @@
 using System.IO;
 
 using Cavern.Format.Common;
+using Cavern.Format.Consts;
 
 namespace Cavern.Format.Utilities {
     /// <summary>
@@ -77,6 +78,22 @@ namespace Cavern.Format.Utilities {
             Stream readerCopy = reader;
             int blockSizeCopy = blockSize;
             return new BlockBuffer<byte>(() => reader.ReadBytes(blockSizeCopy), pos => readerCopy.Position = pos);
+        }
+
+        /// <summary>
+        /// For network streams where there is a constant packet size before the client requires a reply, use that packet size, if it's
+        /// smaller than the <paramref name="maxBlockSize"/>.
+        /// </summary>
+        public static BlockBuffer<byte> CreateForConstantPacketSize(Stream reader, int maxBlockSize) {
+            int blockSize = maxBlockSize;
+            try {
+                if (reader.Length < blockSize) {
+                    blockSize = (int)reader.Length;
+                }
+            } catch {
+                // Stream doesn't support the Length property
+            }
+            return Create(reader, blockSize);
         }
 
         /// <summary>

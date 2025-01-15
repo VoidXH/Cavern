@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.IO.Pipes;
 using System.Threading;
+
+using Cavern.Format.Utilities;
 
 namespace CavernPipeServer {
     /// <summary>
@@ -62,9 +65,28 @@ namespace CavernPipeServer {
                 server = new NamedPipeServerStream("CavernPipe");
                 try {
                     await server.WaitForConnectionAsync(canceler.Token);
-                    CavernPipeRenderer renderer = new CavernPipeRenderer(server);
+                    // TODO: fix second connections
+                    using CavernPipeRenderer renderer = new CavernPipeRenderer(server);
+                    byte[] inBuffer = [],
+                        outBuffer = [];
                     while (running) {
-                        byte[] data = renderer.Render();
+                        int length = server.ReadInt32();
+                        if (inBuffer.Length < length) {
+                            inBuffer = new byte[length];
+                        }
+                        ReadAll(inBuffer, length);
+                        renderer.Input.Write(inBuffer, 0, length);
+
+                        while (renderer.Output.Length < renderer.Protocol.MandatoryBytesToSend) {
+                            // Wait until mandatory frames are rendered or pipe is closed
+                        }
+                        length = (int)renderer.Output.Length;
+                        if (outBuffer.Length < length) {
+                            outBuffer = new byte[length];
+                        }
+                        renderer.Output.Read(outBuffer, 0, length);
+                        server.Write(BitConverter.GetBytes(length));
+                        server.Write(outBuffer, 0, length);
                     }
                 } catch { // Content type change or server/stream closed
                     if (server.IsConnected) {
@@ -74,6 +96,20 @@ namespace CavernPipeServer {
                 lock (server) {
                     server.Dispose();
                     server = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Read a specific number of bytes from the stream or throw an <see cref="EndOfStreamException"/> if it was closed midway.
+        /// </summary>
+        void ReadAll(byte[] buffer, int length) {
+            int read = 0;
+            while (read < length) {
+                if (server.IsConnected) {
+                    read += server.Read(buffer, read, length - read);
+                } else {
+                    throw new EndOfStreamException();
                 }
             }
         }

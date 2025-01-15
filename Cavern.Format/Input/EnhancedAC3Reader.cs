@@ -25,19 +25,24 @@ namespace Cavern.Format {
         /// Enhanced AC-3 file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public EnhancedAC3Reader(Stream reader) : base(reader) => fileSize = reader.Length;
+        public EnhancedAC3Reader(Stream reader) : base(reader) => fileSize = GetFileSize(reader);
 
         /// <summary>
         /// Enhanced AC-3 file reader.
         /// </summary>
         /// <param name="path">Input file name</param>
-        public EnhancedAC3Reader(string path) : base(path) => fileSize = reader.Length;
+        public EnhancedAC3Reader(string path) : base(path) => fileSize = GetFileSize(reader);
+
+        /// <summary>
+        /// Parse the stream/file length if possible for length calculation and seek support.
+        /// </summary>
+        static long GetFileSize(Stream reader) => reader.CanSeek ? reader.Length : -1;
 
         /// <summary>
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {
-            decoder = new EnhancedAC3Decoder(BlockBuffer<byte>.Create(reader, FormatConsts.blockSize), fileSize);
+            decoder = new EnhancedAC3Decoder(BlockBuffer<byte>.CreateForConstantPacketSize(reader, FormatConsts.blockSize), fileSize);
             ChannelCount = decoder.ChannelCount;
             Length = decoder.Length;
             SampleRate = decoder.SampleRate;
