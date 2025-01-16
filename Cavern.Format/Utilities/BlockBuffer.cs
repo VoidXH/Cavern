@@ -87,6 +87,9 @@ namespace Cavern.Format.Utilities {
         public static BlockBuffer<byte> CreateForConstantPacketSize(Stream reader, int maxBlockSize) {
             int blockSize = maxBlockSize;
             try {
+                if (reader is QueueStream queue) {
+                    queue.WaitForData(); // If CavernPipe is in use and didn't fill the queue yet, 0 could be passed to blockSize
+                }
                 if (reader.Length < blockSize) {
                     blockSize = (int)reader.Length;
                 }

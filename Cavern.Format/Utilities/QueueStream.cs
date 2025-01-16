@@ -1,12 +1,18 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Cavern.Format.Utilities {
     /// <summary>
     /// A thread-safe FIFO <see cref="MemoryStream"/>.
     /// </summary>
     public class QueueStream : Stream {
+        /// <summary>
+        /// When data is available, lets the threads through, otherwise waits until the data arrives.
+        /// </summary>
+        readonly ManualResetEventSlim dataAvailable = new ManualResetEventSlim(false);
+
         /// <summary>
         /// The underlying FIFO.
         /// </summary>
@@ -43,9 +49,6 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <inheritdoc/>
-        public override void Flush() { }
-
-        /// <inheritdoc/>
         public override int Read(byte[] buffer, int offset, int count) {
             int read = 0;
             while (read < count) {
@@ -54,6 +57,12 @@ namespace Cavern.Format.Utilities {
                     for (; read < readUntil; read++) {
                         buffer[offset + read] = queue.Dequeue();
                     }
+                }
+            }
+
+            lock (queue) {
+                if (queue.Count == 0) {
+                    dataAvailable.Reset();
                 }
             }
             return count;
@@ -66,7 +75,16 @@ namespace Cavern.Format.Utilities {
                     queue.Enqueue(buffer[offset + i]);
                 }
             }
+            dataAvailable.Set();
         }
+
+        /// <summary>
+        /// If the <see cref="queue"/> is empty, waits for a bulk <see cref="Write"/> so any complete data becomes available.
+        /// </summary>
+        public void WaitForData() => dataAvailable.Wait();
+
+        /// <inheritdoc/>
+        public override void Flush() => queue.Clear();
 
         /// <inheritdoc/>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();

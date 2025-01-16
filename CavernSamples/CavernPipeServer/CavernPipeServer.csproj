@@ -21,9 +21,6 @@
 	  <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Resources\" />
-	</ItemGroup>
-	<ItemGroup>
 	  <_DeploymentManifestIconFile Remove="..\Icon.ico" />
 	</ItemGroup>
 	<ItemGroup>

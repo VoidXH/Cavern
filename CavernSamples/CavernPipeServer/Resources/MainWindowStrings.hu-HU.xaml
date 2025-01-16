@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- Context menu -->
+    <system:String x:Key="MOpen">Megnyitás</system:String>
+    <system:String x:Key="MRest">Szerver újraindítása</system:String>
+    <system:String x:Key="MExit">Kilépés</system:String>
+
+    <!-- Errors -->
+    <system:String x:Key="Error">Hiba</system:String>
+    <system:String x:Key="ERest">A CavernPipe szerver már fut, és készen áll a lejátszásra.</system:String>
+    <system:String x:Key="EServ">A CavernPipe szerver újraindítása már folyamatban van.</system:String>
+    <system:String x:Key="EPipe">A CavernPipe szerver nem tudott elindulni 3 másodpercen keresztül. Menj biztosra, hogy nincs CavernPipe nevű named pipe,
+        és használd az értesítési sáv CavernPipe ikonjának jobbklikkes menüjét, hogy újraindítsd a pipe-ot.</system:String>
+</ResourceDictionary>

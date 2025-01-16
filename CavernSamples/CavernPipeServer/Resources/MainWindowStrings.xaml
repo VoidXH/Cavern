@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- Context menu -->
+    <system:String x:Key="MOpen">Open</system:String>
+    <system:String x:Key="MRest">Restart server</system:String>
+    <system:String x:Key="MExit">Exit</system:String>
+
+    <!-- Errors -->
+    <system:String x:Key="Error">Error</system:String>
+    <system:String x:Key="ERest">The CavernPipe server is already running and ready for playback.</system:String>
+    <system:String x:Key="EServ">The CavernPipe server is already being restarted.</system:String>
+    <system:String x:Key="EPipe">CavernPipe server failed to start for 3 seconds. Make sure no named pipe is called CavernPipe, and use the right click menu
+        of the CavernPipe icon on your system tray to restart the pipe.</system:String>
+</ResourceDictionary>

@@ -5,21 +5,33 @@ using System.Threading;
 
 using Cavern.Format.Utilities;
 
+using CavernPipeServer.Consts;
+
 namespace CavernPipeServer {
     /// <summary>
     /// Handles the network communication of CavernPipe. A watchdog for a self-created named pipe called &quot;CavernPipe&quot;.
     /// </summary>
     public class PipeHandler : IDisposable {
         /// <summary>
-        /// A thread that keeps the named pipe active in a loop - if the pipe was closed by a client and CavernPipe is still <see cref="running"/>,
+        /// The network connection is kept alive.
+        /// </summary>
+        public bool Running { get; private set; }
+
+        /// <summary>
+        /// Used for providing thread safety.
+        /// </summary>
+        readonly object locker = new object();
+
+        /// <summary>
+        /// A thread that keeps the named pipe active in a loop - if the pipe was closed by a client and CavernPipe is still <see cref="Running"/>,
         /// the named pipe is recreated, waiting for the next application to connect to CavernPipe.
         /// </summary>
-        readonly Thread thread;
+        Thread thread;
 
         /// <summary>
         /// Cancels waiting for a player/consumer when quitting the application.
         /// </summary>
-        readonly CancellationTokenSource canceler = new CancellationTokenSource();
+        CancellationTokenSource canceler;
 
         /// <summary>
         /// Network endpoint instance.
@@ -27,24 +39,31 @@ namespace CavernPipeServer {
         NamedPipeServerStream server;
 
         /// <summary>
-        /// The network connection shall be kept alive.
-        /// </summary>
-        bool running = true;
-
-        /// <summary>
         /// Handles the network communication of CavernPipe. A watchdog for a self-created named pipe called &quot;CavernPipe&quot;.
         /// </summary>
-        public PipeHandler() {
-            thread = new Thread(ThreadProc);
-            thread.Start();
+        public PipeHandler() => Start();
+
+        /// <summary>
+        /// Start the named pipe watchdog. If it's already running, an <see cref="InvalidOperationException"/> is thrown.
+        /// </summary>
+        public void Start() {
+            lock (locker) {
+                if (Running) {
+                    throw new InvalidOperationException((string)Language.GetMainWindowStrings()[server == null ? "EServ" : "ERest"]);
+                }
+                canceler = new CancellationTokenSource();
+                thread = new Thread(ThreadProc);
+                thread.Start();
+                Running = true;
+            }
         }
 
         /// <summary>
         /// Stop keeping the named pipe alive.
         /// </summary>
         public void Dispose() {
-            running = false;
-            lock (server) {
+            lock (locker) {
+                Running = false;
                 if (server != null) {
                     if (server.IsConnected) {
                         server.Close();
@@ -61,15 +80,14 @@ namespace CavernPipeServer {
         /// Watchdog for the CavernPipe named pipe. Allows a single instance of this named pipe to exist.
         /// </summary>
         async void ThreadProc() {
-            while (running) {
-                server = new NamedPipeServerStream("CavernPipe");
+            while (Running) {
                 try {
+                    TryStartServer();
                     await server.WaitForConnectionAsync(canceler.Token);
-                    // TODO: fix second connections
                     using CavernPipeRenderer renderer = new CavernPipeRenderer(server);
                     byte[] inBuffer = [],
                         outBuffer = [];
-                    while (running) {
+                    while (Running) {
                         int length = server.ReadInt32();
                         if (inBuffer.Length < length) {
                             inBuffer = new byte[length];
@@ -88,16 +106,37 @@ namespace CavernPipeServer {
                         server.Write(BitConverter.GetBytes(length));
                         server.Write(outBuffer, 0, length);
                     }
+                } catch (TimeoutException) {
+                    Language.ShowError((string)Language.GetMainWindowStrings()["EPipe"]);
+                    return;
                 } catch { // Content type change or server/stream closed
                     if (server.IsConnected) {
                         server.Flush();
                     }
                 }
-                lock (server) {
+                lock (locker) {
                     server.Dispose();
                     server = null;
                 }
             }
+        }
+
+        /// <summary>
+        /// Try to open the CavernPipe and assign the <see cref="server"/> variable if it was successful. If not, the thread stops,
+        /// and the user gets a message that it should be restarted.
+        /// </summary>
+        void TryStartServer() {
+            DateTime tryUntil = DateTime.Now + TimeSpan.FromSeconds(3);
+            while (DateTime.Now < tryUntil) {
+                try {
+                    server = new NamedPipeServerStream("CavernPipe");
+                    return;
+                } catch {
+                    server = null;
+                }
+            }
+            Running = false;
+            throw new TimeoutException();
         }
 
         /// <summary>

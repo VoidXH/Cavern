@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Forms;
 
 using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 
 namespace CavernPipeServer {
     /// <summary>
@@ -27,14 +28,22 @@ namespace CavernPipeServer {
         readonly PipeHandler handler = new PipeHandler();
 
         /// <summary>
+        /// Language string access.
+        /// </summary>
+        readonly ResourceDictionary language = Consts.Language.GetMainWindowStrings();
+
+        /// <summary>
         /// Main status/configuration window and background operation handler.
         /// </summary>
         public MainWindow() {
             InitializeComponent();
 
             contextMenu = new ContextMenuStrip();
-            contextMenu.Items.Add("Open", null, Open);
-            contextMenu.Items.Add("Exit", null, Exit);
+            contextMenu.Items.Add((string)language["MOpen"], null, Open);
+            contextMenu.Items.Add(new ToolStripSeparator());
+            contextMenu.Items.Add((string)language["MRest"], null, Restart);
+            contextMenu.Items.Add(new ToolStripSeparator());
+            contextMenu.Items.Add((string)language["MExit"], null, Exit);
 
             icon = new NotifyIcon {
                 Icon = new Icon(Application.GetResourceStream(new Uri("Resources/Icon.ico", UriKind.Relative)).Stream),
@@ -55,15 +64,26 @@ namespace CavernPipeServer {
         /// <summary>
         /// Show the configuration dialog.
         /// </summary>
-        void Open(object sender, EventArgs e) {
+        void Open(object _, EventArgs e) {
             Show();
             WindowState = WindowState.Normal;
         }
 
         /// <summary>
+        /// Try to restart the pipe.
+        /// </summary>
+        void Restart(object _, EventArgs __) {
+            try {
+                handler.Start();
+            } catch (InvalidOperationException e) {
+                Consts.Language.ShowError(e.Message);
+            }
+        }
+
+        /// <summary>
         /// Close the CavernPipe server.
         /// </summary>
-        void Exit(object sender, EventArgs e) {
+        void Exit(object _, EventArgs e) {
             handler.Dispose();
             icon.Dispose();
             Application.Current.Shutdown();
