@@ -73,6 +73,7 @@ namespace CavernPipeServer {
                 }
             }
             thread.Join();
+            canceler.Dispose();
             GC.SuppressFinalize(this);
         }
 
