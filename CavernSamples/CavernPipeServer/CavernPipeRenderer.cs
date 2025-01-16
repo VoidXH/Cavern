@@ -37,7 +37,7 @@ namespace CavernPipeServer {
 
         /// <inheritdoc/>
         public void Dispose() {
-            lock (this) {
+            lock (Protocol) {
                 Input?.Dispose();
                 Output?.Dispose();
             }
@@ -53,7 +53,7 @@ namespace CavernPipeServer {
             try {
                 EnhancedAC3Reader reader = new EnhancedAC3Reader(Input); // Currently E-AC-3 only, AudioReader.Open doesn't work without seek
                 Renderer renderer = reader.GetRenderer();
-                Listener listener = new Listener() {
+                Listener listener = new Listener {
                     SampleRate = reader.SampleRate,
                     UpdateRate = Protocol.UpdateRate
                 };
