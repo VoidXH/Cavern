@@ -19,7 +19,7 @@ transcoding, they can be handled on a lower level than loading a `Clip`.
 
 ### Reading
 To open any supported audio file for reading, use the following static function:
-```
+```cs
 AudioReader reader = AudioReader.Open(string path);
 ```
 There is an overload for `AudioReader.Open` to read audio files from an
@@ -55,7 +55,7 @@ renderer works in this use case.
 
 ### Writing
 To create an audio file, use an `AudioWriter`:
-```
+```cs
 AudioWriter writer = AudioWriter.Create(string path, int channelCount, long length, int sampleRate, BitDepth bits);
 ```
 This will create the `AudioWriter` for the appropriate file extension if it's
