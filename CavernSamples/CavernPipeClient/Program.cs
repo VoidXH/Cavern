@@ -28,23 +28,26 @@ pipe.Write(pipeHeader, 0, pipeHeader.Length);
 
 // Sending the file or part to the pipe
 using FileStream reader = File.OpenRead(args[0]);
-long sent = 0;
+long sent = 0,
+    received = 0;
 float[] writeBuffer = [];
 byte[] sendBuffer = new byte[1024 * 1024],
     receiveBuffer = [];
-while (sent < reader.Length) {
+while (received < target.Length) {
     int toSend = reader.Read(sendBuffer, 0, sendBuffer.Length);
     pipe.Write(BitConverter.GetBytes(toSend));
     pipe.Write(sendBuffer, 0, toSend);
     sent += toSend;
 
     // If there is incoming data, write it to file
-    int toReceive = pipe.ReadInt32();
+    int toReceive = pipe.ReadInt32(),
+        samples = toReceive / sizeof(float);
     if (receiveBuffer.Length < toReceive) {
         receiveBuffer = new byte[toReceive];
-        writeBuffer = new float[toReceive / sizeof(float)];
+        writeBuffer = new float[samples];
     }
     pipe.ReadAll(receiveBuffer, 0, toReceive);
     Buffer.BlockCopy(receiveBuffer, 0, writeBuffer, 0, toReceive);
-    target.WriteBlock(writeBuffer, 0, toReceive / sizeof(float));
+    target.WriteBlock(writeBuffer, 0, samples);
+    received += samples / target.ChannelCount;
 }

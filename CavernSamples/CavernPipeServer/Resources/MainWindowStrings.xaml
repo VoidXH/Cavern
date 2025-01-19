@@ -6,6 +6,11 @@
     <system:String x:Key="MRest">Restart server</system:String>
     <system:String x:Key="MExit">Exit</system:String>
 
+    <!-- Main window -->
+    <system:String x:Key="SProc">Processing...</system:String>
+    <system:String x:Key="SWait">Waiting for media player...</system:String>
+    <system:String x:Key="SNoSv">The CavernPipe server isn't running.</system:String>
+
     <!-- Errors -->
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="ERest">The CavernPipe server is already running and ready for playback.</system:String>

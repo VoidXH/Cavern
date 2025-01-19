@@ -13,9 +13,43 @@ namespace CavernPipeServer {
     /// </summary>
     public class PipeHandler : IDisposable {
         /// <summary>
+        /// Rendering of new content has started, the <see cref="Listener.Channels"/> are updated from the latest Cavern user files.
+        /// </summary>
+        public event Action OnRenderingStarted;
+
+        /// <summary>
+        /// Either the <see cref="Running"/> or <see cref="IsConnected"/> status have changed.
+        /// </summary>
+        public event Action StatusChanged;
+
+        /// <summary>
+        /// Allows subscribing to <see cref="CavernPipeRenderer.MetersAvailable"/>.
+        /// </summary>
+        public event CavernPipeRenderer.OnMetersAvailable MetersAvailable;
+
+        /// <summary>
         /// The network connection is kept alive.
         /// </summary>
-        public bool Running { get; private set; }
+        public bool Running {
+            get => running;
+            set {
+                running = value;
+                StatusChanged?.Invoke();
+            }
+        }
+        bool running;
+
+        /// <summary>
+        /// A client is connected to the server.
+        /// </summary>
+        public bool IsConnected {
+            get => isConnected;
+            set {
+                isConnected = value;
+                StatusChanged?.Invoke();
+            }
+        }
+        bool isConnected;
 
         /// <summary>
         /// Used for providing thread safety.
@@ -85,7 +119,10 @@ namespace CavernPipeServer {
                 try {
                     TryStartServer();
                     await server.WaitForConnectionAsync(canceler.Token);
+                    IsConnected = true;
                     using CavernPipeRenderer renderer = new CavernPipeRenderer(server);
+                    renderer.OnRenderingStarted += OnRenderingStarted;
+                    renderer.MetersAvailable += MetersAvailable;
                     byte[] inBuffer = [],
                         outBuffer = [];
                     while (Running) {
@@ -115,6 +152,8 @@ namespace CavernPipeServer {
                         server.Flush();
                     }
                 }
+
+                IsConnected = false;
                 lock (locker) {
                     server.Dispose();
                     server = null;

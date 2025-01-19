@@ -1,6 +1,5 @@
 ﻿using Cavern;
 using Cavern.Channels;
-using Cavern.Format.Renderers;
 
 namespace CavernizeGUI.Elements {
     /// <summary>
@@ -19,7 +18,7 @@ namespace CavernizeGUI.Elements {
             new Listener();
             ReferenceChannel[] result = new ReferenceChannel[Listener.Channels.Length];
             for (int i = 0; i < result.Length; i++) {
-                result[i] = Renderer.ChannelFromPosition(Listener.Channels[i].CubicalPos);
+                result[i] = ChannelPrototype.GetReference(Listener.Channels[i]);
             }
             return result;
         }

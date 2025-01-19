@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<OutputType>Exe</OutputType>
+		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
@@ -22,6 +22,11 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <_DeploymentManifestIconFile Remove="..\Icon.ico" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Include="..\_Common\Styles.xaml" Link="Resources\Styles.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Resource Include="..\Icon.ico" Link="Resources\Icon.ico" />

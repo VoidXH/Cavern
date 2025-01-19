@@ -146,9 +146,26 @@ namespace Cavern.Channels {
         }
 
         /// <summary>
-        /// Convert a <see cref="ReferenceChannel"/> to the name of the channels.
+        /// Convert a <see cref="Channel"/> to the name of the channel, if its position is known.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetName(Channel source) => GetName(GetReference(source));
+
+        /// <summary>
+        /// Convert a <see cref="ReferenceChannel"/> to the name of the channel.
         /// </summary>
         public static string GetName(ReferenceChannel source) => Mapping[(int)source].Name;
+
+        /// <summary>
+        /// Convert a mapping of <see cref="Channel"/>s to the names of the channels.
+        /// </summary>
+        public static string[] GetNames(Channel[] source) {
+            string[] result = new string[source.Length];
+            for (int i = 0; i < source.Length; i++) {
+                result[i] = GetName(source[i]);
+            }
+            return result;
+        }
 
         /// <summary>
         /// Convert a mapping of <see cref="ReferenceChannel"/>s to the names of the channels.
@@ -159,6 +176,27 @@ namespace Cavern.Channels {
                 result[i] = Mapping[(int)source[i]].Name;
             }
             return result;
+        }
+
+        /// <summary>
+        /// Get which channel this placement represents.
+        /// </summary>
+        public static ReferenceChannel GetReference(Channel source) {
+            if (source.LFE) {
+                return ReferenceChannel.ScreenLFE;
+            }
+            for (int i = 0; i < Mapping.Length; i++) {
+                if (Math.Abs(Mapping[i].X - source.X) < .05f && Math.Abs(Mapping[i].Y - source.Y) < .05f) {
+                    return (ReferenceChannel)i;
+                }
+            }
+            Vector3 cubicalPos = source.CubicalPos;
+            for (int i = 0; i < AlternativePositions.Length; i++) {
+                if (AlternativePositions[i] == cubicalPos) {
+                    return (ReferenceChannel)i;
+                }
+            }
+            return ReferenceChannel.Unknown;
         }
 
         /// <summary>

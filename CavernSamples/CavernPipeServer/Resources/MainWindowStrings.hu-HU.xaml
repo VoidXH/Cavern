@@ -6,6 +6,11 @@
     <system:String x:Key="MRest">Szerver újraindítása</system:String>
     <system:String x:Key="MExit">Kilépés</system:String>
 
+    <!-- Main window -->
+    <system:String x:Key="SProc">Feldolgozás...</system:String>
+    <system:String x:Key="SWait">Várakozás médialejátszóra...</system:String>
+    <system:String x:Key="SNoSv">A CavernPipe szerver nem fut.</system:String>
+
     <!-- Errors -->
     <system:String x:Key="Error">Hiba</system:String>
     <system:String x:Key="ERest">A CavernPipe szerver már fut, és készen áll a lejátszásra.</system:String>

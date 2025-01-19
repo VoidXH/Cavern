@@ -4,8 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="CavernPipe Server"
-        Visibility="Hidden" ShowInTaskbar="False" Width="600" Height="300">
-    <Grid>
+        Title="CavernPipe Server" Visibility="Hidden" ShowInTaskbar="False" ResizeMode="NoResize" Background="#696969"
+        Width="300" Height="300">
+    <Window.Resources>
+        <ResourceDictionary Source="Resources/Styles.xaml"/>
+    </Window.Resources>
+    <Grid x:Name="canvas">
+        <RadioButton x:Name="status" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <TextBlock x:Name="chProto" Margin="10,30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="16" Visibility="Hidden"/>
+        <ProgressBar x:Name="vmProto" Margin="0,30,10,0" HorizontalAlignment="Right" VerticalAlignment="Top" Width="140" Height="16" Visibility="Hidden"/>
     </Grid>
 </Window>
