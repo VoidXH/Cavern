@@ -100,9 +100,29 @@ namespace Cavern.Channels {
         public static readonly ReferenceChannel[] ref300 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter };
 
         /// <summary>
+        /// Standard 3.1.2 setup (L, R, C, LFE, TFL, TFR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref312 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight };
+
+        /// <summary>
         /// Standard 4.0.0 setup (L, R, SL, SR).
         /// </summary>
         public static readonly ReferenceChannel[] ref400 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight };
+
+        /// <summary>
+        /// Standard 4.0.4 setup (L, R, RL, RR, TFL, TFR, TRL, TRR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref404 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
+
+        /// <summary>
+        /// Standard 4.1.1 setup (L, R, C, LFE, RC, TFC).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref411 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearCenter, ReferenceChannel.TopFrontCenter };
+
+        /// <summary>
+        /// Standard 4.1.3 setup (L, R, C, LFE, RC, TFC, TRL, TRR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref413 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearCenter, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight };
 
         /// <summary>
         /// Standard 5.0.0 setup (L, R, C, SL, SR).
@@ -193,6 +213,11 @@ namespace Cavern.Channels {
         /// Standard 9.0.6 setup (L, R, C, RL, RR, SL, SR, WL, WR, TFL, TFC, TFR, TRL, TRC, TRR).
         /// </summary>
         public static readonly ReferenceChannel[] wav906 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontCenter, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearCenter, ReferenceChannel.TopRearRight };
+
+        /// <summary>
+        /// Standard 9.1.0 setup (L, R, C, LFE, RL, RR, SL, SR, WL, WR).
+        /// </summary>
+        public static readonly ReferenceChannel[] ref910 = { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE, ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.WideLeft, ReferenceChannel.WideRight };
 
         /// <summary>
         /// Standard 9.1.4 setup (L, R, C, LFE, RL, RR, SL, SR, WL, WR, TFL, TFR, TRL, TRR).

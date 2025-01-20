@@ -4,6 +4,7 @@ using System.Windows.Controls;
 
 using Cavern;
 using Cavern.Channels;
+using Cavern.WPF.Consts;
 
 namespace CavernPipeServer {
     /// <summary>
@@ -38,7 +39,7 @@ namespace CavernPipeServer {
         /// so the <see cref="Listener.Channels"/> are what will be rendered.
         /// </summary>
         public virtual void Enable() {
-            string[] channels = ChannelPrototype.GetNames(Listener.Channels);
+            ReferenceChannel[] channels = ChannelPrototype.GetReferences(Listener.Channels);
             displays = new (TextBlock, ProgressBar)[channels.Length];
             movingPeaks = new float[channels.Length];
             for (int i = 0; i < channels.Length; i++) {
@@ -47,7 +48,7 @@ namespace CavernPipeServer {
                     Margin = new Thickness(labelProto.Margin.Left, marginTop, labelProto.Margin.Right, 0),
                     HorizontalAlignment = labelProto.HorizontalAlignment,
                     VerticalAlignment = labelProto.VerticalAlignment,
-                    Text = channels[i]
+                    Text = channels[i].Translate()
                 };
                 ProgressBar progressBar = new ProgressBar {
                     Margin = new Thickness(barProto.Margin.Left, marginTop, barProto.Margin.Right, 0),

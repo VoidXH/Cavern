@@ -13,12 +13,6 @@ namespace CavernPipeServer.Consts {
         public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= GetFor("MainWindowStrings");
 
         /// <summary>
-        /// Show the message in an error dialog with the localized &quot;Error&quot; title.
-        /// </summary>
-        public static void ShowError(string message) =>
-            MessageBox.Show(message, (string)GetMainWindowStrings()["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
-
-        /// <summary>
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
         /// </summary>
         static ResourceDictionary GetFor(string resource) {

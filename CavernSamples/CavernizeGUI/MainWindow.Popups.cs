@@ -1,8 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 
 using Cavern;
@@ -10,6 +8,7 @@ using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Virtualizer;
+using Cavern.WPF.Consts;
 
 using CavernizeGUI.Elements;
 using CavernizeGUI.Windows;
@@ -159,27 +158,11 @@ namespace CavernizeGUI {
         void DisplayWiring(object _, RoutedEventArgs e) {
             RenderTarget target = (RenderTarget)renderTarget.SelectedItem;
             ReferenceChannel[] channels = target.GetNameMappedChannels();
-            ChannelPrototype[] prototypes = ChannelPrototype.Get(channels);
-            if (channels.Length > 8) {
-                MessageBox.Show(string.Format((string)language["Over8"], string.Join(string.Empty, prototypes.Select(x => "\n- " + x.Name)),
-                    (string)language["WrGui"]));
-                return;
-            }
-
-            StringBuilder output = new StringBuilder();
-            for (int i = 0; i < prototypes.Length; i++) {
-                output.AppendLine(string.Format((string)language["ChCon"], prototypes[i].Name,
-                    ChannelPrototype.Get(i, prototypes.Length).Name));
-            }
             if (target is DownmixedRenderTarget downmix) {
-                (ReferenceChannel source, ReferenceChannel posPhase, ReferenceChannel negPhase)[] matrixed = downmix.MatrixWirings;
-                for (int i = 0; i < matrixed.Length; i++) {
-                    output.AppendLine(string.Format((string)language["ChCMx"],
-                        ChannelPrototype.GetName(matrixed[i].source), ChannelPrototype.GetName(matrixed[i].posPhase),
-                        ChannelPrototype.GetName(matrixed[i].negPhase)));
-                }
+                channels.DisplayWiring(downmix.MatrixWirings);
+            } else {
+                channels.DisplayWiring();
             }
-            MessageBox.Show(output.ToString(), (string)language["WrGui"]);
         }
     }
 }

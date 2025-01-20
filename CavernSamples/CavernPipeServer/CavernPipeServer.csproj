@@ -19,6 +19,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+	  <ProjectReference Include="..\..\Cavern.WPF\Cavern.WPF.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <_DeploymentManifestIconFile Remove="..\Icon.ico" />

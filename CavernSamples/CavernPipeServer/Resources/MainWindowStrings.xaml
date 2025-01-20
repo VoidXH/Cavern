@@ -3,7 +3,12 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- Context menu -->
     <system:String x:Key="MOpen">Open</system:String>
+    <system:String x:Key="MSett">Settings</system:String>
+    <system:String x:Key="MSLay">Override speaker layout</system:String>
+    <system:String x:Key="MWiri">Speaker wiring guide</system:String>
+    <system:String x:Key="MDiag">Diagnostics</system:String>
     <system:String x:Key="MRest">Restart server</system:String>
+    <system:String x:Key="MLErr">Cause of last disconnection</system:String>
     <system:String x:Key="MExit">Exit</system:String>
 
     <!-- Main window -->
@@ -12,9 +17,13 @@
     <system:String x:Key="SNoSv">The CavernPipe server isn't running.</system:String>
 
     <!-- Errors -->
-    <system:String x:Key="Error">Error</system:String>
+    <system:String x:Key="NDisc">The media player has disconnected.</system:String>
+    <system:String x:Key="NLErr">There was no disconnection since the last connection.</system:String>
     <system:String x:Key="ERest">The CavernPipe server is already running and ready for playback.</system:String>
     <system:String x:Key="EServ">The CavernPipe server is already being restarted.</system:String>
     <system:String x:Key="EPipe">CavernPipe server failed to start for 3 seconds. Make sure no named pipe is called CavernPipe, and use the right click menu
         of the CavernPipe icon on your system tray to restart the pipe.</system:String>
+    <system:String x:Key="WSLay">Do you really want to change the Cavern channel layout on the system to {0}?</system:String>
+    <system:String x:Key="WSLaC">Change successful. Don't forget, for the Cavern experience, you have to wire the speakers as described by
+        Settings -> Speaker wiring guide!</system:String>
 </ResourceDictionary>

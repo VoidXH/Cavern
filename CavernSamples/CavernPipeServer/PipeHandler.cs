@@ -28,6 +28,11 @@ namespace CavernPipeServer {
         public event CavernPipeRenderer.OnMetersAvailable MetersAvailable;
 
         /// <summary>
+        /// Exceptions coming from the named pipe or the rendering thread are passed down from this event.
+        /// </summary>
+        public event Action<Exception> OnException;
+
+        /// <summary>
         /// The network connection is kept alive.
         /// </summary>
         public bool Running {
@@ -123,6 +128,8 @@ namespace CavernPipeServer {
                     using CavernPipeRenderer renderer = new CavernPipeRenderer(server);
                     renderer.OnRenderingStarted += OnRenderingStarted;
                     renderer.MetersAvailable += MetersAvailable;
+                    renderer.OnException += OnException;
+
                     byte[] inBuffer = [],
                         outBuffer = [];
                     while (Running) {
@@ -145,16 +152,17 @@ namespace CavernPipeServer {
                         server.Write(outBuffer, 0, length);
                     }
                 } catch (TimeoutException) {
-                    Language.ShowError((string)Language.GetMainWindowStrings()["EPipe"]);
+                    Cavern.WPF.Consts.Language.Error((string)Language.GetMainWindowStrings()["EPipe"]);
                     return;
-                } catch { // Content type change or server/stream closed
-                    if (server.IsConnected) {
-                        server.Flush();
-                    }
+                } catch (Exception e) { // Content type change or server/stream closed
+                    OnException?.Invoke(e);
                 }
 
                 IsConnected = false;
                 lock (locker) {
+                    if (server.IsConnected) {
+                        server.Flush();
+                    }
                     server.Dispose();
                     server = null;
                 }

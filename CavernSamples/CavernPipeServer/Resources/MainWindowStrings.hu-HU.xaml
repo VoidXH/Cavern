@@ -3,7 +3,12 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- Context menu -->
     <system:String x:Key="MOpen">Megnyitás</system:String>
+    <system:String x:Key="MSett">Beállítások</system:String>
+    <system:String x:Key="MSLay">Hangszórókiosztás felülírása</system:String>
+    <system:String x:Key="MWiri">Hangszóró bekötési útmutató</system:String>
+    <system:String x:Key="MDiag">Diagnosztika</system:String>
     <system:String x:Key="MRest">Szerver újraindítása</system:String>
+    <system:String x:Key="MLErr">Utolsó kapcsolatbontás oka</system:String>
     <system:String x:Key="MExit">Kilépés</system:String>
 
     <!-- Main window -->
@@ -12,9 +17,13 @@
     <system:String x:Key="SNoSv">A CavernPipe szerver nem fut.</system:String>
 
     <!-- Errors -->
-    <system:String x:Key="Error">Hiba</system:String>
+    <system:String x:Key="NDisc">A médialejátszó lecsatlakozott.</system:String>
+    <system:String x:Key="NLErr">Nem volt lecsatlakozás az utolsó kapcsolódás óta.</system:String>
     <system:String x:Key="ERest">A CavernPipe szerver már fut, és készen áll a lejátszásra.</system:String>
     <system:String x:Key="EServ">A CavernPipe szerver újraindítása már folyamatban van.</system:String>
     <system:String x:Key="EPipe">A CavernPipe szerver nem tudott elindulni 3 másodpercen keresztül. Menj biztosra, hogy nincs CavernPipe nevű named pipe,
         és használd az értesítési sáv CavernPipe ikonjának jobbklikkes menüjét, hogy újraindítsd a pipe-ot.</system:String>
+    <system:String x:Key="WSLay">Biztos meg akarod változtatni a Cavern csatornakiosztását a rendszeren erre: {0}?</system:String>
+    <system:String x:Key="WSLaC">Sikeres változtatás. Ne feledd, a Cavern élményhez úgy kell bekötni a hangszórókat, ahogy a
+        Beállítások -> Hangszóró bekötési útmutatóban találod!</system:String>
 </ResourceDictionary>

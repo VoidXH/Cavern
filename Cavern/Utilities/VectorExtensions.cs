@@ -23,6 +23,12 @@ namespace Cavern.Utilities {
         internal const float Sqrt2p2 = .7071067811f;
 
         /// <summary>
+        /// Check if all 3 components are at max <paramref name="epsilon"/> apart for the two vectors.
+        /// </summary>
+        public static bool CloseTo(this Vector3 vector, Vector3 other, float epsilon) =>
+            Math.Abs(vector.X - other.X) < epsilon && Math.Abs(vector.Y - other.Y) < epsilon && Math.Abs(vector.Z - other.Z) < epsilon;
+
+        /// <summary>
         /// Returns a vector that's the same direction as the source vector, but it's on the side of a 2x2x2 cube.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

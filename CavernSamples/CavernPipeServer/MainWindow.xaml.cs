@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
@@ -13,11 +14,6 @@ namespace CavernPipeServer {
     /// Main status/configuration window and background operation handler.
     /// </summary>
     public partial class MainWindow : Window {
-        /// <summary>
-        /// Right-click menu of the tray icon.
-        /// </summary>
-        readonly ContextMenuStrip contextMenu;
-
         /// <summary>
         /// CavernPipe tray icon handle.
         /// </summary>
@@ -44,30 +40,30 @@ namespace CavernPipeServer {
         bool exiting;
 
         /// <summary>
+        /// The issue with the last tried playback.
+        /// </summary>
+        string lastError;
+
+        /// <summary>
         /// Main status/configuration window and background operation handler.
         /// </summary>
         public MainWindow() {
             InitializeComponent();
 
-            contextMenu = new ContextMenuStrip();
-            contextMenu.Items.Add((string)language["MOpen"], null, Open);
-            contextMenu.Items.Add(new ToolStripSeparator());
-            contextMenu.Items.Add((string)language["MRest"], null, Restart);
-            contextMenu.Items.Add(new ToolStripSeparator());
-            contextMenu.Items.Add((string)language["MExit"], null, Exit);
-
             icon = new NotifyIcon {
                 Icon = new Icon(Application.GetResourceStream(new Uri("Resources/Icon.ico", UriKind.Relative)).Stream),
                 Visible = true,
-                ContextMenuStrip = contextMenu,
+                ContextMenuStrip = CreateContextMenu(),
             };
             icon.DoubleClick += Open;
 
             meters = new ThreadSafeChannelMeters(canvas, chProto, vmProto);
             handler = new PipeHandler();
-            handler.OnRenderingStarted += meters.Enable;
+            handler.OnRenderingStarted += OnRenderingStarted;
             handler.StatusChanged += OnServerStatusChange;
             handler.MetersAvailable += meters.Update;
+            handler.OnException += StoreErrorMessage;
+
             OnServerStatusChange();
         }
 
@@ -80,32 +76,11 @@ namespace CavernPipeServer {
         }
 
         /// <summary>
-        /// Show the configuration dialog.
+        /// Prepare the UI for handling data coming from networking/rendering threads.
         /// </summary>
-        void Open(object _, EventArgs e) {
-            Show();
-            WindowState = WindowState.Normal;
-        }
-
-        /// <summary>
-        /// Try to restart the pipe.
-        /// </summary>
-        void Restart(object _, EventArgs __) {
-            try {
-                handler.Start();
-            } catch (InvalidOperationException e) {
-                Consts.Language.ShowError(e.Message);
-            }
-        }
-
-        /// <summary>
-        /// Close the CavernPipe server.
-        /// </summary>
-        void Exit(object _, EventArgs e) {
-            exiting = true;
-            handler.Dispose();
-            icon.Dispose();
-            Application.Current.Shutdown();
+        void OnRenderingStarted() {
+            meters.Enable();
+            lastError = null;
         }
 
         /// <summary>
@@ -133,6 +108,20 @@ namespace CavernPipeServer {
 
             if (!handler.IsConnected) {
                 meters.Disable();
+            }
+        }
+
+        /// <summary>
+        /// Handle exceptions that result in a stopped playback.
+        /// </summary>
+        void StoreErrorMessage(Exception e) {
+            if (e.GetType() == typeof(IOException) && e.Source == "System.IO.Pipes") {
+                lastError = (string)language["NDisc"];
+                return;
+            } else if (e.StackTrace.Contains("QueueStream")) {
+                return; // Rendering threads are stopped by setting them to null (yeah...)
+            } else {
+                lastError = e.ToString();
             }
         }
     }

@@ -4,5 +4,6 @@
     <system:String x:Key="BtnOk">OK</system:String>
     <system:String x:Key="BtnCa">Mégse</system:String>
     <system:String x:Key="TErro">Hiba</system:String>
+    <system:String x:Key="TWarn">Figyelmeztetés</system:String>
     <system:String x:Key="ImFmt">Minden támogatott formátum|{0}</system:String>
 </ResourceDictionary>

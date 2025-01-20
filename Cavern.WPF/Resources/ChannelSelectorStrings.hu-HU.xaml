@@ -26,4 +26,12 @@
     <system:String x:Key="SpTRL">Felső hátsó bal</system:String>
     <system:String x:Key="SpTRC">Felső hátsó közép</system:String>
     <system:String x:Key="SpTRR">Felső hátsó jobb</system:String>
+    <system:String x:Key="SpUnk">Ismeretlen</system:String>
+
+    <system:String x:Key="WrGui">Bekötési útmutató</system:String>
+    <system:String x:Key="ChCon">Kösd a (z) {0} hangszórót a rendszered {1} kimenetére.</system:String>
+    <system:String x:Key="ChCMx">Kösd a (z) {0} hangszóró + csatlakozóját a(z) {1} kimenet +-ára, valamint a hangszóró - csatlakozóját
+        a(z) {2} kimenet +-ára.</system:String>
+    <system:String x:Key="Over8">Nincs szabványos bekötés 8 csatorna felett. Masszívan többcsatornás interfészeknél a csatornák
+        rendje pontosan az, ami a fájlban is:{0}</system:String>
 </ResourceDictionary>

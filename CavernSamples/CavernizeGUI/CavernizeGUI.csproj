@@ -32,6 +32,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+		<ProjectReference Include="..\..\Cavern.WPF\Cavern.WPF.csproj" />
 		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
 	</ItemGroup>
 

@@ -3,6 +3,8 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using Cavern.Utilities;
+
 namespace Cavern.Channels {
     /// <summary>
     /// Light audio channel information structure.
@@ -192,11 +194,22 @@ namespace Cavern.Channels {
             }
             Vector3 cubicalPos = source.CubicalPos;
             for (int i = 0; i < AlternativePositions.Length; i++) {
-                if (AlternativePositions[i] == cubicalPos) {
+                if (AlternativePositions[i].CloseTo(cubicalPos, .05f)) {
                     return (ReferenceChannel)i;
                 }
             }
             return ReferenceChannel.Unknown;
+        }
+
+        /// <summary>
+        /// Get which channels this layout represents.
+        /// </summary>
+        public static ReferenceChannel[] GetReferences(Channel[] source) {
+            ReferenceChannel[] result = new ReferenceChannel[source.Length];
+            for (int i = 0; i < source.Length; i++) {
+                result[i] = GetReference(source[i]);
+            }
+            return result;
         }
 
         /// <summary>

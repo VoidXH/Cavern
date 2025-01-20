@@ -99,18 +99,10 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         /// <remarks>Top rears are used instead of sides for smooth height transitions and WAVEFORMATEXTENSIBLE support.</remarks>
         public static readonly RenderTarget[] Targets = [
-            new RenderTarget("3.1.2", [
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight
-            ]),
-            new RenderTarget("4.0.4", [
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight, ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            ]),
-            new RenderTarget("4.1.1", [
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearCenter, ReferenceChannel.TopFrontCenter
-            ]),
+            new RenderTarget("3.1.2", ChannelPrototype.ref312),
+            new RenderTarget("4.0.4", ChannelPrototype.ref404),
+            new RenderTarget("4.1.1", ChannelPrototype.ref411),
+            new RenderTarget("4.1.3", ChannelPrototype.ref413),
             new RenderTarget("5.1 side", ChannelPrototype.ref510),
             new RenderTarget("5.1 rear", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
@@ -122,11 +114,7 @@ namespace CavernizeGUI.Elements {
             ]),
             new DownmixedRenderTarget("5.1.2 front", ChannelPrototype.ref514, (8, 4), (9, 5)),
             new RenderTarget("5.1.4", ChannelPrototype.ref514),
-            new DownmixedRenderTarget("5.1.4 matrix", [
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.TopFrontLeft, ReferenceChannel.TopFrontRight,
-                ReferenceChannel.TopRearLeft, ReferenceChannel.TopRearRight
-            ], (8, 0), (~8, 4), (9, 1), (~9, 5)),
+            new DownmixedRenderTarget("5.1.4 matrix", ChannelPrototype.ref514, (8, 0), (~8, 4), (9, 1), (~9, 5)),
             new RenderTarget("5.1.6 with top sides", ChannelPrototype.ref516),
             new RenderTarget("5.1.6 for WAVE", ChannelPrototype.wav516),
             new RenderTarget("7.1", ChannelPrototype.ref710),
@@ -149,11 +137,7 @@ namespace CavernizeGUI.Elements {
             new RenderTarget("7.1.4", ChannelPrototype.ref714),
             new RenderTarget("7.1.6 with top sides", ChannelPrototype.ref716),
             new RenderTarget("7.1.6 for WAVE", ChannelPrototype.wav716),
-            new RenderTarget("9.1", [
-                ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
-                ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,
-                ReferenceChannel.WideLeft, ReferenceChannel.WideRight
-            ]),
+            new RenderTarget("9.1", ChannelPrototype.ref910),
             new RenderTarget("9.1.2 side", [
                 ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter, ReferenceChannel.ScreenLFE,
                 ReferenceChannel.RearLeft, ReferenceChannel.RearRight, ReferenceChannel.SideLeft, ReferenceChannel.SideRight,

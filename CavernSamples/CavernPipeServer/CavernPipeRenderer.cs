@@ -29,6 +29,11 @@ namespace CavernPipeServer {
         public event OnMetersAvailable MetersAvailable;
 
         /// <summary>
+        /// Exceptions coming from the rendering thread are passed down from this event.
+        /// </summary>
+        public event Action<Exception> OnException;
+
+        /// <summary>
         /// Protocol message decoder.
         /// </summary>
         public CavernPipeProtocol Protocol { get; private set; }
@@ -96,8 +101,9 @@ namespace CavernPipeServer {
                         streamDumper.WriteBlock(reRender, 0, reRender.LongLength);
                     }
                 }
-            } catch {
+            } catch (Exception e) {
                 Dispose();
+                OnException?.Invoke(e);
             }
         }
 

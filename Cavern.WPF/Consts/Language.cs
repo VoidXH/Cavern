@@ -46,6 +46,18 @@ namespace Cavern.WPF.Consts {
             MessageBox.Show(message, (string)GetCommonStrings()["TErro"], MessageBoxButton.OK, MessageBoxImage.Error);
 
         /// <summary>
+        /// Show a warning <paramref name="message"/> with the title in the user's language.
+        /// </summary>
+        public static MessageBoxResult Warning(string message) =>
+            MessageBox.Show(message, (string)GetCommonStrings()["TWarn"], MessageBoxButton.OK, MessageBoxImage.Warning);
+
+        /// <summary>
+        /// Show a warning <paramref name="message"/> with the title in the user's language.
+        /// </summary>
+        public static MessageBoxResult Warning(string message, MessageBoxButton buttons) =>
+            MessageBox.Show(message, (string)GetCommonStrings()["TWarn"], buttons, MessageBoxImage.Warning);
+
+        /// <summary>
         /// Return a channel's name in the user's language or fall back to its short name.
         /// </summary>
         public static string Translate(this ReferenceChannel channel) {
@@ -73,6 +85,7 @@ namespace Cavern.WPF.Consts {
                 ReferenceChannel.TopRearLeft => (string)dictionary["SpTRL"],
                 ReferenceChannel.TopRearCenter => (string)dictionary["SpTRC"],
                 ReferenceChannel.TopRearRight => (string)dictionary["SpTRR"],
+                ReferenceChannel.Unknown => (string)dictionary["SpUnk"],
                 _ => channel.GetShortName()
             };
         }

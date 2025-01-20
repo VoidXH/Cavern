@@ -77,11 +77,6 @@
     <system:String x:Key="ExLAF">Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="UnExt">A fájlnév kiterjesztése nem támogatott.</system:String>
     <system:String x:Key="UnCod">Ez a kodek nem támogatott exportáláshoz.</system:String>
-    <system:String x:Key="WrGui">Bekötési útmutató</system:String>
-    <system:String x:Key="ChCon">Kösd a {0} csatornát a rendszered {1} kimenetére.</system:String>
-    <system:String x:Key="ChCMx">Kösd a {0} csatorna + csatlakozóját a {1} hangszóró +-ára, valamint a - kimenetét a {2} +-ára.</system:String>
-    <system:String x:Key="Over8">Nincs szabványos bekötés 8 csatorna felett. Masszívan többcsatornás interfészeknél a csatornák
-        rendje pontosan az, ami a fájlban is:{0}</system:String>
     <system:String x:Key="Start">Renderelés indítása...</system:String>
     <system:String x:Key="ExpOk">Befejezve!</system:String>
     <system:String x:Key="Error">Hiba</system:String>
