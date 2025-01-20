@@ -117,9 +117,8 @@ namespace CavernPipeServer {
         void StoreErrorMessage(Exception e) {
             if (e.GetType() == typeof(IOException) && e.Source == "System.IO.Pipes") {
                 lastError = (string)language["NDisc"];
-                return;
             } else if (e.StackTrace.Contains("QueueStream")) {
-                return; // Rendering threads are stopped by setting them to null (yeah...)
+                // Rendering threads are stopped by setting them to null (yeah...)
             } else {
                 lastError = e.ToString();
             }
