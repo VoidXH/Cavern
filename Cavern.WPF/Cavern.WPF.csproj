@@ -16,6 +16,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <DebugType>none</DebugType>
+	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 	</ItemGroup>
