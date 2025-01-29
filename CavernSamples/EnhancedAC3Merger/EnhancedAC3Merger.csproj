@@ -17,7 +17,7 @@
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
 	<ItemGroup>
-		<Compile Include="..\CavernizeGUI\Tools\FFmpeg.cs" Link="Tools\FFmpeg.cs" />
+		<Compile Include="..\VoidX.WPF\FFmpeg.cs" Link="Tools\FFmpeg.cs" />
 		<Compile Include="..\VoidX.WPF\EnumToTitleCase.cs" Link="Tools\EnumToTitleCase.cs" />
 		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="Tools\TaskEngine.cs" />
 	</ItemGroup>
