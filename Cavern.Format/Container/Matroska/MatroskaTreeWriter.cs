@@ -97,6 +97,9 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public void Write(int tag, string value) {
             VarInt.WriteTag(writer, tag);
+            if (value.Length == 127) {
+                value += ' '; // This specific length breaks FFmpeg/libavcodec for some reason
+            }
             VarInt.Write(writer, value.Length);
             writer.Write(Encoding.ASCII.GetBytes(value));
         }
