@@ -40,7 +40,7 @@ jobs:
     - name: Download base build
       shell: powershell
       run: |
-        Invoke-WebRequest -Method Get -Uri "https://cavern.sbence.hu/index.php?t=115&dl=cavern64" -OutFile cavern64.zip -UseBasicParsing
+        Invoke-WebRequest -Method Get -Uri "https://cavern.sbence.hu/content/downloads/cavern64.zip" -OutFile cavern64.zip -UseBasicParsing
         mkdir build/Release
         7z x -obuild/Release cavern64.zip
         Remove-Item -Path "cavern64.zip"
