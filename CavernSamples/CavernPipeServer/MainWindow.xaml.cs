@@ -52,6 +52,7 @@ namespace CavernPipeServer {
 
             icon = new NotifyIcon {
                 Icon = new Icon(Application.GetResourceStream(new Uri("Resources/Icon.ico", UriKind.Relative)).Stream),
+                Text = "CavernPipe Server",
                 Visible = true,
                 ContextMenuStrip = CreateContextMenu(),
             };

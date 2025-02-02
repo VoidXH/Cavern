@@ -33,12 +33,12 @@ namespace CavernPipeServer {
         /// Create a right click menu to be assigned to the tray icon.
         /// </summary>
         ContextMenuStrip CreateContextMenu() {
-            ContextMenuStrip result = new ContextMenuStrip();
+            ContextMenuStrip result = new();
             result.Items.Add((string)language["MOpen"], null, Open);
             result.Items.Add(new ToolStripSeparator());
 
-            ToolStripMenuItem settingsMenu = new ToolStripMenuItem((string)language["MSett"]);
-            ToolStripMenuItem layouts = new ToolStripMenuItem((string)language["MSLay"]);
+            ToolStripMenuItem settingsMenu = new((string)language["MSett"]);
+            ToolStripMenuItem layouts = new((string)language["MSLay"]);
             for (int i = 0; i < customLayouts.Length; i++) {
                 (string name, ReferenceChannel[] channels) = customLayouts[i];
                 layouts.DropDownItems.Add(customLayouts[i].name, null, (_, __) => SetLayout(name, channels));
@@ -48,7 +48,7 @@ namespace CavernPipeServer {
             result.Items.Add(settingsMenu);
             result.Items.Add(new ToolStripSeparator());
 
-            ToolStripMenuItem diagMenu = new ToolStripMenuItem((string)language["MDiag"]);
+            ToolStripMenuItem diagMenu = new((string)language["MDiag"]);
             diagMenu.DropDownItems.Add((string)language["MRest"], null, Restart);
             diagMenu.DropDownItems.Add((string)language["MLErr"], null, LastError);
             result.Items.Add(diagMenu);
