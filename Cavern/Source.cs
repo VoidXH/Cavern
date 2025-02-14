@@ -271,12 +271,12 @@ namespace Cavern {
                                 topRearLeft = -1,
                                 topRearRight = -1;
                             // Closest layers on Y and Z axes
-                            float closestTop = 78,
-                                closestBottom = -73,
-                                closestTF = 75,
-                                closestTR = -73,
-                                closestBF = 75,
-                                closestBR = -69;
+                            float closestTop = 66,
+                                closestBottom = -69,
+                                closestTF = 82,
+                                closestTR = -84,
+                                closestBF = 65,
+                                closestBR = -2665;
 
                             // Find closest horizontal layers
                             if (Listener.HeadphoneVirtualizer) {

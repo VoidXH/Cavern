@@ -93,7 +93,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// The regression line will only be calculated on the bands between <paramref name="startFreq"/> and <paramref name="endFreq"/>.
         /// </summary>
         /// <param name="startFreq">First frequency to consider when calculating the regression line</param>
-		/// <param name="endFreq">Last frequency to consider when calculating the regression line</param>
+        /// <param name="endFreq">Last frequency to consider when calculating the regression line</param>
         public (double slope, double intercept) GetRegressionLine(double startFreq, double endFreq) {
 			double freqSum = 0,
 				freqSqSum = 0,
