@@ -128,7 +128,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public void SetupChannel(ReferenceChannel channel, Equalizer curve, double gain, int delaySamples,
             bool switchPolarity, string name) {
-            for (int i = 0; i < Channels.Length; ++i) {
+            for (int i = 0; i < Channels.Length; i++) {
                 if (Channels[i].reference == channel) {
                     EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
                     channelRef.curve = curve;
@@ -146,11 +146,19 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
+            bool csv = path.EndsWith(".csv");
             for (int i = 0; i < Channels.Length; i++) {
                 EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
-                channelRef.curve.Export(Path.Combine(folder, $"{fileNameBase} {Channels[i].name}.txt"), 0, optionalHeader, Culture);
+                string chName = string.IsNullOrEmpty(Channels[i].name)
+                    ? Channels[i].reference.GetShortName()
+                    : Channels[i].name;
+                string fileName = Path.Combine(folder, $"{fileNameBase} {chName}");
+                if (csv) {
+                    channelRef.curve.ExportCSV(fileName + ".csv", 0);
+                } else {
+                    channelRef.curve.Export(fileName + ".txt", 0, optionalHeader, Culture);
+                }
             }
         }
 

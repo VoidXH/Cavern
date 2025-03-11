@@ -136,6 +136,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MultEQXTarget,
         /// <summary>
+        /// Wavelet Android app.
+        /// </summary>
+        Wavelet,
+        /// <summary>
         /// Yamaha RX-A series AVRs.
         /// </summary>
         YamahaRXA,
@@ -197,6 +201,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
             FilterSetTarget.MultEQXRaw => "MultEQ-X - peaking EQ",
             FilterSetTarget.MultEQXTarget => "MultEQ-X - filter curves",
+            FilterSetTarget.Wavelet => "Wavelet",
             FilterSetTarget.YamahaRXA => "Yamaha RX-A series",
             FilterSetTarget.YPAO => "Yamaha RX series",
             FilterSetTarget.YPAOLite => "Yamaha CX-A series",

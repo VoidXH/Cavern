@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 using Cavern.QuickEQ.Utilities;
@@ -83,7 +84,8 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         /// <param name="path">Export path of the file</param>
         /// <param name="offset">Gain offset in decibels</param>
-        public void Export(string path, double offset) => Export(path, offset, null, CultureInfo.InvariantCulture);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Export(string path, double offset) => Export(path, offset, null, " ", CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Save this EQ to a file in the standard curve/calibration format.
@@ -91,7 +93,8 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="path">Export path of the file</param>
         /// <param name="offset">Gain offset in decibels</param>
         /// <param name="header">Extra text to be added to the first line of the file</param>
-        public void Export(string path, double offset, string header) => Export(path, offset, header, CultureInfo.InvariantCulture);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Export(string path, double offset, string header) => Export(path, offset, header, " ", CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Save this EQ to a file in the standard curve/calibration format.
@@ -100,7 +103,18 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="offset">Gain offset in decibels</param>
         /// <param name="header">Extra text to be added to the first line of the file</param>
         /// <param name="culture">Override <see cref="CultureInfo.InvariantCulture"/> for different decimal separators</param>
-        public void Export(string path, double offset, string header, CultureInfo culture) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Export(string path, double offset, string header, CultureInfo culture) => Export(path, offset, header, " ", culture);
+
+        /// <summary>
+        /// Save this EQ to a file in the standard curve/calibration format with a custom separator.
+        /// </summary>
+        /// <param name="path">Export path of the file</param>
+        /// <param name="offset">Gain offset in decibels</param>
+        /// <param name="header">Extra text to be added to the first line of the file</param>
+        /// <param name="separator">Separator between gain and level values</param>
+        /// <param name="culture">Override <see cref="CultureInfo.InvariantCulture"/> for different decimal separators</param>
+        public void Export(string path, double offset, string header, string separator, CultureInfo culture) {
             int start = header != null ? 1 : 0, c = bands.Count;
             string[] calFile = new string[bands.Count + start];
             if (header != null) {
@@ -109,10 +123,18 @@ namespace Cavern.QuickEQ.Equalization {
 
             for (int band = 0; band < c; band++) {
                 double level = bands[band].Gain + offset;
-                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {level.ToString(culture)}";
+                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)}{separator}{level.ToString(culture)}";
             }
             File.WriteAllLines(path, calFile);
         }
+
+        /// <summary>
+        /// Save this EQ to a file in comma separated values format.
+        /// </summary>
+        /// <param name="path">Export path of the file</param>
+        /// <param name="offset">Gain offset in decibels</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ExportCSV(string path, double offset) => Export(path, offset, null, ",", CultureInfo.InvariantCulture);
 
         /// <summary>
         /// Save this EQ to a file in Dirac's curve format.
