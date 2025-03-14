@@ -247,7 +247,7 @@ namespace Cavern.Format.FilterSet {
                 File.WriteAllText(path, (hasDelays ?
                     $"Set up levels and delays by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ." :
                     $"Set up levels by this file. Load \"{fileNameBase} <channel>.{filterFileExtension}\" files as EQ.") +
-                    result);
+                    System.Environment.NewLine + result);
             }
         }
     }
