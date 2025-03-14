@@ -122,12 +122,13 @@ namespace Cavern {
             }
             Listener.IsSymmetric = true;
             int channelCount = Listener.Channels.Length;
-            if ((channelCount & 1) == 1) { // If there is an unpaired channel, it must be on the center circle
-                --channelCount;
-                Listener.IsSymmetric = Listener.Channels[channelCount].Y % 180 == 0;
+            if ((channelCount & 1) == 1) { // If there is an unpaired channel, it must be on the center circle or LFE
+                channelCount--;
+                Channel channel = Listener.Channels[channelCount];
+                Listener.IsSymmetric = channel.Y % 180 == 0 || channel.lowFrequency;
             }
             Listener.leftChannels = Listener.rightChannels = 0; // Count left and right side channels anyway for 1D mixing gains
-            for (int i = 0; i < channelCount; ++i) {
+            for (int i = 0; i < channelCount; i++) {
                 Channel current = Listener.Channels[i];
                 if (current == null) {
                     continue;
