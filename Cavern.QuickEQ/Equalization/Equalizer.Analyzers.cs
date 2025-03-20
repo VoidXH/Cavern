@@ -89,6 +89,26 @@ namespace Cavern.QuickEQ.Equalization {
 		}
 
         /// <summary>
+        /// Calculate average band deviation with a given <paramref name="bandwidth"/> for each non-overlapping band between
+        /// <paramref name="startFreq"/> and <paramref name="endFreq"/>.
+        /// </summary>
+        public double GetNarrowBandDeviation(double startFreq, double endFreq, double bandwidth) {
+            double bandFreqMul = Math.Pow(2, bandwidth); // Multiply the start of a band with this to get the end
+            double sum = 0;
+            int measuredBands = 0;
+            for (int i = GetFirstBandSafe(startFreq), c = bands.Count; i < c && bands[i].Frequency <= endFreq; i++) {
+                double bandEnd = bands[i].Frequency * bandFreqMul;
+                double avg = GetAverageLevel(startFreq, bandEnd);
+                for (; i < c && bands[i].Frequency <= bandEnd; i++) {
+                    // Go to the next band
+                }
+                sum += Math.Abs(avg - this[startFreq * Math.Sqrt(bandFreqMul)]); // Average amplitude - middle of the band amplitude
+                measuredBands++;
+            }
+            return sum / measuredBands;
+        }
+
+        /// <summary>
         /// Get a line in the form of slope * log10(x) + intercept that fits the curve drawn by this <see cref="Equalizer"/>.
         /// The regression line will only be calculated on the bands between <paramref name="startFreq"/> and <paramref name="endFreq"/>.
         /// </summary>
@@ -155,6 +175,33 @@ namespace Cavern.QuickEQ.Equalization {
                 last--;
             }
             return (bands[first].Frequency, bands[last].Frequency);
+        }
+
+        /// <summary>
+        /// Get the smoothness of a linear regression line between <paramref name="startFreq"/> and <paramref name="endFreq"/>,
+        /// also known as R^2.
+        /// </summary>
+        /// <param name="startFreq">First frequency to consider</param>
+        /// <param name="endFreq">Last frequency to consider</param>
+        public double GetSmoothness(double startFreq, double endFreq) {
+            double freqSum = 0,
+                freqSqSum = 0,
+                gainSum = 0,
+                gainSqSum = 0,
+                mac = 0,
+                n = 0;
+            for (int i = GetFirstBandSafe(startFreq), c = bands.Count; i < c && bands[i].Frequency <= endFreq; i++) {
+                double freq = bands[i].Frequency;
+                freqSum += freq;
+                freqSqSum += freq * freq;
+                double gain = bands[i].Gain;
+                gainSum += gain;
+                gainSqSum += gain * gain;
+                mac += freq * gain;
+                n++;
+            }
+            double r = (n * mac - freqSum * gainSum) / Math.Sqrt((n * freqSqSum - freqSum * freqSum) * (n * gainSqSum - gainSum * gainSum));
+            return r * r;
         }
 
         /// <summary>
