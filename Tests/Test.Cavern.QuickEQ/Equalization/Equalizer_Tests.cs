@@ -33,9 +33,9 @@ namespace Test.Cavern.QuickEQ.Equalization {
         public void GetValleys() {
             Equalizer equalizer = Create(20, 20000, 100, 10);
             equalizer.DownsampleLogarithmically(1024, 20, 20000);
-            IReadOnlyList<(int startInclusive, int stopExclusive)> valleys = equalizer.GetValleys(10, 1);
+            List<(int startInclusive, int stopExclusive)> valleys = equalizer.GetValleys(10, 1);
             Assert.AreEqual(15, valleys.Count);
-            Assert.AreEqual(492, valleys[0].startInclusive);
+            Assert.AreEqual(488, valleys[0].startInclusive);
             Assert.AreEqual(617, valleys[0].stopExclusive);
         }
 

@@ -16,7 +16,7 @@
 		<UseVSHostingProcess>false</UseVSHostingProcess>
 		<GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
 		<RunCodeAnalysis>false</RunCodeAnalysis>
-		<DocumentationFile>bin\Release\CavernUnity.xml</DocumentationFile>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 	<PropertyGroup>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -41,13 +41,17 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Reference Include="UnityEditor">
-	    <HintPath>..\..\..\2022.3.30f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
+	    <HintPath>C:\Program Files\Unity\Hub\Editor\2022.3.60f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
 	  </Reference>
 	  <Reference Include="UnityEngine">
-	    <HintPath>..\..\..\2022.3.30f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
+	    <HintPath>C:\Program Files\Unity\Hub\Editor\2022.3.60f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll bin\Release\CavernAmp.dll" IgnoreExitCode="true" />
+		<Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll $(OutDir)\CavernAmp.dll" IgnoreExitCode="true" />
+		<Exec Command="del $(OutDir)\UnityEditor.dll" />
+		<Exec Command="del $(OutDir)\UnityEditor.xml" />
+		<Exec Command="del $(OutDir)\UnityEngine.dll" />
+		<Exec Command="del $(OutDir)\UnityEngine.xml" />
 	</Target>
 </Project>
