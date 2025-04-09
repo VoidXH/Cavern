@@ -22,10 +22,10 @@ self-calibration libraries built on the Cavern engine are also available.
 	* Speaker character matching can be achieved without a calibration file
 	* Supported software/hardware for EQ/filter set export:
     * PC: Equalizer APO, CamillaDSP
-    * DSP: MiniDSP 2x4 Advanced, MiniDSP 2x4 HD, MiniDSP DDRC-88A
+    * DSP: MiniDSP 2x4 Advanced, 2x4 HD, DDRC-88A, Flex HTx
     * Processors: Acurus Muse, Emotiva, Monolith HTP-1, Sony ES series, StormAudio, Tonewinner AT series
     * Amplifiers: Behringer NX series
-    * Others: Audyssey MultEQ-X, Dirac Live, Wavelet, YPAO
+    * Others: Audyssey MultEQ-X, Dirac Live, Roon, Wavelet, YPAO
 * Direction and distance virtualization for headphones
 * Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats

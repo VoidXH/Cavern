@@ -67,6 +67,10 @@ namespace Cavern.Format.FilterSet {
         /// MiniDSP DDRC-88A hardware DSP.
         /// </summary>
         MiniDSPDDRC88A,
+        /// <summary>
+        /// MiniDSP Flex HTx hardware DSP.
+        /// </summary>
+        MiniDSPFlexHTx,
 
         // -------------------------------------------------------------------------
         // AVRs and processors -----------------------------------------------------
@@ -136,10 +140,6 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MultEQXTarget,
         /// <summary>
-        /// Wavelet Android app.
-        /// </summary>
-        Wavelet,
-        /// <summary>
         /// Yamaha RX-A series AVRs.
         /// </summary>
         YamahaRXA,
@@ -159,6 +159,14 @@ namespace Cavern.Format.FilterSet {
         /// Traditional 31-band graphic equalizer.
         /// </summary>
         Multiband31,
+        /// <summary>
+        /// Roon multi-sample rate convolution.
+        /// </summary>
+        Roon,
+        /// <summary>
+        /// Wavelet Android app.
+        /// </summary>
+        Wavelet,
     }
 
     /// <summary>
@@ -188,6 +196,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MiniDSP2x4HD => "MiniDSP 2x4 HD",
             FilterSetTarget.MiniDSP2x4HDLite => "MiniDSP 2x4 HD Lite",
             FilterSetTarget.MiniDSPDDRC88A => "MiniDSP DDRC-88A",
+            FilterSetTarget.MiniDSPFlexHTx => "MiniDSP Flex HTx",
             FilterSetTarget.AcurusMuse => "Acurus Muse",
             FilterSetTarget.Emotiva => "Emotiva",
             FilterSetTarget.MonolithHTP1 => "Monoprice Monolith HTP-1",
@@ -201,11 +210,12 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
             FilterSetTarget.MultEQXRaw => "MultEQ-X - peaking EQ",
             FilterSetTarget.MultEQXTarget => "MultEQ-X - filter curves",
-            FilterSetTarget.Wavelet => "Wavelet",
             FilterSetTarget.YamahaRXA => "Yamaha RX-A series",
             FilterSetTarget.YPAO => "Yamaha RX series",
             FilterSetTarget.YPAOLite => "Yamaha CX-A series",
             FilterSetTarget.Multiband31 => "31-band graphic EQ",
+            FilterSetTarget.Roon => "Roon",
+            FilterSetTarget.Wavelet => "Wavelet",
             _ => throw new NotSupportedException()
         };
     }

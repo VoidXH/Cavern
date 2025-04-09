@@ -110,8 +110,7 @@ namespace Cavern.Format.FilterSet {
         /// <inheritdoc/>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
 
             for (int i = 0; i < Channels.Length; i++) {
                 FIRChannelData channelRef = (FIRChannelData)Channels[i];

@@ -25,8 +25,7 @@ namespace Cavern.Format.FilterSet {
         /// <inheritdoc/>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
 
             List<string> configFile = new List<string> { "filters:" };
             bool[] additionalDelays = new bool[Channels.Length];

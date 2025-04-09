@@ -32,8 +32,7 @@ namespace Cavern.Format.FilterSet {
         public override void Export(string path) {
             CreateRootFile(path, "txt");
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
 
             (string name, ReferenceChannel[] channels)[] channelGroups =
                 CombineHeights ? groupsWithCombinedHeights : groupsWithSeparateHeights;

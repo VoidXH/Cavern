@@ -39,8 +39,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
             CreateRootFile(path, "txt");
             for (int i = 0; i < Channels.Length; i++) {
                 SaveFilters(((IIRChannelData)Channels[i]).filters, 0, Bands, Path.Combine(folder, $"{fileNameBase} {GetLabel(i)}.txt"));

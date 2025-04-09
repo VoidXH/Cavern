@@ -55,8 +55,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
             CreateRootFile(path, "txt");
 
             for (int i = 0; i < Channels.Length; i++) {
@@ -112,5 +111,15 @@ namespace Cavern.Format.FilterSet {
         /// IIR filter set for MiniDSP 2x4 HD with a given set of channels.
         /// </summary>
         public MiniDSP2x4HDFilterSet(ReferenceChannel[] channels) : base(channels) { }
+
+        /// <summary>
+        /// IIR filter set for MiniDSP 2x4 HD with a given set of channels.
+        /// </summary>
+        internal MiniDSP2x4HDFilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <summary>
+        /// IIR filter set for MiniDSP 2x4 HD with a given set of channels.
+        /// </summary>
+        internal MiniDSP2x4HDFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
     }
 }

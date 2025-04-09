@@ -102,6 +102,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
                 FilterSetTarget.MiniDSP2x4HDLite => new MiniDSP2x4HDFilterSetLite(channels),
                 FilterSetTarget.MiniDSPDDRC88A => new MiniDSPDDRC88AFilterSet(channels),
+                FilterSetTarget.MiniDSPFlexHTx => new MiniDSPFlexHTxFilterSet(channels),
                 FilterSetTarget.AcurusMuse => new AcurusMuseFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.MonolithHTP1 => new MonolithHTP1FilterSet(channels, sampleRate),
@@ -117,11 +118,12 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
-                FilterSetTarget.Wavelet => new WaveletFilterSet(channels, sampleRate),
                 FilterSetTarget.YamahaRXA => new YamahaRXAFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAOLite => new YPAOLiteFilterSet(channels, sampleRate),
                 FilterSetTarget.Multiband31 => new Multiband31FilterSet(channels, sampleRate),
+                FilterSetTarget.Roon => new RoonFilterSet(channels),
+                FilterSetTarget.Wavelet => new WaveletFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
         }
@@ -144,6 +146,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MiniDSP2x4HD => new MiniDSP2x4HDFilterSet(channels),
                 FilterSetTarget.MiniDSP2x4HDLite => new MiniDSP2x4HDFilterSetLite(channels),
                 FilterSetTarget.MiniDSPDDRC88A => new MiniDSPDDRC88AFilterSet(channels),
+                FilterSetTarget.MiniDSPFlexHTx => new MiniDSPFlexHTxFilterSet(channels),
                 FilterSetTarget.AcurusMuse => new AcurusMuseFilterSet(channels, sampleRate),
                 FilterSetTarget.Emotiva => new EmotivaFilterSet(channels, sampleRate),
                 FilterSetTarget.MonolithHTP1 => new MonolithHTP1FilterSet(channels, sampleRate),
@@ -159,11 +162,12 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
-                FilterSetTarget.Wavelet => new WaveletFilterSet(channels, sampleRate),
                 FilterSetTarget.YamahaRXA => new YamahaRXAFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAO => new YPAOFilterSet(channels, sampleRate),
                 FilterSetTarget.YPAOLite => new YPAOLiteFilterSet(channels, sampleRate),
                 FilterSetTarget.Multiband31 => new Multiband31FilterSet(channels, sampleRate),
+                FilterSetTarget.Roon => new RoonFilterSet(channels),
+                FilterSetTarget.Wavelet => new WaveletFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
         }
@@ -236,8 +240,7 @@ namespace Cavern.Format.FilterSet {
         /// Create the file with gain/delay/polarity info as the root document that's saved in the save dialog.
         /// </summary>
         protected void CreateRootFile(string path, string filterFileExtension) {
-            string fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+            string fileNameBase = Path.GetFileNameWithoutExtension(path);
             StringBuilder result = new StringBuilder();
             bool hasDelays = false;
             for (int i = 0, c = Channels.Length; i < c; i++) {

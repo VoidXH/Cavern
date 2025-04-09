@@ -82,8 +82,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
             for (int i = 0; i < Channels.Length; i++) {
                 MultiCurveChannelData channelRef = (MultiCurveChannelData)Channels[i];
                 if (!ForceAdditionals && channelRef.curve != null) {

@@ -46,8 +46,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
             CreateRootFile(path, "nxp");
 
             List<string> channelData = new List<string>();

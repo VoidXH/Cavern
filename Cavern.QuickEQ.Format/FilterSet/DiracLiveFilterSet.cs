@@ -24,8 +24,7 @@ namespace Cavern.Format.FilterSet {
         public override void Export(string path) {
             CreateRootFile(path, "txt");
             string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileName(path);
-            fileNameBase = fileNameBase[..fileNameBase.LastIndexOf('.')];
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
             for (int i = 0; i < Channels.Length; i++) {
                 EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
                 channelRef.curve.ExportToDirac(Path.Combine(folder, $"{fileNameBase} {channelRef.name}.txt"), 0, optionalHeader);
