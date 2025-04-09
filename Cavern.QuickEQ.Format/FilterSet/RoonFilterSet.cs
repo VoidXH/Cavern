@@ -47,7 +47,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// How Roon calls the <see cref="ReferenceChannel"/>s.
         /// </summary>
-        static readonly Dictionary<ReferenceChannel, string> channelNames = new Dictionary<ReferenceChannel, string>() {
+        static readonly Dictionary<ReferenceChannel, string> channelNames = new Dictionary<ReferenceChannel, string> {
             [ReferenceChannel.FrontLeft] = "Left",
             [ReferenceChannel.FrontRight] = "Right",
         };
