@@ -99,6 +99,10 @@ namespace Cavern.Format.FilterSet {
         /// Tonewinner AT-series processors.
         /// </summary>
         TonewinnerAT,
+        /// <summary>
+        /// WiiM devices.
+        /// </summary>
+        WiiM,
 
         // -------------------------------------------------------------------------
         // Amplifiers --------------------------------------------------------------
@@ -203,6 +207,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.SonyES => "Sony ES series",
             FilterSetTarget.StormAudio => "StormAudio",
             FilterSetTarget.TonewinnerAT => "Tonewinner AT series",
+            FilterSetTarget.WiiM => "WiiM",
             FilterSetTarget.BehringerNX => "Behringer NX series",
             FilterSetTarget.DiracLive => null,
             FilterSetTarget.DiracLiveBassControl => null,
