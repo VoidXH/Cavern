@@ -66,13 +66,8 @@ namespace Cavern.Format {
         /// </summary>
         public static AudioReader Open(Stream reader) {
             int syncWord = reader.ReadInt32();
-            if (reader.ReadInt32BE() == MP4Consts.fileTypeBox) {
-                reader.Position = 0;
-                return OpenContainer(new MP4Reader(reader));
-            }
-            reader.Position = 0;
             if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE) {
-                return new EnhancedAC3Reader(reader);
+                return new EnhancedAC3Reader(reader, syncWord);
             }
 
             switch (syncWord) {
@@ -80,12 +75,18 @@ namespace Cavern.Format {
                 case RIFFWave.syncWord1_64:
                     return new RIFFWaveReader(reader);
                 case LimitlessAudioFormat.syncWord:
+                    reader.Position = 0;
                     return new LimitlessAudioFormatReader(reader);
                 case MatroskaTree.EBML_LE:
+                    reader.Position = 0;
                     return OpenContainer(new MatroskaReader(reader));
                 case MXFConsts.universalLabel:
+                    reader.Position = 0;
                     return OpenContainer(new MXFReader(reader));
                 default:
+                    if (reader.ReadInt32BE() == MP4Consts.fileTypeBox) {
+                        return OpenContainer(new MP4Reader(reader, (uint)syncWord));
+                    }
                     throw new UnsupportedFormatException();
             }
         }

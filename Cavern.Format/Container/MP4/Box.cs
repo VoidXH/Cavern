@@ -43,9 +43,20 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Return a box in an object for its type.
         /// </summary>
+        /// <param name="reader">Stream to read from</param>
         public static Box Parse(Stream reader) {
             uint length = reader.ReadUInt32BE() - 8;
             uint header = reader.ReadUInt32BE();
+            return Parse(reader, length, header);
+        }
+
+        /// <summary>
+        /// Return a box in an object for its pre-read type.
+        /// </summary>
+        /// <param name="reader">Stream to read from</param>
+        /// <param name="length">Length of the box in bytes</param>
+        /// <param name="header">Box type marker</param>
+        public static Box Parse(Stream reader, uint length, uint header) {
             long nextBox = reader.Position + length;
 
             if (header == freeBox) {

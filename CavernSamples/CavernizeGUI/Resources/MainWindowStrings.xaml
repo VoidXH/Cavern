@@ -29,7 +29,7 @@
     <system:String x:Key="MenuH">_Help</system:String>
     <system:String x:Key="UsrGu">_User guide</system:String>
     <system:String x:Key="About">_About</system:String>
-    <system:String x:Key="SySet">System setup</system:String>
+    <system:String x:Key="SySet">System</system:String>
     <system:String x:Key="RSInf">Choose a layout, and place your speakers accordingly. Click the &quot;Display wiring&quot;
         button to see which output will change to which actual channel.
         For maximum audio quality, calibrate your system with QuickEQ.</system:String>
@@ -39,8 +39,8 @@
     <system:String x:Key="FFDes">Locate FFmpeg with this button. Download it and select ffmpeg.exe in the download's bin folder.
         Cavernize will use FFmpeg for re-encoding. This temporary workaround uses a lot of space, because of which, 10 GB of
         free space is recommended for a 2-hour movie.</system:String>
-    <system:String x:Key="CoPro">Content processing</system:String>
-    <system:String x:Key="OpCnt">Open content</system:String>
+    <system:String x:Key="CoPro">Content</system:String>
+    <system:String x:Key="OpCnt">Open</system:String>
     <system:String x:Key="OpTrk">Track:</system:String>
     <system:String x:Key="OpOut">Output:</system:String>
     <system:String x:Key="OpRnd">Render now</system:String>

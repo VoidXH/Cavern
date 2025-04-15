@@ -72,7 +72,7 @@ namespace CavernPipeServer {
         /// </summary>
         void RenderThread() {
             try {
-                EnhancedAC3Reader reader = new EnhancedAC3Reader(Input); // Currently E-AC-3 only, AudioReader.Open doesn't work without seek
+                AudioReader reader = AudioReader.Open(Input);
                 Renderer renderer = reader.GetRenderer();
                 Listener listener = new Listener {
                     SampleRate = reader.SampleRate,

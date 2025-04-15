@@ -326,20 +326,20 @@ namespace CavernizeGUI {
             if (selected is DriverRenderTarget || selected is VirtualizerRenderTarget) {
                 wiring.IsEnabled = false;
                 foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
-                    pair.Value.Fill = yellow;
+                    pair.Value.Fill = dynamicSpeaker;
                 }
                 return;
             }
 
             wiring.IsEnabled = true;
             foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
-                pair.Value.Fill = red;
+                pair.Value.Fill = inactiveSpeaker;
             }
 
             ReferenceChannel[] channels = selected.Channels;
             for (int ch = 0; ch < channels.Length; ch++) {
                 if (channelDisplay.TryGetValue(channels[ch], out Ellipse? value) && selected.IsExported(ch)) {
-                    value.Fill = green;
+                    value.Fill = activeSpeaker;
                 }
             }
         }
@@ -519,18 +519,18 @@ namespace CavernizeGUI {
         const string massivelyMultichannel = " -mapping_family 255";
 
         /// <summary>
-        /// Green color used for active speaker display.
+        /// Color used for active speaker display.
         /// </summary>
-        static readonly SolidColorBrush green = new(Colors.Green);
+        static readonly SolidColorBrush activeSpeaker = new(Color.FromRgb(0x31, 0x86, 0xCE));
 
         /// <summary>
-        /// Yellow color used for speaker display when a dynamic render target is selected.
+        /// Color used for speaker display when a dynamic render target is selected.
         /// </summary>
-        static readonly SolidColorBrush yellow = new(Colors.Yellow);
+        static readonly SolidColorBrush dynamicSpeaker = new(Colors.Yellow);
 
         /// <summary>
-        /// Red color used for active speaker display.
+        /// Color used for inactive speaker display.
         /// </summary>
-        static readonly SolidColorBrush red = new(Colors.Red);
+        static readonly SolidColorBrush inactiveSpeaker = new(Colors.Gray);
     }
 }

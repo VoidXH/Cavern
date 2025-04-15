@@ -4,6 +4,7 @@ using System.IO;
 using Cavern.Format.Common;
 using Cavern.Format.Container.MP4;
 using Cavern.Format.Utilities;
+using Cavern.Utilities;
 
 using static Cavern.Format.Consts.MP4Consts;
 
@@ -18,12 +19,21 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Minimal ISO-BMFF reader.
         /// </summary>
-        public MP4Reader(Stream reader) : base(reader) { ReadSkeleton(); }
+        /// <param name="reader">Stream to read from</param>
+        public MP4Reader(Stream reader) : this(reader, 0) { }
 
         /// <summary>
         /// Minimal ISO-BMFF reader.
         /// </summary>
-        public MP4Reader(string path) : base(path) { ReadSkeleton(); }
+        /// <param name="reader">Stream to read from</param>
+        /// <param name="skippedSyncWord">The sync word from which the format is detected, which already read from the stream -
+        /// allows for format detection in streams that don't support <see cref="Stream.Position"/></param>
+        public MP4Reader(Stream reader, uint skippedSyncWord) : base(reader) => ReadSkeleton(skippedSyncWord);
+
+        /// <summary>
+        /// Minimal ISO-BMFF reader.
+        /// </summary>
+        public MP4Reader(string path) : base(path) => ReadSkeleton(0);
 
         /// <summary>
         /// The following block of the track is rendered and available.
@@ -71,9 +81,18 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Read the metadata and basic block structure of the file.
         /// </summary>
-        void ReadSkeleton() {
+        /// <param name="skippedSyncWord">The sync word from which the format is detected, which already read from the stream -
+        /// allows for format detection in streams that don't support <see cref="Stream.Position"/></param>
+        void ReadSkeleton(uint skippedSyncWord) {
             while (reader.Position < reader.Length) {
-                Box box = Box.Parse(reader);
+                Box box;
+                if (skippedSyncWord == 0) {
+                    box = Box.Parse(reader);
+                } else {
+                    box = Box.Parse(reader, skippedSyncWord.ReverseEndianness() - 8, fileTypeBox);
+                    skippedSyncWord = 0;
+                }
+
                 if (box.Header == metadataBox && box is NestedBox metadata) {
                     byte[] header = metadata[metadataHeaderBox]?.GetRawData(reader) ??
                         throw new MissingElementException(metadataHeaderBox.ToFourCC());

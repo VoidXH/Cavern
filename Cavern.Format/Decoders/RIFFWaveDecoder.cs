@@ -54,11 +54,22 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Converts a RIFF WAVE bitstream with header to raw samples.
         /// </summary>
-        public RIFFWaveDecoder(Stream reader) {
+        /// <param name="reader">File reader object</param>
+        public RIFFWaveDecoder(Stream reader) : this(reader, false) { }
+
+        /// <summary>
+        /// Converts a RIFF WAVE bitstream with header to raw samples.
+        /// </summary>
+        /// <param name="reader">File reader object</param>
+        /// <param name="skipSyncWord">The sync word from which the format is detected was already read from the stream -
+        /// allows for format detection in streams that don't support <see cref="Stream.Position"/></param>
+        public RIFFWaveDecoder(Stream reader, bool skipSyncWord) {
             // RIFF header
-            int sync = reader.ReadInt32();
-            if (sync != RIFFWave.syncWord1 && sync != RIFFWave.syncWord1_64) {
-                throw new SyncException();
+            if (!skipSyncWord) {
+                int sync = reader.ReadInt32();
+                if (sync != RIFFWave.syncWord1 && sync != RIFFWave.syncWord1_64) {
+                    throw new SyncException();
+                }
             }
             stream = reader;
             reader.Position += 4; // File length

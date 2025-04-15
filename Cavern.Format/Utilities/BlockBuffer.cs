@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
 
-using Cavern.Format.Common;
-using Cavern.Format.Consts;
-
 namespace Cavern.Format.Utilities {
     /// <summary>
     /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.
@@ -60,10 +57,16 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.
         /// </summary>
-        public BlockBuffer(Func<T[]> fetcher, Action<long> seeker) {
+        public BlockBuffer(Func<T[]> fetcher, Action<long> seeker) : this(fetcher, seeker, fetcher()) { }
+
+        /// <summary>
+        /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.
+        /// If part of the fetched <see cref="Stream"/> was read, provide it in <paramref name="firstFetch"/>.
+        /// </summary>
+        public BlockBuffer(Func<T[]> fetcher, Action<long> seeker, T[] firstFetch) {
             Fetcher = fetcher;
             Seeker = seeker;
-            LastFetch = Fetcher();
+            LastFetch = firstFetch;
         }
 
         /// <summary>
@@ -81,10 +84,29 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Converts a stream reader to a block buffer of fixed size.
+        /// </summary>
+        public static BlockBuffer<byte> Create(Stream reader, int blockSize, byte[] firstFetch) {
+            Stream readerCopy = reader;
+            int blockSizeCopy = blockSize;
+            byte[] fetcher() => reader.ReadBytes(blockSizeCopy);
+            firstFetch ??= fetcher();
+            return new BlockBuffer<byte>(fetcher, pos => readerCopy.Position = pos, firstFetch);
+        }
+
+        /// <summary>
         /// For network streams where there is a constant packet size before the client requires a reply, use that packet size, if it's
         /// smaller than the <paramref name="maxBlockSize"/>.
         /// </summary>
-        public static BlockBuffer<byte> CreateForConstantPacketSize(Stream reader, int maxBlockSize) {
+        public static BlockBuffer<byte> CreateForConstantPacketSize(Stream reader, int maxBlockSize) =>
+            CreateForConstantPacketSize(reader, maxBlockSize, null);
+
+        /// <summary>
+        /// For network streams where there is a constant packet size before the client requires a reply, use that packet size, if it's
+        /// smaller than the <paramref name="maxBlockSize"/>. If part of the <paramref name="reader"/> was read, provide it in
+        /// <paramref name="firstFetch"/>.
+        /// </summary>
+        public static BlockBuffer<byte> CreateForConstantPacketSize(Stream reader, int maxBlockSize, byte[] firstFetch) {
             int blockSize = maxBlockSize;
             try {
                 if (reader is QueueStream queue) {
@@ -92,11 +114,14 @@ namespace Cavern.Format.Utilities {
                 }
                 if (reader.Length < blockSize) {
                     blockSize = (int)reader.Length;
+                    if (firstFetch != null) {
+                        blockSize -= firstFetch.Length;
+                    }
                 }
             } catch {
                 // Stream doesn't support the Length property
             }
-            return Create(reader, blockSize);
+            return Create(reader, blockSize, firstFetch);
         }
 
         /// <summary>

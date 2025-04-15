@@ -14,10 +14,24 @@ namespace Cavern.Format {
         RIFFWaveDecoder decoder;
 
         /// <summary>
+        /// The sync word from which the format is detected was already read from the stream - allows for format detection in
+        /// streams that don't support <see cref="Stream.Position"/>.
+        /// </summary>
+        readonly bool skipSyncWord;
+
+        /// <summary>
         /// Minimal RIFF wave file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public RIFFWaveReader(Stream reader) : base(reader) { }
+        public RIFFWaveReader(Stream reader) : this(reader, false) { }
+
+        /// <summary>
+        /// Minimal RIFF wave file reader.
+        /// </summary>
+        /// <param name="reader">File reader object</param>
+        /// <param name="skipSyncWord">The sync word from which the format is detected was already read from the stream -
+        /// allows for format detection in streams that don't support <see cref="Stream.Position"/></param>
+        public RIFFWaveReader(Stream reader, bool skipSyncWord) : base(reader) => this.skipSyncWord = skipSyncWord;
 
         /// <summary>
         /// Minimal RIFF wave file reader.
@@ -30,7 +44,7 @@ namespace Cavern.Format {
         /// </summary>
         public override void ReadHeader() {
             if (decoder == null) {
-                decoder = new RIFFWaveDecoder(reader);
+                decoder = new RIFFWaveDecoder(reader, skipSyncWord);
                 ChannelCount = decoder.ChannelCount;
                 Length = decoder.Length;
                 SampleRate = decoder.SampleRate;

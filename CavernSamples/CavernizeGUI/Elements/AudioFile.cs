@@ -23,7 +23,7 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// List of track handlers.
         /// </summary>
-        protected readonly List<Track> tracks = new List<Track>();
+        protected readonly List<Track> tracks = [];
 
         /// <summary>
         /// Loads an audio file.

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using Cavern.Format.Common;
 using Cavern.Format.Consts;
@@ -22,10 +23,27 @@ namespace Cavern.Format {
         protected EnhancedAC3Decoder decoder;
 
         /// <summary>
+        /// The sync word from which the format is detected, which already read from the stream - allows for format detection in
+        /// streams that don't support <see cref="Stream.Position"/>. 0 if not applicable.
+        /// </summary>
+        readonly int skippedSyncWord;
+
+        /// <summary>
         /// Enhanced AC-3 file reader.
         /// </summary>
-        /// <param name="reader">File reader object</param>
-        public EnhancedAC3Reader(Stream reader) : base(reader) => fileSize = GetFileSize(reader);
+        /// <param name="reader">Stream to read from</param>
+        public EnhancedAC3Reader(Stream reader) : this(reader, 0) { }
+
+        /// <summary>
+        /// Enhanced AC-3 file reader.
+        /// </summary>
+        /// <param name="reader">Stream to read from</param>
+        /// <param name="skippedSyncWord">The sync word from which the format is detected, which already read from the stream -
+        /// allows for format detection in streams that don't support <see cref="Stream.Position"/></param>
+        public EnhancedAC3Reader(Stream reader, int skippedSyncWord) : base(reader) {
+            fileSize = GetFileSize(reader);
+            this.skippedSyncWord = skippedSyncWord;
+        }
 
         /// <summary>
         /// Enhanced AC-3 file reader.
@@ -42,7 +60,12 @@ namespace Cavern.Format {
         /// Read the file header.
         /// </summary>
         public override void ReadHeader() {
-            decoder = new EnhancedAC3Decoder(BlockBuffer<byte>.CreateForConstantPacketSize(reader, FormatConsts.blockSize), fileSize);
+            byte[] firstFetch = null;
+            if (skippedSyncWord != 0) {
+                firstFetch = BitConverter.GetBytes(skippedSyncWord);
+            }
+            BlockBuffer<byte> buffer = BlockBuffer<byte>.CreateForConstantPacketSize(reader, FormatConsts.blockSize, firstFetch);
+            decoder = new EnhancedAC3Decoder(buffer, fileSize);
             ChannelCount = decoder.ChannelCount;
             Length = decoder.Length;
             SampleRate = decoder.SampleRate;

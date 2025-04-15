@@ -19,8 +19,8 @@
     <system:String x:Key="SMetH">Metaadatok mutatása</system:String>
     <system:String x:Key="SMetT">Megmutatja a dekódolt kodekspecifikus mezőit a kiválasztott sávnak.</system:String>
     <system:String x:Key="ReMoH">_Csak jelentés mód</system:String>
-    <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
-        report will be available after rendering without writing anything to the disk.</system:String>
+    <system:String x:Key="ReMoT">Hogy ellenőrizd, hogy egy tartalom tényleg objektumalapú-e vagy sem, engedélyezd ezt az opciót, és a renderelés utáni
+        jelentés anélkül válik elérhetővé, hogy bármit írnál a lemezre.</system:String>
     <system:String x:Key="DeGrH">Minőséganalízis és osztályozás</system:String>
     <system:String x:Key="DeGrT">Érzékelhető hangminőségi metrikák mérése és a tartalom osztályozása. Ezt az információt a renderelés utáni
         jelentés fogja tartalmazni.</system:String>
@@ -29,7 +29,7 @@
     <system:String x:Key="MenuH">_Súgó</system:String>
     <system:String x:Key="UsrGu">_Felhasználói kézikönyv (angol)</system:String>
     <system:String x:Key="About">_Névjegy</system:String>
-    <system:String x:Key="SySet">Rendszerbeállítás</system:String>
+    <system:String x:Key="SySet">Rendszer</system:String>
     <system:String x:Key="RSInf">Válassz ki egy hangszórókiosztást, és helyezd el úgy a hangszóróid. Kattints a &quot;Bekötés mutatása&quot;
         gombra, hogy megtudd, melyik kimenetet melyik valódi csatornára kell kötnöd.
         A maximális hangminőséghez kalibráld a rendszered QuickEQ-val.</system:String>
@@ -39,7 +39,7 @@
     <system:String x:Key="FFDes">Keresd meg az FFmpeg-et ezzel a gombbal. Töltsd le az FFmpeg-et, majd keresd meg az ffmpeg.exe-t a letöltés
         bin mappájában. A Cavern az FFmpeg-et használja az újrakódoláshoz. Ez az ideiglenes megoldás sok helyet használ, ami miatt legalább
         10 GB extra szabad helyre lesz szükséged egy 2 órás filmhez.</system:String>
-    <system:String x:Key="CoPro">Tartalom processzálása</system:String>
+    <system:String x:Key="CoPro">Tartalom</system:String>
     <system:String x:Key="OpCnt">Megnyitás</system:String>
     <system:String x:Key="OpTrk">Hangsáv:</system:String>
     <system:String x:Key="OpOut">Kimenet:</system:String>
