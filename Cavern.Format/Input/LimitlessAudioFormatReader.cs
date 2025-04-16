@@ -14,10 +14,24 @@ namespace Cavern.Format {
         LimitlessAudioFormatDecoder decoder;
 
         /// <summary>
+        /// The sync word from which the format is detected was already read from the stream - allows for format detection in
+        /// streams that don't support <see cref="Stream.Position"/>.
+        /// </summary>
+        readonly bool skipSyncWord;
+
+        /// <summary>
         /// Minimal Limitless Audio Format file reader.
         /// </summary>
         /// <param name="reader">File reader object</param>
-        public LimitlessAudioFormatReader(Stream reader) : base(reader) { }
+        public LimitlessAudioFormatReader(Stream reader) : this(reader, false) { }
+
+        /// <summary>
+        /// Minimal Limitless Audio Format file reader.
+        /// </summary>
+        /// <param name="reader">File reader object</param>
+        /// <param name="skipSyncWord">The sync word from which the format is detected was already read from the stream -
+        /// allows for format detection in streams that don't support <see cref="Stream.Position"/></param>
+        public LimitlessAudioFormatReader(Stream reader, bool skipSyncWord) : base(reader) => this.skipSyncWord = skipSyncWord;
 
         /// <summary>
         /// Minimal Limitless Audio Format file reader.
@@ -30,7 +44,7 @@ namespace Cavern.Format {
         /// </summary>
         public override void ReadHeader() {
             if (decoder == null) {
-                decoder = new LimitlessAudioFormatDecoder(reader);
+                decoder = new LimitlessAudioFormatDecoder(reader, skipSyncWord);
                 ChannelCount = decoder.ChannelCount;
                 Length = decoder.Length;
                 SampleRate = decoder.SampleRate;

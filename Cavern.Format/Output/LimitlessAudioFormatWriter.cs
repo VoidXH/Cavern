@@ -122,7 +122,9 @@ namespace Cavern.Format {
         /// Create the file header.
         /// </summary>
         internal void WriteHeader(bool objectMode, int objectCount) {
-            writer.Write(LimitlessAudioFormat.limitless); // Limitless marker
+            // Limitless marker
+            writer.Write(LimitlessAudioFormat.limitless1);
+            writer.Write(LimitlessAudioFormat.limitless2);
             // No custom headers
             writer.Write(LimitlessAudioFormat.head); // Main header marker
             byte qualityByte = Bits switch {

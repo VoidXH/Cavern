@@ -9,10 +9,14 @@
         public const int syncWord = 0x494D494C;
 
         /// <summary>
-        /// Limitless Audio Format indicator starting bytes.
+        /// Limitless Audio Format indicator starting bytes, first 4.
         /// </summary>
-        public static readonly byte[] limitless =
-            { (byte)'L', (byte)'I', (byte)'M', (byte)'I', (byte)'T', (byte)'L', (byte)'E', (byte)'S', (byte)'S' };
+        public static readonly byte[] limitless1 = { (byte)'L', (byte)'I', (byte)'M', (byte)'I' };
+
+        /// <summary>
+        /// Limitless Audio Format indicator starting bytes, following 5.
+        /// </summary>
+        public static readonly byte[] limitless2 = { (byte)'T', (byte)'L', (byte)'E', (byte)'S', (byte)'S' };
 
         /// <summary>
         /// Header marker bytes.

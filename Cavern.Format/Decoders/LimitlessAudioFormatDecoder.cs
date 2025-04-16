@@ -57,8 +57,21 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Limitless Audio Format file reader and metadata parser.
         /// </summary>
-        public LimitlessAudioFormatDecoder(Stream stream) {
-            stream.BlockTest(LimitlessAudioFormat.limitless); // Find Limitless marker
+        /// <param name="stream">File reader object</param>
+        public LimitlessAudioFormatDecoder(Stream stream) : this(stream, false) { }
+
+        /// <summary>
+        /// Limitless Audio Format file reader and metadata parser.
+        /// </summary>
+        /// <param name="stream">File reader object</param>
+        /// <param name="skipSyncWord">The sync word from which the format is detected was already read from the stream -
+        /// allows for format detection in streams that don't support <see cref="Stream.Position"/></param>
+        public LimitlessAudioFormatDecoder(Stream stream, bool skipSyncWord) {
+            // Find Limitless marker
+            if (!skipSyncWord) {
+                stream.BlockTest(LimitlessAudioFormat.limitless1);
+            }
+            stream.BlockTest(LimitlessAudioFormat.limitless2);
             byte[] cache = new byte[LimitlessAudioFormat.head.Length];
             while (!stream.RollingBlockCheck(cache, LimitlessAudioFormat.head)) {
                 // Find header marker, skip metadata

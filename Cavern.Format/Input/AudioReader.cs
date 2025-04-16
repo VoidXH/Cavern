@@ -73,10 +73,9 @@ namespace Cavern.Format {
             switch (syncWord) {
                 case RIFFWave.syncWord1:
                 case RIFFWave.syncWord1_64:
-                    return new RIFFWaveReader(reader);
+                    return new RIFFWaveReader(reader, true);
                 case LimitlessAudioFormat.syncWord:
-                    reader.Position = 0;
-                    return new LimitlessAudioFormatReader(reader);
+                    return new LimitlessAudioFormatReader(reader, true);
                 case MatroskaTree.EBML_LE:
                     reader.Position = 0;
                     return OpenContainer(new MatroskaReader(reader));

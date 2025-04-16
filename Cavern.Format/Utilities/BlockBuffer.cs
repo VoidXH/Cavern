@@ -12,6 +12,11 @@ namespace Cavern.Format.Utilities {
         public bool Readable => LastFetch != null;
 
         /// <summary>
+        /// The <see cref="Seeker"/> is set, so it's possible to jump in stream.
+        /// </summary>
+        public bool Seekable => Seeker != null;
+
+        /// <summary>
         /// Indicates that the <see cref="LastFetch"/> was not yet read from.
         /// </summary>
         public bool FreshFetch => lastFetchPosition == 0;
@@ -49,10 +54,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.
         /// </summary>
-        public BlockBuffer(Func<T[]> fetcher) {
-            Fetcher = fetcher;
-            LastFetch = Fetcher();
-        }
+        public BlockBuffer(Func<T[]> fetcher) : this(fetcher, null, fetcher()) { }
 
         /// <summary>
         /// Converts a function that fetches a given chunk of a stream to an object that can fetch a block with any size.

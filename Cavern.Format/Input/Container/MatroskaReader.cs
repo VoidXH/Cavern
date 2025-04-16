@@ -43,12 +43,12 @@ namespace Cavern.Format.Container {
         /// <summary>
         /// Minimal EBML reader.
         /// </summary>
-        public MatroskaReader(Stream reader) : base(reader) { ReadSkeleton(); }
+        public MatroskaReader(Stream reader) : base(reader) => ReadSkeleton();
 
         /// <summary>
         /// Minimal EBML reader.
         /// </summary>
-        public MatroskaReader(string path) : base(path) { ReadSkeleton(); }
+        public MatroskaReader(string path) : base(path) => ReadSkeleton();
 
         /// <summary>
         /// The following block of the track is rendered and available.
