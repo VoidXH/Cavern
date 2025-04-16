@@ -43,7 +43,7 @@
     <system:String x:Key="OpCnt">Open</system:String>
     <system:String x:Key="OpTrk">Track:</system:String>
     <system:String x:Key="OpOut">Output:</system:String>
-    <system:String x:Key="OpRnd">Render now</system:String>
+    <system:String x:Key="OpRnd">Render</system:String>
     <system:String x:Key="ChkUp">Automatically check for updates</system:String>
     <system:String x:Key="ChkTt">Periodically auto-check if a new update is available.</system:String>
     <system:String x:Key="Queue">Queue</system:String>
@@ -52,7 +52,7 @@
         to start rendering the queued contents.</system:String>
     <system:String x:Key="QuAdd">Add to queue</system:String>
     <system:String x:Key="QuRem">Remove selected</system:String>
-    <system:String x:Key="QuSta">Process queue</system:String>
+    <system:String x:Key="QuSta">Process</system:String>
     <!-- Code behind -->
     <system:String x:Key="dnErr">Your .NET 6 installation is corrupted and can't be loaded. Please install the latest version
         from Microsoft.\nPress any key to exit...</system:String>

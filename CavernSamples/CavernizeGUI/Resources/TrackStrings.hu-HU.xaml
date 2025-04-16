@@ -13,8 +13,6 @@
     <system:String x:Key="SouDy">Dinamikus obj.</system:String>
     <system:String x:Key="Chans">Csatornák</system:String>
     <system:String x:Key="ChCnt">Csatornaszám</system:String>
-    <system:String x:Key="TraLe">Hossz</system:String>
-    <system:String x:Key="TraFs">Mintavételezés</system:String>
     <system:String x:Key="WiObj">objektumokkal</system:String>
 
     <!-- Translatable codec names -->

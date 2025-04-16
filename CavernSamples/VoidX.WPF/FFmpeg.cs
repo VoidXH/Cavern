@@ -48,6 +48,30 @@ namespace VoidX.WPF {
         }
 
         /// <summary>
+        /// If the program exists in PATH, its full path is returned.
+        /// </summary>
+        static string GetPathOfProgram(string key) {
+            try {
+                var process = new Process {
+                    StartInfo = new ProcessStartInfo {
+                        FileName = "where",
+                        Arguments = key,
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+
+                process.Start();
+                string output = process.StandardOutput.ReadLine();
+                process.WaitForExit();
+                return string.IsNullOrWhiteSpace(output) ? string.Empty : output;
+            } catch {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Launch the FFmpeg to process a file with the given arguments.
         /// </summary>
         public bool Launch(string arguments) {
@@ -82,7 +106,11 @@ namespace VoidX.WPF {
         /// Checks if FFmpeg's executable is located at the selected directory and update the UI accordingly.
         /// </summary>
         public void CheckFFmpeg() {
+            if (string.IsNullOrEmpty(Location)) {
+                Location = GetPathOfProgram("ffmpeg");
+            }
             Found = !string.IsNullOrEmpty(Location) && File.Exists(Location);
+
             if (statusText != null) {
                 if (Found) {
                     statusText.Text = ReadyText;

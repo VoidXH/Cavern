@@ -43,7 +43,7 @@
     <system:String x:Key="OpCnt">Megnyitás</system:String>
     <system:String x:Key="OpTrk">Hangsáv:</system:String>
     <system:String x:Key="OpOut">Kimenet:</system:String>
-    <system:String x:Key="OpRnd">Renderelés most</system:String>
+    <system:String x:Key="OpRnd">Renderelés</system:String>
     <system:String x:Key="ChkUp">Frissítések automatikus keresése</system:String>
     <system:String x:Key="ChkTt">Alkalmanként automatikusan megnézi, hogy áll-e rendelkezésre új frissítés.</system:String>
     <system:String x:Key="Queue">Sor</system:String>

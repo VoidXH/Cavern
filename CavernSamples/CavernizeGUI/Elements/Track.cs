@@ -107,6 +107,7 @@ namespace CavernizeGUI.Elements {
             } else {
                 FormatHeader = Renderer.HasObjects ? (string)strings["ObTra"] : (string)strings["ChTra"];
             }
+            FormatHeader += $" ({TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate):h\\:mm\\:ss})";
 
             ReferenceChannel[] beds = Renderer != null ? Renderer.GetChannels() : [];
             string bedList = string.Join(' ', ChannelPrototype.GetShortNames(beds));
@@ -128,8 +129,6 @@ namespace CavernizeGUI.Elements {
                     builder.Add(((string)strings["Chans"], reader.ChannelCount.ToString()));
                 }
             }
-            builder.Add(((string)strings["TraLe"], TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate).ToString()));
-            builder.Add(((string)strings["TraFs"], reader.SampleRate + " Hz"));
             Details = [.. builder];
         }
 

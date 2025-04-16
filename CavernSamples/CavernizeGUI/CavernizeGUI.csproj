@@ -24,6 +24,15 @@
 
 	<ItemGroup>
 		<None Remove="Resources\CavernLogo.png" />
+		<None Remove="Resources\Images\AddToQueue.png" />
+		<None Remove="Resources\Images\Delete.png" />
+		<None Remove="Resources\Images\Folder.png" />
+		<None Remove="Resources\Images\Render.png" />
+		<None Remove="Resources\Images\RenderQueue.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -41,6 +50,11 @@
 
 	<ItemGroup>
 		<Resource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
+		<Resource Include="Resources\Images\AddToQueue.png" />
+		<Resource Include="Resources\Images\Delete.png" />
+		<Resource Include="Resources\Images\Folder.png" />
+		<Resource Include="Resources\Images\Render.png" />
+		<Resource Include="Resources\Images\RenderQueue.png" />
 	</ItemGroup>
 
 	<ItemGroup>

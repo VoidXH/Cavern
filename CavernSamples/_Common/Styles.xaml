@@ -130,7 +130,6 @@
 
     <Style TargetType="Button">
         <Setter Property="Height" Value="30"/>
-        <Setter Property="FontWeight" Value="Normal"/>
     </Style>
     <Style TargetType="CheckBox">
         <Setter Property="FontWeight" Value="Normal"/>
@@ -333,6 +332,9 @@
     <Style TargetType="TextBlock">
         <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="TextBlock" x:Key="ButtonText">
+        <Setter Property="Foreground" Value="Black"/>
     </Style>
     <Style TargetType="TextBlock" x:Key="Header">
         <Setter Property="Margin" Value="0,5,0,0"/>

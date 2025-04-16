@@ -11,6 +11,9 @@
     <Compile Update="Controls\GraphRendererControl.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Controls\StandardLayoutDisplay.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="ConvolutionEditor.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -16,7 +16,7 @@
         </ResourceDictionary>
     </d:Window.Resources>
     <Grid>
-        <TextBlock x:Name="renderSettingsHeader" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" d:Height="24"
+        <TextBlock Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" d:Height="24"
                    Style="{StaticResource Header}" Text="{StaticResource ChLis}"/>
         <ListView Name="channels" Margin="10,39,10,89"/>
         <Button Margin="0,0,95,10" Width="80" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"

@@ -4,7 +4,8 @@
              Startup="Main">
     <Application.Resources>
         <ControlTemplate x:Key="QueueListBox" TargetType="{x:Type ListBox}">
-            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="1" SnapsToDevicePixels="true">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="15" Padding="1" SnapsToDevicePixels="true">
                 <ScrollViewer Focusable="false" Padding="{TemplateBinding Padding}">
                     <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                 </ScrollViewer>
@@ -23,25 +24,50 @@
                 </MultiTrigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        <ControlTemplate x:Key="renderButton" TargetType="{x:Type ButtonBase}">
-            <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" SnapsToDevicePixels="true">
+        <ControlTemplate x:Key="PrimaryButton" TargetType="{x:Type ButtonBase}">
+            <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="15" SnapsToDevicePixels="true">
                 <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
             </Border>
             <ControlTemplate.Triggers>
                 <Trigger Property="Button.IsDefaulted" Value="false">
-                    <Setter Property="Background" TargetName="border" Value="#007F00"/>
+                    <Setter Property="Background" TargetName="border" Value="#3186CE"/>
                     <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="White"/>
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="true">
-                    <Setter Property="Background" TargetName="border" Value="#009F00"/>
+                    <Setter Property="Background" TargetName="border" Value="#62B7FF"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="true">
-                    <Setter Property="Background" TargetName="border" Value="#005F00"/>
+                    <Setter Property="Background" TargetName="border" Value="#00559D"/>
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="false">
-                    <Setter Property="Background" TargetName="border" Value="#FFF4F4F4"/>
-                    <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
-                    <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#FF838383"/>
+                    <Setter Property="Background" TargetName="border" Value="#F4F4F4"/>
+                    <Setter Property="BorderBrush" TargetName="border" Value="#ADB2B5"/>
+                    <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#838383"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <ControlTemplate x:Key="SecondaryButton" TargetType="{x:Type ButtonBase}">
+            <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="15" SnapsToDevicePixels="true">
+                <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsDefaulted" Value="true">
+                    <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="#BEE6FD"/>
+                    <Setter Property="BorderBrush" TargetName="border" Value="#3C7FB1"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="true">
+                    <Setter Property="Background" TargetName="border" Value="#C4E5F6"/>
+                    <Setter Property="BorderBrush" TargetName="border" Value="#2C628B"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Background" TargetName="border" Value="#F4F4F4"/>
+                    <Setter Property="BorderBrush" TargetName="border" Value="#ADB2B5"/>
+                    <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="#838383"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>

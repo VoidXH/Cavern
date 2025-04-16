@@ -45,11 +45,6 @@ namespace CavernizeGUI {
         public string FilePath => file?.Path;
 
         /// <summary>
-        /// The matching displayed dot for each supported channel.
-        /// </summary>
-        readonly Dictionary<ReferenceChannel, Ellipse> channelDisplay;
-
-        /// <summary>
         /// The fields that show property-value pairs in a table.
         /// </summary>
         readonly (TextBlock property, TextBlock value)[] trackInfo;
@@ -100,32 +95,10 @@ namespace CavernizeGUI {
             };
 
             InitializeComponent();
-            channelDisplay = new() {
-                [ReferenceChannel.FrontLeft] = frontLeft,
-                [ReferenceChannel.FrontCenter] = frontCenter,
-                [ReferenceChannel.FrontRight] = frontRight,
-                [ReferenceChannel.WideLeft] = wideLeft,
-                [ReferenceChannel.WideRight] = wideRight,
-                [ReferenceChannel.SideLeft] = sideLeft,
-                [ReferenceChannel.SideRight] = sideRight,
-                [ReferenceChannel.RearLeft] = rearLeft,
-                [ReferenceChannel.RearCenter] = rearCenter,
-                [ReferenceChannel.RearRight] = rearRight,
-                [ReferenceChannel.TopFrontLeft] = topFrontLeft,
-                [ReferenceChannel.TopFrontCenter] = topFrontCenter,
-                [ReferenceChannel.TopFrontRight] = topFrontRight,
-                [ReferenceChannel.TopSideLeft] = topSideLeft,
-                [ReferenceChannel.TopSideRight] = topSideRight,
-                [ReferenceChannel.TopRearLeft] = topRearLeft,
-                [ReferenceChannel.TopRearCenter] = topRearCenter,
-                [ReferenceChannel.TopRearRight] = topRearRight
-            };
             trackInfo = [
                 (trackTable1Title, trackTable1Value),
                 (trackTable2Title, trackTable2Value),
-                (trackTable3Title, trackTable3Value),
-                (trackTable4Title, trackTable4Value),
-                (trackTable5Title, trackTable5Value)
+                (trackTable3Title, trackTable3Value)
             ];
 
             audio.ItemsSource = ExportFormat.Formats;
@@ -134,6 +107,10 @@ namespace CavernizeGUI {
             FFmpeg.ReadyText = (string)language["FFRea"];
             FFmpeg.NotReadyText = (string)language["FFNRe"];
             ffmpeg = new(status, Settings.Default.ffmpegLocation);
+            if (ffmpeg.Found) {
+                locateFFmpeg.Visibility = Visibility.Hidden;
+            }
+
             listener = new() { // Create a listener, which triggers the loading of saved environment settings
                 UpdateRate = 64,
                 AudioQuality = QualityModes.Perfect
@@ -325,21 +302,17 @@ namespace CavernizeGUI {
             RenderTarget selected = (RenderTarget)renderTarget.SelectedItem;
             if (selected is DriverRenderTarget || selected is VirtualizerRenderTarget) {
                 wiring.IsEnabled = false;
-                foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
-                    pair.Value.Fill = dynamicSpeaker;
-                }
+                layoutDisplay.All = dynamicSpeaker;
                 return;
             }
 
             wiring.IsEnabled = true;
-            foreach (KeyValuePair<ReferenceChannel, Ellipse> pair in channelDisplay) {
-                pair.Value.Fill = inactiveSpeaker;
-            }
+            layoutDisplay.All = inactiveSpeaker;
 
             ReferenceChannel[] channels = selected.Channels;
             for (int ch = 0; ch < channels.Length; ch++) {
-                if (channelDisplay.TryGetValue(channels[ch], out Ellipse? value) && selected.IsExported(ch)) {
-                    value.Fill = activeSpeaker;
+                if (selected.IsExported(ch) && channels[ch] != ReferenceChannel.ScreenLFE) {
+                    layoutDisplay[channels[ch]] = activeSpeaker;
                 }
             }
         }
@@ -526,7 +499,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Color used for speaker display when a dynamic render target is selected.
         /// </summary>
-        static readonly SolidColorBrush dynamicSpeaker = new(Colors.Yellow);
+        static readonly SolidColorBrush dynamicSpeaker = new(Colors.Beige);
 
         /// <summary>
         /// Color used for inactive speaker display.
