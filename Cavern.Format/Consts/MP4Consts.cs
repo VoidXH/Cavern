@@ -42,6 +42,16 @@ namespace Cavern.Format.Consts {
         public const uint trackHeaderBox = 0x746B6864;
 
         /// <summary>
+        /// FourCC marker of the edits box (edts).
+        /// </summary>
+        public const uint editsBox = 0x65647473;
+
+        /// <summary>
+        /// FourCC marker of <see cref="editsBox"/>'s edit list child box (elst).
+        /// </summary>
+        public const uint editListBox = 0x656C7374;
+
+        /// <summary>
         /// FourCC marker of the <see cref="trackBox"/>'s media child box (mdia).
         /// </summary>
         public const uint mediaBox = 0x6D646961;

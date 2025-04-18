@@ -1,4 +1,6 @@
-﻿using Cavern.Format.Common;
+﻿using System.Linq;
+
+using Cavern.Format.Common;
 using Cavern.Format.Utilities;
 
 using static Cavern.Format.Consts.MP4Consts;
@@ -31,10 +33,19 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// An MP4 file's <see cref="Track"/> with stream positioning information. The format and its extra information is parsed here.
         /// </summary>
-        internal MP4Track(NestedBox sampleTableBox, uint timeScale) {
+        internal MP4Track(byte[] trackHeader, byte[] mediaHeader, NestedBox sampleTableBox) {
             if (sampleTableBox == null) {
                 throw new MissingElementException(Consts.MP4Consts.sampleTableBox.ToFourCC());
             }
+
+            ID = trackHeader.ReadInt32BE(12);
+            LanguageCode languageCode = (LanguageCode)mediaHeader.ReadUInt16BE(20);
+            if (languageCode < LanguageCode.Unspecified) {
+                Language = languageCode.ToString();
+            }
+            Length = mediaHeader.ReadUInt32BE(16);
+
+            timeScale = mediaHeader.ReadUInt32BE(12);
             if (sampleTableBox[sampleDescriptionBox] is SampleDescriptionBox stsd && stsd.formats.Length == 1) {
                 Format = stsd.formats[0].codec;
                 if (Format.IsAudio()) {
@@ -47,9 +58,7 @@ namespace Cavern.Format.Container.MP4 {
                 }
             }
 
-            this.timeScale = timeScale;
             seekerBox = sampleTableBox[timeToSampleBox] as TimeToSampleBox;
-
             ChunkOffsetBox chunkOffsets = sampleTableBox[chunkOffset32] as ChunkOffsetBox;
             chunkOffsets ??= sampleTableBox[chunkOffset64] as ChunkOffsetBox;
             SampleSizeBox sampleSizes = sampleTableBox[sampleSizeBox] as SampleSizeBox;
@@ -117,7 +126,7 @@ namespace Cavern.Format.Container.MP4 {
                 for (int j = 0; j < timings[i].sampleCount; j++) {
                     if (currentTime + duration < targetTime) {
                         currentTime += duration;
-                        ++currentSample;
+                        currentSample++;
                         continue;
                     }
                     return (currentSample, currentTime / (double)timeScale);

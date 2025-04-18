@@ -44,13 +44,10 @@
                 <MenuItem Header="{StaticResource About}" Click="About"/>
             </MenuItem>
         </Menu>
-        <StatusBar DockPanel.Dock="Bottom">
-            <ProgressBar Name="progress" Height="20" Width="150" Maximum="1"/>
-            <TextBlock Name="status" FontSize="15" TextWrapping="Wrap"/>
-        </StatusBar>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="350"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid Margin="10">
@@ -108,14 +105,14 @@
                                 <TextBlock Name="trackCodec" Margin="0,54,0,0" VerticalAlignment="Top"
                                            FontWeight="Bold" TextWrapping="Wrap"/>
                                 <TextBlock Name="trackTable1Title" Margin="0,75,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                           Width="95" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Name="trackTable1Value" Margin="100,75,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
+                                           Width="105" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <TextBlock Name="trackTable1Value" Margin="110,75,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
                                 <TextBlock Name="trackTable2Title" Margin="0,96,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                           Width="95" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Name="trackTable2Value" Margin="100,96,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
+                                           Width="105" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <TextBlock Name="trackTable2Value" Margin="110,96,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
                                 <TextBlock Name="trackTable3Title" Margin="0,117,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                           Width="95" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Name="trackTable3Value" Margin="100,117,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
+                                           Width="105" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <TextBlock Name="trackTable3Value" Margin="110,117,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
                             </Grid>
                             <Grid Margin="10,0,10,10" VerticalAlignment="Bottom">
                                 <uc:ButtonWithIcon HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"
@@ -144,7 +141,11 @@
                     </Grid>
                 </Grid>
             </Grid>
-            <vw2:WebView2 Grid.Row="1" Source="https://cavern.sbence.hu/cavern/app_cav.php"/>
+            <StatusBar Grid.Row="1" DockPanel.Dock="Bottom">
+                <ProgressBar Name="progress" Height="20" Width="150" Maximum="1"/>
+                <TextBlock Name="status" FontSize="15" TextWrapping="Wrap"/>
+            </StatusBar>
+            <vw2:WebView2 Grid.Row="2" Source="https://cavern.sbence.hu/cavern/app_cav.php"/>
         </Grid>
     </DockPanel>
 </Window>

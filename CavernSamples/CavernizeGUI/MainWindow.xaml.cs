@@ -94,6 +94,8 @@ namespace CavernizeGUI {
                 ProgressState = TaskbarItemProgressState.Normal
             };
 
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            Environment.SetEnvironmentVariable("WEBVIEW2_USER_DATA_FOLDER", Path.Combine(appData, "Temp", "CavernizeWebCache"));
             InitializeComponent();
             trackInfo = [
                 (trackTable1Title, trackTable1Value),

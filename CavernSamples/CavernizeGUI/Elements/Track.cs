@@ -206,7 +206,7 @@ namespace CavernizeGUI.Elements {
         public override string ToString() {
             ResourceDictionary strings = Consts.Language.GetTrackStrings();
             string codecName = (string)strings[Codec.ToString()] ??
-                (formatNames.TryGetValue(Codec, out string? value) ? value : Codec.ToString());
+                (formatNames.TryGetValue(Codec, out string value) ? value : Codec.ToString());
             string objects = Renderer != null && Renderer.HasObjects ? " " + strings["WiObj"] : string.Empty;
             return string.IsNullOrEmpty(Language) ? codecName : $"{codecName}{objects} ({Language})";
         }

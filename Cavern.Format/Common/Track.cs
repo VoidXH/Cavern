@@ -21,6 +21,11 @@ namespace Cavern.Format.Common {
         public string Language { get; set; }
 
         /// <summary>
+        /// Duration of the track in its sample metric: sample/frame/etc. If 0, the container knows the length.
+        /// </summary>
+        public ulong Length { get; set; }
+
+        /// <summary>
         /// Codec of the track.
         /// </summary>
         public Codec Format { get; set; }

@@ -69,6 +69,8 @@ namespace Cavern.Format.Container.MP4 {
                 rawBox => new RawBox(length, reader),
                 metadataBox => new NestedBox(length, header, reader),
                 trackBox => new TrackBox(length, reader),
+                editsBox => new NestedBox(length, header, reader),
+                editListBox => new EditListBox(length, reader),
                 mediaBox => new NestedBox(length, header, reader),
                 mediaInfoBox => new NestedBox(length, header, reader),
                 sampleTableBox => new NestedBox(length, header, reader),

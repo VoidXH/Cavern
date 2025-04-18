@@ -98,7 +98,7 @@ namespace Cavern.Format.Transcoders {
         /// </summary>
         public void Update() {
             auxDataPos = 0;
-            for (int block = 0; block < header.Blocks; ++block) {
+            for (int block = 0; block < header.Blocks; block++) {
                 DecodeAudioBlock(block);
             }
             ReadAux();

@@ -48,7 +48,9 @@ namespace Cavern.Format {
         public override void ReadHeader() {
             TrackExtraAudio info = track.Extra as TrackExtraAudio;
             ChannelCount = info.ChannelCount;
-            Length = (long)(info.SampleRate * track.Source.Duration);
+            Length = track.Length == 0 ?
+                (long)(info.SampleRate * track.Source.Duration) :
+                (long)track.Length;
             SampleRate = (int)info.SampleRate;
             Bits = info.Bits;
 

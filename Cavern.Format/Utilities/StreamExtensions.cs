@@ -196,6 +196,13 @@ namespace Cavern.Format.Utilities {
         }.asFloat;
 
         /// <summary>
+        /// Read a big-endian 32-bit floating point number from the stream.
+        /// </summary>
+        public static float ReadSingleBE(this Stream reader) => new ConverterStruct {
+            asInt = reader.ReadInt32BE()
+        }.asFloat;
+
+        /// <summary>
         /// Tests if the next byte block is as expected, throws an exception if it's not.
         /// </summary>
         public static void BlockTest(this Stream reader, byte[] block) {

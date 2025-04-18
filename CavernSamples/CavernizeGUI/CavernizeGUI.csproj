@@ -86,4 +86,9 @@
 			<LastGenOutput>UpmixingSettings.Designer.cs</LastGenOutput>
 		</None>
 	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="del /s /q bin\*.xml" />
+		<Exec Command="del /s /q bin\*.pdb" Condition="'$(Configuration)' == 'Release'" />
+	</Target>
 </Project>
