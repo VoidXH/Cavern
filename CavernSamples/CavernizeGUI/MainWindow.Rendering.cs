@@ -21,6 +21,11 @@ using Track = CavernizeGUI.Elements.Track;
 namespace CavernizeGUI {
     partial class MainWindow {
         /// <summary>
+        /// The voltage gain at which the content is rendered.
+        /// </summary>
+        public float renderGain = 1;
+
+        /// <summary>
         /// Total number of samples for all channels that will be written to the file at once.
         /// </summary>
         int blockSize;
@@ -86,7 +91,7 @@ namespace CavernizeGUI {
             target.Attach(listener);
 
             // Prevent height limiting, require at least 4 overhead channels for full gain
-            listener.Volume = target.Codec == Codec.EnhancedAC3 && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1;
+            listener.Volume = renderGain * (target.Renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1);
         }
 
         /// <summary>

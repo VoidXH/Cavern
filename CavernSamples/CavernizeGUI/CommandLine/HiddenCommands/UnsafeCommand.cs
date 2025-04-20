@@ -4,7 +4,7 @@ namespace CavernizeGUI.CommandLine.HiddenCommands {
     /// <summary>
     /// Disables checks for conditions that don't inherently break operation, but are mandated by standards.
     /// </summary>
-    internal class UnsafeCommand : HiddenCommand {
+    class UnsafeCommand : HiddenCommand {
         /// <inheritdoc/>
         public override string Name => "--unsafe";
 

@@ -446,6 +446,12 @@ namespace Cavern.Utilities {
             double.TryParse(from.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out num);
 
         /// <summary>
+        /// Try to parse a floating-point value regardless of the system's culture.
+        /// </summary>
+        public static bool TryParseFloat(string from, out float num) =>
+            float.TryParse(from.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out num);
+
+        /// <summary>
         /// Conversion array for <see cref="BitsAfterMSB(int)"/>.
         /// </summary>
         static readonly byte[] bitsAfterMSBHack = { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30,

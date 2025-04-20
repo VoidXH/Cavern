@@ -12,7 +12,7 @@ namespace CavernizeGUI.CommandLine.HiddenCommands {
     /// <param name="path">Path of the original E-AC-3 file</param>
     /// <param name="overrider">Stream to override the PCM data with - only applies to the source PCM data,
     /// not the JOC-decoded objects</param>
-    public class OverrideBedFile(string path, AudioReader overrider) : AudioFile(path) {
+    class OverrideBedFile(string path, AudioReader overrider) : AudioFile(path) {
         /// <summary>
         /// Reloads the tracklist to be able to start reading from the beginning.
         /// </summary>

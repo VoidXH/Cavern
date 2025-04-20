@@ -6,7 +6,7 @@ namespace CavernizeGUI.CommandLine.HiddenCommands {
     /// <summary>
     /// Overrides the PCM source of JOC encoded objects in E-AC-3 tracks.
     /// </summary>
-    internal class OverrideBedCommand : HiddenCommand {
+    class OverrideBedCommand : HiddenCommand {
         /// <inheritdoc/>
         public override string Name => "--override-bed";
 
