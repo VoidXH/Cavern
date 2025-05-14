@@ -63,13 +63,19 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Insert channel header and basic information to a root file.
         /// </summary>
-        /// <returns>Any information was exported.</returns>
+        /// <returns>Delay information was exported. If any other information was exported should be checked by checking
+        /// if the length of <paramref name="result"/> has changed.</returns>
         protected bool RootFileChannelHeader(int channel, StringBuilder result) {
+            StringBuilder extension = new StringBuilder();
+            if (!RootFileExtension(channel, extension)) {
+                return false;
+            }
+
             result.AppendLine(string.Empty);
             string chName = GetLabel(channel);
             result.AppendLine(chName);
             result.AppendLine(new string('=', chName.Length));
-            RootFileExtension(channel, result);
+            result.Append(extension);
             if (Channels[channel].delaySamples != 0) {
                 result.AppendLine("Delay: " + QMath.ToStringLimitDecimals(GetDelay(channel), 2));
                 return true;
@@ -80,7 +86,8 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
-        protected virtual void RootFileExtension(int channel, StringBuilder result) { }
+        /// <returns>Any information was exported.</returns>
+        protected virtual bool RootFileExtension(int channel, StringBuilder result) => false;
 
         /// <summary>
         /// Initialize the data holders of <see cref="Channels"/> with the default <see cref="ReferenceChannel"/>s.

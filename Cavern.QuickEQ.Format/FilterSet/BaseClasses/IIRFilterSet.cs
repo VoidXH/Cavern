@@ -210,14 +210,18 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
-        protected override void RootFileExtension(int channel, StringBuilder result) {
+        protected override bool RootFileExtension(int channel, StringBuilder result) {
             IIRChannelData channelRef = (IIRChannelData)Channels[channel];
+            bool written = false;
             if (channelRef.gain != 0) {
                 result.AppendLine($"Gain: {QMath.ToStringLimitDecimals(channelRef.gain, 2)} dB");
+                written = true;
             }
             if (channelRef.switchPolarity) {
                 result.AppendLine("Switch polarity");
+                written = true;
             }
+            return written;
         }
     }
 }

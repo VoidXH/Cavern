@@ -165,11 +165,14 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
-        protected override void RootFileExtension(int channel, StringBuilder result) {
+        protected override bool RootFileExtension(int channel, StringBuilder result) {
             EqualizerChannelData channelRef = (EqualizerChannelData)Channels[channel];
+            bool written = false;
             if (channelRef.gain != 0) {
                 result.AppendLine("Level: " + channelRef.gain.ToString("0.0 dB"));
+                written = true;
             }
+            return written;
         }
     }
 }
