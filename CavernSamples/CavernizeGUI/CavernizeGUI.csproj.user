@@ -10,6 +10,9 @@
     <Compile Update="UserControls\ButtonWithIcon.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="UserControls\TextWithIcon.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Windows\CodecMetadata.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

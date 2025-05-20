@@ -11,7 +11,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/MainWindowStrings.xaml"/>
+                <d:ResourceDictionary Source="Resources/MainWindowStrings.xaml"/>
                 <ResourceDictionary Source="Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BitmapImage x:Key="Logo" UriSource="Resources\CavernLogo.png"/>
@@ -19,7 +19,10 @@
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="{StaticResource MenuR}" Style="{StaticResource RootMenuItem}">
+            <MenuItem Style="{StaticResource RootMenuItem}">
+                <MenuItem.Header>
+                    <uc:TextWithIcon Text="{StaticResource MenuR}" Icon="/Resources/Images/Settings.png"/>
+                </MenuItem.Header>
                 <MenuItem Header="{StaticResource Upmix}" Click="OpenUpmixSetup"/>
                 <MenuItem Name="hrir" Header="{StaticResource LoadV}" Click="LoadHRIR"/>
                 <MenuItem Name="speakerVirtualizer" IsCheckable="True" Header="{StaticResource SpVir}"/>
@@ -37,7 +40,17 @@
                 <MenuItem Name="grading" IsCheckable="True" Header="{StaticResource DeGrH}" ToolTip="{StaticResource DeGrT}"/>
                 <MenuItem Header="{StaticResource PReSh}" Click="ShowPostRenderReport"/>
             </MenuItem>
-            <MenuItem Header="{StaticResource MenuH}" Style="{StaticResource RootMenuItem}">
+            <MenuItem Style="{StaticResource RootMenuItem}">
+                <MenuItem.Header>
+                    <uc:TextWithIcon Text="{StaticResource MenuL}" Icon="/Resources/Images/Language.png"/>
+                </MenuItem.Header>
+                <MenuItem Header="{StaticResource LanEn}" Click="LanguageEnglish"/>
+                <MenuItem Header="{StaticResource LanHu}" Click="LanguageHungarian"/>
+            </MenuItem>
+            <MenuItem Style="{StaticResource RootMenuItem}">
+                <MenuItem.Header>
+                    <uc:TextWithIcon Text="{StaticResource MenuH}" Icon="/Resources/Images/Help.png"/>
+                </MenuItem.Header>
                 <MenuItem Name="checkUpdates" IsCheckable="True" Header="{StaticResource ChkUp}" ToolTip="{StaticResource ChkTt}"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource UsrGu}" Click="Guide"/>

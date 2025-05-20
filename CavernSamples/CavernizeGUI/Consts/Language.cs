@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Windows;
 
 using CavernizeGUI.Elements;
+using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
 namespace CavernizeGUI.Consts {
@@ -39,8 +40,15 @@ namespace CavernizeGUI.Consts {
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
         /// </summary>
         static ResourceDictionary GetFor(string resource) {
-            if (Array.BinarySearch(supported, CultureInfo.CurrentUICulture.Name) >= 0) {
-                resource += '.' + CultureInfo.CurrentUICulture.Name;
+            string culture = Settings.Default.language;
+            if (string.IsNullOrEmpty(culture)) {
+                culture = CultureInfo.CurrentUICulture.Name;
+            } else if (culture == "en-US") { // Forced default
+                culture = string.Empty;
+            }
+
+            if (Array.BinarySearch(supported, culture) >= 0) {
+                resource += '.' + culture;
             }
             return new() {
                 Source = new Uri($";component/Resources/{resource}.xaml", UriKind.RelativeOrAbsolute)

@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- UI -->
-    <system:String x:Key="MenuR">_Renderelés</system:String>
+    <system:String x:Key="MenuR">Renderelés</system:String>
     <system:String x:Key="Upmix">_Felkeverési beállítások</system:String>
     <system:String x:Key="LoadV">HRTF/HRIR szettek betöltése a _Virtualizálóba</system:String>
     <system:String x:Key="SpVir">_Magasság virtualizálása hangszórókon</system:String>
@@ -26,9 +26,12 @@
         jelentés fogja tartalmazni.</system:String>
     <system:String x:Key="PReSh">_Renderelés utáni jelentés megnyitása</system:String>
     <system:String x:Key="PReRe">Renderelés utáni jelentés</system:String>
-    <system:String x:Key="MenuH">_Súgó</system:String>
+    <system:String x:Key="MenuH">Súgó</system:String>
     <system:String x:Key="UsrGu">_Felhasználói kézikönyv (angol)</system:String>
     <system:String x:Key="About">_Névjegy</system:String>
+    <system:String x:Key="MenuL">Nyelv</system:String>
+    <system:String x:Key="LanEn">English</system:String>
+    <system:String x:Key="LanHu">Magyar</system:String>
     <system:String x:Key="SySet">Rendszer</system:String>
     <system:String x:Key="RSInf">Válassz ki egy hangszórókiosztást, és helyezd el úgy a hangszóróid. Kattints a &quot;Bekötés mutatása&quot;
         gombra, hogy megtudd, melyik kimenetet melyik valódi csatornára kell kötnöd.
@@ -66,6 +69,7 @@
         AC-3|*.ac3;*.eac3;*.ec3|Filmek|*.mkv;*.mka;*.mov;*.mp4;*.qt;*.webm;*.weba|RIFF
         WAVE, ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="OpRun">Egy művelet már fut, kérlek várj, amíg befejeződik.</system:String>
+    <system:String x:Key="OpRes">A módosítások a Cavernize újraindítása után lépnek életbe.</system:String>
     <system:String x:Key="LdSrc">Kérlek, tölts be egy fájlt, aminek legalább egy hangsávja támogatott rendereléshez.</system:String>
     <system:String x:Key="UnTrk">A kiválasztott hangsáv nem támogatott rendereléshez.</system:String>
     <system:String x:Key="ChCnt">A render céljának nagyobb a csatornaszáma ({0}), mint amit a kiválasztott formátum képes kezelni ({1}).

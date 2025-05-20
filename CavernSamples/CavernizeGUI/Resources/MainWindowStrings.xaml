@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- UI -->
-    <system:String x:Key="MenuR">_Rendering</system:String>
+    <system:String x:Key="MenuR">Rendering</system:String>
     <system:String x:Key="Upmix">_Upmixing setup</system:String>
     <system:String x:Key="LoadV">Load HRTF/HRIR sets for the _Virtualizer</system:String>
     <system:String x:Key="SpVir">_Height virtualization on speakers</system:String>
@@ -26,9 +26,12 @@
         in the post-render report.</system:String>
     <system:String x:Key="PReSh">_Show post-render report</system:String>
     <system:String x:Key="PReRe">Post-render report</system:String>
-    <system:String x:Key="MenuH">_Help</system:String>
+    <system:String x:Key="MenuH">Help</system:String>
     <system:String x:Key="UsrGu">_User guide</system:String>
     <system:String x:Key="About">_About</system:String>
+    <system:String x:Key="MenuL">Language</system:String>
+    <system:String x:Key="LanEn">English</system:String>
+    <system:String x:Key="LanHu">Magyar</system:String>
     <system:String x:Key="SySet">System</system:String>
     <system:String x:Key="RSInf">Choose a layout, and place your speakers accordingly. Click the &quot;Display wiring&quot;
         button to see which output will change to which actual channel.
@@ -66,6 +69,7 @@
         AC-3|*.ac3;*.eac3;*.ec3|Movies|*.mkv;*.mka;*.mov;*.mp4;*.qt;*.webm;*.weba|RIFF WAVE,
         ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="OpRun">An operation is already running, please wait for it to finish.</system:String>
+    <system:String x:Key="OpRes">The changes will take effect after restarting Cavernize.</system:String>
     <system:String x:Key="LdSrc">Please load a source file with at least 1 supported track for rendering.</system:String>
     <system:String x:Key="UnTrk">The selected track is not supported for rendering.</system:String>
     <system:String x:Key="ChCnt">The render target has a larger channel count ({0}) than what the selected format can handle ({1}).

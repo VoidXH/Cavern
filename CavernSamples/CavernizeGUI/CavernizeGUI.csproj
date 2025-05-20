@@ -27,8 +27,11 @@
 		<None Remove="Resources\Images\AddToQueue.png" />
 		<None Remove="Resources\Images\Delete.png" />
 		<None Remove="Resources\Images\Folder.png" />
+		<None Remove="Resources\Images\Help.png" />
+		<None Remove="Resources\Images\Language.png" />
 		<None Remove="Resources\Images\Render.png" />
 		<None Remove="Resources\Images\RenderQueue.png" />
+		<None Remove="Resources\Images\Settings.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -53,8 +56,11 @@
 		<Resource Include="Resources\Images\AddToQueue.png" />
 		<Resource Include="Resources\Images\Delete.png" />
 		<Resource Include="Resources\Images\Folder.png" />
+		<Resource Include="Resources\Images\Help.png" />
+		<Resource Include="Resources\Images\Language.png" />
 		<Resource Include="Resources\Images\Render.png" />
 		<Resource Include="Resources\Images\RenderQueue.png" />
+		<Resource Include="Resources\Images\Settings.png" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -24,7 +24,7 @@
     <Button Name="root" Click="OnClick">
         <Grid Margin="5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Image Name="icon" Margin="0,0,5,0"/>

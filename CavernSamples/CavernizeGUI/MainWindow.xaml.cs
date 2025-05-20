@@ -258,7 +258,7 @@ namespace CavernizeGUI {
         /// Open file button event; loads an audio file to <see cref="reader"/>.
         /// </summary>
         void OpenFile(object _, RoutedEventArgs e) {
-            if (taskEngine.IsOperationRunning) {
+            if (Rendering) {
                 Error((string)language["OpRun"]);
                 return;
             }

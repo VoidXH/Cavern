@@ -39,6 +39,7 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Apply a delay on the <paramref name="signal"/> even with fraction <paramref name="samples"/>.
+        /// You could call it subsample delay precision.
         /// </summary>
         public static void Delay(float[] signal, float samples) {
             using FFTCache cache = new FFTCache(QMath.Base2Ceil(signal.Length));
@@ -47,6 +48,7 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Apply a delay on the <paramref name="signal"/> even with fraction <paramref name="samples"/>.
+        /// You could call it subsample delay precision.
         /// </summary>
         public static void Delay(float[] signal, float samples, FFTCache cache) {
             Complex[] fft = signal.ParseForFFT();
@@ -60,6 +62,7 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Apply a delay on the <paramref name="signal"/> even with fraction <paramref name="samples"/>.
+        /// You could call it subsample delay precision.
         /// </summary>
         public static void Delay(Complex[] signal, float samples) {
             float cycle = 2 * (float)Math.PI * samples / signal.Length;
