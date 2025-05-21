@@ -35,6 +35,9 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.GenericEqualizer => new EqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_EQ => new EqualizerAPOEqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
+                FilterSetTarget.EqualizerAPO_FIR_Stereo => new EqualizerAPOFIRFilterSet(channels, sampleRate) {
+                    ChannelsPerConvolution = 2
+                },
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.AUNBandEQ => new AUNBandEQ(channels, sampleRate),
@@ -80,6 +83,9 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.GenericEqualizer => new EqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_EQ => new EqualizerAPOEqualizerFilterSet(channels, sampleRate),
                 FilterSetTarget.EqualizerAPO_FIR => new EqualizerAPOFIRFilterSet(channels, sampleRate),
+                FilterSetTarget.EqualizerAPO_FIR_Stereo => new EqualizerAPOFIRFilterSet(channels, sampleRate) {
+                    ChannelsPerConvolution = 2
+                },
                 FilterSetTarget.EqualizerAPO_IIR => new EqualizerAPOIIRFilterSet(channels, sampleRate),
                 FilterSetTarget.CamillaDSP => new CamillaDSPFilterSet(channels, sampleRate),
                 FilterSetTarget.AUNBandEQ => new AUNBandEQ(channels, sampleRate),

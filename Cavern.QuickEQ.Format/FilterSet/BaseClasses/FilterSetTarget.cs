@@ -32,6 +32,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         EqualizerAPO_FIR,
         /// <summary>
+        /// Equalizer APO for Windows using convolution filters, channel pairs in filters instead of single channels.
+        /// </summary>
+        EqualizerAPO_FIR_Stereo,
+        /// <summary>
         /// Equalizer APO for Windows using peaking EQs.
         /// </summary>
         EqualizerAPO_IIR,
@@ -191,7 +195,8 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.GenericConvolution => "Generic Convolution",
             FilterSetTarget.GenericEqualizer => "Generic Equalizer",
             FilterSetTarget.EqualizerAPO_EQ => "Equalizer APO - graphic EQ",
-            FilterSetTarget.EqualizerAPO_FIR => "Equalizer APO - convolution",
+            FilterSetTarget.EqualizerAPO_FIR => "Equalizer APO - convolution (per channel)",
+            FilterSetTarget.EqualizerAPO_FIR_Stereo => "Equalizer APO - convolution (per stereo)",
             FilterSetTarget.EqualizerAPO_IIR => "Equalizer APO - peaking EQ",
             FilterSetTarget.CamillaDSP => "CamillaDSP - convolution",
             FilterSetTarget.AUNBandEQ => "AU N-Band EQ",

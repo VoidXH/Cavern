@@ -207,9 +207,9 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         public static void BlockTest(this Stream reader, byte[] block) {
             byte[] input = reader.ReadBytes(block.Length);
-            for (int i = 0; i < block.Length; ++i) {
+            for (int i = 0; i < block.Length; i++) {
                 if (input[i] != block[i]) {
-                    throw new IOException("Format mismatch.");
+                    throw new IOException($"Format mismatch. Expected {block[i]} ({(char)block[i]}), found {input[i]} ({(char)input[i]}).");
                 }
             }
         }

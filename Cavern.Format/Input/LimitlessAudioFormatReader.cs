@@ -44,7 +44,7 @@ namespace Cavern.Format {
         /// </summary>
         public override void ReadHeader() {
             if (decoder == null) {
-                decoder = new LimitlessAudioFormatDecoder(reader, skipSyncWord);
+                decoder = new LimitlessAudioFormatDecoder(reader, skipSyncWord && reader.Position != 0);
                 ChannelCount = decoder.ChannelCount;
                 Length = decoder.Length;
                 SampleRate = decoder.SampleRate;
