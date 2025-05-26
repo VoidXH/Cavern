@@ -52,6 +52,24 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Get a curve showing the slope of the <see cref="Equalizer"/>.
+        /// </summary>
+        /// <remarks>The band count and band frequencies will change.</remarks>
+        public Equalizer Derive() {
+            if (bands.Count < 2) {
+                return (Equalizer)Clone(); // No slope can be calculated
+            }
+
+            List<Band> newBands = new List<Band>(bands.Count - 1);
+            for (int i = 0, c = bands.Count - 1; i < c; i++) {
+                double freq = (bands[i].Frequency + bands[i + 1].Frequency) / 2;
+                double slope = (bands[i + 1].Gain - bands[i].Gain) / (bands[i + 1].Frequency - bands[i].Frequency);
+                newBands.Add(new Band(freq, slope));
+            }
+            return new Equalizer(newBands, true);
+        }
+
+        /// <summary>
         /// Decrease the number of bands to this number at max. The function guarantees that a constant range
         /// between old bands is kept.
         /// </summary>
