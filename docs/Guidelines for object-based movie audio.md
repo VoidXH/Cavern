@@ -84,13 +84,13 @@ this is the only one that results in degraded audio quality.
 ### Combined approach
 The recommended and minorly future-proof method is based on the safe approach.
 When there are lots of object movement, a fallback to completely channel-based
-rendering is the only viable way of preventing the entire soundstage and having
+rendering is the only viable way of preserving the entire soundstage and having
 an accurate mix, thus, it's the only method that should be used. However, when
 the number of active bed channels and dynamic objects is less than the codec's
 object limit, it's possible to convey all of these, and store both channels and
 objects as output tracks that will all be objects in the resulting file. Because
 of the occasional additional channel usage on larger layouts than 9.1.6, and no
-loss of spacial precision, this is the recommended method of storing spatial
+loss of spatial precision, this is the recommended method of storing spatial
 mixes. Looking good in the visualizer should never be a priority for any mix,
 because the audible result won't be different from a static mix on today's
 systems, but the visualizer is still used incorrectly by some to draw

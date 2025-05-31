@@ -65,9 +65,12 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         /// <returns>Delay information was exported. If any other information was exported should be checked by checking
         /// if the length of <paramref name="result"/> has changed.</returns>
-        protected bool RootFileChannelHeader(int channel, StringBuilder result) {
+        /// <param name="channel">Channel index</param>
+        /// <param name="result">Append the header to this</param>
+        /// <param name="force">Write the channel name even if nothing would be exported for it</param>
+        protected bool RootFileChannelHeader(int channel, StringBuilder result, bool force) {
             StringBuilder extension = new StringBuilder();
-            if (!RootFileExtension(channel, extension)) {
+            if (!RootFileExtension(channel, extension) && !force) {
                 return false;
             }
 
@@ -129,7 +132,7 @@ namespace Cavern.Format.FilterSet {
             StringBuilder result = new StringBuilder();
             bool hasDelays = false;
             for (int i = 0, c = Channels.Length; i < c; i++) {
-                hasDelays |= RootFileChannelHeader(i, result);
+                hasDelays |= RootFileChannelHeader(i, result, false);
             }
             if (result.Length != 0) {
                 File.WriteAllText(path, (hasDelays ?

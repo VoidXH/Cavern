@@ -64,6 +64,15 @@ namespace Cavern.Format.FilterSet {
         public virtual double GainPrecision => .0001;
 
         /// <summary>
+        /// What values to export per filter and in what order.
+        /// </summary>
+        public virtual FilterProperty[] Properties { get; } = new FilterProperty[] {
+            FilterProperty.Frequency,
+            FilterProperty.Gain,
+            FilterProperty.QFactor
+        };
+
+        /// <summary>
         /// An optional text to add to the first line of every exported channel filter set.
         /// </summary>
         public string Header { get; set; }
@@ -187,7 +196,7 @@ namespace Cavern.Format.FilterSet {
         protected virtual string Export(bool gainOnly) {
             StringBuilder result = new StringBuilder("Set up the channels according to this configuration.").AppendLine();
             for (int i = 0; i < Channels.Length; i++) {
-                RootFileChannelHeader(i, result);
+                RootFileChannelHeader(i, result, true);
                 BiquadFilter[] bands = ((IIRChannelData)Channels[i]).filters;
                 if (gainOnly) {
                     for (int j = 0; j < bands.Length; j++) {
@@ -197,10 +206,20 @@ namespace Cavern.Format.FilterSet {
                 } else {
                     for (int j = 0; j < bands.Length;) {
                         BiquadFilter filter = bands[j];
-                        result.AppendLine($"Filter {++j}:").
-                            AppendLine($"- Frequency: {RangeDependentDecimals(filter.CenterFreq)} Hz").
-                            AppendLine("- Q factor: " + QMath.ToStringLimitDecimals(filter.Q, 2)).
-                            AppendLine($"- Gain: {QMath.ToStringLimitDecimals(filter.Gain, 2)} dB");
+                        result.AppendLine($"Filter {++j}:");
+                        for (int prop = 0; prop < Properties.Length; prop++) {
+                            switch (Properties[prop]) {
+                                case FilterProperty.Gain:
+                                    result.AppendLine($"- Gain: {QMath.ToStringLimitDecimals(filter.Gain, 2)} dB");
+                                    break;
+                                case FilterProperty.Frequency:
+                                    result.AppendLine($"- Frequency: {RangeDependentDecimals(filter.CenterFreq)} Hz");
+                                    break;
+                                case FilterProperty.QFactor:
+                                    result.AppendLine("- Q factor: " + QMath.ToStringLimitDecimals(filter.Q, 2));
+                                    break;
+                            }
+                        }
                     }
                 }
             }

@@ -47,7 +47,7 @@ namespace Cavern.Format.FilterSet.BaseClasses {
         public override void Export(string path) {
             StringBuilder result = new StringBuilder("Set up the channels according to this configuration.").AppendLine();
             for (int i = 0; i < Channels.Length; i++) {
-                RootFileChannelHeader(i, result);
+                RootFileChannelHeader(i, result, true);
                 Equalizer curve = (Equalizer)((EqualizerChannelData)Channels[i]).curve.Clone();
                 curve.Smooth(Smoothing);
                 float[] freqs = Channels[i].reference != ReferenceChannel.ScreenLFE ? Frequencies : LFEFrequencies;

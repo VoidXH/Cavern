@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 using Cavern.QuickEQ.EQCurves;
+using Cavern.QuickEQ.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
@@ -286,6 +287,20 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Get the regression line of this <see cref="Equalizer"/>.
+        /// </summary>
+        /// <param name="startFreq">Lower frequency limit of the region to average for regression</param>
+        /// <param name="endFreq">Upper frequency limit of the region to average for regression</param>
+        /// <param name="bands">Number of points for the result to have</param>
+        public Equalizer ToRegressionLine(double startFreq, double endFreq, int bands) {
+            (double slope, double intercept) = GetRegressionLine(startFreq, endFreq);
+            Band[] result = new Band[bands];
+            GraphUtils.ForEachLog(result, 10, 20000, (double freq, ref Band band) =>
+                band = new Band(freq, slope * Math.Log10(freq) + intercept));
+            return new Equalizer(new List<Band>(result), true);
+        }
+
+        /// <summary>
         /// Add windowing on the right of the curve. Windowing is applied logarithmically.
         /// </summary>
         public void Window(Window right, double startFreq, double endFreq) {
@@ -298,41 +313,6 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             Windowing.ApplyWindow(bands, right, startFreq, endFreq);
-        }
-
-        /// <summary>
-        /// Get the band index range corresponding to the selected frequency limits (both inclusive).
-        /// </summary>
-        internal (int startBand, int endBand) GetBandLimits(double startFreq, double endFreq) {
-            int first = GetFirstBand(startFreq);
-            if (first == -1) {
-                return (-1, -1);
-            }
-            int last = GetFirstBand(endFreq);
-            if (last == -1) {
-                last = bands.Count - 1;
-            }
-            return (first, last);
-        }
-
-        /// <summary>
-        /// Get which band index is the first after a given <paramref name="freq"/>uency. Returns -1 if such a band was not found.
-        /// </summary>
-        int GetFirstBand(double freq) {
-            for (int i = 0, c = bands.Count; i < c; i++) {
-                if (bands[i].Frequency >= freq) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Get which band index is the first after a given <paramref name="freq"/>uency, or 0 if such a band was not found.
-        /// </summary>
-        int GetFirstBandSafe(double freq) {
-            int result = GetFirstBand(freq);
-            return result != -1 ? result : 0;
         }
 
         /// <summary>

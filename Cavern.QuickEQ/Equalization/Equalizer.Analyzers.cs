@@ -160,18 +160,49 @@ namespace Cavern.QuickEQ.Equalization {
         public (double minFreq, double maxFreq) GetRolloffs(double range, double stableRangeStart, double stableRangeEnd,
 			double measurementRangeStart, double measurementRangeEnd) {
             (double m, double b) = GetRegressionLine(stableRangeStart, stableRangeEnd);
-			int first = -1, last = -1;
-			if (double.IsNaN(measurementRangeStart)) {
-				(first, last) = GetBandLimits(measurementRangeStart, measurementRangeEnd);
-			}
-			if (first == -1) {
-				(first, last) = (0, bands.Count - 1);
-			}
-
+            (int first, int last) = GetMeasurementLimits(measurementRangeStart, measurementRangeEnd);
             while (first < last && bands[first].Gain + range < m * Math.Log10(bands[first].Frequency) + b) {
                 first++;
             }
             while (last > first && bands[last].Gain + range < m * Math.Log10(bands[last].Frequency) + b) {
+                last--;
+            }
+            return (bands[first].Frequency, bands[last].Frequency);
+        }
+
+        /// <summary>
+        /// Get the rolloff points of the EQ by calculating its mean and finding the first and last points
+        /// with a given range in decibels below it. <paramref name="stableRangeStart"/> and <paramref name="stableRangeEnd"/> are
+        /// the limits of a frequency band that can't be overly distorted on the curve and shall work for mean calculation.
+        /// </summary>
+		/// <param name="range">Rolloff points are the furthest points from the stable range that are
+		/// this far away from the mean in decibels</param>
+		/// <param name="stableRangeStart">First frequency to consider when calculating the mean</param>
+		/// <param name="stableRangeEnd">Last frequency to consider when calculating the mean</param>
+        public (double minFreq, double maxFreq) GetRolloffsNaive(double range, double stableRangeStart, double stableRangeEnd) =>
+            GetRolloffsNaive(range, stableRangeStart, stableRangeEnd, double.NaN, double.NaN);
+
+        /// <summary>
+        /// Get the rolloff points of the EQ by calculating its mean and finding the first and last points
+        /// with a given range in decibels below it. <paramref name="stableRangeStart"/> and <paramref name="stableRangeEnd"/> are
+        /// the limits of a frequency band that can't be overly distorted on the curve and shall work for mean calculation.
+        /// </summary>
+		/// <param name="range">Rolloff points are the furthest points from the stable range that are
+		/// this far away from the mean in decibels</param>
+		/// <param name="stableRangeStart">First frequency to consider when calculating the mean</param>
+		/// <param name="stableRangeEnd">Last frequency to consider when calculating the mean</param>
+		/// <param name="measurementRangeStart">First frequency to check for mean distance -
+		/// used for mitigating low-frequency anomalies</param>
+		/// <param name="measurementRangeEnd">Last frequency to check for mean distance -
+		/// useful for limiting the calculation range for performance when you only need the lower rolloff</param>
+        public (double minFreq, double maxFreq) GetRolloffsNaive(double range, double stableRangeStart, double stableRangeEnd,
+            double measurementRangeStart, double measurementRangeEnd) {
+            (int first, int last) = GetMeasurementLimits(measurementRangeStart, measurementRangeEnd);
+            double mean = GetAverageLevel(stableRangeStart, stableRangeEnd);
+            while (first < last && bands[first].Gain + range < mean) {
+                first++;
+            }
+            while (last > first && bands[last].Gain + range < mean) {
                 last--;
             }
             return (bands[first].Frequency, bands[last].Frequency);

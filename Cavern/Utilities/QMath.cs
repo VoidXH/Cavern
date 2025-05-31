@@ -255,7 +255,7 @@ namespace Cavern.Utilities {
             if (s.IndexOf(separator) >= 0) {
                 return Convert.ToDouble(s);
             }
-            return Convert.ToDouble(s.Replace(',', '.'), CultureInfo.InvariantCulture);
+            return Convert.ToDouble(NumberToInvariant(s), CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace Cavern.Utilities {
             if (s.IndexOf(separator) >= 0) {
                 return Convert.ToSingle(s);
             }
-            return Convert.ToSingle(s.Replace(',', '.'), CultureInfo.InvariantCulture);
+            return Convert.ToSingle(NumberToInvariant(s), CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -433,7 +433,7 @@ namespace Cavern.Utilities {
         public static int TrailingZeros(int x) {
             int zeros = 0;
             while ((x & 1) == 0) {
-                ++zeros;
+                zeros++;
                 x >>= 1;
             }
             return zeros;
@@ -443,13 +443,30 @@ namespace Cavern.Utilities {
         /// Try to parse a double value regardless of the system's culture.
         /// </summary>
         public static bool TryParseDouble(string from, out double num) =>
-            double.TryParse(from.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out num);
+            double.TryParse(NumberToInvariant(from), NumberStyles.Any, CultureInfo.InvariantCulture, out num);
 
         /// <summary>
         /// Try to parse a floating-point value regardless of the system's culture.
         /// </summary>
         public static bool TryParseFloat(string from, out float num) =>
-            float.TryParse(from.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out num);
+            float.TryParse(NumberToInvariant(from), NumberStyles.Any, CultureInfo.InvariantCulture, out num);
+
+        /// <summary>
+        /// Convert many number representations to <see cref="CultureInfo.InvariantCulture"/>.
+        /// </summary>
+        static string NumberToInvariant(string from) {
+            int comma = from.IndexOf(',');
+            if (comma == -1) {
+                return from;
+            }
+
+            int dot = from.IndexOf('.');
+            if (dot == -1) {
+                return from.Replace(',', '.');
+            } else {
+                return from.Replace(",", string.Empty);
+            }
+        }
 
         /// <summary>
         /// Conversion array for <see cref="BitsAfterMSB(int)"/>.
