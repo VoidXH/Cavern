@@ -38,6 +38,12 @@ namespace QuickEQResultMerger {
         string lastDelay;
 
         /// <summary>
+        /// The last channel was found with an underline of = characters of equal length to the channel's name.
+        /// This marks a configuration file where spaces are allowed in channel names.
+        /// </summary>
+        bool header;
+
+        /// <summary>
         /// Parse a numeric value from a file, without its unit.
         /// </summary>
         static string GetNumericValue(string humanReadable) {
@@ -54,8 +60,20 @@ namespace QuickEQResultMerger {
 
             string[] lines = File.ReadAllLines(path);
             foreach (string line in lines) {
+                if (line.Length == 0) {
+                    continue;
+                }
                 int cut = line.IndexOf(':');
                 if (cut < 0) {
+                    if (lastChannel != null && line[0] == '=' && lastChannel.Length == line.Length) {
+                        header = true;
+                        continue;
+                    } else {
+                        if (lastGain != null || lastDelay != null) {
+                            ParseLastChannel();
+                        }
+                        lastChannel = line;
+                    }
                     continue;
                 }
 
@@ -82,20 +100,32 @@ namespace QuickEQResultMerger {
         /// Try to merge all the read values into a channel correction entry.
         /// </summary>
         void ParseLastChannel() {
-            if (lastChannel != null) {
-                float gain = 0,
-                    delay = 0;
-                if (lastGain != null) {
-                    _ = float.TryParse(lastGain.Replace(wrongSeparator, separator), out gain);
-                }
-                if (lastDelay != null) {
-                    _ = float.TryParse(lastDelay.Replace(wrongSeparator, separator), out delay);
-                }
-                measurements.Add(new(lastChannel, gain, delay));
-                lastChannel = null;
-                lastGain = null;
-                lastDelay = null;
+            if (lastChannel == null ||
+                lastChannel.StartsWith("XO") ||
+                (!header && lastChannel.Contains(' '))) {
+                return;
             }
+
+            float gain = 0,
+                delay = 0;
+            if (lastGain != null) {
+                _ = float.TryParse(lastGain.Replace(wrongSeparator, separator), out gain);
+            }
+            if (lastDelay != null) {
+                _ = float.TryParse(lastDelay.Replace(wrongSeparator, separator), out delay);
+            }
+            measurements.Add(new(lastChannel, gain, delay));
+            Reset();
+        }
+
+        /// <summary>
+        /// Remove all values used by the previous channel.
+        /// </summary>
+        void Reset() {
+            lastChannel = null;
+            lastGain = null;
+            lastDelay = null;
+            header = false;
         }
     }
 }
