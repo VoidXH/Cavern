@@ -22,7 +22,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             for (int dp = 0; dp < dataPoints[obj]; dp++) {
                 float[][] dpMatrix = mixMatrix[dp];
                 int[] dpVector = sourceVector[dp];
-                Array.Clear(dpVector, 0, dpVector.Length); // TODO: unmute sparse when the standard is fixed
                 int[] dpChannel = inputChannel[dp];
 
                 for (int pb = 0; pb < bands; pb++) {
@@ -124,6 +123,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (ObjectActive[obj]) {
                 float gainStep = .2f - quantizationTable[obj] * .1f;
                 if (sparseCoded[obj]) {
+                    gainStep = 0; // TODO: unmute when the standard is fixed
                     DecodeSparse(obj, mixMatrix, centerValue);
                     Dequantize(obj, mixMatrix, centerValue, gainStep);
                 } else {
