@@ -16,11 +16,11 @@ jobs:
 
     - name: Get current date
       id: date
-      run: echo "CurrentDate=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+      run: echo "::set-output name=CurrentDate::$(date +'%Y-%m-%d')"
 
     - name: Get commit hash
       id: vars
-      run: echo "ShortHash=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
+      run: echo "::set-output name=ShortHash::$(git rev-parse --short=7 HEAD)"
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.1.3
