@@ -16,6 +16,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         void DecodeSparse(int obj, float[][][] mixMatrix, int center) {
             HadSparse = true;
             int max = center * 2;
+            int offset = quantizationTable[obj] * 50 + 50;
             int[][] sourceVector = jocVector[obj];
             int[][] inputChannel = jocChannel[obj];
             int bands = this.bands[obj];
@@ -33,14 +34,15 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                     }
 
                     for (int ch = 0; ch < ChannelCount; ch++) {
+                        float[] chMatrix = dpMatrix[ch];
                         if (ch == channel) {
                             if (pb == 0) {
-                                dpMatrix[ch][pb] = (center + dpVector[pb]) % max;
+                                chMatrix[pb] = (offset + dpVector[pb]) % max;
                             } else {
-                                dpMatrix[ch][pb] = (dpMatrix[ch][pb - 1] + dpVector[pb]) % max;
+                                chMatrix[pb] = (chMatrix[pb - 1] + dpVector[pb]) % max;
                             }
                         } else {
-                            dpMatrix[ch][pb] = center;
+                            chMatrix[pb] = offset;
                         }
                     }
                 }
@@ -100,9 +102,10 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         unsafe static void DequantizeObject(float* channel, int center, float gainStep, int bands) {
-            while (bands != 0) {
-                *(channel++) = (*channel - center) * gainStep;
-                --bands;
+            float* end = channel + bands;
+            while (channel != end) {
+                *channel = (*channel - center) * gainStep;
+                channel++;
             }
         }
 
@@ -123,9 +126,8 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (ObjectActive[obj]) {
                 float gainStep = .2f - quantizationTable[obj] * .1f;
                 if (sparseCoded[obj]) {
-                    gainStep = 0; // TODO: unmute when the standard is fixed
                     DecodeSparse(obj, mixMatrix, centerValue);
-                    Dequantize(obj, mixMatrix, centerValue, gainStep);
+                    Dequantize(obj, mixMatrix, centerValue, gainStep * .15f);
                 } else {
                     DecodeCoarse(obj, mixMatrix, centerValue, gainStep);
                 }
