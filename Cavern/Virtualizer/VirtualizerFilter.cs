@@ -200,7 +200,7 @@ namespace Cavern.Virtualizer {
                     WaveformUtils.Mix(delayedCenter, originalSplit[right]);
                 }
             }
-            processor.For(0, channels);
+            processor.ForUnchecked(0, channels);
 
             // Stereo downmix
             output.Clear();

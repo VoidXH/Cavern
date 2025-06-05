@@ -4,13 +4,13 @@
     /// </summary>
     public abstract class GraphOverlay {
         /// <summary>
-        /// Adds the overlay's foreground to a graph.
+        /// Adds the overlay's foreground to a measurement.
         /// </summary>
-        public virtual void DrawOn(GraphRenderer target) { }
+        public virtual void DrawOn(DrawableMeasurement target) { }
 
         /// <summary>
-        /// Adds the overlay's background to a graph.
+        /// Adds the overlay's background to a measurement.
         /// </summary>
-        public virtual void DrawBehind(GraphRenderer target) { }
+        public virtual void DrawBehind(DrawableMeasurement target) { }
     }
 }

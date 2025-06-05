@@ -35,7 +35,7 @@ namespace Cavern.Utilities {
                 }
             } else {
                 using FFTCachePool pool = new FFTCachePool(samples[0].Length);
-                Parallelizer.For(0, result.Length, i => {
+                Parallelizer.ForUnchecked(0, result.Length, i => {
                     FFTCache cache = pool.Lease();
                     result[i] = samples[i].FFT(cache);
                     pool.Return(cache);

@@ -32,10 +32,8 @@
             this.ySteps = ySteps;
         }
 
-        /// <summary>
-        /// Adds the overlay to a graph.
-        /// </summary>
-        public override void DrawBehind(GraphRenderer target) {
+        /// <inheritdoc/>
+        public override void DrawBehind(DrawableMeasurement target) {
             int gap = target.Width / xSteps;
             for (int x = 1; x < xSteps; x++) {
                 DrawColumn(target, x * gap, gridWidth, color);

@@ -17,7 +17,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Copies the rendered graph to a Unity texture.
         /// </summary>
-        public static Texture2D ConvertToTexture(this GraphRenderer renderer) =>
+        public static Texture2D ConvertToTexture(this DrawableMeasurement renderer) =>
             renderer.Pixels.ConvertToTexture(renderer.Width, renderer.Height);
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Copies the rendered graph to an existing Unity texture and color cache the size of <paramref name="reusedTexture"/>'s Pixels.
         /// </summary>
-        public static void ConvertToTexture(this GraphRenderer renderer, Texture2D reusedTexture, Color[] reusedColors) =>
+        public static void ConvertToTexture(this DrawableMeasurement renderer, Texture2D reusedTexture, Color[] reusedColors) =>
             ConvertToTexture(renderer.Pixels, reusedTexture, reusedColors);
 
         /// <summary>

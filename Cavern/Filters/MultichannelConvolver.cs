@@ -40,7 +40,7 @@ namespace Cavern.Filters {
         /// </summary>
         public static MultichannelWaveform ConvolveSafe(MultichannelWaveform excitations, MultichannelWaveform impulses) {
             float[][] results = new float[excitations.Channels][];
-            Parallelizer.For(0, results.Length, i => {
+            Parallelizer.ForUnchecked(0, results.Length, i => {
                 results[i] = FastConvolver.ConvolveSafe(excitations[i], impulses[i]);
             });
             return new MultichannelWaveform(results);
@@ -49,7 +49,7 @@ namespace Cavern.Filters {
         /// <inheritdoc/>
         public override void Process(float[] samples) {
             this.samples = samples;
-            threader.For(0, workers.Length);
+            threader.ForUnchecked(0, workers.Length);
         }
 
         /// <inheritdoc/>

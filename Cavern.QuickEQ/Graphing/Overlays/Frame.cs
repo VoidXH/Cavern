@@ -25,10 +25,8 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
             this.color = color;
         }
 
-        /// <summary>
-        /// Adds the overlay to a graph.
-        /// </summary>
-        public override void DrawOn(GraphRenderer target) {
+        /// <inheritdoc/>
+        public override void DrawOn(DrawableMeasurement target) {
             DrawRow(target, 0, Width, color);
             DrawRow(target, target.Height - Width, Width, color);
             DrawColumn(target, 0, Width, color);
@@ -39,7 +37,7 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
         /// Draw a single row at a height <paramref name="offset"/> of a developing image.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void DrawRow(GraphRenderer target, int offset, int width, uint color) {
+        protected void DrawRow(DrawableMeasurement target, int offset, int width, uint color) {
             uint[] pixels = target.Pixels;
             while (width > 0) {
                 for (int y = offset * target.Width, end = y + target.Width; y < end; y++) {
@@ -54,7 +52,7 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
         /// Draw a single column at a width <paramref name="offset"/> of a developing image.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void DrawColumn(GraphRenderer target, int offset, int width, uint color) {
+        protected void DrawColumn(DrawableMeasurement target, int offset, int width, uint color) {
             uint[] pixels = target.Pixels;
             while (width > 0) {
                 for (int y = 0, pos = offset, step = target.Width; y < target.Height; y++) {

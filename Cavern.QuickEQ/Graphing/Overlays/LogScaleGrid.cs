@@ -28,10 +28,8 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
             this.ySteps = ySteps;
         }
 
-        /// <summary>
-        /// Adds the overlay to a graph.
-        /// </summary>
-        public override void DrawBehind(GraphRenderer target) {
+        /// <inheritdoc/>
+        public override void DrawBehind(DrawableMeasurement target) {
             int gap = target.Height / ySteps;
             for (int y = 1; y < ySteps; y++) {
                 DrawRow(target, y * gap, gridWidth, color);

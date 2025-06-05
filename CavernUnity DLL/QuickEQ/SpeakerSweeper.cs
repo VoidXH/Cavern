@@ -221,7 +221,7 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Get if any channel was clipping while measuring.
         /// </summary>
-        /// <remarks>This function is using <see cref="Parallelizer.For(int, int, Action{int})"/> and might overload the
+        /// <remarks>This function is using <see cref="Parallelizer.ForUnchecked(int, int, Action{int})"/> and might overload the
         /// thread pool. Use <see cref="GetClippingChannels(bool)"/> with its parameter set to false to perform the operation
         /// on a single thread.</remarks>
         public bool[] GetClippingChannels() => GetClippingChannels(true);
@@ -233,7 +233,7 @@ namespace Cavern.QuickEQ {
         public bool[] GetClippingChannels(bool parallel) {
             bool[] result = new bool[ExcitementResponses.Length];
             if (parallel) {
-                Parallelizer.For(0, result.Length, i => result[i] = WaveformUtils.GetPeakSigned(ExcitementResponses[i]) >= 1);
+                Parallelizer.ForUnchecked(0, result.Length, i => result[i] = WaveformUtils.GetPeakSigned(ExcitementResponses[i]) >= 1);
             } else {
                 for (int i = 0; i < result.Length; i++) {
                     result[i] = WaveformUtils.GetPeakSigned(ExcitementResponses[i]) >= 1;

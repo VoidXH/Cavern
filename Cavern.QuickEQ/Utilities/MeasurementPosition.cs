@@ -57,7 +57,7 @@ namespace Cavern.QuickEQ.Utilities {
         static Complex[][] ParseMultichannel(MultichannelWaveform position, bool multithreaded, FFTCachePool pool) {
             Complex[][] result = new Complex[position.Channels][];
             if (multithreaded) {
-                Parallelizer.For(0, position.Channels, i => {
+                Parallelizer.ForUnchecked(0, position.Channels, i => {
                     result[i] = ParseChannel(position[i], pool);
                 });
             } else {

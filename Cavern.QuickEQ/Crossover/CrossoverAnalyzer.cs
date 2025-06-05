@@ -248,7 +248,7 @@ namespace Cavern.QuickEQ.Crossover {
             }
 
             float[] result = new float[channels.Length];
-            Parallelizer.For(0, channels.Length, i => {
+            Parallelizer.ForUnchecked(0, channels.Length, i => {
                 if (!channels[i].LFE) {
                     FFTCache cache = pool.Lease();
                     result[i] = FindCrossoverFrequency(type, subs, measurement[i], sampleRate, minFreq, maxFreq, precision, cache);
