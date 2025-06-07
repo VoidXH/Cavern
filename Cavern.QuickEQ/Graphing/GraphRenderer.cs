@@ -9,6 +9,9 @@ namespace Cavern.QuickEQ.Graphing {
     /// Draws multiple <see cref="Equalizer"/> curves on a single canvas.
     /// </summary>
     public class GraphRenderer : DrawableMeasurement {
+        /// <inheritdoc/>
+        public override DrawableMeasurementType Type => DrawableMeasurementType.Graph;
+
         /// <summary>
         /// The difference between the highest and lowest displayed values in decibels.
         /// </summary>
@@ -112,6 +115,17 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <inheritdoc/>
+        protected override void ReRender() {
+            int c = curves.Count;
+            if (c == 0) {
+                for (int i = 0; i < c; i++) {
+                    curves[i].ReRender();
+                }
+            }
+            DrawAll();
+        }
+
+        /// <inheritdoc/>
         protected override void ReRenderFull() {
             for (int i = 0, c = curves.Count; i < c; i++) {
                 curves[i].ReRenderFull();
@@ -169,19 +183,6 @@ namespace Cavern.QuickEQ.Graphing {
                     pixel++;
                 }
             }
-        }
-
-        /// <summary>
-        /// Re-render but don't regenerate all displayed curves.
-        /// </summary>
-        void ReRender() {
-            int c = curves.Count;
-            if (c == 0) {
-                for (int i = 0; i < c; i++) {
-                    curves[i].ReRender();
-                }
-            }
-            DrawAll();
         }
     }
 }

@@ -3,13 +3,15 @@ using System.Linq;
 
 using Cavern.Utilities;
 
-// TODO: move ReRender to abstract and support it in this renderer too, not all steps have to be recalculated every time
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
     /// Perform moving window measurements and display the results as a spectrogram.
     /// When multiple impulse responses are added, the sum is measured.
     /// </summary>
     public class STFTRenderer : DrawableMeasurement {
+        /// <inheritdoc/>
+        public override DrawableMeasurementType Type => DrawableMeasurementType.Spectogram;
+
         /// <summary>
         /// The difference between the highest and lowest displayed values in decibels.
         /// </summary>
@@ -17,7 +19,7 @@ namespace Cavern.QuickEQ.Graphing {
             get => dynamicRange;
             set {
                 dynamicRange = value;
-                ReRenderFull();
+                ReRender();
             }
         }
         float dynamicRange = 40;
@@ -32,7 +34,7 @@ namespace Cavern.QuickEQ.Graphing {
                 ReRenderFull();
             }
         }
-        float peak = 0;
+        float peak;
 
         /// <summary>
         /// Sample rate of the impulse responses to be added.
@@ -124,6 +126,11 @@ namespace Cavern.QuickEQ.Graphing {
         float[] system;
 
         /// <summary>
+        /// Precalculated temporal measurements.
+        /// </summary>
+        float[][] stfts;
+
+        /// <summary>
         /// Perform moving window measurements and display the results as a spectrogram.
         /// </summary>
         public STFTRenderer(int width, int height) : base(width, height) { }
@@ -139,6 +146,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         public void Clear(bool keepPeak) {
             system = null;
+            stfts = null;
             Array.Clear(Pixels, 0, Pixels.Length);
             if (!keepPeak) {
                 peak = 0;
@@ -161,6 +169,12 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <inheritdoc/>
+        protected override void ReRender() {
+            DrawSpectogram();
+            Overlay?.DrawOn(this);
+        }
+
+        /// <inheritdoc/>
         protected override void ReRenderFull() {
             if (EndFrequency > SampleRate / 2) {
                 throw new ArgumentOutOfRangeException(nameof(EndFrequency), "The end frequency is more than the Nyquist frequency.");
@@ -178,7 +192,7 @@ namespace Cavern.QuickEQ.Graphing {
             }
 
             int rows = (int)(timeSpan * sampleRate / precision);
-            float[][] stfts = new float[rows][];
+            stfts = new float[rows][];
             Parallelizer.For(0, rows, row => {
                 float[][] ffts = pools.Select(x => CalculateRow(x, row)).ToArray();
                 float[] result = MergeRow(ffts);
@@ -195,9 +209,8 @@ namespace Cavern.QuickEQ.Graphing {
                 pools[i].Dispose();
             }
 
-            NormalizeSTFTs(stfts, rows, 1 / peak);
-            DrawSpectogram(stfts);
-            Overlay?.DrawOn(this);
+            NormalizeSTFTs(rows, 1 / peak);
+            ReRender();
         }
 
         /// <summary>
@@ -256,27 +269,40 @@ namespace Cavern.QuickEQ.Graphing {
                     }
                 }
             } else {
-                // TODO: just choose the smallest resolution that fills every pixel
-                throw new NotImplementedException("Linear frequency scale is not implemented for STFT rendering.");
+                float validRangeRatio = (EndFrequency - StartFrequency) / SampleRate;
+                int neededSize = (int)(Width / validRangeRatio);
+                int selected = 0;
+                for (int i = 0; i < ffts.Length; i++) {
+                    if (ffts[i].Length >= neededSize) {
+                        selected = i;
+                    } else {
+                        break;
+                    }
+                }
+
+                float[] source = ffts[selected];
+                for (int i = 0; i < result.Length; i++) {
+                    source[i] = source[i / (1 << selected)];
+                }
             }
             return result;
         }
 
         /// <summary>
-        /// Using 1 / maximum value as <paramref name="gain"/>, normalize the <paramref name="stfts"/> to the [0;1] range for easy color mapping.
+        /// Using 1 / maximum value as <paramref name="gain"/>, normalize the <see cref="stfts"/> to the [0;1] range for easy color mapping.
         /// </summary>
-        void NormalizeSTFTs(float[][] stfts, int rows, float gain) => Parallelizer.ForUnchecked(0, rows, row => {
+        void NormalizeSTFTs(int rows, float gain) => Parallelizer.ForUnchecked(0, rows, row => {
             WaveformUtils.Gain(stfts[row], gain);
         });
 
         /// <summary>
-        /// Produce the spectrogram image from the previously calculated <paramref name="stfts"/>.
+        /// Produce the spectrogram image from the previously calculated <see cref="stfts"/>.
         /// </summary>
-        void DrawSpectogram(float[][] stfts) {
+        void DrawSpectogram() {
             float dynamicRangeScaler = 1f / dynamicRange;
             Parallelizer.For(0, Height, row => {
                 float[] pixels = stfts[stfts.Length * row / Height];
-                int offset = row * Width;
+                int pixelOffset = row * Width;
                 if (Logarithmic) {
                     double mul = Math.Pow(10, (Math.Log10(EndFrequency) - Math.Log10(StartFrequency)) / (Width - 1));
                     double pixelIndex = FFTSize * StartFrequency / sampleRate;
@@ -289,7 +315,7 @@ namespace Cavern.QuickEQ.Graphing {
                             currentValue = QMath.Average(pixels, currentIndex, nextIndex);
                         }
                         currentValue = Math.Max((20 * MathF.Log10(currentValue) + dynamicRange) * dynamicRangeScaler, 0);
-                        Pixels[offset + column] = GetColorForValue(currentValue);
+                        Pixels[pixelOffset + column] = GetColorForValue(currentValue);
                     }
                 } else {
                     throw new NotImplementedException("Linear frequency scale is not implemented for STFT rendering.");

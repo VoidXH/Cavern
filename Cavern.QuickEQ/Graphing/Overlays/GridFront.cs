@@ -9,7 +9,9 @@
         public GridFront(int borderWidth, int gridWidth, uint color, int xSteps, int ySteps) : base(borderWidth, gridWidth, color, xSteps, ySteps) { }
 
         /// <inheritdoc/>
-        public override void DrawBehind(DrawableMeasurement target) { }
+        public override void DrawBehind(DrawableMeasurement target) {
+            // Cancel Grid behavior, move it to DrawOn
+        }
 
         /// <inheritdoc/>
         public override void DrawOn(DrawableMeasurement target) {

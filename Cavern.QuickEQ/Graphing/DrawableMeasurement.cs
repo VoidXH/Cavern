@@ -8,6 +8,11 @@ namespace Cavern.QuickEQ.Graphing {
     /// </summary>
     public abstract class DrawableMeasurement {
         /// <summary>
+        /// Displayed representation of the measurement data.
+        /// </summary>
+        public abstract DrawableMeasurementType Type { get; }
+
+        /// <summary>
         /// First frequency to display.
         /// </summary>
         public float StartFrequency {
@@ -88,6 +93,11 @@ namespace Cavern.QuickEQ.Graphing {
                 return startFrequency + width / Width * (endFrequency - startFrequency);
             }
         }
+
+        /// <summary>
+        /// Re-render without regenerating all displayed data.
+        /// </summary>
+        protected abstract void ReRender();
 
         /// <summary>
         /// Recalculate and re-render all measurements.
