@@ -228,10 +228,16 @@ namespace Cavern.Format.Common {
     /// </summary>
     public class UnsupportedFormatException : Exception {
         const string message = "No supported file format was detected.";
+        const string message2 = " Detected unknown magic number: ";
 
         /// <summary>
         /// Tells if no supported file format was detected.
         /// </summary>
         public UnsupportedFormatException() : base(message) { }
+
+        /// <summary>
+        /// Tells if no supported file format was detected, and gives a hint to what the file could be.
+        /// </summary>
+        public UnsupportedFormatException(int magicNumber) : base(message + message2 + magicNumber.ToString("X8")) { }
     }
 }

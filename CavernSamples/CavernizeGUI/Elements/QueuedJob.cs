@@ -1,46 +1,19 @@
-﻿using Cavern.Format.Common;
-using System;
+﻿using System;
+
+using Cavern.Format.Common;
+
+using Cavernize.Logic.Models;
 
 namespace CavernizeGUI.Elements {
     /// <summary>
     /// A rendering job with all relevant settings.
     /// </summary>
-    class QueuedJob {
-        /// <summary>
-        /// Source audio file.
-        /// </summary>
-        readonly AudioFile source;
-
-        /// <summary>
-        /// Track in the source file to convert.
-        /// </summary>
-        readonly Track track;
-
-        /// <summary>
-        /// Speaker layout to use for export.
-        /// </summary>
-        readonly RenderTarget target;
-
-        /// <summary>
-        /// Output codec information.
-        /// </summary>
-        readonly ExportFormat format;
-
-        /// <summary>
-        /// Conversion-performing task.
-        /// </summary>
-        Action converter;
-
-        /// <summary>
-        /// A rendering job with all relevant settings.
-        /// </summary>
-        public QueuedJob(AudioFile source, Track track, RenderTarget target, ExportFormat format, Action converter) {
-            this.source = source;
-            this.track = track;
-            this.target = target;
-            this.format = format;
-            this.converter = converter;
-        }
+    /// <param name="source">Source audio file</param>
+    /// <param name="track">Track in the source file to convert</param>
+    /// <param name="target">Speaker layout to use for export</param>
+    /// <param name="format">Output codec information</param>
+    /// <param name="converter">Conversion-performing task</param>
+    class QueuedJob(AudioFile source, CavernizeTrack track, RenderTarget target, ExportFormat format, Action converter) {
 
         /// <summary>
         /// Checks if the source file is the checked <paramref name="file"/>.

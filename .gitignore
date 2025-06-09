@@ -9,35 +9,28 @@ Cavern.QuickEQ.Format/bin/
 Cavern.QuickEQ.Format/obj/
 Cavern.QuickEQ/bin/
 Cavern.QuickEQ/obj/
-Cavern.WPF/bin/
-Cavern.WPF/obj/
 Cavern/bin/
 Cavern/obj/
+CavernAmp/CavernAmp.cscope_file_list
 CavernAmp/bin/Release/libCavernAmp.a
 CavernAmp/bin/Release/libCavernAmp.def
-CavernAmp/CavernAmp.cscope_file_list
 CavernAmp/obj/
-Cavernize Lite/bin/
-Cavernize Lite/obj/
-Cavernize Lite/samples/
 CavernSamples/ADMValidator/bin/
 CavernSamples/ADMValidator/obj/
 CavernSamples/Benchmark/bin/
 CavernSamples/Benchmark/obj/
-CavernSamples/CavernizeGUI/bin/
-CavernSamples/CavernizeGUI/obj/
-CavernSamples/CavernizeLive/bin/
-CavernSamples/CavernizeLive/obj/
 CavernSamples/CavernPipeClient/bin/
 CavernSamples/CavernPipeClient/obj/
 CavernSamples/CavernPipeServer/bin/
 CavernSamples/CavernPipeServer/obj/
+CavernSamples/CavernizeGUI/bin/
+CavernSamples/CavernizeGUI/obj/
 CavernSamples/Deconvolver/bin/
 CavernSamples/Deconvolver/obj/
-CavernSamples/EnhancedAC3Merger/bin/
-CavernSamples/EnhancedAC3Merger/obj/
 CavernSamples/EQAPOtoFIR/bin/
 CavernSamples/EQAPOtoFIR/obj/
+CavernSamples/EnhancedAC3Merger/bin/
+CavernSamples/EnhancedAC3Merger/obj/
 CavernSamples/FilterStudio/bin/
 CavernSamples/FilterStudio/obj/
 CavernSamples/HRTFSetImporter/bin/
@@ -48,6 +41,8 @@ CavernSamples/ImpulseFlattener/bin/
 CavernSamples/ImpulseFlattener/obj/
 CavernSamples/QuickEQResultMerger/bin/
 CavernSamples/QuickEQResultMerger/obj/
+CavernSamples/Reusable/Cavernize.Logic/bin/
+CavernSamples/Reusable/Cavernize.Logic/obj/
 CavernSamples/WAVChannelReorderer/bin/
 CavernSamples/WAVChannelReorderer/obj/
 CavernSamples/WavefrontSimulator/bin/
@@ -56,7 +51,11 @@ CavernUnity DLL/bin/
 CavernUnity DLL/obj/
 CavernUnity.WebGL/bin/
 CavernUnity.WebGL/obj/
-packages/
+Cavernize Lite/bin/
+Cavernize Lite/obj/
+Cavernize Lite/samples/
+Libraries/Cavern.WPF/bin/
+Libraries/Cavern.WPF/obj/
 Pro/
 Tests/Test.Cavern.Format/bin/
 Tests/Test.Cavern.Format/obj/
@@ -66,3 +65,4 @@ Tests/Test.Cavern/bin/
 Tests/Test.Cavern/obj/
 Tests/Test.CavernUnity/bin/
 Tests/Test.CavernUnity/obj/
+packages/

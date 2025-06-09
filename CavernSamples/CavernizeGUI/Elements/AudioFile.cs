@@ -5,6 +5,9 @@ using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Container;
 
+using Cavernize.Logic.Models;
+using CavernizeGUI.Language;
+
 namespace CavernizeGUI.Elements {
     /// <summary>
     /// Audio file parser and tracklist provider.
@@ -18,12 +21,12 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Track handlers and info providers.
         /// </summary>
-        public IReadOnlyList<Track> Tracks => tracks;
+        public IReadOnlyList<CavernizeTrack> Tracks => tracks;
 
         /// <summary>
         /// List of track handlers.
         /// </summary>
-        protected readonly List<Track> tracks = [];
+        protected readonly List<CavernizeTrack> tracks = [];
 
         /// <summary>
         /// Loads an audio file.
@@ -47,7 +50,7 @@ namespace CavernizeGUI.Elements {
                 case "ac3":
                 case "eac3":
                 case "ec3":
-                    tracks.Add(new Track(new EnhancedAC3Reader(Path), Codec.EnhancedAC3, 0));
+                    tracks.Add(new CavernizeTrack(new EnhancedAC3Reader(Path), Codec.EnhancedAC3, 0, new DynamicTrackStrings()));
                     break;
                 case "mkv":
                 case "mka":
@@ -67,11 +70,13 @@ namespace CavernizeGUI.Elements {
                     break;
                 case "wav":
                     RIFFWaveReader wavReader = new(Path);
-                    tracks.Add(new Track(wavReader, wavReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE, 0));
+                    Codec wavBits = wavReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE;
+                    tracks.Add(new CavernizeTrack(wavReader, wavBits, 0, new DynamicTrackStrings()));
                     break;
                 case "laf":
                     LimitlessAudioFormatReader lafReader = new(Path);
-                    tracks.Add(new Track(lafReader, lafReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE, 0));
+                    Codec lafBits = lafReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE;
+                    tracks.Add(new CavernizeTrack(lafReader, lafBits, 0, new DynamicTrackStrings()));
                     break;
                 default:
                     throw new NotSupportedException();
@@ -82,10 +87,10 @@ namespace CavernizeGUI.Elements {
         /// Get the index of a track that is the same as the selected index, but in better quality.
         /// This feature can use a better codec's waveform with a worse but known codec's spatial metadata.
         /// </summary>
-        public int TryForBetterQuality(Track than) {
+        public int TryForBetterQuality(CavernizeTrack than) {
             if (than.Codec == Codec.EnhancedAC3 && than.Renderer.HasObjects) {
                 for (int i = 0, c = tracks.Count; i < c; i++) {
-                    Track target = tracks[i];
+                    CavernizeTrack target = tracks[i];
                     if (target.Codec == Codec.TrueHD && than.Index - 2 <= target.Index && target.Index < than.Index &&
                         than.Language.Equals(target.Language) && than.Renderer.Channels == target.Renderer.Channels) {
                         return target.Index;
@@ -115,15 +120,16 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         void AddTracksFromContainer(ContainerReader reader) {
             int trackId = 0;
+            DynamicTrackStrings strings = new DynamicTrackStrings();
             for (int i = 0; i < reader.Tracks.Length; i++) {
                 if (reader.Tracks[i].Extra is TrackExtraAudio) {
                     try {
-                        tracks.Add(new Track(new AudioTrackReader(reader.Tracks[i]), reader.Tracks[i].Format,
-                            trackId, reader.Tracks[i].Language));
+                        tracks.Add(new CavernizeTrack(new AudioTrackReader(reader.Tracks[i]), reader.Tracks[i].Format,
+                            trackId, strings, reader.Tracks[i].Language));
                     } catch (Exception e) {
-                        tracks.Add(new InvalidTrack(e.Message, reader.Tracks[i].Format, reader.Tracks[i].Language));
+                        tracks.Add(new InvalidTrack(e.Message, reader.Tracks[i].Format, reader.Tracks[i].Language, strings));
                     }
-                    ++trackId;
+                    trackId++;
                 }
             }
         }

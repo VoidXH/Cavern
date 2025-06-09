@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Windows;
 
-using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 

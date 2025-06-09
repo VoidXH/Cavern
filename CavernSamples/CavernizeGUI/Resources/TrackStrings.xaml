@@ -12,7 +12,6 @@
     <system:String x:Key="SouBe">Bed channels</system:String>
     <system:String x:Key="SouDy">Dynamic objects</system:String>
     <system:String x:Key="Chans">Channels</system:String>
-    <system:String x:Key="ChCnt">Channel count</system:String>
     <system:String x:Key="WiObj">with objects</system:String>
 
     <!-- Translatable codec names -->

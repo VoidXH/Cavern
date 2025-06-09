@@ -10,6 +10,7 @@ using Cavern.Format.Environment;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
+using Cavernize.Logic.Models;
 using CavernizeGUI.Elements;
 using VoidX.WPF;
 
@@ -95,7 +96,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Renders a listener to a file, and returns some measurements of the render.
         /// </summary>
-        RenderStats WriteRender(Track target, AudioWriter writer, RenderTarget renderTarget, bool dynamicOnly, bool heightOnly) {
+        RenderStats WriteRender(CavernizeTrack target, AudioWriter writer, RenderTarget renderTarget, bool dynamicOnly, bool heightOnly) {
             RenderStats stats = Dispatcher.Invoke(() => grading.IsChecked) ? new RenderStatsEx(listener) : new RenderStats(listener);
             Progressor progressor = new Progressor(target.Length, listener, taskEngine);
             bool customMuting = dynamicOnly || heightOnly;
@@ -196,7 +197,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Transcodes between object-based tracks, and returns some measurements of the render.
         /// </summary>
-        RenderStats WriteTranscode(Track target, EnvironmentWriter writer) {
+        RenderStats WriteTranscode(CavernizeTrack target, EnvironmentWriter writer) {
             RenderStats stats = new(listener);
             Progressor progressor = new Progressor(target.Length, listener, taskEngine);
 
@@ -212,7 +213,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Transcodes from object-based tracks to ADM BWF, and returns some measurements of the render.
         /// </summary>
-        RenderStats WriteTranscode(Track target, BroadcastWaveFormatWriter writer) {
+        RenderStats WriteTranscode(CavernizeTrack target, BroadcastWaveFormatWriter writer) {
             RenderStats stats = new(listener);
             Progressor progressor = new Progressor((long)(target.Length / progressSplit), listener, taskEngine);
 

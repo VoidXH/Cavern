@@ -47,8 +47,9 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
-		<ProjectReference Include="..\..\Cavern.WPF\Cavern.WPF.csproj" />
 		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+		<ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
+		<ProjectReference Include="..\Reusable\Cavernize.Logic\Cavernize.Logic.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

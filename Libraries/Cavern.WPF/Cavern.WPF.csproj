@@ -23,8 +23,8 @@
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj" />
-		<ProjectReference Include="..\Cavern\Cavern.csproj" />
-		<ProjectReference Include="..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
+	  <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+	  <ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
+	  <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
 	</ItemGroup>
 </Project>

@@ -23,7 +23,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
-		<ProjectReference Include="..\..\Cavern.WPF\Cavern.WPF.csproj" />
+		<ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

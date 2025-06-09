@@ -86,7 +86,7 @@ namespace Cavern.Format {
                     if (reader.ReadInt32BE() == MP4Consts.fileTypeBox) {
                         return OpenContainer(new MP4Reader(reader, (uint)syncWord));
                     }
-                    throw new UnsupportedFormatException();
+                    throw new UnsupportedFormatException(syncWord);
             }
         }
 

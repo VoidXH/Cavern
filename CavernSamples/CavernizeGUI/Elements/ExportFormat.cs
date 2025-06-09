@@ -2,8 +2,6 @@
 
 using Cavern.Format.Common;
 
-using CavernizeGUI.Consts;
-
 namespace CavernizeGUI.Elements {
     /// <summary>
     /// A supported export format with mapping to FFmpeg.
@@ -39,7 +37,7 @@ namespace CavernizeGUI.Elements {
         /// </summary>
         public static ExportFormat[] Formats {
             get {
-                ResourceDictionary strings = Language.GetTrackStrings();
+                ResourceDictionary strings = Consts.Language.GetTrackStrings();
                 return formats ??= [
                     new ExportFormat(Codec.AC3, "ac3", 6, (string)strings["C_AC3"]),
                     new ExportFormat(Codec.EnhancedAC3, "eac3", 8, (string)strings["CEAC3"]),

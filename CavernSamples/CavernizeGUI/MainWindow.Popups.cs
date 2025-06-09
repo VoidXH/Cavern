@@ -10,11 +10,11 @@ using Cavern.Format.Common;
 using Cavern.Virtualizer;
 using Cavern.WPF.Consts;
 
+using Cavernize.Logic.Models;
+using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Windows;
 using CavernizeGUI.Resources;
-
-using Track = CavernizeGUI.Elements.Track;
 
 namespace CavernizeGUI {
     public partial class MainWindow {
@@ -57,10 +57,12 @@ namespace CavernizeGUI {
         /// Opens the upmixing settings.
         /// </summary>
         void OpenUpmixSetup(object _, RoutedEventArgs e) {
-            UpmixingSetup setup = new UpmixingSetup {
+            UpmixingSetup setup = new UpmixingSetup(new DynamicUpmixingSettings()) {
                 Title = (string)language["UpmiW"]
             };
-            setup.ShowDialog();
+            if (setup.ShowDialog().Value) {
+                UpmixingSettings.Default.Save();
+            }
         }
 
         /// <summary>
@@ -131,7 +133,7 @@ namespace CavernizeGUI {
         /// Show the post-render report in a popup.
         /// </summary>
         void ShowMetadata(object _, RoutedEventArgs e) {
-            if (tracks.SelectedItem is not Track track) {
+            if (tracks.SelectedItem is not CavernizeTrack track) {
                 Error((string)language["CMeET"]);
                 return;
             }

@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+	  <ProjectReference Include="..\..\..\Cavern\Cavern.csproj" />
+	  <ProjectReference Include="..\..\..\Cavern.Format\Cavern.Format.csproj" />
+  </ItemGroup>
+</Project>

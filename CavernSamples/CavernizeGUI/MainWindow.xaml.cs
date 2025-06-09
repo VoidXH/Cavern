@@ -18,13 +18,13 @@ using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Utilities;
 
+using Cavernize.Logic.Models;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 using VoidX.WPF;
 
 using Path = System.IO.Path;
-using Track = CavernizeGUI.Elements.Track;
 
 namespace CavernizeGUI {
     public partial class MainWindow : Window {
@@ -337,7 +337,7 @@ namespace CavernizeGUI {
         /// </summary>
         void OnTrackSelected(object _, SelectionChangedEventArgs e) {
             if (tracks.SelectedItem != null) {
-                Track track = (Track)tracks.SelectedItem;
+                CavernizeTrack track = (CavernizeTrack)tracks.SelectedItem;
                 trackCodec.Text = track.FormatHeader;
                 (string property, string value)[] details = track.Details;
                 int fill = Math.Min(trackInfo.Length, details.Length);
@@ -391,7 +391,7 @@ namespace CavernizeGUI {
                 if (Width < minWidth) {
                     Width = minWidth;
                 }
-                jobs.Add(new QueuedJob(file, (Track)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
+                jobs.Add(new QueuedJob(file, (CavernizeTrack)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
                     (ExportFormat)audio.SelectedItem, renderTask));
             }
         }
@@ -432,7 +432,7 @@ namespace CavernizeGUI {
 
                     Action renderTask = GetRenderTask();
                     if (renderTask != null) {
-                        jobs.Add(new QueuedJob(file, (Track)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
+                        jobs.Add(new QueuedJob(file, (CavernizeTrack)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
                             (ExportFormat)audio.SelectedItem, renderTask));
                     } else {
                         invalids.Add(Path.GetFileName(files[i]));

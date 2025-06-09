@@ -1,9 +1,9 @@
 ﻿using Cavern.Format;
 using Cavern.Format.Common;
 
+using Cavernize.Logic.Models;
 using CavernizeGUI.Elements;
-
-using Track = CavernizeGUI.Elements.Track;
+using CavernizeGUI.Language;
 
 namespace CavernizeGUI.CommandLine.HiddenCommands {
     /// <summary>
@@ -24,7 +24,7 @@ namespace CavernizeGUI.CommandLine.HiddenCommands {
                 case "ac3":
                 case "eac3":
                 case "ec3":
-                    tracks.Add(new Track(new OverrideBedReader(Path, overrider), Codec.EnhancedAC3, 0));
+                    tracks.Add(new CavernizeTrack(new OverrideBedReader(Path, overrider), Codec.EnhancedAC3, 0, new DynamicTrackStrings()));
                     break;
                 default:
                     throw new CommandException("This command only supports Enhanced AC-3 files.");

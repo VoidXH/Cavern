@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-
-using Cavern;
+﻿using Cavern;
+using Cavern.CavernSettings;
 using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
@@ -11,13 +7,13 @@ using Cavern.Format.Renderers;
 using Cavern.Remapping;
 using Cavern.Utilities;
 
-using CavernizeGUI.Resources;
+using Cavernize.Logic.Language;
 
-namespace CavernizeGUI.Elements {
+namespace Cavernize.Logic.Models {
     /// <summary>
     /// Represents an audio track of an audio file.
     /// </summary>
-    public class Track : IDisposable, IMetadataSupplier {
+    public class CavernizeTrack : IDisposable, IMetadataSupplier {
         /// <summary>
         /// Expanded names of codecs for which the enum is a shorthand.
         /// </summary>
@@ -84,28 +80,33 @@ namespace CavernizeGUI.Elements {
         readonly AudioReader reader;
 
         /// <summary>
+        /// Localized strings for track description.
+        /// </summary>
+        readonly TrackStrings strings;
+
+        /// <summary>
         /// Reads information from a track's renderer.
         /// </summary>
-        public Track(AudioReader reader, Codec codec, int index) {
+        public CavernizeTrack(AudioReader reader, Codec codec, int index, TrackStrings strings) {
             this.reader = reader;
             Codec = codec;
             Index = index;
+            this.strings = strings;
 
             Renderer = reader.GetRenderer();
             Supported = Renderer is not DummyRenderer;
             EnhancedAC3Renderer eac3 = Renderer as EnhancedAC3Renderer;
 
-            ResourceDictionary strings = Consts.Language.GetTrackStrings();
             if (!Supported) {
-                FormatHeader = (string)strings["NoSup"];
+                FormatHeader = strings.NotSupported;
             } else if (eac3 != null) {
                 if (eac3.HasObjects) {
-                    FormatHeader = (string)strings["E3JOC"];
+                    FormatHeader = strings.TypeEAC3JOC;
                 } else {
                     FormatHeader = eac3.Enhanced ? "Enhanced AC-3" : "AC-3";
                 }
             } else {
-                FormatHeader = Renderer.HasObjects ? (string)strings["ObTra"] : (string)strings["ChTra"];
+                FormatHeader = Renderer.HasObjects ? strings.ObjectBasedTrack : strings.ChannelBasedTrack;
             }
             FormatHeader += $" ({TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate):h\\:mm\\:ss})";
 
@@ -113,20 +114,20 @@ namespace CavernizeGUI.Elements {
             string bedList = string.Join(' ', ChannelPrototype.GetShortNames(beds));
             List<(string, string)> builder = [];
             if (eac3 != null && eac3.HasObjects) {
-                builder.Add(((string)strings["SouCh"], $"{beds.Length} - {bedList}"));
+                builder.Add((strings.SourceChannels, $"{beds.Length} - {bedList}"));
                 string[] newBeds = ChannelPrototype.GetShortNames(eac3.GetStaticChannels());
-                builder.Add(((string)strings["MatBe"], $"{newBeds.Length} - {string.Join(' ', newBeds)}"));
-                builder.Add(((string)strings["MatOb"], eac3.DynamicObjects.ToString()));
+                builder.Add((strings.MatrixedBeds, $"{newBeds.Length} - {string.Join(' ', newBeds)}"));
+                builder.Add((strings.MatrixedObjects, eac3.DynamicObjects.ToString()));
             } else {
                 if (Renderer != null && beds.Length != Renderer.Objects.Count) { // Generic object-based format: bed and object lines
                     if (beds.Length > 0) {
-                        builder.Add(((string)strings["SouBe"], $"{beds.Length} - {bedList}"));
+                        builder.Add((strings.BedChannels, $"{beds.Length} - {bedList}"));
                     }
-                    builder.Add(((string)strings["SouDy"], (Renderer.Objects.Count - beds.Length).ToString()));
+                    builder.Add((strings.DynamicObjects, (Renderer.Objects.Count - beds.Length).ToString()));
                 } else if (beds.Length > 0) { // Generic channel-based format of known channels
-                    builder.Add(((string)strings["Chans"], $"{beds.Length} - {bedList}"));
+                    builder.Add((strings.Channels, $"{beds.Length} - {bedList}"));
                 } else { // Generic channel-based format of unknown channels
-                    builder.Add(((string)strings["Chans"], reader.ChannelCount.ToString()));
+                    builder.Add((strings.Channels, reader.ChannelCount.ToString()));
                 }
             }
             Details = [.. builder];
@@ -135,24 +136,25 @@ namespace CavernizeGUI.Elements {
         /// <summary>
         /// Reads information from a track's renderer.
         /// </summary>
-        public Track(AudioReader reader, Codec codec, int index, string language) : this(reader, codec, index) => Language = language;
+        public CavernizeTrack(AudioReader reader, Codec codec, int index, TrackStrings strings, string language) :
+            this(reader, codec, index, strings) => Language = language;
 
         /// <summary>
-        /// Empty constructor for derived classes.
+        /// Language-only constructor for derived classes.
         /// </summary>
-        protected Track() { }
+        protected CavernizeTrack(TrackStrings strings) => this.strings = strings;
 
         /// <summary>
         /// Attach this track to a rendering environment and start from the beginning.
         /// </summary>
-        public void Attach(Listener listener) {
+        public void Attach(Listener listener, UpmixingSettings upmixingSettings) {
             reader.Reset();
             Renderer = reader.GetRenderer();
             listener.SampleRate = SampleRate;
 
             Source[] attachables;
 
-            if (UpmixingSettings.Default.MatrixUpmix && !Renderer.HasObjects) {
+            if (upmixingSettings.MatrixUpmixing && !Renderer.HasObjects) {
                 ReferenceChannel[] channels = Renderer.GetChannels();
                 SurroundUpmixer upmixer = new SurroundUpmixer(channels, SampleRate, false, true);
                 RunningChannelSeparator separator = new RunningChannelSeparator(channels.Length) {
@@ -167,10 +169,10 @@ namespace CavernizeGUI.Elements {
                 attachables = [.. Renderer.Objects];
             }
 
-            if (UpmixingSettings.Default.Cavernize && !Renderer.HasObjects) {
+            if (upmixingSettings.Cavernize && !Renderer.HasObjects) {
                 CavernizeUpmixer cavernizer = new CavernizeUpmixer(attachables, SampleRate) {
-                    Effect = UpmixingSettings.Default.Effect,
-                    Smoothness = UpmixingSettings.Default.Smoothness
+                    Effect = upmixingSettings.Effect,
+                    Smoothness = upmixingSettings.Smoothness
                 };
                 attachables = cavernizer.IntermediateSources;
             }
@@ -204,10 +206,9 @@ namespace CavernizeGUI.Elements {
         /// Very short track information for the dropdown.
         /// </summary>
         public override string ToString() {
-            ResourceDictionary strings = Consts.Language.GetTrackStrings();
-            string codecName = (string)strings[Codec.ToString()] ??
-                (formatNames.TryGetValue(Codec, out string value) ? value : Codec.ToString());
-            string objects = Renderer != null && Renderer.HasObjects ? " " + strings["WiObj"] : string.Empty;
+            strings.CodecNames.TryGetValue(Codec, out string codecName);
+            codecName ??= formatNames.TryGetValue(Codec, out string value) ? value : Codec.ToString();
+            string objects = Renderer != null && Renderer.HasObjects ? " " + strings.WithObjects : string.Empty;
             return string.IsNullOrEmpty(Language) ? codecName : $"{codecName}{objects} ({Language})";
         }
     }

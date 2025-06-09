@@ -1,18 +1,27 @@
 ﻿using System.Windows;
 
-using CavernizeGUI.Resources;
+using Cavern.CavernSettings;
 
 namespace CavernizeGUI.Windows {
     /// <summary>
-    /// Interaction logic for UpmixingSetup.xaml
+    /// Configures a repository of <see cref="UpmixingSettings"/>.
     /// </summary>
     public partial class UpmixingSetup : Window {
-        public UpmixingSetup() {
+        /// <summary>
+        /// Settings to change if the user clicks "OK" in this window.
+        /// </summary>
+        readonly UpmixingSettings settings;
+
+        /// <summary>
+        /// Configures a repository of upmixing <paramref name="settings"/>.
+        /// </summary>
+        public UpmixingSetup(UpmixingSettings settings) {
             InitializeComponent();
-            matrixUpmix.IsChecked = UpmixingSettings.Default.MatrixUpmix;
-            cavernize.IsChecked = UpmixingSettings.Default.Cavernize;
-            effect.Value = UpmixingSettings.Default.Effect * 100;
-            smoothness.Value = UpmixingSettings.Default.Smoothness * 100;
+            this.settings = settings;
+            matrixUpmix.IsChecked = settings.MatrixUpmixing;
+            cavernize.IsChecked = settings.Cavernize;
+            effect.Value = settings.Effect * 100;
+            smoothness.Value = settings.Smoothness * 100;
         }
 
         /// <summary>
@@ -29,11 +38,11 @@ namespace CavernizeGUI.Windows {
         /// Close the window while saving the settings.
         /// </summary>
         void Ok(object _, RoutedEventArgs e) {
-            UpmixingSettings.Default.MatrixUpmix = matrixUpmix.IsChecked.Value;
-            UpmixingSettings.Default.Cavernize = cavernize.IsChecked.Value;
-            UpmixingSettings.Default.Effect = (float)(effect.Value * .01f);
-            UpmixingSettings.Default.Smoothness = (float)(smoothness.Value * .01f);
-            UpmixingSettings.Default.Save();
+            settings.MatrixUpmixing = matrixUpmix.IsChecked.Value;
+            settings.Cavernize = cavernize.IsChecked.Value;
+            settings.Effect = (float)(effect.Value * .01f);
+            settings.Smoothness = (float)(smoothness.Value * .01f);
+            DialogResult = true;
             Close();
         }
 

@@ -13,10 +13,11 @@ using Cavern.Format.Renderers;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
+using Cavernize.Logic;
+using Cavernize.Logic.Models;
+using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
-
-using Track = CavernizeGUI.Elements.Track;
 
 namespace CavernizeGUI {
     partial class MainWindow {
@@ -41,7 +42,7 @@ namespace CavernizeGUI {
                 throw new TrackException((string)language["LdSrc"]);
             }
 
-            if (!((Track)tracks.SelectedItem).Supported) {
+            if (!((CavernizeTrack)tracks.SelectedItem).Supported) {
                 throw new TrackException((string)language["UnTrk"]);
             }
 
@@ -64,7 +65,7 @@ namespace CavernizeGUI {
         /// Prepare the renderer for export, without safety checks.
         /// </summary>
         void SoftPreRender(bool applyTarget) {
-            Track target = (Track)tracks.SelectedItem;
+            CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
             RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
             if (applyTarget) {
                 activeRenderTarget.Apply();
@@ -88,7 +89,7 @@ namespace CavernizeGUI {
             }
 
             listener.DetachAllSources();
-            target.Attach(listener);
+            target.Attach(listener, new DynamicUpmixingSettings());
 
             // Prevent height limiting, require at least 4 overhead channels for full gain
             listener.Volume = renderGain * (target.Renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1);
@@ -100,7 +101,7 @@ namespace CavernizeGUI {
         /// <returns>A task for rendering or null when an error happened.</returns>
         Action Render(string path) {
             RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
-            Track target = (Track)tracks.SelectedItem;
+            CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
             BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
             if (!codec.IsEnvironmental()) {
@@ -173,7 +174,7 @@ namespace CavernizeGUI {
                 return null;
             }
 
-            Track target = (Track)tracks.SelectedItem;
+            CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
             if (!reportMode.IsChecked) {
                 SaveFileDialog dialog = new() {
                     FileName = fileName.Text.Contains('.') ? fileName.Text[..fileName.Text.LastIndexOf('.')] : fileName.Text
@@ -245,7 +246,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Render the content and export it to a channel-based format.
         /// </summary>
-        void RenderTask(Track target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
+        void RenderTask(CavernizeTrack target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
             taskEngine.Progress = 0;
             taskEngine.UpdateStatus((string)language["Start"]);
             RenderTarget renderTargetRef = null;
@@ -282,7 +283,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Decode the source and export it to an object-based format.
         /// </summary>
-        void TranscodeTask(Track target, EnvironmentWriter writer, string path) {
+        void TranscodeTask(CavernizeTrack target, EnvironmentWriter writer, string path) {
             taskEngine.Progress = 0;
             taskEngine.UpdateStatus((string)language["Start"]);
 
@@ -302,7 +303,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Operations to perform after a conversion was successful.
         /// </summary>
-        void FinishTask(Track target) {
+        void FinishTask(CavernizeTrack target) {
             taskEngine.UpdateStatus((string)language["ExpOk"]);
             taskEngine.Progress = 1;
 
