@@ -7,6 +7,11 @@ namespace Test.Cavern {
     /// </summary>
     static class Consts {
         /// <summary>
+        /// Path to the test data folder, relative to the launch folder.
+        /// </summary>
+        internal const string testData = @"..\..\..\TestData\";
+
+        /// <summary>
         /// Allowed floating point margin of error.
         /// </summary>
         internal const float delta = .000001f;

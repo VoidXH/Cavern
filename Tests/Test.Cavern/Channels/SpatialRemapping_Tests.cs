@@ -27,27 +27,61 @@ namespace Test.Cavern.Channels {
         }
 
         /// <summary>
-        /// Tests if remapping 2.0 is done correctly and converted to the valid XML output.
+        /// Tests if remapping 2.0 is done correctly and converted to the valid XML output, using the <see cref="Channel"/>-based version.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void RemapQuadroXML() {
-            const string expected = "<?xml version=\"1.0\" encoding=\"utf-16\"?><matrix><output channel=\"0\">" +
-                "<input channel=\"0\" gain=\"0.92387956\" /><input channel=\"1\" gain=\"0.3826834\" /></output><output channel=\"1\">" +
-                "<input channel=\"0\" gain=\"0.38268343\" /><input channel=\"1\" gain=\"0.92387956\" /></output></matrix>";
-            string result = SpatialRemapping.ToXML(SpatialRemapping.GetMatrix(ChannelPrototype.ToLayout(ChannelPrototype.ref200),
-                ChannelPrototype.ToLayoutAlternative(ChannelPrototype.ref200)));
-            Assert.AreEqual(expected, result);
+        public void ToXML_Channel() {
+            Listener.ReplaceChannels(toXMLSystem);
+            string result = SpatialRemapping.ToXML(toXMLContent);
+            Assert.AreEqual(File.ReadAllText(Consts.testData + "ToXML.xml"), result);
         }
 
         /// <summary>
-        /// Tests if remapping 7.1 is done correctly to 5.1.2 and converted to the valid Equalizer APO line.
+        /// Tests if remapping 2.0 is done correctly and converted to the valid XML output, using the matrix version.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void Remap7Point1To512APO() {
-            const string expected = "Copy: L=L R=R C=C SUB=SUB RL=0.92387956*RL+0.3826834*RR+SL RR=0.38268337*RL+0.92387956*RR+SR SL=0 SR=0";
+        public void ToXML_Matrix() {
+            string result = SpatialRemapping.ToXML(SpatialRemapping.GetMatrix(toXMLContent, toXMLSystem));
+            Assert.AreEqual(File.ReadAllText(Consts.testData + "ToXML.xml"), result);
+        }
+
+        /// <summary>
+        /// Tests if remapping 2.0 is done correctly and converted to the valid XML output, using the matrix version.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void ToXML_Matrix_ExtraParams() {
+            string result = SpatialRemapping.ToXML(SpatialRemapping.GetMatrix(toXMLContent, toXMLSystem), ("Test", ["Passed", "Hopefully"]));
+            Assert.AreEqual(File.ReadAllText(Consts.testData + "ToXML_ExtraParams.xml"), result);
+        }
+
+        /// <summary>
+        /// Tests if remapping 7.1 is done correctly to 5.1.2 and converted to the valid Equalizer APO line, using the matrix version.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void ToEqualizerAPO_Matrix() {
             string result = SpatialRemapping.ToEqualizerAPO(SpatialRemapping.GetMatrix(ChannelPrototype.ToLayout(ChannelPrototype.ref710),
                 ChannelPrototype.ToLayout(ChannelPrototype.ref512)));
-            Assert.AreEqual(expected, result);
+            Assert.AreEqual(File.ReadAllText(Consts.testData + "ToEqualizerAPO.txt"), result);
         }
+
+        /// <summary>
+        /// Tests if remapping 7.1 is done correctly to 5.1.2 and converted to the valid Equalizer APO line, using the matrix version.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void ToEqualizerAPO_Channel() {
+            Listener.ReplaceChannels(ChannelPrototype.ToLayout(ChannelPrototype.ref512));
+            string result = SpatialRemapping.ToEqualizerAPO(ChannelPrototype.ToLayout(ChannelPrototype.GetStandardMatrix(8)));
+            Assert.AreEqual(File.ReadAllText(Consts.testData + "ToEqualizerAPO.txt"), result);
+        }
+
+        /// <summary>
+        /// System layout used in ToXML tests.
+        /// </summary>
+        static readonly Channel[] toXMLSystem = ChannelPrototype.ToLayoutAlternative(ChannelPrototype.ref200);
+
+        /// <summary>
+        /// Content layout used in ToXML tests.
+        /// </summary>
+        static readonly Channel[] toXMLContent = ChannelPrototype.ToLayout(ChannelPrototype.ref200);
     }
 }

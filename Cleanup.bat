@@ -49,4 +49,5 @@ rd /s /q Tests\Test.Cavern.QuickEQ\bin
 rd /s /q Tests\Test.Cavern.QuickEQ\obj
 rd /s /q Tests\Test.CavernUnity\bin
 rd /s /q Tests\Test.CavernUnity\obj
+rd /s /q Tests\TestResults
 pause

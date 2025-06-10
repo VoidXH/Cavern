@@ -65,4 +65,5 @@ Tests/Test.Cavern/bin/
 Tests/Test.Cavern/obj/
 Tests/Test.CavernUnity/bin/
 Tests/Test.CavernUnity/obj/
+Tests/TestResults/
 packages/
