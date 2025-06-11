@@ -31,11 +31,6 @@ namespace CavernizeGUI.Consts {
         public static ResourceDictionary GetRenderTargetSelectorStrings() => GetFor("RenderTargetSelectorStrings");
 
         /// <summary>
-        /// Get the <see cref="UpmixingSetup"/>'s translation.
-        /// </summary>
-        public static ResourceDictionary GetUpmixingSetupStrings() => GetFor("UpmixingSetupStrings");
-
-        /// <summary>
         /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
         /// </summary>
         static ResourceDictionary GetFor(string resource) {

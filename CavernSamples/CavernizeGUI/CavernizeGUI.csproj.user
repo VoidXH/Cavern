@@ -19,9 +19,6 @@
     <Compile Update="Windows\RenderTargetSelector.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Windows\UpmixingSetup.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MainWindow.xaml">
@@ -51,19 +48,10 @@
     <Page Update="Resources\RenderTargetSelectorStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Resources\UpmixingSetupStrings.hu-HU.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Resources\UpmixingSetupStrings.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Update="Windows\CodecMetadata.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Windows\RenderTargetSelector.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Windows\UpmixingSetup.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

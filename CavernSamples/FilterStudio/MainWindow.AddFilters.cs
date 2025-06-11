@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Input;
 
-using Cavern;
 using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
 using Cavern.WPF;
@@ -80,7 +79,10 @@ namespace FilterStudio {
         void AddConvolution(object sender, RoutedEventArgs e) {
             string error = PreFilterAddingChecks(sender);
             if (error == null) {
-                ConvolutionEditor editor = new(null, SampleRate);
+                ConvolutionEditor editor = new(null, SampleRate) {
+                    Background = Background,
+                    Resources = Resources
+                };
                 if (editor.ShowDialog().Value && editor.Impulse != null) {
                     FinalizeFilter(sender, new FastConvolver(editor.Impulse, SampleRate, 0));
                 }

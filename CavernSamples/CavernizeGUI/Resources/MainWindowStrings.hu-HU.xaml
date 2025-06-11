@@ -61,7 +61,6 @@
         Nyomj meg egy gombot a kilépéshez...</system:String>
     <system:String x:Key="DropF">Több fájlt egyszerre csak a Soron lehet elhelyezni.
         Húzd ki az ablak jobb szélét, hogy megjelenítsd.</system:String>
-    <system:String x:Key="UpmiW">Felkeverési beállítások</system:String>
     <system:String x:Key="Reprt">Miután a renderelés befejeződött, itt további sávinformációt találsz,
         mint például a valódi objektumhasználati statisztika.</system:String>
     <system:String x:Key="IrErr">Az impulzusválasz fájl hibás. Pontosabban: {0}</system:String>

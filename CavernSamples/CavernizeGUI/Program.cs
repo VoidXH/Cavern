@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 
 using VoidX.WPF;
 
+using CavernizeGUI.Resources;
+
 namespace CavernizeGUI {
     static class Program {
         /// <summary>
@@ -24,10 +26,10 @@ namespace CavernizeGUI {
                 FFmpeg.ConsoleMode = true;
             }
 
-            var app = new App();
+            App app = new App();
             app.Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
             app.Resources.MergedDictionaries.Add(Consts.Language.GetRenderTargetSelectorStrings());
-            app.Resources.MergedDictionaries.Add(Consts.Language.GetUpmixingSetupStrings());
+            Cavern.WPF.Consts.Language.Override = Settings.Default.language;
             try {
                 app.InitializeComponent();
             } catch {

@@ -8,6 +8,7 @@ using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Virtualizer;
+using Cavern.WPF;
 using Cavern.WPF.Consts;
 
 using Cavernize.Logic.Models;
@@ -57,9 +58,7 @@ namespace CavernizeGUI {
         /// Opens the upmixing settings.
         /// </summary>
         void OpenUpmixSetup(object _, RoutedEventArgs e) {
-            UpmixingSetup setup = new UpmixingSetup(new DynamicUpmixingSettings()) {
-                Title = (string)language["UpmiW"]
-            };
+            UpmixingSetup setup = new(new DynamicUpmixingSettings(), Background, Resources);
             if (setup.ShowDialog().Value) {
                 UpmixingSettings.Default.Save();
             }
