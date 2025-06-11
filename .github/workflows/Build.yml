@@ -38,9 +38,9 @@ jobs:
 
     - name: Run tests
       run: |
-        dotnet test Tests/Test.Cavern/Test.Cavern.csproj --no-build --verbosity normal
-        dotnet test Tests/Test.Cavern.Format/Test.Cavern.Format.csproj --no-build --verbosity normal
-        dotnet test Tests/Test.Cavern.QuickEQ/Test.Cavern.QuickEQ.csproj --no-build --verbosity normal
+        dotnet test Tests/Test.Cavern/Test.Cavern.csproj --no-build --configuration Release --verbosity normal
+        dotnet test Tests/Test.Cavern.Format/Test.Cavern.Format.csproj --no-build --configuration Release --verbosity normal
+        dotnet test Tests/Test.Cavern.QuickEQ/Test.Cavern.QuickEQ.csproj --no-build --configuration Release --verbosity normal
 
     - name: Download base build
       shell: powershell
