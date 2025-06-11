@@ -35,7 +35,12 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} "Cavern.sln"
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} "Cavern.Format/Cavern.Format.csproj"
+
+    - name: Run tests
+      run: |
+        dotnet test Tests/Test.Cavern/Test.Cavern.csproj --no-build --verbosity normal
+        dotnet test Tests/Test.Cavern.Format/Test.Cavern.Format.csproj --no-build --verbosity normal
+        dotnet test Tests/Test.Cavern.QuickEQ/Test.Cavern.QuickEQ.csproj --no-build --verbosity normal
 
     - name: Download base build
       shell: powershell

@@ -73,7 +73,7 @@ namespace Cavernize.Logic.Language {
         /// <summary>
         /// Store the names of supported codecs.
         /// </summary>
-        protected virtual IReadOnlyDictionary<Codec, string> GetCodecNames() => new Dictionary<Codec, string>() {
+        protected virtual IReadOnlyDictionary<Codec, string> GetCodecNames() => new Dictionary<Codec, string> {
             { Codec.PCM_Float, "PCM (floating point)" },
             { Codec.PCM_LE, "PCM (integer)" },
         };
