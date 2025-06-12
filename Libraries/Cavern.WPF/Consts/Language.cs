@@ -12,7 +12,7 @@ namespace Cavern.WPF.Consts {
         /// <summary>
         /// Overrides the language of Cavern.WPF dialogs. If null, the system language is used.
         /// </summary>
-        public static string Override { get; set; } = null;
+        public static string Override { get; set; }
 
         /// <summary>
         /// Get the shared translation between windows.

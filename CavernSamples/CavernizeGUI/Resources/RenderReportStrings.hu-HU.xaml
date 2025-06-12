@@ -1,6 +1,9 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="Defau">Miután a renderelés befejeződött, itt további sávinformációt találsz,
+        mint például a valódi objektumhasználati statisztika.</system:String>
+
     <!-- General stats -->
     <system:String x:Key="ABeds">Valójában tartalmazott bed csatornák</system:String>
     <system:String x:Key="AObjs">Valójában tartalmazott dinamikus objektumok</system:String>
@@ -9,8 +12,9 @@
     <!-- Extended stats -->
     <system:String x:Key="PeaGa">Csúcs audio keret szint</system:String>
     <system:String x:Key="RMSGa">Tartalom RMS szintje</system:String>
-    <system:String x:Key="MacDi">Makrodinamika</system:String>
-    <system:String x:Key="MicDi">Mikrodinamika</system:String>
+    <system:String x:Key="MacDy">Makrodinamika</system:String>
+    <system:String x:Key="MicDy">Mikrodinamika</system:String>
+    <system:String x:Key="NoLFE">Az LFE csatorna hiányzott a forrásból, kihasználatlan volt, vagy nem lett renderelve.</system:String>
     <system:String x:Key="PeaLF">Csúcs LFE szint</system:String>
     <system:String x:Key="RMSLF">RMS LFE szint</system:String>
     <system:String x:Key="MacLF">LFE makrodinamika</system:String>

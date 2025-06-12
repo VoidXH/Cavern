@@ -30,10 +30,7 @@
     <Page Update="Resources\MainWindowStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Resources\RenderReport.hu-HU.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Resources\RenderReport.xaml">
+    <Page Update="Resources\RenderReportStrings.hu-HU.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Resources\RenderTargetSelectorStrings.hu-HU.xaml">

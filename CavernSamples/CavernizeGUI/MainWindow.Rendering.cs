@@ -252,7 +252,7 @@ namespace CavernizeGUI {
             RenderTarget renderTargetRef = null;
             Dispatcher.Invoke(() => renderTargetRef = (RenderTarget)renderTarget.SelectedItem);
             RenderStats stats = WriteRender(target, writer, renderTargetRef, dynamicOnly, heightOnly);
-            UpdatePostRenderReport(stats);
+            report.Generate(stats);
 
             string targetCodec = null;
             audio.Dispatcher.Invoke(() => targetCodec = ((ExportFormat)audio.SelectedItem).FFName);
@@ -296,7 +296,7 @@ namespace CavernizeGUI {
             } else {
                 stats = WriteTranscode(target, writer);
             }
-            UpdatePostRenderReport(stats);
+            report.Generate(stats);
             FinishTask(target);
         }
 

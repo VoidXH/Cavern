@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.Windows;
 
+using Cavernize.Logic.Language;
+using CavernizeGUI.Language;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
@@ -23,7 +25,9 @@ namespace CavernizeGUI.Consts {
         /// <summary>
         /// Get the post-render report dialog's translation.
         /// </summary>
-        public static ResourceDictionary GetRenderReportStrings() => renderReportCache ??= GetFor("RenderReport");
+        public static RenderReportStrings GetRenderReportStrings() => renderReportCache ??= IsDefaultLanguage() ?
+            new RenderReportStrings() :
+            new DynamicRenderReportStrings(GetFor("RenderReportStrings"));
 
         /// <summary>
         /// Get the <see cref="RenderTargetSelector"/>'s translation.
@@ -50,6 +54,14 @@ namespace CavernizeGUI.Consts {
         }
 
         /// <summary>
+        /// Checks if the system is set to the default language (the one that has no language suffix in the resource files).
+        /// </summary>
+        static bool IsDefaultLanguage() {
+            string culture = Settings.Default.language;
+            return (string.IsNullOrEmpty(culture) ? CultureInfo.CurrentUICulture.Name : culture) == defaultLanguage;
+        }
+
+        /// <summary>
         /// Languages supported that are not the default English.
         /// </summary>
         static readonly string[] supported = ["hu-HU"];
@@ -67,6 +79,11 @@ namespace CavernizeGUI.Consts {
         /// <summary>
         /// The loaded translation of the post-render report dialog for reuse.
         /// </summary>
-        static ResourceDictionary renderReportCache;
+        static RenderReportStrings renderReportCache;
+
+        /// <summary>
+        /// If this is the language code, load the resource files without the language suffix or the default language classes.
+        /// </summary>
+        const string defaultLanguage = "en-US";
     }
 }

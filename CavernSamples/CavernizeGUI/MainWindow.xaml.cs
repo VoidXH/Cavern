@@ -251,7 +251,7 @@ namespace CavernizeGUI {
                 trackInfo[i].property.Text = string.Empty;
                 trackInfo[i].value.Text = string.Empty;
             }
-            report = (string)language["Reprt"];
+            report = new(listener, Consts.Language.GetRenderReportStrings());
         }
 
         /// <summary>

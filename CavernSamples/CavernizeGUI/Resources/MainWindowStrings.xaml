@@ -61,8 +61,6 @@
         from Microsoft.\nPress any key to exit...</system:String>
     <system:String x:Key="DropF">Multiple files at once can only be dropped on the Queue.
         Drag out the right side of the window to make it visible.</system:String>
-    <system:String x:Key="Reprt">After rendering has finished, more track information will appear here,
-        like true object usage statistics.</system:String>
     <system:String x:Key="IrErr">The impulse response file is invalid. Error: {0}</system:String>
     <system:String x:Key="ImFmt">All supported formats|{0}|(Enhanced)
         AC-3|*.ac3;*.eac3;*.ec3|Movies|*.mkv;*.mka;*.mov;*.mp4;*.qt;*.webm;*.weba|RIFF WAVE,

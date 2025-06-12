@@ -35,6 +35,11 @@ namespace CavernizeGUI {
         MultichannelWaveform roomCorrection;
 
         /// <summary>
+        /// Store the post-render report here after renders.
+        /// </summary>
+        PostRenderReport report;
+
+        /// <summary>
         /// Try to load a HRIR file and return true on success.
         /// If the file is invalid, an optional error message popup can be displayed.
         /// </summary>
@@ -151,7 +156,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Show the post-render report in a popup.
         /// </summary>
-        void ShowPostRenderReport(object _, RoutedEventArgs e) => MessageBox.Show(report, (string)language["PReRe"]);
+        void ShowPostRenderReport(object _, RoutedEventArgs e) => MessageBox.Show(report.Report, (string)language["PReRe"]);
 
         /// <summary>
         /// Shows a popup about what channel should be wired to which output.
