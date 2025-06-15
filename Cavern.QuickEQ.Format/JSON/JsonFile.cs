@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Cavern.Format.JSON {
     /// <summary>
     /// JSON file parser/exporter, representing a single node on the tree.
+    /// For example usage, check the code of <see cref="FilterSet.JLAudioTuNFilterSet"/>.
     /// </summary>
-    public sealed class JsonFile {
+    public sealed class JsonFile : IEnumerable<KeyValuePair<string, object>> {
         /// <summary>
         /// The fields of the current tree node.
         /// </summary>
@@ -24,6 +27,14 @@ namespace Cavern.Format.JSON {
                 }
                 throw new KeyNotFoundException();
             }
+            set {
+                for (int i = 0, c = elements.Count; i < c; i++) {
+                    if (elements[i].Key == key) {
+                        elements[i] = key.Stores(value);
+                    }
+                }
+                elements.Add(key.Stores(value));
+            }
         }
 
         /// <summary>
@@ -32,12 +43,24 @@ namespace Cavern.Format.JSON {
         readonly List<KeyValuePair<string, object>> elements;
 
         /// <summary>
+        /// Create an empty JSON file tree node.
+        /// </summary>
+        public JsonFile() => elements = new List<KeyValuePair<string, object>>();
+
+        /// <summary>
         /// Parse a JSON string to a <see cref="JsonFile"/> instance.
         /// </summary>
         public JsonFile(string contents) {
             int offset = 0;
             elements = Parse(ref contents, ref offset);
         }
+
+        /// <summary>
+        /// Create a JSON file with a single element.
+        /// </summary>
+        public JsonFile(string key, object value) => elements = new List<KeyValuePair<string, object>> {
+            key.Stores(value)
+        };
 
         /// <summary>
         /// Create a JSON file from an already existing tree.
@@ -59,7 +82,7 @@ namespace Cavern.Format.JSON {
                         break;
                     case ':':
                         offset++;
-                        result.Add(new KeyValuePair<string, object>(key, ParseValue(ref contents, ref offset)));
+                        result.Add(key.Stores(ParseValue(ref contents, ref offset)));
                         break;
                     case '}':
                         return result;
@@ -126,6 +149,57 @@ namespace Cavern.Format.JSON {
                 default:
                     return ParseUntil(ref source, ref offset, ',');
             }
+        }
+
+        static void AppendValue(StringBuilder result, object value) {
+            if (value is bool b) {
+                result.Append(b.ToString().ToLowerInvariant());
+            } else if (value is string str) {
+                result.Append('"').Append(str).Append('"');
+            } else if (value is object[] array) {
+                result.Append("[ ");
+                for (int i = 0; i < array.Length; i++) {
+                    if (i != 0) {
+                        result.Append(", ");
+                    }
+                    AppendValue(result, array[i]);
+                }
+                result.Append(" ]");
+            } else {
+                result.Append(value);
+            }
+        }
+
+        /// <inheritdoc/>
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => Elements.GetEnumerator();
+
+        /// <inheritdoc/>
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        /// <summary>
+        /// Add a new element to the current tree node.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(string key, object value) => Add(key.Stores(value));
+
+        /// <summary>
+        /// Add a new element to the current tree node.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(KeyValuePair<string, object> element) => elements.Add(element);
+
+        /// <inheritdoc/>
+        public override string ToString() {
+            StringBuilder result = new StringBuilder("{ ");
+            for (int i = 0, c = elements.Count; i < c; i++) {
+                if (i != 0) {
+                    result.Append(", ");
+                }
+                result.Append('"').Append(elements[i].Key).Append("\": ");
+                AppendValue(result, elements[i].Value);
+                
+            }
+            return result.Append(" }").ToString();
         }
     }
 }

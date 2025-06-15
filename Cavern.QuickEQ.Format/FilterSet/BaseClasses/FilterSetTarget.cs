@@ -136,6 +136,10 @@ namespace Cavern.Format.FilterSet {
         /// <remarks>Dirac has no full override, only delta measurements are supported.</remarks>
         DiracLiveBassControlCombined,
         /// <summary>
+        /// JL Audio's TüN software.
+        /// </summary>
+        JLAudioTun,
+        /// <summary>
         /// Processors supporting Audyssey MultEQ-X, MultEQ-X config file.
         /// </summary>
         MultEQX,
@@ -217,6 +221,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.DiracLive => null,
             FilterSetTarget.DiracLiveBassControl => null,
             FilterSetTarget.DiracLiveBassControlCombined => null,
+            FilterSetTarget.JLAudioTun => "JL Audio TüN",
             FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
             FilterSetTarget.MultEQXRaw => "MultEQ-X - peaking EQ",
             FilterSetTarget.MultEQXTarget => "MultEQ-X - filter curves",

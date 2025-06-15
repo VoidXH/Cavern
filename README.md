@@ -31,7 +31,7 @@ Cavernize.
     * DSP: MiniDSP 2x4 Advanced, 2x4 HD, DDRC-88A, Flex HTx
     * Processors: Acurus Muse, Emotiva, Monolith HTP-1, Sony ES series, StormAudio, Tonewinner AT series, WiiM
     * Amplifiers: Behringer NX series
-    * Others: Audyssey MultEQ-X, Dirac Live, Roon, Wavelet, YPAO
+    * Others: Audyssey MultEQ-X, Dirac Live, JL Audio TüN, Roon, Wavelet, YPAO
 * Direction and distance virtualization for headphones
 * Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats

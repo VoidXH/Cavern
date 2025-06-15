@@ -60,6 +60,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.DiracLiveBassControlCombined => new DiracLiveBassControlFilterSet(channels, sampleRate) {
                     CombineHeights = true
                 },
+                FilterSetTarget.JLAudioTun => new JLAudioTuNFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
@@ -108,6 +109,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.DiracLiveBassControlCombined => new DiracLiveBassControlFilterSet(channels, sampleRate) {
                     CombineHeights = true
                 },
+                FilterSetTarget.JLAudioTun => new JLAudioTuNFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQX => new MultEQXFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXRaw => new MultEQXRawFilterSet(channels, sampleRate),
                 FilterSetTarget.MultEQXTarget => new MultEQXTargetFilterSet(channels, sampleRate),
