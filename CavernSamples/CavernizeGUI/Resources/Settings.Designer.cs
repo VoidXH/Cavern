@@ -166,5 +166,17 @@ namespace CavernizeGUI.Resources {
                 this["language"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string lastOutputFilters {
+            get {
+                return ((string)(this["lastOutputFilters"]));
+            }
+            set {
+                this["lastOutputFilters"] = value;
+            }
+        }
     }
 }

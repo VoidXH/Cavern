@@ -94,6 +94,7 @@ namespace CavernizeGUI {
         void LoadFilters(object _, RoutedEventArgs __) {
             if (!filters.IsChecked) {
                 OpenFileDialog dialog = new() {
+                    InitialDirectory = Settings.Default.lastOutputFilters,
                     Filter = (string)language["FiltF"]
                 };
                 int cutoff;
@@ -123,6 +124,7 @@ namespace CavernizeGUI {
                 filters.IsChecked = true;
                 try {
                     roomCorrection = new MultichannelWaveform(roomCorrectionSource);
+                    Settings.Default.lastOutputFilters = Path.GetDirectoryName(dialog.FileName);
                 } catch (Exception e) {
                     Error(e.Message);
                     filters.IsChecked = false;

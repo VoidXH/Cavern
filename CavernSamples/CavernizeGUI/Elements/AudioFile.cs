@@ -123,12 +123,16 @@ namespace CavernizeGUI.Elements {
             DynamicTrackStrings strings = new DynamicTrackStrings();
             for (int i = 0; i < reader.Tracks.Length; i++) {
                 if (reader.Tracks[i].Extra is TrackExtraAudio) {
+#if RELEASE
                     try {
+#endif
                         tracks.Add(new CavernizeTrack(new AudioTrackReader(reader.Tracks[i]), reader.Tracks[i].Format,
                             trackId, strings, reader.Tracks[i].Language));
+#if RELEASE
                     } catch (Exception e) {
                         tracks.Add(new InvalidTrack(e.Message, reader.Tracks[i].Format, reader.Tracks[i].Language, strings));
                     }
+#endif
                     trackId++;
                 }
             }
