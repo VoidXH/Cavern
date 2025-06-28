@@ -14,6 +14,11 @@
     <system:String x:Key="Chans">Channels</system:String>
     <system:String x:Key="WiObj">with objects</system:String>
 
+    <!-- Invalid track -->
+    <system:String x:Key="InvTr">This track could not be decoded. The following error happened while decoding:</system:String>
+    <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize,
+        and if the problem persists with the latest version, contact the developer at www.sbence.hu.</system:String>
+
     <!-- Translatable codec names -->
     <system:String x:Key="PCM_Float">PCM (floating point)</system:String>
     <system:String x:Key="PCM_LE">PCM (integer)</system:String>

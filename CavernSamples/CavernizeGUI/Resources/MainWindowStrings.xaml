@@ -76,8 +76,6 @@
     <system:String x:Key="Start">Starting render...</system:String>
     <system:String x:Key="ExpOk">Finished!</system:String>
     <system:String x:Key="Error">Error</system:String>
-    <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize,
-        and if the problem persists with the latest version, contact the developer at www.sbence.hu.</system:String>
     <system:String x:Key="FiltI">Impulse response packages|*.wav</system:String>
     <system:String x:Key="FiltF">Cavern QuickEQ Convolution EQs|*.txt</system:String>
     <system:String x:Key="FiltN">Convolution EQ file for the {0} channel was not found in this export ({1}).</system:String>
@@ -92,7 +90,6 @@
     <system:String x:Key="AbouA">Performance accelerated with CavernAmp.</system:String>
     <system:String x:Key="ReQOp">Can't remove elements from a queue that is already being processed.</system:String>
     <system:String x:Key="ReQSe">No queued item is selected.</system:String>
-    <system:String x:Key="InvTr">This track could not be decoded. The following error happened while decoding:</system:String>
     <system:String x:Key="FFOnl">The selected output format requires FFmpeg. Please locate it with the &quot;Locate FFmpeg&quot;
         button, and if you need help, click the Help/User guide button.</system:String>
     <system:String x:Key="CMetT">Codec metadata</system:String>

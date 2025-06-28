@@ -14,6 +14,11 @@
     <system:String x:Key="Chans">Csatornák</system:String>
     <system:String x:Key="WiObj">objektumokkal</system:String>
 
+    <!-- Invalid track -->
+    <system:String x:Key="InvTr">Ezt a hangsávot nem lehet dekódolni. A következő hiba történt a dekódolás során:</system:String>
+    <system:String x:Key="Later">Ez későbbi verziókban megjavulhat. Kérlek, próbáld meg frissíteni a Cavernize-t,
+        és ha a probléma továbbra is fennáll a legújabb verzióban is, írj a fejlesztőnek a www.sbence.hu-n.</system:String>
+
     <!-- Translatable codec names -->
     <system:String x:Key="PCM_Float">PCM (lebegőpontos)</system:String>
     <system:String x:Key="PCM_LE">PCM (egész)</system:String>

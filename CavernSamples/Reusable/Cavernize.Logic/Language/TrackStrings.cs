@@ -61,6 +61,17 @@ namespace Cavernize.Logic.Language {
         public virtual string WithObjects => "with objects";
 
         /// <summary>
+        /// This track could not be decoded. The following error happened while decoding:
+        /// </summary>
+        public virtual string InvalidTrack => "This track could not be decoded. The following error happened while decoding:";
+
+        /// <summary>
+        /// This might be fixed in later versions...
+        /// </summary>
+        public virtual string Later => "This might be fixed in later versions. Please try updating Cavernize, " +
+            "and if the problem persists with the latest version, contact the developer at www.sbence.hu.";
+
+        /// <summary>
         /// Translated names of supported codecs.
         /// </summary>
         public IReadOnlyDictionary<Codec, string> CodecNames => codecNames ??= GetCodecNames();

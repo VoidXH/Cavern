@@ -49,6 +49,12 @@ namespace CavernizeGUI.Language {
         public override string WithObjects => (string)source["WiObj"];
 
         /// <inheritdoc/>
+        public override string InvalidTrack => (string)source["InvTr"];
+
+        /// <inheritdoc/>
+        public override string Later => (string)source["Later"];
+
+        /// <inheritdoc/>
         protected override IReadOnlyDictionary<Codec, string> GetCodecNames() => new Dictionary<Codec, string> {
             { Codec.PCM_Float, (string)source["PCM_Float"] },
             { Codec.PCM_LE, (string)source["PCM_LE"] },

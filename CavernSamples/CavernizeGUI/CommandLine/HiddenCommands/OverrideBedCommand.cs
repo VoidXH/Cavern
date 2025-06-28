@@ -2,6 +2,8 @@
 
 using Cavern.Format;
 
+using CavernizeGUI.Language;
+
 namespace CavernizeGUI.CommandLine.HiddenCommands {
     /// <summary>
     /// Overrides the PCM source of JOC encoded objects in E-AC-3 tracks.
@@ -28,7 +30,7 @@ namespace CavernizeGUI.CommandLine.HiddenCommands {
             AudioReader overrider = AudioReader.Open(args[offset]);
             overrider.ReadHeader();
 
-            OverrideBedFile file = new OverrideBedFile(app.FilePath, overrider);
+            OverrideBedFile file = new OverrideBedFile(app.FilePath, overrider, new DynamicTrackStrings());
             if (file.Tracks[0].Renderer.Channels != overrider.ChannelCount) {
                 throw new CommandException("Channel count of the overriding stream don't match the source stream.");
             }

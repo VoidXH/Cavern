@@ -76,8 +76,6 @@
     <system:String x:Key="Start">Renderelés indítása...</system:String>
     <system:String x:Key="ExpOk">Befejezve!</system:String>
     <system:String x:Key="Error">Hiba</system:String>
-    <system:String x:Key="Later">Ez későbbi verziókban megjavulhat. Kérlek, próbáld meg frissíteni a Cavernize-t,
-        és ha a probléma továbbra is fennáll a legújabb verzióban is, írj a fejlesztőnek a www.sbence.hu-n.</system:String>
     <system:String x:Key="FiltI">Impulzusválasz csomagok|*.wav</system:String>
     <system:String x:Key="FiltF">Cavern QuickEQ konvolúciós EQ-k|*.txt</system:String>
     <system:String x:Key="FiltN">A(z) {0} csatornához nem lehetett konvolúciós EQ-t találni az exportban ({1}).</system:String>
@@ -92,7 +90,6 @@
     <system:String x:Key="AbouA">A teljesítményt a CavernAmp gyorsítja.</system:String>
     <system:String x:Key="ReQOp">Nem lehet feldolgozás alatt álló elemeket törölni a sorból.</system:String>
     <system:String x:Key="ReQSe">Nincs kijelölt sorban álló elem.</system:String>
-    <system:String x:Key="InvTr">Ezt a hangsávot nem lehet dekódolni. A következő hiba történt a dekódolás során:</system:String>
     <system:String x:Key="FFOnl">A kiválasztott kimeneti formátumhoz FFmpeg-re van szükség. Kérlek, keresd meg az &quot;FFmpeg keresése&quot;
         gombbal, segítségért pedig kattints a Súgó/Felhasználói kézikönyv gombra.</system:String>
     <system:String x:Key="CMetT">Kodek metaadatok</system:String>

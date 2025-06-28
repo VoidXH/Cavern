@@ -22,6 +22,7 @@ using VoidX.WPF.FFmpeg;
 
 using Cavernize.Logic.Models;
 using CavernizeGUI.Elements;
+using CavernizeGUI.Language;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
@@ -168,14 +169,14 @@ namespace CavernizeGUI {
 #if RELEASE
             try {
 #endif
-                SetFile(new(path));
+                SetFile(new(path, new DynamicTrackStrings()));
 #if RELEASE
             } catch (IOException e) {
                 Reset();
                 throw new Exception(e.Message);
             } catch (Exception e) {
                 Reset();
-                throw new Exception($"{e.Message} {(string)language["Later"]}");
+                throw new Exception($"{e.Message} {(string)Consts.Language.GetTrackStrings()["Later"]}");
             }
 #endif
             Settings.Default.lastDirectory = Path.GetDirectoryName(path);
@@ -192,7 +193,7 @@ namespace CavernizeGUI {
                 tracks.ItemsSource = file.Tracks;
                 tracks.SelectedIndex = 0;
                 // Prioritize spatial codecs
-                for (int i = 0, c = file.Tracks.Count; i < c; ++i) {
+                for (int i = 0, c = file.Tracks.Count; i < c; i++) {
                     if (file.Tracks[i].Codec == Codec.EnhancedAC3) {
                         tracks.SelectedIndex = i;
                         break;
