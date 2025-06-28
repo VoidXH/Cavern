@@ -75,6 +75,8 @@ namespace CavernPipeServer {
                 AudioReader reader = AudioReader.Open(Input);
                 Renderer renderer = reader.GetRenderer();
                 Listener listener = new Listener {
+                    // Prevent height limiting, require at least 4 overhead channels for full gain
+                    Volume = renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1,
                     SampleRate = reader.SampleRate,
                     UpdateRate = Protocol.UpdateRate,
                     AudioQuality = QualityModes.Perfect,
