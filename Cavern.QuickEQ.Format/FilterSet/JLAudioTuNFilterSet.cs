@@ -53,7 +53,7 @@ namespace Cavern.Format.FilterSet {
                 JsonFile trace = new JsonFile("Color", "#" + defaultColors[i % Channels.Length].ToString("x6"));
                 traceSettings.Add("t_" + (i + 1), trace);
             }
-            JsonFile file = new JsonFile() {
+            JsonFile file = new JsonFile {
                 { "Selected Target", "t_1" },
                 { "Trace Settings", traceSettings }
             };
@@ -95,7 +95,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Default disabled crossover settings for each channel.
         /// </summary>
-        static readonly KeyValuePair<string, object> crossover = "Crossovers".Stores(new JsonFile() {
+        static readonly KeyValuePair<string, object> crossover = "Crossovers".Stores(new JsonFile {
             { "Hpf Freq", 20 },
             { "Hpf Type", "off" },
             { "Lpf Freq", 20000 },
@@ -105,7 +105,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Default delay settings for each channel.
         /// </summary>
-        static readonly KeyValuePair<string, object> delay = "Delay/Polarity".Stores(new JsonFile() {
+        static readonly KeyValuePair<string, object> delay = "Delay/Polarity".Stores(new JsonFile {
             { "Additional Delay", 0 },
             { "Apf Freq", 1000 },
             { "Apf Mode", "off" },
@@ -117,7 +117,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Default EQ settings for each channel.
         /// </summary>
-        static readonly KeyValuePair<string, object> eqSettings = "EQ Settings".Stores(new JsonFile() {
+        static readonly KeyValuePair<string, object> eqSettings = "EQ Settings".Stores(new JsonFile {
             { "High Shelf", false },
             { "Low Shelf", false }
         });
