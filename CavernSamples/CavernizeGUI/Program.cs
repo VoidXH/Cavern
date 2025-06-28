@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-using VoidX.WPF;
+using VoidX.WPF.FFmpeg;
 
 using CavernizeGUI.Resources;
 

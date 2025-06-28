@@ -33,6 +33,9 @@ namespace Cavern.Format.Common {
     public class ComplexNumberFilledException : Exception {
         const string message = "This operation can only handle complex numbers of which a single component is set.";
 
+        /// <summary>
+        /// Tells if an operation can only handle complex numbers of which a single component is set.
+        /// </summary>
         public ComplexNumberFilledException() : base(message) { }
     }
 

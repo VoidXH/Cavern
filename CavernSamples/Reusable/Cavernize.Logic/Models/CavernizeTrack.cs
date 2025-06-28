@@ -11,19 +11,9 @@ using Cavernize.Logic.Language;
 
 namespace Cavernize.Logic.Models {
     /// <summary>
-    /// Represents an audio track of an audio file.
+    /// Represents an audio track of the loaded audio file.
     /// </summary>
     public class CavernizeTrack : IDisposable, IMetadataSupplier {
-        /// <summary>
-        /// Expanded names of codecs for which the enum is a shorthand.
-        /// </summary>
-        static readonly Dictionary<Codec, string> formatNames = new() {
-            [Codec.DTS] = "DTS Coherent Acoustics",
-            [Codec.DTS_HD] = "DTS-HD",
-            [Codec.AC3] = "AC-3",
-            [Codec.EnhancedAC3] = "Enhanced AC-3",
-        };
-
         /// <summary>
         /// This track can be rendered.
         /// </summary>
@@ -211,5 +201,15 @@ namespace Cavernize.Logic.Models {
             string objects = Renderer != null && Renderer.HasObjects ? " " + strings.WithObjects : string.Empty;
             return string.IsNullOrEmpty(Language) ? codecName : $"{codecName}{objects} ({Language})";
         }
+
+        /// <summary>
+        /// Expanded names of codecs for which the enum is a shorthand.
+        /// </summary>
+        static readonly Dictionary<Codec, string> formatNames = new() {
+            [Codec.DTS] = "DTS Coherent Acoustics",
+            [Codec.DTS_HD] = "DTS-HD",
+            [Codec.AC3] = "AC-3",
+            [Codec.EnhancedAC3] = "Enhanced AC-3",
+        };
     }
 }

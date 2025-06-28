@@ -31,7 +31,7 @@ namespace Cavern.Filters {
         Equalizer equalizer;
 
         /// <summary>
-        /// Get a clone of the <see cref="filter"/>'s impulse response.
+        /// Get a clone of the filter's impulse response.
         /// </summary>
         [IgnoreDataMember]
         public new float[] Impulse {

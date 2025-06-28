@@ -17,12 +17,13 @@ using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Utilities;
+using VoidX.WPF;
+using VoidX.WPF.FFmpeg;
 
 using Cavernize.Logic.Models;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
-using VoidX.WPF;
 
 using Path = System.IO.Path;
 
@@ -51,7 +52,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// FFmpeg runner and locator.
         /// </summary>
-        readonly FFmpeg ffmpeg;
+        readonly FFmpegGUI ffmpeg;
 
         /// <summary>
         /// Playback environment used for rendering.
@@ -107,7 +108,7 @@ namespace CavernizeGUI {
 
             FFmpeg.ReadyText = (string)language["FFRea"];
             FFmpeg.NotReadyText = (string)language["FFNRe"];
-            ffmpeg = new(status, Settings.Default.ffmpegLocation);
+            ffmpeg = new FFmpegGUI(status, Settings.Default.ffmpegLocation);
             if (ffmpeg.Found) {
                 locateFFmpeg.Visibility = Visibility.Hidden;
             }
@@ -486,11 +487,6 @@ namespace CavernizeGUI {
             FileName = "https://cavern.sbence.hu",
             UseShellExecute = true
         });
-
-        /// <summary>
-        /// This option allows FFmpeg to encode up to 255 channels in select codecs.
-        /// </summary>
-        const string massivelyMultichannel = " -mapping_family 255";
 
         /// <summary>
         /// Color used for active speaker display.

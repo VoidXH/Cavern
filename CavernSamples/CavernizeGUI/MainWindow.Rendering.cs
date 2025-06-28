@@ -15,6 +15,7 @@ using Cavern.Virtualizer;
 
 using Cavernize.Logic;
 using Cavernize.Logic.Models;
+using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
@@ -108,7 +109,9 @@ namespace CavernizeGUI {
                 SetBlockSize(activeRenderTarget);
                 string exportFormat = path[^4..].ToLowerInvariant();
                 bool mkvTarget = exportFormat.Equals(".mkv");
-                string exportName = mkvTarget ? path[..^4] + waveExtension : path;
+                string exportName = mkvTarget || exportFormat.Equals(".ac3") || exportFormat.Equals(".ec3") ?
+                    path[..^4] + waveExtension :
+                    path;
                 int channelCount = activeRenderTarget.OutputChannels;
                 AudioWriter writer;
                 if (mkvTarget && target.Container == Container.Matroska && (codec == Codec.PCM_LE || codec == Codec.PCM_Float)) {
@@ -120,8 +123,7 @@ namespace CavernizeGUI {
                     writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels[..channelCount],
                         target.Length, listener.SampleRate, bits);
                 } else {
-                    writer = AudioWriter.Create(exportName, channelCount,
-                        target.Length, listener.SampleRate, bits);
+                    writer = AudioWriter.Create(exportName, channelCount, target.Length, listener.SampleRate, bits);
                 }
                 if (writer == null) {
                     Error((string)language["UnExt"]);
@@ -184,14 +186,7 @@ namespace CavernizeGUI {
                 }
 
                 Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
-                if (codec.IsEnvironmental()) {
-                    dialog.Filter = codec == Codec.LimitlessAudio ? (string)language["ExLAF"] : (string)language["ExBWF"];
-                } else if (codec == Codec.PCM_Float || codec == Codec.PCM_LE) {
-                    dialog.Filter = (string)language[ffmpeg.Found || target.Container == Container.Matroska ? "ExPCM" : "ExPCR"];
-                } else {
-                    dialog.Filter = (string)language["ExFmt"];
-                }
-
+                dialog.Filter = MergeToContainer.GetPossibleContainers(target, codec, ffmpeg);
                 if (dialog.ShowDialog().Value) {
                     try {
                         return Render(dialog.FileName);
@@ -257,23 +252,18 @@ namespace CavernizeGUI {
             string targetCodec = null;
             audio.Dispatcher.Invoke(() => targetCodec = ((ExportFormat)audio.SelectedItem).FFName);
 
-            if (writer != null) {
+            if (writer is RIFFWaveWriter && finalName[^4..] != waveExtension) {
+                taskEngine.UpdateStatus("Merging to final container...");
+                string exportedAudio = finalName[..^4] + waveExtension;
+                MergeToContainer merger = new(file.Path, exportedAudio, targetCodec);
+                merger.SetTrackName($"Cavern {renderTargetRef.Name} render");
                 if (writer.ChannelCount > 8) {
-                    targetCodec += massivelyMultichannel;
+                    merger.Allow8PlusChannels();
                 }
-
-                if (writer is RIFFWaveWriter && finalName[^4..].ToLowerInvariant().Equals(".mkv")) {
-                    string exportedAudio = finalName[..^4] + waveExtension;
-                    taskEngine.UpdateStatus("Merging to final container...");
-                    if (!ffmpeg.Launch(string.Format("-i \"{0}\" -i \"{1}\" -map 0:v? -map 1:a -map 0:s? -c:v copy -c:a {2} " +
-                        "-y -metadata:s:a:0 title=\"Cavern {3} render\" \"{4}\"",
-                        file.Path, exportedAudio, targetCodec, renderTargetRef.Name, finalName)) ||
-                        !File.Exists(finalName)) {
-                        taskEngine.UpdateStatus("Failed to create the final file. " +
-                            "Are your permissions sufficient in the export folder?");
-                        return;
-                    }
-                    File.Delete(exportedAudio);
+                if (!merger.Merge(ffmpeg, finalName)) {
+                    taskEngine.UpdateStatus("Failed to create the final file. " +
+                        "Are your permissions sufficient in the export folder?");
+                    return;
                 }
             }
 

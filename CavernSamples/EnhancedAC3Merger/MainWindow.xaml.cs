@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Shell;
 
 using VoidX.WPF;
+using VoidX.WPF.FFmpeg;
 
 namespace EnhancedAC3Merger {
     /// <summary>
@@ -13,7 +14,7 @@ namespace EnhancedAC3Merger {
         /// <summary>
         /// Handles FFmpeg location and launch.
         /// </summary>
-        readonly FFmpeg ffmpeg;
+        readonly FFmpegGUI ffmpeg;
 
         /// <summary>
         /// Background merge performer and feedback provider.
@@ -26,7 +27,7 @@ namespace EnhancedAC3Merger {
         public MainWindow() {
             InitializeComponent();
             CreateConsts();
-            ffmpeg = new FFmpeg(null, Settings.Default.ffmpeg);
+            ffmpeg = new FFmpegGUI(null, Settings.Default.ffmpeg);
             TaskbarItemInfo = new TaskbarItemInfo {
                 ProgressState = TaskbarItemProgressState.Normal
             };

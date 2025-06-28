@@ -1,11 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-	  <ProjectReference Include="..\..\..\Cavern\Cavern.csproj" />
-	  <ProjectReference Include="..\..\..\Cavern.Format\Cavern.Format.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpeg.cs" Link="VoidX.WPF\FFmpeg\FFmpeg.cs" />
+		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegArgument.cs" Link="VoidX.WPF\FFmpeg\FFmpegArgument.cs" />
+		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegConfigurator.cs" Link="VoidX.WPF\FFmpeg\FFmpegConfigurator.cs" />
+		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegStream.cs" Link="VoidX.WPF\FFmpeg\FFmpegStream.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Cavern\Cavern.csproj" />
+		<ProjectReference Include="..\..\..\Cavern.Format\Cavern.Format.csproj" />
+	</ItemGroup>
 </Project>
