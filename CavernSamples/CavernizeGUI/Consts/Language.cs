@@ -54,11 +54,14 @@ namespace CavernizeGUI.Consts {
         }
 
         /// <summary>
-        /// Checks if the system is set to the default language (the one that has no language suffix in the resource files).
+        /// Checks if the system is set to a language that has no available localization.
         /// </summary>
         static bool IsDefaultLanguage() {
             string culture = Settings.Default.language;
-            return (string.IsNullOrEmpty(culture) ? CultureInfo.CurrentUICulture.Name : culture) == defaultLanguage;
+            if (string.IsNullOrEmpty(culture)) {
+                culture = CultureInfo.CurrentUICulture.Name;
+            }
+            return Array.BinarySearch(supported, culture) < 0;
         }
 
         /// <summary>
@@ -80,10 +83,5 @@ namespace CavernizeGUI.Consts {
         /// The loaded translation of the post-render report dialog for reuse.
         /// </summary>
         static RenderReportStrings renderReportCache;
-
-        /// <summary>
-        /// If this is the language code, load the resource files without the language suffix or the default language classes.
-        /// </summary>
-        const string defaultLanguage = "en-US";
     }
 }
