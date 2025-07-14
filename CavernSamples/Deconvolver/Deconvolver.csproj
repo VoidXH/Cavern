@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
-		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
 		<Description>Performs or reverses convolutions or generates a transfer function between two systems.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>

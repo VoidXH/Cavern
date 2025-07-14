@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
 		<Description>Processes HRTF sets to be inserted into the Cavern source code.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>

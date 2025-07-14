@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
 		<Description>Drastically corrects the spectra of impulse responses while keeping time-domain anomalies.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>

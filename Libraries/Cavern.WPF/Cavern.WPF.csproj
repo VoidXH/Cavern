@@ -5,7 +5,7 @@
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<Authors>VoidX</Authors>
 		<Description>Useful WPF windows and utilities for audio applications.</Description>
-		<Copyright>Copyright © Bence Sgánetz 2016-2024</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
 		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
