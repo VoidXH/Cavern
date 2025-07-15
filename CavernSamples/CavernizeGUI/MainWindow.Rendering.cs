@@ -280,9 +280,6 @@ namespace CavernizeGUI {
             RenderStats stats;
             if (writer is BroadcastWaveFormatWriter bwf) {
                 stats = WriteTranscode(target, bwf);
-                if (bwf is DolbyAtmosBWFWriter && new FileInfo(path).Length > 4L * 1024 * 1024 * 1024) {
-                    Dispatcher.Invoke(() => Error((string)language["Atm4G"]));
-                }
             } else {
                 stats = WriteTranscode(target, writer);
             }

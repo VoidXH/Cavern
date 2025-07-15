@@ -22,6 +22,11 @@ namespace Cavern.Format {
         public int MaxLargeChunks { get; set; }
 
         /// <summary>
+        /// When exporting a 4 GB+ file, the <see cref="ds64Sync"/> will be followed up by a <see cref="junkSync"/> instead of zeros.
+        /// </summary>
+        public bool Compatibility { get; set; }
+
+        /// <summary>
         /// Channels present in the file, see <see cref="WaveExtensibleChannel"/>.
         /// </summary>
         readonly int channelMask = -1;
@@ -282,7 +287,7 @@ namespace Cavern.Format {
                         for (int channel = 0; channel < samples.Length; channel++) {
                             writer.WriteAny((sbyte)(samples[channel][from] * sbyte.MaxValue));
                         }
-                        ++from;
+                        from++;
                     }
                     break;
                 case BitDepth.Int16:
@@ -290,7 +295,7 @@ namespace Cavern.Format {
                         for (int channel = 0; channel < samples.Length; channel++) {
                             writer.WriteAny((short)(samples[channel][from] * short.MaxValue));
                         }
-                        ++from;
+                        from++;
                     }
                     break;
                 case BitDepth.Int24:
@@ -300,7 +305,7 @@ namespace Cavern.Format {
                             writer.WriteAny((short)src);
                             writer.WriteAny((byte)(src >> 16));
                         }
-                        ++from;
+                        from++;
                     }
                     break;
                 case BitDepth.Float32:
@@ -308,7 +313,7 @@ namespace Cavern.Format {
                         for (int channel = 0; channel < samples.Length; channel++) {
                             writer.WriteAny(samples[channel][from]);
                         }
-                        ++from;
+                        from++;
                     }
                     break;
             }
@@ -368,10 +373,7 @@ namespace Cavern.Format {
 
             long contentSize = writer.Position - 8;
             if (contentSize > uint.MaxValue || MaxLargeChunks != 0) {
-                int largeChunks = 0;
-                if (largeChunkSizes != null) {
-                    largeChunks = largeChunkSizes.Count;
-                }
+                int largeChunks = largeChunkSizes?.Count ?? 0;
 
                 // 64-bit sync word
                 writer.Position = 0;
@@ -381,7 +383,8 @@ namespace Cavern.Format {
 
                 // 64-bit format header
                 writer.WriteAny(ds64Sync);
-                writer.WriteAny(junkBaseSize + largeChunks * junkExtraSize);
+                int placeForLengths = Compatibility ? largeChunks : MaxLargeChunks;
+                writer.WriteAny(junkBaseSize + placeForLengths * junkExtraSize);
 
                 // Mandatory sizes
                 writer.WriteAny(contentSize);
@@ -391,17 +394,19 @@ namespace Cavern.Format {
                 // Large chunk sizes
                 writer.WriteAny(largeChunks);
                 if (largeChunkSizes != null) {
-                    for (int i = 0; i < largeChunks; ++i) {
+                    for (int i = 0; i < largeChunks; i++) {
                         writer.WriteAny(largeChunkSizes[i].Item1);
                         writer.WriteAny(largeChunkSizes[i].Item2);
                     }
                 }
 
                 // Fill the unused space with junk
-                int emptyBytes = (MaxLargeChunks - largeChunks) * junkExtraSize;
-                if (emptyBytes != 0) {
-                    writer.WriteAny(junkSync);
-                    writer.WriteAny(emptyBytes - 8);
+                if (Compatibility) {
+                    int emptyBytes = (MaxLargeChunks - largeChunks) * junkExtraSize;
+                    if (emptyBytes != 0) {
+                        writer.WriteAny(junkSync);
+                        writer.WriteAny(emptyBytes - 8);
+                    }
                 }
             }
             base.Dispose();

@@ -58,7 +58,7 @@ namespace Cavern.Format.Environment {
             }
 
             output = new RIFFWaveWriter(writer, source.ActiveSources.Count, length, source.SampleRate, bits) {
-                MaxLargeChunks = 1
+                MaxLargeChunks = 3
             };
             output.WriteHeader();
 
