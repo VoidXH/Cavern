@@ -11,7 +11,7 @@ using Cavern.Utilities;
 using Cavern.Virtualizer;
 
 using Cavernize.Logic.Models;
-using CavernizeGUI.Elements;
+using Cavernize.Logic.Models.RenderTargets;
 using VoidX.WPF;
 
 namespace CavernizeGUI {

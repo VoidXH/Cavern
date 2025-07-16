@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Width="320" Height="325" Background="#424242" WindowStyle="None" AllowsTransparency="True" ShowInTaskbar="False">
+        Width="480" Height="325" Background="#424242" WindowStyle="None" AllowsTransparency="True" ShowInTaskbar="False">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,15 +18,18 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="20"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock Padding="5,0,0,0" Text="{StaticResource PCRea}"/>
-            <TextBlock Grid.Column="1" Padding="5,0,0,0" Text="{StaticResource MulCH}"/>
+            <TextBlock Padding="5,0,0,10" Text="{StaticResource PCRea}" TextWrapping="Wrap"/>
+            <TextBlock Grid.Column="1" Padding="5,0,0,10" Text="{StaticResource Matri}" TextWrapping="Wrap"/>
+            <TextBlock Grid.Column="2" Padding="5,0,0,10" Text="{StaticResource MulCH}" TextWrapping="Wrap"/>
             <RadioButton x:Name="pcReadyTemplate" Grid.Row="1" Margin="10,0,10,0" VerticalAlignment="Top"/>
-            <RadioButton x:Name="multichannelTemplate" Grid.Column="1" Grid.Row="1" Margin="10,0,10,0" VerticalAlignment="Top"/>
+            <RadioButton x:Name="matrixTemplate" Grid.Column="1" Grid.Row="1" Margin="10,0,10,0" VerticalAlignment="Top"/>
+            <RadioButton x:Name="multichannelTemplate" Grid.Column="2" Grid.Row="1" Margin="10,0,10,0" VerticalAlignment="Top"/>
         </Grid>
     </Border>
 </Window>

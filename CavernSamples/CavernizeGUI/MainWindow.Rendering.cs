@@ -16,6 +16,7 @@ using Cavern.Virtualizer;
 using Cavernize.Logic;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Rendering;
+using Cavernize.Logic.Models.RenderTargets;
 using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
@@ -54,7 +55,7 @@ namespace CavernizeGUI {
             }
 
             RenderTarget selectedRenderTarget = (RenderTarget)renderTarget.SelectedItem;
-            selectedRenderTarget.Apply();
+            selectedRenderTarget.Apply(Settings.Default.surroundSwap);
             if (selectedRenderTarget is not VirtualizerRenderTarget && format.MaxChannels < Listener.Channels.Length) {
                 throw new TrackException(string.Format((string)language["ChCnt"], Listener.Channels.Length, format.MaxChannels));
             }
@@ -69,7 +70,7 @@ namespace CavernizeGUI {
             CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
             RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
             if (applyTarget) {
-                activeRenderTarget.Apply();
+                activeRenderTarget.Apply(Settings.Default.surroundSwap);
             }
             if (activeRenderTarget is VirtualizerRenderTarget) {
                 if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.FilterSampleRate) {
@@ -160,7 +161,7 @@ namespace CavernizeGUI {
                         Error((string)language["UnCod"]);
                         return null;
                 }
-                return () => TranscodeTask(target, transcoder, path);
+                return () => TranscodeTask(target, transcoder);
             }
         }
 
@@ -273,7 +274,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Decode the source and export it to an object-based format.
         /// </summary>
-        void TranscodeTask(CavernizeTrack target, EnvironmentWriter writer, string path) {
+        void TranscodeTask(CavernizeTrack target, EnvironmentWriter writer) {
             taskEngine.Progress = 0;
             taskEngine.UpdateStatus((string)language["Start"]);
 

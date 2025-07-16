@@ -21,6 +21,7 @@ using VoidX.WPF;
 using VoidX.WPF.FFmpeg;
 
 using Cavernize.Logic.Models;
+using Cavernize.Logic.Models.RenderTargets;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Language;
 using CavernizeGUI.Resources;

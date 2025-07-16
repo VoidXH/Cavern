@@ -3,6 +3,7 @@
 using Cavern.Format.Common;
 
 using Cavernize.Logic.Models;
+using Cavernize.Logic.Models.RenderTargets;
 
 namespace CavernizeGUI.Elements {
     /// <summary>

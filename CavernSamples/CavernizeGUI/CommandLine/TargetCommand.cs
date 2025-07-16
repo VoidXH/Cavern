@@ -1,6 +1,6 @@
 ﻿using System;
 
-using CavernizeGUI.Elements;
+using Cavernize.Logic.Models.RenderTargets;
 
 namespace CavernizeGUI.CommandLine {
     /// <summary>

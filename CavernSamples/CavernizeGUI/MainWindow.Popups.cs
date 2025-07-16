@@ -12,8 +12,8 @@ using Cavern.WPF;
 using Cavern.WPF.Consts;
 
 using Cavernize.Logic.Models;
+using Cavernize.Logic.Models.RenderTargets;
 using CavernizeGUI.CavernSettings;
-using CavernizeGUI.Elements;
 using CavernizeGUI.Windows;
 using CavernizeGUI.Resources;
 

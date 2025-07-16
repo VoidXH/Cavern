@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
-    <system:String x:Key="PCRea">PC-ready layouts</system:String>
-    <system:String x:Key="MulCH">8+ channel layouts</system:String>
+    <system:String x:Key="PCRea">Layouts compatible with all systems</system:String>
+    <system:String x:Key="Matri">Specially wired (matrixed) compatible layouts</system:String>
+    <system:String x:Key="MulCH">8+ channel layouts requiring special systems</system:String>
 </ResourceDictionary>
