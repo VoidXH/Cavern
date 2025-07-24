@@ -2,7 +2,7 @@
     /// <summary>
     /// Constants for reading/writing Core Audio Format files.
     /// </summary>
-    internal class CoreAudioFormatConsts {
+    internal static class CoreAudioFormatConsts {
         /// <summary>
         /// caff sync word, stream marker.
         /// </summary>

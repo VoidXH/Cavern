@@ -15,7 +15,7 @@ namespace Cavern.Format.Renderers {
         /// Maps interlaced PCM samples to Cavern objects.
         /// </summary>
         /// <param name="stream"></param>
-        public PCMToObjectsRenderer(Decoder stream) : base(stream) { }
+        protected PCMToObjectsRenderer(Decoder stream) : base(stream) { }
 
         /// <inheritdoc/>
         public override void Update(int samples) {

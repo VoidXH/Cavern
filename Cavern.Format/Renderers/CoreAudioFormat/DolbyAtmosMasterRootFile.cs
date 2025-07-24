@@ -87,7 +87,7 @@ namespace Cavern.Format.Renderers.CoreAudioFormat {
                 if (from < ObjectMapping.Length) {
                     ObjectMapping[from++] = id;
                 } else {
-                    throw new IndexOutOfRangeException("More objects mapped than the number of input streams.");
+                    throw new CorruptionException("More objects are mapped than the number of input streams.");
                 }
             }
 
