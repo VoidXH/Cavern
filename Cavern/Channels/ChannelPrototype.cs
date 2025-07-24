@@ -68,30 +68,30 @@ namespace Cavern.Channels {
         /// <summary>
         /// Converts a standard channel shorthand to a <see cref="ChannelPrototype"/>.
         /// </summary>
-        public static ChannelPrototype FromStandardName(string name) {
+        public static ReferenceChannel FromStandardName(string name) {
             switch (name) {
                 case frontLeftMark:
                 case frontLeftMarkFull:
-                    return FrontLeft;
+                    return ReferenceChannel.FrontLeft;
                 case frontRightMark:
                 case frontRightMarkFull:
-                    return FrontRight;
+                    return ReferenceChannel.FrontRight;
                 case frontCenterMark:
                 case frontCenterMarkFull:
-                    return FrontCenter;
+                    return ReferenceChannel.FrontCenter;
                 case screenLFEMark:
                 case subwooferMark:
-                    return ScreenLFE;
+                    return ReferenceChannel.ScreenLFE;
                 case rearLeftMark:
-                    return RearLeft;
+                    return ReferenceChannel.RearLeft;
                 case rearRightMark:
-                    return RearRight;
+                    return ReferenceChannel.RearRight;
                 case sideLeftMark:
-                    return SideLeft;
+                    return ReferenceChannel.SideLeft;
                 case sideRightMark:
-                    return SideRight;
+                    return ReferenceChannel.SideRight;
                 default:
-                    return Unused;
+                    return ReferenceChannel.Unknown;
             }
         }
 

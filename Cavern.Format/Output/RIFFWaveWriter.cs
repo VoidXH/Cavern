@@ -9,7 +9,7 @@ using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
-using static Cavern.Format.Consts.RIFFWave;
+using static Cavern.Format.Consts.RIFFWaveConsts;
 
 namespace Cavern.Format {
     /// <summary>
@@ -325,7 +325,7 @@ namespace Cavern.Format {
         /// <param name="id">4 byte identifier of the chunk</param>
         /// <param name="data">Raw data of the chunk</param>
         /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
-        /// refer to <see cref="RIFFWave"/> for samples.</remarks>
+        /// refer to <see cref="RIFFWaveConsts"/> for samples.</remarks>
         public void WriteChunk(int id, byte[] data) => WriteChunk(id, data, false);
 
         /// <summary>
@@ -335,7 +335,7 @@ namespace Cavern.Format {
         /// <param name="data">Raw data of the chunk</param>
         /// <param name="dwordPadded">Some RIFF readers only work if all chunks start at an even byte, this is for their support</param>
         /// <remarks>The <paramref name="id"/> has a different byte order in the file to memory,
-        /// refer to <see cref="RIFFWave"/> for samples.</remarks>
+        /// refer to <see cref="RIFFWaveConsts"/> for samples.</remarks>
         public void WriteChunk(int id, byte[] data, bool dwordPadded) {
             writer.WriteAny(id);
             if (data.LongLength > uint.MaxValue) {

@@ -9,7 +9,7 @@ namespace Cavern.Format.Consts {
     /// <summary>
     /// Used for both <see cref="RIFFWaveReader"/> and <see cref="RIFFWaveWriter"/>.
     /// </summary>
-    static class RIFFWave {
+    internal static class RIFFWaveConsts {
         /// <summary>
         /// Bit masks for channels present in a WAV file.
         /// </summary>

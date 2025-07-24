@@ -125,11 +125,16 @@ namespace CavernizeGUI {
             // The size of writeCache makes sure ContainerWriters get correct sized blocks when written with WriteChannelLimitedBlock
             writeCache = new float[blockSize / renderTarget.OutputChannels * Listener.Channels.Length];
 
+#if RELEASE
             bool wasError = false;
+#endif
             while (progressor.Rendered < target.Length) {
                 float[] result;
+#if RELEASE
                 try {
+#endif
                     result = listener.Render();
+#if RELEASE
                 } catch (Exception e) {
                     if (!wasError) {
                         wasError = true;
@@ -140,6 +145,7 @@ namespace CavernizeGUI {
                     }
                     result = new float[Listener.Channels.Length * listener.UpdateRate];
                 }
+#endif
 
                 // Alignment of split parts
                 if (target.Length - progressor.Rendered < listener.UpdateRate) {

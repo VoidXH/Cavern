@@ -13,11 +13,6 @@ namespace Cavern.Format.Decoders {
     /// </summary>
     public class LimitlessAudioFormatDecoder : Decoder {
         /// <summary>
-        /// Bit depth of the WAVE file.
-        /// </summary>
-        public BitDepth Bits { get; private set; }
-
-        /// <summary>
         /// Last decoded positions of objects or position of channels if the LAF file is channel-based.
         /// </summary>
         public Vector3[] ObjectPositions { get; }
@@ -69,11 +64,11 @@ namespace Cavern.Format.Decoders {
         public LimitlessAudioFormatDecoder(Stream stream, bool skipSyncWord) {
             // Find Limitless marker
             if (!skipSyncWord) {
-                stream.BlockTest(LimitlessAudioFormat.limitless1);
+                stream.BlockTest(LimitlessAudioFormatConsts.limitless1);
             }
-            stream.BlockTest(LimitlessAudioFormat.limitless2);
-            byte[] cache = new byte[LimitlessAudioFormat.head.Length];
-            while (!stream.RollingBlockCheck(cache, LimitlessAudioFormat.head)) {
+            stream.BlockTest(LimitlessAudioFormatConsts.limitless2);
+            byte[] cache = new byte[LimitlessAudioFormatConsts.head.Length];
+            while (!stream.RollingBlockCheck(cache, LimitlessAudioFormatConsts.head)) {
                 // Find header marker, skip metadata
             }
 

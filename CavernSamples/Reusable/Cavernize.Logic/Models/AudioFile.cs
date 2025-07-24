@@ -71,15 +71,17 @@ public class AudioFile : IDisposable {
             case "mxf":
                 AddTracksFromContainer(new MXFReader(Path));
                 break;
+            case "atmos":
+                AddStandaloneTrack(new DolbyAtmosMasterFormatReader(Path));
+                break;
+            case "caf":
+                AddStandaloneTrack(new CoreAudioFormatReader(Path));
+                break;
             case "wav":
-                RIFFWaveReader wavReader = new(Path);
-                Codec wavBits = wavReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE;
-                tracks.Add(new CavernizeTrack(wavReader, wavBits, 0, language));
+                AddStandaloneTrack(new RIFFWaveReader(Path));
                 break;
             case "laf":
-                LimitlessAudioFormatReader lafReader = new(Path);
-                Codec lafBits = lafReader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE;
-                tracks.Add(new CavernizeTrack(lafReader, lafBits, 0, language));
+                AddStandaloneTrack(new LimitlessAudioFormatReader(Path));
                 break;
             default:
                 throw new NotSupportedException();
@@ -117,6 +119,14 @@ public class AudioFile : IDisposable {
     /// Show the file's name.
     /// </summary>
     public override string ToString() => System.IO.Path.GetFileName(Path);
+
+    /// <summary>
+    /// Add a track from a file that contains the raw bitstream of a single audio track.
+    /// </summary>
+    void AddStandaloneTrack(AudioReader reader) {
+        Codec bits = reader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE;
+        tracks.Add(new CavernizeTrack(reader, bits, 0, language));
+    }
 
     /// <summary>
     /// Add the tracks of a container to the track list.

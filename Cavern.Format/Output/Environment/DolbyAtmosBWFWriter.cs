@@ -170,7 +170,7 @@ namespace Cavern.Format.Environment {
         /// Add Dolby audio Metadata to Atmos BWF files.
         /// </summary>
         protected override void WriteAdditionalChunks() =>
-            output.WriteChunk(RIFFWave.dbmdSync, new DolbyMetadata((byte)output.ChannelCount).Serialize());
+            output.WriteChunk(RIFFWaveConsts.dbmdSync, new DolbyMetadata((byte)output.ChannelCount).Serialize());
 
         /// <summary>
         /// Indexes of Dolby Atmos beds (7.1.2) in the <see cref="ADMConsts.channelNames"/> array.

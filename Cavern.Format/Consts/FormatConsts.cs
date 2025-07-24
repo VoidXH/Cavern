@@ -2,7 +2,7 @@
     /// <summary>
     /// Constants needed across the entire library.
     /// </summary>
-    static class FormatConsts {
+    internal static class FormatConsts {
         /// <summary>
         /// Only read 10 MB blocks at max to optimize I/O performance.
         /// </summary>

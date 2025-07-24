@@ -123,10 +123,10 @@ namespace Cavern.Format {
         /// </summary>
         internal void WriteHeader(bool objectMode, int objectCount) {
             // Limitless marker
-            writer.Write(LimitlessAudioFormat.limitless1);
-            writer.Write(LimitlessAudioFormat.limitless2);
+            writer.Write(LimitlessAudioFormatConsts.limitless1);
+            writer.Write(LimitlessAudioFormatConsts.limitless2);
             // No custom headers
-            writer.Write(LimitlessAudioFormat.head); // Main header marker
+            writer.Write(LimitlessAudioFormatConsts.head); // Main header marker
             byte qualityByte = Bits switch {
                 BitDepth.Int8 => (byte)LAFMode.Int8,
                 BitDepth.Int16 => (byte)LAFMode.Int16,

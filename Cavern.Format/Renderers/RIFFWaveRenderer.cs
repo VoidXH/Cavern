@@ -11,16 +11,11 @@ namespace Cavern.Format.Renderers {
     /// <summary>
     /// Renders a decoded RIFF WAVE stream.
     /// </summary>
-    public class RIFFWaveRenderer : Renderer {
+    public class RIFFWaveRenderer : PCMToObjectsRenderer {
         /// <summary>
         /// Index of the last passed ADM block.
         /// </summary>
         readonly int[] admBlocks;
-
-        /// <summary>
-        /// Reused array for output rendering.
-        /// </summary>
-        float[] render;
 
         /// <summary>
         /// Renders a decoded RIFF WAVE stream.
@@ -66,40 +61,26 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         /// <param name="samples">Samples per channel</param>
         public override void Update(int samples) {
+            base.Update(samples);
             AudioDefinitionModel adm = ((RIFFWaveDecoder)stream).ADM;
-
-            if (objectSamples[0].Length != samples) {
-                for (int i = 0; i < objectSamples.Length; i++) {
-                    objectSamples[i] = new float[samples];
-                }
-                render = new float[objectSamples.Length * samples];
-            }
-
-            stream.DecodeBlock(render, 0, render.LongLength);
-            WaveformUtils.InterlacedToMultichannel(render, objectSamples);
-
             if (adm != null) {
                 for (int i = 0; i < objectSamples.Length; i++) {
                     List<ADMBlockFormat> blocks = adm.Movements[i].Blocks;
 
-                    while (admBlocks[i] > 0 &&
-                        blocks[admBlocks[i] - 1].Offset.TotalSeconds * stream.SampleRate > stream.Position) {
-                        --admBlocks[i];
+                    while (admBlocks[i] > 0 && blocks[admBlocks[i] - 1].Offset.TotalSeconds * stream.SampleRate > stream.Position) {
+                        admBlocks[i]--;
                     }
-                    while (admBlocks[i] < blocks.Count - 1 &&
-                        blocks[admBlocks[i] + 1].Offset.TotalSeconds * stream.SampleRate < stream.Position) {
-                        ++admBlocks[i];
+                    while (admBlocks[i] < blocks.Count - 1 && blocks[admBlocks[i] + 1].Offset.TotalSeconds * stream.SampleRate < stream.Position) {
+                        admBlocks[i]++;
                     }
 
-                    ADMBlockFormat current = blocks[admBlocks[i]],
-                        previous = admBlocks[i] != 0 ? blocks[admBlocks[i] - 1] : current;
+                    ADMBlockFormat current = blocks[admBlocks[i]], previous = admBlocks[i] != 0 ? blocks[admBlocks[i] - 1] : current;
                     float fade = 1;
                     if (!current.Offset.IsZero()) {
                         fade = (float)QMath.LerpInverse(current.Offset.TotalSeconds * stream.SampleRate,
                             (current.Offset + current.Interpolation).TotalSeconds * stream.SampleRate, stream.Position);
                     }
-                    objects[i].Position =
-                        Vector3.Lerp(previous.Position, current.Position, QMath.Clamp01(fade)) * Listener.EnvironmentSize;
+                    objects[i].Position = Vector3.Lerp(previous.Position, current.Position, QMath.Clamp01(fade)) * Listener.EnvironmentSize;
                 }
             }
         }

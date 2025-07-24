@@ -3,7 +3,7 @@
 namespace Cavern.Format.Common {
     /// <summary>
     /// Codecs detected (not neccessarily supported) by Cavern.Format.
-    /// Video codecs come befpre audio, and higher quality (newer, immersive, better overall quality) codecs also come first.
+    /// Video codecs come before audio, and higher quality (newer, immersive, better overall quality) codecs also come first.
     /// </summary>
     public enum Codec {
         /// <summary>
@@ -35,6 +35,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         ADM_BWF_Atmos,
         /// <summary>
+        /// Dolby TrueHD (Meridian Lossless Packing), audio.
+        /// </summary>
+        TrueHD,
+        /// <summary>
         /// Enhanced AC-3 (Dolby Digital Plus), audio.
         /// </summary>
         EnhancedAC3,
@@ -46,11 +50,6 @@ namespace Cavern.Format.Common {
         /// Pulse Code Modulation, little-endian integer, audio.
         /// </summary>
         PCM_LE,
-        /// <summary>
-        /// Dolby TrueHD (Meridian Lossless Packaging), audio.
-        /// </summary>
-        // TODO: move to first place when objects can be decoded, otherwise think of this as a simple 7.1 codec
-        TrueHD,
         /// <summary>
         /// DTS-HD lossless, could be DTS:X, audio.
         /// </summary>

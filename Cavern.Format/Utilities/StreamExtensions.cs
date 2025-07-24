@@ -43,6 +43,19 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Read a number of bytes from the stream, wait until all bytes are available.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] ReadAllBytes(this Stream reader, int length) {
+            byte[] bytes = new byte[length];
+            int totalRead = 0;
+            while (totalRead < length) {
+                totalRead += reader.Read(bytes, totalRead, length - totalRead);
+            }
+            return bytes;
+        }
+
+        /// <summary>
         /// Read a fixed-length ASCII string from the stream.
         /// </summary>
         public static string ReadASCII(this Stream reader, int length) {
@@ -61,19 +74,6 @@ namespace Cavern.Format.Utilities {
         public static byte[] ReadBytes(this Stream reader, int length) {
             byte[] bytes = new byte[length];
             reader.Read(bytes);
-            return bytes;
-        }
-
-        /// <summary>
-        /// Read a number of bytes from the stream, wait until all bytes are available.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte[] ReadAllBytes(this Stream reader, int length) {
-            byte[] bytes = new byte[length];
-            int totalRead = 0;
-            while (totalRead < length) {
-                totalRead += reader.Read(bytes, totalRead, length - totalRead);
-            }
             return bytes;
         }
 
@@ -102,6 +102,18 @@ namespace Cavern.Format.Utilities {
             }
             return Encoding.ASCII.GetString(result.ToArray());
         }
+
+        /// <summary>
+        /// Read a 64-bit floating point number from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double ReadDouble(this Stream reader) => BitConverter.Int64BitsToDouble(reader.ReadInt64());
+
+        /// <summary>
+        /// Read a big-endian 64-bit floating point number from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double ReadDoubleBE(this Stream reader) => BitConverter.Int64BitsToDouble(reader.ReadInt64BE());
 
         /// <summary>
         /// Read a 16-bit signed integer from the stream.
@@ -142,6 +154,15 @@ namespace Cavern.Format.Utilities {
             (long)reader.ReadByte() | ((long)reader.ReadByte() << 8) | ((long)reader.ReadByte() << 16) | ((long)reader.ReadByte() << 24) |
             ((long)reader.ReadByte() << 32) | ((long)reader.ReadByte() << 40) |
             ((long)reader.ReadByte() << 48) | ((long)reader.ReadByte() << 56);
+
+        /// <summary>
+        /// Read a big-endian 64-bit unsigned integer from the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ReadInt64BE(this Stream reader) =>
+            ((long)reader.ReadByte() << 56) | ((long)reader.ReadByte() << 48) | ((long)reader.ReadByte() << 40) |
+            ((long)reader.ReadByte() << 32) | ((long)reader.ReadByte() << 24) | ((long)reader.ReadByte() << 16) |
+            ((long)reader.ReadByte() << 8) | (long)reader.ReadByte();
 
         /// <summary>
         /// Read a 16-bit signed integer from the stream.

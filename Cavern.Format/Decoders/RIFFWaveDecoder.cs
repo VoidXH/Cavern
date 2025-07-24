@@ -13,32 +13,16 @@ namespace Cavern.Format.Decoders {
     /// <summary>
     /// Converts a RIFF WAVE bitstream to raw samples.
     /// </summary>
-    public class RIFFWaveDecoder : Decoder {
+    public class RIFFWaveDecoder : UncompressedDecoder {
         /// <summary>
         /// Object metadata for Broadcast Wave Files.
         /// </summary>
         public AudioDefinitionModel ADM { get; private set; }
 
         /// <summary>
-        /// Bit depth of the WAVE file.
-        /// </summary>
-        public BitDepth Bits { get; private set; }
-
-        /// <summary>
         /// WAVEFORMATEXTENSIBLE channel mask if available.
         /// </summary>
         int channelMask = -1;
-
-        /// <summary>
-        /// The location of the first sample in the file stream. Knowing this allows seeking.
-        /// </summary>
-        readonly long dataStart;
-
-        /// <summary>
-        /// Input stream when reading from a WAV file. If the stream is null, then only a block buffer is available,
-        /// whose parent has to be seeked.
-        /// </summary>
-        readonly Stream stream;
 
         /// <summary>
         /// Converts a RIFF WAVE bitstream to raw samples.
@@ -67,13 +51,13 @@ namespace Cavern.Format.Decoders {
             // RIFF header
             if (!skipSyncWord) {
                 int sync = reader.ReadInt32();
-                if (sync != RIFFWave.syncWord1 && sync != RIFFWave.syncWord1_64) {
+                if (sync != RIFFWaveConsts.syncWord1 && sync != RIFFWaveConsts.syncWord1_64) {
                     throw new SyncException();
                 }
             }
             stream = reader;
             reader.Position += 4; // File length
-            if (reader.ReadInt32() != RIFFWave.syncWord2) {
+            if (reader.ReadInt32() != RIFFWaveConsts.syncWord2) {
                 throw new SyncException();
             }
 
@@ -89,21 +73,21 @@ namespace Cavern.Format.Decoders {
                 if (headerID == 0) {
                     continue;
                 }
-                long headerSize = (uint)reader.ReadInt32();
+                long headerSize = reader.ReadUInt32();
                 if (sizeOverrides != null && sizeOverrides.ContainsKey(headerID)) {
                     headerSize = sizeOverrides[headerID];
                 }
 
                 switch (headerID) {
-                    case RIFFWave.formatSync:
+                    case RIFFWaveConsts.formatSync:
                         long headerEnd = reader.Position + headerSize;
                         ParseFormatHeader(reader);
                         reader.Position = headerEnd;
                         break;
-                    case RIFFWave.ds64Sync:
+                    case RIFFWaveConsts.ds64Sync:
                         sizeOverrides = new Dictionary<int, long> {
-                            [RIFFWave.syncWord1_64] = reader.ReadInt64(),
-                            [RIFFWave.dataSync] = reader.ReadInt64()
+                            [RIFFWaveConsts.syncWord1_64] = reader.ReadInt64(),
+                            [RIFFWaveConsts.dataSync] = reader.ReadInt64()
                         };
                         reader.Position += 8; // Sample count, redundant
                         int additionalSizes = reader.ReadInt32();
@@ -112,14 +96,14 @@ namespace Cavern.Format.Decoders {
                             sizeOverrides[headerID] = reader.ReadInt64();
                         }
                         break;
-                    case RIFFWave.axmlSync:
+                    case RIFFWaveConsts.axmlSync:
                         ADM = new AudioDefinitionModel(reader, headerSize, true);
                         break;
-                    case RIFFWave.chnaSync:
+                    case RIFFWaveConsts.chnaSync:
                         chna = new ChannelAssignment(reader);
                         break;
-                    case RIFFWave.dataSync:
-                        Length = headerSize * 8L / (long)Bits / ChannelCount;
+                    case RIFFWaveConsts.dataSync:
+                        Length = headerSize / ((long)Bits >> 3) / ChannelCount;
                         dataStart = reader.Position;
                         if (dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags
                             reader.Position = dataStart + headerSize;
@@ -147,42 +131,8 @@ namespace Cavern.Format.Decoders {
             if (channelMask == -1) {
                 return ChannelPrototype.GetStandardMatrix(ChannelCount);
             } else {
-                return RIFFWave.ParseChannelMask(channelMask);
+                return RIFFWaveConsts.ParseChannelMask(channelMask);
             }
-        }
-
-        /// <summary>
-        /// Read and decode a given number of samples.
-        /// </summary>
-        /// <param name="target">Array to decode data into</param>
-        /// <param name="from">Start position in the input array (inclusive)</param>
-        /// <param name="to">End position in the input array (exclusive)</param>
-        /// <remarks>The next to - from samples will be read from the file.
-        /// All samples are counted, not just a single channel.</remarks>
-        public override void DecodeBlock(float[] target, long from, long to) {
-            const long skip = FormatConsts.blockSize / sizeof(float); // Source split optimization for both memory and IO
-            if (to - from > skip) {
-                for (; from < to; from += skip) {
-                    DecodeBlock(target, from, Math.Min(to, from + skip));
-                }
-                return;
-            }
-
-            DecodeLittleEndianBlock(reader, target, from, to, Bits);
-            Position += (to - from) / ChannelCount;
-        }
-
-        /// <summary>
-        /// Start the following reads from the selected sample.
-        /// </summary>
-        /// <param name="sample">The selected sample, for a single channel</param>
-        public override void Seek(long sample) {
-            if (stream == null) {
-                throw new StreamingException();
-            }
-            stream.Position = dataStart + sample * ChannelCount * ((int)Bits >> 3);
-            Position = sample;
-            reader.Clear();
         }
 
         /// <summary>

@@ -76,7 +76,8 @@ namespace WavefrontSimulator {
                 float[] samples = reader.Read();
                 int cut1 = dialog.FileName.IndexOf('_'), cut2 = dialog.FileName.IndexOf('.');
                 string channelName = dialog.FileName[(cut1 + 1)..cut2];
-                ChannelPrototype channel = ChannelPrototype.FromStandardName(channelName);
+                ReferenceChannel reference = ChannelPrototype.FromStandardName(channelName);
+                ChannelPrototype channel = ChannelPrototype.Mapping[(int)reference];
                 data.Add(new Simulated(new Channel(channel.X, channel.Y), samples));
                 sampleRate = reader.SampleRate;
                 clear.IsEnabled = true;

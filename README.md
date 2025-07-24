@@ -21,7 +21,9 @@ Cavernize.
     * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
     * Limitless Audio Format
     * RIFF WAVE
+	* Core Audio Format
     * Audio Definition Model Broadcast Wave Format
+	* Dolby Atmos Master Format
   * Supported containers: .ac3, .eac3, .ec3, .laf, .m4a, .m4v, .mka, .mkv, .mov, .mp4, .qt, .wav, .weba, .webm
 * Advanced self-calibration with a microphone
   * Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity

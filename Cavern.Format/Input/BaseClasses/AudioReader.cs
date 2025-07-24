@@ -17,7 +17,7 @@ namespace Cavern.Format {
         /// <summary>
         /// Filter to all supported file types for open file dialogs. These are the containers supported by <see cref="Open(string)"/>.
         /// </summary>
-        public static readonly string filter = "*.ac3;*.eac3;*.ec3;*.laf;*.m4a;*.m4v;*.mka;*.mkv;*.mov;*.mp4;*.mxf;*.qt;*.wav;*.weba;*.webm";
+        public static readonly string filter = "*.ac3;*.atmos;*.caf;*.eac3;*.ec3;*.laf;*.m4a;*.m4v;*.mka;*.mkv;*.mov;*.mp4;*.mxf;*.qt;*.wav;*.weba;*.webm";
 
         /// <summary>
         /// Content channel count.
@@ -65,16 +65,22 @@ namespace Cavern.Format {
         /// Open an audio stream for reading. The format will be detected automatically.
         /// </summary>
         public static AudioReader Open(Stream reader) {
+            if (reader is FileStream file && file.Name.EndsWith(".atmos", StringComparison.OrdinalIgnoreCase)) {
+                return new DolbyAtmosMasterFormatReader(file.Name);
+            }
+
             int syncWord = reader.ReadInt32();
             if ((syncWord & 0xFFFF) == EnhancedAC3.syncWordLE) {
                 return new EnhancedAC3Reader(reader, syncWord);
             }
 
             switch (syncWord) {
-                case RIFFWave.syncWord1:
-                case RIFFWave.syncWord1_64:
+                case CoreAudioFormatConsts.syncWord:
+                    return new CoreAudioFormatReader(reader, true);
+                case RIFFWaveConsts.syncWord1:
+                case RIFFWaveConsts.syncWord1_64:
                     return new RIFFWaveReader(reader, true);
-                case LimitlessAudioFormat.syncWord:
+                case LimitlessAudioFormatConsts.syncWord:
                     return new LimitlessAudioFormatReader(reader, true);
                 case MatroskaTree.EBML_LE:
                     reader.Position = 0;

@@ -20,11 +20,6 @@ namespace Cavern.Format.Decoders {
         public DolbyMetadata DBMD { get; }
 
         /// <summary>
-        /// Bit depth of the WAVE file.
-        /// </summary>
-        public BitDepth Bits { get; private set; }
-
-        /// <summary>
         /// The file size according to the RIFF header.
         /// </summary>
         public long FileLength { get; private set; }
@@ -43,7 +38,7 @@ namespace Cavern.Format.Decoders {
         /// List of all chunks and their sizes for debugging.
         /// </summary>
         public IReadOnlyList<(string chunk, long size)> ChunkSizes => chunkSizes;
-        readonly List<(string chunk, long size)> chunkSizes = new List<(string chunk, long size)>();
+        readonly List<(string chunk, long size)> chunkSizes = [];
 
         /// <summary>
         /// Reads a WAV header for testing.
@@ -51,11 +46,11 @@ namespace Cavern.Format.Decoders {
         public RIFFWaveTester(Stream reader) {
             // RIFF header
             int sync = reader.ReadInt32();
-            if (sync != RIFFWave.syncWord1 && sync != RIFFWave.syncWord1_64) {
+            if (sync != RIFFWaveConsts.syncWord1 && sync != RIFFWaveConsts.syncWord1_64) {
                 throw new SyncException();
             }
             FileLength = reader.ReadInt32();
-            if (reader.ReadInt32() != RIFFWave.syncWord2) {
+            if (reader.ReadInt32() != RIFFWaveConsts.syncWord2) {
                 throw new SyncException();
             }
 
@@ -73,28 +68,28 @@ namespace Cavern.Format.Decoders {
                     continue;
                 }
                 long headerSize = reader.ReadUInt32();
-                if (sizeOverrides != null && sizeOverrides.ContainsKey(headerID)) {
+                if (sizeOverrides != null && sizeOverrides.TryGetValue(headerID, out long value)) {
                     if (headerSize != 0xFFFFFFFF) {
                         RF64Mismatch = true;
                     }
-                    headerSize = sizeOverrides[headerID];
+                    headerSize = value;
                 }
 
                 if ((reader.Position & 1) == 1) {
                     DwordAligned = false;
                 }
-                chunkSizes.Add((new string(headerID.ToFourCC().Reverse().ToArray()), headerSize));
+                chunkSizes.Add((new string([.. headerID.ToFourCC().Reverse()]), headerSize));
 
                 switch (headerID) {
-                    case RIFFWave.formatSync:
+                    case RIFFWaveConsts.formatSync:
                         long headerEnd = reader.Position + headerSize;
                         ParseFormatHeader(reader);
                         reader.Position = headerEnd;
                         break;
-                    case RIFFWave.ds64Sync:
+                    case RIFFWaveConsts.ds64Sync:
                         sizeOverrides = new Dictionary<uint, long> {
-                            [RIFFWave.syncWord1_64] = FileLength = reader.ReadInt64(),
-                            [RIFFWave.dataSync] = reader.ReadInt64()
+                            [RIFFWaveConsts.syncWord1_64] = FileLength = reader.ReadInt64(),
+                            [RIFFWaveConsts.dataSync] = reader.ReadInt64()
                         };
                         reader.Position += 8; // Sample count, redundant
                         int additionalSizes = reader.ReadInt32();
@@ -103,16 +98,16 @@ namespace Cavern.Format.Decoders {
                             sizeOverrides[headerID] = reader.ReadInt64();
                         }
                         break;
-                    case RIFFWave.axmlSync:
+                    case RIFFWaveConsts.axmlSync:
                         ADM = new AudioDefinitionModel(reader, headerSize, false);
                         break;
-                    case RIFFWave.chnaSync:
+                    case RIFFWaveConsts.chnaSync:
                         chna = new ChannelAssignment(reader);
                         break;
-                    case RIFFWave.dbmdSync:
+                    case RIFFWaveConsts.dbmdSync:
                         DBMD = new DolbyMetadata(reader, headerSize, true);
                         break;
-                    case RIFFWave.dataSync:
+                    case RIFFWaveConsts.dataSync:
                         Length = headerSize * 8L / (long)Bits / ChannelCount;
                         long dataStart = reader.Position;
                         if (dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags

@@ -2,7 +2,7 @@
     /// <summary>
     /// Used for both <see cref="LimitlessAudioFormatReader"/> and <see cref="LimitlessAudioFormatWriter"/>.
     /// </summary>
-    internal static class LimitlessAudioFormat {
+    internal static class LimitlessAudioFormatConsts {
         /// <summary>
         /// First half of the LIMITLESS word as a single int for quick format detection.
         /// </summary>

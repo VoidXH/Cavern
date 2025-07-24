@@ -62,9 +62,13 @@
     <system:String x:Key="DropF">Több fájlt egyszerre csak a Soron lehet elhelyezni.
         Húzd ki az ablak jobb szélét, hogy megjelenítsd.</system:String>
     <system:String x:Key="IrErr">Az impulzusválasz fájl hibás. Pontosabban: {0}</system:String>
-    <system:String x:Key="ImFmt">Minden támogatott formátum|{0}|(Enhanced)
-        AC-3|*.ac3;*.eac3;*.ec3|Filmek|*.mkv;*.mka;*.mov;*.mp4;*.qt;*.webm;*.weba|RIFF
-        WAVE, ADM BWF|*.wav|Limitless Audio Format|*.laf</system:String>
+    <system:String x:Key="ImFmt">Minden támogatott formátum|{0}|
+        Filmek|*.mkv;*.mka;*.mov;*.mp4;*.qt;*.webm;*.weba|
+        (Enhanced) AC-3|*.ac3;*.eac3;*.ec3|
+        Core Audio Format|*.caf|
+        Dolby Atmos Master Format|*.atmos|
+        RIFF WAVE, ADM BWF|*.wav|
+        Limitless Audio Format|*.laf</system:String>
     <system:String x:Key="OpRun">Egy művelet már fut, kérlek várj, amíg befejeződik.</system:String>
     <system:String x:Key="OpRes">A módosítások a Cavernize újraindítása után lépnek életbe.</system:String>
     <system:String x:Key="LdSrc">Kérlek, tölts be egy fájlt, aminek legalább egy hangsávja támogatott rendereléshez.</system:String>
