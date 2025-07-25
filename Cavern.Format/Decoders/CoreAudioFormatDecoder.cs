@@ -44,7 +44,7 @@ namespace Cavern.Format.Decoders {
                         break;
                     case RIFFWaveConsts.dataSync:
                         Length = chunkSize / ((long)Bits >> 3) / ChannelCount;
-                        dataStart = reader.Position + 1; // Why is +1 needed?
+                        dataStart = reader.Position + 4; // First 4 bytes are the edit count
                         break;
                     default:
                         stream.Position += chunkSize;

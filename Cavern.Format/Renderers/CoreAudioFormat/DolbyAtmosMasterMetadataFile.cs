@@ -18,6 +18,7 @@ namespace Cavern.Format.Renderers.CoreAudioFormat {
         /// <summary>
         /// Parses the .metadata file of a Dolby Atmos Master Format export to internal data representations.
         /// </summary>
+        /// <param name="source">Pre-parsed .metadata file</param>
         /// <param name="mapping">Maps PCM stream indices from the .audio file to internal object ID (those are the values)</param>
         public DolbyAtmosMasterMetadataFile(YAML source, int[] mapping) {
             Dictionary<int, int> inverseMapping = InvertMapping(mapping);
@@ -45,7 +46,7 @@ namespace Cavern.Format.Renderers.CoreAudioFormat {
                 if (current.TryGetValue("pos", out object rawPosition) &&
                     rawPosition is string positionSource) {
                     string[] parts = positionSource[1..^1].Split(", ");
-                    position = new Vector3(QMath.ParseFloat(parts[0]), QMath.ParseFloat(parts[1]), QMath.ParseFloat(parts[2]));
+                    position = new Vector3(QMath.ParseFloat(parts[0]), QMath.ParseFloat(parts[2]), QMath.ParseFloat(parts[1]));
                 }
 
                 float gain = lastFrames[id].gain;
