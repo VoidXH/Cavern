@@ -24,8 +24,21 @@ namespace Cavern.Format {
         /// </summary>
         public DolbyAtmosMasterFormatReader(string path) : base(null, false) {
             root = new YAML(File.ReadAllText(path));
-            reader = File.OpenRead(path + ".audio");
             metadata = new YAML(File.ReadAllText(path + ".metadata"));
+
+            string audioPath = path + ".audio";
+            if (File.Exists(audioPath)) {
+                reader = File.OpenRead(audioPath);
+                return;
+            }
+            if (path.Length > 6) {
+                audioPath = path[..^6] + ".caf";
+                if (File.Exists(audioPath)) {
+                    reader = File.OpenRead(audioPath);
+                    return;
+                }
+            }
+            throw new FileNotFoundException("No audio file (.atmos.audio or .caf) was found.", path);
         }
 
         /// <inheritdoc/>
