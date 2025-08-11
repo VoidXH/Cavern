@@ -225,7 +225,9 @@ namespace Cavern.Format {
         /// Goes back to a state where the first sample can be read.
         /// </summary>
         public virtual void Reset() {
-            reader.Position = 0;
+            if (reader.Position != 0) {
+                reader.Position = 0;
+            }
             ReadHeader();
         }
 

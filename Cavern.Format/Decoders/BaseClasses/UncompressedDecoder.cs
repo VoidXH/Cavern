@@ -21,7 +21,7 @@ namespace Cavern.Format.Decoders {
         protected long dataStart;
 
         /// <summary>
-        /// Input stream when reading from a CAF file. If the stream is null, then only a block buffer is available, whose parent has to be seeked.
+        /// Input stream when reading from an uncompressed file. If the stream is null, then only a block buffer is available, whose parent has to be seeked.
         /// </summary>
         protected Stream stream;
 
