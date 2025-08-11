@@ -13,9 +13,10 @@ All values are little endian.
     * 1 - Object mode: individual objects are exported with movement data embedded in the PCM blocks.
 * 4 bytes: channel/object count
 * 9 bytes for each channel/object
-    * Rotation on X axis (32-bit floating point)
-    * Rotation on Y axis (32-bit floating point)
+    * Rotation on X axis (32-bit floating point, positive is down)
+    * Rotation on Y axis (32-bit floating point, positive is to the right)
     * Low frequency (1 byte boolean, 0 if false)
+	* All rotations are degrees and can overflow since it's a user input
 * 4 bytes: sample rate
 * 8 bytes: total samples
 * PCM audio blocks for each second
@@ -47,7 +48,7 @@ must match with a 16-channel position track. The positions follow each other by
 their index, and the order of the dimensions is width, height, depth.
 
 Position tracks contain the values dimension by dimension, object by object
-(object 1 X, object 1 Y, object 1 Z, object 2 X...). LAF is using a right-handed
+(object 1 X, object 1 Y, object 1 Z, object 2 X...). LAF is using a left-handed
 Cartesian coordinate system. The bit depth of the content sets the precision of
 object positions, these values are encoded the exact same way PCM samples are:
 from -1 to 1 (these limits are the walls of the virtual room), multiplied by the
