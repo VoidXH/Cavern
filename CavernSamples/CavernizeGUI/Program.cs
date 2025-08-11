@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 
 using VoidX.WPF.FFmpeg;
 
@@ -29,20 +28,11 @@ namespace CavernizeGUI {
             Cavern.WPF.Consts.Language.Override = Settings.Default.language;
             try {
                 app.InitializeComponent();
-                if (!ConsoleMode) {
-                    FreeConsole();
-                }
             } catch {
                 Console.WriteLine((string)Consts.Language.GetMainWindowStrings()["dnErr"]);
                 Console.ReadKey();
             }
             app.Run();
         }
-
-        /// <summary>
-        /// Close the console window.
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        static extern bool FreeConsole();
     }
 }
