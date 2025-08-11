@@ -55,6 +55,9 @@ namespace Cavern.Format {
             Bits = info.Bits;
 
             switch (track.Format) {
+                case Codec.TrueHD:
+                    decoder = new MeridianLosslessPackingDecoder(new BlockBuffer<byte>(track.ReadNextBlock));
+                    break;
                 case Codec.AC3:
                 case Codec.EnhancedAC3:
                     decoder = new EnhancedAC3Decoder(new BlockBuffer<byte>(track.ReadNextBlock));
@@ -77,11 +80,14 @@ namespace Cavern.Format {
             if (decoder == null) {
                 ReadHeader();
             }
-            if (decoder is RIFFWaveDecoder wav) {
-                return new RIFFWaveRenderer(wav);
+            if (decoder is MeridianLosslessPackingDecoder mlp) {
+                return new MeridianLosslessPackingRenderer(mlp);
             }
             if (decoder is EnhancedAC3Decoder eac3) {
                 return new EnhancedAC3Renderer(eac3);
+            }
+            if (decoder is RIFFWaveDecoder wav) {
+                return new RIFFWaveRenderer(wav);
             }
             if (decoder is DummyDecoder dummy) {
                 return new DummyRenderer(dummy);
