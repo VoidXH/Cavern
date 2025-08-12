@@ -1,28 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
-    <!-- Track info -->
-    <system:String x:Key="NoSup">Format unsupported by Cavern</system:String>
-    <system:String x:Key="E3JOC">Enhanced AC-3 with Joint Object Coding</system:String>
-    <system:String x:Key="ObTra">Object-based audio track</system:String>
-    <system:String x:Key="ChTra">Channel-based audio track</system:String>
-    <system:String x:Key="SouCh">Source channels</system:String>
-    <system:String x:Key="MatBe">Matrixed beds</system:String>
-    <system:String x:Key="MatOb">Matrixed objects</system:String>
-    <system:String x:Key="SouBe">Bed channels</system:String>
-    <system:String x:Key="SouDy">Dynamic objects</system:String>
-    <system:String x:Key="Chans">Channels</system:String>
-    <system:String x:Key="WiObj">with objects</system:String>
-
-    <!-- Invalid track -->
-    <system:String x:Key="InvTr">This track could not be decoded. The following error happened while decoding:</system:String>
-    <system:String x:Key="Later">This might be fixed in later versions. Please try updating Cavernize,
-        and if the problem persists with the latest version, contact the developer at www.sbence.hu.</system:String>
-
-    <!-- Translatable codec names -->
-    <system:String x:Key="PCM_Float">PCM (floating point)</system:String>
-    <system:String x:Key="PCM_LE">PCM (integer)</system:String>
-
     <!-- Export formats -->
     <system:String x:Key="C_AC3">AC-3 (mediocre, supports SPDIF)</system:String>
     <system:String x:Key="CEAC3">Enhanced AC-3 (mediocre, supports HDMI ARC)</system:String>

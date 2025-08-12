@@ -30,9 +30,4 @@
 	  <ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
 	  <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Compile Update="UpmixingSetup.xaml.cs">
-	    <SubType>Code</SubType>
-	  </Compile>
-	</ItemGroup>
 </Project>

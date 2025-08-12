@@ -36,8 +36,20 @@ namespace VoidX.WPF {
                 return val;
             }
             set {
-                taskbar?.Dispatcher.Invoke(() => taskbar.ProgressValue = value < 1 ? value : 0);
-                progressBar?.Dispatcher.Invoke(() => progressBar.Value = value);
+                taskbar?.Dispatcher.Invoke(() => {
+                    if (value < 0) {
+                        taskbar.ProgressState = TaskbarItemProgressState.Indeterminate;
+                    } else {
+                        taskbar.ProgressState = TaskbarItemProgressState.Normal;
+                        taskbar.ProgressValue = value < 1 ? value : 0;
+                    }
+                });
+                progressBar?.Dispatcher.Invoke(() => {
+                    progressBar.IsIndeterminate = value < 0;
+                    if (value >= 0) {
+                        progressBar.Value = value;
+                    }
+                });
             }
         }
 
@@ -90,6 +102,7 @@ namespace VoidX.WPF {
         /// Free up resources.
         /// </summary>
         public void Dispose() {
+            GC.SuppressFinalize(this);
             try {
                 operation?.Dispose();
             } catch {

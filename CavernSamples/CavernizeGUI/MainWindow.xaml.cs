@@ -145,7 +145,13 @@ namespace CavernizeGUI {
         /// <summary>
         /// Displays an error message.
         /// </summary>
-        static void Error(string message) => MessageBox.Show(message, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+        static void Error(string message) {
+            if (Program.ConsoleMode) {
+                Console.Error.WriteLine(message);
+            } else {
+                MessageBox.Show(message, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
         /// <summary>
         /// Perform one-time UI updates after the window is initialized and displayed.

@@ -40,7 +40,6 @@
 
 	<ItemGroup>
 		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpegGUI.cs" Link="VoidX.WPF\FFmpeg\FFmpegGUI.cs" />
-		<Compile Include="..\VoidX.WPF\HTTP.cs" Link="VoidX.WPF\HTTP.cs" />
 		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="VoidX.WPF\TaskEngine.cs" />
 		<Compile Include="..\VoidX.WPF\UpdateCheck.cs" Link="VoidX.WPF\UpdateCheck.cs" />
 	</ItemGroup>

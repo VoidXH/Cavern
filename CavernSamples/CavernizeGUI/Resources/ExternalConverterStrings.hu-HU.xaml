@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="LicNe">A Cavernize {0}-t használ {1} fájlok konvertálásához. Automatikusan le lesz töltve,
+        de előtte el kell fogadnod a licenszének feltételeit.</system:String>
+    <system:String x:Key="LicFe">Fetching licence...</system:String>
+    <system:String x:Key="LicFa">Failed to fetch licence.</system:String>
+    <system:String x:Key="LicWa">Waiting for user approval...</system:String>
+    <system:String x:Key="LicCa">The licence was not accepted.</system:String>
+    <system:String x:Key="ExDow">Downloading {0}...</system:String>
+    <system:String x:Key="ExExt">Extracting {0}...</system:String>
+    <system:String x:Key="ExRaw">Extracting raw bitstream...</system:String>
+    <system:String x:Key="ConvW">Converting with {0}...</system:String>
+    <system:String x:Key="DlErr">Downloading failed because of a network error.</system:String>
+</ResourceDictionary>

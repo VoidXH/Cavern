@@ -19,6 +19,7 @@
 		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegArgument.cs" Link="VoidX.WPF\FFmpeg\FFmpegArgument.cs" />
 		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegConfigurator.cs" Link="VoidX.WPF\FFmpeg\FFmpegConfigurator.cs" />
 		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegStream.cs" Link="VoidX.WPF\FFmpeg\FFmpegStream.cs" />
+		<Compile Include="..\..\VoidX.WPF\HTTP.cs" Link="VoidX.WPF\HTTP.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Cavern\Cavern.csproj" />

@@ -66,6 +66,16 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     public (string property, string value)[] Details { get; protected set; }
 
     /// <summary>
+    /// The file in which this track is stored, or null if it's a network stream.
+    /// </summary>
+    public string Path => reader.Path;
+
+    /// <summary>
+    /// Raw access to the track's stream.
+    /// </summary>
+    public Track Track => reader is AudioTrackReader trackReader ? trackReader.track : null;
+
+    /// <summary>
     /// Source of audio data.
     /// </summary>
     readonly AudioReader reader;
@@ -151,7 +161,7 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
             RunningChannelSeparator separator = new RunningChannelSeparator(channels.Length) {
                 GetSamples = input => reader.ReadBlock(input, 0, input.Length)
             };
-            upmixer.OnSamplesNeeded = updateRate => separator.Update(updateRate);
+            upmixer.OnSamplesNeeded = separator.Update;
 
             listener.LFESeparation = channels.Contains(ReferenceChannel.ScreenLFE); // Apply crossover if LFE is not present
             attachables = upmixer.IntermediateSources;
@@ -174,8 +184,7 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     /// <summary>
     /// Get the video tracks this audio track is accompanying.
     /// </summary>
-    public Cavern.Format.Common.Track[] GetVideoTracks() =>
-        reader is AudioTrackReader trackReader ? trackReader.Source.Tracks.Where(x => x.Format.IsVideo()).ToArray() : null;
+    public Track[] GetVideoTracks() => reader is AudioTrackReader trackReader ? trackReader.Source.Tracks.Where(x => x.Format.IsVideo()).ToArray() : null;
 
     /// <summary>
     /// Gets the metadata for this codec in a human-readable format.
@@ -207,6 +216,7 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     /// Expanded names of codecs for which the enum is a shorthand.
     /// </summary>
     static readonly Dictionary<Codec, string> formatNames = new() {
+        [Codec.DAMF] = "Dolby Atmos Master Format",
         [Codec.DTS] = "DTS Coherent Acoustics",
         [Codec.DTS_HD] = "DTS-HD",
         [Codec.AC3] = "AC-3",

@@ -15,6 +15,11 @@ namespace Cavern.Format {
         public ContainerReader Source => track.Source;
 
         /// <summary>
+        /// The referenced track from a container.
+        /// </summary>
+        public readonly Track track;
+
+        /// <summary>
         /// Decoder based on the <see cref="Codec"/> of the selected stream.
         /// </summary>
         Decoder decoder;
@@ -24,11 +29,6 @@ namespace Cavern.Format {
         /// the container is disposed with this track.
         /// </summary>
         readonly bool disposeSource;
-
-        /// <summary>
-        /// The referenced track from a container.
-        /// </summary>
-        readonly Track track;
 
         /// <summary>
         /// Reads an audio track from a container.

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using Cavern.Format.Common;
 
@@ -6,7 +7,7 @@ namespace Cavern.Format.Operations {
     /// <summary>
     /// Extracts a single track from a container format, such as an MKV file.
     /// </summary>
-    public sealed class ExtractTrackFromContainer {
+    public sealed class ExtractTrackFromContainer : IDisposable {
         /// <summary>
         /// The track to extract from the container.
         /// </summary>
@@ -38,5 +39,8 @@ namespace Cavern.Format.Operations {
             output.Write(data);
             return true;
         }
+
+        /// <inheritdoc/>
+        public void Dispose() => output.Dispose();
     }
 }

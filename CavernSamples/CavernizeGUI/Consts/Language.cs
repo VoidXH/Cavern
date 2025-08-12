@@ -23,6 +23,13 @@ namespace CavernizeGUI.Consts {
         public static ResourceDictionary GetTrackStrings() => trackCache ??= GetFor("TrackStrings");
 
         /// <summary>
+        /// Get the external converters' translation.
+        /// </summary>
+        public static ExternalConverterStrings GetExternalConverterStrings() => externalConverterCache ??= IsDefaultLanguage() ?
+            new ExternalConverterStrings() :
+            new DynamicExternalConverterStrings(GetFor("ExternalConverterStrings"));
+
+        /// <summary>
         /// Get the post-render report dialog's translation.
         /// </summary>
         public static RenderReportStrings GetRenderReportStrings() => renderReportCache ??= IsDefaultLanguage() ?
@@ -78,6 +85,11 @@ namespace CavernizeGUI.Consts {
         /// The loaded translation of <see cref="Track"/>s for reuse.
         /// </summary>
         static ResourceDictionary trackCache;
+
+        /// <summary>
+        /// The loaded translation of external converter handling for reuse.
+        /// </summary>
+        static ExternalConverterStrings externalConverterCache;
 
         /// <summary>
         /// The loaded translation of the post-render report dialog for reuse.

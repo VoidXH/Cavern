@@ -35,6 +35,10 @@ namespace Cavern.Format.Common {
         /// </summary>
         ADM_BWF_Atmos,
         /// <summary>
+        /// Dolby Atmos Master Format, audio.
+        /// </summary>
+        DAMF,
+        /// <summary>
         /// Dolby TrueHD (Meridian Lossless Packing), audio.
         /// </summary>
         TrueHD,

@@ -72,7 +72,7 @@ public class AudioFile : IDisposable {
                 AddTracksFromContainer(new MXFReader(Path));
                 break;
             case "atmos":
-                AddStandaloneTrack(new DolbyAtmosMasterFormatReader(Path));
+                AddStandaloneTrack(new DolbyAtmosMasterFormatReader(Path), Codec.DAMF);
                 break;
             case "caf":
                 AddStandaloneTrack(new CoreAudioFormatReader(Path));
@@ -123,10 +123,12 @@ public class AudioFile : IDisposable {
     /// <summary>
     /// Add a track from a file that contains the raw bitstream of a single audio track.
     /// </summary>
-    void AddStandaloneTrack(AudioReader reader) {
-        Codec bits = reader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE;
-        tracks.Add(new CavernizeTrack(reader, bits, 0, language));
-    }
+    void AddStandaloneTrack(AudioReader reader) => AddStandaloneTrack(reader, reader.Bits == BitDepth.Float32 ? Codec.PCM_Float : Codec.PCM_LE);
+
+    /// <summary>
+    /// Add a track from a file that contains the raw bitstream of a single audio track.
+    /// </summary>
+    void AddStandaloneTrack(AudioReader reader, Codec codec) => tracks.Add(new CavernizeTrack(reader, codec, 0, language));
 
     /// <summary>
     /// Add the tracks of a container to the track list.

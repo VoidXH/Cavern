@@ -12,11 +12,14 @@ using Cavern.Format.Environment;
 using Cavern.Format.Renderers;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
+using Cavern.WPF;
 
 using Cavernize.Logic;
+using Cavernize.Logic.External;
+using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
-using Cavernize.Logic.Rendering;
 using Cavernize.Logic.Models.RenderTargets;
+using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
@@ -243,10 +246,28 @@ namespace CavernizeGUI {
         /// Render the content and export it to a channel-based format.
         /// </summary>
         void RenderTask(CavernizeTrack target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
-            taskEngine.Progress = 0;
-            taskEngine.UpdateStatus((string)language["Start"]);
             RenderTarget renderTargetRef = null;
             Dispatcher.Invoke(() => renderTargetRef = (RenderTarget)renderTarget.SelectedItem);
+
+            ExternalConverter external = null;
+            if (target.Codec == Codec.TrueHD) { // Use truehdd if needed
+                external = new Truehdd(Consts.Language.GetExternalConverterStrings());
+            }
+            if (external != null) {
+                taskEngine.Progress = -1;
+                external.UpdateStatus += taskEngine.UpdateStatus;
+                Dispatcher.Invoke(() => {
+                    external.LicenceDisplay = new LicenceWindow();
+                    external.PrepareOnUI();
+                });
+
+                target = external.Convert(target);
+                listener.DetachAllSources();
+                target.Attach(listener, new DynamicUpmixingSettings());
+            }
+
+            taskEngine.Progress = 0;
+            taskEngine.UpdateStatus((string)language["Start"]);
             RenderStats stats = WriteRender(target, writer, renderTargetRef, dynamicOnly, heightOnly);
             report.Generate(stats);
 
@@ -262,12 +283,13 @@ namespace CavernizeGUI {
                     merger.Allow8PlusChannels();
                 }
                 if (!merger.Merge(ffmpeg, finalName)) {
-                    taskEngine.UpdateStatus("Failed to create the final file. " +
-                        "Are your permissions sufficient in the export folder?");
+                    taskEngine.UpdateStatus("Failed to create the final file. Are your permissions sufficient in the export folder?");
+                    external?.Cleanup();
                     return;
                 }
             }
 
+            external?.Cleanup();
             FinishTask(target);
         }
 
@@ -300,11 +322,7 @@ namespace CavernizeGUI {
             }
 
             if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.WorkedAround) {
-                if (Program.ConsoleMode) {
-                    Console.WriteLine((string)language["JocWa"]);
-                } else {
-                    Error((string)language["JocWa"]);
-                }
+                Error((string)language["JocWa"]);
             }
         }
 

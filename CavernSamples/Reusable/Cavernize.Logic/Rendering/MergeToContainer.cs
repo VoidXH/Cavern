@@ -1,7 +1,7 @@
 ﻿using Cavern.Format.Common;
-using VoidX.WPF.FFmpeg;
 
 using Cavernize.Logic.Models;
+using VoidX.WPF.FFmpeg;
 
 namespace Cavernize.Logic.Rendering;
 

@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:String x:Key="BtnOk">OK</system:String>
+    <system:String x:Key="BtnAc">Elfogad</system:String>
     <system:String x:Key="BtnCa">Mégse</system:String>
     <system:String x:Key="TErro">Hiba</system:String>
     <system:String x:Key="TWarn">Figyelmeztetés</system:String>

@@ -7,7 +7,7 @@ namespace VoidX.WPF {
     /// <summary>
     /// HTTP utilities.
     /// </summary>
-    static class HTTP {
+    public static class HTTP {
         /// <summary>
         /// Gets a HTTP resource with a timeout.
         /// </summary>
