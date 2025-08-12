@@ -256,12 +256,19 @@ namespace CavernizeGUI {
             if (external != null) {
                 taskEngine.Progress = -1;
                 external.UpdateStatus += taskEngine.UpdateStatus;
-                Dispatcher.Invoke(() => {
-                    external.LicenceDisplay = new LicenceWindow();
-                    external.PrepareOnUI();
-                });
-
-                target = external.Convert(target);
+                try {
+                    Dispatcher.Invoke(() => {
+                        external.LicenceDisplay = new LicenceWindow();
+                        external.PrepareOnUI();
+                    });
+                    target = external.Convert(target);
+                } catch (Exception e) {
+                    Dispatcher.Invoke(() => {
+                        taskEngine.UpdateStatus(e.Message);
+                        taskEngine.Progress = 1;
+                    });
+                    return;
+                }
                 listener.DetachAllSources();
                 target.Attach(listener, new DynamicUpmixingSettings());
             }

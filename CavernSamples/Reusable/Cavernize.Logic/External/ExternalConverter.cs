@@ -20,6 +20,11 @@ public abstract class ExternalConverter(ExternalConverterStrings language) {
     public ILicence LicenceDisplay { get; set; }
 
     /// <summary>
+    /// Where to work with external software.
+    /// </summary>
+    protected readonly string cavernizeData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Cavernize");
+
+    /// <summary>
     /// Database of localized strings.
     /// </summary>
     protected ExternalConverterStrings language = language;

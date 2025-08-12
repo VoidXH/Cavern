@@ -25,16 +25,34 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
     /// </summary>
     string tempTrack;
 
+    /// <summary>
+    /// Where to save the truehdd zip file.
+    /// </summary>
+    string cacheZip;
+
+    /// <summary>
+    /// If this folder exists, truehdd was properly downloaded and unpacked.
+    /// </summary>
+    string unpackDir;
+
+    /// <summary>
+    /// Save the downloaded truehdd version to this file so it can be checked later.
+    /// </summary>
+    string versionFile;
+
     /// <inheritdoc/>
     public override void PrepareOnUI() {
+        versionFile = Path.Combine(cavernizeData, "truehdd.version");
+        unpackDir = Path.Combine(cavernizeData, "truehdd");
         if (File.Exists(versionFile)) {
             return;
         }
+        cacheZip = Path.Combine(cavernizeData, "truehdd.zip");
 
         UpdateStatusMessage(language.LicenceFetch);
         string licence = HTTP.GET(licenceUrl) ?? throw new NetworkException(language.LicenceFail);
         UpdateStatusMessage(language.WaitingUserAccept);
-        LicenceDisplay.SetDescription(string.Format(language.LicenceNeeded, unpackDir, "Meridian Lossless Packing"));
+        LicenceDisplay.SetDescription(string.Format(language.LicenceNeeded, "truehdd", "Meridian Lossless Packing"));
         LicenceDisplay.SetLicenceText(licence);
         if (!LicenceDisplay.Prompt()) {
             throw new OperationCanceledException(language.UserCancelled);
@@ -60,7 +78,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             }
         }
 
-        UpdateStatusMessage(string.Format(language.Converting, unpackDir));
+        UpdateStatusMessage(string.Format(language.Converting, "truehdd"));
         ProcessStartInfo truehdd = new() {
             FileName = Path.Combine(unpackDir, "truehdd.exe"),
             Arguments = $"decode --progress \"{tempTrack}\" --output-path \"{tempTrack}\""
@@ -90,6 +108,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             return; // Already downloaded
         }
 
+        Directory.CreateDirectory(cavernizeData);
         if (File.Exists(cacheZip)) {
             File.Delete(cacheZip);
         }
@@ -97,7 +116,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             Directory.Delete(unpackDir, true);
         }
 
-        string downloading = string.Format(language.Downloading, unpackDir);
+        string downloading = string.Format(language.Downloading, "truehdd");
         UpdateStatusMessage(downloading);
         string zip;
         try {
@@ -109,7 +128,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             throw new NetworkException($"{language.NetworkError}{Environment.NewLine}{e.Message}");
         }
 
-        UpdateStatusMessage(string.Format(language.Extracting, unpackDir));
+        UpdateStatusMessage(string.Format(language.Extracting, "truehdd"));
         try {
             ZipFile.ExtractToDirectory(cacheZip, unpackDir);
             File.Delete(cacheZip);
@@ -119,21 +138,6 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
 
         File.WriteAllText(versionFile, zip);
     }
-
-    /// <summary>
-    /// Where to save the truehdd zip file.
-    /// </summary>
-    const string cacheZip = "truehdd.zip";
-
-    /// <summary>
-    /// If this folder exists, truehdd was properly downloaded and unpacked.
-    /// </summary>
-    const string unpackDir = "truehdd";
-
-    /// <summary>
-    /// Save the downloaded truehdd version to this file so it can be checked later.
-    /// </summary>
-    const string versionFile = "truehdd.version";
 
     /// <summary>
     /// Temporary file used to store the extracted MLP track before truehdd processes it.
