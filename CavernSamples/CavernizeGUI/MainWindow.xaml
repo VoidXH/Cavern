@@ -40,7 +40,7 @@
                 <MenuItem Name="grading" IsCheckable="True" Header="{StaticResource DeGrH}" ToolTip="{StaticResource DeGrT}"/>
                 <MenuItem Header="{StaticResource PReSh}" Click="ShowPostRenderReport"/>
             </MenuItem>
-            <MenuItem Style="{StaticResource RootMenuItem}">
+            <MenuItem Name="languages" Style="{StaticResource RootMenuItem}">
                 <MenuItem.Header>
                     <uc:TextWithIcon Text="{StaticResource MenuL}" Icon="/Resources/Images/Language.png"/>
                 </MenuItem.Header>

@@ -28,6 +28,11 @@ namespace CavernizeGUI {
         void LanguageHungarian(object _, RoutedEventArgs __) => SetLanguage("hu-HU");
 
         /// <summary>
+        /// Set application language to an invalid, untranslated one.
+        /// </summary>
+        void LanguageTest(object _, RoutedEventArgs __) => SetLanguage("te-ST");
+
+        /// <summary>
         /// Overwrite the autodetected language.
         /// </summary>
         /// <param name="code">Standard language code</param>

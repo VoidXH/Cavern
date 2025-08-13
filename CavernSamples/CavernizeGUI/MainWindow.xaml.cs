@@ -104,6 +104,13 @@ namespace CavernizeGUI {
                 (trackTable2Title, trackTable2Value),
                 (trackTable3Title, trackTable3Value)
             ];
+#if DEBUG
+            MenuItem testLanguage = new MenuItem {
+                Header = "Test",
+            };
+            testLanguage.Click += LanguageTest;
+            languages.Items.Add(testLanguage);
+#endif
 
             audio.ItemsSource = ExportFormat.Formats;
             audio.SelectedIndex = Math.Clamp(Settings.Default.outputCodec + 2, 0, ExportFormat.Formats.Length);
