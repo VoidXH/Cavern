@@ -72,10 +72,10 @@ public abstract class FFmpeg {
     /// Checks if FFmpeg's executable is located at the selected directory and update the UI accordingly.
     /// </summary>
     public void CheckFFmpeg() {
-        if (string.IsNullOrEmpty(Location)) {
-            Location = GetPathOfProgram("ffmpeg");
+        if (string.IsNullOrEmpty(location)) {
+            location = GetPathOfProgram("ffmpeg");
         }
-        Found = !string.IsNullOrEmpty(Location) && File.Exists(Location);
+        Found = !string.IsNullOrEmpty(location) && File.Exists(location);
         UpdateStatusText(Found ? ReadyText : NotReadyText);
     }
 
