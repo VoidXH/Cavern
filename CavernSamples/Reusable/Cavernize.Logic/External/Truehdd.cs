@@ -4,6 +4,7 @@ using System.IO.Compression;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Operations;
+using Cavern.Utilities;
 
 using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
@@ -95,9 +96,9 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
     /// <inheritdoc/>
     public override void Cleanup() {
         track.Dispose();
-        File.Delete(tempTrack + ".atmos");
-        File.Delete(tempTrack + ".atmos.audio");
-        File.Delete(tempTrack + ".atmos.metadata");
+        QFile.DeleteIfExists(tempTrack + ".atmos");
+        QFile.DeleteIfExists(tempTrack + ".atmos.audio");
+        QFile.DeleteIfExists(tempTrack + ".atmos.metadata");
     }
 
     /// <summary>
