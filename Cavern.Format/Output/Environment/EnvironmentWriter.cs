@@ -19,6 +19,16 @@ namespace Cavern.Format.Environment {
         protected Stream writer;
 
         /// <summary>
+        /// Content length in samples.
+        /// </summary>
+        protected readonly long length;
+
+        /// <summary>
+        /// Binary representation of samples.
+        /// </summary>
+        protected readonly BitDepth bits;
+
+        /// <summary>
         /// One update of samples to be reused.
         /// </summary>
         float[] renderCache;
@@ -26,24 +36,25 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Exports a listener environment with all its objects, including movement data.
         /// </summary>
-        protected EnvironmentWriter(Stream writer, Listener source) {
+        protected EnvironmentWriter(Stream writer, Listener source, long length, BitDepth bits) {
             Source = source;
             this.writer = writer;
+            this.length = length;
+            this.bits = bits;
         }
 
         /// <summary>
         /// Exports a listener environment with all its objects, including movement data.
         /// </summary>
-        protected EnvironmentWriter(string path, Listener source) : this(AudioWriter.Open(path), source) { }
+        protected EnvironmentWriter(string path, Listener source, long length, BitDepth bits) :
+            this(AudioWriter.Open(path), source, length, bits) { }
 
         /// <summary>
         /// Export the next frame of the <see cref="Source"/>.
         /// </summary>
         public abstract void WriteNextFrame();
 
-        /// <summary>
-        /// Close the writer.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual void Dispose() => writer.Dispose();
 
         /// <summary>

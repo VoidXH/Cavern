@@ -47,31 +47,18 @@ namespace Cavern.Format.Environment {
         long samplesWritten;
 
         /// <summary>
-        /// Content length in samples.
-        /// </summary>
-        long length;
-
-        /// <summary>
-        /// Binary representation of samples.
-        /// </summary>
-        BitDepth bits;
-
-        /// <summary>
         /// Object-based exporter of a listening environment to Audio Definition Model Broadcast Wave Format.
         /// When an XML path is received, the waveform and the ADM will be written to separate files.
         /// </summary>
         public BroadcastWaveFormatWriter(Stream writer, Listener source, long length, BitDepth bits) :
-            base(writer, source) {
-            this.length = length;
-            this.bits = bits;
-        }
+            base(writer, source, length, bits) { }
 
         /// <summary>
         /// Object-based exporter of a listening environment to Audio Definition Model Broadcast Wave Format.
         /// When an XML path is received, the waveform and the ADM will be written to separate files.
         /// </summary>
         public BroadcastWaveFormatWriter(string path, Listener source, long length, BitDepth bits) :
-            this(AudioWriter.Open(path), source, length, bits) { }
+            base(path, source, length, bits) { }
 
         /// <summary>
         /// Export the next frame of the <see cref="Source"/>.
@@ -137,6 +124,10 @@ namespace Cavern.Format.Environment {
         /// Close the writer and export movement metadata.
         /// </summary>
         public override void Dispose() {
+            if (Output == null) {
+                CreateFile(); // Create an empty file if no data was written
+            }
+
             AudioDefinitionModel adm = CreateModel();
 
             StringBuilder builder = new StringBuilder();
