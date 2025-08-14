@@ -108,7 +108,7 @@ namespace Cavern.Format.Environment {
 
                 bedObject.Tracks.Add(trackID);
                 bedPackFormat.ChannelFormats.Add(channelFormatID);
-                tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, bedPackFormatID));
+                tracks.Add(new ADMTrack(trackID, Output.Bits, Output.SampleRate, trackFormatID, bedPackFormatID));
                 trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + channelName, ADMTrackCodec.PCM, streamFormatID));
                 streamFormats.Add(new ADMStreamFormat(streamFormatID, "PCM_" + channelName, ADMTrackCodec.PCM,
                     channelFormatID, bedPackFormatID, trackFormatID));
@@ -122,18 +122,18 @@ namespace Cavern.Format.Environment {
                 });
             }
 
-            for (int i = 0; i < movements.Length; i++) {
-                if (movements[i].Count != 0) {
-                    FixEndTimings(movements[i], contentLength);
+            for (int i = 0; i < Movements.Length; i++) {
+                if (Movements[i].Count != 0) {
+                    FixEndTimings(Movements[i], contentLength);
                 } else {
-                    movements[i].Add(new ADMBlockFormat {
+                    Movements[i].Add(new ADMBlockFormat {
                         Duration = contentLength
                     });
                 }
             }
 
             packHex = ((int)ADMPackType.Objects).ToString("x4");
-            for (int i = 0; i < movements.Length - bedChannels.Length; i++) {
+            for (int i = 0; i < Movements.Length - bedChannels.Length; i++) {
                 string id = (0x1001 + i).ToString("x4"),
                     totalId = (0x1001 + bedChannels.Length + i).ToString("x4"),
                     objectID = "AO_" + totalId,
@@ -152,9 +152,9 @@ namespace Cavern.Format.Environment {
                     ChannelFormats = new List<string> { channelFormatID }
                 });
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, ADMPackType.Objects) {
-                    Blocks = movements[i + bedChannels.Length]
+                    Blocks = Movements[i + bedChannels.Length]
                 });
-                tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, packFormatID));
+                tracks.Add(new ADMTrack(trackID, Output.Bits, Output.SampleRate, trackFormatID, packFormatID));
                 trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));
                 streamFormats.Add(new ADMStreamFormat(streamFormatID, "PCM_" + objectName, ADMTrackCodec.PCM,
                     channelFormatID, packFormatID, trackFormatID));
@@ -170,7 +170,7 @@ namespace Cavern.Format.Environment {
         /// Add Dolby audio Metadata to Atmos BWF files.
         /// </summary>
         protected override void WriteAdditionalChunks() =>
-            output.WriteChunk(RIFFWaveConsts.dbmdSync, new DolbyMetadata((byte)output.ChannelCount).Serialize());
+            Output.WriteChunk(RIFFWaveConsts.dbmdSync, new DolbyMetadata((byte)Output.ChannelCount).Serialize());
 
         /// <summary>
         /// Indexes of Dolby Atmos beds (7.1.2) in the <see cref="ADMConsts.channelNames"/> array.

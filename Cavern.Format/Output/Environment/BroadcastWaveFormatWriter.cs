@@ -29,17 +29,17 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// The main PCM exporter.
         /// </summary>
-        protected readonly RIFFWaveWriter output;
+        protected RIFFWaveWriter Output { get; private set; }
 
         /// <summary>
         /// Recorded movement path of all sources.
         /// </summary>
-        protected readonly List<ADMBlockFormat>[] movements;
+        protected List<ADMBlockFormat>[] Movements { get; private set; }
 
         /// <summary>
         /// When not null, writes the AXML to this separate file.
         /// </summary>
-        readonly Stream admWriter;
+        Stream admWriter;
 
         /// <summary>
         /// Total samples written to the export file.
@@ -47,25 +47,23 @@ namespace Cavern.Format.Environment {
         long samplesWritten;
 
         /// <summary>
+        /// Content length in samples.
+        /// </summary>
+        long length;
+
+        /// <summary>
+        /// Binary representation of samples.
+        /// </summary>
+        BitDepth bits;
+
+        /// <summary>
         /// Object-based exporter of a listening environment to Audio Definition Model Broadcast Wave Format.
         /// When an XML path is received, the waveform and the ADM will be written to separate files.
         /// </summary>
         public BroadcastWaveFormatWriter(Stream writer, Listener source, long length, BitDepth bits) :
             base(writer, source) {
-            if (writer is FileStream fs && fs.Name.EndsWith(".xml")) {
-                admWriter = writer;
-                writer = AudioWriter.Open(fs.Name[..^3] + "wav");
-            }
-
-            output = new RIFFWaveWriter(writer, source.ActiveSources.Count, length, source.SampleRate, bits) {
-                MaxLargeChunks = 3
-            };
-            output.WriteHeader();
-
-            movements = new List<ADMBlockFormat>[output.ChannelCount];
-            for (int i = 0; i < output.ChannelCount; i++) {
-                movements[i] = new List<ADMBlockFormat>();
-            }
+            this.length = length;
+            this.bits = bits;
         }
 
         /// <summary>
@@ -79,10 +77,14 @@ namespace Cavern.Format.Environment {
         /// Export the next frame of the <see cref="Source"/>.
         /// </summary>
         public override void WriteNextFrame() {
+            if (Output == null) {
+                CreateFile();
+            }
+
             float[] result = GetInterlacedPCMOutput();
-            long writable = output.Length - samplesWritten;
+            long writable = Output.Length - samplesWritten;
             if (writable > 0) {
-                output.WriteBlock(result, 0, Math.Min(Source.UpdateRate, writable) * output.ChannelCount);
+                Output.WriteBlock(result, 0, Math.Min(Source.UpdateRate, writable) * Output.ChannelCount);
             }
             Vector3 scaling = new Vector3(1) / Listener.EnvironmentSize;
             double timeScaling = 1.0 / Source.SampleRate;
@@ -91,7 +93,7 @@ namespace Cavern.Format.Environment {
 
             int sourceIndex = 0;
             foreach (Source source in Source.ActiveSources) {
-                List<ADMBlockFormat> movement = movements[sourceIndex];
+                List<ADMBlockFormat> movement = Movements[sourceIndex];
                 int size = movement.Count;
                 Vector3 scaledPosition = Vector3.Clamp(source.Position * scaling, minusOne, Vector3.One);
                 if (size == 0 || movement[size - 1].Position != scaledPosition) {
@@ -148,20 +150,20 @@ namespace Cavern.Format.Environment {
 
             byte[] axml = Encoding.UTF8.GetBytes(builder.ToString().Replace("utf-16", "utf-8"));
             if (admWriter == null) {
-                output.WriteChunk(RIFFWaveConsts.axmlSync, axml, true);
-                output.WriteChunk(RIFFWaveConsts.chnaSync, ChannelAssignment.GetChunk(adm), true);
+                Output.WriteChunk(RIFFWaveConsts.axmlSync, axml, true);
+                Output.WriteChunk(RIFFWaveConsts.chnaSync, ChannelAssignment.GetChunk(adm), true);
                 WriteAdditionalChunks();
             } else {
                 admWriter.Write(axml);
                 admWriter.Dispose();
             }
-            output.Dispose();
+            Output.Dispose();
         }
 
         /// <summary>
         /// Get the length of the environment recording.
         /// </summary>
-        public ADMTimeSpan GetContentLength() => new ADMTimeSpan(output.Length / (double)output.SampleRate);
+        public ADMTimeSpan GetContentLength() => new ADMTimeSpan(Output.Length / (double)Output.SampleRate);
 
         /// <summary>
         /// Generates the ADM structure from the recorded movement.
@@ -194,15 +196,15 @@ namespace Cavern.Format.Environment {
             List<ADMStreamFormat> streamFormats = new List<ADMStreamFormat>();
 
             int channelIndex = 0, objectIndex = 0;
-            for (int i = 0; i < movements.Length; ++i) {
-                bool isDynamic = movements[i].Count != 1;
+            for (int i = 0; i < Movements.Length; ++i) {
+                bool isDynamic = Movements[i].Count != 1;
                 ADMPackType packType = isDynamic ? ADMPackType.Objects : ADMPackType.DirectSpeakers;
                 string id = (0x1000 + (isDynamic ? ++objectIndex : ++channelIndex)).ToString("x4"),
                     totalId = (0x1001 + i).ToString("x4"),
                     packHex = ((int)packType).ToString("x4"),
                     objectID = "AO_" + totalId,
                     objectName = isDynamic ? "Cavern_Obj_" + objectIndex :
-                        ADMConsts.channelNames[(int)Renderer.ChannelFromPosition(movements[i][0].Position)],
+                        ADMConsts.channelNames[(int)Renderer.ChannelFromPosition(Movements[i][0].Position)],
                     packFormatID = $"AP_{packHex}{id}",
                     channelFormatID = $"AC_{packHex}{id}",
                     trackID = "ATU_0000" + (i + 1).ToString("x4"),
@@ -223,12 +225,12 @@ namespace Cavern.Format.Environment {
                     ChannelFormats = new List<string> { channelFormatID }
                 });
 
-                FixEndTimings(movements[i], contentLength);
+                FixEndTimings(Movements[i], contentLength);
                 channelFormats.Add(new ADMChannelFormat(channelFormatID, objectName, packType) {
-                    Blocks = movements[i]
+                    Blocks = Movements[i]
                 });
 
-                tracks.Add(new ADMTrack(trackID, output.Bits, output.SampleRate, trackFormatID, packFormatID));
+                tracks.Add(new ADMTrack(trackID, Output.Bits, Output.SampleRate, trackFormatID, packFormatID));
                 trackFormats.Add(new ADMTrackFormat(trackFormatID, "PCM_" + objectName, ADMTrackCodec.PCM, streamFormatID));
                 streamFormats.Add(new ADMStreamFormat(streamFormatID, "PCM_" + objectName, ADMTrackCodec.PCM,
                     channelFormatID, packFormatID, trackFormatID));
@@ -267,6 +269,26 @@ namespace Cavern.Format.Environment {
                         fistBlock.Interpolation = ADMTimeSpan.Zero;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Lazy create the output file. The <see cref="Listener"/> might get initialized after the constructor.
+        /// </summary>
+        void CreateFile() {
+            if (writer is FileStream fs && fs.Name.EndsWith(".xml")) {
+                admWriter = writer;
+                writer = AudioWriter.Open(fs.Name[..^3] + "wav");
+            }
+
+            Output = new RIFFWaveWriter(writer, Source.ActiveSources.Count, length, Source.SampleRate, bits) {
+                MaxLargeChunks = 3
+            };
+            Output.WriteHeader();
+
+            Movements = new List<ADMBlockFormat>[Output.ChannelCount];
+            for (int i = 0; i < Output.ChannelCount; i++) {
+                Movements[i] = new List<ADMBlockFormat>();
             }
         }
 

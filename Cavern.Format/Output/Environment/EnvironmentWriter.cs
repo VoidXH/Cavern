@@ -21,7 +21,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// One update of samples to be reused.
         /// </summary>
-        readonly float[] renderCache;
+        float[] renderCache;
 
         /// <summary>
         /// Exports a listener environment with all its objects, including movement data.
@@ -29,7 +29,6 @@ namespace Cavern.Format.Environment {
         protected EnvironmentWriter(Stream writer, Listener source) {
             Source = source;
             this.writer = writer;
-            renderCache = new float[source.UpdateRate * source.ActiveSources.Count];
         }
 
         /// <summary>
@@ -53,6 +52,7 @@ namespace Cavern.Format.Environment {
         /// <remarks>Only keeps the first streamed channel to each object.</remarks>
         protected float[] GetInterlacedPCMOutput() {
             Source.Ping();
+            renderCache ??= new float[Source.UpdateRate * Source.ActiveSources.Count];
             int channel = 0,
                 channels = Source.ActiveSources.Count;
             foreach (Source source in Source.ActiveSources) {
