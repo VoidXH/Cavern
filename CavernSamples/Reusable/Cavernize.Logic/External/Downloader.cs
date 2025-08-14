@@ -18,14 +18,14 @@ internal static class Downloader {
         string latest = HTTP.GET(releaseUrl);
 
         string tagFinder = repo + "/releases/tag/";
-        int latestTag = latest.IndexOf(tagFinder) + tagFinder.Length;
+        int latestTag = latest.IndexOf(tagFinder, StringComparison.Ordinal) + tagFinder.Length;
         int tagEnd = latest.IndexOf('"', latestTag);
         string tag = latest[latestTag..tagEnd];
 
         latest = HTTP.GET($"{gitHubUrl}{repo}/releases/expanded_assets/{tag}");
 
         int index;
-        while ((index = latest.IndexOf(platform)) != -1) {
+        while ((index = latest.IndexOf(platform, StringComparison.Ordinal)) != -1) {
             int begin = latest.LastIndexOf('"', index) + 2;
             int end = latest.IndexOf('"', index);
             string link = latest[begin..end];
