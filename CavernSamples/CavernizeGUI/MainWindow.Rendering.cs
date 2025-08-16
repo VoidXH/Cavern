@@ -243,11 +243,11 @@ namespace CavernizeGUI {
         /// <summary>
         /// Create an external converter if it's needed for rendering a specific track.
         /// </summary>
-        ExternalConverterHandler CreateExternalHandler(CavernizeTrack target) {
+        ExternalConverterHandler CreateExternalHandler(CavernizeTrack target, int keepFirstSources) {
             LicenceWindow licenceWindow = Dispatcher.Invoke(() => new LicenceWindow());
             ExternalConverterHandler external = new(target, Consts.Language.GetExternalConverterStrings(), licenceWindow,
                 taskEngine.UpdateProgressBar, taskEngine.UpdateStatus, Dispatcher.Invoke);
-            external.Attach(listener, new DynamicUpmixingSettings());
+            external.Attach(listener, new DynamicUpmixingSettings(), keepFirstSources);
             return external;
         }
 
@@ -255,7 +255,7 @@ namespace CavernizeGUI {
         /// Render the content and export it to a channel-based format.
         /// </summary>
         void RenderTask(CavernizeTrack target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
-            ExternalConverterHandler external = CreateExternalHandler(target);
+            ExternalConverterHandler external = CreateExternalHandler(target, 0);
             if (external.Failed) {
                 return;
             }
@@ -292,7 +292,7 @@ namespace CavernizeGUI {
         /// Decode the source and export it to an object-based format.
         /// </summary>
         void TranscodeTask(CavernizeTrack target, EnvironmentWriter writer) {
-            ExternalConverterHandler external = CreateExternalHandler(target);
+            ExternalConverterHandler external = CreateExternalHandler(target, writer is DolbyAtmosBWFWriter ? 10 : 0);
             if (external.Failed) {
                 return;
             }

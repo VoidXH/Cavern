@@ -67,11 +67,16 @@ public sealed class ExternalConverterHandler : IDisposable {
     /// <summary>
     /// If external conversion is needed, attach the <see cref="intermediateTrack"/> to a <see cref="Listener"/> for rendering.
     /// </summary>
-    public void Attach(Listener to, UpmixingSettings upmixing) {
+    public void Attach(Listener to, UpmixingSettings upmixing, int keepFirstSources) {
         if (!ExternalConverterNeeded) {
             return;
         }
+
+        Source[] firstSources = to.ActiveSources.Take(keepFirstSources).ToArray();
         to.DetachAllSources();
+        foreach (Source source in firstSources) {
+            to.AttachSource(source);
+        }
         intermediateTrack.Attach(to, upmixing);
     }
 

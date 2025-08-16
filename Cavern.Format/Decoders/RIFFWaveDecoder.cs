@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Channels;
@@ -103,9 +102,11 @@ namespace Cavern.Format.Decoders {
                         chna = new ChannelAssignment(reader);
                         break;
                     case RIFFWaveConsts.dataSync:
-                        Length = headerSize / ((long)Bits >> 3) / ChannelCount;
                         dataStart = reader.Position;
-                        if (dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags
+                        bool undefinedLength = headerSize == uint.MaxValue;
+                        long fileLength = !undefinedLength || !reader.CanSeek ? headerSize : reader.Length - dataStart;
+                        Length = fileLength / ((long)Bits >> 3) / ChannelCount;
+                        if (!undefinedLength && dataStart + headerSize < reader.Length) { // Read after PCM samples if there are more tags
                             reader.Position = dataStart + headerSize;
                         } else {
                             Finalize(reader);
