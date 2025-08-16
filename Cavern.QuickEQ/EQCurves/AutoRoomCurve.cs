@@ -21,7 +21,7 @@ namespace Cavern.QuickEQ.EQCurves {
             Equalizer average = EQGenerator.AverageRMS(sourceFrequencyResponses);
             average.Smooth(1);
             average.Limit(20, 200);
-            return Math.Min((int)(average.PeakGain + .5), 10);
+            return Math.Clamp((int)(average.PeakGain + .5), 3, 10);
         }
     }
 }
