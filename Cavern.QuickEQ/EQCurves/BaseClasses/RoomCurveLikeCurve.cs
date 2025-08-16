@@ -25,6 +25,16 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         readonly double singleFreqHelper;
 
+        /// <inheritdoc/>
+        public sealed override double this[double frequency] {
+            get {
+                if (frequency < kneeFrequency) {
+                    return singleFreqHelper * (kneePosition - Math.Log10(frequency));
+                }
+                return base[frequency];
+            }
+        }
+
         /// <summary>
         /// A curve with a linear bass rise and linear treble suppression.
         /// </summary>
@@ -35,16 +45,6 @@ namespace Cavern.QuickEQ.EQCurves {
             kneePosition = Math.Log10(kneeFrequency);
             this.rise = rise;
             singleFreqHelper = rise / (Math.Log10(kneeFrequency) - log10_20);
-        }
-
-        /// <inheritdoc/>
-        public sealed override double this[double frequency] {
-            get {
-                if (frequency < kneeFrequency) {
-                    return singleFreqHelper * (kneePosition - Math.Log10(frequency));
-                }
-                return base[frequency];
-            }
         }
 
         /// <inheritdoc/>
@@ -81,6 +81,11 @@ namespace Cavern.QuickEQ.EQCurves {
             }
             return curve;
         }
+
+        /// <summary>
+        /// Default room curve knee frequency.
+        /// </summary>
+        internal static readonly double defaultKnee = 200;
 
         /// <summary>
         /// Hardcoded log10(20) (low extension position on log scale).
