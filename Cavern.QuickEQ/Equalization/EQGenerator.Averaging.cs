@@ -24,7 +24,7 @@ namespace Cavern.QuickEQ.Equalization {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer AverageRMS(params Equalizer[] sources) {
             double mul = 1.0 / sources.Length;
-            return Average(RMSAddition, x => QMath.GainToDb(Math.Sqrt(x) * mul), sources);
+            return Average(RMSAddition, x => QMath.GainToDb(Math.Sqrt(x * mul)), sources);
         }
 
         /// <summary>

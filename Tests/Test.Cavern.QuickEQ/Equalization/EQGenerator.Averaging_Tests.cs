@@ -13,8 +13,10 @@ namespace Test.Cavern.QuickEQ.Equalization {
         public void AverageRMS() {
             Equalizer a = new Equalizer([new Band(20, 1)], true),
                 b = new Equalizer([new Band(20, 10)], true),
-                avg = EQGenerator.AverageRMS(a, b);
-            Assert.AreEqual(4.494369506972679, avg.Bands[0].Gain);
+                avg = EQGenerator.AverageRMS(a, b),
+                avg_nodiv = EQGenerator.AverageRMS(a, a);
+            Assert.AreEqual(7.50466946361249, avg.PeakGain);
+            Assert.AreEqual(a.PeakGain, avg_nodiv.PeakGain, Consts.delta);
         }
     }
 }
