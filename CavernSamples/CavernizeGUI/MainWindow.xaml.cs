@@ -229,7 +229,7 @@ namespace CavernizeGUI {
                 return;
             }
             if (renderTask != null) {
-                taskEngine.Run(renderTask);
+                taskEngine.Run(renderTask, Error);
             }
         }
 
@@ -394,7 +394,7 @@ namespace CavernizeGUI {
         void Render(object _, RoutedEventArgs e) {
             Action renderTask = GetRenderTask();
             if (renderTask != null) {
-                taskEngine.Run(renderTask);
+                taskEngine.Run(renderTask, Error);
             }
         }
 
@@ -430,7 +430,7 @@ namespace CavernizeGUI {
         /// </summary>
         void StartQueue(object _, RoutedEventArgs e) {
             QueuedJob[] jobsToRun = [.. jobs];
-            taskEngine.Run(() => QueueRunnerTask(jobsToRun));
+            taskEngine.Run(() => QueueRunnerTask(jobsToRun), Error);
         }
 
         void QueueDrop(object _, DragEventArgs e) {
