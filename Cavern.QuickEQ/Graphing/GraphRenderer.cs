@@ -93,7 +93,7 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
-        /// Get what gain corresponds to a given subpixel position on the heigh axis, relative to the peak gain.
+        /// Get what gain corresponds to a given subpixel position on the height axis, relative to the peak gain.
         /// </summary>
         public float GetGainAt(float height) => peak - height / Height * dynamicRange;
 

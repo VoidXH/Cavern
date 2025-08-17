@@ -235,7 +235,16 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Parse an Equalizer from a drawn graph.
+        /// Parse an Equalizer from a drawn curve (linear data between 0 and <paramref name="sampleRate"/>/2 frequencies).
+        /// </summary>
+        public static Equalizer FromCurve(float[] source, int sampleRate) {
+            List<Band> bands = new List<Band>();
+            GraphUtils.ForEachLin(source, 0, sampleRate >> 1, (double freq, ref float gain) => bands.Add(new Band(freq, gain)));
+            return new Equalizer(bands, true);
+        }
+
+        /// <summary>
+        /// Parse an Equalizer from a drawn graph (logarithmic, band-limited data).
         /// </summary>
         public static Equalizer FromGraph(float[] source, double startFreq, double endFreq) {
             List<Band> bands = new List<Band>();
