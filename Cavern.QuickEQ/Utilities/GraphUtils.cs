@@ -43,13 +43,18 @@ namespace Cavern.QuickEQ.Utilities {
         }
 
         /// <summary>
-        /// Apply a slope (in decibels from start to finish) to an existing curve.
+        /// Apply a slope (total, from start to finish) to an existing curve.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void AddSlope(this float[] curve, float slope) {
-            float mul = 1f / curve.Length;
+        public static void AddSlope(this float[] curve, float slope) => AddSlopePerValue(curve, slope / curve.Length);
+
+        /// <summary>
+        /// Apply a slope (per value) to an existing curve.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddSlopePerValue(this float[] curve, float slope) {
             for (int i = 0; i < curve.Length; i++) {
-                curve[i] += slope * mul;
+                curve[i] += slope * i;
             }
         }
 
@@ -160,6 +165,32 @@ namespace Cavern.QuickEQ.Utilities {
                 }
             }
             return (min, max);
+        }
+
+        /// <summary>
+        /// Get a line in the form of slope * x + intercept that fits the curve drawn by this <paramref name="data"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (float slope, float intercept) GetRegression(float[] data) => GetRegression(data, 0, data.Length);
+
+        /// <summary>
+        /// Get a line in the form of slope * x + intercept that fits the curve drawn by this <paramref name="data"/>.
+        /// </summary>
+        public static (float slope, float intercept) GetRegression(float[] data, int from, int to) {
+            float sumX = 0;
+            float sumY = 0;
+            float sumXY = 0;
+            float sumX2 = 0;
+            for (int i = from; i < to; i++) {
+                sumX += i;
+                sumY += data[i];
+                sumXY += i * data[i];
+                sumX2 += i * i;
+            }
+            int length = to - from;
+            float slope = (length * sumXY - sumX * sumY) / (length * sumX2 - sumX * sumX);
+            float intercept = (sumY - slope * sumX) / length;
+            return (slope, intercept);
         }
 
         /// <summary>
