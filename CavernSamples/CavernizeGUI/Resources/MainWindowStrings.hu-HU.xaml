@@ -105,4 +105,8 @@
         nem marad összefüggő ezután az idő után. A pontos hiba: {1}</system:String>
     <system:String x:Key="SpViE">A jelenlegi kiosztás nem támogatja magasság virtualizálását hangszórókon. Kapcsold ki ezt az opciót, vagy
         használj olyan kiosztást, ahol minden csatorna a földön van.</system:String>
+    <system:String x:Key="QuAlT">Kombinált feldolgozás</system:String>
+    <system:String x:Key="QuAll">Szeretnél egy közös kimeneti mappát választani az összes fájlhoz, amit a sorhoz adsz?
+        Ha az Igenre nyomsz, mindegyik az alapértelmezett kimeneti konténerben lesz feldolgozva a kiválasztott mappába.
+        Ha a Nemre nyomsz, egyesével kiválaszthatod a kimeneti mappákat, fájlneveket, és konténerformátumokat.</system:String>
 </ResourceDictionary>

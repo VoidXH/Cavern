@@ -105,4 +105,8 @@
         after that timestamp. The exact error: {1}</system:String>
     <system:String x:Key="SpViE">The active layout does not support height virtualization on speakers. Either disable the
         option or choose a layout with ground channels only.</system:String>
+    <system:String x:Key="QuAlT">Combined processing</system:String>
+    <system:String x:Key="QuAll">Do you want to select a single output folder for all the files you're adding to the queue?
+        If you press Yes, all of them will be processed to their default containers in the selected folder.
+        If you press No, you can choose the output folders, file names, and container formats individually.</system:String>
 </ResourceDictionary>

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -395,69 +394,6 @@ namespace CavernizeGUI {
             Action renderTask = GetRenderTask();
             if (renderTask != null) {
                 taskEngine.Run(renderTask, Error);
-            }
-        }
-
-        /// <summary>
-        /// Queue a rendering process.
-        /// </summary>
-        void Queue(object _, RoutedEventArgs e) {
-            Action renderTask = GetRenderTask();
-            if (renderTask != null) {
-                if (Width < minWidth) {
-                    Width = minWidth;
-                }
-                jobs.Add(new QueuedJob(file, (CavernizeTrack)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
-                    (ExportFormat)audio.SelectedItem, renderTask));
-            }
-        }
-
-        /// <summary>
-        /// Removes a queued job.
-        /// </summary>
-        void RemoveQueued(object _, RoutedEventArgs e) {
-            if (taskEngine.IsOperationRunning) {
-                Error((string)language["ReQOp"]);
-            } else if (queuedJobs.SelectedItem == null) {
-                Error((string)language["ReQSe"]);
-            } else {
-                jobs.RemoveAt(queuedJobs.SelectedIndex);
-            }
-        }
-
-        /// <summary>
-        /// Start processing the queue.
-        /// </summary>
-        void StartQueue(object _, RoutedEventArgs e) {
-            QueuedJob[] jobsToRun = [.. jobs];
-            taskEngine.Run(() => QueueRunnerTask(jobsToRun), Error);
-        }
-
-        void QueueDrop(object _, DragEventArgs e) {
-            if (e.Data is DataObject obj && obj.ContainsFileDropList()) {
-                AudioFile oldFile = file;
-                List<string> invalids = [];
-                StringCollection files = obj.GetFileDropList();
-                for (int i = 0, c = files.Count; i < c; i++) {
-                    try {
-                        OpenContent(files[i]);
-                    } catch {
-                        invalids.Add(Path.GetFileName(files[i]));
-                        continue;
-                    }
-
-                    Action renderTask = GetRenderTask();
-                    if (renderTask != null) {
-                        jobs.Add(new QueuedJob(file, (CavernizeTrack)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
-                            (ExportFormat)audio.SelectedItem, renderTask));
-                    } else {
-                        invalids.Add(Path.GetFileName(files[i]));
-                    }
-                }
-                file = oldFile;
-                if (invalids.Count != 0) {
-                    Error($"{(string)language["DropI"]}\n{string.Join('\n', invalids)}");
-                }
             }
         }
 
