@@ -2,6 +2,7 @@
 using System.Linq;
 
 using Cavern.QuickEQ.Equalization;
+using Cavern.QuickEQ.Measurement;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
@@ -22,6 +23,11 @@ namespace Cavern.QuickEQ.Graphing {
         /// Try to recover the actual phase curve from the results that are confined to the unit circle.
         /// </summary>
         public bool Unwrap { get; set; } = true;
+
+        /// <summary>
+        /// Method to remove the delay's effect from the displayed phase measurements.
+        /// </summary>
+        public PhaseDelayCompensationType DelayCompensation = PhaseDelayCompensationType.ImpulsePeak;
 
         /// <summary>
         /// Detect phase properties until this band and no further, as high resolution artifacts might break linearization.
@@ -83,15 +89,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         /// <remarks>Downsampling must not happen externally as that might create unwrapping errors.</remarks>
         Equalizer TransferFunctionToPhaseEqualizer(Complex[] source, float endFrequency, int sampleRate) {
-            float[] phase = Measurements.GetPhase(source);
-            if (Unwrap) {
-                Measurements.UnwrapPhase(phase);
-                (double slope, double intercept) = GraphUtils.GetRegression(phase, (int)(phase.Length * StartFrequency / sampleRate),
-                    (int)(phase.Length * Math.Min(DetectionFrequency, endFrequency) / sampleRate));
-                for (int i = 0; i < phase.Length; i++) {
-                    phase[i] -= (float)(intercept + slope * i);
-                }
-            }
+            float[] phase = PhaseDelayCompensation.CorrectDelay(source, sampleRate, DelayCompensation, StartFrequency, DetectionFrequency, endFrequency, Unwrap);
             WaveformUtils.Gain(phase, 180 / MathF.PI);
             Equalizer result = EQGenerator.FromCurve(phase, sampleRate);
             result.DownsampleLogarithmically(Resolution, StartFrequency, EndFrequency);
