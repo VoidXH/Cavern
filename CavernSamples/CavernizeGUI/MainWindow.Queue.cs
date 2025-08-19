@@ -76,7 +76,7 @@ namespace CavernizeGUI {
         /// in the current configuration's default container.
         /// </summary>
         void ProcessDroppedFilesAtOnce(StringCollection files, List<string> invalids) {
-            OpenFolderDialog folder = new OpenFolderDialog() {
+            OpenFolderDialog folder = new OpenFolderDialog {
                 InitialDirectory = Settings.Default.lastDirectory
             };
             if (!folder.ShowDialog().Value) {
