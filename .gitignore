@@ -21,8 +21,10 @@ CavernSamples/Benchmark/bin/
 CavernSamples/Benchmark/obj/
 CavernSamples/CavernPipeClient/bin/
 CavernSamples/CavernPipeClient/obj/
-CavernSamples/CavernPipeServer/bin/
-CavernSamples/CavernPipeServer/obj/
+CavernSamples/CavernPipeServer.Multiplatform/bin/
+CavernSamples/CavernPipeServer.Multiplatform/obj/
+CavernSamples/CavernPipeServer.Windows/bin/
+CavernSamples/CavernPipeServer.Windows/obj/
 CavernSamples/CavernizeGUI/bin/
 CavernSamples/CavernizeGUI/obj/
 CavernSamples/Deconvolver/bin/
@@ -43,6 +45,8 @@ CavernSamples/QuickEQResultMerger/bin/
 CavernSamples/QuickEQResultMerger/obj/
 CavernSamples/Reusable/Cavernize.Logic/bin/
 CavernSamples/Reusable/Cavernize.Logic/obj/
+CavernSamples/Reusable/CavernPipeServer.Logic/bin/
+CavernSamples/Reusable/CavernPipeServer.Logic/obj/
 CavernSamples/WAVChannelReorderer/bin/
 CavernSamples/WAVChannelReorderer/obj/
 CavernSamples/WavefrontSimulator/bin/

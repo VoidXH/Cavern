@@ -45,7 +45,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microprojects", "Microproje
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FilterStudio", "FilterStudio\FilterStudio.csproj", "{5F0DDE27-A6F0-4A6D-B7D6-BB7E3AC95471}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CavernPipeServer", "CavernPipeServer\CavernPipeServer.csproj", "{235A0462-18BE-4B94-BC27-2B959442E6AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CavernPipeServer.Windows", "CavernPipeServer.Windows\CavernPipeServer.Windows.csproj", "{235A0462-18BE-4B94-BC27-2B959442E6AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernPipeClient", "CavernPipeClient\CavernPipeClient.csproj", "{BB0A7B28-DA1F-480E-9F4D-747B17706675}"
 EndProject
@@ -54,6 +54,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavernize.Logic", "Reusable\Cavernize.Logic\Cavernize.Logic.csproj", "{15BEC2AA-E152-489C-90B8-1E5064F6ACA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.WPF", "..\Libraries\Cavern.WPF\Cavern.WPF.csproj", "{A6BCCB2D-5099-D4DE-AD78-A7F2A7BA9D06}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernPipeServer.Logic", "Reusable\CavernPipeServer.Logic\CavernPipeServer.Logic.csproj", "{0BE27D6A-5D88-448A-AC97-D661B5F4B4D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernPipeServer.Multiplatform", "CavernPipeServer.Multiplatform\CavernPipeServer.Multiplatform.csproj", "{F2CA7B0F-A83B-45FC-9610-939215A5BF38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +145,14 @@ Global
 		{A6BCCB2D-5099-D4DE-AD78-A7F2A7BA9D06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6BCCB2D-5099-D4DE-AD78-A7F2A7BA9D06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6BCCB2D-5099-D4DE-AD78-A7F2A7BA9D06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BE27D6A-5D88-448A-AC97-D661B5F4B4D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BE27D6A-5D88-448A-AC97-D661B5F4B4D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BE27D6A-5D88-448A-AC97-D661B5F4B4D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BE27D6A-5D88-448A-AC97-D661B5F4B4D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2CA7B0F-A83B-45FC-9610-939215A5BF38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2CA7B0F-A83B-45FC-9610-939215A5BF38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2CA7B0F-A83B-45FC-9610-939215A5BF38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2CA7B0F-A83B-45FC-9610-939215A5BF38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -162,6 +174,7 @@ Global
 		{24E5737B-A035-4EC4-BA8E-21375BC81219} = {A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}
 		{15BEC2AA-E152-489C-90B8-1E5064F6ACA4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{A6BCCB2D-5099-D4DE-AD78-A7F2A7BA9D06} = {A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}
+		{0BE27D6A-5D88-448A-AC97-D661B5F4B4D8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A9DF7132-D463-434C-B1DF-279D324EE921}

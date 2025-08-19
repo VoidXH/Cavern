@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
+		<AssemblyName>CavernPipeServer</AssemblyName>
 		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
@@ -10,7 +11,7 @@
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>
 		<Authors>VoidX</Authors>
-		<Product>CavernPipe Server</Product>
+		<Product>CavernPipe Server for Windows</Product>
 		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
@@ -20,6 +21,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 	  <ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
+	  <ProjectReference Include="..\Reusable\CavernPipeServer.Logic\CavernPipeServer.Logic.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <_DeploymentManifestIconFile Remove="..\Icon.ico" />

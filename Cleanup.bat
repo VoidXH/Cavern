@@ -18,8 +18,10 @@ rd /s /q CavernSamples\CavernizeGUI\bin
 rd /s /q CavernSamples\CavernizeGUI\obj
 rd /s /q CavernSamples\CavernPipeClient\bin
 rd /s /q CavernSamples\CavernPipeClient\obj
-rd /s /q CavernSamples\CavernPipeServer\bin
-rd /s /q CavernSamples\CavernPipeServer\obj
+rd /s /q CavernSamples\CavernPipeServer.Multiplatform\bin
+rd /s /q CavernSamples\CavernPipeServer.Multiplatform\obj
+rd /s /q CavernSamples\CavernPipeServer.Windows\bin
+rd /s /q CavernSamples\CavernPipeServer.Windows\obj
 rd /s /q CavernSamples\Deconvolver\bin
 rd /s /q CavernSamples\Deconvolver\obj
 rd /s /q CavernSamples\EnhancedAC3Merger\bin
@@ -34,6 +36,8 @@ rd /s /q CavernSamples\QuickEQResultMerger\bin
 rd /s /q CavernSamples\QuickEQResultMerger\obj
 rd /s /q CavernSamples\Reusable\Cavernize.Logic\bin
 rd /s /q CavernSamples\Reusable\Cavernize.Logic\obj
+rd /s /q CavernSamples\Reusable\CavernPipeServer.Logic\bin
+rd /s /q CavernSamples\Reusable\CavernPipeServer.Logic\obj
 rd /s /q CavernSamples\WAVChannelReorderer\bin
 rd /s /q CavernSamples\WAVChannelReorderer\obj
 rd /s /q CavernSamples\WavefrontSimulator\bin

@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<AssemblyName>CavernPipeServer</AssemblyName>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
+		<Description>Performs Cavern operations such as rendering through named pipes. Console version for all platforms.</Description>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<DebugType>full</DebugType>
+		<Authors>VoidX</Authors>
+		<Product>CavernPipe Server</Product>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+		<ProjectReference Include="..\Reusable\CavernPipeServer.Logic\CavernPipeServer.Logic.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<_DeploymentManifestIconFile Remove="..\Icon.ico" />
+	</ItemGroup>
+	<ItemGroup>
+		<Resource Include="..\Icon.ico" Link="Resources\Icon.ico" />
+	</ItemGroup>
+</Project>
