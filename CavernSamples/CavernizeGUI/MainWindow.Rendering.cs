@@ -58,40 +58,30 @@ namespace CavernizeGUI {
                 throw new TrackException(string.Format((string)language["ChCnt"], Listener.Channels.Length, format.MaxChannels));
             }
 
-            SoftPreRender(false);
+            SoftPreRender();
         }
 
         /// <summary>
         /// Prepare the renderer for export, without safety checks.
         /// </summary>
-        void SoftPreRender(bool applyTarget) {
-            CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
-            if (applyTarget) {
-                RenderTarget.Apply(Settings.Default.surroundSwap);
-            }
+        void SoftPreRender() {
+            CavernizeTrack track = (CavernizeTrack)tracks.SelectedItem;
             if (RenderTarget is VirtualizerRenderTarget) {
                 if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.FilterSampleRate) {
                     throw new IncompatibleSettingsException((string)language["FiltC"]);
                 }
-                listener.SampleRate = VirtualizerFilter.FilterSampleRate;
+                environment.Listener.SampleRate = VirtualizerFilter.FilterSampleRate;
             } else {
-                listener.SampleRate = roomCorrection == null ? target.SampleRate : roomCorrectionSampleRate;
+                environment.Listener.SampleRate = roomCorrection == null ? track.SampleRate : roomCorrectionSampleRate;
             }
 
-            if (speakerVirtualizer.IsChecked) {
-                try {
-                    VirtualizerFilter.SetupForSpeakers();
-                } catch {
-                    throw new NonGroundChannelPresentException((string)language["SpViE"]);
-                }
-                listener.SampleRate = VirtualizerFilter.FilterSampleRate;
+            try {
+                environment.AttachToListener(track);
+            } catch (NonGroundChannelPresentException) {
+                throw new NonGroundChannelPresentException((string)language["SpViE"]);
+            } catch {
+                throw;
             }
-
-            listener.DetachAllSources();
-            target.Attach(listener, new DynamicUpmixingSettings());
-
-            // Prevent height limiting, require at least 4 overhead channels for full gain
-            listener.Volume = RenderGain * (target.Renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1);
         }
 
         /// <summary>
@@ -118,9 +108,9 @@ namespace CavernizeGUI {
                     };
                 } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
                     writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount],
-                        target.Length, listener.SampleRate, bits);
+                        target.Length, environment.Listener.SampleRate, bits);
                 } else {
-                    writer = AudioWriter.Create(exportName, channelCount, target.Length, listener.SampleRate, bits);
+                    writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
                 }
                 if (writer == null) {
                     Error((string)language["UnExt"]);
@@ -134,10 +124,10 @@ namespace CavernizeGUI {
                 EnvironmentWriter transcoder;
                 switch (codec) {
                     case Codec.LimitlessAudio:
-                        transcoder = new LimitlessAudioFormatEnvironmentWriter(path, listener, target.Length, bits);
+                        transcoder = new LimitlessAudioFormatEnvironmentWriter(path, environment.Listener, target.Length, bits);
                         break;
                     case Codec.ADM_BWF:
-                        transcoder = new BroadcastWaveFormatWriter(path, listener, target.Length, bits);
+                        transcoder = new BroadcastWaveFormatWriter(path, environment.Listener, target.Length, bits);
                         break;
                     case Codec.ADM_BWF_Atmos:
                         (ReferenceChannel, Source)[] staticObjects;
@@ -151,7 +141,7 @@ namespace CavernizeGUI {
                         } else {
                             staticObjects = [];
                         }
-                        transcoder = new DolbyAtmosBWFWriter(path, listener, target.Length, bits, staticObjects);
+                        transcoder = new DolbyAtmosBWFWriter(path, environment.Listener, target.Length, bits, staticObjects);
                         break;
                     default:
                         Error((string)language["UnCod"]);
@@ -219,12 +209,13 @@ namespace CavernizeGUI {
         /// Setup write cache block size depending on active settings.
         /// </summary>
         void SetBlockSize(RenderTarget target) {
+            int updateRate = environment.Listener.UpdateRate;
             blockSize = FiltersUsed ? roomCorrection[0].Length : defaultWriteCacheLength;
-            if (blockSize < listener.UpdateRate) {
-                blockSize = listener.UpdateRate;
-            } else if (blockSize % listener.UpdateRate != 0) {
+            if (blockSize < updateRate) {
+                blockSize = updateRate;
+            } else if (blockSize % updateRate != 0) {
                 // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
-                blockSize += listener.UpdateRate - blockSize % listener.UpdateRate;
+                blockSize += updateRate - blockSize % updateRate;
             }
             blockSize *= target.OutputChannels;
         }
@@ -238,7 +229,8 @@ namespace CavernizeGUI {
                 QueuedJob job = jobs[i];
                 Dispatcher.Invoke(() => {
                     job.Prepare(this);
-                    SoftPreRender(true);
+                    RenderTarget.Apply(Settings.Default.surroundSwap);
+                    SoftPreRender();
                 });
                 job.Run();
                 Dispatcher.Invoke(() => this.jobs.Remove(job));
@@ -253,7 +245,7 @@ namespace CavernizeGUI {
             LicenceWindow licenceWindow = Dispatcher.Invoke(() => new LicenceWindow());
             ExternalConverterHandler external = new(target, Consts.Language.GetExternalConverterStrings(), licenceWindow,
                 taskEngine.UpdateProgressBar, taskEngine.UpdateStatus, Dispatcher.Invoke);
-            external.Attach(listener, new DynamicUpmixingSettings(), keepFirstSources);
+            external.Attach(environment.Listener, new DynamicUpmixingSettings(), keepFirstSources);
             return external;
         }
 

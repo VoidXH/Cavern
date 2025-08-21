@@ -97,8 +97,10 @@ namespace CavernizeGUI {
         /// Renders a listener to a file, and returns some measurements of the render.
         /// </summary>
         RenderStats WriteRender(CavernizeTrack target, AudioWriter writer, RenderTarget renderTarget, bool dynamicOnly, bool heightOnly) {
-            RenderStats stats = Dispatcher.Invoke(() => grading.IsChecked) ? new RenderStatsEx(listener) : new RenderStats(listener);
-            Progressor progressor = new Progressor(target.Length, listener, taskEngine);
+            RenderStats stats = Dispatcher.Invoke(() => grading.IsChecked) ?
+                new RenderStatsEx(environment.Listener) :
+                new RenderStats(environment.Listener);
+            Progressor progressor = new Progressor(target.Length, environment.Listener, taskEngine);
             bool customMuting = dynamicOnly || heightOnly;
 
             MultichannelConvolver filters = null;
@@ -110,12 +112,12 @@ namespace CavernizeGUI {
             VirtualizerFilter virtualizer = null;
             Normalizer normalizer = null;
             bool virtualizerState = Listener.HeadphoneVirtualizer;
-            if (virtualizerState || Dispatcher.Invoke(() => speakerVirtualizer.IsChecked)) {
+            if (virtualizerState || Dispatcher.Invoke(() => SpecialRenderModeSettings.SpeakerVirtualizer)) {
                 Listener.HeadphoneVirtualizer = false;
                 virtualizer = new VirtualizerFilter();
                 virtualizer.SetLayout();
                 normalizer = new Normalizer(true) {
-                    decayFactor = 10 * (float)listener.UpdateRate / listener.SampleRate
+                    decayFactor = 10 * (float)environment.Listener.UpdateRate / environment.Listener.SampleRate
                 };
             }
 
@@ -133,22 +135,22 @@ namespace CavernizeGUI {
 #if RELEASE
                 try {
 #endif
-                    result = listener.Render();
+                    result = environment.Listener.Render();
 #if RELEASE
                 } catch (Exception e) {
                     if (!wasError) {
                         wasError = true;
                         ThreadPool.QueueUserWorkItem(x => { // Don't hold up background processing
-                            TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / listener.SampleRate);
+                            TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
                             Dispatcher.Invoke(() => Error(string.Format((string)language["RenEr"], time, e.Message)));
                         });
                     }
-                    result = new float[Listener.Channels.Length * listener.UpdateRate];
+                    result = new float[Listener.Channels.Length * environment.Listener.UpdateRate];
                 }
 #endif
 
                 // Alignment of split parts
-                if (target.Length - progressor.Rendered < listener.UpdateRate) {
+                if (target.Length - progressor.Rendered < environment.Listener.UpdateRate) {
                     Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
                     flush = true;
                 }
@@ -167,7 +169,7 @@ namespace CavernizeGUI {
                                 Listener.Channels.Length, 0, cachePosition);
                         }
                     } else {
-                        virtualizer.Process(writeCache, listener.SampleRate);
+                        virtualizer.Process(writeCache, environment.Listener.SampleRate);
                         normalizer.Process(writeCache);
                         writer?.WriteChannelLimitedBlock(writeCache, renderTarget.OutputChannels,
                             Listener.Channels.Length, 0, cachePosition);
@@ -204,8 +206,8 @@ namespace CavernizeGUI {
         /// Transcodes between object-based tracks, and returns some measurements of the render.
         /// </summary>
         RenderStats WriteTranscode(CavernizeTrack target, EnvironmentWriter writer) {
-            RenderStats stats = new(listener);
-            Progressor progressor = new Progressor(target.Length, listener, taskEngine);
+            RenderStats stats = new(environment.Listener);
+            Progressor progressor = new Progressor(target.Length, environment.Listener, taskEngine);
 
             while (progressor.Rendered < target.Length) {
                 writer.WriteNextFrame();
@@ -220,8 +222,8 @@ namespace CavernizeGUI {
         /// Transcodes from object-based tracks to ADM BWF, and returns some measurements of the render.
         /// </summary>
         RenderStats WriteTranscode(CavernizeTrack target, BroadcastWaveFormatWriter writer) {
-            RenderStats stats = new(listener);
-            Progressor progressor = new Progressor((long)(target.Length / progressSplit), listener, taskEngine);
+            RenderStats stats = new(environment.Listener);
+            Progressor progressor = new Progressor((long)(target.Length / progressSplit), environment.Listener, taskEngine);
 
             while (progressor.Rendered < target.Length) {
                 writer.WriteNextFrame();

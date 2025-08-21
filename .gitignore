@@ -25,6 +25,8 @@ CavernSamples/CavernPipeServer.Multiplatform/bin/
 CavernSamples/CavernPipeServer.Multiplatform/obj/
 CavernSamples/CavernPipeServer.Windows/bin/
 CavernSamples/CavernPipeServer.Windows/obj/
+CavernSamples/CavernizeCLI/bin/
+CavernSamples/CavernizeCLI/obj/
 CavernSamples/CavernizeGUI/bin/
 CavernSamples/CavernizeGUI/obj/
 CavernSamples/Deconvolver/bin/

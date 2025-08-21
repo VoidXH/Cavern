@@ -22,9 +22,9 @@ using VoidX.WPF.FFmpeg;
 using Cavernize.Logic.CavernSettings;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Elements;
-using CavernizeGUI.Language;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
@@ -67,14 +67,14 @@ namespace CavernizeGUI {
         readonly (TextBlock property, TextBlock value)[] trackInfo;
 
         /// <summary>
+        /// Render process handler.
+        /// </summary>
+        readonly ConversionEnvironment environment;
+
+        /// <summary>
         /// FFmpeg runner and locator.
         /// </summary>
         readonly FFmpegGUI ffmpeg;
-
-        /// <summary>
-        /// Playback environment used for rendering.
-        /// </summary>
-        readonly Listener listener;
 
         /// <summary>
         /// Queued conversions.
@@ -142,11 +142,7 @@ namespace CavernizeGUI {
                 locateFFmpeg.Visibility = Visibility.Hidden;
             }
 
-            listener = new() { // Create a listener, which triggers the loading of saved environment settings
-                UpdateRate = 64,
-                AudioQuality = QualityModes.Perfect
-            };
-
+            environment = new(this);
             renderTarget.ItemsSource = RenderTarget.Targets;
             renderTarget.SelectedIndex = Math.Clamp(Settings.Default.renderTarget + 4, 0, RenderTarget.Targets.Length - 1);
             renderSettings.IsEnabled = true; // Don't grey out initially
@@ -268,7 +264,7 @@ namespace CavernizeGUI {
         /// Reset the listener and remove the objects of the last render.
         /// </summary>
         void Reset() {
-            listener.DetachAllSources();
+            environment.Reset();
             if (file != null && jobs.FirstOrDefault(x => x.IsUsingFile(file)) == null) {
                 file.Dispose();
                 file = null;
@@ -281,7 +277,7 @@ namespace CavernizeGUI {
                 trackInfo[i].property.Text = string.Empty;
                 trackInfo[i].value.Text = string.Empty;
             }
-            report = new(listener, Consts.Language.GetRenderReportStrings());
+            report = new(environment.Listener, Consts.Language.GetRenderReportStrings());
         }
 
         /// <summary>

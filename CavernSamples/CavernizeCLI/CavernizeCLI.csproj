@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
+		<Description>Sample CLI spatial upconverter with Cavern's renderer.</Description>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<DebugType>full</DebugType>
+		<Authors>VoidX</Authors>
+		<Product>Cavernize</Product>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Reusable\Cavernize.Logic\Cavernize.Logic.csproj" />
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+		<Exec Command="del /s /q bin\*.xml" />
+		<Exec Command="del /s /q bin\*.pdb" />
+	</Target>
+</Project>

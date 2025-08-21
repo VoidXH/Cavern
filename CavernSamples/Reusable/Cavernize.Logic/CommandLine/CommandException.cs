@@ -8,4 +8,4 @@ public sealed class CommandException(string message) : Exception(message) { }
 /// <summary>
 /// Stop further command processing with no message.
 /// </summary>
-public sealed class CommandProcessingCanceledException() : Exception() { }
+public sealed class CommandProcessingCanceledException : Exception { }

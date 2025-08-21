@@ -18,21 +18,10 @@
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 		<StartupObject>CavernizeGUI.Program</StartupObject>
 	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 	  <DebugType>none</DebugType>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<None Remove="Resources\CavernLogo.png" />
-		<None Remove="Resources\Images\AddToQueue.png" />
-		<None Remove="Resources\Images\Delete.png" />
-		<None Remove="Resources\Images\Folder.png" />
-		<None Remove="Resources\Images\Help.png" />
-		<None Remove="Resources\Images\Language.png" />
-		<None Remove="Resources\Images\Render.png" />
-		<None Remove="Resources\Images\RenderQueue.png" />
-		<None Remove="Resources\Images\Settings.png" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
@@ -93,8 +82,8 @@
 		</None>
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
 		<Exec Command="del /s /q bin\*.xml" />
-		<Exec Command="del /s /q bin\*.pdb" Condition="'$(Configuration)' == 'Release'" />
+		<Exec Command="del /s /q bin\*.pdb" />
 	</Target>
 </Project>

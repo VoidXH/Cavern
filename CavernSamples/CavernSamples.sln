@@ -59,6 +59,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernPipeServer.Logic", "R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernPipeServer.Multiplatform", "CavernPipeServer.Multiplatform\CavernPipeServer.Multiplatform.csproj", "{F2CA7B0F-A83B-45FC-9610-939215A5BF38}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernizeCLI", "CavernizeCLI\CavernizeCLI.csproj", "{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -153,6 +155,10 @@ Global
 		{F2CA7B0F-A83B-45FC-9610-939215A5BF38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2CA7B0F-A83B-45FC-9610-939215A5BF38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2CA7B0F-A83B-45FC-9610-939215A5BF38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

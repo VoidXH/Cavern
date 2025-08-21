@@ -14,6 +14,8 @@ rd /s /q "CavernUnity.WebGL\obj"
 rd /s /q CavernSamples\.vs
 rd /s /q CavernSamples\Benchmark\bin
 rd /s /q CavernSamples\Benchmark\obj
+rd /s /q CavernSamples\CavernizeCLI\bin
+rd /s /q CavernSamples\CavernizeCLI\obj
 rd /s /q CavernSamples\CavernizeGUI\bin
 rd /s /q CavernSamples\CavernizeGUI\obj
 rd /s /q CavernSamples\CavernPipeClient\bin

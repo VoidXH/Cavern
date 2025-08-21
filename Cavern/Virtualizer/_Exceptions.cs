@@ -5,7 +5,8 @@ namespace Cavern.Virtualizer {
     /// Tells if a ground channel is present, preventing an opteration.
     /// </summary>
     public class NonGroundChannelPresentException : Exception {
-        const string message = "A non-ground channel present in the layout is preventing this operation.";
+        const string message = "The active layout does not support height virtualization on speakers. " +
+            "Either disable the option or choose a layout with ground channels only.";
 
         /// <summary>
         /// Tells if a ground channel is present and preventing an opteration.
