@@ -126,5 +126,23 @@ namespace CavernizeGUI {
                 invalids.Add(fileName);
             }
         }
+
+        /// <summary>
+        /// Run all queued jobs one after another.
+        /// </summary>
+        void QueueRunnerTask(QueuedJob[] jobs) {
+            Dispatcher.Invoke(() => queuedJobs.AllowDrop = false);
+            for (int i = 0; i < jobs.Length; i++) {
+                QueuedJob job = jobs[i];
+                Dispatcher.Invoke(() => {
+                    job.Prepare(this);
+                    RenderTarget.Apply(Settings.Default.surroundSwap);
+                    SoftPreRender();
+                });
+                job.Run();
+                Dispatcher.Invoke(() => this.jobs.Remove(job));
+            }
+            Dispatcher.Invoke(() => queuedJobs.AllowDrop = true);
+        }
     }
 }

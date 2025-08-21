@@ -19,7 +19,6 @@ using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
-using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
@@ -79,8 +78,6 @@ namespace CavernizeGUI {
                 environment.AttachToListener(track);
             } catch (NonGroundChannelPresentException) {
                 throw new NonGroundChannelPresentException((string)language["SpViE"]);
-            } catch {
-                throw;
             }
         }
 
@@ -218,24 +215,6 @@ namespace CavernizeGUI {
                 blockSize += updateRate - blockSize % updateRate;
             }
             blockSize *= target.OutputChannels;
-        }
-
-        /// <summary>
-        /// Run all queued jobs one after another.
-        /// </summary>
-        void QueueRunnerTask(QueuedJob[] jobs) {
-            Dispatcher.Invoke(() => queuedJobs.AllowDrop = false);
-            for (int i = 0; i < jobs.Length; i++) {
-                QueuedJob job = jobs[i];
-                Dispatcher.Invoke(() => {
-                    job.Prepare(this);
-                    RenderTarget.Apply(Settings.Default.surroundSwap);
-                    SoftPreRender();
-                });
-                job.Run();
-                Dispatcher.Invoke(() => this.jobs.Remove(job));
-            }
-            Dispatcher.Invoke(() => queuedJobs.AllowDrop = true);
         }
 
         /// <summary>
