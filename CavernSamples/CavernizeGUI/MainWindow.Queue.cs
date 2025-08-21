@@ -24,8 +24,7 @@ namespace CavernizeGUI {
                 if (Width < minWidth) {
                     Width = minWidth;
                 }
-                jobs.Add(new QueuedJob(file, (CavernizeTrack)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
-                    (ExportFormat)audio.SelectedItem, renderTask));
+                jobs.Add(new QueuedJob(file, (CavernizeTrack)tracks.SelectedItem, RenderTarget, (ExportFormat)audio.SelectedItem, renderTask));
             }
         }
 
@@ -122,8 +121,7 @@ namespace CavernizeGUI {
         /// </summary>
         void QueueRenderTask(Action renderTask, List<string> invalids, string fileName) {
             if (renderTask != null) {
-                jobs.Add(new QueuedJob(file, (CavernizeTrack)tracks.SelectedItem, (RenderTarget)renderTarget.SelectedItem,
-                    (ExportFormat)audio.SelectedItem, renderTask));
+                jobs.Add(new QueuedJob(file, (CavernizeTrack)tracks.SelectedItem, RenderTarget, (ExportFormat)audio.SelectedItem, renderTask));
             } else {
                 invalids.Add(fileName);
             }

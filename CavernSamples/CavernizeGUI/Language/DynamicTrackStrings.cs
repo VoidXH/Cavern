@@ -9,12 +9,8 @@ namespace CavernizeGUI.Language {
     /// <summary>
     /// Reads the <see cref="TrackStrings"/> from Cavernize GUI's localized resources.
     /// </summary>
-    public sealed class DynamicTrackStrings : TrackStrings {
-        /// <summary>
-        /// Cavernize GUI's localized <see cref="TrackStrings"/>.
-        /// </summary>
-        readonly ResourceDictionary source = Consts.Language.GetTrackStrings();
-
+    /// <param name="source">Localized resources for <see cref="TrackStrings"/></param>
+    public sealed class DynamicTrackStrings(ResourceDictionary source) : TrackStrings {
         /// <inheritdoc/>
         public override string NotSupported => (string)source["NoSup"] ?? base.NotSupported;
 
@@ -59,6 +55,21 @@ namespace CavernizeGUI.Language {
             new Dictionary<Codec, string> {
                 { Codec.PCM_Float, (string)source["PCM_Float"] },
                 { Codec.PCM_LE, (string)source["PCM_LE"] },
+            } :
+            base.GetCodecNames();
+
+        /// <inheritdoc/>
+        protected override IReadOnlyDictionary<Codec, string> GetExportFormats() => (string)source["NoSup"] != null ?
+            new Dictionary<Codec, string> {
+                { Codec.AC3, (string)source["C_AC3"] },
+                { Codec.EnhancedAC3, (string)source["CEAC3"] },
+                { Codec.Opus, (string)source["COpus"] },
+                { Codec.FLAC, (string)source["CFLAC"] },
+                { Codec.PCM_Float, (string)source["CPCMF"] },
+                { Codec.PCM_LE, (string)source["CPCMI"] },
+                { Codec.ADM_BWF, (string)source["CADMC"] },
+                { Codec.ADM_BWF_Atmos, (string)source["CADMA"] },
+                { Codec.LimitlessAudio, (string)source["C_LAF"] },
             } :
             base.GetCodecNames();
     }

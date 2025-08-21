@@ -65,7 +65,7 @@ namespace CavernizeGUI {
         void OpenUpmixSetup(object _, RoutedEventArgs e) {
             UpmixingSetup setup = new(new DynamicUpmixingSettings(), Background, Resources);
             if (setup.ShowDialog().Value) {
-                UpmixingSettings.Default.Save();
+                CavernizeGUI.Resources.UpmixingSettings.Default.Save();
             }
         }
 
@@ -103,7 +103,7 @@ namespace CavernizeGUI {
                 }
                 string pathStart = dialog.FileName[..cutoff] + ' ';
 
-                ReferenceChannel[] channels = ((RenderTarget)renderTarget.SelectedItem).GetNameMappedChannels();
+                ReferenceChannel[] channels = RenderTarget.GetNameMappedChannels();
                 float[][] roomCorrectionSource = new float[channels.Length][];
                 for (int i = 0; i < channels.Length; i++) {
                     string file = $"{pathStart}{channels[i].GetShortName()}.wav";
@@ -164,9 +164,8 @@ namespace CavernizeGUI {
         /// Shows a popup about what channel should be wired to which output.
         /// </summary>
         void DisplayWiring(object _, RoutedEventArgs e) {
-            RenderTarget target = (RenderTarget)renderTarget.SelectedItem;
-            ReferenceChannel[] channels = target.GetNameMappedChannels();
-            if (target is DownmixedRenderTarget downmix) {
+            ReferenceChannel[] channels = RenderTarget.GetNameMappedChannels();
+            if (RenderTarget is DownmixedRenderTarget downmix) {
                 channels.DisplayWiring(downmix.MatrixWirings);
             } else {
                 channels.DisplayWiring();

@@ -24,10 +24,8 @@ using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
     partial class MainWindow {
-        /// <summary>
-        /// The voltage gain at which the content is rendered.
-        /// </summary>
-        public float renderGain = 1;
+        /// <inheritdoc/>
+        public float RenderGain { get; set; } = 1;
 
         /// <summary>
         /// Total number of samples for all channels that will be written to the file at once.
@@ -55,9 +53,8 @@ namespace CavernizeGUI {
                 throw new TrackException((string)language["FFOnl"]);
             }
 
-            RenderTarget selectedRenderTarget = (RenderTarget)renderTarget.SelectedItem;
-            selectedRenderTarget.Apply(Settings.Default.surroundSwap);
-            if (selectedRenderTarget is not VirtualizerRenderTarget && format.MaxChannels < Listener.Channels.Length) {
+            RenderTarget.Apply(Settings.Default.surroundSwap);
+            if (RenderTarget is not VirtualizerRenderTarget && format.MaxChannels < Listener.Channels.Length) {
                 throw new TrackException(string.Format((string)language["ChCnt"], Listener.Channels.Length, format.MaxChannels));
             }
 
@@ -69,11 +66,10 @@ namespace CavernizeGUI {
         /// </summary>
         void SoftPreRender(bool applyTarget) {
             CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
-            RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
             if (applyTarget) {
-                activeRenderTarget.Apply(Settings.Default.surroundSwap);
+                RenderTarget.Apply(Settings.Default.surroundSwap);
             }
-            if (activeRenderTarget is VirtualizerRenderTarget) {
+            if (RenderTarget is VirtualizerRenderTarget) {
                 if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.FilterSampleRate) {
                     throw new IncompatibleSettingsException((string)language["FiltC"]);
                 }
@@ -95,7 +91,7 @@ namespace CavernizeGUI {
             target.Attach(listener, new DynamicUpmixingSettings());
 
             // Prevent height limiting, require at least 4 overhead channels for full gain
-            listener.Volume = renderGain * (target.Renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1);
+            listener.Volume = RenderGain * (target.Renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1);
         }
 
         /// <summary>
@@ -103,26 +99,25 @@ namespace CavernizeGUI {
         /// </summary>
         /// <returns>A task for rendering or null when an error happened.</returns>
         Action Render(string path) {
-            RenderTarget activeRenderTarget = (RenderTarget)renderTarget.SelectedItem;
             CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
             Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
             BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : force24Bit.IsChecked ? BitDepth.Int24 : BitDepth.Int16;
             if (!codec.IsEnvironmental()) {
-                SetBlockSize(activeRenderTarget);
+                SetBlockSize(RenderTarget);
                 string exportFormat = path[^4..].ToLowerInvariant();
                 bool mkvTarget = exportFormat.Equals(".mkv");
                 string exportName = mkvTarget || exportFormat.Equals(".ac3") || exportFormat.Equals(".ec3") ?
                     path[..^4] + waveExtension :
                     path;
-                int channelCount = activeRenderTarget.OutputChannels;
+                int channelCount = RenderTarget.OutputChannels;
                 AudioWriter writer;
                 if (mkvTarget && target.Container == Container.Matroska && (codec == Codec.PCM_LE || codec == Codec.PCM_Float)) {
                     writer = new AudioWriterIntoContainer(path, target.GetVideoTracks(), codec,
                         blockSize, channelCount, target.Length, target.SampleRate, bits) {
-                        NewTrackName = $"Cavern {activeRenderTarget.Name} render"
+                        NewTrackName = $"Cavern {RenderTarget.Name} render"
                     };
                 } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
-                    writer = new RIFFWaveWriter(exportName, activeRenderTarget.Channels[..channelCount],
+                    writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount],
                         target.Length, listener.SampleRate, bits);
                 } else {
                     writer = AudioWriter.Create(exportName, channelCount, target.Length, listener.SampleRate, bits);
@@ -210,7 +205,7 @@ namespace CavernizeGUI {
                     return null;
                 }
             } else {
-                SetBlockSize((RenderTarget)renderTarget.SelectedItem);
+                SetBlockSize(RenderTarget);
                 try {
                     return () => RenderTask(target, null, false, false, null);
                 } catch (Exception e) {
@@ -273,7 +268,7 @@ namespace CavernizeGUI {
 
             taskEngine.Progress = 0;
             taskEngine.UpdateStatus((string)language["Start"]);
-            RenderTarget renderTargetRef = Dispatcher.Invoke(() => (RenderTarget)renderTarget.SelectedItem);
+            RenderTarget renderTargetRef = Dispatcher.Invoke(() => RenderTarget);
             RenderStats stats = WriteRender(target, writer, renderTargetRef, dynamicOnly, heightOnly);
             report.Generate(stats);
 

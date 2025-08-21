@@ -20,7 +20,9 @@ namespace CavernizeGUI.Consts {
         /// <summary>
         /// Get the <see cref="MainWindow"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetTrackStrings() => trackCache ??= GetFor("TrackStrings");
+        public static TrackStrings GetTrackStrings() => trackCache ??= IsDefaultLanguage() ? 
+            new TrackStrings() :
+            new DynamicTrackStrings(GetFor("TrackStrings"));
 
         /// <summary>
         /// Get the external converters' translation.
@@ -84,7 +86,7 @@ namespace CavernizeGUI.Consts {
         /// <summary>
         /// The loaded translation of <see cref="Track"/>s for reuse.
         /// </summary>
-        static ResourceDictionary trackCache;
+        static TrackStrings trackCache;
 
         /// <summary>
         /// The loaded translation of external converter handling for reuse.

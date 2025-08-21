@@ -25,7 +25,7 @@ namespace CavernizeGUI.Elements {
         /// Sets up the rendering environment for this job.
         /// </summary>
         public void Prepare(MainWindow window) {
-            window.SetFile(source);
+            window.OpenContent(source);
             window.tracks.SelectedItem = track;
             window.renderTarget.SelectedItem = target;
             window.audio.SelectedItem = format;
