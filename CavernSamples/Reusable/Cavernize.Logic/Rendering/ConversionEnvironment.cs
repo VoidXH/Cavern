@@ -3,6 +3,7 @@ using Cavern.Utilities;
 using Cavern.Virtualizer;
 
 using Cavernize.Logic.Models;
+using Cavernize.Logic.Models.RenderTargets;
 
 namespace Cavernize.Logic.Rendering;
 
@@ -32,7 +33,15 @@ public sealed class ConversionEnvironment {
         };
     }
 
-    public void AttachToListener(CavernizeTrack target) {
+    /// <summary>
+    /// Set up the listening environment for playing back the specified track.
+    /// </summary>
+    public void AttachToListener(CavernizeTrack target, bool surroundSwap) {
+        app.RenderTarget.Apply(surroundSwap);
+        if (app.RenderTarget is not VirtualizerRenderTarget && app.ExportFormat.MaxChannels < Listener.Channels.Length) {
+            throw new OverMaxChannelsException(Listener.Channels.Length, app.ExportFormat.MaxChannels);
+        }
+
         if (app.SpecialRenderModeSettings.SpeakerVirtualizer) {
             VirtualizerFilter.SetupForSpeakers();
             Listener.SampleRate = VirtualizerFilter.FilterSampleRate;

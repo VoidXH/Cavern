@@ -26,9 +26,9 @@ namespace Cavern.Format.Decoders {
         protected Stream stream;
 
         /// <summary>
-        /// Gives the possibility of setting <see cref="reader"/> after a derived constructor has read a header.
+        /// Gives the possibility of setting <see cref="Decoder.reader"/> after a derived constructor has read a header.
         /// </summary>
-        /// <remarks>Not setting <see cref="reader"/> in all constructors can break a decoder.</remarks>
+        /// <remarks>Not setting <see cref="Decoder.reader"/> in all constructors can break a decoder.</remarks>
         protected UncompressedDecoder() { }
 
         /// <summary>

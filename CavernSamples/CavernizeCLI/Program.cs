@@ -67,7 +67,7 @@ public class Program : ICavernizeApp {
         }
 
         this.file = file;
-        environment.AttachToListener(file.Tracks[0]);
+        environment.AttachToListener(file.Tracks[0], false);
 
         string name = Path.GetFileNameWithoutExtension(file.Path);
         Console.WriteLine($"Opened {name} containing {file.Tracks[0]}.");

@@ -8,7 +8,6 @@ using System.Windows;
 using Cavern.Format.Common;
 
 using Cavernize.Logic.Models;
-using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
 using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
@@ -136,7 +135,6 @@ namespace CavernizeGUI {
                 QueuedJob job = jobs[i];
                 Dispatcher.Invoke(() => {
                     job.Prepare(this);
-                    RenderTarget.Apply(Settings.Default.surroundSwap);
                     SoftPreRender();
                 });
                 job.Run();

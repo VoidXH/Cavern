@@ -15,7 +15,7 @@ namespace Cavern.Format.Decoders {
         public ReferenceChannel[] Beds { get; private set; }
 
         /// <summary>
-        /// If the stream carries a <=16 channel presentation, this is the actually used channel count, otherwise 0.
+        /// If the stream carries a &lt;=16 channel presentation, this is the actually used channel count, otherwise 0.
         /// </summary>
         public int FullChannelCount { get; private set; }
 

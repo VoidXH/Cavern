@@ -96,12 +96,12 @@ namespace CavernizeGUI {
         /// <summary>
         /// Renders a listener to a file, and returns some measurements of the render.
         /// </summary>
-        RenderStats WriteRender(CavernizeTrack target, AudioWriter writer, RenderTarget renderTarget, bool dynamicOnly, bool heightOnly) {
+        RenderStats WriteRender(CavernizeTrack target, AudioWriter writer, RenderTarget renderTarget) {
             RenderStats stats = Dispatcher.Invoke(() => grading.IsChecked) ?
                 new RenderStatsEx(environment.Listener) :
                 new RenderStats(environment.Listener);
             Progressor progressor = new Progressor(target.Length, environment.Listener, taskEngine);
-            bool customMuting = dynamicOnly || heightOnly;
+            bool customMuting = SpecialRenderModeSettings.MuteBed || SpecialRenderModeSettings.MuteGround;
 
             MultichannelConvolver filters = null;
             if (FiltersUsed) {
@@ -183,12 +183,12 @@ namespace CavernizeGUI {
 
                 if (customMuting) {
                     IReadOnlyList<Source> objects = target.Renderer.Objects;
-                    for (int i = 0, c = objects.Count; i < c; ++i) {
+                    for (int i = 0, c = objects.Count; i < c; i++) {
                         Vector3 rawPos = objects[i].Position / Listener.EnvironmentSize;
                         objects[i].Mute =
-                            (dynamicOnly && MathF.Abs(rawPos.X) % 1 < .01f &&
-                            MathF.Abs(rawPos.Y) % 1 < .01f && MathF.Abs(rawPos.Z % 1) < .01f) ||
-                            (heightOnly && rawPos.Y == 0);
+                            (SpecialRenderModeSettings.MuteBed && MathF.Abs(rawPos.X) % 1 < .01f &&
+                                MathF.Abs(rawPos.Y) % 1 < .01f && MathF.Abs(rawPos.Z % 1) < .01f) ||
+                            (SpecialRenderModeSettings.MuteGround && rawPos.Y == 0);
                     }
                 }
 

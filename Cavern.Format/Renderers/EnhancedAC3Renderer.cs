@@ -3,6 +3,7 @@
 using Cavern.Channels;
 using Cavern.Format.Decoders;
 using Cavern.Format.Decoders.EnhancedAC3;
+using Cavern.Format.Renderers.BaseClasses;
 using Cavern.SpecialSources;
 using Cavern.Utilities;
 
@@ -10,7 +11,7 @@ namespace Cavern.Format.Renderers {
     /// <summary>
     /// Renders a decoded E-AC-3 stream with Cavern.
     /// </summary>
-    public class EnhancedAC3Renderer : Renderer {
+    public class EnhancedAC3Renderer : Renderer, IMixedBedObjectRenderer {
         /// <summary>
         /// The stream is coded in the Enhanced version of AC-3.
         /// </summary>
@@ -111,20 +112,13 @@ namespace Cavern.Format.Renderers {
             }
         }
 
-        /// <summary>
-        /// Get the bed channels.
-        /// </summary>
+        /// <inheritdoc/>
         public override ReferenceChannel[] GetChannels() => ((EnhancedAC3Decoder)stream).GetChannels();
 
-        /// <summary>
-        /// Get the &quot;objects&quot; that are just static channels.
-        /// </summary>
+        /// <inheritdoc/>
         public ReferenceChannel[] GetStaticChannels() => ((EnhancedAC3Decoder)stream).Extensions.OAMD.GetStaticChannels();
 
-        /// <summary>
-        /// Read the next <paramref name="samples"/> and update the objects.
-        /// </summary>
-        /// <param name="samples">Samples per channel</param>
+        /// <inheritdoc/>
         public override void Update(int samples) {
             if (lfeResult.Length != samples) {
                 timeslotResult = new float[finalResult.Length][];
@@ -221,9 +215,7 @@ namespace Cavern.Format.Renderers {
             }
         }
 
-        /// <summary>
-        /// Free up resources created by the renderer.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Dispose() {
             applier.Dispose();
             base.Dispose();

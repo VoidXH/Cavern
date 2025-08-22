@@ -25,11 +25,11 @@
                 </MenuItem.Header>
                 <MenuItem Header="{StaticResource Upmix}" Click="OpenUpmixSetup"/>
                 <MenuItem Name="hrir" Header="{StaticResource LoadV}" Click="LoadHRIR"/>
-                <MenuItem Name="speakerVirtualizer" IsCheckable="True" Header="{StaticResource SpVir}"/>
+                <MenuItem Name="speakerVirtualizer" IsCheckable="True" Header="{StaticResource SpVir}" Click="SpeakerVirtualizerChange"/>
                 <MenuItem Name="filters" Header="{StaticResource FiltH}" ToolTip="{StaticResource FiltT}" Click="LoadFilters"/>
                 <Separator/>
-                <MenuItem Name="dynamicOnly" IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}"/>
-                <MenuItem Name="heightOnly" IsCheckable="True" Header="{StaticResource MuGrH}" ToolTip="{StaticResource MuGrT}"/>
+                <MenuItem IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}" Click="MuteBedChange"/>
+                <MenuItem IsCheckable="True" Header="{StaticResource MuGrH}" ToolTip="{StaticResource MuGrT}" Click="MuteGroundChange"/>
                 <Separator/>
                 <MenuItem Name="force24Bit" IsCheckable="True" Header="{StaticResource For24}"/>
                 <MenuItem Name="surroundSwap" IsCheckable="True" Header="{StaticResource SuSwa}" Click="SurroundSwapChange"/>

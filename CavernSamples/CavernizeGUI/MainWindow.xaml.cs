@@ -117,7 +117,7 @@ namespace CavernizeGUI {
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             Environment.SetEnvironmentVariable("WEBVIEW2_USER_DATA_FOLDER", Path.Combine(appData, "Temp", "CavernizeWebCache"));
             InitializeComponent();
-            SpecialRenderModeSettings = new DynamicSpecialRenderModeSettings(dynamicOnly, heightOnly);
+            SpecialRenderModeSettings = new DynamicSpecialRenderModeSettings();
             trackInfo = [
                 (trackTable1Title, trackTable1Value),
                 (trackTable2Title, trackTable2Value),

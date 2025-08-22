@@ -14,7 +14,6 @@ using Cavern.Utilities;
 using Cavern.Virtualizer;
 using Cavern.WPF;
 
-using Cavernize.Logic;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
@@ -52,12 +51,11 @@ namespace CavernizeGUI {
                 throw new TrackException((string)language["FFOnl"]);
             }
 
-            RenderTarget.Apply(Settings.Default.surroundSwap);
-            if (RenderTarget is not VirtualizerRenderTarget && format.MaxChannels < Listener.Channels.Length) {
-                throw new TrackException(string.Format((string)language["ChCnt"], Listener.Channels.Length, format.MaxChannels));
+            try {
+                SoftPreRender();
+            } catch (OverMaxChannelsException e) {
+                throw new TrackException(string.Format((string)language["ChCnt"], e.Channels, e.MaxChannels));
             }
-
-            SoftPreRender();
         }
 
         /// <summary>
@@ -65,6 +63,12 @@ namespace CavernizeGUI {
         /// </summary>
         void SoftPreRender() {
             CavernizeTrack track = (CavernizeTrack)tracks.SelectedItem;
+            try {
+                environment.AttachToListener(track, Settings.Default.surroundSwap);
+            } catch (NonGroundChannelPresentException) {
+                throw new NonGroundChannelPresentException((string)language["SpViE"]);
+            }
+
             if (RenderTarget is VirtualizerRenderTarget) {
                 if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.FilterSampleRate) {
                     throw new IncompatibleSettingsException((string)language["FiltC"]);
@@ -72,12 +76,6 @@ namespace CavernizeGUI {
                 environment.Listener.SampleRate = VirtualizerFilter.FilterSampleRate;
             } else {
                 environment.Listener.SampleRate = roomCorrection == null ? track.SampleRate : roomCorrectionSampleRate;
-            }
-
-            try {
-                environment.AttachToListener(track);
-            } catch (NonGroundChannelPresentException) {
-                throw new NonGroundChannelPresentException((string)language["SpViE"]);
             }
         }
 
@@ -114,9 +112,7 @@ namespace CavernizeGUI {
                     return null;
                 }
                 writer.WriteHeader();
-                bool dynamic = dynamicOnly.IsChecked;
-                bool height = heightOnly.IsChecked;
-                return () => RenderTask(target, writer, dynamic, height, path);
+                return () => RenderTask(target, writer, path);
             } else {
                 EnvironmentWriter transcoder;
                 switch (codec) {
@@ -127,18 +123,7 @@ namespace CavernizeGUI {
                         transcoder = new BroadcastWaveFormatWriter(path, environment.Listener, target.Length, bits);
                         break;
                     case Codec.ADM_BWF_Atmos:
-                        (ReferenceChannel, Source)[] staticObjects;
-                        if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.HasObjects) {
-                            ReferenceChannel[] staticChannels = eac3.GetStaticChannels();
-                            IReadOnlyList<Source> allObjects = eac3.Objects;
-                            staticObjects = new (ReferenceChannel, Source)[staticChannels.Length];
-                            for (int i = 0; i < staticChannels.Length; i++) {
-                                staticObjects[i] = (staticChannels[i], allObjects[i]);
-                            }
-                        } else {
-                            staticObjects = [];
-                        }
-                        transcoder = new DolbyAtmosBWFWriter(path, environment.Listener, target.Length, bits, staticObjects);
+                        transcoder = new DolbyAtmosBWFWriter(path, environment.Listener, target.Length, bits, target.Renderer);
                         break;
                     default:
                         Error((string)language["UnCod"]);
@@ -194,7 +179,7 @@ namespace CavernizeGUI {
             } else {
                 SetBlockSize(RenderTarget);
                 try {
-                    return () => RenderTask(target, null, false, false, null);
+                    return () => RenderTask(target, null, null);
                 } catch (Exception e) {
                     Error(e.Message);
                     return null;
@@ -231,7 +216,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Render the content and export it to a channel-based format.
         /// </summary>
-        void RenderTask(CavernizeTrack target, AudioWriter writer, bool dynamicOnly, bool heightOnly, string finalName) {
+        void RenderTask(CavernizeTrack target, AudioWriter writer, string finalName) {
             ExternalConverterHandler external = CreateExternalHandler(target, 0);
             if (external.Failed) {
                 return;
@@ -240,7 +225,7 @@ namespace CavernizeGUI {
             taskEngine.Progress = 0;
             taskEngine.UpdateStatus((string)language["Start"]);
             RenderTarget renderTargetRef = Dispatcher.Invoke(() => RenderTarget);
-            RenderStats stats = WriteRender(target, writer, renderTargetRef, dynamicOnly, heightOnly);
+            RenderStats stats = WriteRender(target, writer, renderTargetRef);
             report.Generate(stats);
 
             string targetCodec = null;

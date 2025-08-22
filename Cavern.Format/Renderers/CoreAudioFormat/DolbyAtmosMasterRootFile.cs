@@ -72,7 +72,7 @@ namespace Cavern.Format.Renderers.CoreAudioFormat {
         }
 
         /// <summary>
-        /// Fill the <see cref="objectMapping"/> array with the IDs of the <paramref name="objects"/> in the stream <paramref name="from"/> after the channel indices.
+        /// Fill the <see cref="ObjectMapping"/> array with the IDs of the <paramref name="objects"/> in the stream <paramref name="from"/> after the channel indices.
         /// </summary>
         void ParseObjectIDs(List<YAMLObject> objects, int from) {
             for (int i = 0, c = objects.Count; i < c; i++) {
