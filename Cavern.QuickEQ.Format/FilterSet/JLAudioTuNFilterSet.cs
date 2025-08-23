@@ -50,7 +50,7 @@ namespace Cavern.Format.FilterSet {
         protected override string Export(bool gainOnly) {
             JsonFile traceSettings = new JsonFile();
             for (int i = 0; i < Channels.Length; i++) {
-                JsonFile trace = new JsonFile("Color", "#" + defaultColors[i % Channels.Length].ToString("x6"));
+                JsonFile trace = new JsonFile("Color", "#" + defaultColors[i % defaultColors.Length].ToString("x6"));
                 traceSettings.Add("t_" + (i + 1), trace);
             }
             JsonFile file = new JsonFile {
