@@ -83,13 +83,21 @@ namespace Cavern.Channels {
                 case subwooferMark:
                     return ReferenceChannel.ScreenLFE;
                 case rearLeftMark:
+                case rearLeftMarkDCI:
                     return ReferenceChannel.RearLeft;
                 case rearRightMark:
+                case rearRightMarkDCI:
                     return ReferenceChannel.RearRight;
                 case sideLeftMark:
+                case sideLeftMarkDCI:
                     return ReferenceChannel.SideLeft;
                 case sideRightMark:
+                case sideRightMarkDCI:
                     return ReferenceChannel.SideRight;
+                case topSideLeftMarkDCI:
+                    return ReferenceChannel.TopSideLeft;
+                case topSideRightMarkDCI:
+                    return ReferenceChannel.TopSideRight;
                 default:
                     return ReferenceChannel.Unknown;
             }

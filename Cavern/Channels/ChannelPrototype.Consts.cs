@@ -282,7 +282,7 @@ namespace Cavern.Channels {
         };
 
         /// <summary>
-        /// Semi-standard (Equalizer APO) channel names.
+        /// Semi-standard (Equalizer APO, DCI, etc.) channel names.
         /// </summary>
         internal const string frontLeftMark = "L",
             frontLeftMarkFull = "FL",
@@ -293,8 +293,14 @@ namespace Cavern.Channels {
             screenLFEMark = "LFE",
             subwooferMark = "SUB",
             rearLeftMark = "RL",
+            rearLeftMarkDCI = "Lrs",
             rearRightMark = "RR",
+            rearRightMarkDCI = "Rrs",
             sideLeftMark = "SL",
-            sideRightMark = "SR";
+            sideLeftMarkDCI = "Lss",
+            sideRightMark = "SR",
+            sideRightMarkDCI = "Rss",
+            topSideLeftMarkDCI = "Lts",
+            topSideRightMarkDCI = "Rts";
     }
 }

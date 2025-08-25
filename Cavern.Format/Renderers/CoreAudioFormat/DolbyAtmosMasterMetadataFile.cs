@@ -33,14 +33,25 @@ namespace Cavern.Format.Renderers.CoreAudioFormat {
                 throw new CorruptionException("No events found in the metadata file.");
             }
 
+            int id = -1;
+            long offset = 0;
+            if (!events[0].ContainsKey("ID")) {
+                throw new CorruptionException("First event has no channel ID.");
+            }
+
             for (int i = 0, c = events.Count; i < c; i++) {
                 YAMLObject current = events[i];
-                if (!(current.TryGetValue("ID", out object rawID) &&
-                    rawID is string idString &&
-                    int.TryParse(idString, out int id))) {
-                    throw new CorruptionException("Invalid channel ID in the metadata file.");
+                if (current.TryGetValue("ID", out object rawID)) {
+                    if (!(rawID is string idString) || !int.TryParse(idString, out id)) {
+                        throw new CorruptionException("Invalid channel ID in the metadata file.");
+                    }
                 }
                 id = inverseMapping[id];
+
+                if (current.TryGetValue("samplePos", out object rawOffset) &&
+                    rawOffset is string offsetSource) {
+                    offset = long.Parse(offsetSource);
+                }
 
                 Vector3 position = lastFrames[id].position;
                 if (current.TryGetValue("pos", out object rawPosition) &&
@@ -53,12 +64,6 @@ namespace Cavern.Format.Renderers.CoreAudioFormat {
                 if (current.TryGetValue("gain", out object rawGain) &&
                     rawGain is string gainSource) {
                     gain = gainSource != "-inf" ? QMath.DbToGain(QMath.ParseFloat(gainSource)) : 0;
-                }
-
-                long offset = lastFrames[id].offset;
-                if (current.TryGetValue("samplePos", out object rawOffset) &&
-                    rawOffset is string offsetSource) {
-                    offset = long.Parse(offsetSource);
                 }
 
                 int fade = lastFrames[id].fade;

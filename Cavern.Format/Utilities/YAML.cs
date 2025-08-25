@@ -35,6 +35,9 @@ namespace Cavern.Format.Utilities {
                 }
 
                 int split = line.IndexOf(':');
+                if (split == -1) {
+                    continue; // Empty arrays or invalid lines
+                }
                 string key = line[..split].Trim();
                 string value = line[(split + 1)..].TrimStart();
 
