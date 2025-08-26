@@ -68,7 +68,7 @@ namespace Cavern.Filters {
         /// <summary>
         /// Array used to hold samples processed by <see cref="delay"/>.
         /// </summary>
-        float[] cache = new float[0];
+        float[] cache = Array.Empty<float>();
 
         /// <summary>
         /// Normalized feedforward comb filter.

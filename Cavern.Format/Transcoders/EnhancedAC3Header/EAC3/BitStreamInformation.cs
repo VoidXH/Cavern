@@ -1,4 +1,7 @@
-﻿using Cavern.Format.Utilities;
+﻿using System;
+
+using Cavern.Format.Utilities;
+
 using static Cavern.Format.Transcoders.EnhancedAC3;
 
 namespace Cavern.Format.Transcoders {
@@ -10,7 +13,7 @@ namespace Cavern.Format.Transcoders {
         bool blkid;
         bool convsync;
         bool addbsie;
-        byte[] addbsi = new byte[0];
+        byte[] addbsi = Array.Empty<byte>();
         int addbsilen;
 
         /// <summary>

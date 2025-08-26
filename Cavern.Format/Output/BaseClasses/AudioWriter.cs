@@ -73,6 +73,7 @@ namespace Cavern.Format {
         /// <param name="bits">Output bit depth</param>
         public static AudioWriter Create(string path, int channelCount, long length, int sampleRate, BitDepth bits) =>
             path[^3..] switch {
+                "caf" => new CoreAudioFormatWriter(path, channelCount, length, sampleRate, bits),
                 "laf" => new LimitlessAudioFormatWriter(path, length, sampleRate, bits, Listener.Channels),
                 "wav" => new RIFFWaveWriter(path, channelCount, length, sampleRate, bits),
                 _ => throw new UnsupportedContainerForWriteException(path[^3..])

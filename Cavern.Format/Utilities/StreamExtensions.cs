@@ -257,5 +257,28 @@ namespace Cavern.Format.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteAny<T>(this Stream writer, T value) where T : struct =>
             writer.Write(MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref value, 1)));
+
+        /// <summary>
+        /// Write any value to the stream with big endian encoding.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteAnyBE<T>(this Stream writer, T value) where T : struct {
+            int size = Marshal.SizeOf<T>();
+            Span<byte> buffer = stackalloc byte[size];
+            MemoryMarshal.Write(buffer, ref value);
+            if (BitConverter.IsLittleEndian) {
+                buffer.Reverse();
+            }
+            writer.Write(buffer);
+        }
+
+        /// <summary>
+        /// Write ASCII strings to the stream.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteAny(this Stream writer, string value) {
+            byte[] bytes = Encoding.ASCII.GetBytes(value);
+            writer.Write(bytes, 0, bytes.Length);
+        }
     }
 }

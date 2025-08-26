@@ -8,6 +8,7 @@ namespace Cavern.Format.Decoders {
     /// <summary>
     /// Converts a Core Audio Format bitstream with header to raw samples.
     /// </summary>
+    /// <see href="https://developer.apple.com/library/archive/documentation/MusicAudio/Reference/CAFSpec/CAF_overview/CAF_overview.html"/>
     public class CoreAudioFormatDecoder : UncompressedDecoder {
         /// <summary>
         /// Converts a Core Audio Format bitstream with header to raw samples.

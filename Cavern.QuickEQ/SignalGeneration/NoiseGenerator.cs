@@ -15,7 +15,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// <summary>
         /// Rendered output array kept to save allocation time.
         /// </summary>
-        float[] rendered = new float[0];
+        float[] rendered = Array.Empty<float>();
 
         /// <summary>
         /// Random number generator.

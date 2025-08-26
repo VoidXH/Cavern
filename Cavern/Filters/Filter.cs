@@ -10,7 +10,7 @@ namespace Cavern.Filters {
     /// <remarks>You have to override at least one Process function, otherwise they'll call each other.</remarks>
     public abstract class Filter : ICloneable {
         /// <summary>
-        /// <see cref="Process"/>ing a Dirac-delta will result in an impulse response that will result in the same exact filter
+        /// <see cref="Process(float[])"/>ing a Dirac-delta will result in an impulse response that will result in the same exact filter
         /// when used as convolution samples.
         /// </summary>
         public virtual bool LinearTimeInvariant => true;
@@ -57,7 +57,7 @@ namespace Cavern.Filters {
                     gain.ReadXml(reader);
                     return gain;
                 case nameof(SpikeConvolver):
-                    SpikeConvolver spikeConvolver = new SpikeConvolver(new float[0], 0);
+                    SpikeConvolver spikeConvolver = new SpikeConvolver(Array.Empty<float>(), 0);
                     spikeConvolver.ReadXml(reader);
                     return spikeConvolver;
                 default:

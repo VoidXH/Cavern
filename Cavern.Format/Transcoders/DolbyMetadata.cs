@@ -150,7 +150,7 @@ namespace Cavern.Format.Transcoders {
             Version = reader.ReadUInt32(); // each byte is one dotted value -> to/from string
 
             byte segmentID;
-            byte[] segment = new byte[0];
+            byte[] segment = Array.Empty<byte>();
             while ((segmentID = (byte)reader.ReadByte()) != 0) {
                 ushort segmentLength = reader.ReadUInt16();
                 if (segment.Length < segmentLength) {

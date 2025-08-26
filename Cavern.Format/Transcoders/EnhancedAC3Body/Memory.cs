@@ -43,7 +43,7 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Unprocessed auxillary data fields are added here.
         /// </summary>
-        byte[] auxData = new byte[0];
+        byte[] auxData = Array.Empty<byte>();
 
         bool ahte;
         bool baie;

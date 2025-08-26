@@ -37,7 +37,7 @@ namespace Cavern.Format.Decoders {
             SampleRate = header.SampleRate;
 
             // Will fail on subsequent calls as MLP is actually not supported
-            return new float[0];
+            return Array.Empty<float>();
         }
 
         /// <inheritdoc/>

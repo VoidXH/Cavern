@@ -26,7 +26,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// The reused result of <see cref="ReadNextBlock"/> if the block length doesn't change.
         /// </summary>
-        byte[] blockCache = new byte[0];
+        byte[] blockCache = Array.Empty<byte>();
 
         /// <summary>
         /// Number of blocks requested by <see cref="ReadNextBlock"/>.

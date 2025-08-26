@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Cavern.SpecialSources;
 
@@ -39,7 +40,7 @@ namespace Cavern.Remapping {
             StreamMaster reader = new StreamMaster(UpdateSourcesFully);
             IntermediateSources = new Source[sourceCount];
             output = new float[sourceCount][];
-            output[0] = new float[0];
+            output[0] = Array.Empty<float>();
             for (int i = 0; i < sourceCount; i++) {
                 IntermediateSources[i] = new StreamMasterSource(reader, i) {
                     VolumeRolloff = Rolloffs.Disabled

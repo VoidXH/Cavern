@@ -13,7 +13,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Input cache array.
         /// </summary>
-        float[] input = new float[0];
+        float[] input = Array.Empty<float>();
 
         /// <summary>
         /// Output cache array.
@@ -25,7 +25,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public RunningChannelSeparator(int channels) {
             output = new float[channels][];
-            output[0] = new float[0];
+            output[0] = Array.Empty<float>();
         }
 
         /// <summary>

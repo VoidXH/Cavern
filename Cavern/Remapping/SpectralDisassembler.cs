@@ -56,7 +56,7 @@ namespace Cavern.Remapping {
         /// <summary>
         /// Helper array used for mixing band-limited content together.
         /// </summary>
-        float[] mixTemp = new float[0];
+        float[] mixTemp = Array.Empty<float>();
 
         /// <summary>
         /// Deconstructs a stereo track to positioned bands.

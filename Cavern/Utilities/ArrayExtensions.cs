@@ -86,6 +86,17 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Ensure an array is of a given <paramref name="length"/>, reallocating if necessary.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void EnsureLength<T>(ref T[] source, long length) {
+            if (source.Length == length) {
+                return;
+            }
+            source = new T[length];
+        }
+
+        /// <summary>
         /// Clones an array about twice as fast as <see cref="Array.Clone"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

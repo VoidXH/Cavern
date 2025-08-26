@@ -162,9 +162,9 @@ namespace Cavern.Virtualizer {
             leftSplit = new float[SpatialChannels.Length][];
             rightSplit = new float[SpatialChannels.Length][];
             for (int channel = 0; channel < SpatialChannels.Length; channel++) {
-                rightSplit[channel] = new float[0];
+                rightSplit[channel] = Array.Empty<float>();
             }
-            originalSplit[0] = new float[0];
+            originalSplit[0] = Array.Empty<float>();
         }
 
         /// <summary>

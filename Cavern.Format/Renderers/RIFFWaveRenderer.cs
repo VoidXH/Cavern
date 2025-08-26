@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 using Cavern.Channels;
@@ -34,7 +35,7 @@ namespace Cavern.Format.Renderers {
                     }
                 }
             }
-            objectSamples[0] = new float[0];
+            objectSamples[0] = Array.Empty<float>();
         }
 
         /// <summary>

@@ -30,7 +30,7 @@ namespace Cavern.Format.Container {
         /// Used when converting multichannel waveforms to interlaced ones for exporting with the interlaced
         /// <see cref="WriteBlock(float[], long, long)"/> variant.
         /// </summary>
-        float[] writeCache = new float[0];
+        float[] writeCache = Array.Empty<float>();
 
         /// <summary>
         /// Writes the audio data as a new <see cref="track"/> into a <see cref="container"/>, amongst other tracks.

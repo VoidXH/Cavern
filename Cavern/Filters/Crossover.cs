@@ -52,12 +52,12 @@ namespace Cavern.Filters {
         /// <summary>
         /// Low frequency data.
         /// </summary>
-        public float[] LowOutput { get; private set; } = new float[0];
+        public float[] LowOutput { get; private set; } = Array.Empty<float>();
 
         /// <summary>
         /// High frequency data.
         /// </summary>
-        public float[] HighOutput { get; private set; } = new float[0];
+        public float[] HighOutput { get; private set; } = Array.Empty<float>();
 
         /// <summary>
         /// Lowpass filters for each pass.

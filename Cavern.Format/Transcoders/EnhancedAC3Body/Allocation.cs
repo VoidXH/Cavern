@@ -12,7 +12,7 @@ namespace Cavern.Format.Transcoders {
             /// <summary>
             /// A copy of the mantissa stream to be able to quickly transcode the block without re-encoding.
             /// </summary>
-            byte[] rawMantissa = new byte[0];
+            byte[] rawMantissa = Array.Empty<byte>();
 
             /// <summary>
             /// Length of the content in <see cref="rawMantissa"/> in bits.

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 using Cavern.Channels;
 using Cavern.Format.Decoders;
@@ -31,7 +32,7 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         public CoreAudioFormatRenderer(Decoder stream) : base(stream) {
             SetupChannels();
-            objectSamples[0] = new float[0];
+            objectSamples[0] = Array.Empty<float>();
         }
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         internal CoreAudioFormatRenderer(Decoder stream, YAML rootSource, YAML metadataSource) : base(stream) {
             SetupObjects(Channels);
-            objectSamples[0] = new float[0];
+            objectSamples[0] = Array.Empty<float>();
 
             DolbyAtmosMasterRootFile root = new DolbyAtmosMasterRootFile(rootSource, Channels);
             channels = root.Channels;

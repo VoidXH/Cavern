@@ -45,7 +45,7 @@ public sealed class MergeToContainer {
                 "Limitless Audio Format|*.laf" :
                 "ADM Broadcast Wave Format|*.wav|ADM BWF + Audio XML|*.xml";
         } else if (output == Codec.PCM_Float || output == Codec.PCM_LE) {
-            const string wav = "RIFF WAVE|*.wav|Limitless Audio Format|*.laf";
+            const string wav = "RIFF WAVE|*.wav|Limitless Audio Format|*.laf|Core Audio Format|*.caf";
             return ffmpeg.Found || input.Container == Container.Matroska ? $"{matroskaOnly}|{wav}" : wav;
         } else if (ffmpeg.Found) {
             return output switch {

@@ -37,7 +37,7 @@ namespace Cavern.Format.Decoders {
         protected UncompressedDecoder(BlockBuffer<byte> reader) : base(reader) { }
 
         /// <inheritdoc/>
-        public override void DecodeBlock(float[] target, long from, long to) {
+        public sealed override void DecodeBlock(float[] target, long from, long to) {
             const long skip = FormatConsts.blockSize / sizeof(float); // Source split optimization for both memory and IO
             if (to - from > skip) {
                 for (; from < to; from += skip) {
@@ -55,7 +55,7 @@ namespace Cavern.Format.Decoders {
         }
 
         /// <inheritdoc/>
-        public override void Seek(long sample) {
+        public sealed override void Seek(long sample) {
             if (stream == null) {
                 throw new StreamingException();
             }

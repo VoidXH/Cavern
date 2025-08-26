@@ -253,7 +253,7 @@ namespace Cavern {
         /// <summary>
         /// Same as <see cref="renderBuffer"/>, for multiple frames.
         /// </summary>
-        float[] multiframeBuffer = new float[0];
+        float[] multiframeBuffer = Array.Empty<float>();
 
         /// <summary>
         /// Optimization variables.

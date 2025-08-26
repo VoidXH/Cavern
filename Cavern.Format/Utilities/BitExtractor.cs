@@ -29,7 +29,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Construct an empty extractor to be expanded.
         /// </summary>
-        public BitExtractor() => source = new byte[0];
+        public BitExtractor() => source = Array.Empty<byte>();
 
         /// <summary>
         /// Construct an extractor to a bitstream.

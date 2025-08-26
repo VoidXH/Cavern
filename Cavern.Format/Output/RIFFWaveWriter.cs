@@ -4,10 +4,8 @@ using System.IO;
 using System.Runtime.CompilerServices;
 
 using Cavern.Channels;
-using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
-using Cavern.Utilities;
 
 using static Cavern.Format.Consts.RIFFWaveConsts;
 
@@ -15,7 +13,7 @@ namespace Cavern.Format {
     /// <summary>
     /// Minimal RIFF wave file writer.
     /// </summary>
-    public class RIFFWaveWriter : AudioWriter {
+    public class RIFFWaveWriter : UncompressedWriter {
         /// <summary>
         /// The maximum number of additionally needed chunks that could surpass 4 GB.
         /// </summary>
@@ -40,11 +38,6 @@ namespace Cavern.Format {
         /// Bytes used for the actual PCM data.
         /// </summary>
         long DataLength => Length * ChannelCount * ((int)Bits / 8);
-
-        /// <summary>
-        /// Total samples written.
-        /// </summary>
-        long samplesWritten;
 
         /// <summary>
         /// Minimal RIFF Wave file writer.
@@ -205,121 +198,6 @@ namespace Cavern.Format {
         }
 
         /// <summary>
-        /// Write a block of samples.
-        /// </summary>
-        /// <param name="samples">Samples to write</param>
-        /// <param name="from">Start position in the input array (inclusive)</param>
-        /// <param name="to">End position in the input array (exclusive)</param>
-        public override void WriteBlock(float[] samples, long from, long to) {
-            const long skip = FormatConsts.blockSize / sizeof(float); // Source split optimization for both memory and IO
-            if (to - from > skip) {
-                long actualSkip = skip - skip % ChannelCount; // Blocks have to be divisible with the channel count
-                for (; from < to; from += actualSkip) {
-                    WriteBlock(samples, from, Math.Min(to, from + actualSkip));
-                }
-                return;
-            }
-
-            // Don't allow overwriting
-            int window = (int)(to - from);
-            samplesWritten += window / ChannelCount;
-            if (samplesWritten > Length) {
-                long extra = samplesWritten - Length;
-                window -= (int)(extra * ChannelCount);
-                samplesWritten -= extra;
-            }
-
-            byte[] output = new byte[window * ((long)Bits >> 3)];
-            switch (Bits) {
-                case BitDepth.Int8:
-                    for (int i = 0; i < window; i++) {
-                        output[i] = (byte)(samples[from++] * sbyte.MaxValue);
-                    }
-                    break;
-                case BitDepth.Int16:
-                    for (int i = 0; i < window; i++) {
-                        short val = (short)(samples[from++] * short.MaxValue);
-                        output[2 * i] = (byte)val;
-                        output[2 * i + 1] = (byte)(val >> 8);
-                    }
-                    break;
-                case BitDepth.Int24:
-                    for (int i = 0; i < window; i++) {
-                        QMath.ConverterStruct val = new QMath.ConverterStruct { asInt = (int)((double)samples[from++] * int.MaxValue) };
-                        output[3 * i] = val.byte1;
-                        output[3 * i + 1] = val.byte2;
-                        output[3 * i + 2] = val.byte3;
-                    }
-                    break;
-                case BitDepth.Float32:
-                    for (int i = 0; i < window; i++) {
-                        QMath.ConverterStruct val = new QMath.ConverterStruct { asFloat = samples[from++] };
-                        output[4 * i] = val.byte0;
-                        output[4 * i + 1] = val.byte1;
-                        output[4 * i + 2] = val.byte2;
-                        output[4 * i + 3] = val.byte3;
-                    }
-                    break;
-                default:
-                    throw new InvalidBitDepthException(Bits);
-            }
-            writer.Write(output);
-        }
-
-        /// <summary>
-        /// Write a block of samples.
-        /// </summary>
-        /// <param name="samples">Samples to write</param>
-        /// <param name="from">Start position in the input array for a single channel (inclusive)</param>
-        /// <param name="to">End position in the input array for a single channel (exclusive)</param>
-        public override void WriteBlock(float[][] samples, long from, long to) {
-            // Don't allow overwriting
-            samplesWritten += to - from;
-            if (samplesWritten > Length) {
-                long extra = samplesWritten - Length;
-                to -= extra;
-                samplesWritten -= extra;
-            }
-
-            switch (Bits) {
-                case BitDepth.Int8:
-                    while (from < to) {
-                        for (int channel = 0; channel < samples.Length; channel++) {
-                            writer.WriteAny((sbyte)(samples[channel][from] * sbyte.MaxValue));
-                        }
-                        from++;
-                    }
-                    break;
-                case BitDepth.Int16:
-                    while (from < to) {
-                        for (int channel = 0; channel < samples.Length; channel++) {
-                            writer.WriteAny((short)(samples[channel][from] * short.MaxValue));
-                        }
-                        from++;
-                    }
-                    break;
-                case BitDepth.Int24:
-                    while (from < to) {
-                        for (int channel = 0; channel < samples.Length; channel++) {
-                            int src = (int)(samples[channel][from] * BitConversions.int24Max);
-                            writer.WriteAny((short)src);
-                            writer.WriteAny((byte)(src >> 16));
-                        }
-                        from++;
-                    }
-                    break;
-                case BitDepth.Float32:
-                    while (from < to) {
-                        for (int channel = 0; channel < samples.Length; channel++) {
-                            writer.WriteAny(samples[channel][from]);
-                        }
-                        from++;
-                    }
-                    break;
-            }
-        }
-
-        /// <summary>
         /// Append an extra chunk to the file, without considering its alignment to even bytes.
         /// </summary>
         /// <param name="id">4 byte identifier of the chunk</param>
@@ -360,8 +238,8 @@ namespace Cavern.Format {
             }
 
             // Handle when a truncated signal was passed to the writer, fill the rest up with zero bytes
-            if (samplesWritten < Length) {
-                long zerosToWrite = (Length - samplesWritten) * ChannelCount * ((long)Bits / 8);
+            if (SamplesWritten < Length) {
+                long zerosToWrite = (Length - SamplesWritten) * ChannelCount * ((long)Bits / 8);
                 while (zerosToWrite > 8) {
                     writer.WriteAny(0L);
                     zerosToWrite -= 8;

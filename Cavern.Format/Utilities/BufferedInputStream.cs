@@ -84,7 +84,7 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Blocks cached in memory.
         /// </summary>
-        byte[][] blocks = new byte[0][];
+        byte[][] blocks = Array.Empty<byte[]>();
 
         /// <summary>
         /// Used as a lock for <see cref="blocks"/>.

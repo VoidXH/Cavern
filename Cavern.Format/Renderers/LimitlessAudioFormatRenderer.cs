@@ -1,4 +1,6 @@
-﻿using Cavern.Format.Decoders;
+﻿using System;
+
+using Cavern.Format.Decoders;
 
 namespace Cavern.Format.Renderers {
     /// <summary>
@@ -13,7 +15,7 @@ namespace Cavern.Format.Renderers {
             for (int i = 0; i < stream.ChannelCount; i++) {
                 objects[i].Position = stream.ObjectPositions[i];
             }
-            objectSamples[0] = new float[0];
+            objectSamples[0] = Array.Empty<float>();
         }
 
         /// <summary>

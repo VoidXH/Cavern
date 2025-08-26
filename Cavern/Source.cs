@@ -70,17 +70,17 @@ namespace Cavern {
         /// <summary>
         /// Stereo mix cache to save allocation times.
         /// </summary>
-        float[] leftSamples = new float[0], rightSamples = new float[0];
+        float[] leftSamples = Array.Empty<float>(), rightSamples = Array.Empty<float>();
 
         /// <summary>
         /// Rendered output array kept to save allocation time.
         /// </summary>
-        float[] rendered = new float[0];
+        float[] rendered = Array.Empty<float>();
 
         /// <summary>
         /// Mono mix cache to save allocation times.
         /// </summary>
-        float[] samples = new float[0];
+        float[] samples = Array.Empty<float>();
 
         /// <summary>
         /// Remaining delay until starting playback.

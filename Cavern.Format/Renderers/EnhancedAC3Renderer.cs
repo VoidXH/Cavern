@@ -61,12 +61,12 @@ namespace Cavern.Format.Renderers {
         /// <summary>
         /// LFE channel output.
         /// </summary>
-        float[] lfeResult = new float[0];
+        float[] lfeResult = Array.Empty<float>();
 
         /// <summary>
         /// Cache for the decoded bed data.
         /// </summary>
-        float[][] inputData = new float[0][];
+        float[][] inputData = Array.Empty<float[]>();
 
         /// <summary>
         /// Object samples for the last rendered timeslot.

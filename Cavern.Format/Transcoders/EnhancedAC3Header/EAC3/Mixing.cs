@@ -1,4 +1,7 @@
-﻿using Cavern.Format.Utilities;
+﻿using System;
+
+using Cavern.Format.Utilities;
+
 using static Cavern.Format.Transcoders.EnhancedAC3;
 
 namespace Cavern.Format.Transcoders {
@@ -27,7 +30,7 @@ namespace Cavern.Format.Transcoders {
         int? extpgmscl;
         int mixdef;
         int mixdata;
-        byte[] mixdataLarge = new byte[0];
+        byte[] mixdataLarge = Array.Empty<byte>();
         int mixdataLargeLen;
         bool paninfoe;
         int panmean;

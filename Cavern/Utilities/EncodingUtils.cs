@@ -23,7 +23,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static float[] Base64ToFloatArray(string source) {
             if (string.IsNullOrEmpty(source)) {
-                return new float[0];
+                return Array.Empty<float>();
             }
 
             byte[] from = Convert.FromBase64String(source);

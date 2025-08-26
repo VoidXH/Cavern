@@ -57,7 +57,7 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Reusable output sample array.
         /// </summary>
-        float[] outCache = new float[0];
+        float[] outCache = Array.Empty<float>();
 
         /// <summary>
         /// Converts an Enhanced AC-3 bitstream to raw samples.
