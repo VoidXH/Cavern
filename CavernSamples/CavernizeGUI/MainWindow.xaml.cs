@@ -231,13 +231,18 @@ namespace CavernizeGUI {
         /// <inheritdoc/>
         public void RenderContent(string path) {
             Action renderTask;
+#if RELEASE
             try {
+#endif
                 PreRender();
                 renderTask = Render(path);
+#if RELEASE
             } catch (Exception e) {
                 Error(e.Message);
                 return;
             }
+#endif
+
             if (renderTask != null) {
                 taskEngine.Run(renderTask, Error);
             }
