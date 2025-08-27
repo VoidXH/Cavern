@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Channels;
 using Cavern.Format.Common;
@@ -33,12 +34,13 @@ namespace Cavern.Format.Renderers.CoreAudioFormat {
                 rawBedInstances is List<YAMLObject> bedInstances &&
                 bedInstances.Count == 1 &&
                 bedInstances[0] is YAMLObject bedInstance &&
-                bedInstance.TryGetValue("channels", out object rawChannels) &&
-                rawChannels is List<YAMLObject> channelsSource)) {
+                bedInstance.TryGetValue("channels", out object rawChannels))) {
                 throw new CorruptionException("Only single-bed instance files with a single channel assignment are supported.");
             }
             ObjectMapping = new int[channelCount];
-            Channels = ParseChannels(channelsSource);
+            Channels = rawChannels is List<YAMLObject> channelsSource ?
+                ParseChannels(channelsSource) :
+                Array.Empty<ReferenceChannel>();
 
             if (!(presentation.TryGetValue("objects", out object rawObjects) &&
                 rawObjects is List<YAMLObject> objects)) {
