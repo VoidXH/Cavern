@@ -38,7 +38,7 @@ namespace Cavern.Format {
             writer.WriteAnyBE((uint)Bits);
 
             writer.WriteAny(RIFFWaveConsts.dataSync);
-            writer.WriteAnyBE(frameSize * Length);
+            writer.WriteAnyBE(frameSize * Length + 4);
             writer.WriteAny(0); // Edit count
         }
     }
