@@ -6,7 +6,7 @@ namespace Cavern.Format.Renderers {
     /// <summary>
     /// Renders a decoded MLP stream with Cavern.
     /// </summary>
-    public class MeridianLosslessPackingRenderer : Renderer/*, IMixedBedObjectRenderer needs local decoding */ {
+    public class MeridianLosslessPackingRenderer : Renderer, IMixedBedObjectRenderer {
         /// <summary>
         /// Renders a decoded MLP stream with Cavern.
         /// </summary>

@@ -148,6 +148,8 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     /// <summary>
     /// Attach this track to a rendering environment and start from the beginning.
     /// </summary>
+    /// <param name="listener">Listener to attach the track's <see cref="Source"/>s to</param>
+    /// <param name="upmixingSettings">Optionally create new <see cref="Source"/>s to expand the soundstage</param>
     public void Attach(Listener listener, UpmixingSettings upmixingSettings) {
         reader.Reset();
         Renderer = reader.GetRenderer();

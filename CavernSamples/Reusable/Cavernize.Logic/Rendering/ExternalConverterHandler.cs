@@ -1,6 +1,7 @@
 ﻿using Cavern;
 using Cavern.CavernSettings;
 using Cavern.Format.Common;
+using Cavern.SpecialSources;
 using Cavern.Utilities;
 
 using Cavernize.Logic.External;
@@ -72,12 +73,23 @@ public sealed class ExternalConverterHandler : IDisposable {
             return;
         }
 
-        Source[] firstSources = to.ActiveSources.Take(keepFirstSources).ToArray();
+        Source[] firstSources = [.. to.ActiveSources.Take(keepFirstSources)];
         to.DetachAllSources();
-        foreach (Source source in firstSources) {
-            to.AttachSource(source);
-        }
         intermediateTrack.Attach(to, upmixing);
+
+        IEnumerable<Source> newSources = to.ActiveSources.Skip(keepFirstSources);
+        Source[] beds = [.. newSources.Skip(firstSources.Count(x => x is not MuteSource))];
+        int bedAdded = 0;
+        for (int i = 0; i < firstSources.Length && bedAdded < beds.Length; i++) {
+            if (firstSources[i] is not MuteSource) {
+                firstSources[i] = beds[bedAdded++];
+                to.DetachSource(firstSources[i]);
+            }
+        }
+
+        for (int i = firstSources.Length - 1; i >= 0; i--) {
+            to.AttachPrioritySource(firstSources[i]);
+        }
     }
 
     /// <inheritdoc/>
