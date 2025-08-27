@@ -20,9 +20,9 @@ namespace Cavern.Format.Decoders.MeridianLosslessPacking {
         public ReferenceChannel[] Beds { get; private set; }
 
         /// <summary>
-        /// If the stream carries a &lt;=16 channel presentation, this is the actually used channel count, otherwise 0.
+        /// If the stream carries a &lt;=16 channel presentation, this is its actually used track count, otherwise 0.
         /// </summary>
-        public int FullChannelCount { get; private set; }
+        public int TracksIn16CH { get; private set; }
 
         /// <summary>
         /// Reads an MLP header from a bitstream.
@@ -69,16 +69,16 @@ namespace Cavern.Format.Decoders.MeridianLosslessPacking {
             extractor.Skip(2); // Extended substream info
             int substreamInfo = extractor.Read(8);
             if ((substreamInfo & (1 << 7)) != 0) {
-                FullChannelCount = 16; // 16 channel presentation present
+                TracksIn16CH = 16; // 16 channel presentation present
             }
             for (int i = 0; i < substreams; i++) {
                 extractor.Skip(63); // Channel meaning
                 if (extractor.ReadBit()) { // Extra channel meaning
                     int extraChannelMeaningLength = (extractor.Read(4) + 1) * sizeof(short);
                     int readFrom = extractor.Position;
-                    if (FullChannelCount != 0) { // 16 channel meaning
+                    if (TracksIn16CH != 0) { // 16 channel meaning
                         extractor.Skip(11); // Mixing levels
-                        FullChannelCount = extractor.Read(5) + 1;
+                        TracksIn16CH = extractor.Read(5) + 1;
                         if (extractor.ReadBit()) { // Objects only
                             Beds = extractor.ReadBit() ? // LFE present
                                 new ReferenceChannel[] { ReferenceChannel.ScreenLFE } :

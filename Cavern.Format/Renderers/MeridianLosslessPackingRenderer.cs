@@ -11,8 +11,8 @@ namespace Cavern.Format.Renderers {
         /// Renders a decoded MLP stream with Cavern.
         /// </summary>
         public MeridianLosslessPackingRenderer(MeridianLosslessPackingDecoder stream) : base(stream) {
-            if (stream.FullChannelCount != 0) {
-                SetupObjects(stream.FullChannelCount);
+            if (stream.TracksIn16CH != 0) {
+                SetupObjects(stream.TracksIn16CH + stream.Beds.Length);
             } else {
                 SetupChannels();
             }

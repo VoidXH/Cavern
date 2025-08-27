@@ -15,9 +15,9 @@ namespace Cavern.Format.Decoders {
         public ReferenceChannel[] Beds { get; private set; }
 
         /// <summary>
-        /// If the stream carries a &lt;=16 channel presentation, this is the actually used channel count, otherwise 0.
+        /// If the stream carries a &lt;=16 channel presentation, this is its actually used channel count, otherwise 0.
         /// </summary>
-        public int FullChannelCount { get; private set; }
+        public int TracksIn16CH { get; private set; }
 
         /// <summary>
         /// Converts a Meridian Lossless Packing (MLP) stream into raw decoded samples.
@@ -32,7 +32,7 @@ namespace Cavern.Format.Decoders {
             MLPHeader header = new MLPHeader();
             header.Decode(reader);
             Beds = header.Beds;
-            FullChannelCount = header.FullChannelCount;
+            TracksIn16CH = header.TracksIn16CH;
             ChannelCount = Beds.Length;
             SampleRate = header.SampleRate;
 
