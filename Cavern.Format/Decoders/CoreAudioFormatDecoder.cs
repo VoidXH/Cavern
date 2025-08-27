@@ -44,7 +44,7 @@ namespace Cavern.Format.Decoders {
                         ParseAudioDescriptionChunk(reader);
                         break;
                     case RIFFWaveConsts.dataSync:
-                        Length = chunkSize / ((long)Bits >> 3) / ChannelCount;
+                        Length = (chunkSize - 4) / ((long)Bits >> 3) / ChannelCount;
                         dataStart = reader.Position + 4; // First 4 bytes are the edit count
                         stream.Position += chunkSize;
                         break;
