@@ -47,6 +47,7 @@ public sealed class ExportFormat(Codec codec, string ffName, int maxChannels, st
             new ExportFormat(Codec.PCM_Float, "pcm_f32le", 64, strings[Codec.PCM_Float]),
             new ExportFormat(Codec.ADM_BWF, string.Empty, 128, strings[Codec.ADM_BWF]),
             new ExportFormat(Codec.ADM_BWF_Atmos, string.Empty, 128, strings[Codec.ADM_BWF_Atmos]),
+            new ExportFormat(Codec.DAMF, string.Empty, 128, strings[Codec.DAMF]),
             new ExportFormat(Codec.LimitlessAudio, string.Empty, int.MaxValue, strings[Codec.LimitlessAudio]),
         ];
     }

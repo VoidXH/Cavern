@@ -86,7 +86,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// Tells if some channels are not supported by the export format.
         /// </summary>
-        public InvalidChannelException(ReferenceChannel[] channels) : base(string.Format(message, string.Join(", ", channels))) { }
+        public InvalidChannelException(params ReferenceChannel[] channels) : base(string.Format(message, string.Join(", ", channels))) { }
 
         /// <summary>
         /// Tells if a channel is not supported by the operation.
@@ -167,12 +167,24 @@ namespace Cavern.Format.Common {
     /// </summary>
     public class StreamingException : Exception {
         const string message = "This stream is read from a container or other wrapper. " +
-            "The operation you tried to perfrom should be done on the parent.";
+            "The operation you tried to perform should be done on the parent.";
 
         /// <summary>
         /// Tells is a feature is only available when reading from a raw file.
         /// </summary>
         public StreamingException() : base(message) { }
+    }
+
+    /// <summary>
+    /// Tells if a codec can't be streamed.
+    /// </summary>
+    public class StreamingNotSupportedException : Exception {
+        const string message = "This codec can't be streamed.";
+
+        /// <summary>
+        /// Tells if a codec can't be streamed.
+        /// </summary>
+        public StreamingNotSupportedException() : base(message) { }
     }
 
     /// <summary>

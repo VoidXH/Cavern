@@ -69,6 +69,7 @@ namespace CavernizeGUI.Language {
                 { Codec.PCM_LE, (string)source["CPCMI"] },
                 { Codec.ADM_BWF, (string)source["CADMC"] },
                 { Codec.ADM_BWF_Atmos, (string)source["CADMA"] },
+                { Codec.DAMF, (string)source["CDAMF"] },
                 { Codec.LimitlessAudio, (string)source["C_LAF"] },
             } :
             base.GetCodecNames();

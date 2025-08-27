@@ -32,5 +32,6 @@
     <system:String x:Key="CPCMF">PCM, lebegőpontos (szükségtelen, legnagyobb méret)</system:String>
     <system:String x:Key="CADMC">ADM Broadcast Wave Format (kompakt)</system:String>
     <system:String x:Key="CADMA">ADM Broadcast Wave Format (Dolby Atmos)</system:String>
+    <system:String x:Key="CDAMF">Dolby Atmos Master Format</system:String>
     <system:String x:Key="C_LAF">Limitless Audio Format</system:String>
 </ResourceDictionary>

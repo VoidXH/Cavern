@@ -83,7 +83,7 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
-        static readonly Codec[] audioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.EnhancedAC3,
+        static readonly Codec[] audioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.DAMF, Codec.EnhancedAC3,
             Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD, Codec.DTS_HD, Codec.FLAC, Codec.Opus, Codec.DTS, Codec.AC3 };
 
         /// <summary>
@@ -94,13 +94,13 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// List of supported audio codecs.
         /// </summary>
-        static readonly Codec[] supportedAudioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.EnhancedAC3,
+        static readonly Codec[] supportedAudioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.DAMF, Codec.EnhancedAC3,
             Codec.PCM_Float, Codec.PCM_LE, Codec.AC3 };
 
         /// <summary>
         /// List of audio codecs that can export rendered audio environments.
         /// </summary>
-        static readonly Codec[] environmentalAudioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos };
+        static readonly Codec[] environmentalAudioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.DAMF };
 
         /// <summary>
         /// Checks if a codec transports audio.

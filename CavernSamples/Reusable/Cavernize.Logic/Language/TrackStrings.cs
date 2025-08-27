@@ -112,6 +112,7 @@ public class TrackStrings {
         { Codec.PCM_LE, "PCM, integer (lossless, larger size)" },
         { Codec.ADM_BWF, "ADM Broadcast Wave Format (compact)" },
         { Codec.ADM_BWF_Atmos, "ADM Broadcast Wave Format (Dolby Atmos)" },
+        { Codec.DAMF, "Dolby Atmos Master Format" },
         { Codec.LimitlessAudio, "Limitless Audio Format" },
     };
 }

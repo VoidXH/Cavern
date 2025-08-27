@@ -41,9 +41,12 @@ public sealed class MergeToContainer {
     public static string GetPossibleContainers(CavernizeTrack input, Codec output, FFmpeg ffmpeg) {
         const string matroskaOnly = "Matroska|*.mkv";
         if (output.IsEnvironmental()) {
-            return output == Codec.LimitlessAudio ?
-                "Limitless Audio Format|*.laf" :
-                "ADM Broadcast Wave Format|*.wav|ADM BWF + Audio XML|*.xml";
+            return output switch {
+                Codec.LimitlessAudio => "Limitless Audio Format|*.laf",
+                Codec.ADM_BWF or Codec.ADM_BWF_Atmos => "ADM Broadcast Wave Format|*.wav|ADM BWF + Audio XML|*.xml",
+                Codec.DAMF => "Dolby Atmos Master Format|*.atmos",
+                _ => throw new NotImplementedException(),
+            };
         } else if (output == Codec.PCM_Float || output == Codec.PCM_LE) {
             const string wav = "RIFF WAVE|*.wav|Limitless Audio Format|*.laf|Core Audio Format|*.caf";
             return ffmpeg.Found || input.Container == Container.Matroska ? $"{matroskaOnly}|{wav}" : wav;

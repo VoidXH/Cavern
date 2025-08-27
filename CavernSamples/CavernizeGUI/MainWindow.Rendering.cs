@@ -125,6 +125,9 @@ namespace CavernizeGUI {
                     case Codec.ADM_BWF_Atmos:
                         transcoder = new DolbyAtmosBWFWriter(path, environment.Listener, target.Length, bits, target.Renderer);
                         break;
+                    case Codec.DAMF:
+                        transcoder = new DolbyAtmosMasterFormatWriter(path, environment.Listener, target.Length, bits, target.Renderer);
+                        break;
                     default:
                         Error((string)language["UnCod"]);
                         return null;
