@@ -73,6 +73,7 @@ namespace Cavern.Format.Environment {
             if (writable > 0) {
                 Output.WriteBlock(result, 0, Math.Min(Source.UpdateRate, writable) * Output.ChannelCount);
             }
+
             Vector3 scaling = new Vector3(1) / Listener.EnvironmentSize;
             double timeScaling = 1.0 / Source.SampleRate;
             ADMTimeSpan updateTime = new ADMTimeSpan(Source.UpdateRate * timeScaling),
@@ -149,6 +150,7 @@ namespace Cavern.Format.Environment {
                 admWriter.Dispose();
             }
             Output.Dispose();
+            base.Dispose();
         }
 
         /// <summary>

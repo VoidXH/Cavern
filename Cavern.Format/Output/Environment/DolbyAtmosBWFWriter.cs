@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Channels;
 using Cavern.Format.Consts;
+using Cavern.Format.Environment.Utilities;
 using Cavern.Format.Renderers;
-using Cavern.Format.Renderers.BaseClasses;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.SpecialSources;
@@ -25,8 +24,31 @@ namespace Cavern.Format.Environment {
         /// <param name="bits">Bit depth of the output</param>
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
         public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits,
-            (ReferenceChannel, Source)[] staticObjects) :
+            params (ReferenceChannel, Source)[] staticObjects) :
             base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) { }
+
+        /// <summary>
+        /// ADM BWF exporter with Dolby Atmos compatibility options.
+        /// </summary>
+        /// <param name="path">File output path</param>
+        /// <param name="source">Rendering environment that should be exported</param>
+        /// <param name="length">Total samples to write</param>
+        /// <param name="bits">Bit depth of the output</param>
+        /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
+        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits,
+            params (ReferenceChannel, Source)[] staticObjects) :
+            this(AudioWriter.Open(path), source, length, bits, staticObjects) { }
+
+        /// <summary>
+        /// ADM BWF exporter with Dolby Atmos compatibility options.
+        /// </summary>
+        /// <param name="path">File output path</param>
+        /// <param name="source">Rendering environment that should be exported</param>
+        /// <param name="length">Total samples to write</param>
+        /// <param name="bits">Bit depth of the output</param>
+        /// <param name="renderer">Fetch the objects to move to bed tracks from this <see cref="Renderer"/></param>
+        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer) :
+            this(path, source, length, bits, StaticSourceHandler.GetStaticObjects(renderer)) { }
 
         /// <summary>
         /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.
@@ -48,46 +70,6 @@ namespace Cavern.Format.Environment {
                 }
             }
             return source;
-        }
-
-        /// <summary>
-        /// ADM BWF exporter with Dolby Atmos compatibility options.
-        /// </summary>
-        /// <param name="path">File output path</param>
-        /// <param name="source">Rendering environment that should be exported</param>
-        /// <param name="length">Total samples to write</param>
-        /// <param name="bits">Bit depth of the output</param>
-        /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
-        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, (ReferenceChannel, Source)[] staticObjects) :
-            this(AudioWriter.Open(path), source, length, bits, staticObjects) { }
-
-        /// <summary>
-        /// ADM BWF exporter with Dolby Atmos compatibility options.
-        /// </summary>
-        /// <param name="path">File output path</param>
-        /// <param name="source">Rendering environment that should be exported</param>
-        /// <param name="length">Total samples to write</param>
-        /// <param name="bits">Bit depth of the output</param>
-        /// <param name="renderer">Fetch the objects to move to bed tracks from this <see cref="Renderer"/></param>
-        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer) :
-            this(path, source, length, bits, GetStaticObjects(renderer)) { }
-
-        /// <summary>
-        /// Move bed channels to static objects if possible.
-        /// </summary>
-        static (ReferenceChannel, Source)[] GetStaticObjects(Renderer source) {
-            (ReferenceChannel, Source)[] result;
-            if (source.HasObjects && source is IMixedBedObjectRenderer mixed) {
-                ReferenceChannel[] staticChannels = mixed.GetStaticChannels();
-                IReadOnlyList<Source> allObjects = source.Objects;
-                result = new (ReferenceChannel, Source)[staticChannels.Length];
-                for (int i = 0; i < staticChannels.Length; i++) {
-                    result[i] = (staticChannels[i], allObjects[i]);
-                }
-            } else {
-                result = Array.Empty<(ReferenceChannel, Source)>();
-            }
-            return result;
         }
 
         /// <summary>
