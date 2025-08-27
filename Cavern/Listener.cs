@@ -15,16 +15,6 @@ namespace Cavern {
     /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
     /// </summary>
     public sealed class Listener {
-        /// <summary>
-        /// Version and creator information.
-        /// </summary>
-        public static string Info => info;
-
-        /// <summary>
-        /// Default sample rate.
-        /// </summary>
-        public static int DefaultSampleRate => 48000;
-
         // ------------------------------------------------------------------
         // Renderer settings
         // ------------------------------------------------------------------
@@ -547,10 +537,31 @@ namespace Cavern {
         }
 
         /// <summary>
+        /// Default sample rate.
+        /// </summary>
+        public static int DefaultSampleRate => 48000;
+
+        /// <summary>
+        /// Version information.
+        /// </summary>
+        public static string Version => version;
+
+        /// <summary>
+        /// Version and creator information.
+        /// </summary>
+        public static string Info => info;
+
+        /// <summary>
+        /// Version number.
+        /// </summary>
+        /// <remarks>Hardcoded, because version reading is unsupported for .NET Standard projects</remarks>
+        const string version = "2.0.2";
+
+        /// <summary>
         /// Version and creator information.
         /// </summary>
         /// <remarks>Hardcoded, because version reading is unsupported for .NET Standard projects</remarks>
-        const string info = "Cavern v2.0.2 by VoidX (cavern.sbence.hu)";
+        const string info = "Cavern v" + version + " by VoidX (cavern.sbence.hu)";
 
         /// <summary>
         /// Default value of <see cref="MaximumSources"/>.
