@@ -111,8 +111,8 @@ namespace Cavern.Filters {
         /// <summary>
         /// Constructs an optimized convolution with added delay and sets the sample rate.
         /// </summary>
-        /// <param name="impulse">Transfer function of the desired filter</param>
-        /// <param name="sampleRate">Sample rate of the <paramref name="impulse"/> response</param>
+        /// <param name="filter">Transfer function of the desired filter</param>
+        /// <param name="sampleRate">Sample rate of the <paramref name="filter"/></param>
         /// <param name="delay">Added filter delay to the impulse, in samples</param>
         public FastConvolver(Complex[] filter, int sampleRate, int delay) : this(filter, delay) => SampleRate = sampleRate;
 

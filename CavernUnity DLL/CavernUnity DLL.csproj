@@ -53,5 +53,6 @@
 		<Exec Command="del $(OutDir)\UnityEditor.xml" />
 		<Exec Command="del $(OutDir)\UnityEngine.dll" />
 		<Exec Command="del $(OutDir)\UnityEngine.xml" />
+		<Exec Command="explorer $(OutDir)" IgnoreExitCode="true" />
 	</Target>
 </Project>

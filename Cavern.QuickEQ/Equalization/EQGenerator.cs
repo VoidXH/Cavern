@@ -358,7 +358,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="sampleRate">Sample rate of the target system the convolution filter could be used on</param>
         /// <param name="gain">Signal voltage multiplier</param>
         /// <param name="initial">Custom initial spectrum to apply the EQ on - phases will be corrected, this is not convolved,
-        /// and has to be twice the size of <paramref name="length"/></param>
+        /// and has to be the same size as the <paramref name="cache"/></param>
         /// <param name="cache">Reused FFT helper values for better performance - use the non-cache version for auto-calculation</param>
         public static float[] GetConvolution(this Equalizer eq, int sampleRate, float gain, Complex[] initial, FFTCache cache) {
             int length = cache.Size;
