@@ -18,6 +18,7 @@ Cavernize.
 * Unlimited objects and output channels without position restrictions
 * Audio transcoder library with a custom spatial format
   * Supported codecs:
+    * Meridian Lossless Packing (Dolby TrueHD Atmos, in Cavernize only, with Truehdd)
     * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
     * Limitless Audio Format
     * RIFF WAVE
