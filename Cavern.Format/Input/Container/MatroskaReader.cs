@@ -123,22 +123,23 @@ namespace Cavern.Format.Container {
             while (clusterId >= 0 && tracksSet != trackSet.Length) {
                 cluster = GetCluster(clusterId);
                 IReadOnlyList<Block> blocks = cluster.GetBlocks(reader);
-                for (int block = blocks.Count - 1; block >= 0; --block) {
+                for (int block = blocks.Count - 1; block >= 0; block--) {
                     long trackId = Tracks.GetIndexByID(blocks[block].Track);
                     if (trackId == -1 || trackSet[trackId]) {
                         continue;
                     }
                     long time = cluster.TimeStamp + blocks[block].TimeStamp;
+                    MatroskaTrack trackData = Tracks[trackId] as MatroskaTrack;
+                    trackData.lastCluster = clusterId;
+                    trackData.lastBlock = block;
+                    if (minTime > time) {
+                        minTime = time;
+                    }
+                    if (trackData.Format.IsAudio() && audioTime > targetTime) {
+                        audioTime = time;
+                    }
+                    // The last cluster/block is set even if the target time is not reached (for example, we seek before its start)
                     if (time <= targetTime) {
-                        MatroskaTrack trackData = Tracks[trackId] as MatroskaTrack;
-                        trackData.lastCluster = clusterId;
-                        trackData.lastBlock = block;
-                        if (minTime > time) {
-                            minTime = time;
-                        }
-                        if (trackData.Format.IsAudio() && audioTime > targetTime) {
-                            audioTime = time;
-                        }
                         trackSet[trackId] = true;
                         ++tracksSet;
                     }
