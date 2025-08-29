@@ -197,7 +197,7 @@ namespace CavernizeGUI {
 #if RELEASE
             try {
 #endif
-            OpenContent(new AudioFile(path, Consts.Language.GetTrackStrings()));
+                OpenContent(new AudioFile(path, Consts.Language.GetTrackStrings()));
 #if RELEASE
             } catch (IOException e) {
                 Reset();
@@ -217,13 +217,13 @@ namespace CavernizeGUI {
             if (file.Tracks.Count != 0) {
                 trackControls.Visibility = Visibility.Visible;
                 tracks.ItemsSource = file.Tracks;
-                tracks.SelectedIndex = 0;
-                // Prioritize spatial codecs
-                for (int i = 0, c = file.Tracks.Count; i < c; i++) {
-                    if (file.Tracks[i].Codec == Codec.EnhancedAC3) {
-                        tracks.SelectedIndex = i;
-                        break;
-                    }
+                CavernizeTrack bestQuality = file.Tracks
+                    .OrderBy(x => x.Codec)
+                    .FirstOrDefault();
+                if (bestQuality != null) {
+                    tracks.SelectedItem = bestQuality;
+                } else {
+                    tracks.SelectedIndex = 0;
                 }
             }
         }
