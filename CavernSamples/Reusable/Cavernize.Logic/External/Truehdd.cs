@@ -70,24 +70,30 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             throw new CodecNotFoundException(Codec.TrueHD);
         }
 
-        UpdateStatusMessage(language.ExtractingBitstream);
+        bool needTempTrack = source.Container != Container.NotContainer;
         string folder = Path.GetDirectoryName(source.Path);
         tempTrack = Path.Combine(folder, tempFile);
-        using (ExtractTrackFromContainer extractor = new(source.Track, File.OpenWrite(tempTrack))) {
+        if (needTempTrack) {
+            UpdateStatusMessage(language.ExtractingBitstream);
+            using ExtractTrackFromContainer extractor = new(source.Track, File.OpenWrite(tempTrack));
             while (extractor.Process()) {
                 // Extraction in progress
             }
         }
 
         UpdateStatusMessage(string.Format(language.Converting, "truehdd"));
+        string toDecode = needTempTrack ? tempTrack : source.Path;
         ProcessStartInfo truehdd = new() {
             FileName = Path.Combine(unpackDir, "truehdd.exe"),
-            Arguments = $"decode --progress \"{tempTrack}\" --output-path \"{tempTrack}\""
+            Arguments = $"decode --progress \"{toDecode}\" --output-path \"{tempTrack}\""
         };
         using (Process runner = Process.Start(truehdd)) {
             runner.WaitForExit();
         }
-        File.Delete(tempTrack);
+
+        if (needTempTrack) {
+            File.Delete(tempTrack);
+        }
 
         track = new CavernizeTrack(AudioReader.Open(tempTrack + ".atmos"), Codec.DAMF, 0, new TrackStrings());
         return track;
