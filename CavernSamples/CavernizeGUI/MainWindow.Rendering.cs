@@ -148,12 +148,16 @@ namespace CavernizeGUI {
         /// </summary>
         /// <returns>A task for rendering or null when an error happened.</returns>
         Action GetRenderTask(string path) {
+#if RELEASE
             try {
+#endif
                 PreRender();
+#if RELEASE
             } catch (Exception e) {
                 Error(e.Message);
                 return null;
             }
+#endif
 
             CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
             if (!reportMode.IsChecked) {

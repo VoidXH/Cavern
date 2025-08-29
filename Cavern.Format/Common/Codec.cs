@@ -83,8 +83,8 @@ namespace Cavern.Format.Common {
         /// <summary>
         /// List of known (not neccessarily supported) audio codecs.
         /// </summary>
-        static readonly Codec[] audioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.DAMF, Codec.EnhancedAC3,
-            Codec.PCM_Float, Codec.PCM_LE, Codec.TrueHD, Codec.DTS_HD, Codec.FLAC, Codec.Opus, Codec.DTS, Codec.AC3 };
+        static readonly Codec[] audioCodecs = { Codec.LimitlessAudio, Codec.ADM_BWF, Codec.ADM_BWF_Atmos, Codec.DAMF, Codec.TrueHD,
+            Codec.EnhancedAC3, Codec.PCM_Float, Codec.PCM_LE, Codec.DTS_HD, Codec.FLAC, Codec.Opus, Codec.DTS, Codec.AC3 };
 
         /// <summary>
         /// List of known video codecs.

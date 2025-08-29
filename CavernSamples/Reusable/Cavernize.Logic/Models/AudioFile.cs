@@ -77,6 +77,11 @@ public class AudioFile : IDisposable {
             case "caf":
                 AddStandaloneTrack(new CoreAudioFormatReader(Path));
                 break;
+            case "mlp":
+            case "thd":
+            case "truehd":
+                AddStandaloneTrack(new MeridianLosslessPackingReader(Path), Codec.TrueHD);
+                break;
             case "wav":
                 AddStandaloneTrack(new RIFFWaveReader(Path));
                 break;

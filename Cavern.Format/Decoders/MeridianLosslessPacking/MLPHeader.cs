@@ -25,6 +25,11 @@ namespace Cavern.Format.Decoders.MeridianLosslessPacking {
         public int TracksIn16CH { get; private set; }
 
         /// <summary>
+        /// Number of substreams in the MLP stream.
+        /// </summary>
+        public int SubstreamCount { get; private set; }
+
+        /// <summary>
         /// Reads an MLP header from a bitstream.
         /// </summary>
         /// <remarks>Has to read a calculated number of bytes from the source stream.</remarks>
@@ -64,14 +69,14 @@ namespace Cavern.Format.Decoders.MeridianLosslessPacking {
             extractor.Skip(16); // Reserved
             extractor.Skip(16); // Data rate
 
-            int substreams = extractor.Read(4);
+            SubstreamCount = extractor.Read(4);
             extractor.Skip(2); // Reserved
             extractor.Skip(2); // Extended substream info
             int substreamInfo = extractor.Read(8);
             if ((substreamInfo & (1 << 7)) != 0) {
                 TracksIn16CH = 16; // 16 channel presentation present
             }
-            for (int i = 0; i < substreams; i++) {
+            for (int i = 0; i < SubstreamCount; i++) {
                 extractor.Skip(63); // Channel meaning
                 if (extractor.ReadBit()) { // Extra channel meaning
                     int extraChannelMeaningLength = (extractor.Read(4) + 1) * sizeof(short);
