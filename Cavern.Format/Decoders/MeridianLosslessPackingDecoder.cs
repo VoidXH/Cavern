@@ -42,6 +42,10 @@ namespace Cavern.Format.Decoders {
 
         /// <inheritdoc/>
         public override void Seek(long sample) {
+            if (sample == 0) {
+                reader.Seek(0);
+                return;
+            }
             throw new NotImplementedException();
         }
     }
