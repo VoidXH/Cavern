@@ -210,8 +210,10 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     public override string ToString() {
         strings.CodecNames.TryGetValue(Codec, out string codecName);
         codecName ??= formatNames.TryGetValue(Codec, out string value) ? value : Codec.ToString();
-        string objects = Renderer != null && Renderer.HasObjects ? " " + strings.WithObjects : string.Empty;
-        return string.IsNullOrEmpty(Language) ? codecName : $"{codecName}{objects} ({Language})";
+        if (Renderer != null && Renderer.HasObjects) {
+            codecName = $"{codecName} {strings.WithObjects}";
+        }
+        return string.IsNullOrEmpty(Language) ? codecName : $"{codecName} ({Language})";
     }
 
     /// <summary>
