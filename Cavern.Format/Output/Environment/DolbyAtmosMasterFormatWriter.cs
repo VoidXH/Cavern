@@ -97,7 +97,11 @@ namespace Cavern.Format.Environment {
             } else if (channel == ReferenceChannel.TopSideRight) {
                 return 9;
             } else {
-                throw new InvalidChannelException(channel);
+                if (CavernFormatGlobal.Unsafe) {
+                    return -1;
+                } else {
+                    throw new InvalidChannelException(channel);
+                }
             }
         }
 
@@ -156,18 +160,20 @@ namespace Cavern.Format.Environment {
                 throw new StreamingNotSupportedException();
             }
 
-            sources = Source.ActiveSources.ToArray();
-            bedChannels = staticObjects.Length;
+            int[] bedIDs = staticObjects
+                .Select(x => GetBedChannelID(x.Item1))
+                .TakeWhile(x => x != -1)
+                .ToArray();
             int sourceCount = Source.ActiveSources.Count;
+
+            sources = Source.ActiveSources.ToArray();
+            bedChannels = bedIDs.Length;
             channelIDs = new int[sourceCount];
             lastFrames = new MovementTimeframe[sourceCount];
             scaling = new Vector3(1) / Listener.EnvironmentSize;
 
             using StreamWriter root = new StreamWriter(writer);
             string rootFile = Path.GetFileName(((FileStream)writer).Name);
-            int[] bedIDs = staticObjects
-                .Select(x => GetBedChannelID(x.Item1))
-                .ToArray();
 
             root.WriteLine("version: 0.5.1");
             root.WriteLine("presentations:");
