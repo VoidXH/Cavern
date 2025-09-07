@@ -135,7 +135,7 @@ namespace CavernizeGUI {
                 QueuedJob job = jobs[i];
                 Dispatcher.Invoke(() => {
                     job.Prepare(this);
-                    SoftPreRender();
+                    AttachToListener();
                 });
                 job.Run();
                 Dispatcher.Invoke(() => this.jobs.Remove(job));

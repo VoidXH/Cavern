@@ -25,6 +25,7 @@ public abstract class Command {
                 new EffectCommand(),
                 new SmoothnessCommand(),
                 new SpeakerVirtualizerCommand(),
+                new SurroundSwapCommand(),
 
                 // Hidden commands
                 new OverrideBedCommand(),

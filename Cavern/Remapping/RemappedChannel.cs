@@ -15,7 +15,7 @@ namespace Cavern.Remapping {
         /// <summary>
         /// Apply the new update rate of the <see cref="Remapper"/>.
         /// </summary>
-        public void Remake(int updateRate) => data = new MultichannelWaveform(1, updateRate);
+        public void Remake(int updateRate) => Data = new MultichannelWaveform(1, updateRate);
 
         /// <summary>
         /// Read samples from the source for the next frame.
@@ -24,6 +24,6 @@ namespace Cavern.Remapping {
         /// <param name="channel">Target channel</param>
         /// <param name="channels">Source channel count</param>
         public void Update(float[] stream, int channel, int channels) =>
-            WaveformUtils.ExtractChannel(stream, data[0], channel, channels);
+            WaveformUtils.ExtractChannel(stream, Data[0], channel, channels);
     }
 }

@@ -156,7 +156,7 @@ namespace CavernizeGUI {
 
             speakerVirtualizer.IsChecked = Settings.Default.speakerVirtualizer;
             force24Bit.IsChecked = Settings.Default.force24Bit;
-            surroundSwap.IsChecked = Settings.Default.surroundSwap;
+            surroundSwap.IsChecked = SurroundSwap;
             wavChannelSkip.IsChecked = Settings.Default.wavChannelSkip;
             checkUpdates.IsChecked = Settings.Default.checkUpdates;
             if (Settings.Default.checkUpdates && !Program.ConsoleMode) {

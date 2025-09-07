@@ -17,6 +17,16 @@ public sealed class ConversionEnvironment {
     public Listener Listener { get; private set; }
 
     /// <summary>
+    /// Convolution filter for each corresponding channel index to be applied on rendering.
+    /// </summary>
+    public Clip RoomCorrection { get; set; }
+
+    /// <summary>
+    /// The <see cref="roomCorrection"/> is active and the loaded filter set is valid for the currently set output layout.
+    /// </summary>
+    public bool RoomCorrectionUsed => RoomCorrection != null && Listener.Channels.Length == RoomCorrection.Channels;
+
+    /// <summary>
     /// Keeper of loaded files and settings.
     /// </summary>
     readonly ICavernizeApp app;
@@ -36,8 +46,8 @@ public sealed class ConversionEnvironment {
     /// <summary>
     /// Set up the listening environment for playing back the specified track.
     /// </summary>
-    public void AttachToListener(CavernizeTrack target, bool surroundSwap) {
-        app.RenderTarget.Apply(surroundSwap);
+    public void AttachToListener(CavernizeTrack target) {
+        app.RenderTarget.Apply(app.SurroundSwap);
         if (app.RenderTarget is not VirtualizerRenderTarget && app.ExportFormat.MaxChannels < Listener.Channels.Length) {
             throw new OverMaxChannelsException(Listener.Channels.Length, app.ExportFormat.MaxChannels);
         }
@@ -53,6 +63,15 @@ public sealed class ConversionEnvironment {
         // Prevent height limiting, require at least 4 overhead channels for full gain
         float safeGain = target.Renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1;
         Listener.Volume = app.RenderGain * safeGain;
+
+        if (app.RenderTarget is VirtualizerRenderTarget) {
+            if (RoomCorrection != null && RoomCorrection.SampleRate != VirtualizerFilter.FilterSampleRate) {
+                throw new SampleRateMismatchException();
+            }
+            Listener.SampleRate = VirtualizerFilter.FilterSampleRate;
+        } else {
+            Listener.SampleRate = RoomCorrectionUsed ? target.SampleRate : RoomCorrection.SampleRate;
+        }
     }
 
     /// <summary>

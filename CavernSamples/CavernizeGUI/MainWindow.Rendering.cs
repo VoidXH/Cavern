@@ -1,10 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
-using Cavern;
-using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Container;
@@ -24,6 +21,15 @@ namespace CavernizeGUI {
     partial class MainWindow {
         /// <inheritdoc/>
         public float RenderGain { get; set; } = 1;
+
+        /// <inheritdoc/>
+        public bool SurroundSwap {
+            get => Settings.Default.surroundSwap;
+            set {
+                Settings.Default.surroundSwap = value;
+                Dispatcher.Invoke(() => surroundSwap.IsChecked = value);
+            }
+        }
 
         /// <summary>
         /// Total number of samples for all channels that will be written to the file at once.
@@ -52,30 +58,22 @@ namespace CavernizeGUI {
             }
 
             try {
-                SoftPreRender();
+                AttachToListener();
             } catch (OverMaxChannelsException e) {
                 throw new TrackException(string.Format((string)language["ChCnt"], e.Channels, e.MaxChannels));
             }
         }
 
         /// <summary>
-        /// Prepare the renderer for export, without safety checks.
+        /// Attach the track to the environment and perform compatibility checks.
         /// </summary>
-        void SoftPreRender() {
-            CavernizeTrack track = (CavernizeTrack)tracks.SelectedItem;
+        void AttachToListener() {
             try {
-                environment.AttachToListener(track, Settings.Default.surroundSwap);
+                environment.AttachToListener((CavernizeTrack)tracks.SelectedItem);
             } catch (NonGroundChannelPresentException) {
                 throw new NonGroundChannelPresentException((string)language["SpViE"]);
-            }
-
-            if (RenderTarget is VirtualizerRenderTarget) {
-                if (roomCorrection != null && roomCorrectionSampleRate != VirtualizerFilter.FilterSampleRate) {
-                    throw new IncompatibleSettingsException((string)language["FiltC"]);
-                }
-                environment.Listener.SampleRate = VirtualizerFilter.FilterSampleRate;
-            } else {
-                environment.Listener.SampleRate = roomCorrection == null ? track.SampleRate : roomCorrectionSampleRate;
+            } catch (SampleRateMismatchException) {
+                throw new IncompatibleSettingsException((string)language["FiltC"]);
             }
         }
 
@@ -199,7 +197,7 @@ namespace CavernizeGUI {
         /// </summary>
         void SetBlockSize(RenderTarget target) {
             int updateRate = environment.Listener.UpdateRate;
-            blockSize = FiltersUsed ? roomCorrection[0].Length : defaultWriteCacheLength;
+            blockSize = environment.RoomCorrectionUsed ? environment.RoomCorrection.Samples : defaultWriteCacheLength;
             if (blockSize < updateRate) {
                 blockSize = updateRate;
             } else if (blockSize % updateRate != 0) {

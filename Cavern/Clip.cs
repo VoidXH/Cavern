@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern {
     /// <summary>
@@ -11,19 +12,9 @@ namespace Cavern {
         public string Name { get; set; }
 
         /// <summary>
-        /// Channel count for the clip.
+        /// Samples for each channel.
         /// </summary>
-        public int Channels => data.Channels;
-
-        /// <summary>
-        /// The length of the clip in samples, for a single channel.
-        /// </summary>
-        public int Samples => data[0].Length;
-
-        /// <summary>
-        /// The length of the clip in seconds.
-        /// </summary>
-        public float Length => Samples / (float)SampleRate;
+        public MultichannelWaveform Data { get; protected set; }
 
         /// <summary>
         /// Sampling rate of the clip.
@@ -31,9 +22,28 @@ namespace Cavern {
         public int SampleRate { get; protected set; }
 
         /// <summary>
-        /// Samples for each channel.
+        /// Channel count for the clip.
         /// </summary>
-        protected MultichannelWaveform data;
+        public int Channels {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Data.Channels;
+        }
+
+        /// <summary>
+        /// The length of the clip in samples, for a single channel.
+        /// </summary>
+        public int Samples {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Data[0].Length;
+        }
+
+        /// <summary>
+        /// The length of the clip in seconds.
+        /// </summary>
+        public float Length {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Samples / (float)SampleRate;
+        }
 
         /// <summary>
         /// Audio content.
@@ -42,7 +52,7 @@ namespace Cavern {
         /// <param name="sampleRate">Sample rate</param>
         public Clip(MultichannelWaveform data, int sampleRate) {
             SampleRate = sampleRate;
-            this.data = data;
+            Data = data;
         }
 
         /// <summary>
@@ -53,7 +63,7 @@ namespace Cavern {
         /// <param name="sampleRate">Sample rate</param>
         public Clip(float[] data, int channels, int sampleRate) {
             SampleRate = sampleRate;
-            this.data = new MultichannelWaveform(data, channels);
+            Data = new MultichannelWaveform(data, channels);
         }
 
         /// <summary>
@@ -69,21 +79,21 @@ namespace Cavern {
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         /// <returns>The operation was successful as the channel counts matched.</returns>
         public bool GetData(MultichannelWaveform output, int offset) {
-            if (output.Channels != data.Channels) {
+            if (output.Channels != Data.Channels) {
                 return false;
             }
 
             int dataPos = 0;
             while (dataPos < output[0].Length) {
-                int samplesThisRound = data[0].Length - offset;
+                int samplesThisRound = Data[0].Length - offset;
                 if (samplesThisRound > output[0].Length - dataPos) {
                     samplesThisRound = output[0].Length - dataPos;
                 }
-                for (int channel = 0; channel < data.Channels; channel++) {
-                    Array.Copy(data[channel], offset, output[channel], dataPos, samplesThisRound);
+                for (int channel = 0; channel < Data.Channels; channel++) {
+                    Array.Copy(Data[channel], offset, output[channel], dataPos, samplesThisRound);
                 }
                 dataPos += samplesThisRound;
-                if ((offset += samplesThisRound) == data[0].Length) {
+                if ((offset += samplesThisRound) == Data[0].Length) {
                     offset = 0;
                 }
             }
@@ -98,18 +108,18 @@ namespace Cavern {
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         /// <returns>The operation was successful as the channel counts matched.</returns>
         public bool GetDataNonLooping(MultichannelWaveform output, int offset) {
-            if (output.Channels != data.Channels) {
+            if (output.Channels != Data.Channels) {
                 return false;
             }
 
-            int endPos = data[0].Length - offset;
+            int endPos = Data[0].Length - offset;
             if (endPos > output[0].Length) {
                 endPos = output[0].Length;
             }
-            for (int channel = 0; channel < data.Channels; channel++) {
-                Array.Copy(data[channel], offset, output[channel], 0, endPos);
+            for (int channel = 0; channel < Data.Channels; channel++) {
+                Array.Copy(Data[channel], offset, output[channel], 0, endPos);
             }
-            for (int channel = 0; channel < data.Channels; channel++) {
+            for (int channel = 0; channel < Data.Channels; channel++) {
                 Array.Clear(output[channel], endPos, output[channel].Length - endPos);
             }
             return true;
@@ -123,31 +133,31 @@ namespace Cavern {
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         /// <returns>The operation was successful as the channel counts matched.</returns>
         public unsafe bool GetData(float[] output, int offset) {
-            if (output.Length % data.Channels != 0) {
+            if (output.Length % Data.Channels != 0) {
                 return false;
             }
 
             fixed (float* pData = output) {
                 int dataPos = 0;
-                int perChannel = output.Length / data.Channels;
+                int perChannel = output.Length / Data.Channels;
                 while (dataPos < perChannel) {
-                    int samplesThisRound = data[0].Length - offset;
+                    int samplesThisRound = Data[0].Length - offset;
                     if (samplesThisRound > perChannel - dataPos) {
                         samplesThisRound = perChannel - dataPos;
                     }
-                    for (int channel = 0; channel < data.Channels; channel++) {
-                        float* dataOut = pData + channel + data.Channels * dataPos;
-                        fixed (float* pSource = data[channel]) {
+                    for (int channel = 0; channel < Data.Channels; channel++) {
+                        float* dataOut = pData + channel + Data.Channels * dataPos;
+                        fixed (float* pSource = Data[channel]) {
                             float* source = pSource + offset,
                                 end = source + samplesThisRound;
                             while (source != end) {
                                 *dataOut = *source++;
-                                dataOut += data.Channels;
+                                dataOut += Data.Channels;
                             }
                         }
                     }
                     dataPos += samplesThisRound;
-                    if ((offset += samplesThisRound) == data[0].Length) {
+                    if ((offset += samplesThisRound) == Data[0].Length) {
                         offset = 0;
                     }
                 }
@@ -164,12 +174,12 @@ namespace Cavern {
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         /// <returns>The operation was successful.</returns>
         public bool GetData(float[] output, int channel, int offset) {
-            if (channel >= data.Channels) {
+            if (channel >= Data.Channels) {
                 return false;
             }
 
             int dataPos = 0;
-            float[] source = data[channel];
+            float[] source = Data[channel];
             while (dataPos < output.Length) {
                 int samplesThisRound = source.Length - offset;
                 if (samplesThisRound > output.Length - dataPos) {
@@ -191,21 +201,21 @@ namespace Cavern {
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         /// <returns>The operation was successful as the channel counts matched.</returns>
         public bool GetDataNonLooping(float[] output, int offset) {
-            if (output.Length % data.Channels != 0) {
+            if (output.Length % Data.Channels != 0) {
                 return false;
             }
 
-            int endPos = data.Channels * (data[0].Length - offset);
+            int endPos = Data.Channels * (Data[0].Length - offset);
             if (endPos > output.Length) {
                 endPos = output.Length;
             }
-            for (int channel = 0; channel < data.Channels; channel++) {
+            for (int channel = 0; channel < Data.Channels; channel++) {
                 int dataPos = channel;
-                float[] channelData = data[channel];
+                float[] channelData = Data[channel];
                 int channelOffset = offset;
                 while (dataPos < endPos) {
                     output[dataPos] = channelData[channelOffset++];
-                    dataPos += data.Channels;
+                    dataPos += Data.Channels;
                 }
             }
             Array.Clear(output, endPos, output.Length - endPos);
@@ -219,21 +229,21 @@ namespace Cavern {
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         /// <returns>The operation was successful as the channel counts matched.</returns>
         public bool SetData(MultichannelWaveform input, int offset) {
-            if (input.Channels != data.Channels) {
+            if (input.Channels != Data.Channels) {
                 return false;
             }
 
             int dataPos = 0;
             while (dataPos < input[0].Length) {
-                int samplesThisRound = data[0].Length - offset;
+                int samplesThisRound = Data[0].Length - offset;
                 if (samplesThisRound > input[0].Length - dataPos) {
                     samplesThisRound = input[0].Length - dataPos;
                 }
-                for (int channel = 0; channel < data.Channels; channel++) {
-                    Array.Copy(input[channel], dataPos, data[channel], offset, samplesThisRound);
+                for (int channel = 0; channel < Data.Channels; channel++) {
+                    Array.Copy(input[channel], dataPos, Data[channel], offset, samplesThisRound);
                 }
                 dataPos += samplesThisRound;
-                if ((offset += samplesThisRound) == data[0].Length) {
+                if ((offset += samplesThisRound) == Data[0].Length) {
                     offset = 0;
                 }
             }
@@ -247,30 +257,30 @@ namespace Cavern {
         /// <param name="offset">Offset from the beginning of the clip in samples, for a single channel</param>
         /// <returns>The operation was successful as the channel counts matched.</returns>
         public unsafe bool SetData(float[] input, int offset) {
-            if (input.Length % data.Channels != 0) {
+            if (input.Length % Data.Channels != 0) {
                 return false;
             }
 
             fixed (float* pData = input) {
                 int dataPos = 0;
                 while (dataPos < input.Length) {
-                    int samplesThisRound = data[0].Length - offset;
+                    int samplesThisRound = Data[0].Length - offset;
                     if (samplesThisRound > input.Length - dataPos) {
                         samplesThisRound = input.Length - dataPos;
                     }
-                    for (int channel = 0; channel < data.Channels; channel++) {
+                    for (int channel = 0; channel < Data.Channels; channel++) {
                         float* dataIn = pData + channel + dataPos;
-                        fixed (float* pSource = data[channel]) {
+                        fixed (float* pSource = Data[channel]) {
                             float* source = pSource + offset,
                                 end = source + samplesThisRound;
                             while (source != end) {
                                 *source++ = *dataIn;
-                                dataIn += data.Channels;
+                                dataIn += Data.Channels;
                             }
                         }
                     }
-                    dataPos += samplesThisRound * data.Channels;
-                    if ((offset += samplesThisRound) == data[0].Length) {
+                    dataPos += samplesThisRound * Data.Channels;
+                    if ((offset += samplesThisRound) == Data[0].Length) {
                         offset = 0;
                     }
                 }

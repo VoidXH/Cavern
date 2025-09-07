@@ -20,21 +20,6 @@ using CavernizeGUI.Resources;
 namespace CavernizeGUI {
     public partial class MainWindow {
         /// <summary>
-        /// Room correction is active and the loaded filter set for it is valid for the output system.
-        /// </summary>
-        bool FiltersUsed => roomCorrection != null && Listener.Channels.Length == roomCorrection.Channels;
-
-        /// <summary>
-        /// Sample rate of the <see cref="roomCorrection"/> filters.
-        /// </summary>
-        int roomCorrectionSampleRate;
-
-        /// <summary>
-        /// Convolution filter for each channel to be applied on export.
-        /// </summary>
-        MultichannelWaveform roomCorrection;
-
-        /// <summary>
         /// Store the post-render report here after renders.
         /// </summary>
         PostRenderReport report;
@@ -104,7 +89,6 @@ namespace CavernizeGUI {
                 string pathStart = dialog.FileName[..cutoff] + ' ';
 
                 ReferenceChannel[] channels = RenderTarget.GetNameMappedChannels();
-                float[][] roomCorrectionSource = new float[channels.Length][];
                 for (int i = 0; i < channels.Length; i++) {
                     string file = $"{pathStart}{channels[i].GetShortName()}.wav";
                     if (!File.Exists(file)) {
@@ -112,26 +96,25 @@ namespace CavernizeGUI {
                     }
                     if (File.Exists(file)) {
                         using RIFFWaveReader reader = new RIFFWaveReader(file);
-                        roomCorrectionSource[i] = reader.Read();
-                        roomCorrectionSampleRate = reader.SampleRate;
+                        environment.RoomCorrection = new(reader.Read(), reader.ChannelCount, reader.SampleRate);
                     } else {
                         Error(string.Format((string)language["FiltN"], ChannelPrototype.Mapping[(int)channels[i]].Name,
                             Path.GetFileName(dialog.FileName)));
-                        roomCorrection = null;
+                        environment.RoomCorrection = null;
                         return;
                     }
                 }
                 filters.IsChecked = true;
                 try {
-                    roomCorrection = new MultichannelWaveform(roomCorrectionSource);
                     Settings.Default.lastOutputFilters = Path.GetDirectoryName(dialog.FileName);
                 } catch (Exception e) {
                     Error(e.Message);
                     filters.IsChecked = false;
+                    environment.RoomCorrection = null;
                 }
             } else {
                 filters.IsChecked = false;
-                roomCorrection = null;
+                environment.RoomCorrection = null;
             }
         }
 

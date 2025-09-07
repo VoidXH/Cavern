@@ -104,8 +104,8 @@ namespace CavernizeGUI {
             bool customMuting = SpecialRenderModeSettings.MuteBed || SpecialRenderModeSettings.MuteGround;
 
             MultichannelConvolver filters = null;
-            if (FiltersUsed) {
-                filters = new MultichannelConvolver(roomCorrection);
+            if (environment.RoomCorrectionUsed) {
+                filters = new MultichannelConvolver(environment.RoomCorrection.Data);
             }
 
             // Virtualization is done with the buffer instead of each update in the listener to optimize FFT sizes

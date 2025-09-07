@@ -33,6 +33,9 @@ public class Program : ICavernizeApp {
     public float RenderGain { get; set; } = 1;
 
     /// <inheritdoc/>
+    public bool SurroundSwap { get; set; }
+
+    /// <inheritdoc/>
     public UpmixingSettings UpmixingSettings => new(true);
 
     /// <inheritdoc/>
@@ -67,7 +70,7 @@ public class Program : ICavernizeApp {
         }
 
         this.file = file;
-        environment.AttachToListener(file.Tracks[0], false);
+        environment.AttachToListener(file.Tracks[0]);
 
         string name = Path.GetFileNameWithoutExtension(file.Path);
         Console.WriteLine($"Opened {name} containing {file.Tracks[0]}.");

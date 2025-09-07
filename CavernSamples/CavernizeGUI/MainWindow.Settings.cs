@@ -25,7 +25,7 @@ namespace CavernizeGUI {
         /// <summary>
         /// Update the setting related to the surround swap feature when the toggle's state has changed.
         /// </summary>
-        void SurroundSwapChange(object source, RoutedEventArgs _) => Settings.Default.surroundSwap = ((MenuItem)source).IsChecked;
+        void SurroundSwapChange(object source, RoutedEventArgs _) => SurroundSwap = ((MenuItem)source).IsChecked;
 
         /// <summary>
         /// Update the setting related to the surround swap feature when the toggle's state has changed.
