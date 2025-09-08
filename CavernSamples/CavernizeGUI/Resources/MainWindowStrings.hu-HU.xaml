@@ -100,7 +100,7 @@
     <system:String x:Key="CMeET">Légy szíves, előbb tölts be egy fájlt.</system:String>
     <system:String x:Key="CMeUT">A Cavern API még nem támogatja a kiválasztott sáv metaadatainak megjelenítését.</system:String>
     <system:String x:Key="JocWa">A fájl néhány részét ritka JOC-ban kódolták. Az E-AC-3 szabványnak ezen része nincs helyesen
-        dokumentálva, emiatt kis torzítások várhatók a hangban.</system:String>
+        dokumentálva, emiatt rövid némítások várhatók a hangban.</system:String>
     <system:String x:Key="RenEr">A hang nem renderelhető a következő ponton: {0}. A feldolgozás folytatódik, de a sáv
         nem marad összefüggő ezután az idő után. A pontos hiba: {1}</system:String>
     <system:String x:Key="SpViE">A jelenlegi kiosztás nem támogatja magasság virtualizálását hangszórókon. Kapcsold ki ezt az opciót, vagy

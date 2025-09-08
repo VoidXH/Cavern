@@ -126,8 +126,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
             if (ObjectActive[obj]) {
                 float gainStep = .2f - quantizationTable[obj] * .1f;
                 if (sparseCoded[obj]) {
-                    DecodeSparse(obj, mixMatrix, centerValue);
-                    Dequantize(obj, mixMatrix, centerValue, gainStep * .15f);
+                    // Call DecodeSparse and revert 0 to gainStep when the standard documentation is fixed
+                    //DecodeSparse(obj, mixMatrix, centerValue);
+                    Dequantize(obj, mixMatrix, centerValue, 0);
                 } else {
                     DecodeCoarse(obj, mixMatrix, centerValue, gainStep);
                 }
