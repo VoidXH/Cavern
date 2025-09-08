@@ -252,6 +252,7 @@ namespace CavernizeGUI {
         /// Save persistent settings and free resources on quit.
         /// </summary>
         protected override void OnClosed(EventArgs e) {
+            file?.Dispose();
             taskEngine?.Dispose();
             Settings.Default.ffmpegLocation = ffmpeg.Location;
             Settings.Default.renderTarget = renderTarget.SelectedIndex - 4;

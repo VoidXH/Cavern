@@ -70,7 +70,7 @@ public sealed class ConversionEnvironment {
             }
             Listener.SampleRate = VirtualizerFilter.FilterSampleRate;
         } else {
-            Listener.SampleRate = RoomCorrectionUsed ? target.SampleRate : RoomCorrection.SampleRate;
+            Listener.SampleRate = RoomCorrection?.SampleRate ?? target.SampleRate;
         }
     }
 

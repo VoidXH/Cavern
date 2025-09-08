@@ -85,6 +85,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
         string toDecode = needTempTrack ? tempTrack : source.Path;
         ProcessStartInfo truehdd = new() {
             FileName = Path.Combine(unpackDir, "truehdd.exe"),
+            WorkingDirectory = unpackDir,
             Arguments = $"decode --progress \"{toDecode}\" --output-path \"{tempTrack}\""
         };
         using (Process runner = Process.Start(truehdd)) {
