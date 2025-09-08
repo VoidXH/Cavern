@@ -321,7 +321,15 @@ namespace CavernizeGUI {
             if (e.Data is DataObject obj && obj.ContainsFileDropList()) {
                 StringCollection files = obj.GetFileDropList();
                 if (files.Count == 1) {
-                    OpenContent(files[0]);
+#if RELEASE
+                    try {
+#endif
+                        OpenContent(files[0]);
+#if RELEASE
+                    } catch (Exception ex) {
+                        Error(ex.Message);
+                    }
+#endif
                 } else {
                     Error((string)language["DropF"]);
                 }
