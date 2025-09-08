@@ -72,6 +72,9 @@ public sealed class ExternalConverterHandler : IDisposable {
         if (!ExternalConverterNeeded) {
             return;
         }
+        ArgumentNullException.ThrowIfNull(to);
+        ArgumentNullException.ThrowIfNull(upmixing);
+        ArgumentNullException.ThrowIfNull(intermediateTrack);
 
         Source[] firstSources = [.. to.ActiveSources.Take(keepFirstSources)];
         to.DetachAllSources();
