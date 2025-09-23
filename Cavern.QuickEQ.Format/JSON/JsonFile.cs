@@ -151,6 +151,9 @@ namespace Cavern.Format.JSON {
             }
         }
 
+        /// <summary>
+        /// Write the value of an element to the JSON object under output.
+        /// </summary>
         static void AppendValue(StringBuilder result, object value) {
             if (value is bool b) {
                 result.Append(b.ToString().ToLowerInvariant());
