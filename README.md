@@ -30,11 +30,11 @@ Cavernize.
   * Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
   * Speaker character matching can be achieved without a calibration file
   * Supported software/hardware for EQ/filter set export:
-    * PC: Equalizer APO, CamillaDSP
+    * PC, Mac, and Linux: Equalizer APO, CamillaDSP, AU N-Band EQ
     * DSP: MiniDSP 2x4 Advanced, 2x4 HD, DDRC-88A, Flex HTx
-    * Processors: Acurus Muse, Emotiva, Monolith HTP-1, Sony ES series, StormAudio, Tonewinner AT series, WiiM
+    * AVRs and processors: Acurus Muse, Emotiva, Monolith HTP-1, Sony ES series, StormAudio, Tonewinner AT series, WiiM, Yamaha CX-A, RX, RX-A series
     * Amplifiers: Behringer NX series
-    * Others: Audyssey MultEQ-X, Dirac Live, JL Audio TüN, Roon, Wavelet, YPAO
+    * Others: Audyssey MultEQ-X, Dirac Live, JL Audio TüN, Roon, Wavelet
 * Direction and distance virtualization for headphones
 * Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats
