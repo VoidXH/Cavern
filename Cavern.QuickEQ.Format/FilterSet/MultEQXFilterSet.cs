@@ -114,6 +114,8 @@ namespace Cavern.Format.FilterSet {
                 throw new InvalidSourceException();
             }
 
+            double[] gains = GetGains(-12, 12);
+            double[] delays = GetDelays(20);
             StringBuilder result = new StringBuilder();
             result.AppendLine(fileStart);
             for (int channel = 0; channel < guids.Length;) {
@@ -126,8 +128,8 @@ namespace Cavern.Format.FilterSet {
 
                 result.Append(string.Format(channelEntry, guids[channel], label.designation, label.name,
                     label.pairDesignation, label.pair, label.location,
-                    channelRef.gain.ToString(CultureInfo.InvariantCulture),
-                    GetDelay(channel).ToString(CultureInfo.InvariantCulture),
+                    gains[channel].ToString(CultureInfo.InvariantCulture),
+                    delays[channel].ToString(CultureInfo.InvariantCulture),
                     channelRef.switchPolarity.ToString().ToLowerInvariant()));
                 if (++channel != guids.Length) {
                     result.AppendLine(",");

@@ -242,5 +242,55 @@ namespace Cavern.Format.FilterSet {
             }
             return written;
         }
+
+        /// <summary>
+        /// Get the delay of each channel in milliseconds, and confine them to the limits of the output format.
+        /// The longer end's relative differences will be kept, as the remaining channels are likely subwoofers.
+        /// </summary>
+        protected double[] GetDelays(double maxDelay) {
+            double[] result = new double[Channels.Length];
+            double max = double.MinValue;
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = GetDelay(i);
+                if (max < result[i]) {
+                    max = result[i];
+                }
+            }
+
+            max = Math.Max(max - maxDelay, 0);
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = Math.Max(result[i] - max, 0);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get the gain of each channel in decibels, between the allowed limits of the output format.
+        /// If the gains are not out of range, they will be returned as-is.
+        /// </summary>
+        protected double[] GetGains(double min, double max) {
+            double[] result = new double[Channels.Length];
+            double minFound = double.MaxValue, maxFound = double.MinValue;
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = ((IIRChannelData)Channels[i]).gain;
+                if (minFound > result[i]) {
+                    minFound = result[i];
+                }
+                if (maxFound < result[i]) {
+                    maxFound = result[i];
+                }
+            }
+            if (minFound >= min && maxFound <= max) {
+                return result;
+            }
+
+            double avg = QMath.Average(result);
+            for (int i = 0; i < result.Length; i++) {
+                result[i] = Math.Clamp(result[i] - avg, min, max);
+            }
+
+            return result;
+        }
     }
 }
