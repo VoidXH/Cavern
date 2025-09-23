@@ -116,7 +116,7 @@ public class AudioFile : IDisposable {
     /// Free up resources.
     /// </summary>
     public void Dispose() {
-        for (int i = 0; i < tracks.Count; ++i) {
+        for (int i = 0; i < tracks.Count; i++) {
             tracks[i].Dispose();
         }
         GC.SuppressFinalize(this);

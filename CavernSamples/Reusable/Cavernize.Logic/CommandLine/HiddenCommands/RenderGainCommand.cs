@@ -7,7 +7,7 @@ namespace Cavernize.Logic.CommandLine.HiddenCommands;
 /// <summary>
 /// Adds additional gain to renders.
 /// </summary>
-sealed class RenderGain : UnsafeCommand {
+sealed class RenderGainCommand : UnsafeCommand {
     /// <inheritdoc/>
     public override string Name => "--render-gain";
 

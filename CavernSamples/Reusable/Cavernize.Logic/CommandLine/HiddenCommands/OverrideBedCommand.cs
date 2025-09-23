@@ -24,14 +24,14 @@ sealed class OverrideBedCommand : HiddenCommand {
         if (!File.Exists(args[offset])) {
             throw new FileNotFoundException(args[offset]);
         }
-        if (app.FilePath == null) {
+        if (app.LoadedFile == null) {
             throw new CommandException("Set the input before setting the bed override.");
         }
 
         AudioReader overrider = AudioReader.Open(args[offset]);
         overrider.ReadHeader();
 
-        OverrideBedFile file = new OverrideBedFile(app.FilePath, overrider, new TrackStrings());
+        OverrideBedFile file = new OverrideBedFile(app.LoadedFile.Path, overrider, new TrackStrings());
         if (file.Tracks[0].Renderer.Channels != overrider.ChannelCount) {
             throw new CommandException("Channel count of the overriding stream don't match the source stream.");
         }

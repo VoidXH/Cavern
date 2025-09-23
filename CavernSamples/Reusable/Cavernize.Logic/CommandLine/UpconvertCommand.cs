@@ -6,7 +6,7 @@ namespace Cavernize.Logic.CommandLine;
 /// <summary>
 /// Turns height generation from regular content on or off, up to 7.1.
 /// </summary>
-sealed class CavernizeCommand : BooleanCommand {
+sealed class UpconvertCommand : BooleanCommand {
     /// <inheritdoc/>
     public override string Name => "-upconvert";
 

@@ -21,7 +21,7 @@ public class Program : ICavernizeApp {
     public bool Rendering { get; private set; }
 
     /// <inheritdoc/>
-    public string FilePath => file?.Path;
+    public AudioFile LoadedFile { get; private set; }
 
     /// <inheritdoc/>
     public ExportFormat ExportFormat { get; set; } = new(Codec.PCM_LE, null, short.MaxValue, null);
@@ -40,11 +40,6 @@ public class Program : ICavernizeApp {
 
     /// <inheritdoc/>
     public SpecialRenderModeSettings SpecialRenderModeSettings => new();
-
-    /// <summary>
-    /// Last opened audio file.
-    /// </summary>
-    AudioFile file;
 
     /// <summary>
     /// Render process handler.
@@ -69,7 +64,7 @@ public class Program : ICavernizeApp {
             throw new CommandException("No supported audio tracks were found in the file.");
         }
 
-        this.file = file;
+        LoadedFile = file;
         environment.AttachToListener(file.Tracks[0]);
 
         string name = Path.GetFileNameWithoutExtension(file.Path);

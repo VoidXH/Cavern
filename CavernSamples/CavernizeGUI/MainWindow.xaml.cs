@@ -40,8 +40,7 @@ namespace CavernizeGUI {
         /// <inheritdoc/>
         public bool Rendering => taskEngine.IsOperationRunning;
 
-        /// <inheritdoc/>
-        public string FilePath => file?.Path;
+        public AudioFile LoadedFile { get; private set; }
 
         /// <inheritdoc/>
         public ExportFormat ExportFormat {
@@ -85,11 +84,6 @@ namespace CavernizeGUI {
         /// Runs the process in the background.
         /// </summary>
         readonly TaskEngine taskEngine;
-
-        /// <summary>
-        /// Currently loaded audio file.
-        /// </summary>
-        AudioFile file;
 
         /// <summary>
         /// Any setting has changed in the application and it should be saved.
@@ -213,7 +207,7 @@ namespace CavernizeGUI {
         /// <inheritdoc/>
         public void OpenContent(AudioFile file) {
             fileName.Text = Path.GetFileName(file.Path);
-            this.file = file;
+            LoadedFile = file;
             if (file.Tracks.Count != 0) {
                 trackControls.Visibility = Visibility.Visible;
                 tracks.ItemsSource = file.Tracks;
@@ -252,7 +246,7 @@ namespace CavernizeGUI {
         /// Save persistent settings and free resources on quit.
         /// </summary>
         protected override void OnClosed(EventArgs e) {
-            file?.Dispose();
+            LoadedFile?.Dispose();
             taskEngine?.Dispose();
             Settings.Default.ffmpegLocation = ffmpeg.Location;
             Settings.Default.renderTarget = renderTarget.SelectedIndex - 4;
@@ -271,9 +265,9 @@ namespace CavernizeGUI {
         /// </summary>
         void Reset() {
             environment.Reset();
-            if (file != null && jobs.FirstOrDefault(x => x.IsUsingFile(file)) == null) {
-                file.Dispose();
-                file = null;
+            if (LoadedFile != null && jobs.FirstOrDefault(x => x.IsUsingFile(LoadedFile)) == null) {
+                LoadedFile.Dispose();
+                LoadedFile = null;
             }
             fileName.Text = string.Empty;
             trackControls.Visibility = Visibility.Hidden;

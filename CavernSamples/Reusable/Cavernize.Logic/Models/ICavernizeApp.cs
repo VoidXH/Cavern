@@ -15,9 +15,9 @@ public interface ICavernizeApp {
     bool Rendering { get; }
 
     /// <summary>
-    /// The path of the currently open file.
+    /// Currently loaded audio file or container of the content.
     /// </summary>
-    string FilePath { get; }
+    AudioFile LoadedFile { get; }
 
     /// <summary>
     /// Codec to save the rendered content in.

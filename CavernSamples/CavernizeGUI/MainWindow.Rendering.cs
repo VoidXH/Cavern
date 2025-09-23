@@ -214,7 +214,11 @@ namespace CavernizeGUI {
             LicenceWindow licenceWindow = Dispatcher.Invoke(() => new LicenceWindow());
             ExternalConverterHandler external = new(target, Consts.Language.GetExternalConverterStrings(), licenceWindow,
                 taskEngine.UpdateProgressBar, taskEngine.UpdateStatus, Dispatcher.Invoke);
-            external.Attach(environment.Listener, new DynamicUpmixingSettings(), keepFirstSources);
+            if (external.Failed) {
+                Dispatcher.Invoke(() => Error(status.Text));
+            } else {
+                external.Attach(environment.Listener, new DynamicUpmixingSettings(), keepFirstSources);
+            }
             return external;
         }
 
@@ -239,7 +243,7 @@ namespace CavernizeGUI {
             if (writer is RIFFWaveWriter && finalName[^4..] != waveExtension) {
                 taskEngine.UpdateStatus("Merging to final container...");
                 string exportedAudio = finalName[..^4] + waveExtension;
-                MergeToContainer merger = new(file.Path, exportedAudio, targetCodec);
+                MergeToContainer merger = new(LoadedFile.Path, exportedAudio, targetCodec);
                 merger.SetTrackName($"Cavern {renderTargetRef.Name} render");
                 if (writer.ChannelCount > 8) {
                     merger.Allow8PlusChannels();
