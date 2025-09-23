@@ -12,7 +12,7 @@ namespace Cavern.Format.Renderers {
         /// </summary>
         public MeridianLosslessPackingRenderer(MeridianLosslessPackingDecoder stream) : base(stream) {
             if (stream.TracksIn16CH != 0) {
-                SetupObjects(stream.TracksIn16CH + stream.Beds.Length);
+                SetupObjects(stream.TracksIn16CH);
             } else {
                 SetupChannels();
             }
