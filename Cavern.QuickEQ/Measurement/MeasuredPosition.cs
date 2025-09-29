@@ -31,5 +31,11 @@ namespace Cavern.QuickEQ.Measurement {
             FrequencyResponses = frequencyResponses;
             ImpulseResponses = impulseResponses;
         }
+
+        /// <inheritdoc/>
+        public override string ToString() {
+            string channels = FrequencyResponses != null ? FrequencyResponses.Length.ToString() : "no";
+            return $"Mic {Mic}, {channels} channels";
+        }
     }
 }
