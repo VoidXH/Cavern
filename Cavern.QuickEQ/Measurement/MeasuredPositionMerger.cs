@@ -67,8 +67,8 @@ namespace Cavern.QuickEQ.Measurement {
                 result[i] = EQGenerator.Average(MeasurementPoints.Select(x => {
                     Equalizer y = (Equalizer)x.FrequencyResponses[i].Clone();
                     y.DownsampleLogarithmically(BandCount, MinFreq, MaxFreq);
-                    if (MicCalibration != null) {
-                        y.AlignTo(MicCalibration);
+                    if (calibration != null) {
+                        y.AlignTo(calibration);
                     }
                     return y;
                 }).ToArray());
