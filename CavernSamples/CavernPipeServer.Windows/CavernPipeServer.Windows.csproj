@@ -18,20 +18,23 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+
 	<ItemGroup>
-	  <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
-	  <ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
-	  <ProjectReference Include="..\Reusable\CavernPipeServer.Logic\CavernPipeServer.Logic.csproj" />
+		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+		<ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
+		<ProjectReference Include="..\Reusable\CavernPipeServer.Logic\CavernPipeServer.Logic.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
-	  <_DeploymentManifestIconFile Remove="..\Icon.ico" />
+		<Page Include="..\_Common\Styles.xaml" Link="Resources\Styles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<_DeploymentManifestIconFile Remove="..\Icon.ico" />
+		<Resource Include="..\Icon.ico" Link="Resources\Icon.ico" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Page Include="..\_Common\Styles.xaml" Link="Resources\Styles.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </Page>
-	</ItemGroup>
-	<ItemGroup>
-	  <Resource Include="..\Icon.ico" Link="Resources\Icon.ico" />
-	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+		<Exec Command="del /s /q bin\*.xml" />
+		<Exec Command="del /s /q bin\*.pdb" />
+	</Target>
 </Project>
