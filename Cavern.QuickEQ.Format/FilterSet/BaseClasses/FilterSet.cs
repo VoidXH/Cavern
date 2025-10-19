@@ -51,6 +51,11 @@ namespace Cavern.Format.FilterSet {
         public abstract MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength);
 
         /// <summary>
+        /// Get the delay for a given <paramref name="channel"/> in milliseconds instead of samples.
+        /// </summary>
+        public double GetDelay(int channel) => Channels[channel].delaySamples * 1000.0 / SampleRate;
+
+        /// <summary>
         /// Set the <paramref name="delay"/> in samples for a given <paramref name="channel"/>.
         /// </summary>
         public void OverrideDelay(int channel, int delay) => Channels[channel].delaySamples = delay;
@@ -118,11 +123,6 @@ namespace Cavern.Format.FilterSet {
                 };
             }
         }
-
-        /// <summary>
-        /// Get the delay for a given channel in milliseconds instead of samples.
-        /// </summary>
-        protected double GetDelay(int channel) => Channels[channel].delaySamples * 1000.0 / SampleRate;
 
         /// <summary>
         /// Create the file with gain/delay/polarity info as the root document that's saved in the save dialog.

@@ -52,6 +52,9 @@ namespace FilterStudio {
         /// Merge all pipeline steps to one.
         /// </summary>
         void MergeSteps(object _, RoutedEventArgs e) {
+            if (pipeline.Source == null) {
+                return;
+            }
             pipeline.Source.MergeSplitPoints();
             Reload(null, null);
         }

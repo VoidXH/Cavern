@@ -120,6 +120,9 @@ namespace Cavern.Format.ConfigurationFile {
                 for (int i = 0; i < start.Length; i++) {
                     ReferenceChannel channel = ((InputChannel)start[i].Filter).Channel;
                     start[i] = start[i].AddAfterParents(new OutputChannel(channel)).AddAfterParents(new InputChannel(channel));
+                    if (index == 0) {
+                        InputChannels[i] = (InputChannels[i].name, start[i]);
+                    }
                 }
                 splitPoints.Insert(index, (name, start));
             } else {

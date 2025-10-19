@@ -25,6 +25,7 @@ namespace Cavern.Filters {
         /// Get a clone of the <see cref="filter"/>'s impulse response.
         /// </summary>
         public float[] Impulse {
+            // TODO: get when CavernAmp is used
             get => Measurements.GetRealPartHalf(filter.IFFT(cache)); // The setter doubles the length
             set {
                 Dispose();
