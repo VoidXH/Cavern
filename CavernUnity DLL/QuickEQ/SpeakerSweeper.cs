@@ -51,6 +51,12 @@ namespace Cavern.QuickEQ {
             "This helps for measurement with microphones that click when the system turns them on.")]
         public bool WarmUpMode;
 
+        /// <summary>
+        /// Create noise-free impulse responses by removing noise outside the sweep frequency range. Can break some corrections.
+        /// </summary>
+        [Tooltip("Create noise-free impulse responses by removing noise outside the sweep frequency range. Can break some corrections.")]
+        public bool DenoiseIRs;
+
         /// <summary>The measurement is done and responses are available.</summary>
         [NonSerialized] public bool ResultAvailable;
 
@@ -214,8 +220,10 @@ namespace Cavern.QuickEQ {
             sweepFFTCache?.Dispose();
             sweepFFT = SweepReference.FFT(sweepFFTCache = new FFTCache(SweepReference.Length));
             sweepFFTlow = sweepFFT.FastClone();
-            Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, SampleRate, 100);
-            Measurements.OffbandGain(sweepFFTlow, StartFreq, EndFreqLFE, sampleRate, 100);
+            if (DenoiseIRs) {
+                Measurements.OffbandGain(sweepFFT, StartFreq, EndFreq, SampleRate, 100);
+                Measurements.OffbandGain(sweepFFTlow, StartFreq, EndFreqLFE, sampleRate, 100);
+            }
         }
 
         /// <summary>

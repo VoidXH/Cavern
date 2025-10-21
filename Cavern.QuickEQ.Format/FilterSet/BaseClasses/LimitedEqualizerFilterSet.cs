@@ -42,9 +42,9 @@ namespace Cavern.Format.FilterSet.BaseClasses {
         protected LimitedEqualizerFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
-        /// Save the results of each channel to a single file.
+        /// Get the correction filters as a user-readable list of bands.
         /// </summary>
-        public override void Export(string path) {
+        public string Export() {
             StringBuilder result = new StringBuilder("Set up the channels according to this configuration.").AppendLine();
             for (int i = 0; i < Channels.Length; i++) {
                 RootFileChannelHeader(i, result, true);
@@ -56,7 +56,12 @@ namespace Cavern.Format.FilterSet.BaseClasses {
                     result.AppendLine($"{RangeDependentDecimals(freqs[j])} Hz:\t{gain} dB");
                 }
             }
-            File.WriteAllText(path, result.ToString());
+            return result.ToString();
         }
+
+        /// <summary>
+        /// Save the results of each channel to a single file.
+        /// </summary>
+        public override void Export(string path) => File.WriteAllText(path, Export());
     }
 }

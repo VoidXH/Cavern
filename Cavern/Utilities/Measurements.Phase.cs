@@ -9,10 +9,10 @@ namespace Cavern.Utilities {
         public static void UnwrapPhase(float[] phase) {
             float addition = 0, last = phase[0];
             for (int i = 0; i < phase.Length; i++) {
-                float diff = last - phase[i];
+                float diff = phase[i] - last;
                 last = phase[i];
                 if (Math.Abs(diff) > MathF.PI) {
-                    addition += 2 * MathF.PI * Math.Sign(diff);
+                    addition -= tau * Math.Sign(diff);
                 }
                 phase[i] += addition;
             }
@@ -23,12 +23,17 @@ namespace Cavern.Utilities {
         /// </summary>
         public static void WrapPhase(float[] phase) {
             for (int i = 0; i < phase.Length; i++) {
-                phase[i] = (phase[i] + MathF.PI) % (2 * MathF.PI);
+                phase[i] = (phase[i] + MathF.PI) % tau;
                 if (phase[i] < 0) {
-                    phase[i] += 2 * MathF.PI;
+                    phase[i] += tau;
                 }
                 phase[i] -= MathF.PI;
             }
         }
+
+        /// <summary>
+        /// Unit circle constant.
+        /// </summary>
+        const float tau = 2 * MathF.PI;
     }
 }

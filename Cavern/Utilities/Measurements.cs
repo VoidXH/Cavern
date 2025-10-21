@@ -262,7 +262,7 @@ namespace Cavern.Utilities {
         public static void OffbandGain(Complex[] samples, double startFreq, double endFreq, double sampleRate, double dBgain) {
             int startPos = (int)(samples.Length * startFreq / sampleRate),
                 endPos = (int)(samples.Length * endFreq / sampleRate);
-            float gain = (float)Math.Pow(10, dBgain * .05);
+            float gain = (float)QMath.DbToGain(dBgain);
             samples[0] *= gain;
             for (int i = 1; i < startPos; i++) {
                 samples[i] *= gain;
