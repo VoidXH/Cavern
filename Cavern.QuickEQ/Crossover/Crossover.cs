@@ -136,7 +136,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="frequency">Lowpass cutoff point</param>
         /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
         public virtual Filter GetHighpassOptimized(int sampleRate, float frequency, int length) =>
-            new FastConvolver(GetHighpass(sampleRate, frequency, length));
+            new FastConvolver(GetHighpass(sampleRate, frequency, length), sampleRate, 0);
 
         /// <summary>
         /// Add the filter's interpretation of lowpass to the previously selected channel in an Equalizer APO configuration file.
@@ -165,7 +165,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="frequency">Lowpass cutoff point</param>
         /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
         public virtual Filter GetLowpassOptimized(int sampleRate, float frequency, int length) =>
-            new FastConvolver(GetLowpass(sampleRate, frequency, length));
+            new FastConvolver(GetLowpass(sampleRate, frequency, length), sampleRate, 0);
 
         /// <summary>
         /// Get the labels of channels to route bass to.

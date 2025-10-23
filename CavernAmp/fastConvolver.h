@@ -46,6 +46,12 @@ public:
     // Constructs an optimized convolution with added delay.
     FastConvolver(const float *impulse, const int len, const int delay);
 
+    // Returns the actually allocated filter length.
+    int GetLength();
+
+    // Deconstruct the filter and move it to the preallocated output buffer. Needs a buffer that's half the length of GetLength.
+    void GetFilter(float *output);
+
     // Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
     void Process(float *samples, int len);
     void Process(float *samples, int len, int channel, int channels);
@@ -57,9 +63,13 @@ extern "C" {
 #endif
 
 /// Exports
-// FastConvolver constructor.
+// Constructs an optimized convolution with added delay.
 FastConvolver* DLL_EXPORT FastConvolver_Create(const float *impulse, const int len, const int delay);
-// Process a block of samples with a FastConvolver.
+// Returns the actually allocated filter length.
+int DLL_EXPORT FastConvolver_GetLength(FastConvolver *instance);
+// Deconstruct the filter and move it to the preallocated output buffer. Needs a buffer that's half the length of GetLength.
+void FastConvolver_GetFilter(FastConvolver *instance, float *output);
+// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
 void DLL_EXPORT FastConvolver_Process(FastConvolver *instance, float *samples, int len, int channel, int channels);
 // Dispose a FastConvolver.
 void DLL_EXPORT FastConvolver_Dispose(FastConvolver *instance);

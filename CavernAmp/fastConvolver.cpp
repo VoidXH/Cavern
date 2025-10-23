@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstring>
 
 #include "complexArray.h"
 #include "fastConvolver.h"
@@ -18,14 +19,31 @@ FastConvolver::FastConvolver(const float *impulse, const int len, const int dela
 void FastConvolver::Initialize(const float *impulse, const int len, const int delay) {
     filterLength = 2 << log2Ceil(len); // Zero padding for the falloff to have space
     cache = FFTCache_Create(filterLength);
-    filter = (Complex*)malloc(sizeof(Complex) * filterLength);
+    size_t allocated = sizeof(Complex) * filterLength;
+    filter = (Complex*)malloc(allocated);
     for (int sample = 0; sample < len; sample++) {
         filter[sample].real = impulse[sample];
     }
     ProcessFFT(filter, filterLength, cache, log2(filterLength) - 1);
-    present = (Complex*)malloc(sizeof(Complex) * filterLength);
+    present = (Complex*)malloc(allocated);
     future = (float*)malloc(sizeof(float) * (filterLength + delay));
     this->delay = delay;
+}
+
+int FastConvolver::GetLength() {
+    return filterLength;
+}
+
+void FastConvolver::GetFilter(float *output) {
+    size_t allocated = sizeof(Complex) * filterLength;
+    Complex* ifft = (Complex*)malloc(allocated);
+    memcpy(ifft, filter, allocated);
+    InPlaceIFFT(ifft, filterLength, cache);
+    int outLength = filterLength >> 1;
+    for (int i = 0; i < outLength; i++) {
+        output[i] = ifft[i].real;
+    }
+    free(ifft);
 }
 
 void FastConvolver::Process(float *samples, int len) {
@@ -109,6 +127,14 @@ FastConvolver* DLL_EXPORT FastConvolver_Create(const float *impulse, const int l
     FastConvolver *instance = (FastConvolver*)malloc(sizeof(FastConvolver));
     new(instance) FastConvolver(impulse, len, delay);
     return instance;
+}
+
+int DLL_EXPORT FastConvolver_GetLength(FastConvolver *instance) {
+    return instance->GetLength();
+}
+
+void DLL_EXPORT FastConvolver_GetFilter(FastConvolver *instance, float *output) {
+    instance->GetFilter(output);
 }
 
 void DLL_EXPORT FastConvolver_Process(FastConvolver *instance, float *samples, int len, int channel, int channels) {

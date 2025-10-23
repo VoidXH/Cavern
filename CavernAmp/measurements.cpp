@@ -117,8 +117,9 @@ void DLL_EXPORT InPlaceIFFT(Complex *samples, int sampleCount, FFTCache *cache) 
         cache = FFTCache_Create(sampleCount);
         ProcessIFFT(samples, sampleCount, cache, log2(sampleCount) - 1);
         FFTCache_Dispose(cache);
-    } else
+    } else {
         ProcessIFFT(samples, sampleCount, cache, log2(sampleCount) - 1);
+    }
     float multiplier = 1.f / sampleCount;
     for (int i = 0; i < sampleCount; ++i) {
         samples[i].real *= multiplier;
