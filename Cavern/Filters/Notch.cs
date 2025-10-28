@@ -51,6 +51,21 @@ namespace Cavern.Filters {
             throw new FormatException(nameof(splitLine));
         }
 
+        /// <summary>
+        /// Create notch filters at possible mains frequencies and their few harmonics.
+        /// </summary>
+        public static Filter CreateForMainsHum(double frequency, int sampleRate, int harmonics) {
+            Notch[] filters = new Notch[harmonics];
+            for (int i = 0; i < harmonics; i++) {
+                filters[i] = new Notch(sampleRate, frequency * (i + 1), 30);
+            }
+            if (filters.Length == 1) {
+                return filters[0];
+            } else {
+                return new ComplexFilter(filters);
+            }
+        }
+
         /// <inheritdoc/>
         public override object Clone() => new Notch(SampleRate, centerFreq, q, gain);
 

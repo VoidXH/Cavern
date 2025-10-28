@@ -3,9 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using UnityEngine;
 
-using Cavern.Utilities;
+using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
 using Cavern.QuickEQ.SignalGeneration;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ {
     /// <summary>
@@ -50,6 +51,12 @@ namespace Cavern.QuickEQ {
         [Tooltip("Waits a sweep's time before the actual measurement. " +
             "This helps for measurement with microphones that click when the system turns them on.")]
         public bool WarmUpMode;
+
+        /// <summary>
+        /// Remove this frequency and upper harmonics from the measurements in case of excessive mains hum or a damaged UMIK-1.
+        /// </summary>
+        [Tooltip("Remove this frequency and upper harmonics from the measurements in case of excessive mains hum or a damaged UMIK-1.")]
+        public double FilterMains;
 
         /// <summary>
         /// Create noise-free impulse responses by removing noise outside the sweep frequency range. Can break some corrections.
@@ -295,6 +302,11 @@ namespace Cavern.QuickEQ {
             }
         }
 
+        /// <summary>
+        /// Free the resources used by this object.
+        /// </summary>
+        public void Dispose() => sweepFFTCache?.Dispose();
+
         [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() {
             ResultAvailable = false;
@@ -339,7 +351,7 @@ namespace Cavern.QuickEQ {
                 }
                 ExcitementResponses[Channel] = result;
                 Complex[] fft = Cavern.Channel.IsLFE(Channel) ? sweepFFTlow : sweepFFT;
-                workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(fft, sweepFFTCache, result, sampleRate));
+                workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(fft, sweepFFTCache, result, sampleRate, FilterMains));
                 workers[Channel].Start();
                 if (++Channel == Listener.Channels.Length) {
                     for (int channel = 0; channel < Listener.Channels.Length; channel++) {
@@ -383,16 +395,14 @@ namespace Cavern.QuickEQ {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() => Dispose();
 
-        /// <summary>
-        /// Free the resources used by this object.
-        /// </summary>
-        public void Dispose() => sweepFFTCache?.Dispose();
-
         struct WorkerResult {
             public Equalizer FreqResponse;
             public VerboseImpulseResponse ImpResponse;
 
-            public WorkerResult(Complex[] sweepFFT, FFTCache sweepFFTCache, float[] response, int sampleRate) {
+            public WorkerResult(Complex[] sweepFFT, FFTCache sweepFFTCache, float[] response, int sampleRate, double filterMains) {
+                if (filterMains != 0) {
+                    Notch.CreateForMainsHum(filterMains, sampleRate, 15).Process(response);
+                }
                 Complex[] rawResponse = Measurements.GetFrequencyResponse(sweepFFT, response.FFT(sweepFFTCache));
                 FreqResponse = EQGenerator.FromTransferFunctionOptimized(rawResponse, sampleRate);
                 ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(rawResponse, sweepFFTCache));

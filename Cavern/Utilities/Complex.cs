@@ -99,7 +99,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static Complex[] Parse(float[] source) {
             Complex[] result = new Complex[source.Length];
-            for (int i = 0; i < source.Length; ++i) {
+            for (int i = 0; i < source.Length; i++) {
                 result[i].Real = source[i];
             }
             return result;
