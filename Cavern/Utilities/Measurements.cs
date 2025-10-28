@@ -24,6 +24,16 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Fast Fourier transform a 2D signal.
+        /// </summary>
+        public static Complex[] FFT(this Complex[] samples, FFTCachePool pool) {
+            FFTCache cache = pool.Lease();
+            Complex[] result = FFT(samples, cache);
+            pool.Return(cache);
+            return result;
+        }
+
+        /// <summary>
         /// Fast Fourier transform many 2D signals.
         /// </summary>
         public static Complex[][] FFT(this Complex[][] samples, bool parallel) {
@@ -62,6 +72,16 @@ namespace Cavern.Utilities {
             }
             complexSignal.InPlaceFFT(cache);
             return complexSignal;
+        }
+
+        /// <summary>
+        /// Fast Fourier transform a 1D signal.
+        /// </summary>
+        public static Complex[] FFT(this float[] samples, FFTCachePool pool) {
+            FFTCache cache = pool.Lease();
+            Complex[] result = FFT(samples, cache);
+            pool.Return(cache);
+            return result;
         }
 
         /// <summary>
@@ -158,6 +178,16 @@ namespace Cavern.Utilities {
                 samples.InPlaceIFFT(cache);
             }
             return samples;
+        }
+
+        /// <summary>
+        /// Inverse Fast Fourier Transform of a transformed signal.
+        /// </summary>
+        public static Complex[] IFFT(this Complex[] samples, FFTCachePool pool) {
+            FFTCache cache = pool.Lease();
+            Complex[] result = IFFT(samples, cache);
+            pool.Return(cache);
+            return result;
         }
 
         /// <summary>
