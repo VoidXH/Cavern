@@ -23,6 +23,11 @@ namespace CavernizeGUI {
         void MuteGroundChange(object source, RoutedEventArgs _) => SpecialRenderModeSettings.MuteGround = ((MenuItem)source).IsChecked;
 
         /// <summary>
+        /// Set the state of forcing 24-bit resolution to select codecs when the toggle's state has changed.
+        /// </summary>
+        void Force24BitChange(object source, RoutedEventArgs _) => Settings.Default.force24Bit = ((MenuItem)source).IsChecked;
+
+        /// <summary>
         /// Update the setting related to the surround swap feature when the toggle's state has changed.
         /// </summary>
         void SurroundSwapChange(object source, RoutedEventArgs _) => SurroundSwap = ((MenuItem)source).IsChecked;

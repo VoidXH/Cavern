@@ -31,7 +31,7 @@
                 <MenuItem IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}" Click="MuteBedChange"/>
                 <MenuItem IsCheckable="True" Header="{StaticResource MuGrH}" ToolTip="{StaticResource MuGrT}" Click="MuteGroundChange"/>
                 <Separator/>
-                <MenuItem Name="force24Bit" IsCheckable="True" Header="{StaticResource For24}"/>
+                <MenuItem Name="force24Bit" IsCheckable="True" Header="{StaticResource For24}" Click="Force24BitChange"/>
                 <MenuItem Name="surroundSwap" IsCheckable="True" Header="{StaticResource SuSwa}" Click="SurroundSwapChange"/>
                 <MenuItem Name="wavChannelSkip" IsCheckable="True" Header="{StaticResource WavCh}" Click="WAVChannelSkipChange"/>
                 <Separator/>

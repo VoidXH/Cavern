@@ -16,4 +16,10 @@ sealed class DynamicSpecialRenderModeSettings : SpecialRenderModeSettings {
         get => source.speakerVirtualizer;
         set => source.speakerVirtualizer = value;
     }
+
+    /// <inheritdoc/>
+    public override bool Force24Bit {
+        get => source.force24Bit;
+        set => source.force24Bit = value;
+    }
 }

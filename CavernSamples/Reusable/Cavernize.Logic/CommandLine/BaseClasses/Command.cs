@@ -22,6 +22,7 @@ public abstract class Command {
 
                 // Auxiliary commands
                 new EffectCommand(),
+                new Force24BitCommand(),
                 new MatrixCommand(),
                 new MuteBedCommand(),
                 new MuteGroundCommand(),
