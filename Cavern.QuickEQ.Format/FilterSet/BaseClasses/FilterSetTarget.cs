@@ -168,6 +168,10 @@ namespace Cavern.Format.FilterSet {
         // Others ------------------------------------------------------------------
         // -------------------------------------------------------------------------
         /// <summary>
+        /// Traditional 10-band graphic equalizer.
+        /// </summary>
+        Multiband10,
+        /// <summary>
         /// Traditional 31-band graphic equalizer.
         /// </summary>
         Multiband31,
@@ -228,6 +232,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.YamahaRXA => "Yamaha RX-A series",
             FilterSetTarget.YPAO => "Yamaha RX series",
             FilterSetTarget.YPAOLite => "Yamaha CX-A series",
+            FilterSetTarget.Multiband10 => "10-band graphic EQ",
             FilterSetTarget.Multiband31 => "31-band graphic EQ",
             FilterSetTarget.Roon => "Roon",
             FilterSetTarget.Wavelet => "Wavelet",
