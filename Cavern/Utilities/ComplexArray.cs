@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -11,6 +10,10 @@ namespace Cavern.Utilities {
         /// Add the <paramref name="other"/> array's each element to the same indexes in the <paramref name="source"/>.
         /// </summary>
         public static unsafe void Add(this Complex[] source, Complex[] other) {
+            if (source.Length != other.Length) {
+                throw new ArgumentException("Arrays must be of the same length to be added together.");
+            }
+
             fixed (Complex* pSource = source)
             fixed (Complex* pOther = other) {
                 Complex* lhs = pSource,
@@ -81,6 +84,10 @@ namespace Cavern.Utilities {
         /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
         /// </summary>
         public static unsafe void Convolve(this Complex[] source, Complex[] other) {
+            if (source.Length != other.Length) {
+                throw new ArgumentException("Arrays must be of the same length to be convolved together.");
+            }
+
             fixed (Complex* pSource = source)
             fixed (Complex* pOther = other) {
                 Complex* lhs = pSource,

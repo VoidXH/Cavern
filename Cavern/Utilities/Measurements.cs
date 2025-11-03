@@ -9,6 +9,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 2D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex[] FFT(this Complex[] samples) {
             using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
             return samples.FFT(cache);
@@ -17,6 +18,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 2D signal.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex[] FFT(this Complex[] samples, FFTCache cache) {
             samples = samples.FastClone();
             samples.InPlaceFFT(cache);
@@ -26,6 +28,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 2D signal.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex[] FFT(this Complex[] samples, FFTCachePool pool) {
             FFTCache cache = pool.Lease();
             Complex[] result = FFT(samples, cache);
@@ -57,6 +60,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 1D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex[] FFT(this float[] samples) {
             using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
             return samples.FFT(cache);
@@ -65,11 +69,9 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 1D signal.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex[] FFT(this float[] samples, FFTCache cache) {
-            Complex[] complexSignal = new Complex[samples.Length];
-            for (int sample = 0; sample < samples.Length; sample++) {
-                complexSignal[sample].Real = samples[sample];
-            }
+            Complex[] complexSignal = samples.ParseForFFT();
             complexSignal.InPlaceFFT(cache);
             return complexSignal;
         }
@@ -77,6 +79,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform a 1D signal.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex[] FFT(this float[] samples, FFTCachePool pool) {
             FFTCache cache = pool.Lease();
             Complex[] result = FFT(samples, cache);
@@ -110,8 +113,19 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Fast Fourier transform a 2D signal while keeping the source array allocation.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void InPlaceFFT(this Complex[] samples, FFTCachePool pool) {
+            FFTCache cache = pool.Lease();
+            samples.InPlaceFFT(cache);
+            pool.Return(cache);
+        }
+
+        /// <summary>
         /// Spectrum of a signal's FFT. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] FFT1D(this float[] samples) {
             using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
             return samples.FFT1D(cache);
@@ -120,6 +134,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Spectrum of a signal's FFT.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float[] FFT1D(this float[] samples, FFTCache cache) {
             samples = samples.FastClone();
             samples.InPlaceFFT(cache);
@@ -220,6 +235,15 @@ namespace Cavern.Utilities {
                     *sample++ *= multiplier;
                 }
             }
+        }
+
+        /// <summary>
+        /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
+        /// </summary>
+        public static unsafe void InPlaceIFFT(this Complex[] samples, FFTCachePool pool) {
+            FFTCache cache = pool.Lease();
+            samples.InPlaceIFFT(cache);
+            pool.Return(cache);
         }
 
         /// <summary>
