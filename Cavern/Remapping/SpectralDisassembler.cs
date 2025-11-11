@@ -40,7 +40,7 @@ namespace Cavern.Remapping {
             public float[] samples;
 
             /// Check if two <see cref="SpectralPart"/>s describe the same <see cref="panning"/>.
-            bool IEquatable<SpectralPart>.Equals(SpectralPart other) => panning == other.panning;
+            readonly bool IEquatable<SpectralPart>.Equals(SpectralPart other) => panning == other.panning;
         }
 
         /// <summary>

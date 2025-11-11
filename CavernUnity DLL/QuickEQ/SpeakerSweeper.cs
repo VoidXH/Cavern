@@ -70,16 +70,19 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Raw recorded signals of output channels.
         /// </summary>
+        [Linked(nameof(FreqResponses))]
         [NonSerialized] public float[][] ExcitementResponses;
 
         /// <summary>
         /// Frequency responses of output channels.
         /// </summary>
+        [Linked(nameof(ImpResponses))]
         [NonSerialized] public Equalizer[] FreqResponses;
 
         /// <summary>
         /// Impulse responses of output channels.
         /// </summary>
+        [Linked(nameof(FreqResponses))]
         [NonSerialized] public VerboseImpulseResponse[] ImpResponses;
 
         /// <summary>

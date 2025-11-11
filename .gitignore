@@ -12,8 +12,7 @@ Cavern.QuickEQ/obj/
 Cavern/bin/
 Cavern/obj/
 CavernAmp/CavernAmp.cscope_file_list
-CavernAmp/bin/Release/libCavernAmp.a
-CavernAmp/bin/Release/libCavernAmp.def
+CavernAmp/bin/
 CavernAmp/obj/
 CavernSamples/ADMValidator/bin/
 CavernSamples/ADMValidator/obj/

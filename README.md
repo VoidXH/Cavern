@@ -5,7 +5,7 @@ self-calibration libraries built on the Cavern engine are also available.
 This repository also features a Unity plugin and a standalone converter called
 Cavernize.
 
-[![Build Status](https://api.travis-ci.com/VoidXH/Cavern.svg?branch=master)](https://app.travis-ci.com/VoidXH/Cavern)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/VoidXH/Cavern/Build.yml)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)](https://github.com/VoidXH/Cavern/releases/latest)
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/VoidXH/Cavern/latest)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/087eefd2734a48c08e6b4b1006f84021)](https://app.codacy.com/gh/VoidXH/Cavern)

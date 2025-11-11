@@ -26,7 +26,7 @@ namespace Cavern.FilterInterfaces {
         /// Targets which absorb the emitted rays and generate their impulse response by.
         /// </summary>
         [Tooltip("Targets which absorb the emitted rays and generate their impulse response by.")]
-        [Linked("colliders")]
+        [Linked(nameof(colliders))]
         public SimulationTarget[] Targets = new SimulationTarget[0];
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Cavern.FilterInterfaces {
         /// <summary>
         /// Colliders for the <see cref="Targets"/>.
         /// </summary>
-        [Linked("Targets")]
+        [Linked(nameof(Targets))]
         Collider[] colliders = new Collider[0];
 
         /// <summary>

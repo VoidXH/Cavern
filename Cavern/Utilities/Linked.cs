@@ -22,7 +22,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public bool IsValid(object value) {
             FieldInfo[] fields = value.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic);
-            for (int field = 0; field < fields.Length; ++field) {
+            for (int field = 0; field < fields.Length; field++) {
                 if (fields[field].Name.Equals(targetField)) {
                     return true;
                 }
