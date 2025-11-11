@@ -56,7 +56,6 @@ jobs:
         copy "Cavern.QuickEQ/bin/Release/netstandard2.1/Cavern.dll" "build/Release/Cavern_Data/Managed/Cavern.dll"
         copy "Cavern.QuickEQ/bin/Release/netstandard2.1/Cavern.QuickEQ.dll" "build/Release/Cavern_Data/Managed/Cavern.QuickEQ.dll"
         copy "Cavern.Format/bin/Release/netstandard2.1/Cavern.Format.dll" "build/Release/Cavern_Data/Managed/Cavern.Format.dll"
-        copy "Cavern.QuickEQ/bin/Release/CavernAmp.dll" "build/Release/Cavern_Data/Plugins/x86_64/CavernAmp.dll"
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4
