@@ -17,6 +17,12 @@
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 	</ItemGroup>

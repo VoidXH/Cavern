@@ -19,6 +19,12 @@
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 		<ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
@@ -33,7 +39,7 @@
 		<Resource Include="..\Icon.ico" Link="Resources\Icon.ico" />
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release'">
 		<Exec Command="del /s /q bin\*.xml" />
 		<Exec Command="del /s /q bin\*.pdb" />
 	</Target>

@@ -14,9 +14,17 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Include="..\..\Cavern.Format\Consts\RIFFWaveConsts.cs" Link="RIFFWaveConsts.cs" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 	</ItemGroup>

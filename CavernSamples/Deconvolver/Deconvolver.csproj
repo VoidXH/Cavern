@@ -16,10 +16,18 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<Compile Update="Settings.Designer.cs">
 			<DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -27,6 +35,7 @@
 			<DependentUpon>Settings.settings</DependentUpon>
 		</Compile>
 	</ItemGroup>
+
 	<ItemGroup>
 		<None Update="Settings.settings">
 			<Generator>SettingsSingleFileGenerator</Generator>

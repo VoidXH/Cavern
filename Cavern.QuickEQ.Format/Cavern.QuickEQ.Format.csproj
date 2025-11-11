@@ -19,8 +19,11 @@
 		<PackageIcon>CavernLogo.png</PackageIcon>
 		<PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
 		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
 		<DocumentationFile>bin\Release\Cavern.QuickEQ.Format.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>

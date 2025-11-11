@@ -19,7 +19,7 @@
 		<StartupObject>CavernizeGUI.Program</StartupObject>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<DebugSymbols>false</DebugSymbols>
 		<DebugType>none</DebugType>
 		<Optimize>true</Optimize>

@@ -16,8 +16,10 @@
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
 		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>

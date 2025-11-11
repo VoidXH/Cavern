@@ -17,18 +17,28 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<ItemGroup>
 	  <Compile Include="..\VoidX.WPF\FFTSize.cs" Link="VoidX.WPF\FFTSize.cs" />
 	  <Compile Include="..\VoidX.WPF\NumericUpDown.xaml.cs" Link="VoidX.WPF\NumericUpDown.xaml.cs" />
 	  <Compile Include="..\VoidX.WPF\ObjectToDataGrid.cs" Link="VoidX.WPF\ObjectToDataGrid.cs" />
 	  <Compile Include="..\VoidX.WPF\QuickContextMenu.cs" Link="VoidX.WPF\QuickContextMenu.cs" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="AutomaticGraphLayout.WpfGraphControl" Version="1.1.12" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<Resource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<Page Include="..\VoidX.WPF\NumericUpDown.xaml" Link="VoidX.WPF\NumericUpDown.xaml">
 		  <Generator>MSBuild:Compile</Generator>
@@ -37,10 +47,12 @@
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 	</ItemGroup>
+
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Cavern.QuickEQ.Format\Cavern.QuickEQ.Format.csproj" />
 	  <ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
 	  <Compile Update="Resources\Settings.Designer.cs">
 	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -48,6 +60,7 @@
 	    <DependentUpon>Settings.settings</DependentUpon>
 	  </Compile>
 	</ItemGroup>
+
 	<ItemGroup>
 	  <None Update="Resources\Settings.settings">
 	    <Generator>SettingsSingleFileGenerator</Generator>

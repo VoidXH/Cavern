@@ -16,15 +16,24 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpeg.cs" Link="VoidX.WPF\FFmpeg\FFmpeg.cs" />
 		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpegGUI.cs" Link="VoidX.WPF\FFmpeg\FFmpegGUI.cs" />
 		<Compile Include="..\VoidX.WPF\EnumToTitleCase.cs" Link="VoidX.WPF\EnumToTitleCase.cs" />
 		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="VoidX.WPF\TaskEngine.cs" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<Compile Update="Settings.Designer.cs">
 			<DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -32,6 +41,7 @@
 			<DependentUpon>Settings.settings</DependentUpon>
 		</Compile>
 	</ItemGroup>
+
 	<ItemGroup>
 		<None Update="Settings.settings">
 			<Generator>SettingsSingleFileGenerator</Generator>

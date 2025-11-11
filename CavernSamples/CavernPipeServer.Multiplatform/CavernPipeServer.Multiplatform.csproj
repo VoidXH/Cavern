@@ -17,13 +17,22 @@
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 		<ProjectReference Include="..\Reusable\CavernPipeServer.Logic\CavernPipeServer.Logic.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<_DeploymentManifestIconFile Remove="..\Icon.ico" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<Resource Include="..\Icon.ico" Link="Resources\Icon.ico" />
 	</ItemGroup>

@@ -9,4 +9,10 @@
 		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
 		<Description>Combines the result of multiple Cavern QuickEQ measurements to aid in EQing an unlimited number of channels on select systems.</Description>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
 </Project>
