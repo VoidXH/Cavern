@@ -14,6 +14,13 @@
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpeg.cs" Link="VoidX.WPF\FFmpeg\FFmpeg.cs" />
 		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegArgument.cs" Link="VoidX.WPF\FFmpeg\FFmpegArgument.cs" />
@@ -21,6 +28,7 @@
 		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegStream.cs" Link="VoidX.WPF\FFmpeg\FFmpegStream.cs" />
 		<Compile Include="..\..\VoidX.WPF\HTTP.cs" Link="VoidX.WPF\HTTP.cs" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\Cavern\Cavern.csproj" />
 		<ProjectReference Include="..\..\..\Cavern.Format\Cavern.Format.csproj" />

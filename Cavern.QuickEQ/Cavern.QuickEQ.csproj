@@ -20,24 +20,31 @@
 		<PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
 		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
 		<DocumentationFile>bin\Release\Cavern.QuickEQ.xml</DocumentationFile>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<None Include="..\docs\NuGet Readme - Cavern.QuickEQ.md" Pack="true" PackagePath="README.md" Link="Resources\NuGet Readme - Cavern.QuickEQ.md" />
 		<None Include="..\docs\NuGet Licence.md" Pack="true" PackagePath="LICENCE.md" Link="Resources\NuGet Licence.md" />
 		<None Include="..\Cavern\Resources\CavernLogo.png" Pack="true" PackagePath="CavernLogo.png" Link="Resources\CavernLogo.png" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\Cavern\Cavern.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<None Update="CavernLogo.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll bin\Release\CavernAmp.dll" IgnoreExitCode="true" />
 	</Target>

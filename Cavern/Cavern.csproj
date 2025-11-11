@@ -20,21 +20,27 @@
 		<PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
 		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
 		<DocumentationFile>bin\Release\Cavern.xml</DocumentationFile>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<None Include="..\docs\NuGet Readme.md" Pack="true" PackagePath="README.md" Link="Resources\NuGet Readme.md" />
 		<None Include="..\docs\NuGet Licence.md" Pack="true" PackagePath="LICENCE.md" Link="Resources\NuGet Licence.md" />
 		<None Include="Resources\CavernLogo.png" Pack="true" PackagePath="CavernLogo.png" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<None Update="CavernLogo.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll bin\Release\CavernAmp.dll" IgnoreExitCode="true" />
 	</Target>

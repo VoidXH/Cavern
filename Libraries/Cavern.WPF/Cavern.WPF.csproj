@@ -16,15 +16,21 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
 		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<Compile Include="..\..\CavernSamples\VoidX.WPF\Animator.cs" Link="VoidX.WPF\Animator.cs" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 	</ItemGroup>
+
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 	  <ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
