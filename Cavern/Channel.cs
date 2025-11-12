@@ -31,7 +31,7 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// This channel is part of the screen channels, and should be behind the screen in a theatre.
+        /// This channel is part of the screen channels, and should be behind the screen in a theatre, or on the front wall in a home.
         /// </summary>
         public bool IsScreenChannel => !lowFrequency && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
 
@@ -111,7 +111,16 @@ namespace Cavern {
         /// <summary>
         /// Get if a channel is LFE for a given channel count.
         /// </summary>
-        public static bool IsLFE(int channel, int channels) => channels >= 6 && channel == 3;
+        public static bool IsLFE(int channel, int channels) => channels == Listener.Channels.Length ?
+            Listener.Channels[channel].LFE :
+            channels >= 6 && channel == 3;
+
+        /// <summary>
+        /// Get if a channel is on the front wall and not a subwoofer.
+        /// </summary>
+        public static bool IsAScreenChannel(int channel, int channels) => channels == Listener.Channels.Length ?
+            Listener.Channels[channel].IsScreenChannel :
+            channels > 4 ? channel < 3 : channel < 2;
 
         /// <summary>
         /// Recalculates symmetry when a channel's position is changed.

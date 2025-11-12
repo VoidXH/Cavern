@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Cavern.Filters.Utilities {
     public static partial class FilterGraphNodeUtils {
@@ -42,14 +40,6 @@ namespace Cavern.Filters.Utilities {
             }
 
             return visited;
-        }
-
-        /// <summary>
-        /// Channel slot optimization: two non-parallel virtual channels should only occupy one virtual channel, but at different times.
-        /// </summary>
-        /// <param name="mapping">Node - channel mapping to optimize, virtual channels take negative indices</param>
-        public static void OptimizeChannelUse(this (FilterGraphNode node, int channel)[] mapping) {
-            // TODO: implement some day
         }
 
         /// <summary>
