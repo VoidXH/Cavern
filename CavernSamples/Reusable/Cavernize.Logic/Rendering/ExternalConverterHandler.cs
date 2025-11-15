@@ -79,13 +79,13 @@ public sealed class ExternalConverterHandler : IDisposable {
         Source[] firstSources = [.. to.ActiveSources.Take(keepFirstSources)];
         to.DetachAllSources();
         intermediateTrack.Attach(to, upmixing);
+        int bedsToAdd = firstSources.Count(x => x is not MuteSource);
+        Source[] newSources = [.. to.ActiveSources.Take(bedsToAdd)];
 
-        IEnumerable<Source> newSources = to.ActiveSources.Skip(keepFirstSources);
-        Source[] beds = [.. newSources.Skip(firstSources.Count(x => x is not MuteSource))];
         int bedAdded = 0;
-        for (int i = 0; i < firstSources.Length && bedAdded < beds.Length; i++) {
+        for (int i = 0; i < firstSources.Length && bedAdded < newSources.Length; i++) {
             if (firstSources[i] is not MuteSource) {
-                firstSources[i] = beds[bedAdded++];
+                firstSources[i] = newSources[bedAdded++];
                 to.DetachSource(firstSources[i]);
             }
         }
