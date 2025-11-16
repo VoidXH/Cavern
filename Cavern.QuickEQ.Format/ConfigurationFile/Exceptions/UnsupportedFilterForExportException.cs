@@ -15,6 +15,6 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Thrown when an unsupported filter would be exported to a <see cref="ConfigurationFile"/>.
         /// </summary>
-        public UnsupportedFilterForExportException(string message, Filter filter) : base(message) => Filter = filter;
+        protected UnsupportedFilterForExportException(string message, Filter filter) : base(message) => Filter = filter;
     }
 }

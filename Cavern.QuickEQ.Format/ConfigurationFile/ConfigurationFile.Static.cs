@@ -19,7 +19,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Create a <see cref="ConfigurationFile"/> of a supported <paramref name="type"/>, using a <see cref="FilterSet.FilterSet"/> as a <paramref name="source"/>.
         /// </summary>
         public static ConfigurationFile Create(ConfigurationFileType type, string name, int sampleRate, FilterSet.FilterSet source) {
-            ConfigurationFile file = Create(type, name, sampleRate, source);
+            ConfigurationFile file = Create(type, name, sampleRate, source.ChannelCount);
             ConfigurationFileBuilder builder = new ConfigurationFileBuilder(file);
             builder.AddFilterSet(source);
             return file;
