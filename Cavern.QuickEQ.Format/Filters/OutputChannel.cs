@@ -24,6 +24,11 @@ namespace Cavern.Filters {
         /// <param name="channel">The channel for which this filter marks the end of the filter pipeline</param>
         protected internal OutputChannel(string channel) : base(channel, kind) { }
 
+        /// <summary>
+        /// Create the corresponding <see cref="OutputChannel"/> for an <paramref name="input"/>.
+        /// </summary>
+        protected internal OutputChannel(InputChannel input) : base(input.ChannelName, kind) => Channel = input.Channel;
+
         /// <inheritdoc/>
         public override object Clone() => Channel != ReferenceChannel.Unknown ? new OutputChannel(Channel) : new OutputChannel(ChannelName);
 

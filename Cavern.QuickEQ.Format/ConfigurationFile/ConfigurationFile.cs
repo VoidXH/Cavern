@@ -67,11 +67,28 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Create an empty configuration file for a standard layout of the given channel count.
+        /// </summary>
+        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
+        /// be an initial configuration. Call <see cref="FinishEmpty()"/> at the end of your constructor to add closing <see cref="OutputChannel"/>s.</remarks>
+        protected ConfigurationFile(string name, int channelCount) {
+            InputChannels = new (string name, FilterGraphNode root)[channelCount];
+            ReferenceChannel[] channels = ChannelPrototype.GetStandardMatrix(channelCount);
+            for (int i = 0; i < channels.Length; i++) {
+                InputChannels[i] = (channels[i].GetShortName(), new FilterGraphNode(new InputChannel(channels[i])));
+            }
+
+            splitPoints = new List<(string, FilterGraphNode[])> {
+                (name, InputChannels.GetItem2s())
+            };
+        }
+
+        /// <summary>
         /// Create an empty configuration file with the passed input channels.
         /// </summary>
         /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
-        /// be an initial configuration. Refer to the code of <see cref="CavernFilterStudioConfigurationFile(string, ReferenceChannel[])"/>
-        /// for how to add closing <see cref="OutputChannel"/>s.</remarks>
+        /// be an initial configuration. Call <see cref="FinishEmpty(ReferenceChannel[])"/> at the end of your constructor
+        /// to add closing <see cref="OutputChannel"/>s.</remarks>
         protected ConfigurationFile(string name, ReferenceChannel[] inputs) {
             InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
@@ -87,8 +104,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Create an empty configuration file with the passed input channel names/labels.
         /// </summary>
         /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
-        /// be an initial configuration. Refer to the code of <see cref="EqualizerAPOConfigurationFile(string, int)"/> for how to implement
-        /// addition and finishing up with closing <see cref="OutputChannel"/>s.</remarks>
+        /// be an initial configuration. Call <see cref="FinishEmpty()"/> at the end of your constructor to add closing <see cref="OutputChannel"/>s.</remarks>
         protected ConfigurationFile(string name, string[] inputs) {
             InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
@@ -98,31 +114,6 @@ namespace Cavern.Format.ConfigurationFile {
             splitPoints = new List<(string, FilterGraphNode[])> {
                 (name, InputChannels.GetItem2s())
             };
-        }
-
-        /// <summary>
-        /// When generating a <paramref name="mapping"/>, where each node has their own virtual channel,
-        /// merge them to a single virtual channel if they form a single line in the graph.
-        /// </summary>
-        /// <param name="mapping">Node - channel mapping to optimize, virtual channels take negative indices</param>
-        protected static void OptimizeChannelUse((FilterGraphNode node, int channel)[] mapping) {
-            for (int i = 0; i < mapping.Length; i++) {
-                FilterGraphNode current = mapping[i].node;
-                if (current.Children.Count != 1) {
-                    continue;
-                }
-                FilterGraphNode child = current.Children[0];
-                if (child.Filter is OutputChannel) {
-                    continue;
-                }
-
-                for (int j = i + 1; j < mapping.Length; j++) {
-                    if (mapping[j].node == child) {
-                        mapping[j].channel = mapping[i].channel;
-                        continue;
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -195,6 +186,16 @@ namespace Cavern.Format.ConfigurationFile {
 
         /// <summary>
         /// Add the neccessary <see cref="OutputChannel"/> entries for an empty configuration file.
+        /// </summary>
+        protected void FinishEmpty() {
+            for (int i = 0; i < InputChannels.Length; i++) {
+                InputChannel input = (InputChannel)InputChannels[i].root.Filter;
+                InputChannels[i].root.AddChild(new FilterGraphNode(new OutputChannel(input)));
+            }
+        }
+
+        /// <summary>
+        /// Add the neccessary <see cref="OutputChannel"/> entries for an empty configuration file faster when the exact channels are known.
         /// </summary>
         protected void FinishEmpty(ReferenceChannel[] channels) {
             for (int i = 0; i < channels.Length; i++) {

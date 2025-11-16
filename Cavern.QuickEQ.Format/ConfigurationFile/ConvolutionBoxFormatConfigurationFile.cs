@@ -46,6 +46,14 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Create an empty file for a custom channel count.
+        /// </summary>
+        public ConvolutionBoxFormatConfigurationFile(string name, int sampleRate, int channelCount) : base(name, channelCount) {
+            SampleRate = sampleRate;
+            FinishEmpty();
+        }
+
+        /// <summary>
         /// Create an empty file for a custom layout.
         /// </summary>
         public ConvolutionBoxFormatConfigurationFile(string name, int sampleRate, ReferenceChannel[] inputs) : base(name, inputs) {
@@ -125,7 +133,7 @@ namespace Cavern.Format.ConfigurationFile {
             inputChannels.Sort((a, b) => a.index.CompareTo(b.index));
             foreach (KeyValuePair<int, FilterGraphNode> node in lastNodes) {
                 if (node.Key >= 0) {
-                    OutputChannel outputFilter = new OutputChannel(((InputChannel)inputChannels[node.Key].root.Filter).ChannelName);
+                    OutputChannel outputFilter = new OutputChannel((InputChannel)inputChannels[node.Key].root.Filter);
                     if (node.Value.Filter == null && node.Value.Children.Count == 0) { // Only overwrite dead ends with outputs
                         node.Value.Filter = outputFilter;
                     } else {

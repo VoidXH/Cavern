@@ -31,8 +31,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Create an empty file for a standard layout.
         /// </summary>
-        public CavernFilterStudioConfigurationFile(string name, int channelCount) :
-            this(name, ChannelPrototype.GetStandardMatrix(channelCount)) { }
+        public CavernFilterStudioConfigurationFile(string name, int channelCount) : base(name, channelCount) => FinishEmpty();
 
         /// <summary>
         /// Create an empty file for a custom layout.

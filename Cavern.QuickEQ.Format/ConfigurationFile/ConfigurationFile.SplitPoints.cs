@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
@@ -28,8 +27,7 @@ namespace Cavern.Format.ConfigurationFile {
                 CreateNewSplitPoint(name);
                 FilterGraphNode[] end = SplitPoints[^1].roots;
                 for (int i = 0; i < end.Length; i++) {
-                    ReferenceChannel channel = ((InputChannel)end[i].Filter).Channel;
-                    end[i].AddChild(new OutputChannel(channel));
+                    end[i].AddChild(new OutputChannel((InputChannel)end[i].Filter));
                 }
             }
         }
@@ -42,7 +40,7 @@ namespace Cavern.Format.ConfigurationFile {
                 FilterGraphNode[] roots = SplitPoints[index].roots;
                 for (int i = 0; i < roots.Length; i++) {
                     roots[i].DetachChildren();
-                    roots[i].AddChild(new OutputChannel(((InputChannel)roots[i].Filter).Channel));
+                    roots[i].AddChild(new OutputChannel((InputChannel)roots[i].Filter));
                 }
             } else { // General case: clear the children and use the next split to fetch the outputs
                 FilterGraphNode[] roots = SplitPoints[index].roots,
@@ -120,11 +118,11 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Removes one of the <see cref="SplitPoints"/> by <paramref name="index"/> and clears all the filters it contains.
         /// </summary>
-        /// <exception cref="IndexOutOfRangeException">The last split point can't be removed. To bypass this restriction,
+        /// <exception cref="LastSplitPointException">The last split point can't be removed. To bypass this restriction,
         /// you could add an empty split point and remove the previous last one.</exception>
         public void RemoveSplitPoint(int index) {
             if (SplitPoints.Count == 1) {
-                throw new IndexOutOfRangeException();
+                throw new LastSplitPointException();
             }
 
             if (index == SplitPoints.Count - 1) { // Last split can be just removed

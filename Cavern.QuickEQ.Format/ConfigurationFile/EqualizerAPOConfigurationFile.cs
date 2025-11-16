@@ -27,6 +27,14 @@ namespace Cavern.Format.ConfigurationFile {
         public EqualizerAPOConfigurationFile(ConfigurationFile other) : base(other) { }
 
         /// <summary>
+        /// Create an empty Equalizer APO configuration file.
+        /// </summary>
+        /// <param name="name">Name of the filter set</param>
+        /// <param name="channelCount">Number of processed system channels</param>
+        /// <param name="apoLabels">Use Equalizer APO channel labeling instead of the standard layout for the <paramref name="channelCount"/></param>
+        public EqualizerAPOConfigurationFile(string name, int channelCount, bool apoLabels) : base(name, GetChannelLabels(channelCount, apoLabels)) => FinishEmpty();
+
+        /// <summary>
         /// Parse a single Equalizer APO configuration file.
         /// </summary>
         /// <param name="path">Filesystem location of the configuration file</param>
@@ -41,6 +49,26 @@ namespace Cavern.Format.ConfigurationFile {
             }
             Optimize();
             FinishLazySetup(131072);
+        }
+
+        /// <summary>
+        /// Get the channel index to label mapping for a given number of channels.
+        /// </summary>
+        /// <param name="count">Number of channels</param>
+        /// <param name="apoLabels">Use Equalizer APO channel labeling instead of the standard layout for the channel <paramref name="count"/></param>
+        public static string[] GetChannelLabels(int count, bool apoLabels) {
+            string[] result = new string[count];
+            if (apoLabels) {
+                for (int i = 0; i < result.Length; i++) {
+                    result[i] = EqualizerAPOUtils.GetChannelLabel(i, result.Length);
+                }
+            } else {
+                ReferenceChannel[] channels = ChannelPrototype.GetStandardMatrix(count);
+                for (int i = 0; i < result.Length; i++) {
+                    result[i] = channels[i] == ReferenceChannel.Unknown ? "CH" + (i + 1) : EqualizerAPOUtils.GetChannelLabel(channels[i]);
+                }
+            }
+            return result;
         }
 
         /// <summary>
