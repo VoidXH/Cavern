@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Text;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format.Common;
+using Cavern.Format.FilterSet.Enums;
 using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
@@ -36,6 +38,11 @@ namespace Cavern.Format.FilterSet {
 
         /// <inheritdoc/>
         public virtual string FileExtension => "txt";
+
+        /// <summary>
+        /// In what to measure delays when exporting.
+        /// </summary>
+        public virtual DelayUnit DelayUnits => DelayUnit.Milliseconds;
 
         /// <summary>
         /// A filter set containing equalization info for each channel of a system on a given sample rate.
@@ -85,7 +92,18 @@ namespace Cavern.Format.FilterSet {
             result.AppendLine(new string('=', chName.Length));
             result.Append(extension);
             if (Channels[channel].delaySamples != 0) {
-                result.AppendLine("Delay: " + QMath.ToStringLimitDecimals(GetDelay(channel), 2));
+                switch (DelayUnits) {
+                    case DelayUnit.Milliseconds:
+                        result.AppendLine($"Delay: {QMath.ToStringLimitDecimals(GetDelay(channel), 2)} ms");
+                        break;
+                    case DelayUnit.Centimeters:
+                        float seconds = Channels[channel].delaySamples / (float)SampleRate;
+                        float centimeters = seconds * Source.SpeedOfSound * 100;
+                        result.AppendLine($"Delay: {centimeters:0} cm");
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
                 return true;
             }
             return false;

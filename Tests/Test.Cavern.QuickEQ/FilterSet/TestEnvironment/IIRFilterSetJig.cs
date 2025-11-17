@@ -14,10 +14,23 @@ namespace Test.Cavern.QuickEQ.FilterSet.TestEnvironment {
     /// <param name="target">Device to test</param>
     public abstract class IIRFilterSetJig(FilterSetTarget target) {
         /// <summary>
+        /// Check if a <paramref name="value"/> is a multiple of the allowed <paramref name="precision"/> in tolerance.
+        /// </summary>
+        /// <returns></returns>
+        static bool IsPrecise(double value, double precision) {
+            const double maxError = 0.000001;
+            double error = value % precision;
+            return (-maxError < error && error < maxError) ||
+                (precision - maxError < error && error < precision + maxError) ||
+                (-precision - maxError < error && error < -precision + maxError);
+        }
+
+        /// <summary>
         /// Use the <see cref="PeakingEqualizer"/> to approximate a known <see cref="reference"/> filter.
         /// This test is large, because data that is heavy to compute is reused for further calculations.
         /// <list type="bullet">
-        /// <item>Test if all bands are properly rounded and in limits.</item>
+        /// <item>Test if frequencies are properly rounded and in limits.</item>
+        /// <item>Test if Q factors are properly rounded.</item>
         /// </list>
         /// </summary>
         [TestMethod, Timeout(10000)]
@@ -42,10 +55,11 @@ namespace Test.Cavern.QuickEQ.FilterSet.TestEnvironment {
                 if (gain < set.MinGain || gain > set.MaxGain) {
                     throw new GainOutOfRangeException(gain, set.MinGain, set.MaxGain);
                 }
-                const double maxError = 0.000001;
-                double error = gain % set.GainPrecision;
-                if ((error < 0 || error > maxError) && (error < -set.GainPrecision || error > maxError - set.GainPrecision)) {
-                    throw new GainUnpreciseException(gain, set.GainPrecision);
+                if (!IsPrecise(gain, set.GainPrecision)) {
+                    throw new GainImpreciseException(gain, set.GainPrecision);
+                }
+                if (!IsPrecise(bands[i].Q, set.QPrecision)) {
+                    throw new QImpreciseException(gain, set.QPrecision);
                 }
             }
 

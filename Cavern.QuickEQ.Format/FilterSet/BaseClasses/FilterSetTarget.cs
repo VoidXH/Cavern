@@ -92,6 +92,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MonolithHTP1,
         /// <summary>
+        /// Rotel devices.
+        /// </summary>
+        Rotel,
+        /// <summary>
         /// Sony ES-series AVRs.
         /// </summary>
         SonyES,
@@ -217,6 +221,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.AcurusMuse => "Acurus Muse",
             FilterSetTarget.Emotiva => "Emotiva",
             FilterSetTarget.MonolithHTP1 => "Monoprice Monolith HTP-1",
+            FilterSetTarget.Rotel => "Rotel",
             FilterSetTarget.SonyES => "Sony ES series",
             FilterSetTarget.StormAudio => "StormAudio",
             FilterSetTarget.TonewinnerAT => "Tonewinner AT series",
