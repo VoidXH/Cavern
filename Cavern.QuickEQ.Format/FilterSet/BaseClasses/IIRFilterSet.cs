@@ -64,6 +64,11 @@ namespace Cavern.Format.FilterSet {
         public virtual double GainPrecision => .0001;
 
         /// <summary>
+        /// Half the maximum Q factor allowed.
+        /// </summary>
+        public virtual double CenterQ => 10;
+
+        /// <summary>
         /// What values to export per filter and in what order.
         /// </summary>
         public virtual FilterProperty[] Properties { get; } = new FilterProperty[] {
@@ -86,6 +91,12 @@ namespace Cavern.Format.FilterSet {
         /// Construct a room correction with IIR filter sets for each channel for a room with the target reference channels.
         /// </summary>
         public IIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) => Initialize<IIRChannelData>(channels);
+
+        /// <summary>
+        /// When specific operations like roundings must happen, override this function and post-process all filters to match the constraints.
+        /// Gain limiting and rounding is excluded from here, as it currently happens in the PeakingEqualizer.
+        /// </summary>
+        public virtual void PostprocessFilter(PeakingEQ filter) { }
 
         /// <summary>
         /// If the filter set's band count is dependent on which channel is selected, use this function instead of <see cref="Bands"/>.
@@ -161,7 +172,7 @@ namespace Cavern.Format.FilterSet {
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
                 fileNameBase = Path.GetFileNameWithoutExtension(path);
-            CreateRootFile(path, "txt");
+            CreateRootFile(path, FileExtension);
 
             for (int i = 0, c = Channels.Length; i < c; i++) {
                 List<string> channelData = new List<string>();
@@ -179,7 +190,7 @@ namespace Cavern.Format.FilterSet {
                 for (int j = filters.Length; j < Bands;) {
                     channelData.Add($"Filter {++j}: OFF None");
                 }
-                File.WriteAllLines(Path.Combine(folder, $"{fileNameBase} {GetLabel(i)}.txt"), channelData);
+                File.WriteAllLines(Path.Combine(folder, $"{fileNameBase} {GetLabel(i)}.{FileExtension}"), channelData);
             }
         }
 

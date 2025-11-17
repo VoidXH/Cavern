@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using Cavern.Filters;
@@ -12,26 +10,26 @@ namespace Cavern.QuickEQ.Equalization {
     /// <summary>
     /// Generates peaking EQ filter sets that try to match <see cref="Equalizer"/> curves.
     /// </summary>
-    public class PeakingEqualizer {
-        /// <summary>
-        /// Highest allowed frequency to place a filter at.
-        /// </summary>
-        public double MaxFrequency { get; set; } = 16000;
-
+    public partial class PeakingEqualizer {
         /// <summary>
         /// Lowest allowed frequency to place a filter at.
         /// </summary>
         public double MinFrequency { get; set; } = 20;
 
         /// <summary>
-        /// Maximum filter gain in dB.
+        /// Highest allowed frequency to place a filter at.
         /// </summary>
-        public double MaxGain { get; set; } = 20;
+        public double MaxFrequency { get; set; } = 16000;
 
         /// <summary>
         /// Minimum filter gain in dB.
         /// </summary>
         public double MinGain { get; set; } = -100;
+
+        /// <summary>
+        /// Maximum filter gain in dB.
+        /// </summary>
+        public double MaxGain { get; set; } = 20;
 
         /// <summary>
         /// Round the gain of each filter to this precision.
@@ -57,6 +55,11 @@ namespace Cavern.QuickEQ.Equalization {
         /// <remarks>This only affects <see cref="GetPeakingEQ(int, double, double, int)"/> and
         /// <see cref="GetPeakingEQ(int, double, double, int, bool)"/></remarks>
         public (double oldFreq, double newFreq)[] FreqOverrides { get; set; }
+
+        /// <summary>
+        /// Optional transformation of filters before adding them to the filter set.
+        /// </summary>
+        public Action<PeakingEQ> PostprocessFilter { get; set; }
 
         /// <summary>
         /// Number of output bands if <see cref="GetPeakingEQ(int)"/> is called. In that case, there will be one band for each input.
@@ -87,27 +90,6 @@ namespace Cavern.QuickEQ.Equalization {
         /// Generates peaking EQ filter sets that try to match <see cref="Equalizer"/> curves.
         /// </summary>
         public PeakingEqualizer(Equalizer source) => this.source = source;
-
-        /// <summary>
-        /// Parse a file created in the standard PEQ filter list format.
-        /// </summary>
-        public static PeakingEQ[] ParseEQFile(string path) => ParseEQFile(File.ReadLines(path));
-
-        /// <summary>
-        /// Parse a file created in the standard PEQ filter list format.
-        /// </summary>
-        public static PeakingEQ[] ParseEQFile(IEnumerable<string> lines) {
-            List<PeakingEQ> result = new List<PeakingEQ>();
-            foreach (string line in lines) {
-                string[] parts = line.Split(new[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length > 11 && parts[0].ToLowerInvariant() == "filter" && parts[2].ToLowerInvariant() == "on" &&
-                    parts[3].ToLowerInvariant() == "pk" && QMath.TryParseDouble(parts[5], out double freq) &&
-                    QMath.TryParseDouble(parts[8], out double gain) && QMath.TryParseDouble(parts[11], out double q)) {
-                    result.Add(new PeakingEQ(Listener.DefaultSampleRate, freq, q, gain));
-                }
-            }
-            return result.ToArray();
-        }
 
         /// <summary>
         /// Create a peaking EQ filter set with bands placed at optimal frequencies to approximate the drawn EQ curve.
@@ -153,6 +135,7 @@ namespace Cavern.QuickEQ.Equalization {
                 for (int band = 0; band < bands; band++) {
                     CavernAmpPeakingEQ newBand = CavernQuickEQAmp.BruteForceBand(target, target.Length, extAnalyzer, startPos, stopPos);
                     result[band] = new PeakingEQ(sampleRate, newBand.centerFreq, newBand.q, newBand.gain);
+                    PostprocessFilter?.Invoke(result[band]);
                 }
                 CavernQuickEQAmp.FilterAnalyzer_Dispose(extAnalyzer);
             } else {
@@ -273,7 +256,10 @@ namespace Cavern.QuickEQ.Equalization {
                     gain = upperGain;
                 }
             }
-            return new PeakingEQ(analyzer.SampleRate, freq, q, SnapGain(gain));
+
+            PeakingEQ filter = new PeakingEQ(analyzer.SampleRate, freq, q, SnapGain(gain));
+            PostprocessFilter?.Invoke(filter);
+            return filter;
         }
 
         /// <summary>
@@ -308,7 +294,13 @@ namespace Cavern.QuickEQ.Equalization {
                 }
                 qStep *= .5;
             }
-            return valid ? new PeakingEQ(analyzer.SampleRate, freq, q, -gain) : null;
+
+            if (!valid) {
+                return null;
+            }
+            PeakingEQ filter = new PeakingEQ(analyzer.SampleRate, freq, q, -gain);
+            PostprocessFilter?.Invoke(filter);
+            return filter;
         }
 
         /// <summary>
