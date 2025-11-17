@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using Cavern.Channels;
+using Cavern.Filters;
 using Cavern.Format.FilterSet.Enums;
 
 namespace Cavern.Format.FilterSet {
@@ -38,6 +40,18 @@ namespace Cavern.Format.FilterSet {
         /// Generates PEQ sets for Rotel devices.
         /// </summary>
         public RotelFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
+
+        /// <inheritdoc/>
+        public override void PostprocessFilter(PeakingEQ filter) {
+            base.PostprocessFilter(filter);
+            if (filter.CenterFreq < 100) {
+                filter.CenterFreq = Math.Round(filter.CenterFreq);
+            } else if (filter.CenterFreq < 2000) {
+                filter.CenterFreq = Math.Round(filter.CenterFreq / 10) * 10;
+            } else {
+                filter.CenterFreq = Math.Round(filter.CenterFreq   / 100) * 100;
+            }
+        }
 
         /// <inheritdoc/>
         public override void Export(string path) => File.WriteAllText(path, Export());
