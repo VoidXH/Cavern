@@ -72,11 +72,12 @@ namespace Cavern.Format {
         /// Goes back to a state where the first sample can be read.
         /// </summary>
         public override void Reset() {
-            reader.Position = 0;
             if (decoder == null) {
+                reader.Position = 0;
                 ReadHeader();
+            } else if (decoder.Position != 0) {
+                decoder.Seek(0);
             }
-            decoder.Seek(0);
         }
 
         /// <summary>
