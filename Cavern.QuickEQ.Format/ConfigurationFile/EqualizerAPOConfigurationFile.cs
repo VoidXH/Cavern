@@ -124,6 +124,11 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Get the export path of configuration filters by index.
+        /// </summary>
+        static string ConvolutionFileName(string convolutionRoot, int index) => $"{convolutionRoot}_{index}.wav";
+
+        /// <summary>
         /// Parse a Channel filter and make the next parsed filters only affect those channels.
         /// </summary>
         static void SelectChannels(Dictionary<string, FilterGraphNode> lastNodes, List<string> activeChannels, string[] split) {
@@ -160,6 +165,21 @@ namespace Cavern.Format.ConfigurationFile {
 
         /// <inheritdoc/>
         public override void Export(string path) {
+            (List<string> lines, List<IConvolution> convolutions) = ExportToMemory(path);
+            File.WriteAllLines(path, lines);
+
+            string folder = Path.GetDirectoryName(path);
+            string convolutionRoot = Path.GetFileNameWithoutExtension(path);
+            for (int i = 0; i < convolutions.Count; i++) {
+                string convolutionFile = Path.Combine(folder, ConvolutionFileName(convolutionRoot, i));
+                RIFFWaveWriter.Write(convolutionFile, convolutions[i].Impulse, 1, convolutions[i].SampleRate, BitDepth.Float32);
+            }
+        }
+
+        /// <summary>
+        /// Get the lines and convolution files that should be in an Equalizer APO configuration file to result in this configuration.
+        /// </summary>
+        public (List<string> lines, List<IConvolution> convolutions) ExportToMemory(string path) {
             Dictionary<int, string> virtualChannelNames = new Dictionary<int, string>();
             string GetChannelLabel(int channel) { // Convert index to label
                 if (channel < 0) {
@@ -187,13 +207,11 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
 
-            string convolutionRoot = Path.GetFileNameWithoutExtension(path);
-            string ConvolutionFileName(int index) => $"{convolutionRoot}_{index}.wav";
-
             (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
             ValidateForExport(exportOrder);
             int lastChannel = int.MaxValue;
             List<IConvolution> convolutions = new List<IConvolution>();
+            string convolutionRoot = Path.GetFileNameWithoutExtension(path);
             for (int i = 0; i < exportOrder.Length; i++) {
                 int channel = exportOrder[i].channel;
                 Filter baseFilter = exportOrder[i].node.Filter;
@@ -224,7 +242,7 @@ namespace Cavern.Format.ConfigurationFile {
                 if (baseFilter is IEqualizerAPOFilter filter) {
                     filter.ExportToEqualizerAPO(result);
                 } else if (baseFilter is IConvolution convolution) {
-                    result.Add(convolutionFilter + ConvolutionFileName(convolutions.Count));
+                    result.Add(convolutionFilter + ConvolutionFileName(convolutionRoot, convolutions.Count));
                     convolutions.Add(convolution);
                 } else {
                     throw new NotEqualizerAPOFilterException(baseFilter);
@@ -235,12 +253,33 @@ namespace Cavern.Format.ConfigurationFile {
             if (last != -1 && result[last].StartsWith(channelFilter)) {
                 result.RemoveAt(last); // A selector of a bypass might remain
             }
+            return (result, convolutions);
+        }
 
-            string folder = Path.GetDirectoryName(path);
-            File.WriteAllLines(path, result);
-            for (int i = 0; i < convolutions.Count; i++) {
-                string convolutionFile = Path.Combine(folder, ConvolutionFileName(i));
-                RIFFWaveWriter.Write(convolutionFile, convolutions[i].Impulse, 1, convolutions[i].SampleRate, BitDepth.Float32);
+        /// <summary>
+        /// If there are operations in 8-channel space before the actual processing (like Spatial Remapping),
+        /// swap channels to their correct labels in a new split point.
+        /// </summary>
+        public void Downmap(int actualChannels) {
+            if (InputChannels.Length < 8 || actualChannels > 6 || actualChannels <= 2) {
+                return; // Only supported case: 7.1+ container for a 5.1 or quadraphonic system
+            }
+            int splitIndex = SplitPoints.Count;
+            AddSplitPoint(splitIndex, "Downmap");
+            if (actualChannels > 4) { // For 5.1: swap surrounds with rears as that's their position in 7.1
+                FilterGraphNode rearLeft = GetSplitPointRoot(splitIndex, 4);
+                FilterGraphNode rearRight = GetSplitPointRoot(splitIndex, 5);
+                FilterGraphNode surroundLeft = GetSplitPointRoot(splitIndex, 6);
+                FilterGraphNode surroundRight = GetSplitPointRoot(splitIndex, 7);
+                rearLeft.SwapChildren(surroundLeft);
+                rearRight.SwapChildren(surroundRight);
+            } else { // For quadraphonic: swap C/LFE with rears
+                FilterGraphNode center = GetSplitPointRoot(splitIndex, 2);
+                FilterGraphNode lfe = GetSplitPointRoot(splitIndex, 3);
+                FilterGraphNode rearLeft = GetSplitPointRoot(splitIndex, 4);
+                FilterGraphNode rearRight = GetSplitPointRoot(splitIndex, 5);
+                center.SwapChildren(rearLeft);
+                lfe.SwapChildren(rearRight);
             }
         }
 

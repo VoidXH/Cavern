@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
@@ -32,19 +33,17 @@ namespace Cavern.Format.ConfigurationFile {
         /// <param name="mapping">Node - channel mapping to optimize, virtual channels take negative indices</param>
         protected static void OptimizeChannelUse((FilterGraphNode node, int channel)[] mapping) {
             for (int i = 0; i < mapping.Length; i++) {
-                FilterGraphNode current = mapping[i].node;
-                if (current.Children.Count != 1) {
-                    continue;
-                }
-                FilterGraphNode child = current.Children[0];
-                if (child.Filter is OutputChannel) {
-                    continue;
-                }
-
-                for (int j = i + 1; j < mapping.Length; j++) {
-                    if (mapping[j].node == child) {
-                        mapping[j].channel = mapping[i].channel;
-                        break;
+                IReadOnlyList<FilterGraphNode> children = mapping[i].node.Children;
+                if (children.Count == 1) {
+                    FilterGraphNode child = children[0];
+                    if (child.Parents.Count == 1 && // A straight line leads to this child and
+                        !(child.Filter is OutputChannel && child.Children.Count == 0)) { // it's not a final output
+                        for (int j = i + 1; j < mapping.Length; j++) {
+                            if (mapping[j].node == child) {
+                                mapping[j].channel = mapping[i].channel;
+                                break;
+                            }
+                        }
                     }
                 }
             }

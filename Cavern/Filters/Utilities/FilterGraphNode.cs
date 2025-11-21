@@ -175,6 +175,18 @@ namespace Cavern.Filters.Utilities {
             DetachParents();
         }
 
+        /// <summary>
+        /// Change ownership of two nodes' <see cref="Children"/>.
+        /// </summary>
+        public void SwapChildren(FilterGraphNode with) {
+            List<FilterGraphNode> temp = new List<FilterGraphNode>();
+            temp.AddRange(children);
+            DetachChildren();
+            AddChildren(with.children);
+            with.DetachChildren();
+            with.AddChildren(temp);
+        }
+
         /// <inheritdoc/>
         public object Clone() => new FilterGraphNode((Filter)Filter.Clone());
 

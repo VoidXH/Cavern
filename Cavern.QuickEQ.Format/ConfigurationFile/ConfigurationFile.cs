@@ -117,6 +117,29 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Recursive part of the <see cref="Optimize()"/> function.
+        /// </summary>
+        /// <returns>Optimization was done and the children of the passed <paramref name="node"/> was modified.
+        /// This means the currently processed element was removed and new were added, so the loop counter shouldn't increase
+        /// in the iteration where this function was called from.</returns>
+        static bool Optimize(FilterGraphNode node) {
+            bool optimized = false;
+            if (node.Filter == null) {
+                node.DetachFromGraph();
+                optimized = true;
+            }
+
+            IReadOnlyList<FilterGraphNode> children = node.Children;
+            for (int i = 0, c = children.Count; i < c; i++) {
+                if (Optimize(children[i])) {
+                    optimized = true;
+                    i--;
+                }
+            }
+            return optimized;
+        }
+
+        /// <summary>
         /// Export this configuration to a target file. The general formula for most formats is:
         /// <list type="bullet">
         ///     <item>Get the filters in exportable order with <see cref="GetExportOrder"/>. This guarantees that all filters will be
@@ -151,29 +174,6 @@ namespace Cavern.Format.ConfigurationFile {
         /// Remove as many merge nodes (null filters) as possible.
         /// </summary>
         public void Optimize() {
-            /// <summary>
-            /// Recursive part of this function.
-            /// </summary>
-            /// <returns>Optimization was done and the children of the passed <paramref name="node"/> was modified.
-            /// This means the currently processed element was removed and new were added, so the loop counter shouldn't increase
-            /// in the iteration where this function was called from.</returns>
-            static bool Optimize(FilterGraphNode node) {
-                bool optimized = false;
-                if (node.Filter == null) {
-                    node.DetachFromGraph();
-                    optimized = true;
-                }
-
-                IReadOnlyList<FilterGraphNode> children = node.Children;
-                for (int i = 0, c = children.Count; i < c; i++) {
-                    if (Optimize(children[i])) {
-                        optimized = true;
-                        i--;
-                    }
-                }
-                return optimized;
-            }
-
             for (int i = 0; i < InputChannels.Length; i++) {
                 IReadOnlyList<FilterGraphNode> children = InputChannels[i].root.Children;
                 for (int j = 0, c = children.Count; j < c;) {

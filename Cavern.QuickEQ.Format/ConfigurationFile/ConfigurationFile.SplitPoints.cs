@@ -68,6 +68,22 @@ namespace Cavern.Format.ConfigurationFile {
             for (int i = 0; i < nodes.Length; i++) {
                 nodes[i] = nodes[i].AddChild(new InputChannel(((OutputChannel)nodes[i].Filter).Channel));
             }
+
+            // Sort split points to match root channel order
+            if (nodes.Length != 0 && ((InputChannel)nodes[0].Filter).Channel != ReferenceChannel.Unknown) {
+                ReferenceChannel[] rootChannels = InputChannels.Select(x => ((InputChannel)x.root.Filter).Channel).ToArray();
+                for (int i = 0; i < nodes.Length - 1; i++) {
+                    if (rootChannels[i] != ((InputChannel)nodes[i].Filter).Channel) {
+                        for (int j = i + 1; j < nodes.Length; j++) {
+                            if (rootChannels[i] == ((InputChannel)nodes[j].Filter).Channel) {
+                                (nodes[i], nodes[j]) = (nodes[j], nodes[i]);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
             splitPoints.Add((name, nodes));
         }
 
@@ -82,6 +98,16 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
             throw new InvalidChannelException(new[] { channel });
+        }
+
+        /// <summary>
+        /// Get the node for a split point's (referenced with an <paramref name="index"/>) given <paramref name="channel"/>.
+        /// </summary>
+        public FilterGraphNode GetSplitPointRoot(int index, int channel) {
+            if (channel >= 0 && channel < SplitPoints[index].roots.Length) {
+                return SplitPoints[index].roots[channel];
+            }
+            throw new InvalidChannelException(channel.ToString());
         }
 
         /// <summary>
