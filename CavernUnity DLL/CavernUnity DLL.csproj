@@ -5,20 +5,6 @@
 		<RootNamespace>Cavern</RootNamespace>
 		<AssemblyName>CavernUnity</AssemblyName>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DebugType>none</DebugType>
-		<DefineConstants>
-		</DefineConstants>
-		<UseVSHostingProcess>false</UseVSHostingProcess>
-		<GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-		<RunCodeAnalysis>false</RunCodeAnalysis>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-	</PropertyGroup>
-	<PropertyGroup>
 		<RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
 		<Version>2.0.2</Version>
 		<Authors>VoidX</Authors>
@@ -32,6 +18,11 @@
 		<Nullable>disable</Nullable>
 		<PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<CustomOutDirFile>..\CavernUnityPath.txt</CustomOutDirFile>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DebugType>none</DebugType>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj" />
@@ -47,6 +38,14 @@
 	    <HintPath>C:\Program Files\Unity\Hub\Editor\6000.2.7f2\Editor\Data\Managed\UnityEngine.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
+	<Target Name="ReadCustomOutDir" BeforeTargets="BeforeBuild" Condition="Exists('$(CustomOutDirFile)')">
+		<ReadLinesFromFile File="$(CustomOutDirFile)">
+			<Output TaskParameter="Lines" PropertyName="CustomOutDir" />
+		</ReadLinesFromFile>
+		<PropertyGroup>
+			<OutDir>$(CustomOutDir)\</OutDir>
+		</PropertyGroup>
+	</Target>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll $(OutDir)\CavernAmp.dll" IgnoreExitCode="true" />
 		<Exec Command="del $(OutDir)\UnityEditor.dll" />

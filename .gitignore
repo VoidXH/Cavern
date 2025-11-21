@@ -44,10 +44,10 @@ CavernSamples/ImpulseFlattener/bin/
 CavernSamples/ImpulseFlattener/obj/
 CavernSamples/QuickEQResultMerger/bin/
 CavernSamples/QuickEQResultMerger/obj/
-CavernSamples/Reusable/Cavernize.Logic/bin/
-CavernSamples/Reusable/Cavernize.Logic/obj/
 CavernSamples/Reusable/CavernPipeServer.Logic/bin/
 CavernSamples/Reusable/CavernPipeServer.Logic/obj/
+CavernSamples/Reusable/Cavernize.Logic/bin/
+CavernSamples/Reusable/Cavernize.Logic/obj/
 CavernSamples/WAVChannelReorderer/bin/
 CavernSamples/WAVChannelReorderer/obj/
 CavernSamples/WavefrontSimulator/bin/
@@ -56,6 +56,7 @@ CavernUnity DLL/bin/
 CavernUnity DLL/obj/
 CavernUnity.WebGL/bin/
 CavernUnity.WebGL/obj/
+CavernUnityPath.txt
 Cavernize Lite/bin/
 Cavernize Lite/obj/
 Cavernize Lite/samples/
