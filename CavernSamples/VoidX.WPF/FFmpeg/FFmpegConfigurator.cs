@@ -67,6 +67,17 @@ public sealed class FFmpegConfigurator {
     public void Allow8PlusChannels() => settings.Add(new("-mapping_family", "255"));
 
     /// <summary>
+    /// Remove all mappings for a given stream type.
+    /// </summary>
+    public void RemoveMapping(FFmpegStream streamType) {
+        for (int i = settings.Count - 1; i >= 0; i--) {
+            if (settings[i].key == "-map" && settings[i].value.Contains((char)streamType)) {
+                settings.RemoveAt(i);
+            }
+        }
+    }
+
+    /// <summary>
     /// Set the codec for the output.
     /// </summary>
     public void SetCodec(FFmpegStream streamType, string codec) => settings.Add(new("-c:" + (char)streamType, codec));

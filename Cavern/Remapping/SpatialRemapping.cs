@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Cavern.Channels;
+using Cavern.Utilities;
+
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 
-using Cavern.Utilities;
-
-namespace Cavern.Channels {
+namespace Cavern.Remapping {
     /// <summary>
     /// Multiple ways of getting a mixing matrix to simulate one channel layout on a different one. While Cavern can play any standard
     /// content on any layout, getting the matrix is useful for applying this feature in calibrations.
@@ -17,7 +18,7 @@ namespace Cavern.Channels {
         /// multipliers for each output (playback) channel, with which the input (content) channels should be multiplied and mixed to that
         /// specific channel. The dimensions are [output channels][input channels].
         /// </summary>
-        public static float[][] GetMatrix(Channel[] playedContent, Channel[] usedLayout) {
+        public static MixingMatrix GetMatrix(Channel[] playedContent, Channel[] usedLayout) {
             int inputs = playedContent.Length,
                 outputs = usedLayout.Length;
 
@@ -39,18 +40,15 @@ namespace Cavern.Channels {
             }
 
             // Simulate and format
-            float[] result = simulator.Render();
+            float[] simulation = simulator.Render();
             Listener.ReplaceChannels(oldChannels);
             int expectedLength = inputs * outputs;
-            if (result.Length > expectedLength) {
-                Array.Resize(ref result, expectedLength);
+            if (simulation.Length > expectedLength) {
+                Array.Resize(ref simulation, expectedLength);
             }
-            float[][] output = new float[outputs][];
-            for (int i = 0; i < outputs; i++) {
-                output[i] = new float[inputs];
-            }
-            WaveformUtils.InterlacedToMultichannel(result, output);
-            return output;
+            MixingMatrix result = new MixingMatrix(outputs, inputs);
+            WaveformUtils.InterlacedToMultichannel(simulation, result.matrix);
+            return result;
         }
 
         /// <summary>
@@ -59,12 +57,12 @@ namespace Cavern.Channels {
         /// channels should be multiplied and mixed to that specific channel. The dimensions are [output channels][input channels].
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float[][] GetMatrix(Channel[] playedContent) => GetMatrix(playedContent, Listener.Channels);
+        public static MixingMatrix GetMatrix(Channel[] playedContent) => GetMatrix(playedContent, Listener.Channels);
 
         /// <summary>
         /// Convert a spatial remapping matrix to an Equalizer APO Copy filter.
         /// </summary>
-        public static string ToEqualizerAPO(float[][] matrix) {
+        public static string ToEqualizerAPO(MixingMatrix matrix) {
             StringBuilder result = new StringBuilder("Copy:");
             for (int i = 0; i < matrix.Length; i++) {
                 float[] input = matrix[i];
@@ -104,7 +102,7 @@ namespace Cavern.Channels {
         /// <param name="matrix">A mixing matrix created with one of the <see cref="GetMatrix(Channel[])"/> functions</param>
         /// <param name="extraParams">Optional argument keys and their values for all output channels - if the number of the
         /// values is less than the number of channels, the last channels without values will skip that attribute</param>
-        public static string ToXML(float[][] matrix, params (string key, string[] values)[] extraParams) {
+        public static string ToXML(MixingMatrix matrix, params (string key, string[] values)[] extraParams) {
             StringBuilder result = new StringBuilder();
             using XmlWriter writer = XmlWriter.Create(result);
             writer.WriteStartElement("matrix");

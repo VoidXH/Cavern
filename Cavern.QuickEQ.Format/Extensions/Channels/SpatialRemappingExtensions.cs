@@ -1,6 +1,7 @@
 ﻿using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile;
+using Cavern.Remapping;
 using Cavern.Utilities;
 
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Cavern.Channels {
         /// </summary>
         /// <exception cref="ChannelCountMismatchException">There are not enough channels in the
         /// <see cref="ConfigurationFile"/> to apply the provided <paramref name="matrix"/>.</exception>
-        public static void ToConfigurationFile(float[][] matrix, ConfigurationFile target) {
+        public static void ToConfigurationFile(MixingMatrix matrix, ConfigurationFile target) {
             if (target.InputChannels.Length < matrix.Length || target.InputChannels.Length < matrix[0].Length) {
                 throw new ChannelCountMismatchException();
             }

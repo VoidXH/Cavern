@@ -7,6 +7,7 @@ using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.Format.FilterSet;
+using Cavern.Remapping;
 
 using static Cavern.Format.FilterSet.EqualizerFilterSet;
 
@@ -91,6 +92,16 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         public void AddCrossoverToFront(CrossoverFilterSet set) {
             set.Add(file, 0);
+        }
+
+        /// <summary>
+        /// Add a <see cref="SpatialRemapping"/> to the <see cref="ConfigurationFile"/>'s beginning.
+        /// </summary>
+        public void AddSpatialRemappingToFront(SpatialRemappingSource source) {
+            if (source != SpatialRemappingSource.Off) {
+                Channel[] content = source.ToLayout();
+                SpatialRemappingExtensions.ToConfigurationFile(SpatialRemapping.GetMatrix(content), file);
+            }
         }
     }
 }
