@@ -67,6 +67,16 @@ public sealed class MergeToContainer {
     public void Allow8PlusChannels() => args.Allow8PlusChannels();
 
     /// <summary>
+    /// Remove some conditions under which FFmpeg would refuse to process the file.
+    /// </summary>
+    public void MakeSafe(string fileName) {
+        if (fileName.EndsWith("ac3")) { // No video/subtitle mapping for this container
+            args.RemoveMapping(FFmpegStream.Video);
+            args.RemoveMapping(FFmpegStream.Subtitle);
+        }
+    }
+
+    /// <summary>
     /// Name of the <see cref="render"/>ed audio track merged to the output.
     /// </summary>
     public void SetTrackName(string name) => args.SetMetadata(FFmpegStream.Audio, 0, "title", name);

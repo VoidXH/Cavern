@@ -248,6 +248,7 @@ namespace CavernizeGUI {
                 if (writer.ChannelCount > 8) {
                     merger.Allow8PlusChannels();
                 }
+                merger.MakeSafe(finalName);
                 if (!merger.Merge(ffmpeg, finalName)) {
                     taskEngine.UpdateStatus("Failed to create the final file. Are your permissions sufficient in the export folder?");
                     external.Dispose();
