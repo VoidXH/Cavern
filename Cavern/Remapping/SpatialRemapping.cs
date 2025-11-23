@@ -64,10 +64,10 @@ namespace Cavern.Remapping {
         /// </summary>
         public static string ToEqualizerAPO(MixingMatrix matrix) {
             StringBuilder result = new StringBuilder("Copy:");
-            for (int i = 0; i < matrix.Length; i++) {
+            for (int i = 0; i < matrix.Count; i++) {
                 float[] input = matrix[i];
                 bool started = false;
-                string label = EqualizerAPOUtils.GetChannelLabel(i, matrix.Length);
+                string label = EqualizerAPOUtils.GetChannelLabel(i, matrix.Count);
                 for (int j = 0; j < input.Length; j++) {
                     if (input[j] != 0) {
                         if (!started) {
@@ -106,7 +106,7 @@ namespace Cavern.Remapping {
             StringBuilder result = new StringBuilder();
             using XmlWriter writer = XmlWriter.Create(result);
             writer.WriteStartElement("matrix");
-            for (int output = 0; output < matrix.Length; output++) {
+            for (int output = 0; output < matrix.Count; output++) {
                 float[] inputs = matrix[output];
                 writer.WriteStartElement("output");
                 writer.WriteAttributeString("channel", output.ToString());

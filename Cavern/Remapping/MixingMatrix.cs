@@ -1,14 +1,26 @@
-﻿namespace Cavern.Remapping {
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+
+namespace Cavern.Remapping {
     /// <summary>
     /// Contains a mixing matrix that maps a content (input) to a layout (output). A mixing matrix is a jagged array of multipliers
     /// for each output (playback) channel, with which the input (content) channels should be multiplied and mixed to that specific
     /// channel. The dimensions are [output channels][input channels]. The values are not decibels, but linear gains.
     /// </summary>
-    public sealed class MixingMatrix {
-        /// <summary>
-        /// Number of output channels.
-        /// </summary>
-        public int Length => matrix.Length;
+    public sealed class MixingMatrix : IList<float[]> {
+        /// <inheritdoc/>
+        public int Count => matrix.Length;
+
+        /// <inheritdoc/>
+        public bool IsReadOnly => true;
+
+        /// <inheritdoc/>
+        float[] IList<float[]>.this[int index] {
+            get => matrix[index];
+            set => throw new ReadOnlyException();
+        }
 
         /// <summary>
         /// Get the input mixing levels for a given output channel.
@@ -41,5 +53,35 @@
             }
             this.matrix = matrix;
         }
+
+        /// <inheritdoc/>
+        public void Add(float[] item) => throw new InvalidOperationException();
+
+        /// <inheritdoc/>
+        public void Clear() => throw new InvalidOperationException();
+
+        /// <inheritdoc/>
+        public bool Contains(float[] item) => throw new InvalidOperationException();
+
+        /// <inheritdoc/>
+        public void CopyTo(float[][] array, int arrayIndex) => throw new InvalidOperationException();
+
+        /// <inheritdoc/>
+        public int IndexOf(float[] item) => throw new InvalidOperationException();
+
+        /// <inheritdoc/>
+        public void Insert(int index, float[] item) => throw new InvalidOperationException();
+
+        /// <inheritdoc/>
+        public bool Remove(float[] item) => throw new InvalidOperationException();
+
+        /// <inheritdoc/>
+        public void RemoveAt(int index) => throw new InvalidOperationException();
+
+        /// <inheritdoc/>
+        public IEnumerator<float[]> GetEnumerator() => ((IList<float[]>)matrix).GetEnumerator();
+
+        /// <inheritdoc/>
+        IEnumerator IEnumerable.GetEnumerator() => matrix.GetEnumerator();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Cavern;
 using Cavern.Channels;
+using Cavern.Remapping;
 
 namespace Test.Cavern.Channels {
     /// <summary>
@@ -14,7 +15,7 @@ namespace Test.Cavern.Channels {
         public void Remap5Point1() {
             Channel[] content = ChannelPrototype.ToLayoutAlternative(ChannelPrototype.ref510),
                 playback = ChannelPrototype.ToLayout(ChannelPrototype.ref510);
-            float[][] matrix = SpatialRemapping.GetMatrix(content, playback);
+            MixingMatrix matrix = SpatialRemapping.GetMatrix(content, playback);
             Assert.AreEqual(1, matrix[0][0]); // FL
             Assert.AreEqual(1, matrix[1][1]); // FR
             Assert.AreEqual(1, matrix[2][2]); // C
