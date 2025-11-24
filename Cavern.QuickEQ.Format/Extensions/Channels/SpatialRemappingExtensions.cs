@@ -18,6 +18,10 @@ namespace Cavern.Channels {
         /// <exception cref="ChannelCountMismatchException">There are not enough channels in the
         /// <see cref="ConfigurationFile"/> to apply the provided <paramref name="matrix"/>.</exception>
         public static void ToConfigurationFile(MixingMatrix matrix, ConfigurationFile target) {
+            if (matrix == null) {
+                return;
+            }
+
             int outChannels = matrix.Count;
             if (target.InputChannels.Length < outChannels || target.InputChannels.Length < matrix[0].Length) {
                 throw new ChannelCountMismatchException();

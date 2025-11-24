@@ -42,13 +42,7 @@ namespace Cavern.Format.ConfigurationFile {
         public override void Export(string path) {
             (List<string> lines, List<IConvolution> convolutions) = ExportToMemory(path);
             File.WriteAllLines(path, lines);
-
-            string folder = Path.GetDirectoryName(path);
-            string convolutionRoot = Path.GetFileNameWithoutExtension(path);
-            for (int i = 0; i < convolutions.Count; i++) {
-                string convolutionFile = Path.Combine(folder, ConvolutionFileName(convolutionRoot, i));
-                RIFFWaveWriter.Write(convolutionFile, convolutions[i].Impulse, 1, convolutions[i].SampleRate, BitDepth.Float32);
-            }
+            ExportConvolutions(convolutions, path);
         }
 
         /// <summary>
@@ -131,6 +125,18 @@ namespace Cavern.Format.ConfigurationFile {
                 result.RemoveAt(last); // A selector of a bypass might remain
             }
             return (result, convolutions);
+        }
+
+        /// <summary>
+        /// Write the convolution files defined by <see cref="ExportToMemory(string)"/> to disk.
+        /// </summary>
+        public void ExportConvolutions(List<IConvolution> convolutions, string path) {
+            string folder = Path.GetDirectoryName(path);
+            string convolutionRoot = Path.GetFileNameWithoutExtension(path);
+            for (int i = 0; i < convolutions.Count; i++) {
+                string convolutionFile = Path.Combine(folder, ConvolutionFileName(convolutionRoot, i));
+                RIFFWaveWriter.Write(convolutionFile, convolutions[i].Impulse, 1, convolutions[i].SampleRate, BitDepth.Float32);
+            }
         }
     }
 }
