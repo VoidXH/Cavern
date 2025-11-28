@@ -56,14 +56,11 @@ namespace Cavern.QuickEQ {
                 if (!double.IsNaN(phase)) {
                     return phase;
                 }
-                if (Delay < 0) {
-                    return double.NaN;
-                }
-                float reference = Response[delay], other;
+                float reference = Response[Delay], other;
                 int otherPos = delay;
                 if (reference < 0) {
                     other = float.NegativeInfinity;
-                    for (int i = 0; i < response.Length; ++i) {
+                    for (int i = 0; i < response.Length; i++) {
                         if (other < response[i]) {
                             other = response[i];
                             otherPos = i;
@@ -71,7 +68,7 @@ namespace Cavern.QuickEQ {
                     }
                 } else {
                     other = float.PositiveInfinity;
-                    for (int i = 0; i < response.Length; ++i) {
+                    for (int i = 0; i < response.Length; i++) {
                         if (other > response[i]) {
                             other = response[i];
                             otherPos = i;
@@ -99,14 +96,11 @@ namespace Cavern.QuickEQ {
                 if (!double.IsNaN(impulseness)) {
                     return impulseness;
                 }
-                if (Delay < 0) {
-                    return double.NaN;
-                }
-                float peak = Math.Abs(Response[delay]) * .1f;
+                float peak = Math.Abs(Response[Delay]) * .1f;
                 int below = 0;
-                for (int i = 0; i < response.Length; ++i) {
+                for (int i = 0; i < response.Length; i++) {
                     if (Math.Abs(response[i]) < peak) {
-                        ++below;
+                        below++;
                     }
                 }
                 return impulseness = below / (double)response.Length;
@@ -135,17 +129,14 @@ namespace Cavern.QuickEQ {
                 if (rt60 != -1) {
                     return rt60;
                 }
-                if (Delay < 0) {
-                    return 0;
-                }
-                float target = Math.Abs(Response[delay] * .001f);
+                float target = Math.Abs(Response[Delay] * .001f);
                 float[] abs = new float[rt60 = response.Length];
-                for (int i = 0; i < rt60; ++i) {
+                for (int i = 0; i < rt60; i++) {
                     abs[i] = Math.Abs(response[i]);
                 }
                 float[] smoothed = GraphUtils.SmoothGraph(abs, 20, 20000, .1f);
                 do {
-                    --rt60;
+                    rt60--;
                 } while (smoothed[rt60] < target && rt60 > delay);
                 return rt60 -= delay;
             }
@@ -153,10 +144,27 @@ namespace Cavern.QuickEQ {
         int rt60 = -1;
 
         /// <summary>
+        /// Get the ratio of the peak to the RMS of the impulse response in dB. This works because the peak is practically the signal
+        /// (with a maximum of 3 dB error), and the noise is spread across the whole response, with a very minor error.
+        /// </summary>
+        public float SignalToNoise {
+            get {
+                if (!float.IsNaN(signalToNoise)) {
+                    return signalToNoise;
+                }
+
+                float signal = Math.Abs(Response[Delay]);
+                float noise = WaveformUtils.GetRMS(response);
+                return signalToNoise = QMath.GainToDb(signal / noise);
+            }
+        }
+        float signalToNoise = float.NaN;
+
+        /// <summary>
         /// Peaks in the impulse response.
         /// </summary>
         /// <remarks>Calculated when <see cref="GetPeak(int)"/> is called.</remarks>
-        Peak[] peaks;
+        ImpulsePeak[] peaks;
 
         /// <summary>
         /// Create a verbose impulse response from a precalculated impulse response.
@@ -175,51 +183,12 @@ namespace Cavern.QuickEQ {
             this(Measurements.GetFrequencyResponse(reference, response).IFFT()) { }
 
         /// <summary>
-        /// Representation of a peak in the impulse response.
-        /// </summary>
-        public readonly struct Peak : IEquatable<Peak> {
-            /// <summary>
-            /// Peak time offset in samples.
-            /// </summary>
-            public int Position { get; }
-            /// <summary>
-            /// Gain at that position.
-            /// </summary>
-            public float Size { get; }
-
-            /// <summary>
-            /// Representation of a peak in the impulse response.
-            /// </summary>
-            /// <param name="position">Peak time offset in samples.</param>
-            /// <param name="size">Gain at that position.</param>
-            public Peak(int position, float size) {
-                Position = position;
-                Size = size;
-            }
-
-            /// <summary>
-            /// Returns if a peak is <see cref="Null"/>.
-            /// </summary>
-            public bool IsNull => Position == -1;
-
-            /// <summary>
-            /// Represents a nonexisting peak.
-            /// </summary>
-            public static readonly Peak Null = new Peak(-1, 0);
-
-            /// <summary>
-            /// Check if two peaks are equal.
-            /// </summary>
-            public bool Equals(Peak other) => Position != other.Position && Size != other.Size;
-        }
-
-        /// <summary>
         /// Get the delay of an impulse response in samples. In this case, delay means the index of the highest absolute value sample.
         /// </summary>
         public static int GetDelay(float[] response) {
             int result = 0;
-            float absPeak = float.NegativeInfinity, absHere;
-            for (int pos = 0; pos < response.Length; pos++) {
+            float absPeak = Math.Abs(response[0]), absHere;
+            for (int pos = 1; pos < response.Length; pos++) {
                 absHere = Math.Abs(response[pos]);
                 if (absPeak < absHere) {
                     absPeak = absHere;
@@ -232,23 +201,23 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Get the <paramref name="position"/>th peak in the impulse response.
         /// </summary>
-        public Peak GetPeak(int position) {
+        public ImpulsePeak GetPeak(int position) {
             if (peaks == null) {
-                List<Peak> peakList = new List<Peak>();
+                List<ImpulsePeak> peakList = new List<ImpulsePeak>();
                 float[] raw = Response;
                 float last = Math.Abs(raw[0]), abs = Math.Abs(raw[1]);
                 for (int pos = 2; pos < raw.Length; pos++) {
                     float next = Math.Abs(raw[pos]);
                     if (abs > last && abs > next) {
-                        peakList.Add(new Peak(pos - 1, abs));
+                        peakList.Add(new ImpulsePeak(pos - 1, abs));
                     }
                     last = abs;
                     abs = next;
                 }
-                peakList.Sort((a, b) => b.Size.CompareTo(a.Size));
+                peakList.Sort((a, b) => b.Value.CompareTo(a.Value));
                 peaks = peakList.ToArray();
             }
-            return position < peaks.Length ? peaks[position] : Peak.Null;
+            return position < peaks.Length ? peaks[position] : ImpulsePeak.Null;
         }
     }
 }

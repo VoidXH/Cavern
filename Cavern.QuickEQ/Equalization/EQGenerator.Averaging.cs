@@ -13,7 +13,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer Average(params Equalizer[] sources) {
-            double mul = 1.0 / sources[0].Bands.Count;
+            double mul = 1.0 / sources.Length;
             return Average(QMath.DbToGain, x => QMath.GainToDb(x * mul), sources);
         }
 
