@@ -20,24 +20,30 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<CustomOutDirFile>..\CavernUnityPath.txt</CustomOutDirFile>
 	</PropertyGroup>
+
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 		<DebugType>none</DebugType>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\Cavern.Format\Cavern.Format.csproj" />
 		<ProjectReference Include="..\Cavern.QuickEQ.Format\Cavern.QuickEQ.Format.csproj" />
 		<ProjectReference Include="..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
 		<ProjectReference Include="..\Cavern\Cavern.csproj" />
 	</ItemGroup>
+
 	<ItemGroup>
-	  <Reference Include="UnityEditor">
-	    <HintPath>C:\Program Files\Unity\Hub\Editor\6000.2.7f2\Editor\Data\Managed\UnityEditor.dll</HintPath>
-	  </Reference>
-	  <Reference Include="UnityEngine">
-	    <HintPath>C:\Program Files\Unity\Hub\Editor\6000.2.7f2\Editor\Data\Managed\UnityEngine.dll</HintPath>
-	  </Reference>
+		<Reference Include="UnityEditor">
+			<HintPath>C:\Program Files\Unity\Hub\Editor\6000.2.7f2\Editor\Data\Managed\UnityEditor.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>C:\Program Files\Unity\Hub\Editor\6000.2.7f2\Editor\Data\Managed\UnityEngine.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
 	</ItemGroup>
+
 	<Target Name="ReadCustomOutDir" BeforeTargets="BeforeBuild" Condition="Exists('$(CustomOutDirFile)')">
 		<ReadLinesFromFile File="$(CustomOutDirFile)">
 			<Output TaskParameter="Lines" PropertyName="CustomOutDir" />
@@ -46,12 +52,9 @@
 			<OutDir>$(CustomOutDir)\</OutDir>
 		</PropertyGroup>
 	</Target>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll $(OutDir)\CavernAmp.dll" IgnoreExitCode="true" />
-		<Exec Command="del $(OutDir)\UnityEditor.dll" />
-		<Exec Command="del $(OutDir)\UnityEditor.xml" />
-		<Exec Command="del $(OutDir)\UnityEngine.dll" />
-		<Exec Command="del $(OutDir)\UnityEngine.xml" />
 		<Exec Command="explorer $(OutDir)" IgnoreExitCode="true" />
 	</Target>
 </Project>
