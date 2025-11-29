@@ -15,9 +15,9 @@
         public virtual string LicenceFetch => "Fetching licence...";
 
         /// <summary>
-        /// Failed to fetch licence.
+        /// Failed to fetch {0} licence. This is probably a network error.
         /// </summary>
-        public virtual string LicenceFail => "Failed to fetch licence.";
+        public virtual string LicenceFail => "Failed to fetch {0} licence. This is probably a network error.";
 
         /// <summary>
         /// Waiting for user approval...

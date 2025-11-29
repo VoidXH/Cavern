@@ -3,13 +3,13 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:String x:Key="LicNe">A Cavernize {0}-t használ {1} fájlok konvertálásához. Automatikusan le lesz töltve,
         de előtte el kell fogadnod a licenszének feltételeit.</system:String>
-    <system:String x:Key="LicFe">Fetching licence...</system:String>
-    <system:String x:Key="LicFa">Failed to fetch licence.</system:String>
-    <system:String x:Key="LicWa">Waiting for user approval...</system:String>
-    <system:String x:Key="LicCa">The licence was not accepted.</system:String>
-    <system:String x:Key="ExDow">Downloading {0}...</system:String>
-    <system:String x:Key="ExExt">Extracting {0}...</system:String>
-    <system:String x:Key="ExRaw">Extracting raw bitstream...</system:String>
-    <system:String x:Key="ConvW">Converting with {0}...</system:String>
-    <system:String x:Key="DlErr">Downloading failed because of a network error.</system:String>
+    <system:String x:Key="LicFe">Licensz letöltése...</system:String>
+    <system:String x:Key="LicFa">Nem sikerült a(z) {0} licensz letöltése. Ez valószínűleg egy hálózati hiba.</system:String>
+    <system:String x:Key="LicWa">Várakozás felhasználói beleegyezésre...</system:String>
+    <system:String x:Key="LicCa">A licensz nem lett elfogadva.</system:String>
+    <system:String x:Key="ExDow">A(z) {0} letöltése...</system:String>
+    <system:String x:Key="ExExt">A(z) {0} kicsomagolása...</system:String>
+    <system:String x:Key="ExRaw">Nyers bitstream elválasztása...</system:String>
+    <system:String x:Key="ConvW">Konvertálás a(z) {0} segítségével...</system:String>
+    <system:String x:Key="DlErr">A letöltés egy hálózati hiba miatt sikertelen volt.</system:String>
 </ResourceDictionary>

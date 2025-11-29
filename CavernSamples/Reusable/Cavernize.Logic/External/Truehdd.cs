@@ -51,7 +51,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
         cacheZip = Path.Combine(cavernizeData, "truehdd.zip");
 
         UpdateStatusMessage(language.LicenceFetch);
-        string licence = HTTP.GET(licenceUrl) ?? throw new NetworkException(language.LicenceFail);
+        string licence = HTTP.GET(licenceUrl) ?? throw new NetworkException(string.Format(language.LicenceFail, "truehdd"));
         UpdateStatusMessage(language.WaitingUserAccept);
         LicenceDisplay.SetDescription(string.Format(language.LicenceNeeded, "truehdd", "Meridian Lossless Packing"));
         LicenceDisplay.SetLicenceText(licence);
