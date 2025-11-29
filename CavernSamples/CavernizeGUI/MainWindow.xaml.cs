@@ -257,6 +257,7 @@ namespace CavernizeGUI {
             if (settingChanged) {
                 Settings.Default.Save();
             }
+            CheckBlocks();
             base.OnClosed(e);
         }
 

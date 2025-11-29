@@ -214,6 +214,7 @@ namespace CavernizeGUI {
             LicenceWindow licenceWindow = Dispatcher.Invoke(() => new LicenceWindow());
             ExternalConverterHandler external = new(target, Consts.Language.GetExternalConverterStrings(), licenceWindow,
                 taskEngine.UpdateProgressBar, taskEngine.UpdateStatus, Dispatcher.Invoke);
+            Dispatcher.Invoke(licenceWindow.Close);
             if (external.Failed) {
                 Dispatcher.Invoke(() => Error(status.Text));
             } else {
