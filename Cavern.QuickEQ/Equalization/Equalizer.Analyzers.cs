@@ -3,12 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Cavern.QuickEQ.Equalization {
-	partial class Equalizer {
-		/// <summary>
-		/// Get the average level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>,
-		/// calculated in voltage scale, returned in dB scale.
-		/// </summary>
-		public double GetAverageLevel(double minFreq, double maxFreq) {
+    partial class Equalizer : IEquatable<Equalizer> {
+        /// <inheritdoc/>
+        public bool Equals(Equalizer other) {
+            int c = bands.Count;
+            List<Band> others = other.bands;
+            if (c != others.Count) {
+                return false;
+            }
+
+            for (int i = 0; i < c; i++) {
+                if (!bands[i].Equals(others[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Get the average level between the <paramref name="minFreq"/> and <paramref name="maxFreq"/>,
+        /// calculated in voltage scale, returned in dB scale.
+        /// </summary>
+        public double GetAverageLevel(double minFreq, double maxFreq) {
 			int i = 0, c = bands.Count;
 			while (i < c && bands[i].Frequency < minFreq) {
 				i++;
