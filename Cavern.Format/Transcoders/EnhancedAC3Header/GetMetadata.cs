@@ -15,7 +15,7 @@ namespace Cavern.Format.Transcoders {
                 new ReadableMetadataField("frmsiz", "Frame size (in 16-bit words)", WordsPerSyncframe),
                 new ReadableMetadataField("frmsiz (in b/f)", $"Bytes per {Blocks * 256} samples", (WordsPerSyncframe << 1) + " B"),
                 new ReadableMetadataField("frmsiz (in kb/s)", $"Track bitrate",
-                    (WordsPerSyncframe << 5) * SampleRate / (Blocks * 256 * 1024) + " kbps"),
+                    (((long)WordsPerSyncframe << 4) * SampleRate / ((double)Blocks * 256 * 1000)).ToString("0.###") + " kbps"),
                 new ReadableMetadataField("fscod", "Sample rate code", SampleRateCode),
                 new ReadableMetadataField("fscod (decoded)", "Sample rate", SampleRate + " Hz"),
                 new ReadableMetadataField("numblks", "Number of audio blocks per frace", Blocks),
