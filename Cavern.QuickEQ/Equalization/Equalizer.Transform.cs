@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 using Cavern.QuickEQ.EQCurves;
 using Cavern.QuickEQ.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
@@ -288,6 +289,21 @@ namespace Cavern.QuickEQ.Equalization {
             }
             for (int i = 0; i < result.Length; i++) {
                 bands[i] = new Band(bands[i].Frequency, result[i]);
+            }
+        }
+
+        /// <summary>
+        /// Apply a smoothing on this <see cref="Equalizer"/> that changes by frequency between two limits.
+        /// </summary>
+        public void Smooth(double startOctave, double endOctave) {
+            Equalizer end = (Equalizer)Clone();
+            Smooth(startOctave);
+            end.Smooth(endOctave);
+            List<Band> endBands = end.bands;
+            int count = bands.Count;
+            float positioner = 1f / count;
+            for (int i = 0; i < count; i++) {
+                bands[i] = new Band(bands[i].Frequency, QMath.Lerp(bands[i].Gain, endBands[i].Gain, i * positioner));
             }
         }
 
