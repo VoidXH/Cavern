@@ -63,10 +63,17 @@ namespace Cavern.QuickEQ {
             if (from < 0) {
                 from = 0;
             }
+            if (from > samples.Length) {
+                from = samples.Length;
+            }
+            if (to < 0) {
+                to = 0;
+            }
             if (to > samples.Length) {
                 to = samples.Length;
             }
-            WindowFunction fptr = GetWindowFunction(function);
+
+            WindowFunction windower = GetWindowFunction(function);
             float offset = 0;
             if (from > to) {
                 (from, to) = (to, from);
@@ -75,7 +82,7 @@ namespace Cavern.QuickEQ {
             float step = channels * MathF.PI / (to - from);
             for (int channel = 0; channel < channels; channel++) {
                 for (int sample = from + channel; sample < to; sample += channels) {
-                    samples[sample] *= fptr(offset);
+                    samples[sample] *= windower(offset);
                     offset += step;
                 }
             }
