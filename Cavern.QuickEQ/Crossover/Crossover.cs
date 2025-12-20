@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
-using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Interfaces;
 
@@ -29,12 +27,7 @@ namespace Cavern.QuickEQ.Crossover {
     /// <summary>
     /// A crossover to be exported as FIR filters or written into an Equalizer APO configuration file.
     /// </summary>
-    public abstract class Crossover : IEqualizerAPOFilter {
-        /// <summary>
-        /// Extra Equalizer APO commands to be performed on crossovered channels, like adding Sealing as convolution.
-        /// </summary>
-        public string[] extraOperations;
-
+    public abstract partial class Crossover : IEqualizerAPOFilter {
         /// <summary>
         /// Crossover frequencies for each channel. Only values over 0 mean crossovered channels.
         /// </summary>
@@ -82,45 +75,6 @@ namespace Cavern.QuickEQ.Crossover {
         }
 
         /// <summary>
-        /// Append the completed crossover to a work-in-progress Equalizer APO configuration file.
-        /// </summary>
-        public virtual void ExportToEqualizerAPO(List<string> wipConfig) {
-            (float frequency, string[] channelLabels)[] groups = GetCrossoverGroups();
-            string[] targets = GetSubLabels();
-            string subGain = (MathF.Sqrt(1f / targets.Length) * minus10dB).ToString("0.000", CultureInfo.InvariantCulture);
-
-            List<string> outputMix = new List<string>();
-            for (int i = 0; i < groups.Length; i++) {
-                if (subs[i] || groups[i].frequency <= 0) {
-                    continue;
-                }
-
-                wipConfig.Add($"Copy: XO{i + 1}={string.Join('+', groups[i].channelLabels)}");
-                wipConfig.Add("Channel: " + string.Join(" ", groups[i].channelLabels));
-                AddHighpass(wipConfig, groups[i].frequency);
-                wipConfig.Add("Channel: XO" + (i + 1));
-                AddLowpass(wipConfig, groups[i].frequency);
-                outputMix.Add($"{subGain}*XO{i + 1}");
-            }
-
-            if (outputMix.Count > 0) {
-                string mix = string.Join('+', outputMix);
-                for (int i = 0; i < targets.Length; i++) {
-                    wipConfig.Add($"Copy: {targets[i]}={targets[i]}+{mix}");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Add the filter's interpretation of highpass to the previously selected channel in an Equalizer APO configuration file.
-        /// </summary>
-        public virtual void AddHighpass(List<string> wipConfig, float frequency) {
-            string hpf = $"Filter: ON HP Fc {frequency} Hz";
-            wipConfig.Add(hpf);
-            wipConfig.Add(hpf);
-        }
-
-        /// <summary>
         /// Get a FIR filter for the highpass part of the crossover.
         /// </summary>
         /// <param name="sampleRate">Filter sample rate</param>
@@ -137,17 +91,6 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
         public virtual Filter GetHighpassOptimized(int sampleRate, float frequency, int length) =>
             new FastConvolver(GetHighpass(sampleRate, frequency, length), sampleRate, 0);
-
-        /// <summary>
-        /// Add the filter's interpretation of lowpass to the previously selected channel in an Equalizer APO configuration file.
-        /// </summary>
-        /// <remarks>Don't forget to call <see cref="AddExtraOperations(List{string})"/>, this is generally the best place for it.</remarks>
-        public virtual void AddLowpass(List<string> wipConfig, float frequency) {
-            string lpf = $"Filter: ON LP Fc {frequency} Hz";
-            wipConfig.Add(lpf);
-            wipConfig.Add(lpf);
-            AddExtraOperations(wipConfig);
-        }
 
         /// <summary>
         /// Get a FIR filter for the lowpass part of the crossover.
@@ -168,47 +111,22 @@ namespace Cavern.QuickEQ.Crossover {
             new FastConvolver(GetLowpass(sampleRate, frequency, length), sampleRate, 0);
 
         /// <summary>
-        /// Get the labels of channels to route bass to.
-        /// </summary>
-        public string[] GetSubLabels() {
-            List<string> result = new List<string>();
-            for (int i = 0; i < subs.Length; i++) {
-                if (subs[i]) {
-                    result.Add(EqualizerAPOUtils.GetChannelLabel(i, subs.Length));
-                }
-            }
-            return result.ToArray();
-        }
-
-        /// <summary>
         /// For each frequency, get which channels are using it for crossover.
         /// </summary>
-        protected (float frequency, string[] channelLabels)[] GetCrossoverGroups() {
-            Dictionary<float, List<string>> result = new Dictionary<float, List<string>>();
+        public (float frequency, int[] indices)[] GetCrossoverGroups() {
+            Dictionary<float, List<int>> result = new Dictionary<float, List<int>>();
             for (int i = 0; i < frequencies.Length; i++) {
                 if (frequencies[i] <= 0) {
                     continue;
                 }
 
-                string label = EqualizerAPOUtils.GetChannelLabel(i, frequencies.Length);
                 if (result.ContainsKey(frequencies[i])) {
-                    result[frequencies[i]].Add(label);
+                    result[frequencies[i]].Add(i);
                 } else {
-                    result[frequencies[i]] = new List<string> { label };
+                    result[frequencies[i]] = new List<int> { i };
                 }
             }
             return result.Select(x => (x.Key, x.Value.ToArray())).ToArray();
-        }
-
-        /// <summary>
-        /// Add the <see cref="extraOperations"/> to the crossovered signal.
-        /// </summary>
-        protected void AddExtraOperations(List<string> wipConfig) {
-            if (extraOperations != null) {
-                for (int j = 0; j < extraOperations.Length; j++) {
-                    wipConfig.Add(extraOperations[j]);
-                }
-            }
         }
 
         /// <summary>

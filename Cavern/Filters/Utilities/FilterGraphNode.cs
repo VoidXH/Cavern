@@ -121,6 +121,16 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <summary>
+        /// Append a filter to process this filter's result in the filter graph and return the new node containing that filter.
+        /// </summary>
+        public FilterGraphNode AddParent(Filter filter) {
+            FilterGraphNode node = new FilterGraphNode(filter);
+            parents.Add(node);
+            node.children.Add(this);
+            return node;
+        }
+
+        /// <summary>
         /// Remove the connection of this node from the <paramref name="child"/>.
         /// </summary>
         /// <param name="child">The child to remove</param>

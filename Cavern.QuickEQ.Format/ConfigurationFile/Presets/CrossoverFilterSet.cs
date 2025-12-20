@@ -15,6 +15,11 @@ namespace Cavern.Format.ConfigurationFile.Presets {
     /// </summary>
     public class CrossoverFilterSet : FilterSetPreset {
         /// <summary>
+        /// Gain for each crossovered channel before being mixed to the target channel(s).
+        /// </summary>
+        public double CrossoverGain { get; set; } = -10;
+
+        /// <summary>
         /// User-defined name of this crossover that will be given to the created split point.
         /// </summary>
         readonly string name;
@@ -67,7 +72,8 @@ namespace Cavern.Format.ConfigurationFile.Presets {
         /// <inheritdoc/>
         public override void Add(ConfigurationFile file, int index) {
             file.AddSplitPoint(index, name);
-            FilterGraphNode lowpassOut = file.GetSplitPointRoot(index, targetChannel).Children[0]; // OutputChannel filter for the target
+            FilterGraphNode lowpassOut = file.GetSplitPointRoot(index, targetChannel).Children[0] // OutputChannel filter for the target
+                .AddParent(new Gain(CrossoverGain)); // Final mixing gain
             float[] freqsPerChannel = sourceChannels.GetItem2s();
             float[] freqs = freqsPerChannel.Distinct().ToArray();
             Crossover generator = Crossover.Create(type, freqsPerChannel, new bool[sourceChannels.Length]);
