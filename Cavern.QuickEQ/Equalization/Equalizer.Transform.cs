@@ -87,10 +87,7 @@ namespace Cavern.QuickEQ.Equalization {
                     newBands.Add(bands[i]);
                 }
             }
-
-            bands.Clear();
-            bands.AddRange(newBands);
-            RecalculatePeakGain();
+            ResetBands(newBands);
         }
 
         /// <summary>
@@ -103,10 +100,7 @@ namespace Cavern.QuickEQ.Equalization {
                 newBands.Add(new Band(startFreq, this[startFreq]));
                 startFreq *= mul;
             }
-
-            bands.Clear();
-            bands.AddRange(newBands);
-            RecalculatePeakGain();
+            ResetBands(newBands);
         }
 
         /// <summary>
@@ -245,6 +239,22 @@ namespace Cavern.QuickEQ.Equalization {
         public void NormalizeRMS(double startFreq, double endFreq) => Offset(-GetAverageLevel(startFreq, endFreq));
 
         /// <summary>
+        /// Clear all points that are not local maxima or minima.
+        /// </summary>
+        public void RemoveMidpoints() {
+            int c = bands.Count;
+            List<Band> newBands = new List<Band>(c);
+            for (int i = 0; i < c; i++) {
+                if (i == 0 || i == c - 1 ||
+                    (bands[i].Gain >= bands[i - 1].Gain && bands[i].Gain >= bands[i + 1].Gain) ||
+                    (bands[i].Gain <= bands[i - 1].Gain && bands[i].Gain <= bands[i + 1].Gain)) {
+                    newBands.Add(bands[i]);
+                }
+            }
+            ResetBands(newBands);
+        }
+
+        /// <summary>
         /// Change the frequencies contained in this <see cref="Equalizer"/>.
         /// </summary>
         /// <param name="frequencies">Use the frequencies of these bands</param>
@@ -254,9 +264,7 @@ namespace Cavern.QuickEQ.Equalization {
             for (int i = 0; i < c; i++) {
                 newBands.Add(new Band(frequencies[i].Frequency, this[frequencies[i].Frequency]));
             }
-            bands.Clear();
-            bands.AddRange(newBands);
-            RecalculatePeakGain();
+            ResetBands(newBands);
         }
 
         /// <summary>
@@ -366,6 +374,15 @@ namespace Cavern.QuickEQ.Equalization {
             if (PeakGain > peak) {
                 PeakGain = peak;
             }
+        }
+
+        /// <summary>
+        /// Overwrite the current bands with new ones while performing necessary post processing.
+        /// </summary>
+        void ResetBands(List<Band> newBands) {
+            bands.Clear();
+            bands.AddRange(newBands);
+            RecalculatePeakGain();
         }
     }
 }
