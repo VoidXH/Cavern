@@ -1,4 +1,6 @@
-﻿using Cavern.Filters;
+﻿using System;
+
+using Cavern.Filters;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.PolarityCorrections {
@@ -15,6 +17,22 @@ namespace Cavern.QuickEQ.PolarityCorrections {
                     WaveformUtils.Invert(set[i]);
                 }
             }
+        }
+
+        /// <summary>
+        /// Get which of the passed <paramref name="simulations"/> have inverted phase using a specific <paramref name="method"/>.
+        /// </summary>
+        public static bool[] GetInvertedChannels(PolarityCorrectionType method, MultichannelWaveform simulations) {
+            if (method == PolarityCorrectionType.None) {
+                return new bool[simulations.Channels];
+            }
+
+            PolarityCorrection corrector = method switch {
+                PolarityCorrectionType.ConstructivityBased => new ConstructivityBasedPolarityCorrection(),
+                PolarityCorrectionType.ImpulsePeakBased => new ImpulsePeakBasedPolarityCorrection(),
+                _ => throw new NotImplementedException()
+            };
+            return corrector.GetInvertedChannels(simulations);
         }
 
         /// <summary>
