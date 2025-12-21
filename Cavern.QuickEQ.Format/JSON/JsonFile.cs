@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+
+using Cavern.Format.Utilities;
 
 namespace Cavern.Format.JSON {
     /// <summary>
@@ -131,6 +134,10 @@ namespace Cavern.Format.JSON {
         /// Parse a value (between the &quot;:&quot; and &quot;,&quot;).
         /// </summary>
         static object ParseValue(ref string source, ref int offset) {
+            while (source[offset] <= ' ') {
+                offset++; // Skip whitespace
+            }
+
             switch (source[offset]) {
                 case '{':
                     return new JsonFile(Parse(ref source, ref offset));
@@ -138,7 +145,7 @@ namespace Cavern.Format.JSON {
                     offset++;
                     List<object> list = new List<object>();
                     while (offset < source.Length) {
-                        list.Add(ParseUntil(ref source, ref offset, ',', ']'));
+                        list.Add(ParseValue(ref source, ref offset));
                         if (source[offset] == ']') {
                             return list.ToArray();
                         } else {
@@ -146,8 +153,23 @@ namespace Cavern.Format.JSON {
                         }
                     }
                     return list.ToArray();
+                case '"':
+                    offset++;
+                    string result = ParseString(ref source, ref offset).Unescape();
+                    while (offset < source.Length && source[offset] != ',' && source[offset] != ']') {
+                        offset++;
+                    }
+                    return result;
                 default:
-                    return ParseUntil(ref source, ref offset, ',');
+                    string value = ParseUntil(ref source, ref offset, ',', ']');
+                    if (int.TryParse(value, out int intValue)) {
+                        return intValue;
+                    } else if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double doubleValue)) {
+                        return doubleValue;
+                    } else if (bool.TryParse(value, out bool boolValue)) {
+                        return boolValue;
+                    }
+                    return value; // Unsupported types are handled as strings
             }
         }
 
@@ -157,8 +179,10 @@ namespace Cavern.Format.JSON {
         static void AppendValue(StringBuilder result, object value) {
             if (value is bool b) {
                 result.Append(b.ToString().ToLowerInvariant());
+            } else if (value is double d) {
+                result.Append(d.ToString(CultureInfo.InvariantCulture));
             } else if (value is string str) {
-                result.Append('"').Append(str).Append('"');
+                result.Append('"').Append(str.Escape()).Append('"');
             } else if (value is object[] array) {
                 result.Append("[ ");
                 for (int i = 0; i < array.Length; i++) {

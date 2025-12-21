@@ -10,11 +10,25 @@ namespace Test.Cavern.QuickEQ.JSON {
         /// Tests if a file is parsed successfully.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void Test() {
-            const string raw = "{\"num\":256,\"str\":\"te\\\"s,t\",\"child\":{\"float\":1.34,\"arr\":[2,3.14,\"dog\"]}}";
+        public void TestParse() {
             JsonFile parsed = new JsonFile(raw);
-            Assert.AreEqual("256", parsed["num"]);
-            Assert.AreEqual("\"dog\"", ((object[])((JsonFile)parsed["child"])["arr"])[2]);
+            Assert.AreEqual(256, parsed["num"]);
+            Assert.AreEqual("dog", ((object[])((JsonFile)parsed["child"])["arr"])[2]);
         }
+
+        /// <summary>
+        /// Tests if valid strings are created from <see cref="JsonFile"/>s.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void TestReparse() {
+            JsonFile parsed = new JsonFile(raw);
+            string asString = parsed.ToString();
+            Assert.AreEqual(raw, asString);
+        }
+
+        /// <summary>
+        /// Test JSON object.
+        /// </summary>
+        const string raw = "{ \"num\": 256, \"str\": \"te\\\"s,t\", \"child\": { \"float\": 1.34, \"arr\": [ 2, 3.14, \"dog\" ] } }";
     }
 }
