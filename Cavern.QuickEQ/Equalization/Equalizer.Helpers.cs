@@ -23,7 +23,7 @@
         /// <param name="freqEnd">Last frequency to measure</param>
         (int first, int last) GetMeasurementLimits(double freqStart, double freqEnd) {
             int first = -1, last = -1;
-            if (double.IsNaN(freqStart)) {
+            if (!double.IsNaN(freqStart)) {
                 (first, last) = GetBandLimits(freqStart, freqEnd);
             }
             if (first == -1) {
