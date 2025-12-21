@@ -191,34 +191,6 @@ namespace Cavern.Format.FilterSet {
         }
 
         /// <summary>
-        /// Get the gain of each channel in decibels, between the allowed limits of the output format.
-        /// If the gains are not out of range, they will be returned as-is.
-        /// </summary>
-        protected double[] GetGains(double min, double max) {
-            double[] result = new double[Channels.Length];
-            double minFound = double.MaxValue, maxFound = double.MinValue;
-            for (int i = 0; i < result.Length; i++) {
-                result[i] = ((IIRChannelData)Channels[i]).gain;
-                if (minFound > result[i]) {
-                    minFound = result[i];
-                }
-                if (maxFound < result[i]) {
-                    maxFound = result[i];
-                }
-            }
-            if (minFound >= min && maxFound <= max) {
-                return result;
-            }
-
-            double avg = QMath.Average(result);
-            for (int i = 0; i < result.Length; i++) {
-                result[i] = Math.Clamp(result[i] - avg, min, max);
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Sets the requested <paramref name="q"/> to a value that's permitted by the device.
         /// </summary>
         protected double SnapQ(double q) => Math.Round(q / QPrecision) * QPrecision;
