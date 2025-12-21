@@ -156,6 +156,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MultEQXTarget,
         /// <summary>
+        /// Audyssey MultEQ XT32 configuration (.ady).
+        /// </summary>
+        MultEQXT32,
+        /// <summary>
         /// Yamaha RX-A series AVRs.
         /// </summary>
         YamahaRXA,
@@ -234,6 +238,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
             FilterSetTarget.MultEQXRaw => "MultEQ-X - peaking EQ",
             FilterSetTarget.MultEQXTarget => "MultEQ-X - filter curves",
+            FilterSetTarget.MultEQXT32 => "MultEQ XT32",
             FilterSetTarget.YamahaRXA => "Yamaha RX-A series",
             FilterSetTarget.YPAO => "Yamaha RX series",
             FilterSetTarget.YPAOLite => "Yamaha CX-A series",
