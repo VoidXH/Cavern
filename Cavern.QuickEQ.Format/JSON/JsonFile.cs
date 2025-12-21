@@ -88,10 +88,13 @@ namespace Cavern.Format.JSON {
                         result.Add(key.Stores(ParseValue(ref contents, ref offset)));
                         break;
                     case '}':
+                        offset++;
                         return result;
                 }
 
-                offset++;
+                if (contents[offset] != '}') {
+                    offset++; // Parsing stops at end of items, arrays, objects
+                }
             }
 
             return result;
@@ -134,18 +137,17 @@ namespace Cavern.Format.JSON {
         /// Parse a value (between the &quot;:&quot; and &quot;,&quot;).
         /// </summary>
         static object ParseValue(ref string source, ref int offset) {
-            while (char.IsWhiteSpace(source[offset])) {
-                offset++;
-            }
-
+            SkipWhitespace(ref source, ref offset);
             switch (source[offset]) {
                 case '{':
                     return new JsonFile(Parse(ref source, ref offset));
                 case '[':
                     offset++;
+                    SkipWhitespace(ref source, ref offset);
                     List<object> list = new List<object>();
                     while (offset < source.Length) {
                         list.Add(ParseValue(ref source, ref offset));
+                        SkipWhitespace(ref source, ref offset);
                         if (source[offset] == ']') {
                             return list.ToArray();
                         } else {
@@ -156,12 +158,12 @@ namespace Cavern.Format.JSON {
                 case '"':
                     offset++;
                     string result = ParseString(ref source, ref offset).Unescape();
-                    while (offset < source.Length && source[offset] != ',' && source[offset] != ']') {
+                    while (offset < source.Length && source[offset] != ',' && source[offset] != ']' && source[offset] != '}') {
                         offset++;
                     }
                     return result;
                 default:
-                    string value = ParseUntil(ref source, ref offset, ',', ']');
+                    string value = ParseUntil(ref source, ref offset, ',', ']', '}');
                     if (int.TryParse(value, out int intValue)) {
                         return intValue;
                     } else if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double doubleValue)) {
@@ -194,6 +196,16 @@ namespace Cavern.Format.JSON {
                 result.Append(" ]");
             } else {
                 result.Append(value);
+            }
+        }
+
+        /// <summary>
+        /// Jump to the next meaningful data point.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void SkipWhitespace(ref string source, ref int offset) {
+            while (offset < source.Length && char.IsWhiteSpace(source[offset])) {
+                offset++;
             }
         }
 
