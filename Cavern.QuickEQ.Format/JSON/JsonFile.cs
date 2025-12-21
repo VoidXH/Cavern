@@ -134,8 +134,8 @@ namespace Cavern.Format.JSON {
         /// Parse a value (between the &quot;:&quot; and &quot;,&quot;).
         /// </summary>
         static object ParseValue(ref string source, ref int offset) {
-            while (source[offset] <= ' ') {
-                offset++; // Skip whitespace
+            while (char.IsWhiteSpace(source[offset])) {
+                offset++;
             }
 
             switch (source[offset]) {
