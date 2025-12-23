@@ -1,12 +1,12 @@
-using Cavern.Channels;
-using Cavern.Format.Common;
-using Cavern.Format.JSON;
-using Cavern.QuickEQ.Equalization;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
+
+using Cavern.Channels;
+using Cavern.Format.Common;
+using Cavern.Format.JSON;
+using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -104,17 +104,15 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         object[] CreateCurve(Equalizer equalizer) {
             if (equalizer == null || equalizer.Bands.Count == 0) {
-                return new string[0];
+                return Array.Empty<string>();
             }
 
             string[] result = new string[equalizer.Bands.Count];
 
             for (int i = 0; i < equalizer.Bands.Count; i++) {
-                result[i] = "{" + 
-                    equalizer.Bands[i].Frequency.ToString(CultureInfo.InvariantCulture) + 
-                    "," + 
-                    equalizer.Bands[i].Gain.ToString(CultureInfo.InvariantCulture) + 
-                    "}";
+                string freq = equalizer.Bands[i].Frequency.ToString(CultureInfo.InvariantCulture);
+                string gain = equalizer.Bands[i].Gain.ToString(CultureInfo.InvariantCulture);
+                result[i] = $"{{{freq},{gain}}}";
             }
 
             return result;
