@@ -34,6 +34,7 @@ namespace Cavern.Format.JSON {
                 for (int i = 0, c = elements.Count; i < c; i++) {
                     if (elements[i].Key == key) {
                         elements[i] = key.Stores(value);
+                        return;
                     }
                 }
                 elements.Add(key.Stores(value));

@@ -39,6 +39,25 @@ namespace Test.Cavern.QuickEQ.JSON {
         }
 
         /// <summary>
+        /// Tests if a value is assigned properly.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void TestValueAssignment()
+        {
+            JsonFile data = new JsonFile {
+                { "X", true },
+                { "Y", "John" }
+            };
+
+            data["X"] = false;
+
+            Assert.AreEqual(2, data.Elements.Count);
+            Assert.AreEqual(false, data["X"]);
+            Assert.AreEqual("John", data["Y"]);
+        }
+
+
+        /// <summary>
         /// Test JSON for basic operations.
         /// </summary>
         const string raw = "{ \"num\": 256, \"str\": \"te\\\"s,t\", \"child\": { \"float\": 1.34, \"arr\": [ 2, 3.14, \"dog\" ] } }";
