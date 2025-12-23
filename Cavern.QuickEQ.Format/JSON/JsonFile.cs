@@ -182,8 +182,10 @@ namespace Cavern.Format.JSON {
         static void AppendValue(StringBuilder result, object value) {
             if (value is bool b) {
                 result.Append(b.ToString().ToLowerInvariant());
-            } else if (value is double d) {
-                result.Append(d.ToString(CultureInfo.InvariantCulture));
+            } else if (value is double dbl) {
+                result.Append(dbl.ToString(CultureInfo.InvariantCulture));
+            } else if (value is decimal dec) {
+                result.Append(dec.ToString(CultureInfo.InvariantCulture));
             } else if (value is string str) {
                 result.Append('"').Append(str.Escape()).Append('"');
             } else if (value is object[] array) {

@@ -78,7 +78,7 @@ namespace Cavern.Format.FilterSet {
                 channelData["customDistance"] = distance;
                 channelData["customLevel"] = level.ToString("0.0", CultureInfo.InvariantCulture);
                 channelData["frequencyRangeRolloff"] = isSub ? 250 : 20000;
-                channelData["customTargetCurvePoints"] = "[" + CreateCurve(equalizerChannel.curve) + "]";
+                channelData["customTargetCurvePoints"] = CreateCurve(equalizerChannel.curve);
 
                 JsonFile channelReport = (JsonFile)channelData["channelReport"];
                 channelReport["distance"] = distance;
@@ -102,26 +102,22 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Build the exported custom target curve points for a channel.
         /// </summary>
-        string CreateCurve(Equalizer equalizer) {
+        object[] CreateCurve(Equalizer equalizer) {
             if (equalizer == null || equalizer.Bands.Count == 0) {
-                return "";
+                return new string[0];
             }
 
-            StringBuilder result = new StringBuilder();
+            string[] result = new string[equalizer.Bands.Count];
 
             for (int i = 0; i < equalizer.Bands.Count; i++) {
-                if (i > 0) {
-                    result.Append(',');
-                }
-
-                result.Append('{');
-                result.Append(equalizer.Bands[i].Frequency.ToString(CultureInfo.InvariantCulture));
-                result.Append(',');
-                result.Append(equalizer.Bands[i].Gain.ToString(CultureInfo.InvariantCulture));
-                result.Append('}');
+                result[i] = "{" + 
+                    equalizer.Bands[i].Frequency.ToString(CultureInfo.InvariantCulture) + 
+                    "," + 
+                    equalizer.Bands[i].Gain.ToString(CultureInfo.InvariantCulture) + 
+                    "}";
             }
 
-            return result.ToString();
+            return result;
         }
 
         static ReferenceChannel MapReference(string commandId) {
