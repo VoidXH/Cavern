@@ -99,7 +99,7 @@ namespace Cavern.QuickEQ.Equalization {
             double gainDiff = targetGain - maxGain; // Optimization to remove one addition from each check
             List<Band> measurementBands = measurement.bands;
             for (int i = end; i > 0; i--) {
-                if (targetEQ[measurementBands[i].Frequency] > measurementBands[i].Gain + maxGain) {
+                if (targetEQ[measurementBands[i].Frequency] + gainDiff > measurementBands[i].Gain) {
                     int cutUntil = i;
                     while (i != 0 && measurementBands[i].Gain < targetEQ[measurementBands[i].Frequency]) {
                         i--;
