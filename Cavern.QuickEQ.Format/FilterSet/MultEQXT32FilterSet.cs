@@ -8,13 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Cavern.Format.FilterSet
-{
+namespace Cavern.Format.FilterSet {
     /// <summary>
     /// Equalizer filter set for MultEQ XT32.
     /// </summary>
-    public class MultEQXT32FilterSet : EqualizerFilterSet
-    {
+    public class MultEQXT32FilterSet : EqualizerFilterSet {
         /// <summary>
         /// Extension of the single-file export. This should be displayed on export dialogs.
         /// </summary>
@@ -34,15 +32,12 @@ namespace Cavern.Format.FilterSet
         /// Export the filter set to a MultEQ XT32 ADY file.
         /// </summary>
         /// <param name="path">Target file path</param>
-        public override void Export(string path)
-        {
+        public override void Export(string path) {
             string fileContents = File.ReadAllText(path);
-
             JsonFile data = new JsonFile(fileContents);
 
             object[] detectedChannels = (object[])data["detectedChannels"];
-            if (detectedChannels.Length == 0)
-            {
+            if (detectedChannels.Length == 0) {
                 throw new CorruptionException("No channels found in ADY file");
             }
 
@@ -53,10 +48,7 @@ namespace Cavern.Format.FilterSet
             data["enTargetCurveType"] = 1; // No HF rolloff I think
 
             double[] gains = GetGains(-12, 12);
-            double[] delays = GetDelays(20);
-
             int subwooferIndex = 0;
-
             for (int i = 0; i < detectedChannels.Length; i++) {
                 JsonFile channelData = (JsonFile)detectedChannels[i];
                 string commandId = (string)channelData["commandId"];
@@ -78,7 +70,7 @@ namespace Cavern.Format.FilterSet
                 bool isSub = equalizerChannel.reference == ReferenceChannel.ScreenLFE;
 
                 decimal level = (decimal)Math.Round(gains[eqIndex], 1);
-                double distanceMeters = delays[eqIndex] * Source.SpeedOfSound / 1000.0;
+                double distanceMeters = Math.Min(GetDelay(eqIndex), maxDelayMs) * Source.SpeedOfSound / 1000.0;
                 decimal distance = (decimal)Math.Round(distanceMeters, 2);
 
                 channelData["delayAdjustment"] = "0.0";
@@ -89,7 +81,6 @@ namespace Cavern.Format.FilterSet
                 channelData["customTargetCurvePoints"] = "[" + CreateCurve(equalizerChannel.curve) + "]";
 
                 JsonFile channelReport = (JsonFile)channelData["channelReport"];
-
                 channelReport["distance"] = distance;
                 channelReport["enSpeakerConnect"] = 1;
                 channelReport["customEnSpeakerConnect"] = 1;
@@ -111,8 +102,7 @@ namespace Cavern.Format.FilterSet
         /// <summary>
         /// Build the exported custom target curve points for a channel.
         /// </summary>
-        string CreateCurve(Equalizer equalizer)
-        {
+        string CreateCurve(Equalizer equalizer) {
             if (equalizer == null || equalizer.Bands.Count == 0) {
                 return "";
             }
@@ -134,31 +124,7 @@ namespace Cavern.Format.FilterSet
             return result.ToString();
         }
 
-        /// <summary>
-        /// Get the delay of each channel in milliseconds, and confine them to the limits of the output format.
-        /// </summary>
-        double[] GetDelays(double maxDelay)
-        {
-            double[] result = new double[Channels.Length];
-            double max = double.MinValue;
-            for (int i = 0; i < result.Length; i++) {
-                result[i] = Channels[i].delaySamples * 1000.0 / SampleRate;
-                if (max < result[i]) {
-                    max = result[i];
-                }
-            }
-
-            max = Math.Max(max - maxDelay, 0);
-            for (int i = 0; i < result.Length; i++) {
-                result[i] = Math.Max(result[i] - max, 0);
-            }
-
-            return result;
-        }
-
-
-        static ReferenceChannel MapReference(string commandId)
-        {
+        static ReferenceChannel MapReference(string commandId) {
             if (string.IsNullOrEmpty(commandId)) {
                 return ReferenceChannel.Unknown;
             }
@@ -193,8 +159,7 @@ namespace Cavern.Format.FilterSet
         /// <param name="reference">The reference channel type to find</param>
         /// <param name="occurrence">Which occurrence to find (0-based index)</param>
         /// <returns>The index in Channels array, or -1 if not found</returns>
-        int FindNthChannel(ReferenceChannel reference, int occurrence)
-        {
+        int FindNthChannel(ReferenceChannel reference, int occurrence) {
             int count = 0;
             for (int i = 0; i < Channels.Length; i++) {
                 if (Channels[i].reference == reference) {
@@ -206,5 +171,10 @@ namespace Cavern.Format.FilterSet
             }
             return -1;
         }
+
+        /// <summary>
+        /// The maximum allowed delay in milliseconds for MultEQ XT32.
+        /// </summary>
+        const double maxDelayMs = 20.0;
     }
 }

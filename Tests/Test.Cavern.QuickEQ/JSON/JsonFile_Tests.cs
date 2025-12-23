@@ -12,6 +12,7 @@ namespace Test.Cavern.QuickEQ.JSON {
         [TestMethod, Timeout(1000)]
         public void TestParse() {
             JsonFile parsed = new JsonFile(raw);
+
             Assert.AreEqual(256, parsed["num"]);
             Assert.AreEqual("dog", ((object[])((JsonFile)parsed["child"])["arr"])[2]);
         }
@@ -23,6 +24,7 @@ namespace Test.Cavern.QuickEQ.JSON {
         public void TestReparse() {
             JsonFile parsed = new JsonFile(raw);
             string asString = parsed.ToString();
+
             Assert.AreEqual(raw, asString);
         }
 
@@ -33,6 +35,7 @@ namespace Test.Cavern.QuickEQ.JSON {
         public void TestObjectArray() {
             JsonFile parsed = new JsonFile(objectArray);
             object[] objects = (object[])parsed["objects"];
+
             Assert.AreEqual(3, objects.Length);
             Assert.AreEqual(1, ((JsonFile)objects[0])["id"]);
             Assert.AreEqual("Second", ((JsonFile)objects[1])["name"]);
@@ -42,8 +45,7 @@ namespace Test.Cavern.QuickEQ.JSON {
         /// Tests if a value is assigned properly.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void TestValueAssignment()
-        {
+        public void TestValueAssignment() {
             JsonFile data = new JsonFile {
                 { "X", true },
                 { "Y", "John" }
