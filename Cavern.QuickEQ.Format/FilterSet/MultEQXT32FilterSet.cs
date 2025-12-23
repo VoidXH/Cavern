@@ -21,11 +21,6 @@ namespace Cavern.Format.FilterSet
         public override string FileExtension => "ady";
 
         /// <summary>
-        /// Parsed JSON data from the source ADY file.
-        /// </summary>
-        public JsonFile? Data { get; private set; }
-
-        /// <summary>
         /// Create a MultEQ XT32 configuration file for EQ export.
         /// </summary>
         public MultEQXT32FilterSet(int channels, int sampleRate) : base(channels, sampleRate) { }
@@ -36,60 +31,54 @@ namespace Cavern.Format.FilterSet
         public MultEQXT32FilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
         /// <summary>
-        /// Load a MultEQ XT32 configuration file from disk.
-        /// </summary>
-        /// <param name="path">Path to the ADY file</param>
-        public static MultEQXT32FilterSet FromFile(string path)
-        {
-            string fileContents = File.ReadAllText(path);
-
-            JsonFile fileData = new JsonFile(fileContents);
-
-            object[] detectedChannels = (object[])fileData["detectedChannels"];
-            if (detectedChannels.Length == 0) {
-                throw new CorruptionException("No channels found in ADY file");
-            }
-
-            // Map ADY channels to ReferenceChannels in the SAME ORDER
-            ReferenceChannel[] channels = new ReferenceChannel[detectedChannels.Length];
-            for (int i = 0; i < channels.Length; i++) {
-                channels[i] = MapReference(((JsonFile)detectedChannels[i])["commandId"].ToString());
-            }
-
-            return new MultEQXT32FilterSet(channels, Listener.DefaultSampleRate) {
-                Data = fileData
-            };
-        }
-
-        /// <summary>
         /// Export the filter set to a MultEQ XT32 ADY file.
         /// </summary>
         /// <param name="path">Target file path</param>
         public override void Export(string path)
         {
-            if (Data == null) {
-                throw new InvalidSourceException();
+            string fileContents = File.ReadAllText(path);
+
+            JsonFile data = new JsonFile(fileContents);
+
+            object[] detectedChannels = (object[])data["detectedChannels"];
+            if (detectedChannels.Length == 0)
+            {
+                throw new CorruptionException("No channels found in ADY file");
             }
 
-            Data["title"] = "Cavern QuickEQ";
-            Data["dynamicEq"] = false;
-            Data["dynamicVolume"] = false;
-            Data["lfc"] = false;
-            Data["enTargetCurveType"] = 1; // No HF rolloff I think
+            data["title"] = "Cavern QuickEQ";
+            data["dynamicEq"] = false;
+            data["dynamicVolume"] = false;
+            data["lfc"] = false;
+            data["enTargetCurveType"] = 1; // No HF rolloff I think
 
             double[] gains = GetGains(-12, 12);
             double[] delays = GetDelays(20);
 
-            object[] detectedChannels = (object[])Data["detectedChannels"];
+            int subwooferIndex = 0;
 
             for (int i = 0; i < detectedChannels.Length; i++) {
-                EqualizerChannelData equalizerChannel = (EqualizerChannelData)Channels[i];
                 JsonFile channelData = (JsonFile)detectedChannels[i];
+                string commandId = (string)channelData["commandId"];
+                ReferenceChannel refChannel = MapReference(commandId);
+
+                int eqIndex;
+                if (refChannel == ReferenceChannel.ScreenLFE) {
+                    eqIndex = FindNthChannel(ReferenceChannel.ScreenLFE, subwooferIndex);
+                    subwooferIndex++;
+                } else {
+                    eqIndex = Array.FindIndex(Channels, x => x.reference == refChannel);
+                }
+
+                if (eqIndex == -1) {
+                    continue;
+                }
+                EqualizerChannelData equalizerChannel = (EqualizerChannelData)Channels[eqIndex];
 
                 bool isSub = equalizerChannel.reference == ReferenceChannel.ScreenLFE;
 
-                decimal level = (decimal)Math.Round(gains[i], 1);
-                double distanceMeters = delays[i] * Source.SpeedOfSound / 1000.0;
+                decimal level = (decimal)Math.Round(gains[eqIndex], 1);
+                double distanceMeters = delays[eqIndex] * Source.SpeedOfSound / 1000.0;
                 decimal distance = (decimal)Math.Round(distanceMeters, 2);
 
                 channelData["delayAdjustment"] = "0.0";
@@ -113,7 +102,10 @@ namespace Cavern.Format.FilterSet
                 }
             }
 
-            File.WriteAllText(path, Data.ToString());
+            string folder = Path.GetDirectoryName(path),
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
+
+            File.WriteAllText(Path.Combine(folder, $"{fileNameBase} modified.ady"), data.ToString());
         }
 
         /// <summary>
@@ -193,6 +185,26 @@ namespace Cavern.Format.FilterSet
                 "TS" => ReferenceChannel.GodsVoice,
                 _ => ReferenceChannel.Unknown
             };
+        }
+
+        /// <summary>
+        /// Find the nth occurrence of a channel with the specified reference type.
+        /// </summary>
+        /// <param name="reference">The reference channel type to find</param>
+        /// <param name="occurrence">Which occurrence to find (0-based index)</param>
+        /// <returns>The index in Channels array, or -1 if not found</returns>
+        int FindNthChannel(ReferenceChannel reference, int occurrence)
+        {
+            int count = 0;
+            for (int i = 0; i < Channels.Length; i++) {
+                if (Channels[i].reference == reference) {
+                    if (count == occurrence) {
+                        return i;
+                    }
+                    count++;
+                }
+            }
+            return -1;
         }
     }
 }
