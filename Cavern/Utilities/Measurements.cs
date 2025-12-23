@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+using Cavern.Utilities.Exceptions;
+
 namespace Cavern.Utilities {
     /// <summary>
     /// Tools for measuring frequency response.
@@ -105,6 +107,10 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this Complex[] samples, FFTCache cache) {
+            if (cache.Size < samples.Length) {
+                throw new SmallFFTCacheException(cache.Size, samples.Length);
+            }
+
             if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceFFT(samples, cache);
             } else {

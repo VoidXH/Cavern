@@ -31,7 +31,7 @@ namespace Cavern.QuickEQ.Utilities {
         /// Calculate the transfer functions from the passed <paramref name="position"/>.
         /// </summary>
         public MeasurementPosition(MultichannelWaveform position, bool multithreaded) {
-            using FFTCachePool pool = new FFTCachePool(position[0].Length);
+            using FFTCachePool pool = new FFTCachePool(QMath.Base2Ceil(position.Length));
             transferFunctions = ParseMultichannel(position, multithreaded, pool);
         }
 
