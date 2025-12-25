@@ -10,7 +10,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Raw data of the tracks in an MP4 container.
         /// </summary>
-        public RawBox(uint length, Stream reader) : base(length, rawBox, reader) {
+        public RawBox(long length, Stream reader) : base(length, rawBox, reader) {
         }
     }
 }

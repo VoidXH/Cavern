@@ -14,7 +14,7 @@ namespace Cavern.Format.Container.MP4 {
         /// </summary>
         public readonly (uint sampleCount, uint duration)[] durations;
 
-        public TimeToSampleBox(uint length, Stream reader) : base(length, timeToSampleBox, reader) {
+        public TimeToSampleBox(long length, Stream reader) : base(length, timeToSampleBox, reader) {
             reader.Position += 4; // Version byte and zero flags
             durations = new (uint, uint)[reader.ReadUInt32BE()];
             for (int i = 0; i < durations.Length; i++) {

@@ -13,7 +13,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Bytes of data contained in this box.
         /// </summary>
-        public uint Length { get; }
+        public long Length { get; }
 
         /// <summary>
         /// 4 character descriptor of the box's contents.
@@ -29,12 +29,12 @@ namespace Cavern.Format.Container.MP4 {
         /// Stores the metadata of an ISO-BMFF box that can be read from the current position of the <paramref name="reader"/>.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected Box(uint length, uint header, Stream reader) : this(length, header, reader.Position) { }
+        protected Box(long length, uint header, Stream reader) : this(length, header, reader.Position) { }
 
         /// <summary>
         /// Stores the metadata of an ISO-BMFF box.
         /// </summary>
-        Box(uint length, uint header, long position) {
+        Box(long length, uint header, long position) {
             Length = length;
             Header = header;
             this.position = position;
@@ -45,8 +45,11 @@ namespace Cavern.Format.Container.MP4 {
         /// </summary>
         /// <param name="reader">Stream to read from</param>
         public static Box Parse(Stream reader) {
-            uint length = reader.ReadUInt32BE() - 8;
+            long length = reader.ReadUInt32BE() - 8;
             uint header = reader.ReadUInt32BE();
+            if (length == 0xFFFFFFF9) { // uint this + 8 = 1 => 64 bit length
+                length = reader.ReadInt64BE() - 16;
+            }
             return Parse(reader, length, header);
         }
 
@@ -56,7 +59,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <param name="reader">Stream to read from</param>
         /// <param name="length">Length of the box in bytes</param>
         /// <param name="header">Box type marker</param>
-        public static Box Parse(Stream reader, uint length, uint header) {
+        public static Box Parse(Stream reader, long length, uint header) {
             long nextBox = reader.Position + length;
 
             if (header == freeBox) {

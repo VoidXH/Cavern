@@ -18,7 +18,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Metadata box containing codec information.
         /// </summary>
-        public SampleDescriptionBox(uint length, Stream reader) : base(length, sampleDescriptionBox, reader) {
+        public SampleDescriptionBox(long length, Stream reader) : base(length, sampleDescriptionBox, reader) {
             reader.Position += 4; // Version byte and zero flags
             formats = new (Codec, ushort, byte[])[reader.ReadUInt32BE()];
             for (uint i = 0; i < formats.Length; i++) {

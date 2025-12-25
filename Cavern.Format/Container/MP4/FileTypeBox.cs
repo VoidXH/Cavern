@@ -28,7 +28,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Parse a file type box.
         /// </summary>
-        public FileTypeBox(uint length, Stream reader) : base(length, fileTypeBox, reader) {
+        public FileTypeBox(long length, Stream reader) : base(length, fileTypeBox, reader) {
             MajorBrand = reader.ReadUInt32BE();
             MinorVersion = reader.ReadUInt32BE();
             CompatibleBrands = new uint[(length - 8) >> 2];

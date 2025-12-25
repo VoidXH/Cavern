@@ -31,7 +31,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Parse the nested boxes.
         /// </summary>
-        public NestedBox(uint length, uint header, Stream reader) : base(length, header, reader) {
+        public NestedBox(long length, uint header, Stream reader) : base(length, header, reader) {
             List<Box> contents = new List<Box>();
             long end = reader.Position + length;
             while (reader.Position < end) {

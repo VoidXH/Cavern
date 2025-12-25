@@ -22,7 +22,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Box of sizes for all samples.
         /// </summary>
-        public SampleSizeBox(uint length, Stream reader) : base(length, sampleSizeBox, reader) {
+        public SampleSizeBox(long length, Stream reader) : base(length, sampleSizeBox, reader) {
             reader.Position += 4; // Version byte and zero flags
             size = reader.ReadUInt32BE();
             if (size == 0) {

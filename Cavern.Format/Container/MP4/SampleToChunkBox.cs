@@ -17,7 +17,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Contains which samples are located in which chunk.
         /// </summary>
-        public SampleToChunkBox(uint length, Stream reader) : base(length, sampleToChunkBox, reader) {
+        public SampleToChunkBox(long length, Stream reader) : base(length, sampleToChunkBox, reader) {
             reader.Position += 4; // Version byte and zero flags
             locations = new(uint, uint, uint)[reader.ReadUInt32BE()];
             for (int i = 0; i < locations.Length; i++) {

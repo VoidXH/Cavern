@@ -19,7 +19,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Track metadata block of an MP4 container.
         /// </summary>
-        public TrackBox(uint length, Stream reader) : base(length, trackBox, reader) {
+        public TrackBox(long length, Stream reader) : base(length, trackBox, reader) {
             Box headerBox = this[trackHeaderBox] ??
                 throw new MissingElementException(trackHeaderBox.ToFourCC(), position);
             byte[] trackHeader = headerBox.GetRawData(reader);

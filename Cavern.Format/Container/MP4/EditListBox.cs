@@ -20,7 +20,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Box of track cuts and timing changes.
         /// </summary>
-        public EditListBox(uint length, Stream reader) : base(length, editListBox, reader) {
+        public EditListBox(long length, Stream reader) : base(length, editListBox, reader) {
             reader.Position += 4; // Version byte and zero flags
             edits = new (uint, int, float)[reader.ReadUInt32BE()];
             for (int i = 0; i < edits.Length; i++) {

@@ -17,7 +17,7 @@ namespace Cavern.Format.Container.MP4 {
         /// <summary>
         /// Box of offsets for all chunks.
         /// </summary>
-        public ChunkOffsetBox(uint length, uint header, Stream reader) : base(length, header, reader) {
+        public ChunkOffsetBox(long length, uint header, Stream reader) : base(length, header, reader) {
             reader.Position += 4; // Version byte and zero flags
             offsets = new ulong[reader.ReadUInt32BE()];
             if (header == chunkOffset32) {
