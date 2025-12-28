@@ -87,8 +87,8 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         public float GetFrequencyAt(float width) {
             if (logarithmic) {
-                float start = MathF.Log10(startFrequency);
-                return MathF.Pow(10, start + width / Width * (MathF.Log10(endFrequency) - start));
+                float start = MathF.Log(startFrequency);
+                return MathF.Exp(start + width / Width * (MathF.Log(endFrequency) - start));
             } else {
                 return startFrequency + width / Width * (endFrequency - startFrequency);
             }

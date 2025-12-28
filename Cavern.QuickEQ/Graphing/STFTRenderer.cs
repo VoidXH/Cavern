@@ -136,6 +136,21 @@ namespace Cavern.QuickEQ.Graphing {
         public STFTRenderer(int width, int height) : base(width, height) { }
 
         /// <summary>
+        /// Append a new impulse response to the measurement.
+        /// </summary>
+        public void AddImpulseResponse(float[] impulse) => AddImpulseResponse(impulse, true);
+
+        /// <summary>
+        /// Append multiple new impulse responses to the measurement.
+        /// </summary>
+        public void AddImpulseResponses(params float[][] impulses) {
+            for (int i = 0; i < impulses.Length; i++) {
+                AddImpulseResponse(impulses[i], false);
+            }
+            ReRenderFull();
+        }
+
+        /// <summary>
         /// Remove all data sources from the image, while keeping the peak value.
         /// To reset the peak and make the next render use the full band of colors, use <see cref="Clear(bool)"/> instead.
         /// </summary>
@@ -154,18 +169,21 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
-        /// Append a new impulse response to the measurement.
+        /// Get what time corresponds to a given subpixel position on the height axis in seconds.
         /// </summary>
-        public void AddImpulseResponse(float[] impulse) => AddImpulseResponse(impulse, true);
+        public float GetTimeAt(float height) => timeSpan * (1 - height / Height);
 
         /// <summary>
-        /// Append multiple new impulse responses to the measurement.
+        /// Get what gain corresponds to a given subpixel.
         /// </summary>
-        public void AddImpulseResponses(params float[][] impulses) {
-            for (int i = 0; i < impulses.Length; i++) {
-                AddImpulseResponse(impulses[i], false);
+        public float GetGainAt(float width, float height) {
+            if (Logarithmic) {
+                float[] pixels = stfts[(int)(stfts.Length * (1 - height / Height))];
+                float freq = GetFrequencyAt(width);
+                return pixels[(int)(QMath.LerpInverse(StartFrequency, EndFrequency, freq) * pixels.Length)] * dynamicRange;
+            } else {
+                throw new NotImplementedException("Linear frequency scale is not implemented for STFT rendering.");
             }
-            ReRenderFull();
         }
 
         /// <inheritdoc/>
@@ -304,7 +322,7 @@ namespace Cavern.QuickEQ.Graphing {
                 float[] pixels = stfts[stfts.Length * row / Height];
                 int pixelOffset = row * Width;
                 if (Logarithmic) {
-                    double mul = Math.Pow(10, (Math.Log10(EndFrequency) - Math.Log10(StartFrequency)) / (Width - 1));
+                    double mul = Math.Exp((Math.Log(EndFrequency) - Math.Log(StartFrequency)) / (Width - 1));
                     double pixelIndex = FFTSize * StartFrequency / sampleRate;
                     for (int column = 0; column < Height; column++) {
                         int currentIndex = (int)pixelIndex;
