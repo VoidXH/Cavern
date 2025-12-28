@@ -46,12 +46,13 @@ namespace Cavern.QuickEQ {
                 splitter = 0;
             }
             if (left != Window.Disabled) {
-                Array.Clear(samples, 0, start);
+                Array.Clear(samples, 0, Math.Max(start, 0));
                 ApplyHalfWindow(samples, channels, start, splitter, left);
             }
             if (right != Window.Disabled) {
-                ApplyHalfWindow(samples, channels, end, splitter, right);
-                Array.Clear(samples, end, samples.Length - end);
+                int safeEnd = Math.Clamp(end, 0, samples.Length);
+                ApplyHalfWindow(samples, channels, safeEnd, splitter, right);
+                Array.Clear(samples, safeEnd, samples.Length - safeEnd);
             }
         }
 
