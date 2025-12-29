@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 using Cavern.Filters;
 using Cavern.Filters.Interfaces;
@@ -10,6 +8,10 @@ namespace Cavern.QuickEQ.Crossover {
     /// Supported types of crossovers.
     /// </summary>
     public enum CrossoverType {
+        /// <summary>
+        /// No crossover is applied.
+        /// </summary>
+        Disabled,
         /// <summary>
         /// Crossover made of generic 2nd order highpass/lowpass filters.
         /// </summary>
