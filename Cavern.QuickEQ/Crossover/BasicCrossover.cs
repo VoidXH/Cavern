@@ -9,9 +9,8 @@ namespace Cavern.QuickEQ.Crossover {
         /// <summary>
         /// Create a biquad crossover with frequencies for each channel. Only values over 0 mean crossovered channels.
         /// </summary>
-        /// <param name="frequencies">Crossover frequencies for each channel, only values over 0 mean crossovered channels</param>
-        /// <param name="subs">Channels to route bass to</param>
-        public BasicCrossover(float[] frequencies, bool[] subs) : base(frequencies, subs) { }
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        public BasicCrossover(CrossoverDescription mixing) : base(mixing) { }
 
         /// <inheritdoc/>
         public override Filter GetHighpassOptimized(int sampleRate, float frequency, int length) => new Highpass(sampleRate, frequency);

@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 
-using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.Crossover;
@@ -20,6 +19,21 @@ namespace Cavern.Format.ConfigurationFile.Presets {
         public double CrossoverGain { get; set; } = -10;
 
         /// <summary>
+        /// Apply this filter on each crossovered signal in addition to the crossover.
+        /// </summary>
+        public Filter OnCrossovered { get; set; }
+
+        /// <summary>
+        /// Apply this filter on each LFE input.
+        /// </summary>
+        public Filter OnLFEInput { get; set; }
+
+        /// <summary>
+        /// Apply this filter on the combined post-crossover LFE signal (all crossovered bass and LFE).
+        /// </summary>
+        public Filter OnEntireBass { get; set; }
+
+        /// <summary>
         /// User-defined name of this crossover that will be given to the created split point.
         /// </summary>
         readonly string name;
@@ -27,7 +41,7 @@ namespace Cavern.Format.ConfigurationFile.Presets {
         /// <summary>
         /// Crossover implementation algorithm.
         /// </summary>
-        readonly CrossoverType type;
+        readonly Crossover generator;
 
         /// <summary>
         /// Sample rate of the DSP this filter set is applied to.
@@ -35,19 +49,9 @@ namespace Cavern.Format.ConfigurationFile.Presets {
         readonly int sampleRate;
 
         /// <summary>
-        /// If the crossover <see cref="type"/> can only be implemented as a convolution, this will be its sample count.
+        /// If the crossover <see cref="generator"/> can only be implemented as a convolution, this will be its sample count.
         /// </summary>
         readonly int filterLength;
-
-        /// <summary>
-        /// The target channel to cross over to.
-        /// </summary>
-        readonly ReferenceChannel targetChannel;
-
-        /// <summary>
-        /// The channels to cross over to the <see cref="targetChannel"/>.
-        /// </summary>
-        readonly (ReferenceChannel channel, float frequency)[] sourceChannels;
 
         /// <summary>
         /// An added crossover step to a <see cref="ConfigurationFile"/> filter graph.
@@ -55,41 +59,91 @@ namespace Cavern.Format.ConfigurationFile.Presets {
         /// <param name="name">User-defined name of this crossover that will be given to the created split point</param>
         /// <param name="type">Crossover implementation algorithm</param>
         /// <param name="sampleRate">Sample rate of the DSP this filter set is applied to</param>
-        /// <param name="filterLength">If the crossover <see cref="type"/> can only be implemented as a convolution,
+        /// <param name="filterLength">If the crossover <paramref name="type"/> can only be implemented as a convolution,
         /// this will be its sample count</param>
-        /// <param name="targetChannel">The target channel to cross over to</param>
-        /// <param name="sourceChannels">The channels to cross over to the <see cref="targetChannel"/></param>
-        public CrossoverFilterSet(string name, CrossoverType type, int sampleRate, int filterLength, ReferenceChannel targetChannel,
-            params (ReferenceChannel channel, float frequency)[] sourceChannels) {
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        public CrossoverFilterSet(string name, CrossoverType type, int sampleRate, int filterLength, CrossoverDescription mixing) {
             this.name = name;
-            this.type = type;
+            generator = Crossover.Create(type, mixing);
             this.sampleRate = sampleRate;
             this.filterLength = filterLength;
-            this.targetChannel = targetChannel;
-            this.sourceChannels = sourceChannels;
+        }
+
+        /// <summary>
+        /// An added crossover step to a <see cref="ConfigurationFile"/> filter graph.
+        /// </summary>
+        /// <param name="name">User-defined name of this crossover that will be given to the created split point</param>
+        /// <param name="crossover">Fetch crossover data from this</param>
+        /// <param name="sampleRate">Sample rate of the DSP this filter set is applied to</param>
+        /// <param name="filterLength">If the <paramref name="crossover"/> can only be implemented as a convolution,
+        /// this will be its sample count</param>
+        public CrossoverFilterSet(string name, Crossover crossover, int sampleRate, int filterLength) {
+            this.name = name;
+            generator = crossover;
+            this.sampleRate = sampleRate;
+            this.filterLength = filterLength;
         }
 
         /// <inheritdoc/>
         public override void Add(ConfigurationFile file, int index) {
             file.AddSplitPoint(index, name);
-            FilterGraphNode lowpassOut = file.GetSplitPointRoot(index, targetChannel).Children[0] // OutputChannel filter for the target
-                .AddParent(new Gain(CrossoverGain)); // Final mixing gain
-            float[] freqsPerChannel = sourceChannels.GetItem2s();
-            float[] freqs = freqsPerChannel.Distinct().ToArray();
-            Crossover generator = Crossover.Create(type, freqsPerChannel, new bool[sourceChannels.Length]);
-            Dictionary<float, FilterGraphNode> aggregators = new Dictionary<float, FilterGraphNode>();
-            for (int i = 0; i < freqs.Length; i++) {
-                Filter lowpass = generator.GetLowpassOptimized(sampleRate, freqs[i], filterLength);
-                FilterGraphNode node = new FilterGraphNode(lowpass);
-                node.AddChild(lowpassOut);
-                aggregators[freqs[i]] = node;
+            int[] outputs = generator.Mixing.GetOutputs();
+            if (outputs.Length == 0) {
+                return;
             }
 
-            for (int i = 0; i < sourceChannels.Length; i++) {
-                Filter highpass = generator.GetHighpassOptimized(sampleRate, freqsPerChannel[i], filterLength);
-                FilterGraphNode root = file.GetSplitPointRoot(index, sourceChannels[i].channel);
+            FilterGraphNode lowpassMix;
+            if (outputs.Length == 1) {
+                FilterGraphNode lfeInput = file.GetSplitPointRoot(index, outputs[0]);
+                FilterGraphNode lfeOutput = lfeInput.Children[0];
+                lowpassMix = lfeOutput.AddParent(new Gain(CrossoverGain)); // Final mixing gain
+                if (OnLFEInput != null) {
+                    lfeInput.AddBeforeChildren((Filter)OnLFEInput.Clone());
+                }
+                if (OnEntireBass != null) {
+                    lfeOutput.AddAfterParents((Filter)OnEntireBass.Clone());
+                }
+            } else {
+                FilterGraphNode lfeMerge = new FilterGraphNode(new BypassFilter("LFE merge"));
+                for (int i = 0; i < outputs.Length; i++) {
+                    FilterGraphNode root = file.GetSplitPointRoot(index, outputs[i]);
+                    root.AddBeforeChildren(lfeMerge);
+                    if (OnLFEInput != null) {
+                        root.AddBeforeChildren((Filter)OnLFEInput.Clone());
+                    }
+                }
+                lowpassMix = new FilterGraphNode(new Gain(CrossoverGain + QMath.GainToDb(1 / MathF.Sqrt(outputs.Length))));
+                lfeMerge.AddParent(lowpassMix);
+                if (OnEntireBass != null) {
+                    lfeMerge.AddBeforeChildren((Filter)OnEntireBass.Clone());
+                }
+            }
+
+            if (OnCrossovered != null) {
+                lowpassMix.AddBeforeChildren((Filter)OnCrossovered.Clone());
+            }
+
+            (float frequency, int[])[] groups = generator.CrossoverGroups;
+            Dictionary<float, FilterGraphNode> aggregators = new Dictionary<float, FilterGraphNode>();
+            for (int i = 0; i < groups.Length; i++) {
+                float freq = groups[i].frequency;
+                Filter lowpass = generator.GetLowpassOptimized(sampleRate, freq, filterLength);
+                FilterGraphNode node = new FilterGraphNode(lowpass);
+                node.AddChild(lowpassMix);
+                aggregators[freq] = node;
+            }
+
+            (bool mixHere, float freq)[] mixing = generator.Mixing.Mixing;
+            for (int i = 0; i < mixing.Length; i++) {
+                float freq = mixing[i].freq;
+                if (freq <= 0) {
+                    continue;
+                }
+
+                Filter highpass = generator.GetHighpassOptimized(sampleRate, freq, filterLength);
+                FilterGraphNode root = file.GetSplitPointRoot(index, i);
                 root.AddBeforeChildren(highpass);
-                root.AddChild(aggregators[freqsPerChannel[i]]);
+                root.AddChild(aggregators[freq]);
             }
         }
     }

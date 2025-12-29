@@ -10,6 +10,6 @@ namespace Test.Cavern.QuickEQ.Crossover {
         /// Tests if <see cref="SyntheticBiquadCrossover"/> generates correct impulse responses.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void ImpulseResponse() => Utils.ImpulseResponse(new SyntheticBiquadCrossover(null, null), .474857f, .52310514f);
+        public void ImpulseResponse() => Utils.ImpulseResponse(new SyntheticBiquadCrossover(null), .474857f, .52310514f);
     }
 }

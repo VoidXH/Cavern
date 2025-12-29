@@ -28,7 +28,7 @@ namespace Cavern.QuickEQ.Crossover {
 
             List<string> outputMix = new List<string>();
             for (int i = 0; i < groups.Length; i++) {
-                if (subs[i] || groups[i].frequency <= 0) {
+                if (Mixing.Mixing[i].mixHere || groups[i].frequency <= 0) {
                     continue;
                 }
 
@@ -73,9 +73,9 @@ namespace Cavern.QuickEQ.Crossover {
         /// </summary>
         public string[] GetSubLabels() {
             List<string> result = new List<string>();
-            for (int i = 0; i < subs.Length; i++) {
-                if (subs[i]) {
-                    result.Add(EqualizerAPOUtils.GetChannelLabel(i, subs.Length));
+            for (int i = 0; i < Mixing.Channels; i++) {
+                if (Mixing.Mixing[i].mixHere) {
+                    result.Add(EqualizerAPOUtils.GetChannelLabel(i, Mixing.Channels));
                 }
             }
             return result.ToArray();
@@ -96,13 +96,13 @@ namespace Cavern.QuickEQ.Crossover {
         /// Get the labels of channels in each crossover group.
         /// </summary>
         (float frequency, string[] channelLabels)[] GetCrossoverGroupsWithLabels() {
-            (float frequency, int[] indices)[] source = GetCrossoverGroups();
+            (float frequency, int[] channels)[] source = CrossoverGroups;
             (float frequency, string[] labels)[] result = new (float frequency, string[] labels)[source.Length];
             for (int i = 0; i < source.Length; i++) {
-                int[] indices = source[i].indices;
-                string[] labels = new string[indices.Length];
-                for (int j = 0; j < indices.Length; j++) {
-                    labels[j] = EqualizerAPOUtils.GetChannelLabel(indices[j], frequencies.Length);
+                int[] channels = source[i].channels;
+                string[] labels = new string[channels.Length];
+                for (int j = 0; j < channels.Length; j++) {
+                    labels[j] = EqualizerAPOUtils.GetChannelLabel(channels[j], Mixing.Channels);
                 }
                 result[i] = (source[i].frequency, labels);
             }

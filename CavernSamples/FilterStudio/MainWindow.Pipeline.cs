@@ -1,7 +1,6 @@
 ﻿using Microsoft.Msagl.Drawing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 
 using Cavern.Format.ConfigurationFile.Presets;
@@ -31,8 +30,7 @@ namespace FilterStudio {
                 return false;
             }
 
-            CrossoverFilterSet crossover = new((string)language["LabXO"], dialog.Type, SampleRate, 65536, dialog.Target,
-                dialog.Crossovers.Where(x => x.frequency != null).Select(x => (x.channel, (float)x.frequency)).ToArray());
+            CrossoverFilterSet crossover = new((string)language["LabXO"], dialog.Type, SampleRate, 65536, dialog.Description);
             crossover.Add(pipeline.Source, uid);
             return true;
         });

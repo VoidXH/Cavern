@@ -10,6 +10,6 @@ namespace Test.Cavern.QuickEQ.Crossover {
         /// Tests if <see cref="BasicCrossover"/> generates correct impulse responses.
         /// </summary>
         [TestMethod, Timeout(1000)]
-        public void ImpulseResponse() => Utils.ImpulseResponse(new BasicCrossover(null, null), 0.49152157f, 0.50847834f);
+        public void ImpulseResponse() => Utils.ImpulseResponse(Crossovers.Basic5_1, 0.49152157f, 0.50847834f);
     }
 }

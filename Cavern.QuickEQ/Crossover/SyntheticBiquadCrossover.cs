@@ -12,9 +12,8 @@ namespace Cavern.QuickEQ.Crossover {
         /// <summary>
         /// Creates a phase distortion-less <see cref="BasicCrossover"/>.
         /// </summary>
-        /// <param name="frequencies">Crossover frequencies for each channel, only values over 0 mean crossovered channels</param>
-        /// <param name="subs">Channels to route bass to</param>
-        public SyntheticBiquadCrossover(float[] frequencies, bool[] subs) : base(frequencies, subs) { }
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        public SyntheticBiquadCrossover(CrossoverDescription mixing) : base(mixing) { }
 
         /// <summary>
         /// Get a <see cref="FilterAnalyzer"/> instance for a 2nd order <see cref="BiquadFilter"/>.

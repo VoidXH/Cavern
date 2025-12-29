@@ -11,9 +11,8 @@ namespace Cavern.QuickEQ.Crossover {
         /// <summary>
         /// Creates a FIR brickwall crossover, first introduced in Cavern.
         /// </summary>
-        /// <param name="frequencies">Crossover frequencies for each channel, only values over 0 mean crossovered channels</param>
-        /// <param name="subs">Channels to route bass to</param>
-        public CavernCrossover(float[] frequencies, bool[] subs) : base(frequencies, subs) { }
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        public CavernCrossover(CrossoverDescription mixing) : base(mixing) { }
 
         /// <inheritdoc/>
         public override void AddHighpass(List<string> wipConfig, float frequency) {

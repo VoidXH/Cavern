@@ -46,7 +46,7 @@ namespace Cavern.Filters.Utilities {
         public void AddAfterParents(FilterGraphNode newParent) {
             newParent.parents.AddRange(parents);
             for (int i = 0, c = parents.Count; i < c; i++) {
-                parents[i].children.Clear();
+                parents[i].children.Remove(this);
                 parents[i].children.Add(newParent);
             }
             parents.Clear();
@@ -68,7 +68,7 @@ namespace Cavern.Filters.Utilities {
         public void AddBeforeChildren(FilterGraphNode newChild) {
             newChild.children.AddRange(children);
             for (int i = 0, c = children.Count; i < c; i++) {
-                children[i].parents.Clear();
+                children[i].parents.Remove(this);
                 children[i].parents.Add(newChild);
             }
             children.Clear();

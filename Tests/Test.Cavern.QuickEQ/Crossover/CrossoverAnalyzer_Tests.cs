@@ -12,7 +12,7 @@ namespace Test.Cavern.QuickEQ.Crossover {
         /// </summary>
         [TestMethod, Timeout(1000)]
         public void FindCrossoverFrequency() {
-            BasicCrossover crossover = new(null, null);
+            BasicCrossover crossover = Crossovers.Basic5_1;
             using FFTCache cache = new(512);
             const int sampleRate = 500;
             Complex[] high = crossover.GetHighpass(sampleRate, 80, cache.Size).FFT(cache),

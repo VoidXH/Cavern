@@ -29,37 +29,33 @@ namespace Cavern.QuickEQ.Crossover {
     /// </summary>
     public abstract partial class Crossover : IEqualizerAPOFilter {
         /// <summary>
-        /// Crossover frequencies for each channel. Only values over 0 mean crossovered channels.
+        /// Which channel indices are crossovered at each frequency where a crossover exists.
         /// </summary>
-        protected float[] frequencies;
+        public (float frequency, int[] channels)[] CrossoverGroups => crossoverGroups ??= Mixing.ConvertToGroups();
+        (float, int[])[] crossoverGroups;
 
         /// <summary>
-        /// Channels to route bass to. The energy will remain constant.
+        /// Which channels to mix to, and which channels to mix from at what crossover frequency.
         /// </summary>
-        protected bool[] subs;
+        public CrossoverDescription Mixing { get; }
 
         /// <summary>
-        /// Create a crossover with frequencies for each channel. Only values over 0 mean crossovered channels.
+        /// Create a crossover with frequencies for each channel.
         /// </summary>
-        /// <param name="frequencies">Crossover frequencies for each channel, only values over 0 mean crossovered channels</param>
-        /// <param name="subs">Channels to route bass to</param>
-        protected Crossover(float[] frequencies, bool[] subs) {
-            this.frequencies = frequencies;
-            this.subs = subs;
-        }
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        protected Crossover(CrossoverDescription mixing) => Mixing = mixing;
 
         /// <summary>
         /// Create the appropriate type of <see cref="Crossover"/> object for the selected <paramref name="type"/>.
         /// </summary>
-        /// <param name="frequencies">Crossover frequencies for each channel, only values over 0 mean crossovered channels</param>
-        /// <param name="subs">Channels to route bass to</param>
         /// <param name="type">The type of crossover to use</param>
-        public static Crossover Create(CrossoverType type, float[] frequencies, bool[] subs) {
+        /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
+        public static Crossover Create(CrossoverType type, CrossoverDescription mixing) {
             return type switch {
-                CrossoverType.Biquad => new BasicCrossover(frequencies, subs),
-                CrossoverType.Cavern => new CavernCrossover(frequencies, subs),
-                CrossoverType.SyntheticBiquad => new SyntheticBiquadCrossover(frequencies, subs),
-                _ => throw new ArgumentOutOfRangeException(nameof(type))
+                CrossoverType.Biquad => new BasicCrossover(mixing),
+                CrossoverType.Cavern => new CavernCrossover(mixing),
+                CrossoverType.SyntheticBiquad => new SyntheticBiquadCrossover(mixing),
+                _ => throw new NotImplementedException()
             };
         }
 
@@ -109,25 +105,6 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
         public virtual Filter GetLowpassOptimized(int sampleRate, float frequency, int length) =>
             new FastConvolver(GetLowpass(sampleRate, frequency, length), sampleRate, 0);
-
-        /// <summary>
-        /// For each frequency, get which channels are using it for crossover.
-        /// </summary>
-        public (float frequency, int[] indices)[] GetCrossoverGroups() {
-            Dictionary<float, List<int>> result = new Dictionary<float, List<int>>();
-            for (int i = 0; i < frequencies.Length; i++) {
-                if (frequencies[i] <= 0) {
-                    continue;
-                }
-
-                if (result.ContainsKey(frequencies[i])) {
-                    result[frequencies[i]].Add(i);
-                } else {
-                    result[frequencies[i]] = new List<int> { i };
-                }
-            }
-            return result.Select(x => (x.Key, x.Value.ToArray())).ToArray();
-        }
 
         /// <summary>
         /// Use this value to mix crossover results to an LFE channel.
