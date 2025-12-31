@@ -20,5 +20,22 @@
             }
             return new CrossoverDescription(result);
         }
+
+        /// <summary>
+        /// Describe a <see cref="Crossover"/> that has separate crossover frequencies for each channel.
+        /// </summary>
+        /// <param name="layout">Channel layout of the user</param>
+        /// <param name="crossoverPoints">Per-channel crossover frequencies</param>
+        public static CrossoverDescription PerChannel(Channel[] layout, float[] crossoverPoints) {
+            (bool mixFrom, float freq)[] result = new (bool, float)[layout.Length];
+            for (int channel = 0; channel < result.Length; channel++) {
+                if (layout[channel].LFE) {
+                    result[channel].mixFrom = true;
+                } else {
+                    result[channel].freq = crossoverPoints[channel];
+                }
+            }
+            return new CrossoverDescription(result);
+        }
     }
 }
