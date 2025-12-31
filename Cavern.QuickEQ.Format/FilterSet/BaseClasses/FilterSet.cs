@@ -53,6 +53,11 @@ namespace Cavern.Format.FilterSet {
         public abstract void Export(string path);
 
         /// <summary>
+        /// Get the maximum gain across the entire spectrum at any channel.
+        /// </summary>
+        public abstract double GetPeak();
+
+        /// <summary>
         /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
         /// </summary>
         public abstract MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength);

@@ -119,5 +119,8 @@ namespace Cavern.Format.FilterSet {
                 RIFFWaveWriter.Write(filterPath, channelRef.filter, 1, SampleRate, BitDepth.Float32);
             }
         }
+
+        /// <inheritdoc/>
+        public override double GetPeak() => 0;
     }
 }

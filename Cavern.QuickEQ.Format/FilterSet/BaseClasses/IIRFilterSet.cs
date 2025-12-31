@@ -2,7 +2,6 @@
 
 using Cavern.Channels;
 using Cavern.Filters;
-using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -188,6 +187,18 @@ namespace Cavern.Format.FilterSet {
             }
 
             return result;
+        }
+
+        /// <inheritdoc/>
+        public override double GetPeak() {
+            double peak = double.MinValue;
+            for (int i = 0; i < Channels.Length; i++) {
+                IIRChannelData channelRef = (IIRChannelData)Channels[i];
+                if (peak < channelRef.gain) {
+                    peak = channelRef.gain;
+                }
+            }
+            return peak;
         }
 
         /// <summary>

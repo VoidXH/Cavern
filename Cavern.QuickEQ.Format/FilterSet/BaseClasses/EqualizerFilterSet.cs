@@ -162,6 +162,18 @@ namespace Cavern.Format.FilterSet {
             }
         }
 
+        /// <inheritdoc/>
+        public override double GetPeak() {
+            double peak = double.MinValue;
+            for (int i = 0; i < Channels.Length; i++) {
+                EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
+                if (peak < channelRef.gain) {
+                    peak = channelRef.gain;
+                }
+            }
+            return peak;
+        }
+
         /// <summary>
         /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
         /// </summary>
