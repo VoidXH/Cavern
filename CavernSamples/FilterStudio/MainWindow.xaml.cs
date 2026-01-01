@@ -182,7 +182,7 @@ namespace FilterStudio {
         /// </summary>
         bool ExportChecks() {
             int systemSampleRate = SampleRate;
-            HashSet<FilterGraphNode> map = pipeline.Source.InputChannels.Select(x => x.root).MapGraph();
+            HashSet<FilterGraphNode> map = pipeline.Source.SplitPoints[0].roots.MapGraph();
             Filter mismatch = map.FirstOrDefault(x => x.Filter != null &&
                 x.Filter is ISampleRateDependentFilter sr && sr.SampleRate != systemSampleRate)?.Filter;
             if (mismatch != null && !Warning(string.Format((string)language["WSaRe"], FilterToString(mismatch), systemSampleRate,

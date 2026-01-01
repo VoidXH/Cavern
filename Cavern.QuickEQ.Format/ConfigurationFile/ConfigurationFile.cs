@@ -208,7 +208,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         protected void FinishLazySetup(int fftCacheSize) {
             using FFTCachePool pool = new FFTCachePool(fftCacheSize);
-            FilterGraphNode[] nodes = InputChannels.Select(x => x.root).MapGraph().Where(x => x.Filter is ILazyLoadableFilter).ToArray();
+            FilterGraphNode[] nodes = SplitPoints[0].roots.MapGraph().Where(x => x.Filter is ILazyLoadableFilter).ToArray();
             Parallelizer.ForUnchecked(0, nodes.Length, i => {
                 nodes[i].Filter = ((ILazyLoadableFilter)nodes[i].Filter).CreateFilter(pool);
             });

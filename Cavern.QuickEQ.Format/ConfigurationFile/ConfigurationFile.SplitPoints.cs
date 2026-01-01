@@ -63,7 +63,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <remarks>If you keep track of your currently handled output nodes, set them to their children,
         /// because new input nodes are created in this function.</remarks>
         protected void CreateNewSplitPoint(string name) {
-            FilterGraphNode[] nodes = InputChannels.Select(x => x.root).MapGraph()
+            FilterGraphNode[] nodes = SplitPoints[0].roots.MapGraph()
                 .Where(x => x.Filter is OutputChannel && x.Children.Count == 0).ToArray();
             for (int i = 0; i < nodes.Length; i++) {
                 nodes[i] = nodes[i].AddChild(new InputChannel(((OutputChannel)nodes[i].Filter).Channel));
