@@ -176,18 +176,39 @@ namespace Cavern.QuickEQ.Equalization {
         public void NormalizeRMS(double startFreq, double endFreq) => Offset(-GetAverageLevel(startFreq, endFreq));
 
         /// <summary>
+        /// Remove points that don't result in any change.
+        /// </summary>
+        public void Optimize() {
+            int c = bands.Count;
+            List<Band> newBands = new List<Band>(c) {
+                bands[0]
+            };
+            c--;
+            for (int i = 1; i < c; i++) {
+                if (bands[i].Gain != bands[i - 1].Gain && bands[i].Gain != bands[i + 1].Gain) {
+                    newBands.Add(bands[i]);
+                }
+            }
+            newBands.Add(bands[^1]);
+            ResetBands(newBands);
+        }
+
+        /// <summary>
         /// Clear all points that are not local maxima or minima.
         /// </summary>
         public void RemoveMidpoints() {
             int c = bands.Count;
-            List<Band> newBands = new List<Band>(c);
-            for (int i = 0; i < c; i++) {
-                if (i == 0 || i == c - 1 ||
-                    (bands[i].Gain >= bands[i - 1].Gain && bands[i].Gain >= bands[i + 1].Gain) ||
+            List<Band> newBands = new List<Band>(c) {
+                bands[0]
+            };
+            c--;
+            for (int i = 1; i < c; i++) {
+                if ((bands[i].Gain >= bands[i - 1].Gain && bands[i].Gain >= bands[i + 1].Gain) ||
                     (bands[i].Gain <= bands[i - 1].Gain && bands[i].Gain <= bands[i + 1].Gain)) {
                     newBands.Add(bands[i]);
                 }
             }
+            newBands.Add(bands[^1]);
             ResetBands(newBands);
         }
 

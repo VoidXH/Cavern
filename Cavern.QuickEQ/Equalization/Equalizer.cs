@@ -108,7 +108,13 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Create a copy of this EQ with the same bands.
         /// </summary>
-        public object Clone() => new Equalizer(bands.ToList(), true);
+        public object Clone() {
+            Equalizer result = new Equalizer(bands.ToList(), true) {
+                subsonicFilter = subsonicFilter,
+                subsonicRolloff= subsonicRolloff,
+            };
+            return result;
+        }
 
         /// <summary>
         /// Add a new band to the EQ.
