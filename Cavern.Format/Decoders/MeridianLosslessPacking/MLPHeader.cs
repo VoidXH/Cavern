@@ -1,8 +1,9 @@
-﻿using Cavern.Channels;
+﻿using System;
+
+using Cavern.Channels;
 using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
-using System;
 
 namespace Cavern.Format.Decoders.MeridianLosslessPacking {
     /// <summary>
@@ -46,7 +47,8 @@ namespace Cavern.Format.Decoders.MeridianLosslessPacking {
             } catch {
                 // Remove when the format is correctly supported
                 extractor.Expand(reader.Read(16384));
-                while (extractor.Read(32) != MeridianLosslessPackingConsts.syncWord) {
+                int syncWordCache = 0;
+                while (!extractor.RollingIntCheck(ref syncWordCache, MeridianLosslessPackingConsts.syncWord)) {
                     if (extractor.Position > 16384 * 8) {
                         throw; // Sync word not found in a reasonable amount of data
                     }

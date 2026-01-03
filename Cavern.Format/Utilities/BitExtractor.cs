@@ -159,6 +159,22 @@ namespace Cavern.Format.Utilities {
         }
 
         /// <summary>
+        /// Read only a single byte until the <paramref name="reference"/> big-endian value is found.
+        /// </summary>
+        public bool RollingIntCheckBE(ref int cache, int reference) {
+            cache = (cache >> 8) + (Read(8) << 24);
+            return cache == reference;
+        }
+
+        /// <summary>
+        /// Read only a single byte until the <paramref name="reference"/> little-endian value is found.
+        /// </summary>
+        public bool RollingIntCheck(ref int cache, int reference) {
+            cache = (cache << 8) + Read(8);
+            return cache == reference;
+        }
+
+        /// <summary>
         /// Skip some bits.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
