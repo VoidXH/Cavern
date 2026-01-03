@@ -32,7 +32,7 @@ namespace Cavern.Format.Common {
         public KeyLengthValue(Stream reader) {
             Tag = (int)VarInt.ReadTag(reader);
             Length = VarInt.ReadValue(reader);
-            if (Length < 0) {
+            if (Length < 0 || Length == 0x7fffffffffffffff) {
                 Length = 0;
             }
             position = reader.Position;

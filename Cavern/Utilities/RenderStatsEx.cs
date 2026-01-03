@@ -134,9 +134,16 @@ namespace Cavern.Utilities {
                     }
                 }
             }
-            lfeRMS /= lfeChannels;
-            surroundRMS /= surroundChannels;
-            heightRMS /= heightChannels;
+
+            if (lfeChannels != 0) {
+                lfeRMS /= lfeChannels;
+            }
+            if (surroundChannels != 0) {
+                surroundRMS /= surroundChannels;
+            }
+            if (heightChannels != 0) {
+                heightRMS /= heightChannels;
+            }
 
             if (FrameLevelPeak < currentRMS) {
                 FrameLevelPeak = currentRMS;
@@ -150,7 +157,7 @@ namespace Cavern.Utilities {
             lfeRms.Add(lfeRMS);
             surroundRms.Add(surroundRMS);
             heightRms.Add(heightRMS);
-            ++frames;
+            frames++;
 
             if (averager == null) {
                 skip = listener.SampleRate / frame.Length;
