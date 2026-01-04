@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 
+using Cavern.QuickEQ.Measurement;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Utilities {
     /// <summary>
-    /// Contains the transfer functions of all (usually subwoofer) channels at a single measurement position.
+    /// Contains the transfer functions of all channels at a single measurement position.
     /// </summary>
     public readonly struct MeasurementPosition : ICloneable {
         /// <summary>
@@ -18,17 +20,17 @@ namespace Cavern.QuickEQ.Utilities {
         public int Length => transferFunctions.Length;
 
         /// <summary>
-        /// Transfer functions of all (usually subwoofer) channels at a single measurement position.
+        /// Transfer functions of all channels at a single measurement position.
         /// </summary>
         readonly Complex[][] transferFunctions;
 
         /// <summary>
-        /// Contains the transfer functions of all (usually subwoofer) channels at a single measurement position.
+        /// Contains the transfer functions of all channels at a single measurement position.
         /// </summary>
         public MeasurementPosition(Complex[][] transferFunctions) => this.transferFunctions = transferFunctions;
 
         /// <summary>
-        /// Calculate the transfer functions from the passed <paramref name="position"/>.
+        /// Calculate the transfer functions from the passed <paramref name="position"/>'s impulse responses.
         /// </summary>
         public MeasurementPosition(MultichannelWaveform position, bool multithreaded) {
             using FFTCachePool pool = new FFTCachePool(QMath.Base2Ceil(position.Length));
@@ -36,10 +38,16 @@ namespace Cavern.QuickEQ.Utilities {
         }
 
         /// <summary>
-        /// Calculate the transfer functions from the passed <paramref name="position"/>.
+        /// Calculate the transfer functions from the passed <paramref name="position"/>'s impulse responses.
         /// </summary>
         public MeasurementPosition(MultichannelWaveform position, bool multithreaded, FFTCachePool pool) =>
             transferFunctions = ParseMultichannel(position, multithreaded, pool);
+
+        /// <summary>
+        /// Convert a <see cref="MeasuredPosition"/> to <see cref="MeasurementPosition"/>.
+        /// </summary>
+        public MeasurementPosition(MeasuredPosition source) =>
+            transferFunctions = source.ImpulseResponses.Select(x => x.ComplexResponse.FastClone()).ToArray();
 
         /// <summary>
         /// Parse a single <paramref name="impulseResponse"/> as a transfer function using an FFT cache <paramref name="pool"/>.
@@ -67,6 +75,12 @@ namespace Cavern.QuickEQ.Utilities {
             }
             return result;
         }
+
+        /// <summary>
+        /// Knowing the channel <paramref name="layout"/>, select only the LFE channels.
+        /// </summary>
+        public MeasurementPosition GetLFEs(Channel[] layout) =>
+            new MeasurementPosition(transferFunctions.Where((x, i) => layout[i].LFE).Select(x => x.FastClone()).ToArray());
 
         /// <summary>
         /// Create a simulation of all channels playing the same impulse together.

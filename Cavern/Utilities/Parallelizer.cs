@@ -45,6 +45,20 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Performs the <paramref name="action"/> for all values between <paramref name="start"/> (inclusive) and
+        /// <paramref name="end"/> (exclusive) in <paramref name="parallel"/> if that's chosen, while blocking the calling thread.
+        /// </summary>
+        public static void For(int start, int end, Action<int> action, bool parallel) {
+            if (parallel) {
+                For(start, end, action);
+            } else {
+                while (start < end) {
+                    action(start++);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Performs the <paramref name="action"/> for all values between <paramref name="start"/> (inclusive) and
         /// <paramref name="end"/> (exclusive) in parallel, while blocking the calling thread.
         /// This function gets a deadlock on exceptions, but has better performance when the <paramref name="action"/> can't throw any exceptions.
         /// </summary>
