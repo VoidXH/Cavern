@@ -46,8 +46,19 @@ namespace Cavern.QuickEQ.Utilities {
         /// <summary>
         /// Convert a <see cref="MeasuredPosition"/> to <see cref="MeasurementPosition"/>.
         /// </summary>
-        public MeasurementPosition(MeasuredPosition source) =>
-            transferFunctions = source.ImpulseResponses.Select(x => x.ComplexResponse.FastClone()).ToArray();
+        public MeasurementPosition(MeasuredPosition position, bool multithreaded) {
+            MultichannelWaveform source = new MultichannelWaveform(position.ImpulseResponses.Select(x => x.Response).ToArray());
+            using FFTCachePool pool = new FFTCachePool(QMath.Base2Ceil(source.Length));
+            transferFunctions = ParseMultichannel(source, multithreaded, pool);
+        }
+
+        /// <summary>
+        /// Convert a <see cref="MeasuredPosition"/> to <see cref="MeasurementPosition"/>.
+        /// </summary>
+        public MeasurementPosition(MeasuredPosition position, bool multithreaded, FFTCachePool pool) {
+            MultichannelWaveform source = new MultichannelWaveform(position.ImpulseResponses.Select(x => x.Response).ToArray());
+            transferFunctions = ParseMultichannel(source, multithreaded, pool);
+        }
 
         /// <summary>
         /// Parse a single <paramref name="impulseResponse"/> as a transfer function using an FFT cache <paramref name="pool"/>.

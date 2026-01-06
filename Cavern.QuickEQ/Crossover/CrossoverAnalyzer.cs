@@ -99,7 +99,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Measurement sample rate</param>
         /// <param name="minFreq">Minimum checked frequency</param>
         /// <param name="allowedError">Ratio of change in spectrum between channels is allowed to consider them the same</param>
-        public static float FindExistingCrossover(Complex[][] channels, int refChannel, int sampleRate, float minFreq, float allowedError) {
+        public static float FindExistingCrossover(MeasurementPosition channels, int refChannel, int sampleRate, float minFreq, float allowedError) {
             allowedError *= allowedError; // Work with squared magnitudes
             Complex[] reference = channels[refChannel];
             float[] work = new float[reference.Length];
