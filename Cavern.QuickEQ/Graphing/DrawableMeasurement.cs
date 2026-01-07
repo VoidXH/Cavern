@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.QuickEQ.Graphing.Overlays;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
@@ -85,14 +86,16 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Get the frequency at a given subpixel position on the width axis.
         /// </summary>
-        public float GetFrequencyAt(float width) {
-            if (logarithmic) {
-                float start = MathF.Log(startFrequency);
-                return MathF.Exp(start + width / Width * (MathF.Log(endFrequency) - start));
-            } else {
-                return startFrequency + width / Width * (endFrequency - startFrequency);
-            }
-        }
+        public float GetFrequencyAt(float width) => logarithmic ?
+            MathF.Exp(QMath.Lerp(MathF.Log(startFrequency), MathF.Log(endFrequency), width / Width)) :
+            QMath.Lerp(startFrequency, endFrequency, width / Width);
+
+        /// <summary>
+        /// The inverse of <see cref="GetFrequencyAt"/>, returning what width corresponds to a <paramref name="frequency"/>.
+        /// </summary>
+        public float GetWidthAt(float frequency) => Width * (logarithmic ?
+            QMath.LerpInverse(MathF.Log(startFrequency), MathF.Log(endFrequency), MathF.Log(frequency)) :
+            QMath.LerpInverse(startFrequency, endFrequency, frequency));
 
         /// <summary>
         /// Re-render without regenerating all displayed data.
