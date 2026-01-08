@@ -91,7 +91,7 @@ namespace Cavern.QuickEQ.Utilities {
         /// Knowing the channel <paramref name="layout"/>, select only the LFE channels.
         /// </summary>
         public MeasurementPosition GetLFEs(Channel[] layout) =>
-            new MeasurementPosition(transferFunctions.Where((x, i) => layout[i].LFE).Select(x => x.FastClone()).ToArray());
+            new MeasurementPosition(transferFunctions.Where((_, i) => layout[i].LFE).Select(x => x.FastClone()).ToArray());
 
         /// <summary>
         /// Create a simulation of all channels playing the same impulse together.

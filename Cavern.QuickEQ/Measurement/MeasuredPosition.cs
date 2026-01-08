@@ -1,4 +1,5 @@
-﻿using Cavern.QuickEQ.Equalization;
+﻿using Cavern.Channels;
+using Cavern.QuickEQ.Equalization;
 
 namespace Cavern.QuickEQ.Measurement {
     /// <summary>
@@ -21,12 +22,20 @@ namespace Cavern.QuickEQ.Measurement {
         public VerboseImpulseResponse[] ImpulseResponses { get; }
 
         /// <summary>
+        /// Number of contained channels.
+        /// </summary>
+        public int Channels => FrequencyResponses.Length;
+
+        /// <summary>
         /// All channels measured at a single microphone position.
         /// </summary>
         /// <param name="mic">Identifier of the microphone used - can be anything if there's only a single mic</param>
         /// <param name="frequencyResponses">For quick calculations, the frequency responses for each channel</param>
         /// <param name="impulseResponses">For advanced operations, the raw measurements for each channel</param>
         public MeasuredPosition(int mic, Equalizer[] frequencyResponses, VerboseImpulseResponse[] impulseResponses) {
+            if (frequencyResponses.Length != impulseResponses.Length) {
+                throw new ChannelCountMismatchException();
+            }
             Mic = mic;
             FrequencyResponses = frequencyResponses;
             ImpulseResponses = impulseResponses;
