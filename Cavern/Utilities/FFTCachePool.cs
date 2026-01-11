@@ -28,6 +28,28 @@ namespace Cavern.Utilities {
         public FFTCachePool(int size) => Size = size;
 
         /// <summary>
+        /// Perform in-place FFT on all the passed <paramref name="signals"/>.
+        /// </summary>
+        public void FFTAllInPlace(Complex[][] signals, bool multithreaded) {
+            Parallelizer.ForUnchecked(0, signals.Length, i => {
+                FFTCache cache = Lease();
+                signals[i].InPlaceFFT(cache);
+                Return(cache);
+            }, multithreaded);
+        }
+
+        /// <summary>
+        /// Perform in-place IFFT on all the passed <paramref name="transferFunctions"/>.
+        /// </summary>
+        public void IFFTAllInPlace(Complex[][] transferFunctions, bool multithreaded) {
+            Parallelizer.ForUnchecked(0, transferFunctions.Length, i => {
+                FFTCache cache = Lease();
+                transferFunctions[i].InPlaceIFFT(cache);
+                Return(cache);
+            }, multithreaded);
+        }
+
+        /// <summary>
         /// Get an <see cref="FFTCache"/> to work with.
         /// </summary>
         public FFTCache Lease() {
