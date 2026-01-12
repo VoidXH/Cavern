@@ -40,7 +40,7 @@ namespace Cavern.Waveforms {
         /// <summary>
         /// Encapsulate multichannel data.
         /// </summary>
-        public MultichannelBase(params T[][] source) {
+        protected MultichannelBase(params T[][] source) {
             for (int i = 1; i < source.Length; i++) {
                 if (source[0].LongLength != source[i].LongLength) {
                     throw new DifferentSignalLengthsException();
@@ -52,7 +52,7 @@ namespace Cavern.Waveforms {
         /// <summary>
         /// Construct an empty multichannel data of a given size.
         /// </summary>
-        public MultichannelBase(int channels, int itemsPerChannel) {
+        protected MultichannelBase(int channels, int itemsPerChannel) {
             data = new T[channels][];
             for (int channel = 0; channel < channels; channel++) {
                 data[channel] = new T[itemsPerChannel];
