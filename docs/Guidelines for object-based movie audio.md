@@ -103,8 +103,6 @@ while always being spatially accurate. This is the current general practice.
 * While Cavern considers a value of `|1|` as the wall of the room, in the case
   of the Dolby Atmos Reference Player, all values over `|0.5|` are considered
   equal and at the wall of the room. This exaggerates in-room object movement.
-  The same behavior can be reproduced with Cavern by halving the values of
-  `Listener.EnvironmentSize`.
 * The object-embedded channels in a Dolby Atmos mix do not match neither their
   official speaker placement guides or the Cavern Driver's angles. Because of
   this, to be accurate, Cavernize, and only Cavernize, is using those angles if
