@@ -18,7 +18,7 @@ namespace Cavern.QuickEQ.Utilities {
         /// <summary>
         /// Number of measured channels at this position.
         /// </summary>
-        public int Length => transferFunctions.Length;
+        public int Length => transferFunctions.Channels;
 
         /// <summary>
         /// Transfer functions of all channels at a single measurement position.
