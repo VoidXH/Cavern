@@ -3,6 +3,7 @@ using System.Linq;
 
 using Cavern.QuickEQ.Measurement;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Cavern.QuickEQ.Utilities {
     /// <summary>
@@ -22,12 +23,17 @@ namespace Cavern.QuickEQ.Utilities {
         /// <summary>
         /// Transfer functions of all channels at a single measurement position.
         /// </summary>
-        readonly Complex[][] transferFunctions;
+        readonly MultichannelTransferFunction transferFunctions;
 
         /// <summary>
         /// Contains the transfer functions of all channels at a single measurement position.
         /// </summary>
-        public MeasurementPosition(Complex[][] transferFunctions) => this.transferFunctions = transferFunctions;
+        public MeasurementPosition(Complex[][] transferFunctions) => this.transferFunctions = new MultichannelTransferFunction(transferFunctions);
+
+        /// <summary>
+        /// Contains the transfer functions of all channels at a single measurement position.
+        /// </summary>
+        public MeasurementPosition(MultichannelTransferFunction transferFunctions) => this.transferFunctions = transferFunctions;
 
         /// <summary>
         /// Calculate the transfer functions from the passed <paramref name="position"/>'s impulse responses.
@@ -73,25 +79,25 @@ namespace Cavern.QuickEQ.Utilities {
         /// <summary>
         /// Parse a set of impulse responses either <paramref name="multithreaded"/> or not, using a pre-made <paramref name="pool"/>.
         /// </summary>
-        static Complex[][] ParseMultichannel(MultichannelWaveform position, bool multithreaded, FFTCachePool pool) {
+        static MultichannelTransferFunction ParseMultichannel(MultichannelWaveform position, bool multithreaded, FFTCachePool pool) {
             Complex[][] result = new Complex[position.Channels][];
-            if (multithreaded) {
-                Parallelizer.ForUnchecked(0, position.Channels, i => {
-                    result[i] = ParseChannel(position[i], pool);
-                });
-            } else {
-                for (int i = 0; i < position.Channels; i++) {
-                    result[i] = ParseChannel(position[i], pool);
-                }
-            }
-            return result;
+            Parallelizer.ForUnchecked(0, position.Channels, i => {
+                result[i] = ParseChannel(position[i], pool);
+            }, multithreaded);
+            return new MultichannelTransferFunction(result);
         }
 
         /// <summary>
         /// Knowing the channel <paramref name="layout"/>, select only the LFE channels.
         /// </summary>
-        public MeasurementPosition GetLFEs(Channel[] layout) =>
-            new MeasurementPosition(transferFunctions.Where((_, i) => layout[i].LFE).Select(x => x.FastClone()).ToArray());
+        public MeasurementPosition GetLFEs(Channel[] layout) {
+            Complex[][] lfes = transferFunctions
+                .ToArray()
+                .Where((_, i) => layout[i].LFE)
+                .Select(x => x.FastClone())
+                .ToArray();
+            return new MeasurementPosition(new MultichannelTransferFunction(lfes));
+        }
 
         /// <summary>
         /// Create a simulation of all channels playing the same impulse together.
@@ -108,6 +114,6 @@ namespace Cavern.QuickEQ.Utilities {
         /// <summary>
         /// Create a deep copy of this measurement position.
         /// </summary>
-        public object Clone() => new MeasurementPosition(transferFunctions.DeepCopy2D());
+        public object Clone() => new MeasurementPosition((MultichannelTransferFunction)transferFunctions.Clone());
     }
 }

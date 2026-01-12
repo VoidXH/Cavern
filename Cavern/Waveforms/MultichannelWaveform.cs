@@ -7,73 +7,35 @@ namespace Cavern {
     /// <summary>
     /// Contains multiple waveforms of the same length.
     /// </summary>
-    public class MultichannelWaveform {
+    public class MultichannelWaveform : MultichannelBase<float> {
         /// <summary>
-        /// Get a <paramref name="channel"/>'s waveform.
+        /// Construct a multichannel data from multiple mono waveforms.
         /// </summary>
-        public float[] this[int channel] {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => signals[channel];
-        }
+        public MultichannelWaveform(params float[][] source) : base(source) { }
 
         /// <summary>
-        /// The number of channels contained in this waveform.
+        /// Construct an empty multichannel waveform of a given size.
         /// </summary>
-        public int Channels {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => signals.Length;
-        }
-
-        /// <summary>
-        /// The length of a single channel's waveform.
-        /// </summary>
-        public int Length {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => signals[0].Length;
-        }
-
-        /// <summary>
-        /// Each channel's waveform.
-        /// </summary>
-        readonly float[][] signals;
-
-        /// <summary>
-        /// Construct a multichannel waveform from multiple mono waveforms.
-        /// </summary>
-        public MultichannelWaveform(params float[][] source) {
-            for (int i = 1; i < source.Length; i++) {
-                if (source[0].LongLength != source[i].LongLength) {
-                    throw new DifferentSignalLengthsException();
-                }
-            }
-            signals = source;
-        }
+        public MultichannelWaveform(int channels, int samplesPerChannel) : base(channels, samplesPerChannel) { }
 
         /// <summary>
         /// Construct a multichannel waveform from an interlaced signal.
         /// </summary>
         public MultichannelWaveform(float[] source, int channels) : this(channels, source.Length / channels) {
             for (int channel = 0; channel < channels; channel++) {
-                WaveformUtils.ExtractChannel(source, signals[channel], channel, channels);
+                WaveformUtils.ExtractChannel(source, this[channel], channel, channels);
             }
         }
 
-        /// <summary>
-        /// Construct an empty multichannel waveform of a given size.
-        /// </summary>
-        public MultichannelWaveform(int channels, int samplesPerChannel) {
-            signals = new float[channels][];
-            for (int channel = 0; channel < channels; channel++) {
-                signals[channel] = new float[samplesPerChannel];
-            }
-        }
+        /// <inheritdoc/>
+        public override object Clone() => new MultichannelWaveform(data.DeepCopy2D());
 
         /// <summary>
         /// Gets if the contained signal has no amplitude.
         /// </summary>
         public bool IsMute() {
-            for (int i = 0; i < signals.Length; i++) {
-                if (!signals[i].IsMute()) {
+            for (int i = 0; i < data.Length; i++) {
+                if (!data[i].IsMute()) {
                     return false;
                 }
             }
@@ -84,13 +46,13 @@ namespace Cavern {
         /// Split this signal to blocks of a given <paramref name="blockSize"/> on each channel.
         /// </summary>
         public MultichannelWaveform[] Split(int blockSize) {
-            MultichannelWaveform[] result = new MultichannelWaveform[signals[0].Length / blockSize];
+            MultichannelWaveform[] result = new MultichannelWaveform[data[0].Length / blockSize];
             for (int block = 0; block < result.Length; block++) {
                 int start = block * blockSize,
                     end = start + blockSize;
-                float[][] target = new float[signals.Length][];
-                for (int channel = 0; channel < signals.Length; channel++) {
-                    target[channel] = signals[channel][start..end];
+                float[][] target = new float[data.Length][];
+                for (int channel = 0; channel < data.Length; channel++) {
+                    target[channel] = data[channel][start..end];
                 }
                 result[block] = new MultichannelWaveform(target);
             }
@@ -102,8 +64,8 @@ namespace Cavern {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Gain(float multiplier) {
-            for (int i = 0; i < signals.Length; ++i) {
-                float[] channel = signals[i];
+            for (int i = 0; i < data.Length; ++i) {
+                float[] channel = data[i];
                 for (int j = 0; j < channel.Length; j++) {
                     channel[j] *= multiplier;
                 }
@@ -115,9 +77,9 @@ namespace Cavern {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float GetPeak() {
-            float max = signals[0].GetPeak();
-            for (int i = 1; i < signals.Length; i++) {
-                float current = signals[i].GetPeak();
+            float max = data[0].GetPeak();
+            for (int i = 1; i < data.Length; i++) {
+                float current = data[i].GetPeak();
                 if (max < current) {
                     max = current;
                 }
@@ -131,17 +93,12 @@ namespace Cavern {
         public void Normalize() => Gain(1 / GetPeak());
 
         /// <summary>
-        /// Get an array of the contained <see cref="signals"/>.
-        /// </summary>
-        public float[][] ToArray() => signals.FastClone();
-
-        /// <summary>
         /// Remove the 0s from the beginning of the multichannel signal.
         /// </summary>
         public void TrimStart() {
-            int min = signals[0].Length;
-            for (int i = 0; i < signals.Length; i++) {
-                float[] check = signals[i];
+            int min = data[0].Length;
+            for (int i = 0; i < data.Length; i++) {
+                float[] check = data[i];
                 int trim = 0;
                 while (check[trim] == 0 && trim < check.Length) {
                     ++trim;
@@ -151,8 +108,8 @@ namespace Cavern {
                 }
             }
             if (min != 0) {
-                for (int i = 0; i < signals.Length; i++) {
-                    signals[i] = signals[i][min..];
+                for (int i = 0; i < data.Length; i++) {
+                    data[i] = data[i][min..];
                 }
             }
         }
@@ -162,8 +119,8 @@ namespace Cavern {
         /// </summary>
         public void TrimEnd() {
             int max = 0;
-            for (int i = 0; i < signals.Length; i++) {
-                float[] check = signals[i];
+            for (int i = 0; i < data.Length; i++) {
+                float[] check = data[i];
                 int trim = check.Length;
                 while (trim > 0 && check[trim - 1] == 0) {
                     --trim;
@@ -172,9 +129,9 @@ namespace Cavern {
                     max = trim;
                 }
             }
-            if (max != signals[0].Length) {
-                for (int i = 0; i < signals.Length; i++) {
-                    signals[i] = signals[i][..max];
+            if (max != data[0].Length) {
+                for (int i = 0; i < data.Length; i++) {
+                    data[i] = data[i][..max];
                 }
             }
         }

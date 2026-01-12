@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities.Exceptions;
+using Cavern.Waveforms;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -41,7 +42,7 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Fast Fourier transform many 2D signals.
         /// </summary>
-        public static Complex[][] FFT(this Complex[][] samples, bool parallel) {
+        public static MultichannelTransferFunction FFT(this MultichannelTransferFunction samples, bool parallel) {
             Complex[][] result = new Complex[samples.Length][];
             if (parallel) {
                 using FFTCache cache = new ThreadSafeFFTCache(samples[0].Length);
@@ -56,7 +57,7 @@ namespace Cavern.Utilities {
                     pool.Return(cache);
                 });
             }
-            return result;
+            return new MultichannelTransferFunction(result);
         }
 
         /// <summary>
