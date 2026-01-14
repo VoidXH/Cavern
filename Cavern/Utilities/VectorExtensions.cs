@@ -10,17 +10,17 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Converts degrees to radians. = pi / 180.
         /// </summary>
-        public const float Deg2Rad = .01745329251f;
+        public static float Deg2Rad => .01745329251f;
 
         /// <summary>
         /// Converts radians to degrees. = 180 / pi.
         /// </summary>
-        public const float Rad2Deg = 57.295779513f;
+        public static float Rad2Deg => 57.295779513f;
 
         /// <summary>
         /// sqrt(2) / 2 = 1 / sqrt(2)
         /// </summary>
-        public const float Sqrt2p2 = .7071067811f;
+        public static float Sqrt2p2 => .7071067811f;
 
         /// <summary>
         /// Check if all 3 components are at max <paramref name="epsilon"/> apart for the two vectors.
