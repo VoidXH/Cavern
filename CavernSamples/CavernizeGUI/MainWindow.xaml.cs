@@ -138,7 +138,7 @@ namespace CavernizeGUI {
 
             environment = new(this);
             renderTarget.ItemsSource = RenderTarget.Targets;
-            renderTarget.SelectedIndex = Math.Clamp(Settings.Default.renderTarget + 4, 0, RenderTarget.Targets.Length - 1);
+            renderTarget.SelectedIndex = Math.Clamp(Settings.Default.renderTarget + 6, 0, RenderTarget.Targets.Length - 1);
             renderSettings.IsEnabled = true; // Don't grey out initially
             queuedJobs.ItemsSource = jobs;
             taskEngine = new(progress, TaskbarItemInfo, status);
@@ -249,7 +249,7 @@ namespace CavernizeGUI {
             LoadedFile?.Dispose();
             taskEngine?.Dispose();
             Settings.Default.ffmpegLocation = ffmpeg.Location;
-            Settings.Default.renderTarget = renderTarget.SelectedIndex - 4;
+            Settings.Default.renderTarget = renderTarget.SelectedIndex - 6;
             Settings.Default.outputCodec = audio.SelectedIndex - 2;
             Settings.Default.speakerVirtualizer = speakerVirtualizer.IsChecked;
             Settings.Default.force24Bit = force24Bit.IsChecked;

@@ -24,6 +24,8 @@ partial class RenderTarget {
     /// </summary>
     /// <remarks>Top rears are used instead of sides for smooth height transitions and WAVEFORMATEXTENSIBLE support.</remarks>
     public static readonly RenderTarget[] Targets = [
+        new RenderTarget("2.0", ChannelPrototype.ref200),
+        new RenderTarget("4.0", ChannelPrototype.ref400),
         new RenderTarget("3.1.2", ChannelPrototype.ref312),
         new RenderTarget("4.0.4", ChannelPrototype.ref404),
         new RenderTarget("4.1.1", ChannelPrototype.ref411),
