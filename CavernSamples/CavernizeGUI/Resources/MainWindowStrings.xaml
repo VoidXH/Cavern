@@ -3,7 +3,7 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- UI -->
     <system:String x:Key="MenuR">Rendering</system:String>
-    <system:String x:Key="Upmix">_Upmixing setup</system:String>
+    <system:String x:Key="Upmix">_Upmixing setup...</system:String>
     <system:String x:Key="LoadV">Load HRTF/HRIR sets for the _Virtualizer</system:String>
     <system:String x:Key="SpVir">_Height virtualization on speakers</system:String>
     <system:String x:Key="FiltH">Apply output _filters</system:String>
@@ -16,7 +16,7 @@
     <system:String x:Key="For24">Force 24-_bit PCM (slower, larger files, no perceived improvement)</system:String>
     <system:String x:Key="SuSwa">S_wap side/rear output channels</system:String>
     <system:String x:Key="WavCh">Skip RIFF WAVE channel mask (bypass restrictions)</system:String>
-    <system:String x:Key="SMetH">Show metadata</system:String>
+    <system:String x:Key="SMetH">Show metadata...</system:String>
     <system:String x:Key="SMetT">Display the decoded codec-specific fields of the selected track.</system:String>
     <system:String x:Key="ReMoH">_Report only mode</system:String>
     <system:String x:Key="ReMoT">To only check if a content is truly object-based or not, enable this option, and the post-render
@@ -24,7 +24,7 @@
     <system:String x:Key="DeGrH">Quality analysis and grading</system:String>
     <system:String x:Key="DeGrT">Measure perceived audio quality metrics and grade the content. This information is displayed
         in the post-render report.</system:String>
-    <system:String x:Key="PReSh">_Show post-render report</system:String>
+    <system:String x:Key="PReSh">_Show post-render report...</system:String>
     <system:String x:Key="PReRe">Post-render report</system:String>
     <system:String x:Key="MenuH">Help</system:String>
     <system:String x:Key="UsrGu">_User guide</system:String>

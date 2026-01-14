@@ -34,6 +34,7 @@ public abstract class Command {
 
                 // Hidden commands
                 new ExtractCommand(),
+                new HeightSqueezeCommand(),
                 new OverrideBedCommand(),
                 new RenderGainCommand(),
                 new UnsafeCommand(),

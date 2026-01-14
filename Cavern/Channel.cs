@@ -91,8 +91,7 @@ namespace Cavern {
                     SetPosition(-MathF.Abs(MathF.Atan(location.Z / location.Y)) * VectorExtensions.Rad2Deg, 0);
                     return;
                 } else if (location.Z == 0) {
-                    SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg,
-                        location.X < 0 ? -90 : 90);
+                    SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg, location.X < 0 ? -90 : 90);
                     return;
                 }
             }
@@ -144,9 +143,9 @@ namespace Cavern {
                 }
                 if (!current.lowFrequency) {
                     if (current.Y < 0) {
-                        ++Listener.leftChannels;
+                        Listener.leftChannels++;
                     } else if (current.Y > 0) {
-                        ++Listener.rightChannels;
+                        Listener.rightChannels++;
                     }
                 }
                 if ((i & 1) == 1) {
@@ -212,10 +211,10 @@ namespace Cavern {
         internal void Recalculate() {
             float xRad = X * VectorExtensions.Deg2Rad,
                 yRad = Y * VectorExtensions.Deg2Rad,
-                sinX = (float)Math.Sin(xRad),
-                cosX = (float)Math.Cos(xRad),
-                sinY = (float)Math.Sin(yRad),
-                cosY = (float)Math.Cos(yRad);
+                sinX = MathF.Sin(xRad),
+                cosX = MathF.Cos(xRad),
+                sinY = MathF.Sin(yRad),
+                cosY = MathF.Cos(yRad);
             SphericalPos = new Vector3(sinY * cosX, -sinX, cosY * cosX);
             if (Math.Abs(sinY) > Math.Abs(cosY)) {
                 sinY = Math.Sign(sinY) * VectorExtensions.Sqrt2p2;

@@ -8,7 +8,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static void UnwrapPhase(float[] phase) {
             float addition = 0, last = phase[0];
-            for (int i = 0; i < phase.Length; i++) {
+            for (int i = 1; i < phase.Length; i++) {
                 float diff = phase[i] - last;
                 last = phase[i];
                 if (Math.Abs(diff) > MathF.PI) {
