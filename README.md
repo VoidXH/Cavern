@@ -1,9 +1,8 @@
 # Cavern
-Cavern is a fully adaptive object-based audio rendering engine and (up)mixer
-without limitations for home, cinema, and stage use. Audio transcoding and
-self-calibration libraries built on the Cavern engine are also available.
-This repository also features a Unity plugin and a standalone converter called
-Cavernize.
+The bleeding edge audio framework that gives you Dolby Atmos and top end room
+correction on any sound system. Cavern is also an all-in-one toolkit for game
+audio development and the swiss army knife of filtering and measurement tools
+with a leading performance among C# implementations.
 
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/VoidXH/Cavern/Build.yml)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/VoidXH/Cavern)](https://github.com/VoidXH/Cavern/releases/latest)
@@ -16,33 +15,39 @@ Cavernize.
 
 ## Features
 * Unlimited objects and output channels without position restrictions
-* Audio transcoder library with a custom spatial format
-  * Supported codecs:
-    * Meridian Lossless Packing (Dolby TrueHD Atmos, in Cavernize only, with Truehdd)
-    * E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
-    * Limitless Audio Format
-    * RIFF WAVE
-	* Core Audio Format
-    * Audio Definition Model Broadcast Wave Format
-	* Dolby Atmos Master Format
-  * Supported containers: .ac3, .eac3, .ec3, .laf, .m4a, .m4v, .mka, .mkv, .mov, .mp4, .qt, .wav, .weba, .webm
+* Supports lots of immersive formats, including Dolby Atmos
 * Advanced self-calibration with a microphone
-  * Results in close to perfectly flat frequency response, <0.01 dB and <0.01 ms of uniformity
-  * Speaker character matching can be achieved without a calibration file
-  * Supported software/hardware for EQ/filter set export:
-    * PC, Mac, and Linux: Equalizer APO, CamillaDSP, AU N-Band EQ
-    * DSP: MiniDSP 2x4 Advanced, 2x4 HD, DDRC-88A, Flex HTx
-    * AVRs and processors: Acurus Muse, Emotiva, Monolith HTP-1, Rotel, Sony ES series, StormAudio, Tonewinner AT series, WiiM, Yamaha CX-A, RX, RX-A series
-    * Amplifiers: Behringer NX series
-    * Others: Audyssey MultEQ-X, Dirac Live, JL Audio TüN, Roon, Wavelet
+	* Reaches the desired targets with <0.01 dB and <0.01 ms of uniformity
+	* Sound bubble creation without a calibration file
+	* Multi-sub handling that can use not just the subs to flatten the bass in the room
 * Direction and distance virtualization for headphones
+* Filter engine with the most common filters seamlessly integrated into the renderer
+* Measurement subsystem for science projects
 * Real-time upconversion of regular surround sound mixes to 3D
 * Mix repositioning based on occupied seats
 * Seat movement generation
 * Ultra low latency, even the upconverter can work from as low as one sample per frame
 * Unity-like listener and source functionality
 * Fixes for Unity's Microphone API
-  * Works in WebGL too
+	* Works in WebGL too
+
+
+### Supported codecs
+* Meridian Lossless Packing (Dolby TrueHD Atmos, in Cavernize only, with Truehdd)
+* E-AC-3 with Joint Object Coding (Dolby Digital Plus Atmos)
+* Limitless Audio Format
+* RIFF WAVE
+* Core Audio Format
+* Audio Definition Model Broadcast Wave Format
+* Dolby Atmos Master Format
+* Supported containers: .ac3, .eac3, .ec3, .laf, .m4a, .m4v, .mka, .mkv, .mov, .mp4, .qt, .wav, .weba, .webm
+* Others: Audyssey MultEQ-X, Dirac Live, JL Audio TüN, Roon, Wavelet
+
+### Supported software/hardware for EQ export
+* PC, Mac, and Linux: Equalizer APO, CamillaDSP, AU N-Band EQ
+* DSP: MiniDSP 2x4 Advanced, 2x4 HD, DDRC-88A, Flex HTx
+* AVRs and processors: Acurus Muse, Emotiva, Monolith HTP-1, Rotel, Sony ES series, StormAudio, Tonewinner AT series, WiiM, Yamaha CX-A, RX, RX-A series
+* Amplifiers: Behringer NX series
 
 ## User documentation
 User documentation can be found at the [Cavern documentation webpage](http://cavern.sbence.hu/cavern/doc.php).
