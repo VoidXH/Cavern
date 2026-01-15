@@ -41,13 +41,13 @@ with a leading performance among C# implementations.
 * Audio Definition Model Broadcast Wave Format
 * Dolby Atmos Master Format
 * Supported containers: .ac3, .eac3, .ec3, .laf, .m4a, .m4v, .mka, .mkv, .mov, .mp4, .qt, .wav, .weba, .webm
-* Others: Audyssey MultEQ-X, Dirac Live, JL Audio TüN, Roon, Wavelet
 
 ### Supported software/hardware for EQ export
 * PC, Mac, and Linux: Equalizer APO, CamillaDSP, AU N-Band EQ
 * DSP: MiniDSP 2x4 Advanced, 2x4 HD, DDRC-88A, Flex HTx
 * AVRs and processors: Acurus Muse, Emotiva, Monolith HTP-1, Rotel, Sony ES series, StormAudio, Tonewinner AT series, WiiM, Yamaha CX-A, RX, RX-A series
 * Amplifiers: Behringer NX series
+* Others: Audyssey MultEQ-X, Dirac Live, JL Audio TüN, Roon, Wavelet
 
 ## User documentation
 User documentation can be found at the [Cavern documentation webpage](http://cavern.sbence.hu/cavern/doc.php).
