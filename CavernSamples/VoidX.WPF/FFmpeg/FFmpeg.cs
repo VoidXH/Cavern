@@ -86,7 +86,7 @@ public abstract class FFmpeg {
         ProcessStartInfo start = new() {
             Arguments = ConsoleMode ? arguments + lesserOutput : arguments,
             FileName = Location,
-            UseShellExecute = !ConsoleMode
+            UseShellExecute = false
         };
         try {
             using Process proc = Process.Start(start);
