@@ -3,9 +3,10 @@
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<OutputType>Library</OutputType>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Version>2.1</Version>
 		<Authors>VoidX</Authors>
 		<Description>Useful WPF windows and utilities for audio applications.</Description>
-		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
 		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/VoidXH/Cavern</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
@@ -28,7 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>

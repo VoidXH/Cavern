@@ -6,7 +6,7 @@
 		<Nullable>disable</Nullable>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
 		<Description>Performs Cavern operations such as rendering through named pipes.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>

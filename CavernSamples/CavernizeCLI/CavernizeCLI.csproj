@@ -3,7 +3,7 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>disable</Nullable>
-		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
 		<Description>Sample CLI spatial upconverter with Cavern's renderer.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>

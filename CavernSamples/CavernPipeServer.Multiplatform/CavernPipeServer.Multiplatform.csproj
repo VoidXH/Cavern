@@ -5,7 +5,7 @@
 		<AssemblyName>CavernPipeServer</AssemblyName>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
 		<Description>Performs Cavern operations such as rendering through named pipes. Console version for all platforms.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>

@@ -7,7 +7,7 @@
 		<Authors>VoidX</Authors>
 		<Product>ADM Validator</Product>
 		<Description>Checks if ADM BWF files match the standard, and logs all compliance failures.</Description>
-		<Copyright>Copyright © Bence Sgánetz 2016-2025</Copyright>
+		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
 		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
