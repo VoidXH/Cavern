@@ -3,6 +3,7 @@ using System.Linq;
 
 using Cavern.QuickEQ.Measurement;
 using Cavern.Utilities;
+using Cavern.Utilities.Exceptions;
 using Cavern.Waveforms;
 
 namespace Cavern.QuickEQ.Utilities {
@@ -103,9 +104,12 @@ namespace Cavern.QuickEQ.Utilities {
         /// Create a simulation of all channels playing the same impulse together.
         /// </summary>
         public Complex[] Simulate() {
-            Complex[] result = new Complex[transferFunctions[0].Length];
-            result.Clear();
-            for (int i = 0; i < transferFunctions.Length; i++) {
+            Complex[] result = transferFunctions[0].FastClone();
+            for (int i = 1; i < transferFunctions.Channels; i++) {
+                if (transferFunctions[i].Length != result.Length) {
+                    throw new ArraySizeMismatchException(nameof(transferFunctions) + "[i]", nameof(result));
+                }
+
                 result.Add(transferFunctions[i]);
             }
             return result;
