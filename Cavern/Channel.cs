@@ -23,17 +23,18 @@ namespace Cavern {
         /// True for channels carrying only Low Frequency Effects.
         /// </summary>
         public bool LFE {
-            get => lowFrequency;
+            get => lfe;
             set {
-                lowFrequency = value;
-                SymmetryCheck();
+                lfe = value;
+                Listener.ReplaceChannels(Listener.Channels);
             }
         }
+        bool lfe;
 
         /// <summary>
         /// This channel is part of the screen channels, and should be behind the screen in a theatre, or on the front wall in a home.
         /// </summary>
-        public bool IsScreenChannel => !lowFrequency && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
+        public bool IsScreenChannel => !lfe && Math.Abs(X) < 25 && Math.Abs(Y) <= 45;
 
         /// <summary>
         /// Position on a sphere with the radius of 1.
@@ -56,11 +57,6 @@ namespace Cavern {
         public float Distance { get; private set; }
 
         /// <summary>
-        /// True for channels carrying only Low Frequency Effects.
-        /// </summary>
-        bool lowFrequency;
-
-        /// <summary>
         /// Constructs a channel with given rotation values.
         /// </summary>
         /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
@@ -74,7 +70,7 @@ namespace Cavern {
         /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(float x, float y, bool LFE) {
-            lowFrequency = LFE;
+            lfe = LFE;
             SetPosition(x, y);
         }
 
@@ -85,7 +81,7 @@ namespace Cavern {
         /// <param name="location">Spatial position of the channel</param>
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(Vector3 location, bool LFE) {
-            lowFrequency = LFE;
+            lfe = LFE;
             if (location.Y != 0) {
                 if (location.X == 0) {
                     SetPosition(-MathF.Abs(MathF.Atan(location.Z / location.Y)) * VectorExtensions.Rad2Deg, 0);
@@ -105,7 +101,7 @@ namespace Cavern {
         /// <summary>
         /// Get if a channel is LFE in the current layout.
         /// </summary>
-        public static bool IsLFE(int channel) => Listener.Channels[channel].lowFrequency;
+        public static bool IsLFE(int channel) => Listener.Channels[channel].lfe;
 
         /// <summary>
         /// Get if a channel is LFE for a given channel count.
@@ -122,60 +118,13 @@ namespace Cavern {
             channels > 4 ? channel < 3 : channel < 2;
 
         /// <summary>
-        /// Recalculates symmetry when a channel's position is changed.
-        /// </summary>
-        internal static void SymmetryCheck() {
-            if (Listener.Channels == null) {
-                return;
-            }
-            Listener.IsSymmetric = true;
-            int channelCount = Listener.Channels.Length;
-            if ((channelCount & 1) == 1) { // If there is an unpaired channel, it must be on the center circle or LFE
-                channelCount--;
-                Channel channel = Listener.Channels[channelCount];
-                Listener.IsSymmetric = channel.Y % 180 == 0 || channel.lowFrequency;
-            }
-            Listener.leftChannels = Listener.rightChannels = 0; // Count left and right side channels anyway for 1D mixing gains
-            for (int i = 0; i < channelCount; i++) {
-                Channel current = Listener.Channels[i];
-                if (current == null) {
-                    continue;
-                }
-                if (!current.lowFrequency) {
-                    if (current.Y < 0) {
-                        Listener.leftChannels++;
-                    } else if (current.Y > 0) {
-                        Listener.rightChannels++;
-                    }
-                }
-                if ((i & 1) == 1) {
-                    continue;
-                }
-                Channel next = Listener.Channels[i + 1];
-                if (i + 1 != channelCount && next != null) {
-                    Listener.IsSymmetric &=
-                        current.lowFrequency ? next.Y % 180 == 0 || next.lowFrequency :
-                        next.lowFrequency ? current.Y % 180 == 0 :
-                        MathF.Abs(current.X == next.X ? current.Y + next.Y : (current.Y - next.Y)) % 360 == 0;
-                }
-            }
-
-            if (Listener.leftChannels == 0) {
-                Listener.leftChannels = 1;
-            }
-            if (Listener.rightChannels == 0) {
-                Listener.rightChannels = 1;
-            }
-        }
-
-        /// <summary>
         /// Move this channel to a new position.
         /// </summary>
         /// <param name="x">Rotation around the vertical axis in degrees: elevation</param>
         /// <param name="y">Rotation around the horizontal axis in degrees: azimuth</param>
         public void Move(float x, float y) {
             SetPosition(x, y);
-            SymmetryCheck();
+            Listener.ReplaceChannels(Listener.Channels);
         }
 
         /// <summary>
@@ -188,7 +137,7 @@ namespace Cavern {
         /// <summary>
         /// Check if two channels are the same.
         /// </summary>
-        public bool Equals(Channel other) => X == other.X && Y == other.Y && lowFrequency == other.lowFrequency;
+        public bool Equals(Channel other) => X == other.X && Y == other.Y && lfe == other.lfe;
 
         /// <summary>
         /// Check if the other object is also a <see cref="Channel"/> and equal to this.

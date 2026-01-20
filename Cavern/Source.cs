@@ -1,24 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
+using Cavern.Filters;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
 namespace Cavern {
     public partial class Source {
-        // ------------------------------------------------------------------
-        // Protected properties
-        // ------------------------------------------------------------------
         /// <summary>
         /// Samples required to match the listener's update rate after pitch changes.
         /// This is the number of samples that has to be rendered.
         /// </summary>
         protected int PitchedUpdateRate { get; private set; }
 
-        // ------------------------------------------------------------------
-        // Internal helpers
-        // ------------------------------------------------------------------
         /// <summary>
         /// The <see cref="Listener"/> this source is attached to.
         /// </summary>
@@ -29,9 +25,6 @@ namespace Cavern {
         /// </summary>
         internal LinkedListNode<Source> listenerNode;
 
-        // ------------------------------------------------------------------
-        // Private vars
-        // ------------------------------------------------------------------
         /// <summary>
         /// Distance simulator for virtualization.
         /// </summary>
@@ -88,31 +81,13 @@ namespace Cavern {
         long delay;
 
         /// <summary>
-        /// Output samples to all channels of a multichannel array.
-        /// </summary>
-        /// <param name="samples">Samples to write</param>
-        /// <param name="target">Channel array to write to</param>
-        /// <param name="gain">Source gain, total across all channels</param>
-        /// <param name="channels">Total channels</param>
-        /// <remarks>It is assumed that the size of <paramref name="target"/> equals the size of
-        /// <paramref name="samples"/> * <paramref name="channels"/>.</remarks>
-        internal static void WriteOutput(float[] samples, float[] target, float gain, int channels) {
-            gain /= channels;
-            for (int channel = 0; channel < channels; ++channel) {
-                for (int from = 0, to = channel; from < samples.Length; ++from, to += channels) {
-                    target[to] = samples[from] * gain;
-                }
-            }
-        }
-
-        /// <summary>
         /// Keeps a value in the given array, if it's smaller than any of its contents.
         /// </summary>
         /// <param name="target">Array reference</param>
         /// <param name="value">Value to insert</param>
         static void BottomlistHandler(float[] target, float value) {
             int replace = -1;
-            for (int record = 0; record < target.Length; ++record) {
+            for (int record = 0; record < target.Length; record++) {
                 if (target[record] > value) {
                     replace = replace == -1 ? record : (target[record] > target[replace] ? record : replace);
                 }
@@ -136,16 +111,7 @@ namespace Cavern {
                 Clip.GetDataNonLooping(Rendered, TimeSamples);
             }
 
-            TimeSamples += PitchedUpdateRate;
-            if (TimeSamples >= Clip.Samples) {
-                if (Loop) {
-                    TimeSamples %= Clip.Samples;
-                } else {
-                    TimeSamples = 0;
-                    IsPlaying = false;
-                }
-            }
-
+            AdvanceTimeSlot();
             return Rendered;
         }
 
@@ -225,7 +191,10 @@ namespace Cavern {
                     // 1:1 mix for non-stereo sources
                     if (clipChannels != 2) {
                         samples = Resample.Adaptive(samples, updateRate, listener.AudioQuality);
-                        WriteOutput(samples, rendered, volume1D, channels.Length);
+                        float gain = volume1D / channels.Length;
+                        for (int channel = 0; channel < channels.Length; channel++) {
+                            WaveformUtils.Mix(samples, rendered, channel, channels.Length, gain);
+                        }
                     }
 
                     // Full side mix for stereo sources
@@ -255,256 +224,8 @@ namespace Cavern {
                         distancer.Generate(direction.X > 0, samples);
                     }
 
-                    // ------------------------------------------------------------------
-                    // Balance-based engine for symmetrical layouts
-                    // ------------------------------------------------------------------
-                    if (Listener.IsSymmetric) {
-                        float volume3D = Volume * rolloffDistance * SpatialBlend;
-                        if (!LFE) {
-                            // Find a bounding box
-                            int bottomFrontLeft = -1,
-                                bottomFrontRight = -1,
-                                bottomRearLeft = -1,
-                                bottomRearRight = -1,
-                                topFrontLeft = -1,
-                                topFrontRight = -1,
-                                topRearLeft = -1,
-                                topRearRight = -1;
-                            // Closest layers on Y and Z axes
-                            float closestTop = 66,
-                                closestBottom = -69,
-                                closestTF = 82,
-                                closestTR = -84,
-                                closestBF = 65,
-                                closestBR = -2665;
-
-                            // Find closest horizontal layers
-                            if (Listener.HeadphoneVirtualizer) {
-                                direction = direction.WarpToCube() * Listener.EnvironmentSizeInverse;
-                            } else {
-                                direction *= Listener.EnvironmentSizeInverse;
-                            }
-                            for (int channel = 0; channel < channels.Length; ++channel) {
-                                if (!channels[channel].LFE) {
-                                    float channelY = channels[channel].CubicalPos.Y;
-                                    float channelZ = channels[channel].CubicalPos.Z;
-                                    if (channelY <= direction.Y) {
-                                        if (closestBottom < channelY) {
-                                            closestBottom = channelY;
-                                            closestBF = float.PositiveInfinity;
-                                            closestBR = float.NegativeInfinity;
-                                        }
-                                        if (closestBottom == channelY) {
-                                            if (channelZ <= direction.Z) {
-                                                if (closestBR < channelZ) {
-                                                    closestBR = channelZ;
-                                                }
-                                            } else if (closestBF > channelZ) {
-                                                closestBF = channelZ;
-                                            }
-                                        }
-                                    } else {
-                                        if (closestTop > channelY) {
-                                            closestTop = channelY;
-                                            closestTF = float.PositiveInfinity;
-                                            closestTR = float.NegativeInfinity;
-                                        }
-                                        if (closestTop == channelY) {
-                                            if (channelZ <= direction.Z) {
-                                                if (closestTR < channelZ) {
-                                                    closestTR = channelZ;
-                                                }
-                                            } else if (closestTF > channelZ) {
-                                                closestTF = channelZ;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            for (int channel = 0; channel < channels.Length; ++channel) {
-                                if (!channels[channel].LFE) {
-                                    Vector3 channelPos = channels[channel].CubicalPos;
-                                    if (channelPos.Y == closestBottom) { // Bottom layer
-                                        if (channelPos.Z == closestBF) {
-                                            AssignLR(channel, ref bottomFrontLeft, ref bottomFrontRight, direction.X, channelPos.X);
-                                        }
-                                        if (channelPos.Z == closestBR) {
-                                            AssignLR(channel, ref bottomRearLeft, ref bottomRearRight, direction.X, channelPos.X);
-                                        }
-                                    }
-                                    if (channelPos.Y == closestTop) { // Top layer
-                                        if (channelPos.Z == closestTF) {
-                                            AssignLR(channel, ref topFrontLeft, ref topFrontRight, direction.X, channelPos.X);
-                                        }
-                                        if (channelPos.Z == closestTR) {
-                                            AssignLR(channel, ref topRearLeft, ref topRearRight, direction.X, channelPos.X);
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Fix incomplete top layer
-                            FixIncompleteLayer(ref topFrontLeft, ref topFrontRight, ref topRearLeft, ref topRearRight);
-
-                            // When the bottom layer is completely empty (= the source is below all channels), copy the top layer
-                            if (bottomFrontLeft == -1 && bottomFrontRight == -1 &&
-                                bottomRearLeft == -1 && bottomRearRight == -1) {
-                                bottomFrontLeft = topFrontLeft;
-                                bottomFrontRight = topFrontRight;
-                                bottomRearLeft = topRearLeft;
-                                bottomRearRight = topRearRight;
-                            }
-                            // Fix incomplete bottom layer
-                            else {
-                                FixIncompleteLayer(ref bottomFrontLeft, ref bottomFrontRight,
-                                    ref bottomRearLeft, ref bottomRearRight);
-                            }
-
-                            // When the top layer is completely empty (= the source is above all channels), copy the bottom layer
-                            if (topFrontLeft == -1 || topFrontRight == -1 || topRearLeft == -1 || topRearRight == -1) {
-                                topFrontLeft = bottomFrontLeft;
-                                topFrontRight = bottomFrontRight;
-                                topRearLeft = bottomRearLeft;
-                                topRearRight = bottomRearRight;
-                            }
-
-                            // Spatial mix gain precalculation
-                            Vector2 layerVol = new Vector2(1, 0); // (bottom; top)
-                            if (topFrontLeft != bottomFrontLeft) { // Height ratio calculation
-                                float bottomY = channels[bottomFrontLeft].CubicalPos.Y;
-                                layerVol.Y = (direction.Y - bottomY) / (channels[topFrontLeft].CubicalPos.Y - bottomY);
-                                layerVol.X = 1f - layerVol.Y;
-                            }
-
-                            // Length ratios (bottom; top)
-                            Vector2 frontVol = new Vector2(Ratio(channels[bottomRearLeft].CubicalPos.Z,
-                                                           channels[bottomFrontLeft].CubicalPos.Z, direction.Z),
-                                Ratio(channels[topRearLeft].CubicalPos.Z, channels[topFrontLeft].CubicalPos.Z, direction.Z));
-
-                            // Size extension
-                            float innerVolume3D = volume3D;
-                            if (Size != 0) {
-                                innerVolume3D *= 1f - Size;
-                                float extraChannelVolume = volume3D * MathF.Sqrt(Size / channels.Length);
-                                for (int channel = 0; channel < channels.Length; ++channel) {
-                                    if (!channels[channel].LFE) {
-                                        WaveformUtils.Mix(samples, rendered, channel, channels.Length, extraChannelVolume);
-                                    }
-                                }
-                            }
-
-                            // Spatial mix output
-                            Vector2 rearVol = new Vector2(1) - frontVol;
-                            layerVol *= innerVolume3D;
-                            frontVol *= layerVol;
-                            rearVol *= layerVol;
-                            float ratio;
-                            if (frontVol.X != 0) {
-                                ratio = Ratio(channels[bottomFrontLeft].CubicalPos.X,
-                                    channels[bottomFrontRight].CubicalPos.X, direction.X);
-                                WaveformUtils.Mix(samples, rendered, bottomFrontLeft, channels.Length,
-                                    MathF.Sqrt(frontVol.X * (1f - ratio)));
-                                WaveformUtils.Mix(samples, rendered, bottomFrontRight, channels.Length, MathF.Sqrt(frontVol.X * ratio));
-                            }
-                            if (rearVol.X != 0) {
-                                ratio = Ratio(channels[bottomRearLeft].CubicalPos.X,
-                                    channels[bottomRearRight].CubicalPos.X, direction.X);
-                                WaveformUtils.Mix(samples, rendered, bottomRearLeft, channels.Length, MathF.Sqrt(rearVol.X * (1f - ratio)));
-                                WaveformUtils.Mix(samples, rendered, bottomRearRight, channels.Length, MathF.Sqrt(rearVol.X * ratio));
-                            }
-                            if (frontVol.Y != 0) {
-                                ratio = Ratio(channels[topFrontLeft].CubicalPos.X,
-                                    channels[topFrontRight].CubicalPos.X, direction.X);
-                                WaveformUtils.Mix(samples, rendered, topFrontLeft, channels.Length, MathF.Sqrt(frontVol.Y * (1f - ratio)));
-                                WaveformUtils.Mix(samples, rendered, topFrontRight, channels.Length, MathF.Sqrt(frontVol.Y * ratio));
-                            }
-                            if (rearVol.Y != 0) {
-                                ratio = Ratio(channels[topRearLeft].CubicalPos.X,
-                                    channels[topRearRight].CubicalPos.X, direction.X);
-                                WaveformUtils.Mix(samples, rendered, topRearLeft, channels.Length, MathF.Sqrt(rearVol.Y * (1f - ratio)));
-                                WaveformUtils.Mix(samples, rendered, topRearRight, channels.Length, MathF.Sqrt(rearVol.Y * ratio));
-                            }
-                        }
-
-                        // LFE mix
-                        if (!listener.LFESeparation || LFE) {
-                            for (int channel = 0; channel < channels.Length; ++channel) {
-                                if (channels[channel].LFE) {
-                                    WaveformUtils.Mix(samples, rendered, channel, channels.Length, volume3D);
-                                }
-                            }
-                        }
-                    }
-
-                    // ------------------------------------------------------------------
-                    // Directional/distance-based engine for asymmetrical layouts
-                    // ------------------------------------------------------------------
-                    else {
-                        // Angle match calculations
-                        float[] angleMatches;
-                        if (listener.AudioQuality >= QualityModes.High) {
-                            angleMatches = CalculateAngleMatches(channels.Length, direction);
-                        } else {
-                            angleMatches = LinearizeAngleMatches(channels.Length, direction);
-                        }
-
-                        // Object size extension
-                        if (Size != 0) {
-                            float maxAngleMatch = angleMatches[0];
-                            for (int channel = 1; channel < channels.Length; ++channel) {
-                                if (maxAngleMatch < angleMatches[channel]) {
-                                    maxAngleMatch = angleMatches[channel];
-                                }
-                            }
-                            for (int channel = 0; channel < channels.Length; ++channel) {
-                                angleMatches[channel] = QMath.Lerp(angleMatches[channel], maxAngleMatch, Size);
-                            }
-                        }
-
-                        // Only use the closest 3 speakers on non-Perfect qualities or in Theatre mode
-                        if (listener.AudioQuality != QualityModes.Perfect || Listener.EnvironmentType == Environments.Theatre) {
-                            float top0 = 0, top1 = 0, top2 = 0;
-                            for (int channel = 0; channel < channels.Length; ++channel) {
-                                if (!channels[channel].LFE) {
-                                    float match = angleMatches[channel];
-                                    if (top0 < match) {
-                                        top2 = top1;
-                                        top1 = top0;
-                                        top0 = match;
-                                    } else if (top1 < match) {
-                                        top2 = top1;
-                                        top1 = match;
-                                    } else if (top2 < match) {
-                                        top2 = match;
-                                    }
-                                }
-                            }
-                            for (int channel = 0; channel < channels.Length; ++channel) {
-                                if (!channels[channel].LFE &&
-                                    angleMatches[channel] != top0 && angleMatches[channel] != top1 &&
-                                    angleMatches[channel] != top2) {
-                                    angleMatches[channel] = 0;
-                                }
-                            }
-                        }
-                        float totalAngleMatch = 0;
-                        for (int channel = 0; channel < channels.Length; ++channel) {
-                            totalAngleMatch += angleMatches[channel] * angleMatches[channel];
-                        }
-                        totalAngleMatch = MathF.Sqrt(totalAngleMatch);
-
-                        // Place in sphere, write data to output channels
-                        float volume3D = Volume * rolloffDistance * SpatialBlend / totalAngleMatch;
-                        for (int channel = 0; channel < channels.Length; ++channel) {
-                            if (channels[channel].LFE) {
-                                if (!listener.LFESeparation || LFE) {
-                                    WaveformUtils.Mix(samples, rendered, channel, channels.Length, volume3D * totalAngleMatch);
-                                }
-                            } else if (!LFE && angleMatches[channel] != 0) {
-                                WaveformUtils.Mix(samples, rendered, channel, channels.Length, volume3D * angleMatches[channel]);
-                            }
-                        }
-                    }
+                    // Final mixing
+                    Listener.Renderer.Render(listener, this, direction, samples, rendered, Volume * rolloffDistance * SpatialBlend);
                 }
             }
             return rendered;
@@ -528,6 +249,22 @@ namespace Cavern {
                 BottomlistHandler(listener.sourceDistances, distance);
             } else {
                 distance = float.NaN;
+            }
+        }
+
+        /// <summary>
+        /// Goes to the part in the clip which will be played on the next sample collection.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void AdvanceTimeSlot() {
+            TimeSamples += PitchedUpdateRate;
+            if (TimeSamples >= Clip.Samples) {
+                if (Loop) {
+                    TimeSamples %= Clip.Samples;
+                } else {
+                    TimeSamples = 0;
+                    IsPlaying = false;
+                }
             }
         }
 

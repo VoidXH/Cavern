@@ -98,5 +98,10 @@ namespace Cavern.Filters {
             "hu-HU" => $"Erősítés: {QMath.ToStringLimitDecimals(GainValue, 2)} dB",
             _ => ToString()
         };
+
+        /// <summary>
+        /// Precalculated -10 dB as voltage gain. Used by angle gain post-processing.
+        /// </summary>
+        internal const float minus10dB = .31622776601f;
     }
 }

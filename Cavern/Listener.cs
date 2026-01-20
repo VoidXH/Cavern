@@ -7,6 +7,7 @@ using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Rendering;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
@@ -37,16 +38,26 @@ namespace Cavern {
                     int savePos = 1;
                     Channels = new Channel[Convert.ToInt32(save[0])];
                     for (int i = 0; i < Channels.Length; i++) {
-                        Channels[i] = new Channel(QMath.ParseFloat(save[savePos++]), QMath.ParseFloat(save[savePos++]),
-                            Convert.ToBoolean(save[savePos++]));
+                        Channels[i] = new Channel(
+                            QMath.ParseFloat(save[savePos++]),
+                            QMath.ParseFloat(save[savePos++]),
+                            Convert.ToBoolean(save[savePos++])
+                        );
                     }
+                    SymmetryCheck();
                     EnvironmentType = (Environments)Convert.ToInt32(save[savePos++]);
-                    EnvironmentSize = new Vector3(QMath.ParseFloat(save[savePos++]), QMath.ParseFloat(save[savePos++]),
-                        QMath.ParseFloat(save[savePos++]));
+                    EnvironmentSize = new Vector3(
+                        QMath.ParseFloat(save[savePos++]),
+                        QMath.ParseFloat(save[savePos++]),
+                        QMath.ParseFloat(save[savePos++])
+                    );
                     HeadphoneVirtualizer = save.Length > savePos && Convert.ToBoolean(save[savePos++]); // Added: 2016.04.24.
                     savePos++; // Environment compensation (bool), added: 2017.06.18, removed: 2019.06.06.
                 } catch {
                     Channels = ChannelPrototype.ToLayout(ChannelPrototype.GetStandardMatrix(6));
+                    IsSymmetric = true;
+                    leftChannels = 2;
+                    rightChannels = 2;
                     EnvironmentType = Environments.Home;
                     EnvironmentSize = new Vector3(10, 7, 10);
                 }
@@ -90,7 +101,10 @@ namespace Cavern {
         /// <remarks>If you're making your own configurator, don't forget to overwrite the Cavern configuration file.</remarks>
         public static void ReplaceChannels(Channel[] channels) {
             Channels = channels;
-            Channel.SymmetryCheck();
+            SymmetryCheck();
+            Renderer = IsSymmetric ? (SourceRenderer)
+                new BalanceBasedRenderer() :
+                new DirectionalRenderer();
         }
 
         /// <summary>
@@ -114,6 +128,50 @@ namespace Cavern {
         static void Recalculate() {
             for (int channel = 0; channel < Channels.Length; channel++) {
                 Channels[channel].Recalculate();
+            }
+        }
+
+        /// <summary>
+        /// Recalculates symmetry when a channel's position is changed.
+        /// </summary>
+        static void SymmetryCheck() {
+            IsSymmetric = true;
+            int channelCount = Channels.Length;
+            if ((channelCount & 1) == 1) { // If there is an unpaired channel, it must be on the center circle or LFE
+                channelCount--;
+                Channel channel = Channels[channelCount];
+                IsSymmetric = channel.Y % 180 == 0 || channel.LFE;
+            }
+            leftChannels = rightChannels = 0; // Count left and right side channels anyway for 1D mixing gains
+            for (int i = 0; i < channelCount; i++) {
+                Channel current = Channels[i];
+                if (current == null) {
+                    continue;
+                }
+                if (!current.LFE) {
+                    if (current.Y < 0) {
+                        leftChannels++;
+                    } else if (current.Y > 0) {
+                        rightChannels++;
+                    }
+                }
+                if ((i & 1) == 1) {
+                    continue;
+                }
+                Channel next = Channels[i + 1];
+                if (i + 1 != channelCount && next != null) {
+                    IsSymmetric &=
+                        current.LFE ? next.Y % 180 == 0 || next.LFE :
+                        next.LFE ? current.Y % 180 == 0 :
+                        MathF.Abs(current.X == next.X ? current.Y + next.Y : (current.Y - next.Y)) % 360 == 0;
+                }
+            }
+
+            if (leftChannels == 0) {
+                leftChannels = 1;
+            }
+            if (rightChannels == 0) {
+                rightChannels = 1;
             }
         }
 

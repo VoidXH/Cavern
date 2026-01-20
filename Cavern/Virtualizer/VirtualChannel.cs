@@ -66,13 +66,13 @@ namespace Cavern.Virtualizer {
                 WaveformUtils.Gain(leftEarIR, minus16dB / WaveformUtils.GetRMS(leftEarIR));
                 Array.Copy(leftEarIR, rightEarIR, leftEarIR.Length);
             } else {
-                float otherGain = minus10dB * QMath.DbToGain(-20 * MathF.Sin(MathF.Abs(y) * VectorExtensions.Deg2Rad));
+                float otherGain = Gain.minus10dB * QMath.DbToGain(-20 * MathF.Sin(MathF.Abs(y) * VectorExtensions.Deg2Rad));
                 if (y < 0) { // Left side
-                    WaveformUtils.Gain(leftEarIR, minus10dB / WaveformUtils.GetRMS(leftEarIR));
+                    WaveformUtils.Gain(leftEarIR, Gain.minus10dB / WaveformUtils.GetRMS(leftEarIR));
                     WaveformUtils.Gain(rightEarIR, otherGain / WaveformUtils.GetRMS(rightEarIR));
                 } else { // Right side
                     WaveformUtils.Gain(leftEarIR, otherGain / WaveformUtils.GetRMS(leftEarIR));
-                    WaveformUtils.Gain(rightEarIR, minus10dB / WaveformUtils.GetRMS(rightEarIR));
+                    WaveformUtils.Gain(rightEarIR, Gain.minus10dB / WaveformUtils.GetRMS(rightEarIR));
                 }
             }
             return new VirtualChannel(x, y, leftEarIR, rightEarIR, sampleRate, crossoverFrequency);
@@ -159,11 +159,6 @@ namespace Cavern.Virtualizer {
         /// <remarks>This formula is based on measurements and the sine wave's usability was disproven.
         /// See Bence S. (2022). Extending HRTF with distance simulation based on ray-tracing.</remarks>
         static int GetDelay(float angle) => (int)((90 - Math.Abs(angle - 90)) / 2.7f);
-
-        /// <summary>
-        /// Precalculated -10 dB as voltage gain. Used by angle gain post-processing.
-        /// </summary>
-        const float minus10dB = .31622776601f;
 
         /// <summary>
         /// Precalculated -16 dB as voltage gain. Used by angle gain post-processing for middle channels to prevent double volume.
