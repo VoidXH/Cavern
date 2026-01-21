@@ -4,6 +4,7 @@ using System.IO.Compression;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Operations;
+using Cavern.Format.Renderers;
 using Cavern.Utilities;
 
 using Cavernize.Logic.Language;
@@ -88,6 +89,10 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             WorkingDirectory = unpackDir,
             Arguments = $"decode --progress \"{toDecode}\" --output-path \"{tempTrack}\""
         };
+        if (MeridianLosslessPackingRenderer.ForcedPresentation.HasValue) {
+            truehdd.Arguments += $" --presentation {MeridianLosslessPackingRenderer.ForcedPresentation.Value}";
+        }
+
         using (Process runner = Process.Start(truehdd)) {
             runner.WaitForExit();
         }
@@ -96,7 +101,17 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             File.Delete(tempTrack);
         }
 
-        track = new CavernizeTrack(AudioReader.Open(tempTrack + ".atmos"), Codec.DAMF, 0, new TrackStrings());
+        string atmosPath = tempTrack + ".atmos";
+        AudioReader reader;
+        Codec codec;
+        if (File.Exists(atmosPath)) {
+            reader = AudioReader.Open(atmosPath);
+            codec = Codec.DAMF;
+        } else {
+            reader = AudioReader.Open(tempTrack + ".caf");
+            codec = Codec.PCM_LE;
+        }
+        track = new CavernizeTrack(reader, codec, 0, new TrackStrings());
         return track;
     }
 
@@ -106,6 +121,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
         QFile.DeleteIfExists(tempTrack + ".atmos");
         QFile.DeleteIfExists(tempTrack + ".atmos.audio");
         QFile.DeleteIfExists(tempTrack + ".atmos.metadata");
+        QFile.DeleteIfExists(tempTrack + ".caf");
     }
 
     /// <summary>
