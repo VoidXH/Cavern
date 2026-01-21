@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 
+using Cavern.Channels;
 using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
@@ -9,7 +10,16 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
-        protected virtual string GetLabel(int channel) => Channels[channel].name ?? "CH" + (channel + 1);
+        protected virtual string GetLabel(int channel) {
+            ChannelData channelRef = Channels[channel];
+            if (channelRef.name != null) {
+                return channelRef.name;
+            } else if (channelRef.reference != ReferenceChannel.Unknown) {
+                return channelRef.reference.GetShortName();
+            } else {
+                return "CH" + (channel + 1);
+            }
+        }
 
         /// <summary>
         /// Get the delay for a given <paramref name="channel"/> in milliseconds instead of samples.

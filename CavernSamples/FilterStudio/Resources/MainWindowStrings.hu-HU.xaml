@@ -38,11 +38,15 @@
     <system:String x:Key="OpMeN">Kiválasztott e_gyesítése a következő szettel (visszavonhatatlan)</system:String>
     <system:String x:Key="CoMeN">E_gyesítés a következő szettel (visszavonhatatlan)</system:String>
     <system:String x:Key="OpMer">_Összes szett egyesítése (visszavonhatatlan)</system:String>
+    <system:String x:Key="OpExp">Kiválasztott szett _exportálása eszközre</system:String>
+    <system:String x:Key="CoExp">_Exportálás eszközre</system:String>
     <system:String x:Key="OpCle">Kiválasztott szett _kiürítése</system:String>
     <system:String x:Key="CoCle">_Kiürítés</system:String>
     <system:String x:Key="OpRen">Kiválasztott szett _átnevezése</system:String>
     <system:String x:Key="CoRen">_Átnevezés</system:String>
     <system:String x:Key="OpDeP">Kiválasztott szett _törlése</system:String>
+    <system:String x:Key="ExpFN">Cavern Filter Studio export</system:String>
+    <system:String x:Key="files">fájlok</system:String>
 
     <system:String x:Key="MHelp">Sú_gó</system:String>
     <system:String x:Key="OpShI">_Segítség mutatása</system:String>

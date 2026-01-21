@@ -53,6 +53,7 @@
                 <MenuItem Header="{StaticResource OpMeN}" Click="MergeWithNext"/>
                 <MenuItem Header="{StaticResource OpMer}" Click="MergeSteps"/>
                 <Separator/>
+                <MenuItem Header="{StaticResource OpExp}" Click="ExportStepToDevice"/>
                 <MenuItem Header="{StaticResource OpRen}" Click="RenameStep"/>
                 <MenuItem Header="{StaticResource OpCle}" Click="ClearStep"/>
                 <MenuItem Header="{StaticResource OpDeP}" Click="DeleteStep"/>

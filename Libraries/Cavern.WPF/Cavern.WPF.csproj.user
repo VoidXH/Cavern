@@ -20,6 +20,9 @@
     <Compile Update="EQEditor.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="FilterSetTargetSelector.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="BiquadEditor.xaml">

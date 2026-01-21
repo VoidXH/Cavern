@@ -45,6 +45,11 @@ namespace Cavern.WPF.Consts {
         public static ResourceDictionary GetEQEditorStrings() => eqEditorCache ??= GetFor("EQEditorStrings");
 
         /// <summary>
+        /// Get the <see cref="FilterSetTargetSelector"/>'s translation.
+        /// </summary>
+        public static ResourceDictionary GetFilterSetTargetSelectorStrings() => GetFor("FilterSetTargetSelectorStrings");
+
+        /// <summary>
         /// Get the <see cref="UpmixingSetup"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetUpmixingSetupStrings() => upmixingSetupCache ??= GetFor("UpmixingSetupStrings");

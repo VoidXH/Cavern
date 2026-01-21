@@ -1,14 +1,21 @@
 ﻿using Microsoft.Msagl.Drawing;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Windows;
 
+using Cavern.Filters;
+using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile.Presets;
+using Cavern.Format.FilterSet;
+using Cavern.WPF;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
 using FilterStudio.Windows;
 using FilterStudio.Windows.PipelineSteps;
+using Microsoft.Win32;
 
 namespace FilterStudio {
     // Handlers of the pipeline graph control
@@ -16,7 +23,7 @@ namespace FilterStudio {
         /// <summary>
         /// Add a new empty pipeline step after the selected node.
         /// </summary>
-        void AddStep(object sender, RoutedEventArgs e) => PipelineAddition(sender, (uid) => {
+        void AddStep(object sender, RoutedEventArgs e) => PipelineAddition(sender, uid => {
             pipeline.Source.AddSplitPoint(uid, (string)language["NSNew"]);
             return true;
         });
@@ -24,7 +31,7 @@ namespace FilterStudio {
         /// <summary>
         /// Add a new crossover step after the selected node.
         /// </summary>
-        void AddCrossover(object sender, RoutedEventArgs e) => PipelineAddition(sender, (uid) => {
+        void AddCrossover(object sender, RoutedEventArgs e) => PipelineAddition(sender, uid => {
             CrossoverDialog dialog = new(GetChannels());
             if (!dialog.ShowDialog().Value) {
                 return false;
@@ -33,6 +40,45 @@ namespace FilterStudio {
             CrossoverFilterSet crossover = new((string)language["LabXO"], dialog.Type, SampleRate, 65536, dialog.Description);
             crossover.Add(pipeline.Source, uid);
             return true;
+        });
+
+        /// <summary>
+        /// Export the currently selected pipeline step as a <see cref="FilterSet"/>.
+        /// </summary>
+        void ExportStepToDevice(object sender, RoutedEventArgs e) => PipelineAction(sender, uid => {
+            FilterSetTargetSelector target = new() {
+                Background = Background,
+                Resources = Resources,
+            };
+            if (!target.ShowDialog().Value) {
+                return;
+            }
+
+            FilterSet set = FilterSet.Create(target.Result, GetChannels(), SampleRate);
+            SaveFileDialog exporter = new() {
+                Filter = $"{set.FileExtension.ToUpper(CultureInfo.InvariantCulture)} {language["files"]}|*.{set.FileExtension}",
+                FileName = (string)language["ExpFN"],
+            };
+            if (!exporter.ShowDialog().Value) {
+                return;
+            }
+
+            List<Filter>[] filters = new List<Filter>[set.ChannelCount];
+            for (int ch = 0; ch < set.ChannelCount; ch++) {
+                filters[ch] = [];
+                FilterGraphNode current = pipeline.Source.GetSplitPointRoot(uid, ch);
+                do {
+                    current = current.Children[0];
+                    filters[ch].Add(current.Filter);
+                } while (current.Children.Count == 1 && current.Filter is not OutputChannel);
+            }
+
+            if (set is IIRFilterSet iirSet) {
+                for (int i = 0; i < set.ChannelCount; i++) {
+                    iirSet.SetupChannel(i, [.. filters[i].OfType<BiquadFilter>()]);
+                }
+            }
+            set.Export(exporter.FileName);
         });
 
         /// <summary>
@@ -141,7 +187,8 @@ namespace FilterStudio {
                 ((string)language["OpAdC"], (_, e) => AddCrossover(element, e)),
                 (null, null),
                 ((string)language["CoMeN"], (_, e) => MergeWithNext(element, e)),
-                (null, null), // Separator for deletion
+                (null, null),
+                ((string)language["CoExp"], (_, e) => ExportStepToDevice(element, e)),
                 ((string)language["CoRen"], (_, e) => RenameStep(element, e)),
                 ((string)language["CoCle"], (_, e) => ClearStep(element, e)),
                 ((string)language["CoDel"], (_, e) => DeleteStep(element, e))
