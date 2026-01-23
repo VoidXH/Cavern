@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -83,6 +84,7 @@ public abstract class FFmpeg {
     /// Launch the FFmpeg to process a file with the given arguments.
     /// </summary>
     public bool Launch(string arguments) {
+        Console.WriteLine("Launching FFmpeg with the following arguments: " + arguments);
         ProcessStartInfo start = new() {
             Arguments = ConsoleMode ? arguments + lesserOutput : arguments,
             FileName = Location,

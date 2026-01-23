@@ -89,7 +89,7 @@ namespace CavernizeGUI {
                 SetBlockSize(RenderTarget);
                 string exportFormat = path[^4..].ToLowerInvariant();
                 bool mkvTarget = exportFormat.Equals(".mkv");
-                string exportName = mkvTarget || exportFormat.Equals(".ac3") || exportFormat.Equals(".ec3") ?
+                string exportName = mkvTarget || exportFormat.IsNative() ?
                     path[..^4] + waveExtension :
                     path;
                 int channelCount = RenderTarget.OutputChannels;
