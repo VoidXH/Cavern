@@ -23,6 +23,11 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Get the export path of configuration filters by index.
+        /// </summary>
+        static string ConvolutionFileName(string convolutionRoot, int index) => $"{convolutionRoot}_{index}.wav";
+
+        /// <summary>
         /// Throw an <see cref="DuplicateLabelException"/> if the filter set contains a non-channel label twice.
         /// </summary>
         static void ValidateForExport((FilterGraphNode node, int _)[] exportOrder) {
@@ -43,6 +48,18 @@ namespace Cavern.Format.ConfigurationFile {
             (List<string> lines, List<IConvolution> convolutions) = ExportToMemory(path);
             File.WriteAllLines(path, lines);
             ExportConvolutions(convolutions, path);
+        }
+
+        /// <summary>
+        /// Write the convolution files defined by <see cref="ExportToMemory(string)"/> to disk.
+        /// </summary>
+        public void ExportConvolutions(List<IConvolution> convolutions, string path) {
+            string folder = Path.GetDirectoryName(path);
+            string convolutionRoot = Path.GetFileNameWithoutExtension(path);
+            for (int i = 0; i < convolutions.Count; i++) {
+                string convolutionFile = Path.Combine(folder, ConvolutionFileName(convolutionRoot, i));
+                RIFFWaveWriter.Write(convolutionFile, convolutions[i].Impulse, 1, convolutions[i].SampleRate, BitDepth.Float32);
+            }
         }
 
         /// <summary>
@@ -125,18 +142,6 @@ namespace Cavern.Format.ConfigurationFile {
                 result.RemoveAt(last); // A selector of a bypass might remain
             }
             return (result, convolutions);
-        }
-
-        /// <summary>
-        /// Write the convolution files defined by <see cref="ExportToMemory(string)"/> to disk.
-        /// </summary>
-        public void ExportConvolutions(List<IConvolution> convolutions, string path) {
-            string folder = Path.GetDirectoryName(path);
-            string convolutionRoot = Path.GetFileNameWithoutExtension(path);
-            for (int i = 0; i < convolutions.Count; i++) {
-                string convolutionFile = Path.Combine(folder, ConvolutionFileName(convolutionRoot, i));
-                RIFFWaveWriter.Write(convolutionFile, convolutions[i].Impulse, 1, convolutions[i].SampleRate, BitDepth.Float32);
-            }
         }
     }
 }

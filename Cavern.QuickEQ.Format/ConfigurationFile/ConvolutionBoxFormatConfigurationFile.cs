@@ -42,7 +42,7 @@ namespace Cavern.Format.ConfigurationFile {
             SampleRate = sampleRate;
             MergeSplitPoints();
             Optimize();
-            SplitPoints[0].roots.ConvertToConvolution(sampleRate, convolutionLength);
+            SplitPoints[0].Roots.ConvertToConvolution(sampleRate, convolutionLength);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Parses a Convolution Box Format file to a filter graph, returns its root nodes.
         /// </summary>
-        /// <remarks>Merge nodes can be created, calling <see cref="ConfigurationFile.Optimize"/> is recommended.</remarks>
+        /// <remarks>Merge nodes can be created, calling <see cref="ConfigurationFile.Optimize()"/> is recommended.</remarks>
         static (string, FilterGraphNode)[] Parse(string path) {
             using FileStream stream = File.OpenRead(path);
             if (stream.ReadInt32() != syncWord) {
@@ -183,7 +183,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Throw an <see cref="UnsupportedFilterForExportException"/> if it's not a convolution or a merge point.
         /// </summary>
         void ValidateForExport() {
-            foreach (FilterGraphNode node in SplitPoints[0].roots.MapGraph()) {
+            foreach (FilterGraphNode node in SplitPoints[0].Roots.MapGraph()) {
                 if (!(node.Filter is BypassFilter) && !(node.Filter is Convolver) && !(node.Filter is FastConvolver)) {
                     throw new UnsupportedFilterException(node.Filter);
                 }

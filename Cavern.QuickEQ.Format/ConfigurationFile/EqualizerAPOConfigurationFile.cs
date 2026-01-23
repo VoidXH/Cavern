@@ -6,7 +6,6 @@ using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
-using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
 using Cavern.Format.ConfigurationFile.Helpers;
@@ -25,6 +24,11 @@ namespace Cavern.Format.ConfigurationFile {
         /// Convert an<paramref name="other"/> configuration file to Equalizer APO's format.
         /// </summary>
         public EqualizerAPOConfigurationFile(ConfigurationFile other) : base(other) { }
+
+        /// <summary>
+        /// Convert a <paramref name="splitPoint"/> to Equalizer APO's format.
+        /// </summary>
+        public EqualizerAPOConfigurationFile(SplitPoint splitPoint) : base(splitPoint) { }
 
         /// <summary>
         /// Create an empty Equalizer APO configuration file.
@@ -122,11 +126,6 @@ namespace Cavern.Format.ConfigurationFile {
                 lastNodes[copy[0]] = target;
             }
         }
-
-        /// <summary>
-        /// Get the export path of configuration filters by index.
-        /// </summary>
-        static string ConvolutionFileName(string convolutionRoot, int index) => $"{convolutionRoot}_{index}.wav";
 
         /// <summary>
         /// Parse a Channel filter and make the next parsed filters only affect those channels.

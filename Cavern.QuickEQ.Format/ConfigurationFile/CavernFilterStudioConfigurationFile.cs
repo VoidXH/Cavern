@@ -24,6 +24,11 @@ namespace Cavern.Format.ConfigurationFile {
         public CavernFilterStudioConfigurationFile(ConfigurationFile other) : base(other) { }
 
         /// <summary>
+        /// Convert a <paramref name="splitPoint"/> to Cavern's format.
+        /// </summary>
+        public CavernFilterStudioConfigurationFile(SplitPoint splitPoint) : base(splitPoint) { }
+
+        /// <summary>
         /// Import a Cavern Filter Studio configuration file from a <paramref name="path"/>.
         /// </summary>
         public CavernFilterStudioConfigurationFile(string path) : base(ParseSplitPoints(path)) => FinishLazySetup(131072);
@@ -42,11 +47,11 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Import a Cavern Filter Studio configuration file from a <paramref name="path"/>.
         /// </summary>
-        static List<(string, FilterGraphNode[])> ParseSplitPoints(string path) {
+        static List<SplitPoint> ParseSplitPoints(string path) {
             using XmlReader reader = XmlReader.Create(path);
             int index = -1;
             List<FilterGraphNode> nodes = new List<FilterGraphNode>();
-            List<(string name, FilterGraphNode[] roots)> splitPoints = new List<(string name, FilterGraphNode[] roots)>();
+            List<SplitPoint> splitPoints = new List<SplitPoint>();
             while (reader.Read()) {
                 if (reader.NodeType != XmlNodeType.Element || reader.Name == nameof(CavernFilterStudioConfigurationFile)) {
                     continue;
@@ -90,7 +95,7 @@ namespace Cavern.Format.ConfigurationFile {
                                 throw new NotImplementedException();
                         }
                     }
-                    splitPoints.Add((name, rootsSource.Split(',').Select(x => nodes[int.Parse(x)]).ToArray()));
+                    splitPoints.Add(new SplitPoint(name, rootsSource.Split(',').Select(x => nodes[int.Parse(x)]).ToArray()));
                 } else {
                     nodes[index].Filter = ParseFilter(reader);
                 }
@@ -155,8 +160,8 @@ namespace Cavern.Format.ConfigurationFile {
             }
             for (int i = 0, c = SplitPoints.Count; i < c; i++) {
                 writer.WriteStartElement(splitPointElement);
-                writer.WriteAttributeString(nameAttribute, SplitPoints[i].name);
-                writer.WriteAttributeString(rootsAttribute, string.Join(',', SplitPoints[i].roots.Select(x => {
+                writer.WriteAttributeString(nameAttribute, SplitPoints[i].Name);
+                writer.WriteAttributeString(rootsAttribute, string.Join(',', SplitPoints[i].Roots.Select(x => {
                     for (int j = 0; j < exportOrder.Length; j++) {
                         if (exportOrder[j].node == x) {
                             return j;

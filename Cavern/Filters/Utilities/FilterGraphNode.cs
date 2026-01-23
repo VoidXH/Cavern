@@ -197,7 +197,9 @@ namespace Cavern.Filters.Utilities {
             with.AddChildren(temp);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Create a copy of this node and its filter. Does not copy graph relationships.
+        /// </summary>
         public object Clone() => new FilterGraphNode((Filter)Filter.Clone());
 
         /// <inheritdoc/>

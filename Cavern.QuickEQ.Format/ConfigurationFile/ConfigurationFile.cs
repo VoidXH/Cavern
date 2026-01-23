@@ -24,97 +24,16 @@ namespace Cavern.Format.ConfigurationFile {
         /// Named points where the configuration file can be separated to new sections. Split points only consist of input nodes after the
         /// previous split point's output nodes.
         /// </summary>
-        public IReadOnlyList<(string name, FilterGraphNode[] roots)> SplitPoints => splitPoints;
+        public IReadOnlyList<SplitPoint> SplitPoints => splitPoints;
 
         /// <summary>
         /// Named points where the configuration file can be separated to new sections. Split points only consist of input nodes after the
         /// previous split point's output nodes.
         /// </summary>
-        readonly List<(string name, FilterGraphNode[] roots)> splitPoints;
+        readonly List<SplitPoint> splitPoints;
 
         /// <inheritdoc/>
         public abstract string FileExtension { get; }
-
-        /// <summary>
-        /// Copy constructor from any <paramref name="other"/> configuration file.
-        /// </summary>
-        protected ConfigurationFile(ConfigurationFile other) {
-            Dictionary<FilterGraphNode, FilterGraphNode> mapping = other.InputChannels.GetItem2s().DeepCopyWithMapping().mapping;
-            InputChannels = other.InputChannels.Select(x => (x.name, mapping[x.root])).ToArray();
-            splitPoints = other.SplitPoints.Select(x => (x.name, x.roots.Select(x => mapping[x]).ToArray())).ToList();
-        }
-
-        /// <summary>
-        /// Construct a configuration file from a complete filter graph, including splitting to <paramref name="splitPoints"/>.
-        /// </summary>
-        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. Refer to the constructors of
-        /// <see cref="CavernFilterStudioConfigurationFile"/> for how to add closing <see cref="OutputChannel"/>s.</remarks>
-        protected ConfigurationFile(List<(string name, FilterGraphNode[] roots)> splitPoints) {
-            InputChannels = splitPoints[0].roots.Select(x => (((InputChannel)x.Filter).Channel.GetShortName(), x)).ToArray();
-            this.splitPoints = splitPoints;
-        }
-
-        /// <summary>
-        /// Construct a configuration file from a complete filter graph, with references to its <paramref name="inputChannels"/>.
-        /// </summary>
-        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. Refer to the constructors of
-        /// <see cref="CavernFilterStudioConfigurationFile"/> for how to add closing <see cref="OutputChannel"/>s.</remarks>
-        protected ConfigurationFile(string name, (string name, FilterGraphNode root)[] inputChannels) {
-            InputChannels = inputChannels;
-            splitPoints = new List<(string, FilterGraphNode[])> {
-                (name, InputChannels.GetItem2s())
-            };
-        }
-
-        /// <summary>
-        /// Create an empty configuration file for a standard layout of the given channel count.
-        /// </summary>
-        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
-        /// be an initial configuration. Call <see cref="FinishEmpty()"/> at the end of your constructor to add closing <see cref="OutputChannel"/>s.</remarks>
-        protected ConfigurationFile(string name, int channelCount) {
-            InputChannels = new (string name, FilterGraphNode root)[channelCount];
-            ReferenceChannel[] channels = ChannelPrototype.GetStandardMatrix(channelCount);
-            for (int i = 0; i < channels.Length; i++) {
-                InputChannels[i] = (channels[i].GetShortName(), new FilterGraphNode(new InputChannel(channels[i])));
-            }
-
-            splitPoints = new List<(string, FilterGraphNode[])> {
-                (name, InputChannels.GetItem2s())
-            };
-        }
-
-        /// <summary>
-        /// Create an empty configuration file with the passed input channels.
-        /// </summary>
-        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
-        /// be an initial configuration. Call <see cref="FinishEmpty(ReferenceChannel[])"/> at the end of your constructor
-        /// to add closing <see cref="OutputChannel"/>s.</remarks>
-        protected ConfigurationFile(string name, ReferenceChannel[] inputs) {
-            InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
-            for (int i = 0; i < inputs.Length; i++) {
-                InputChannels[i] = (inputs[i].GetShortName(), new FilterGraphNode(new InputChannel(inputs[i])));
-            }
-
-            splitPoints = new List<(string, FilterGraphNode[])> {
-                (name, InputChannels.GetItem2s())
-            };
-        }
-
-        /// <summary>
-        /// Create an empty configuration file with the passed input channel names/labels.
-        /// </summary>
-        /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
-        /// be an initial configuration. Call <see cref="FinishEmpty()"/> at the end of your constructor to add closing <see cref="OutputChannel"/>s.</remarks>
-        protected ConfigurationFile(string name, string[] inputs) {
-            InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
-            for (int i = 0; i < inputs.Length; i++) {
-                InputChannels[i] = (inputs[i], new FilterGraphNode(new InputChannel(inputs[i])));
-            }
-
-            splitPoints = new List<(string, FilterGraphNode[])> {
-                (name, InputChannels.GetItem2s())
-            };
-        }
 
         /// <summary>
         /// Recursive part of the <see cref="Optimize()"/> function.
@@ -185,30 +104,11 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
-        /// Add the neccessary <see cref="OutputChannel"/> entries for an empty configuration file.
-        /// </summary>
-        protected void FinishEmpty() {
-            for (int i = 0; i < InputChannels.Length; i++) {
-                InputChannel input = (InputChannel)InputChannels[i].root.Filter;
-                InputChannels[i].root.AddChild(new FilterGraphNode(new OutputChannel(input)));
-            }
-        }
-
-        /// <summary>
-        /// Add the neccessary <see cref="OutputChannel"/> entries for an empty configuration file faster when the exact channels are known.
-        /// </summary>
-        protected void FinishEmpty(ReferenceChannel[] channels) {
-            for (int i = 0; i < channels.Length; i++) {
-                InputChannels[i].root.AddChild(new FilterGraphNode(new OutputChannel(channels[i])));
-            }
-        }
-
-        /// <summary>
         /// Convert the lazy loadable <see cref="Filter"/>s to their real counterparts in parallel.
         /// </summary>
         protected void FinishLazySetup(int fftCacheSize) {
             using FFTCachePool pool = new FFTCachePool(fftCacheSize);
-            FilterGraphNode[] nodes = SplitPoints[0].roots.MapGraph().Where(x => x.Filter is ILazyLoadableFilter).ToArray();
+            FilterGraphNode[] nodes = SplitPoints[0].Roots.MapGraph().Where(x => x.Filter is ILazyLoadableFilter).ToArray();
             Parallelizer.ForUnchecked(0, nodes.Length, i => {
                 nodes[i].Filter = ((ILazyLoadableFilter)nodes[i].Filter).CreateFilter(pool);
             });

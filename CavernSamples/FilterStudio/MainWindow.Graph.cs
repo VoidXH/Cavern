@@ -100,7 +100,7 @@ namespace FilterStudio {
 
             ConvolutionLengthDialog length = new();
             if (length.ShowDialog().Value) {
-                pipeline.Source.SplitPoints[0].roots.ConvertToConvolution(SampleRate, length.Size);
+                pipeline.Source.SplitPoints[0].Roots.ConvertToConvolution(SampleRate, length.Size);
                 ReloadGraph();
             }
         }

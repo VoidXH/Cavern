@@ -44,7 +44,7 @@ namespace FilterStudio.Graphs {
                 source = value;
                 RecreateGraph();
                 SelectNode("0");
-                OnSplitChanged?.Invoke(source.SplitPoints[0].roots);
+                OnSplitChanged?.Invoke(source.SplitPoints[0].Roots);
             }
         }
         ConfigurationFile source;
@@ -60,7 +60,7 @@ namespace FilterStudio.Graphs {
         /// When the <see cref="Source"/> has changed, display its split points.
         /// </summary>
         void RecreateGraph() {
-            IReadOnlyList<(string name, FilterGraphNode[] roots)> splits = source.SplitPoints;
+            IReadOnlyList<SplitPoint> splits = source.SplitPoints;
             Graph graph = new Graph();
             graph.Attr.BackgroundColor = background;
             graph.Attr.LayerDirection = LayerDirection.LR;
@@ -69,7 +69,7 @@ namespace FilterStudio.Graphs {
             graph.AddNode(new StyledNode(lastUid, (string)language["NInpu"]));
             for (int i = 0, c = splits.Count; i < c; i++) {
                 string newUid = i.ToString();
-                graph.AddNode(new StyledNode(newUid, splits[i].name));
+                graph.AddNode(new StyledNode(newUid, splits[i].Name));
                 new StyledEdge(graph, lastUid, newUid);
                 lastUid = newUid;
             }
@@ -87,8 +87,7 @@ namespace FilterStudio.Graphs {
             }
 
             if (int.TryParse(node.Id, out int root)) {
-                (string _, FilterGraphNode[] roots) = source.SplitPoints[root];
-                OnSplitChanged?.Invoke(roots);
+                OnSplitChanged?.Invoke(source.SplitPoints[root].Roots);
             }
         }
 

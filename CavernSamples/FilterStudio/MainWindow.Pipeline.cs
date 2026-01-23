@@ -7,6 +7,7 @@ using System.Windows;
 
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.Format.ConfigurationFile;
 using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.Format.FilterSet;
 using Cavern.WPF;
@@ -41,6 +42,13 @@ namespace FilterStudio {
             crossover.Add(pipeline.Source, uid);
             return true;
         });
+
+        /// <summary>
+        /// Makes a new configuration file that only contains the selected pipeline step.
+        /// </summary>
+        void CreateNewConfigurationFromStep(object sender, RoutedEventArgs e) => PipelineAction(sender, uid =>
+            pipeline.Source = new CavernFilterStudioConfigurationFile(pipeline.Source.SplitPoints[uid])
+        );
 
         /// <summary>
         /// Export the currently selected pipeline step as a <see cref="FilterSet"/>.
@@ -107,7 +115,7 @@ namespace FilterStudio {
         /// Rename the currently selected pipeline step through a popup.
         /// </summary>
         void RenameStep(object sender, RoutedEventArgs e) => PipelineAction(sender, uid => {
-            RenameDialog rename = new RenameDialog(pipeline.Source.SplitPoints[uid].name);
+            RenameDialog rename = new RenameDialog(pipeline.Source.SplitPoints[uid].Name);
             if (rename.ShowDialog().Value) {
                 pipeline.Source.RenameSplitPoint(uid, rename.NewName);
             }
@@ -186,9 +194,10 @@ namespace FilterStudio {
                 ((string)language["OpAdP"], (_, e) => AddStep(element, e)),
                 ((string)language["OpAdC"], (_, e) => AddCrossover(element, e)),
                 (null, null),
+                ((string)language["CoSol"], (_, e) => CreateNewConfigurationFromStep(element, e)),
                 ((string)language["CoMeN"], (_, e) => MergeWithNext(element, e)),
-                (null, null),
                 ((string)language["CoExp"], (_, e) => ExportStepToDevice(element, e)),
+                (null, null),
                 ((string)language["CoRen"], (_, e) => RenameStep(element, e)),
                 ((string)language["CoCle"], (_, e) => ClearStep(element, e)),
                 ((string)language["CoDel"], (_, e) => DeleteStep(element, e))

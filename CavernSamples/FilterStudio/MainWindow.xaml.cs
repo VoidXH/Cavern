@@ -182,7 +182,7 @@ namespace FilterStudio {
         /// </summary>
         bool ExportChecks() {
             int systemSampleRate = SampleRate;
-            HashSet<FilterGraphNode> map = pipeline.Source.SplitPoints[0].roots.MapGraph();
+            HashSet<FilterGraphNode> map = pipeline.Source.SplitPoints[0].Roots.MapGraph();
             Filter mismatch = map.FirstOrDefault(x => x.Filter != null &&
                 x.Filter is ISampleRateDependentFilter sr && sr.SampleRate != systemSampleRate)?.Filter;
             if (mismatch != null && !Warning(string.Format((string)language["WSaRe"], FilterToString(mismatch), systemSampleRate,
@@ -213,7 +213,7 @@ namespace FilterStudio {
             }
 
             SaveFileDialog dialog = new SaveFileDialog() {
-                FileName = $"{file.SplitPoints[0].name}.{file.FileExtension}",
+                FileName = $"{file.SplitPoints[0].Name}.{file.FileExtension}",
                 Filter = $"{((MenuItem)source).Header}|*.{file.FileExtension}"
             };
             if (dialog.ShowDialog().Value) {
@@ -304,7 +304,7 @@ namespace FilterStudio {
         /// <summary>
         /// Get the channels that are used in the current configuration or will be used when a new configuration will be created.
         /// </summary>
-        ReferenceChannel[] GetChannels() => rootNodes == null ? channels : rootNodes.Select(x => ((InputChannel)x.Filter).Channel).ToArray();
+        ReferenceChannel[] GetChannels() => rootNodes == null ? channels : [.. rootNodes.Select(x => ((InputChannel)x.Filter).Channel)];
 
         /// <summary>
         /// All possible project sample rates.

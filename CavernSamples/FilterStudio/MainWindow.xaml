@@ -50,10 +50,11 @@
                 <MenuItem Header="{StaticResource OpAdP}" Click="AddStep"/>
                 <MenuItem Header="{StaticResource OpAdC}" Click="AddCrossover"/>
                 <Separator/>
+                <MenuItem Header="{StaticResource OpSol}" Click="CreateNewConfigurationFromStep"/>
                 <MenuItem Header="{StaticResource OpMeN}" Click="MergeWithNext"/>
                 <MenuItem Header="{StaticResource OpMer}" Click="MergeSteps"/>
-                <Separator/>
                 <MenuItem Header="{StaticResource OpExp}" Click="ExportStepToDevice"/>
+                <Separator/>
                 <MenuItem Header="{StaticResource OpRen}" Click="RenameStep"/>
                 <MenuItem Header="{StaticResource OpCle}" Click="ClearStep"/>
                 <MenuItem Header="{StaticResource OpDeP}" Click="DeleteStep"/>

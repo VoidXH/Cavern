@@ -14,7 +14,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         public void AddSplitPoint(int index, string name) {
             if (index != SplitPoints.Count) {
-                FilterGraphNode[] start = (FilterGraphNode[])splitPoints[index].roots.Clone();
+                FilterGraphNode[] start = (FilterGraphNode[])splitPoints[index].Roots.Clone();
                 for (int i = 0; i < start.Length; i++) {
                     ReferenceChannel channel = ((InputChannel)start[i].Filter).Channel;
                     start[i] = start[i].AddAfterParents(new OutputChannel(channel)).AddAfterParents(new InputChannel(channel));
@@ -22,10 +22,10 @@ namespace Cavern.Format.ConfigurationFile {
                         InputChannels[i] = (InputChannels[i].name, start[i]);
                     }
                 }
-                splitPoints.Insert(index, (name, start));
+                splitPoints.Insert(index, new SplitPoint(name, start));
             } else {
                 CreateNewSplitPoint(name);
-                FilterGraphNode[] end = SplitPoints[^1].roots;
+                FilterGraphNode[] end = SplitPoints[^1].Roots;
                 for (int i = 0; i < end.Length; i++) {
                     end[i].AddChild(new OutputChannel((InputChannel)end[i].Filter));
                 }
@@ -37,14 +37,14 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         public void ClearSplitPoint(int index) {
             if (index == SplitPoints.Count - 1) { // Last split can be cleared and replaced with new outputs
-                FilterGraphNode[] roots = SplitPoints[index].roots;
+                FilterGraphNode[] roots = SplitPoints[index].Roots;
                 for (int i = 0; i < roots.Length; i++) {
                     roots[i].DetachChildren();
                     roots[i].AddChild(new OutputChannel((InputChannel)roots[i].Filter));
                 }
             } else { // General case: clear the children and use the next split to fetch the outputs
-                FilterGraphNode[] roots = SplitPoints[index].roots,
-                    next = SplitPoints[index + 1].roots;
+                FilterGraphNode[] roots = SplitPoints[index].Roots,
+                    next = SplitPoints[index + 1].Roots;
                 for (int i = 0; i < roots.Length; i++) {
                     ReferenceChannel channel = ((InputChannel)roots[i].Filter).Channel;
                     FilterGraphNode equivalent = next.First(x => ((InputChannel)x.Filter).Channel == channel);
@@ -63,7 +63,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <remarks>If you keep track of your currently handled output nodes, set them to their children,
         /// because new input nodes are created in this function.</remarks>
         protected void CreateNewSplitPoint(string name) {
-            FilterGraphNode[] nodes = SplitPoints[0].roots.MapGraph()
+            FilterGraphNode[] nodes = SplitPoints[0].Roots.MapGraph()
                 .Where(x => x.Filter is OutputChannel && x.Children.Count == 0).ToArray();
             for (int i = 0; i < nodes.Length; i++) {
                 nodes[i] = nodes[i].AddChild(new InputChannel(((OutputChannel)nodes[i].Filter).Channel));
@@ -84,14 +84,14 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
 
-            splitPoints.Add((name, nodes));
+            splitPoints.Add(new SplitPoint(name, nodes));
         }
 
         /// <summary>
         /// Get the node for a split point's (referenced with an <paramref name="index"/>) given <paramref name="channel"/>.
         /// </summary>
         public FilterGraphNode GetSplitPointRoot(int index, ReferenceChannel channel) {
-            FilterGraphNode[] roots = SplitPoints[index].roots;
+            FilterGraphNode[] roots = SplitPoints[index].Roots;
             for (int i = 0; i < roots.Length; i++) {
                 if (((InputChannel)roots[i].Filter).Channel == channel) {
                     return roots[i];
@@ -104,8 +104,8 @@ namespace Cavern.Format.ConfigurationFile {
         /// Get the node for a split point's (referenced with an <paramref name="index"/>) given <paramref name="channel"/>.
         /// </summary>
         public FilterGraphNode GetSplitPointRoot(int index, int channel) {
-            if (channel >= 0 && channel < SplitPoints[index].roots.Length) {
-                return SplitPoints[index].roots[channel];
+            if (channel >= 0 && channel < SplitPoints[index].Roots.Length) {
+                return SplitPoints[index].Roots[channel];
             }
             throw new InvalidChannelException(channel.ToString());
         }
@@ -114,7 +114,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Merge the filters of the split point at the given <paramref name="index"/> and the next one.
         /// </summary>
         public void MergeSplitPointWithNext(int index) {
-            FilterGraphNode[] roots = SplitPoints[index + 1].roots;
+            FilterGraphNode[] roots = SplitPoints[index + 1].Roots;
             for (int j = 0; j < roots.Length; j++) {
                 roots[j].Parents[0].DetachFromGraph(); // Output of the split at the index
                 roots[j].DetachFromGraph(); // Input of the split at index + 1
@@ -132,7 +132,7 @@ namespace Cavern.Format.ConfigurationFile {
             }
 
             for (int i = 1; i < c; i++) {
-                FilterGraphNode[] roots = SplitPoints[i].roots;
+                FilterGraphNode[] roots = SplitPoints[i].Roots;
                 for (int j = 0; j < roots.Length; j++) {
                     roots[j].Parents[0].DetachFromGraph(); // Output of the previous split
                     roots[j].DetachFromGraph(); // Input of the current split
@@ -152,13 +152,13 @@ namespace Cavern.Format.ConfigurationFile {
             }
 
             if (index == SplitPoints.Count - 1) { // Last split can be just removed
-                FilterGraphNode[] roots = SplitPoints[index].roots;
+                FilterGraphNode[] roots = SplitPoints[index].Roots;
                 for (int i = 0; i < roots.Length; i++) {
                     roots[i].DetachFromGraph(false);
                 }
             } else { // General case: transfer children from the next set of roots, then swap roots
-                FilterGraphNode[] roots = SplitPoints[index].roots,
-                    next = SplitPoints[index + 1].roots;
+                FilterGraphNode[] roots = SplitPoints[index].Roots,
+                    next = SplitPoints[index + 1].Roots;
                 for (int i = 0; i < roots.Length; i++) {
                     ReferenceChannel channel = ((InputChannel)roots[i].Filter).Channel;
                     FilterGraphNode equivalent = next.First(x => ((InputChannel)x.Filter).Channel == channel);
@@ -168,7 +168,7 @@ namespace Cavern.Format.ConfigurationFile {
                     equivalent.DetachChildren();
                     roots[i].AddChildren(oldChildren);
                 }
-                splitPoints[index + 1] = (SplitPoints[index + 1].name, roots);
+                splitPoints[index + 1] = new SplitPoint(SplitPoints[index + 1].Name, roots);
             }
             splitPoints.RemoveAt(index);
         }
@@ -176,6 +176,6 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Change the <paramref name="name"/> of an existing split point at a given <paramref name="index"/>.
         /// </summary>
-        public void RenameSplitPoint(int index, string name) => splitPoints[index] = (name, splitPoints[index].roots);
+        public void RenameSplitPoint(int index, string name) => splitPoints[index] = new SplitPoint(name, splitPoints[index].Roots);
     }
 }
