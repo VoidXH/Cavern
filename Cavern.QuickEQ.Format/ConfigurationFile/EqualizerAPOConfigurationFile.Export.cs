@@ -143,5 +143,25 @@ namespace Cavern.Format.ConfigurationFile {
             }
             return (result, convolutions);
         }
+
+        /// <summary>
+        /// Perform an export of a root file and a separate file for each split point.
+        /// </summary>
+        public void ExportToSeparateSplitPoints(string path) {
+            if (SplitPoints.Count == 1) {
+                Export(path);
+                return;
+            }
+
+            List<string> rootLines = new List<string>();
+            for (int i = 0, c = SplitPoints.Count; i < c; i++) {
+                SplitPoint splitPoint = SplitPoints[i];
+                string splitFileName = $"{Path.GetFileNameWithoutExtension(path)} {splitPoint.Name}{Path.GetExtension(path)}";
+                string splitFilePath = Path.Combine(Path.GetDirectoryName(path), splitFileName);
+                new EqualizerAPOConfigurationFile(splitPoint).Export(splitFilePath);
+                rootLines.Add("Include: " + splitFileName);
+            }
+            File.WriteAllLines(path, rootLines);
+        }
     }
 }

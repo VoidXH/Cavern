@@ -21,8 +21,9 @@ namespace Cavern.Format.ConfigurationFile {
         /// Construct a configuration file from a partial filter graph, a single <see cref="SplitPoint"/>.
         /// </summary>
         protected ConfigurationFile(SplitPoint splitPoint) {
-            InputChannels = splitPoint.Roots.Select(x => (((InputChannel)x.Filter).Channel.GetShortName(), x)).ToArray();
-            splitPoints = new List<SplitPoint> { (SplitPoint)splitPoint.Clone() };
+            SplitPoint clone = (SplitPoint)splitPoint.Clone();
+            InputChannels = clone.Roots.Select(x => (((InputChannel)x.Filter).Channel.GetShortName(), x)).ToArray();
+            splitPoints = new List<SplitPoint> { clone };
         }
 
         /// <summary>

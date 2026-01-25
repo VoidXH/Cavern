@@ -49,7 +49,9 @@ namespace FilterStudio.Windows.PipelineSteps {
             for (int i = 0; i < filterSetChannels.Length; i++) {
                 channels.Items.Add(new CrossoverSetup(filterSetChannels[i]));
             }
-            crossoverType.ItemsSource = ((CrossoverType[])Enum.GetValues(typeof(CrossoverType))).Select(x => new CrossoverTypeOnUI(x));
+            crossoverType.ItemsSource = ((CrossoverType[])Enum.GetValues(typeof(CrossoverType)))
+                .Skip(1) // Remove "Disabled"
+                .Select(x => new CrossoverTypeOnUI(x));
             crossoverType.SelectedIndex = 0;
             targetChannel.ItemsSource = filterSetChannels.Select(x => new ChannelOnUI(x));
             int lfeIndex = Array.IndexOf(filterSetChannels, ReferenceChannel.ScreenLFE);

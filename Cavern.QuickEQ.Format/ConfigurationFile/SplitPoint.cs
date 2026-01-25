@@ -28,28 +28,66 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Get how many nodes are in this split.
+        /// </summary>
+        public int GetNodeCount() {
+            HashSet<FilterGraphNode> visited = new HashSet<FilterGraphNode>();
+
+            int CountChildren(FilterGraphNode node) {
+                int result = 0;
+                for (int i = 0, c = node.Children.Count; i < c; i++) {
+                    FilterGraphNode child = node.Children[i];
+                    if (visited.Contains(child)) {
+                        continue;
+                    }
+                    visited.Add(child);
+                    if (child.Filter is OutputChannel) {
+                        result++;
+                    } else {
+                        result += 1 + CountChildren(child);
+                    }
+                }
+                return result;
+            }
+
+            int result = 0;
+            for (int i = 0; i < Roots.Length; i++) {
+                result += 1 + CountChildren(Roots[i]);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Deep clone all filters from the split point root until the output nodes.
         /// </summary>
         public object Clone() {
             FilterGraphNode[] roots = new FilterGraphNode[Roots.Length];
             Dictionary<FilterGraphNode, FilterGraphNode> cloned = new Dictionary<FilterGraphNode, FilterGraphNode>();
+            int clonedNodes = 0;
             for (int ch = 0; ch < Roots.Length; ch++) {
-                roots[ch] = (FilterGraphNode)Roots[ch].Clone();
+                roots[ch] = (FilterGraphNode)Roots[ch].Clone();    
                 cloned[Roots[ch]] = roots[ch];
+                clonedNodes++;
                 for (int child = 0, c = Roots[ch].Children.Count; child < c; child++) {
-                    CloneNode(Roots[ch], Roots[ch].Children[child], cloned);
+                    clonedNodes += CloneNode(Roots[ch], Roots[ch].Children[child], cloned);
                 }
             }
-            return new SplitPoint(Name, roots);
+
+            if (clonedNodes == GetNodeCount()) {
+                return new SplitPoint(Name, roots);
+            } else {
+                throw new InvalidOperationException("The wrong number of nodes was cloned.");
+            }
         }
 
         /// <summary>
         /// Use DFS to clone nodes and connect them to their cloned parents.
         /// </summary>
-        void CloneNode(FilterGraphNode parent, FilterGraphNode current, Dictionary<FilterGraphNode, FilterGraphNode> cloned) {
+        /// <returns>The number of cloned nodes.</returns>
+        int CloneNode(FilterGraphNode parent, FilterGraphNode current, Dictionary<FilterGraphNode, FilterGraphNode> cloned) {
             if (cloned.ContainsKey(current)) {
                 cloned[parent].AddChild(cloned[current]);
-                return;
+                return 0;
             }
 
             FilterGraphNode clonedParent = cloned[parent];
@@ -57,13 +95,15 @@ namespace Cavern.Format.ConfigurationFile {
             clonedParent.AddChild(clone);
             cloned[current] = clone;
 
+            int newNodes = 1;
             if (current.Filter is OutputChannel) {
-                return;
+                return newNodes;
             }
 
             for (int i = 0, c = current.Children.Count; i < c; i++) {
-                CloneNode(current, current.Children[i], cloned);
+                newNodes += CloneNode(current, current.Children[i], cloned);
             }
+            return newNodes;
         }
     }
 }

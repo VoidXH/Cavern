@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 
 using Cavern.Utilities;
@@ -8,6 +9,7 @@ namespace Cavern.Filters.Utilities {
     /// <summary>
     /// Wraps a filter to be handled in a multichannel complex filter set, such as equalizer platform configuration files.
     /// </summary>
+    [DebuggerDisplay("{ToString(),nq} ({GetHashCode(),nq})")]
     public class FilterGraphNode : ICloneable {
         /// <summary>
         /// Filters that add their results together before being processed by this filter and going forward in the filter graph.
@@ -204,6 +206,7 @@ namespace Cavern.Filters.Utilities {
 
         /// <inheritdoc/>
         public override string ToString() => Filter != null ?
-            (Filter is ILocalizableToString loc ? loc.ToString(CultureInfo.CurrentCulture) : Filter.ToString()) : "Merge";
+            (Filter is ILocalizableToString loc ? loc.ToString(CultureInfo.CurrentCulture) : Filter.ToString()) :
+            "Merge";
     }
 }
