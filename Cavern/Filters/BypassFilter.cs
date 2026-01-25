@@ -2,8 +2,6 @@
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-using Cavern.Utilities;
-
 namespace Cavern.Filters {
     /// <summary>
     /// A filter that doesn't do anything. Used to display empty filter nodes with custom names, like the beginning of virtual channels.

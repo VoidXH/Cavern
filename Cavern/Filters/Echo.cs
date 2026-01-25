@@ -13,7 +13,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple echo/reverberation filter with delay.
     /// </summary>
-    public class Echo : Filter, ILocalizableToString, IXmlSerializable, ISampleRateDependentFilter {
+    public class Echo : Filter, ILocalizableToString, IResettableFilter, ISampleRateDependentFilter, IXmlSerializable {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {
@@ -97,6 +97,9 @@ namespace Cavern.Filters {
         /// <param name="strength">Effect strength</param>
         /// <param name="delay">Delay between echoes in seconds</param>
         public Echo(int sampleRate, double strength, double delay) => Reset(strength, (int)(delay * (this.sampleRate = sampleRate)));
+
+        /// <inheritdoc/>
+        public void Reset() => cache.Clear();
 
         /// <summary>
         /// Reset filter settings.

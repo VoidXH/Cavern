@@ -1,12 +1,13 @@
 ﻿using System.Linq;
 
+using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Performs convolution on an interlaced multichannel signal.
     /// </summary>
-    public class MultichannelConvolver : Filter {
+    public class MultichannelConvolver : Filter, IResettableFilter {
         /// <summary>
         /// Each channel's actual filter and reuseable extracted sample block cache.
         /// </summary>
@@ -44,6 +45,13 @@ namespace Cavern.Filters {
                 results[i] = FastConvolver.ConvolveSafe(excitations[i], impulses[i]);
             });
             return new MultichannelWaveform(results);
+        }
+
+        /// <inheritdoc/>
+        public void Reset() {
+            for (int i = 0; i < workers.Length; i++) {
+                workers[i].Reset();
+            }
         }
 
         /// <inheritdoc/>

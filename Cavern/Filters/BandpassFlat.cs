@@ -1,12 +1,13 @@
 ﻿using System;
 
+using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
     /// Combination of a lowpass and a highpass filter.
     /// </summary>
-    public class BandpassFlat : Filter {
+    public class BandpassFlat : Filter, IResettableFilter {
         /// <summary>
         /// Low frequency (highpass) cutoff knee.
         /// </summary>
@@ -86,6 +87,14 @@ namespace Cavern.Filters {
             highpasses = new Highpass[order];
             highpasses[0] = new Highpass(sampleRate, lowFreq, q);
             FillOrders();
+        }
+
+        /// <inheritdoc/>
+        public void Reset() {
+            for (int filter = 0; filter < highpasses.Length; filter++) {
+                lowpasses[filter].Reset();
+                highpasses[filter].Reset();
+            }
         }
 
         /// <inheritdoc/>

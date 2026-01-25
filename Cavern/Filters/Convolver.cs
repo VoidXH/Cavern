@@ -15,7 +15,7 @@ namespace Cavern.Filters {
     /// </summary>
     /// <remarks>This filter is performing convolution by definition, which is faster if the window size is very small.
     /// For most cases, <see cref="FastConvolver"/> is preferred.</remarks>
-    public class Convolver : Filter, IConvolution, ILocalizableToString, IXmlSerializable {
+    public class Convolver : Filter, IConvolution, ILocalizableToString, IResettableFilter, IXmlSerializable {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate { get; set; }
@@ -98,6 +98,9 @@ namespace Cavern.Filters {
             }
             return convolved;
         }
+
+        /// <inheritdoc/>
+        public void Reset() => future.Clear();
 
         /// <inheritdoc/>
         public override void Process(float[] samples) {

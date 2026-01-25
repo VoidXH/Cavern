@@ -8,7 +8,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple variable-order crossover.
     /// </summary>
-    public class Crossover : Filter, ISampleRateDependentFilter {
+    public class Crossover : Filter, IResettableFilter, ISampleRateDependentFilter {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {
@@ -75,7 +75,7 @@ namespace Cavern.Filters {
         void RecreateFilters(double frequency, int order) {
             lowpasses = new Lowpass[order];
             highpasses = new Highpass[order];
-            for (int i = 0; i < order; ++i) {
+            for (int i = 0; i < order; i++) {
                 lowpasses[i] = new Lowpass(SampleRate, frequency);
                 highpasses[i] = new Highpass(SampleRate, frequency);
             }
@@ -105,6 +105,14 @@ namespace Cavern.Filters {
         public void PresetOutput(int updateRate) {
             LowOutput = new float[updateRate];
             HighOutput = new float[updateRate];
+        }
+
+        /// <inheritdoc/>
+        public void Reset() {
+            for (int i = 0; i < lowpasses.Length; i++) {
+                lowpasses[i].Reset();
+                highpasses[i].Reset();
+            }
         }
 
         /// <inheritdoc/>

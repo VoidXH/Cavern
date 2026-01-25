@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using Cavern.Filters.Interfaces;
+
 namespace Cavern.Filters {
     /// <summary>
     /// Multiple filters in series.
     /// </summary>
-    public class ComplexFilter : Filter {
+    public class ComplexFilter : Filter, IResettableFilter {
         /// <inheritdoc/>
         public override bool LinearTimeInvariant => Filters.All(x => x.LinearTimeInvariant);
 
@@ -28,6 +30,15 @@ namespace Cavern.Filters {
         /// Create a usable filter set from a precreated collection.
         /// </summary>
         public ComplexFilter(IEnumerable<Filter> filters) => Filters.AddRange(filters);
+
+        /// <inheritdoc/>
+        public void Reset() {
+            for (int i = 0, c = Filters.Count; i < c; i++) {
+                if (Filters[i] is IResettableFilter resettable) {
+                    resettable.Reset();
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public override void Process(float[] samples) {

@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
 
 namespace Cavern.Filters {
@@ -7,7 +8,7 @@ namespace Cavern.Filters {
     /// Performs two optimized convolutions for the cost of one.
     /// </summary>
     /// <remarks>This filter is using the overlap and add method using FFTs.</remarks>
-    public class DualConvolver {
+    public class DualConvolver : IResettableFilter {
         /// <summary>
         /// Created convolution filter in Fourier-space.
         /// </summary>
@@ -76,6 +77,9 @@ namespace Cavern.Filters {
                 ProcessTimeslot(samplesInOut, samplesOut, start, Math.Min(samplesOut.Length, start += filter.Length >> 1));
             }
         }
+
+        /// <inheritdoc/>
+        public void Reset() => future.Clear();
 
         /// <summary>
         /// In case there are more input samples than the size of the filter, split it in parts.

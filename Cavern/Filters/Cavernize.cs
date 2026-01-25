@@ -8,7 +8,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Separates ground and height data for a channel of a regular surround mix.
     /// </summary>
-    public class Cavernize : Filter, ISampleRateDependentFilter {
+    public class Cavernize : Filter, IResettableFilter, ISampleRateDependentFilter {
         /// <inheritdoc/>
         public override bool LinearTimeInvariant => false;
 
@@ -110,6 +110,13 @@ namespace Cavern.Filters {
         public void CalculateSmoothingFactor(int updateRate, float smoothness) =>
             SmoothFactor =
                 1.001f - (updateRate + (crossover.SampleRate - updateRate) * MathF.Pow(smoothness, .1f)) / crossover.SampleRate;
+
+        /// <inheritdoc/>
+        public void Reset() {
+            lastLow = 0;
+            lastNormal = 0;
+            lastHigh = 0;
+        }
 
         /// <inheritdoc/>
         public override void Process(float[] samples) {

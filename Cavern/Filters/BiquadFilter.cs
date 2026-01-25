@@ -16,7 +16,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter.
     /// </summary>
-    public abstract class BiquadFilter : Filter, IEqualizerAPOFilter, ILocalizableToString, ISampleRateDependentFilter, IXmlSerializable {
+    public abstract class BiquadFilter : Filter, IEqualizerAPOFilter, ILocalizableToString, IResettableFilter, ISampleRateDependentFilter, IXmlSerializable {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {
@@ -174,9 +174,7 @@ namespace Cavern.Filters {
             _ => throw new ArgumentOutOfRangeException(splitLine[2])
         };
 
-        /// <summary>
-        /// Wipe the history to prevent clipping when applying the same filter for a new signal.
-        /// </summary>
+        /// <inheritdoc/>
         public void Reset() {
             x1 = 0;
             x2 = 0;

@@ -1,6 +1,5 @@
 ﻿using Cavern.Channels;
 using Cavern.Format.ConfigurationFile;
-using Cavern.Utilities;
 
 using System;
 using System.Xml;

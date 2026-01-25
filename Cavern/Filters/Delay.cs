@@ -15,7 +15,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Delays the audio.
     /// </summary>
-    public class Delay : Filter, IEqualizerAPOFilter, ISampleRateDependentFilter, ILocalizableToString, IXmlSerializable {
+    public class Delay : Filter, IEqualizerAPOFilter, ILocalizableToString, IResettableFilter, ISampleRateDependentFilter, IXmlSerializable {
         /// <summary>
         /// If the filter was set up with a time delay, this is the sample rate used to calculate the delay in samples.
         /// </summary>
@@ -121,6 +121,12 @@ namespace Cavern.Filters {
         }
 
         /// <inheritdoc/>
+        public void Reset() {
+            cache[0].Clear();
+            cache[1].Clear();
+        }
+
+        /// <inheritdoc/>
         public override void Process(float[] samples) {
             int delaySamples = cache[0].Length;
             float[] cacheToFill = cache[1 - usedCache], cacheToDrain = cache[usedCache];
@@ -129,7 +135,7 @@ namespace Cavern.Filters {
                 // Fill cache
                 Array.Copy(samples, samples.Length - delaySamples, cacheToFill, 0, delaySamples);
                 // Move self
-                for (int sample = samples.Length - 1; sample >= delaySamples; --sample) {
+                for (int sample = samples.Length - 1; sample >= delaySamples; sample--) {
                     samples[sample] = samples[sample - delaySamples];
                 }
                 // Drain cache
