@@ -54,6 +54,7 @@
                 <MenuItem Header="{StaticResource OpMeN}" Click="MergeWithNext"/>
                 <MenuItem Header="{StaticResource OpMer}" Click="MergeSteps"/>
                 <MenuItem Header="{StaticResource OpExp}" Click="ExportStepToDevice"/>
+                <MenuItem Header="{StaticResource OpSim}" Click="SimulateToWAV"/>
                 <Separator/>
                 <MenuItem Header="{StaticResource OpRen}" Click="RenameStep"/>
                 <MenuItem Header="{StaticResource OpCle}" Click="ClearStep"/>

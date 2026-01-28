@@ -236,9 +236,7 @@ namespace FilterStudio {
                 Error((string)language["NOpen"]);
             }
 
-            ChannelSelector dialog = new() {
-                Background = Background,
-                Resources = Resources,
+            ChannelSelector dialog = new(this) {
                 SelectedChannels = channels
             };
             if (dialog.ShowDialog().Value) {

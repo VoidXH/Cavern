@@ -42,6 +42,8 @@
     <system:String x:Key="OpMer">_Összes szett egyesítése (visszavonhatatlan)</system:String>
     <system:String x:Key="OpExp">Kiválasztott szett _exportálása eszközre</system:String>
     <system:String x:Key="CoExp">_Exportálás eszközre</system:String>
+    <system:String x:Key="OpSim">Kiválasztott szett _szimulálása WAV-ba</system:String>
+    <system:String x:Key="CoSim">_Szimuláció WAV-ba</system:String>
     <system:String x:Key="OpRen">Kiválasztott szett _átnevezése</system:String>
     <system:String x:Key="CoRen">_Átnevezés</system:String>
     <system:String x:Key="OpCle">Kiválasztott szett _kiürítése</system:String>

@@ -64,5 +64,13 @@ namespace Cavern.WPF {
                 [ReferenceChannel.TopRearRight] = topRearRight,
             };
         }
+
+        /// <summary>
+        /// Channel layout selector dialog using a <paramref name="parent"/>'s layout.
+        /// </summary>
+        public ChannelSelector(Control parent) : this() {
+            Background = parent.Background;
+            Resources = parent.Resources;
+        }
     }
 }

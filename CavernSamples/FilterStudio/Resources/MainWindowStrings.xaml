@@ -42,6 +42,8 @@
     <system:String x:Key="OpMer">_Merge all sets (irreversible)</system:String>
     <system:String x:Key="OpExp">_Export selected set to device</system:String>
     <system:String x:Key="CoExp">_Export to device</system:String>
+    <system:String x:Key="OpSim">_Simulate selected set to WAV</system:String>
+    <system:String x:Key="CoSim">_Simulate to WAV</system:String>
     <system:String x:Key="OpRen">_Rename selected set</system:String>
     <system:String x:Key="CoRen">_Rename</system:String>
     <system:String x:Key="OpCle">_Clear selected set</system:String>

@@ -1,22 +1,25 @@
 ﻿using Microsoft.Msagl.Drawing;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
 
+using Cavern;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.Format;
 using Cavern.Format.ConfigurationFile;
 using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.Format.FilterSet;
+using Cavern.Format.Utilities;
 using Cavern.WPF;
 using VoidX.WPF;
 
 using FilterStudio.Graphs;
 using FilterStudio.Windows;
 using FilterStudio.Windows.PipelineSteps;
-using Microsoft.Win32;
 
 namespace FilterStudio {
     // Handlers of the pipeline graph control
@@ -115,10 +118,33 @@ namespace FilterStudio {
         /// Rename the currently selected pipeline step through a popup.
         /// </summary>
         void RenameStep(object sender, RoutedEventArgs e) => PipelineAction(sender, uid => {
-            RenameDialog rename = new RenameDialog(pipeline.Source.SplitPoints[uid].Name);
+            RenameDialog rename = new(pipeline.Source.SplitPoints[uid].Name);
             if (rename.ShowDialog().Value) {
                 pipeline.Source.RenameSplitPoint(uid, rename.NewName);
             }
+        });
+
+        /// <summary>
+        /// Select channels which have any input data, and simulate all filters in the selected pipeline step to a WAV file.
+        /// </summary>
+        void SimulateToWAV(object sender, RoutedEventArgs e) => PipelineAction(sender, uid => {
+            ChannelSelector channels = new(this);
+            if (!channels.ShowDialog().Value) {
+                return;
+            }
+
+            SaveFileDialog exporter = new() {
+                Filter = $"WAV {language["files"]}|*.wav",
+                FileName = (string)language["ExpFN"],
+            };
+            if (exporter.ShowDialog().Value == false) {
+                return;
+            }
+
+            ConfigurationFileSimulator simulator = new(pipeline.Source);
+            MultichannelWaveform simulation = simulator.Simulate(channels.SelectedChannels, 65536);
+            using RIFFWaveWriter writer = new(exporter.FileName, simulation.Channels, simulation.Length, SampleRate, BitDepth.Float32);
+            writer.Write(simulation.ToArray());
         });
 
         /// <summary>
@@ -197,6 +223,7 @@ namespace FilterStudio {
                 ((string)language["CoSol"], (_, e) => CreateNewConfigurationFromStep(element, e)),
                 ((string)language["CoMeN"], (_, e) => MergeWithNext(element, e)),
                 ((string)language["CoExp"], (_, e) => ExportStepToDevice(element, e)),
+                ((string)language["CoSim"], (_, e) => SimulateToWAV(element, e)),
                 (null, null),
                 ((string)language["CoRen"], (_, e) => RenameStep(element, e)),
                 ((string)language["CoCle"], (_, e) => ClearStep(element, e)),

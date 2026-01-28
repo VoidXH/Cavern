@@ -11,6 +11,36 @@ namespace Cavern.QuickEQ.SignalGeneration {
     /// </summary>
     public static class WaveformGenerator {
         /// <summary>
+        /// Create a Dirac-delta signal of given sample count.
+        /// </summary>
+        public static float[] DiracDelta(int length) {
+            float[] result = new float[length];
+            result[0] = 1;
+            return result;
+        }
+
+        /// <summary>
+        /// Generates precise pink noise through EQing white noise.
+        /// </summary>
+        /// <param name="length">The length of the generated noise in samples</param>
+        /// <param name="sampleRate">Sample rate of the </param>
+        public static float[] PinkNoise(int length, int sampleRate) {
+            int workingLength = QMath.Base2Ceil(length);
+            float[] result = WhiteNoise(workingLength);
+            Equalizer eq = new Equalizer();
+            const double startFreq = 10;
+            double nyquist = sampleRate / 2.0;
+            eq.AddBand(new Band(startFreq, 0));
+            // Pink noise bands lose 3 dB/octave, which is 10 dB/decade
+            eq.AddBand(new Band(nyquist, -10 * Math.Log(nyquist) / Math.Log(startFreq)));
+            eq.DownsampleLogarithmically(4096, startFreq, nyquist); // TODO: remove when EQ visualizations work in log space
+            result = FastConvolver.ConvolveSafe(result, eq.GetConvolution(sampleRate, workingLength));
+            Array.Resize(ref result, length);
+            WaveformUtils.Gain(result, 10); // Stable normalization
+            return result;
+        }
+
+        /// <summary>
         /// Generates a sine wave signal.
         /// </summary>
         /// <param name="frequency">The frequency of the sine wave in periods/<paramref name="length"/></param>
@@ -47,27 +77,6 @@ namespace Cavern.QuickEQ.SignalGeneration {
             for (int i = 0; i < length; i++) {
                 result[i] = (float)(generator.NextDouble() * 2 - 1);
             }
-            return result;
-        }
-
-        /// <summary>
-        /// Generates precise pink noise through EQing white noise.
-        /// </summary>
-        /// <param name="length">The length of the generated noise in samples</param>
-        /// <param name="sampleRate">Sample rate of the </param>
-        public static float[] PinkNoise(int length, int sampleRate) {
-            int workingLength = QMath.Base2Ceil(length);
-            float[] result = WhiteNoise(workingLength);
-            Equalizer eq = new Equalizer();
-            const double startFreq = 10;
-            double nyquist = sampleRate / 2.0;
-            eq.AddBand(new Band(startFreq, 0));
-            // Pink noise bands lose 3 dB/octave, which is 10 dB/decade
-            eq.AddBand(new Band(nyquist, -10 * Math.Log(nyquist) / Math.Log(startFreq)));
-            eq.DownsampleLogarithmically(4096, startFreq, nyquist); // TODO: remove when EQ visualizations work in log space
-            result = FastConvolver.ConvolveSafe(result, eq.GetConvolution(sampleRate, workingLength));
-            Array.Resize(ref result, length);
-            WaveformUtils.Gain(result, 10); // Stable normalization
             return result;
         }
     }
