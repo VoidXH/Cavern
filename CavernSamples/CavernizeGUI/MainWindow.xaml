@@ -115,17 +115,7 @@
                                            Text="{StaticResource OpOut}" TextAlignment="Right" TextWrapping="NoWrap"/>
                                 <ComboBox Name="audio" Margin="55,27,0,0" VerticalAlignment="Top"
                                           SelectionChanged="OnOutputSelected"/>
-                                <TextBlock Name="trackCodec" Margin="0,54,0,0" VerticalAlignment="Top"
-                                           FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Name="trackTable1Title" Margin="0,75,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                           Width="105" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Name="trackTable1Value" Margin="110,75,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
-                                <TextBlock Name="trackTable2Title" Margin="0,96,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                           Width="105" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Name="trackTable2Value" Margin="110,96,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
-                                <TextBlock Name="trackTable3Title" Margin="0,117,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                           Width="105" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock Name="trackTable3Value" Margin="110,117,0,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
+                                <uc:TrackInfo x:Name="trackInfo" VerticalAlignment="Top" Margin="0,54,0,0" Height="84"/>
                             </Grid>
                             <Grid Margin="10,0,10,10" VerticalAlignment="Bottom">
                                 <uc:ButtonWithIcon HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"

@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="CavernizeGUI.UserControls.TrackInfo"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CavernizeGUI.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="84" d:DesignWidth="300">
+    <Grid>
+        <TextBlock Name="codec" VerticalAlignment="Top" FontWeight="Bold" TextWrapping="Wrap" d:Text="Codec name"/>
+        <TextBlock Name="row1Title" Margin="0,21,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+           Width="105" FontWeight="Bold" TextWrapping="Wrap" d:Text="Row 1"/>
+        <TextBlock Name="row1Value" Margin="110,21,0,0" VerticalAlignment="Top" TextWrapping="NoWrap" d:Text="Value"/>
+        <TextBlock Name="row2Title" Margin="0,42,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+           Width="105" FontWeight="Bold" TextWrapping="Wrap" d:Text="Row 2"/>
+        <TextBlock Name="row2Value" Margin="110,42,0,0" VerticalAlignment="Top" TextWrapping="NoWrap" d:Text="Value"/>
+        <TextBlock Name="row3Title" Margin="0,63,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+           Width="105" FontWeight="Bold" TextWrapping="Wrap" d:Text="Row 3"/>
+        <TextBlock Name="row3Value" Margin="110,63,0,0" VerticalAlignment="Top" TextWrapping="NoWrap" d:Text="Value"/>
+    </Grid>
+</UserControl>
