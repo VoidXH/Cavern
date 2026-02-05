@@ -19,18 +19,6 @@ using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
     partial class MainWindow {
-        /// <inheritdoc/>
-        public float RenderGain { get; set; } = 1;
-
-        /// <inheritdoc/>
-        public bool SurroundSwap {
-            get => Settings.Default.surroundSwap;
-            set {
-                Settings.Default.surroundSwap = value;
-                Dispatcher.Invoke(() => surroundSwap.IsChecked = value);
-            }
-        }
-
         /// <summary>
         /// Total number of samples for all channels that will be written to the file at once.
         /// </summary>

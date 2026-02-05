@@ -25,6 +25,6 @@ sealed class MuteBedCommand : Command {
             InProgressError(app, "muting");
         }
 
-        app.SpecialRenderModeSettings.MuteBed = true;
+        app.RenderingSettings.MuteBed = true;
     }
 }

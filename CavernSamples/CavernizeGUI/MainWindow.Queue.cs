@@ -9,7 +9,6 @@ using Cavern.Format.Common;
 
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Rendering;
-using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {

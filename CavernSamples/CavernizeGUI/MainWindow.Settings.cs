@@ -10,17 +10,17 @@ namespace CavernizeGUI {
         /// <summary>
         /// Update the setting related to the surround swap feature when the toggle's state has changed.
         /// </summary>
-        void SpeakerVirtualizerChange(object source, RoutedEventArgs _) => SpecialRenderModeSettings.SpeakerVirtualizer = ((MenuItem)source).IsChecked;
+        void SpeakerVirtualizerChange(object source, RoutedEventArgs _) => RenderingSettings.SpeakerVirtualizer = ((MenuItem)source).IsChecked;
 
         /// <summary>
         /// Set the state of bed muting when the toggle's state has changed.
         /// </summary>
-        void MuteBedChange(object source, RoutedEventArgs _) => SpecialRenderModeSettings.MuteBed = ((MenuItem)source).IsChecked;
+        void MuteBedChange(object source, RoutedEventArgs _) => RenderingSettings.MuteBed = ((MenuItem)source).IsChecked;
 
         /// <summary>
         /// Set the state of non-elevated object muting when the toggle's state has changed.
         /// </summary>
-        void MuteGroundChange(object source, RoutedEventArgs _) => SpecialRenderModeSettings.MuteGround = ((MenuItem)source).IsChecked;
+        void MuteGroundChange(object source, RoutedEventArgs _) => RenderingSettings.MuteGround = ((MenuItem)source).IsChecked;
 
         /// <summary>
         /// Set the state of forcing 24-bit resolution to select codecs when the toggle's state has changed.

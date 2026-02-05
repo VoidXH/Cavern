@@ -25,6 +25,6 @@ sealed class MuteGroundCommand : Command {
             InProgressError(app, "muting");
         }
 
-        app.SpecialRenderModeSettings.MuteGround = true;
+        app.RenderingSettings.MuteGround = true;
     }
 }

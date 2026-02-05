@@ -18,13 +18,11 @@ using Cavern.Utilities;
 using VoidX.WPF;
 using VoidX.WPF.FFmpeg;
 
-using Cavernize.Logic.CavernSettings;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Consts;
-using CavernizeGUI.Elements;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
@@ -32,34 +30,11 @@ using Path = System.IO.Path;
 
 namespace CavernizeGUI;
 
-public partial class MainWindow : Window, ICavernizeApp {
+public partial class MainWindow : Window {
     /// <summary>
     /// Source of language strings.
     /// </summary>
     public static readonly ResourceDictionary language = Consts.Language.GetMainWindowStrings();
-
-    /// <inheritdoc/>
-    public bool Rendering => taskEngine.IsOperationRunning;
-
-    public AudioFile LoadedFile { get; private set; }
-
-    /// <inheritdoc/>
-    public ExportFormat ExportFormat {
-        get => (ExportFormat)audio.SelectedItem;
-        set => audio.SelectedItem = value;
-    }
-
-    /// <inheritdoc/>
-    public RenderTarget RenderTarget {
-        get => (RenderTarget)renderTarget.SelectedItem;
-        set => renderTarget.SelectedItem = value;
-    }
-
-    /// <inheritdoc/>
-    public Cavern.CavernSettings.UpmixingSettings UpmixingSettings { get; } = new DynamicUpmixingSettings();
-
-    /// <inheritdoc/>
-    public SpecialRenderModeSettings SpecialRenderModeSettings { get; }
 
     /// <summary>
     /// Render process handler.
@@ -107,7 +82,7 @@ public partial class MainWindow : Window, ICavernizeApp {
         string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         Environment.SetEnvironmentVariable("WEBVIEW2_USER_DATA_FOLDER", Path.Combine(appData, "Temp", "CavernizeWebCache"));
         InitializeComponent();
-        SpecialRenderModeSettings = new DynamicSpecialRenderModeSettings();
+        RenderingSettings = new DynamicSpecialRenderModeSettings();
 #if DEBUG
         MenuItem testLanguage = new MenuItem {
             Header = "Test",
@@ -169,59 +144,6 @@ public partial class MainWindow : Window, ICavernizeApp {
             minWidth = Width;
             Width = queuedJobs.TransformToAncestor(this).Transform(new Point()).X;
             uiInitialized = true;
-        }
-    }
-
-    /// <inheritdoc/>
-    public void OpenContent(string path) {
-        Reset();
-        ffmpeg.CheckFFmpeg();
-        taskEngine.Progress = 0;
-        OnOutputSelected(null, null);
-
-        try {
-            OpenContent(new AudioFile(path, Consts.Language.GetTrackStrings()));
-        } catch (IOException e) {
-            Reset();
-            throw new Exception(e.Message);
-        } catch (Exception e) {
-            Reset();
-            throw new Exception($"{e.Message} {Consts.Language.GetTrackStrings().Later}");
-        }
-        Settings.Default.lastDirectory = Path.GetDirectoryName(path);
-    }
-
-    /// <inheritdoc/>
-    public void OpenContent(AudioFile file) {
-        fileName.Text = Path.GetFileName(file.Path);
-        LoadedFile = file;
-        if (file.Tracks.Count != 0) {
-            trackControls.Visibility = Visibility.Visible;
-            tracks.ItemsSource = file.Tracks;
-            CavernizeTrack bestQuality = file.Tracks
-                .OrderBy(x => x.Codec)
-                .FirstOrDefault();
-            if (bestQuality != null) {
-                tracks.SelectedItem = bestQuality;
-            } else {
-                tracks.SelectedIndex = 0;
-            }
-        }
-    }
-
-    /// <inheritdoc/>
-    public void RenderContent(string path) {
-        Action renderTask;
-        try {
-            PreRender();
-            renderTask = Render(path);
-        } catch (Exception e) {
-            Error(e.Message);
-            return;
-        }
-
-        if (renderTask != null) {
-            taskEngine.Run(renderTask, Error);
         }
     }
 
@@ -341,14 +263,12 @@ public partial class MainWindow : Window, ICavernizeApp {
     /// <summary>
     /// Display track metadata on track selection.
     /// </summary>
-    void OnTrackSelected(object _, SelectionChangedEventArgs e) =>
-        trackInfo.SelectedTrack = (CavernizeTrack)tracks.SelectedItem;
+    void OnTrackSelected(object _, SelectionChangedEventArgs e) => SelectedTrack = (CavernizeTrack)tracks.SelectedItem;
 
     /// <summary>
     /// Grey out renderer settings when it's not applicable.
     /// </summary>
-    void OnOutputSelected(object _, SelectionChangedEventArgs e) =>
-        renderSettings.IsEnabled = !ExportFormat.Codec.IsEnvironmental();
+    void OnOutputSelected(object _, SelectionChangedEventArgs e) => renderSettings.IsEnabled = !ExportFormat.Codec.IsEnvironmental();
 
     /// <summary>
     /// Prompt the user to select FFmpeg's installation folder.

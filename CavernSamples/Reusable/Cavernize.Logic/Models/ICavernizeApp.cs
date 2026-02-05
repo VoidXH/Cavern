@@ -20,6 +20,11 @@ public interface ICavernizeApp {
     AudioFile LoadedFile { get; }
 
     /// <summary>
+    /// The track of the <see cref="LoadedFile"/> selected for rendering.
+    /// </summary>
+    CavernizeTrack SelectedTrack { get; set; }
+
+    /// <summary>
     /// Codec to save the rendered content in.
     /// </summary>
     ExportFormat ExportFormat { get; set; }
@@ -30,11 +35,6 @@ public interface ICavernizeApp {
     RenderTarget RenderTarget { get; set; }
 
     /// <summary>
-    /// The voltage gain at which the content is rendered. Shall default to 1.
-    /// </summary>
-    float RenderGain { get; set; }
-
-    /// <summary>
     /// Access or modify settings related to matrix upmixing.
     /// </summary>
     UpmixingSettings UpmixingSettings { get; }
@@ -42,7 +42,7 @@ public interface ICavernizeApp {
     /// <summary>
     /// Access or modify settings related to special rendering modes.
     /// </summary>
-    SpecialRenderModeSettings SpecialRenderModeSettings { get; }
+    RenderingSettings RenderingSettings { get; }
 
     /// <summary>
     /// Swap the side and rear surround pair outputs.

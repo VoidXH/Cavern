@@ -25,6 +25,6 @@ sealed class Force24BitCommand : Command {
             InProgressError(app, "forcing 24-bit");
         }
 
-        app.SpecialRenderModeSettings.MuteBed = true;
+        app.RenderingSettings.MuteBed = true;
     }
 }

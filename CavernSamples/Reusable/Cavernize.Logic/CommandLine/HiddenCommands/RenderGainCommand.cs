@@ -22,6 +22,6 @@ sealed class RenderGainCommand : UnsafeCommand {
         if (!QMath.TryParseFloat(args[offset], out float attenuation)) {
             throw new CommandException($"The provided render gain ({args[offset]}) is not a number.");
         }
-        app.RenderGain = QMath.DbToGain(attenuation);
+        app.RenderingSettings.Gain = QMath.DbToGain(attenuation);
     }
 }

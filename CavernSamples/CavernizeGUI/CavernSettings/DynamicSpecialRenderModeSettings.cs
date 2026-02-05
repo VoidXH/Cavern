@@ -5,7 +5,7 @@ namespace CavernizeGUI.CavernSettings;
 /// <summary>
 /// Use the settings stored in Cavernize for special rendering modes.
 /// </summary>
-sealed class DynamicSpecialRenderModeSettings : SpecialRenderModeSettings {
+sealed class DynamicSpecialRenderModeSettings : RenderingSettings {
     /// <summary>
     /// Said settings file.
     /// </summary>

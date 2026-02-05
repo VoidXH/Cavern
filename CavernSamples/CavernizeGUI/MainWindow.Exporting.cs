@@ -101,7 +101,7 @@ namespace CavernizeGUI {
                 new RenderStatsEx(environment.Listener) :
                 new RenderStats(environment.Listener);
             Progressor progressor = new Progressor(target.Length, environment.Listener, taskEngine);
-            bool customMuting = SpecialRenderModeSettings.MuteBed || SpecialRenderModeSettings.MuteGround;
+            bool customMuting = RenderingSettings.MuteBed || RenderingSettings.MuteGround;
 
             MultichannelConvolver filters = null;
             if (environment.RoomCorrectionUsed) {
@@ -112,7 +112,7 @@ namespace CavernizeGUI {
             VirtualizerFilter virtualizer = null;
             Normalizer normalizer = null;
             bool virtualizerState = Listener.HeadphoneVirtualizer;
-            if (virtualizerState || Dispatcher.Invoke(() => SpecialRenderModeSettings.SpeakerVirtualizer)) {
+            if (virtualizerState || Dispatcher.Invoke(() => RenderingSettings.SpeakerVirtualizer)) {
                 Listener.HeadphoneVirtualizer = false;
                 virtualizer = new VirtualizerFilter();
                 virtualizer.SetLayout();
@@ -186,9 +186,9 @@ namespace CavernizeGUI {
                     for (int i = 0, c = objects.Count; i < c; i++) {
                         Vector3 rawPos = objects[i].Position / Listener.EnvironmentSize;
                         objects[i].Mute =
-                            (SpecialRenderModeSettings.MuteBed && MathF.Abs(rawPos.X) % 1 < .01f &&
+                            (RenderingSettings.MuteBed && MathF.Abs(rawPos.X) % 1 < .01f &&
                                 MathF.Abs(rawPos.Y) % 1 < .01f && MathF.Abs(rawPos.Z % 1) < .01f) ||
-                            (SpecialRenderModeSettings.MuteGround && rawPos.Y == 0);
+                            (RenderingSettings.MuteGround && rawPos.Y == 0);
                     }
                 }
 

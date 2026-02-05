@@ -24,13 +24,13 @@ public class Program : ICavernizeApp {
     public AudioFile LoadedFile { get; private set; }
 
     /// <inheritdoc/>
+    public CavernizeTrack SelectedTrack { get; set; }
+
+    /// <inheritdoc/>
     public ExportFormat ExportFormat { get; set; } = new(Codec.PCM_LE, null, short.MaxValue, null);
 
     /// <inheritdoc/>
     public RenderTarget RenderTarget { get; set; } = new(null, ChannelPrototype.ref512);
-
-    /// <inheritdoc/>
-    public float RenderGain { get; set; } = 1;
 
     /// <inheritdoc/>
     public bool SurroundSwap { get; set; }
@@ -39,7 +39,7 @@ public class Program : ICavernizeApp {
     public UpmixingSettings UpmixingSettings => new(true);
 
     /// <inheritdoc/>
-    public SpecialRenderModeSettings SpecialRenderModeSettings => new();
+    public RenderingSettings RenderingSettings => new();
 
     /// <summary>
     /// Render process handler.
@@ -65,10 +65,11 @@ public class Program : ICavernizeApp {
         }
 
         LoadedFile = file;
-        environment.AttachToListener(file.Tracks[0]);
+        SelectedTrack = file.Tracks[0];
+        environment.AttachToListener(SelectedTrack);
 
         string name = Path.GetFileNameWithoutExtension(file.Path);
-        Console.WriteLine($"Opened {name} containing {file.Tracks[0]}.");
+        Console.WriteLine($"Opened {name} containing {SelectedTrack}.");
     }
 
     /// <inheritdoc/>

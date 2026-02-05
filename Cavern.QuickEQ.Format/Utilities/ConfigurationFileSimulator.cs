@@ -75,6 +75,7 @@ namespace Cavern.Format.Utilities {
                 } else {
                     throw new InvalidChannelException(output.ChannelName);
                 }
+                return;
             }
 
             IReadOnlyList<FilterGraphNode> children = node.Children;
@@ -86,9 +87,9 @@ namespace Cavern.Format.Utilities {
             if (children.Count == 0) {
                 return;
             }
-            Simulate(children[0], signal, result);
+            Simulate(children[0], signal.FastClone(), result);
             for (int i = 1, c = children.Count; i < c; i++) {
-                Simulate(children[1], signal.FastClone(), result);
+                Simulate(children[i], signal.FastClone(), result);
             }
         }
     }

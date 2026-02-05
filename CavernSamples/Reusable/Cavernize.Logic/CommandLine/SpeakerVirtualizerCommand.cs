@@ -22,6 +22,6 @@ sealed class SpeakerVirtualizerCommand : BooleanCommand {
             InProgressError(app, "speaker virtualization");
         }
 
-        app.SpecialRenderModeSettings.SpeakerVirtualizer = value;
+        app.RenderingSettings.SpeakerVirtualizer = value;
     }
 }

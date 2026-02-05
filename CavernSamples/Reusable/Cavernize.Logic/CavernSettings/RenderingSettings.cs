@@ -5,7 +5,12 @@ namespace Cavernize.Logic.CavernSettings;
 /// <summary>
 /// Holds settings for rendering modifiers regarding a conversion.
 /// </summary>
-public class SpecialRenderModeSettings {
+public class RenderingSettings {
+    /// <summary>
+    /// The voltage gain at which the content is rendered. Shall default to 1.
+    /// </summary>
+    public virtual float Gain { get; set; } = 1;
+
     /// <summary>
     /// Virtualize and downmix elevated objects to ground-only layouts by practically applying HRTFs on height channels.
     /// </summary>

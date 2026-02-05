@@ -13,6 +13,7 @@ public partial class TrackInfo : UserControl {
     /// The track of which the info to display.
     /// </summary>
     public CavernizeTrack SelectedTrack {
+        get => selectedTrack;
         set {
             if (value == null) {
                 Reset();
@@ -30,8 +31,10 @@ public partial class TrackInfo : UserControl {
                 table[i].title.Text = string.Empty;
                 table[i].value.Text = string.Empty;
             }
+            selectedTrack = value;
         }
     }
+    CavernizeTrack selectedTrack;
 
     /// <summary>
     /// The fields that show key-value pairs in a table.
@@ -59,5 +62,6 @@ public partial class TrackInfo : UserControl {
             table[i].title.Text = string.Empty;
             table[i].value.Text = string.Empty;
         }
+        selectedTrack = null;
     }
 }

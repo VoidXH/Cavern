@@ -5,7 +5,7 @@ namespace CavernizeGUI.Consts;
 /// <summary>
 /// Definitions for Cavern's style.
 /// </summary>
-sealed class UI {
+static class UI {
     /// <summary>
     /// Color used for active speaker display.
     /// </summary>

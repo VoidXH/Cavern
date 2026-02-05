@@ -1,16 +1,13 @@
-﻿using System;
+﻿using Cavern.Format.Common;
 
-using Cavern.Format.Common;
-
-using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 
-namespace CavernizeGUI.Elements;
+namespace Cavernize.Logic.Models;
 
 /// <summary>
 /// A rendering job with all relevant settings.
 /// </summary>
-sealed class QueuedJob {
+public sealed class QueuedJob {
     /// <summary>
     /// Queued audio file.
     /// </summary>
@@ -66,11 +63,11 @@ sealed class QueuedJob {
     /// <summary>
     /// Sets up the rendering environment for this job.
     /// </summary>
-    public void Prepare(MainWindow window) {
-        window.OpenContent(source);
-        window.tracks.SelectedItem = track;
-        window.renderTarget.SelectedItem = target;
-        window.audio.SelectedItem = format;
+    public void Prepare(ICavernizeApp app) {
+        app.OpenContent(source);
+        app.SelectedTrack = track;
+        app.RenderTarget = target;
+        app.ExportFormat = format;
     }
 
     /// <summary>

@@ -52,7 +52,7 @@ public sealed class ConversionEnvironment {
             throw new OverMaxChannelsException(Listener.Channels.Length, app.ExportFormat.MaxChannels);
         }
 
-        if (app.SpecialRenderModeSettings.SpeakerVirtualizer) {
+        if (app.RenderingSettings.SpeakerVirtualizer) {
             VirtualizerFilter.SetupForSpeakers();
             Listener.SampleRate = VirtualizerFilter.FilterSampleRate;
         }
@@ -62,7 +62,7 @@ public sealed class ConversionEnvironment {
 
         // Prevent height limiting, require at least 4 overhead channels for full gain
         float safeGain = target.Renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1;
-        Listener.Volume = app.RenderGain * safeGain;
+        Listener.Volume = app.RenderingSettings.Gain * safeGain;
 
         if (app.RenderTarget is VirtualizerRenderTarget) {
             if (RoomCorrection != null && RoomCorrection.SampleRate != VirtualizerFilter.FilterSampleRate) {
@@ -77,7 +77,5 @@ public sealed class ConversionEnvironment {
     /// <summary>
     /// Reset the environment, prepare for next attachment.
     /// </summary>
-    public void Reset() {
-        Listener.DetachAllSources();
-    }
+    public void Reset() => Listener.DetachAllSources();
 }
