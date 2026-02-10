@@ -13,6 +13,7 @@ using Cavern.WPF.Consts;
 
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Windows;
 using CavernizeGUI.Resources;
@@ -42,6 +43,22 @@ namespace CavernizeGUI {
             VirtualizerFilter.Override(VirtualChannel.Parse(new MultichannelWaveform(file.ReadMultichannelAfterHeader()), file.SampleRate),
                 file.SampleRate);
             return true;
+        }
+
+        /// <summary>
+        /// Ask the user where to save the currently set up export. If the user cancels the operation, null is returned.
+        /// </summary>
+        string AskUserForExportPath() {
+            SaveFileDialog dialog = new() {
+                FileName = fileName.Text.Contains('.') ? fileName.Text[..fileName.Text.LastIndexOf('.')] : fileName.Text
+            };
+            if (Directory.Exists(Settings.Default.lastDirectory)) {
+                dialog.InitialDirectory = Settings.Default.lastDirectory;
+            }
+
+            Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
+            dialog.Filter = MergeToContainer.GetPossibleContainers((CavernizeTrack)tracks.SelectedItem, codec, ffmpeg);
+            return dialog.ShowDialog().Value ? dialog.FileName : null;
         }
 
         /// <summary>

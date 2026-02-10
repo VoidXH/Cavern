@@ -7,6 +7,11 @@ namespace CavernizeGUI.Consts;
 /// </summary>
 static class UI {
     /// <summary>
+    /// Cavern's signature blue.
+    /// </summary>
+    static readonly Color cavernBlue = Color.FromRgb(0x31, 0x86, 0xCE);
+
+    /// <summary>
     /// Color used for active speaker display.
     /// </summary>
     public static readonly SolidColorBrush activeSpeaker = new(cavernBlue);
@@ -20,9 +25,4 @@ static class UI {
     /// Color used for inactive speaker display.
     /// </summary>
     public static readonly SolidColorBrush inactiveSpeaker = new(Colors.Gray);
-
-    /// <summary>
-    /// Cavern's signature blue.
-    /// </summary>
-    static readonly Color cavernBlue = Color.FromRgb(0x31, 0x86, 0xCE);
 }

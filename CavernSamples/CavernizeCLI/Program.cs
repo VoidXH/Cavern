@@ -73,7 +73,15 @@ public class Program : ICavernizeApp {
     }
 
     /// <inheritdoc/>
-    public void RenderContent(string path) {
+    public Action GetRenderTask(string path) {
+        throw new NotImplementedException(); // TODO
+    }
+
+    /// <inheritdoc/>
+    public void RenderContent(string path) => GetRenderTask(path).Invoke();
+
+    /// <inheritdoc/>
+    public void Reset() {
         throw new NotImplementedException(); // TODO
     }
 }

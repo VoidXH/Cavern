@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
@@ -47,9 +46,9 @@ public partial class MainWindow : Window {
     readonly FFmpegGUI ffmpeg;
 
     /// <summary>
-    /// Queued conversions.
+    /// Queued jobs.
     /// </summary>
-    readonly ObservableCollection<QueuedJob> jobs = [];
+    readonly Queue queue;
 
     /// <summary>
     /// Runs the process in the background.
@@ -106,7 +105,8 @@ public partial class MainWindow : Window {
         renderTarget.ItemsSource = RenderTarget.Targets;
         renderTarget.SelectedIndex = Math.Clamp(Settings.Default.renderTarget + 6, 0, RenderTarget.Targets.Length - 1);
         renderSettings.IsEnabled = true; // Don't grey out initially
-        queuedJobs.ItemsSource = jobs;
+        queue = new(this);
+        queuedJobs.ItemsSource = queue.Jobs;
         taskEngine = new(progress, TaskbarItemInfo, status);
         Reset();
 
@@ -164,22 +164,6 @@ public partial class MainWindow : Window {
         }
         CheckBlocks();
         base.OnClosed(e);
-    }
-
-    /// <summary>
-    /// Reset the listener and remove the objects of the last render.
-    /// </summary>
-    void Reset() {
-        environment.Reset();
-        if (LoadedFile != null && jobs.FirstOrDefault(x => x.IsUsingFile(LoadedFile)) == null) {
-            LoadedFile.Dispose();
-            LoadedFile = null;
-        }
-        fileName.Text = string.Empty;
-        trackControls.Visibility = Visibility.Hidden;
-        tracks.ItemsSource = null;
-        trackInfo.Reset();
-        report = new(environment.Listener, Consts.Language.GetRenderReportStrings());
     }
 
     /// <summary>
@@ -286,7 +270,7 @@ public partial class MainWindow : Window {
     /// Start the rendering process.
     /// </summary>
     void Render(object _, RoutedEventArgs e) {
-        Action renderTask = GetRenderTask();
+        Action renderTask = GetRenderTask(null);
         if (renderTask != null) {
             taskEngine.Run(renderTask, Error);
         }

@@ -90,6 +90,41 @@ partial class MainWindow : ICavernizeApp {
     }
 
     /// <inheritdoc/>
+    public Action GetRenderTask(string path) {
+        try {
+            PreRender();
+        } catch (Exception e) {
+            Error(e.Message);
+            return null;
+        }
+
+        CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
+        if (!reportMode.IsChecked) {
+            if (path == null) {
+                path = AskUserForExportPath();
+                if (path == null) {
+                    return null;
+                }
+            }
+
+            try {
+                return Render(path);
+            } catch (Exception e) {
+                Error(e.Message);
+                return null;
+            }
+        } else {
+            SetBlockSize(RenderTarget);
+            try {
+                return () => RenderTask(target, null, null);
+            } catch (Exception e) {
+                Error(e.Message);
+                return null;
+            }
+        }
+    }
+
+    /// <inheritdoc/>
     public void RenderContent(string path) {
         Action renderTask;
         try {
@@ -103,5 +138,21 @@ partial class MainWindow : ICavernizeApp {
         if (renderTask != null) {
             taskEngine.Run(renderTask, Error);
         }
+    }
+
+    /// <summary>
+    /// Clear the inner state of the application, resetting to when no content was loaded..
+    /// </summary>
+    public void Reset() {
+        environment.Reset();
+        if (LoadedFile != null && queue.Jobs.FirstOrDefault(x => x.IsUsingFile(LoadedFile)) == null) {
+            LoadedFile.Dispose();
+            LoadedFile = null;
+        }
+        fileName.Text = string.Empty;
+        trackControls.Visibility = Visibility.Hidden;
+        tracks.ItemsSource = null;
+        trackInfo.Reset();
+        report = new(environment.Listener, Consts.Language.GetRenderReportStrings());
     }
 }

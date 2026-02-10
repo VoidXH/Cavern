@@ -1,6 +1,4 @@
-﻿using Microsoft.Win32;
-using System;
-using System.IO;
+﻿using System;
 
 using Cavern.Format;
 using Cavern.Format.Common;
@@ -119,64 +117,6 @@ namespace CavernizeGUI {
                         return null;
                 }
                 return () => TranscodeTask(target, transcoder);
-            }
-        }
-
-        /// <summary>
-        /// Get the render task after an output file was selected if export is selected.
-        /// </summary>
-        /// <returns>A task for rendering or null when an error happened.</returns>
-        Action GetRenderTask() => GetRenderTask(null);
-
-        /// <summary>
-        /// Get the render task for exporting the currently selected content to the given <paramref name="path"/>.
-        /// If the path is null, ask the user for an export path.
-        /// </summary>
-        /// <returns>A task for rendering or null when an error happened.</returns>
-        Action GetRenderTask(string path) {
-#if RELEASE
-            try {
-#endif
-                PreRender();
-#if RELEASE
-            } catch (Exception e) {
-                Error(e.Message);
-                return null;
-            }
-#endif
-
-            CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
-            if (!reportMode.IsChecked) {
-                if (path == null) {
-                    SaveFileDialog dialog = new() {
-                        FileName = fileName.Text.Contains('.') ? fileName.Text[..fileName.Text.LastIndexOf('.')] : fileName.Text
-                    };
-                    if (Directory.Exists(Settings.Default.lastDirectory)) {
-                        dialog.InitialDirectory = Settings.Default.lastDirectory;
-                    }
-
-                    Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
-                    dialog.Filter = MergeToContainer.GetPossibleContainers(target, codec, ffmpeg);
-                    if (!dialog.ShowDialog().Value) {
-                        return null;
-                    }
-                    path = dialog.FileName;
-                }
-
-                try {
-                    return Render(path);
-                } catch (Exception e) {
-                    Error(e.Message);
-                    return null;
-                }
-            } else {
-                SetBlockSize(RenderTarget);
-                try {
-                    return () => RenderTask(target, null, null);
-                } catch (Exception e) {
-                    Error(e.Message);
-                    return null;
-                }
             }
         }
 

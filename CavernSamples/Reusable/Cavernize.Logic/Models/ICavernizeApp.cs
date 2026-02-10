@@ -60,7 +60,21 @@ public interface ICavernizeApp {
     void OpenContent(AudioFile file);
 
     /// <summary>
-    /// Set up rendering to a target file. Doesn't start rendering in all implementations, but prepares the application for it.
+    /// Get the render task, than when run, exports the currently open content to the given <paramref name="path"/>.
+    /// If the path is null, ask the user for an export path.
+    /// </summary>
+    /// <returns>A task for rendering or null when an error happened.</returns>
+    /// <remarks>For direct rendering, use <see cref="RenderContent(string)"/>. This function exists for queue support.</remarks>
+    Action GetRenderTask(string path);
+
+    /// <summary>
+    /// Start rendering the currently open content to the target output <paramref name="path"/>.
+    /// This function immediately runs <see cref="GetRenderTask(string)"/> and handles errors.
     /// </summary>
     void RenderContent(string path);
+
+    /// <summary>
+    /// Clear the inner state of the application, resetting to when no content was loaded..
+    /// </summary>
+    void Reset();
 }
