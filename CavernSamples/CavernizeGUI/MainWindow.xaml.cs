@@ -307,6 +307,11 @@ public partial class MainWindow : Window {
         if (CavernAmp.Available) {
             result.Append('\n').Append((string)language["AbouA"]);
         }
+
+        result.AppendLine().Append("Build: ");
+        FileInfo cavernizeLogic = new("Cavernize.Logic.dll");
+        FileInfo cavernizeGui = new("CavernizeGUI.dll");
+        result.Append(cavernizeLogic.CreationTime).Append(", ").Append(cavernizeGui.CreationTime);
         MessageBox.Show(result.ToString(), (string)language["AbouH"]);
     }
 
