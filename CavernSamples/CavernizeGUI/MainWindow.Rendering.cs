@@ -107,7 +107,7 @@ namespace CavernizeGUI {
                         transcoder = new BroadcastWaveFormatWriter(path, environment.Listener, target.Length, bits);
                         break;
                     case Codec.ADM_BWF_Atmos:
-                        transcoder = new DolbyAtmosBWFWriter(path, environment.Listener, target.Length, bits, target.Renderer);
+                        transcoder = new DolbyAtmosBWFWriter(path, environment.Listener, target.Length, bits, target.Renderer, false);
                         break;
                     case Codec.DAMF:
                         transcoder = new DolbyAtmosMasterFormatWriter(path, environment.Listener, target.Length, bits, target.Renderer);
@@ -193,6 +193,9 @@ namespace CavernizeGUI {
         /// Decode the source and export it to an object-based format.
         /// </summary>
         void TranscodeTask(CavernizeTrack target, EnvironmentWriter writer) {
+            if (writer is DolbyAtmosBWFWriter bwfWriter) {
+                bwfWriter.ExtendWithMuteTarget();
+            }
             ExternalConverterHandler external = CreateExternalHandler(target, writer is DolbyAtmosBWFWriter ? 10 : 0);
             if (external.Failed) {
                 return;

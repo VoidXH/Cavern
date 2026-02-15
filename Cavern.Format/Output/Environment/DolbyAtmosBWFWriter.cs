@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Channels;
@@ -11,10 +12,16 @@ using Cavern.SpecialSources;
 
 namespace Cavern.Format.Environment {
     /// <summary>
-    /// Dolby Atmos has a master format that is a subset of ADM BWF with certain restrictions.
-    /// 10 bed channels always have to be present, even if they are empty.
+    /// Dolby Atmos has a master format that is a subset of ADM BWF with certain restrictions. 10 bed channels always have to be present, even if they are empty.
+    /// This file writes the entire rendering environment (<see cref="Listener"/>) into a file, and the <see cref="Source"/>s that are part of it can be manipulated
+    /// until <see cref="BroadcastWaveFormatWriter.WriteNextFrame"/> is not called. The first call of that function is what burns the track count into the export.
     /// </summary>
     public class DolbyAtmosBWFWriter : BroadcastWaveFormatWriter {
+        /// <summary>
+        /// Objects that should be exported as a bed channel if possible, because they do not contain any movement, just stay at a fixed position.
+        /// </summary>
+        readonly (ReferenceChannel, Source)[] staticObjects;
+
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
         /// </summary>
@@ -23,9 +30,24 @@ namespace Cavern.Format.Environment {
         /// <param name="length">Total samples to write</param>
         /// <param name="bits">Bit depth of the output</param>
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
+        /// <remarks>Transforms the <paramref name="source"/> rendering environment for export, adding <see cref="MuteSource"/>s for the unused bed channels.</remarks>
         public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits,
             params (ReferenceChannel, Source)[] staticObjects) :
-            base(writer, ExtendWithMuteTarget(source, staticObjects), length, bits) { }
+            this(writer, source, length, bits, true, staticObjects) { }
+
+        /// <summary>
+        /// ADM BWF exporter with Dolby Atmos compatibility options.
+        /// </summary>
+        /// <param name="writer">File output stream</param>
+        /// <param name="source">Rendering environment that should be exported</param>
+        /// <param name="length">Total samples to write</param>
+        /// <param name="bits">Bit depth of the output</param>
+        /// <param name="extendOnCreation">Extend the <paramref name="source"/> with <see cref="MuteSource"/>s, representing the unused static bed channels,
+        /// making the <see cref="Listener"/> environment ready for rendering</param>
+        /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
+        public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits, bool extendOnCreation,
+            params (ReferenceChannel, Source)[] staticObjects) :
+            base(writer, extendOnCreation ? ExtendWithMuteTarget(source, staticObjects) : source, length, bits) => this.staticObjects = staticObjects;
 
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
@@ -35,6 +57,7 @@ namespace Cavern.Format.Environment {
         /// <param name="length">Total samples to write</param>
         /// <param name="bits">Bit depth of the output</param>
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
+        /// <remarks>Transforms the <paramref name="source"/> rendering environment for export, adding <see cref="MuteSource"/>s for the unused bed channels.</remarks>
         public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits,
             params (ReferenceChannel, Source)[] staticObjects) :
             this(AudioWriter.Open(path), source, length, bits, staticObjects) { }
@@ -47,8 +70,22 @@ namespace Cavern.Format.Environment {
         /// <param name="length">Total samples to write</param>
         /// <param name="bits">Bit depth of the output</param>
         /// <param name="renderer">Fetch the objects to move to bed tracks from this <see cref="Renderer"/></param>
+        /// <remarks>Transforms the <paramref name="source"/> rendering environment for export, adding <see cref="MuteSource"/>s for the unused bed channels.</remarks>
         public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer) :
             this(path, source, length, bits, StaticSourceHandler.GetStaticObjects(renderer)) { }
+
+        /// <summary>
+        /// ADM BWF exporter with Dolby Atmos compatibility options.
+        /// </summary>
+        /// <param name="path">File output path</param>
+        /// <param name="source">Rendering environment that should be exported</param>
+        /// <param name="length">Total samples to write</param>
+        /// <param name="bits">Bit depth of the output</param>
+        /// <param name="renderer">Fetch the objects to move to bed tracks from this <see cref="Renderer"/></param>
+        /// <param name="extendOnCreation">Extend the <paramref name="source"/> with <see cref="MuteSource"/>s, representing the unused static bed channels,
+        /// making the <see cref="Listener"/> environment ready for rendering</param>
+        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer, bool extendOnCreation) :
+            this(AudioWriter.Open(path), source, length, bits, extendOnCreation, StaticSourceHandler.GetStaticObjects(renderer)) { }
 
         /// <summary>
         /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.
@@ -71,6 +108,11 @@ namespace Cavern.Format.Environment {
             }
             return source;
         }
+
+        /// <summary>
+        /// Create the muted tracks for empty bed channels in their correct order for the <see cref="EnvironmentWriter.Source"/>.
+        /// </summary>
+        public void ExtendWithMuteTarget() => ExtendWithMuteTarget(Source, staticObjects);
 
         /// <summary>
         /// Generates the ADM structure from the recorded movement and wires the mute channel to beds.
