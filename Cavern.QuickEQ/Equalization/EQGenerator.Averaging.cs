@@ -71,6 +71,10 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="sources">Curves to get the average of</param>
         /// <remarks>All <paramref name="sources"/> must have an equal number of bands at the same frequencies.</remarks>
         static Equalizer Average(Func<double, double> addition, Func<double, double> division, params Equalizer[] sources) {
+            if (sources.Length == 0) {
+                return new Equalizer();
+            }
+
             double[] bands = new double[sources[0].Bands.Count];
             IReadOnlyList<Band> source = sources[0].Bands;
             for (int i = 0; i < bands.Length; i++) {
