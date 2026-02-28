@@ -25,7 +25,7 @@ namespace EQAPOtoFIR {
         /// <summary>
         /// Ask the user for a configuration file.
         /// </summary>
-        void Open(object sender, RoutedEventArgs e) {
+        void Open(object _, RoutedEventArgs e) {
             OpenFileDialog dialog = new OpenFileDialog {
                 InitialDirectory = "C:\\Program Files\\EqualizerAPO\\config",
                 Filter = "Equalizer APO configuration files (*.txt)|*.txt"
@@ -114,7 +114,7 @@ namespace EQAPOtoFIR {
         /// <summary>
         /// Select a location and export the results.
         /// </summary>
-        void Export(object sender, RoutedEventArgs e) {
+        void Export(object _, RoutedEventArgs e) {
             BitDepth bits = BitDepth.Float32;
             if (int8.IsChecked.Value) {
                 bits = BitDepth.Int8;
@@ -138,7 +138,10 @@ namespace EQAPOtoFIR {
             }
         }
 
-        private void Ad_Click(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
+        /// <summary>
+        /// Guide the user to the source of this tool.
+        /// </summary>
+        void Ad(object _, RoutedEventArgs e) => Process.Start(new ProcessStartInfo {
             FileName = "https://en.sbence.hu/",
             UseShellExecute = true
         });

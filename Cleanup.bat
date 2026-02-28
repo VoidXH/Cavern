@@ -12,6 +12,8 @@ rd /s /q "CavernUnity DLL\obj"
 rd /s /q "CavernUnity.WebGL\bin"
 rd /s /q "CavernUnity.WebGL\obj"
 rd /s /q CavernSamples\.vs
+rd /s /q CavernSamples\ADMValidator\bin
+rd /s /q CavernSamples\ADMValidator\obj
 rd /s /q CavernSamples\Benchmark\bin
 rd /s /q CavernSamples\Benchmark\obj
 rd /s /q CavernSamples\CavernizeCLI\bin
@@ -34,6 +36,8 @@ rd /s /q CavernSamples\FilterStudio\bin
 rd /s /q CavernSamples\FilterStudio\obj
 rd /s /q CavernSamples\HRTFSetImporter\bin
 rd /s /q CavernSamples\HRTFSetImporter\obj
+rd /s /q CavernSamples\ImpulseFlattener\bin
+rd /s /q CavernSamples\ImpulseFlattener\obj
 rd /s /q CavernSamples\QuickEQResultMerger\bin
 rd /s /q CavernSamples\QuickEQResultMerger\obj
 rd /s /q CavernSamples\Reusable\Cavernize.Logic\bin

@@ -49,8 +49,8 @@
                 <RadioButton x:Name="unchanged" Content="Flat phase" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="90,4,0,0"/>
             </Grid>
         </GroupBox>
-        <Button Content="by VoidX" Margin="0,0,90,10" Click="Ad_Click" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
-        <Button x:Name="export" Content="Export" Margin="0,0,10,10"
+        <Button Margin="0,0,90,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Height="20" Content="by VoidX" Click="Ad"/>
+        <Button Name="export" Content="Export" Margin="0,0,10,10"
                 Click="Export" IsEnabled="False" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
     </Grid>
 </Window>
