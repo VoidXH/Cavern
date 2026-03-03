@@ -1,5 +1,8 @@
 ﻿using System;
 
+using Cavern.Numerics;
+using Cavern.QuickEQ.Utilities;
+
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
     /// Draws a channel layout as an overhead image.
@@ -73,7 +76,8 @@ namespace Cavern.QuickEQ.Graphing {
                     xPadding = channels[i].CubicalPos.X * relativePadding + .5f;
                     yPadding = channels[i].CubicalPos.Z * relativePadding + .5f;
                 }
-                Fill(image, ChannelColor, (int)(workingWidth * xPadding), (int)(workingHeight * yPadding), ChannelWidth, ChannelWidth);
+                Rectangle position = new Rectangle((int)(workingWidth * xPadding), (int)(workingHeight * yPadding), ChannelWidth, ChannelWidth);
+                DrawingUtils.AddRectangle(image, Width, position, ChannelColor);
             }
 
             return image;
@@ -87,23 +91,14 @@ namespace Cavern.QuickEQ.Graphing {
             int extraPadding = (ChannelWidth >> 1) - (ConnectionWidth >> 1),
                 hPadding = (int)((Width - (extraPadding << 1)) * relativePadding) + extraPadding,
                 vPadding = (int)((Height - (extraPadding << 1)) * relativePadding) + extraPadding;
-            Fill(image, ConnectionColor, hPadding, vPadding, ConnectionWidth, Height - (vPadding << 1)); // Left
-            Fill(image, ConnectionColor, Width - hPadding - ConnectionWidth, vPadding, ConnectionWidth, Height - (vPadding << 1)); // Right
-            Fill(image, ConnectionColor, hPadding, vPadding, Width - (hPadding << 1), ConnectionWidth); // Top
-            Fill(image, ConnectionColor, hPadding, Height - vPadding - ConnectionWidth, Width - (hPadding << 1), ConnectionWidth); // Bottom
-        }
-
-        /// <summary>
-        /// Draw a colored rectangle on the image in production.
-        /// </summary>
-        void Fill(uint[] image, uint color, int x, int y, int width, int height) {
-            int pos = y * Width + x;
-            for (int yAdd = 0; yAdd < height; yAdd++) {
-                for (int xAdd = 0; xAdd < width; xAdd++) {
-                    image[pos + xAdd] = color;
-                }
-                pos += Width;
-            }
+            DrawingUtils.AddRectangle(image, Width, // Left
+                new Rectangle(hPadding, vPadding, ConnectionWidth, Height - (vPadding << 1)), ConnectionColor);
+            DrawingUtils.AddRectangle(image, Width, // Right
+                new Rectangle(Width - hPadding - ConnectionWidth, vPadding, ConnectionWidth, Height - (vPadding << 1)), ConnectionColor);
+            DrawingUtils.AddRectangle(image, Width, // Top
+                new Rectangle(hPadding, vPadding, Width - (hPadding << 1), ConnectionWidth), ConnectionColor);
+            DrawingUtils.AddRectangle(image, Width, // Bottom
+                new Rectangle(hPadding, Height - vPadding - ConnectionWidth, Width - (hPadding << 1), ConnectionWidth), ConnectionColor);
         }
     }
 }
