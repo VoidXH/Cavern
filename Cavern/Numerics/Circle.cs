@@ -66,6 +66,9 @@ namespace Cavern.Numerics {
             return result;
         }
 
+        /// <inheritdoc/>
+        public override readonly string ToString() => $"Circle, center: {Center}, radius: {Radius}.";
+
         /// <summary>
         /// Finds the point of intersection(s), or if there isn't any, a point right between the edges of the circles.
         /// </summary>
