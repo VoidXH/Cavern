@@ -45,6 +45,11 @@ namespace Cavern.Numerics {
         }
 
         /// <summary>
+        /// Get how far away a <paramref name="point"/> is from this line.
+        /// </summary>
+        public readonly float GetDistance(Vector2 point) => Math.Abs(Slope * point.X - point.Y + Intercept) / MathF.Sqrt(Slope * Slope + 1);
+
+        /// <summary>
         /// Get the X coordinate for a given Y coordinate on the line. For vertical lines, this returns the x-intercept regardless of Y.
         /// </summary>
         public readonly float GetX(float y) {

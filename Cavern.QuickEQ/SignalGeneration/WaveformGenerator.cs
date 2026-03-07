@@ -33,7 +33,7 @@ namespace Cavern.QuickEQ.SignalGeneration {
             eq.AddBand(new Band(startFreq, 0));
             // Pink noise bands lose 3 dB/octave, which is 10 dB/decade
             eq.AddBand(new Band(nyquist, -10 * Math.Log(nyquist) / Math.Log(startFreq)));
-            eq.DownsampleLogarithmically(4096, startFreq, nyquist); // TODO: remove when EQ visualizations work in log space
+            eq.DownsampleLogarithmically(4096, startFreq, nyquist);
             result = FastConvolver.ConvolveSafe(result, eq.GetConvolution(sampleRate, workingLength));
             Array.Resize(ref result, length);
             WaveformUtils.Gain(result, 10); // Stable normalization

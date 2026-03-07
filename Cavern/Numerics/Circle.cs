@@ -27,10 +27,11 @@ namespace Cavern.Numerics {
         }
 
         /// <summary>
-        /// Finds where all the <paramref name="circles"/> intersect, or if there isn't any, a point right between the edges of the circles.
+        /// Finds where all the <paramref name="circles"/> intersect, or if there isn't any, a point closest to the edges of all circles.
         /// </summary>
-        /// <param name="iterations">The more iterations, the more accurate result</param>
-        public static Vector2 Intersect(int iterations, params Circle[] circles) {
+        /// <param name="circles">The circles of which the intersection is to be found</param>
+        /// <param name="iterations">The more iterations, the more accurate result, 10 is too much</param>
+        public static Vector2 Intersect(Circle[] circles, int iterations) {
             if (circles.Length < 2) {
                 return circles.Length == 0 ?
                     Vector2.Zero :
@@ -43,24 +44,24 @@ namespace Cavern.Numerics {
             }
             result /= circles.Length; // Initial guess: the average of the centers
 
-            // Gradient descent
+            // Modified geometric median algorithm: the error function is to the edge, not to the center
             for (int i = 0; i < iterations; i++) {
-                Vector2 gradient = Vector2.Zero;
-                for (int j = 0; j < circles.Length; j++) {
-                    Vector2 toCenter = circles[j].Center - result;
-                    float dist = toCenter.LengthSquared();
-                    if (dist < epsSquared) {
+                Vector2 newResult = Vector2.Zero;
+                float newResultDivisor = 0;
+                for (int circle = 0; circle < circles.Length; circle++) {
+                    float distance = Vector2.Distance(result, circles[circle].Center) - circles[circle].Radius;
+                    if (distance < eps) {
                         continue;
                     }
-                    dist = MathF.Sqrt(dist);
-                    float error = dist - circles[j].Radius;
-                    gradient += error / dist * toCenter;
+                    float divisor = 1 / distance;
+                    newResult += circles[circle].Center * divisor;
+                    newResultDivisor += divisor;
                 }
 
-                if (gradient.LengthSquared() < epsSquared) {
-                    break;
+                if (newResultDivisor < eps) {
+                    return result;
                 }
-                result += gradient * .5f;
+                result = newResult / newResultDivisor;
             }
 
             return result;
@@ -109,10 +110,5 @@ namespace Cavern.Numerics {
         /// Numbers lower than this are rounding errors.
         /// </summary>
         const float eps = 1e-6f;
-
-        /// <summary>
-        /// Square numbers lower than this are rounding errors, used to avoid unnecessary square root calculations.
-        /// </summary>
-        const float epsSquared = eps * eps;
     }
 }
