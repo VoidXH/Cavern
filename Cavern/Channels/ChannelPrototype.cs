@@ -223,7 +223,7 @@ namespace Cavern.Channels {
         /// <summary>
         /// Convert a mapping of <see cref="ReferenceChannel"/>s to channel name initials.
         /// </summary>
-        public static string[] GetShortNames(ReferenceChannel[] source) => source.Select(x => x.GetShortName()).ToArray();
+        public static string[] GetShortNames(ReferenceChannel[] source) => source.SelectArray(x => x.GetShortName());
 
         /// <summary>
         /// Convert a prototype array to their corresponding alternative positions in the current environment.

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -35,6 +37,29 @@ namespace Cavern.Utilities {
                 index++;
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Shorthand for .Select(...).ToArray(), with heavy performance optimizations.
+        /// </summary
+        public static T2[] SelectArray<T1, T2>(this IEnumerable<T1> source, Func<T1, T2> selector) {
+            if (source is IList<T1> list) { // Fast path for indexable structures
+                T2[] result = new T2[list.Count];
+                for (int i = 0; i < list.Count; i++) {
+                    result[i] = selector(list[i]);
+                }
+                return result;
+            } else if (source is ICollection<T1> collection) { // Fast path for countable but not indexable structures
+                T2[] result = new T2[collection.Count];
+                int i = 0;
+                IEnumerator<T1> enumerator = collection.GetEnumerator();
+                while (enumerator.MoveNext()) {
+                    result[i++] = selector(enumerator.Current);
+                }
+                return result;
+            } else { // Slow path for structures not supporting .Count
+                return source.Select(selector).ToArray();
+            }
         }
     }
 }

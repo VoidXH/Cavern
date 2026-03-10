@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Crossover {
     /// <summary>
@@ -58,7 +59,7 @@ namespace Cavern.QuickEQ.Crossover {
                     result[freq] = new List<int> { i };
                 }
             }
-            return result.Select(x => (x.Key, x.Value.ToArray())).ToArray();
+            return result.SelectArray(x => (x.Key, x.Value.ToArray()));
         }
     }
 }

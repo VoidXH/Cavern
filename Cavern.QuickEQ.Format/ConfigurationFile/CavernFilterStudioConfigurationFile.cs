@@ -9,6 +9,7 @@ using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.ConfigurationFile.Helpers;
 using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
     /// <summary>
@@ -95,7 +96,7 @@ namespace Cavern.Format.ConfigurationFile {
                                 throw new NotImplementedException();
                         }
                     }
-                    splitPoints.Add(new SplitPoint(name, rootsSource.Split(',').Select(x => nodes[int.Parse(x)]).ToArray()));
+                    splitPoints.Add(new SplitPoint(name, rootsSource.Split(',').SelectArray(x => nodes[int.Parse(x)])));
                 } else {
                     nodes[index].Filter = ParseFilter(reader);
                 }

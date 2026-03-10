@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -75,7 +75,7 @@ namespace Cavern.Format.FilterSet {
                         $"Filter: ON PK Fc {filters[j].CenterFreq:0.00} Hz Gain {filters[j].Gain:0.00} dB Q {filters[j].Q:0.0000}");
                 }
             }
-            string polarity = EqualizerAPOUtils.GetPolarityLine(Channels.Select(x => ((IIRChannelData)x).switchPolarity).ToArray());
+            string polarity = EqualizerAPOUtils.GetPolarityLine(Channels.SelectArray(x => ((IIRChannelData)x).switchPolarity));
             if (polarity != null) {
                 configFile.Add(polarity);
             }

@@ -44,6 +44,11 @@ namespace Cavern.QuickEQ.Graphing {
         public uint BackgroundColor { get; set; }
 
         /// <summary>
+        /// Whether to display a square in the middle for the LFE channel.
+        /// </summary>
+        public bool ShowLFE { get; set; } = true;
+
+        /// <summary>
         /// Draws a channel layout as an overhead image. The pixels are in ARGB.
         /// </summary>
         public uint[] Draw(Channel[] channels) {
@@ -69,6 +74,9 @@ namespace Cavern.QuickEQ.Graphing {
             for (int i = 0; i < channels.Length; i++) {
                 float xPadding, yPadding;
                 if (channels[i].LFE) {
+                    if (!ShowLFE) {
+                        continue;
+                    }
                     xPadding = .5f;
                     yPadding = .5f;
                 } else {

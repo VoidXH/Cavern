@@ -27,11 +27,11 @@ namespace Cavern.Numerics {
         }
 
         /// <summary>
-        /// Finds where all the <paramref name="circles"/> intersect, or if there isn't any, a point closest to the edges of all circles.
+        /// Finds the geometric median of <paramref name="circles"/>.
         /// </summary>
-        /// <param name="circles">The circles of which the intersection is to be found</param>
+        /// <param name="circles">The circles of which the geometric median is to be found</param>
         /// <param name="iterations">The more iterations, the more accurate result, 10 is too much</param>
-        public static Vector2 Intersect(Circle[] circles, int iterations) {
+        public static Vector2 GeometricMedian(Circle[] circles, int iterations) {
             if (circles.Length < 2) {
                 return circles.Length == 0 ?
                     Vector2.Zero :
@@ -62,6 +62,47 @@ namespace Cavern.Numerics {
                     return result;
                 }
                 result = newResult / newResultDivisor;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Finds where all the <paramref name="circles"/> intersect, or if there isn't any, a point right between the edges of the circles.
+        /// </summary>
+        /// <param name="circles">The circles of which the intersection is to be found</param>
+        /// <param name="iterations">The more iterations, the more accurate result - this requires more than the <see cref="GeometricMedian(Circle[], int)"/></param>
+        public static Vector2 Intersect(Circle[] circles, int iterations) {
+            if (circles.Length < 2) {
+                return circles.Length == 0 ?
+                    Vector2.Zero :
+                    circles[0].Center;
+            }
+
+            Vector2 result = Vector2.Zero;
+            for (int i = 0; i < circles.Length; i++) {
+                result += circles[i].Center;
+            }
+            result /= circles.Length; // Initial guess: the average of the centers
+
+            // Gradient descent
+            for (int i = 0; i < iterations; i++) {
+                Vector2 gradient = Vector2.Zero;
+                for (int j = 0; j < circles.Length; j++) {
+                    Vector2 toCenter = circles[j].Center - result;
+                    float dist = toCenter.LengthSquared();
+                    if (dist < epsSquared) {
+                        continue;
+                    }
+                    dist = MathF.Sqrt(dist);
+                    float error = dist - circles[j].Radius;
+                    gradient += error / dist * toCenter;
+                }
+
+                if (gradient.LengthSquared() < epsSquared) {
+                    break;
+                }
+                result += gradient * .5f;
             }
 
             return result;
@@ -110,5 +151,10 @@ namespace Cavern.Numerics {
         /// Numbers lower than this are rounding errors.
         /// </summary>
         const float eps = 1e-6f;
+
+        /// <summary>
+        /// Square numbers lower than this are rounding errors, used to avoid unnecessary square root calculations.
+        /// </summary>
+        const float epsSquared = eps * eps;
     }
 }

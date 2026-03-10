@@ -9,6 +9,7 @@ using Cavern.Format.Common;
 using Cavern.Format.ConfigurationFile.ConvolutionBoxFormat;
 using Cavern.Format.FilterSet;
 using Cavern.Format.Utilities;
+using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
     /// <summary>
@@ -95,7 +96,7 @@ namespace Cavern.Format.ConfigurationFile {
             }
 
 #if DEBUG // Seeing all entries is better for debugging, but hurts memory usage
-            CBFEntry[] allEntries = Enumerable.Range(0, entries).Select(x => CBFEntry.Read(stream)).ToArray();
+            CBFEntry[] allEntries = Enumerable.Range(0, entries).SelectArray(x => CBFEntry.Read(stream));
 #endif
             for (int i = 0; i < entries; i++) {
 #if DEBUG
@@ -141,7 +142,7 @@ namespace Cavern.Format.ConfigurationFile {
                     }
                 }
             }
-            return inputChannels.Select(x => (((InputChannel)x.root.Filter).Name, x.root)).ToArray();
+            return inputChannels.SelectArray(x => (((InputChannel)x.root.Filter).Name, x.root));
         }
 
         /// <inheritdoc/>

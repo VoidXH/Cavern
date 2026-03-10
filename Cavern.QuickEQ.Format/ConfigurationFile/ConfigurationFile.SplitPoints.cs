@@ -4,6 +4,7 @@ using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
+using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
     // Split point handling of ConfigurationFiles
@@ -71,7 +72,7 @@ namespace Cavern.Format.ConfigurationFile {
 
             // Sort split points to match root channel order
             if (nodes.Length != 0 && ((InputChannel)nodes[0].Filter).Channel != ReferenceChannel.Unknown) {
-                ReferenceChannel[] rootChannels = InputChannels.Select(x => ((InputChannel)x.root.Filter).Channel).ToArray();
+                ReferenceChannel[] rootChannels = InputChannels.SelectArray(x => ((InputChannel)x.root.Filter).Channel);
                 for (int i = 0; i < nodes.Length - 1; i++) {
                     if (rootChannels[i] != ((InputChannel)nodes[i].Filter).Channel) {
                         for (int j = i + 1; j < nodes.Length; j++) {

@@ -164,6 +164,6 @@ namespace Cavern.Format.ConfigurationFile {
         /// created with <see cref="GetExportOrder"/>.
         /// </summary>
         protected int[] GetExportedParents((FilterGraphNode node, int channel)[] exportOrder, int index) =>
-            GetExportedParentIndices(exportOrder, index).Select(x => exportOrder[x].channel).ToArray();
+            GetExportedParentIndices(exportOrder, index).SelectArray(x => exportOrder[x].channel);
     }
 }

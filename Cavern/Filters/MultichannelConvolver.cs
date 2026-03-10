@@ -66,7 +66,7 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override object Clone() {
-            float[][] impulses = workers.Select(x => x.Impulse).ToArray();
+            float[][] impulses = workers.SelectArray(x => x.Impulse);
             return new MultichannelConvolver(new MultichannelWaveform(impulses));
         }
 

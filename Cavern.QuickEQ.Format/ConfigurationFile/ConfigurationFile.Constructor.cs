@@ -13,8 +13,8 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         protected ConfigurationFile(ConfigurationFile other) {
             Dictionary<FilterGraphNode, FilterGraphNode> mapping = other.InputChannels.GetItem2s().DeepCopyWithMapping().mapping;
-            InputChannels = other.InputChannels.Select(x => (x.name, mapping[x.root])).ToArray();
-            splitPoints = other.SplitPoints.Select(x => new SplitPoint(x.Name, x.Roots.Select(x => mapping[x]).ToArray())).ToList();
+            InputChannels = other.InputChannels.SelectArray(x => (x.name, mapping[x.root]));
+            splitPoints = other.SplitPoints.Select(x => new SplitPoint(x.Name, x.Roots.SelectArray(x => mapping[x]))).ToList();
         }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         protected ConfigurationFile(SplitPoint splitPoint) {
             SplitPoint clone = (SplitPoint)splitPoint.Clone();
-            InputChannels = clone.Roots.Select(x => (((InputChannel)x.Filter).Channel.GetShortName(), x)).ToArray();
+            InputChannels = clone.Roots.SelectArray(x => (((InputChannel)x.Filter).Channel.GetShortName(), x));
             splitPoints = new List<SplitPoint> { clone };
         }
 
@@ -32,7 +32,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <remarks>It's mandatory to have the corresponding output channels to close the split point. Refer to the constructors of
         /// <see cref="CavernFilterStudioConfigurationFile"/> for how to add closing <see cref="OutputChannel"/>s.</remarks>
         protected ConfigurationFile(List<SplitPoint> splitPoints) {
-            InputChannels = splitPoints[0].Roots.Select(x => (((InputChannel)x.Filter).Channel.GetShortName(), x)).ToArray();
+            InputChannels = splitPoints[0].Roots.SelectArray(x => (((InputChannel)x.Filter).Channel.GetShortName(), x));
             this.splitPoints = splitPoints;
         }
 

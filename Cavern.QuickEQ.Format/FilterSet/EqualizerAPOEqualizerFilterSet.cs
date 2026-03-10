@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 
 using Cavern.Channels;
 using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -60,7 +60,7 @@ namespace Cavern.Format.FilterSet {
                 }
             }
 
-            string polarity = EqualizerAPOUtils.GetPolarityLine(Channels.Select(x => ((EqualizerChannelData)x).switchPolarity).ToArray());
+            string polarity = EqualizerAPOUtils.GetPolarityLine(Channels.SelectArray(x => ((EqualizerChannelData)x).switchPolarity));
             if (polarity != null) {
                 result.Add(polarity);
             }

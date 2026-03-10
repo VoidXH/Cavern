@@ -212,7 +212,7 @@ namespace Cavern.QuickEQ.Graphing {
             int rows = (int)(timeSpan * sampleRate / precision);
             stfts = new float[rows][];
             Parallelizer.For(0, rows, row => {
-                float[][] ffts = pools.Select(x => CalculateRow(x, row)).ToArray();
+                float[][] ffts = pools.SelectArray(x => CalculateRow(x, row));
                 float[] result = MergeRow(ffts);
                 float localMax = WaveformUtils.GetPeak(result);
                 lock (pools[0]) {

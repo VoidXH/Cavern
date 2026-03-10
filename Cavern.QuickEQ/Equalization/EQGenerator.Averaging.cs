@@ -98,7 +98,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// Inner workings of <see cref="Min(Equalizer[])"/> and <see cref="Max(Equalizer[])"/>, as the only difference is the check.
         /// </summary>
         static Equalizer MinMax(Equalizer[] sources, bool min) {
-            IReadOnlyList<Band>[] bands = sources.Select(x => x.Bands).ToArray();
+            IReadOnlyList<Band>[] bands = sources.SelectArray(x => x.Bands);
             List<Band> output = new List<Band>();
             for (int i = 0, c = bands[0].Count; i < c; i++) {
                 double gain = min ? double.MaxValue : double.MinValue;

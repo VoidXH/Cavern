@@ -54,7 +54,7 @@ namespace Cavern.QuickEQ.Utilities {
         /// Convert a <see cref="MeasuredPosition"/> to <see cref="MeasurementPosition"/>.
         /// </summary>
         public MeasurementPosition(MeasuredPosition position, bool multithreaded) {
-            MultichannelWaveform source = new MultichannelWaveform(position.ImpulseResponses.Select(x => x.Response).ToArray());
+            MultichannelWaveform source = new MultichannelWaveform(position.ImpulseResponses.SelectArray(x => x.Response));
             using FFTCachePool pool = new FFTCachePool(QMath.Base2Ceil(source.Length));
             transferFunctions = ParseMultichannel(source, multithreaded, pool);
         }
@@ -63,7 +63,7 @@ namespace Cavern.QuickEQ.Utilities {
         /// Convert a <see cref="MeasuredPosition"/> to <see cref="MeasurementPosition"/>.
         /// </summary>
         public MeasurementPosition(MeasuredPosition position, bool multithreaded, FFTCachePool pool) {
-            MultichannelWaveform source = new MultichannelWaveform(position.ImpulseResponses.Select(x => x.Response).ToArray());
+            MultichannelWaveform source = new MultichannelWaveform(position.ImpulseResponses.SelectArray(x => x.Response));
             transferFunctions = ParseMultichannel(source, multithreaded, pool);
         }
 
@@ -95,8 +95,7 @@ namespace Cavern.QuickEQ.Utilities {
             Complex[][] lfes = transferFunctions
                 .ToArray()
                 .Where((_, i) => layout[i].LFE)
-                .Select(x => x.FastClone())
-                .ToArray();
+                .SelectArray(x => x.FastClone());
             return new MeasurementPosition(new MultichannelTransferFunction(lfes));
         }
 

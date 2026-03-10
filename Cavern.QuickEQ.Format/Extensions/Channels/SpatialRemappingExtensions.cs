@@ -29,7 +29,7 @@ namespace Cavern.Channels {
             target.AddSplitPoint(0, "Spatial remapping");
             FilterGraphNode[] roots = target.InputChannels.GetItem2s();
 
-            FilterGraphNode[] outputs = roots.Select(x => x.Children[0]).ToArray();
+            FilterGraphNode[] outputs = roots.SelectArray(x => x.Children[0]);
             for (int i = 0; i < outChannels; i++) {
                 float[] gains = matrix[i];
                 outputs[i].DetachParents();

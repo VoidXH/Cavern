@@ -1,8 +1,8 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 using Cavern.Channels;
 using Cavern.WPF.BaseClasses;
+using Cavern.Utilities;
 
 namespace Cavern.WPF {
     /// <summary>
@@ -13,7 +13,7 @@ namespace Cavern.WPF {
         /// Set when OK is clicked, contains the channels selected by the user.
         /// </summary>
         public ReferenceChannel[] SelectedChannels {
-            get => channelMap.Where(x => x.Value.IsChecked.Value).Select(x => x.Key).ToArray();
+            get => channelMap.Where(x => x.Value.IsChecked.Value).SelectArray(x => x.Key);
             set {
                 foreach (KeyValuePair<ReferenceChannel, CheckBox> channel in channelMap) {
                     channel.Value.IsChecked = false;
