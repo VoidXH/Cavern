@@ -8,7 +8,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <summary>
         /// Create a custom EQ curve from a source stored as an Equalier.
         /// </summary>
-        public Smoother(Equalizer[] sourceFrequencyResponses) : base(MakeCurve(sourceFrequencyResponses)) {}
+        public Smoother(Equalizer[] sourceFrequencyResponses) : base(MakeCurve(sourceFrequencyResponses)) { }
 
         /// <summary>
         /// Create a target EQ from raw frequency responses, by averaging and smoothing the channels.

@@ -1,4 +1,4 @@
-﻿namespace Cavern.Format.Common {
+﻿namespace Cavern.Format.Common.Metadata {
     /// <summary>
     /// Extra metadata of a track.
     /// </summary>

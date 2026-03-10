@@ -241,7 +241,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Additional chunks to write to the BWF file.
         /// </summary>
-        protected virtual void WriteAdditionalChunks() {}
+        protected virtual void WriteAdditionalChunks() { }
 
         /// <summary>
         /// Makes sure the last block ends with the content.

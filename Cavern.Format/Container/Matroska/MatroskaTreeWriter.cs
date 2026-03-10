@@ -58,7 +58,7 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Write a tag that contains a single short value.
         /// </summary>
-        public void Write(int tag, short value) {
+        public void Write(int tag, ushort value) {
             VarInt.WriteTag(writer, tag);
             writer.WriteByte(0x82); // Length of 2, 0 additional bytes
             writer.WriteByte((byte)(value >> 8));

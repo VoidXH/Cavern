@@ -1,8 +1,7 @@
 ﻿using System.IO;
-
 using Cavern.Format.Container.Matroska;
 
-namespace Cavern.Format.Common {
+namespace Cavern.Format.Common.Metadata {
     /// <summary>
     /// Audio track metadata.
     /// </summary>

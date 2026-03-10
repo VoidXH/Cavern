@@ -13,7 +13,7 @@ namespace Cavern.Filters {
         /// </summary>
         /// <param name="impulse">Impulse response to convolve with</param>
         /// <param name="delay">Additional impulse delay in samples</param>
-        public SpikeConvolver(float[] impulse, int delay) : base(impulse, delay) {}
+        public SpikeConvolver(float[] impulse, int delay) : base(impulse, delay) { }
 
         /// <summary>
         /// Perform a convolution.

@@ -1,4 +1,5 @@
-﻿using Cavern.Format.Container;
+﻿using Cavern.Format.Common.Metadata;
+using Cavern.Format.Container;
 
 namespace Cavern.Format.Common {
     /// <summary>

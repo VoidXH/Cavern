@@ -1,4 +1,5 @@
 ﻿using Cavern.Format.Common;
+using Cavern.Format.Common.Metadata;
 using Cavern.Format.Container;
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers;

@@ -86,7 +86,7 @@ namespace Cavern.Format.Container.Matroska {
             if (Track < 128) {
                 to.Write(MatroskaTree.Segment_Cues_CuePoint_CueTrackPositions_CueTrack, (byte)Track);
             } else {
-                to.Write(MatroskaTree.Segment_Cues_CuePoint_CueTrackPositions_CueTrack, (short)Track);
+                to.Write(MatroskaTree.Segment_Cues_CuePoint_CueTrackPositions_CueTrack, (ushort)Track);
             }
             to.Write(MatroskaTree.Segment_Cues_CuePoint_CueTrackPositions_CueClusterPosition, (ulong)Position);
             to.CloseSequence();

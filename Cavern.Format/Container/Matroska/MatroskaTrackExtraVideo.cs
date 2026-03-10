@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
-using Cavern.Format.Common;
+using Cavern.Format.Common.Metadata;
+using Cavern.Format.Common.Metadata.Enums;
 
 namespace Cavern.Format.Container.Matroska {
     /// <summary>
@@ -16,6 +17,26 @@ namespace Cavern.Format.Container.Matroska {
         /// <summary>
         /// Parse video metadata from a Matroska track's video metadata node.
         /// </summary>
-        internal MatroskaTrackExtraVideo(Stream reader, MatroskaTree videoMeta) : base(reader, videoMeta) { }
+        internal MatroskaTrackExtraVideo(Stream reader, MatroskaTree videoMeta) {
+            Width = (uint)videoMeta.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video_PixelWidth);
+            Height = (uint)videoMeta.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video_PixelHeight);
+
+            MatroskaTree color = videoMeta.GetChild(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video_Colour);
+            if (color != null) {
+                ColorMetadata = new ColorMetadata();
+                long read = color.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video_Colour_Range);
+                if (read != -1) {
+                    ColorMetadata.ColorRange = (ColorRange)read;
+                }
+                read = color.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video_Colour_MaxCLL);
+                if (read != -1) {
+                    ColorMetadata.MaxCLL = (uint)read;
+                }
+                read = color.GetChildValue(reader, MatroskaTree.Segment_Tracks_TrackEntry_Video_Colour_MaxFALL);
+                if (read != -1) {
+                    ColorMetadata.MaxFALL = (uint)read;
+                }
+            }
+        }
     }
 }

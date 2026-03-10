@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Format.Common;
+using Cavern.Format.Common.Metadata;
 using Cavern.Format.Container.Matroska;
 using Cavern.Utilities;
 

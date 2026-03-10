@@ -2,6 +2,7 @@
 
 using Cavern.Format;
 using Cavern.Format.Common;
+using Cavern.Format.Common.Metadata;
 using Cavern.Format.Container;
 
 using Cavernize.Logic.Language;
