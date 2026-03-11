@@ -29,6 +29,8 @@ CavernSamples/CavernizeCLI/bin/
 CavernSamples/CavernizeCLI/obj/
 CavernSamples/CavernizeGUI/bin/
 CavernSamples/CavernizeGUI/obj/
+CavernSamples/Circles/bin/
+CavernSamples/Circles/obj/
 CavernSamples/Deconvolver/bin/
 CavernSamples/Deconvolver/obj/
 CavernSamples/EQAPOtoFIR/bin/
@@ -63,6 +65,8 @@ Cavernize Lite/obj/
 Cavernize Lite/samples/
 Libraries/Cavern.WPF/bin/
 Libraries/Cavern.WPF/obj/
+Libraries/Cavern.MAUI/bin/
+Libraries/Cavern.MAUI/obj/
 Pro/
 Tests/Test.Cavern.Format/bin/
 Tests/Test.Cavern.Format/obj/

@@ -30,7 +30,8 @@ namespace Cavern.Numerics {
         /// Finds the geometric median of <paramref name="circles"/>.
         /// </summary>
         /// <param name="circles">The circles of which the geometric median is to be found</param>
-        /// <param name="iterations">The more iterations, the more accurate result, 10 is too much</param>
+        /// <param name="iterations">The more iterations, the more accurate result - 10 is generally fine</param>
+        /// <remarks>This algorithm doesn't consider the radii.</remarks>
         public static Vector2 GeometricMedian(Circle[] circles, int iterations) {
             if (circles.Length < 2) {
                 return circles.Length == 0 ?
@@ -44,12 +45,11 @@ namespace Cavern.Numerics {
             }
             result /= circles.Length; // Initial guess: the average of the centers
 
-            // Modified geometric median algorithm: the error function is to the edge, not to the center
             for (int i = 0; i < iterations; i++) {
                 Vector2 newResult = Vector2.Zero;
                 float newResultDivisor = 0;
                 for (int circle = 0; circle < circles.Length; circle++) {
-                    float distance = Vector2.Distance(result, circles[circle].Center) - circles[circle].Radius;
+                    float distance = Vector2.Distance(result, circles[circle].Center);
                     if (distance < eps) {
                         continue;
                     }
@@ -71,7 +71,7 @@ namespace Cavern.Numerics {
         /// Finds where all the <paramref name="circles"/> intersect, or if there isn't any, a point right between the edges of the circles.
         /// </summary>
         /// <param name="circles">The circles of which the intersection is to be found</param>
-        /// <param name="iterations">The more iterations, the more accurate result - this requires more than the <see cref="GeometricMedian(Circle[], int)"/></param>
+        /// <param name="iterations">The more iterations, the more accurate result - 10 is generally fine"/></param>
         public static Vector2 Intersect(Circle[] circles, int iterations) {
             if (circles.Length < 2) {
                 return circles.Length == 0 ?

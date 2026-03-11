@@ -26,6 +26,8 @@ rd /s /q CavernSamples\CavernPipeServer.Multiplatform\bin
 rd /s /q CavernSamples\CavernPipeServer.Multiplatform\obj
 rd /s /q CavernSamples\CavernPipeServer.Windows\bin
 rd /s /q CavernSamples\CavernPipeServer.Windows\obj
+rd /s /q CavernSamples\Circles\bin
+rd /s /q CavernSamples\Circles\obj
 rd /s /q CavernSamples\Deconvolver\bin
 rd /s /q CavernSamples\Deconvolver\obj
 rd /s /q CavernSamples\EnhancedAC3Merger\bin
@@ -50,6 +52,8 @@ rd /s /q CavernSamples\WavefrontSimulator\bin
 rd /s /q CavernSamples\WavefrontSimulator\obj
 rd /s /q Libraries\Cavern.WPF\bin
 rd /s /q Libraries\Cavern.WPF\obj
+rd /s /q Libraries\Cavern.MAUI\bin
+rd /s /q Libraries\Cavern.MAUI\obj
 rd /s /q TestResults
 rd /s /q Tests\Test.Cavern\bin
 rd /s /q Tests\Test.Cavern\obj
