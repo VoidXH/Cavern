@@ -17,7 +17,7 @@ rendered data. These are the 8 bytes required before rendering can begin.
 
 | Byte | Type  | Data |
 |------|-------|------|
-| 0    | Byte  | [Bit depth](https://cavern.sbence.hu/cavern/doc.php?if=api/Cavern/Format/BitDepth/index) |
+| 0    | Byte  | [Bit depth](../../Cavern.Format/Common/BitDepth.cs) |
 | 1    | Byte  | Mandatory frames to process. Before CavernPipe replies, it will render at least `mandatory frames * update rate * channel count` samples. If there aren't enough data sent to the server to render that much, a deadlock happens. |
 | 2-3  | Int16 | Output channel count, the number of available system output channels. If it doesn't match with the user's actual channel count, no problem, CavernPipe will handle it, but _no rendering or mapping shall happen in any media player with Cavern-rendered samples_. |
 | 4-7  | Int32 | Update rate: samples per channel for each rendered frame. |

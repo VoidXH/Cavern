@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {
