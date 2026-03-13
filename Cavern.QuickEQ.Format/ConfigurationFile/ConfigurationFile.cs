@@ -8,6 +8,7 @@ using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
 using Cavern.Format.ConfigurationFile.Helpers;
 using Cavern.Utilities;
+using Cavern.Utilities.Threading;
 
 namespace Cavern.Format.ConfigurationFile {
     /// <summary>

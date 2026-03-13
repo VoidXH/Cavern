@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.Utilities.Threading;
+
 namespace Cavern.Utilities {
     /// <summary>
     /// When performing a large amount of FFTs across multiple threads, use this pool for optimizing allocation performance

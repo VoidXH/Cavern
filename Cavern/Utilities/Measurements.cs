@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities.Exceptions;
+using Cavern.Utilities.Threading;
 using Cavern.Waveforms;
 
 namespace Cavern.Utilities {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Cavern.Filters;
 using Cavern.Utilities;
+using Cavern.Utilities.Threading;
 
 namespace Cavern.Virtualizer {
     /// <summary>

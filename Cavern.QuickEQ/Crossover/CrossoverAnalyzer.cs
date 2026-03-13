@@ -3,6 +3,7 @@
 using Cavern.Channels;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
+using Cavern.Utilities.Threading;
 
 namespace Cavern.QuickEQ.Crossover {
     /// <summary>

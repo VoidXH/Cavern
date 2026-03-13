@@ -2,6 +2,7 @@
 using System.Linq;
 
 using Cavern.Utilities;
+using Cavern.Utilities.Threading;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>

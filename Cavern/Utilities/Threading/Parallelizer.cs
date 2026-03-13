@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Cavern.Utilities {
+namespace Cavern.Utilities.Threading {
     /// <summary>
     /// High-performance version of the <see cref="Parallel"/> class.
     /// </summary>

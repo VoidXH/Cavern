@@ -1,7 +1,6 @@
-﻿using System.Linq;
-
-using Cavern.Filters.Interfaces;
+﻿using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
+using Cavern.Utilities.Threading;
 
 namespace Cavern.Filters {
     /// <summary>

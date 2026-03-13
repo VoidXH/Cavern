@@ -4,6 +4,7 @@ using System.Linq;
 using Cavern.QuickEQ.Measurement;
 using Cavern.Utilities;
 using Cavern.Utilities.Exceptions;
+using Cavern.Utilities.Threading;
 using Cavern.Waveforms;
 
 namespace Cavern.QuickEQ.Utilities {

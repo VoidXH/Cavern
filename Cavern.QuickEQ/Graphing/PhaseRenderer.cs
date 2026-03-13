@@ -5,6 +5,7 @@ using Cavern.QuickEQ.Equalization;
 using Cavern.QuickEQ.Measurement;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
+using Cavern.Utilities.Threading;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
