@@ -130,6 +130,9 @@ public class PipeHandler : IDisposable {
                     outBuffer = [];
                 while (Running) {
                     int length = server.ReadInt32();
+                    if (length == -1) {
+                        break;
+                    }
                     if (inBuffer.Length < length) {
                         inBuffer = new byte[length];
                     }

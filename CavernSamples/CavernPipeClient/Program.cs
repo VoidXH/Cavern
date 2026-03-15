@@ -1,4 +1,5 @@
-﻿using System.IO.Pipes;
+﻿using System.Collections.Concurrent;
+using System.IO.Pipes;
 
 using Cavern;
 using Cavern.Format;
@@ -21,33 +22,62 @@ using NamedPipeClientStream pipe = new("CavernPipe");
 pipe.Connect();
 byte[] pipeHeader = new byte[8]; // Assembled CavernPipe control header
 pipeHeader[0] = (byte)target.Bits;
-pipeHeader[1] = 6; // Mandatory frames
+pipeHeader[1] = 1; // Mandatory frames
 BitConverter.GetBytes((ushort)target.ChannelCount).CopyTo(pipeHeader, 2);
 BitConverter.GetBytes(listener.UpdateRate).CopyTo(pipeHeader, 4);
 pipe.Write(pipeHeader, 0, pipeHeader.Length);
 
-// Sending the file or part to the pipe
-using FileStream reader = File.OpenRead(args[0]);
-long sent = 0,
-    received = 0;
-float[] writeBuffer = [];
-byte[] sendBuffer = new byte[1024 * 1024],
-    receiveBuffer = [];
-while (received < target.Length) {
-    int toSend = reader.Read(sendBuffer, 0, sendBuffer.Length);
-    pipe.Write(BitConverter.GetBytes(toSend));
-    pipe.Write(sendBuffer, 0, toSend);
-    sent += toSend;
+ConcurrentQueue<byte[]> toProcess = new();
+CancellationTokenSource canceller = new();
+Task writer = new(WriterThread);
+Task reader = new(ReadingThread, canceller.Token);
+writer.Start();
+reader.Start();
+writer.Wait();
+canceller.Cancel();
+reader.Wait();
 
-    // If there is incoming data, write it to file
-    int toReceive = pipe.ReadInt32(),
-        samples = toReceive / sizeof(float);
-    if (receiveBuffer.Length < toReceive) {
-        receiveBuffer = new byte[toReceive];
-        writeBuffer = new float[samples];
+void WriterThread() {
+    // Sending the file or part to the pipe
+    using FileStream reader = File.OpenRead(args[0]);
+    long sent = 0,
+        received = 0;
+    bool eofSent = false;
+    byte[] sendBuffer = new byte[1024 * 1024];
+    while (received < target.Length) {
+        int toSend = reader.Read(sendBuffer, 0, sendBuffer.Length);
+        if (toSend > 0) {
+            pipe.Write(BitConverter.GetBytes(toSend));
+            pipe.Write(sendBuffer, 0, toSend);
+            sent += toSend;
+        } else if (!eofSent) { // Disconnect on EOF
+            pipe.Write(BitConverter.GetBytes(-1));
+            eofSent = true;
+        }
+
+        // If there is incoming data, add to the processing buffer
+        int toReceive = pipe.ReadInt32();
+        if (toReceive == -1) { // Pipe closed, because EOS was processed
+            break;
+        }
+
+        byte[] receiveBuffer = new byte[toReceive];
+        pipe.ReadAll(receiveBuffer, 0, toReceive);
+        received += toReceive / (sizeof(float) * target.ChannelCount);
     }
-    pipe.ReadAll(receiveBuffer, 0, toReceive);
-    Buffer.BlockCopy(receiveBuffer, 0, writeBuffer, 0, toReceive);
-    target.WriteBlock(writeBuffer, 0, samples);
-    received += samples / target.ChannelCount;
+    pipe.Close();
+}
+
+void ReadingThread(object param) {
+    CancellationToken token = (CancellationToken)param;
+    while (!toProcess.IsEmpty || !token.IsCancellationRequested) {
+        if (!toProcess.TryDequeue(out byte[] block)) {
+            continue;
+        }
+        int samples = block.Length / sizeof(float);
+        float[] writeBuffer = new float[samples];
+        Buffer.BlockCopy(block, 0, writeBuffer, 0, block.Length);
+        target.WriteBlock(writeBuffer, 0, samples);
+    }
+    target.Dispose();
 }

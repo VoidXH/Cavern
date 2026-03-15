@@ -36,14 +36,16 @@ mandatory frames asked for. Excess samples have to be cached client-side. On
 seek, break the connection and reconnect to CavernPipe, that clears the cache.
 
 ## Rendering
-Communication after the handshake is very straightforward: send a single 32-bit
-integer, which is the number of bytes in the available bitstream data, then send
-the available bitstream. It can be more than what's initially needed as defined
-in the mandatory frames, but in this case, it's very likely that they will only
-get rendered in the next reply. If data is cached, sending a single 0 integer
-will send back every currently processed data, at least the mandatory frames.
-This is how to flush the CavernPipe. Warning: if there isn't enough data for the
-mandatory frames in the cache, a deadlock happens.
+Communication after the handshake is very straightforward: send a single 32-bit integer, which is the number of bytes in the available bitstream data, then send the available bitstream.
+It can be more than what's initially needed as defined in the mandatory frames, but in this case, it's very likely that they will only get rendered in the next reply.
+If data is cached, sending a single 0 integer will send back every currently processed data, at least the mandatory frames.
+This is how to flush the CavernPipe.
+Warning: if there isn't enough data for the mandatory frames in the cache, a deadlock happens.
+
+Sending -1 to the server marks the end of the data to process, allowing for a graceful disconnection.
+The cached data will still be processed, and once that data has ran out, a single -1 length will be returned.
+When -1 was sent, the mandatory frame count has no effect.
+The last rendered samples will be sent, regardless of the number of frames it contains.
 
 The result of CavernPipe will follow the same format: a 32-bit integer arrives
 with the data length, and the bytes of the rendered interlaced PCM stream will
