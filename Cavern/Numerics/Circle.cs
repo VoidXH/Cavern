@@ -90,14 +90,11 @@ namespace Cavern.Numerics {
                 Vector2 gradient = Vector2.Zero;
                 for (int j = 0; j < circles.Length; j++) {
                     Vector2 toCenter = circles[j].Center - result;
-                    float dist = toCenter.LengthSquared();
-                    if (dist < epsSquared) {
-                        continue;
-                    }
-                    dist = MathF.Sqrt(dist);
+                    float dist = toCenter.Length() + eps; // + eps prevents division by zero
                     float error = dist - circles[j].Radius;
                     gradient += error / dist * toCenter;
                 }
+                gradient /= circles.Length; // Divergence prevention
 
                 if (gradient.LengthSquared() < epsSquared) {
                     break;
