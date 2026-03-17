@@ -1,7 +1,7 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Circles.MainPage">
-    <Grid ColumnDefinitions="*, 300" RowDefinitions="*, 200">
+    <Grid ColumnDefinitions="*, 300" RowDefinitions="*, 280">
         <Grid x:Name="canvas" Grid.RowSpan="2" BackgroundColor="White"/>
         <Grid Grid.Column="1" BackgroundColor="Gray">
             <CollectionView ItemsSource="{Binding Circles}">
@@ -26,17 +26,23 @@
         </Grid>
         <Grid Grid.Row="1" Grid.Column="1">
             <Button Margin="10,10,10,0" VerticalOptions="Start" Text="Add circle" Clicked="AddCircle"/>
-            <Rectangle Margin="10,62,0,0" HorizontalOptions="Start" VerticalOptions="Start" WidthRequest="16" HeightRequest="16" Stroke="Green" StrokeThickness="2"/>
-            <Label Margin="30,60,0,0" HorizontalOptions="Start" VerticalOptions="Start" Text="Geom. median (greener = later iteration)"/>
+            <Rectangle Margin="10,62,0,0" HorizontalOptions="Start" VerticalOptions="Start" WidthRequest="16" HeightRequest="16" Stroke="Red" StrokeThickness="2"/>
+            <Label Margin="30,60,0,0" HorizontalOptions="Start" VerticalOptions="Start" Text="Intersection (redder = later iteration)"/>
             <HorizontalStackLayout Margin="10,84,0,0" VerticalOptions="Start" HeightRequest="32">
+                <Button Text="Show" Clicked="ShowIntersections"/>
+                <Button Margin="5,0,0,0" Text="Hide" Clicked="HideIntersections"/>
+            </HorizontalStackLayout>
+            <Rectangle Margin="10,132,0,0" HorizontalOptions="Start" VerticalOptions="Start" WidthRequest="16" HeightRequest="16" Stroke="Green" StrokeThickness="2"/>
+            <Label Margin="30,130,0,0" HorizontalOptions="Start" VerticalOptions="Start" Text="Geom. median (greener = later iteration)"/>
+            <HorizontalStackLayout Margin="10,154,0,0" VerticalOptions="Start" HeightRequest="32">
                 <Button Text="Show" Clicked="ShowGeomeds"/>
                 <Button Margin="5,0,0,0" Text="Hide" Clicked="HideGeomeds"/>
             </HorizontalStackLayout>
-            <Rectangle Margin="10,132,0,0" HorizontalOptions="Start" VerticalOptions="Start" WidthRequest="16" HeightRequest="16" Stroke="Red" StrokeThickness="2"/>
-            <Label Margin="30,130,0,0" HorizontalOptions="Start" VerticalOptions="Start" Text="Intersection (redder = later iteration)"/>
-            <HorizontalStackLayout Margin="10,154,0,0" VerticalOptions="Start" HeightRequest="32">
-                <Button Text="Show" Clicked="ShowIntersections"/>
-                <Button Margin="5,0,0,0" Text="Hide" Clicked="HideIntersections"/>
+            <Rectangle Margin="10,202,0,0" HorizontalOptions="Start" VerticalOptions="Start" WidthRequest="16" HeightRequest="16" Stroke="Blue" StrokeThickness="2"/>
+            <Label Margin="30,200,0,0" HorizontalOptions="Start" VerticalOptions="Start" Text="Equidistant (more blue = later iteration)"/>
+            <HorizontalStackLayout Margin="10,224,0,0" VerticalOptions="Start" HeightRequest="32">
+                <Button Text="Show" Clicked="ShowEquidistants"/>
+                <Button Margin="5,0,0,0" Text="Hide" Clicked="HideEquidistants"/>
             </HorizontalStackLayout>
         </Grid>
     </Grid>
