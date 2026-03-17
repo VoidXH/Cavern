@@ -41,7 +41,7 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Shorthand for .Select(...).ToArray(), with heavy performance optimizations.
-        /// </summary
+        /// </summary>
         public static T2[] SelectArray<T1, T2>(this IEnumerable<T1> source, Func<T1, T2> selector) {
             if (source is IList<T1> list) { // Fast path for indexable structures
                 T2[] result = new T2[list.Count];

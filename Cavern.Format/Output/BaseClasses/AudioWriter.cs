@@ -80,6 +80,14 @@ namespace Cavern.Format {
             };
 
         /// <summary>
+        /// Write all the <paramref name="samples"/> to the target <paramref name="path"/>.
+        /// </summary>
+        public static void Write(string path, MultichannelWaveform samples, int sampleRate, BitDepth bits) {
+            using AudioWriter writer = Create(path, samples.Channels, samples.Length, sampleRate, bits);
+            writer.Write(samples.ToArray());
+        }
+
+        /// <summary>
         /// Open a file stream optimized for sequential writing.
         /// </summary>
         internal static Stream Open(string path) =>
@@ -143,7 +151,7 @@ namespace Cavern.Format {
         }
 
         /// <summary>
-        /// Write the entire multichannel file.
+        /// Write the entire multichannel file, including the header.
         /// </summary>
         /// <param name="samples">All input samples</param>
         public void Write(float[][] samples) {

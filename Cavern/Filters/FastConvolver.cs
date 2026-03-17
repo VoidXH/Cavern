@@ -162,7 +162,7 @@ namespace Cavern.Filters {
         public virtual FFTCache CreateCache(int fftSize) => new ThreadSafeFFTCache(fftSize);
 
         /// <inheritdoc/>
-        public void Reset() => future.Clear();
+        public void Reset() => future?.Clear();
 
         /// <summary>
         /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.

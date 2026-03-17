@@ -43,23 +43,6 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Split this signal to blocks of a given <paramref name="blockSize"/> on each channel.
-        /// </summary>
-        public MultichannelWaveform[] Split(int blockSize) {
-            MultichannelWaveform[] result = new MultichannelWaveform[data[0].Length / blockSize];
-            for (int block = 0; block < result.Length; block++) {
-                int start = block * blockSize,
-                    end = start + blockSize;
-                float[][] target = new float[data.Length][];
-                for (int channel = 0; channel < data.Length; channel++) {
-                    target[channel] = data[channel][start..end];
-                }
-                result[block] = new MultichannelWaveform(target);
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Multiplies all values in all channels' signals.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -70,6 +53,17 @@ namespace Cavern {
                     channel[j] *= multiplier;
                 }
             }
+        }
+
+        /// <summary>
+        /// Mix all channels into a single mono output signal.
+        /// </summary>
+        public float[] GetMonoMix() {
+            float[] result = new float[Length];
+            for (int i = 0; i < data.Length; i++) {
+                WaveformUtils.Mix(data[i], result);
+            }
+            return result;
         }
 
         /// <summary>
@@ -91,6 +85,23 @@ namespace Cavern {
         /// Set the peak signal across all channels to 1 (0 dB FS).
         /// </summary>
         public void Normalize() => Gain(1 / GetPeak());
+
+        /// <summary>
+        /// Split this signal to blocks of a given <paramref name="blockSize"/> on each channel.
+        /// </summary>
+        public MultichannelWaveform[] Split(int blockSize) {
+            MultichannelWaveform[] result = new MultichannelWaveform[data[0].Length / blockSize];
+            for (int block = 0; block < result.Length; block++) {
+                int start = block * blockSize,
+                    end = start + blockSize;
+                float[][] target = new float[data.Length][];
+                for (int channel = 0; channel < data.Length; channel++) {
+                    target[channel] = data[channel][start..end];
+                }
+                result[block] = new MultichannelWaveform(target);
+            }
+            return result;
+        }
 
         /// <summary>
         /// Remove the 0s from the beginning of the multichannel signal.

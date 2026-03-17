@@ -31,12 +31,19 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         /// <param name="channels">Channel indices that have input Dirac-delta signals</param>
         /// <param name="samples">Number of samples in the resulting impulse response</param>
-        public MultichannelWaveform Simulate(int[] channels, int samples) {
+        public MultichannelWaveform Simulate(int[] channels, int samples) => Simulate(channels, WaveformGenerator.DiracDelta(samples));
+
+        /// <summary>
+        /// Produces impulse responses for each output channel with different input channels being active.
+        /// </summary>
+        /// <param name="channels">Channel indices that have input Dirac-delta signals</param>
+        /// <param name="initialImpulse">Impulse response of the incoming signal, the transformation of which by the filter set will be simulated</param>
+        public MultichannelWaveform Simulate(int[] channels, float[] initialImpulse) {
             (string name, FilterGraphNode root)[] sources = configurationFile.InputChannels;
-            MultichannelWaveform result = new MultichannelWaveform(sources.Length, samples);
+            MultichannelWaveform result = new MultichannelWaveform(sources.Length, initialImpulse.Length);
             for (int i = 0; i < sources.Length; i++) {
                 if (channels.Contains(i)) {
-                    float[] initialSignal = WaveformGenerator.DiracDelta(samples);
+                    float[] initialSignal = initialImpulse.FastClone();
                     Simulate(sources[i].root, initialSignal, result);
                 }
             }
@@ -48,14 +55,21 @@ namespace Cavern.Format.Utilities {
         /// </summary>
         /// <param name="channels">Channel indices that have input Dirac-delta signals</param>
         /// <param name="samples">Number of samples in the resulting impulse response</param>
-        public MultichannelWaveform Simulate(ReferenceChannel[] channels, int samples) {
+        public MultichannelWaveform Simulate(ReferenceChannel[] channels, int samples) => Simulate(channels, WaveformGenerator.DiracDelta(samples));
+
+        /// <summary>
+        /// Produces impulse responses for each output channel with different input channels being active.
+        /// </summary>
+        /// <param name="channels">Channel indices that have input Dirac-delta signals</param>
+        /// <param name="initialImpulse">Impulse response of the incoming signal, the transformation of which by the filter set will be simulated</param>
+        public MultichannelWaveform Simulate(ReferenceChannel[] channels, float[] initialImpulse) {
             (string name, FilterGraphNode root)[] sources = configurationFile.InputChannels;
-            MultichannelWaveform result = new MultichannelWaveform(sources.Length, samples);
+            MultichannelWaveform result = new MultichannelWaveform(sources.Length, initialImpulse.Length);
             for (int i = 0; i < sources.Length; i++) {
                 FilterGraphNode root = sources[i].root;
                 ReferenceChannel channel = ((InputChannel)root.Filter).Channel;
                 if (channels.Contains(channel)) {
-                    float[] initialSignal = WaveformGenerator.DiracDelta(samples);
+                    float[] initialSignal = initialImpulse.FastClone();
                     Simulate(root, initialSignal, result);
                 }
             }
