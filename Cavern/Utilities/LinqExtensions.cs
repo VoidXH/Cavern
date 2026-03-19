@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Cavern.Utilities {
@@ -37,6 +36,18 @@ namespace Cavern.Utilities {
                 index++;
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Make <paramref name="n"/>-1 copies of a specific <paramref name="item"/>, with the first item in the resulting array being the original copy.
+        /// </summary>
+        public static T[] Multiply<T>(this T item, int n) where T : ICloneable {
+            T[] result = new T[n];
+            result[0] = item;
+            for (int i = 1; i < n; i++) {
+                result[i] = (T)item.Clone();
+            }
+            return result;
         }
 
         /// <summary>
