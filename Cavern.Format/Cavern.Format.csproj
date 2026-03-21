@@ -20,7 +20,7 @@
 		<PackageReleaseNotes>https://github.com/VoidXH/Cavern/releases</PackageReleaseNotes>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<DebugSymbols>false</DebugSymbols>
 		<DebugType>none</DebugType>
@@ -46,6 +46,7 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="copy ..\CavernAmp\bin\Release\CavernAmp.dll bin\Release\CavernAmp.dll" IgnoreExitCode="true" />
+		<Copy SourceFiles="..\CavernAmp\bin\Release\CavernAmp.dll" DestinationFolder="bin\$(Configuration)" SkipUnchangedFiles="true"
+			  Condition="Exists('..\CavernAmp\bin\Release\CavernAmp.dll')"/>
 	</Target>
 </Project>

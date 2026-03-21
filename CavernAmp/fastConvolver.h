@@ -10,7 +10,7 @@
 
 /// Class
 // Performs an optimized convolution.
-class FastConvolver /*: public Filter*/ {
+class FastConvolver : public Filter {
 private:
     // Created convolution filter in Fourier-space.
     Complex *filter;
@@ -47,10 +47,10 @@ public:
     FastConvolver(const float *impulse, const int len, const int delay);
 
     // Returns the actually allocated filter length.
-    int GetLength();
+    int GetLength() const;
 
     // Deconstruct the filter and move it to the preallocated output buffer. Needs a buffer that's half the length of GetLength.
-    void GetFilter(float *output);
+    void GetFilter(float *output) const;
 
     // Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
     void Process(float *samples, int len);

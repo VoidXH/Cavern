@@ -3,16 +3,19 @@
 #include "qmath.h"
 
 double Clamp(double value, double min, double max) {
-    if (value < min)
+    if (value < min) {
         return min;
-    if (value > max)
+    }
+    if (value > max) {
         return max;
+    }
     return value;
 }
 
 float SumAbs(float* array, int arrayLength) {
     float sum = 0;
-    for (int i = 0; i < arrayLength; ++i)
+    for (int i = 0; i < arrayLength; i++) {
         sum += fabsf(array[i]);
+    }
     return sum;
 }

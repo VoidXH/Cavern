@@ -1,4 +1,5 @@
 ﻿using Cavern.QuickEQ.Crossover;
+using Test.Cavern.QuickEQ.Consts;
 
 namespace Test.Cavern.QuickEQ.Crossover {
     /// <summary>

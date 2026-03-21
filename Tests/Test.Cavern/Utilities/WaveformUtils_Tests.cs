@@ -2,6 +2,8 @@ using Cavern;
 using Cavern.Channels;
 using Cavern.Utilities;
 
+using Test.Cavern.Consts;
+
 namespace Test.Cavern.Utilities;
 
 /// <summary>
@@ -13,19 +15,19 @@ public class WaveformUtils_Tests {
     /// Tests if <see cref="WaveformUtils.Delay(float[], float)"/> works as intended.
     /// </summary>
     [TestMethod, Timeout(1000)]
-    public void Delay_Subsample() {
+    public void Delay_Subsample() => CavernAmpTest.Run(() => {
         float[] impulse = new float[128];
         impulse[0] = 1;
         WaveformUtils.Delay(impulse, 64f);
         Assert.AreEqual(impulse[64], 1);
-    }
+    });
 
     /// <summary>
     /// Tests if <see cref="WaveformUtils.Downmix(float[], int)"/> works as intended.
     /// </summary>
     [TestMethod, Timeout(1000)]
     public void Downmix() {
-        float[] downmix = Consts.stereoSamples.Downmix(2);
+        float[] downmix = Constants.stereoSamples.Downmix(2);
         Assert.AreEqual(.2f, downmix[0]);
         Assert.AreEqual(.2f, downmix[1]);
         Assert.AreEqual(.4f, downmix[2]);
@@ -39,8 +41,8 @@ public class WaveformUtils_Tests {
     [TestMethod, Timeout(1000)]
     public void DownmixUp() {
         Listener.ReplaceChannels(ChannelPrototype.ToLayout(ChannelPrototype.GetStandardMatrix(4)));
-        float[] result = new float[Consts.stereoSamples.Length / 4 * 6];
-        WaveformUtils.Downmix(Consts.stereoSamples, result, 6);
+        float[] result = new float[Constants.stereoSamples.Length / 4 * 6];
+        WaveformUtils.Downmix(Constants.stereoSamples, result, 6);
         float[] expected = [.1f, .1f, 0, 0, 0, .2f, .1f, .3f, 0, 0, .1f, .5f];
         CollectionAssert.AreEqual(expected, result);
     }
@@ -66,10 +68,10 @@ public class WaveformUtils_Tests {
             new float[100], // Will be cut until the nicest element
             new float[100] // Will be empty, but not cut, since the other jagged array is longer
         );
-        source[0][Consts.nice] = 1;
+        source[0][Constants.nice] = 1;
         source.TrimEnd();
 
-        Assert.AreEqual(Consts.nice + 1, source[0].Length);
+        Assert.AreEqual(Constants.nice + 1, source[0].Length);
         Assert.AreEqual(source[0].Length, source[1].Length);
     }
 }

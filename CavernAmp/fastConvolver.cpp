@@ -18,32 +18,30 @@ FastConvolver::FastConvolver(const float *impulse, const int len, const int dela
 
 void FastConvolver::Initialize(const float *impulse, const int len, const int delay) {
     filterLength = 2 << log2Ceil(len); // Zero padding for the falloff to have space
-    cache = FFTCache_Create(filterLength);
-    size_t allocated = sizeof(Complex) * filterLength;
-    filter = (Complex*)malloc(allocated);
+    cache = new FFTCache(filterLength);
+    filter = new Complex[filterLength];
     for (int sample = 0; sample < len; sample++) {
         filter[sample].real = impulse[sample];
     }
     ProcessFFT(filter, filterLength, cache, log2(filterLength) - 1);
-    present = (Complex*)malloc(allocated);
-    future = (float*)malloc(sizeof(float) * (filterLength + delay));
+    present = new Complex[filterLength];
+    future = new float[filterLength + delay];
     this->delay = delay;
 }
 
-int FastConvolver::GetLength() {
+int FastConvolver::GetLength() const {
     return filterLength;
 }
 
-void FastConvolver::GetFilter(float *output) {
-    size_t allocated = sizeof(Complex) * filterLength;
-    Complex* ifft = (Complex*)malloc(allocated);
-    memcpy(ifft, filter, allocated);
+void FastConvolver::GetFilter(float *output) const {
+    Complex* ifft = new Complex[filterLength];
+    memcpy(ifft, filter, filterLength * sizeof(Complex));
     InPlaceIFFT(ifft, filterLength, cache);
     int outLength = filterLength >> 1;
     for (int i = 0; i < outLength; i++) {
         output[i] = ifft[i].real;
     }
-    free(ifft);
+    delete[] ifft;
 }
 
 void FastConvolver::Process(float *samples, int len) {
@@ -117,16 +115,14 @@ void FastConvolver::ProcessCache(const int maxResultLength) {
 }
 
 FastConvolver::~FastConvolver() {
-    free(filter);
-    free(present);
-    free(future);
-    free(cache);
+    delete[] filter;
+    delete[] present;
+    delete[] future;
+    delete cache;
 }
 
 FastConvolver* DLL_EXPORT FastConvolver_Create(const float *impulse, const int len, const int delay) {
-    FastConvolver *instance = (FastConvolver*)malloc(sizeof(FastConvolver));
-    new(instance) FastConvolver(impulse, len, delay);
-    return instance;
+    return new FastConvolver(impulse, len, delay);
 }
 
 int DLL_EXPORT FastConvolver_GetLength(FastConvolver *instance) {
@@ -142,6 +138,5 @@ void DLL_EXPORT FastConvolver_Process(FastConvolver *instance, float *samples, i
 }
 
 void DLL_EXPORT FastConvolver_Dispose(FastConvolver *instance) {
-    instance->~FastConvolver();
-    free(instance);
+    delete instance;
 }
