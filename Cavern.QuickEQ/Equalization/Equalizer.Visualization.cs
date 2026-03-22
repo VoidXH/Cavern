@@ -143,20 +143,21 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="offset">Gain offset in decibels</param>
         /// <param name="header">Extra text to be added to the first line of the file</param>
         public void ExportToDirac(string path, double offset, string header = null) {
-            int start = header != null ? 2 : 1, c = bands.Count;
-            string[] calFile = new string[1 + diracFooter.Length + bands.Count + start];
+            int start = header != null ? 2 : 1;
+            int nonSubsonicBands = SubsonicFilter ? bands.Count - 1 : bands.Count;
+            string[] calFile = new string[1 + diracFooter.Length + nonSubsonicBands + start];
             if (header != null) {
                 calFile[0] = '#' + header;
             }
             calFile[start - 1] = "BREAKPOINTS";
 
             CultureInfo culture = CultureInfo.InvariantCulture;
-            for (int band = 0; band < c; band++) {
+            for (int firstBand = SubsonicFilter ? 1 : 0, band = firstBand, bandc = bands.Count; band < bandc; band++) {
                 double level = bands[band].Gain + offset;
-                calFile[band + start] = $"{bands[band].Frequency.ToString(culture)} {level.ToString(culture)}";
+                calFile[start - firstBand + band] = $"{bands[band].Frequency.ToString(culture)} {level.ToString(culture)}";
             }
 
-            Array.Copy(diracFooter, 0, calFile, start + c, diracFooter.Length);
+            Array.Copy(diracFooter, 0, calFile, start + nonSubsonicBands, diracFooter.Length);
             File.WriteAllLines(path, calFile);
         }
 

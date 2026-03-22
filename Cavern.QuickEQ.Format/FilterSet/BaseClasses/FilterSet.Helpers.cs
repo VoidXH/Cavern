@@ -8,6 +8,19 @@ namespace Cavern.Format.FilterSet {
     // Protected functions for common parameter handling like gain
     partial class FilterSet {
         /// <summary>
+        /// Convert a double to string with its maximum decimal places dependent on the base 10 logarithm.
+        /// </summary>
+        protected static string RangeDependentDecimals(double value) {
+            if (value < 100) {
+                return QMath.ToStringLimitDecimals(value, 2);
+            } else if (value < 1000) {
+                return QMath.ToStringLimitDecimals(value, 1);
+            } else {
+                return QMath.ToStringLimitDecimals(value, 0);
+            }
+        }
+
+        /// <summary>
         /// Get the short name of a channel written to the configuration file to select that channel for setup.
         /// </summary>
         protected virtual string GetLabel(int channel) {

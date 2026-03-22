@@ -1,30 +1,9 @@
 ﻿using System;
 
 using Cavern.Channels;
-using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     partial class FilterSet {
-        /// <summary>
-        /// Basic information needed for a channel.
-        /// </summary>
-        public abstract class ChannelData {
-            /// <summary>
-            /// The reference channel describing this channel or <see cref="ReferenceChannel.Unknown"/> if not applicable.
-            /// </summary>
-            public ReferenceChannel reference;
-
-            /// <summary>
-            /// Custom label for this channel or null if not applicable.
-            /// </summary>
-            public string name;
-
-            /// <summary>
-            /// Delay of this channel in samples.
-            /// </summary>
-            public int delaySamples;
-        }
-
         /// <summary>
         /// Create a filter set for the target <paramref name="device"/>.
         /// </summary>
@@ -57,6 +36,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.WiiM => new WiiMFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLive => new DiracLiveFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLiveLimitedRange => new DiracLiveLimitedRangeFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLiveBassControl => new DiracLiveBassControlFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLiveBassControlCombined => new DiracLiveBassControlFilterSet(channels, sampleRate) {
                     CombineHeights = true
@@ -109,6 +89,7 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.WiiM => new WiiMFilterSet(channels, sampleRate),
                 FilterSetTarget.BehringerNX => new BehringerNXFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLive => new DiracLiveFilterSet(channels, sampleRate),
+                FilterSetTarget.DiracLiveLimitedRange => new DiracLiveLimitedRangeFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLiveBassControl => new DiracLiveBassControlFilterSet(channels, sampleRate),
                 FilterSetTarget.DiracLiveBassControlCombined => new DiracLiveBassControlFilterSet(channels, sampleRate) {
                     CombineHeights = true
@@ -127,19 +108,6 @@ namespace Cavern.Format.FilterSet {
                 FilterSetTarget.Wavelet => new WaveletFilterSet(channels, sampleRate),
                 _ => throw new NotSupportedException()
             };
-        }
-
-        /// <summary>
-        /// Convert a double to string with its maximum decimal places dependent on the base 10 logarithm.
-        /// </summary>
-        protected static string RangeDependentDecimals(double value) {
-            if (value < 100) {
-                return QMath.ToStringLimitDecimals(value, 2);
-            } else if (value < 1000) {
-                return QMath.ToStringLimitDecimals(value, 1);
-            } else {
-                return QMath.ToStringLimitDecimals(value, 0);
-            }
         }
     }
 }

@@ -18,17 +18,20 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public DiracLiveFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
-        /// <summary>
-        /// Save the results to EQ curve files for each channel.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Export(string path) {
-            CreateRootFile(path, "txt");
             string folder = Path.GetDirectoryName(path),
                 fileNameBase = Path.GetFileNameWithoutExtension(path);
             for (int i = 0; i < Channels.Length; i++) {
                 EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
-                channelRef.curve.ExportToDirac(Path.Combine(folder, $"{fileNameBase} {channelRef.name}.txt"), 0, optionalHeader);
+                ExportChannel(Path.Combine(folder, $"{fileNameBase} {channelRef.name}.txt"), channelRef.curve);
             }
         }
+
+        /// <summary>
+        /// Write a single channel's <paramref name="eq"/> to a predetermined <paramref name="path"/>.
+        /// </summary>
+        protected virtual void ExportChannel(string path, Equalizer eq) =>
+            eq.ExportToDirac(path, 0, optionalHeader);
     }
 }
