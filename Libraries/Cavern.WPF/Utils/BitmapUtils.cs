@@ -1,50 +1,62 @@
 ﻿using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
+using System.IO;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows;
 
-using Image = System.Windows.Controls.Image;
+using Cavern.QuickEQ.Graphing;
 
 namespace Cavern.WPF.Utils {
-#pragma warning disable CA1416 // Validate platform compatibility
     /// <summary>
     /// Extension functions for interoperability between Cavern's raw ARGB pixel arrays and WPF's <see cref="Bitmap"/>.
     /// </summary>
     public static partial class BitmapUtils {
         /// <summary>
-        /// Convert an array of ARGB pixels to a <see cref="Bitmap"/>.
+        /// Convert an array of ARGB pixels to a <see cref="BitmapSource"/> that can be used in WPF.
         /// </summary>
-        public static Bitmap ToBitmap(this uint[] argb, int width, int height) {
-            Bitmap output = new Bitmap(width, height);
-            height--;
-            for (int y = 0, i = 0; y <= height; y++) {
+        public static BitmapSource ToBitmapSource(this GraphRenderer renderer) => renderer.Pixels.ToBitmapSource(renderer.Width, renderer.Height);
+
+        /// <summary>
+        /// Convert an array of ARGB pixels to a <see cref="BitmapSource"/> that can be used in WPF.
+        /// </summary>
+        public static BitmapSource ToBitmapSource(this uint[] argb, int width, int height) {
+            PixelFormat format = PixelFormats.Bgra32;
+            byte[] pixelData = new byte[4 * width * height];
+            for (int y = 0; y < height; y++) {
+                int stride = 4 * width * y;
                 for (int x = 0; x < width; x++) {
-                    output.SetPixel(x, height - y, Color.FromArgb((int)argb[i++]));
+                    uint pixelValue = argb[(height - y - 1) * width + x];
+                    int pos = stride + x * 4;
+                    pixelData[pos] = (byte)pixelValue;
+                    pixelData[pos + 1] = (byte)(pixelValue >> 8);
+                    pixelData[pos + 2] = (byte)(pixelValue >> 16);
+                    pixelData[pos + 3] = (byte)(pixelValue >> 24);
                 }
             }
-            return output;
+
+            return BitmapSource.Create(width, height, 96, 96, format, null, pixelData, 4 * width);
         }
 
         /// <summary>
-        /// Convert a <see cref="Bitmap"/> to a format usable as a source for an <see cref="Image"/>.
+        /// Convert a <see cref="BitmapSource"/> to a <see cref="BitmapImage"/>.
         /// </summary>
-        public static BitmapSource ToImageSource(this Bitmap bitmap) {
-            IntPtr handle = bitmap.GetHbitmap();
-            try {
-                return Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty,
-                    BitmapSizeOptions.FromEmptyOptions());
-            } finally {
-                DeleteObject(handle);
-            }
+        public static BitmapImage ToBitmapImage(this BitmapSource source) {
+            BitmapImage result = new BitmapImage();
+            result.BeginInit();
+            result.StreamSource = GetMemoryStreamFromBitmapSource(source);
+            result.CacheOption = BitmapCacheOption.OnLoad;
+            result.EndInit();
+            return result;
         }
 
         /// <summary>
-        /// Free up a Hbitmap after a conversion is finished.
+        /// Allow loading a virtual <param name="source"> image from a <see cref="Stream"/>.
         /// </summary>
-        [LibraryImport("gdi32.dll", EntryPoint = "DeleteObject")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static partial bool DeleteObject(IntPtr hObject);
+        static MemoryStream GetMemoryStreamFromBitmapSource(BitmapSource source) {
+            MemoryStream stream = new MemoryStream();
+            PngBitmapEncoder encoder = new();
+            encoder.Frames.Add(BitmapFrame.Create(source));
+            encoder.Save(stream);
+            return stream;
+        }
     }
-#pragma warning restore CA1416 // Validate platform compatibility
 }

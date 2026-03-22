@@ -88,5 +88,20 @@ namespace Cavern.QuickEQ.Utilities {
                 }
             }
         }
+
+        /// <summary>
+        /// Flip the <paramref name="image"/> vertically.
+        /// </summary>
+        public static void FlipVertically(uint[] image, int imageWidth) {
+            int imageHeight = image.Length / imageWidth;
+            uint[] tempLine = new uint[imageWidth];
+            for (int i = 0; i < imageHeight / 2; i++) {
+                int topRow = i * imageWidth;
+                int bottomRow = (imageHeight - 1 - i) * imageWidth;
+                Array.Copy(image, topRow, tempLine, 0, imageWidth);
+                Array.Copy(image, bottomRow, image, topRow, imageWidth);
+                Array.Copy(tempLine, 0, image, bottomRow, imageWidth);
+            }
+        }
     }
 }

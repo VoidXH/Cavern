@@ -121,9 +121,7 @@ namespace Cavern.WPF {
                 transferFunction[i] = new Complex(QMath.DbToGain(transferFunction[i].Phase * 25 / MathF.PI));
             }
             renderer.AddCurve(EQGenerator.FromTransferFunction(transferFunction, Filter.SampleRate), phaseColor);
-
-            Bitmap bitmap = renderer.Pixels.ToBitmap(renderer.Width, renderer.Height);
-            image.Source = bitmap.ToImageSource();
+            image.Source = renderer.ToBitmapSource();
         }
 
         /// <summary>

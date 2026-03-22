@@ -71,7 +71,7 @@ namespace Cavern.WPF.Controls {
         /// <summary>
         /// Update the displayed graph when a curve was added, changed, or removed.
         /// </summary>
-        public void InvalidateImage() => image.Source = renderer.Pixels.ToBitmap(renderer.Width, renderer.Height).ToImageSource();
+        public void InvalidateImage() => image.Source = renderer.ToBitmapSource();
 
         /// <summary>
         /// Keep the graph's size at the control resolution.

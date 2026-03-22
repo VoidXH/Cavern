@@ -17,6 +17,9 @@
     <Compile Update="ConvolutionEditor.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Dialogs\ImageDialog.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="EQEditor.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
