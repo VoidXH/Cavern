@@ -51,6 +51,18 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Make <paramref name="n"/>-1 copies of a specific <paramref name="item"/>.
+        /// </summary>
+        public static T[] MultiplyStruct<T>(this T item, int n) where T : struct {
+            T[] result = new T[n];
+            result[0] = item;
+            for (int i = 1; i < n; i++) {
+                result[i] = item;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Shorthand for .Select(...).ToArray(), with heavy performance optimizations.
         /// </summary>
         public static T2[] SelectArray<T1, T2>(this IEnumerable<T1> source, Func<T1, T2> selector) {
