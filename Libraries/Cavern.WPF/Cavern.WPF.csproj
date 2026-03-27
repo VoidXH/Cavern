@@ -26,6 +26,7 @@
 
 	<ItemGroup>
 		<Compile Include="..\..\CavernSamples\VoidX.WPF\Animator.cs" Link="VoidX.WPF\Animator.cs" />
+		<Compile Include="..\..\CavernSamples\VoidX.WPF\TaskEngine.cs" Link="VoidX.WPF\TaskEngine.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
