@@ -11,9 +11,24 @@ namespace Cavern.Format.AI {
         public int TrainingDataSize { get; set; }
 
         /// <summary>
+        /// What percentage of the training data was used for testing the model, which is not used for training, but only to calculate the loss.
+        /// </summary>
+        public float TestDataRatio { get; set; }
+
+        /// <summary>
+        /// Number of training iterations performed on the model.
+        /// </summary>
+        public int TrainingEpochs { get; set; }
+
+        /// <summary>
+        /// The model's misaccuracy on training data.
+        /// </summary>
+        public float TrainingLoss { get; set; }
+
+        /// <summary>
         /// The model's misaccuracy on test data.
         /// </summary>
-        public float Loss { get; set; }
+        public float ValidationLoss { get; set; }
 
         /// <summary>
         /// Number of input ports.
@@ -31,7 +46,10 @@ namespace Cavern.Format.AI {
         public void Save(string path) {
             using BinaryWriter writer = new BinaryWriter(File.OpenWrite(path));
             writer.Write(TrainingDataSize);
-            writer.Write(Loss);
+            writer.Write(TestDataRatio);
+            writer.Write(TrainingEpochs);
+            writer.Write(TrainingLoss);
+            writer.Write(ValidationLoss);
             writer.Write(InputDimension);
             writer.Write(OutputDimension);
         }
@@ -42,9 +60,25 @@ namespace Cavern.Format.AI {
         public void Load(string path) {
             using BinaryReader reader = new BinaryReader(File.OpenRead(path));
             TrainingDataSize = reader.ReadInt32();
-            Loss = reader.ReadSingle();
+            TestDataRatio = reader.ReadSingle();
+            TrainingEpochs = reader.ReadInt32();
+            TrainingLoss = reader.ReadSingle();
+            ValidationLoss = reader.ReadSingle();
             InputDimension = reader.ReadInt32();
             OutputDimension = reader.ReadInt32();
+        }
+
+        /// <summary>
+        /// Import the metadata from an<paramref name="other"/> instance.
+        /// </summary>
+        public void Load(ModelMetadata other) {
+            TrainingDataSize = other.TrainingDataSize;
+            TestDataRatio = other.TestDataRatio;
+            TrainingEpochs = other.TrainingEpochs;
+            TrainingLoss = other.TrainingLoss;
+            ValidationLoss = other.ValidationLoss;
+            InputDimension = other.InputDimension;
+            OutputDimension = other.OutputDimension;
         }
     }
 }
