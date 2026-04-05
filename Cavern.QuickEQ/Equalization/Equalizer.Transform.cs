@@ -99,22 +99,6 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
-        /// Make sure the EQ won't go over the desired <paramref name="peak"/>.
-        /// </summary>
-        public void LimitPeaks(double peak) => LimitPeaks(0, bands.Count - 1, peak);
-
-        /// <summary>
-        /// Make sure the EQ won't go over the desired <paramref name="peak"/> between the frequency limits.
-        /// </summary>
-        public void LimitPeaks(double peak, double startFreq, double endFreq) {
-            (int startBand, int endBand) = GetBandLimits(startFreq, endFreq);
-            if (startBand == -1 && endBand == -1) {
-                return; // The frequency range is not on the curve
-            }
-            LimitPeaks(startBand, endBand, peak);
-        }
-
-        /// <summary>
         /// Make sure that in the given range, all subsequent gains are smaller.
         /// </summary>
         public void MonotonousDecrease(double startFreq, double endFreq) {
@@ -313,25 +297,6 @@ namespace Cavern.QuickEQ.Equalization {
                 return result + targetCurve.GetAverageLevel(clearStartFreq, clearEndFreq, (clearEndFreq - clearStartFreq) / 50);
             }
             return result;
-        }
-
-        /// <summary>
-        /// Make sure the EQ won't go over the desired <paramref name="peak"/> between the band limits.
-        /// </summary>
-        /// <param name="startBand">First band to limit (inclusive)</param>
-        /// <param name="endBand">Last band to limit (inclusive)</param>
-        /// <param name="peak">Maximum allowed value of the range set by <paramref name="startBand"/> and <paramref name="endBand"/></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void LimitPeaks(int startBand, int endBand, double peak) {
-            while (startBand <= endBand) {
-                if (bands[startBand].Gain > peak) {
-                    bands[startBand] = new Band(bands[startBand].Frequency, peak);
-                }
-                startBand++;
-            }
-            if (PeakGain > peak) {
-                PeakGain = peak;
-            }
         }
 
         /// <summary>
