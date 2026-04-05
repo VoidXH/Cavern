@@ -45,10 +45,14 @@ namespace Cavern.Format.Container.MP4 {
             Length = mediaHeader.ReadUInt32BE(16);
 
             timeScale = mediaHeader.ReadUInt32BE(12);
-            if (sampleTableBox[sampleDescriptionBox] is SampleDescriptionBox stsd && stsd.formats.Length == 1) {
+            if (sampleTableBox[sampleDescriptionBox] is SampleDescriptionBox stsd && stsd.formats.Length > 0) {
                 Format = stsd.formats[0].codec;
                 if (Format.IsAudio()) {
                     byte[] extra = stsd.formats[0].extra;
+                    if (extra.Length < 13) {
+                        throw new MissingElementException("Audio format metadata is too small.");
+                    }
+
                     Extra = new TrackExtraAudio {
                         Bits = (BitDepth)extra.ReadInt16(11),
                         ChannelCount = extra.ReadInt16(9),
