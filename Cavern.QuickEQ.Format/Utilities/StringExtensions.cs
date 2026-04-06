@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Cavern.Format.Utilities {
     /// <summary>
-    /// String operations not supported by .NET.
+    /// String operations not included in .NET.
     /// </summary>
     public static class StringExtensions {
         /// <summary>
@@ -39,12 +39,22 @@ namespace Cavern.Format.Utilities {
         /// <summary>
         /// Reads a string line by line with very little memory overhead.
         /// </summary>
-        public static IEnumerable<string> ReadLines(this string source) {
-            using StringReader reader = new StringReader(source);
+        public static IEnumerable<string> ReadLines(this string str) {
+            using StringReader reader = new StringReader(str);
             string line;
             while ((line = reader.ReadLine()) != null) {
                 yield return line;
             }
+        }
+
+        /// <summary>
+        /// Get the substring starting from a specific <paramref name="offset"/>, until a specified character or the end of string is reached.
+        /// </summary>
+        public static string ReadUntil(this string str, int offset, char until) {
+            int end = str.IndexOf(until, offset);
+            return end == -1 ?
+                str[offset..] :
+                str[offset..end];
         }
 
         /// <summary>

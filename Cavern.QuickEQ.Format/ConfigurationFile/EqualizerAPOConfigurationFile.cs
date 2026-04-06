@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -107,7 +106,7 @@ namespace Cavern.Format.ConfigurationFile {
                     int mul = copy[j].IndexOf('*');
                     if (mul != -1) {
                         channel = copy[j][(mul + 1)..];
-                        double copyGain = double.Parse(copy[j][..mul].Replace(',', '.'), CultureInfo.InvariantCulture),
+                        double copyGain = QMath.ParseDouble(copy[j][..mul]),
                             gainDb = QMath.GainToDb(Math.Abs(copyGain));
                         Gain gainFilter = new Gain(gainDb) {
                             Invert = gainDb >= 0
@@ -195,7 +194,7 @@ namespace Cavern.Format.ConfigurationFile {
                         break;
                     // Basic filters
                     case "preamp":
-                        double gain = double.Parse(split[1].Replace(',', '.'), CultureInfo.InvariantCulture);
+                        double gain = QMath.ParseDouble(split[1]);
                         AddFilter(lastNodes, activeChannels, new Gain(gain));
                         break;
                     case "delay":

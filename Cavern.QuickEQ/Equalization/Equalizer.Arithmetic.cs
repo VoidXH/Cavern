@@ -42,7 +42,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// This is calculated by LHS (this instance) - RHS (<paramref name="other"/>) for each value.
         /// </summary>
         /// <remarks>Matching frequencies have to be guaranteed before calling this function with <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.
-        /// For addition instead of subtraction, use <see cref="AlignTo(Equalizer)"/>.</remarks>
+        /// For addition instead of subtraction, use <see cref="AddCurve(Equalizer)"/>.</remarks>
         public void AlignTo(Equalizer other) {
             List<Band> otherBands = other.bands;
             for (int i = 0, c = bands.Count; i < c; i++) {

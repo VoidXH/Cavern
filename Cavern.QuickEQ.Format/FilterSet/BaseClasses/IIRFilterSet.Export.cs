@@ -64,20 +64,20 @@ namespace Cavern.Format.FilterSet {
                         for (int prop = 0; prop < Properties.Length; prop++) {
                             switch (Properties[prop]) {
                                 case FilterProperty.Gain:
-                                    result.AppendLine($"- Gain: {QMath.ToStringLimitDecimals(filter.Gain, 2)} dB");
+                                    result.AppendLine($"{GainLineStart}{QMath.ToStringLimitDecimals(filter.Gain, 2)} dB");
                                     break;
                                 case FilterProperty.Frequency:
-                                    result.AppendLine($"- Frequency: {RangeDependentDecimals(filter.CenterFreq)} Hz");
+                                    result.AppendLine($"{FrequencyLineStart}{RangeDependentDecimals(filter.CenterFreq)} Hz");
                                     break;
                                 case FilterProperty.QFactor:
-                                    result.AppendLine("- Q factor: " + QMath.ToStringLimitDecimals(filter.Q, 2));
+                                    result.AppendLine(QLineStart + QMath.ToStringLimitDecimals(filter.Q, 2));
                                     break;
                             }
                         }
                     }
                 }
             }
-            return result.ToString();
+            return result.AppendLine().ToString();
         }
 
         /// <summary>
@@ -96,5 +96,20 @@ namespace Cavern.Format.FilterSet {
             }
             return written;
         }
+
+        /// <summary>
+        /// Each exported filter's gain line starts with this substring.
+        /// </summary>
+        protected static string GainLineStart => "- Gain: ";
+
+        /// <summary>
+        /// Each exported filter's frequency line starts with this substring.
+        /// </summary>
+        protected static string FrequencyLineStart => "- Frequency: ";
+
+        /// <summary>
+        /// Each exported filter's Q factor line starts with this substring.
+        /// </summary>
+        protected static string QLineStart => "- Q factor: ";
     }
 }

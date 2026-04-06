@@ -157,7 +157,7 @@ namespace Cavern.Format.FilterSet {
                 if (csv) {
                     channelRef.curve.ExportCSV(fileName + ".csv", 0);
                 } else {
-                    channelRef.curve.Export(fileName + ".txt", 0, optionalHeader, Culture);
+                    channelRef.curve.Export(fileName + ".txt", 0, optionalHeader);
                 }
             }
         }

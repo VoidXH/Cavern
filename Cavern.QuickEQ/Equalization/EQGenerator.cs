@@ -151,6 +151,23 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Parse a set of <see cref="PeakingEQ"/>s between 20 Hz and 20 kHz with 1/12 octave precision.
+        /// </summary>
+        public static Equalizer FromPeakingEQFile(PeakingEQ[] source) => FromPeakingEQFile(source, 20, 20000, 1.0 / 12);
+
+        /// <summary>
+        /// Parse a set of <see cref="PeakingEQ"/>s, but since they're infinite resolution, have a <paramref name="resolution"/> limit in octaves.
+        /// </summary>
+        public static Equalizer FromPeakingEQFile(PeakingEQ[] source, double startFreq, double endFreq, double resolution) {
+            if (source.Length == 0) {
+                return new Equalizer();
+            }
+
+            FilterAnalyzer analyzer = new FilterAnalyzer(new ComplexFilter(source), source[0].SampleRate);
+            return analyzer.ToEqualizer(startFreq, endFreq, resolution);
+        }
+
+        /// <summary>
         /// Parse an Equalizer from a linear transfer function.
         /// </summary>
         public static Equalizer FromTransferFunction(Complex[] source, int sampleRate) {
@@ -223,18 +240,6 @@ namespace Cavern.QuickEQ.Equalization {
                 result[0] = new PeakingEQ(sampleRate, freq, .001f, bands[0].Gain);
             }
             return result;
-        }
-
-        /// <summary>
-        /// Parse a file of <see cref="PeakingEQ"/>s, but since they're infinite resolution, have a <paramref name="resolution"/> limit in octaves.
-        /// </summary>
-        static Equalizer FromPeakingEQFile(PeakingEQ[] source, double startFreq, double endFreq, double resolution) {
-            if (source.Length == 0) {
-                return new Equalizer();
-            }
-
-            FilterAnalyzer analyzer = new FilterAnalyzer(new ComplexFilter(source), source[0].SampleRate);
-            return analyzer.ToEqualizer(startFreq, endFreq, resolution);
         }
     }
 }

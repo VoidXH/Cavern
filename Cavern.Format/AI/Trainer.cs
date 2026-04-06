@@ -28,7 +28,7 @@ namespace Cavern.Format.AI {
         /// <summary>
         /// Parse and flatten the training <paramref name="data"/> to work with it faster.
         /// </summary>
-        public Trainer(ITrainingData[] data) {
+        protected Trainer(ITrainingData[] data) {
             Metadata.TrainingDataSize = data.Length;
             Metadata.InputDimension = data[0].Input.Length;
             Metadata.OutputDimension = data[0].Output.Length;

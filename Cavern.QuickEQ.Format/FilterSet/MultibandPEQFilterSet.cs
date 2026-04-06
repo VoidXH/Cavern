@@ -7,6 +7,7 @@ using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -149,8 +150,8 @@ namespace Cavern.Format.FilterSet {
                         continue;
                     }
 
-                    double freq = double.Parse(line[..line.IndexOf(' ')], Culture);
-                    double gain = double.Parse(line[(split + 1)..line.LastIndexOf(' ')], Culture);
+                    double freq = QMath.ParseDouble(line[..line.IndexOf(' ')]);
+                    double gain = QMath.ParseDouble(line[(split + 1)..line.LastIndexOf(' ')]);
                     lastChannel.Add(new PeakingEQ(sampleRate, freq, QFactor.reference, gain));
                 }
 

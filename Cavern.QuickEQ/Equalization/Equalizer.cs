@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using Cavern.QuickEQ.EQCurves;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
