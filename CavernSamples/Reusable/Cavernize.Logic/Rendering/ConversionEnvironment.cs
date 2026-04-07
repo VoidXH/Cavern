@@ -17,16 +17,6 @@ public sealed class ConversionEnvironment {
     public Listener Listener { get; private set; }
 
     /// <summary>
-    /// Convolution filter for each corresponding channel index to be applied on rendering.
-    /// </summary>
-    public Clip RoomCorrection { get; set; }
-
-    /// <summary>
-    /// The <see cref="roomCorrection"/> is active and the loaded filter set is valid for the currently set output layout.
-    /// </summary>
-    public bool RoomCorrectionUsed => RoomCorrection != null && Listener.Channels.Length == RoomCorrection.Channels;
-
-    /// <summary>
     /// Keeper of loaded files and settings.
     /// </summary>
     readonly ICavernizeApp app;
@@ -65,12 +55,12 @@ public sealed class ConversionEnvironment {
         Listener.Volume = app.RenderingSettings.Gain * safeGain;
 
         if (app.RenderTarget is VirtualizerRenderTarget) {
-            if (RoomCorrection != null && RoomCorrection.SampleRate != VirtualizerFilter.FilterSampleRate) {
+            if (app.RenderingSettings.RoomCorrection != null && app.RenderingSettings.RoomCorrection.SampleRate != VirtualizerFilter.FilterSampleRate) {
                 throw new SampleRateMismatchException();
             }
             Listener.SampleRate = VirtualizerFilter.FilterSampleRate;
         } else {
-            Listener.SampleRate = RoomCorrection?.SampleRate ?? target.SampleRate;
+            Listener.SampleRate = app.RenderingSettings.RoomCorrection?.SampleRate ?? target.SampleRate;
         }
     }
 

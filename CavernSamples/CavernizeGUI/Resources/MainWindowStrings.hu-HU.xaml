@@ -82,7 +82,6 @@
     <system:String x:Key="Error">Hiba</system:String>
     <system:String x:Key="FiltI">Impulzusválasz csomagok|*.wav</system:String>
     <system:String x:Key="FiltF">Cavern QuickEQ konvolúciós EQ-k|*.txt</system:String>
-    <system:String x:Key="FiltN">A(z) {0} csatornához nem lehetett konvolúciós EQ-t találni az exportban ({1}).</system:String>
     <system:String x:Key="FiltC">Ütköző mintavételezési frekvenciák: a fejhallgató virtualizáció és a kimeneti szűrők csak akkor
         működnek együtt, ha a mintavételezési frekvenciájuk egyezik. Egyiküknek mennie kell.</system:String>
     <system:String x:Key="FFRea">Készen áll!</system:String>

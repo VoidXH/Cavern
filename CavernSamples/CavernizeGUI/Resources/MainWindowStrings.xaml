@@ -82,7 +82,6 @@
     <system:String x:Key="Error">Error</system:String>
     <system:String x:Key="FiltI">Impulse response packages|*.wav</system:String>
     <system:String x:Key="FiltF">Cavern QuickEQ Convolution EQs|*.txt</system:String>
-    <system:String x:Key="FiltN">Convolution EQ file for the {0} channel was not found in this export ({1}).</system:String>
     <system:String x:Key="FiltC">Conflicting sample rates: headphone virtualization and output filtering can only work
         together if their sample rates match. One of them has to go.</system:String>
     <system:String x:Key="FFRea">Ready!</system:String>

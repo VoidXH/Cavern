@@ -30,4 +30,14 @@ public class RenderingSettings {
     /// Forces 24-bit export for formats that support it, like WAV or LAF.
     /// </summary>
     public virtual bool Force24Bit { get; set; }
+
+    /// <summary>
+    /// Convolution filter for each corresponding channel index to be applied on rendering.
+    /// </summary>
+    public Clip RoomCorrection { get; set; }
+
+    /// <summary>
+    /// The <see cref="roomCorrection"/> is active and the loaded filter set is valid for the currently set output layout.
+    /// </summary>
+    public bool RoomCorrectionUsable => RoomCorrection != null && Listener.Channels.Length == RoomCorrection.Channels;
 }
