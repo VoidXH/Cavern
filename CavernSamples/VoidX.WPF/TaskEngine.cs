@@ -104,15 +104,11 @@ namespace VoidX.WPF {
         /// </summary>
         public bool Run(Action task, Action<string> onError) {
             return Run(() => {
-#if RELEASE
                 try {
-#endif
                     task();
-#if RELEASE
                 } catch (Exception e) {
                     onError(e.ToString());
                 }
-#endif
             });
         }
 

@@ -72,53 +72,42 @@ partial class MainWindow {
         CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
         Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
         BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : Settings.Default.force24Bit ? BitDepth.Int24 : BitDepth.Int16;
-        if (!codec.IsEnvironmental()) {
-            SetBlockSize(RenderTarget);
-            string exportFormat = path[^4..].ToLowerInvariant();
-            bool mkvTarget = exportFormat.Equals(".mkv");
-            string exportName = mkvTarget || exportFormat.IsNative() ?
-                path[..^4] + waveExtension :
-                path;
-            int channelCount = RenderTarget.OutputChannels;
-            AudioWriter writer;
-            if (mkvTarget && target.Container == Container.Matroska && (codec == Codec.PCM_LE || codec == Codec.PCM_Float)) {
-                writer = new AudioWriterIntoContainer(path, target.GetVideoTracks(), codec,
-                    blockSize, channelCount, target.Length, target.SampleRate, bits) {
-                    NewTrackName = $"Cavern {RenderTarget.Name} render"
-                };
-            } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
-                writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount],
-                    target.Length, environment.Listener.SampleRate, bits);
-            } else {
-                writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
-            }
-            if (writer == null) {
-                Error((string)language["UnExt"]);
+
+        if (codec.IsEnvironmental()) {
+            try {
+                EnvironmentWriter transcoder = EnvironmentWriter.Create(path, codec, environment.Listener, target.Length, bits, target.Renderer);
+                return () => TranscodeTask(target, transcoder);
+            } catch (UnsupportedContainerForWriteException) {
+                Error((string)language["UnCod"]);
                 return null;
             }
-            writer.WriteHeader();
-            return () => RenderTask(target, writer, path);
-        } else {
-            EnvironmentWriter transcoder;
-            switch (codec) {
-                case Codec.LimitlessAudio:
-                    transcoder = new LimitlessAudioFormatEnvironmentWriter(path, environment.Listener, target.Length, bits);
-                    break;
-                case Codec.ADM_BWF:
-                    transcoder = new BroadcastWaveFormatWriter(path, environment.Listener, target.Length, bits);
-                    break;
-                case Codec.ADM_BWF_Atmos:
-                    transcoder = new DolbyAtmosBWFWriter(path, environment.Listener, target.Length, bits, target.Renderer, false);
-                    break;
-                case Codec.DAMF:
-                    transcoder = new DolbyAtmosMasterFormatWriter(path, environment.Listener, target.Length, bits, target.Renderer);
-                    break;
-                default:
-                    Error((string)language["UnCod"]);
-                    return null;
-            }
-            return () => TranscodeTask(target, transcoder);
         }
+
+        SetBlockSize(RenderTarget);
+        string exportFormat = path[^4..].ToLowerInvariant();
+        bool mkvTarget = exportFormat.Equals(".mkv");
+        string exportName = mkvTarget || exportFormat.IsNative() ?
+            path[..^4] + waveExtension :
+            path;
+        int channelCount = RenderTarget.OutputChannels;
+        AudioWriter writer;
+        if (mkvTarget && target.Container == Container.Matroska && (codec == Codec.PCM_LE || codec == Codec.PCM_Float)) {
+            writer = new AudioWriterIntoContainer(path, target.GetVideoTracks(), codec,
+                blockSize, channelCount, target.Length, target.SampleRate, bits) {
+                NewTrackName = $"Cavern {RenderTarget.Name} render"
+            };
+        } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
+            writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount],
+                target.Length, environment.Listener.SampleRate, bits);
+        } else {
+            writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
+        }
+        if (writer == null) {
+            Error((string)language["UnExt"]);
+            return null;
+        }
+        writer.WriteHeader();
+        return () => RenderTask(target, writer, path);
     }
 
     /// <summary>

@@ -15,7 +15,7 @@ namespace Cavern.Format.Environment.Utilities {
         /// </summary>
         public static (ReferenceChannel, Source)[] GetStaticObjects(Renderer source) {
             (ReferenceChannel, Source)[] result;
-            if (source.HasObjects && source is IMixedBedObjectRenderer mixed) {
+            if (source != null && source.HasObjects && source is IMixedBedObjectRenderer mixed) {
                 ReferenceChannel[] staticChannels = mixed.GetStaticChannels();
                 IReadOnlyList<Source> allObjects = source.Objects;
                 result = new (ReferenceChannel, Source)[staticChannels.Length];

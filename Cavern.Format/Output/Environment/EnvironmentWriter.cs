@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.Format.Common;
+using Cavern.Format.Renderers;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Environment {
@@ -48,6 +50,36 @@ namespace Cavern.Format.Environment {
         /// </summary>
         protected EnvironmentWriter(string path, Listener source, long length, BitDepth bits) :
             this(AudioWriter.Open(path), source, length, bits) { }
+
+        /// <summary>
+        /// Create the <see cref="EnvironmentWriter"/> for the specified <paramref name="codec"/>.
+        /// </summary>
+        /// <param name="path">Create the output file with this name</param>
+        /// <param name="codec">Used audio format</param>
+        /// <param name="environment">The <see cref="Cavern.Source"/> samples and movements will be taken from this rendering environment</param>
+        /// <param name="length">Total sample count in the created file</param>
+        /// <param name="bits">Output file bit depth</param>
+        public static EnvironmentWriter Create(string path, Codec codec, Listener environment, long length, BitDepth bits) =>
+            Create(path, codec, environment, length, bits, null);
+
+        /// <summary>
+        /// Create the <see cref="EnvironmentWriter"/> for the specified <paramref name="codec"/>.
+        /// </summary>
+        /// <param name="path">Create the output file with this name</param>
+        /// <param name="codec">Used audio format</param>
+        /// <param name="environment">The <see cref="Cavern.Source"/> samples and movements will be taken from this rendering environment</param>
+        /// <param name="length">Total sample count in the created file</param>
+        /// <param name="bits">Output file bit depth</param>
+        /// <param name="renderer">When the source is a decoded audio stream, take its static objects - this can be null</param>
+        public static EnvironmentWriter Create(string path, Codec codec, Listener environment, long length, BitDepth bits, Renderer renderer) {
+            return codec switch {
+                Codec.LimitlessAudio => new LimitlessAudioFormatEnvironmentWriter(path, environment, length, bits),
+                Codec.ADM_BWF => new BroadcastWaveFormatWriter(path, environment, length, bits),
+                Codec.ADM_BWF_Atmos => new DolbyAtmosBWFWriter(path, environment, length, bits, renderer, false),
+                Codec.DAMF => new DolbyAtmosMasterFormatWriter(path, environment, length, bits, renderer),
+                _ => throw new UnsupportedContainerForWriteException(codec.ToString()),
+            };
+        }
 
         /// <summary>
         /// Export the next frame of the <see cref="Source"/>.
