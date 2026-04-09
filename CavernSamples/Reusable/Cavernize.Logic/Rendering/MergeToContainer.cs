@@ -1,7 +1,8 @@
 ﻿using Cavern.Format.Common;
-
-using Cavernize.Logic.Models;
 using VoidX.WPF.FFmpeg;
+
+using Cavernize.Logic.CavernSettings;
+using Cavernize.Logic.Models;
 
 namespace Cavernize.Logic.Rendering;
 
@@ -75,10 +76,10 @@ public sealed class MergeToContainer {
     /// <summary>
     /// Merge the video/subtitle streams of the source file with the <see cref="render"/>, and if successful, delete the render.
     /// </summary>
-    /// <returns>The merge was successful</returns>
+    /// <returns>If the merge was successful.</returns>
     public bool Merge(FFmpeg ffmpeg, string fileName) {
         args.OutputFile = fileName;
-        if (ffmpeg.Launch(args.ToString()) && File.Exists(fileName)) {
+        if (ffmpeg.Launch(args.ToString()) && File.Exists(fileName) && !RenderingSettings.KeepTempFiles) {
             File.Delete(render);
             return true;
         }

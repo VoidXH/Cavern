@@ -7,6 +7,11 @@ namespace Cavernize.Logic.CavernSettings;
 /// </summary>
 public class RenderingSettings {
     /// <summary>
+    /// Don't delete any created temporary file.
+    /// </summary>
+    public static bool KeepTempFiles { get; set; }
+
+    /// <summary>
     /// The voltage gain at which the content is rendered. Shall default to 1.
     /// </summary>
     public virtual float Gain { get; set; } = 1;

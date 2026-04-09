@@ -7,6 +7,7 @@ using Cavern.Format.Operations;
 using Cavern.Format.Renderers;
 using Cavern.Utilities;
 
+using Cavernize.Logic.CavernSettings;
 using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using VoidX.WPF;
@@ -97,7 +98,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             runner.WaitForExit();
         }
 
-        if (needTempTrack) {
+        if (needTempTrack && !RenderingSettings.KeepTempFiles) {
             File.Delete(tempTrack);
         }
 
@@ -118,10 +119,12 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
     /// <inheritdoc/>
     public override void Cleanup() {
         track.Dispose();
-        QFile.DeleteIfExists(tempTrack + ".atmos");
-        QFile.DeleteIfExists(tempTrack + ".atmos.audio");
-        QFile.DeleteIfExists(tempTrack + ".atmos.metadata");
-        QFile.DeleteIfExists(tempTrack + ".caf");
+        if (!RenderingSettings.KeepTempFiles) {
+            QFile.DeleteIfExists(tempTrack + ".atmos");
+            QFile.DeleteIfExists(tempTrack + ".atmos.audio");
+            QFile.DeleteIfExists(tempTrack + ".atmos.metadata");
+            QFile.DeleteIfExists(tempTrack + ".caf");
+        }
     }
 
     /// <summary>
@@ -133,9 +136,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
         }
 
         Directory.CreateDirectory(cavernizeData);
-        if (File.Exists(cacheZip)) {
-            File.Delete(cacheZip);
-        }
+        QFile.DeleteIfExists(cacheZip);
         if (Directory.Exists(unpackDir)) {
             Directory.Delete(unpackDir, true);
         }

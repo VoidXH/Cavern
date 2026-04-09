@@ -35,6 +35,7 @@ public abstract class Command {
                 // Hidden commands
                 new ExtractCommand(),
                 new HeightSqueezeCommand(),
+                new KeepTempFilesCommand(),
                 new MLPPresentationCommand(),
                 new OverrideBedCommand(),
                 new RenderGainCommand(),
