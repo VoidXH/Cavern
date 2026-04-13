@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows</TargetFramework>
+		<TargetFramework>net10.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
 		<Description>Combines multiple tracks into a channel-based spatial E-AC-3 file up to 16 specific channels.</Description>
@@ -24,9 +25,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Folder Include="VoidX.WPF\FFmpeg\" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpeg.cs" Link="VoidX.WPF\FFmpeg\FFmpeg.cs" />
+		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpegArgument.cs" Link="VoidX.WPF\FFmpeg\FFmpegArgument.cs" />
+		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpegConfigurator.cs" Link="VoidX.WPF\FFmpeg\FFmpegConfigurator.cs" />
 		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpegGUI.cs" Link="VoidX.WPF\FFmpeg\FFmpegGUI.cs" />
 		<Compile Include="..\VoidX.WPF\EnumToTitleCase.cs" Link="VoidX.WPF\EnumToTitleCase.cs" />
+		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpegStream.cs" Link="VoidX.WPF\FFmpeg\FFmpegStream.cs" />
 		<Compile Include="..\VoidX.WPF\TaskEngine.cs" Link="VoidX.WPF\TaskEngine.cs" />
 	</ItemGroup>
 

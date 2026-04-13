@@ -26,7 +26,7 @@ namespace EnhancedAC3Merger {
             get => targetChannel;
             set {
                 targetChannel = value;
-                channelName.Text = EnumToTitleCase.GetTitleCase(value.ToString());
+                channelName.Text = EnumToTitleCase.GetTitleCase(value.ToString()).Replace(" lfe", " LFE");
             }
         }
         ReferenceChannel targetChannel;
@@ -93,7 +93,7 @@ namespace EnhancedAC3Merger {
         /// Uses the file opened the last time clicking another channel's &quot;Open file&quot; button.
         /// </summary>
         void LastFile(object _, RoutedEventArgs e) {
-            if (Settings.Default.lastFile == null) {
+            if (string.IsNullOrEmpty(Settings.Default.lastFile)) {
                 MainWindow.Error("No file was opened before.");
             } else {
                 OpenFile(Settings.Default.lastFile);
