@@ -64,6 +64,11 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         public GraphRenderer(int width, int height) : base(width, height) { }
 
+        /// <summary>
+        /// Draws multiple <see cref="Equalizer"/> curves on a single canvas.
+        /// </summary>
+        public GraphRenderer(int width, int height, float startFreq, float endFreq, bool logarithmic) : base(width, height, startFreq, endFreq, logarithmic) { }
+
         /// <inheritdoc/>
         public override void Clear() {
             curves.Clear();

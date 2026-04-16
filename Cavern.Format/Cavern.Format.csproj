@@ -46,7 +46,6 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Copy SourceFiles="..\CavernAmp\bin\Release\CavernAmp.dll" DestinationFolder="bin\$(Configuration)" SkipUnchangedFiles="true"
-			  Condition="Exists('..\CavernAmp\bin\Release\CavernAmp.dll')"/>
+		<Copy SourceFiles="..\CavernAmp\bin\Release\CavernAmp.dll" DestinationFolder="bin\$(Configuration)" SkipUnchangedFiles="true" Condition="Exists('..\CavernAmp\bin\Release\CavernAmp.dll')" />
 	</Target>
 </Project>

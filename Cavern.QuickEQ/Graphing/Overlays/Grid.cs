@@ -24,8 +24,8 @@
         /// <param name="borderWidth">Border line stroke width</param>
         /// <param name="gridWidth">Inner line stroke width</param>
         /// <param name="color">RGBA color of the line</param>
-        /// <param name="xSteps">Number of columns drawn, including the frame lines</param>
-        /// <param name="ySteps">Number of rows drawn, including the frame lines</param>
+        /// <param name="xSteps">One less than the number of columns drawn, including the frame lines</param>
+        /// <param name="ySteps">One less than the number of rows drawn, including the frame lines</param>
         public Grid(int borderWidth, int gridWidth, uint color, int xSteps, int ySteps) : base(borderWidth, color) {
             this.gridWidth = gridWidth;
             this.xSteps = xSteps;

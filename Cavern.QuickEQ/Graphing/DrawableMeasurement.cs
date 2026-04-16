@@ -79,6 +79,15 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
+        /// Any curve or other kind of measurement that can be drawn to a fixed size image, where the X axis is frequency.
+        /// </summary>
+        protected DrawableMeasurement(int width, int height, float startFreq, float endFreq, bool logarithmic) : this(width, height) {
+            startFrequency = startFreq;
+            endFrequency = endFreq;
+            this.logarithmic = logarithmic;
+        }
+
+        /// <summary>
         /// Remove all data sources from the image.
         /// </summary>
         public abstract void Clear();
