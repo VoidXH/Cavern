@@ -37,6 +37,18 @@ namespace Cavern.QuickEQ.Graphing {
         float peak = 6;
 
         /// <summary>
+        /// Show a constant value over the limits of the displayed curve.
+        /// </summary>
+        public bool Extend {
+            get => extend;
+            set {
+                extend = value;
+                ReRender();
+            }
+        }
+        bool extend = true;
+
+        /// <summary>
         /// The top and bottom will be moved towards the center by this many decibels.
         /// </summary>
         public float Padding {

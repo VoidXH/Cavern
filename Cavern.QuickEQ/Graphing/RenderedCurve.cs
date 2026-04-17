@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
@@ -72,13 +73,15 @@ namespace Cavern.QuickEQ.Graphing {
             if (lastRow >= 0 && lastRow < Parent.Height) {
                 Render[lastRow * Parent.Width] = 0xFF;
             }
-            for (int i = 1; i < preRender.Length; i++) {
-                int row = Math.Min((int)((preRender[i] - bottom) * ratio), Parent.Height - 1);
+
+            (int drawFrom, int drawTo) = GetDrawingLimits();
+            for (; drawFrom < drawTo; drawFrom++) {
+                int row = Math.Min((int)((preRender[drawFrom] - bottom) * ratio), Parent.Height - 1);
                 for (int j = Math.Max(lastRow, 0); j <= row; j++) {
-                    Render[j * Parent.Width + i] = 0xFF;
+                    Render[j * Parent.Width + drawFrom] = 0xFF;
                 }
                 for (int j = Math.Max(row, 0); j <= lastRow; j++) {
-                    Render[j * Parent.Width + i] = 0xFF;
+                    Render[j * Parent.Width + drawFrom] = 0xFF;
                 }
                 lastRow = row;
             }
@@ -90,6 +93,33 @@ namespace Cavern.QuickEQ.Graphing {
         internal void ReRenderFull() {
             Update();
             ReRender();
+        }
+
+        /// <summary>
+        /// Get the first (inclusive) and last (exclusive) column that contains pixels, depending on the <see cref="Parent"/>'s settings.
+        /// </summary>
+        (int drawFrom, int drawTo) GetDrawingLimits() {
+            int drawFrom = 1;
+            int drawTo = preRender.Length;
+            if (!Parent.Extend) {
+                if (Curve.Bands.Count == 0) {
+                    drawFrom = drawTo;
+                } else {
+                    double fromRelative, toRelative;
+                    if (Parent.Logarithmic) {
+                        fromRelative = QMath.LorpInverse(Parent.StartFrequency, Parent.EndFrequency, Curve.StartFrequency);
+                        toRelative = QMath.LorpInverse(Parent.StartFrequency, Parent.EndFrequency, Curve.EndFrequency);
+                    } else {
+                        fromRelative = QMath.LerpInverse(Parent.StartFrequency, Parent.EndFrequency, Curve.StartFrequency);
+                        toRelative = QMath.LerpInverse(Parent.StartFrequency, Parent.EndFrequency, Curve.EndFrequency);
+                    }
+
+                    int last = Parent.Width - 1;
+                    drawFrom = (int)(Math.Clamp(fromRelative, 0, 1) * last + .5);
+                    drawTo = (int)(Math.Clamp(toRelative, 0, 1) * last + .5);
+                }
+            }
+            return (drawFrom, drawTo);
         }
 
         /// <summary>

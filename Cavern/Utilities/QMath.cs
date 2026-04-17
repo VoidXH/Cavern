@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -51,42 +49,6 @@ namespace Cavern.Utilities {
             /// </summary>
             [FieldOffset(3)] public byte byte3;
         }
-
-        /// <summary>
-        /// Calculate the average of an array.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Average(this double[] array) => Sum(array, 0, array.Length) / array.Length;
-
-        /// <summary>
-        /// Calculate the average of an array until the selected border element (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Average(this double[] array, int until) => Sum(array, 0, until) / until;
-
-        /// <summary>
-        /// Calculate the average of an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Average(this double[] array, int from, int to) => Sum(array, from, to) / (to - from);
-
-        /// <summary>
-        /// Calculate the average of an array.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Average(this float[] array) => Sum(array, 0, array.Length) / array.Length;
-
-        /// <summary>
-        /// Calculate the average of an array until the selected border element (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Average(this float[] array, int until) => Sum(array, 0, until) / until;
-
-        /// <summary>
-        /// Calculate the average of an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Average(this float[] array, int from, int to) => Sum(array, from, to) / (to - from);
 
         /// <summary>
         /// Round up the number in base 2.
@@ -177,51 +139,6 @@ namespace Cavern.Utilities {
         public static int LeadingZeros(int x) => 31 - BitsAfterMSB(x);
 
         /// <summary>
-        /// Unclamped linear interpolation.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Lerp(float from, float to, float t) => (to - from) * t + from;
-
-        /// <summary>
-        /// Unclamped linear interpolation.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Lerp(double from, double to, double t) => (to - from) * t + from;
-
-        /// <summary>
-        /// Unclamped linear interpolation.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 Lerp(Vector2 from, Vector2 to, float t) => (to - from) * t + from;
-
-        /// <summary>
-        /// Unclamped linear interpolation.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 Lerp(Vector3 from, Vector3 to, float t) => (to - from) * t + from;
-
-        /// <summary>
-        /// Gets t for linear interpolation for a given value.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float LerpInverse(float from, float to, float value) => (value - from) / (to - from);
-
-        /// <summary>
-        /// Gets t for linear interpolation for a given value.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double LerpInverse(double from, double to, double value) => (value - from) / (to - from);
-
-        /// <summary>
-        /// Gets t for linear interpolation for a given value.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float LerpInverse(Complex from, Complex to, Complex value) {
-            float fromPhase = from.Phase;
-            return (value.Phase - fromPhase) / (to.Phase - fromPhase);
-        }
-
-        /// <summary>
         /// Compute the base 2 logarithm of a number faster than a generic Log function.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -310,115 +227,6 @@ namespace Cavern.Utilities {
         /// <remarks>This function does not handle 0, 0 correctly for optimization purposes.</remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool SignCompare(float a, float b) => a * b > 0;
-
-        /// <summary>
-        /// Sum all elements in an array.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Sum(this double[] array) => Sum(array, 0, array.Length);
-
-        /// <summary>
-        /// Sum the elements in an array until the selected border element (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Sum(this double[] array, int until) => Sum(array, 0, until);
-
-        /// <summary>
-        /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Sum(this double[] array, int from, int to) {
-            double sum = 0;
-            for (int i = from; i < to; ++i) {
-                sum += array[i];
-            }
-            return sum;
-        }
-
-        /// <summary>
-        /// Sum all elements in an array.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sum(this float[] array) => Sum(array, 0, array.Length);
-
-        /// <summary>
-        /// Sum the elements in an array until the selected border element (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sum(this float[] array, int until) => Sum(array, 0, until);
-
-        /// <summary>
-        /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Sum(this float[] array, int from, int to) {
-            float sum = 0;
-            for (int i = from; i < to; ++i) {
-                sum += array[i];
-            }
-            return sum;
-        }
-
-        /// <summary>
-        /// Sum all elements in an array.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Sum(this int[] array) => Sum(array, 0, array.Length);
-
-        /// <summary>
-        /// Sum the elements in an array until the selected border element (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Sum(this int[] array, int until) => Sum(array, 0, until);
-
-        /// <summary>
-        /// Sum the elements in an array between <paramref name="from"/> (inclusive) and <paramref name="to"/> (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Sum(this int[] array, int from, int to) {
-            int sum = 0;
-            for (int i = from; i < to; ++i) {
-                sum += array[i];
-            }
-            return sum;
-        }
-
-        /// <summary>
-        /// Sum the elements in a list.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Sum(this IReadOnlyList<double> list) {
-            double sum = 0;
-            for (int i = 0, to = list.Count; i < to; ++i) {
-                sum += list[i];
-            }
-            return sum;
-        }
-
-        /// <summary>
-        /// Sum absolute values of elements in an array.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAbs(this float[] array) => SumAbs(array, 0, array.Length);
-
-        /// <summary>
-        /// Sum absolute values of elements in an array until the selected border element (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAbs(this float[] array, int until) => SumAbs(array, 0, until);
-
-        /// <summary>
-        /// Sum absolute values of elements in an array between <paramref name="from"/> (inclusive)
-        /// and <paramref name="to"/> (exclusive).
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float SumAbs(this float[] array, int from, int to) {
-            float sum = 0;
-            for (int i = from; i < to; ++i) {
-                sum += Math.Abs(array[i]);
-            }
-            return sum;
-        }
 
         /// <summary>
         /// Limit the number of decimal digits when a number is converted to string.
