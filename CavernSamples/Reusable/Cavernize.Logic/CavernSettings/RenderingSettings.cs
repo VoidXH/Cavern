@@ -1,4 +1,5 @@
 ﻿using Cavern;
+using VoidX.WPF.FFmpeg;
 
 namespace Cavernize.Logic.CavernSettings;
 
@@ -45,4 +46,9 @@ public class RenderingSettings {
     /// The <see cref="roomCorrection"/> is active and the loaded filter set is valid for the currently set output layout.
     /// </summary>
     public bool RoomCorrectionUsable => RoomCorrection != null && Listener.Channels.Length == RoomCorrection.Channels;
+
+    /// <summary>
+    /// User-defined arguments for FFmpeg when it's used for merging.
+    /// </summary>
+    public List<FFmpegArgument> MergeArguments { get; set; } = [];
 }

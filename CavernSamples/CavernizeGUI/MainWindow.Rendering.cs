@@ -163,6 +163,7 @@ partial class MainWindow {
             taskEngine.UpdateStatus("Merging to final container...");
             string exportedAudio = finalName[..^4] + waveExtension;
             MergeToContainer merger = new(LoadedFile.Path, exportedAudio, targetCodec);
+            merger.AddArguments(RenderingSettings.MergeArguments);
             merger.SetTrackName($"Cavern {renderTargetRef.Name} render");
             if (writer.ChannelCount > 8) {
                 merger.Allow8PlusChannels();

@@ -27,6 +27,11 @@ public sealed class FFmpegConfigurator {
     int inputFiles;
 
     /// <summary>
+    /// Add a custom argument to the settings list.
+    /// </summary>
+    public void AddArgument(FFmpegArgument argument) => settings.Add(argument);
+
+    /// <summary>
     /// Add an input file with the arguments that precede it (like time offset for fast search).
     /// </summary>
     public void AddInputFile(string path, params FFmpegArgument[] arguments) {

@@ -34,6 +34,7 @@ public abstract class Command {
 
                 // Hidden commands
                 new ExtractCommand(),
+                new FFmpegArgCommand(),
                 new HeightSqueezeCommand(),
                 new KeepTempFilesCommand(),
                 new MLPPresentationCommand(),

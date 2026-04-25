@@ -32,6 +32,7 @@ public sealed class MergeToContainer {
         args.AddMapping(1, FFmpegStream.Audio);
         args.AddMappingIfExists(0, FFmpegStream.Subtitle);
         args.SetCodec(FFmpegStream.Video, "copy");
+        args.SetCodec(FFmpegStream.Subtitle, "copy");
         args.SetCodec(FFmpegStream.Audio, outputCodec);
         args.SetOverwrite(true);
     }
@@ -50,6 +51,15 @@ public sealed class MergeToContainer {
             return native == null ? matroskaOnly : $"{matroskaOnly}|{native}";
         } else {
             return matroskaOnly;
+        }
+    }
+
+    /// <summary>
+    /// Additional to the default arguments, allow the user to add custom arguments to the FFmpeg command line.
+    /// </summary>
+    public void AddArguments(IEnumerable<FFmpegArgument> arguments) {
+        foreach (FFmpegArgument argument in arguments) {
+            args.AddArgument(argument);
         }
     }
 
