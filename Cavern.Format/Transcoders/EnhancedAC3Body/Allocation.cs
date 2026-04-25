@@ -97,10 +97,10 @@ namespace Cavern.Format.Transcoders {
 
                 // Pre-IFFT
                 for (int i = 0; i < intermediate1.Length; i++) {
-                    intermediate1[i] = new Complex(coeffSplit1[IMDCTSize / 4 - 1 - 2 * i], coeffs[2 * i]) * x256[i];
+                    intermediate1[i] = new Complex(coeffSplit1[IMDCTSize / 4 - 1 - 2 * i], coeffSplit1[2 * i]) * x256[i];
                 }
                 for (int i = 0; i < intermediate2.Length; i++) {
-                    intermediate2[i] = new Complex(coeffSplit2[IMDCTSize / 4 - 1 - 2 * i], coeffs[2 * i]) * x256[i];
+                    intermediate2[i] = new Complex(coeffSplit2[IMDCTSize / 4 - 1 - 2 * i], coeffSplit2[2 * i]) * x256[i];
                 }
 
                 // IFFT
