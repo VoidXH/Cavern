@@ -5,6 +5,7 @@ using Cavern.Format.Image;
 using Cavern.QuickEQ.Graphing;
 
 using IImage = Microsoft.Maui.Graphics.IImage;
+using Image = Microsoft.Maui.Controls.Image;
 
 namespace Cavern.MAUI.Utilities;
 
@@ -12,6 +13,21 @@ namespace Cavern.MAUI.Utilities;
 /// Extension functions for interoperability between Cavern's raw ARGB pixel arrays and WPF's <see cref="Bitmap"/>.
 /// </summary>
 public static partial class IImageUtils {
+    /// <summary>
+    /// Make an image <paramref name="holder"/> have a fixed <paramref name="maxEdgeLength"/> while keeping the <paramref name="image"/>'s aspect ratio.
+    /// </summary>
+    public static void MaxEdgeSizing(this Image holder, IImage image, double maxEdgeLength) => MaxEdgeSizing(holder, image.Width, image.Height, maxEdgeLength);
+
+    /// <summary>
+    /// Make an image <paramref name="holder"/> have a fixed <paramref name="maxEdgeLength"/> while keeping the image's aspect ratio.
+    /// </summary>
+    public static void MaxEdgeSizing(this Image holder, double imageWidth, double imageHeight, double maxEdgeLength) {
+        double maxEdge = Math.Max(imageWidth, imageHeight);
+        double scaling = maxEdgeLength / maxEdge;
+        holder.WidthRequest = imageWidth * scaling;
+        holder.HeightRequest = imageHeight * scaling;
+    }
+
     /// <summary>
     /// Convert an array of ARGB pixels to a <see cref="IImage"/> that can be used in MAUI.
     /// </summary>

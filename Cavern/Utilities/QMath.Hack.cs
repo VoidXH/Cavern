@@ -1,0 +1,155 @@
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace Cavern.Utilities {
+    // Math operations that require bit hacking and weird algorithms
+    partial class QMath {
+        /// <summary>
+        /// Converts the bytes of an int to a float or vice versa.
+        /// In this class: hack for <see cref="Log2(int)"/> to use in-CPU float conversion as log2 by shifting the exponent.
+        /// </summary>
+        [StructLayout(LayoutKind.Explicit)]
+        public struct ConverterStruct {
+            /// <summary>
+            /// Get the contained 4 bytes as an integer.
+            /// </summary>
+            [FieldOffset(0)] public int asInt;
+
+            /// <summary>
+            /// Get the contained 4 bytes as an unsigned integer.
+            /// </summary>
+            [FieldOffset(0)] public uint asUInt;
+
+            /// <summary>
+            /// Get the contained 4 bytes as a float.
+            /// </summary>
+            [FieldOffset(0)] public float asFloat;
+
+            /// <summary>
+            /// Get the byte at index 0.
+            /// </summary>
+            [FieldOffset(0)] public byte byte0;
+
+            /// <summary>
+            /// Get the byte at index 1.
+            /// </summary>
+            [FieldOffset(1)] public byte byte1;
+
+            /// <summary>
+            /// Get the byte at index 2.
+            /// </summary>
+            [FieldOffset(2)] public byte byte2;
+
+            /// <summary>
+            /// Get the byte at index 3.
+            /// </summary>
+            [FieldOffset(3)] public byte byte3;
+        }
+
+        /// <summary>
+        /// Round up the number in base 2.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Base2Ceil(int val) => 1 << Log2Ceil(val);
+
+        /// <summary>
+        /// Count the number of bits after the most significant bit. 1 less than the MSB's position.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte BitsAfterMSB(int x) {
+            x |= x >> 1;
+            x |= x >> 2;
+            x |= x >> 4;
+            x |= x >> 8;
+            x |= x >> 16;
+            return bitsAfterMSBHack[(((x * 0x07C4ACDD) >> 27) + 32) & 0x1F];
+        }
+
+        /// <summary>
+        /// Count the number of bits after the most significant bit. 1 less than the MSB's position.
+        /// </summary>
+        public static int BitsAfterMSB(long x) {
+            int front = (int)(x >> 32);
+            if (front != 0) {
+                return BitsAfterMSB(front) + 32;
+            }
+            return BitsAfterMSB((int)x);
+        }
+
+        /// <summary>
+        /// Compute the base 2 logarithm of a number faster than a generic Log function.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Log2(int val) {
+            ConverterStruct a = new ConverterStruct {
+                asFloat = val
+            };
+            return ((a.asInt >> 23) + 1) & 0x1F;
+        }
+
+        /// <summary>
+        /// Compute the base 2 logarithm of a number faster than a generic Log function and round it up.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Log2Ceil(int val) {
+            int log = Log2(val);
+            if ((1 << log) != val) {
+                return log + 1;
+            }
+            return log;
+        }
+
+        /// <summary>
+        /// Count the number of 1 bits in an int.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int PopulationCount(int num) {
+            num -= ((num >> 1) & 0x55555555);
+            num = (num & 0x33333333) + ((num >> 2) & 0x33333333);
+            return (((num + (num >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+        }
+
+        /// <summary>
+        /// Reverse the bit order in a byte.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte Revert(this byte b) => (byte)((b * 0x0202020202 & 0x010884422010) % 1023);
+
+        /// <summary>
+        /// Reverse the endianness of an unsigned integer.
+        /// </summary>
+        public static uint ReverseEndianness(this uint value) =>
+            ((value & 0x000000FF) << 24) | ((value & 0x0000FF00) << 8) | ((value & 0x00FF0000) >> 8) | ((value & 0xFF000000) >> 24);
+
+        /// <summary>
+        /// Reverse the endianness of an unsigned long integer.
+        /// </summary>
+        public static ulong ReverseEndianness(this ulong value) =>
+            ((value & 0x00000000000000FF) << 56) |
+            ((value & 0x000000000000FF00) << 40) |
+            ((value & 0x0000000000FF0000) << 24) |
+            ((value & 0x00000000FF000000) << 8) |
+            ((value & 0x000000FF00000000) >> 8) |
+            ((value & 0x0000FF0000000000) >> 24) |
+            ((value & 0x00FF000000000000) >> 40) |
+            ((value & 0xFF00000000000000) >> 56);
+
+        /// <summary>
+        /// Counts the trailing zeros in an integer.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int TrailingZeros(int x) {
+            int zeros = 0;
+            while ((x & 1) == 0) {
+                zeros++;
+                x >>= 1;
+            }
+            return zeros;
+        }
+
+        /// <summary>
+        /// Conversion array for <see cref="BitsAfterMSB(int)"/>.
+        /// </summary>
+        static readonly byte[] bitsAfterMSBHack = { 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
+    }
+}
