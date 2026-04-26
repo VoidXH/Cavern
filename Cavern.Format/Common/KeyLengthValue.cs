@@ -10,7 +10,7 @@ namespace Cavern.Format.Common {
     /// </summary>
     /// <remarks><see cref="BinaryReader"/> is not cached. This is an intentional memory optimization and has to be
     /// treated carefully.</remarks>
-    internal class KeyLengthValue {
+    public class KeyLengthValue {
         /// <summary>
         /// Key of the entry.
         /// </summary>

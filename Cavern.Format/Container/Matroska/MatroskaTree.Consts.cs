@@ -79,5 +79,24 @@ namespace Cavern.Format.Container.Matroska {
             ["A_PCM/INT/LIT"] = Codec.PCM_LE,
             ["A_TRUEHD"] = Codec.TrueHD,
         };
+
+        /// <summary>
+        /// This element on the Matroska tree has further leaves.
+        /// </summary>
+        /// <remarks>Uses a switch for performance.</remarks>
+        public bool HasChildren() => Tag switch {
+            Segment_Cluster_BlockGroup => true,
+            Segment_Tracks_TrackEntry => true,
+            Segment_Cues_CuePoint => true,
+            Segment_Tracks_TrackEntry_Video => true,
+            Segment_Tracks_TrackEntry_Audio => true,
+            Segment_SeekHead_Seek => true,
+            Segment_SeekHead => true,
+            Segment_Info => true,
+            Segment_Tracks => true,
+            Segment => true,
+            EBML => true,
+            _ => false,
+        };
     }
 }

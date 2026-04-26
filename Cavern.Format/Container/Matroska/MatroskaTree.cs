@@ -8,7 +8,7 @@ namespace Cavern.Format.Container.Matroska {
     /// Builds a tree of a Matroska file's neccessary tags.
     /// </summary>
     /// <see href="https://github.com/ietf-wg-cellar/matroska-specification/blob/master/ebml_matroska.xml"/>
-    partial class MatroskaTree : KeyLengthValue {
+    public partial class MatroskaTree : KeyLengthValue {
         /// <summary>
         /// Last byte (exclusive) of the file that is a tag in this element.
         /// </summary>
@@ -137,31 +137,30 @@ namespace Cavern.Format.Container.Matroska {
         }
 
         /// <summary>
-        /// Fetch all child instances of a tag.
+        /// Fetch all child instances.
+        /// </summary>
+        public MatroskaTree[] GetChildren(Stream reader) {
+            ReadAllChildren(reader);
+            return children.ToArray();
+        }
+
+        /// <summary>
+        /// Fetch all child instances of a <paramref name="tag"/>.
         /// </summary>
         public MatroskaTree[] GetChildren(Stream reader, int tag) {
+            ReadAllChildren(reader);
             int tags = 0;
-            for (int i = 0, c = children.Count; i < c; ++i) {
+            for (int i = 0, c = children.Count; i < c; i++) {
                 if (children[i].Tag == tag) {
-                    ++tags;
+                    tags++;
                 }
             }
-
-            reader.Position = nextTag;
-            while (reader.Position < end) {
-                MatroskaTree subtree = new MatroskaTree(reader);
-                children.Add(subtree);
-                if (subtree.Tag == tag) {
-                    ++tags;
-                }
-            }
-            nextTag = end;
 
             MatroskaTree[] result = new MatroskaTree[tags];
-            for (int i = 0, c = children.Count; i < c; ++i) {
+            for (int i = 0, c = children.Count; i < c; i++) {
                 if (children[i].Tag == tag) {
                     result[^tags] = children[i];
-                    --tags;
+                    tags--;
                 }
             }
             return result;
@@ -225,6 +224,18 @@ namespace Cavern.Format.Container.Matroska {
                 throw new EndOfStreamException();
             }
             return result;
+        }
+
+        /// <summary>
+        /// Make sure all children are parsed to the <see cref="children"/> list.
+        /// </summary>
+        void ReadAllChildren(Stream reader) {
+            reader.Position = nextTag;
+            while (reader.Position < end) {
+                MatroskaTree subtree = new MatroskaTree(reader);
+                children.Add(subtree);
+            }
+            nextTag = end;
         }
 
         /// <summary>

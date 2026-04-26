@@ -23,8 +23,8 @@ namespace Cavern.Format.Container.Matroska {
         /// </summary>
         public void Write(MatroskaTreeWriter writer) {
             writer.OpenSequence(MatroskaTree.Segment_Tracks, tracks.Length > 4 ? (byte)3 : (byte)2); // 4096 bytes per track is over the top
-            for (int i = 0; i < tracks.Length; i++) {
-                WriteTrack(writer, tracks[i], i);
+            for (int i = 0; i < tracks.Length;) {
+                WriteTrack(writer, tracks[i], ++i); // Indexing starts from 1
             }
             writer.CloseSequence();
         }
