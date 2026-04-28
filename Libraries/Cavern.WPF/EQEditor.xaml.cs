@@ -36,7 +36,7 @@ namespace Cavern.WPF {
             InitializeComponent();
             this.equalizer = equalizer;
             original = (Equalizer)equalizer.Clone();
-            image.Overlay = new LogScaleGrid(2, 1, 0xFFAAAAAA, 10);
+            image.Overlay = new LogScaleGrid(2, 1, 0xFFAAAAAA, 9);
             image.AddCurve(equalizer, 0x0000FF);
 
             EqualizerToDataGrid bandHandler = new(bands, equalizer);

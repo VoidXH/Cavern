@@ -59,7 +59,7 @@ namespace Cavern.WPF {
             renderer = new GraphRenderer((int)(image.Width + .5), (int)(image.Height + .5)) {
                 DynamicRange = 50,
                 Peak = 25,
-                Overlay = new LogScaleGrid(2, 1, 0xFF000000, 10)
+                Overlay = new LogScaleGrid(2, 1, 0xFF000000, 9)
             };
             filterTypes.ItemsSource = Enum.GetValues(typeof(BiquadFilterType));
             filterTypes.SelectedIndex = 0;

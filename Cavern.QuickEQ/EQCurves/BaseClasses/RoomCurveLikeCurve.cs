@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
     /// A curve with a linear bass rise and linear treble suppression.
@@ -50,7 +52,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <inheritdoc/>
         public sealed override float[] GenerateLinearCurve(int sampleRate, int length, float gain) {
             float[] curve = base.GenerateLinearCurve(sampleRate, length, gain);
-            int knee = (int)(2 * kneeFrequency * curve.Length / sampleRate + .5f);
+            int knee = QMath.RoundToInt(2 * kneeFrequency * curve.Length / sampleRate);
             if (knee > curve.Length) {
                 knee = curve.Length;
             }

@@ -12,7 +12,7 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
         protected readonly int gridWidth;
 
         /// <summary>
-        /// Number of rows drawn, including the frame lines.
+        /// Number of intermediate rows drawn.
         /// </summary>
         readonly int ySteps;
 
@@ -22,7 +22,7 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
         /// <param name="borderWidth">Border line stroke width</param>
         /// <param name="gridWidth">Inner line stroke width</param>
         /// <param name="color">RGBA color of the line</param>
-        /// <param name="ySteps">Number of rows drawn, including the frame lines</param>
+        /// <param name="ySteps">Number of intermediate rows drawn</param>
         public LogScaleGrid(int borderWidth, int gridWidth, uint color, int ySteps) : base(borderWidth, color) {
             this.gridWidth = gridWidth;
             this.ySteps = ySteps;
@@ -30,9 +30,9 @@ namespace Cavern.QuickEQ.Graphing.Overlays {
 
         /// <inheritdoc/>
         public override void DrawBehind(DrawableMeasurement target) {
-            int gap = target.Height / ySteps;
-            for (int y = 1; y < ySteps; y++) {
-                DrawRow(target, y * gap, gridWidth, color);
+            float gap = (float)target.Height / (ySteps + 1);
+            for (int y = 1; y <= ySteps; y++) {
+                DrawRow(target, QMath.RoundToInt(y * gap), gridWidth, color);
             }
 
             float logStart = MathF.Log10(target.StartFrequency),

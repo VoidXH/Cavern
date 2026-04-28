@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Numerics;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Utilities {
     /// <summary>
@@ -29,14 +30,16 @@ namespace Cavern.QuickEQ.Utilities {
             int pos = position.Y * imageWidth + position.X;
             int outlineIn = Math.Min(outline, position.Height);
             int outlineOut = Math.Max(position.Height - outline, outlineIn);
-            void FillLine(int y) {
+
+            void FillCurrentLine() {
                 for (int x = 0; x < position.Width; x++) {
                     image[pos + x] = color;
                 }
                 pos += imageWidth;
             }
+
             for (int y = 0; y < outlineIn; y++) {
-                FillLine(y);
+                FillCurrentLine();
             }
             for (int y = outlineIn; y < outlineOut; y++) {
                 for (int x = 0; x < Math.Min(outline, position.Width); x++) {
@@ -48,7 +51,7 @@ namespace Cavern.QuickEQ.Utilities {
                 pos += imageWidth;
             }
             for (int y = outlineOut; y < position.Height; y++) {
-                FillLine(y);
+                FillCurrentLine();
             }
         }
 
@@ -56,11 +59,11 @@ namespace Cavern.QuickEQ.Utilities {
         /// Draw a colored circle outline on the image in production.
         /// </summary>
         public static void AddCircle(this uint[] image, int imageWidth, Circle circle, int outline, uint color) {
-            int centerX = (int)(circle.Center.X + .5f);
-            int centerY = (int)(circle.Center.Y + .5f);
-            int radius = (int)(circle.Radius + .5f);
-            int radiusSquaredMin = (int)((circle.Radius - outline) * (circle.Radius - outline) + .5f);
-            int radiusSquaredMax = (int)(circle.Radius * circle.Radius + .5f);
+            int centerX = QMath.RoundToInt(circle.Center.X);
+            int centerY = QMath.RoundToInt(circle.Center.Y);
+            int radius = QMath.RoundToInt(circle.Radius);
+            int radiusSquaredMin = QMath.RoundToInt((circle.Radius - outline) * (circle.Radius - outline));
+            int radiusSquaredMax = QMath.RoundToInt(circle.Radius * circle.Radius);
             for (int y = centerY - radius; y < centerY + radius; y++) {
                 for (int x = centerX - radius; x < centerX + radius; x++) {
                     int dx = x - centerX;
@@ -77,10 +80,10 @@ namespace Cavern.QuickEQ.Utilities {
         /// Draw a colored circle on the image in production.
         /// </summary>
         public static void AddCircle(this uint[] image, int imageWidth, Circle circle, uint color) {
-            int centerX = (int)(circle.Center.X + .5f);
-            int centerY = (int)(circle.Center.Y + .5f);
-            int radius = (int)(circle.Radius + .5f);
-            int radiusSquared = (int)(circle.Radius * circle.Radius + .5f);
+            int centerX = QMath.RoundToInt(circle.Center.X);
+            int centerY = QMath.RoundToInt(circle.Center.Y);
+            int radius = QMath.RoundToInt(circle.Radius);
+            int radiusSquared = QMath.RoundToInt(circle.Radius * circle.Radius);
             for (int y = centerY - radius; y < centerY + radius; y++) {
                 for (int x = centerX - radius; x < centerX + radius; x++) {
                     int dx = x - centerX;

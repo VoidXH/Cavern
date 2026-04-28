@@ -62,8 +62,8 @@ namespace Cavern.WPF {
             Resources.MergedDictionaries.Add(language);
             Resources.MergedDictionaries.Add(common);
             InitializeComponent();
-            impulseDisplay.Overlay = new Grid(2, 1, 0xFFAAAAAA, 10, 10);
-            fftDisplay.Overlay = new LogScaleGrid(2, 1, 0xFFAAAAAA, 10);
+            impulseDisplay.Overlay = new Grid(2, 1, 0xFFAAAAAA, 9, 9);
+            fftDisplay.Overlay = new LogScaleGrid(2, 1, 0xFFAAAAAA, 9);
             this.sampleRate = sampleRate;
             Impulse = impulse;
             originalImpulse = impulse;

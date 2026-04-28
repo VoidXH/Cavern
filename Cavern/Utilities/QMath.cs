@@ -79,6 +79,18 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Round a floating point number to integer correctly.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int RoundToInt(double value) => (int)(value + .5f);
+
+        /// <summary>
+        /// Round a floating point number to integer correctly.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int RoundToInt(float value) => (int)(value + .5f);
+
+        /// <summary>
         /// Checks if the two numbers have the same sign.
         /// </summary>
         /// <remarks>This function does not handle 0, 0 correctly for optimization purposes.</remarks>

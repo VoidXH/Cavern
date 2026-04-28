@@ -15,7 +15,7 @@ public partial class GraphRendererControl : UserControl {
     /// <summary>
     /// The background of the displayed graph.
     /// </summary>
-    public GraphOverlay Overlay { get; set; } = new LogScaleGrid(2, 1, 0xFF000000, 10);
+    public GraphOverlay Overlay { get; set; } = new LogScaleGrid(2, 1, 0xFF000000, 9);
 
     /// <summary>
     /// All displayed curves referencing the current <see cref="renderer"/>.
