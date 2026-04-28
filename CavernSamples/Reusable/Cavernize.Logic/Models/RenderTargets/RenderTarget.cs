@@ -100,6 +100,11 @@ public partial class RenderTarget(string name, ReferenceChannel[] channels) {
     public ReferenceChannel[] GetNameMappedChannels() => GetNameMappedChannels(WiredChannels);
 
     /// <summary>
+    /// If the layout only has 2 overheads or combines any two channels, the gain has to be reduced to prevent clipping.
+    /// </summary>
+    public virtual float GetSafeGain() => ChannelPrototype.ToLayout(Channels).GetOverheadChannelCount() < 4 ? 0.707f : 1;
+
+    /// <summary>
     /// Gets if a channel is actually present in the final file or just used for downmixing in <see cref="DownmixedRenderTarget"/>.
     /// </summary>
     public virtual bool IsExported(int _) => true;

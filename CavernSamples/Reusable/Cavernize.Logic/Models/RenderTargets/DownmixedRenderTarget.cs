@@ -103,9 +103,7 @@ public class DownmixedRenderTarget : RenderTarget {
         OutputChannels = channels.Length - merged;
     }
 
-    /// <summary>
-    /// Gets if a channel is actually present in the final file or just used for downmixing.
-    /// </summary>
+    /// <inheritdoc/>
     public override bool IsExported(int index) {
         for (int i = 0; i < merge.Length; i++) {
             if (merge[i].source == index || ~merge[i].source == index) {
@@ -113,6 +111,14 @@ public class DownmixedRenderTarget : RenderTarget {
             }
         }
         return true;
+    }
+
+    /// <inheritdoc/>
+    public override float GetSafeGain() {
+        int maxMixInSameTarget = 1 /* the original channel */ + merge
+            .GroupBy(x => x.target)
+            .Max(x => x.Count());
+        return base.GetSafeGain() / MathF.Sqrt(maxMixInSameTarget);
     }
 
     /// <summary>

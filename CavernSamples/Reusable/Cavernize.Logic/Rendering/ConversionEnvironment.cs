@@ -51,7 +51,7 @@ public sealed class ConversionEnvironment {
         target.Attach(Listener, app.UpmixingSettings);
 
         // Prevent height limiting, require at least 4 overhead channels for full gain
-        float safeGain = target.Renderer.HasObjects && Listener.Channels.GetOverheadChannelCount() < 4 ? .707f : 1;
+        float safeGain = target.Renderer.HasObjects ? app.RenderTarget.GetSafeGain() : 1;
         Listener.Volume = app.RenderingSettings.Gain * safeGain;
 
         if (app.RenderTarget is VirtualizerRenderTarget) {
