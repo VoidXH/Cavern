@@ -210,6 +210,15 @@ namespace Cavern.QuickEQ.Equalization {
         }
 
         /// <summary>
+        /// Multiply all gain values. Multiplication happens to the decibel values without transforming them back to gain.
+        /// </summary>
+        public void Scale(double by) {
+            for (int i = 0, c = bands.Count; i < c; i++) {
+                bands[i] = new Band(bands[i].Frequency, bands[i].Gain * by);
+            }
+        }
+
+        /// <summary>
         /// Apply smoothing on this <see cref="Equalizer"/> with a window of a given octave.
         /// </summary>
         public void Smooth(double octaves) {

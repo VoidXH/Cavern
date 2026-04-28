@@ -37,4 +37,10 @@
 	  <ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
 	  <ProjectReference Include="..\..\Cavern\Cavern.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Controls\LabeledGraph.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 </Project>
