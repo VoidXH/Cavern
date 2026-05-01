@@ -66,13 +66,14 @@ namespace Cavern.Virtualizer {
                 WaveformUtils.Gain(leftEarIR, minus16dB / WaveformUtils.GetRMS(leftEarIR));
                 Array.Copy(leftEarIR, rightEarIR, leftEarIR.Length);
             } else {
-                float otherGain = Gain.minus10dB * QMath.DbToGain(-20 * MathF.Sin(MathF.Abs(y) * VectorExtensions.Deg2Rad));
+                const float minus10dB = .31622776601f;
+                float otherGain = minus10dB * QMath.DbToGain(-20 * MathF.Sin(MathF.Abs(y) * VectorExtensions.Deg2Rad));
                 if (y < 0) { // Left side
-                    WaveformUtils.Gain(leftEarIR, Gain.minus10dB / WaveformUtils.GetRMS(leftEarIR));
+                    WaveformUtils.Gain(leftEarIR, minus10dB / WaveformUtils.GetRMS(leftEarIR));
                     WaveformUtils.Gain(rightEarIR, otherGain / WaveformUtils.GetRMS(rightEarIR));
                 } else { // Right side
                     WaveformUtils.Gain(leftEarIR, otherGain / WaveformUtils.GetRMS(leftEarIR));
-                    WaveformUtils.Gain(rightEarIR, Gain.minus10dB / WaveformUtils.GetRMS(rightEarIR));
+                    WaveformUtils.Gain(rightEarIR, minus10dB / WaveformUtils.GetRMS(rightEarIR));
                 }
             }
             return new VirtualChannel(x, y, leftEarIR, rightEarIR, sampleRate, crossoverFrequency);

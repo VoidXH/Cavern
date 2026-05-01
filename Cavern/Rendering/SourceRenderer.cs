@@ -28,7 +28,6 @@ namespace Cavern.Rendering {
         /// <param name="rendered"></param>
         /// <param name="gain"></param>
         protected static void MixToLFE(float[] samples, float[] rendered, float gain) {
-            gain *= Gain.minus10dB;
             Channel[] channels = Listener.Channels;
             for (int channel = 0; channel < channels.Length; channel++) {
                 if (channels[channel].LFE) {
