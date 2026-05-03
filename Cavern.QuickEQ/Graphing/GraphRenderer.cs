@@ -157,7 +157,7 @@ namespace Cavern.QuickEQ.Graphing {
             Array.Clear(Pixels, 0, Pixels.Length);
             Overlay?.DrawBehind(this);
             for (int i = 0, c = curves.Count; i < c; i++) {
-                DrawSingle(curves[i]);
+                curves[i].DrawOver(this, 0, 0);
             }
             Overlay?.DrawOn(this);
         }
@@ -175,31 +175,6 @@ namespace Cavern.QuickEQ.Graphing {
                 DrawAll();
             }
             return entry;
-        }
-
-        /// <summary>
-        /// Draw a single curve over the current output.
-        /// </summary>
-        unsafe void DrawSingle(RenderedCurve curve) {
-            uint r = curve.Color & 0x00FF0000,
-                 g = curve.Color & 0x0000FF00,
-                 b = curve.Color & 0x000000FF;
-            fixed (byte* pSource = curve.Render)
-            fixed (uint* pPixels = Pixels) {
-                byte* source = pSource, end = source + Pixels.Length;
-                uint* pixel = pPixels;
-                while (source != end) {
-                    if (*source != 0) {
-                        byte retain = (byte)(0xFF - *source);
-                        *pixel = 0xFF000000
-                            | ((*pixel & 0x00FF0000) * retain + r * *source) >> 8
-                            | ((*pixel & 0x0000FF00) * retain + g * *source) >> 8
-                            | ((*pixel & 0x000000FF) * retain + b * *source) >> 8;
-                    }
-                    source++;
-                    pixel++;
-                }
-            }
         }
     }
 }

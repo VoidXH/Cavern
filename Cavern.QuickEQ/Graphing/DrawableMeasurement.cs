@@ -1,13 +1,14 @@
 ﻿using System;
 
 using Cavern.QuickEQ.Graphing.Overlays;
+using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
     /// Any curve or other kind of measurement that can be drawn to a fixed size image, where the X axis is frequency.
     /// </summary>
-    public abstract class DrawableMeasurement {
+    public abstract class DrawableMeasurement : ARGBImage {
         /// <summary>
         /// Displayed representation of the measurement data.
         /// </summary>
@@ -50,21 +51,6 @@ namespace Cavern.QuickEQ.Graphing {
         bool logarithmic = true;
 
         /// <summary>
-        /// Canvas width.
-        /// </summary>
-        public int Width { get; }
-
-        /// <summary>
-        /// Canvas height.
-        /// </summary>
-        public int Height { get; }
-
-        /// <summary>
-        /// ARGB values for all pixels of the canvas, line by line.
-        /// </summary>
-        public uint[] Pixels { get; } = Array.Empty<uint>();
-
-        /// <summary>
         /// Something to draw over the graph, like a <see cref="Frame"/> or <see cref="Grid"/>.
         /// </summary>
         public GraphOverlay Overlay { get; set; }
@@ -72,11 +58,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Any curve or other kind of measurement that can be drawn to a fixed size image, where the X axis is frequency.
         /// </summary>
-        protected DrawableMeasurement(int width, int height) {
-            Width = width;
-            Height = height;
-            Pixels = new uint[width * height];
-        }
+        protected DrawableMeasurement(int width, int height) : base(width, height) { }
 
         /// <summary>
         /// Any curve or other kind of measurement that can be drawn to a fixed size image, where the X axis is frequency.

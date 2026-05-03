@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 using Cavern.Numerics;
 using Cavern.Utilities;
@@ -56,6 +57,25 @@ namespace Cavern.QuickEQ.Utilities {
         }
 
         /// <summary>
+        /// Draw a colored circle on the image in production.
+        /// </summary>
+        public static void AddCircle(this uint[] image, int imageWidth, Circle circle, uint color) {
+            int centerX = QMath.RoundToInt(circle.Center.X);
+            int centerY = QMath.RoundToInt(circle.Center.Y);
+            int radius = QMath.RoundToInt(circle.Radius);
+            int radiusSquared = QMath.RoundToInt(circle.Radius * circle.Radius);
+            for (int y = centerY - radius; y < centerY + radius; y++) {
+                for (int x = centerX - radius; x < centerX + radius; x++) {
+                    int dx = x - centerX;
+                    int dy = y - centerY;
+                    if (dx * dx + dy * dy < radiusSquared) {
+                        image[y * imageWidth + x] = color;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Draw a colored circle outline on the image in production.
         /// </summary>
         public static void AddCircle(this uint[] image, int imageWidth, Circle circle, int outline, uint color) {
@@ -77,22 +97,23 @@ namespace Cavern.QuickEQ.Utilities {
         }
 
         /// <summary>
-        /// Draw a colored circle on the image in production.
+        /// Create a transparent background image of a circle.
         /// </summary>
-        public static void AddCircle(this uint[] image, int imageWidth, Circle circle, uint color) {
-            int centerX = QMath.RoundToInt(circle.Center.X);
-            int centerY = QMath.RoundToInt(circle.Center.Y);
-            int radius = QMath.RoundToInt(circle.Radius);
-            int radiusSquared = QMath.RoundToInt(circle.Radius * circle.Radius);
-            for (int y = centerY - radius; y < centerY + radius; y++) {
-                for (int x = centerX - radius; x < centerX + radius; x++) {
-                    int dx = x - centerX;
-                    int dy = y - centerY;
-                    if (dx * dx + dy * dy < radiusSquared) {
-                        image[y * imageWidth + x] = color;
-                    }
-                }
-            }
+        public static ARGBImage CreateCircleSprite(int radius, uint color) {
+            int diameter = radius * 2;
+            ARGBImage result = new ARGBImage(diameter, diameter);
+            AddCircle(result.Pixels, result.Width, new Circle(new Vector2(radius, radius), radius), color);
+            return result;
+        }
+
+        /// <summary>
+        /// Create a transparent background image of a circle outline.
+        /// </summary>
+        public static ARGBImage CreateCircleSprite(int radius, int outline, uint color) {
+            int diameter = radius * 2;
+            ARGBImage result = new ARGBImage(diameter, diameter);
+            AddCircle(result.Pixels, result.Width, new Circle(new Vector2(radius, radius), radius), outline, color);
+            return result;
         }
 
         /// <summary>
