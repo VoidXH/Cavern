@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Cavern.QuickEQ.Equalization;
 using Cavern.QuickEQ.Graphing.Overlays;
+using Cavern.QuickEQ.Utilities;
 
 namespace Cavern.QuickEQ.Graphing {
     /// <summary>
@@ -101,6 +102,23 @@ namespace Cavern.QuickEQ.Graphing {
         public void AddCurves((Equalizer curve, uint color)[] curves, bool normalize) {
             for (int i = 0; i < curves.Length; i++) {
                 AddCurve(curves[i].curve, curves[i].color, false);
+            }
+            if (normalize) {
+                Normalize();
+            } else {
+                ReRenderFull();
+            }
+        }
+
+        /// <summary>
+        /// Add multiple curves with their respective ARGB colors and point displays.
+        /// </summary>
+        /// <param name="curves">Curves to draw with their corresponding colors</param>
+        /// <param name="normalize">Set the <see cref="Peak"/> to the highest value of any curve</param>
+        /// <remarks>This is the recommended method for adding multiple curves at once as this doesn't re-render for each one.</remarks>
+        public void AddCurves((Equalizer curve, uint color, ARGBImage pointDisplay)[] curves, bool normalize) {
+            for (int i = 0; i < curves.Length; i++) {
+                AddCurve(curves[i].curve, curves[i].color, false).pointDisplay = curves[i].pointDisplay;
             }
             if (normalize) {
                 Normalize();

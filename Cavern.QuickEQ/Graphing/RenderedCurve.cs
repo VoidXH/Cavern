@@ -25,7 +25,6 @@ namespace Cavern.QuickEQ.Graphing {
                 Update(true);
             }
         }
-        ARGBImage pointDisplay;
 
         /// <summary>
         /// ARGB color of the curve.
@@ -37,6 +36,11 @@ namespace Cavern.QuickEQ.Graphing {
         /// The graph that draws this curve.
         /// </summary>
         public GraphRenderer Parent { get; }
+
+        /// <summary>
+        /// Gives the ability to set <see cref="PointDisplay"/> without a redraw.
+        /// </summary>
+        internal ARGBImage pointDisplay;
 
         /// <summary>
         /// The visualized <see cref="Curve"/>, all of its values at given width values of the <see cref="GraphRenderer"/>.
@@ -120,7 +124,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// Get the first (inclusive) and last (exclusive) column that contains pixels, depending on the <see cref="Parent"/>'s settings.
         /// </summary>
         (int drawFrom, int drawTo) GetDrawingLimits() {
-            int drawFrom = 1;
+            int drawFrom = 0;
             int drawTo = preRender.Length;
             if (!Parent.Extend) {
                 if (Curve.Bands.Count == 0) {
@@ -135,7 +139,7 @@ namespace Cavern.QuickEQ.Graphing {
                         toRelative = QMath.LerpInverse(Parent.StartFrequency, Parent.EndFrequency, Curve.EndFrequency);
                     }
 
-                    int last = Parent.Width - 1;
+                    int last = preRender.Length;
                     drawFrom = QMath.RoundToInt(Math.Clamp(fromRelative, 0, 1) * last);
                     drawTo = QMath.RoundToInt(Math.Clamp(toRelative, 0, 1) * last);
                 }
@@ -159,7 +163,9 @@ namespace Cavern.QuickEQ.Graphing {
             IReadOnlyList<Band> bands = Curve.Bands;
             for (int i = 0, c = bands.Count; i < c; i++) {
                 float pixel = Parent.GetWidthAt((float)bands[i].Frequency);
-                if (pixel >= 0 && pixel < Width) {
+                if ((int)pixel == Width) {
+                    pointLocations[^1] = true;
+                } else if (pixel >= 0 && pixel < Width) {
                     pointLocations[(int)pixel] = true;
                 }
             }

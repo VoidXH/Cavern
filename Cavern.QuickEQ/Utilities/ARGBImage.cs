@@ -66,7 +66,7 @@ namespace Cavern.QuickEQ.Utilities {
                         continue;
                     }
 
-                    int targetIndex = targetRowOffset + (x + xOffset);
+                    int targetIndex = targetRowOffset + x + xOffset;
                     if (alpha == 0xFF) {
                         target.Pixels[targetIndex] = sourcePixel;
                         continue;
