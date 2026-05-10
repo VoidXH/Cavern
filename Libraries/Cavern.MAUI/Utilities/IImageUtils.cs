@@ -5,7 +5,6 @@ using Cavern.Format.Image;
 using Cavern.QuickEQ.Graphing;
 
 using IImage = Microsoft.Maui.Graphics.IImage;
-using Image = Microsoft.Maui.Controls.Image;
 
 namespace Cavern.MAUI.Utilities;
 
@@ -16,12 +15,12 @@ public static partial class IImageUtils {
     /// <summary>
     /// Make an image <paramref name="holder"/> have a fixed <paramref name="maxEdgeLength"/> while keeping the <paramref name="image"/>'s aspect ratio.
     /// </summary>
-    public static void MaxEdgeSizing(this Image holder, IImage image, double maxEdgeLength) => MaxEdgeSizing(holder, image.Width, image.Height, maxEdgeLength);
+    public static void MaxEdgeSizing(this View holder, IImage image, double maxEdgeLength) => MaxEdgeSizing(holder, image.Width, image.Height, maxEdgeLength);
 
     /// <summary>
     /// Make an image <paramref name="holder"/> have a fixed <paramref name="maxEdgeLength"/> while keeping the image's aspect ratio.
     /// </summary>
-    public static void MaxEdgeSizing(this Image holder, double imageWidth, double imageHeight, double maxEdgeLength) {
+    public static void MaxEdgeSizing(this View holder, double imageWidth, double imageHeight, double maxEdgeLength) {
         double maxEdge = Math.Max(imageWidth, imageHeight);
         double scaling = maxEdgeLength / maxEdge;
         holder.WidthRequest = imageWidth * scaling;

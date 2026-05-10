@@ -1,0 +1,6 @@
+<Grid xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+      xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+      x:Class="Cavern.MAUI.Controls.SaveableImage">
+    <Image x:Name="image"/>
+    <Button x:Name="saveButton" HorizontalOptions="End" VerticalOptions="Start" Margin="5" Opacity="0" Background="#77000000" Text="Save" Clicked="OnSave"/>
+</Grid>
