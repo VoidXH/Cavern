@@ -80,7 +80,34 @@ namespace Cavern.Utilities {
                     result[i++] = selector(enumerator.Current);
                 }
                 return result;
-            } else { // Slow path for structures not supporting .Count
+            } else { // Slow path for streaming data
+                return source.Select(selector).ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Shorthand for .Select((item, index) => ...).ToArray(), with heavy performance optimizations.
+        /// </summary>
+        public static T2[] SelectArray<T1, T2>(this IEnumerable<T1> source, Func<T1, int, T2> selector) {
+            if (source is IList<T1> list) { // Fast path for indexable structures
+                int count = list.Count;
+                T2[] result = new T2[count];
+                for (int i = 0; i < count; i++) {
+                    result[i] = selector(list[i], i);
+                }
+                return result;
+            } else if (source is ICollection<T1> collection) { // Fast path for countable but not indexable structures
+                int count = collection.Count;
+                T2[] result = new T2[count];
+                int i = 0;
+                using (IEnumerator<T1> enumerator = collection.GetEnumerator()) {
+                    while (enumerator.MoveNext()) {
+                        result[i] = selector(enumerator.Current, i);
+                        i++;
+                    }
+                }
+                return result;
+            } else { // Slow path for streaming data
                 return source.Select(selector).ToArray();
             }
         }
