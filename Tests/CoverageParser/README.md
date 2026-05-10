@@ -224,4 +224,4 @@ The release binary is produced at `CoverageParser/bin/Release/CoverageParser.exe
 
 ## License
 
-This project is provided as-is.
+The Cavern licence applies.
