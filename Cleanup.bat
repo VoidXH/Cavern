@@ -55,6 +55,8 @@ rd /s /q Libraries\Cavern.WPF\obj
 rd /s /q Libraries\Cavern.MAUI\bin
 rd /s /q Libraries\Cavern.MAUI\obj
 rd /s /q TestResults
+rd /s /q Tests\CoverageParser\bin
+rd /s /q Tests\CoverageParser\obj
 rd /s /q Tests\Test.Cavern\bin
 rd /s /q Tests\Test.Cavern\obj
 rd /s /q Tests\Test.Cavern.Format\bin

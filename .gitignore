@@ -1,12 +1,13 @@
-*.depend
-*.layout
 **/.vs/
 **/bin/
 **/obj/
+*.depend
+*.layout
 CavernAmp/CavernAmp.cscope_file_list
 CavernFTPData.txt
 CavernUnityPath.txt
 Cavernize Lite/samples/
 Pro/
 Tests/TestResults/
+Tests/coverage.json
 packages/
