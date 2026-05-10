@@ -1,7 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-
-using Cavern.Utilities;
+﻿using Cavern.Utilities;
 using Cavern.Waveforms;
+using System;
+using System.Runtime.CompilerServices;
 
 namespace Cavern {
     /// <summary>
@@ -47,7 +47,7 @@ namespace Cavern {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Gain(float multiplier) {
-            for (int i = 0; i < data.Length; ++i) {
+            for (int i = 0; i < data.Length; i++) {
                 float[] channel = data[i];
                 for (int j = 0; j < channel.Length; j++) {
                     channel[j] *= multiplier;
@@ -82,6 +82,20 @@ namespace Cavern {
         }
 
         /// <summary>
+        /// Get the RMS amplitude, including all samples of all channels in the calculation.
+        /// </summary>
+        public float GetRMS() {
+            float sum = 0;
+            for (int ch = 0; ch < Channels; ch++) {
+                float[] channel = data[ch];
+                for (int sample = 0; sample < channel.Length; sample++) {
+                    sum += channel[sample] * channel[sample];
+                }
+            }
+            return MathF.Sqrt(sum / (Channels * Length));
+        }
+
+        /// <summary>
         /// Set the peak signal across all channels to 1 (0 dB FS).
         /// </summary>
         public void Normalize() => Gain(1 / GetPeak());
@@ -112,7 +126,7 @@ namespace Cavern {
                 float[] check = data[i];
                 int trim = 0;
                 while (check[trim] == 0 && trim < check.Length) {
-                    ++trim;
+                    trim++;
                 }
                 if (min > trim) {
                     min = trim;
@@ -134,7 +148,7 @@ namespace Cavern {
                 float[] check = data[i];
                 int trim = check.Length;
                 while (trim > 0 && check[trim - 1] == 0) {
-                    --trim;
+                    trim--;
                 }
                 if (max < trim) {
                     max = trim;

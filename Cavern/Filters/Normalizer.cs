@@ -6,7 +6,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Makes sure the content always stays as close to 0 dB as possible.
     /// </summary>
-    public class Normalizer : Filter {
+    public partial class Normalizer : Filter {
         /// <inheritdoc/>
         public override bool LinearTimeInvariant => false;
 
