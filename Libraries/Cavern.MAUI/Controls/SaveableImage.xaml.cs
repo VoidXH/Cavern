@@ -44,8 +44,8 @@ public partial class SaveableImage : Grid {
     public SaveableImage() {
         InitializeComponent();
         PointerGestureRecognizer pointerGesture = new();
-        pointerGesture.PointerEntered += (_, __) => UpdateButton(true);
-        pointerGesture.PointerExited += (_, __) => UpdateButton(false);
+        pointerGesture.PointerEntered += (_, e) => UpdateButton(true);
+        pointerGesture.PointerExited += (_, e) => UpdateButton(false);
         GestureRecognizers.Add(pointerGesture);
     }
 
