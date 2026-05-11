@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Channels;
@@ -44,12 +45,32 @@ namespace Cavern.Format.FilterSet {
         };
 
         /// <inheritdoc/>
-        public override void Export(string path) => File.WriteAllText(path, Export(false));
+        public override void Export(string path) {
+            if (Channels.Length <= 8) {
+                File.WriteAllText(path, Export(0, Channels.Length));
+            } else {
+                string folder = Path.GetDirectoryName(path);
+                string rootFileName = Path.GetFileNameWithoutExtension(path);
+                string extension = Path.GetExtension(path);
+                for (int offset = 0; offset < Channels.Length; offset += 8) {
+                    string fileName = Path.Combine(folder, $"{rootFileName} {offset / 8 + 1}{extension}");
+                    string segmentFile = Export(offset, Math.Min(8, Channels.Length - offset));
+                    File.WriteAllText(fileName, segmentFile);
+                }
+            }
+        }
 
         /// <inheritdoc/>
-        protected override string Export(bool gainOnly) {
+        /// <remarks>Returns a single configuration file without regarding the 8 channel upper limit per such file.</remarks>
+        protected override string Export(bool gainOnly) => Export(0, Channels.Length);
+
+        /// <summary>
+        /// Export a <paramref name="count"/> of channels from the given starting <paramref name="offset"/>.
+        /// This matters because TüN supports 8 channels per configuration file.
+        /// </summary>
+        string Export(int offset, int count) {
             JsonFile traceSettings = new JsonFile();
-            for (int i = 0; i < Channels.Length; i++) {
+            for (int i = 0; i < count; i++) {
                 JsonFile trace = new JsonFile("Color", "#" + defaultColors[i % defaultColors.Length].ToString("x6"));
                 traceSettings.Add("t_" + (i + 1), trace);
             }
@@ -58,10 +79,10 @@ namespace Cavern.Format.FilterSet {
                 { "Trace Settings", traceSettings }
             };
 
-            for (int i = 0; i < Channels.Length; i++) {
+            for (int i = 0; i < count; i++) {
                 JsonFile[] eqBands = new JsonFile[Bands];
-                BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
-                for (int band = 0; band < filters.Length; band++) {
+                BiquadFilter[] filters = ((IIRChannelData)Channels[i + offset]).filters;
+                for (int band = 0, bands = Math.Min(filters.Length, Bands); band < bands; band++) {
                     eqBands[band] = ParseFilter(true, filters[band].CenterFreq, filters[band].Gain, filters[band].Q);
                 }
                 for (int band = filters.Length; band < Bands; band++) {
@@ -76,7 +97,7 @@ namespace Cavern.Format.FilterSet {
                     { "In sum", false },
                     { "Level Trim", 0 },
                     { "Mag Offset", 0 },
-                    { "Name", Channels[i].name },
+                    { "Name", Channels[i + offset].name },
                     { "Spectrum Offset", 0 },
                     { "Visible", true }
                 };
