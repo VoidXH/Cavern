@@ -33,10 +33,14 @@ public static class ClassHtmlParser {
 
         // Get class name from the title or info table
         HtmlNode classInfo = doc.DocumentNode.SelectSingleNode("//div[@class='card-header' and text()='Information']/ancestor::div[@class='card']");
-        if (classInfo == null) return;
+        if (classInfo == null) {
+            return;
+        }
 
         HtmlNodeCollection classRows = classInfo.SelectNodes(".//table/tr");
-        if (classRows == null) return;
+        if (classRows == null) {
+            return;
+        }
 
         string className = string.Empty;
         string assemblyName = string.Empty;
@@ -103,14 +107,20 @@ public static class ClassHtmlParser {
     /// <param name="classReport">ClassReport to populate with method coverage data</param>
     private static void ParseMethodCoverage(HtmlDocument doc, ClassReport classReport) {
         HtmlNode tbody = doc.DocumentNode.SelectSingleNode("//h1[text()='Metrics']/following-sibling::div//table//tbody");
-        if (tbody == null) return;
+        if (tbody == null) {
+            return;
+        }
 
         HtmlNodeCollection rows = tbody.SelectNodes("tr");
-        if (rows == null) return;
+        if (rows == null) {
+            return;
+        }
 
         foreach (HtmlNode row in rows) {
             HtmlNodeCollection cells = row.SelectNodes("td");
-            if (cells == null || cells.Count < 5) continue;
+            if (cells == null || cells.Count < 5) {
+                continue;
+            }
 
             // Method name from the first cell
             HtmlNode methodLink = cells[0].SelectSingleNode(".//a");

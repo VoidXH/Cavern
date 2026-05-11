@@ -28,12 +28,16 @@ public static class ParserUtils {
     /// <param name="card">The HTML node representing the card element</param>
     /// <returns>CoverageStats populated with the parsed values.</returns>
     public static CoverageStats ParseCoverageStatsFromCard(HtmlNode card) {
-        CoverageStats stats = new CoverageStats();
+        CoverageStats stats = new();
         HtmlNode table = card.SelectSingleNode(".//table");
-        if (table == null) return stats;
+        if (table == null) {
+            return stats;
+        }
 
         HtmlNodeCollection rows = table.SelectNodes("tr");
-        if (rows == null) return stats;
+        if (rows == null) {
+            return stats;
+        }
 
         foreach (HtmlNode row in rows) {
             HtmlNode th = row.SelectSingleNode(".//th");
@@ -86,8 +90,9 @@ public static class ParserUtils {
     /// <param name="value">The percentage string (e.g., "75.5%")</param>
     /// <returns>The parsed percentage as a decimal, or 0 if the value is invalid.</returns>
     public static decimal ParsePercentage(string value) {
-        if (string.IsNullOrEmpty(value) || value == "-" || value == "-%")
+        if (string.IsNullOrEmpty(value) || value == "-" || value == "-%") {
             return 0;
+        }
 
         Match match = Regex.Match(value, @"(\d+\.?\d*)%");
         if (match.Success) {
@@ -117,7 +122,9 @@ public static class ParserUtils {
     /// <returns>The matching ClassReport, or null if not found.</returns>
     public static ClassReport FindClassReport(CoverageReport report, string assembly, string className) {
         AssemblyReport assemblyReport = report.Assemblies.FirstOrDefault(a => a.Name == assembly);
-        if (assemblyReport == null) return null;
+        if (assemblyReport == null) {
+            return null;
+        }
 
         return assemblyReport.Classes.FirstOrDefault(c => c.FullName == className);
     }

@@ -94,11 +94,15 @@ public static class IndexHtmlParser {
     /// <param name="report">CoverageReport to populate with risk hotspot data</param>
     private static void ParseRiskHotspots(HtmlDocument doc, CoverageReport report) {
         HtmlNodeCollection rows = doc.DocumentNode.SelectNodes("//risk-hotspots//table//tbody//tr");
-        if (rows == null) return;
+        if (rows == null) {
+            return;
+        }
 
         foreach (HtmlNode row in rows) {
             HtmlNodeCollection cells = row.SelectNodes("td");
-            if (cells == null || cells.Count < 5) continue;
+            if (cells == null || cells.Count < 5) {
+                continue;
+            }
 
             string assembly = cells[0].InnerText.Trim();
 
@@ -108,8 +112,9 @@ public static class IndexHtmlParser {
             HtmlNode methodLink = cells[2].SelectSingleNode(".//a");
             string methodName = methodLink?.InnerText.Trim() ?? string.Empty;
             // Remove trailing "..."
-            if (methodName.EndsWith("..."))
+            if (methodName.EndsWith("...")) {
                 methodName = methodName[..^3];
+            }
 
             decimal crapScore = decimal.Parse(cells[3].InnerText.Trim(), CultureInfo.InvariantCulture);
             int complexity = int.Parse(cells[4].InnerText.Trim());
@@ -132,10 +137,14 @@ public static class IndexHtmlParser {
     private static void ParseCoverageTable(HtmlDocument doc, CoverageReport report) {
         // Find the coverage table body
         HtmlNode tbody = doc.DocumentNode.SelectSingleNode("//h1[text()='Coverage']/following-sibling::*//table//tbody");
-        if (tbody == null) return;
+        if (tbody == null) {
+            return;
+        }
 
         HtmlNodeCollection rows = tbody.SelectNodes("tr");
-        if (rows == null) return;
+        if (rows == null) {
+            return;
+        }
 
         AssemblyReport currentAssembly = null;
 
@@ -181,7 +190,9 @@ public static class IndexHtmlParser {
                 };
             } else if (tdCells != null && tdCells.Count >= 11) {
                 // Class row
-                if (currentAssembly == null) continue;
+                if (currentAssembly == null) {
+                    continue;
+                }
 
                 // Parse line coverage from title attribute
                 string lineTitle = tdCells[5].GetAttributeValue("title", "0/0");
