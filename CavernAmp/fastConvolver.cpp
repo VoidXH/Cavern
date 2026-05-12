@@ -25,7 +25,7 @@ void FastConvolver::Initialize(const float *impulse, const int len, const int de
     }
     ProcessFFT(filter, filterLength, cache, log2(filterLength) - 1);
     present = new Complex[filterLength];
-    future = new float[filterLength + delay];
+    future = new float[filterLength + delay]();
     this->delay = delay;
 }
 

@@ -43,8 +43,7 @@ void FilterAnalyzer::SetResolution(const int value) {
     if (impulseReference) {
         this->~FilterAnalyzer();
     }
-    impulseReference = new float[resolution];
-    memset(impulseReference, 0, resolution * sizeof(float));
+    impulseReference = new float[resolution]();
     impulseReference[0] = 1;
     cache = new FFTCache(resolution);
     spectrum = new float[resolution];
