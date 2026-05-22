@@ -34,77 +34,77 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Unit filename="complex.h">
+		<Unit filename="Cavern/Utilities/complex.h">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="complexArray.cpp">
+		<Unit filename="Cavern/Utilities/complexArray.cpp">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="complexArray.h">
+		<Unit filename="Cavern/Utilities/complexArray.h">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
 		<Unit filename="export.h" />
-		<Unit filename="fastConvolver.cpp">
+		<Unit filename="Cavern/Filters/fastConvolver.cpp">
 			<Option virtualFolder="Cavern/Filters/" />
 		</Unit>
-		<Unit filename="fastConvolver.h">
+		<Unit filename="Cavern/Filters/fastConvolver.h">
 			<Option virtualFolder="Cavern/Filters/" />
 		</Unit>
-		<Unit filename="fftcache.cpp">
+		<Unit filename="Cavern/Utilities/fftcache.cpp">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="fftcache.h">
+		<Unit filename="Cavern/Utilities/fftcache.h">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="filter.h">
+		<Unit filename="Cavern/Filters/filter.h">
 			<Option virtualFolder="Cavern/Filters/" />
 		</Unit>
-		<Unit filename="filterAnalyzer.cpp">
+		<Unit filename="Cavern.QuickEQ/Utilities/filterAnalyzer.cpp">
 			<Option virtualFolder="Cavern.QuickEQ/Utilities/" />
 		</Unit>
-		<Unit filename="filterAnalyzer.h">
+		<Unit filename="Cavern.QuickEQ/Utilities/filterAnalyzer.h">
 			<Option virtualFolder="Cavern.QuickEQ/Utilities/" />
 		</Unit>
-		<Unit filename="graphUtils.cpp">
+		<Unit filename="Cavern/Utilities/graphUtils.cpp">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="graphUtils.h">
+		<Unit filename="Cavern/Utilities/graphUtils.h">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
-		<Unit filename="measurements.cpp">
+		<Unit filename="Cavern/Utilities/measurements.cpp">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="measurements.h">
+		<Unit filename="Cavern/Utilities/measurements.h">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="peakingEqualizer.cpp">
+		<Unit filename="Cavern.QuickEQ/Equalization/peakingEqualizer.cpp">
 			<Option virtualFolder="Cavern.QuickEQ/Equalization/" />
 		</Unit>
-		<Unit filename="peakingEqualizer.h">
+		<Unit filename="Cavern.QuickEQ/Equalization/peakingEqualizer.h">
 			<Option virtualFolder="Cavern.QuickEQ/Equalization/" />
 		</Unit>
-		<Unit filename="peakingFilter.cpp">
+		<Unit filename="Cavern/Filters/peakingFilter.cpp">
 			<Option virtualFolder="Cavern/Filters/" />
 		</Unit>
-		<Unit filename="peakingFilter.h">
+		<Unit filename="Cavern/Filters/peakingFilter.h">
 			<Option virtualFolder="Cavern/Filters/" />
 		</Unit>
-		<Unit filename="qmath.cpp">
+		<Unit filename="Cavern/Utilities/qmath.cpp">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="qmath.h">
+		<Unit filename="Cavern/Utilities/qmath.h">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="qmath_vector.c">
+		<Unit filename="Cavern/Utilities/qmath_vector.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="waveformUtils.cpp">
+		<Unit filename="Cavern/Utilities/waveformUtils.cpp">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
-		<Unit filename="waveformUtils.h">
+		<Unit filename="Cavern/Utilities/waveformUtils.h">
 			<Option virtualFolder="Cavern/Utilities/" />
 		</Unit>
 		<Extensions>

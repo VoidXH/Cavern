@@ -1,9 +1,9 @@
 #ifndef FASTCONVOLVER_H
 #define FASTCONVOLVER_H
 
-#include "complex.h"
-#include "export.h"
-#include "fftcache.h"
+#include "../Utilities/complex.h"
+#include "../../export.h"
+#include "../Utilities/fftcache.h"
 #include "filter.h"
 
 #define Q_REF 0.7071067811865475

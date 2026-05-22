@@ -1,9 +1,9 @@
 #ifndef FILTERANALYZER_H
 #define FILTERANALYZER_H
 
-#include "complex.h"
-#include "fftcache.h"
-#include "peakingFilter.h"
+#include "../../Cavern/Utilities/complex.h"
+#include "../../Cavern/Utilities/fftcache.h"
+#include "../../Cavern/Filters/peakingFilter.h"
 
 /// Class
 // Measures properties of a filter, like frequency/impulse response, gain, or delay.

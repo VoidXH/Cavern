@@ -2,7 +2,7 @@
 #define FFTCACHE_H
 
 #include "complex.h"
-#include "export.h"
+#include "../../export.h"
 
 /// Class
 // Precalculated constants and preallocated recursion arrays for a given FFT size.

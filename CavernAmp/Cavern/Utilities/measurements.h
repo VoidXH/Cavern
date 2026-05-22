@@ -2,7 +2,7 @@
 #define MEASUREMENTS_H
 
 #include "complex.h"
-#include "export.h"
+#include "../../export.h"
 #include "fftcache.h"
 
 #ifdef __cplusplus

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "filterAnalyzer.h"
-#include "measurements.h"
+#include "../../Cavern/Utilities/measurements.h"
 
 FilterAnalyzer::FilterAnalyzer(PeakingFilter *filter, const int sampleRate) : filter(filter), sampleRate(sampleRate),
     startQ(10), gainPrecision(.01), minGain(-100), maxGain(20), iterations(8), impulseReference(nullptr) {

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "fftcache.h"
-#include "main.h"
+#include "../../main.h"
 #include "qmath.h"
 
 FFTCache::FFTCache(const int fftSize) {

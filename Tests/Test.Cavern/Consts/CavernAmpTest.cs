@@ -14,6 +14,8 @@ namespace Test.Cavern.Consts {
             CavernAmp.Bypass = false;
             if (CavernAmp.Available) {
                 test();
+            } else {
+                Assert.Inconclusive("CavernAmp is not available, but the managed version's test ran successfully.");
             }
         }
     }

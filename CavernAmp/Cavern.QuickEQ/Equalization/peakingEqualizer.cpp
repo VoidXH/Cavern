@@ -1,11 +1,11 @@
 #include <cstring>
 #include <new>
 
-#include "graphUtils.h"
+#include "../../Cavern/Utilities/graphUtils.h"
 #include "peakingEqualizer.h"
-#include "peakingFilter.h"
-#include "qmath.h"
-#include "waveformUtils.h"
+#include "../../Cavern/Filters/peakingFilter.h"
+#include "../../Cavern/Utilities/qmath.h"
+#include "../../Cavern/Utilities/waveformUtils.h"
 
 float BruteForceStepInternal(float *target, int targetLength, float *&changedTarget, FilterAnalyzer *analyzer) {
     changedTarget = ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, 20, analyzer->GetSampleRate() * .5, analyzer->GetSampleRate(), targetLength);

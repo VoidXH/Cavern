@@ -1,10 +1,10 @@
 #include <algorithm>
 #include <cstring>
 
-#include "complexArray.h"
+#include "../Utilities/complexArray.h"
 #include "fastConvolver.h"
-#include "measurements.h"
-#include "qmath.h"
+#include "../Utilities/measurements.h"
+#include "../Utilities/qmath.h"
 
 using namespace std;
 

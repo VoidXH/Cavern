@@ -1,7 +1,7 @@
 #ifndef PEAKINGEQUALIZER_H
 #define PEAKINGEQUALIZER_H
 
-#include "filterAnalyzer.h"
+#include "../Utilities/filterAnalyzer.h"
 
 #define LOG10_20 1.3010299956639811952137388947245
 

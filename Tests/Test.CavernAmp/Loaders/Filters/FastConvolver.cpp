@@ -58,4 +58,3 @@ void FastConvolverLoader::Dispose(void* convolver) {
     if (!m_pDispose) return;
     m_pDispose(convolver);
 }
-}

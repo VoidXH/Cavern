@@ -1,7 +1,7 @@
 #ifndef QMATH_H
 #define QMATH_H
 
-#include "export.h"
+#include "../../export.h"
 
 // Clamp a double between limits.
 double Clamp(double value, double min, double max);
