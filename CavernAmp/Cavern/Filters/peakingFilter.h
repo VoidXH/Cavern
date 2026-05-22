@@ -5,8 +5,8 @@
 
 #define Q_REF 0.7071067811865475
 
-// Simple first-order biquad filter.
-class PeakingFilter /*: public Filter*/ {
+/// Simple first-order biquad filter.
+class PeakingFilter : public Filter {
 private:
     double centerFreq, q, gain;
     int sampleRate;
@@ -17,6 +17,8 @@ public:
     void Reset(double centerFreq, double q = Q_REF, double gain = 0);
     void Process(float* samples, int len);
     void Process(float* samples, int len, int channel, int channels);
+    virtual Filter* Clone() const override;
+    virtual ~PeakingFilter() { }
 };
 
 #endif // PEAKINGFILTER_H

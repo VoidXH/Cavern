@@ -4,7 +4,6 @@
 #include <windows.h>
 
 #include "export.h"
-#include "Cavern/Utilities/fftcache.h"
 
 #ifdef __cplusplus
 extern "C" {

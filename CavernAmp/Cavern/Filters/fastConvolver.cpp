@@ -16,6 +16,16 @@ FastConvolver::FastConvolver(const float *impulse, const int len, const int dela
     Initialize(impulse, len, delay);
 }
 
+FastConvolver::FastConvolver(const Complex *transferFunction, const int len, const int delay) {
+    filterLength = len;
+    cache = new FFTCache(filterLength);
+    filter = new Complex[filterLength];
+    memcpy(filter, transferFunction, filterLength * sizeof(Complex));
+    present = new Complex[filterLength];
+    future = new float[filterLength + delay]();
+    this->delay = delay;
+}
+
 void FastConvolver::Initialize(const float *impulse, const int len, const int delay) {
     filterLength = 2 << log2Ceil(len); // Zero padding for the falloff to have space
     cache = new FFTCache(filterLength);
@@ -112,6 +122,11 @@ void FastConvolver::ProcessCache(const int maxResultLength) {
     while (destination != end) {
         *destination++ += (*source++).real;
     }
+}
+
+Filter* FastConvolver::Clone() const {
+    FastConvolver* clone = new FastConvolver(filter, filterLength, delay);
+    return clone;
 }
 
 FastConvolver::~FastConvolver() {

@@ -8,53 +8,56 @@
 
 #define Q_REF 0.7071067811865475
 
-/// Class
-// Performs an optimized convolution.
+/// \brief Performs an optimized convolution.
 class FastConvolver : public Filter {
 private:
-    // Created convolution filter in Fourier-space.
+    /// Created convolution filter in Fourier-space.
     Complex *filter;
 
-    // Cache to perform the FFT in.
+    /// Cache to perform the FFT in.
     Complex *present;
 
-    // Length of filter and present.
+    /// Length of filter and present.
     int filterLength;
 
-    // Overlap samples from previous runs.
+    /// Overlap samples from previous runs.
     float *future;
 
-    // FFT optimization.
+    /// FFT optimization.
     FFTCache *cache;
 
-    // Delay applied with the convolution.
+    /// Delay applied with the convolution.
     int delay;
 
-    // Internal constructor behavior.
+    /// Internal copy constructor from transfer function.
+    FastConvolver(const Complex *transferFunction, const int len, const int delay);
+
+    /// Internal constructor behavior.
     void Initialize(const float *impulse, const int len, const int delay);
 
-    // In case there are more input samples than the size of the filter, split it in parts.
+    /// In case there are more input samples than the size of the filter, split it in parts.
     void ProcessTimeslot(float *samples, int channel, int channels, int from, int to);
 
-    // When present is filled with the source samples, it will be convolved and put into the future.
+    /// When present is filled with the source samples, it will be convolved and put into the future.
     void ProcessCache(const int maxResultLength);
 
 public:
-    // Constructs an optimized convolution with no delay.
+    /// Constructs an optimized convolution with no delay.
     FastConvolver(const float *impulse, const int len);
 
-    // Constructs an optimized convolution with added delay.
+    /// Constructs an optimized convolution with added delay.
     FastConvolver(const float *impulse, const int len, const int delay);
 
-    // Returns the actually allocated filter length.
+    /// Returns the actually allocated filter length.
     int GetLength() const;
 
-    // Deconstruct the filter and move it to the preallocated output buffer. Needs a buffer that's half the length of GetLength.
+    /// Deconstruct the filter and move it to the preallocated output buffer. Needs a buffer that's half the length of GetLength.
     void GetFilter(float *output) const;
 
-    // Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
+    /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
     void Process(float *samples, int len);
     void Process(float *samples, int len, int channel, int channels);
+    Filter* Clone() const override;
     ~FastConvolver();
 };
 
@@ -62,16 +65,15 @@ public:
 extern "C" {
 #endif
 
-/// Exports
-// Constructs an optimized convolution with added delay.
+/// Constructs an optimized convolution with added delay.
 FastConvolver* DLL_EXPORT FastConvolver_Create(const float *impulse, const int len, const int delay);
-// Returns the actually allocated filter length.
+/// Returns the actually allocated filter length.
 int DLL_EXPORT FastConvolver_GetLength(FastConvolver *instance);
-// Deconstruct the filter and move it to the preallocated output buffer. Needs a buffer that's half the length of GetLength.
+/// Deconstruct the filter and move it to the preallocated output buffer. Needs a buffer that's half the length of GetLength.
 void FastConvolver_GetFilter(FastConvolver *instance, float *output);
-// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
+/// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
 void DLL_EXPORT FastConvolver_Process(FastConvolver *instance, float *samples, int len, int channel, int channels);
-// Dispose a FastConvolver.
+/// Dispose a FastConvolver.
 void DLL_EXPORT FastConvolver_Dispose(FastConvolver *instance);
 
 #ifdef __cplusplus

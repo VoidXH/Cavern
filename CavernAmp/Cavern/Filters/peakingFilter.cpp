@@ -34,3 +34,7 @@ void PeakingFilter::Process(float* samples, int len, int channel, int channels) 
         x1 = thisSample;
     }
 }
+
+Filter* PeakingFilter::Clone() const {
+    return new PeakingFilter(sampleRate, centerFreq, q, gain);
+}
