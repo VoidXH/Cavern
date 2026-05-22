@@ -22,7 +22,7 @@ namespace FilterStudio.Graphs {
         /// Convert a <see cref="ConfigurationFile"/>'s filter graph to an MSAGL <see cref="Graph"/>.
         /// </summary>
         /// <param name="rootNodes">Filter graph to convert, from <see cref="ConfigurationFile.InputChannels"/></param>
-        public static Graph ParseConfigurationFile(FilterGraphNode[] rootNodes) {
+        public static Graph ParseConfigurationFile(IFilterGraphNode[] rootNodes) {
             Graph result = new();
             for (int i = 0; i < rootNodes.Length; i++) {
                 string uid = rootNodes[i].GetHashCode().ToString();
@@ -30,7 +30,7 @@ namespace FilterStudio.Graphs {
                     Filter = rootNodes[i]
                 });
 
-                IReadOnlyList<FilterGraphNode> children = rootNodes[i].Children;
+                IReadOnlyList<IFilterGraphNode> children = rootNodes[i].Children;
                 for (int j = 0, c = children.Count; j < c; j++) {
                     AddToGraph(uid, children[j], result);
                 }
@@ -44,7 +44,7 @@ namespace FilterStudio.Graphs {
         /// <param name="parent">Unique identifier of the parent node</param>
         /// <param name="source">Next processed node</param>
         /// <param name="target">Graph to display the node on</param>
-        static void AddToGraph(string parent, FilterGraphNode source, Graph target) {
+        static void AddToGraph(string parent, IFilterGraphNode source, Graph target) {
             string uid = source.GetHashCode().ToString();
             if (target.FindNode(uid) == null) {
                 StyledNode node = new StyledNode(uid, source.ToString()) {

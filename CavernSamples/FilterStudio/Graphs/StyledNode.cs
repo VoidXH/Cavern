@@ -23,7 +23,7 @@ namespace FilterStudio.Graphs {
         /// <summary>
         /// If this node represents a filter and not a label, this property is set to that specific node.
         /// </summary>
-        public FilterGraphNode Filter { get; set; }
+        public IFilterGraphNode Filter { get; set; }
 
         /// <summary>
         /// An MSAGL <see cref="Node"/> with display properties aligned for this application.

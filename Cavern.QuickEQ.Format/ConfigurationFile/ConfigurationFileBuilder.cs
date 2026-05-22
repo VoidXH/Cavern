@@ -29,12 +29,12 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Access the last nodes by <see cref="ReferenceChannel"/>.
         /// </summary>
-        readonly Dictionary<ReferenceChannel, FilterGraphNode> lastReferenceNodes;
+        readonly Dictionary<ReferenceChannel, IFilterGraphNode> lastReferenceNodes;
 
         /// <summary>
         /// Access the last nodes by channel name.
         /// </summary>
-        readonly Dictionary<string, FilterGraphNode> lastNamedNodes;
+        readonly Dictionary<string, IFilterGraphNode> lastNamedNodes;
 
         /// <summary>
         /// Takes an emptry <see cref="ConfigurationFile"/>, and allows linear appending of filters to the end of channel filter chains.

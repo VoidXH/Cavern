@@ -43,7 +43,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <param name="path">Filesystem location of the configuration file</param>
         /// <param name="sampleRate">The sample rate to use for the internally created filters</param>
         public EqualizerAPOConfigurationFile(string path, int sampleRate) : base(Path.GetFileNameWithoutExtension(path), channelLabels) {
-            Dictionary<string, FilterGraphNode> lastNodes = InputChannels.ToDictionary(x => x.name, x => x.root);
+            Dictionary<string, IFilterGraphNode> lastNodes = InputChannels.ToDictionary(x => x.name, x => x.root);
             List<string> activeChannels = channelLabels.ToList();
             AddConfigFile(path, lastNodes, activeChannels, sampleRate);
 
@@ -77,11 +77,11 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Add a filter to the currently active channels.
         /// </summary>
-        static void AddFilter(Dictionary<string, FilterGraphNode> lastNodes, List<string> channels, Filter filter) {
-            List<FilterGraphNode> addedTo = new List<FilterGraphNode>();
+        static void AddFilter(Dictionary<string, IFilterGraphNode> lastNodes, List<string> channels, Filter filter) {
+            List<IFilterGraphNode> addedTo = new List<IFilterGraphNode>();
             bool clone = false; // Filters have to be individually editable on different paths = make copies after the first was set
             for (int i = 0, c = channels.Count; i < c; i++) {
-                FilterGraphNode oldLastNode = lastNodes[channels[i]];
+                IFilterGraphNode oldLastNode = lastNodes[channels[i]];
                 if (addedTo.Contains(oldLastNode)) {
                     lastNodes[channels[i]] = oldLastNode.Children[^1]; // The channel pipelines were merged with a Copy filter
                 } else {
@@ -96,8 +96,8 @@ namespace Cavern.Format.ConfigurationFile {
         /// Parse a Copy filter from the last <paramref name="split"/> of the configuration file. Mixing will be handled by edges and
         /// <see cref="Gain"/> filters where needed.
         /// </summary>
-        static void AddCopyFilter(Dictionary<string, FilterGraphNode> lastNodes, string[] split) {
-            Dictionary<string, FilterGraphNode> oldLastNodes = lastNodes.ToDictionary(x => x.Key, x => x.Value);
+        static void AddCopyFilter(Dictionary<string, IFilterGraphNode> lastNodes, string[] split) {
+            Dictionary<string, IFilterGraphNode> oldLastNodes = lastNodes.ToDictionary(x => x.Key, x => x.Value);
             for (int i = 1; i < split.Length; i++) {
                 string[] copy = split[i].Split(new[] { '=', '+' });
                 FilterGraphNode target = new FilterGraphNode(null);
@@ -129,7 +129,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Parse a Channel filter and make the next parsed filters only affect those channels.
         /// </summary>
-        static void SelectChannels(Dictionary<string, FilterGraphNode> lastNodes, List<string> activeChannels, string[] split) {
+        static void SelectChannels(Dictionary<string, IFilterGraphNode> lastNodes, List<string> activeChannels, string[] split) {
             activeChannels.Clear();
             if (split.Length == 2 && split[1].ToLowerInvariant() == "all") {
                 activeChannels.AddRange(channelLabels);
@@ -156,17 +156,17 @@ namespace Cavern.Format.ConfigurationFile {
             int splitIndex = SplitPoints.Count;
             AddSplitPoint(splitIndex, "Downmap");
             if (actualChannels > 4) { // For 5.1: swap surrounds with rears as that's their position in 7.1
-                FilterGraphNode rearLeft = GetSplitPointRoot(splitIndex, 4);
-                FilterGraphNode rearRight = GetSplitPointRoot(splitIndex, 5);
-                FilterGraphNode surroundLeft = GetSplitPointRoot(splitIndex, 6);
-                FilterGraphNode surroundRight = GetSplitPointRoot(splitIndex, 7);
+                IFilterGraphNode rearLeft = GetSplitPointRoot(splitIndex, 4);
+                IFilterGraphNode rearRight = GetSplitPointRoot(splitIndex, 5);
+                IFilterGraphNode surroundLeft = GetSplitPointRoot(splitIndex, 6);
+                IFilterGraphNode surroundRight = GetSplitPointRoot(splitIndex, 7);
                 rearLeft.SwapChildren(surroundLeft);
                 rearRight.SwapChildren(surroundRight);
             } else { // For quadraphonic: swap C/LFE with rears
-                FilterGraphNode center = GetSplitPointRoot(splitIndex, 2);
-                FilterGraphNode lfe = GetSplitPointRoot(splitIndex, 3);
-                FilterGraphNode rearLeft = GetSplitPointRoot(splitIndex, 4);
-                FilterGraphNode rearRight = GetSplitPointRoot(splitIndex, 5);
+                IFilterGraphNode center = GetSplitPointRoot(splitIndex, 2);
+                IFilterGraphNode lfe = GetSplitPointRoot(splitIndex, 3);
+                IFilterGraphNode rearLeft = GetSplitPointRoot(splitIndex, 4);
+                IFilterGraphNode rearRight = GetSplitPointRoot(splitIndex, 5);
                 center.SwapChildren(rearLeft);
                 lfe.SwapChildren(rearRight);
             }
@@ -175,7 +175,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Read a configuration file and append it to the previously parsed configuration.
         /// </summary>
-        void AddConfigFile(string path, Dictionary<string, FilterGraphNode> lastNodes, List<string> activeChannels, int sampleRate) {
+        void AddConfigFile(string path, Dictionary<string, IFilterGraphNode> lastNodes, List<string> activeChannels, int sampleRate) {
             foreach (string line in File.ReadLines(path)) {
                 string[] split = line.Split(new[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (split.Length <= 1) {
@@ -222,8 +222,8 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Mark the current point of the configuration as the beginning of the next section of filters or next pipeline step.
         /// </summary>
-        void CreateSplit(string name, Dictionary<string, FilterGraphNode> lastNodes) {
-            KeyValuePair<string, FilterGraphNode>[] outputs =
+        void CreateSplit(string name, Dictionary<string, IFilterGraphNode> lastNodes) {
+            KeyValuePair<string, IFilterGraphNode>[] outputs =
                 lastNodes.Where(x => ReferenceChannelExtensions.FromStandardName(x.Key) != ReferenceChannel.Unknown).ToArray();
             for (int i = 0; i < outputs.Length; i++) {
                 lastNodes[outputs[i].Key] = lastNodes[outputs[i].Key].AddChild(new OutputChannel(outputs[i].Key));

@@ -12,7 +12,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Copy constructor from any <paramref name="other"/> configuration file.
         /// </summary>
         protected ConfigurationFile(ConfigurationFile other) {
-            Dictionary<FilterGraphNode, FilterGraphNode> mapping = other.InputChannels.GetItem2s().DeepCopyWithMapping().mapping;
+            Dictionary<IFilterGraphNode, IFilterGraphNode> mapping = other.InputChannels.GetItem2s().DeepCopyWithMapping().mapping;
             InputChannels = other.InputChannels.SelectArray(x => (x.name, mapping[x.root]));
             splitPoints = other.SplitPoints.Select(x => new SplitPoint(x.Name, x.Roots.SelectArray(x => mapping[x]))).ToList();
         }
@@ -41,7 +41,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         /// <remarks>It's mandatory to have the corresponding output channels to close the split point. Refer to the constructors of
         /// <see cref="CavernFilterStudioConfigurationFile"/> for how to add closing <see cref="OutputChannel"/>s.</remarks>
-        protected ConfigurationFile(string name, (string name, FilterGraphNode root)[] inputChannels) {
+        protected ConfigurationFile(string name, (string name, IFilterGraphNode root)[] inputChannels) {
             InputChannels = inputChannels;
             splitPoints = new List<SplitPoint> {
                 new SplitPoint(name, InputChannels.GetItem2s())
@@ -54,7 +54,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
         /// be an initial configuration. Call <see cref="FinishEmpty()"/> at the end of your constructor to add closing <see cref="OutputChannel"/>s.</remarks>
         protected ConfigurationFile(string name, int channelCount) {
-            InputChannels = new (string name, FilterGraphNode root)[channelCount];
+            InputChannels = new (string name, IFilterGraphNode root)[channelCount];
             ReferenceChannel[] channels = ChannelPrototype.GetStandardMatrix(channelCount);
             for (int i = 0; i < channels.Length; i++) {
                 InputChannels[i] = (channels[i].GetShortName(), new FilterGraphNode(new InputChannel(channels[i])));
@@ -72,7 +72,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// be an initial configuration. Call <see cref="FinishEmpty(ReferenceChannel[])"/> at the end of your constructor
         /// to add closing <see cref="OutputChannel"/>s.</remarks>
         protected ConfigurationFile(string name, ReferenceChannel[] inputs) {
-            InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
+            InputChannels = new (string name, IFilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
                 InputChannels[i] = (inputs[i].GetShortName(), new FilterGraphNode(new InputChannel(inputs[i])));
             }
@@ -88,7 +88,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <remarks>It's mandatory to have the corresponding output channels to close the split point. It's not done here as there might
         /// be an initial configuration. Call <see cref="FinishEmpty()"/> at the end of your constructor to add closing <see cref="OutputChannel"/>s.</remarks>
         protected ConfigurationFile(string name, string[] inputs) {
-            InputChannels = new (string name, FilterGraphNode root)[inputs.Length];
+            InputChannels = new (string name, IFilterGraphNode root)[inputs.Length];
             for (int i = 0; i < inputs.Length; i++) {
                 InputChannels[i] = (inputs[i], new FilterGraphNode(new InputChannel(inputs[i])));
             }

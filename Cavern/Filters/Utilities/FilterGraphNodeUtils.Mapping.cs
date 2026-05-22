@@ -5,16 +5,16 @@ namespace Cavern.Filters.Utilities {
         /// <summary>
         /// When mapping a graph, decides the strategy about where to jump from a <paramref name="node"/>.
         /// </summary>
-        delegate IReadOnlyList<FilterGraphNode> MappingFunction(FilterGraphNode node);
+        delegate IReadOnlyList<IFilterGraphNode> MappingFunction(IFilterGraphNode node);
 
         /// <summary>
         /// Checks if a list of nodes is topologically sorted.
         /// </summary>
-        public static bool IsTopologicalSort(this List<FilterGraphNode> orderedNodes) {
-            HashSet<FilterGraphNode> visited = new HashSet<FilterGraphNode>();
+        public static bool IsTopologicalSort(this List<IFilterGraphNode> orderedNodes) {
+            HashSet<IFilterGraphNode> visited = new HashSet<IFilterGraphNode>();
             for (int i = 0, c = orderedNodes.Count; i < c; i++) {
-                FilterGraphNode node = orderedNodes[i];
-                IReadOnlyList<FilterGraphNode> children = node.Children;
+                IFilterGraphNode node = orderedNodes[i];
+                IReadOnlyList<IFilterGraphNode> children = node.Children;
                 for (int j = 0, childCount = children.Count; j < childCount; j++) {
                     if (visited.Contains(children[j])) {
                         return false;
@@ -29,27 +29,27 @@ namespace Cavern.Filters.Utilities {
         /// Get all nodes in a filter graph knowing the root nodes.
         /// </summary>
         /// <param name="rootNodes">All nodes which have no parents</param>
-        public static HashSet<FilterGraphNode> MapGraph(this IEnumerable<FilterGraphNode> rootNodes) => MapGraph(rootNodes, node => node.Children);
+        public static HashSet<IFilterGraphNode> MapGraph(this IEnumerable<IFilterGraphNode> rootNodes) => MapGraph(rootNodes, node => node.Children);
 
         /// <summary>
         /// Get all nodes in a filter graph knowing the end nodes by discovering parents.
         /// </summary>
         /// <param name="rootNodes">All output nodes</param>
-        public static HashSet<FilterGraphNode> MapGraphBack(this IEnumerable<FilterGraphNode> rootNodes) => MapGraph(rootNodes, node => node.Parents);
+        public static HashSet<IFilterGraphNode> MapGraphBack(this IEnumerable<IFilterGraphNode> rootNodes) => MapGraph(rootNodes, node => node.Parents);
 
         /// <summary>
         /// Return all nodes on the graph in an order where every child is after its parents.
         /// </summary>
-        public static List<FilterGraphNode> TopologicalSort(this FilterGraphNode[] rootNodes) {
-            List<FilterGraphNode> result = new List<FilterGraphNode>();
-            HashSet<FilterGraphNode> visitedNodes = new HashSet<FilterGraphNode>();
+        public static List<IFilterGraphNode> TopologicalSort(this IFilterGraphNode[] rootNodes) {
+            List<IFilterGraphNode> result = new List<IFilterGraphNode>();
+            HashSet<IFilterGraphNode> visitedNodes = new HashSet<IFilterGraphNode>();
 
-            void VisitNode(FilterGraphNode node) {
+            void VisitNode(IFilterGraphNode node) {
                 if (visitedNodes.Contains(node)) {
                     return;
                 }
                 visitedNodes.Add(node);
-                foreach (FilterGraphNode child in node.Children) {
+                foreach (IFilterGraphNode child in node.Children) {
                     VisitNode(child);
                 }
                 result.Insert(0, node);
@@ -64,17 +64,17 @@ namespace Cavern.Filters.Utilities {
         /// <summary>
         /// Perform BFS with a custom <paramref name="mapping"/> direction from each node.
         /// </summary>
-        static HashSet<FilterGraphNode> MapGraph(IEnumerable<FilterGraphNode> rootNodes, MappingFunction mapping) {
-            HashSet<FilterGraphNode> visited = new HashSet<FilterGraphNode>();
-            Queue<FilterGraphNode> queue = new Queue<FilterGraphNode>(rootNodes);
+        static HashSet<IFilterGraphNode> MapGraph(IEnumerable<IFilterGraphNode> rootNodes, MappingFunction mapping) {
+            HashSet<IFilterGraphNode> visited = new HashSet<IFilterGraphNode>();
+            Queue<IFilterGraphNode> queue = new Queue<IFilterGraphNode>(rootNodes);
             while (queue.Count > 0) {
-                FilterGraphNode currentNode = queue.Dequeue();
+                IFilterGraphNode currentNode = queue.Dequeue();
                 if (visited.Contains(currentNode)) {
                     continue;
                 }
 
                 visited.Add(currentNode);
-                foreach (FilterGraphNode nextStep in mapping(currentNode)) {
+                foreach (IFilterGraphNode nextStep in mapping(currentNode)) {
                     queue.Enqueue(nextStep);
                 }
             }

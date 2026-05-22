@@ -27,9 +27,9 @@ namespace Cavern.Channels {
                 throw new ChannelCountMismatchException();
             }
             target.AddSplitPoint(0, "Spatial remapping");
-            FilterGraphNode[] roots = target.InputChannels.GetItem2s();
+            IFilterGraphNode[] roots = target.InputChannels.GetItem2s();
 
-            FilterGraphNode[] outputs = roots.SelectArray(x => x.Children[0]);
+            IFilterGraphNode[] outputs = roots.SelectArray(x => x.Children[0]);
             for (int i = 0; i < outChannels; i++) {
                 float[] gains = matrix[i];
                 outputs[i].DetachParents();
@@ -38,7 +38,7 @@ namespace Cavern.Channels {
                         roots[input].AddChild(outputs[i]);
                     } else if (gains[input] != 0) {
                         Gain mix = new Gain(QMath.GainToDb(gains[input]));
-                        FilterGraphNode middleNode = roots[input].AddChild(mix);
+                        IFilterGraphNode middleNode = roots[input].AddChild(mix);
                         middleNode.AddChild(outputs[i]);
                     }
                 }

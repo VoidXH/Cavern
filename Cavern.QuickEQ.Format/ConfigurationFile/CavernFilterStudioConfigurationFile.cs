@@ -129,7 +129,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Throw a <see cref="NotCavernFilterStudioFilterException"/> if a filter couldn't be exported.
         /// </summary>
-        static void ValidateForExport((FilterGraphNode node, int _)[] exportOrder) {
+        static void ValidateForExport((IFilterGraphNode node, int _)[] exportOrder) {
             for (int i = 0; i < exportOrder.Length; i++) {
                 Filter filter = exportOrder[i].node.Filter;
                 if (filter != null && !(filter is IXmlSerializable)) {
@@ -140,7 +140,7 @@ namespace Cavern.Format.ConfigurationFile {
 
         /// <inheritdoc/>
         public override void Export(string path) {
-            (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
+            (IFilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
             ValidateForExport(exportOrder);
 
             XmlWriterSettings settings = new XmlWriterSettings {

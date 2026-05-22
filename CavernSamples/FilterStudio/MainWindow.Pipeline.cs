@@ -77,7 +77,7 @@ namespace FilterStudio {
             List<Filter>[] filters = new List<Filter>[set.ChannelCount];
             for (int ch = 0; ch < set.ChannelCount; ch++) {
                 filters[ch] = [];
-                FilterGraphNode current = pipeline.Source.GetSplitPointRoot(uid, ch);
+                IFilterGraphNode current = pipeline.Source.GetSplitPointRoot(uid, ch);
                 do {
                     current = current.Children[0];
                     filters[ch].Add(current.Filter);

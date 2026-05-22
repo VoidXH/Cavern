@@ -46,7 +46,7 @@ namespace FilterStudio {
         /// <summary>
         /// Each channel's full filter graph.
         /// </summary>
-        FilterGraphNode[] rootNodes;
+        IFilterGraphNode[] rootNodes;
 
         /// <summary>
         /// Any setting has changed in the application and it should be saved.
@@ -182,7 +182,7 @@ namespace FilterStudio {
         /// </summary>
         bool ExportChecks() {
             int systemSampleRate = SampleRate;
-            HashSet<FilterGraphNode> map = pipeline.Source.SplitPoints[0].Roots.MapGraph();
+            HashSet<IFilterGraphNode> map = pipeline.Source.SplitPoints[0].Roots.MapGraph();
             Filter mismatch = map.FirstOrDefault(x => x.Filter != null &&
                 x.Filter is ISampleRateDependentFilter sr && sr.SampleRate != systemSampleRate)?.Filter;
             if (mismatch != null && !Warning(string.Format((string)language["WSaRe"], FilterToString(mismatch), systemSampleRate,
@@ -276,7 +276,7 @@ namespace FilterStudio {
         /// <summary>
         /// A different split of the edited file is selected.
         /// </summary>
-        void SplitChanged(FilterGraphNode[] splitRoots) {
+        void SplitChanged(IFilterGraphNode[] splitRoots) {
             rootNodes = splitRoots;
             ReloadGraph();
         }

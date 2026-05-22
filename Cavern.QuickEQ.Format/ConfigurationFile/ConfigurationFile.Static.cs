@@ -31,11 +31,11 @@ namespace Cavern.Format.ConfigurationFile {
         /// merge them to a single virtual channel if they form a single line in the graph.
         /// </summary>
         /// <param name="mapping">Node - channel mapping to optimize, virtual channels take negative indices</param>
-        protected static void OptimizeChannelUse((FilterGraphNode node, int channel)[] mapping) {
+        protected static void OptimizeChannelUse((IFilterGraphNode node, int channel)[] mapping) {
             for (int i = 0; i < mapping.Length; i++) {
-                IReadOnlyList<FilterGraphNode> children = mapping[i].node.Children;
+                IReadOnlyList<IFilterGraphNode> children = mapping[i].node.Children;
                 if (children.Count == 1) {
-                    FilterGraphNode child = children[0];
+                    IFilterGraphNode child = children[0];
                     if (child.Parents.Count == 1 && // A straight line leads to this child and
                         !(child.Filter is OutputChannel && child.Children.Count == 0)) { // it's not a final output
                         for (int j = i + 1; j < mapping.Length; j++) {

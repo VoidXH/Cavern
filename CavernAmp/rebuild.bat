@@ -27,38 +27,20 @@ set SOURCES=%SOURCES% Cavern\Utilities\qmath.cpp
 set SOURCES=%SOURCES% Cavern\Utilities\qmath_vector.c
 set SOURCES=%SOURCES% Cavern\Utilities\waveformUtils.cpp
 
-set NEEDS_LINK=0
 for %%F in (%SOURCES%) do (
     set "OBJ=%OBJ_DIR%\%%~nF.o"
-    
-    set REBUILD=0
-    if not exist "!OBJ!" (
-        set REBUILD=1
+    echo   Compiling %%F ...
+    if /I "%%~xF"==".c" (
+        gcc.exe -c %%F -o "!OBJ!" %CFLAGS%
     ) else (
-        powershell -Command "$objTime = (Get-Item '!OBJ!').LastWriteTime; if ((Get-Item '%%F').LastWriteTime -gt $objTime -or (Get-ChildItem -Filter *.h* | Where-Object {$_.LastWriteTime -gt $objTime})) { exit 1 } else { exit 0 }" >nul 2>&1
-        if errorlevel 1 set REBUILD=1
+        g++.exe -c %%F -o "!OBJ!" %CFLAGS%
     )
-
-    if "!REBUILD!"=="1" (
-        echo   Compiling %%F ...
-        set NEEDS_LINK=1
-        if /I "%%~xF"==".c" (
-            gcc.exe -c %%F -o "!OBJ!" %CFLAGS%
-        ) else (
-            g++.exe -c %%F -o "!OBJ!" %CFLAGS%
-        )
-        if errorlevel 1 (echo ERROR: build failed. & exit /b 1)
-    )
+    if errorlevel 1 (echo ERROR: build failed. & exit /b 1)
 )
 
 echo === Linking DLL ===
 
-if not exist "%OUTPUT_DIR%\CavernAmp.dll" set NEEDS_LINK=1
-if "!NEEDS_LINK!"=="1" (
-    g++.exe -shared -o "%OUTPUT_DIR%/CavernAmp.dll" "%OBJ_DIR%/*.o" -Wl,--output-def,"%OUTPUT_DIR%/libCavernAmp.def" -s -static-libstdc++ -static-libgcc -static -m64 -luser32
-) else (
-    echo   No changes detected. Nothing to link.
-)
+g++.exe -shared -o "%OUTPUT_DIR%/CavernAmp.dll" "%OBJ_DIR%/*.o" -Wl,--output-def,"%OUTPUT_DIR%/libCavernAmp.def" -s -static-libstdc++ -static-libgcc -static -m64 -luser32
 
 if errorlevel 1 (echo ERROR: build failed. & exit /b 1)
 

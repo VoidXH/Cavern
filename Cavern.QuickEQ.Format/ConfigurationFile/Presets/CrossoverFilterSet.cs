@@ -92,10 +92,10 @@ namespace Cavern.Format.ConfigurationFile.Presets {
                 return;
             }
 
-            FilterGraphNode lowpassMix;
+            IFilterGraphNode lowpassMix;
             if (outputs.Length == 1) {
-                FilterGraphNode lfeInput = file.GetSplitPointRoot(index, outputs[0]);
-                FilterGraphNode lfeOutput = lfeInput.Children[0];
+                IFilterGraphNode lfeInput = file.GetSplitPointRoot(index, outputs[0]);
+                IFilterGraphNode lfeOutput = lfeInput.Children[0];
                 lowpassMix = lfeOutput.AddParent(new Gain(CrossoverGain)); // Final mixing gain
                 if (OnLFEInput != null) {
                     lfeInput.AddBeforeChildren((Filter)OnLFEInput.Clone());
@@ -106,7 +106,7 @@ namespace Cavern.Format.ConfigurationFile.Presets {
             } else {
                 FilterGraphNode lfeMerge = new FilterGraphNode(new BypassFilter("LFE merge"));
                 for (int i = 0; i < outputs.Length; i++) {
-                    FilterGraphNode root = file.GetSplitPointRoot(index, outputs[i]);
+                    IFilterGraphNode root = file.GetSplitPointRoot(index, outputs[i]);
                     root.AddBeforeChildren(lfeMerge);
                     if (OnLFEInput != null) {
                         root.AddBeforeChildren((Filter)OnLFEInput.Clone());
@@ -141,7 +141,7 @@ namespace Cavern.Format.ConfigurationFile.Presets {
                 }
 
                 Filter highpass = generator.GetHighpassOptimized(sampleRate, freq, filterLength);
-                FilterGraphNode root = file.GetSplitPointRoot(index, i);
+                IFilterGraphNode root = file.GetSplitPointRoot(index, i);
                 root.AddBeforeChildren(highpass);
                 root.AddChild(aggregators[freq]);
             }

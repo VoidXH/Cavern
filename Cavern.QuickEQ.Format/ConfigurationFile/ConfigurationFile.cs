@@ -19,7 +19,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Root nodes of each channel, start attaching their filters as a children chain. These nodes must contain
         /// <see cref="InputChannel"/> filters.
         /// </summary>
-        public (string name, FilterGraphNode root)[] InputChannels { get; }
+        public (string name, IFilterGraphNode root)[] InputChannels { get; }
 
         /// <summary>
         /// Named points where the configuration file can be separated to new sections. Split points only consist of input nodes after the
@@ -42,14 +42,14 @@ namespace Cavern.Format.ConfigurationFile {
         /// <returns>Optimization was done and the children of the passed <paramref name="node"/> was modified.
         /// This means the currently processed element was removed and new were added, so the loop counter shouldn't increase
         /// in the iteration where this function was called from.</returns>
-        static bool Optimize(FilterGraphNode node) {
+        static bool Optimize(IFilterGraphNode node) {
             bool optimized = false;
             if (node.Filter == null) {
                 node.DetachFromGraph();
                 optimized = true;
             }
 
-            IReadOnlyList<FilterGraphNode> children = node.Children;
+            IReadOnlyList<IFilterGraphNode> children = node.Children;
             for (int i = 0, c = children.Count; i < c; i++) {
                 if (Optimize(children[i])) {
                     optimized = true;
@@ -95,7 +95,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         public void Optimize() {
             for (int i = 0; i < InputChannels.Length; i++) {
-                IReadOnlyList<FilterGraphNode> children = InputChannels[i].root.Children;
+                IReadOnlyList<IFilterGraphNode> children = InputChannels[i].root.Children;
                 for (int j = 0, c = children.Count; j < c;) {
                     if (!Optimize(children[j])) {
                         j++;
@@ -109,7 +109,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         protected void FinishLazySetup(int fftCacheSize) {
             using FFTCachePool pool = new FFTCachePool(fftCacheSize);
-            FilterGraphNode[] nodes = SplitPoints[0].Roots.MapGraph().Where(x => x.Filter is ILazyLoadableFilter).ToArray();
+            IFilterGraphNode[] nodes = SplitPoints[0].Roots.MapGraph().Where(x => x.Filter is ILazyLoadableFilter).ToArray();
             Parallelizer.ForUnchecked(0, nodes.Length, i => {
                 nodes[i].Filter = ((ILazyLoadableFilter)nodes[i].Filter).CreateFilter(pool);
             });
@@ -121,16 +121,16 @@ namespace Cavern.Format.ConfigurationFile {
         /// array has two values for each node: the node itself, and the channel index. This index can be negative: that means a virtual
         /// channel.
         /// </summary>
-        protected (FilterGraphNode node, int channel)[] GetExportOrder() {
-            List<FilterGraphNode> orderedNodes = InputChannels.GetItem2s().TopologicalSort();
+        protected (IFilterGraphNode node, int channel)[] GetExportOrder() {
+            List<IFilterGraphNode> orderedNodes = InputChannels.GetItem2s().TopologicalSort();
             if (!orderedNodes.IsTopologicalSort()) {
                 throw new DataMisalignedException();
             }
 
-            (FilterGraphNode node, int channel)[] result = new (FilterGraphNode, int)[orderedNodes.Count];
+            (IFilterGraphNode node, int channel)[] result = new (IFilterGraphNode, int)[orderedNodes.Count];
             int lowestChannel = 0;
             for (int i = 0; i < result.Length; i++) {
-                FilterGraphNode source = orderedNodes[i];
+                IFilterGraphNode source = orderedNodes[i];
                 int channelIndex;
                 if (source.Children.Count == 0 && source.Filter is OutputChannel output) { // Actual exit node, not terminated virtual ch
                     channelIndex = GetChannelIndex(output);
@@ -150,7 +150,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Get the <see cref="FilterGraphNode"/> indices in the <paramref name="exportOrder"/> of the parents of the node at the
         /// given <paramref name="index"/>.
         /// </summary>
-        protected IEnumerable<int> GetExportedParentIndices((FilterGraphNode node, int channel)[] exportOrder, int index) =>
+        protected IEnumerable<int> GetExportedParentIndices((IFilterGraphNode node, int channel)[] exportOrder, int index) =>
             exportOrder[index].node.Parents.Select(x => {
                 for (int i = 0; i < exportOrder.Length; i++) {
                     if (exportOrder[i].node == x) {
@@ -164,7 +164,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// Get the channels of the <see cref="FilterGraphNode"/> at a given <paramref name="index"/> in an <paramref name="exportOrder"/>
         /// created with <see cref="GetExportOrder"/>.
         /// </summary>
-        protected int[] GetExportedParents((FilterGraphNode node, int channel)[] exportOrder, int index) =>
+        protected int[] GetExportedParents((IFilterGraphNode node, int channel)[] exportOrder, int index) =>
             GetExportedParentIndices(exportOrder, index).SelectArray(x => exportOrder[x].channel);
     }
 }

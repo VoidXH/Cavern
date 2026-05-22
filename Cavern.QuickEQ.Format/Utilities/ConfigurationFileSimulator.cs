@@ -39,7 +39,7 @@ namespace Cavern.Format.Utilities {
         /// <param name="channels">Channel indices that have input Dirac-delta signals</param>
         /// <param name="initialImpulse">Impulse response of the incoming signal, the transformation of which by the filter set will be simulated</param>
         public MultichannelWaveform Simulate(int[] channels, float[] initialImpulse) {
-            (string name, FilterGraphNode root)[] sources = configurationFile.InputChannels;
+            (string name, IFilterGraphNode root)[] sources = configurationFile.InputChannels;
             MultichannelWaveform result = new MultichannelWaveform(sources.Length, initialImpulse.Length);
             for (int i = 0; i < sources.Length; i++) {
                 if (channels.Contains(i)) {
@@ -63,10 +63,10 @@ namespace Cavern.Format.Utilities {
         /// <param name="channels">Channel indices that have input Dirac-delta signals</param>
         /// <param name="initialImpulse">Impulse response of the incoming signal, the transformation of which by the filter set will be simulated</param>
         public MultichannelWaveform Simulate(ReferenceChannel[] channels, float[] initialImpulse) {
-            (string name, FilterGraphNode root)[] sources = configurationFile.InputChannels;
+            (string name, IFilterGraphNode root)[] sources = configurationFile.InputChannels;
             MultichannelWaveform result = new MultichannelWaveform(sources.Length, initialImpulse.Length);
             for (int i = 0; i < sources.Length; i++) {
-                FilterGraphNode root = sources[i].root;
+                IFilterGraphNode root = sources[i].root;
                 ReferenceChannel channel = ((InputChannel)root.Filter).Channel;
                 if (channels.Contains(channel)) {
                     float[] initialSignal = initialImpulse.FastClone();
@@ -80,7 +80,7 @@ namespace Cavern.Format.Utilities {
         /// Simulate impulse response for the given <paramref name="node"/> and pass the simulation down to children, until it reaches an output
         /// where it gets added to the <paramref name="result"/>.
         /// </summary>
-        void Simulate(FilterGraphNode node, float[] signal, MultichannelWaveform result) {
+        void Simulate(IFilterGraphNode node, float[] signal, MultichannelWaveform result) {
             if (node.Filter is OutputChannel output) {
                 int channel = configurationFile.InputChannels
                     .IndexOf(x => x.name == output.ChannelName || ((InputChannel)x.root.Filter).Channel == output.Channel);
@@ -92,7 +92,7 @@ namespace Cavern.Format.Utilities {
                 return;
             }
 
-            IReadOnlyList<FilterGraphNode> children = node.Children;
+            IReadOnlyList<IFilterGraphNode> children = node.Children;
             node.Filter.Process(signal);
             if (node.Filter is IResettableFilter resettable) {
                 resettable.Reset();

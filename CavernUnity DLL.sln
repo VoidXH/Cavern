@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CavernUnity.WebGL", "Cavern
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.CavernUnity", "Tests\Test.CavernUnity\Test.CavernUnity.csproj", "{DF62D464-8356-489E-AA38-F5CC1A03EBCA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Cavern.QuickEQ.Format", "Tests\Test.Cavern.QuickEQ.Format\Test.Cavern.QuickEQ.Format.csproj", "{BCFF04B5-7E96-4C36-82B1-4E6327B49667}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{DF62D464-8356-489E-AA38-F5CC1A03EBCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF62D464-8356-489E-AA38-F5CC1A03EBCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF62D464-8356-489E-AA38-F5CC1A03EBCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCFF04B5-7E96-4C36-82B1-4E6327B49667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCFF04B5-7E96-4C36-82B1-4E6327B49667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCFF04B5-7E96-4C36-82B1-4E6327B49667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCFF04B5-7E96-4C36-82B1-4E6327B49667}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +86,7 @@ Global
 		{1EF755C6-66D1-4991-9727-567B29646F86} = {0EEA289B-F2A4-4199-AFEE-775FE935673D}
 		{7921DD28-0CFF-446C-BC4D-09F64E88A396} = {0EEA289B-F2A4-4199-AFEE-775FE935673D}
 		{DF62D464-8356-489E-AA38-F5CC1A03EBCA} = {0EEA289B-F2A4-4199-AFEE-775FE935673D}
+		{BCFF04B5-7E96-4C36-82B1-4E6327B49667} = {0EEA289B-F2A4-4199-AFEE-775FE935673D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A7F9771D-BEA0-4DE3-B267-46E1B87FE612}

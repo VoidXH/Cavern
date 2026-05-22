@@ -29,9 +29,6 @@ private:
     /// Delay applied with the convolution.
     int delay;
 
-    /// Internal copy constructor from transfer function.
-    FastConvolver(const Complex *transferFunction, const int len, const int delay);
-
     /// Internal constructor behavior.
     void Initialize(const float *impulse, const int len, const int delay);
 
@@ -47,6 +44,9 @@ public:
 
     /// Constructs an optimized convolution with added delay.
     FastConvolver(const float *impulse, const int len, const int delay);
+
+    /// Copy the transfer function of another FastConvolver.
+    FastConvolver(const FastConvolver &other);
 
     /// Returns the actually allocated filter length.
     int GetLength() const;

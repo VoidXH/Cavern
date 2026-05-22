@@ -16,14 +16,14 @@ FastConvolver::FastConvolver(const float *impulse, const int len, const int dela
     Initialize(impulse, len, delay);
 }
 
-FastConvolver::FastConvolver(const Complex *transferFunction, const int len, const int delay) {
-    filterLength = len;
+FastConvolver::FastConvolver(const FastConvolver &other) {
+    filterLength = other.filterLength;
     cache = new FFTCache(filterLength);
     filter = new Complex[filterLength];
-    memcpy(filter, transferFunction, filterLength * sizeof(Complex));
+    memcpy(filter, other.filter, filterLength * sizeof(Complex));
     present = new Complex[filterLength];
-    future = new float[filterLength + delay]();
-    this->delay = delay;
+    future = new float[filterLength + other.delay]();
+    this->delay = other.delay;
 }
 
 void FastConvolver::Initialize(const float *impulse, const int len, const int delay) {
@@ -125,8 +125,7 @@ void FastConvolver::ProcessCache(const int maxResultLength) {
 }
 
 Filter* FastConvolver::Clone() const {
-    FastConvolver* clone = new FastConvolver(filter, filterLength, delay);
-    return clone;
+    return new FastConvolver(*this);
 }
 
 FastConvolver::~FastConvolver() {

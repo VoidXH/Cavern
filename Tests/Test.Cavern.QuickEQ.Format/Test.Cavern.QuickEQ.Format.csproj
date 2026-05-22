@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -8,20 +8,23 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="coverlet.msbuild" Version="6.0.4">
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-			<PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
-		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+		<Compile Include="..\Test.Cavern\Consts\CavernAmpTest.cs" Link="Consts\CavernAmpTest.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+		<PackageReference Include="coverlet.collector" Version="3.1.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Cavern.QuickEQ.Format\Cavern.QuickEQ.Format.csproj" />
+		<ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Copy SourceFiles="..\..\CavernAmp\bin\Release\CavernAmp.dll" DestinationFolder="bin\$(Configuration)" SkipUnchangedFiles="true" Condition="Exists('..\..\CavernAmp\bin\Release\CavernAmp.dll')" />
+		<Copy SourceFiles="..\..\CavernAmp\bin\Release\CavernAmp.dll" DestinationFolder="bin\$(Configuration)" SkipUnchangedFiles="true"
+			  Condition="Exists('..\..\CavernAmp\bin\Release\CavernAmp.dll')" />
 	</Target>
 </Project>

@@ -77,20 +77,20 @@ namespace Cavern.Format.ConfigurationFile {
         /// Parses a Convolution Box Format file to a filter graph, returns its root nodes.
         /// </summary>
         /// <remarks>Merge nodes can be created, calling <see cref="ConfigurationFile.Optimize()"/> is recommended.</remarks>
-        static (string, FilterGraphNode)[] Parse(string path) {
+        static (string, IFilterGraphNode)[] Parse(string path) {
             using FileStream stream = File.OpenRead(path);
             if (stream.ReadInt32() != syncWord) {
                 throw new SyncException();
             }
             int sampleRate = stream.ReadInt32(),
                 entries = stream.ReadInt32();
-            List<(int index, FilterGraphNode root)> inputChannels = new List<(int, FilterGraphNode)>();
-            Dictionary<int, FilterGraphNode> lastNodes = new Dictionary<int, FilterGraphNode>();
-            FilterGraphNode GetChannel(int index) { // Get an actual channel's last node
+            List<(int index, IFilterGraphNode root)> inputChannels = new List<(int, IFilterGraphNode)>();
+            Dictionary<int, IFilterGraphNode> lastNodes = new Dictionary<int, IFilterGraphNode>();
+            IFilterGraphNode GetChannel(int index) { // Get an actual channel's last node
                 if (lastNodes.ContainsKey(index)) {
                     return lastNodes[index];
                 }
-                FilterGraphNode newChannel = new FilterGraphNode(new InputChannel("CH" + (index + 1)));
+                IFilterGraphNode newChannel = new FilterGraphNode(new InputChannel("CH" + (index + 1)));
                 inputChannels.Add((index, newChannel));
                 return newChannel;
             }
@@ -105,22 +105,22 @@ namespace Cavern.Format.ConfigurationFile {
                 CBFEntry entry = CBFEntry.Read(stream);
 #endif
                 if (entry is MatrixEntry matrix) {
-                    Dictionary<int, FilterGraphNode> createdNodes = new Dictionary<int, FilterGraphNode>();
+                    Dictionary<int, IFilterGraphNode> createdNodes = new Dictionary<int, IFilterGraphNode>();
                     for (int mix = 0, c = matrix.Mixes.Count; mix < c; mix++) {
                         (int source, int[] targets) = matrix.Mixes[mix];
                         for (int target = 0; target < targets.Length; target++) {
-                            FilterGraphNode sourceNode = lastNodes.ContainsKey(source) ?
+                            IFilterGraphNode sourceNode = lastNodes.ContainsKey(source) ?
                                 lastNodes[source] : (lastNodes[source] = GetChannel(source));
-                            FilterGraphNode targetNode = createdNodes.ContainsKey(targets[target]) ?
+                            IFilterGraphNode targetNode = createdNodes.ContainsKey(targets[target]) ?
                                 createdNodes[targets[target]] : (createdNodes[targets[target]] = new FilterGraphNode(null));
                             sourceNode.AddChild(targetNode);
                         }
                     }
-                    foreach (KeyValuePair<int, FilterGraphNode> node in createdNodes) {
+                    foreach (KeyValuePair<int, IFilterGraphNode> node in createdNodes) {
                         lastNodes[node.Key] = node.Value;
                     }
                 } else if (entry is ConvolutionEntry convolution) {
-                    FilterGraphNode last = lastNodes.ContainsKey(convolution.Channel) ?
+                    IFilterGraphNode last = lastNodes.ContainsKey(convolution.Channel) ?
                         lastNodes[convolution.Channel] : GetChannel(convolution.Channel);
                     FastConvolver filter = new FastConvolver(convolution.Filter, sampleRate, 0);
                     if (last.Filter == null) {
@@ -132,7 +132,7 @@ namespace Cavern.Format.ConfigurationFile {
             }
 
             inputChannels.Sort((a, b) => a.index.CompareTo(b.index));
-            foreach (KeyValuePair<int, FilterGraphNode> node in lastNodes) {
+            foreach (KeyValuePair<int, IFilterGraphNode> node in lastNodes) {
                 if (node.Key >= 0) {
                     OutputChannel outputFilter = new OutputChannel((InputChannel)inputChannels[node.Key].root.Filter);
                     if (node.Value.Filter == null && node.Value.Children.Count == 0) { // Only overwrite dead ends with outputs
@@ -148,7 +148,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <inheritdoc/>
         public override void Export(string path) {
             ValidateForExport();
-            (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
+            (IFilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
             List<CBFEntry> entries = new List<CBFEntry>();
             for (int i = 0; i < exportOrder.Length; i++) {
                 int channel = exportOrder[i].channel;

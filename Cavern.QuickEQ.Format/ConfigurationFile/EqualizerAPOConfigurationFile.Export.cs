@@ -30,7 +30,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Throw an <see cref="DuplicateLabelException"/> if the filter set contains a non-channel label twice.
         /// </summary>
-        static void ValidateForExport((FilterGraphNode node, int _)[] exportOrder) {
+        static void ValidateForExport((IFilterGraphNode node, int _)[] exportOrder) {
             HashSet<string> labels = new HashSet<string>();
             for (int i = 0; i < exportOrder.Length; i++) {
                 if (exportOrder[i].node.Filter is BypassFilter label && !(label is EndpointFilter)) {
@@ -83,7 +83,7 @@ namespace Cavern.Format.ConfigurationFile {
                 }
             }
 
-            (FilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
+            (IFilterGraphNode node, int channel)[] exportOrder = GetExportOrder();
             ValidateForExport(exportOrder);
             List<string> result = new List<string>();
             List<IConvolution> convolutions = new List<IConvolution>();
@@ -92,7 +92,7 @@ namespace Cavern.Format.ConfigurationFile {
             string convolutionRoot = Path.GetFileNameWithoutExtension(path);
             for (int i = 0; i < exportOrder.Length; i++) {
                 int channel = exportOrder[i].channel;
-                FilterGraphNode node = exportOrder[i].node;
+                IFilterGraphNode node = exportOrder[i].node;
                 Filter baseFilter = node.Filter;
                 BypassFilter label = baseFilter is EndpointFilter ? null : baseFilter as BypassFilter;
                 if (channel < 0 && !virtualChannelNames.ContainsKey(channel)) {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Msagl.Drawing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 
 using Cavern.Filters.Utilities;
@@ -20,7 +19,7 @@ namespace FilterStudio.Graphs {
         /// <summary>
         /// Pass the root nodes of the user's selected split.
         /// </summary>
-        public event Action<FilterGraphNode[]> OnSplitChanged;
+        public event Action<IFilterGraphNode[]> OnSplitChanged;
 
         /// <summary>
         /// Overrides the background color of the graph.

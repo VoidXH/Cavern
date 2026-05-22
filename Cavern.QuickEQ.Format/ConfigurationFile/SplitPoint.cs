@@ -17,12 +17,12 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// For each channel, in the order of the <see cref="ConfigurationFile"/>'s channels, the corresponding <see cref="InputChannel"/> filter.
         /// </summary>
-        public readonly FilterGraphNode[] Roots { get; }
+        public readonly IFilterGraphNode[] Roots { get; }
 
         /// <summary>
         /// Represents a state in a <see cref="ConfigurationFile"/> which is a boundary of major steps (like crossover).
         /// </summary>
-        public SplitPoint(string name, FilterGraphNode[] roots) {
+        public SplitPoint(string name, IFilterGraphNode[] roots) {
             Name = name;
             Roots = roots;
         }
@@ -31,12 +31,12 @@ namespace Cavern.Format.ConfigurationFile {
         /// Get how many nodes are in this split.
         /// </summary>
         public int GetNodeCount() {
-            HashSet<FilterGraphNode> visited = new HashSet<FilterGraphNode>();
+            HashSet<IFilterGraphNode> visited = new HashSet<IFilterGraphNode>();
 
-            int CountChildren(FilterGraphNode node) {
+            int CountChildren(IFilterGraphNode node) {
                 int result = 0;
                 for (int i = 0, c = node.Children.Count; i < c; i++) {
-                    FilterGraphNode child = node.Children[i];
+                    IFilterGraphNode child = node.Children[i];
                     if (visited.Contains(child)) {
                         continue;
                     }
@@ -61,11 +61,11 @@ namespace Cavern.Format.ConfigurationFile {
         /// Deep clone all filters from the split point root until the output nodes.
         /// </summary>
         public object Clone() {
-            FilterGraphNode[] roots = new FilterGraphNode[Roots.Length];
-            Dictionary<FilterGraphNode, FilterGraphNode> cloned = new Dictionary<FilterGraphNode, FilterGraphNode>();
+            IFilterGraphNode[] roots = new IFilterGraphNode[Roots.Length];
+            Dictionary<IFilterGraphNode, IFilterGraphNode> cloned = new Dictionary<IFilterGraphNode, IFilterGraphNode>();
             int clonedNodes = 0;
             for (int ch = 0; ch < Roots.Length; ch++) {
-                roots[ch] = (FilterGraphNode)Roots[ch].Clone();    
+                roots[ch] = (IFilterGraphNode)Roots[ch].Clone();
                 cloned[Roots[ch]] = roots[ch];
                 clonedNodes++;
                 for (int child = 0, c = Roots[ch].Children.Count; child < c; child++) {
@@ -84,14 +84,14 @@ namespace Cavern.Format.ConfigurationFile {
         /// Use DFS to clone nodes and connect them to their cloned parents.
         /// </summary>
         /// <returns>The number of cloned nodes.</returns>
-        int CloneNode(FilterGraphNode parent, FilterGraphNode current, Dictionary<FilterGraphNode, FilterGraphNode> cloned) {
+        int CloneNode(IFilterGraphNode parent, IFilterGraphNode current, Dictionary<IFilterGraphNode, IFilterGraphNode> cloned) {
             if (cloned.ContainsKey(current)) {
                 cloned[parent].AddChild(cloned[current]);
                 return 0;
             }
 
-            FilterGraphNode clonedParent = cloned[parent];
-            FilterGraphNode clone = (FilterGraphNode)current.Clone();
+            IFilterGraphNode clonedParent = cloned[parent];
+            IFilterGraphNode clone = (IFilterGraphNode)current.Clone();
             clonedParent.AddChild(clone);
             cloned[current] = clone;
 
