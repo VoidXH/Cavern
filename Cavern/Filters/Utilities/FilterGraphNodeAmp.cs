@@ -8,32 +8,10 @@ namespace Cavern.Filters.Utilities {
     /// </summary>
     public class FilterGraphNodeAmp : IFilterGraphNode {
         /// <inheritdoc/>
-        public IReadOnlyList<IFilterGraphNode> Parents {
-            get {
-                IntPtr vecPtr = FilterGraphNode_GetParents(handle);
-                int size = Marshal.ReadInt32(vecPtr, 16);
-                var result = new List<IFilterGraphNode>(size);
-                for (int i = 0; i < size; i++) {
-                    IntPtr childPtr = Marshal.ReadIntPtr(vecPtr, i * IntPtr.Size);
-                    result.Add(new FilterGraphNodeAmp(childPtr));
-                }
-                return result;
-            }
-        }
+        public IReadOnlyList<IFilterGraphNode> Parents => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public IReadOnlyList<IFilterGraphNode> Children {
-            get {
-                IntPtr vecPtr = FilterGraphNode_GetChildren(handle);
-                int size = Marshal.ReadInt32(vecPtr, 16);
-                var result = new List<IFilterGraphNode>(size);
-                for (int i = 0; i < size; i++) {
-                    IntPtr childPtr = Marshal.ReadIntPtr(vecPtr, i * IntPtr.Size);
-                    result.Add(new FilterGraphNodeAmp(childPtr));
-                }
-                return result;
-            }
-        }
+        public IReadOnlyList<IFilterGraphNode> Children => throw new NotImplementedException();
 
         /// <summary>
         /// Reference to the native node instance.
@@ -92,18 +70,6 @@ namespace Cavern.Filters.Utilities {
         /// </summary>
         [DllImport("CavernAmp.dll")]
         static extern IntPtr FilterGraphNode_AddAfterParentsFilter(IntPtr node, IntPtr filter);
-
-        /// <summary>
-        /// Get the parent nodes of this node.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern IntPtr FilterGraphNode_GetParents(IntPtr node);
-
-        /// <summary>
-        /// Get the child nodes of this node.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern IntPtr FilterGraphNode_GetChildren(IntPtr node);
 
         /// <summary>
         /// Place a new node between this and the children.
