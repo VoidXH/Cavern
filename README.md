@@ -76,8 +76,8 @@ UnityEditor. Add these files from your own Unity installation as references.
 They are found in `Editor\Data\Managed` under Unity's installation folder.
 
 ### CavernAmp
-This is a Code::Blocks project, set up for the MingW compiler. No additional
-libraries were used, this is standard C++ code, so importing just the .cpp and
+This is a g++ project, so g++ has to be available in PATH. No additional
+libraries were used, this is standard C++17 code, so importing just the .cpp and
 .h files into any IDE will work perfectly.
 
 ## Library quick start
