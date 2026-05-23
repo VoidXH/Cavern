@@ -70,10 +70,10 @@ jobs:
         dest: "build/Cavern-Win64.zip"
 
     - name: GitHub pre-release
-      uses: "marvinpinto/action-automatic-releases@latest"
+      uses: softprops/action-gh-release@v1
       with:
-        repo_token: "${{secrets.GITHUB_TOKEN}}"
-        automatic_release_tag: "latest"
+        token: ${{secrets.GITHUB_TOKEN}}
+        tag_name: latest
         prerelease: true
-        title: "Cavern @${{steps.vars.outputs.ShortHash}}[${{steps.date.outputs.CurrentDate}}]"
+        name: "Cavern @${{steps.vars.outputs.ShortHash}}[${{steps.date.outputs.CurrentDate}}]"
         files: "build/*.zip"
