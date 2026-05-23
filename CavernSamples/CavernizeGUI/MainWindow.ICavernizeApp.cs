@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 
+using Cavern.Format.Common;
 using Cavernize.Logic.CavernSettings;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
@@ -79,6 +80,7 @@ partial class MainWindow : ICavernizeApp {
             trackControls.Visibility = Visibility.Visible;
             tracks.ItemsSource = file.Tracks;
             CavernizeTrack bestQuality = file.Tracks
+                .Where(x => x.Codec != Codec.Unknown)
                 .OrderBy(x => x.Codec)
                 .FirstOrDefault();
             if (bestQuality != null) {
