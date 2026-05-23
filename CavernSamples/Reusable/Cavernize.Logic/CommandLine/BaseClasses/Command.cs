@@ -29,6 +29,7 @@ public abstract class Command {
                 new SmoothnessCommand(),
                 new SpeakerVirtualizerCommand(),
                 new SurroundSwapCommand(),
+                new TrackCommand(),
                 new TracksCommand(),
                 new UpconvertCommand(),
 

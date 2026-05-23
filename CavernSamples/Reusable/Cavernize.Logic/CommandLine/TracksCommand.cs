@@ -12,7 +12,7 @@ sealed class TracksCommand : Command {
     public override string Name => "-tracks";
 
     /// <inheritdoc/>
-    public override string Alias => "-trk";
+    public override string Alias => "-trks";
 
     /// <inheritdoc/>
     public override int Parameters => 0;
