@@ -15,7 +15,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         public void AddSplitPoint(int index, string name) {
             if (index != SplitPoints.Count) {
-                IFilterGraphNode[] start = (FilterGraphNode[])splitPoints[index].Roots.Clone();
+                IFilterGraphNode[] start = (IFilterGraphNode[])splitPoints[index].Roots.Clone();
                 for (int i = 0; i < start.Length; i++) {
                     ReferenceChannel channel = ((InputChannel)start[i].Filter).Channel;
                     start[i] = start[i].AddAfterParents(new OutputChannel(channel)).AddAfterParents(new InputChannel(channel));

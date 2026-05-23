@@ -20,10 +20,10 @@ public class CrossoverFilterSet_Tests {
     /// Returns true if the LFE or non-LFE channels get filtered by a <see cref="WaldoFilter"/>.
     /// </summary>
     static bool HitsWaldo(ConfigFile config, CrossoverDescription crossover, bool checkLFE) {
-        (string name, FilterGraphNode root)[] channels = config.InputChannels;
+        (string name, IFilterGraphNode root)[] channels = config.InputChannels;
         for (int i = 0; i < channels.Length; i++) {
             if (crossover.Mixing[i].mixHere == checkLFE) {
-                HashSet<FilterGraphNode> map = FilterGraphNodeUtils.MapGraph([channels[i].root]);
+                HashSet<IFilterGraphNode> map = FilterGraphNodeUtils.MapGraph([channels[i].root]);
                 if (map.Any(x => x.Filter is WaldoFilter)) {
                     return true;
                 }
@@ -44,13 +44,13 @@ public class CrossoverFilterSet_Tests {
     static void FilterTestPost(CrossoverFilterSet set, Xover crossover, bool onMains, bool onLFE) {
         CrossoverDescription mixing = crossover.Mixing;
         CavernFilterStudioConfigurationFile config = new(string.Empty, mixing.Channels);
-        FilterGraphNode[] outputs = [.. config.InputChannels.Select(x => x.root.Children[0])];
+        IFilterGraphNode[] outputs = [.. config.InputChannels.Select(x => x.root.Children[0])];
         set.Add(config, 0);
 
         Assert.AreEqual(onMains, HitsWaldo(config, mixing, false), "Failed on mains.");
         Assert.AreEqual(onLFE, HitsWaldo(config, mixing, true), "Failed on LFE(s).");
 
-        (string name, FilterGraphNode root)[] inputs = config.InputChannels;
+        (string name, IFilterGraphNode root)[] inputs = config.InputChannels;
         for (int i = 0; i < inputs.Length; i++) {
             inputs[i].root.AssertReachesOwnOutput();
             outputs[i].AssertReachesOwnInput();
