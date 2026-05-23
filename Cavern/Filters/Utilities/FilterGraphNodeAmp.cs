@@ -1,17 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Cavern.Filters.Utilities {
     /// <summary>
     /// Wrapper for CavernAmp's implementation of <see cref="FilterGraphNode"/>.
     /// </summary>
-    public class FilterGraphNodeAmp : IFilterGraphNode {
-        /// <inheritdoc/>
-        public IReadOnlyList<IFilterGraphNode> Parents => throw new NotImplementedException();
+    public partial class FilterGraphNodeAmp : IFilterGraphNode, IDisposable {
+        /// <summary>
+        /// Delegate for a native function that gets the count of parent or child nodes of a given node.
+        /// </summary>
+        delegate int CountGetter(IntPtr nodeHandle);
+
+        /// <summary>
+        /// Delegate for a native function that fills an array with the pointers of parent or child nodes of a given node.
+        /// </summary>
+        delegate void ItemsGetter(IntPtr nodeHandle, IntPtr[] pointers, int count);
 
         /// <inheritdoc/>
-        public IReadOnlyList<IFilterGraphNode> Children => throw new NotImplementedException();
+        public IReadOnlyList<IFilterGraphNode> Parents => BuildList(FilterGraphNode_GetParentCount, FilterGraphNode_GetParents);
+
+        /// <inheritdoc/>
+        public IReadOnlyList<IFilterGraphNode> Children => BuildList(FilterGraphNode_GetChildCount, FilterGraphNode_GetChildren);
 
         /// <summary>
         /// Reference to the native node instance.
@@ -46,108 +55,6 @@ namespace Cavern.Filters.Utilities {
                 throw new InvalidOperationException("This operation only supports FilterAmp instances.");
             }
         }
-
-        /// <summary>
-        /// Create a FilterGraphNode wrapping the given filter.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern IntPtr FilterGraphNode_Create(IntPtr filter);
-
-        /// <summary>
-        /// Create a copy of this node and its filter. Does not copy graph relationships.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern IntPtr FilterGraphNode_Clone(IntPtr node);
-
-        /// <summary>
-        /// Place a new node between this and the parents.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_AddAfterParents(IntPtr node, IntPtr newParent);
-
-        /// <summary>
-        /// Place a filter between this and the parents, then return the new node containing that filter.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern IntPtr FilterGraphNode_AddAfterParentsFilter(IntPtr node, IntPtr filter);
-
-        /// <summary>
-        /// Place a new node between this and the children.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_AddBeforeChildren(IntPtr node, IntPtr newChild);
-
-        /// <summary>
-        /// Place a filter between this and the children, then return the new node containing that filter.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern IntPtr FilterGraphNode_AddBeforeChildrenFilter(IntPtr node, IntPtr filter);
-
-        /// <summary>
-        /// Append a node to process this filter's result in the filter graph.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_AddChild(IntPtr node, IntPtr child);
-
-        /// <summary>
-        /// Append a filter to process this filter's result in the filter graph and return the new node containing that filter.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern IntPtr FilterGraphNode_AddChildFilter(IntPtr node, IntPtr filter);
-
-        /// <summary>
-        /// Append multiple nodes to process this filter's result in the filter graph.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_AddChildren(IntPtr node, IntPtr[] children, int count);
-
-        /// <summary>
-        /// Append this node to process a new parent's result too in the filter graph.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_AddParent(IntPtr node, IntPtr parent);
-
-        /// <summary>
-        /// Append a filter as a parent and return the new node containing that filter.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern IntPtr FilterGraphNode_AddParentFilter(IntPtr node, IntPtr filter);
-
-        /// <summary>
-        /// Remove the connection of this node from the child.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_DetachChild(IntPtr node, IntPtr child, bool mergeConnections);
-
-        /// <summary>
-        /// Remove the connection of this node from all children.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_DetachChildren(IntPtr node);
-
-        /// <summary>
-        /// Remove the connection of this node from all parents.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_DetachParents(IntPtr node);
-
-        /// <summary>
-        /// Remove this node from the filter graph, from both parents and children.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_DetachFromGraph(IntPtr node, bool mergeConnections);
-
-        /// <summary>
-        /// Change ownership of two nodes' children.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_SwapChildren(IntPtr node, IntPtr with);
-
-        /// <summary>
-        /// Create a FilterGraphNode wrapping the given filter.
-        /// </summary>
-        [DllImport("CavernAmp.dll")]
-        static extern void FilterGraphNode_Dispose(IntPtr node);
 
         /// <inheritdoc/>
         public Filter Filter {
@@ -193,12 +100,12 @@ namespace Cavern.Filters.Utilities {
 
         /// <inheritdoc/>
         public void AddChildren(IEnumerable<IFilterGraphNode> addedChildren) {
-            var childrenArray = new List<IntPtr>();
-            foreach (var child in addedChildren) {
+            List<IntPtr> children = new List<IntPtr>();
+            foreach (IFilterGraphNode child in addedChildren) {
                 TypeCheck(child);
-                childrenArray.Add(((FilterGraphNodeAmp)child).handle);
+                children.Add(((FilterGraphNodeAmp)child).handle);
             }
-            FilterGraphNode_AddChildren(handle, childrenArray.ToArray(), childrenArray.Count);
+            FilterGraphNode_AddChildren(handle, children.ToArray(), children.Count);
         }
 
         /// <inheritdoc/>
@@ -220,24 +127,16 @@ namespace Cavern.Filters.Utilities {
         }
 
         /// <inheritdoc/>
-        public void DetachParents() {
-            FilterGraphNode_DetachParents(handle);
-        }
+        public void DetachParents() => FilterGraphNode_DetachParents(handle);
 
         /// <inheritdoc/>
-        public void DetachChildren() {
-            FilterGraphNode_DetachChildren(handle);
-        }
+        public void DetachChildren() => FilterGraphNode_DetachChildren(handle);
 
         /// <inheritdoc/>
-        public void DetachFromGraph() {
-            FilterGraphNode_DetachFromGraph(handle, true);
-        }
+        public void DetachFromGraph() => FilterGraphNode_DetachFromGraph(handle, true);
 
         /// <inheritdoc/>
-        public void DetachFromGraph(bool mergeConnections) {
-            FilterGraphNode_DetachFromGraph(handle, mergeConnections);
-        }
+        public void DetachFromGraph(bool mergeConnections) => FilterGraphNode_DetachFromGraph(handle, mergeConnections);
 
         /// <inheritdoc/>
         public void SwapChildren(IFilterGraphNode with) {
@@ -260,5 +159,23 @@ namespace Cavern.Filters.Utilities {
         /// Free up native resources when the object wasn't disposed.
         /// </summary>
         ~FilterGraphNodeAmp() => Dispose();
+
+        /// <summary>
+        /// Get <see cref="IFilterGraphNode"/>s from a native node instance, using the provided delegates to get the count and pointers of the nodes.
+        /// </summary>
+        IReadOnlyList<IFilterGraphNode> BuildList(CountGetter getCount, ItemsGetter getItems) {
+            int count = getCount(handle);
+            if (count == 0) {
+                return Array.Empty<IFilterGraphNode>();
+            }
+
+            IntPtr[] pointers = new IntPtr[count];
+            getItems(handle, pointers, count);
+            IFilterGraphNode[] nodes = new IFilterGraphNode[count];
+            for (int i = 0; i < count; i++) {
+                nodes[i] = new FilterGraphNodeAmp(pointers[i]);
+            }
+            return Array.AsReadOnly(nodes);
+        }
     }
 }

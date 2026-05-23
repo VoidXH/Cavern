@@ -84,6 +84,14 @@ public:
 extern "C" {
 #endif
 
+/// Get the number of parent nodes.
+int DLL_EXPORT FilterGraphNode_GetParentCount(FilterGraphNode* node);
+/// Fill an array with parent node pointers.
+void DLL_EXPORT FilterGraphNode_GetParents(FilterGraphNode* node, FilterGraphNode** outArray, int count);
+/// Get the number of child nodes.
+int DLL_EXPORT FilterGraphNode_GetChildCount(FilterGraphNode* node);
+/// Fill an array with child node pointers.
+void DLL_EXPORT FilterGraphNode_GetChildren(FilterGraphNode* node, FilterGraphNode** outArray, int count);
 /// Create a FilterGraphNode wrapping the given filter.
 FilterGraphNode* DLL_EXPORT FilterGraphNode_Create(Filter* filter);
 /// Create a copy of this node and its filter. Does not copy graph relationships.

@@ -130,6 +130,26 @@ void FilterGraphNode::SwapChildren(FilterGraphNode* with) {
     with->AddChildren(temp);
 }
 
+int DLL_EXPORT FilterGraphNode_GetParentCount(FilterGraphNode* node) {
+    return (int)node->GetParents().size();
+}
+
+void DLL_EXPORT FilterGraphNode_GetParents(FilterGraphNode* node, FilterGraphNode** outArray, int count) {
+    for (int i = 0; i < count; i++) {
+        outArray[i] = node->GetParents()[i];
+    }
+}
+
+int DLL_EXPORT FilterGraphNode_GetChildCount(FilterGraphNode* node) {
+    return (int)node->GetChildren().size();
+}
+
+void DLL_EXPORT FilterGraphNode_GetChildren(FilterGraphNode* node, FilterGraphNode** outArray, int count) {
+    for (int i = 0; i < count; i++) {
+        outArray[i] = node->GetChildren()[i];
+    }
+}
+
 FilterGraphNode* DLL_EXPORT FilterGraphNode_Create(Filter* filter) {
     return new FilterGraphNode(filter);
 }
