@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Xml.Schema;
 using System.Xml;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
@@ -13,19 +13,15 @@ namespace Cavern.Filters {
     /// <summary>
     /// Signal level multiplier filter.
     /// </summary>
-    public class Gain : Filter, IEqualizerAPOFilter, ILocalizableToString, IXmlSerializable {
-        /// <summary>
-        /// Filter gain in decibels.
-        /// </summary>
+    public class Gain : Filter, IEqualizerAPOFilter, IGainFilter, ILocalizableToString, IXmlSerializable {
+        /// <inheritdoc/>
         [DisplayName("Gain (dB)")]
         public double GainValue {
             get => 20 * Math.Log10(Math.Abs(gainValue));
             set => gainValue = (float)Math.Pow(10, value * .05);
         }
 
-        /// <summary>
-        /// Invert the phase in addition to changing gain.
-        /// </summary>
+        /// <inheritdoc/>
         public bool Invert {
             get => gainValue < 0;
             set => gainValue = value ? Math.Abs(gainValue) : -Math.Abs(gainValue);
@@ -98,5 +94,9 @@ namespace Cavern.Filters {
             "hu-HU" => $"Erősítés: {QMath.ToStringLimitDecimals(GainValue, 2)} dB",
             _ => ToString()
         };
+
+        public void Dispose() {
+            // Not needed for this implementation
+        }
     }
 }

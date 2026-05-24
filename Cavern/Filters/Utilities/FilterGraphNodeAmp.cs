@@ -5,16 +5,16 @@ namespace Cavern.Filters.Utilities {
     /// <summary>
     /// Wrapper for CavernAmp's implementation of <see cref="FilterGraphNode"/>.
     /// </summary>
-    public partial class FilterGraphNodeAmp : IFilterGraphNode, IDisposable {
+    public partial class FilterGraphNodeAmp : IFilterGraphNode {
         /// <summary>
         /// Delegate for a native function that gets the count of parent or child nodes of a given node.
         /// </summary>
-        delegate int CountGetter(IntPtr nodeHandle);
+        delegate int CountGetter(IntPtr handle);
 
         /// <summary>
         /// Delegate for a native function that fills an array with the pointers of parent or child nodes of a given node.
         /// </summary>
-        delegate void ItemsGetter(IntPtr nodeHandle, IntPtr[] pointers, int count);
+        delegate void ItemsGetter(IntPtr handle, IntPtr[] pointers, int count);
 
         /// <inheritdoc/>
         public IReadOnlyList<IFilterGraphNode> Parents => BuildList(FilterGraphNode_GetParentCount, FilterGraphNode_GetParents);
@@ -31,12 +31,25 @@ namespace Cavern.Filters.Utilities {
         /// Wraps a CavernAmp filter to be handled in a multichannel complex filter set, such as equalizer platform configuration files.
         /// </summary>
         /// <param name="filter">The wrapped filter</param>
-        public FilterGraphNodeAmp(FilterAmp filter) => handle = FilterGraphNode_Create(filter.Handle);
+        public FilterGraphNodeAmp(FilterAmp filter) {
+            handle = FilterGraphNode_Create(filter.Handle);
+            filter.SetWrapped();
+        }
 
         /// <summary>
         /// Wraps a native node instance.
         /// </summary>
         FilterGraphNodeAmp(IntPtr handle) => this.handle = handle;
+
+        /// <summary>
+        /// Checks if two <see cref="FilterGraphNodeAmp"/> instances wrap the same native instance.
+        /// </summary>
+        public static bool operator ==(FilterGraphNodeAmp lhs, FilterGraphNodeAmp rhs) => ReferenceEquals(lhs, rhs) || lhs?.Filter == rhs?.Filter;
+
+        /// <summary>
+        /// Checks if two <see cref="FilterGraphNodeAmp"/> instances wrap different native instances.
+        /// </summary>
+        public static bool operator !=(FilterGraphNodeAmp lhs, FilterGraphNodeAmp rhs) => !(lhs == rhs);
 
         /// <summary>
         /// Checks if a given <paramref name="node"/> is compatible with the operations of this instance.
@@ -58,8 +71,16 @@ namespace Cavern.Filters.Utilities {
 
         /// <inheritdoc/>
         public Filter Filter {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get {
+                IntPtr filterHandle = FilterGraphNode_GetFilter(handle);
+                FilterAmp result = new FilterAmp(filterHandle);
+                result.SetWrapped(); // This instance wraps it, don't dispose
+                return result;
+            }
+            set {
+                TypeCheck(value);
+                FilterGraphNode_SetFilter(handle, ((FilterAmp)value).Handle);
+            }
         }
 
         /// <inheritdoc/>
@@ -146,6 +167,15 @@ namespace Cavern.Filters.Utilities {
 
         /// <inheritdoc/>
         public object Clone() => new FilterGraphNodeAmp(FilterGraphNode_Clone(handle));
+
+        /// <inheritdoc/>
+        public bool Equals(IFilterGraphNode other) => other is FilterGraphNodeAmp n && Filter.Equals(n.Filter);
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj) => obj is FilterGraphNodeAmp n && Filter.Equals(n.Filter);
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => handle.GetHashCode();
 
         /// <inheritdoc/>
         public void Dispose() {

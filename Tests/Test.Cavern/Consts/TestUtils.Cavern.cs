@@ -4,6 +4,15 @@
     /// </summary>
     internal static class TestUtils {
         /// <summary>
+        /// Check if all values of an <paramref name="array"/> are equal to a given <paramref name="value"/>.
+        /// </summary>
+        public static void AssertAll<T>(T[] array, T value) {
+            for (int i = 0; i < array.Length; i++) {
+                Assert.AreEqual(value, array[i]);
+            }
+        }
+
+        /// <summary>
         /// Test if the number of zeros in an array <paramref name="list"/> match an expected <paramref name="count"/>.
         /// </summary>
         public static void AssertNumberOfZeros(IList<float[]> list, int count) {

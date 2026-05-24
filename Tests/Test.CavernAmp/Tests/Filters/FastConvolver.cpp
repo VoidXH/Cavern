@@ -136,7 +136,7 @@ bool FastConvolverTests::testFastConvolverStereo() {
 // with a larger impulse so the internal block size matches the signal length.
 bool FastConvolverTests::testFastConvolverProcess() {
     // Impulse with identity at position 0, sized so filterLength == 2*len
-    // filterLength = 2 << log2Ceil(len). For len=32, filterLength = 64, blockSize = 32.
+    // filterLength = 2 << Log2Ceil(len). For len=32, filterLength = 64, blockSize = 32.
     const int len   = 32;
     float impulse[32] = {0};
     impulse[0] = 1.0f;  // identity impulse (delta at position 0)
@@ -174,8 +174,8 @@ bool FastConvolverTests::testFastConvolverGetLength() {
 
     int actualLength = m_loader.GetLength(conv);
 
-    // FastConvolver formula: filterLength = 2 << log2Ceil(len)
-    // len=3 -> log2Ceil(3)=2 -> 2 << 2 = 8
+    // FastConvolver formula: filterLength = 2 << Log2Ceil(len)
+    // len=3 -> Log2Ceil(3)=2 -> 2 << 2 = 8
     int expectedLength = 8;
 
     m_loader.Dispose(conv);

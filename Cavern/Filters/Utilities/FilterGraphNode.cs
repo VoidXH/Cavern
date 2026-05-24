@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
 
@@ -10,6 +11,16 @@ namespace Cavern.Filters.Utilities {
     /// </summary>
     [DebuggerDisplay("{ToString(),nq} ({GetHashCode(),nq})")]
     public partial class FilterGraphNode : IFilterGraphNode {
+        /// <summary>
+        /// Checks if two <see cref="FilterGraphNode"/> instances wrap the same filter.
+        /// </summary>
+        public static bool operator ==(FilterGraphNode lhs, FilterGraphNode rhs) => ReferenceEquals(lhs, rhs) || lhs?.Filter == rhs?.Filter;
+
+        /// <summary>
+        /// Checks if two <see cref="FilterGraphNode"/> instances wrap different filters.
+        /// </summary>
+        public static bool operator !=(FilterGraphNode lhs, FilterGraphNode rhs) => !(lhs == rhs);
+
         /// <inheritdoc/>
         public IReadOnlyList<FilterGraphNode> Parents => parents;
 
@@ -168,6 +179,15 @@ namespace Cavern.Filters.Utilities {
         public void Dispose() {
             // Not needed for this implementation
         }
+
+        /// <inheritdoc/>
+        public bool Equals(IFilterGraphNode other) => other is FilterGraphNode node && Filter == node.Filter;
+
+        /// <inheritdoc/>
+        public override bool Equals(object other) => other is FilterGraphNode node && Filter == node.Filter;
+
+        /// <inheritdoc/>
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(Filter);
 
         /// <inheritdoc/>
         public override string ToString() => Filter != null ?

@@ -5,7 +5,7 @@ namespace Cavern.Filters.Utilities {
     /// <summary>
     /// Wrapper for CavernAmp's implementation of <see cref="FilterGraphNode"/>.
     /// </summary>
-    public partial class FilterGraphNodeAmp : IFilterGraphNode, IDisposable {
+    public partial class FilterGraphNodeAmp {
         /// <summary>
         /// Create a FilterGraphNode wrapping the given filter.
         /// </summary>
@@ -101,6 +101,18 @@ namespace Cavern.Filters.Utilities {
         /// </summary>
         [DllImport("CavernAmp.dll")]
         static extern void FilterGraphNode_SwapChildren(IntPtr node, IntPtr with);
+
+        /// <summary>
+        /// Get the filter wrapped by this node.
+        /// </summary>
+        [DllImport("CavernAmp.dll")]
+        static extern IntPtr FilterGraphNode_GetFilter(IntPtr node);
+
+        /// <summary>
+        /// Set the filter wrapped by this node.
+        /// </summary>
+        [DllImport("CavernAmp.dll")]
+        static extern void FilterGraphNode_SetFilter(IntPtr node, IntPtr filter);
 
         /// <summary>
         /// Get the number of parent nodes.

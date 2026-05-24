@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Xml;
 
+using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
 
 namespace Cavern.Filters {
     /// <summary>
-    /// Abstract audio filter.
+    /// Abstract audio block processing filter.
     /// </summary>
     /// <remarks>You have to override at least one Process function, otherwise they'll call each other.</remarks>
-    public abstract class Filter : ICloneable {
-        /// <summary>
-        /// <see cref="Process(float[])"/>ing a Dirac-delta will result in an impulse response that will result in the same exact filter
-        /// when used as convolution samples.
-        /// </summary>
+    public abstract class Filter : IFilter, ICloneable {
+        /// <inheritdoc/>
         public virtual bool LinearTimeInvariant => true;
 
         /// <summary>
@@ -65,18 +63,10 @@ namespace Cavern.Filters {
             }
         }
 
-        /// <summary>
-        /// Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
+        /// <inheritdoc/>
         public virtual void Process(float[] samples) => Process(samples, 0, 1);
 
-        /// <summary>
-        /// Apply this filter on an array of samples. One filter should be applied to only one continuous stream of samples.
-        /// </summary>
-        /// <param name="samples">Input samples</param>
-        /// <param name="channel">Channel to filter</param>
-        /// <param name="channels">Total channels</param>
+        /// <inheritdoc/>
         public virtual void Process(float[] samples, int channel, int channels) {
             int channelSize = samples.Length / channels;
             float[] singleChannel = new float[channelSize];

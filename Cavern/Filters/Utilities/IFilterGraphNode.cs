@@ -5,7 +5,7 @@ namespace Cavern.Filters.Utilities {
     /// <summary>
     /// Wraps a filter to be handled in a multichannel complex filter set, such as equalizer platform configuration files.
     /// </summary>
-    public interface IFilterGraphNode : ICloneable, IDisposable {
+    public interface IFilterGraphNode : ICloneable, IEquatable<IFilterGraphNode>, IDisposable {
         /// <summary>
         /// Filters that add their results together before being processed by this filter and going forward in the filter graph.
         /// </summary>

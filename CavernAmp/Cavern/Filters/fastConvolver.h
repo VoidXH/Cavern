@@ -1,8 +1,8 @@
 #ifndef FASTCONVOLVER_H
 #define FASTCONVOLVER_H
 
-#include "../Utilities/complex.h"
 #include "../../export.h"
+#include "../Utilities/complex.h"
 #include "../Utilities/fftcache.h"
 #include "filter.h"
 

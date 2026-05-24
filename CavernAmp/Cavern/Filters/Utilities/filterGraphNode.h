@@ -84,6 +84,10 @@ public:
 extern "C" {
 #endif
 
+/// Get the filter wrapped by this node.
+Filter* DLL_EXPORT FilterGraphNode_GetFilter(FilterGraphNode* node);
+/// Set the filter wrapped by this node.
+void DLL_EXPORT FilterGraphNode_SetFilter(FilterGraphNode* node, Filter* filter);
 /// Get the number of parent nodes.
 int DLL_EXPORT FilterGraphNode_GetParentCount(FilterGraphNode* node);
 /// Fill an array with parent node pointers.

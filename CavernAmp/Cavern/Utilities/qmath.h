@@ -5,23 +5,20 @@
 
 /// Clamp a double between limits.
 double Clamp(double value, double min, double max);
-
 /// Compute the base 2 logarithm of a number faster than a generic Log function.
-inline int log2Int(const int x) {
-  int y;
-  asm ("\tbsr %1, %0\n"
-      : "=r"(y)
-      : "r" (x));
-  return y;
-}
-
-inline int log2Ceil(const int x) {
-    int y = log2Int(x);
-    return y + ((1 << y) != x);
-}
-
+int Log2Int(const int x);
+/// Ceiling of the base 2 logarithm.
+int Log2Ceil(const int x);
 /// Sum absolute values of elements in an array.
 float SumAbs(float* array, int arrayLength);
+/// Convert decibels to voltage gain (double precision).
+double DbToGain(double gain);
+/// Convert decibels to voltage gain (single precision).
+float DbToGainF(float gain);
+/// Convert voltage gain to decibels (double precision).
+double GainToDb(double gain);
+/// Convert voltage gain to decibels (single precision).
+float GainToDbF(float gain);
 
 #ifdef __cplusplus
 extern "C" {

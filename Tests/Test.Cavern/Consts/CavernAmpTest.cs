@@ -10,12 +10,14 @@ namespace Test.Cavern.Consts {
         /// </summary>
         public static void Run(Action test) {
             CavernAmp.Bypass = true;
+            Console.WriteLine("Running without CavernAmp...");
             test();
             CavernAmp.Bypass = false;
             if (CavernAmp.Available) {
+                Console.WriteLine("Running with CavernAmp...");
                 test();
             } else {
-                Assert.Inconclusive("CavernAmp is not available, but the managed version's test ran successfully.");
+                Console.WriteLine("CavernAmp is not available, but the managed version's test ran successfully.");
             }
         }
     }

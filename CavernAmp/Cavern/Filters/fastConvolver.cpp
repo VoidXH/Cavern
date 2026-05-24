@@ -27,7 +27,7 @@ FastConvolver::FastConvolver(const FastConvolver &other) {
 }
 
 void FastConvolver::Initialize(const float *impulse, const int len, const int delay) {
-    filterLength = 2 << log2Ceil(len); // Zero padding for the falloff to have space
+    filterLength = 2 << Log2Ceil(len); // Zero padding for the falloff to have space
     cache = new FFTCache(filterLength);
     filter = new Complex[filterLength];
     for (int sample = 0; sample < len; sample++) {

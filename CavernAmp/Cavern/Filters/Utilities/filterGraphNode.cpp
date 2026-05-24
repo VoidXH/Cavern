@@ -130,6 +130,15 @@ void FilterGraphNode::SwapChildren(FilterGraphNode* with) {
     with->AddChildren(temp);
 }
 
+Filter* DLL_EXPORT FilterGraphNode_GetFilter(FilterGraphNode* node) {
+    return node->pFilter;
+}
+
+void DLL_EXPORT FilterGraphNode_SetFilter(FilterGraphNode* node, Filter* filter) {
+    delete node->pFilter;
+    node->pFilter = filter;
+}
+
 int DLL_EXPORT FilterGraphNode_GetParentCount(FilterGraphNode* node) {
     return (int)node->GetParents().size();
 }
