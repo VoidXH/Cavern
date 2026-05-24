@@ -146,11 +146,3 @@ int DLL_EXPORT FastConvolver_GetLength(FastConvolver *instance) {
 void DLL_EXPORT FastConvolver_GetFilter(FastConvolver *instance, float *output) {
     instance->GetFilter(output);
 }
-
-void DLL_EXPORT FastConvolver_Process(FastConvolver *instance, float *samples, int len, int channel, int channels) {
-    instance->Process(samples, len, channel, channels);
-}
-
-void DLL_EXPORT FastConvolver_Dispose(FastConvolver *instance) {
-    delete instance;
-}

@@ -34,6 +34,6 @@ namespace Cavern.Filters {
         GainAmp(IntPtr handle) : base(handle) { }
 
         /// <inheritdoc/>
-        public override object Clone() => new GainAmp(Filter_Clone(Handle));
+        public override object Clone() => new GainAmp(CavernAmp.Filter_Clone(Handle));
     }
 }

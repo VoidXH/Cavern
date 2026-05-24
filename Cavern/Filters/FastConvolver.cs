@@ -169,7 +169,7 @@ namespace Cavern.Filters {
         /// </summary>
         public override void Process(float[] samples) {
             if (native != IntPtr.Zero) {
-                CavernAmp.FastConvolver_Process(native, samples, 0, 1);
+                CavernAmp.Filter_Process(native, samples);
                 return;
             }
             int start = 0;
@@ -186,7 +186,7 @@ namespace Cavern.Filters {
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
             if (native != IntPtr.Zero) {
-                CavernAmp.FastConvolver_Process(native, samples, channel, channels);
+                CavernAmp.Filter_Process(native, samples, channel, channels);
                 return;
             }
             int start = 0,

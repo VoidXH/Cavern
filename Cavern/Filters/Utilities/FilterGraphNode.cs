@@ -11,16 +11,6 @@ namespace Cavern.Filters.Utilities {
     /// </summary>
     [DebuggerDisplay("{ToString(),nq} ({GetHashCode(),nq})")]
     public partial class FilterGraphNode : IFilterGraphNode {
-        /// <summary>
-        /// Checks if two <see cref="FilterGraphNode"/> instances wrap the same filter.
-        /// </summary>
-        public static bool operator ==(FilterGraphNode lhs, FilterGraphNode rhs) => ReferenceEquals(lhs, rhs) || lhs?.Filter == rhs?.Filter;
-
-        /// <summary>
-        /// Checks if two <see cref="FilterGraphNode"/> instances wrap different filters.
-        /// </summary>
-        public static bool operator !=(FilterGraphNode lhs, FilterGraphNode rhs) => !(lhs == rhs);
-
         /// <inheritdoc/>
         public IReadOnlyList<FilterGraphNode> Parents => parents;
 

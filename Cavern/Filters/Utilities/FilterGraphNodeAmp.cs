@@ -25,7 +25,12 @@ namespace Cavern.Filters.Utilities {
         /// <summary>
         /// Reference to the native node instance.
         /// </summary>
-        IntPtr handle;
+        readonly IntPtr handle;
+
+        /// <summary>
+        /// The <see cref="handle"/> was freed.
+        /// </summary>
+        bool disposed;
 
         /// <summary>
         /// Wraps a CavernAmp filter to be handled in a multichannel complex filter set, such as equalizer platform configuration files.
@@ -40,16 +45,6 @@ namespace Cavern.Filters.Utilities {
         /// Wraps a native node instance.
         /// </summary>
         FilterGraphNodeAmp(IntPtr handle) => this.handle = handle;
-
-        /// <summary>
-        /// Checks if two <see cref="FilterGraphNodeAmp"/> instances wrap the same native instance.
-        /// </summary>
-        public static bool operator ==(FilterGraphNodeAmp lhs, FilterGraphNodeAmp rhs) => ReferenceEquals(lhs, rhs) || lhs?.Filter == rhs?.Filter;
-
-        /// <summary>
-        /// Checks if two <see cref="FilterGraphNodeAmp"/> instances wrap different native instances.
-        /// </summary>
-        public static bool operator !=(FilterGraphNodeAmp lhs, FilterGraphNodeAmp rhs) => !(lhs == rhs);
 
         /// <summary>
         /// Checks if a given <paramref name="node"/> is compatible with the operations of this instance.
@@ -179,9 +174,9 @@ namespace Cavern.Filters.Utilities {
 
         /// <inheritdoc/>
         public void Dispose() {
-            if (handle != IntPtr.Zero) {
+            if (!disposed) {
                 FilterGraphNode_Dispose(handle);
-                handle = IntPtr.Zero;
+                disposed = true;
             }
         }
 

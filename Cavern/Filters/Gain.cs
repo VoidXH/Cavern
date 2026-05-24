@@ -95,6 +95,7 @@ namespace Cavern.Filters {
             _ => ToString()
         };
 
+        /// <inheritdoc/>
         public void Dispose() {
             // Not needed for this implementation
         }
