@@ -187,6 +187,7 @@ namespace Cavern.Format.Environment {
             root.WriteLine("    creationTool: Cavern");
             root.WriteLine("    creationToolVersion: " + Listener.Version);
             root.WriteLine("    bedInstances:");
+
             if (bedChannels == 0) {
                 root.WriteLine("      - channels: []");
             } else {
@@ -197,10 +198,16 @@ namespace Cavern.Format.Environment {
                     channelIDs[i] = bedIDs[i];
                 }
             }
-            root.WriteLine("    objects:");
-            for (int i = 0, c = sourceCount - bedChannels; i < c; i++) {
-                root.WriteLine("      - ID: " + (10 + i));
-                channelIDs[i + bedChannels] = 10 + i;
+
+            int objectCount = sourceCount - bedChannels;
+            if (objectCount == 0) {
+                root.WriteLine("    objects: []");
+            } else {
+                root.WriteLine("    objects:");
+                for (int i = 0; i < objectCount; i++) {
+                    root.WriteLine("      - ID: " + (10 + i));
+                    channelIDs[i + bedChannels] = 10 + i;
+                }
             }
 
             pcmOut = new CoreAudioFormatWriter(fileStream.Name + ".audio", sources.Length, length, Source.SampleRate, bits);

@@ -42,11 +42,10 @@ namespace Cavern.Format.Renderers.CoreAudioFormat {
                 ParseChannels(channelsSource) :
                 Array.Empty<ReferenceChannel>();
 
-            if (!(presentation.TryGetValue("objects", out object rawObjects) &&
-                rawObjects is List<YAMLObject> objects)) {
-                throw new CorruptionException("Object ID mapping was not found.");
+            if (presentation.TryGetValue("objects", out object rawObjects) &&
+                rawObjects is List<YAMLObject> objects) {
+                ParseObjectIDs(objects, Channels.Length);
             }
-            ParseObjectIDs(objects, Channels.Length);
         }
 
         /// <summary>
