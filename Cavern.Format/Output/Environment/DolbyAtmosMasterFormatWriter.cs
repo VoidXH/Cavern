@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -45,6 +45,11 @@ namespace Cavern.Format.Environment {
         /// Transform <see cref="Source"/> movements to codec scale.
         /// </summary>
         Vector3 scaling;
+
+        /// <summary>
+        /// Local render cache matching this writer's sources ordering.
+        /// </summary>
+        float[] orderedRenderCache;
 
         /// <summary>
         /// PCM samples are written to this file.
@@ -111,11 +116,24 @@ namespace Cavern.Format.Environment {
                 CreateFiles();
             }
 
-            float[] result = GetInterlacedPCMOutput();
+            // Use the local sources ordering (beds first) to build interlaced PCM so it matches metadata IDs
+            float[] result = GetInterlacedPCMOutputOrdered();
             long writable = pcmOut.Length - samplesWritten;
             if (writable > 0) {
                 pcmOut.WriteBlock(result, 0, Math.Min(Source.UpdateRate, writable) * pcmOut.ChannelCount);
             }
+
+        // Build interlaced PCM output using this writer's sources ordering so metadata IDs match PCM channels.
+        float[] GetInterlacedPCMOutputOrdered() {
+            Source.Ping();
+            orderedRenderCache ??= new float[Source.UpdateRate * sources.Length];
+            int channel = 0,
+                channels = sources.Length;
+            foreach (Source source in sources) {
+                WaveformUtils.Insert(source.Rendered[0], orderedRenderCache, channel++, channels);
+            }
+            return orderedRenderCache;
+        }
 
             if (pcmOut != null) { // Do not update in the first frame, it happens in CreateFiles
                 for (int i = 0; i < sources.Length; i++) {
@@ -160,17 +178,36 @@ namespace Cavern.Format.Environment {
                 throw new StreamingNotSupportedException();
             }
 
-            int[] bedIDs = staticObjects
+            // Treat only the ScreenLFE (FEL / 低音) static objects as bed channels.
+            var bedStatics = staticObjects
+                .Where(x => x.Item1 == ReferenceChannel.ScreenLFE)
+                .ToArray();
+            int[] bedIDs = bedStatics
                 .Select(x => GetBedChannelID(x.Item1))
                 .TakeWhile(x => x != -1)
                 .ToArray();
             int sourceCount = Source.ActiveSources.Count;
 
-            sources = Source.ActiveSources.ToArray();
-            bedChannels = bedIDs.Length;
+            var active = Source.ActiveSources.ToArray();
+            // Order sources so that bed sources (ScreenLFE) come first, preserving bedStatics order
+            var ordered = new System.Collections.Generic.List<Source>(sourceCount);
+            foreach (var b in bedStatics) {
+                ordered.Add(b.Item2);
+            }
+            foreach (var s in active) {
+                if (!bedStatics.Any(b => b.Item2 == s)) ordered.Add(s);
+            }
+            sources = ordered.ToArray();
             channelIDs = new int[sourceCount];
             lastFrames = new MovementTimeframe[sourceCount];
             scaling = new Vector3(1) / Listener.EnvironmentSize;
+
+            // Assign IDs: first bed IDs, then object IDs sequentially starting at 10
+            bedChannels = bedIDs.Length;
+            for (int i = 0; i < bedChannels; i++) channelIDs[i] = bedIDs[i];
+            for (int i = bedChannels; i < sourceCount; i++) channelIDs[i] = 10 + (i - bedChannels);
+            var objectIDs = new System.Collections.Generic.List<int>();
+            for (int i = bedChannels; i < sourceCount; i++) objectIDs.Add(channelIDs[i]);
 
             using StreamWriter root = new StreamWriter(writer);
             string rootFile = Path.GetFileName(((FileStream)writer).Name);
@@ -193,20 +230,17 @@ namespace Cavern.Format.Environment {
             } else {
                 root.WriteLine("      - channels:");
                 for (int i = 0; i < bedChannels; i++) {
-                    root.WriteLine("          - channel: " + staticObjects[i].Item1.GetShortName());
+                    root.WriteLine("          - channel: " + bedStatics[i].Item1.GetShortName());
                     root.WriteLine("            ID: " + bedIDs[i]);
-                    channelIDs[i] = bedIDs[i];
                 }
             }
 
-            int objectCount = sourceCount - bedChannels;
-            if (objectCount == 0) {
+            if (objectIDs.Count == 0) {
                 root.WriteLine("    objects: []");
             } else {
                 root.WriteLine("    objects:");
-                for (int i = 0; i < objectCount; i++) {
-                    root.WriteLine("      - ID: " + (10 + i));
-                    channelIDs[i + bedChannels] = 10 + i;
+                foreach (int id in objectIDs) {
+                    root.WriteLine("      - ID: " + id);
                 }
             }
 
@@ -222,7 +256,8 @@ namespace Cavern.Format.Environment {
                 metadataOut.WriteLine("  - ID: " + channelIDs[i]);
                 metadataOut.WriteLine("    samplePos: 0");
                 metadataOut.WriteLine("    active: true");
-                if (i >= bedChannels) {
+                bool isBed = System.Array.IndexOf(bedIDs, channelIDs[i]) >= 0;
+                if (!isBed) {
                     WriteMetadataPosition(scaledPos);
                     metadataOut.WriteLine("    snap: false");
                     metadataOut.WriteLine("    elevation: true");
@@ -234,7 +269,7 @@ namespace Cavern.Format.Environment {
                 WriteMetadataGain(gain);
                 metadataOut.WriteLine("    rampLength: 0");
                 metadataOut.WriteLine("    trimBypass: false");
-                if (i >= bedChannels) {
+                if (!isBed) {
                     metadataOut.WriteLine("    dialog: -1");
                     metadataOut.WriteLine("    music: -1");
                     metadataOut.WriteLine("    screenFactor: 0");
@@ -243,7 +278,7 @@ namespace Cavern.Format.Environment {
                 }
                 metadataOut.WriteLine("    headTrackMode: undefined");
                 metadataOut.Write("    binauralRenderMode: ");
-                metadataOut.WriteLine(i < bedChannels ? "off" : "undefined");
+                metadataOut.WriteLine(isBed ? "off" : "undefined");
                 lastFrames[i] = new MovementTimeframe(scaledPos, gain, 0, 0);
             }
         }
