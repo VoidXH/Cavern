@@ -38,7 +38,7 @@ namespace Cavern.Filters {
         /// <param name="channel">The channel for which this filter marks the beginning of the filter pipeline</param>
         /// <param name="kind">Type of this endpoint</param>
         private protected EndpointFilter(string channel, string kind) : base($"{ParseName(channel)} {kind}") {
-            Channel = ReferenceChannelExtensions.FromStandardName(channel);
+            Channel = ChannelPrototype.FromStandardName(channel);
             ChannelName = ParseName(channel);
         }
 
@@ -63,7 +63,7 @@ namespace Cavern.Filters {
         /// If the <paramref name="channel"/> name is a shorthand for a channel, like an Equalizer APO label, try to get the full channel.
         /// </summary>
         static string ParseName(string channel) {
-            ReferenceChannel standard = ReferenceChannelExtensions.FromStandardName(channel);
+            ReferenceChannel standard = ChannelPrototype.FromStandardName(channel);
             if (standard != ReferenceChannel.Unknown) {
                 return standard.GetShortName();
             } else {

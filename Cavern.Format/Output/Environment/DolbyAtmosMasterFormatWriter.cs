@@ -8,6 +8,7 @@ using Cavern.Channels;
 using Cavern.Format.Common;
 using Cavern.Format.Environment.Utilities;
 using Cavern.Format.Renderers;
+using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
@@ -25,11 +26,6 @@ namespace Cavern.Format.Environment {
         /// All active <see cref="Source"/>s in the <see cref="Listener"/>.
         /// </summary>
         Source[] sources;
-
-        /// <summary>
-        /// Number of <see cref="Source"/>s that are marked as static channels.
-        /// </summary>
-        int bedChannels;
 
         /// <summary>
         /// IDs used in the metadata file for each PCM track.
@@ -86,25 +82,6 @@ namespace Cavern.Format.Environment {
         public DolbyAtmosMasterFormatWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer) :
             this(path, source, length, bits, StaticSourceHandler.GetStaticObjects(renderer)) { }
 
-        /// <summary>
-        /// Translate <see cref="ReferenceChannel"/>s to Dolby Atmos bed channel IDs.
-        /// </summary>
-        static int GetBedChannelID(ReferenceChannel channel) {
-            if (channel <= ReferenceChannel.SideRight) {
-                return (int)channel;
-            } else if (channel == ReferenceChannel.TopSideLeft) {
-                return 8;
-            } else if (channel == ReferenceChannel.TopSideRight) {
-                return 9;
-            } else {
-                if (CavernFormatGlobal.Unsafe) {
-                    return -1;
-                } else {
-                    throw new InvalidChannelException(channel);
-                }
-            }
-        }
-
         /// <inheritdoc/>
         public override void WriteNextFrame() {
             if (pcmOut == null) {
@@ -160,55 +137,16 @@ namespace Cavern.Format.Environment {
                 throw new StreamingNotSupportedException();
             }
 
-            int[] bedIDs = staticObjects
-                .Select(x => GetBedChannelID(x.Item1))
-                .TakeWhile(x => x != -1)
-                .ToArray();
-            int sourceCount = Source.ActiveSources.Count;
-
             sources = Source.ActiveSources.ToArray();
-            bedChannels = bedIDs.Length;
-            channelIDs = new int[sourceCount];
-            lastFrames = new MovementTimeframe[sourceCount];
+            channelIDs = new int[sources.Length];
+            lastFrames = new MovementTimeframe[sources.Length];
             scaling = new Vector3(1) / Listener.EnvironmentSize;
 
-            using StreamWriter root = new StreamWriter(writer);
-            string rootFile = Path.GetFileName(((FileStream)writer).Name);
-
-            root.WriteLine("version: 0.5.1");
-            root.WriteLine("presentations:");
-            root.WriteLine("  - type: home");
-            root.WriteLine("    simplified: false");
-            root.WriteLine($"    metadata: {rootFile}.metadata");
-            root.WriteLine($"    audio: {rootFile}.audio");
-            root.WriteLine("    offset: 0.0");
-            root.WriteLine("    fps: 24");
-            root.WriteLine($"    scBedConfiguration: [{string.Join(", ", bedIDs)}]");
-            root.WriteLine("    creationTool: Cavern");
-            root.WriteLine("    creationToolVersion: " + Listener.Version);
-            root.WriteLine("    bedInstances:");
-
-            if (bedChannels == 0) {
-                root.WriteLine("      - channels: []");
-            } else {
-                root.WriteLine("      - channels:");
-                for (int i = 0; i < bedChannels; i++) {
-                    root.WriteLine("          - channel: " + staticObjects[i].Item1.GetShortName());
-                    root.WriteLine("            ID: " + bedIDs[i]);
-                    channelIDs[i] = bedIDs[i];
-                }
-            }
-
-            int objectCount = sourceCount - bedChannels;
-            if (objectCount == 0) {
-                root.WriteLine("    objects: []");
-            } else {
-                root.WriteLine("    objects:");
-                for (int i = 0; i < objectCount; i++) {
-                    root.WriteLine("      - ID: " + (10 + i));
-                    channelIDs[i + bedChannels] = 10 + i;
-                }
-            }
+            DolbyAtmosMasterFormatRootFile rootFile = new DolbyAtmosMasterFormatRootFile(staticObjects);
+            StreamWriter rootWriter = new StreamWriter(writer);
+            rootFile.Write(rootWriter, sources.Length, channelIDs);
+            rootWriter.Flush();
+            int bedChannels = rootFile.BedChannelCount;
 
             pcmOut = new CoreAudioFormatWriter(fileStream.Name + ".audio", sources.Length, length, Source.SampleRate, bits);
             pcmOut.WriteHeader();

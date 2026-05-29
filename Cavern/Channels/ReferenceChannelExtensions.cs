@@ -47,41 +47,28 @@ namespace Cavern.Channels {
         }
 
         /// <summary>
+        /// Get the channel's DCI-standard shortened name, and if it not exists, fall back to <see cref="GetShortName"/>.
+        /// </summary>
+        public static string GetShortNameDCI(this ReferenceChannel channel) => channel switch {
+            ReferenceChannel.FrontLeft => ChannelPrototype.frontLeftMark,
+            ReferenceChannel.FrontRight => ChannelPrototype.frontRightMark,
+            ReferenceChannel.FrontCenter => ChannelPrototype.frontCenterMark,
+            ReferenceChannel.ScreenLFE => ChannelPrototype.screenLFEMark,
+            ReferenceChannel.RearLeft => ChannelPrototype.rearLeftMarkDCI,
+            ReferenceChannel.RearRight => ChannelPrototype.rearRightMarkDCI,
+            ReferenceChannel.SideLeft => ChannelPrototype.sideLeftMarkDCI,
+            ReferenceChannel.SideRight => ChannelPrototype.sideRightMarkDCI,
+            ReferenceChannel.TopSideLeft => ChannelPrototype.topSideLeftMarkDCI,
+            ReferenceChannel.TopSideRight => ChannelPrototype.topSideRightMarkDCI,
+            _ => channel.GetShortName()
+        };
+
+        /// <summary>
         /// Is the parameter a height <paramref name="channel"/>?
         /// </summary>
         public static bool IsHeight(this ReferenceChannel channel) =>
             (channel >= ReferenceChannel.TopFrontLeft && channel <= ReferenceChannel.TopSideRight) ||
             channel == ReferenceChannel.TopFrontCenter || channel == ReferenceChannel.GodsVoice ||
             (channel >= ReferenceChannel.TopRearLeft && channel <= ReferenceChannel.TopRearCenter);
-
-        /// <summary>
-        /// Converts a standard channel shorthand to a <see cref="ReferenceChannel"/>.
-        /// </summary>
-        public static ReferenceChannel FromStandardName(string name) {
-            switch (name) {
-                case ChannelPrototype.frontLeftMark:
-                case ChannelPrototype.frontLeftMarkFull:
-                    return ReferenceChannel.FrontLeft;
-                case ChannelPrototype.frontRightMark:
-                case ChannelPrototype.frontRightMarkFull:
-                    return ReferenceChannel.FrontRight;
-                case ChannelPrototype.frontCenterMark:
-                case ChannelPrototype.frontCenterMarkFull:
-                    return ReferenceChannel.FrontCenter;
-                case ChannelPrototype.screenLFEMark:
-                case ChannelPrototype.subwooferMark:
-                    return ReferenceChannel.ScreenLFE;
-                case ChannelPrototype.rearLeftMark:
-                    return ReferenceChannel.RearLeft;
-                case ChannelPrototype.rearRightMark:
-                    return ReferenceChannel.RearRight;
-                case ChannelPrototype.sideLeftMark:
-                    return ReferenceChannel.SideLeft;
-                case ChannelPrototype.sideRightMark:
-                    return ReferenceChannel.SideRight;
-                default:
-                    return ReferenceChannel.Unknown;
-            }
-        }
     }
 }

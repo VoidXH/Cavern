@@ -224,7 +224,7 @@ namespace Cavern.Format.ConfigurationFile {
         /// </summary>
         void CreateSplit(string name, Dictionary<string, IFilterGraphNode> lastNodes) {
             KeyValuePair<string, IFilterGraphNode>[] outputs =
-                lastNodes.Where(x => ReferenceChannelExtensions.FromStandardName(x.Key) != ReferenceChannel.Unknown).ToArray();
+                lastNodes.Where(x => ChannelPrototype.FromStandardName(x.Key) != ReferenceChannel.Unknown).ToArray();
             for (int i = 0; i < outputs.Length; i++) {
                 lastNodes[outputs[i].Key] = lastNodes[outputs[i].Key].AddChild(new OutputChannel(outputs[i].Key));
             }
