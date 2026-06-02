@@ -46,14 +46,14 @@ namespace Cavern.Spoofer {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            if (!listenerInstance && (listenerInstance = FindFirstObjectByType<AudioListener>())) {
+            if (!listenerInstance && (listenerInstance = FindAnyObjectByType<AudioListener>())) {
                 AudioListenerSpoofer spoofer = listenerInstance.gameObject.AddComponent<AudioListenerSpoofer>();
                 spoofer.Source = listenerInstance;
                 spoofer.duality = Duality;
             }
             sources.RemoveAll(x => !x);
-            AudioSource[] toAdd = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
-            for (int source = 0, end = toAdd.Length; source < end; ++source) {
+            AudioSource[] toAdd = FindObjectsByType<AudioSource>(FindObjectsInactive.Include);
+            for (int source = 0, end = toAdd.Length; source < end; source++) {
                 if (!sources.Contains(toAdd[source])) {
                     sources.Add(toAdd[source]);
                     AudioSourceSpoofer spoofer = toAdd[source].gameObject.AddComponent<AudioSourceSpoofer>();

@@ -27,7 +27,7 @@ namespace EQAPOtoFIR {
         /// </summary>
         void Open(object _, RoutedEventArgs e) {
             OpenFileDialog dialog = new OpenFileDialog {
-                InitialDirectory = "C:\\Program Files\\EqualizerAPO\\config",
+                InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "EqualizerAPO", "config"),
                 Filter = "Equalizer APO configuration files (*.txt)|*.txt"
             };
             if (dialog.ShowDialog() == true) {

@@ -35,11 +35,11 @@
 
 	<ItemGroup>
 		<Reference Include="UnityEditor">
-			<HintPath>C:\Program Files\Unity\Hub\Editor\6000.2.7f2\Editor\Data\Managed\UnityEditor.dll</HintPath>
+			<HintPath>C:\Program Files\Unity\Hub\Editor\6000.4.9f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine">
-			<HintPath>C:\Program Files\Unity\Hub\Editor\6000.2.7f2\Editor\Data\Managed\UnityEngine.dll</HintPath>
+			<HintPath>C:\Program Files\Unity\Hub\Editor\6000.4.9f1\Editor\Data\Managed\UnityEngine.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>

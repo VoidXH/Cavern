@@ -31,7 +31,7 @@ namespace Cavern {
             if (!loadGlobals) {
                 return;
             }
-            string fileName = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Cavern\\Save.dat";
+            string fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Cavern", "Save.dat");
             if (File.Exists(fileName)) {
                 string[] save = File.ReadAllLines(fileName);
                 try {
