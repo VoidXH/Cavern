@@ -1,10 +1,9 @@
-﻿#define SKIP_TRACKS_WITH_ERRORS
-
-using Cavern.Format;
+﻿using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Common.Metadata;
 using Cavern.Format.Container;
 
+using Cavernize.Logic.Exceptions;
 using Cavernize.Logic.Language;
 
 namespace Cavernize.Logic.Models;
@@ -19,9 +18,14 @@ public class AudioFile : IDisposable {
     public string Path { get; private set; }
 
     /// <summary>
-    /// Track handlers and info providers.
+    /// Track handlers and info providers for all audio tracks, including unsupported.
     /// </summary>
     public IReadOnlyList<CavernizeTrack> Tracks => tracks;
+
+    /// <summary>
+    /// All native tracks of the file, including video and subtitle tracks.
+    /// </summary>
+    public IReadOnlyList<Track> AllTracks => tracks.FirstOrDefault(x => x.Supported)?.Track.Source.Tracks ?? throw new NoSupportedTracksException();
 
     /// <summary>
     /// List of track handlers.
@@ -128,16 +132,12 @@ public class AudioFile : IDisposable {
         int trackId = 0;
         for (int i = 0; i < reader.Tracks.Length; i++) {
             if (reader.Tracks[i].Extra is TrackExtraAudio) {
-#if RELEASE || SKIP_TRACKS_WITH_ERRORS
                 try {
-#endif
                     tracks.Add(new CavernizeTrack(new AudioTrackReader(reader.Tracks[i]), reader.Tracks[i].Format,
                         trackId, language, reader.Tracks[i].Language));
-#if RELEASE || SKIP_TRACKS_WITH_ERRORS
                 } catch (Exception e) {
                     tracks.Add(new InvalidTrack(e.Message, reader.Tracks[i].Format, reader.Tracks[i].Language, language));
                 }
-#endif
                 trackId++;
             }
         }

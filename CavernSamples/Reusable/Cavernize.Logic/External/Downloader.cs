@@ -1,5 +1,7 @@
 ﻿using VoidX.WPF;
 
+using Cavernize.Logic.Exceptions;
+
 namespace Cavernize.Logic.External;
 
 /// <summary>

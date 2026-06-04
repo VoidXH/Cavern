@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -15,11 +15,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
-		<ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
+	  <ProjectReference Include="..\..\CavernSamples\Reusable\Cavernize.Logic\Cavernize.Logic.csproj" />
+	  <ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Copy SourceFiles="..\..\CavernAmp\bin\Release\CavernAmp.dll" DestinationFolder="bin\$(Configuration)" SkipUnchangedFiles="true" Condition="Exists('..\..\CavernAmp\bin\Release\CavernAmp.dll')" />
-	</Target>
+	<ItemGroup>
+		<Compile Include="..\Test.Cavern\Consts\Usings.cs" Link="Consts\Usings.cs" />
+	</ItemGroup>
 </Project>

@@ -22,18 +22,14 @@ sealed class TracksCommand : Command {
 
     /// <inheritdoc/>
     public override void Execute(string[] args, int offset, ICavernizeApp app) {
-        IReadOnlyList<CavernizeTrack> parsedTracks = app.LoadedFile.Tracks;
-        CavernizeTrack first = parsedTracks.FirstOrDefault(x => x.Supported) ??
-            throw new CommandException("At least one supported track is required to list tracks.");
-        Track[] tracks = first.Track.Source.Tracks;
-
-        for (int i = 0; i < tracks.Length; i++) {
-            Track track = tracks[i];
-            CavernizeTrack parsed = parsedTracks.FirstOrDefault(x => x.Track == track);
+        IReadOnlyList<CavernizeTrack> audioTracks = app.LoadedFile.Tracks;
+        IReadOnlyList<Track> allTracks = app.LoadedFile.AllTracks;
+        for (int i = 0, audioIndex = 0, c = allTracks.Count; i < c; i++) {
+            CavernizeTrack parsed = audioTracks.FirstOrDefault(x => x.Track == allTracks[i]);
             if (parsed != null) {
-                Console.WriteLine($"[{i}] {parsed}");
+                Console.WriteLine($"[{audioIndex++}] {parsed}");
             } else {
-                Console.WriteLine($"[{i}] {track.Format} (not decoded)");
+                Console.WriteLine($"[X] {allTracks[i].Format} (not audio)");
             }
         }
         throw new CommandProcessingCanceledException();

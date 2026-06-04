@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.32014.148
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11801.241 oobstable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CavernizeGUI", "CavernizeGUI\CavernizeGUI.csproj", "{935CA5EA-F167-44C1-8A5F-46D1C0A8668F}"
 EndProject
@@ -38,6 +38,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernPipeServer.Multiplatform", "CavernPipeServer.Multiplatform\CavernPipeServer.Multiplatform.csproj", "{F2CA7B0F-A83B-45FC-9610-939215A5BF38}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernizeCLI", "CavernizeCLI\CavernizeCLI.csproj", "{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CC4DE8F3-FCFF-4B43-AE7D-26B3388E472F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Cavernize.Logic", "..\Tests\Test.Cavernize.Logic\Test.Cavernize.Logic.csproj", "{6D81AE4C-4DD0-41F6-87FF-030051501E27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +101,10 @@ Global
 		{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D4436ED-CEDB-46FE-99B2-2791D8D340C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D81AE4C-4DD0-41F6-87FF-030051501E27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D81AE4C-4DD0-41F6-87FF-030051501E27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D81AE4C-4DD0-41F6-87FF-030051501E27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D81AE4C-4DD0-41F6-87FF-030051501E27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +117,7 @@ Global
 		{15BEC2AA-E152-489C-90B8-1E5064F6ACA4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{A6BCCB2D-5099-D4DE-AD78-A7F2A7BA9D06} = {A8FAC7E2-CC2E-40EF-8B62-C32E735CF9E6}
 		{0BE27D6A-5D88-448A-AC97-D661B5F4B4D8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{6D81AE4C-4DD0-41F6-87FF-030051501E27} = {CC4DE8F3-FCFF-4B43-AE7D-26B3388E472F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A9DF7132-D463-434C-B1DF-279D324EE921}

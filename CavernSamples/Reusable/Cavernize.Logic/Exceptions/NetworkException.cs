@@ -1,4 +1,4 @@
-﻿namespace Cavernize.Logic; 
+﻿namespace Cavernize.Logic.Exceptions;
 
 /// <summary>
 /// Tells that a network operation has failed.

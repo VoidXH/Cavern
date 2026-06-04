@@ -21,9 +21,10 @@ sealed class InputCommand : Command {
 
     /// <inheritdoc/>
     public override void Execute(string[] args, int offset, ICavernizeApp app) {
-        if (!File.Exists(args[offset])) {
-            throw new CommandException($"The file \"{args[offset]}\" does not exist.");
+        string fullPath = Path.GetFullPath(args[offset]);
+        if (!File.Exists(fullPath)) {
+            throw new CommandException($"The file \"{fullPath}\" does not exist.");
         }
-        app.OpenContent(args[offset]);
+        app.OpenContent(fullPath);
     }
 }

@@ -19,19 +19,13 @@ sealed class TrackCommand : IntegerCommand {
 
     /// <inheritdoc/>
     public override void Execute(int value, ICavernizeApp app) {
-        IReadOnlyList<CavernizeTrack> parsedTracks = app.LoadedFile.Tracks;
-        Track[] supportedTracks = parsedTracks.FirstOrDefault(x => x.Supported)?.Track.Source.Tracks ??
-            throw new CommandException("At least one supported track is required to set a track.");
-
-        if (value < 0 || value >= supportedTracks.Length) {
-            throw new CommandException($"Track index {value} is out of range (0-{supportedTracks.Length - 1}).");
+        IReadOnlyList<CavernizeTrack> audioTracks = app.LoadedFile.Tracks;
+        if (value < 0 || value >= audioTracks.Count) {
+            throw new CommandException($"Track index {value} is out of range (0-{audioTracks.Count - 1}).");
         }
 
-        Track targetTrack = supportedTracks[value];
-        CavernizeTrack selected = parsedTracks.FirstOrDefault(x => x.Track == targetTrack) ??
-            throw new CommandException($"Track {value} is not supported and cannot be selected.");
-
-        app.SelectedTrack = selected;
-        Console.WriteLine($"Active track set to: {selected}");
+        CavernizeTrack targetTrack = audioTracks[value];
+        app.SelectedTrack = targetTrack;
+        Console.WriteLine($"Active track set to: {targetTrack}");
     }
 }

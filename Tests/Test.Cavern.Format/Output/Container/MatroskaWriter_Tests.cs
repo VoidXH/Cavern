@@ -4,10 +4,10 @@ using Cavern.Format.Container;
 
 namespace Test.Cavern.Format.Output.Container;
 
-[TestClass]
 /// <summary>
 /// Tests the <see cref="MatroskaWriter"/> class.
 /// </summary>
+[TestClass]
 public class MatroskaWriter_Tests {
     /// <summary>
     /// Tests if <see cref="MatroskaWriter"/> still produces the reference output.

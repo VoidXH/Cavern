@@ -8,6 +8,7 @@ using Cavern.Format.Renderers;
 using Cavern.Utilities;
 
 using Cavernize.Logic.CavernSettings;
+using Cavernize.Logic.Exceptions;
 using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using VoidX.WPF;
