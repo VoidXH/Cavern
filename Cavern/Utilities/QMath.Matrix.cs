@@ -39,10 +39,11 @@ namespace Cavern.Utilities {
 
                 // Calculate rotation angle
                 double theta;
-                if (Math.Abs(workingMatrix[p][p] - workingMatrix[q][q]) < eps)
+                if (Math.Abs(workingMatrix[p][p] - workingMatrix[q][q]) < eps) {
                     theta = Math.PI / 4.0 * Math.Sign(workingMatrix[p][q]);
-                else
+                } else {
                     theta = 0.5 * Math.Atan2(2.0 * workingMatrix[p][q], workingMatrix[p][p] - workingMatrix[q][q]);
+                }
 
                 double cos = Math.Cos(theta);
                 double sin = Math.Sin(theta);
