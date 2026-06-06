@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Cavern.QuickEQ {
     /// <summary>
@@ -18,7 +18,11 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// The import was finished and the related <see cref="SpeakerSweeper"/> instance was set up.
         /// </summary>
-        Done
+        Done,
+        /// <summary>
+        /// The operation couldn't complete.
+        /// </summary>
+        Failed
     }
 
     /// <summary>
@@ -44,6 +48,11 @@ namespace Cavern.QuickEQ {
         /// True if this imported measurement contained multiple microphone locations.
         /// </summary>
         public bool MultiMeasurement { get; private set; }
+
+        /// <summary>
+        /// If the <see cref="Status"/> is <see cref="MeasurementImporterStatus.Failed"/>, the exception that happened is loaded here.
+        /// </summary>
+        public Exception Exception { get; private set; }
 
         /// <summary>
         /// Signature used for <see cref="OnMeasurement"/>.
@@ -79,7 +88,7 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// The task processing <see cref="data"/>.
         /// </summary>
-        readonly Task runner;
+        readonly Thread runner;
 
         /// <summary>
         /// Start importing a previous measurement. Status can be tracked in <see cref="Status"/>.
@@ -94,7 +103,7 @@ namespace Cavern.QuickEQ {
                 sweeper.SampleRate = sampleRate;
                 sweeper.ImpResponses = new VerboseImpulseResponse[0];
             }
-            runner = new Task(Process);
+            runner = new Thread(Process);
             runner.Start();
         }
 
@@ -281,17 +290,22 @@ namespace Cavern.QuickEQ {
         /// Process the <see cref="data"/> and set up the <see cref="sweeper"/>.
         /// </summary>
         void Process() {
-            if (data.Channels == 1) {
-                ProcessRecording(data[0]);
-            } else {
-                ProcessExport();
+            try {
+                if (data.Channels == 1) {
+                    ProcessRecording(data[0]);
+                } else {
+                    ProcessExport();
+                }
+                Status = MeasurementImporterStatus.Done;
+            } catch (Exception e) {
+                Exception = e;
+                Status = MeasurementImporterStatus.Failed;
             }
-            Status = MeasurementImporterStatus.Done;
         }
 
         /// <summary>
         /// Free the resources used by the importer.
         /// </summary>
-        public void Dispose() => runner?.Dispose();
+        public void Dispose() => runner?.Join();
     }
 }
