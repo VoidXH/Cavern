@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 using Cavern.Channels;
@@ -20,7 +19,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Objects that should be exported as a bed channel if possible, because they do not contain any movement, just stay at a fixed position.
         /// </summary>
-        readonly (ReferenceChannel, Source)[] staticObjects;
+        readonly StaticSource[] staticObjects;
 
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
@@ -31,8 +30,7 @@ namespace Cavern.Format.Environment {
         /// <param name="bits">Bit depth of the output</param>
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
         /// <remarks>Transforms the <paramref name="source"/> rendering environment for export, adding <see cref="MuteSource"/>s for the unused bed channels.</remarks>
-        public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits,
-            params (ReferenceChannel, Source)[] staticObjects) :
+        public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits, params StaticSource[] staticObjects) :
             this(writer, source, length, bits, true, staticObjects) { }
 
         /// <summary>
@@ -45,8 +43,7 @@ namespace Cavern.Format.Environment {
         /// <param name="extendOnCreation">Extend the <paramref name="source"/> with <see cref="MuteSource"/>s, representing the unused static bed channels,
         /// making the <see cref="Listener"/> environment ready for rendering</param>
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
-        public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits, bool extendOnCreation,
-            params (ReferenceChannel, Source)[] staticObjects) :
+        public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits, bool extendOnCreation, params StaticSource[] staticObjects) :
             base(writer, extendOnCreation ? ExtendWithMuteTarget(source, staticObjects) : source, length, bits) => this.staticObjects = staticObjects;
 
         /// <summary>
@@ -58,8 +55,7 @@ namespace Cavern.Format.Environment {
         /// <param name="bits">Bit depth of the output</param>
         /// <param name="staticObjects">Objects that should be exported as a bed channel if possible</param>
         /// <remarks>Transforms the <paramref name="source"/> rendering environment for export, adding <see cref="MuteSource"/>s for the unused bed channels.</remarks>
-        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits,
-            params (ReferenceChannel, Source)[] staticObjects) :
+        public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, params StaticSource[] staticObjects) :
             this(AudioWriter.Open(path), source, length, bits, staticObjects) { }
 
         /// <summary>
@@ -72,7 +68,7 @@ namespace Cavern.Format.Environment {
         /// <param name="renderer">Fetch the objects to move to bed tracks from this <see cref="Renderer"/></param>
         /// <remarks>Transforms the <paramref name="source"/> rendering environment for export, adding <see cref="MuteSource"/>s for the unused bed channels.</remarks>
         public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer) :
-            this(path, source, length, bits, StaticSourceHandler.GetStaticObjects(renderer)) { }
+            this(path, source, length, bits, StaticSourceHandler.GetStaticSources(renderer)) { }
 
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
@@ -85,18 +81,18 @@ namespace Cavern.Format.Environment {
         /// <param name="extendOnCreation">Extend the <paramref name="source"/> with <see cref="MuteSource"/>s, representing the unused static bed channels,
         /// making the <see cref="Listener"/> environment ready for rendering</param>
         public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer, bool extendOnCreation) :
-            this(AudioWriter.Open(path), source, length, bits, extendOnCreation, StaticSourceHandler.GetStaticObjects(renderer)) { }
+            this(AudioWriter.Open(path), source, length, bits, extendOnCreation, StaticSourceHandler.GetStaticSources(renderer)) { }
 
         /// <summary>
         /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.
         /// Additionally, <paramref name="staticObjects"/> could be mapped to the bad if a corresponding bed channel exists.
         /// </summary>
-        static Listener ExtendWithMuteTarget(Listener source, (ReferenceChannel, Source)[] staticObjects) {
+        static Listener ExtendWithMuteTarget(Listener source, StaticSource[] staticObjects) {
             for (int i = bedChannels.Length - 1; i >= 0; i--) {
                 bool attached = false;
                 for (int j = 0; j < staticObjects.Length; j++) {
-                    if (bedChannels[i] == (int)staticObjects[j].Item1) {
-                        source.AttachPrioritySource(staticObjects[j].Item2);
+                    if (bedChannels[i] == (int)staticObjects[j].Channel) {
+                        source.AttachPrioritySource(staticObjects[j].Source);
                         attached = true;
                         break;
                     }

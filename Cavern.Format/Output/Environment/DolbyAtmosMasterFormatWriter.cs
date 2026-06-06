@@ -20,7 +20,7 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// At constructor time, these original <see cref="Source"/>s held static bed channels.
         /// </summary>
-        readonly (ReferenceChannel, Source)[] staticObjects;
+        readonly StaticSource[] staticObjects;
 
         /// <summary>
         /// All active <see cref="Source"/>s in the <see cref="Listener"/>.
@@ -66,21 +66,34 @@ namespace Cavern.Format.Environment {
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
         /// </summary>
         public DolbyAtmosMasterFormatWriter(Stream writer, Listener source, long length, BitDepth bits,
-            params (ReferenceChannel, Source)[] staticObjects) :
+            params StaticSource[] staticObjects) :
             base(writer, source, length, bits) => this.staticObjects = staticObjects;
 
         /// <summary>
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
         /// </summary>
         public DolbyAtmosMasterFormatWriter(string path, Listener source, long length, BitDepth bits,
-            params (ReferenceChannel, Source)[] staticObjects) :
+            params StaticSource[] staticObjects) :
             this(AudioWriter.Open(path), source, length, bits, staticObjects) { }
 
         /// <summary>
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
         /// </summary>
         public DolbyAtmosMasterFormatWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer) :
-            this(path, source, length, bits, StaticSourceHandler.GetStaticObjects(renderer)) { }
+            this(path, source, length, bits, ParseStaticSources(StaticSourceHandler.GetStaticSources(renderer))) { }
+
+        /// <summary>
+        /// Match a set of <see cref="StaticSource"/>s to the channel layout which some tools require.
+        /// </summary>
+        static StaticSource[] ParseStaticSources(StaticSource[] input) {
+            // Handle the RL RR SL SR ending, which not all tools can handle, but they can handle SL SR RL RR
+            if (input[4].Channel == ReferenceChannel.RearLeft && input[5].Channel == ReferenceChannel.RearRight &&
+                input[6].Channel == ReferenceChannel.SideLeft && input[7].Channel == ReferenceChannel.SideRight) {
+                (input[4], input[6]) = (input[6], input[4]);
+                (input[5], input[7]) = (input[7], input[5]);
+            }
+            return input;
+        }
 
         /// <inheritdoc/>
         public override void WriteNextFrame() {

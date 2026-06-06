@@ -102,9 +102,11 @@ public partial class MainWindow {
         }
 
         OpenFileDialog dialog = new() {
-            InitialDirectory = Settings.Default.lastOutputFilters,
             Filter = (string)language["FiltF"]
         };
+        if (Directory.Exists(Settings.Default.lastOutputFilters)) {
+            dialog.InitialDirectory = Settings.Default.lastOutputFilters;
+        }
         if (!dialog.ShowDialog().Value) {
             return;
         }

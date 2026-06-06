@@ -25,6 +25,7 @@ using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
 using Path = System.IO.Path;
+using Cavern.WPF.Dialogs;
 
 namespace CavernizeGUI;
 
@@ -175,18 +176,16 @@ public partial class MainWindow : Window {
         }
 
         OpenFileDialog dialog = new() {
-            Filter = string.Format((string)language["ImFmt"], AudioReader.filter)
+            Filter = string.Format((string)language["ImFmt"], AudioReader.filter),
+            InitialDirectory = Settings.Default.lastDirectory
         };
-        if (Directory.Exists(Settings.Default.lastDirectory)) {
-            dialog.InitialDirectory = Settings.Default.lastDirectory;
-        }
-        if (dialog.ShowDialog().Value) {
+        dialog.ShowDialogSafe(() => {
             try {
                 OpenContent(dialog.FileName);
             } catch (Exception ex) {
                 Error(ex.Message);
             }
-        }
+        });
     }
 
     /// <summary>

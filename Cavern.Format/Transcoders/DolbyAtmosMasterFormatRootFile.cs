@@ -3,6 +3,7 @@ using System.Linq;
 
 using Cavern.Channels;
 using Cavern.Format.Common;
+using Cavern.Format.Environment.Utilities;
 
 namespace Cavern.Format.Transcoders {
     /// <summary>
@@ -17,7 +18,7 @@ namespace Cavern.Format.Transcoders {
         /// <summary>
         /// Original static bed channel sources.
         /// </summary>
-        readonly (ReferenceChannel, Source)[] staticObjects;
+        readonly StaticSource[] staticObjects;
 
         /// <summary>
         /// Assigned bed channel IDs.
@@ -28,10 +29,10 @@ namespace Cavern.Format.Transcoders {
         /// Parse bed channel IDs from the provided static objects.
         /// </summary>
         /// <param name="staticObjects">Original static bed channel sources</param>
-        public DolbyAtmosMasterFormatRootFile((ReferenceChannel, Source)[] staticObjects) {
+        public DolbyAtmosMasterFormatRootFile(StaticSource[] staticObjects) {
             this.staticObjects = staticObjects;
             bedIDs = staticObjects
-                .Select(x => GetBedChannelID(x.Item1))
+                .Select(x => GetBedChannelID(x.Channel))
                 .TakeWhile(x => x != -1)
                 .ToArray();
         }
@@ -83,7 +84,7 @@ namespace Cavern.Format.Transcoders {
             } else {
                 writer.WriteLine("      - channels:");
                 for (int i = 0; i < bedChannels; i++) {
-                    writer.WriteLine("          - channel: " + staticObjects[i].Item1.GetShortNameDCI());
+                    writer.WriteLine("          - channel: " + staticObjects[i].Channel.GetShortNameDCI());
                     writer.WriteLine("            ID: " + bedIDs[i]);
                     channelIDs[i] = bedIDs[i];
                 }
