@@ -3,10 +3,17 @@ using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows;
 
+using Cavern.Format.Common;
+
 using CavernizeGUI.Resources;
 
 namespace CavernizeGUI {
     partial class MainWindow {
+        /// <summary>
+        /// Disable not available rendering settings for the current format.
+        /// </summary>
+        void RenderingSettingsOpened(object _, RoutedEventArgs __) => surroundSwap.IsEnabled = !ExportFormat.Codec.IsEnvironmental();
+
         /// <summary>
         /// Update the setting related to the surround swap feature when the toggle's state has changed.
         /// </summary>

@@ -19,7 +19,7 @@
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Style="{StaticResource RootMenuItem}">
+            <MenuItem Style="{StaticResource RootMenuItem}" SubmenuOpened="RenderingSettingsOpened">
                 <MenuItem.Header>
                     <uc:TextWithIcon Text="{StaticResource MenuR}" Icon="/Resources/Images/Settings.png"/>
                 </MenuItem.Header>
