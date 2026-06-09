@@ -23,6 +23,13 @@ sealed class TracksCommand : Command {
     /// <inheritdoc/>
     public override void Execute(string[] args, int offset, ICavernizeApp app) {
         IReadOnlyList<CavernizeTrack> audioTracks = app.LoadedFile.Tracks;
+        if (audioTracks.All(track => track.Track == null)) {
+            for (int i = 0; i < audioTracks.Count; i++) {
+                Console.WriteLine($"[{i}] {audioTracks[i]}");
+            }
+            throw new CommandProcessingCanceledException();
+        }
+
         IReadOnlyList<Track> allTracks = app.LoadedFile.AllTracks;
         for (int i = 0, audioIndex = 0, c = allTracks.Count; i < c; i++) {
             CavernizeTrack parsed = audioTracks.FirstOrDefault(x => x.Track == allTracks[i]);
