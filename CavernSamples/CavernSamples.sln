@@ -43,8 +43,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CC4DE8F3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Cavernize.Logic", "..\Tests\Test.Cavernize.Logic\Test.Cavernize.Logic.csproj", "{6D81AE4C-4DD0-41F6-87FF-030051501E27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CavernizeAvalonia", "CavernizeAvalonia\CavernizeAvalonia.csproj", "{7CDE2487-AD34-458D-9EA8-FF831314547C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,10 +105,6 @@ Global
 		{6D81AE4C-4DD0-41F6-87FF-030051501E27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D81AE4C-4DD0-41F6-87FF-030051501E27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D81AE4C-4DD0-41F6-87FF-030051501E27}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7CDE2487-AD34-458D-9EA8-FF831314547C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7CDE2487-AD34-458D-9EA8-FF831314547C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7CDE2487-AD34-458D-9EA8-FF831314547C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7CDE2487-AD34-458D-9EA8-FF831314547C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

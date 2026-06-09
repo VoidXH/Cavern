@@ -111,13 +111,13 @@ jobs:
 
       - name: Restore NuGet packages
         working-directory: ${{github.workspace}}
-        run: dotnet restore "CavernSamples/CavernizeAvalonia/CavernizeAvalonia.csproj"
+        run: dotnet restore "CavernSamples/CavernizeGUI/CavernizeGUI.csproj"
 
       - name: Publish macOS app
         working-directory: ${{github.workspace}}
         run: |
-          dotnet publish "CavernSamples/CavernizeAvalonia/CavernizeAvalonia.csproj" --configuration ${{env.BUILD_CONFIGURATION}} --runtime osx-arm64 --self-contained true --output "build/macOS/osx-arm64"
-          dotnet publish "CavernSamples/CavernizeAvalonia/CavernizeAvalonia.csproj" --configuration ${{env.BUILD_CONFIGURATION}} --runtime osx-x64 --self-contained true --output "build/macOS/osx-x64"
+          dotnet publish "CavernSamples/CavernizeGUI/CavernizeGUI.csproj" --configuration ${{env.BUILD_CONFIGURATION}} --runtime osx-arm64 --self-contained true --output "build/macOS/osx-arm64"
+          dotnet publish "CavernSamples/CavernizeGUI/CavernizeGUI.csproj" --configuration ${{env.BUILD_CONFIGURATION}} --runtime osx-x64 --self-contained true --output "build/macOS/osx-x64"
 
       - name: Compress macOS app
         working-directory: ${{github.workspace}}

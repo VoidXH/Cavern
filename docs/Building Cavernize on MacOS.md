@@ -1,8 +1,8 @@
 # Building Cavernize on MacOS
 
-This document covers the macOS Cavernize desktop port. It does not cover the Unity project or the original Windows-only WPF application.
+This document covers the macOS Cavernize desktop port. It does not cover the Unity project.
 
-The Windows desktop build uses `CavernSamples/CavernizeGUI`, which is a WPF app and only runs on Windows. The macOS build uses `CavernSamples/CavernizeAvalonia`, a cross-platform [Avalonia](https://avaloniaui.net/gettingstarted) app that shares the Cavernize rendering logic but replaces the Windows-only UI layer.
+The desktop build uses `CavernSamples/CavernizeGUI`, a cross-platform [Avalonia](https://avaloniaui.net/gettingstarted) app that shares the Cavernize rendering logic.
 
 There are two ways to get the app running on macOS:
 
@@ -30,13 +30,13 @@ dotnet --list-sdks
 Run commands from the Cavern repository root:
 
 ```sh
-dotnet build CavernSamples/CavernizeAvalonia/CavernizeAvalonia.csproj
+dotnet build CavernSamples/CavernizeGUI/CavernizeGUI.csproj
 ```
 
 The debug executable is generated under:
 
 ```text
-CavernSamples/CavernizeAvalonia/bin/Debug/net8.0/
+CavernSamples/CavernizeGUI/bin/Debug/net8.0/
 ```
 
 ### Publish an App Bundle
@@ -44,31 +44,31 @@ CavernSamples/CavernizeAvalonia/bin/Debug/net8.0/
 For Apple Silicon Macs:
 
 ```sh
-dotnet publish CavernSamples/CavernizeAvalonia/CavernizeAvalonia.csproj -c Release -r osx-arm64 --self-contained false
+dotnet publish CavernSamples/CavernizeGUI/CavernizeGUI.csproj -c Release -r osx-arm64 --self-contained false
 ```
 
 For Intel Macs:
 
 ```sh
-dotnet publish CavernSamples/CavernizeAvalonia/CavernizeAvalonia.csproj -c Release -r osx-x64 --self-contained false
+dotnet publish CavernSamples/CavernizeGUI/CavernizeGUI.csproj -c Release -r osx-x64 --self-contained false
 ```
 
 The publish target creates a macOS app bundle:
 
 ```text
-CavernSamples/CavernizeAvalonia/bin/Release/net8.0/osx-arm64/publish/Cavernize.app
+CavernSamples/CavernizeGUI/bin/Release/net8.0/osx-arm64/publish/Cavernize.app
 ```
 
 or, for Intel:
 
 ```text
-CavernSamples/CavernizeAvalonia/bin/Release/net8.0/osx-x64/publish/Cavernize.app
+CavernSamples/CavernizeGUI/bin/Release/net8.0/osx-x64/publish/Cavernize.app
 ```
 
 Launch it with:
 
 ```sh
-open CavernSamples/CavernizeAvalonia/bin/Release/net8.0/osx-arm64/publish/Cavernize.app
+open CavernSamples/CavernizeGUI/bin/Release/net8.0/osx-arm64/publish/Cavernize.app
 ```
 
 Use the `osx-x64` path instead when building for Intel.
@@ -78,8 +78,8 @@ Use the `osx-x64` path instead when building for Intel.
 To remove generated build output for the Avalonia app:
 
 ```sh
-dotnet clean CavernSamples/CavernizeAvalonia/CavernizeAvalonia.csproj
-rm -rf CavernSamples/CavernizeAvalonia/bin CavernSamples/CavernizeAvalonia/obj
+dotnet clean CavernSamples/CavernizeGUI/CavernizeGUI.csproj
+rm -rf CavernSamples/CavernizeGUI/bin CavernSamples/CavernizeGUI/obj
 ```
 
 ## 2. Downloading From Releases
@@ -119,6 +119,5 @@ Only remove quarantine and sign the app after downloading it from a trusted rele
 ## Notes
 
 - The app bundle is not signed or notarized. 
-- The original WPF UI cannot run on macOS. macOS support is provided by the Avalonia project in `CavernSamples/CavernizeAvalonia`.
-- The original Windows Cavernize app remains in `CavernSamples/CavernizeGUI`.
+- The original Windows-only WPF UI was replaced by the Avalonia project in `CavernSamples/CavernizeGUI`.
 - The Unity version is not part of this build path.

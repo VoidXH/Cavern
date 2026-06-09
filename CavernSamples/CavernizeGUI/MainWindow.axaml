@@ -1,0 +1,363 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:CavernizeGUI"
+        x:Class="CavernizeGUI.MainWindow"
+        x:DataType="local:MainViewModel"
+        Title="Cavernize"
+        Width="998"
+        Height="760"
+        MinWidth="520"
+        MinHeight="420"
+        Background="#696969"
+        Foreground="#F0F0F0"
+        DragDrop.AllowDrop="True"
+        DragDrop.Drop="DropFiles">
+  <Window.Resources>
+    <SolidColorBrush x:Key="CardBrush">#1F1F1F</SolidColorBrush>
+    <SolidColorBrush x:Key="SurfaceBrush">#151515</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderBrush">#555555</SolidColorBrush>
+    <SolidColorBrush x:Key="MutedBrush">#D8D8D8</SolidColorBrush>
+    <SolidColorBrush x:Key="InfoBlue">#3186CE</SolidColorBrush>
+  </Window.Resources>
+
+  <Window.Styles>
+    <Style Selector="TextBlock.header">
+      <Setter Property="FontSize" Value="{DynamicResource HeaderFontSize}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="{DynamicResource LabelFontSize}" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.trackTitle">
+      <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+    <Style Selector="TextBlock.iconButtonText">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button">
+      <Setter Property="Background" Value="#E8E8E8" />
+      <Setter Property="Foreground" Value="#000000" />
+      <Setter Property="BorderBrush" Value="#888888" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="Padding" Value="{DynamicResource ButtonPadding}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ButtonCornerRadius}" />
+      <Setter Property="FontSize" Value="{DynamicResource ButtonFontSize}" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="{StaticResource InfoBlue}" />
+      <Setter Property="BorderBrush" Value="#62B7FF" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="FontSize" Value="{DynamicResource PrimaryButtonFontSize}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ButtonCornerRadius}" />
+    </Style>
+    <Style Selector="Button.infoIcon">
+      <Setter Property="Background" Value="{StaticResource InfoBlue}" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="{DynamicResource InfoButtonCornerRadius}" />
+      <Setter Property="Width" Value="{DynamicResource InfoButtonSize}" />
+      <Setter Property="Height" Value="{DynamicResource InfoButtonSize}" />
+      <Setter Property="MinWidth" Value="{DynamicResource InfoButtonSize}" />
+      <Setter Property="MinHeight" Value="{DynamicResource InfoButtonSize}" />
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="Background" Value="#3B3B3B" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderBrush" Value="#A0A0A0" />
+      <Setter Property="FontSize" Value="{DynamicResource ButtonFontSize}" />
+      <Setter Property="Padding" Value="{DynamicResource ComboPadding}" />
+      <Setter Property="MinHeight" Value="{DynamicResource ComboHeight}" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ListBox">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="#333333" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="*,Auto">
+    <ScrollViewer Grid.Row="0"
+                  x:Name="workspaceScroll"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+    <Border Padding="{DynamicResource OuterPadding}"
+            Width="{Binding Bounds.Width, ElementName=workspaceScroll}"
+            Height="{Binding Bounds.Height, ElementName=workspaceScroll}"
+            MinWidth="{DynamicResource WorkspaceMinWidth}"
+            MinHeight="{DynamicResource WorkspaceMinHeight}">
+    <Grid ColumnSpacing="{DynamicResource WorkspaceSpacing}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{DynamicResource SystemColumnWidth}" />
+        <ColumnDefinition Width="*" MinWidth="{DynamicResource ContentColumnMinWidth}" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Border Grid.Column="0"
+              Background="{StaticResource CardBrush}"
+              CornerRadius="{DynamicResource CardCornerRadius}"
+              Padding="{DynamicResource SystemCardPadding}">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="{DynamicResource SystemRowSpacing}">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="header" Text="{Binding SystemTitle}" />
+            <Button Grid.Column="1"
+                    Classes="infoIcon"
+                    VerticalAlignment="Center"
+                    Click="ShowSystemInfo"
+                    ToolTip.Tip="{Binding SystemInfoText}">
+              <TextBlock Text="i"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         FontFamily="Times New Roman"
+                         FontStyle="Italic"
+                         FontWeight="Bold"
+                         FontSize="{DynamicResource StatusFontSize}"
+                         LineHeight="{DynamicResource StatusFontSize}" />
+            </Button>
+          </Grid>
+
+          <Grid Grid.Row="1"
+                ColumnDefinitions="Auto,*"
+                ColumnSpacing="{DynamicResource FormColumnSpacing}"
+                Height="{DynamicResource CompactRowHeight}">
+            <TextBlock Classes="label"
+                       Text="{Binding RenderTargetLabel}"
+                       VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1"
+                      Name="renderTarget"
+                      Height="{DynamicResource ComboHeight}"
+                      VerticalAlignment="Center"
+                      ItemsSource="{Binding RenderTargets}"
+                      SelectedItem="{Binding SelectedRenderTarget}"
+                      DropDownOpened="OpenRenderTargetSelector"
+                      MaxDropDownHeight="{DynamicResource RenderTargetDropDownHeight}" />
+          </Grid>
+
+          <Grid Grid.Row="2"
+                ClipToBounds="True"
+                Margin="{DynamicResource SpeakerLayoutMargin}">
+            <local:SpeakerLayoutView HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Stretch"
+                                     RenderTarget="{Binding SelectedRenderTarget}" />
+          </Grid>
+
+          <Button Grid.Row="3"
+                  Width="{DynamicResource SecondaryButtonWidth}"
+                  Height="{DynamicResource SecondaryButtonHeight}"
+                  HorizontalAlignment="Center"
+                  Content="{Binding DisplayWiringText}"
+                  Click="ShowWiring" />
+        </Grid>
+      </Border>
+
+      <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="0">
+        <Image Grid.Row="0"
+               Width="{DynamicResource LogoWidth}"
+               Height="{DynamicResource LogoHeight}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Cursor="Hand"
+               PointerPressed="OpenCavernWebsite"
+               ToolTip.Tip="https://cavern.sbence.hu"
+               Source="avares://CavernizeGUI/Assets/CavernLogo.png" />
+
+        <Border Grid.Row="1"
+                Background="{StaticResource CardBrush}"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                Padding="{DynamicResource ContentCardPadding}">
+          <Grid RowDefinitions="Auto,Auto,Auto,*,Auto"
+                RowSpacing="{DynamicResource ContentRowSpacing}"
+                DragDrop.AllowDrop="True"
+                DragDrop.Drop="DropFiles">
+            <TextBlock Classes="header" Text="{Binding ContentTitle}" />
+
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="{DynamicResource ContentColumnSpacing}">
+              <Button Click="OpenFile"
+                      IsEnabled="{Binding CanUseCommands}"
+                      Width="{DynamicResource OpenButtonWidth}"
+                      Height="{DynamicResource OpenButtonHeight}">
+                <Grid ColumnDefinitions="Auto,Auto"
+                      ColumnSpacing="{DynamicResource IconButtonSpacing}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                  <Image Width="{DynamicResource SmallIconSize}"
+                         Height="{DynamicResource SmallIconSize}"
+                         VerticalAlignment="Center"
+                         Source="avares://CavernizeGUI/Assets/Images/Folder.png" />
+                  <TextBlock Grid.Column="1"
+                             Classes="iconButtonText"
+                             Text="{Binding OpenText}"
+                             LineHeight="{DynamicResource SmallIconSize}" />
+                </Grid>
+              </Button>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding LoadedTitle}"
+                         VerticalAlignment="Center"
+                         TextTrimming="CharacterEllipsis"
+                         FontSize="{DynamicResource BodyFontSize}" />
+            </Grid>
+
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="Auto,*"
+                  RowDefinitions="Auto,Auto"
+                  ColumnSpacing="{DynamicResource FormColumnSpacing}"
+                  RowSpacing="{DynamicResource FormRowSpacing}">
+              <TextBlock Classes="label" Text="{Binding TrackLabel}" TextAlignment="Right" VerticalAlignment="Center" />
+              <ComboBox Grid.Column="1"
+                        Height="{DynamicResource ComboHeight}"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding Tracks}"
+                        SelectedItem="{Binding SelectedTrack}"
+                        PlaceholderText="{Binding NoTrackLoadedText}"
+                        MaxDropDownHeight="{DynamicResource DropDownHeight}" />
+
+              <TextBlock Grid.Row="1" Classes="label" Text="{Binding OutputLabel}" TextAlignment="Right" VerticalAlignment="Center" />
+              <ComboBox Grid.Row="1"
+                        Grid.Column="1"
+                        Height="{DynamicResource ComboHeight}"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding ExportFormats}"
+                        SelectedItem="{Binding SelectedExportFormat}"
+                        MaxDropDownHeight="{DynamicResource DropDownHeight}" />
+            </Grid>
+
+            <Grid Grid.Row="3"
+                  RowDefinitions="Auto,Auto,Auto,Auto"
+                  ColumnDefinitions="Auto,*"
+                  ColumnSpacing="{DynamicResource ContentColumnSpacing}"
+                  RowSpacing="{DynamicResource TrackDetailRowSpacing}">
+              <TextBlock Grid.ColumnSpan="2" Classes="trackTitle" Text="{Binding TrackFormatHeader}" TextWrapping="Wrap" />
+              <TextBlock Grid.Row="1" Classes="trackTitle" Text="{Binding TrackDetail1Title}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TrackDetail1Value}" TextTrimming="CharacterEllipsis" FontSize="{DynamicResource BodyFontSize}" />
+              <TextBlock Grid.Row="2" Classes="trackTitle" Text="{Binding TrackDetail2Title}" />
+              <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding TrackDetail2Value}" TextTrimming="CharacterEllipsis" FontSize="{DynamicResource BodyFontSize}" />
+              <TextBlock Grid.Row="3" Classes="trackTitle" Text="{Binding TrackDetail3Title}" />
+              <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TrackDetail3Value}" TextTrimming="CharacterEllipsis" FontSize="{DynamicResource BodyFontSize}" />
+            </Grid>
+
+            <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto">
+              <Button Click="AddToQueue"
+                      IsEnabled="{Binding CanAddToQueue}"
+                      Width="{DynamicResource ActionButtonWidth}"
+                      Height="{DynamicResource ActionButtonHeight}">
+                <Grid ColumnDefinitions="Auto,Auto"
+                      ColumnSpacing="{DynamicResource IconButtonSpacing}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                  <Image Width="{DynamicResource SmallIconSize}"
+                         Height="{DynamicResource SmallIconSize}"
+                         VerticalAlignment="Center"
+                         Source="avares://CavernizeGUI/Assets/Images/AddToQueue.png" />
+                  <TextBlock Grid.Column="1"
+                             Classes="iconButtonText"
+                             Text="{Binding AddToQueueText}"
+                             LineHeight="{DynamicResource SmallIconSize}" />
+                </Grid>
+              </Button>
+              <Button Grid.Column="2"
+                      Classes="primary"
+                      Click="RenderFile"
+                      IsEnabled="{Binding CanRender}"
+                      Width="{DynamicResource ActionButtonWidth}"
+                      Height="{DynamicResource PrimaryButtonHeight}">
+                <Grid ColumnDefinitions="Auto,Auto"
+                      ColumnSpacing="{DynamicResource ContentColumnSpacing}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                  <Image Width="{DynamicResource RenderIconSize}"
+                         Height="{DynamicResource RenderIconSize}"
+                         VerticalAlignment="Center"
+                         Source="avares://CavernizeGUI/Assets/Images/Render.png" />
+                  <TextBlock Grid.Column="1"
+                             Classes="iconButtonText"
+                             Text="{Binding RenderText}"
+                             LineHeight="{DynamicResource RenderIconSize}" />
+                </Grid>
+              </Button>
+            </Grid>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <Border Grid.Column="2"
+              Width="{DynamicResource QueueColumnWidth}"
+              Background="{StaticResource CardBrush}"
+              CornerRadius="{DynamicResource CardCornerRadius}"
+              Padding="{DynamicResource ContentCardPadding}"
+              IsVisible="{Binding HasQueueJobs}">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{DynamicResource SystemRowSpacing}">
+          <TextBlock Classes="header" Text="{Binding QueueTitle}" />
+
+          <ListBox Grid.Row="1"
+                   ItemsSource="{Binding QueueJobs}"
+                   SelectedItem="{Binding SelectedQueueJob}"
+                   DragDrop.AllowDrop="True"
+                   DragDrop.Drop="DropFiles">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="local:QueuedRenderJob">
+                <Border Padding="{DynamicResource QueueItemPadding}">
+                  <StackPanel Spacing="{DynamicResource QueueItemSpacing}">
+                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding OutputName}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding SettingsSummary}" Foreground="{StaticResource MutedBrush}" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="{DynamicResource FormColumnSpacing}">
+                      <ProgressBar Minimum="0" Maximum="1" Value="{Binding Progress}" Height="{DynamicResource QueueProgressHeight}" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="{Binding Status}" />
+                    </Grid>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="{DynamicResource ContentColumnSpacing}">
+            <Button Click="RemoveQueued"
+                    IsEnabled="{Binding CanRemoveQueueJob}"
+                    MinWidth="{DynamicResource QueueButtonMinWidth}"
+                    HorizontalAlignment="Stretch">
+              <TextBlock Text="{Binding RemoveSelectedText}" />
+            </Button>
+            <Button Grid.Column="1"
+                    Classes="primary"
+                    Click="RunQueue"
+                    IsEnabled="{Binding CanRunQueue}"
+                    MinWidth="{DynamicResource QueueRunButtonMinWidth}"
+                    Height="{DynamicResource OpenButtonHeight}">
+              <TextBlock Text="{Binding ProcessText}" FontSize="{DynamicResource LabelFontSize}" />
+            </Button>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+    </Border>
+    </ScrollViewer>
+
+    <Border Grid.Row="1" Background="#333333" Padding="{DynamicResource StatusPadding}">
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{DynamicResource ContentColumnSpacing}">
+        <ProgressBar Width="{DynamicResource StatusProgressWidth}"
+                     Height="{DynamicResource StatusProgressHeight}"
+                     Minimum="0"
+                     Maximum="1"
+                     Value="{Binding Progress}"
+                     Foreground="#00B82E"
+                     Background="#E6E6E6"
+                     IsIndeterminate="{Binding IsProgressIndeterminate}"
+                     VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1"
+                   Text="{Binding Status}"
+                   Foreground="#FFFFFF"
+                   FontSize="{DynamicResource StatusFontSize}"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap" />
+      </Grid>
+    </Border>
+
+  </Grid>
+</Window>
