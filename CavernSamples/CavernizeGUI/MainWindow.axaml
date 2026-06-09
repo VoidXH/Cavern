@@ -109,7 +109,7 @@
       <Menu x:Name="WindowsMenuBar"
             Background="#333333"
             Foreground="#FFFFFF"
-            FontSize="{DynamicResource MenuFontSize}">
+            FontSize="{DynamicResource BodyFontSize}">
         <MenuItem x:Name="WindowsRenderingMenu">
           <MenuItem.Header>
             <StackPanel Orientation="Horizontal"
@@ -279,7 +279,7 @@
                          Text="{Binding LoadedTitle}"
                          VerticalAlignment="Center"
                          TextTrimming="CharacterEllipsis"
-                         FontSize="{DynamicResource BodyFontSize}" />
+                         FontSize="{DynamicResource LabelFontSize}" />
             </Grid>
 
             <Grid Grid.Row="2"
@@ -431,7 +431,7 @@
         <TextBlock Grid.Column="1"
                    Text="{Binding Status}"
                    Foreground="#FFFFFF"
-                   FontSize="{DynamicResource StatusFontSize}"
+                   FontSize="{DynamicResource LabelFontSize}"
                    VerticalAlignment="Center"
                    TextWrapping="Wrap" />
       </Grid>

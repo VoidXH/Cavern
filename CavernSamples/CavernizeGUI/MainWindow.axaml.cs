@@ -687,12 +687,11 @@ public partial class MainWindow : Window {
         double scale = ViewModel?.ViewScale ?? 1;
 
         Resources["HeaderFontSize"] = Scaled(26, scale);
-        Resources["LabelFontSize"] = Scaled(18, scale);
+        Resources["LabelFontSize"] = Scaled(16, scale);
         Resources["BodyFontSize"] = Scaled(16, scale);
         Resources["ButtonFontSize"] = Scaled(16, scale);
         Resources["PrimaryButtonFontSize"] = Scaled(26, scale);
         Resources["StatusFontSize"] = Scaled(22, scale);
-        Resources["MenuFontSize"] = Scaled(18, scale);
 
         Resources["SystemColumnWidth"] = new GridLength(Scaled(360, scale));
         Resources["QueueColumnWidth"] = Scaled(365, scale);
