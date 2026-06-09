@@ -1,6 +1,6 @@
 ﻿using Cavern.Utilities;
 
-namespace Cavernize.Logic.External;
+namespace CavernizeAvalonia;
 
 /// <summary>
 /// Licence prompt implementation for non-interactive contexts.

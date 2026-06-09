@@ -16,9 +16,10 @@ using Cavernize.Logic.External;
 using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using Cavernize.Logic.Rendering;
 using VoidX.WPF.FFmpeg;
 
-namespace Cavernize.Logic.Rendering;
+namespace CavernizeAvalonia;
 
 /// <summary>
 /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.

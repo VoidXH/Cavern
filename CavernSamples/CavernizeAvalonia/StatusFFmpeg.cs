@@ -1,6 +1,6 @@
 ﻿using VoidX.WPF.FFmpeg;
 
-namespace Cavernize.Logic.Rendering;
+namespace CavernizeAvalonia;
 
 /// <summary>
 /// FFmpeg locator/runner that reports status through a callback.

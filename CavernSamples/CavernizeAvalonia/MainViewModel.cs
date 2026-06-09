@@ -9,7 +9,6 @@ using Cavern.Format.Common;
 using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
-using Cavernize.Logic.Rendering;
 
 namespace CavernizeAvalonia;
 
