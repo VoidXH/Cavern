@@ -1,69 +1,67 @@
-﻿using System.Windows;
-
 using Cavernize.Logic.Language;
 
 namespace CavernizeGUI.Language;
 
 /// <summary>
-/// Reads the <see cref="RenderReportStrings"/> from Cavernize GUI's localized resources.
+/// Reads the <see cref="RenderReportStrings"/> from Cavernize Avalonia's localized resources.
 /// </summary>
-/// <param name="source">Localized resources for <see cref="RenderReportStrings"/></param>
-public class DynamicRenderReportStrings(ResourceDictionary source) : RenderReportStrings {
+/// <param name="source">Localized resources for <see cref="RenderReportStrings"/>.</param>
+public sealed class DynamicRenderReportStrings(IReadOnlyDictionary<string, string> source) : RenderReportStrings {
     /// <inheritdoc/>
-    public override string Default => (string)source["Defau"];
+    public override string Default => source["Defau"];
 
     /// <inheritdoc/>
-    public override string ActualBeds => (string)source["ABeds"];
+    public override string ActualBeds => source["ABeds"];
 
     /// <inheritdoc/>
-    public override string ActualObjects => (string)source["AObjs"];
+    public override string ActualObjects => source["AObjs"];
 
     /// <inheritdoc/>
-    public override string FakeTargets => (string)source["FakeT"];
+    public override string FakeTargets => source["FakeT"];
 
     /// <inheritdoc/>
-    public override string PeakGain => (string)source["PeaGa"];
+    public override string PeakGain => source["PeaGa"];
 
     /// <inheritdoc/>
-    public override string RMSGain => (string)source["RMSGa"];
+    public override string RMSGain => source["RMSGa"];
 
     /// <inheritdoc/>
-    public override string Macrodynamics => (string)source["MacDy"];
+    public override string Macrodynamics => source["MacDy"];
 
     /// <inheritdoc/>
-    public override string Microdynamics => (string)source["MicDy"];
+    public override string Microdynamics => source["MicDy"];
 
     /// <inheritdoc/>
-    public override string NoLFE => (string)source["NoLFE"];
+    public override string NoLFE => source["NoLFE"];
 
     /// <inheritdoc/>
-    public override string LFEPeak => (string)source["PeaLF"];
+    public override string LFEPeak => source["PeaLF"];
 
     /// <inheritdoc/>
-    public override string LFERMS => (string)source["RMSLF"];
+    public override string LFERMS => source["RMSLF"];
 
     /// <inheritdoc/>
-    public override string LFEMacrodynamics => (string)source["MacLF"];
+    public override string LFEMacrodynamics => source["MacLF"];
 
     /// <inheritdoc/>
-    public override string LFEMicrodynamics => (string)source["MicLF"];
+    public override string LFEMicrodynamics => source["MicLF"];
 
     /// <inheritdoc/>
-    public override string ChestSlam => (string)source["CheSl"];
+    public override string ChestSlam => source["CheSl"];
 
     /// <inheritdoc/>
-    public override string SurroundUsage => (string)source["SurUs"];
+    public override string SurroundUsage => source["SurUs"];
 
     /// <inheritdoc/>
-    public override string HeightUsage => (string)source["HeiUs"];
+    public override string HeightUsage => source["HeiUs"];
 
     /// <inheritdoc/>
     protected override string[] GetGrades() => [
-        (string)source["Grad0"],
-        (string)source["Grad1"],
-        (string)source["Grad2"],
-        (string)source["Grad3"],
-        (string)source["Grad4"],
-        (string)source["Grad5"]
+        source["Grad0"],
+        source["Grad1"],
+        source["Grad2"],
+        source["Grad3"],
+        source["Grad4"],
+        source["Grad5"]
     ];
 }
