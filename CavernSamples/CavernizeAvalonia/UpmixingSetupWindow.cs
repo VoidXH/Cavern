@@ -7,11 +7,9 @@ namespace CavernizeAvalonia;
 
 sealed class UpmixingSetupWindow : Window {
     readonly CheckBox matrixUpmix = new() {
-        Content = "Fill 7.1",
         Foreground = Brushes.White
     };
     readonly CheckBox cavernize = new() {
-        Content = "Upconvert non-spatial content",
         Foreground = Brushes.White
     };
     readonly Slider effect = new() {
@@ -26,7 +24,7 @@ sealed class UpmixingSetupWindow : Window {
     public bool Accepted { get; private set; }
 
     public UpmixingSetupWindow(MainViewModel viewModel) {
-        Title = "Upmixing Setup";
+        Title = viewModel.Text("UpmTi", "Upmixing Setup");
         Width = 380;
         Height = 235;
         MinWidth = 380;
@@ -35,6 +33,8 @@ sealed class UpmixingSetupWindow : Window {
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = new SolidColorBrush(Color.Parse("#696969"));
 
+        matrixUpmix.Content = viewModel.Text("Upm71", "Fill 7.1");
+        cavernize.Content = viewModel.Text("UpmNs", "Upconvert non-spatial content");
         matrixUpmix.IsChecked = viewModel.MatrixUpmixing;
         cavernize.IsChecked = viewModel.CavernizeUpmixing;
         effect.Value = viewModel.UpmixingEffect * 100;
@@ -46,7 +46,7 @@ sealed class UpmixingSetupWindow : Window {
             ColumnDefinitions = new ColumnDefinitions("160,*"),
             Children = {
                 new TextBlock {
-                    Text = "Upmixing effect:",
+                    Text = viewModel.Text("UpmEf", "Upmixing effect:"),
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White
                 },
@@ -59,7 +59,7 @@ sealed class UpmixingSetupWindow : Window {
             ColumnDefinitions = new ColumnDefinitions("160,*"),
             Children = {
                 new TextBlock {
-                    Text = "Upmixing smoothness:",
+                    Text = viewModel.Text("UpmSm", "Upmixing smoothness:"),
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White
                 },
@@ -69,7 +69,7 @@ sealed class UpmixingSetupWindow : Window {
         Grid.SetColumn(smoothness, 1);
 
         Button reset = new() {
-            Content = "Reset",
+            Content = viewModel.Text("Reset", "Reset"),
             Width = 82
         };
         Button ok = new() {
@@ -77,7 +77,7 @@ sealed class UpmixingSetupWindow : Window {
             Width = 82
         };
         Button cancel = new() {
-            Content = "Cancel",
+            Content = viewModel.Text("Cancel", "Cancel"),
             Width = 82
         };
         reset.Click += (_, _) => Reset();

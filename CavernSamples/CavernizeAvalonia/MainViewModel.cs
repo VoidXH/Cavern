@@ -1,20 +1,15 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 using Avalonia.Threading;
 using Cavern.Channels;
 using Cavern.Format.Common;
-using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 
 namespace CavernizeAvalonia;
 
-public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
-    public event PropertyChangedEventHandler PropertyChanged;
-
+public sealed class MainViewModel : ObservableObject, IDisposable {
     public ExportFormat[] ExportFormats { get; }
 
     public RenderTarget[] RenderTargets { get; }
@@ -277,6 +272,56 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
 
     public string LastFilterDirectory => settings.LastFilterDirectory;
 
+    public string LanguageCode => language.Code;
+
+    public string SystemTitle => Text("SySet", "System");
+
+    public string SystemInfoText => Text("RSInf", "Choose a layout, and place your speakers accordingly. Click the " +
+        "\"Display wiring\" button to see which output will change to which actual channel.\n\nFor maximum audio quality, " +
+        "calibrate your system with QuickEQ.");
+
+    public string RenderTargetLabel => Text("RndTg", "Render target:");
+
+    public string DisplayWiringText => Text("DisWi", "Display wiring");
+
+    public string ContentTitle => Text("CoPro", "Content");
+
+    public string OpenText => Text("OpCnt", "Open");
+
+    public string TrackLabel => Text("OpTrk", "Track:");
+
+    public string OutputLabel => Text("OpOut", "Output:");
+
+    public string AddToQueueText => Text("QuAdd", "Add to queue");
+
+    public string RenderText => Text("OpRnd", "Render");
+
+    public string QueueTitle => Text("Queue", "Queue");
+
+    public string RemoveSelectedText => Text("QuRem", "Remove selected");
+
+    public string ProcessText => Text("QuSta", "Process");
+
+    public string NoTrackLoadedText => Text("NoTrk", "No track loaded");
+
+    public string OpenSourcePickerTitle => Text("OpSrc", "Open source");
+
+    public string SaveRenderPickerTitle => Text("SavRn", "Save render");
+
+    public string AudioVideoFileType => Text("AudVi", "Audio and video");
+
+    public string SelectedFormatFileType => Text("SelFo", "Selected format");
+
+    public string LoadHrirTitle => Text("LoadH", "Load HRIR");
+
+    public string LoadFiltersTitle => Text("LoadF", "Load room correction filters");
+
+    public string ImpulseResponseFileType => FileTypeName("FiltI", "Impulse response packages");
+
+    public string RoomCorrectionFileType => FileTypeName("FiltF", "Cavern QuickEQ Convolution EQs");
+
+    public string NoWarningsText => Text("NoWar", "No warnings.");
+
     public bool HasHrir {
         get => hasHrir;
         private set {
@@ -292,7 +337,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
 
     public string RoomCorrectionStatus => HasRoomCorrection ? $"Filters: {Path.GetFileName(roomCorrectionPath)}" : "Filters: none";
 
-    public string Footer => session.FFmpeg.Found ? "FFmpeg ready." : "FFmpeg not found; FFmpeg-only codecs are unavailable.";
+    public string Footer => session.FFmpeg.Found ? Text("FFRea", "Ready!") : Text("FFNRe",
+        "FFmpeg isn't found, codec limitations are applied.");
 
     public bool IsFfmpegMissing => !session.FFmpeg.Found;
 
@@ -316,13 +362,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
     }
 
     readonly AppSettings settings = AppSettings.Load();
-    readonly CavernizeSession session = new();
+    readonly AvaloniaLanguage language;
+    readonly CavernizeSession session;
     CancellationTokenSource cancellation;
     QueuedRenderJob activeJob;
     QueuedRenderJob selectedQueueJob;
     string roomCorrectionPath;
     string loadedPath;
-    string loadedTitle = "No source loaded";
+    string loadedTitle;
     CavernizeTrack selectedTrack;
     ExportFormat selectedExportFormat;
     RenderTarget selectedRenderTarget;
@@ -330,9 +377,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
     bool isProgressIndeterminate;
     bool isBusy;
     bool hasHrir;
-    string status = "Open a source file.";
-    string warning = "No warnings.";
-    string reportText = "No report yet.";
+    string status;
+    string warning;
+    string reportText;
     string trackFormatHeader;
     string trackDetail1Title;
     string trackDetail1Value;
@@ -343,7 +390,16 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
     string activeChannels;
 
     public MainViewModel() {
-        ExportFormats = ExportFormat.GetFormats(new());
+        language = AvaloniaLanguage.Create(settings.LanguageCode);
+        settings.LanguageCode = language.Code;
+        session = new(trackStrings: language.TrackStrings, reportStrings: language.RenderReportStrings,
+            externalConverterStrings: language.ExternalConverterStrings);
+        loadedTitle = Text("NoSrc", "No source loaded");
+        status = Text("OpSrcS", "Open a source file.");
+        warning = NoWarningsText;
+        reportText = session.Report.Report;
+
+        ExportFormats = ExportFormat.GetFormats(language.TrackStrings);
         RenderTargets = RenderTarget.Targets.Where(target => target is not DriverRenderTarget).ToArray();
         selectedExportFormat = ExportFormats.FirstOrDefault(format => format.Codec.ToString() == settings.ExportCodec) ??
             ExportFormats.First(format => format.Codec == Codec.PCM_LE);
@@ -405,7 +461,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
             settings.LastDirectory = Path.GetDirectoryName(path);
             SelectedTrack = session.SelectedTrack;
             Status = $"Opened {LoadedTitle}.";
-            Warning = "No warnings.";
+            Warning = NoWarningsText;
             Progress = 0;
             IsProgressIndeterminate = false;
             ReportText = session.Report.Report;
@@ -426,7 +482,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         }
 
         IsBusy = true;
-        Warning = "No warnings.";
+        Warning = NoWarningsText;
         Status = "Rendering...";
         cancellation = new CancellationTokenSource();
         bool outputExisted = !string.IsNullOrWhiteSpace(path) && File.Exists(path);
@@ -435,7 +491,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
             ReportText = session.Report.Report;
         } catch (OperationCanceledException) {
             Status = "Render canceled.";
-            Warning = "No warnings.";
+            Warning = NoWarningsText;
             if (!outputExisted && !string.IsNullOrWhiteSpace(path)) {
                 File.Delete(path);
             }
@@ -504,7 +560,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
             settings.LastDirectory = Path.GetDirectoryName(path);
             HasHrir = true;
             Status = $"Loaded HRIR {Path.GetFileName(path)}.";
-            Warning = "No warnings.";
+            Warning = NoWarningsText;
             SaveSettings();
             OnPropertyChanged(nameof(LastDirectory));
         } catch (Exception ex) {
@@ -524,7 +580,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         settings.HrirPath = null;
         HasHrir = false;
         Status = "Restored built-in HRIR.";
-        Warning = "No warnings.";
+        Warning = NoWarningsText;
         SaveSettings();
     }
 
@@ -534,12 +590,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         }
 
         try {
-            session.LoadRoomCorrection(path, new ConversionStrings());
+            session.LoadRoomCorrection(path, language.ConversionStrings);
             roomCorrectionPath = path;
             settings.RoomCorrectionPath = path;
             settings.LastFilterDirectory = Path.GetDirectoryName(path);
             Status = $"Loaded filters {Path.GetFileName(path)}.";
-            Warning = "No warnings.";
+            Warning = NoWarningsText;
             SaveSettings();
             OnPropertyChanged(nameof(HasRoomCorrection));
             OnPropertyChanged(nameof(RoomCorrectionStatus));
@@ -565,7 +621,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         roomCorrectionPath = null;
         settings.RoomCorrectionPath = null;
         Status = "Cleared room correction filters.";
-        Warning = "No warnings.";
+        Warning = NoWarningsText;
         SaveSettings();
         OnPropertyChanged(nameof(HasRoomCorrection));
         OnPropertyChanged(nameof(RoomCorrectionStatus));
@@ -581,6 +637,31 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         SaveSettings();
         OnPropertyChanged(nameof(Footer));
         OnPropertyChanged(nameof(IsFfmpegMissing));
+    }
+
+    public string Text(string key, string fallback) => language.Text(key, fallback);
+
+    public string MenuText(string key, string fallback) => language.MenuText(key, fallback);
+
+    public string FileTypeName(string key, string fallback) => language.FileTypeName(key, fallback);
+
+    public bool SetLanguage(string code) {
+        if (code != "en-US" && code != "hu-HU") {
+            return false;
+        }
+        if (IsBusy) {
+            Status = Text("OpRun", "An operation is already running, please wait for it to finish.");
+            return false;
+        }
+        if (LanguageCode == code) {
+            return false;
+        }
+
+        settings.LanguageCode = code;
+        settings.Save();
+        OnPropertyChanged(nameof(LanguageCode));
+        Status = Text("OpRes", "The changes will take effect after restarting Cavernize.");
+        return true;
     }
 
     public void ApplyUpmixingSettings(bool matrixUpmixing, bool cavernizeUpmixing, float effect, float smoothness) {
@@ -601,15 +682,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         }
 
         IsBusy = true;
-        Warning = "No warnings.";
+        Warning = NoWarningsText;
         Status = "Rendering queue...";
         cancellation = new CancellationTokenSource();
-        bool deleteActiveJobOutput = false;
         try {
             foreach (QueuedRenderJob job in QueueJobs.ToArray()) {
                 cancellation.Token.ThrowIfCancellationRequested();
                 activeJob = job;
-                deleteActiveJobOutput = false;
                 job.Status = "Opening";
                 job.Progress = 0;
                 await Task.Run(() => session.OpenContent(job.SourcePath), cancellation.Token);
@@ -631,9 +710,15 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
                     string.Equals(other.OutputPath, job.OutputPath, StringComparison.OrdinalIgnoreCase))) {
                     job.OutputPath = CreateOutputPath(job.SourcePath);
                 }
-                deleteActiveJobOutput = !File.Exists(job.OutputPath);
-                await session.RenderAsync(job.OutputPath, cancellation.Token);
-                deleteActiveJobOutput = false;
+                bool outputExisted = File.Exists(job.OutputPath);
+                try {
+                    await session.RenderAsync(job.OutputPath, cancellation.Token);
+                } catch {
+                    if (!outputExisted && File.Exists(job.OutputPath)) {
+                        File.Delete(job.OutputPath);
+                    }
+                    throw;
+                }
                 job.Progress = 1;
                 job.Status = "Done";
                 ReportText = session.Report.Report;
@@ -644,18 +729,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         } catch (OperationCanceledException) {
             if (activeJob != null) {
                 activeJob.Status = "Canceled";
-                if (deleteActiveJobOutput) {
-                    File.Delete(activeJob.OutputPath);
-                }
             }
             Status = "Queue canceled.";
-            Warning = "No warnings.";
+            Warning = NoWarningsText;
         } catch (Exception ex) {
             if (activeJob != null) {
                 activeJob.Status = "Failed";
-                if (deleteActiveJobOutput) {
-                    File.Delete(activeJob.OutputPath);
-                }
             }
             Status = "Queue failed.";
             Warning = ex.Message;
@@ -716,7 +795,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         return result.ToString();
     }
 
-    public string GetPostRenderReportText() => string.IsNullOrWhiteSpace(ReportText) ? "No report yet." : ReportText;
+    public string GetPostRenderReportText() => string.IsNullOrWhiteSpace(ReportText) ? session.Report.Report : ReportText;
 
     public void Dispose() {
         cancellation?.Cancel();
@@ -738,8 +817,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
             name = Path.GetFileNameWithoutExtension(sourcePath),
             extension = SuggestedOutputExtension;
         string candidate = Path.Combine(folder, $"{name}.cavernize.{extension}");
-        for (int index = 2; File.Exists(candidate) || queuedOutputPaths.Contains(candidate); index++) {
+        int index = 2;
+        while (File.Exists(candidate) || queuedOutputPaths.Contains(candidate)) {
             candidate = Path.Combine(folder, $"{name}.cavernize-{index}.{extension}");
+            index++;
         }
         return candidate;
     }
@@ -801,7 +882,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
         }
 
         try {
-            session.LoadRoomCorrection(settings.RoomCorrectionPath, new ConversionStrings());
+            session.LoadRoomCorrection(settings.RoomCorrectionPath, language.ConversionStrings);
             roomCorrectionPath = settings.RoomCorrectionPath;
         } catch (Exception ex) {
             settings.RoomCorrectionPath = null;
@@ -831,16 +912,4 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable {
             SelectedRenderTarget.IsExported(index) ? channel.ToString() : $"{channel} (mixed)"));
     }
 
-    void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-    bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null) {
-        if (EqualityComparer<T>.Default.Equals(field, value)) {
-            return false;
-        }
-
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
 }

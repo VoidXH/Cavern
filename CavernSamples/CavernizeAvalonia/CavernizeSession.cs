@@ -104,8 +104,24 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
-    public CavernizeSession(FFmpeg ffmpeg = null, TrackStrings trackStrings = null, RenderReportStrings reportStrings = null,
-        ExternalConverterStrings externalConverterStrings = null) {
+    public CavernizeSession() : this(null, null, null, null) { }
+
+    /// <summary>
+    /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
+    /// </summary>
+    public CavernizeSession(TrackStrings trackStrings, RenderReportStrings reportStrings,
+        ExternalConverterStrings externalConverterStrings) : this(null, trackStrings, reportStrings, externalConverterStrings) { }
+
+    /// <summary>
+    /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
+    /// </summary>
+    public CavernizeSession(FFmpeg ffmpeg) : this(ffmpeg, null, null, null) { }
+
+    /// <summary>
+    /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
+    /// </summary>
+    public CavernizeSession(FFmpeg ffmpeg, TrackStrings trackStrings, RenderReportStrings reportStrings,
+        ExternalConverterStrings externalConverterStrings) {
         this.trackStrings = trackStrings ?? new TrackStrings();
         this.reportStrings = reportStrings ?? new RenderReportStrings();
         this.externalConverterStrings = externalConverterStrings ?? new ExternalConverterStrings();
@@ -172,7 +188,12 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
     /// <summary>
     /// Start rendering on a background thread.
     /// </summary>
-    public Task RenderAsync(string path, CancellationToken cancellationToken = default) => Task.Run(() => {
+    public Task RenderAsync(string path) => RenderAsync(path, CancellationToken.None);
+
+    /// <summary>
+    /// Start rendering on a background thread.
+    /// </summary>
+    public Task RenderAsync(string path, CancellationToken cancellationToken) => Task.Run(() => {
         this.cancellationToken = cancellationToken;
         try {
             RenderContent(path);
@@ -247,8 +268,6 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
     void AttachToListener() {
         try {
             environment.AttachToListener(SelectedTrack);
-        } catch (NonGroundChannelPresentException) {
-            throw;
         } catch (SampleRateMismatchException) {
             throw new IncompatibleSettingsException("The selected filters and render settings have incompatible sample rates.");
         }
@@ -268,38 +287,42 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
 
         SetBlockSize(RenderTarget);
         string exportFormat = Path.GetExtension(path).ToLowerInvariant();
-        bool mkvTarget = exportFormat.Equals(".mkv", StringComparison.OrdinalIgnoreCase);
-        string exportName = mkvTarget || exportFormat.IsNative() ? Path.ChangeExtension(path, waveExtension) : path;
-        int channelCount = RenderTarget.OutputChannels;
-        AudioWriter writer;
-        if (mkvTarget && target.Container == Container.Matroska && (codec == Codec.PCM_LE || codec == Codec.PCM_Float)) {
-            writer = new AudioWriterIntoContainer(path, target.GetVideoTracks(), codec, blockSize, channelCount, target.Length,
-                target.SampleRate, bits) {
-                NewTrackName = $"Cavern {RenderTarget.Name} render"
-            };
-        } else if (exportFormat.Equals(waveExtension, StringComparison.OrdinalIgnoreCase) && !WavChannelSkip) {
-            writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount], target.Length,
-                environment.Listener.SampleRate, bits);
-        } else {
-            writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
-        }
-        if (writer == null) {
+        AudioWriter writer = CreateChannelWriter(target, path, exportFormat, codec, bits) ??
             throw new UnsupportedContainerForWriteException(exportFormat);
-        }
 
         writer.WriteHeader();
         return () => RenderTask(target, writer, path);
     }
 
+    AudioWriter CreateChannelWriter(CavernizeTrack target, string outputPath, string extension, Codec codec, BitDepth bits) {
+        bool writeIntoSourceContainer = extension.Equals(".mkv", StringComparison.OrdinalIgnoreCase) &&
+            target.Container == Container.Matroska &&
+            (codec == Codec.PCM_LE || codec == Codec.PCM_Float);
+        if (writeIntoSourceContainer) {
+            return new AudioWriterIntoContainer(outputPath, target.GetVideoTracks(), codec, blockSize,
+                RenderTarget.OutputChannels, target.Length, target.SampleRate, bits) {
+                NewTrackName = $"Cavern {RenderTarget.Name} render"
+            };
+        }
+
+        int channels = RenderTarget.OutputChannels;
+        string audioPath = extension.Equals(".mkv", StringComparison.OrdinalIgnoreCase) || extension.IsNative() ?
+            Path.ChangeExtension(outputPath, waveExtension) :
+            outputPath;
+        return extension.Equals(waveExtension, StringComparison.OrdinalIgnoreCase) && !WavChannelSkip ?
+            new RIFFWaveWriter(audioPath, RenderTarget.Channels[..channels], target.Length, environment.Listener.SampleRate, bits) :
+            AudioWriter.Create(audioPath, channels, target.Length, environment.Listener.SampleRate, bits);
+    }
+
     void SetBlockSize(RenderTarget target) {
         int updateRate = environment.Listener.UpdateRate;
-        blockSize = RenderingSettings.RoomCorrectionUsable ? RenderingSettings.RoomCorrection.Samples : defaultWriteCacheLength;
-        if (blockSize < updateRate) {
-            blockSize = updateRate;
-        } else if (blockSize % updateRate != 0) {
-            blockSize += updateRate - blockSize % updateRate;
+        int samples = RenderingSettings.RoomCorrectionUsable ? RenderingSettings.RoomCorrection.Samples : defaultWriteCacheLength;
+        int alignedSamples = Math.Max(samples, updateRate);
+        int extraSamples = alignedSamples % updateRate;
+        if (extraSamples != 0) {
+            alignedSamples += updateRate - extraSamples;
         }
-        blockSize *= target.OutputChannels;
+        blockSize = alignedSamples * target.OutputChannels;
     }
 
     ExternalConverterHandler CreateExternalHandler(CavernizeTrack target, int keepFirstSources) {
@@ -312,56 +335,67 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
     }
 
     void RenderTask(CavernizeTrack target, AudioWriter writer, string finalName) {
-        ExternalConverterHandler external = CreateExternalHandler(target, 0);
-        if (external.Failed) {
-            return;
-        }
-
-        ThrowIfCancellationRequested();
-        UpdateProgress(0);
-        UpdateStatus("Rendering...");
-        RenderTarget renderTargetRef = RenderTarget;
-        RenderStats stats = WriteRender(target, writer, renderTargetRef);
-        Report.Generate(stats);
-
-        string targetCodec = ExportFormat.FFName;
-        if (writer is RIFFWaveWriter && finalName != null && Path.GetExtension(finalName) != waveExtension) {
-            UpdateStatus("Merging to final container...");
-            string exportedAudio = Path.ChangeExtension(finalName, waveExtension);
-            MergeToContainer merger = new(LoadedFile.Path, exportedAudio, targetCodec);
-            merger.AddArguments(RenderingSettings.MergeArguments);
-            merger.SetTrackName($"Cavern {renderTargetRef.Name} render");
-            if (writer.ChannelCount > 8) {
-                merger.Allow8PlusChannels();
+        using (ExternalConverterHandler external = CreateExternalHandler(target, 0)) {
+            if (external.Failed) {
+                return;
             }
-            merger.MakeSafe(finalName);
-            if (!merger.Merge(FFmpeg, finalName)) {
-                UpdateStatus("Failed to create the final file. Are your permissions sufficient in the export folder?");
-                external.Dispose();
+
+            ThrowIfCancellationRequested();
+            UpdateProgress(0);
+            UpdateStatus("Rendering...");
+            RenderTarget renderTargetRef = RenderTarget;
+            RenderStats stats = WriteRender(target, writer, renderTargetRef);
+            Report.Generate(stats);
+
+            if (NeedsFinalContainerMerge(writer, finalName) && !MergeRenderedWave(finalName, writer.ChannelCount, renderTargetRef)) {
                 return;
             }
         }
-
-        external.Dispose();
         FinishTask(target);
+    }
+
+    bool NeedsFinalContainerMerge(AudioWriter writer, string finalName) =>
+        writer is RIFFWaveWriter &&
+        finalName != null &&
+        !Path.GetExtension(finalName).Equals(waveExtension, StringComparison.OrdinalIgnoreCase);
+
+    bool MergeRenderedWave(string finalName, int channelCount, RenderTarget renderTarget) {
+        UpdateStatus("Merging to final container...");
+        MergeToContainer merger = CreateContainerMerger(finalName, channelCount, renderTarget);
+        bool merged = merger.Merge(FFmpeg, finalName);
+        if (!merged) {
+            UpdateStatus("Failed to create the final file. Are your permissions sufficient in the export folder?");
+        }
+        return merged;
+    }
+
+    MergeToContainer CreateContainerMerger(string finalName, int channelCount, RenderTarget renderTarget) {
+        MergeToContainer merger = new(LoadedFile.Path, Path.ChangeExtension(finalName, waveExtension), ExportFormat.FFName);
+        merger.AddArguments(RenderingSettings.MergeArguments);
+        merger.SetTrackName($"Cavern {renderTarget.Name} render");
+        if (channelCount > 8) {
+            merger.Allow8PlusChannels();
+        }
+        merger.MakeSafe(finalName);
+        return merger;
     }
 
     void TranscodeTask(CavernizeTrack target, EnvironmentWriter writer) {
         if (writer is DolbyAtmosBWFWriter bwfWriter) {
             bwfWriter.ExtendWithMuteTarget();
         }
-        ExternalConverterHandler external = CreateExternalHandler(target, writer is DolbyAtmosBWFWriter ? 10 : 0);
-        if (external.Failed) {
-            return;
+        using (ExternalConverterHandler external = CreateExternalHandler(target, writer is DolbyAtmosBWFWriter ? 10 : 0)) {
+            if (external.Failed) {
+                return;
+            }
+
+            ThrowIfCancellationRequested();
+            UpdateProgress(0);
+            UpdateStatus("Rendering...");
+
+            RenderStats stats = writer is BroadcastWaveFormatWriter bwf ? WriteTranscode(target, bwf) : WriteTranscode(target, writer);
+            Report.Generate(stats);
         }
-
-        ThrowIfCancellationRequested();
-        UpdateProgress(0);
-        UpdateStatus("Rendering...");
-
-        RenderStats stats = writer is BroadcastWaveFormatWriter bwf ? WriteTranscode(target, bwf) : WriteTranscode(target, writer);
-        Report.Generate(stats);
-        external.Dispose();
         FinishTask(target);
     }
 
@@ -379,84 +413,41 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
         Progressor progressor = new(target.Length, environment.Listener, UpdateProgress, UpdateStatus);
         bool customMuting = RenderingSettings.MuteBed || RenderingSettings.MuteGround;
 
-        MultichannelConvolver filters = null;
-        if (RenderingSettings.RoomCorrectionUsable) {
-            filters = new MultichannelConvolver(RenderingSettings.RoomCorrection.Data);
-        }
-
-        VirtualizerFilter virtualizer = null;
-        Normalizer normalizer = null;
-        bool virtualizerState = Listener.HeadphoneVirtualizer;
-        if (virtualizerState || RenderingSettings.SpeakerVirtualizer) {
-            Listener.HeadphoneVirtualizer = false;
-            virtualizer = new VirtualizerFilter();
-            virtualizer.SetLayout();
-            normalizer = new Normalizer(true) {
-                decayFactor = 10 * (float)environment.Listener.UpdateRate / environment.Listener.SampleRate
-            };
-        }
-
-        int cachePosition = 0;
-        bool flush = false;
-        float[] writeCache = new float[blockSize / renderTarget.OutputChannels * Listener.Channels.Length];
-
+        RenderBuffer buffer = new(blockSize, renderTarget.OutputChannels);
+        using RenderOutputProcessor output = new(RenderingSettings, environment.Listener);
         try {
             while (progressor.Rendered < target.Length) {
                 ThrowIfCancellationRequested();
-                float[] result = environment.Listener.Render();
-
-                if (target.Length - progressor.Rendered < environment.Listener.UpdateRate) {
-                    Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
-                    flush = true;
-                }
-
-                Array.Copy(result, 0, writeCache, cachePosition, result.Length);
-                cachePosition += result.Length;
-                if (cachePosition == writeCache.Length || flush) {
-                    filters?.Process(writeCache);
-
-                    if (virtualizer == null) {
-                        if (renderTarget is not DownmixedRenderTarget downmix) {
-                            writer?.WriteBlock(writeCache, 0, cachePosition);
-                        } else {
-                            downmix.PerformMerge(writeCache);
-                            writer?.WriteChannelLimitedBlock(writeCache, downmix.OutputChannels, Listener.Channels.Length, 0,
-                                cachePosition);
-                        }
-                    } else {
-                        virtualizer.Process(writeCache, environment.Listener.SampleRate);
-                        normalizer.Process(writeCache);
-                        writer?.WriteChannelLimitedBlock(writeCache, renderTarget.OutputChannels, Listener.Channels.Length, 0,
-                            cachePosition);
-                    }
-                    cachePosition = 0;
+                float[] renderedFrame = buffer.RenderNext(environment.Listener, target.Length - progressor.Rendered);
+                if (buffer.Append(renderedFrame)) {
+                    buffer.Write(output, writer, renderTarget);
                 }
 
                 if (progressor.Rendered > secondFrame) {
-                    stats.Update(result);
+                    stats.Update(renderedFrame);
                 }
 
                 if (customMuting) {
-                    IReadOnlyList<Source> objects = target.Renderer.Objects;
-                    for (int i = 0, c = objects.Count; i < c; i++) {
-                        Vector3 rawPos = objects[i].Position / Listener.EnvironmentSize;
-                        objects[i].Mute =
-                            (RenderingSettings.MuteBed && MathF.Abs(rawPos.X) % 1 < .01f &&
-                                MathF.Abs(rawPos.Y) % 1 < .01f && MathF.Abs(rawPos.Z % 1) < .01f) ||
-                            (RenderingSettings.MuteGround && rawPos.Y == 0);
-                    }
+                    ApplyObjectMuting(target.Renderer.Objects);
                 }
 
                 progressor.Update();
             }
         } finally {
             writer?.Dispose();
-            if (virtualizerState) {
-                Listener.HeadphoneVirtualizer = true;
-            }
         }
 
         return stats;
+    }
+
+    void ApplyObjectMuting(IReadOnlyList<Source> objects) {
+        foreach (Source source in objects) {
+            Vector3 position = source.Position / Listener.EnvironmentSize;
+            source.Mute =
+                (RenderingSettings.MuteBed && MathF.Abs(position.X) % 1 < .01f &&
+                    MathF.Abs(position.Y) % 1 < .01f && MathF.Abs(position.Z % 1) < .01f) ||
+                (RenderingSettings.MuteGround && position.Y == 0);
+        }
     }
 
     RenderStats WriteTranscode(CavernizeTrack target, EnvironmentWriter writer) {
@@ -494,6 +485,90 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
     void UpdateProgress(double progress) => ProgressChanged?.Invoke(progress);
 
     void ThrowIfCancellationRequested() => cancellationToken.ThrowIfCancellationRequested();
+
+    sealed class RenderOutputProcessor : IDisposable {
+        readonly Listener listener;
+        readonly MultichannelConvolver filters;
+        readonly bool restoreHeadphoneVirtualizer;
+        VirtualizerFilter virtualizer;
+        Normalizer normalizer;
+
+        public RenderOutputProcessor(RenderingSettings settings, Listener listener) {
+            this.listener = listener;
+            if (settings.RoomCorrectionUsable) {
+                filters = new MultichannelConvolver(settings.RoomCorrection.Data);
+            }
+
+            restoreHeadphoneVirtualizer = Listener.HeadphoneVirtualizer;
+            if (restoreHeadphoneVirtualizer || settings.SpeakerVirtualizer) {
+                EnableVirtualizedOutput();
+            }
+        }
+
+        void EnableVirtualizedOutput() {
+            Listener.HeadphoneVirtualizer = false;
+            virtualizer = new VirtualizerFilter();
+            virtualizer.SetLayout();
+            normalizer = CreateNormalizer(listener);
+        }
+
+        static Normalizer CreateNormalizer(Listener listener) => new(true) {
+            decayFactor = 10 * (float)listener.UpdateRate / listener.SampleRate
+        };
+
+        public void ProcessAndWrite(float[] samples, int length, AudioWriter writer, RenderTarget target) {
+            filters?.Process(samples);
+            if (virtualizer != null) {
+                virtualizer.Process(samples, listener.SampleRate);
+                normalizer.Process(samples);
+                writer?.WriteChannelLimitedBlock(samples, target.OutputChannels, Listener.Channels.Length, 0, length);
+                return;
+            }
+
+            if (target is DownmixedRenderTarget downmix) {
+                downmix.PerformMerge(samples);
+                writer?.WriteChannelLimitedBlock(samples, downmix.OutputChannels, Listener.Channels.Length, 0, length);
+                return;
+            }
+
+            writer?.WriteBlock(samples, 0, length);
+        }
+
+        public void Dispose() {
+            if (restoreHeadphoneVirtualizer) {
+                Listener.HeadphoneVirtualizer = true;
+            }
+        }
+    }
+
+    sealed class RenderBuffer {
+        readonly float[] samples;
+        int position;
+        bool flushAfterFrame;
+
+        public RenderBuffer(int blockSize, int outputChannels) =>
+            samples = new float[blockSize / outputChannels * Listener.Channels.Length];
+
+        public float[] RenderNext(Listener listener, long remainingSamples) {
+            float[] result = listener.Render();
+            if (remainingSamples < listener.UpdateRate) {
+                Array.Resize(ref result, (int)(remainingSamples * Listener.Channels.Length));
+                flushAfterFrame = true;
+            }
+            return result;
+        }
+
+        public bool Append(float[] frame) {
+            Array.Copy(frame, 0, samples, position, frame.Length);
+            position += frame.Length;
+            return position == samples.Length || flushAfterFrame;
+        }
+
+        public void Write(RenderOutputProcessor output, AudioWriter writer, RenderTarget target) {
+            output.ProcessAndWrite(samples, position, writer, target);
+            position = 0;
+        }
+    }
 
     /// <summary>
     /// Keeps track of export time and evaluates performance.

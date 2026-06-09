@@ -13,6 +13,8 @@ sealed class AppSettings {
 
     public string FFmpegPath { get; set; }
 
+    public string LanguageCode { get; set; }
+
     public string ExportCodec { get; set; }
 
     public string RenderTarget { get; set; }

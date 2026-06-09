@@ -89,12 +89,12 @@
       <Border Grid.Column="0" Background="{StaticResource CardBrush}" CornerRadius="20" Padding="20">
         <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="18">
           <Grid ColumnDefinitions="*,Auto">
-            <TextBlock Classes="header" Text="System" />
+            <TextBlock Classes="header" Text="{Binding SystemTitle}" />
             <Button Grid.Column="1"
                     Classes="infoIcon"
                     VerticalAlignment="Center"
                     Click="ShowSystemInfo"
-                    ToolTip.Tip="Choose a layout, and place your speakers accordingly.">
+                    ToolTip.Tip="{Binding SystemInfoText}">
               <TextBlock Text="i"
                          HorizontalAlignment="Center"
                          VerticalAlignment="Center"
@@ -108,7 +108,7 @@
 
           <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="8" Height="36">
             <TextBlock Classes="label"
-                       Text="Render target:"
+                       Text="{Binding RenderTargetLabel}"
                        VerticalAlignment="Center" />
             <ComboBox Grid.Column="1"
                       Height="31"
@@ -131,7 +131,7 @@
                   Height="45"
                   HorizontalAlignment="Center"
                   FontSize="17"
-                  Content="Display wiring"
+                  Content="{Binding DisplayWiringText}"
                   Click="ShowWiring" />
         </Grid>
       </Border>
@@ -146,13 +146,13 @@
 
         <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="20" Padding="15">
           <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="14" DragDrop.AllowDrop="True" DragDrop.Drop="DropFiles">
-            <TextBlock Classes="header" Text="Content" />
+            <TextBlock Classes="header" Text="{Binding ContentTitle}" />
 
             <Grid Grid.Row="1" ColumnDefinitions="170,*" ColumnSpacing="10">
               <Button Click="OpenFile" IsEnabled="{Binding CanUseCommands}" Width="165" Height="45">
                 <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="9" HorizontalAlignment="Center" VerticalAlignment="Center">
                   <Image Width="24" Height="24" VerticalAlignment="Center" Source="avares://CavernizeAvalonia/Assets/Images/Folder.png" />
-                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="Open" FontSize="17" LineHeight="24" />
+                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="{Binding OpenText}" FontSize="17" LineHeight="24" />
                 </Grid>
               </Button>
               <TextBlock Grid.Column="1"
@@ -163,16 +163,16 @@
             </Grid>
 
             <Grid Grid.Row="2" ColumnDefinitions="95,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="10">
-              <TextBlock Classes="label" Text="Track:" TextAlignment="Right" VerticalAlignment="Center" />
+              <TextBlock Classes="label" Text="{Binding TrackLabel}" TextAlignment="Right" VerticalAlignment="Center" />
               <ComboBox Grid.Column="1"
                         Height="31"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding Tracks}"
                         SelectedItem="{Binding SelectedTrack}"
-                        PlaceholderText="No track loaded"
+                        PlaceholderText="{Binding NoTrackLoadedText}"
                         MaxDropDownHeight="260" />
 
-              <TextBlock Grid.Row="1" Classes="label" Text="Output:" TextAlignment="Right" VerticalAlignment="Center" />
+              <TextBlock Grid.Row="1" Classes="label" Text="{Binding OutputLabel}" TextAlignment="Right" VerticalAlignment="Center" />
               <ComboBox Grid.Row="1"
                         Grid.Column="1"
                         Height="31"
@@ -196,13 +196,13 @@
               <Button Click="AddToQueue" IsEnabled="{Binding CanAddToQueue}" Width="225" Height="52">
                 <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="9" HorizontalAlignment="Center" VerticalAlignment="Center">
                   <Image Width="24" Height="24" VerticalAlignment="Center" Source="avares://CavernizeAvalonia/Assets/Images/AddToQueue.png" />
-                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="Add to queue" FontSize="17" LineHeight="24" />
+                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="{Binding AddToQueueText}" FontSize="17" LineHeight="24" />
                 </Grid>
               </Button>
               <Button Grid.Column="2" Classes="primary" Click="RenderFile" IsEnabled="{Binding CanRender}" Width="225" Height="60">
                 <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
                   <Image Width="34" Height="34" VerticalAlignment="Center" Source="avares://CavernizeAvalonia/Assets/Images/Render.png" />
-                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="Render" LineHeight="34" />
+                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="{Binding RenderText}" LineHeight="34" />
                 </Grid>
               </Button>
             </Grid>
@@ -217,7 +217,7 @@
               Padding="15"
               IsVisible="{Binding HasQueueJobs}">
         <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
-          <TextBlock Classes="header" Text="Queue" />
+          <TextBlock Classes="header" Text="{Binding QueueTitle}" />
 
           <ListBox Grid.Row="1"
                    ItemsSource="{Binding QueueJobs}"
@@ -243,10 +243,10 @@
 
           <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
             <Button Click="RemoveQueued" IsEnabled="{Binding CanRemoveQueueJob}" Width="155">
-              <TextBlock Text="Remove selected" />
+              <TextBlock Text="{Binding RemoveSelectedText}" />
             </Button>
             <Button Grid.Column="2" Classes="primary" Click="RunQueue" IsEnabled="{Binding CanRunQueue}" Width="130" Height="45">
-              <TextBlock Text="Process" FontSize="18" />
+              <TextBlock Text="{Binding ProcessText}" FontSize="18" />
             </Button>
           </Grid>
         </Grid>
