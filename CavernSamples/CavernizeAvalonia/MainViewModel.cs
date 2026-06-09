@@ -5,8 +5,10 @@ using System.Text;
 using Avalonia.Threading;
 using Cavern.Channels;
 using Cavern.Format.Common;
+using Cavernize.Logic.CommandLine;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using VoidX.WPF.FFmpeg;
 
 namespace CavernizeAvalonia;
 
@@ -104,6 +106,29 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
     public bool DetailedGrading {
         get => session.DetailedGrading;
         set => SetPersistedOption(session.DetailedGrading, value, newValue => session.DetailedGrading = newValue);
+    }
+
+    public bool CheckUpdates {
+        get => settings.CheckUpdates;
+        set {
+            if (settings.CheckUpdates != value) {
+                settings.CheckUpdates = value;
+                SaveSettings();
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public double ViewScale {
+        get => settings.ViewScale is >= .5 and <= 1.25 ? settings.ViewScale : 1;
+        set {
+            double scale = Math.Clamp(value, .5, 1.25);
+            if (Math.Abs(settings.ViewScale - scale) > .001) {
+                settings.ViewScale = scale;
+                SaveSettings();
+                OnPropertyChanged();
+            }
+        }
     }
 
     public bool ReportMode {
@@ -296,10 +321,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
     public string RoomCorrectionStatus => HasRoomCorrection ? $"Filters: {Path.GetFileName(roomCorrectionPath)}" : "Filters: none";
 
-    public string Footer => session.FFmpeg.Found ? Text("FFRea", "Ready!") : Text("FFNRe",
-        "FFmpeg isn't found, codec limitations are applied.");
-
-    public bool IsFfmpegMissing => !session.FFmpeg.Found;
+    public DateTime LastUpdateCheck => settings.LastUpdateCheck;
 
     public string SuggestedOutputExtension {
         get {
@@ -351,6 +373,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
     public MainViewModel() {
         language = AvaloniaLanguage.Create(settings.LanguageCode);
         settings.LanguageCode = language.Code;
+        FFmpeg.ReadyText = Text("FFRea", "Ready!");
+        FFmpeg.NotReadyText = Text("FFNRe", "FFmpeg isn't found, codec limitations are applied.");
         session = new(language);
         loadedTitle = Text("NoSrc", "No source loaded");
         status = Text("OpSrcS", "Open a source file.");
@@ -379,8 +403,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         session.UpmixingSettings.Smoothness = settings.UpmixingSmoothness ?? .8f;
         if (!string.IsNullOrWhiteSpace(settings.FFmpegPath)) {
             session.FFmpeg.Location = settings.FFmpegPath;
-            OnPropertyChanged(nameof(Footer));
-            OnPropertyChanged(nameof(IsFfmpegMissing));
         }
         TryLoadSavedHrir();
         TryLoadSavedRoomCorrection();
@@ -400,6 +422,17 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         });
         session.StatusChanged += text => Dispatcher.UIThread.Post(() => Status = text);
         session.WarningRaised += text => Dispatcher.UIThread.Post(() => Warning = text);
+    }
+
+    public bool InitializeCommandLine(string[] args) {
+        bool initialized = CommandLineProcessor.Initialize(args, session);
+        if (!initialized) {
+            return false;
+        }
+
+        SyncFromSession();
+        SaveSettings();
+        return true;
     }
 
     public async Task OpenFile(string path) {
@@ -436,7 +469,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
         IsBusy = true;
         Warning = NoWarningsText;
-        Status = "Rendering...";
+        Status = Text("Start", "Starting render...");
         cancellation = new CancellationTokenSource();
         bool outputExisted = !string.IsNullOrWhiteSpace(path) && File.Exists(path);
         try {
@@ -466,7 +499,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         Status = $"Queued {LoadedTitle}.";
     }
 
-    public void AddFilesToQueue(IEnumerable<string> paths) {
+    public void AddFilesToQueue(IEnumerable<string> paths) => AddFilesToQueue(paths, null);
+
+    public void AddFilesToQueue(IEnumerable<string> paths, string outputFolder) {
         if (ReportMode) {
             Status = "Disable report only before queueing files.";
             return;
@@ -474,7 +509,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
         int added = 0;
         foreach (string path in paths.Where(File.Exists)) {
-            QueueJobs.Add(CreateJob(path, null));
+            QueueJobs.Add(CreateJob(path, null, outputFolder));
             added++;
         }
 
@@ -573,13 +608,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         settings.FFmpegPath = path;
         session.FFmpeg.Location = path;
         SaveSettings();
-        OnPropertyChanged(nameof(Footer));
-        OnPropertyChanged(nameof(IsFfmpegMissing));
+    }
+
+    public void MarkUpdateChecked() {
+        settings.LastUpdateCheck = DateTime.Now;
+        SaveSettings();
+        OnPropertyChanged(nameof(LastUpdateCheck));
     }
 
     public string Text(string key, string fallback) => language.Text(key, fallback);
 
     public string MenuText(string key, string fallback) => language.MenuText(key, fallback);
+
+    public string RenderTargetSelectorText(string key, string fallback) => language.RenderTargetSelectorText(key, fallback);
 
     public string FileTypeName(string key, string fallback) => language.FileTypeName(key, fallback);
 
@@ -727,7 +768,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         job.Status = "Rendering";
         Status = $"Rendering {job.DisplayName}...";
         if (OutputPathConflicts(job)) {
-            job.OutputPath = CreateOutputPath(job.SourcePath);
+            job.OutputPath = CreateOutputPath(job.SourcePath, null);
         }
 
         bool outputExisted = File.Exists(job.OutputPath);
@@ -799,16 +840,20 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         }
     }
 
-    QueuedRenderJob CreateJob(string sourcePath, int? trackIndex) => new(sourcePath, CreateOutputPath(sourcePath), trackIndex,
+    QueuedRenderJob CreateJob(string sourcePath, int? trackIndex) => CreateJob(sourcePath, trackIndex, null);
+
+    QueuedRenderJob CreateJob(string sourcePath, int? trackIndex, string outputFolder) => new(sourcePath,
+        CreateOutputPath(sourcePath, outputFolder), trackIndex,
         SelectedExportFormat, SelectedRenderTarget, SpeakerVirtualizer, Force24Bit, MuteBed, MuteGround, SurroundSwap,
         WavChannelSkip, DetailedGrading, MatrixUpmixing, CavernizeUpmixing, UpmixingEffect, UpmixingSmoothness);
 
-    string CreateOutputPath(string sourcePath) {
+    string CreateOutputPath(string sourcePath, string outputFolder) {
         HashSet<string> queuedOutputPaths = QueueJobs
             .Select(job => job.OutputPath)
             .Where(path => !string.IsNullOrWhiteSpace(path))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        string folder = Path.GetDirectoryName(sourcePath) ?? Directory.GetCurrentDirectory(),
+        string folder = !string.IsNullOrWhiteSpace(outputFolder) ? outputFolder :
+            Path.GetDirectoryName(sourcePath) ?? Directory.GetCurrentDirectory(),
             name = Path.GetFileNameWithoutExtension(sourcePath),
             extension = SuggestedOutputExtension;
         string candidate = Path.Combine(folder, $"{name}.cavernize.{extension}");
@@ -818,6 +863,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
             index++;
         }
         return candidate;
+    }
+
+    void SyncFromSession() {
+        SelectedExportFormat = ExportFormats.FirstOrDefault(format => format.Codec == session.ExportFormat.Codec) ??
+            SelectedExportFormat;
+        SelectedRenderTarget = RenderTargets.FirstOrDefault(target => target.Name == session.RenderTarget.Name) ??
+            SelectedRenderTarget;
+        if (session.LoadedFile != null) {
+            ApplyLoadedFile(session.LoadedFile.Path);
+            SelectedTrack = session.SelectedTrack;
+        }
+        ReportText = session.Report.Report;
+        NotifyProperties(nameof(SuggestedOutputName), nameof(SuggestedOutputExtension));
     }
 
     void ApplyJobSettings(QueuedRenderJob job) {

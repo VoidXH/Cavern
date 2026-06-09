@@ -22,12 +22,15 @@ sealed class AvaloniaLanguage {
     public RenderReportStrings RenderReportStrings { get; }
 
     readonly IReadOnlyDictionary<string, string> mainWindowStrings;
+    readonly IReadOnlyDictionary<string, string> renderTargetSelectorStrings;
 
     AvaloniaLanguage(string code, IReadOnlyDictionary<string, string> mainWindowStrings,
+        IReadOnlyDictionary<string, string> renderTargetSelectorStrings,
         IReadOnlyDictionary<string, string> trackStrings, IReadOnlyDictionary<string, string> conversionStrings,
         IReadOnlyDictionary<string, string> externalConverterStrings, IReadOnlyDictionary<string, string> renderReportStrings) {
         Code = code;
         this.mainWindowStrings = mainWindowStrings;
+        this.renderTargetSelectorStrings = renderTargetSelectorStrings;
         TrackStrings = trackStrings.Count == 0 ? new TrackStrings() : new DynamicTrackStrings(trackStrings);
         ConversionStrings = conversionStrings.Count == 0 ? new ConversionStrings() : new DynamicConversionStrings(conversionStrings);
         ExternalConverterStrings = externalConverterStrings.Count == 0 ?
@@ -46,7 +49,8 @@ sealed class AvaloniaLanguage {
             mainWindow = LoadDictionary("MainWindowStrings", code);
         }
 
-        return new AvaloniaLanguage(code, mainWindow, LoadDictionary("TrackStrings", code),
+        return new AvaloniaLanguage(code, mainWindow, LoadDictionary("RenderTargetSelectorStrings", code),
+            LoadDictionary("TrackStrings", code),
             LoadDictionary("ConversionStrings", code), LoadDictionary("ExternalConverterStrings", code),
             LoadDictionary("RenderReportStrings", code));
     }
@@ -55,6 +59,9 @@ sealed class AvaloniaLanguage {
 
     public string Text(string key, string fallback) =>
         mainWindowStrings.TryGetValue(key, out string value) && !string.IsNullOrWhiteSpace(value) ? value : fallback;
+
+    public string RenderTargetSelectorText(string key, string fallback) =>
+        renderTargetSelectorStrings.TryGetValue(key, out string value) && !string.IsNullOrWhiteSpace(value) ? value : fallback;
 
     public string MenuText(string key, string fallback) => Text(key, fallback).Replace("_", string.Empty);
 

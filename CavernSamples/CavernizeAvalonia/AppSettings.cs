@@ -15,6 +15,10 @@ sealed class AppSettings {
 
     public string LanguageCode { get; set; }
 
+    public DateTime LastUpdateCheck { get; set; }
+
+    public double ViewScale { get; set; } = 1;
+
     public string ExportCodec { get; set; }
 
     public string RenderTarget { get; set; }
@@ -32,6 +36,8 @@ sealed class AppSettings {
     public bool WavChannelSkip { get; set; }
 
     public bool DetailedGrading { get; set; }
+
+    public bool CheckUpdates { get; set; }
 
     public bool MatrixUpmixing { get; set; }
 

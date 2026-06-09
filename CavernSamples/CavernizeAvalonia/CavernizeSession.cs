@@ -411,7 +411,7 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
     }
 
     void FinishTask(CavernizeTrack target) {
-        UpdateStatus("Export completed.");
+        UpdateStatus(language == null ? "Finished!" : language["ExpOk"]);
         UpdateProgress(1);
 
         if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.WorkedAround) {

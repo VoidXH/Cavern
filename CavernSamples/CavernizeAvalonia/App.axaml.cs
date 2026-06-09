@@ -9,8 +9,14 @@ public partial class App : Application {
 
     public override void OnFrameworkInitializationCompleted() {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+            MainViewModel viewModel = new();
+            if (Program.Args.Length != 0 && !viewModel.InitializeCommandLine(Program.Args)) {
+                desktop.Shutdown();
+                return;
+            }
+
             desktop.MainWindow = new MainWindow {
-                DataContext = new MainViewModel()
+                DataContext = viewModel
             };
         }
 

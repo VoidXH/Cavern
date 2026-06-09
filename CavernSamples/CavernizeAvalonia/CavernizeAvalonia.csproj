@@ -38,6 +38,8 @@
 	<ItemGroup>
 		<EmbeddedResource Include="..\CavernizeGUI\Resources\MainWindowStrings.xaml" Link="Localization\MainWindowStrings.xaml" />
 		<EmbeddedResource Include="..\CavernizeGUI\Resources\MainWindowStrings.hu-HU.xaml" Link="Localization\MainWindowStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="..\CavernizeGUI\Resources\RenderTargetSelectorStrings.xaml" Link="Localization\RenderTargetSelectorStrings.xaml" />
+		<EmbeddedResource Include="..\CavernizeGUI\Resources\RenderTargetSelectorStrings.hu-HU.xaml" Link="Localization\RenderTargetSelectorStrings.hu-HU.xaml" />
 		<EmbeddedResource Include="..\CavernizeGUI\Resources\TrackStrings.hu-HU.xaml" Link="Localization\TrackStrings.hu-HU.xaml" />
 		<EmbeddedResource Include="..\CavernizeGUI\Resources\ConversionStrings.hu-HU.xaml" Link="Localization\ConversionStrings.hu-HU.xaml" />
 		<EmbeddedResource Include="..\CavernizeGUI\Resources\ExternalConverterStrings.hu-HU.xaml" Link="Localization\ExternalConverterStrings.hu-HU.xaml" />

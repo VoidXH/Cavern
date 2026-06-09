@@ -19,17 +19,23 @@ public sealed class SpeakerLayoutView : Control {
         RenderTargetProperty.Changed.AddClassHandler<SpeakerLayoutView>((view, _) => view.InvalidateVisual());
 
     protected override Size MeasureOverride(Size availableSize) {
-        double width = double.IsNaN(Width) ? Math.Min(availableSize.Width, 250) : Width,
-            height = double.IsNaN(Height) ? Math.Min(availableSize.Height, 235) : Height;
-        return new Size(width, height);
+        bool hasWidth = double.IsFinite(availableSize.Width) && availableSize.Width > 0,
+            hasHeight = double.IsFinite(availableSize.Height) && availableSize.Height > 0;
+        double width = hasWidth ? availableSize.Width : sourceWidth,
+            height = hasHeight ? availableSize.Height : sourceHeight,
+            scale = Math.Min(width / sourceWidth, height / sourceHeight);
+        return new Size(sourceWidth * scale, sourceHeight * scale);
     }
 
     public override void Render(DrawingContext context) {
         base.Render(context);
 
-        Rect area = new Rect(Bounds.Size).Deflate(6);
-        Pen white = new(Brushes.White, 1.4),
-            gray = new(new SolidColorBrush(Color.Parse("#8A8A8A")), 1.4);
+        Rect area = FitSourceAspect(new Rect(Bounds.Size).Deflate(6));
+        double scale = Math.Min(area.Width / sourceWidth, area.Height / sourceHeight),
+            stroke = Math.Max(.75, 1.4 * scale),
+            radius = Math.Max(2.5, 6.5 * scale);
+        Pen white = new(Brushes.White, stroke),
+            gray = new(new SolidColorBrush(Color.Parse("#8A8A8A")), stroke);
 
         Rect front = Rect(area, 46, 0, 76, 50);
         Rect rear = Rect(area, 14, 73, 140, 85);
@@ -50,14 +56,14 @@ public sealed class SpeakerLayoutView : Control {
             }
         }
         foreach ((ReferenceChannel channel, double x, double y) in speakers) {
-            DrawSpeaker(context, area, x, y, active.Contains(channel));
+            DrawSpeaker(context, area, x, y, radius, active.Contains(channel));
         }
     }
 
-    static void DrawSpeaker(DrawingContext context, Rect area, double x, double y, bool active) {
+    static void DrawSpeaker(DrawingContext context, Rect area, double x, double y, double radius, bool active) {
         Point center = Scale(area, x + 5, y + 5);
         IBrush fill = active ? activeSpeaker : inactiveSpeaker;
-        context.DrawEllipse(fill, null, center, 6.5, 6.5);
+        context.DrawEllipse(fill, null, center, radius, radius);
     }
 
     static void DrawLine(DrawingContext context, Pen pen, Rect area, double x1, double y1, double x2, double y2) =>
@@ -71,6 +77,17 @@ public sealed class SpeakerLayoutView : Control {
 
     static Size ScaleSize(Rect area, double width, double height) =>
         new(area.Width * width / sourceWidth, area.Height * height / sourceHeight);
+
+    static Rect FitSourceAspect(Rect bounds) {
+        double scale = Math.Min(bounds.Width / sourceWidth, bounds.Height / sourceHeight),
+            width = sourceWidth * scale,
+            height = sourceHeight * scale;
+        return new Rect(
+            bounds.X + (bounds.Width - width) * .5,
+            bounds.Y + (bounds.Height - height) * .5,
+            width,
+            height);
+    }
 
     static readonly IBrush activeSpeaker = new SolidColorBrush(Color.Parse("#2E91D6"));
     static readonly IBrush inactiveSpeaker = new SolidColorBrush(Color.Parse("#9A9A9A"));
