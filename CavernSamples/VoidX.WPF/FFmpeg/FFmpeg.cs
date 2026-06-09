@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace VoidX.WPF.FFmpeg;
 
@@ -47,7 +48,7 @@ public abstract class FFmpeg {
         try {
             var process = new Process {
                 StartInfo = new ProcessStartInfo {
-                    FileName = "where",
+                    FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which",
                     Arguments = key,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,

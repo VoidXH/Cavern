@@ -7,5 +7,5 @@ static class Consts {
     /// <summary>
     /// Path of files needed for testing.
     /// </summary>
-    internal const string cavernFormatTestData = "../../../Test.Cavern.Format/TestData";
+    internal static readonly string cavernFormatTestData = Path.Combine("..", "..", "..", "Test.Cavern.Format", "TestData");
 }

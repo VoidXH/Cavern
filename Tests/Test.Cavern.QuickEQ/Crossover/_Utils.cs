@@ -1,5 +1,7 @@
 ﻿using Cavern.Utilities;
 
+using Test.Cavern.QuickEQ.Consts;
+
 using CrossoverBase = Cavern.QuickEQ.Crossover.Crossover;
 
 namespace Test.Cavern.QuickEQ.Crossover {
@@ -19,9 +21,9 @@ namespace Test.Cavern.QuickEQ.Crossover {
             float highpassAtCrossover = highpass[crossoverBand].Magnitude,
                 lowpassAtCrossover = lowpass[crossoverBand].Magnitude;
             Assert.IsTrue(highpassAtCrossover - highpass[crossoverBand + 1].Magnitude < 0);
-            Assert.AreEqual(expectedHighpassValue, highpassAtCrossover);
+            Assert.AreEqual(expectedHighpassValue, highpassAtCrossover, Constants.delta);
             Assert.IsTrue(lowpassAtCrossover - lowpass[crossoverBand + 1].Magnitude > 0);
-            Assert.AreEqual(expectedLowpassValue, lowpassAtCrossover);
+            Assert.AreEqual(expectedLowpassValue, lowpassAtCrossover, Constants.delta);
         }
     }
 }

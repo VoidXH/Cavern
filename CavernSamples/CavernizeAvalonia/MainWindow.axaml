@@ -1,0 +1,276 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:CavernizeAvalonia"
+        x:Class="CavernizeAvalonia.MainWindow"
+        x:DataType="local:MainViewModel"
+        Title="Cavernize"
+        Width="998"
+        Height="630"
+        MinWidth="930"
+        MinHeight="560"
+        Background="#696969"
+        Foreground="#F0F0F0"
+        DragDrop.AllowDrop="True"
+        DragDrop.Drop="DropFiles">
+  <Window.Resources>
+    <SolidColorBrush x:Key="CardBrush">#1F1F1F</SolidColorBrush>
+    <SolidColorBrush x:Key="SurfaceBrush">#151515</SolidColorBrush>
+    <SolidColorBrush x:Key="BorderBrush">#555555</SolidColorBrush>
+    <SolidColorBrush x:Key="MutedBrush">#D8D8D8</SolidColorBrush>
+    <SolidColorBrush x:Key="InfoBlue">#3186CE</SolidColorBrush>
+  </Window.Resources>
+
+  <Window.Styles>
+    <Style Selector="TextBlock.header">
+      <Setter Property="FontSize" Value="26" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="18" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.trackTitle">
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+    <Style Selector="TextBlock.iconButtonText">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button">
+      <Setter Property="Background" Value="#E8E8E8" />
+      <Setter Property="Foreground" Value="#000000" />
+      <Setter Property="BorderBrush" Value="#888888" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="Padding" Value="14,8" />
+      <Setter Property="CornerRadius" Value="18" />
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="{StaticResource InfoBlue}" />
+      <Setter Property="BorderBrush" Value="#62B7FF" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="FontSize" Value="26" />
+      <Setter Property="CornerRadius" Value="18" />
+    </Style>
+    <Style Selector="Button.infoIcon">
+      <Setter Property="Background" Value="{StaticResource InfoBlue}" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Width" Value="28" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="MinWidth" Value="28" />
+      <Setter Property="MinHeight" Value="28" />
+    </Style>
+    <Style Selector="ComboBox">
+      <Setter Property="Background" Value="#3B3B3B" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderBrush" Value="#A0A0A0" />
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="MinHeight" Value="31" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ListBox">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="#333333" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="*,60">
+    <Border Grid.Row="0" Padding="15">
+    <Grid ColumnDefinitions="360,585,Auto" ColumnSpacing="15">
+      <Border Grid.Column="0" Background="{StaticResource CardBrush}" CornerRadius="20" Padding="20">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="18">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="header" Text="System" />
+            <Button Grid.Column="1"
+                    Classes="infoIcon"
+                    VerticalAlignment="Center"
+                    Click="ShowSystemInfo"
+                    ToolTip.Tip="Choose a layout, and place your speakers accordingly.">
+              <TextBlock Text="i"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         FontFamily="Times New Roman"
+                         FontStyle="Italic"
+                         FontWeight="Bold"
+                         FontSize="22"
+                         LineHeight="22" />
+            </Button>
+          </Grid>
+
+          <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="8" Height="36">
+            <TextBlock Classes="label"
+                       Text="Render target:"
+                       VerticalAlignment="Center" />
+            <ComboBox Grid.Column="1"
+                      Height="31"
+                      VerticalAlignment="Center"
+                      ItemsSource="{Binding RenderTargets}"
+                      SelectedItem="{Binding SelectedRenderTarget}"
+                      MaxDropDownHeight="300" />
+          </Grid>
+
+          <Grid Grid.Row="2">
+            <local:SpeakerLayoutView Width="240"
+                                     Height="226"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     RenderTarget="{Binding SelectedRenderTarget}" />
+          </Grid>
+
+          <Button Grid.Row="3"
+                  Width="210"
+                  Height="45"
+                  HorizontalAlignment="Center"
+                  FontSize="17"
+                  Content="Display wiring"
+                  Click="ShowWiring" />
+        </Grid>
+      </Border>
+
+      <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="0">
+        <Image Grid.Row="0"
+               Width="250"
+               Height="56"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Source="avares://CavernizeAvalonia/Assets/CavernLogo.png" />
+
+        <Border Grid.Row="1" Background="{StaticResource CardBrush}" CornerRadius="20" Padding="15">
+          <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="14" DragDrop.AllowDrop="True" DragDrop.Drop="DropFiles">
+            <TextBlock Classes="header" Text="Content" />
+
+            <Grid Grid.Row="1" ColumnDefinitions="170,*" ColumnSpacing="10">
+              <Button Click="OpenFile" IsEnabled="{Binding CanUseCommands}" Width="165" Height="45">
+                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="9" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <Image Width="24" Height="24" VerticalAlignment="Center" Source="avares://CavernizeAvalonia/Assets/Images/Folder.png" />
+                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="Open" FontSize="17" LineHeight="24" />
+                </Grid>
+              </Button>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding LoadedTitle}"
+                         VerticalAlignment="Center"
+                         TextTrimming="CharacterEllipsis"
+                         FontSize="17" />
+            </Grid>
+
+            <Grid Grid.Row="2" ColumnDefinitions="95,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="10">
+              <TextBlock Classes="label" Text="Track:" TextAlignment="Right" VerticalAlignment="Center" />
+              <ComboBox Grid.Column="1"
+                        Height="31"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding Tracks}"
+                        SelectedItem="{Binding SelectedTrack}"
+                        PlaceholderText="No track loaded"
+                        MaxDropDownHeight="260" />
+
+              <TextBlock Grid.Row="1" Classes="label" Text="Output:" TextAlignment="Right" VerticalAlignment="Center" />
+              <ComboBox Grid.Row="1"
+                        Grid.Column="1"
+                        Height="31"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding ExportFormats}"
+                        SelectedItem="{Binding SelectedExportFormat}"
+                        MaxDropDownHeight="260" />
+            </Grid>
+
+            <Grid Grid.Row="3" RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" ColumnSpacing="10" RowSpacing="9">
+              <TextBlock Grid.ColumnSpan="2" Classes="trackTitle" Text="{Binding TrackFormatHeader}" TextWrapping="Wrap" />
+              <TextBlock Grid.Row="1" Classes="trackTitle" Text="{Binding TrackDetail1Title}" />
+              <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TrackDetail1Value}" TextTrimming="CharacterEllipsis" FontSize="16" />
+              <TextBlock Grid.Row="2" Classes="trackTitle" Text="{Binding TrackDetail2Title}" />
+              <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding TrackDetail2Value}" TextTrimming="CharacterEllipsis" FontSize="16" />
+              <TextBlock Grid.Row="3" Classes="trackTitle" Text="{Binding TrackDetail3Title}" />
+              <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TrackDetail3Value}" TextTrimming="CharacterEllipsis" FontSize="16" />
+            </Grid>
+
+            <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto">
+              <Button Click="AddToQueue" IsEnabled="{Binding CanAddToQueue}" Width="225" Height="52">
+                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="9" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <Image Width="24" Height="24" VerticalAlignment="Center" Source="avares://CavernizeAvalonia/Assets/Images/AddToQueue.png" />
+                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="Add to queue" FontSize="17" LineHeight="24" />
+                </Grid>
+              </Button>
+              <Button Grid.Column="2" Classes="primary" Click="RenderFile" IsEnabled="{Binding CanRender}" Width="225" Height="60">
+                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <Image Width="34" Height="34" VerticalAlignment="Center" Source="avares://CavernizeAvalonia/Assets/Images/Render.png" />
+                  <TextBlock Grid.Column="1" Classes="iconButtonText" Text="Render" LineHeight="34" />
+                </Grid>
+              </Button>
+            </Grid>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <Border Grid.Column="2"
+              Width="365"
+              Background="{StaticResource CardBrush}"
+              CornerRadius="20"
+              Padding="15"
+              IsVisible="{Binding HasQueueJobs}">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+          <TextBlock Classes="header" Text="Queue" />
+
+          <ListBox Grid.Row="1"
+                   ItemsSource="{Binding QueueJobs}"
+                   SelectedItem="{Binding SelectedQueueJob}"
+                   DragDrop.AllowDrop="True"
+                   DragDrop.Drop="DropFiles">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="local:QueuedRenderJob">
+                <Border Padding="4,6">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding OutputName}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding SettingsSummary}" Foreground="{StaticResource MutedBrush}" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                      <ProgressBar Minimum="0" Maximum="1" Value="{Binding Progress}" Height="8" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="{Binding Status}" />
+                    </Grid>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+            <Button Click="RemoveQueued" IsEnabled="{Binding CanRemoveQueueJob}" Width="155">
+              <TextBlock Text="Remove selected" />
+            </Button>
+            <Button Grid.Column="2" Classes="primary" Click="RunQueue" IsEnabled="{Binding CanRunQueue}" Width="130" Height="45">
+              <TextBlock Text="Process" FontSize="18" />
+            </Button>
+          </Grid>
+        </Grid>
+      </Border>
+    </Grid>
+    </Border>
+
+    <Border Grid.Row="1" Background="#333333" Padding="20,10">
+      <Grid ColumnDefinitions="225,*" ColumnSpacing="10">
+        <ProgressBar Height="30"
+                     Minimum="0"
+                     Maximum="1"
+                     Value="{Binding Progress}"
+                     Foreground="#00B82E"
+                     Background="#E6E6E6"
+                     IsIndeterminate="{Binding IsProgressIndeterminate}"
+                     VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1"
+                   Text="{Binding Status}"
+                   Foreground="#FFFFFF"
+                   FontSize="22"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap" />
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

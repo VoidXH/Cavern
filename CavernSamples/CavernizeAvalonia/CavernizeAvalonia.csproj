@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
+		<Description>Cross-platform Cavernize desktop app.</Description>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<DebugType>full</DebugType>
+		<Authors>VoidX</Authors>
+		<Product>Cavernize</Product>
+		<PackageProjectUrl>https://cavern.sbence.hu/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/VoidXH/Cavern/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="12.0.4" />
+		<PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<AvaloniaResource Include="..\_Common\CavernLogo.png" Link="Assets\CavernLogo.png" />
+		<AvaloniaResource Include="..\CavernizeGUI\Resources\Images\*.png" Link="Assets\Images\%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Reusable\Cavernize.Logic\Cavernize.Logic.csproj" />
+	</ItemGroup>
+
+	<Target Name="CreateMacOSAppBundle" AfterTargets="Publish"
+		Condition="'$(RuntimeIdentifier)' == 'osx-arm64' Or '$(RuntimeIdentifier)' == 'osx-x64'">
+		<PropertyGroup>
+			<MacOSAppBundleDir>$(PublishDir)Cavernize.app</MacOSAppBundleDir>
+			<MacOSContentsDir>$(MacOSAppBundleDir)/Contents</MacOSContentsDir>
+			<MacOSExecutableDir>$(MacOSContentsDir)/MacOS</MacOSExecutableDir>
+		</PropertyGroup>
+
+		<RemoveDir Directories="$(MacOSAppBundleDir)" />
+		<MakeDir Directories="$(MacOSExecutableDir)" />
+
+		<ItemGroup>
+			<MacOSPublishFiles Include="$(PublishDir)**/*" Exclude="$(MacOSAppBundleDir)/**/*" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(MacOSPublishFiles)"
+			DestinationFiles="@(MacOSPublishFiles->'$(MacOSExecutableDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="Packaging/MacOS/Info.plist" DestinationFiles="$(MacOSContentsDir)/Info.plist" />
+		<WriteLinesToFile File="$(MacOSContentsDir)/PkgInfo" Lines="APPL????" Overwrite="true" />
+		<Exec Command="chmod +x &quot;$(MacOSExecutableDir)/$(AssemblyName)&quot;" />
+		<Message Text="Created macOS app bundle: $(MacOSAppBundleDir)" Importance="high" />
+	</Target>
+</Project>
