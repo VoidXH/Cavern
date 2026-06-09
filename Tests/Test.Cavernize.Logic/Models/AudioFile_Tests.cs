@@ -14,7 +14,7 @@ public class AudioFile_Tests {
     /// </summary>
     [TestMethod, Timeout(1000)]
     public void Tracks() {
-        string input = Path.Combine(Consts.cavernFormatTestData, "Multitrack.mkv");
+        string input = Path.Combine(Constants.cavernFormatTestData, "Multitrack.mkv");
         using AudioFile file = new(input, new());
         Track[] tracks = [.. file.AllTracks];
         Assert.AreEqual(4, tracks.Length);

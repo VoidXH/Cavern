@@ -18,7 +18,7 @@ public class TrackCommand_Tests {
     public void CorrectTrackSelected() {
         MockCavernizeApp app = new MockCavernizeApp();
         CommandLineProcessor.Initialize([
-            "-i", Path.Combine(Consts.cavernFormatTestData, "Multitrack.mkv"),
+            "-i", Constants.multitrackTestFile,
             "-trk", "1"
         ], app);
         Assert.IsNotNull(app.SelectedTrack);

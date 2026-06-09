@@ -37,7 +37,7 @@ public class SpatialRemapping_Tests {
     public void ToXML_Channel() {
         Listener.ReplaceChannels(toXMLSystem);
         string result = SpatialRemapping.ToXML(toXMLContent);
-        Assert.AreEqual(File.ReadAllText(Constants.testData + "ToXML.xml"), result);
+        Assert.AreEqual(File.ReadAllText(Path.Combine(Constants.testData, "ToXML.xml")), result);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class SpatialRemapping_Tests {
     [TestMethod, Timeout(1000)]
     public void ToXML_Matrix() {
         string result = SpatialRemapping.ToXML(SpatialRemapping.GetMatrix(toXMLContent, toXMLSystem));
-        Assert.AreEqual(File.ReadAllText(Constants.testData + "ToXML.xml"), result);
+        Assert.AreEqual(File.ReadAllText(Path.Combine(Constants.testData, "ToXML.xml")), result);
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ public class SpatialRemapping_Tests {
     [TestMethod, Timeout(1000)]
     public void ToXML_Matrix_ExtraParams() {
         string result = SpatialRemapping.ToXML(SpatialRemapping.GetMatrix(toXMLContent, toXMLSystem), ("Test", ["Passed", "Hopefully"]));
-        Assert.AreEqual(File.ReadAllText(Constants.testData + "ToXML_ExtraParams.xml"), result);
+        Assert.AreEqual(File.ReadAllText(Path.Combine(Constants.testData, "ToXML_ExtraParams.xml")), result);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public class SpatialRemapping_Tests {
     public void ToEqualizerAPO_Matrix() {
         string result = SpatialRemapping.ToEqualizerAPO(SpatialRemapping.GetMatrix(ChannelPrototype.ToLayout(ChannelPrototype.ref710),
             ChannelPrototype.ToLayout(ChannelPrototype.ref512)));
-        Assert.AreEqual(File.ReadAllText(Constants.testData + "ToEqualizerAPO.txt"), result);
+        Assert.AreEqual(File.ReadAllText(Path.Combine(Constants.testData, "ToEqualizerAPO.txt")), result);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public class SpatialRemapping_Tests {
     public void ToEqualizerAPO_Channel() {
         Listener.ReplaceChannels(ChannelPrototype.ToLayout(ChannelPrototype.ref512));
         string result = SpatialRemapping.ToEqualizerAPO(ChannelPrototype.ToLayout(ChannelPrototype.GetStandardMatrix(8)));
-        Assert.AreEqual(File.ReadAllText(Constants.testData + "ToEqualizerAPO.txt"), result);
+        Assert.AreEqual(File.ReadAllText(Path.Combine(Constants.testData, "ToEqualizerAPO.txt")), result);
     }
 
     /// <summary>
