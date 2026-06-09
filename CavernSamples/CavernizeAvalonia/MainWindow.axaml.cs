@@ -21,16 +21,15 @@ public partial class MainWindow : Window {
 
     public MainWindow() => InitializeComponent();
 
+    MainViewModel ViewModel => (MainViewModel)DataContext;
+
     protected override void OnOpened(EventArgs e) {
         base.OnOpened(e);
         BuildNativeMenu();
     }
 
     protected override void OnClosed(EventArgs e) {
-        if (DataContext is IDisposable disposable) {
-            disposable.Dispose();
-        }
-
+        ViewModel.Dispose();
         base.OnClosed(e);
     }
 
@@ -128,11 +127,10 @@ public partial class MainWindow : Window {
             ToolTip = toolTip
         };
         item.Click += (_, _) => {
-            if (DataContext is MainViewModel viewModel) {
-                bool value = !getter(viewModel);
-                setter(viewModel, value);
-                item.IsChecked = value;
-            }
+            MainViewModel viewModel = ViewModel;
+            bool value = !getter(viewModel);
+            setter(viewModel, value);
+            item.IsChecked = value;
         };
         return item;
     }
@@ -142,21 +140,17 @@ public partial class MainWindow : Window {
             ToggleType = MenuItemToggleType.Radio
         };
         item.Click += (_, _) => {
-            if (DataContext is MainViewModel viewModel) {
-                if (viewModel.SetLanguage(code)) {
-                    Restart();
-                } else {
-                    UpdateNativeMenuState();
-                }
+            if (ViewModel.SetLanguage(code)) {
+                Restart();
+            } else {
+                UpdateNativeMenuState();
             }
         };
         return item;
     }
 
     void UpdateNativeMenuState() {
-        if (DataContext is not MainViewModel viewModel) {
-            return;
-        }
+        MainViewModel viewModel = ViewModel;
 
         speakerVirtualizerMenuItem.IsChecked = viewModel.SpeakerVirtualizer;
         muteBedMenuItem.IsChecked = viewModel.MuteBed;
@@ -172,10 +166,7 @@ public partial class MainWindow : Window {
     }
 
     async void OpenUpmixSetup(object sender, EventArgs e) {
-        if (DataContext is not MainViewModel viewModel) {
-            return;
-        }
-
+        MainViewModel viewModel = ViewModel;
         UpmixingSetupWindow dialog = new(viewModel);
         await dialog.ShowDialog(this);
         if (dialog.Accepted) {
@@ -185,11 +176,8 @@ public partial class MainWindow : Window {
     }
 
     async void OpenFile(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is not MainViewModel viewModel || StorageProvider == null) {
-            return;
-        }
-
-        IReadOnlyList<IStorageFile> files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {
+        MainViewModel viewModel = ViewModel;
+        string path = await PickSingleFilePath(new FilePickerOpenOptions {
             Title = viewModel.OpenSourcePickerTitle,
             AllowMultiple = false,
             SuggestedStartLocation = await GetStartFolder(viewModel.LastDirectory),
@@ -200,22 +188,17 @@ public partial class MainWindow : Window {
                 FilePickerFileTypes.All
             ]
         });
-
-        if (files.Count != 1) {
-            return;
-        }
-
-        string path = files[0].Path.LocalPath;
         if (!string.IsNullOrWhiteSpace(path)) {
             await viewModel.OpenFile(path);
         }
     }
 
     async void RenderFile(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is not MainViewModel viewModel || StorageProvider == null) {
+        if (StorageProvider == null) {
             return;
         }
 
+        MainViewModel viewModel = ViewModel;
         string path = null;
         if (!viewModel.ReportMode) {
             IStorageFile file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
@@ -240,72 +223,45 @@ public partial class MainWindow : Window {
     }
 
     void AddToQueue(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            viewModel.AddCurrentToQueue();
-            ExpandForQueue(viewModel);
-        }
+        ViewModel.AddCurrentToQueue();
+        ExpandForQueue(ViewModel);
     }
 
     async void RunQueue(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            await viewModel.RunQueue();
-        }
+        await ViewModel.RunQueue();
     }
 
-    void Cancel(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            viewModel.Cancel();
-        }
-    }
+    void Cancel(object sender, Avalonia.Interactivity.RoutedEventArgs e) => ViewModel.Cancel();
 
-    void RemoveQueued(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            viewModel.RemoveSelectedQueueJob();
-        }
-    }
+    void RemoveQueued(object sender, Avalonia.Interactivity.RoutedEventArgs e) => ViewModel.RemoveSelectedQueueJob();
 
     void ShowWiring(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            ShowTextWindow(viewModel.DisplayWiringText, viewModel.GetWiringText());
-        }
+        ShowTextWindow(ViewModel.DisplayWiringText, ViewModel.GetWiringText());
     }
 
     void ShowSystemInfo(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            ShowTextWindow(viewModel.SystemTitle, viewModel.SystemInfoText);
-        }
+        ShowTextWindow(ViewModel.SystemTitle, ViewModel.SystemInfoText);
     }
 
     async void LocateFFmpeg(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is not MainViewModel viewModel || StorageProvider == null) {
-            return;
-        }
-
-        IReadOnlyList<IStorageFile> files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {
+        MainViewModel viewModel = ViewModel;
+        string path = await PickSingleFilePath(new FilePickerOpenOptions {
             Title = viewModel.Text("FFLoc", "Locate FFmpeg"),
             AllowMultiple = false,
             SuggestedStartLocation = await GetStartFolder(viewModel.LastDirectory),
             FileTypeFilter = [FilePickerFileTypes.All]
         });
-
-        if (files.Count == 1) {
-            string path = files[0].Path.LocalPath;
-            if (!string.IsNullOrWhiteSpace(path)) {
-                viewModel.SetFfmpegLocation(path);
-            }
+        if (!string.IsNullOrWhiteSpace(path)) {
+            viewModel.SetFfmpegLocation(path);
         }
     }
 
     void ShowMetadata(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            ShowTextWindow(viewModel.Text("CMetT", "Codec metadata"), viewModel.GetMetadataText());
-        }
+        ShowTextWindow(ViewModel.Text("CMetT", "Codec metadata"), ViewModel.GetMetadataText());
     }
 
     void ShowPostRenderReport(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            ShowTextWindow(viewModel.Text("PReRe", "Post-render report"), viewModel.GetPostRenderReportText());
-        }
+        ShowTextWindow(ViewModel.Text("PReRe", "Post-render report"), ViewModel.GetPostRenderReportText());
     }
 
     void OpenUserGuide(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
@@ -319,18 +275,13 @@ public partial class MainWindow : Window {
     }
 
     void ShowAbout(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            ShowTextWindow(viewModel.Text("AbouH", "About"), "Cavernize\nCopyright (C) Bence Sganetz 2016-2026\n" +
-                $"{viewModel.Text("AbouA", "Performance accelerated with CavernAmp.")}\nCross-platform Avalonia macOS port.");
-        }
+        ShowTextWindow(ViewModel.Text("AbouH", "About"), "Cavernize\nCopyright (C) Bence Sganetz 2016-2026\n" +
+            $"{ViewModel.Text("AbouA", "Performance accelerated with CavernAmp.")}\nCross-platform Avalonia macOS port.");
     }
 
     async void LoadHrir(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is not MainViewModel viewModel || StorageProvider == null) {
-            return;
-        }
-
-        IReadOnlyList<IStorageFile> files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {
+        MainViewModel viewModel = ViewModel;
+        string path = await PickSingleFilePath(new FilePickerOpenOptions {
             Title = viewModel.LoadHrirTitle,
             AllowMultiple = false,
             SuggestedStartLocation = await GetStartFolder(viewModel.LastDirectory),
@@ -341,27 +292,16 @@ public partial class MainWindow : Window {
                 FilePickerFileTypes.All
             ]
         });
-
-        if (files.Count == 1) {
-            string path = files[0].Path.LocalPath;
-            if (!string.IsNullOrWhiteSpace(path)) {
-                await viewModel.LoadHrir(path);
-            }
+        if (!string.IsNullOrWhiteSpace(path)) {
+            await viewModel.LoadHrir(path);
         }
     }
 
-    void ResetHrir(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            viewModel.ResetHrir();
-        }
-    }
+    void ResetHrir(object sender, Avalonia.Interactivity.RoutedEventArgs e) => ViewModel.ResetHrir();
 
     async void LoadFilters(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is not MainViewModel viewModel || StorageProvider == null) {
-            return;
-        }
-
-        IReadOnlyList<IStorageFile> files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions {
+        MainViewModel viewModel = ViewModel;
+        string path = await PickSingleFilePath(new FilePickerOpenOptions {
             Title = viewModel.LoadFiltersTitle,
             AllowMultiple = false,
             SuggestedStartLocation = await GetStartFolder(viewModel.LastFilterDirectory),
@@ -372,26 +312,15 @@ public partial class MainWindow : Window {
                 FilePickerFileTypes.All
             ]
         });
-
-        if (files.Count == 1) {
-            string path = files[0].Path.LocalPath;
-            if (!string.IsNullOrWhiteSpace(path)) {
-                viewModel.LoadRoomCorrection(path);
-            }
+        if (!string.IsNullOrWhiteSpace(path)) {
+            viewModel.LoadRoomCorrection(path);
         }
     }
 
-    void ClearFilters(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        if (DataContext is MainViewModel viewModel) {
-            viewModel.ClearRoomCorrection();
-        }
-    }
+    void ClearFilters(object sender, Avalonia.Interactivity.RoutedEventArgs e) => ViewModel.ClearRoomCorrection();
 
     async void DropFiles(object sender, DragEventArgs e) {
-        if (DataContext is not MainViewModel viewModel) {
-            return;
-        }
-
+        MainViewModel viewModel = ViewModel;
         string[] paths = e.DataTransfer.TryGetFiles()?
             .Select(item => item.Path.LocalPath)
             .Where(path => !string.IsNullOrWhiteSpace(path))
@@ -412,6 +341,15 @@ public partial class MainWindow : Window {
         !string.IsNullOrWhiteSpace(path) && Directory.Exists(path) ?
             await StorageProvider.TryGetFolderFromPathAsync(path) :
             null;
+
+    async Task<string> PickSingleFilePath(FilePickerOpenOptions options) {
+        if (StorageProvider == null) {
+            return null;
+        }
+
+        IReadOnlyList<IStorageFile> files = await StorageProvider.OpenFilePickerAsync(options);
+        return files.Count == 1 ? files[0].Path.LocalPath : null;
+    }
 
     void ShowTextWindow(string title, string text) {
         Window dialog = new() {
@@ -446,10 +384,10 @@ public partial class MainWindow : Window {
     }
 
     string Text(string key, string fallback) =>
-        DataContext is MainViewModel viewModel ? viewModel.Text(key, fallback) : fallback;
+        ViewModel.Text(key, fallback);
 
     string MenuText(string key, string fallback) =>
-        DataContext is MainViewModel viewModel ? viewModel.MenuText(key, fallback) : fallback;
+        ViewModel.MenuText(key, fallback);
 
     void Restart() {
         try {

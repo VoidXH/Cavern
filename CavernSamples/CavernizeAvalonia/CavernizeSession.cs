@@ -97,6 +97,7 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
     readonly TrackStrings trackStrings;
     readonly RenderReportStrings reportStrings;
     readonly ExternalConverterStrings externalConverterStrings;
+    readonly AvaloniaLanguage language;
     readonly ConversionEnvironment environment;
     CancellationToken cancellationToken;
     int blockSize;
@@ -104,27 +105,37 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
-    public CavernizeSession() : this(null, null, null, null) { }
+    public CavernizeSession() : this(null, null, null, null, null) { }
 
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
     public CavernizeSession(TrackStrings trackStrings, RenderReportStrings reportStrings,
-        ExternalConverterStrings externalConverterStrings) : this(null, trackStrings, reportStrings, externalConverterStrings) { }
+        ExternalConverterStrings externalConverterStrings) : this(null, trackStrings, reportStrings, externalConverterStrings, null) { }
 
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
-    public CavernizeSession(FFmpeg ffmpeg) : this(ffmpeg, null, null, null) { }
+    public CavernizeSession(FFmpeg ffmpeg) : this(ffmpeg, null, null, null, null) { }
+
+    /// <summary>
+    /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
+    /// </summary>
+    internal CavernizeSession(AvaloniaLanguage language) :
+        this(null, language.TrackStrings, language.RenderReportStrings, language.ExternalConverterStrings, language) { }
 
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
     public CavernizeSession(FFmpeg ffmpeg, TrackStrings trackStrings, RenderReportStrings reportStrings,
-        ExternalConverterStrings externalConverterStrings) {
+        ExternalConverterStrings externalConverterStrings) : this(ffmpeg, trackStrings, reportStrings, externalConverterStrings, null) { }
+
+    CavernizeSession(FFmpeg ffmpeg, TrackStrings trackStrings, RenderReportStrings reportStrings,
+        ExternalConverterStrings externalConverterStrings, AvaloniaLanguage language) {
         this.trackStrings = trackStrings ?? new TrackStrings();
         this.reportStrings = reportStrings ?? new RenderReportStrings();
         this.externalConverterStrings = externalConverterStrings ?? new ExternalConverterStrings();
+        this.language = language;
 
         ExportFormat = ExportFormat.GetFormats(this.trackStrings).First(format => format.Codec == Codec.PCM_LE);
         RenderTarget = RenderTarget.Targets.FirstOrDefault(target => target.Name == "5.1.2 side") ?? RenderTarget.Targets[0];
@@ -408,23 +419,165 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
         }
     }
 
+    /// <summary>
+    /// Keeps track of export time and evaluates performance.
+    /// </summary>
+    class Progressor(long length, Listener listener, AvaloniaLanguage language, Action<double> updateProgress,
+        Action<string> updateStatus) {
+        /// <summary>
+        /// Samples rendered so far.
+        /// </summary>
+        public long Rendered { get; private set; }
+
+        /// <summary>
+        /// Time of starting the export process.
+        /// </summary>
+        readonly DateTime start = DateTime.Now;
+
+        /// <summary>
+        /// Multiplier of the content length to get the progress ratio.
+        /// </summary>
+        readonly double samplesToProgress = 1.0 / length;
+
+        /// <summary>
+        /// Converts samples to seconds.
+        /// </summary>
+        readonly double samplesToSeconds = 1.0 / listener.SampleRate;
+
+        /// <summary>
+        /// Samples processed each frame.
+        /// </summary>
+        readonly long updateRate = listener.UpdateRate;
+
+        readonly string progressStatus = language == null ?
+            "Rendering... ({0}, speed: {1}x, remaining: {2})" :
+            language["ProgP"];
+        readonly string finalizingStatus = language == null ? "Finalizing... ({0})" : language["FinaP"];
+
+        /// <summary>
+        /// Samples until next UI update.
+        /// </summary>
+        long untilUpdate = updateInterval;
+
+        /// <summary>
+        /// Report progress after each listener update.
+        /// </summary>
+        public void Update() {
+            Rendered += updateRate;
+            if ((untilUpdate -= updateRate) <= 0) {
+                double progress = Rendered * samplesToProgress;
+                TimeSpan elapsed = DateTime.Now - start, remaining = elapsed / progress - elapsed;
+                double speed = Rendered * samplesToSeconds / elapsed.TotalSeconds;
+
+                string remDisp;
+                if (remaining.TotalDays < 1) {
+                    if (remaining.TotalHours < 1) {
+                        remDisp = remaining.ToString("mm':'ss");
+                    } else {
+                        remDisp = remaining.ToString("h':'mm':'ss");
+                    }
+                } else {
+                    remDisp = remaining.ToString("d':'hh':'mm':'ss");
+                }
+
+                updateStatus?.Invoke(string.Format(progressStatus, progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
+                updateProgress?.Invoke(progress);
+                untilUpdate = updateInterval;
+            }
+        }
+
+        /// <summary>
+        /// Report custom progress as finalization.
+        /// </summary>
+        public void Finalize(double progress) {
+            updateStatus?.Invoke(string.Format(finalizingStatus, progress.ToString("0.00%")));
+            updateProgress?.Invoke(progress);
+        }
+    }
+
     RenderStats WriteRender(CavernizeTrack target, AudioWriter writer, RenderTarget renderTarget) {
         RenderStats stats = DetailedGrading ? new RenderStatsEx(environment.Listener) : new RenderStats(environment.Listener);
-        Progressor progressor = new(target.Length, environment.Listener, UpdateProgress, UpdateStatus);
+        Progressor progressor = new(target.Length, environment.Listener, language, UpdateProgress, UpdateStatus);
         bool customMuting = RenderingSettings.MuteBed || RenderingSettings.MuteGround;
 
-        RenderBuffer buffer = new(blockSize, renderTarget.OutputChannels);
-        using RenderOutputProcessor output = new(RenderingSettings, environment.Listener);
+        MultichannelConvolver filters = null;
+        if (RenderingSettings.RoomCorrectionUsable) {
+            filters = new MultichannelConvolver(RenderingSettings.RoomCorrection.Data);
+        }
+
+        // Virtualization is done with the buffer instead of each update in the listener to optimize FFT sizes.
+        VirtualizerFilter virtualizer = null;
+        Normalizer normalizer = null;
+        bool virtualizerState = Listener.HeadphoneVirtualizer;
+        if (virtualizerState || RenderingSettings.SpeakerVirtualizer) {
+            Listener.HeadphoneVirtualizer = false;
+            virtualizer = new VirtualizerFilter();
+            virtualizer.SetLayout();
+            normalizer = new Normalizer(true) {
+                decayFactor = 10 * (float)environment.Listener.UpdateRate / environment.Listener.SampleRate
+            };
+        }
+
+        int cachePosition = 0;
+        bool flush = false;
+        // The size of writeCache makes sure ContainerWriters get correct sized blocks when written with WriteChannelLimitedBlock.
+        float[] writeCache = new float[blockSize / renderTarget.OutputChannels * Listener.Channels.Length];
+
+#if RELEASE
+        bool wasError = false;
+#endif
         try {
             while (progressor.Rendered < target.Length) {
                 ThrowIfCancellationRequested();
-                float[] renderedFrame = buffer.RenderNext(environment.Listener, target.Length - progressor.Rendered);
-                if (buffer.Append(renderedFrame)) {
-                    buffer.Write(output, writer, renderTarget);
+                float[] result;
+#if RELEASE
+                try {
+#endif
+                    result = environment.Listener.Render();
+#if RELEASE
+                } catch (Exception e) {
+                    if (!wasError) {
+                        wasError = true;
+                        TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
+                        string renderError = language == null ?
+                            "The audio at {0} could not be rendered. Processing will continue, but the track won't be intact after that timestamp. The exact error: {1}" :
+                            language["RenEr"];
+                        WarningRaised?.Invoke(string.Format(renderError, time, e.Message));
+                    }
+                    result = new float[Listener.Channels.Length * environment.Listener.UpdateRate];
+                }
+#endif
+
+                // Alignment of split parts.
+                if (target.Length - progressor.Rendered < environment.Listener.UpdateRate) {
+                    Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
+                    flush = true;
+                }
+
+                Array.Copy(result, 0, writeCache, cachePosition, result.Length);
+                cachePosition += result.Length;
+                if (cachePosition == writeCache.Length || flush) {
+                    filters?.Process(writeCache);
+
+                    if (virtualizer == null) {
+                        if (renderTarget is not DownmixedRenderTarget downmix) {
+                            writer?.WriteBlock(writeCache, 0, cachePosition);
+                        } else {
+                            downmix.PerformMerge(writeCache);
+                            writer?.WriteChannelLimitedBlock(writeCache, downmix.OutputChannels,
+                                Listener.Channels.Length, 0, cachePosition);
+                        }
+                    } else {
+                        virtualizer.Process(writeCache, environment.Listener.SampleRate);
+                        normalizer.Process(writeCache);
+                        writer?.WriteChannelLimitedBlock(writeCache, renderTarget.OutputChannels,
+                            Listener.Channels.Length, 0, cachePosition);
+                    }
+                    cachePosition = 0;
                 }
 
                 if (progressor.Rendered > secondFrame) {
-                    stats.Update(renderedFrame);
+                    stats.Update(result);
                 }
 
                 if (customMuting) {
@@ -435,6 +588,9 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
             }
         } finally {
             writer?.Dispose();
+            if (virtualizerState) {
+                Listener.HeadphoneVirtualizer = true;
+            }
         }
 
         return stats;
@@ -452,7 +608,7 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
 
     RenderStats WriteTranscode(CavernizeTrack target, EnvironmentWriter writer) {
         RenderStats stats = new(environment.Listener);
-        Progressor progressor = new(target.Length, environment.Listener, UpdateProgress, UpdateStatus);
+        Progressor progressor = new(target.Length, environment.Listener, language, UpdateProgress, UpdateStatus);
 
         while (progressor.Rendered < target.Length) {
             ThrowIfCancellationRequested();
@@ -466,7 +622,8 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
 
     RenderStats WriteTranscode(CavernizeTrack target, BroadcastWaveFormatWriter writer) {
         RenderStats stats = new(environment.Listener);
-        Progressor progressor = new((long)(target.Length / progressSplit), environment.Listener, UpdateProgress, UpdateStatus);
+        Progressor progressor = new((long)(target.Length / progressSplit), environment.Listener, language, UpdateProgress,
+            UpdateStatus);
 
         while (progressor.Rendered < target.Length) {
             ThrowIfCancellationRequested();
@@ -486,141 +643,9 @@ public sealed class CavernizeSession : ICavernizeApp, IDisposable {
 
     void ThrowIfCancellationRequested() => cancellationToken.ThrowIfCancellationRequested();
 
-    sealed class RenderOutputProcessor : IDisposable {
-        readonly Listener listener;
-        readonly MultichannelConvolver filters;
-        readonly bool restoreHeadphoneVirtualizer;
-        VirtualizerFilter virtualizer;
-        Normalizer normalizer;
-
-        public RenderOutputProcessor(RenderingSettings settings, Listener listener) {
-            this.listener = listener;
-            if (settings.RoomCorrectionUsable) {
-                filters = new MultichannelConvolver(settings.RoomCorrection.Data);
-            }
-
-            restoreHeadphoneVirtualizer = Listener.HeadphoneVirtualizer;
-            if (restoreHeadphoneVirtualizer || settings.SpeakerVirtualizer) {
-                EnableVirtualizedOutput();
-            }
-        }
-
-        void EnableVirtualizedOutput() {
-            Listener.HeadphoneVirtualizer = false;
-            virtualizer = new VirtualizerFilter();
-            virtualizer.SetLayout();
-            normalizer = CreateNormalizer(listener);
-        }
-
-        static Normalizer CreateNormalizer(Listener listener) => new(true) {
-            decayFactor = 10 * (float)listener.UpdateRate / listener.SampleRate
-        };
-
-        public void ProcessAndWrite(float[] samples, int length, AudioWriter writer, RenderTarget target) {
-            filters?.Process(samples);
-            if (virtualizer != null) {
-                virtualizer.Process(samples, listener.SampleRate);
-                normalizer.Process(samples);
-                writer?.WriteChannelLimitedBlock(samples, target.OutputChannels, Listener.Channels.Length, 0, length);
-                return;
-            }
-
-            if (target is DownmixedRenderTarget downmix) {
-                downmix.PerformMerge(samples);
-                writer?.WriteChannelLimitedBlock(samples, downmix.OutputChannels, Listener.Channels.Length, 0, length);
-                return;
-            }
-
-            writer?.WriteBlock(samples, 0, length);
-        }
-
-        public void Dispose() {
-            if (restoreHeadphoneVirtualizer) {
-                Listener.HeadphoneVirtualizer = true;
-            }
-        }
-    }
-
-    sealed class RenderBuffer {
-        readonly float[] samples;
-        int position;
-        bool flushAfterFrame;
-
-        public RenderBuffer(int blockSize, int outputChannels) =>
-            samples = new float[blockSize / outputChannels * Listener.Channels.Length];
-
-        public float[] RenderNext(Listener listener, long remainingSamples) {
-            float[] result = listener.Render();
-            if (remainingSamples < listener.UpdateRate) {
-                Array.Resize(ref result, (int)(remainingSamples * Listener.Channels.Length));
-                flushAfterFrame = true;
-            }
-            return result;
-        }
-
-        public bool Append(float[] frame) {
-            Array.Copy(frame, 0, samples, position, frame.Length);
-            position += frame.Length;
-            return position == samples.Length || flushAfterFrame;
-        }
-
-        public void Write(RenderOutputProcessor output, AudioWriter writer, RenderTarget target) {
-            output.ProcessAndWrite(samples, position, writer, target);
-            position = 0;
-        }
-    }
-
-    /// <summary>
-    /// Keeps track of export time and evaluates performance.
-    /// </summary>
-    sealed class Progressor(long length, Listener listener, Action<double> updateProgress, Action<string> updateStatus) {
-        /// <summary>
-        /// Samples rendered so far.
-        /// </summary>
-        public long Rendered { get; private set; }
-
-        readonly DateTime start = DateTime.Now;
-        readonly double samplesToProgress = 1.0 / length;
-        readonly double samplesToSeconds = 1.0 / listener.SampleRate;
-        readonly long updateRate = listener.UpdateRate;
-        long untilUpdate = updateInterval;
-
-        /// <summary>
-        /// Report progress after each listener update.
-        /// </summary>
-        public void Update() {
-            Rendered += updateRate;
-            if ((untilUpdate -= updateRate) > 0) {
-                return;
-            }
-
-            double progress = Rendered * samplesToProgress;
-            TimeSpan elapsed = DateTime.Now - start, remaining = elapsed / progress - elapsed;
-            double speed = Rendered * samplesToSeconds / elapsed.TotalSeconds;
-            string remainingDisplay;
-            if (remaining.TotalDays < 1) {
-                remainingDisplay = remaining.TotalHours < 1 ? remaining.ToString("mm':'ss") : remaining.ToString("h':'mm':'ss");
-            } else {
-                remainingDisplay = remaining.ToString("d':'hh':'mm':'ss");
-            }
-
-            updateStatus?.Invoke($"Progress: {progress:0.00%}, speed: {speed:0.00}x, remaining: {remainingDisplay}");
-            updateProgress?.Invoke(progress);
-            untilUpdate = updateInterval;
-        }
-
-        /// <summary>
-        /// Report custom progress as finalization.
-        /// </summary>
-        public void Finalize(double progress) {
-            updateStatus?.Invoke($"Finalizing: {progress:0.00%}");
-            updateProgress?.Invoke(progress);
-        }
-    }
-
     const string waveExtension = ".wav";
     const int defaultWriteCacheLength = 16384;
-    const long updateInterval = 50000;
     const int secondFrame = 2 * 1536;
     const double progressSplit = .95;
+    const long updateInterval = 50000;
 }

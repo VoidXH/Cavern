@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 using Avalonia.Threading;
@@ -45,8 +46,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
             if (SetProperty(ref selectedExportFormat, value)) {
                 session.ExportFormat = value;
                 SaveSettings();
-                OnPropertyChanged(nameof(SuggestedOutputName));
-                OnPropertyChanged(nameof(SuggestedOutputExtension));
+                NotifyProperties(nameof(SuggestedOutputName), nameof(SuggestedOutputExtension));
             }
         }
     }
@@ -58,12 +58,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
                 session.RenderTarget = value;
                 UpdateRenderTargetDetails();
                 if (session.RenderingSettings.RoomCorrection != null) {
-                    session.RenderingSettings.RoomCorrection = null;
-                    roomCorrectionPath = null;
-                    settings.RoomCorrectionPath = null;
+                    ClearRoomCorrectionState();
                     Status = "Room correction cleared because the layout changed.";
-                    OnPropertyChanged(nameof(HasRoomCorrection));
-                    OnPropertyChanged(nameof(RoomCorrectionStatus));
+                    NotifyRoomCorrectionChanged();
                 }
                 SaveSettings();
             }
@@ -72,79 +69,41 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
     public bool SpeakerVirtualizer {
         get => session.RenderingSettings.SpeakerVirtualizer;
-        set {
-            if (session.RenderingSettings.SpeakerVirtualizer != value) {
-                session.RenderingSettings.SpeakerVirtualizer = value;
-                SaveSettings();
-                OnPropertyChanged();
-            }
-        }
+        set => SetPersistedOption(session.RenderingSettings.SpeakerVirtualizer, value,
+            newValue => session.RenderingSettings.SpeakerVirtualizer = newValue);
     }
 
     public bool Force24Bit {
         get => session.RenderingSettings.Force24Bit;
-        set {
-            if (session.RenderingSettings.Force24Bit != value) {
-                session.RenderingSettings.Force24Bit = value;
-                SaveSettings();
-                OnPropertyChanged();
-            }
-        }
+        set => SetPersistedOption(session.RenderingSettings.Force24Bit, value,
+            newValue => session.RenderingSettings.Force24Bit = newValue);
     }
 
     public bool MuteBed {
         get => session.RenderingSettings.MuteBed;
-        set {
-            if (session.RenderingSettings.MuteBed != value) {
-                session.RenderingSettings.MuteBed = value;
-                SaveSettings();
-                OnPropertyChanged();
-            }
-        }
+        set => SetPersistedOption(session.RenderingSettings.MuteBed, value,
+            newValue => session.RenderingSettings.MuteBed = newValue);
     }
 
     public bool MuteGround {
         get => session.RenderingSettings.MuteGround;
-        set {
-            if (session.RenderingSettings.MuteGround != value) {
-                session.RenderingSettings.MuteGround = value;
-                SaveSettings();
-                OnPropertyChanged();
-            }
-        }
+        set => SetPersistedOption(session.RenderingSettings.MuteGround, value,
+            newValue => session.RenderingSettings.MuteGround = newValue);
     }
 
     public bool SurroundSwap {
         get => session.SurroundSwap;
-        set {
-            if (session.SurroundSwap != value) {
-                session.SurroundSwap = value;
-                SaveSettings();
-                OnPropertyChanged();
-            }
-        }
+        set => SetPersistedOption(session.SurroundSwap, value, newValue => session.SurroundSwap = newValue);
     }
 
     public bool WavChannelSkip {
         get => session.WavChannelSkip;
-        set {
-            if (session.WavChannelSkip != value) {
-                session.WavChannelSkip = value;
-                SaveSettings();
-                OnPropertyChanged();
-            }
-        }
+        set => SetPersistedOption(session.WavChannelSkip, value, newValue => session.WavChannelSkip = newValue);
     }
 
     public bool DetailedGrading {
         get => session.DetailedGrading;
-        set {
-            if (session.DetailedGrading != value) {
-                session.DetailedGrading = value;
-                SaveSettings();
-                OnPropertyChanged();
-            }
-        }
+        set => SetPersistedOption(session.DetailedGrading, value, newValue => session.DetailedGrading = newValue);
     }
 
     public bool ReportMode {
@@ -392,8 +351,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
     public MainViewModel() {
         language = AvaloniaLanguage.Create(settings.LanguageCode);
         settings.LanguageCode = language.Code;
-        session = new(trackStrings: language.TrackStrings, reportStrings: language.RenderReportStrings,
-            externalConverterStrings: language.ExternalConverterStrings);
+        session = new(language);
         loadedTitle = Text("NoSrc", "No source loaded");
         status = Text("OpSrcS", "Open a source file.");
         warning = NoWarningsText;
@@ -452,12 +410,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         IsBusy = true;
         try {
             await Task.Run(() => session.OpenContent(path));
-            Tracks.Clear();
-            foreach (CavernizeTrack track in session.LoadedFile.Tracks) {
-                Tracks.Add(track);
-            }
-            LoadedPath = path;
-            LoadedTitle = Path.GetFileName(path);
+            ApplyLoadedFile(path);
             settings.LastDirectory = Path.GetDirectoryName(path);
             SelectedTrack = session.SelectedTrack;
             Status = $"Opened {LoadedTitle}.";
@@ -466,7 +419,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
             IsProgressIndeterminate = false;
             ReportText = session.Report.Report;
             SaveSettings();
-            OnPropertyChanged(nameof(SuggestedOutputName));
+            NotifyProperties(nameof(SuggestedOutputName));
             OnPropertyChanged(nameof(LastDirectory));
         } catch (Exception ex) {
             Status = "Open failed.";
@@ -492,9 +445,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         } catch (OperationCanceledException) {
             Status = "Render canceled.";
             Warning = NoWarningsText;
-            if (!outputExisted && !string.IsNullOrWhiteSpace(path)) {
-                File.Delete(path);
-            }
+            DeleteCreatedOutput(path, outputExisted);
         } catch (Exception ex) {
             Status = "Render failed.";
             Warning = ex.Message;
@@ -513,8 +464,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
         QueueJobs.Add(CreateJob(LoadedPath, Tracks.IndexOf(SelectedTrack)));
         Status = $"Queued {LoadedTitle}.";
-        OnPropertyChanged(nameof(CanRunQueue));
-        OnPropertyChanged(nameof(HasQueueJobs));
     }
 
     public void AddFilesToQueue(IEnumerable<string> paths) {
@@ -531,8 +480,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
         if (added != 0) {
             Status = $"Queued {added} file{(added == 1 ? string.Empty : "s")}.";
-            OnPropertyChanged(nameof(CanRunQueue));
-            OnPropertyChanged(nameof(HasQueueJobs));
         }
     }
 
@@ -544,8 +491,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         QueueJobs.Remove(SelectedQueueJob);
         SelectedQueueJob = null;
         Status = "Removed queued job.";
-        OnPropertyChanged(nameof(CanRunQueue));
-        OnPropertyChanged(nameof(HasQueueJobs));
     }
 
     public async Task LoadHrir(string path) {
@@ -597,18 +542,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
             Status = $"Loaded filters {Path.GetFileName(path)}.";
             Warning = NoWarningsText;
             SaveSettings();
-            OnPropertyChanged(nameof(HasRoomCorrection));
-            OnPropertyChanged(nameof(RoomCorrectionStatus));
+            NotifyRoomCorrectionChanged();
             OnPropertyChanged(nameof(LastFilterDirectory));
         } catch (Exception ex) {
-            session.RenderingSettings.RoomCorrection = null;
-            roomCorrectionPath = null;
-            settings.RoomCorrectionPath = null;
+            ClearRoomCorrectionState();
             Status = "Filter load failed.";
             Warning = ex.Message;
             SaveSettings();
-            OnPropertyChanged(nameof(HasRoomCorrection));
-            OnPropertyChanged(nameof(RoomCorrectionStatus));
+            NotifyRoomCorrectionChanged();
         }
     }
 
@@ -617,14 +558,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
             return;
         }
 
-        session.RenderingSettings.RoomCorrection = null;
-        roomCorrectionPath = null;
-        settings.RoomCorrectionPath = null;
+        ClearRoomCorrectionState();
         Status = "Cleared room correction filters.";
         Warning = NoWarningsText;
         SaveSettings();
-        OnPropertyChanged(nameof(HasRoomCorrection));
-        OnPropertyChanged(nameof(RoomCorrectionStatus));
+        NotifyRoomCorrectionChanged();
     }
 
     public void SetFfmpegLocation(string path) {
@@ -670,10 +608,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         session.UpmixingSettings.Effect = Math.Clamp(effect, 0, 1);
         session.UpmixingSettings.Smoothness = Math.Clamp(smoothness, 0, 1);
         SaveSettings();
-        OnPropertyChanged(nameof(MatrixUpmixing));
-        OnPropertyChanged(nameof(CavernizeUpmixing));
-        OnPropertyChanged(nameof(UpmixingEffect));
-        OnPropertyChanged(nameof(UpmixingSmoothness));
+        NotifyProperties(nameof(MatrixUpmixing), nameof(CavernizeUpmixing), nameof(UpmixingEffect), nameof(UpmixingSmoothness));
     }
 
     public async Task RunQueue() {
@@ -687,55 +622,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         cancellation = new CancellationTokenSource();
         try {
             foreach (QueuedRenderJob job in QueueJobs.ToArray()) {
-                cancellation.Token.ThrowIfCancellationRequested();
-                activeJob = job;
-                job.Status = "Opening";
-                job.Progress = 0;
-                await Task.Run(() => session.OpenContent(job.SourcePath), cancellation.Token);
-                Tracks.Clear();
-                foreach (CavernizeTrack track in session.LoadedFile.Tracks) {
-                    Tracks.Add(track);
-                }
-                LoadedPath = job.SourcePath;
-                LoadedTitle = Path.GetFileName(job.SourcePath);
-                ApplyJobSettings(job);
-                if (job.TrackIndex.HasValue && job.TrackIndex.Value >= 0 && job.TrackIndex.Value < session.LoadedFile.Tracks.Count) {
-                    session.SelectedTrack = session.LoadedFile.Tracks[job.TrackIndex.Value];
-                }
-                SelectedTrack = session.SelectedTrack;
-
-                job.Status = "Rendering";
-                Status = $"Rendering {job.DisplayName}...";
-                if (File.Exists(job.OutputPath) || QueueJobs.Any(other => !ReferenceEquals(other, job) &&
-                    string.Equals(other.OutputPath, job.OutputPath, StringComparison.OrdinalIgnoreCase))) {
-                    job.OutputPath = CreateOutputPath(job.SourcePath);
-                }
-                bool outputExisted = File.Exists(job.OutputPath);
-                try {
-                    await session.RenderAsync(job.OutputPath, cancellation.Token);
-                } catch {
-                    if (!outputExisted && File.Exists(job.OutputPath)) {
-                        File.Delete(job.OutputPath);
-                    }
-                    throw;
-                }
-                job.Progress = 1;
-                job.Status = "Done";
-                ReportText = session.Report.Report;
-                QueueJobs.Remove(job);
+                await ProcessQueueJob(job, cancellation.Token);
             }
 
             Status = "Queue completed.";
         } catch (OperationCanceledException) {
-            if (activeJob != null) {
-                activeJob.Status = "Canceled";
-            }
+            SetActiveJobStatus("Canceled");
             Status = "Queue canceled.";
             Warning = NoWarningsText;
         } catch (Exception ex) {
-            if (activeJob != null) {
-                activeJob.Status = "Failed";
-            }
+            SetActiveJobStatus("Failed");
             Status = "Queue failed.";
             Warning = ex.Message;
         } finally {
@@ -744,7 +640,6 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
             cancellation = null;
             IsProgressIndeterminate = false;
             IsBusy = false;
-            OnPropertyChanged(nameof(CanRunQueue));
         }
     }
 
@@ -802,6 +697,106 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         cancellation?.Dispose();
         SaveSettings();
         session.Dispose();
+    }
+
+    async Task ProcessQueueJob(QueuedRenderJob job, CancellationToken cancellationToken) {
+        cancellationToken.ThrowIfCancellationRequested();
+        activeJob = job;
+        await OpenQueueJob(job, cancellationToken);
+        ApplyJobSettings(job);
+        SelectQueueTrack(job);
+        await RenderQueueJob(job, cancellationToken);
+        CompleteQueueJob(job);
+    }
+
+    async Task OpenQueueJob(QueuedRenderJob job, CancellationToken cancellationToken) {
+        job.Status = "Opening";
+        job.Progress = 0;
+        await Task.Run(() => session.OpenContent(job.SourcePath), cancellationToken);
+        ApplyLoadedFile(job.SourcePath);
+    }
+
+    void SelectQueueTrack(QueuedRenderJob job) {
+        if (job.TrackIndex.HasValue && job.TrackIndex.Value >= 0 && job.TrackIndex.Value < session.LoadedFile.Tracks.Count) {
+            session.SelectedTrack = session.LoadedFile.Tracks[job.TrackIndex.Value];
+        }
+        SelectedTrack = session.SelectedTrack;
+    }
+
+    async Task RenderQueueJob(QueuedRenderJob job, CancellationToken cancellationToken) {
+        job.Status = "Rendering";
+        Status = $"Rendering {job.DisplayName}...";
+        if (OutputPathConflicts(job)) {
+            job.OutputPath = CreateOutputPath(job.SourcePath);
+        }
+
+        bool outputExisted = File.Exists(job.OutputPath);
+        try {
+            await session.RenderAsync(job.OutputPath, cancellationToken);
+        } catch {
+            DeleteCreatedOutput(job.OutputPath, outputExisted);
+            throw;
+        }
+    }
+
+    void CompleteQueueJob(QueuedRenderJob job) {
+        job.Progress = 1;
+        job.Status = "Done";
+        ReportText = session.Report.Report;
+        QueueJobs.Remove(job);
+    }
+
+    void SetActiveJobStatus(string status) {
+        if (activeJob != null) {
+            activeJob.Status = status;
+        }
+    }
+
+    bool OutputPathConflicts(QueuedRenderJob job) =>
+        File.Exists(job.OutputPath) ||
+        QueueJobs.Any(other => !ReferenceEquals(other, job) &&
+            string.Equals(other.OutputPath, job.OutputPath, StringComparison.OrdinalIgnoreCase));
+
+    void ApplyLoadedFile(string path) {
+        Tracks.Clear();
+        foreach (CavernizeTrack track in session.LoadedFile.Tracks) {
+            Tracks.Add(track);
+        }
+        LoadedPath = path;
+        LoadedTitle = Path.GetFileName(path);
+    }
+
+    void ClearRoomCorrectionState() {
+        session.RenderingSettings.RoomCorrection = null;
+        roomCorrectionPath = null;
+        settings.RoomCorrectionPath = null;
+    }
+
+    void NotifyRoomCorrectionChanged() =>
+        NotifyProperties(nameof(HasRoomCorrection), nameof(RoomCorrectionStatus));
+
+    bool SetPersistedOption(bool currentValue, bool newValue, Action<bool> setter,
+        [CallerMemberName] string propertyName = null) {
+        if (currentValue == newValue) {
+            return false;
+        }
+
+        setter(newValue);
+        SaveSettings();
+        OnPropertyChanged(propertyName);
+        return true;
+    }
+
+    void NotifyProperties(params string[] propertyNames) {
+        foreach (string propertyName in propertyNames) {
+            OnPropertyChanged(propertyName);
+        }
+    }
+
+    static void DeleteCreatedOutput(string path, bool outputExisted) {
+        if (!outputExisted && !string.IsNullOrWhiteSpace(path) && File.Exists(path)) {
+            File.Delete(path);
+        }
     }
 
     QueuedRenderJob CreateJob(string sourcePath, int? trackIndex) => new(sourcePath, CreateOutputPath(sourcePath), trackIndex,
