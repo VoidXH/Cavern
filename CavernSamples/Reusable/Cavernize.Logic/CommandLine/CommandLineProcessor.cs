@@ -38,13 +38,13 @@ public static class CommandLineProcessor {
 
                 try {
                     command.Execute(args, ++i, app);
-                } catch (CommandProcessingCanceledException) {
-                    return true;
                 } catch (Exception exception) {
-                    if (string.IsNullOrEmpty(exception.Message)) {
-                        Console.Error.WriteLine(exception);
-                    } else {
-                        Console.Error.WriteLine(exception.Message);
+                    if (exception is not CommandProcessingCanceledException) {
+                        if (string.IsNullOrEmpty(exception.Message)) {
+                            Console.Error.WriteLine(exception);
+                        } else {
+                            Console.Error.WriteLine(exception.Message);
+                        }
                     }
                     return false;
                 }
