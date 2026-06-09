@@ -679,8 +679,8 @@ public partial class MainWindow : Window {
         Resources["PrimaryButtonHeight"] = Scaled(60, scale);
         Resources["SmallIconSize"] = Scaled(24, scale);
         Resources["RenderIconSize"] = Scaled(34, scale);
-        Resources["QueueButtonWidth"] = Scaled(155, scale);
-        Resources["QueueRunButtonWidth"] = Scaled(130, scale);
+        Resources["QueueButtonMinWidth"] = Scaled(155, scale);
+        Resources["QueueRunButtonMinWidth"] = Scaled(130, scale);
         Resources["QueueProgressHeight"] = Scaled(8, scale);
         Resources["StatusProgressWidth"] = Scaled(225, scale);
         Resources["StatusProgressHeight"] = Scaled(30, scale);

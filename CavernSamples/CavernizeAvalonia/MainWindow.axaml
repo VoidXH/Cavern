@@ -317,15 +317,18 @@
             </ListBox.ItemTemplate>
           </ListBox>
 
-          <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{DynamicResource FormColumnSpacing}">
-            <Button Click="RemoveQueued" IsEnabled="{Binding CanRemoveQueueJob}" Width="{DynamicResource QueueButtonWidth}">
+          <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="{DynamicResource ContentColumnSpacing}">
+            <Button Click="RemoveQueued"
+                    IsEnabled="{Binding CanRemoveQueueJob}"
+                    MinWidth="{DynamicResource QueueButtonMinWidth}"
+                    HorizontalAlignment="Stretch">
               <TextBlock Text="{Binding RemoveSelectedText}" />
             </Button>
-            <Button Grid.Column="2"
+            <Button Grid.Column="1"
                     Classes="primary"
                     Click="RunQueue"
                     IsEnabled="{Binding CanRunQueue}"
-                    Width="{DynamicResource QueueRunButtonWidth}"
+                    MinWidth="{DynamicResource QueueRunButtonMinWidth}"
                     Height="{DynamicResource OpenButtonHeight}">
               <TextBlock Text="{Binding ProcessText}" FontSize="{DynamicResource LabelFontSize}" />
             </Button>
