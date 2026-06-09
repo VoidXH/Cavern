@@ -31,6 +31,7 @@ public partial class MainWindow : Window {
     NativeMenuItem englishLanguageMenuItem;
     NativeMenuItem hungarianLanguageMenuItem;
     NativeMenuItem checkUpdatesMenuItem;
+    bool renderTargetSelectorOpen;
 
     public MainWindow() => InitializeComponent();
 
@@ -253,11 +254,19 @@ public partial class MainWindow : Window {
         }
     }
 
-    async void OpenRenderTargetSelector(object sender, EventArgs e) {
-        renderTarget.IsDropDownOpen = false;
-        RenderTarget selected = await new RenderTargetSelectorWindow(ViewModel).ShowDialog<RenderTarget>(this);
-        if (selected != null) {
-            ViewModel.SelectedRenderTarget = selected;
+    async void OpenRenderTargetSelector(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+        if (renderTargetSelectorOpen) {
+            return;
+        }
+
+        renderTargetSelectorOpen = true;
+        try {
+            RenderTarget selected = await new RenderTargetSelectorWindow(ViewModel).ShowDialog<RenderTarget>(this);
+            if (selected != null) {
+                ViewModel.SelectedRenderTarget = selected;
+            }
+        } finally {
+            renderTargetSelectorOpen = false;
         }
     }
 
@@ -635,10 +644,7 @@ public partial class MainWindow : Window {
         Resources["PrimaryButtonFontSize"] = Scaled(26, scale);
         Resources["StatusFontSize"] = Scaled(22, scale);
 
-        Resources["WorkspaceMinWidth"] = Scaled(930, scale);
-        Resources["WorkspaceMinHeight"] = Scaled(590, scale);
         Resources["SystemColumnWidth"] = new GridLength(Scaled(360, scale));
-        Resources["ContentColumnMinWidth"] = Scaled(500, scale);
         Resources["QueueColumnWidth"] = Scaled(365, scale);
 
         Resources["OuterPadding"] = new Thickness(Scaled(15, scale));
@@ -647,6 +653,8 @@ public partial class MainWindow : Window {
         Resources["StatusPadding"] = new Thickness(Scaled(20, scale), Scaled(10, scale));
         Resources["ButtonPadding"] = new Thickness(Scaled(14, scale), Scaled(8, scale));
         Resources["ComboPadding"] = new Thickness(Scaled(8, scale), Scaled(2, scale));
+        Resources["ComboArrowMargin"] = new Thickness(Scaled(8, scale), 0, 0, 0);
+        Resources["ComboArrowSize"] = Scaled(12, scale);
         Resources["QueueItemPadding"] = new Thickness(Scaled(4, scale), Scaled(6, scale));
         Resources["SpeakerLayoutMargin"] = new Thickness(0, Scaled(8, scale));
         Resources["CardCornerRadius"] = new CornerRadius(Scaled(20, scale));

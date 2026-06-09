@@ -4,10 +4,8 @@
         x:Class="CavernizeGUI.MainWindow"
         x:DataType="local:MainViewModel"
         Title="Cavernize"
-        Width="998"
-        Height="760"
-        MinWidth="520"
-        MinHeight="420"
+        Width="935"
+        Height="500"
         Background="#696969"
         Foreground="#F0F0F0"
         DragDrop.AllowDrop="True"
@@ -78,6 +76,24 @@
       <Setter Property="MinHeight" Value="{DynamicResource ComboHeight}" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
+    <Style Selector="Button.comboButton">
+      <Setter Property="Background" Value="#3B3B3B" />
+      <Setter Property="Foreground" Value="#FFFFFF" />
+      <Setter Property="BorderBrush" Value="#A0A0A0" />
+      <Setter Property="Padding" Value="{DynamicResource ComboPadding}" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="FontSize" Value="{DynamicResource ButtonFontSize}" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="MinHeight" Value="{DynamicResource ComboHeight}" />
+    </Style>
+    <Style Selector="PathIcon.comboArrow">
+      <Setter Property="Foreground" Value="#D8D8D8" />
+      <Setter Property="Width" Value="{DynamicResource ComboArrowSize}" />
+      <Setter Property="Height" Value="{DynamicResource ComboArrowSize}" />
+      <Setter Property="Margin" Value="{DynamicResource ComboArrowMargin}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
     <Style Selector="ListBox">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
       <Setter Property="BorderBrush" Value="#333333" />
@@ -91,20 +107,20 @@
                   VerticalScrollBarVisibility="Auto">
     <Border Padding="{DynamicResource OuterPadding}"
             Width="{Binding Bounds.Width, ElementName=workspaceScroll}"
-            Height="{Binding Bounds.Height, ElementName=workspaceScroll}"
-            MinWidth="{DynamicResource WorkspaceMinWidth}"
-            MinHeight="{DynamicResource WorkspaceMinHeight}">
+            Height="{Binding Bounds.Height, ElementName=workspaceScroll}">
     <Grid ColumnSpacing="{DynamicResource WorkspaceSpacing}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="{DynamicResource SystemColumnWidth}" />
-        <ColumnDefinition Width="*" MinWidth="{DynamicResource ContentColumnMinWidth}" />
+        <ColumnDefinition Width="*" />
         <ColumnDefinition Width="Auto" />
       </Grid.ColumnDefinitions>
       <Border Grid.Column="0"
               Background="{StaticResource CardBrush}"
               CornerRadius="{DynamicResource CardCornerRadius}"
               Padding="{DynamicResource SystemCardPadding}">
-        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="{DynamicResource SystemRowSpacing}">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto"
+              RowSpacing="{DynamicResource SystemRowSpacing}"
+              VerticalAlignment="Top">
           <Grid ColumnDefinitions="*,Auto">
             <TextBlock Classes="header" Text="{Binding SystemTitle}" />
             <Button Grid.Column="1"
@@ -130,21 +146,28 @@
             <TextBlock Classes="label"
                        Text="{Binding RenderTargetLabel}"
                        VerticalAlignment="Center" />
-            <ComboBox Grid.Column="1"
-                      Name="renderTarget"
-                      Height="{DynamicResource ComboHeight}"
-                      VerticalAlignment="Center"
-                      ItemsSource="{Binding RenderTargets}"
-                      SelectedItem="{Binding SelectedRenderTarget}"
-                      DropDownOpened="OpenRenderTargetSelector"
-                      MaxDropDownHeight="{DynamicResource RenderTargetDropDownHeight}" />
+            <Button Grid.Column="1"
+                    Classes="comboButton"
+                    Height="{DynamicResource ComboHeight}"
+                    VerticalAlignment="Center"
+                    Click="OpenRenderTargetSelector">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{Binding SelectedRenderTarget.Name}"
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center" />
+                <PathIcon Grid.Column="1"
+                          Classes="comboArrow"
+                          Data="M 0 2 L 5 7 L 10 2" />
+              </Grid>
+            </Button>
           </Grid>
 
           <Grid Grid.Row="2"
                 ClipToBounds="True"
+                VerticalAlignment="Top"
                 Margin="{DynamicResource SpeakerLayoutMargin}">
             <local:SpeakerLayoutView HorizontalAlignment="Stretch"
-                                     VerticalAlignment="Stretch"
+                                     VerticalAlignment="Top"
                                      RenderTarget="{Binding SelectedRenderTarget}" />
           </Grid>
 
@@ -152,6 +175,7 @@
                   Width="{DynamicResource SecondaryButtonWidth}"
                   Height="{DynamicResource SecondaryButtonHeight}"
                   HorizontalAlignment="Center"
+                  VerticalAlignment="Top"
                   Content="{Binding DisplayWiringText}"
                   Click="ShowWiring" />
         </Grid>
