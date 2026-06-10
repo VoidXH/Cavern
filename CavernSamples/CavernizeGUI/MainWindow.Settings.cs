@@ -125,7 +125,7 @@ partial class MainWindow {
     }
 
     MenuItem CreateWindowsMenuItem(MenuEntry entry) {
-        MenuItem item = new MenuItem() {
+        MenuItem item = new MenuItem {
             Header = MenuEntryHeader(entry)
         };
         string toolTip = MenuEntryToolTip(entry);

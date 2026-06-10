@@ -354,7 +354,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
     CancellationTokenSource cancellation;
     QueuedRenderJob activeJob;
     QueuedRenderJob selectedQueueJob;
-    PostRenderReport report;
+    readonly PostRenderReport report;
     string roomCorrectionPath;
     string loadedPath;
     string loadedTitle;
