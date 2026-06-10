@@ -81,10 +81,11 @@
 			<MacOSAppBundleDir>$(PublishDir)Cavernize.app</MacOSAppBundleDir>
 			<MacOSContentsDir>$(MacOSAppBundleDir)/Contents</MacOSContentsDir>
 			<MacOSExecutableDir>$(MacOSContentsDir)/MacOS</MacOSExecutableDir>
+			<MacOSResourcesDir>$(MacOSContentsDir)/Resources</MacOSResourcesDir>
 		</PropertyGroup>
 
 		<RemoveDir Directories="$(MacOSAppBundleDir)" />
-		<MakeDir Directories="$(MacOSExecutableDir)" />
+		<MakeDir Directories="$(MacOSExecutableDir);$(MacOSResourcesDir)" />
 
 		<ItemGroup>
 			<MacOSPublishFiles Include="$(PublishDir)**/*" Exclude="$(MacOSAppBundleDir)/**/*" />
@@ -93,6 +94,7 @@
 		<Copy SourceFiles="@(MacOSPublishFiles)"
 			DestinationFiles="@(MacOSPublishFiles->'$(MacOSExecutableDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
 		<Copy SourceFiles="Packaging/MacOS/Info.plist" DestinationFiles="$(MacOSContentsDir)/Info.plist" />
+		<Copy SourceFiles="Packaging/MacOS/Cavernize.icns" DestinationFiles="$(MacOSResourcesDir)/Cavernize.icns" />
 		<WriteLinesToFile File="$(MacOSContentsDir)/PkgInfo" Lines="APPL????" Overwrite="true" />
 		<Exec Command="chmod +x &quot;$(MacOSExecutableDir)/$(AssemblyName)&quot;" />
 		<Message Text="Created macOS app bundle: $(MacOSAppBundleDir)" Importance="high" />

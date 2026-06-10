@@ -23,8 +23,8 @@ sealed class UpmixingSetupWindow : Window {
 
     public bool Accepted { get; private set; }
 
-    public UpmixingSetupWindow(MainViewModel viewModel) {
-        Title = viewModel.Text("UpmTi");
+    public UpmixingSetupWindow(MainWindow window) {
+        Title = window.Text("UpmTi");
         Width = 380;
         Height = 235;
         MinWidth = 380;
@@ -33,20 +33,20 @@ sealed class UpmixingSetupWindow : Window {
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = new SolidColorBrush(Color.Parse("#696969"));
 
-        matrixUpmix.Content = viewModel.Text("Upm71");
-        cavernize.Content = viewModel.Text("UpmNs");
-        matrixUpmix.IsChecked = viewModel.MatrixUpmixing;
-        cavernize.IsChecked = viewModel.CavernizeUpmixing;
-        effect.Value = viewModel.UpmixingEffect * 100;
-        smoothness.Value = viewModel.UpmixingSmoothness * 100;
-        ToolTip.SetTip(matrixUpmix, viewModel.Text("Upm71T"));
-        ToolTip.SetTip(cavernize, viewModel.Text("UpmNsT"));
+        matrixUpmix.Content = window.Text("Upm71");
+        cavernize.Content = window.Text("UpmNs");
+        matrixUpmix.IsChecked = window.MatrixUpmixing;
+        cavernize.IsChecked = window.CavernizeUpmixing;
+        effect.Value = window.UpmixingEffect * 100;
+        smoothness.Value = window.UpmixingSmoothness * 100;
+        ToolTip.SetTip(matrixUpmix, window.Text("Upm71T"));
+        ToolTip.SetTip(cavernize, window.Text("UpmNsT"));
 
         Grid effectRow = new() {
             ColumnDefinitions = new ColumnDefinitions("160,*"),
             Children = {
                 new TextBlock {
-                    Text = viewModel.Text("UpmEf"),
+                    Text = window.Text("UpmEf"),
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White
                 },
@@ -59,7 +59,7 @@ sealed class UpmixingSetupWindow : Window {
             ColumnDefinitions = new ColumnDefinitions("160,*"),
             Children = {
                 new TextBlock {
-                    Text = viewModel.Text("UpmSm"),
+                    Text = window.Text("UpmSm"),
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White
                 },
@@ -69,15 +69,15 @@ sealed class UpmixingSetupWindow : Window {
         Grid.SetColumn(smoothness, 1);
 
         Button reset = new() {
-            Content = viewModel.Text("Reset"),
+            Content = window.Text("Reset"),
             Width = 82
         };
         Button ok = new() {
-            Content = viewModel.Text("OK"),
+            Content = window.Text("OK"),
             Width = 82
         };
         Button cancel = new() {
-            Content = viewModel.Text("Cancel"),
+            Content = window.Text("Cancel"),
             Width = 82
         };
         reset.Click += (_, _) => Reset();
@@ -122,8 +122,8 @@ sealed class UpmixingSetupWindow : Window {
         Grid.SetRow(buttons, 4);
     }
 
-    public void ApplyTo(MainViewModel viewModel) =>
-        viewModel.ApplyUpmixingSettings(matrixUpmix.IsChecked == true, cavernize.IsChecked == true,
+    public void ApplyTo(MainWindow window) =>
+        window.ApplyUpmixingSettings(matrixUpmix.IsChecked == true, cavernize.IsChecked == true,
             (float)(effect.Value * .01), (float)(smoothness.Value * .01));
 
     void Reset() {

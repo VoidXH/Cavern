@@ -1,70 +1,129 @@
 ﻿using Cavern.CavernSettings;
+using Cavern.Format.Common;
 
 using Cavernize.Logic.CavernSettings;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using Cavernize.Logic.Rendering;
+using CavernizeGUI.CavernSettings;
 
 namespace CavernizeGUI;
 
 // Implementation of the main Cavernize interface
 public partial class MainWindow : ICavernizeApp {
     /// <inheritdoc/>
-    public bool Rendering => ViewModel.Session.Rendering;
+    public bool Rendering => rendering;
 
     /// <inheritdoc/>
-    public AudioFile LoadedFile => ViewModel.Session.LoadedFile;
+    public AudioFile LoadedFile { get; private set; }
 
     /// <inheritdoc/>
     public ExportFormat ExportFormat {
-        get => ViewModel.SelectedExportFormat;
-        set => ViewModel.SelectedExportFormat = value;
+        get => SelectedExportFormat;
+        set => SelectedExportFormat = value;
     }
 
     /// <inheritdoc/>
     public RenderTarget RenderTarget {
-        get => ViewModel.SelectedRenderTarget;
-        set => ViewModel.SelectedRenderTarget = value;
+        get => SelectedRenderTarget;
+        set => SelectedRenderTarget = value;
     }
 
     /// <inheritdoc/>
-    public CavernizeTrack SelectedTrack {
-        get => ViewModel.SelectedTrack;
-        set => ViewModel.SelectedTrack = value;
-    }
+    public UpmixingSettings UpmixingSettings { get; }
 
     /// <inheritdoc/>
-    public UpmixingSettings UpmixingSettings => ViewModel.Session.UpmixingSettings;
-
-    /// <inheritdoc/>
-    public RenderingSettings RenderingSettings => ViewModel.Session.RenderingSettings;
+    public RenderingSettings RenderingSettings { get; }
 
     /// <inheritdoc/>
     public bool SurroundSwap {
-        get => ViewModel.SurroundSwap;
-        set => ViewModel.SurroundSwap = value;
+        get => settings.SurroundSwap;
+        set {
+            settings.SurroundSwap = value;
+            SaveSettings();
+            OnPropertyChanged();
+        }
     }
 
     /// <inheritdoc/>
     public void OpenContent(string path) {
-        ViewModel.Session.OpenContent(path);
-        ViewModel.SyncFromSession();
+        Reset();
+        ffmpeg.CheckFFmpeg();
+        UpdateProgress(0);
+
+        try {
+            OpenContent(new AudioFile(path, language.TrackStrings));
+        } catch (IOException) {
+            Reset();
+            throw;
+        } catch (Exception e) {
+            Reset();
+            throw new AggregateException($"{e.Message} {language.TrackStrings.Later}", e);
+        }
+        settings.LastDirectory = Path.GetDirectoryName(path);
+        ApplyLoadedFile(path);
     }
 
     /// <inheritdoc/>
     public void OpenContent(AudioFile file) {
-        ViewModel.Session.OpenContent(file);
-        ViewModel.SyncFromSession();
+        LoadedFile = file ?? throw new ArgumentNullException(nameof(file));
+        if (file.Tracks.Count == 0) {
+            throw new TrackException(Text("LdSrc"));
+        }
     }
 
     /// <inheritdoc/>
-    public Action GetRenderTask(string path) => ViewModel.Session.GetRenderTask(path);
+    public Action GetRenderTask(string path) {
+        try {
+            PreRender();
+        } catch (Exception e) {
+            Error(e.Message);
+            return null;
+        }
+
+        CavernizeTrack target = SelectedTrack;
+        if (!ReportMode) {
+            if (path == null) {
+                return null;
+            }
+
+            try {
+                return Render(path);
+            } catch (Exception e) {
+                Error(e.Message);
+                return null;
+            }
+        }
+
+        SetBlockSize(RenderTarget);
+        try {
+            return () => RenderTask(target, null, null);
+        } catch (Exception e) {
+            Error(e.Message);
+            return null;
+        }
+    }
 
     /// <inheritdoc/>
-    public void RenderContent(string path) => ViewModel.Session.RenderContent(path);
+    public void RenderContent(string path) {
+        Action renderTask = GetRenderTask(path);
+        renderTask?.Invoke();
+    }
 
     /// <inheritdoc/>
     public void Reset() {
-        ViewModel.Session.Reset();
-        ViewModel.SyncFromSession();
+        environment.Reset();
+        if (LoadedFile != null && QueueJobs.FirstOrDefault(job => job.SourcePath == LoadedFile.Path) == null) {
+            LoadedFile.Dispose();
+            LoadedFile = null;
+        }
+        LoadedPath = null;
+        LoadedTitle = Text("NoSrc");
+        Tracks.Clear();
+        SelectedTrack = null;
+        report = new(environment.Listener, language.RenderReportStrings);
+        ReportText = report.Report;
+        Progress = 0;
+        IsProgressIndeterminate = false;
     }
 }

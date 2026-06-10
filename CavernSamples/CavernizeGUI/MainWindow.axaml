@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:CavernizeGUI"
         x:Class="CavernizeGUI.MainWindow"
-        x:DataType="local:MainViewModel"
+        x:DataType="local:MainWindow"
         Title="Cavernize"
         Width="936"
         Height="580"

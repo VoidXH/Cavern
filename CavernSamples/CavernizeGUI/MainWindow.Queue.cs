@@ -5,20 +5,19 @@ namespace CavernizeGUI;
 
 partial class MainWindow {
     void Queue(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        ViewModel.AddCurrentToQueue();
-        ExpandForQueue(ViewModel);
+        AddCurrentToQueue();
+        ExpandForQueue();
     }
 
     async void StartQueue(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        await ViewModel.RunQueue();
+        await RunQueue();
     }
 
-    void Cancel(object sender, Avalonia.Interactivity.RoutedEventArgs e) => ViewModel.Cancel();
+    void Cancel(object sender, Avalonia.Interactivity.RoutedEventArgs e) => Cancel();
 
-    void RemoveQueued(object sender, Avalonia.Interactivity.RoutedEventArgs e) => ViewModel.RemoveSelectedQueueJob();
+    void RemoveQueued(object sender, Avalonia.Interactivity.RoutedEventArgs e) => RemoveSelectedQueueJob();
 
     async void DropFile(object sender, DragEventArgs e) {
-        MainViewModel viewModel = ViewModel;
         string[] paths = e.DataTransfer.TryGetFiles()?
             .Select(item => item.Path.LocalPath)
             .Where(path => !string.IsNullOrWhiteSpace(path))
@@ -28,32 +27,31 @@ partial class MainWindow {
         }
 
         if (paths.Length == 1) {
-            await viewModel.OpenFile(paths[0]);
+            await OpenFile(paths[0]);
         } else {
             await AddFilesToQueue(paths);
         }
     }
 
     async Task AddFilesToQueue(string[] paths) {
-        MainViewModel viewModel = ViewModel;
         string outputFolder = null;
         if (await Confirm(Text("QuAlT"), Text("QuAll"))) {
             outputFolder = await PickSingleFolderPath(new FolderPickerOpenOptions {
                 Title = Text("QuAlT"),
                 AllowMultiple = false,
-                SuggestedStartLocation = await GetStartFolder(viewModel.LastDirectory)
+                SuggestedStartLocation = await GetStartFolder(LastDirectory)
             });
             if (string.IsNullOrWhiteSpace(outputFolder)) {
                 return;
             }
         }
 
-        viewModel.AddFilesToQueue(paths, outputFolder);
-        ExpandForQueue(viewModel);
+        AddFilesToQueue(paths, outputFolder);
+        ExpandForQueue();
     }
 
-    void ExpandForQueue(MainViewModel viewModel) {
-        if (viewModel.HasQueueJobs && Width < 1380) {
+    void ExpandForQueue() {
+        if (HasQueueJobs && Width < 1380) {
             Width = 1380;
         }
     }

@@ -8,8 +8,8 @@ using Cavernize.Logic.Models.RenderTargets;
 namespace CavernizeGUI;
 
 sealed class RenderTargetSelectorWindow : Window {
-    public RenderTargetSelectorWindow(MainViewModel viewModel) {
-        Title = viewModel.RenderTargetLabel.TrimEnd(':');
+    public RenderTargetSelectorWindow(MainWindow window) {
+        Title = window.RenderTargetLabel.TrimEnd(':');
         Width = 540;
         Height = 390;
         MinWidth = 540;
@@ -25,14 +25,14 @@ sealed class RenderTargetSelectorWindow : Window {
             Margin = new Thickness(12)
         };
 
-        AddColumn(content, 0, viewModel.RenderTargetSelectorText("PCRea"),
-            viewModel.RenderTargets.Where(target => target.OutputChannels <= 8 &&
-                (target is not DownmixedRenderTarget downmixed || !downmixed.IsMatrixWired)), viewModel.SelectedRenderTarget);
-        AddColumn(content, 1, viewModel.RenderTargetSelectorText("Matri"),
-            viewModel.RenderTargets.Where(target => target.OutputChannels <= 8 &&
-                target is DownmixedRenderTarget downmixed && downmixed.IsMatrixWired), viewModel.SelectedRenderTarget);
-        AddColumn(content, 2, viewModel.RenderTargetSelectorText("MulCH"),
-            viewModel.RenderTargets.Where(target => target.OutputChannels > 8), viewModel.SelectedRenderTarget);
+        AddColumn(content, 0, window.RenderTargetSelectorText("PCRea"),
+            window.RenderTargets.Where(target => target.OutputChannels <= 8 &&
+                (target is not DownmixedRenderTarget downmixed || !downmixed.IsMatrixWired)), window.SelectedRenderTarget);
+        AddColumn(content, 1, window.RenderTargetSelectorText("Matri"),
+            window.RenderTargets.Where(target => target.OutputChannels <= 8 &&
+                target is DownmixedRenderTarget downmixed && downmixed.IsMatrixWired), window.SelectedRenderTarget);
+        AddColumn(content, 2, window.RenderTargetSelectorText("MulCH"),
+            window.RenderTargets.Where(target => target.OutputChannels > 8), window.SelectedRenderTarget);
 
         Content = new Border {
             BorderBrush = Brushes.White,

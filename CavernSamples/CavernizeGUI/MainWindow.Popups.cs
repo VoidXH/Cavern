@@ -13,18 +13,17 @@ namespace CavernizeGUI;
 
 partial class MainWindow {
     async void OpenUpmixSetup(object sender, EventArgs e) {
-        MainViewModel viewModel = ViewModel;
-        UpmixingSetupWindow dialog = new(viewModel);
+        UpmixingSetupWindow dialog = new(this);
         await dialog.ShowDialog(this);
         if (dialog.Accepted) {
-            dialog.ApplyTo(viewModel);
+            dialog.ApplyTo(this);
             UpdateMenuState();
         }
     }
 
     async void ToggleHrir(object sender, EventArgs e) {
-        if (ViewModel.HasHrir) {
-            ViewModel.ResetHrir();
+        if (HasHrir) {
+            ResetHrir();
         } else {
             await LoadHRIR();
         }
@@ -36,32 +35,31 @@ partial class MainWindow {
     }
 
     async Task LoadHRIR() {
-        MainViewModel viewModel = ViewModel;
         string path = await PickSingleFilePath(new Avalonia.Platform.Storage.FilePickerOpenOptions {
-            Title = viewModel.LoadHrirTitle,
+            Title = LoadHrirTitle,
             AllowMultiple = false,
-            SuggestedStartLocation = await GetStartFolder(viewModel.LastDirectory),
+            SuggestedStartLocation = await GetStartFolder(LastDirectory),
             FileTypeFilter = [
-                new Avalonia.Platform.Storage.FilePickerFileType(viewModel.ImpulseResponseFileType) {
+                new Avalonia.Platform.Storage.FilePickerFileType(ImpulseResponseFileType) {
                     Patterns = ["*.wav"]
                 },
                 Avalonia.Platform.Storage.FilePickerFileTypes.All
             ]
         });
         if (!string.IsNullOrWhiteSpace(path)) {
-            await viewModel.LoadHrir(path);
+            await LoadHrir(path);
         }
         UpdateMenuState();
     }
 
     void ResetHrir(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        ViewModel.ResetHrir();
+        ResetHrir();
         UpdateMenuState();
     }
 
     async void ToggleFilters(object sender, EventArgs e) {
-        if (ViewModel.HasRoomCorrection) {
-            ViewModel.ClearRoomCorrection();
+        if (HasRoomCorrection) {
+            ClearRoomCorrection();
         } else {
             await LoadFilters();
         }
@@ -73,47 +71,46 @@ partial class MainWindow {
     }
 
     async Task LoadFilters() {
-        MainViewModel viewModel = ViewModel;
         string path = await PickSingleFilePath(new Avalonia.Platform.Storage.FilePickerOpenOptions {
-            Title = viewModel.LoadFiltersTitle,
+            Title = LoadFiltersTitle,
             AllowMultiple = false,
-            SuggestedStartLocation = await GetStartFolder(viewModel.LastFilterDirectory),
+            SuggestedStartLocation = await GetStartFolder(LastFilterDirectory),
             FileTypeFilter = [
-                new Avalonia.Platform.Storage.FilePickerFileType(viewModel.RoomCorrectionFileType) {
+                new Avalonia.Platform.Storage.FilePickerFileType(RoomCorrectionFileType) {
                     Patterns = ["*.txt"]
                 },
                 Avalonia.Platform.Storage.FilePickerFileTypes.All
             ]
         });
         if (!string.IsNullOrWhiteSpace(path)) {
-            viewModel.LoadRoomCorrection(path);
+            LoadRoomCorrection(path);
         }
         UpdateMenuState();
     }
 
     void ClearFilters(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        ViewModel.ClearRoomCorrection();
+        ClearRoomCorrection();
         UpdateMenuState();
     }
 
     void DisplayWiring(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        ShowTextWindow(ViewModel.DisplayWiringText, ViewModel.GetWiringText());
+        ShowTextWindow(DisplayWiringText, GetWiringText());
     }
 
     void ShowSystemInfo(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        ShowTextWindow(ViewModel.SystemTitle, ViewModel.SystemInfoText);
+        ShowTextWindow(SystemTitle, SystemInfoText);
     }
 
     void ShowMetadata(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        string title = ViewModel.Text("CMetT");
-        if (ViewModel.SelectedTrack == null) {
-            ShowTextWindow(title, ViewModel.Text("CMeET"));
+        string title = Text("CMetT");
+        if (SelectedTrack == null) {
+            ShowTextWindow(title, Text("CMeET"));
             return;
         }
 
-        ReadableMetadata metadata = ViewModel.SelectedTrack.GetMetadata();
+        ReadableMetadata metadata = SelectedTrack.GetMetadata();
         if (metadata == null) {
-            ShowTextWindow(title, ViewModel.Text("CMeUT"));
+            ShowTextWindow(title, Text("CMeUT"));
             return;
         }
 
@@ -121,7 +118,7 @@ partial class MainWindow {
     }
 
     void ShowPostRenderReport(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        ShowTextWindow(ViewModel.Text("PReRe"), ViewModel.GetPostRenderReportText());
+        ShowTextWindow(Text("PReRe"), GetPostRenderReportText());
     }
 
     void Guide(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
@@ -143,7 +140,7 @@ partial class MainWindow {
     void ShowAbout(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
         StringBuilder result = new(Listener.Info);
         if (CavernAmp.Available) {
-            result.Append('\n').Append(ViewModel.Text("AbouA"));
+            result.Append('\n').Append(Text("AbouA"));
         }
 
         result.AppendLine().Append("Build: ");
@@ -151,7 +148,7 @@ partial class MainWindow {
         FileInfo cavernizeGui = new(Path.Combine(AppContext.BaseDirectory, "CavernizeGUI.dll"));
         result.Append(cavernizeLogic.Exists ? cavernizeLogic.CreationTime : "unknown").Append(", ")
             .Append(cavernizeGui.Exists ? cavernizeGui.CreationTime : "unknown");
-        ShowTextWindow(ViewModel.Text("AbouH"), result.ToString());
+        ShowTextWindow(Text("AbouH"), result.ToString());
     }
 
     void ShowTextWindow(string title, string text) {
@@ -239,8 +236,7 @@ partial class MainWindow {
     }
 
     async Task CheckForUpdates() {
-        MainViewModel viewModel = ViewModel;
-        if (!viewModel.CheckUpdates || DateTime.Now < viewModel.LastUpdateCheck + TimeSpan.FromDays(7)) {
+        if (!CheckUpdates || DateTime.Now < LastUpdateCheck + TimeSpan.FromDays(7)) {
             return;
         }
 
@@ -252,7 +248,7 @@ partial class MainWindow {
         if (thisRevision < version && await Confirm(Text("UpdAv"), Text("UpdQu"))) {
             OpenUrl(downloadLink, Text("UpdAv"));
         }
-        viewModel.MarkUpdateChecked();
+        MarkUpdateChecked();
     }
 
     const string updateLocation = "https://sbence.hu/ver/cavg.php";

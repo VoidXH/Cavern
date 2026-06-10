@@ -142,8 +142,7 @@ partial class MainWindow {
 
     void InvokeMenuEntry(MenuEntry entry) {
         if (entry.SetChecked != null) {
-            MainViewModel viewModel = ViewModel;
-            entry.SetChecked(viewModel, !entry.IsChecked(viewModel));
+            entry.SetChecked(this, !entry.IsChecked(this));
         } else {
             entry.Invoke(this);
         }
@@ -151,18 +150,18 @@ partial class MainWindow {
     }
 
     void SetZoom(double scale) {
-        ViewModel.ViewScale = scale;
+        ViewScale = scale;
         ApplyViewScale();
     }
 
-    void LanguageEnglish(object sender, EventArgs e) => SetLanguage("en-US");
+    void LanguageEnglish(object sender, EventArgs e) => SetLanguageAndRestart("en-US");
 
-    void LanguageHungarian(object sender, EventArgs e) => SetLanguage("hu-HU");
+    void LanguageHungarian(object sender, EventArgs e) => SetLanguageAndRestart("hu-HU");
 
-    void LanguageTest(object sender, EventArgs e) => SetLanguage("te-ST");
+    void LanguageTest(object sender, EventArgs e) => SetLanguageAndRestart("te-ST");
 
-    void SetLanguage(string code) {
-        if (ViewModel.SetLanguage(code)) {
+    void SetLanguageAndRestart(string code) {
+        if (SetLanguage(code)) {
             Restart();
         }
     }
@@ -172,9 +171,8 @@ partial class MainWindow {
     string MenuEntryToolTip(MenuEntry entry) => entry.ToolTipKey == null ? null : Text(entry.ToolTipKey);
 
     void UpdateMenuState() {
-        MainViewModel viewModel = ViewModel;
         foreach (MenuEntry entry in GetMenuSections().SelectMany(section => section.Entries).Where(entry => !entry.IsSeparator)) {
-            bool enabled = entry.IsEnabled(viewModel);
+            bool enabled = entry.IsEnabled(this);
             if (entry.NativeItem != null) {
                 entry.NativeItem.IsEnabled = enabled;
             }
@@ -185,7 +183,7 @@ partial class MainWindow {
                 continue;
             }
 
-            bool isChecked = entry.IsChecked(viewModel);
+            bool isChecked = entry.IsChecked(this);
             if (entry.NativeItem != null) {
                 entry.NativeItem.IsChecked = isChecked;
             }
@@ -196,7 +194,7 @@ partial class MainWindow {
     }
 
     void ApplyViewScale() {
-        double scale = ViewModel?.ViewScale ?? 1;
+        double scale = ViewScale;
 
         Resources["HeaderFontSize"] = Scaled(26, scale);
         Resources["LabelFontSize"] = Scaled(16, scale);
@@ -260,10 +258,6 @@ partial class MainWindow {
 
     static double Scaled(double value, double scale) => Math.Round(value * scale, 2);
 
-    string Text(string key) => ViewModel.Text(key);
-
-    string MenuText(string key) => ViewModel.MenuText(key);
-
     void Restart() {
         try {
             string processPath = Environment.ProcessPath;
@@ -312,9 +306,9 @@ partial class MainWindow {
         public string HeaderText { get; init; }
         public string ToolTipKey { get; init; }
         public MenuItemToggleType? ToggleType { get; init; }
-        public Func<MainViewModel, bool> IsChecked { get; init; }
-        public Action<MainViewModel, bool> SetChecked { get; init; }
-        public Func<MainViewModel, bool> IsEnabled { get; init; } = _ => true;
+        public Func<MainWindow, bool> IsChecked { get; init; }
+        public Action<MainWindow, bool> SetChecked { get; init; }
+        public Func<MainWindow, bool> IsEnabled { get; init; } = _ => true;
         public Action<MainWindow> Invoke { get; init; }
         public bool IsSeparator { get; init; }
         public NativeMenuItem NativeItem { get; set; }
@@ -326,8 +320,8 @@ partial class MainWindow {
             Invoke = invoke
         };
 
-        public static MenuEntry Toggle(string headerKey, string toolTipKey, Func<MainViewModel, bool> isChecked,
-            Action<MainViewModel, bool> setChecked, Func<MainViewModel, bool> isEnabled = null) => new() {
+        public static MenuEntry Toggle(string headerKey, string toolTipKey, Func<MainWindow, bool> isChecked,
+            Action<MainWindow, bool> setChecked, Func<MainWindow, bool> isEnabled = null) => new() {
                 HeaderKey = headerKey,
                 ToolTipKey = toolTipKey,
                 ToggleType = MenuItemToggleType.CheckBox,
@@ -336,7 +330,7 @@ partial class MainWindow {
                 IsEnabled = isEnabled ?? (_ => true)
             };
 
-        public static MenuEntry ToggleAction(string headerKey, string toolTipKey, Func<MainViewModel, bool> isChecked,
+        public static MenuEntry ToggleAction(string headerKey, string toolTipKey, Func<MainWindow, bool> isChecked,
             Action<MainWindow> invoke) => new() {
                 HeaderKey = headerKey,
                 ToolTipKey = toolTipKey,
@@ -345,7 +339,7 @@ partial class MainWindow {
                 Invoke = invoke
             };
 
-        public static MenuEntry Radio(string headerText, Func<MainViewModel, bool> isChecked, Action<MainWindow> invoke) =>
+        public static MenuEntry Radio(string headerText, Func<MainWindow, bool> isChecked, Action<MainWindow> invoke) =>
             new() {
                 HeaderText = headerText,
                 ToggleType = MenuItemToggleType.Radio,
@@ -353,7 +347,7 @@ partial class MainWindow {
                 Invoke = invoke
             };
 
-        public static MenuEntry RadioKey(string headerKey, Func<MainViewModel, bool> isChecked, Action<MainWindow> invoke) =>
+        public static MenuEntry RadioKey(string headerKey, Func<MainWindow, bool> isChecked, Action<MainWindow> invoke) =>
             new() {
                 HeaderKey = headerKey,
                 ToggleType = MenuItemToggleType.Radio,

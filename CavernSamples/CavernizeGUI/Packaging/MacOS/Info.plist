@@ -9,6 +9,8 @@
     <string>CavernizeGUI</string>
     <key>CFBundleIdentifier</key>
     <string>hu.sbence.cavernize</string>
+    <key>CFBundleIconFile</key>
+    <string>Cavernize.icns</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
