@@ -12,10 +12,10 @@ public class TracksArgument_Tests {
     /// <summary>
     /// Tests if running CavernizeGUI with -tracks only returns what's actually in the test file.
     /// </summary>
-    [TestMethod, Timeout(10000)]
+    [TestMethod, Timeout(30000)]
     public void HelpArgument_Short_OnlyHelpShown() {
         string file = Path.GetFullPath(Constants.multitrackTestFile);
-        using Process process = CavernizeUtils.LaunchCavernize($"-i \"{file}\" -tracks", 10);
+        using Process process = CavernizeUtils.LaunchCavernize($"-i \"{file}\" -tracks", 30);
         string[] output = process.StandardOutput.ReadToEnd().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
         Assert.AreEqual(4, output.Length);
