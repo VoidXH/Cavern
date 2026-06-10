@@ -11,7 +11,7 @@ namespace Cavern.Format.AI {
         public ModelMetadata Metadata { get; } = new ModelMetadata();
 
         /// <summary>
-        /// Feedback about where the <see cref="Train(int, int)"/> function is in completion.
+        /// Feedback about where the training function is in completion.
         /// </summary>
         public float Progress { get; protected set; }
 

@@ -81,7 +81,7 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
-        /// Some minor values have changed, recreate the <see cref="Render"/> from the <see cref="preRender"/>.
+        /// Some minor values have changed, recreate the render from the <see cref="preRender"/>.
         /// </summary>
         internal void ReRender() {
             Array.Clear(Pixels, 0, Pixels.Length);

@@ -16,7 +16,7 @@ namespace Cavern.QuickEQ.Equalization {
         public void LimitDips(double bottom) => LimitDips(0, bands.Count - 1, bottom);
 
         /// <summary>
-        /// Make sure the EQ won't go over the desired <paramref name="peak"/> between the frequency limits.
+        /// Make sure the EQ won't go under the desired <paramref name="bottom"/> between the frequency limits.
         /// </summary>
         public void LimitDips(double bottom, double startFreq, double endFreq) {
             (int startBand, int endBand) = GetBandLimits(startFreq, endFreq);
@@ -47,7 +47,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// </summary>
         /// <param name="startBand">First band to limit (inclusive)</param>
         /// <param name="endBand">Last band to limit (inclusive)</param>
-        /// <param name="peak">Maximum allowed value of the range set by <paramref name="startBand"/> and <paramref name="endBand"/></param>
+        /// <param name="bottom">Maximum allowed value of the range set by <paramref name="startBand"/> and <paramref name="endBand"/></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void LimitDips(int startBand, int endBand, double bottom) {
             while (startBand <= endBand) {

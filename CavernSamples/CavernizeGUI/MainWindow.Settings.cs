@@ -75,11 +75,11 @@ namespace CavernizeGUI {
             if (Rendering) {
                 Error((string)language["OpRes"]);
                 return;
-            } else {
-                string path = Environment.ProcessPath;
-                Process.Start(path);
-                Application.Current.Shutdown();
             }
+
+            string path = Environment.ProcessPath;
+            Process.Start(path);
+            Application.Current.Shutdown();
         }
     }
 }
