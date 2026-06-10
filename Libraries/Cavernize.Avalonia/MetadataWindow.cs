@@ -5,9 +5,9 @@ using Avalonia.Media;
 
 using Cavern.Format.Common;
 
-namespace CavernizeGUI;
+namespace Cavernize.Avalonia;
 
-sealed class MetadataWindow : Window {
+public sealed class MetadataWindow : Window {
     public MetadataWindow(ReadableMetadata metadata, string title) {
         Title = title;
         Width = 760;

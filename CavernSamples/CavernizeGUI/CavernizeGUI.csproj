@@ -58,6 +58,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+		<ProjectReference Include="..\..\Libraries\Cavernize.Avalonia\Cavernize.Avalonia.csproj" />
 		<ProjectReference Include="..\Reusable\Cavernize.Logic\Cavernize.Logic.csproj" />
 	</ItemGroup>
 

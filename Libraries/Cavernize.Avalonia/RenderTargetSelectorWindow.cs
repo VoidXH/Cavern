@@ -5,11 +5,12 @@ using Avalonia.Media;
 
 using Cavernize.Logic.Models.RenderTargets;
 
-namespace CavernizeGUI;
+namespace Cavernize.Avalonia;
 
-sealed class RenderTargetSelectorWindow : Window {
-    public RenderTargetSelectorWindow(MainWindow window) {
-        Title = window.RenderTargetLabel.TrimEnd(':');
+public sealed class RenderTargetSelectorWindow : Window {
+    public RenderTargetSelectorWindow(string title, string regularHeader, string matrixHeader, string multiChannelHeader,
+        IEnumerable<RenderTarget> renderTargets, RenderTarget selectedRenderTarget) {
+        Title = title;
         Width = 540;
         Height = 390;
         MinWidth = 540;
@@ -25,14 +26,14 @@ sealed class RenderTargetSelectorWindow : Window {
             Margin = new Thickness(12)
         };
 
-        AddColumn(content, 0, window.RenderTargetSelectorText("PCRea"),
-            window.RenderTargets.Where(target => target.OutputChannels <= 8 &&
-                (target is not DownmixedRenderTarget downmixed || !downmixed.IsMatrixWired)), window.SelectedRenderTarget);
-        AddColumn(content, 1, window.RenderTargetSelectorText("Matri"),
-            window.RenderTargets.Where(target => target.OutputChannels <= 8 &&
-                target is DownmixedRenderTarget downmixed && downmixed.IsMatrixWired), window.SelectedRenderTarget);
-        AddColumn(content, 2, window.RenderTargetSelectorText("MulCH"),
-            window.RenderTargets.Where(target => target.OutputChannels > 8), window.SelectedRenderTarget);
+        AddColumn(content, 0, regularHeader,
+            renderTargets.Where(target => target.OutputChannels <= 8 &&
+                (target is not DownmixedRenderTarget downmixed || !downmixed.IsMatrixWired)), selectedRenderTarget);
+        AddColumn(content, 1, matrixHeader,
+            renderTargets.Where(target => target.OutputChannels <= 8 &&
+                target is DownmixedRenderTarget downmixed && downmixed.IsMatrixWired), selectedRenderTarget);
+        AddColumn(content, 2, multiChannelHeader,
+            renderTargets.Where(target => target.OutputChannels > 8), selectedRenderTarget);
 
         Content = new Border {
             BorderBrush = Brushes.White,

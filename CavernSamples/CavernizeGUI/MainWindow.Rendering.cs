@@ -8,10 +8,12 @@ using Cavern.Format.Renderers;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
+using Cavernize.Avalonia;
 using Cavernize.Logic.External;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
+using CavernizeGUI.CavernSettings;
 
 namespace CavernizeGUI;
 
@@ -45,7 +47,9 @@ partial class MainWindow {
 
         renderTargetSelectorOpen = true;
         try {
-            RenderTarget selected = await new RenderTargetSelectorWindow(this).ShowDialog<RenderTarget>(this);
+            RenderTarget selected = await new RenderTargetSelectorWindow(RenderTargetLabel.TrimEnd(':'),
+                RenderTargetSelectorText("PCRea"), RenderTargetSelectorText("Matri"),
+                RenderTargetSelectorText("MulCH"), RenderTargets, SelectedRenderTarget).ShowDialog<RenderTarget>(this);
             if (selected != null) {
                 SelectedRenderTarget = selected;
             }
@@ -227,10 +231,21 @@ partial class MainWindow {
     /// Create an external converter if it's needed for rendering a specific track.
     /// </summary>
     ExternalConverterHandler CreateExternalHandler(CavernizeTrack target, int keepFirstSources) {
-        ExternalConverterHandler external = new(target, language.ExternalConverterStrings, new RejectingLicence(),
-            UpdateProgress, UpdateStatus, action => action());
-        if (!external.Failed) {
-            external.Attach(environment.Listener, UpmixingSettings, keepFirstSources);
+        ILicence licenceWindow = Program.ConsoleMode ?
+            new RejectingLicence() :
+            new LicenceWindow(this, Text("OK"), Text("Cancel"));
+        string externalStatus = null;
+        void UpdateExternalStatus(string text) {
+            externalStatus = text;
+            UpdateStatus(text);
+        }
+
+        ExternalConverterHandler external = new(target, language.ExternalConverterStrings, licenceWindow,
+            UpdateProgress, UpdateExternalStatus, action => action());
+        if (external.Failed) {
+            Error(externalStatus ?? Status);
+        } else {
+            external.Attach(environment.Listener, new DynamicUpmixingSettings(), keepFirstSources);
         }
         return external;
     }

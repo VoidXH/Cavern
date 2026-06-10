@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Text;
 using VoidX.WPF;
 
+using Cavernize.Avalonia;
+
 namespace CavernizeGUI;
 
 partial class MainWindow {
@@ -16,10 +18,14 @@ partial class MainWindow {
     /// Opens the upmixing settings.
     /// </summary>
     async void OpenUpmixSetup(object _, EventArgs e) {
-        UpmixingSetupWindow dialog = new UpmixingSetupWindow(this);
+        UpmixingSetupWindow dialog = new UpmixingSetupWindow(UpmixingSettings, Text("UpmTi"), Text("Upm71"),
+            Text("Upm71T"), Text("UpmNs"), Text("UpmNsT"), Text("UpmEf"), Text("UpmSm"),
+            Text("Reset"), Text("OK"), Text("Cancel"));
         await dialog.ShowDialog(this);
         if (dialog.Accepted) {
-            dialog.ApplyTo(this);
+            SaveSettings();
+            NotifyProperties(nameof(MatrixUpmixing), nameof(CavernizeUpmixing), nameof(UpmixingEffect),
+                nameof(UpmixingSmoothness));
             UpdateMenuState();
         }
     }

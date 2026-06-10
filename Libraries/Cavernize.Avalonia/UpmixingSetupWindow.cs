@@ -3,9 +3,11 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 
-namespace CavernizeGUI;
+using Cavern.CavernSettings;
 
-sealed class UpmixingSetupWindow : Window {
+namespace Cavernize.Avalonia;
+
+public sealed class UpmixingSetupWindow : Window {
     readonly CheckBox matrixUpmix = new() {
         Foreground = Brushes.White
     };
@@ -20,11 +22,15 @@ sealed class UpmixingSetupWindow : Window {
         Minimum = 0,
         Maximum = 100
     };
+    readonly UpmixingSettings settings;
 
     public bool Accepted { get; private set; }
 
-    public UpmixingSetupWindow(MainWindow window) {
-        Title = window.Text("UpmTi");
+    public UpmixingSetupWindow(UpmixingSettings settings, string title, string matrixUpmixing, string matrixUpmixingTip,
+        string cavernizeUpmixing, string cavernizeUpmixingTip, string effectText, string smoothnessText,
+        string resetText, string okText, string cancelText) {
+        this.settings = settings;
+        Title = title;
         Width = 380;
         Height = 235;
         MinWidth = 380;
@@ -33,20 +39,20 @@ sealed class UpmixingSetupWindow : Window {
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = new SolidColorBrush(Color.Parse("#696969"));
 
-        matrixUpmix.Content = window.Text("Upm71");
-        cavernize.Content = window.Text("UpmNs");
-        matrixUpmix.IsChecked = window.MatrixUpmixing;
-        cavernize.IsChecked = window.CavernizeUpmixing;
-        effect.Value = window.UpmixingEffect * 100;
-        smoothness.Value = window.UpmixingSmoothness * 100;
-        ToolTip.SetTip(matrixUpmix, window.Text("Upm71T"));
-        ToolTip.SetTip(cavernize, window.Text("UpmNsT"));
+        matrixUpmix.Content = matrixUpmixing;
+        cavernize.Content = cavernizeUpmixing;
+        matrixUpmix.IsChecked = settings.MatrixUpmixing;
+        cavernize.IsChecked = settings.Cavernize;
+        effect.Value = settings.Effect * 100;
+        smoothness.Value = settings.Smoothness * 100;
+        ToolTip.SetTip(matrixUpmix, matrixUpmixingTip);
+        ToolTip.SetTip(cavernize, cavernizeUpmixingTip);
 
         Grid effectRow = new() {
             ColumnDefinitions = new ColumnDefinitions("160,*"),
             Children = {
                 new TextBlock {
-                    Text = window.Text("UpmEf"),
+                    Text = effectText,
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White
                 },
@@ -59,7 +65,7 @@ sealed class UpmixingSetupWindow : Window {
             ColumnDefinitions = new ColumnDefinitions("160,*"),
             Children = {
                 new TextBlock {
-                    Text = window.Text("UpmSm"),
+                    Text = smoothnessText,
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White
                 },
@@ -69,19 +75,20 @@ sealed class UpmixingSetupWindow : Window {
         Grid.SetColumn(smoothness, 1);
 
         Button reset = new() {
-            Content = window.Text("Reset"),
+            Content = resetText,
             Width = 82
         };
         Button ok = new() {
-            Content = window.Text("OK"),
+            Content = okText,
             Width = 82
         };
         Button cancel = new() {
-            Content = window.Text("Cancel"),
+            Content = cancelText,
             Width = 82
         };
         reset.Click += (_, _) => Reset();
         ok.Click += (_, _) => {
+            Apply();
             Accepted = true;
             Close();
         };
@@ -122,9 +129,12 @@ sealed class UpmixingSetupWindow : Window {
         Grid.SetRow(buttons, 4);
     }
 
-    public void ApplyTo(MainWindow window) =>
-        window.ApplyUpmixingSettings(matrixUpmix.IsChecked == true, cavernize.IsChecked == true,
-            (float)(effect.Value * .01), (float)(smoothness.Value * .01));
+    void Apply() {
+        settings.MatrixUpmixing = matrixUpmix.IsChecked == true;
+        settings.Cavernize = cavernize.IsChecked == true;
+        settings.Effect = (float)(effect.Value * .01);
+        settings.Smoothness = (float)(smoothness.Value * .01);
+    }
 
     void Reset() {
         matrixUpmix.IsChecked = false;

@@ -120,7 +120,7 @@ public partial class MainWindow : ICavernizeApp {
         LoadedTitle = Text("NoSrc");
         Tracks.Clear();
         SelectedTrack = null;
-        report = new(environment.Listener, language.RenderReportStrings);
+        report.Reset();
         ReportText = report.Report;
         Progress = 0;
         IsProgressIndeterminate = false;
