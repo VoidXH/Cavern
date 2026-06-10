@@ -9,7 +9,6 @@ namespace CavernizeGUI;
 
 sealed class AvaloniaLanguage {
     const string DefaultLanguage = "en-US";
-    static readonly string[] supported = ["hu-HU"];
 
     public string Code { get; }
 
@@ -43,7 +42,7 @@ sealed class AvaloniaLanguage {
 
     public static AvaloniaLanguage Create(string languageCode) {
         string code = ResolveLanguage(languageCode);
-        string resourceCode = IsSupported(code) ? code : DefaultLanguage;
+        string resourceCode = code;
         IReadOnlyDictionary<string, string> mainWindow = LoadDictionary("MainWindowStrings", resourceCode);
         if (mainWindow.Count == 0) {
             resourceCode = DefaultLanguage;
@@ -80,9 +79,6 @@ sealed class AvaloniaLanguage {
         return languageCode;
     }
 
-    static bool IsSupported(string languageCode) =>
-        Array.BinarySearch(supported, languageCode) >= 0;
-
     static IReadOnlyDictionary<string, string> LoadDictionary(string resource, string languageCode) {
         Assembly assembly = typeof(AvaloniaLanguage).Assembly;
         Assembly resourceAssembly = languageCode == DefaultLanguage ? assembly : GetSatelliteAssembly(assembly, languageCode);
@@ -112,6 +108,8 @@ sealed class AvaloniaLanguage {
     static Assembly GetSatelliteAssembly(Assembly assembly, string languageCode) {
         try {
             return assembly.GetSatelliteAssembly(new CultureInfo(languageCode));
+        } catch (CultureNotFoundException) {
+            return null;
         } catch (FileNotFoundException) {
             return null;
         }

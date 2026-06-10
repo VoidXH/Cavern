@@ -8,6 +8,7 @@ using Cavern.Format.Common;
 using Cavernize.Logic.CommandLine;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using CavernizeGUI.CavernSettings;
 using VoidX.WPF.FFmpeg;
 
 namespace CavernizeGUI;
@@ -372,7 +373,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         language = AvaloniaLanguage.Create(settings.LanguageCode);
         FFmpeg.ReadyText = Text("FFRea");
         FFmpeg.NotReadyText = Text("FFNRe");
-        session = new(language);
+        session = new(language, new DynamicUpmixingSettings(), new DynamicSpecialRenderModeSettings());
         loadedTitle = Text("NoSrc");
         status = Text("OpSrcS");
         warning = NoWarningsText;
@@ -380,9 +381,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
         ExportFormats = ExportFormat.GetFormats(language.TrackStrings);
         RenderTargets = RenderTarget.Targets.Where(target => target is not DriverRenderTarget).ToArray();
-        selectedExportFormat = ExportFormats.FirstOrDefault(format => format.Codec.ToString() == settings.ExportCodec) ??
+        selectedExportFormat = ExportFormats.ElementAtOrDefault(settings.OutputCodecIndex + 2) ??
             ExportFormats.First(format => format.Codec == Codec.PCM_LE);
-        selectedRenderTarget = RenderTargets.FirstOrDefault(target => target.Name == settings.RenderTarget) ??
+        RenderTarget savedRenderTarget = RenderTarget.Targets.ElementAtOrDefault(settings.RenderTargetIndex + 6);
+        selectedRenderTarget = RenderTargets.FirstOrDefault(target => target.Name == savedRenderTarget?.Name) ??
             RenderTargets.FirstOrDefault(target => target.Name == "5.1.2 side") ?? RenderTargets[0];
         session.ExportFormat = selectedExportFormat;
         session.RenderTarget = selectedRenderTarget;
@@ -890,8 +892,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
     }
 
     void SaveSettings() {
-        settings.ExportCodec = SelectedExportFormat?.Codec.ToString();
-        settings.RenderTarget = SelectedRenderTarget?.Name;
+        settings.OutputCodecIndex = Array.IndexOf(ExportFormats, SelectedExportFormat) - 2;
+        settings.RenderTargetIndex = Array.FindIndex(RenderTarget.Targets,
+            target => target.Name == SelectedRenderTarget?.Name) - 6;
         settings.SpeakerVirtualizer = session.RenderingSettings.SpeakerVirtualizer;
         settings.Force24Bit = session.RenderingSettings.Force24Bit;
         settings.MuteBed = session.RenderingSettings.MuteBed;

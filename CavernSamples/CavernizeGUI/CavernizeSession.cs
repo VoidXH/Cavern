@@ -99,33 +99,43 @@ public sealed partial class CavernizeSession : ICavernizeApp, IDisposable {
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
-    public CavernizeSession() : this(null, null, null, null, null) { }
+    public CavernizeSession() : this(null, null, null, null, null, null, null) { }
 
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
     public CavernizeSession(TrackStrings trackStrings, RenderReportStrings reportStrings,
-        ExternalConverterStrings externalConverterStrings) : this(null, trackStrings, reportStrings, externalConverterStrings, null) { }
+        ExternalConverterStrings externalConverterStrings) :
+        this(null, trackStrings, reportStrings, externalConverterStrings, null, null, null) { }
 
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
-    public CavernizeSession(FFmpeg ffmpeg) : this(ffmpeg, null, null, null, null) { }
+    public CavernizeSession(FFmpeg ffmpeg) : this(ffmpeg, null, null, null, null, null, null) { }
 
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
     internal CavernizeSession(AvaloniaLanguage language) :
-        this(null, language.TrackStrings, language.RenderReportStrings, language.ExternalConverterStrings, language) { }
+        this(null, language.TrackStrings, language.RenderReportStrings, language.ExternalConverterStrings, language, null, null) { }
+
+    /// <summary>
+    /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
+    /// </summary>
+    internal CavernizeSession(AvaloniaLanguage language, UpmixingSettings upmixingSettings, RenderingSettings renderingSettings) :
+        this(null, language.TrackStrings, language.RenderReportStrings, language.ExternalConverterStrings, language,
+            upmixingSettings, renderingSettings) { }
 
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
     public CavernizeSession(FFmpeg ffmpeg, TrackStrings trackStrings, RenderReportStrings reportStrings,
-        ExternalConverterStrings externalConverterStrings) : this(ffmpeg, trackStrings, reportStrings, externalConverterStrings, null) { }
+        ExternalConverterStrings externalConverterStrings) :
+        this(ffmpeg, trackStrings, reportStrings, externalConverterStrings, null, null, null) { }
 
     CavernizeSession(FFmpeg ffmpeg, TrackStrings trackStrings, RenderReportStrings reportStrings,
-        ExternalConverterStrings externalConverterStrings, AvaloniaLanguage language) {
+        ExternalConverterStrings externalConverterStrings, AvaloniaLanguage language, UpmixingSettings upmixingSettings,
+        RenderingSettings renderingSettings) {
         this.language = language ?? AvaloniaLanguage.Create(null);
         this.trackStrings = trackStrings ?? this.language.TrackStrings;
         this.reportStrings = reportStrings ?? this.language.RenderReportStrings;
@@ -133,8 +143,8 @@ public sealed partial class CavernizeSession : ICavernizeApp, IDisposable {
 
         ExportFormat = ExportFormat.GetFormats(this.trackStrings).First(format => format.Codec == Codec.PCM_LE);
         RenderTarget = RenderTarget.Targets.FirstOrDefault(target => target.Name == "5.1.2 side") ?? RenderTarget.Targets[0];
-        UpmixingSettings = new UpmixingSettings(true);
-        RenderingSettings = new RenderingSettings();
+        UpmixingSettings = upmixingSettings ?? new UpmixingSettings(true);
+        RenderingSettings = renderingSettings ?? new RenderingSettings();
         FFmpeg = ffmpeg ?? StatusFFmpeg.Create(UpdateStatus);
 
         environment = new ConversionEnvironment(this);

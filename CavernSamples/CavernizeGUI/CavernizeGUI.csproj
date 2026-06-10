@@ -5,7 +5,7 @@
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
-		<Description>Cross-platform Cavernize desktop app.</Description>
+		<Description>Sample GUI spatial upconverter with Cavern's renderer.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<DebugType>full</DebugType>
 		<Authors>VoidX</Authors>
@@ -28,6 +28,7 @@
 		<PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
 		<PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -48,6 +49,30 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Reusable\Cavernize.Logic\Cavernize.Logic.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Resources\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+		<Compile Update="Resources\UpmixingSettings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>UpmixingSettings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="Resources\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+		<None Update="Resources\UpmixingSettings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>UpmixingSettings.Designer.cs</LastGenOutput>
+		</None>
 	</ItemGroup>
 
 	<Target Name="CreateMacOSAppBundle" AfterTargets="Publish"
