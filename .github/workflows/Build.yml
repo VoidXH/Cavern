@@ -28,13 +28,14 @@ jobs:
     - name: Restore NuGet packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        nuget restore "Cavern.sln"
-        nuget restore "Cavern.Format/Cavern.Format.csproj"
+        nuget restore Cavern.sln
+        nuget restore CavernSamples/CavernSamples.sln
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} "Cavern.sln"
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} Cavern.sln
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} CavernSamples/CavernSamples.sln
 
     - name: Run tests
       run: |
