@@ -61,15 +61,12 @@ public partial class MainWindow : ICavernizeApp {
             throw new AggregateException($"{e.Message} {language.TrackStrings.Later}", e);
         }
         settings.LastDirectory = Path.GetDirectoryName(path);
-        ApplyLoadedFile(path);
     }
 
     /// <inheritdoc/>
     public void OpenContent(AudioFile file) {
         LoadedFile = file;
-        if (file.Tracks.Count == 0) {
-            throw new TrackException(Text("LdSrc"));
-        }
+        ApplyLoadedFile(file.Path);
     }
 
     /// <inheritdoc/>

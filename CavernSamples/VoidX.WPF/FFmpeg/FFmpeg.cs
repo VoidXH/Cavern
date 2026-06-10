@@ -47,6 +47,7 @@ public abstract class FFmpeg {
     static string GetPathOfProgram(string key) {
         try {
             bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
             var process = new Process {
                 StartInfo = new ProcessStartInfo {
                     FileName = isWindows ? "where" : "which",
@@ -56,7 +57,7 @@ public abstract class FFmpeg {
                     CreateNoWindow = true
                 }
             };
-            if (!isWindows) {
+            if (isMacOS) {
                 string path = Environment.GetEnvironmentVariable("PATH");
                 process.StartInfo.Environment["PATH"] = (string.IsNullOrEmpty(path) ? string.Empty :
                     path + Path.PathSeparator) + "/opt/homebrew/bin:/usr/local/bin:/opt/local/bin:/usr/bin:/bin";
@@ -71,7 +72,7 @@ public abstract class FFmpeg {
         } catch {
         }
 
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
             foreach (string directory in new[] { "/opt/homebrew/bin", "/usr/local/bin", "/opt/local/bin",
                 "/usr/bin", "/bin" }) {
                 string path = Path.Combine(directory, key);

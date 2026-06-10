@@ -778,7 +778,6 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
         job.Status = Text("OpSrc");
         job.Progress = 0;
         await Task.Run(() => OpenContent(job.SourcePath), renderCancellationToken);
-        ApplyLoadedFile(job.SourcePath);
     }
 
     void SelectQueueTrack(QueuedRenderJob job) {
