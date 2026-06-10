@@ -15,6 +15,7 @@
 		<RepositoryType>git</RepositoryType>
 		<NeutralLanguage>en</NeutralLanguage>
 		<ApplicationIcon>..\Icon.ico</ApplicationIcon>
+		<StartupObject>CavernizeGUI.Program</StartupObject>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -33,7 +34,14 @@
 
 	<ItemGroup>
 		<AvaloniaResource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
-		<AvaloniaResource Include="Resources\Images\*.png" />
+		<AvaloniaResource Include="Resources\Images\AddToQueue.png" />
+		<AvaloniaResource Include="Resources\Images\Delete.png" />
+		<AvaloniaResource Include="Resources\Images\Folder.png" />
+		<AvaloniaResource Include="Resources\Images\Help.png" />
+		<AvaloniaResource Include="Resources\Images\Language.png" />
+		<AvaloniaResource Include="Resources\Images\Render.png" />
+		<AvaloniaResource Include="Resources\Images\RenderQueue.png" />
+		<AvaloniaResource Include="Resources\Images\Settings.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -48,6 +56,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
+		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
 		<ProjectReference Include="..\Reusable\Cavernize.Logic\Cavernize.Logic.csproj" />
 	</ItemGroup>
 

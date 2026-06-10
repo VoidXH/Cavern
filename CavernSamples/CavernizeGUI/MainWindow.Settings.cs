@@ -154,11 +154,20 @@ partial class MainWindow {
         ApplyViewScale();
     }
 
-    void LanguageEnglish(object sender, EventArgs e) => SetLanguageAndRestart("en-US");
+    /// <summary>
+    /// Set application language to English.
+    /// </summary>
+    void LanguageEnglish(object _, EventArgs __) => SetLanguageAndRestart("en-US");
 
-    void LanguageHungarian(object sender, EventArgs e) => SetLanguageAndRestart("hu-HU");
+    /// <summary>
+    /// Set application language to Hungarian.
+    /// </summary>
+    void LanguageHungarian(object _, EventArgs __) => SetLanguageAndRestart("hu-HU");
 
-    void LanguageTest(object sender, EventArgs e) => SetLanguageAndRestart("te-ST");
+    /// <summary>
+    /// Set application language to an invalid, untranslated one.
+    /// </summary>
+    void LanguageTest(object _, EventArgs __) => SetLanguageAndRestart("te-ST");
 
     void SetLanguageAndRestart(string code) {
         if (SetLanguage(code)) {
@@ -258,6 +267,9 @@ partial class MainWindow {
 
     static double Scaled(double value, double scale) => Math.Round(value * scale, 2);
 
+    /// <summary>
+    /// Relaunch the application when needed.
+    /// </summary>
     void Restart() {
         try {
             string processPath = Environment.ProcessPath;

@@ -66,7 +66,7 @@ public partial class MainWindow : ICavernizeApp {
 
     /// <inheritdoc/>
     public void OpenContent(AudioFile file) {
-        LoadedFile = file ?? throw new ArgumentNullException(nameof(file));
+        LoadedFile = file;
         if (file.Tracks.Count == 0) {
             throw new TrackException(Text("LdSrc"));
         }
@@ -93,14 +93,14 @@ public partial class MainWindow : ICavernizeApp {
                 Error(e.Message);
                 return null;
             }
-        }
-
-        SetBlockSize(RenderTarget);
-        try {
-            return () => RenderTask(target, null, null);
-        } catch (Exception e) {
-            Error(e.Message);
-            return null;
+        } else {
+            SetBlockSize(RenderTarget);
+            try {
+                return () => RenderTask(target, null, null);
+            } catch (Exception e) {
+                Error(e.Message);
+                return null;
+            }
         }
     }
 
@@ -110,7 +110,9 @@ public partial class MainWindow : ICavernizeApp {
         renderTask?.Invoke();
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Clear the inner state of the application, resetting to when no content was loaded..
+    /// </summary>
     public void Reset() {
         environment.Reset();
         if (LoadedFile != null && QueueJobs.FirstOrDefault(job => job.SourcePath == LoadedFile.Path) == null) {

@@ -12,7 +12,10 @@ using VoidX.WPF;
 namespace CavernizeGUI;
 
 partial class MainWindow {
-    async void OpenUpmixSetup(object sender, EventArgs e) {
+    /// <summary>
+    /// Opens the upmixing settings.
+    /// </summary>
+    async void OpenUpmixSetup(object _, EventArgs e) {
         UpmixingSetupWindow dialog = new(this);
         await dialog.ShowDialog(this);
         if (dialog.Accepted) {
@@ -30,7 +33,10 @@ partial class MainWindow {
         UpdateMenuState();
     }
 
-    async void LoadHRIR(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    /// <summary>
+    /// Load a set of HRTF impulses (HRIRs) for the Virtualizer.
+    /// </summary>
+    async void LoadHRIR(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         await LoadHRIR();
     }
 
@@ -52,7 +58,7 @@ partial class MainWindow {
         UpdateMenuState();
     }
 
-    void ResetHrir(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    void ResetHrir(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         ResetHrir();
         UpdateMenuState();
     }
@@ -66,7 +72,10 @@ partial class MainWindow {
         UpdateMenuState();
     }
 
-    async void LoadFilters(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    /// <summary>
+    /// Load a set of room correction filters to EQ the exported content.
+    /// </summary>
+    async void LoadFilters(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         await LoadFilters();
     }
 
@@ -88,20 +97,26 @@ partial class MainWindow {
         UpdateMenuState();
     }
 
-    void ClearFilters(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    void ClearFilters(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         ClearRoomCorrection();
         UpdateMenuState();
     }
 
-    void DisplayWiring(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    /// <summary>
+    /// Shows a popup about what channel should be wired to which output.
+    /// </summary>
+    void DisplayWiring(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         ShowTextWindow(DisplayWiringText, GetWiringText());
     }
 
-    void ShowSystemInfo(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    void ShowSystemInfo(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         ShowTextWindow(SystemTitle, SystemInfoText);
     }
 
-    void ShowMetadata(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    /// <summary>
+    /// Show the selected track's codec metadata in a popup.
+    /// </summary>
+    void ShowMetadata(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         string title = Text("CMetT");
         if (SelectedTrack == null) {
             ShowTextWindow(title, Text("CMeET"));
@@ -117,15 +132,18 @@ partial class MainWindow {
         new MetadataWindow(metadata, title).Show(this);
     }
 
-    void ShowPostRenderReport(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    /// <summary>
+    /// Show the post-render report in a popup.
+    /// </summary>
+    void ShowPostRenderReport(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         ShowTextWindow(Text("PReRe"), GetPostRenderReportText());
     }
 
-    void Guide(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+    void Guide(object _, Avalonia.Interactivity.RoutedEventArgs e) {
         OpenUrl("https://cavern.sbence.hu/cavern/doc.php?p=Cavernize", Text("UsrGu"));
     }
 
-    void Ad(object sender, PointerPressedEventArgs e) => OpenUrl("https://cavern.sbence.hu", "Cavern");
+    void Ad(object _, PointerPressedEventArgs e) => OpenUrl("https://cavern.sbence.hu", "Cavern");
 
     void OpenUrl(string url, string title) {
         try {

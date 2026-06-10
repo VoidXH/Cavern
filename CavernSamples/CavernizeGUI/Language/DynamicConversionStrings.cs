@@ -3,13 +3,13 @@ using Cavernize.Logic.Language;
 namespace CavernizeGUI.Language;
 
 /// <summary>
-/// Reads the <see cref="ConversionStrings"/> from Cavernize Avalonia's localized resources.
+/// Reads the <see cref="ConversionStrings"/> from Cavernize GUI's localized resources.
 /// </summary>
-/// <param name="source">Localized resources for <see cref="ConversionStrings"/>.</param>
-public sealed class DynamicConversionStrings(IReadOnlyDictionary<string, string> source) : ConversionStrings {
+/// <param name="source">Localized resources for <see cref="ConversionStrings"/></param>
+public class DynamicConversionStrings(IReadOnlyDictionary<string, string> source) : ConversionStrings {
     /// <inheritdoc/>
-    public override string InvalidRootFile => source["InvRo"];
+    public override string InvalidRootFile => (string)source["InvRo"];
 
     /// <inheritdoc/>
-    public override string ChannelFilterNotFound => source["FiltN"];
+    public override string ChannelFilterNotFound => (string)source["FiltN"];
 }

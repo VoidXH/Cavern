@@ -16,7 +16,7 @@ using GuiLanguage = CavernizeGUI.Consts.Language;
 
 namespace CavernizeGUI;
 
-// Functions that write rendered content to the selected export format.
+// Functions that are part of the render export process.
 partial class MainWindow {
     async void Render(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
         if (StorageProvider == null) {
@@ -46,18 +46,46 @@ partial class MainWindow {
         await RenderTo(path);
     }
 
+    /// <summary>
+    /// Keeps track of export time and evaluates performance.
+    /// </summary>
     class Progressor(long length, Listener listener, GuiLanguage language, Action<double> updateProgress,
         Action<string> updateStatus) {
+        /// <summary>
+        /// Samples rendered so far.
+        /// </summary>
         public long Rendered { get; private set; }
 
+        /// <summary>
+        /// Time of starting the export process.
+        /// </summary>
         readonly DateTime start = DateTime.Now;
+
+        /// <summary>
+        /// Multiplier of the content length to get the progress ratio.
+        /// </summary>
         readonly double samplesToProgress = 1.0 / length;
+
+        /// <summary>
+        /// Converts samples to seconds.
+        /// </summary>
         readonly double samplesToSeconds = 1.0 / listener.SampleRate;
+
+        /// <summary>
+        /// Samples processed each frame.
+        /// </summary>
         readonly long updateRate = listener.UpdateRate;
         readonly string progressStatus = language["ProgP"];
         readonly string finalizingStatus = language["FinaP"];
+
+        /// <summary>
+        /// Samples until next UI update.
+        /// </summary>
         long untilUpdate = updateInterval;
 
+        /// <summary>
+        /// Report progress after each listener update.
+        /// </summary>
         public void Update() {
             Rendered += updateRate;
             if ((untilUpdate -= updateRate) <= 0) {
@@ -67,25 +95,38 @@ partial class MainWindow {
 
                 string remDisp;
                 if (remaining.TotalDays < 1) {
-                    remDisp = remaining.TotalHours < 1 ? remaining.ToString("mm':'ss") : remaining.ToString("h':'mm':'ss");
+                    if (remaining.TotalHours < 1) {
+                        remDisp = remaining.ToString("mm':'ss");
+                    } else {
+                        remDisp = remaining.ToString("h':'mm':'ss");
+                    }
                 } else {
                     remDisp = remaining.ToString("d':'hh':'mm':'ss");
                 }
 
-                updateStatus?.Invoke(string.Format(progressStatus, progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
+                updateStatus?.Invoke(string.Format(progressStatus,
+                    progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
                 updateProgress?.Invoke(progress);
                 untilUpdate = updateInterval;
             }
         }
 
+        /// <summary>
+        /// Report custom progress as finalization.
+        /// </summary>
         public void Finalize(double progress) {
             updateStatus?.Invoke(string.Format(finalizingStatus, progress.ToString("0.00%")));
             updateProgress?.Invoke(progress);
         }
     }
 
+    /// <summary>
+    /// Renders a listener to a file, and returns some measurements of the render.
+    /// </summary>
     RenderStats WriteRender(CavernizeTrack target, AudioWriter writer, RenderTarget renderTarget) {
-        RenderStats stats = DetailedGrading ? new RenderStatsEx(environment.Listener) : new RenderStats(environment.Listener);
+        RenderStats stats = DetailedGrading ?
+            new RenderStatsEx(environment.Listener) :
+            new RenderStats(environment.Listener);
         Progressor progressor = new(target.Length, environment.Listener, language, UpdateProgress, UpdateStatus);
         bool customMuting = RenderingSettings.MuteBed || RenderingSettings.MuteGround;
 
@@ -94,6 +135,7 @@ partial class MainWindow {
             filters = new MultichannelConvolver(RenderingSettings.RoomCorrection.Data);
         }
 
+        // Virtualization is done with the buffer instead of each update in the listener to optimize FFT sizes
         VirtualizerFilter virtualizer = null;
         Normalizer normalizer = null;
         bool virtualizerState = Listener.HeadphoneVirtualizer;
@@ -107,8 +149,10 @@ partial class MainWindow {
         }
 
         int cachePosition = 0;
+        float[] writeCache = null;
         bool flush = false;
-        float[] writeCache = new float[blockSize / renderTarget.OutputChannels * Listener.Channels.Length];
+        // The size of writeCache makes sure ContainerWriters get correct sized blocks when written with WriteChannelLimitedBlock
+        writeCache = new float[blockSize / renderTarget.OutputChannels * Listener.Channels.Length];
 
 #if RELEASE
         bool wasError = false;
@@ -125,13 +169,16 @@ partial class MainWindow {
                 } catch (Exception e) {
                     if (!wasError) {
                         wasError = true;
-                        TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
-                        WarningRaised(string.Format(language["RenEr"], time, e.Message));
+                        ThreadPool.QueueUserWorkItem(x => { // Don't hold up background processing
+                            TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
+                            WarningRaised(string.Format(language["RenEr"], time, e.Message));
+                        });
                     }
                     result = new float[Listener.Channels.Length * environment.Listener.UpdateRate];
                 }
 #endif
 
+                // Alignment of split parts
                 if (target.Length - progressor.Rendered < environment.Listener.UpdateRate) {
                     Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
                     flush = true;
@@ -186,6 +233,9 @@ partial class MainWindow {
         return stats;
     }
 
+    /// <summary>
+    /// Transcodes between object-based tracks, and returns some measurements of the render.
+    /// </summary>
     RenderStats WriteTranscode(CavernizeTrack target, EnvironmentWriter writer) {
         RenderStats stats = new(environment.Listener);
         Progressor progressor = new(target.Length, environment.Listener, language, UpdateProgress, UpdateStatus);
@@ -200,6 +250,9 @@ partial class MainWindow {
         return stats;
     }
 
+    /// <summary>
+    /// Transcodes from object-based tracks to ADM BWF, and returns some measurements of the render.
+    /// </summary>
     RenderStats WriteTranscode(CavernizeTrack target, BroadcastWaveFormatWriter writer) {
         RenderStats stats = new(environment.Listener);
         Progressor progressor = new((long)(target.Length / progressSplit), environment.Listener, language, UpdateProgress,
@@ -217,7 +270,18 @@ partial class MainWindow {
         return stats;
     }
 
+    /// <summary>
+    /// Update the UI after this many samples have been rendered.
+    /// </summary>
     const long updateInterval = 50000;
+
+    /// <summary>
+    /// The OAMD objects need this many samples at max to move to their initial position.
+    /// </summary>
     const int secondFrame = 2 * 1536;
+
+    /// <summary>
+    /// The export process exports PCM data until this percentage and extra metadata after that.
+    /// </summary>
     const double progressSplit = .95;
 }

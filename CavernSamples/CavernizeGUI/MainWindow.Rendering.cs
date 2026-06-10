@@ -122,6 +122,9 @@ partial class MainWindow {
         }
     }
 
+    /// <summary>
+    /// Prepare the renderer for export.
+    /// </summary>
     void PreRender() {
         if (Rendering) {
             throw new ConcurrencyException(language["OpRun"]);
@@ -146,6 +149,9 @@ partial class MainWindow {
         }
     }
 
+    /// <summary>
+    /// Attach the track to the environment and perform compatibility checks.
+    /// </summary>
     void AttachToListener() {
         try {
             environment.AttachToListener(SelectedTrack);
@@ -156,16 +162,18 @@ partial class MainWindow {
         }
     }
 
+    /// <summary>
+    /// Start rendering to a target <paramref name="path"/>.
+    /// </summary>
+    /// <returns>A task for rendering or null when an error happened.</returns>
     Action Render(string path) {
         CavernizeTrack target = SelectedTrack;
         Codec codec = ExportFormat.Codec;
-        BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 :
-            RenderingSettings.Force24Bit ? BitDepth.Int24 : BitDepth.Int16;
+        BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : RenderingSettings.Force24Bit ? BitDepth.Int24 : BitDepth.Int16;
 
         if (codec.IsEnvironmental()) {
             try {
-                EnvironmentWriter transcoder = EnvironmentWriter.Create(path, codec, environment.Listener, target.Length, bits,
-                    target.Renderer);
+                EnvironmentWriter transcoder = EnvironmentWriter.Create(path, codec, environment.Listener, target.Length, bits, target.Renderer);
                 return () => TranscodeTask(target, transcoder);
             } catch (UnsupportedContainerForWriteException) {
                 throw new TrackException(language["UnCod"]);
@@ -198,18 +206,24 @@ partial class MainWindow {
         return () => RenderTask(target, writer, path);
     }
 
+    /// <summary>
+    /// Setup write cache block size depending on active settings.
+    /// </summary>
     void SetBlockSize(RenderTarget target) {
         int updateRate = environment.Listener.UpdateRate;
         blockSize = RenderingSettings.RoomCorrectionUsable ? RenderingSettings.RoomCorrection.Samples : defaultWriteCacheLength;
         if (blockSize < updateRate) {
             blockSize = updateRate;
         } else if (blockSize % updateRate != 0) {
-            // Cache handling is faster when the cache size is divisible by the listener update rate.
+            // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
             blockSize += updateRate - blockSize % updateRate;
         }
         blockSize *= target.OutputChannels;
     }
 
+    /// <summary>
+    /// Create an external converter if it's needed for rendering a specific track.
+    /// </summary>
     ExternalConverterHandler CreateExternalHandler(CavernizeTrack target, int keepFirstSources) {
         ExternalConverterHandler external = new(target, language.ExternalConverterStrings, new RejectingLicence(),
             UpdateProgress, UpdateStatus, action => action());
@@ -219,6 +233,9 @@ partial class MainWindow {
         return external;
     }
 
+    /// <summary>
+    /// Render the content and export it to a channel-based format.
+    /// </summary>
     void RenderTask(CavernizeTrack target, AudioWriter writer, string finalName) {
         ExternalConverterHandler external = CreateExternalHandler(target, 0);
         if (external.Failed) {
@@ -253,6 +270,9 @@ partial class MainWindow {
         FinishTask(target);
     }
 
+    /// <summary>
+    /// Decode the source and export it to an object-based format.
+    /// </summary>
     void TranscodeTask(CavernizeTrack target, EnvironmentWriter writer) {
         if (writer is DolbyAtmosBWFWriter bwfWriter) {
             bwfWriter.ExtendWithMuteTarget();
@@ -265,12 +285,20 @@ partial class MainWindow {
         UpdateProgress(0);
         UpdateStatus(language["Start"]);
 
-        RenderStats stats = writer is BroadcastWaveFormatWriter bwf ? WriteTranscode(target, bwf) : WriteTranscode(target, writer);
+        RenderStats stats;
+        if (writer is BroadcastWaveFormatWriter bwf) {
+            stats = WriteTranscode(target, bwf);
+        } else {
+            stats = WriteTranscode(target, writer);
+        }
         report.Generate(stats);
         external.Dispose();
         FinishTask(target);
     }
 
+    /// <summary>
+    /// Operations to perform after a conversion was successful.
+    /// </summary>
     void FinishTask(CavernizeTrack target) {
         UpdateStatus(language["ExpOk"]);
         UpdateProgress(1);
@@ -292,6 +320,13 @@ partial class MainWindow {
         public bool Prompt() => false;
     }
 
+    /// <summary>
+    /// RIFF Wave file extension.
+    /// </summary>
     const string waveExtension = ".wav";
+
+    /// <summary>
+    /// Default value of <see cref="blockSize"/> per channel.
+    /// </summary>
     const int defaultWriteCacheLength = 16384;
 }

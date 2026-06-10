@@ -828,10 +828,15 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
         }
         LoadedPath = path;
         LoadedTitle = Path.GetFileName(path);
-        SelectedTrack = LoadedFile.Tracks
-            .Where(track => track.Codec != Codec.Unknown)
-            .OrderBy(track => track.Codec)
-            .FirstOrDefault() ?? LoadedFile.Tracks.FirstOrDefault();
+        CavernizeTrack bestQuality = LoadedFile.Tracks
+            .Where(x => x.Codec != Codec.Unknown)
+            .OrderBy(x => x.Codec)
+            .FirstOrDefault();
+        if (bestQuality != null) {
+            SelectedTrack = bestQuality;
+        } else {
+            SelectedTrack = LoadedFile.Tracks.FirstOrDefault();
+        }
     }
 
     void ClearRoomCorrectionState() {

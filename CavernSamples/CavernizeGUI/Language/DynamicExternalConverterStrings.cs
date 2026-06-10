@@ -3,37 +3,37 @@ using Cavernize.Logic.Language;
 namespace CavernizeGUI.Language;
 
 /// <summary>
-/// Reads the <see cref="ExternalConverterStrings"/> from Cavernize Avalonia's localized resources.
+/// Reads the <see cref="ExternalConverterStrings"/> from Cavernize GUI's localized resources.
 /// </summary>
-/// <param name="source">Localized resources for <see cref="ExternalConverterStrings"/>.</param>
-public sealed class DynamicExternalConverterStrings(IReadOnlyDictionary<string, string> source) : ExternalConverterStrings {
+/// <param name="source">Localized resources for <see cref="ExternalConverterStrings"/></param>
+public class DynamicExternalConverterStrings(IReadOnlyDictionary<string, string> source) : ExternalConverterStrings {
     /// <inheritdoc/>
-    public override string LicenceNeeded => source["LicNe"];
+    public override string LicenceNeeded => (string)source["LicNe"];
 
     /// <inheritdoc/>
-    public override string LicenceFetch => source["LicFe"];
+    public override string LicenceFetch => (string)source["LicFe"];
 
     /// <inheritdoc/>
-    public override string LicenceFail => source["LicFa"];
+    public override string LicenceFail => (string)source["LicFa"];
 
     /// <inheritdoc/>
-    public override string WaitingUserAccept => source["LicWa"];
+    public override string WaitingUserAccept => (string)source["LicWa"];
 
     /// <inheritdoc/>
-    public override string UserCancelled => source["LicCa"];
+    public override string UserCancelled => (string)source["LicCa"];
 
     /// <inheritdoc/>
-    public override string Downloading => source["ExDow"];
+    public override string Downloading => (string)source["ExDow"];
 
     /// <inheritdoc/>
-    public override string Extracting => source["ExExt"];
+    public override string Extracting => (string)source["ExExt"];
 
     /// <inheritdoc/>
-    public override string ExtractingBitstream => source["ExRaw"];
+    public override string ExtractingBitstream => (string)source["ExRaw"];
 
     /// <inheritdoc/>
-    public override string Converting => source["ConvW"];
+    public override string Converting => (string)source["ConvW"];
 
     /// <inheritdoc/>
-    public override string NetworkError => source["DlErr"];
+    public override string NetworkError => (string)source["DlErr"];
 }
