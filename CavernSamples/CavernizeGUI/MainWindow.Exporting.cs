@@ -75,9 +75,6 @@ partial class MainWindow {
         /// Samples processed each frame.
         /// </summary>
         readonly long updateRate = listener.UpdateRate;
-        readonly string progressStatus = language["ProgP"];
-        readonly string finalizingStatus = language["FinaP"];
-
         /// <summary>
         /// Samples until next UI update.
         /// </summary>
@@ -104,7 +101,7 @@ partial class MainWindow {
                     remDisp = remaining.ToString("d':'hh':'mm':'ss");
                 }
 
-                updateStatus?.Invoke(string.Format(progressStatus,
+                updateStatus?.Invoke(string.Format((string)language["ProgP"],
                     progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
                 updateProgress?.Invoke(progress);
                 untilUpdate = updateInterval;
@@ -115,7 +112,7 @@ partial class MainWindow {
         /// Report custom progress as finalization.
         /// </summary>
         public void Finalize(double progress) {
-            updateStatus?.Invoke(string.Format(finalizingStatus, progress.ToString("0.00%")));
+            updateStatus?.Invoke(string.Format((string)language["FinaP"], progress.ToString("0.00%")));
             updateProgress?.Invoke(progress);
         }
     }
@@ -127,7 +124,8 @@ partial class MainWindow {
         RenderStats stats = DetailedGrading ?
             new RenderStatsEx(environment.Listener) :
             new RenderStats(environment.Listener);
-        Progressor progressor = new(target.Length, environment.Listener, language, UpdateProgress, UpdateStatus);
+        Progressor progressor = new Progressor(target.Length, environment.Listener, language, UpdateProgress,
+            UpdateStatus);
         bool customMuting = RenderingSettings.MuteBed || RenderingSettings.MuteGround;
 
         MultichannelConvolver filters = null;
@@ -171,7 +169,7 @@ partial class MainWindow {
                         wasError = true;
                         ThreadPool.QueueUserWorkItem(x => { // Don't hold up background processing
                             TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
-                            WarningRaised(string.Format(language["RenEr"], time, e.Message));
+                            WarningRaised(string.Format((string)language["RenEr"], time, e.Message));
                         });
                     }
                     result = new float[Listener.Channels.Length * environment.Listener.UpdateRate];
@@ -237,8 +235,9 @@ partial class MainWindow {
     /// Transcodes between object-based tracks, and returns some measurements of the render.
     /// </summary>
     RenderStats WriteTranscode(CavernizeTrack target, EnvironmentWriter writer) {
-        RenderStats stats = new(environment.Listener);
-        Progressor progressor = new(target.Length, environment.Listener, language, UpdateProgress, UpdateStatus);
+        RenderStats stats = new RenderStats(environment.Listener);
+        Progressor progressor = new Progressor(target.Length, environment.Listener, language, UpdateProgress,
+            UpdateStatus);
 
         while (progressor.Rendered < target.Length) {
             ThrowIfCancellationRequested();
@@ -254,9 +253,9 @@ partial class MainWindow {
     /// Transcodes from object-based tracks to ADM BWF, and returns some measurements of the render.
     /// </summary>
     RenderStats WriteTranscode(CavernizeTrack target, BroadcastWaveFormatWriter writer) {
-        RenderStats stats = new(environment.Listener);
-        Progressor progressor = new((long)(target.Length / progressSplit), environment.Listener, language, UpdateProgress,
-            UpdateStatus);
+        RenderStats stats = new RenderStats(environment.Listener);
+        Progressor progressor = new Progressor((long)(target.Length / progressSplit), environment.Listener,
+            language, UpdateProgress, UpdateStatus);
 
         while (progressor.Rendered < target.Length) {
             ThrowIfCancellationRequested();

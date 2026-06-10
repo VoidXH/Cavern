@@ -10,7 +10,7 @@ public partial class App : Application {
 
     public override void OnFrameworkInitializationCompleted() {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-            MainWindow window = new();
+            MainWindow window = new MainWindow();
             if (Program.Args.Length == 0) {
                 desktop.MainWindow = window;
             } else {

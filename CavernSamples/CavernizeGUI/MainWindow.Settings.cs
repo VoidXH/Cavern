@@ -13,9 +13,9 @@ partial class MainWindow {
             return;
         }
 
-        NativeMenu menu = new();
+        NativeMenu menu = new NativeMenu();
         foreach (MenuSection section in GetMenuSections()) {
-            NativeMenu submenu = new();
+            NativeMenu submenu = new NativeMenu();
             foreach (MenuEntry entry in section.Entries) {
                 submenu.Add(entry.IsSeparator ? new NativeMenuItemSeparator() : CreateNativeMenuItem(entry));
             }
@@ -113,7 +113,7 @@ partial class MainWindow {
     ];
 
     NativeMenuItem CreateNativeMenuItem(MenuEntry entry) {
-        NativeMenuItem item = new(MenuEntryHeader(entry)) {
+        NativeMenuItem item = new NativeMenuItem(MenuEntryHeader(entry)) {
             ToolTip = MenuEntryToolTip(entry)
         };
         if (entry.ToggleType.HasValue) {
@@ -125,7 +125,7 @@ partial class MainWindow {
     }
 
     MenuItem CreateWindowsMenuItem(MenuEntry entry) {
-        MenuItem item = new() {
+        MenuItem item = new MenuItem() {
             Header = MenuEntryHeader(entry)
         };
         string toolTip = MenuEntryToolTip(entry);
@@ -271,11 +271,16 @@ partial class MainWindow {
     /// Relaunch the application when needed.
     /// </summary>
     void Restart() {
+        if (Rendering) {
+            Error((string)language["OpRes"]);
+            return;
+        }
+
         try {
             string processPath = Environment.ProcessPath;
             string appBundle = OperatingSystem.IsMacOS() ? GetAppBundle(processPath) : null;
             if (!string.IsNullOrWhiteSpace(appBundle)) {
-                ProcessStartInfo startInfo = new("open") {
+                ProcessStartInfo startInfo = new ProcessStartInfo("open") {
                     UseShellExecute = false
                 };
                 startInfo.ArgumentList.Add("-n");
@@ -298,7 +303,7 @@ partial class MainWindow {
             return null;
         }
 
-        DirectoryInfo directory = new(Path.GetDirectoryName(processPath));
+        DirectoryInfo directory = new DirectoryInfo(Path.GetDirectoryName(processPath));
         while (directory != null) {
             if (directory.Name.EndsWith(".app", StringComparison.OrdinalIgnoreCase)) {
                 return directory.FullName;

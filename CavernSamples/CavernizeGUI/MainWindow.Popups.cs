@@ -16,7 +16,7 @@ partial class MainWindow {
     /// Opens the upmixing settings.
     /// </summary>
     async void OpenUpmixSetup(object _, EventArgs e) {
-        UpmixingSetupWindow dialog = new(this);
+        UpmixingSetupWindow dialog = new UpmixingSetupWindow(this);
         await dialog.ShowDialog(this);
         if (dialog.Accepted) {
             dialog.ApplyTo(this);
@@ -156,14 +156,14 @@ partial class MainWindow {
     }
 
     void ShowAbout(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
-        StringBuilder result = new(Listener.Info);
+        StringBuilder result = new StringBuilder(Listener.Info);
         if (CavernAmp.Available) {
             result.Append('\n').Append(Text("AbouA"));
         }
 
         result.AppendLine().Append("Build: ");
-        FileInfo cavernizeLogic = new(Path.Combine(AppContext.BaseDirectory, "Cavernize.Logic.dll"));
-        FileInfo cavernizeGui = new(Path.Combine(AppContext.BaseDirectory, "CavernizeGUI.dll"));
+        FileInfo cavernizeLogic = new FileInfo(Path.Combine(AppContext.BaseDirectory, "Cavernize.Logic.dll"));
+        FileInfo cavernizeGui = new FileInfo(Path.Combine(AppContext.BaseDirectory, "CavernizeGUI.dll"));
         result.Append(cavernizeLogic.Exists ? cavernizeLogic.CreationTime : "unknown").Append(", ")
             .Append(cavernizeGui.Exists ? cavernizeGui.CreationTime : "unknown");
         ShowTextWindow(Text("AbouH"), result.ToString());

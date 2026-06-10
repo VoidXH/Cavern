@@ -410,7 +410,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
         UpmixingSettings.Cavernize = settings.CavernizeUpmixing;
         UpmixingSettings.Effect = settings.UpmixingEffect ?? .75f;
         UpmixingSettings.Smoothness = settings.UpmixingSmoothness ?? .8f;
-        environment = new(this);
+        environment = new ConversionEnvironment(this);
         report = new PostRenderReport(environment.Listener, language.RenderReportStrings);
         reportText = report.Report;
 
@@ -704,7 +704,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
             return Text("LdSrc");
         }
 
-        StringBuilder result = new();
+        StringBuilder result = new StringBuilder();
         result.AppendLine(SelectedRenderTarget.Name);
         result.AppendLine();
         ReferenceChannel[] channels = SelectedRenderTarget.GetNameMappedChannels();
@@ -879,7 +879,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
 
     QueuedRenderJob CreateJob(string sourcePath, int? trackIndex) => CreateJob(sourcePath, trackIndex, null);
 
-    QueuedRenderJob CreateJob(string sourcePath, int? trackIndex, string outputFolder) => new(sourcePath,
+    QueuedRenderJob CreateJob(string sourcePath, int? trackIndex, string outputFolder) => new QueuedRenderJob(sourcePath,
         CreateOutputPath(sourcePath, outputFolder), trackIndex,
         SelectedExportFormat, SelectedRenderTarget, SpeakerVirtualizer, Force24Bit, MuteBed, MuteGround, SurroundSwap,
         WavChannelSkip, DetailedGrading, MatrixUpmixing, CavernizeUpmixing, UpmixingEffect, UpmixingSmoothness);
@@ -991,7 +991,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
     }
 
     void LoadHrirFile(string path) {
-        using RIFFWaveReader file = new(path);
+        using RIFFWaveReader file = new RIFFWaveReader(path);
         file.ReadHeader();
         VirtualizerFilter.Override(
             VirtualChannel.Parse(new MultichannelWaveform(file.ReadMultichannelAfterHeader()), file.SampleRate),
@@ -1149,7 +1149,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
             set => upmixingSettings.Smoothness = value ?? .8f;
         }
 
-        public static AppSettings Load() => new();
+        public static AppSettings Load() => new AppSettings();
 
         public void Save() {
             settings.Save();

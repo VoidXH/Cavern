@@ -98,7 +98,7 @@ sealed class Language {
         }
 
         XName xKey = XName.Get("Key", "http://schemas.microsoft.com/winfx/2006/xaml");
-        Dictionary<string, string> result = new();
+        Dictionary<string, string> result = new Dictionary<string, string>();
         foreach (XElement element in XDocument.Load(stream).Descendants().Where(element => element.Name.LocalName == "String")) {
             string key = (string)element.Attribute(xKey);
             if (!string.IsNullOrWhiteSpace(key)) {

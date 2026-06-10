@@ -108,7 +108,7 @@ partial class MainWindow {
 
     void RunRendering(Action renderTask) {
         if (Rendering) {
-            throw new ConcurrencyException(language["OpRun"]);
+            throw new ConcurrencyException((string)language["OpRun"]);
         }
 
         rendering = true;
@@ -127,25 +127,25 @@ partial class MainWindow {
     /// </summary>
     void PreRender() {
         if (Rendering) {
-            throw new ConcurrencyException(language["OpRun"]);
+            throw new ConcurrencyException((string)language["OpRun"]);
         }
         if (SelectedTrack == null) {
-            throw new TrackException(language["LdSrc"]);
+            throw new TrackException((string)language["LdSrc"]);
         }
         if (!SelectedTrack.Supported) {
-            throw new TrackException(language["UnTrk"]);
+            throw new TrackException((string)language["UnTrk"]);
         }
 
-        bool needsFFmpeg = !string.IsNullOrEmpty(ExportFormat.FFName) &&
-            ExportFormat.Codec != Codec.PCM_Float && ExportFormat.Codec != Codec.PCM_LE;
+        ExportFormat format = ExportFormat;
+        bool needsFFmpeg = !string.IsNullOrEmpty(format.FFName) && format.Codec != Codec.PCM_Float && format.Codec != Codec.PCM_LE;
         if (needsFFmpeg && !ffmpeg.Found) {
-            throw new TrackException(language["FFOnl"]);
+            throw new TrackException((string)language["FFOnl"]);
         }
 
         try {
             AttachToListener();
         } catch (OverMaxChannelsException e) {
-            throw new TrackException(string.Format(language["ChCnt"], e.Channels, e.MaxChannels));
+            throw new TrackException(string.Format((string)language["ChCnt"], e.Channels, e.MaxChannels));
         }
     }
 
@@ -156,9 +156,9 @@ partial class MainWindow {
         try {
             environment.AttachToListener(SelectedTrack);
         } catch (NonGroundChannelPresentException) {
-            throw new NonGroundChannelPresentException(language["SpViE"]);
+            throw new NonGroundChannelPresentException((string)language["SpViE"]);
         } catch (SampleRateMismatchException) {
-            throw new IncompatibleSettingsException(language["FiltC"]);
+            throw new IncompatibleSettingsException((string)language["FiltC"]);
         }
     }
 
@@ -176,7 +176,8 @@ partial class MainWindow {
                 EnvironmentWriter transcoder = EnvironmentWriter.Create(path, codec, environment.Listener, target.Length, bits, target.Renderer);
                 return () => TranscodeTask(target, transcoder);
             } catch (UnsupportedContainerForWriteException) {
-                throw new TrackException(language["UnCod"]);
+                Error((string)language["UnCod"]);
+                return null;
             }
         }
 
@@ -200,7 +201,8 @@ partial class MainWindow {
             writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
         }
         if (writer == null) {
-            throw new TrackException(language["UnExt"]);
+            Error((string)language["UnExt"]);
+            return null;
         }
         writer.WriteHeader();
         return () => RenderTask(target, writer, path);
@@ -243,7 +245,7 @@ partial class MainWindow {
         }
         ThrowIfCancellationRequested();
         UpdateProgress(0);
-        UpdateStatus(language["Start"]);
+        UpdateStatus((string)language["Start"]);
         RenderTarget renderTargetRef = RenderTarget;
         RenderStats stats = WriteRender(target, writer, renderTargetRef);
         report.Generate(stats);
@@ -283,7 +285,7 @@ partial class MainWindow {
         }
         ThrowIfCancellationRequested();
         UpdateProgress(0);
-        UpdateStatus(language["Start"]);
+        UpdateStatus((string)language["Start"]);
 
         RenderStats stats;
         if (writer is BroadcastWaveFormatWriter bwf) {
@@ -300,11 +302,11 @@ partial class MainWindow {
     /// Operations to perform after a conversion was successful.
     /// </summary>
     void FinishTask(CavernizeTrack target) {
-        UpdateStatus(language["ExpOk"]);
+        UpdateStatus((string)language["ExpOk"]);
         UpdateProgress(1);
 
         if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.WorkedAround) {
-            WarningRaised(language["JocWa"]);
+            WarningRaised((string)language["JocWa"]);
         }
     }
 
