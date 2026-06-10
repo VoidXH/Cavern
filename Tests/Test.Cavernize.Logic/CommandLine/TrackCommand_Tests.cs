@@ -7,7 +7,7 @@ using Test.Cavernize.Logic.Utilities;
 namespace Test.Cavernize.Logic.CommandLine;
 
 /// <summary>
-/// Tests the -trk command line parameter.
+/// Tests the -track command line parameter.
 /// </summary>
 [TestClass]
 public class TrackCommand_Tests {

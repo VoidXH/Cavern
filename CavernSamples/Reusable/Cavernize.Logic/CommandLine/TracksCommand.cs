@@ -1,4 +1,5 @@
-﻿using Cavern.Format.Common;
+﻿using Cavern.Format;
+using Cavern.Format.Common;
 using Cavernize.Logic.CommandLine.BaseClasses;
 using Cavernize.Logic.Models;
 
@@ -23,6 +24,12 @@ sealed class TracksCommand : Command {
     /// <inheritdoc/>
     public override void Execute(string[] args, int offset, ICavernizeApp app) {
         IReadOnlyList<CavernizeTrack> audioTracks = app.LoadedFile.Tracks;
+        if (audioTracks.Count == 1 && audioTracks[0].Track == null) {
+            // Non-container, standalone audio file
+            Console.WriteLine("[0] " + audioTracks[0]);
+            return;
+        }
+
         IReadOnlyList<Track> allTracks = app.LoadedFile.AllTracks;
         for (int i = 0, audioIndex = 0, c = allTracks.Count; i < c; i++) {
             CavernizeTrack parsed = audioTracks.FirstOrDefault(x => x.Track == allTracks[i]);
