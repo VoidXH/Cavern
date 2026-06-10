@@ -46,23 +46,42 @@ public abstract class FFmpeg {
     /// </summary>
     static string GetPathOfProgram(string key) {
         try {
+            bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             var process = new Process {
                 StartInfo = new ProcessStartInfo {
-                    FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "where" : "which",
+                    FileName = isWindows ? "where" : "which",
                     Arguments = key,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 }
             };
+            if (!isWindows) {
+                string path = Environment.GetEnvironmentVariable("PATH");
+                process.StartInfo.Environment["PATH"] = (string.IsNullOrEmpty(path) ? string.Empty :
+                    path + Path.PathSeparator) + "/opt/homebrew/bin:/usr/local/bin:/opt/local/bin:/usr/bin:/bin";
+            }
 
             process.Start();
             string output = process.StandardOutput.ReadLine();
             process.WaitForExit();
-            return string.IsNullOrWhiteSpace(output) ? string.Empty : output;
+            if (!string.IsNullOrWhiteSpace(output)) {
+                return output;
+            }
         } catch {
-            return string.Empty;
         }
+
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+            foreach (string directory in new[] { "/opt/homebrew/bin", "/usr/local/bin", "/opt/local/bin",
+                "/usr/bin", "/bin" }) {
+                string path = Path.Combine(directory, key);
+                if (File.Exists(path)) {
+                    return path;
+                }
+            }
+        }
+
+        return string.Empty;
     }
 
     /// <summary>
@@ -74,8 +93,11 @@ public abstract class FFmpeg {
     /// Checks if FFmpeg's executable is located at the selected directory and update the UI accordingly.
     /// </summary>
     public void CheckFFmpeg() {
-        if (string.IsNullOrEmpty(location)) {
-            location = GetPathOfProgram("ffmpeg");
+        if (string.IsNullOrEmpty(location) || !File.Exists(location)) {
+            string detected = GetPathOfProgram("ffmpeg");
+            if (!string.IsNullOrEmpty(detected)) {
+                location = detected;
+            }
         }
         Found = !string.IsNullOrEmpty(location) && File.Exists(location);
         UpdateStatusText(Found ? ReadyText : NotReadyText);
