@@ -40,6 +40,7 @@
     <system:String x:Key="MenuL">Nyelv</system:String>
     <system:String x:Key="LanEn">English</system:String>
     <system:String x:Key="LanHu">Magyar</system:String>
+    <system:String x:Key="LanTe">Teszt</system:String>
     <system:String x:Key="SySet">Rendszer</system:String>
     <system:String x:Key="RSInf">Válassz ki egy hangszórókiosztást, és helyezd el úgy a hangszóróid. Kattints a &quot;Bekötés mutatása&quot;
         gombra, hogy megtudd, melyik kimenetet melyik valódi csatornára kell kötnöd.
@@ -79,8 +80,13 @@
     <system:String x:Key="UpmNs">Nem térbeli tartalom felkeverése</system:String>
     <system:String x:Key="UpmEf">Felkeverés hatása:</system:String>
     <system:String x:Key="UpmSm">Felkeverés simasága:</system:String>
+    <system:String x:Key="Upm71T">Mátrix felkeverővel teljes 7.1 alapot készít régi csatornaalapú tartalmakhoz.</system:String>
+    <system:String x:Key="UpmNsT">Megpróbálja visszaállítani a magassági információt hagyományos tartalmakhoz, legfeljebb 7.1-ig.</system:String>
     <system:String x:Key="Reset">Visszaállítás</system:String>
+    <system:String x:Key="OK">OK</system:String>
     <system:String x:Key="Cancel">Mégse</system:String>
+    <system:String x:Key="Yes">Igen</system:String>
+    <system:String x:Key="No">Nem</system:String>
     <!-- Code behind -->
     <system:String x:Key="dnErr">A .NET 6 telepítésed sérült és nem tölthető be. Kérlek, telepítsd a legújabbat a Microsoft-tól.\n
         Nyomj meg egy gombot a kilépéshez...</system:String>
@@ -133,4 +139,6 @@
     <system:String x:Key="QuAll">Szeretnél egy közös kimeneti mappát választani az összes fájlhoz, amit a sorhoz adsz?
         Ha az Igenre nyomsz, mindegyik az alapértelmezett kimeneti konténerben lesz feldolgozva a kiválasztott mappába.
         Ha a Nemre nyomsz, egyesével kiválaszthatod a kimeneti mappákat, fájlneveket, és konténerformátumokat.</system:String>
+    <system:String x:Key="UpdAv">Frissítés érhető el</system:String>
+    <system:String x:Key="UpdQu">Új verzió érhető el. Szeretnéd letölteni?</system:String>
 </ResourceDictionary>

@@ -31,19 +31,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<AvaloniaResource Include="..\_Common\CavernLogo.png" Link="Assets\CavernLogo.png" />
-		<AvaloniaResource Include="Resources\Images\*.png" Link="Assets\Images\%(Filename)%(Extension)" />
+		<AvaloniaResource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
+		<AvaloniaResource Include="Resources\Images\*.png" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Resources\MainWindowStrings.xaml" Link="Localization\MainWindowStrings.xaml" />
-		<EmbeddedResource Include="Resources\MainWindowStrings.hu-HU.xaml" Link="Localization\MainWindowStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\RenderTargetSelectorStrings.xaml" Link="Localization\RenderTargetSelectorStrings.xaml" />
-		<EmbeddedResource Include="Resources\RenderTargetSelectorStrings.hu-HU.xaml" Link="Localization\RenderTargetSelectorStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\TrackStrings.hu-HU.xaml" Link="Localization\TrackStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\ConversionStrings.hu-HU.xaml" Link="Localization\ConversionStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\ExternalConverterStrings.hu-HU.xaml" Link="Localization\ExternalConverterStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\RenderReportStrings.hu-HU.xaml" Link="Localization\RenderReportStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\MainWindowStrings.xaml" />
+		<EmbeddedResource Include="Resources\MainWindowStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\RenderTargetSelectorStrings.xaml" />
+		<EmbeddedResource Include="Resources\RenderTargetSelectorStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\TrackStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\ConversionStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\ExternalConverterStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\RenderReportStrings.hu-HU.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>

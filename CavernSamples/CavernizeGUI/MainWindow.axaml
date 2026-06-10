@@ -9,7 +9,7 @@
         Background="#696969"
         Foreground="#F0F0F0"
         DragDrop.AllowDrop="True"
-        DragDrop.Drop="DropFiles">
+        DragDrop.Drop="DropFile">
   <Window.Resources>
     <SolidColorBrush x:Key="CardBrush">#1F1F1F</SolidColorBrush>
     <SolidColorBrush x:Key="SurfaceBrush">#151515</SolidColorBrush>
@@ -116,7 +116,7 @@
                         Spacing="{DynamicResource MenuHeaderSpacing}">
             <Image Width="{DynamicResource MenuIconSize}"
                    Height="{DynamicResource MenuIconSize}"
-                   Source="avares://CavernizeGUI/Assets/Images/Settings.png" />
+                   Source="avares://CavernizeGUI/Resources/Images/Settings.png" />
               <TextBlock x:Name="WindowsRenderingMenuText"
                          VerticalAlignment="Center" />
             </StackPanel>
@@ -134,7 +134,7 @@
                         Spacing="{DynamicResource MenuHeaderSpacing}">
             <Image Width="{DynamicResource MenuIconSize}"
                    Height="{DynamicResource MenuIconSize}"
-                   Source="avares://CavernizeGUI/Assets/Images/Language.png" />
+                   Source="avares://CavernizeGUI/Resources/Images/Language.png" />
               <TextBlock x:Name="WindowsLanguageMenuText"
                          VerticalAlignment="Center" />
             </StackPanel>
@@ -146,7 +146,7 @@
                         Spacing="{DynamicResource MenuHeaderSpacing}">
             <Image Width="{DynamicResource MenuIconSize}"
                    Height="{DynamicResource MenuIconSize}"
-                   Source="avares://CavernizeGUI/Assets/Images/Help.png" />
+                   Source="avares://CavernizeGUI/Resources/Images/Help.png" />
               <TextBlock x:Name="WindowsHelpMenuText"
                          VerticalAlignment="Center" />
             </StackPanel>
@@ -204,7 +204,7 @@
                     Classes="comboButton"
                     Height="{DynamicResource ComboHeight}"
                     VerticalAlignment="Center"
-                    Click="OpenRenderTargetSelector">
+                    Click="OnRenderTargetOpened">
               <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Text="{Binding SelectedRenderTarget.Name}"
                            TextTrimming="CharacterEllipsis"
@@ -231,7 +231,7 @@
                   HorizontalAlignment="Center"
                   VerticalAlignment="Top"
                   Content="{Binding DisplayWiringText}"
-                  Click="ShowWiring" />
+                  Click="DisplayWiring" />
         </Grid>
       </Border>
 
@@ -242,9 +242,9 @@
                HorizontalAlignment="Center"
                VerticalAlignment="Center"
                Cursor="Hand"
-               PointerPressed="OpenCavernWebsite"
+               PointerPressed="Ad"
                ToolTip.Tip="https://cavern.sbence.hu"
-               Source="avares://CavernizeGUI/Assets/CavernLogo.png" />
+               Source="avares://CavernizeGUI/Resources/CavernLogo.png" />
 
         <Border Grid.Row="1"
                 Background="{StaticResource CardBrush}"
@@ -253,7 +253,7 @@
           <Grid RowDefinitions="Auto,Auto,Auto,*,Auto"
                 RowSpacing="{DynamicResource ContentRowSpacing}"
                 DragDrop.AllowDrop="True"
-                DragDrop.Drop="DropFiles">
+                DragDrop.Drop="DropFile">
             <TextBlock Classes="header" Text="{Binding ContentTitle}" />
 
             <Grid Grid.Row="1" ColumnDefinitions="Auto,*" ColumnSpacing="{DynamicResource ContentColumnSpacing}">
@@ -268,7 +268,7 @@
                   <Image Width="{DynamicResource SmallIconSize}"
                          Height="{DynamicResource SmallIconSize}"
                          VerticalAlignment="Center"
-                         Source="avares://CavernizeGUI/Assets/Images/Folder.png" />
+                         Source="avares://CavernizeGUI/Resources/Images/Folder.png" />
                   <TextBlock Grid.Column="1"
                              Classes="iconButtonText"
                              Text="{Binding OpenText}"
@@ -321,7 +321,7 @@
             </Grid>
 
             <Grid Grid.Row="4" ColumnDefinitions="Auto,*,Auto">
-              <Button Click="AddToQueue"
+              <Button Click="Queue"
                       IsEnabled="{Binding CanAddToQueue}"
                       Width="{DynamicResource ActionButtonWidth}"
                       Height="{DynamicResource ActionButtonHeight}">
@@ -332,7 +332,7 @@
                   <Image Width="{DynamicResource SmallIconSize}"
                          Height="{DynamicResource SmallIconSize}"
                          VerticalAlignment="Center"
-                         Source="avares://CavernizeGUI/Assets/Images/AddToQueue.png" />
+                         Source="avares://CavernizeGUI/Resources/Images/AddToQueue.png" />
                   <TextBlock Grid.Column="1"
                              Classes="iconButtonText"
                              Text="{Binding AddToQueueText}"
@@ -341,7 +341,7 @@
               </Button>
               <Button Grid.Column="2"
                       Classes="primary"
-                      Click="RenderFile"
+                      Click="Render"
                       IsEnabled="{Binding CanRender}"
                       Width="{DynamicResource ActionButtonWidth}"
                       Height="{DynamicResource PrimaryButtonHeight}">
@@ -352,7 +352,7 @@
                   <Image Width="{DynamicResource RenderIconSize}"
                          Height="{DynamicResource RenderIconSize}"
                          VerticalAlignment="Center"
-                         Source="avares://CavernizeGUI/Assets/Images/Render.png" />
+                         Source="avares://CavernizeGUI/Resources/Images/Render.png" />
                   <TextBlock Grid.Column="1"
                              Classes="iconButtonText"
                              Text="{Binding RenderText}"
@@ -377,7 +377,7 @@
                    ItemsSource="{Binding QueueJobs}"
                    SelectedItem="{Binding SelectedQueueJob}"
                    DragDrop.AllowDrop="True"
-                   DragDrop.Drop="DropFiles">
+                   DragDrop.Drop="DropFile">
             <ListBox.ItemTemplate>
               <DataTemplate x:DataType="local:QueuedRenderJob">
                 <Border Padding="{DynamicResource QueueItemPadding}">
@@ -404,7 +404,7 @@
             </Button>
             <Button Grid.Column="1"
                     Classes="primary"
-                    Click="RunQueue"
+                    Click="StartQueue"
                     IsEnabled="{Binding CanRunQueue}"
                     MinWidth="{DynamicResource QueueRunButtonMinWidth}"
                     Height="{DynamicResource OpenButtonHeight}">

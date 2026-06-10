@@ -24,7 +24,7 @@ sealed class UpmixingSetupWindow : Window {
     public bool Accepted { get; private set; }
 
     public UpmixingSetupWindow(MainViewModel viewModel) {
-        Title = viewModel.Text("UpmTi", "Upmixing Setup");
+        Title = viewModel.Text("UpmTi");
         Width = 380;
         Height = 235;
         MinWidth = 380;
@@ -33,20 +33,20 @@ sealed class UpmixingSetupWindow : Window {
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         Background = new SolidColorBrush(Color.Parse("#696969"));
 
-        matrixUpmix.Content = viewModel.Text("Upm71", "Fill 7.1");
-        cavernize.Content = viewModel.Text("UpmNs", "Upconvert non-spatial content");
+        matrixUpmix.Content = viewModel.Text("Upm71");
+        cavernize.Content = viewModel.Text("UpmNs");
         matrixUpmix.IsChecked = viewModel.MatrixUpmixing;
         cavernize.IsChecked = viewModel.CavernizeUpmixing;
         effect.Value = viewModel.UpmixingEffect * 100;
         smoothness.Value = viewModel.UpmixingSmoothness * 100;
-        ToolTip.SetTip(matrixUpmix, "Use a matrix upmixer to create the full 7.1 bed for legacy channel-based content.");
-        ToolTip.SetTip(cavernize, "Tries to recreate height information for regular content up to 7.1.");
+        ToolTip.SetTip(matrixUpmix, viewModel.Text("Upm71T"));
+        ToolTip.SetTip(cavernize, viewModel.Text("UpmNsT"));
 
         Grid effectRow = new() {
             ColumnDefinitions = new ColumnDefinitions("160,*"),
             Children = {
                 new TextBlock {
-                    Text = viewModel.Text("UpmEf", "Upmixing effect:"),
+                    Text = viewModel.Text("UpmEf"),
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White
                 },
@@ -59,7 +59,7 @@ sealed class UpmixingSetupWindow : Window {
             ColumnDefinitions = new ColumnDefinitions("160,*"),
             Children = {
                 new TextBlock {
-                    Text = viewModel.Text("UpmSm", "Upmixing smoothness:"),
+                    Text = viewModel.Text("UpmSm"),
                     VerticalAlignment = VerticalAlignment.Center,
                     Foreground = Brushes.White
                 },
@@ -69,15 +69,15 @@ sealed class UpmixingSetupWindow : Window {
         Grid.SetColumn(smoothness, 1);
 
         Button reset = new() {
-            Content = viewModel.Text("Reset", "Reset"),
+            Content = viewModel.Text("Reset"),
             Width = 82
         };
         Button ok = new() {
-            Content = "OK",
+            Content = viewModel.Text("OK"),
             Width = 82
         };
         Button cancel = new() {
-            Content = viewModel.Text("Cancel", "Cancel"),
+            Content = viewModel.Text("Cancel"),
             Width = 82
         };
         reset.Click += (_, _) => Reset();

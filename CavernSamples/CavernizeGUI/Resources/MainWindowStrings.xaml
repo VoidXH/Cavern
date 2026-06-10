@@ -40,6 +40,7 @@
     <system:String x:Key="MenuL">Language</system:String>
     <system:String x:Key="LanEn">English</system:String>
     <system:String x:Key="LanHu">Magyar</system:String>
+    <system:String x:Key="LanTe">Test</system:String>
     <system:String x:Key="SySet">System</system:String>
     <system:String x:Key="RSInf">Choose a layout, and place your speakers accordingly. Click the &quot;Display wiring&quot;
         button to see which output will change to which actual channel.
@@ -79,8 +80,13 @@
     <system:String x:Key="UpmNs">Upconvert non-spatial content</system:String>
     <system:String x:Key="UpmEf">Upmixing effect:</system:String>
     <system:String x:Key="UpmSm">Upmixing smoothness:</system:String>
+    <system:String x:Key="Upm71T">Use a matrix upmixer to create the full 7.1 bed for legacy channel-based content.</system:String>
+    <system:String x:Key="UpmNsT">Tries to recreate height information for regular content up to 7.1.</system:String>
     <system:String x:Key="Reset">Reset</system:String>
+    <system:String x:Key="OK">OK</system:String>
     <system:String x:Key="Cancel">Cancel</system:String>
+    <system:String x:Key="Yes">Yes</system:String>
+    <system:String x:Key="No">No</system:String>
     <!-- Code behind -->
     <system:String x:Key="dnErr">Your .NET 6 installation is corrupted and can't be loaded. Please install the latest version
         from Microsoft.\nPress any key to exit...</system:String>
@@ -133,4 +139,6 @@
     <system:String x:Key="QuAll">Do you want to select a single output folder for all the files you're adding to the queue?
         If you press Yes, all of them will be processed to their default containers in the selected folder.
         If you press No, you can choose the output folders, file names, and container formats individually.</system:String>
+    <system:String x:Key="UpdAv">Update available</system:String>
+    <system:String x:Key="UpdQu">A new version is available! Do you want to download it?</system:String>
 </ResourceDictionary>

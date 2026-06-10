@@ -258,53 +258,51 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
     public string LanguageCode => language.Code;
 
-    public string SystemTitle => Text("SySet", "System");
+    public string SystemTitle => Text("SySet");
 
-    public string SystemInfoText => Text("RSInf", "Choose a layout, and place your speakers accordingly. Click the " +
-        "\"Display wiring\" button to see which output will change to which actual channel.\n\nFor maximum audio quality, " +
-        "calibrate your system with QuickEQ.");
+    public string SystemInfoText => Text("RSInf");
 
-    public string RenderTargetLabel => Text("RndTg", "Render target:");
+    public string RenderTargetLabel => Text("RndTg");
 
-    public string DisplayWiringText => Text("DisWi", "Display wiring");
+    public string DisplayWiringText => Text("DisWi");
 
-    public string ContentTitle => Text("CoPro", "Content");
+    public string ContentTitle => Text("CoPro");
 
-    public string OpenText => Text("OpCnt", "Open");
+    public string OpenText => Text("OpCnt");
 
-    public string TrackLabel => Text("OpTrk", "Track:");
+    public string TrackLabel => Text("OpTrk");
 
-    public string OutputLabel => Text("OpOut", "Output:");
+    public string OutputLabel => Text("OpOut");
 
-    public string AddToQueueText => Text("QuAdd", "Add to queue");
+    public string AddToQueueText => Text("QuAdd");
 
-    public string RenderText => Text("OpRnd", "Render");
+    public string RenderText => Text("OpRnd");
 
-    public string QueueTitle => Text("Queue", "Queue");
+    public string QueueTitle => Text("Queue");
 
-    public string RemoveSelectedText => Text("QuRem", "Remove selected");
+    public string RemoveSelectedText => Text("QuRem");
 
-    public string ProcessText => Text("QuSta", "Process");
+    public string ProcessText => Text("QuSta");
 
-    public string NoTrackLoadedText => Text("NoTrk", "No track loaded");
+    public string NoTrackLoadedText => Text("NoTrk");
 
-    public string OpenSourcePickerTitle => Text("OpSrc", "Open source");
+    public string OpenSourcePickerTitle => Text("OpSrc");
 
-    public string SaveRenderPickerTitle => Text("SavRn", "Save render");
+    public string SaveRenderPickerTitle => Text("SavRn");
 
-    public string AudioVideoFileType => Text("AudVi", "Audio and video");
+    public string AudioVideoFileType => Text("AudVi");
 
-    public string SelectedFormatFileType => Text("SelFo", "Selected format");
+    public string SelectedFormatFileType => Text("SelFo");
 
-    public string LoadHrirTitle => Text("LoadH", "Load HRIR");
+    public string LoadHrirTitle => Text("LoadH");
 
-    public string LoadFiltersTitle => Text("LoadF", "Load room correction filters");
+    public string LoadFiltersTitle => Text("LoadF");
 
-    public string ImpulseResponseFileType => FileTypeName("FiltI", "Impulse response packages");
+    public string ImpulseResponseFileType => FileTypeName("FiltI");
 
-    public string RoomCorrectionFileType => FileTypeName("FiltF", "Cavern QuickEQ Convolution EQs");
+    public string RoomCorrectionFileType => FileTypeName("FiltF");
 
-    public string NoWarningsText => Text("NoWar", "No warnings.");
+    public string NoWarningsText => Text("NoWar");
 
     public bool HasHrir {
         get => hasHrir;
@@ -372,12 +370,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
     public MainViewModel() {
         language = AvaloniaLanguage.Create(settings.LanguageCode);
-        settings.LanguageCode = language.Code;
-        FFmpeg.ReadyText = Text("FFRea", "Ready!");
-        FFmpeg.NotReadyText = Text("FFNRe", "FFmpeg isn't found, codec limitations are applied.");
+        FFmpeg.ReadyText = Text("FFRea");
+        FFmpeg.NotReadyText = Text("FFNRe");
         session = new(language);
-        loadedTitle = Text("NoSrc", "No source loaded");
-        status = Text("OpSrcS", "Open a source file.");
+        loadedTitle = Text("NoSrc");
+        status = Text("OpSrcS");
         warning = NoWarningsText;
         reportText = session.Report.Report;
 
@@ -469,7 +466,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
         IsBusy = true;
         Warning = NoWarningsText;
-        Status = Text("Start", "Starting render...");
+        Status = Text("Start");
         cancellation = new CancellationTokenSource();
         bool outputExisted = !string.IsNullOrWhiteSpace(path) && File.Exists(path);
         try {
@@ -616,24 +613,17 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         OnPropertyChanged(nameof(LastUpdateCheck));
     }
 
-    public string Text(string key, string fallback) => language.Text(key, fallback);
-
     public string Text(string key) => language.Text(key);
-
-    public string MenuText(string key, string fallback) => language.MenuText(key, fallback);
 
     public string MenuText(string key) => language.MenuText(key);
 
-    public string RenderTargetSelectorText(string key, string fallback) => language.RenderTargetSelectorText(key, fallback);
+    public string RenderTargetSelectorText(string key) => language.RenderTargetSelectorText(key);
 
-    public string FileTypeName(string key, string fallback) => language.FileTypeName(key, fallback);
+    public string FileTypeName(string key) => language.FileTypeName(key);
 
     public bool SetLanguage(string code) {
-        if (code != "en-US" && code != "hu-HU") {
-            return false;
-        }
         if (IsBusy) {
-            Status = Text("OpRun", "An operation is already running, please wait for it to finish.");
+            Status = Text("OpRun");
             return false;
         }
         if (LanguageCode == code) {
@@ -643,7 +633,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         settings.LanguageCode = code;
         settings.Save();
         OnPropertyChanged(nameof(LanguageCode));
-        Status = Text("OpRes", "The changes will take effect after restarting Cavernize.");
+        Status = Text("OpRes");
         return true;
     }
 

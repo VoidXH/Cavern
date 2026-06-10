@@ -9,7 +9,7 @@ namespace CavernizeGUI;
 
 sealed class AvaloniaLanguage {
     const string DefaultLanguage = "en-US";
-    const string Hungarian = "hu-HU";
+    static readonly string[] supported = ["hu-HU"];
 
     public string Code { get; }
 
@@ -42,46 +42,46 @@ sealed class AvaloniaLanguage {
     }
 
     public static AvaloniaLanguage Create(string languageCode) {
-        string code = NormalizeLanguage(languageCode);
-        IReadOnlyDictionary<string, string> mainWindow = LoadDictionary("MainWindowStrings", code);
+        string code = ResolveLanguage(languageCode);
+        string resourceCode = IsSupported(code) ? code : DefaultLanguage;
+        IReadOnlyDictionary<string, string> mainWindow = LoadDictionary("MainWindowStrings", resourceCode);
         if (mainWindow.Count == 0) {
-            code = DefaultLanguage;
-            mainWindow = LoadDictionary("MainWindowStrings", code);
+            resourceCode = DefaultLanguage;
+            mainWindow = LoadDictionary("MainWindowStrings", resourceCode);
         }
 
-        return new AvaloniaLanguage(code, mainWindow, LoadDictionary("RenderTargetSelectorStrings", code),
-            LoadDictionary("TrackStrings", code),
-            LoadDictionary("ConversionStrings", code), LoadDictionary("ExternalConverterStrings", code),
-            LoadDictionary("RenderReportStrings", code));
+        return new AvaloniaLanguage(code, mainWindow, LoadDictionary("RenderTargetSelectorStrings", resourceCode),
+            LoadDictionary("TrackStrings", resourceCode),
+            LoadDictionary("ConversionStrings", resourceCode), LoadDictionary("ExternalConverterStrings", resourceCode),
+            LoadDictionary("RenderReportStrings", resourceCode));
     }
 
     public string this[string key] => mainWindowStrings[key];
 
     public string Text(string key) => mainWindowStrings[key];
 
-    public string Text(string key, string fallback) =>
-        mainWindowStrings.TryGetValue(key, out string value) && !string.IsNullOrWhiteSpace(value) ? value : fallback;
-
-    public string RenderTargetSelectorText(string key, string fallback) =>
-        renderTargetSelectorStrings.TryGetValue(key, out string value) && !string.IsNullOrWhiteSpace(value) ? value : fallback;
-
-    public string MenuText(string key, string fallback) => Text(key, fallback).Replace("_", string.Empty);
+    public string RenderTargetSelectorText(string key) => renderTargetSelectorStrings[key];
 
     public string MenuText(string key) => Text(key).Replace("_", string.Empty);
 
-    public string FileTypeName(string key, string fallback) {
-        string value = Text(key, fallback);
+    public string FileTypeName(string key) {
+        string value = Text(key);
         int separator = value.IndexOf('|');
         return separator < 0 ? value : value[..separator];
     }
 
-    static string NormalizeLanguage(string languageCode) {
+    static string ResolveLanguage(string languageCode) {
         if (string.IsNullOrWhiteSpace(languageCode)) {
             languageCode = CultureInfo.CurrentUICulture.Name;
+        } else if (languageCode == DefaultLanguage) {
+            return DefaultLanguage;
         }
 
-        return string.Equals(languageCode, Hungarian, StringComparison.OrdinalIgnoreCase) ? Hungarian : DefaultLanguage;
+        return languageCode;
     }
+
+    static bool IsSupported(string languageCode) =>
+        Array.BinarySearch(supported, languageCode) >= 0;
 
     static IReadOnlyDictionary<string, string> LoadDictionary(string resource, string languageCode) {
         Assembly assembly = typeof(AvaloniaLanguage).Assembly;

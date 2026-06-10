@@ -25,13 +25,13 @@ sealed class RenderTargetSelectorWindow : Window {
             Margin = new Thickness(12)
         };
 
-        AddColumn(content, 0, viewModel.RenderTargetSelectorText("PCRea", "Layouts compatible with all systems"),
+        AddColumn(content, 0, viewModel.RenderTargetSelectorText("PCRea"),
             viewModel.RenderTargets.Where(target => target.OutputChannels <= 8 &&
                 (target is not DownmixedRenderTarget downmixed || !downmixed.IsMatrixWired)), viewModel.SelectedRenderTarget);
-        AddColumn(content, 1, viewModel.RenderTargetSelectorText("Matri", "Specially wired (matrixed) compatible layouts"),
+        AddColumn(content, 1, viewModel.RenderTargetSelectorText("Matri"),
             viewModel.RenderTargets.Where(target => target.OutputChannels <= 8 &&
                 target is DownmixedRenderTarget downmixed && downmixed.IsMatrixWired), viewModel.SelectedRenderTarget);
-        AddColumn(content, 2, viewModel.RenderTargetSelectorText("MulCH", "8+ channel layouts requiring special systems"),
+        AddColumn(content, 2, viewModel.RenderTargetSelectorText("MulCH"),
             viewModel.RenderTargets.Where(target => target.OutputChannels > 8), viewModel.SelectedRenderTarget);
 
         Content = new Border {
