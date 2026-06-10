@@ -13,6 +13,8 @@ using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
 using VoidX.WPF.FFmpeg;
 
+using GuiLanguage = CavernizeGUI.Consts.Language;
+
 namespace CavernizeGUI;
 
 /// <summary>
@@ -91,9 +93,9 @@ public sealed partial class CavernizeSession : ICavernizeApp, IDisposable {
     readonly TrackStrings trackStrings;
     readonly RenderReportStrings reportStrings;
     readonly ExternalConverterStrings externalConverterStrings;
-    readonly AvaloniaLanguage language;
+    readonly GuiLanguage language;
     readonly ConversionEnvironment environment;
-    CancellationToken cancellationToken;
+    CancellationToken cancellationToken = CancellationToken.None;
     int blockSize;
 
     /// <summary>
@@ -116,13 +118,13 @@ public sealed partial class CavernizeSession : ICavernizeApp, IDisposable {
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
-    internal CavernizeSession(AvaloniaLanguage language) :
+    internal CavernizeSession(GuiLanguage language) :
         this(null, language.TrackStrings, language.RenderReportStrings, language.ExternalConverterStrings, language, null, null) { }
 
     /// <summary>
     /// UI-neutral Cavernize conversion session for command line and cross-platform frontends.
     /// </summary>
-    internal CavernizeSession(AvaloniaLanguage language, UpmixingSettings upmixingSettings, RenderingSettings renderingSettings) :
+    internal CavernizeSession(GuiLanguage language, UpmixingSettings upmixingSettings, RenderingSettings renderingSettings) :
         this(null, language.TrackStrings, language.RenderReportStrings, language.ExternalConverterStrings, language,
             upmixingSettings, renderingSettings) { }
 
@@ -134,9 +136,9 @@ public sealed partial class CavernizeSession : ICavernizeApp, IDisposable {
         this(ffmpeg, trackStrings, reportStrings, externalConverterStrings, null, null, null) { }
 
     CavernizeSession(FFmpeg ffmpeg, TrackStrings trackStrings, RenderReportStrings reportStrings,
-        ExternalConverterStrings externalConverterStrings, AvaloniaLanguage language, UpmixingSettings upmixingSettings,
+        ExternalConverterStrings externalConverterStrings, GuiLanguage language, UpmixingSettings upmixingSettings,
         RenderingSettings renderingSettings) {
-        this.language = language ?? AvaloniaLanguage.Create(null);
+        this.language = language ?? GuiLanguage.Create(null);
         this.trackStrings = trackStrings ?? this.language.TrackStrings;
         this.reportStrings = reportStrings ?? this.language.RenderReportStrings;
         this.externalConverterStrings = externalConverterStrings ?? this.language.ExternalConverterStrings;
@@ -145,7 +147,7 @@ public sealed partial class CavernizeSession : ICavernizeApp, IDisposable {
         RenderTarget = RenderTarget.Targets.FirstOrDefault(target => target.Name == "5.1.2 side") ?? RenderTarget.Targets[0];
         UpmixingSettings = upmixingSettings ?? new UpmixingSettings(true);
         RenderingSettings = renderingSettings ?? new RenderingSettings();
-        FFmpeg = ffmpeg ?? StatusFFmpeg.Create(UpdateStatus);
+        FFmpeg = ffmpeg ?? CallbackFFmpeg.Create(UpdateStatus);
 
         environment = new ConversionEnvironment(this);
         Report = new PostRenderReport(environment.Listener, this.reportStrings);
@@ -212,6 +214,39 @@ public sealed partial class CavernizeSession : ICavernizeApp, IDisposable {
     void UpdateProgress(double progress) => ProgressChanged?.Invoke(progress);
 
     void ThrowIfCancellationRequested() => cancellationToken.ThrowIfCancellationRequested();
+
+    sealed class RejectingLicence : ILicence {
+        public string Description { get; private set; }
+
+        public string LicenceText { get; private set; }
+
+        public void SetDescription(string description) => Description = description;
+
+        public void SetLicenceText(string licence) => LicenceText = licence;
+
+        public bool Prompt() => false;
+    }
+
+    sealed class CallbackFFmpeg : FFmpeg {
+        readonly Action<string> statusChanged;
+
+        public CallbackFFmpeg(Action<string> statusChanged) : this(statusChanged, null) { }
+
+        public CallbackFFmpeg(Action<string> statusChanged, string lastLocation) {
+            this.statusChanged = statusChanged;
+            Location = lastLocation;
+        }
+
+        public override void UpdateStatusText(string text) => statusChanged?.Invoke(text);
+
+        public static CallbackFFmpeg Create(Action<string> statusChanged) => Create(statusChanged, null);
+
+        public static CallbackFFmpeg Create(Action<string> statusChanged, string lastLocation) {
+            CallbackFFmpeg result = new(statusChanged, lastLocation);
+            result.CheckFFmpeg();
+            return result;
+        }
+    }
 
     const string waveExtension = ".wav";
     const int defaultWriteCacheLength = 16384;

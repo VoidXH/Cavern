@@ -5,9 +5,12 @@ using System.Xml.Linq;
 using Cavernize.Logic.Language;
 using CavernizeGUI.Language;
 
-namespace CavernizeGUI;
+namespace CavernizeGUI.Consts;
 
-sealed class AvaloniaLanguage {
+/// <summary>
+/// Handle fetching of language strings and translations.
+/// </summary>
+sealed class Language {
     const string DefaultLanguage = "en-US";
 
     public string Code { get; }
@@ -23,7 +26,7 @@ sealed class AvaloniaLanguage {
     readonly IReadOnlyDictionary<string, string> mainWindowStrings;
     readonly IReadOnlyDictionary<string, string> renderTargetSelectorStrings;
 
-    AvaloniaLanguage(string code, IReadOnlyDictionary<string, string> mainWindowStrings,
+    Language(string code, IReadOnlyDictionary<string, string> mainWindowStrings,
         IReadOnlyDictionary<string, string> renderTargetSelectorStrings,
         IReadOnlyDictionary<string, string> trackStrings, IReadOnlyDictionary<string, string> conversionStrings,
         IReadOnlyDictionary<string, string> externalConverterStrings, IReadOnlyDictionary<string, string> renderReportStrings) {
@@ -40,7 +43,7 @@ sealed class AvaloniaLanguage {
             new DynamicRenderReportStrings(renderReportStrings);
     }
 
-    public static AvaloniaLanguage Create(string languageCode) {
+    public static Language Create(string languageCode) {
         string code = ResolveLanguage(languageCode);
         string resourceCode = code;
         IReadOnlyDictionary<string, string> mainWindow = LoadDictionary("MainWindowStrings", resourceCode);
@@ -49,7 +52,7 @@ sealed class AvaloniaLanguage {
             mainWindow = LoadDictionary("MainWindowStrings", resourceCode);
         }
 
-        return new AvaloniaLanguage(code, mainWindow, LoadDictionary("RenderTargetSelectorStrings", resourceCode),
+        return new Language(code, mainWindow, LoadDictionary("RenderTargetSelectorStrings", resourceCode),
             LoadDictionary("TrackStrings", resourceCode),
             LoadDictionary("ConversionStrings", resourceCode), LoadDictionary("ExternalConverterStrings", resourceCode),
             LoadDictionary("RenderReportStrings", resourceCode));
@@ -80,7 +83,7 @@ sealed class AvaloniaLanguage {
     }
 
     static IReadOnlyDictionary<string, string> LoadDictionary(string resource, string languageCode) {
-        Assembly assembly = typeof(AvaloniaLanguage).Assembly;
+        Assembly assembly = typeof(Language).Assembly;
         Assembly resourceAssembly = languageCode == DefaultLanguage ? assembly : GetSatelliteAssembly(assembly, languageCode);
         string file = $"{resource}.xaml";
         string resourceName = resourceAssembly?.GetManifestResourceNames()

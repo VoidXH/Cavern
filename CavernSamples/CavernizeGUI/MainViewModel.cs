@@ -11,6 +11,8 @@ using Cavernize.Logic.Models.RenderTargets;
 using CavernizeGUI.CavernSettings;
 using VoidX.WPF.FFmpeg;
 
+using GuiLanguage = CavernizeGUI.Consts.Language;
+
 namespace CavernizeGUI;
 
 public sealed class MainViewModel : ObservableObject, IDisposable {
@@ -342,7 +344,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
     }
 
     readonly AppSettings settings = AppSettings.Load();
-    readonly AvaloniaLanguage language;
+    readonly GuiLanguage language;
     readonly CavernizeSession session;
     CancellationTokenSource cancellation;
     QueuedRenderJob activeJob;
@@ -369,8 +371,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
     string trackDetail3Value;
     string activeChannels;
 
+    internal CavernizeSession Session => session;
+
     public MainViewModel() {
-        language = AvaloniaLanguage.Create(settings.LanguageCode);
+        language = GuiLanguage.Create(settings.LanguageCode);
         FFmpeg.ReadyText = Text("FFRea");
         FFmpeg.NotReadyText = Text("FFNRe");
         session = new(language, new DynamicUpmixingSettings(), new DynamicSpecialRenderModeSettings());
@@ -861,7 +865,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
         return candidate;
     }
 
-    void SyncFromSession() {
+    internal void SyncFromSession() {
         SelectedExportFormat = ExportFormats.FirstOrDefault(format => format.Codec == session.ExportFormat.Codec) ??
             SelectedExportFormat;
         SelectedRenderTarget = RenderTargets.FirstOrDefault(target => target.Name == session.RenderTarget.Name) ??
@@ -962,4 +966,131 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
             SelectedRenderTarget.IsExported(index) ? channel.ToString() : $"{channel} (mixed)"));
     }
 
+    sealed class AppSettings {
+        readonly Resources.Settings settings = Resources.Settings.Default;
+        readonly Resources.UpmixingSettings upmixingSettings = Resources.UpmixingSettings.Default;
+
+        double viewScale = 1;
+        bool muteBed;
+        bool muteGround;
+        bool detailedGrading;
+        string roomCorrectionPath;
+
+        public string LastDirectory {
+            get => settings.lastDirectory;
+            set => settings.lastDirectory = value;
+        }
+
+        public string LastFilterDirectory {
+            get => settings.lastOutputFilters;
+            set => settings.lastOutputFilters = value;
+        }
+
+        public string HrirPath {
+            get => settings.hrirPath;
+            set => settings.hrirPath = value;
+        }
+
+        public string RoomCorrectionPath {
+            get => roomCorrectionPath;
+            set => roomCorrectionPath = value;
+        }
+
+        public string FFmpegPath {
+            get => settings.ffmpegLocation;
+            set => settings.ffmpegLocation = value;
+        }
+
+        public string LanguageCode {
+            get => settings.language;
+            set => settings.language = value;
+        }
+
+        public DateTime LastUpdateCheck {
+            get => settings.lastUpdate;
+            set => settings.lastUpdate = value;
+        }
+
+        public double ViewScale {
+            get => viewScale;
+            set => viewScale = value;
+        }
+
+        public int OutputCodecIndex {
+            get => settings.outputCodec;
+            set => settings.outputCodec = value;
+        }
+
+        public int RenderTargetIndex {
+            get => settings.renderTarget;
+            set => settings.renderTarget = value;
+        }
+
+        public bool SpeakerVirtualizer {
+            get => settings.speakerVirtualizer;
+            set => settings.speakerVirtualizer = value;
+        }
+
+        public bool Force24Bit {
+            get => settings.force24Bit;
+            set => settings.force24Bit = value;
+        }
+
+        public bool MuteBed {
+            get => muteBed;
+            set => muteBed = value;
+        }
+
+        public bool MuteGround {
+            get => muteGround;
+            set => muteGround = value;
+        }
+
+        public bool SurroundSwap {
+            get => settings.surroundSwap;
+            set => settings.surroundSwap = value;
+        }
+
+        public bool WavChannelSkip {
+            get => settings.wavChannelSkip;
+            set => settings.wavChannelSkip = value;
+        }
+
+        public bool DetailedGrading {
+            get => detailedGrading;
+            set => detailedGrading = value;
+        }
+
+        public bool CheckUpdates {
+            get => settings.checkUpdates;
+            set => settings.checkUpdates = value;
+        }
+
+        public bool MatrixUpmixing {
+            get => upmixingSettings.MatrixUpmix;
+            set => upmixingSettings.MatrixUpmix = value;
+        }
+
+        public bool CavernizeUpmixing {
+            get => upmixingSettings.Cavernize;
+            set => upmixingSettings.Cavernize = value;
+        }
+
+        public float? UpmixingEffect {
+            get => upmixingSettings.Effect;
+            set => upmixingSettings.Effect = value ?? .75f;
+        }
+
+        public float? UpmixingSmoothness {
+            get => upmixingSettings.Smoothness;
+            set => upmixingSettings.Smoothness = value ?? .8f;
+        }
+
+        public static AppSettings Load() => new();
+
+        public void Save() {
+            settings.Save();
+            upmixingSettings.Save();
+        }
+    }
 }

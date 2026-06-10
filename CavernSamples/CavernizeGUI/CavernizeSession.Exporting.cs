@@ -9,6 +9,7 @@ using Cavern.Virtualizer;
 
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using GuiLanguage = CavernizeGUI.Consts.Language;
 
 namespace CavernizeGUI;
 
@@ -17,7 +18,7 @@ public sealed partial class CavernizeSession {
     /// <summary>
     /// Keeps track of export time and evaluates performance.
     /// </summary>
-    class Progressor(long length, Listener listener, AvaloniaLanguage language, Action<double> updateProgress,
+    class Progressor(long length, Listener listener, GuiLanguage language, Action<double> updateProgress,
         Action<string> updateStatus) {
         /// <summary>
         /// Samples rendered so far.
