@@ -1,0 +1,154 @@
+﻿<Window x:Class="CavernizeGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:cav="clr-namespace:Cavern.WPF.Controls;assembly=Cavern.WPF"
+        xmlns:uc="clr-namespace:CavernizeGUI.UserControls"
+        xmlns:vw2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        mc:Ignorable="d"
+        Title="Cavernize" Height="900" Width="1200" Background="#696969">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <d:ResourceDictionary Source="Resources/MainWindowStrings.xaml"/>
+                <ResourceDictionary Source="Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BitmapImage x:Key="Logo" UriSource="Resources\CavernLogo.png"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Style="{StaticResource RootMenuItem}" SubmenuOpened="RenderingSettingsOpened">
+                <MenuItem.Header>
+                    <uc:TextWithIcon Text="{StaticResource MenuR}" Icon="/Resources/Images/Settings.png"/>
+                </MenuItem.Header>
+                <MenuItem Header="{StaticResource Upmix}" Click="OpenUpmixSetup"/>
+                <MenuItem Name="hrir" Header="{StaticResource LoadV}" Click="LoadHRIR"/>
+                <MenuItem Name="speakerVirtualizer" IsCheckable="True" Header="{StaticResource SpVir}" Click="SpeakerVirtualizerChange"/>
+                <MenuItem Name="filters" Header="{StaticResource FiltH}" ToolTip="{StaticResource FiltT}" Click="LoadFilters"/>
+                <Separator/>
+                <MenuItem IsCheckable="True" Header="{StaticResource MuBeH}" ToolTip="{StaticResource MuBeT}" Click="MuteBedChange"/>
+                <MenuItem IsCheckable="True" Header="{StaticResource MuGrH}" ToolTip="{StaticResource MuGrT}" Click="MuteGroundChange"/>
+                <Separator/>
+                <MenuItem Name="force24Bit" IsCheckable="True" Header="{StaticResource For24}" Click="Force24BitChange"/>
+                <MenuItem Name="surroundSwap" IsCheckable="True" Header="{StaticResource SuSwa}" Click="SurroundSwapChange"/>
+                <MenuItem Name="wavChannelSkip" IsCheckable="True" Header="{StaticResource WavCh}" Click="WAVChannelSkipChange"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource SMetH}" ToolTip="{StaticResource SMetT}" Click="ShowMetadata"/>
+                <MenuItem Name="reportMode" IsCheckable="True" Header="{StaticResource ReMoH}" ToolTip="{StaticResource ReMoT}"/>
+                <MenuItem Name="grading" IsCheckable="True" Header="{StaticResource DeGrH}" ToolTip="{StaticResource DeGrT}"/>
+                <MenuItem Header="{StaticResource PReSh}" Click="ShowPostRenderReport"/>
+            </MenuItem>
+            <MenuItem Name="languages" Style="{StaticResource RootMenuItem}">
+                <MenuItem.Header>
+                    <uc:TextWithIcon Text="{StaticResource MenuL}" Icon="/Resources/Images/Language.png"/>
+                </MenuItem.Header>
+                <MenuItem Header="{StaticResource LanEn}" Click="LanguageEnglish"/>
+                <MenuItem Header="{StaticResource LanHu}" Click="LanguageHungarian"/>
+            </MenuItem>
+            <MenuItem Style="{StaticResource RootMenuItem}">
+                <MenuItem.Header>
+                    <uc:TextWithIcon Text="{StaticResource MenuH}" Icon="/Resources/Images/Help.png"/>
+                </MenuItem.Header>
+                <MenuItem Name="checkUpdates" IsCheckable="True" Header="{StaticResource ChkUp}" ToolTip="{StaticResource ChkTt}"/>
+                <Separator/>
+                <MenuItem Header="{StaticResource UsrGu}" Click="Guide"/>
+                <MenuItem Header="{StaticResource About}" Click="About"/>
+            </MenuItem>
+        </Menu>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="350"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="400"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="#222" CornerRadius="15"/>
+                <Grid Margin="10">
+                    <Grid Name="renderSettings">
+                        <TextBlock Margin="0" Style="{StaticResource Header}" Text="{StaticResource SySet}"/>
+                        <Ellipse Margin="5" HorizontalAlignment="Right" VerticalAlignment="Top" Height="20"
+                                 Fill="{StaticResource InfoBlue}" Width="20"/>
+                        <TextBlock Margin="5" HorizontalAlignment="Right" VerticalAlignment="Top" Height="20"
+                                   Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
+                                   ToolTip="{StaticResource RSInf}" ToolTipService.InitialShowDelay="0" Width="20"/>
+                        <TextBlock Margin="10,38,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                   Text="{StaticResource RndTg}"/>
+                        <ComboBox Name="renderTarget" Margin="90,35,10,0" VerticalAlignment="Top"
+                                  DropDownOpened="OnRenderTargetOpened" SelectionChanged="OnRenderTargetSelected"/>
+                        <cav:StandardLayoutDisplay Name="layoutDisplay" Margin="29,67,21,0" VerticalAlignment="Top"/>
+                        <Button Name="wiring" Margin="43,237,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="140"
+                                Template="{DynamicResource SecondaryButton}" Content="{StaticResource DisWi}" Click="DisplayWiring"/>
+                        <Grid Name="locateFFmpeg" Margin="43,272,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <Button HorizontalAlignment="Left" VerticalAlignment="Top" Width="140" Template="{DynamicResource SecondaryButton}"
+                                    Content="{StaticResource FFLoc}" Click="LocateFFmpeg"/>
+                            <Ellipse Margin="145,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
+                                     Fill="{StaticResource InfoBlue}"/>
+                            <TextBlock Margin="145,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="20" Height="20"
+                                       Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
+                                       ToolTip="{StaticResource FFDes}" ToolTipService.InitialShowDelay="0"/>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid Grid.Column="1" Margin="10,0,0,0">
+                    <Image Margin="1,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="169"
+                           Source="{StaticResource Logo}" MouseDown="Ad"/>
+                    <Border Margin="0,25,0,0" Background="#222" CornerRadius="15"/>
+                    <Grid Margin="10,35,10,10">
+                        <Grid AllowDrop="True" DragEnter="FileDragEnter" DragOver="FileDragOver" Drop="DropFile">
+                            <TextBlock Margin="0" Style="{StaticResource Header}" Text="{StaticResource CoPro}"/>
+                            <uc:ButtonWithIcon Margin="10,27,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="110"
+                                               Text="{StaticResource OpCnt}" Icon="/Resources/Images/Folder.png" Click="OpenFile"/>
+                            <TextBlock Name="fileName" Margin="125,34,10,0" VerticalAlignment="Top" TextWrapping="NoWrap"/>
+                            <Grid Name="trackControls" Margin="20,77,20,10">
+                                <TextBlock Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50"
+                                           Text="{StaticResource OpTrk}" TextAlignment="Right" TextWrapping="NoWrap"/>
+                                <ComboBox Name="tracks" Margin="55,0,0,0" VerticalAlignment="Top"
+                                          SelectionChanged="OnTrackSelected"/>
+                                <TextBlock Margin="0,30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50"
+                                           Text="{StaticResource OpOut}" TextAlignment="Right" TextWrapping="NoWrap"/>
+                                <ComboBox Name="audio" Margin="55,27,0,0" VerticalAlignment="Top"
+                                          SelectionChanged="OnOutputSelected"/>
+                                <uc:TrackInfo x:Name="trackInfo" VerticalAlignment="Top" Margin="0,54,0,0" Height="84"/>
+                            </Grid>
+                            <Grid Margin="10,0,10,10" VerticalAlignment="Bottom">
+                                <uc:ButtonWithIcon HorizontalAlignment="Left" VerticalAlignment="Center" MinWidth="150"
+                                                   Text="{StaticResource QuAdd}" Icon="/Resources/Images/AddToQueue.png" Click="Queue"/>
+                                <uc:ButtonWithIcon HorizontalAlignment="Right" VerticalAlignment="Center" MinWidth="150" Height="40" Primary="True"
+                                                   Text="{StaticResource OpRnd}" Icon="/Resources/Images/Render.png" Click="Render"/>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid Grid.Column="2" Margin="10,0,0,0">
+                    <Border Background="#222" CornerRadius="15"/>
+                    <Grid Margin="10">
+                        <TextBlock Margin="0" Style="{StaticResource Header}" Text="{StaticResource Queue}"/>
+                        <Ellipse Margin="5" HorizontalAlignment="Right" VerticalAlignment="Top" Height="20"
+                                 Fill="{StaticResource InfoBlue}" Width="20"/>
+                        <TextBlock Margin="5" HorizontalAlignment="Right" VerticalAlignment="Top" Height="20"
+                                   Padding="1.75" Text="i" TextAlignment="Center" FontStyle="Italic" FontWeight="Bold"
+                                   ToolTip="{StaticResource QuDes}" ToolTipService.InitialShowDelay="0" Width="20"/>
+                        <ListBox Name="queuedJobs" Margin="10,45,10,70" Template="{DynamicResource QueueListBox}"
+                                 AllowDrop="True" DragEnter="FileDragEnter" DragOver="FileDragOver" Drop="QueueDrop"/>
+                        <uc:ButtonWithIcon Margin="10,0,0,15" HorizontalAlignment="Left" VerticalAlignment="Bottom" MinWidth="150"
+                                           Text="{StaticResource QuRem}" Icon="/Resources/Images/Delete.png" Click="RemoveQueued"/>
+                        <uc:ButtonWithIcon Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" MinWidth="150" Height="40" Primary="True"
+                                           Text="{StaticResource QuSta}" Icon="/Resources/Images/RenderQueue.png" Click="StartQueue"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+            <StatusBar Grid.Row="1" DockPanel.Dock="Bottom">
+                <ProgressBar Name="progress" Height="20" Width="150" Maximum="1"/>
+                <TextBlock Name="status" FontSize="15" TextWrapping="Wrap"/>
+            </StatusBar>
+            <vw2:WebView2 Grid.Row="2" Source="https://cavern.sbence.hu/cavern/app_cav.php"/>
+        </Grid>
+    </DockPanel>
+</Window>

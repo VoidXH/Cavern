@@ -56,23 +56,6 @@
     <system:String x:Key="QuAdd">Sorhoz adás</system:String>
     <system:String x:Key="QuRem">Kijelölt törlése</system:String>
     <system:String x:Key="QuSta">Feldolgozás</system:String>
-    <system:String x:Key="NoSrc">Nincs forrás betöltve</system:String>
-    <system:String x:Key="NoTrk">Nincs hangsáv betöltve</system:String>
-    <system:String x:Key="NoWar">Nincs figyelmeztetés.</system:String>
-    <system:String x:Key="OpSrc">Forrás megnyitása</system:String>
-    <system:String x:Key="OpSrcS">Nyiss meg egy forrásfájlt.</system:String>
-    <system:String x:Key="SavRn">Renderelés mentése</system:String>
-    <system:String x:Key="AudVi">Hang és videó</system:String>
-    <system:String x:Key="SelFo">Kiválasztott formátum</system:String>
-    <system:String x:Key="LoadH">HRIR betöltése</system:String>
-    <system:String x:Key="LoadF">Szobakorrekciós szűrők betöltése</system:String>
-    <system:String x:Key="UpmTi">Felkeverési beállítások</system:String>
-    <system:String x:Key="Upm71">7.1 kitöltése</system:String>
-    <system:String x:Key="UpmNs">Nem térbeli tartalom felkeverése</system:String>
-    <system:String x:Key="UpmEf">Felkeverés hatása:</system:String>
-    <system:String x:Key="UpmSm">Felkeverés simasága:</system:String>
-    <system:String x:Key="Reset">Visszaállítás</system:String>
-    <system:String x:Key="Cancel">Mégse</system:String>
     <!-- Code behind -->
     <system:String x:Key="dnErr">A .NET 6 telepítésed sérült és nem tölthető be. Kérlek, telepítsd a legújabbat a Microsoft-tól.\n
         Nyomj meg egy gombot a kilépéshez...</system:String>

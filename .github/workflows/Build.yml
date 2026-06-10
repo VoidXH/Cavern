@@ -1,142 +1,79 @@
 name: Build
 
 on:
-  push:
-  workflow_dispatch:
-    inputs:
-      platform:
-        description: Platform to release
-        required: true
-        default: all
-        type: choice
-        options:
-          - all
-          - windows
-          - macos
+  - push
+  - workflow_dispatch
 
 env:
   BUILD_CONFIGURATION: Release
 
 jobs:
   Windows:
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'windows' }}
     runs-on: windows-2022
 
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=CurrentDate::$(date +'%Y-%m-%d')"
+    - name: Get current date
+      id: date
+      run: echo "::set-output name=CurrentDate::$(date +'%Y-%m-%d')"
 
-      - name: Get commit hash
-        id: vars
-        run: echo "::set-output name=ShortHash::$(git rev-parse --short=7 HEAD)"
+    - name: Get commit hash
+      id: vars
+      run: echo "::set-output name=ShortHash::$(git rev-parse --short=7 HEAD)"
 
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.1.3
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.1.3
 
-      - name: Restore NuGet packages
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          nuget restore "Cavern.sln"
-          nuget restore "Cavern.Format/Cavern.Format.csproj"
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        nuget restore "Cavern.sln"
+        nuget restore "Cavern.Format/Cavern.Format.csproj"
 
-      - name: Build
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} "Cavern.sln"
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} "Cavern.sln"
 
-      - name: Run tests
-        run: |
-          dotnet test Tests/Test.Cavern/Test.Cavern.csproj --no-build --configuration Release --verbosity normal
-          dotnet test Tests/Test.Cavern.Format/Test.Cavern.Format.csproj --no-build --configuration Release --verbosity normal
-          dotnet test Tests/Test.Cavern.QuickEQ/Test.Cavern.QuickEQ.csproj --no-build --configuration Release --verbosity normal
+    - name: Run tests
+      run: |
+        dotnet test Tests/Test.Cavern/Test.Cavern.csproj --no-build --configuration Release --verbosity normal
+        dotnet test Tests/Test.Cavern.Format/Test.Cavern.Format.csproj --no-build --configuration Release --verbosity normal
+        dotnet test Tests/Test.Cavern.QuickEQ/Test.Cavern.QuickEQ.csproj --no-build --configuration Release --verbosity normal
 
-      - name: Download base build
-        shell: powershell
-        run: |
-          Invoke-WebRequest -Method Get -Uri "https://cavern.sbence.hu/content/downloads/cavern64.zip" -OutFile cavern64.zip -UseBasicParsing
-          mkdir build/Release
-          7z x -obuild/Release cavern64.zip
-          Remove-Item -Path "cavern64.zip"
+    - name: Download base build
+      shell: powershell
+      run: |
+        Invoke-WebRequest -Method Get -Uri "https://cavern.sbence.hu/content/downloads/cavern64.zip" -OutFile cavern64.zip -UseBasicParsing
+        mkdir build/Release
+        7z x -obuild/Release cavern64.zip
+        Remove-Item -Path "cavern64.zip"
 
-      - name: Collect artifacts
-        working-directory: ${{env.GITHUB_WORKSPACE}}
-        run: |
-          copy "Cavern.QuickEQ/bin/Release/netstandard2.1/Cavern.dll" "build/Release/Cavern_Data/Managed/Cavern.dll"
-          copy "Cavern.QuickEQ/bin/Release/netstandard2.1/Cavern.QuickEQ.dll" "build/Release/Cavern_Data/Managed/Cavern.QuickEQ.dll"
-          copy "Cavern.Format/bin/Release/netstandard2.1/Cavern.Format.dll" "build/Release/Cavern_Data/Managed/Cavern.Format.dll"
+    - name: Collect artifacts
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        copy "Cavern.QuickEQ/bin/Release/netstandard2.1/Cavern.dll" "build/Release/Cavern_Data/Managed/Cavern.dll"
+        copy "Cavern.QuickEQ/bin/Release/netstandard2.1/Cavern.QuickEQ.dll" "build/Release/Cavern_Data/Managed/Cavern.QuickEQ.dll"
+        copy "Cavern.Format/bin/Release/netstandard2.1/Cavern.Format.dll" "build/Release/Cavern_Data/Managed/Cavern.Format.dll"
 
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: "Cavern-Win64_${{steps.date.outputs.CurrentDate}}@${{steps.vars.outputs.ShortHash}}"
-          path: "build/Release/"
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: "Cavern-Win64_${{steps.date.outputs.CurrentDate}}@${{steps.vars.outputs.ShortHash}}"
+        path: "build/Release/"
 
-      - name: Compress artifacts
-        uses: vimtor/action-zip@v1
-        with:
-          files: "build/Release/"
-          dest: "build/Cavern-Win64.zip"
+    - name: Compress artifacts
+      uses: vimtor/action-zip@v1
+      with:
+        files: "build/Release/"
+        dest: "build/Cavern-Win64.zip"
 
-      - name: GitHub pre-release
-        uses: softprops/action-gh-release@v1
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          tag_name: latest
-          prerelease: true
-          name: "Cavern @${{steps.vars.outputs.ShortHash}}[${{steps.date.outputs.CurrentDate}}]"
-          files: "build/*.zip"
-
-  macOS:
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos' }}
-    runs-on: macos-14
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Get current date
-        id: date
-        run: echo "CurrentDate=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
-
-      - name: Get commit hash
-        id: vars
-        run: echo "ShortHash=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Restore NuGet packages
-        working-directory: ${{github.workspace}}
-        run: dotnet restore "CavernSamples/CavernizeGUI/CavernizeGUI.csproj"
-
-      - name: Publish macOS app
-        working-directory: ${{github.workspace}}
-        run: |
-          dotnet publish "CavernSamples/CavernizeGUI/CavernizeGUI.csproj" --configuration ${{env.BUILD_CONFIGURATION}} --runtime osx-arm64 --self-contained true --output "build/macOS/osx-arm64"
-          dotnet publish "CavernSamples/CavernizeGUI/CavernizeGUI.csproj" --configuration ${{env.BUILD_CONFIGURATION}} --runtime osx-x64 --self-contained true --output "build/macOS/osx-x64"
-
-      - name: Compress macOS app
-        working-directory: ${{github.workspace}}
-        run: |
-          mkdir -p "build/release"
-          ditto -c -k --sequesterRsrc --keepParent "build/macOS/osx-arm64/Cavernize.app" "build/release/Cavernize-macOS-arm64.zip"
-          ditto -c -k --sequesterRsrc --keepParent "build/macOS/osx-x64/Cavernize.app" "build/release/Cavernize-macOS-x64.zip"
-
-      - name: Upload release artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: "Cavernize-macOS_${{steps.date.outputs.CurrentDate}}@${{steps.vars.outputs.ShortHash}}"
-          path: "build/release/*.zip"
-
-      - name: GitHub pre-release
-        uses: softprops/action-gh-release@v1
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          tag_name: latest
-          prerelease: true
-          name: "Cavern @${{steps.vars.outputs.ShortHash}}[${{steps.date.outputs.CurrentDate}}]"
-          files: "build/release/*.zip"
+    - name: GitHub pre-release
+      uses: softprops/action-gh-release@v1
+      with:
+        token: ${{secrets.GITHUB_TOKEN}}
+        tag_name: latest
+        prerelease: true
+        name: "Cavern @${{steps.vars.outputs.ShortHash}}[${{steps.date.outputs.CurrentDate}}]"
+        files: "build/*.zip"

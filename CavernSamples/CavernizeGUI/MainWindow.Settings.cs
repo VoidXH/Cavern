@@ -1,0 +1,85 @@
+﻿using System;
+using System.Diagnostics;
+using System.Windows.Controls;
+using System.Windows;
+
+using Cavern.Format.Common;
+
+using CavernizeGUI.Resources;
+
+namespace CavernizeGUI {
+    partial class MainWindow {
+        /// <summary>
+        /// Disable not available rendering settings for the current format.
+        /// </summary>
+        void RenderingSettingsOpened(object _, RoutedEventArgs __) => surroundSwap.IsEnabled = !ExportFormat.Codec.IsEnvironmental();
+
+        /// <summary>
+        /// Update the setting related to the surround swap feature when the toggle's state has changed.
+        /// </summary>
+        void SpeakerVirtualizerChange(object source, RoutedEventArgs _) => RenderingSettings.SpeakerVirtualizer = ((MenuItem)source).IsChecked;
+
+        /// <summary>
+        /// Set the state of bed muting when the toggle's state has changed.
+        /// </summary>
+        void MuteBedChange(object source, RoutedEventArgs _) => RenderingSettings.MuteBed = ((MenuItem)source).IsChecked;
+
+        /// <summary>
+        /// Set the state of non-elevated object muting when the toggle's state has changed.
+        /// </summary>
+        void MuteGroundChange(object source, RoutedEventArgs _) => RenderingSettings.MuteGround = ((MenuItem)source).IsChecked;
+
+        /// <summary>
+        /// Set the state of forcing 24-bit resolution to select codecs when the toggle's state has changed.
+        /// </summary>
+        void Force24BitChange(object source, RoutedEventArgs _) => Settings.Default.force24Bit = ((MenuItem)source).IsChecked;
+
+        /// <summary>
+        /// Update the setting related to the surround swap feature when the toggle's state has changed.
+        /// </summary>
+        void SurroundSwapChange(object source, RoutedEventArgs _) => SurroundSwap = ((MenuItem)source).IsChecked;
+
+        /// <summary>
+        /// Update the setting related to the surround swap feature when the toggle's state has changed.
+        /// </summary>
+        void WAVChannelSkipChange(object source, RoutedEventArgs _) => Settings.Default.wavChannelSkip = ((MenuItem)source).IsChecked;
+
+        /// <summary>
+        /// Set application language to English.
+        /// </summary>
+        void LanguageEnglish(object _, RoutedEventArgs __) => SetLanguage("en-US");
+
+        /// <summary>
+        /// Set application language to Hungarian.
+        /// </summary>
+        void LanguageHungarian(object _, RoutedEventArgs __) => SetLanguage("hu-HU");
+
+        /// <summary>
+        /// Set application language to an invalid, untranslated one.
+        /// </summary>
+        void LanguageTest(object _, RoutedEventArgs __) => SetLanguage("te-ST");
+
+        /// <summary>
+        /// Overwrite the autodetected language.
+        /// </summary>
+        /// <param name="code">Standard language code</param>
+        void SetLanguage(string code) {
+            Settings.Default.language = code;
+            Restart();
+        }
+
+        /// <summary>
+        /// Relaunch the application when needed.
+        /// </summary>
+        void Restart() {
+            if (Rendering) {
+                Error((string)language["OpRes"]);
+                return;
+            } else {
+                string path = Environment.ProcessPath;
+                Process.Start(path);
+                Application.Current.Shutdown();
+            }
+        }
+    }
+}

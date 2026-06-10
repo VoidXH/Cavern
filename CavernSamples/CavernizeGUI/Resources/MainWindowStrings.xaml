@@ -56,23 +56,6 @@
     <system:String x:Key="QuAdd">Add to queue</system:String>
     <system:String x:Key="QuRem">Remove selected</system:String>
     <system:String x:Key="QuSta">Process</system:String>
-    <system:String x:Key="NoSrc">No source loaded</system:String>
-    <system:String x:Key="NoTrk">No track loaded</system:String>
-    <system:String x:Key="NoWar">No warnings.</system:String>
-    <system:String x:Key="OpSrc">Open source</system:String>
-    <system:String x:Key="OpSrcS">Open a source file.</system:String>
-    <system:String x:Key="SavRn">Save render</system:String>
-    <system:String x:Key="AudVi">Audio and video</system:String>
-    <system:String x:Key="SelFo">Selected format</system:String>
-    <system:String x:Key="LoadH">Load HRIR</system:String>
-    <system:String x:Key="LoadF">Load room correction filters</system:String>
-    <system:String x:Key="UpmTi">Upmixing Setup</system:String>
-    <system:String x:Key="Upm71">Fill 7.1</system:String>
-    <system:String x:Key="UpmNs">Upconvert non-spatial content</system:String>
-    <system:String x:Key="UpmEf">Upmixing effect:</system:String>
-    <system:String x:Key="UpmSm">Upmixing smoothness:</system:String>
-    <system:String x:Key="Reset">Reset</system:String>
-    <system:String x:Key="Cancel">Cancel</system:String>
     <!-- Code behind -->
     <system:String x:Key="dnErr">Your .NET 6 installation is corrupted and can't be loaded. Please install the latest version
         from Microsoft.\nPress any key to exit...</system:String>

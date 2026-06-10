@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
-using System.Runtime.InteropServices;
 
 using Cavern.Format;
 using Cavern.Format.Common;
@@ -47,11 +46,6 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
 
     /// <inheritdoc/>
     public override void PrepareOnUI() {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-            throw new PlatformNotSupportedException(
-                "TrueHD conversion is currently only wired to the Windows truehdd executable in Cavernize.");
-        }
-
         versionFile = Path.Combine(cavernizeData, "truehdd.version");
         unpackDir = Path.Combine(cavernizeData, "truehdd");
         if (File.Exists(versionFile)) {

@@ -1,6 +1,5 @@
 ﻿using Cavern;
 using Cavern.Utilities;
-using System.IO;
 
 namespace Test.Cavern.Consts;
 
@@ -11,7 +10,7 @@ static class Constants {
     /// <summary>
     /// Path to the test data folder, relative to the launch folder.
     /// </summary>
-    internal static readonly string testData = Path.Combine("..", "..", "TestData") + Path.DirectorySeparatorChar;
+    internal const string testData = @"..\..\TestData\";
 
     /// <summary>
     /// Allowed floating point margin of error.
