@@ -14,23 +14,7 @@ using VoidX.WPF;
 namespace CavernizeGUI;
 
 public partial class MainWindow : Window {
-    NativeMenuItem speakerVirtualizerMenuItem;
-    NativeMenuItem hrirMenuItem;
-    NativeMenuItem filtersMenuItem;
-    NativeMenuItem muteBedMenuItem;
-    NativeMenuItem muteGroundMenuItem;
-    NativeMenuItem force24BitMenuItem;
-    NativeMenuItem surroundSwapMenuItem;
-    NativeMenuItem wavChannelSkipMenuItem;
-    NativeMenuItem reportModeMenuItem;
-    NativeMenuItem detailedGradingMenuItem;
-    NativeMenuItem zoom50MenuItem;
-    NativeMenuItem zoom75MenuItem;
-    NativeMenuItem zoom100MenuItem;
-    NativeMenuItem zoom125MenuItem;
-    NativeMenuItem englishLanguageMenuItem;
-    NativeMenuItem hungarianLanguageMenuItem;
-    NativeMenuItem checkUpdatesMenuItem;
+    MenuSection[] menuSections;
     bool renderTargetSelectorOpen;
 
     public MainWindow() => InitializeComponent();
@@ -41,6 +25,7 @@ public partial class MainWindow : Window {
         base.OnOpened(e);
         ApplyViewScale();
         BuildNativeMenu();
+        BuildWindowsMenu();
         _ = CheckForUpdates();
     }
 
@@ -55,173 +40,237 @@ public partial class MainWindow : Window {
         }
 
         NativeMenu menu = new();
-        NativeMenu rendering = new();
-        rendering.Add(MenuCommand(MenuText("Upmix", "Upmixing setup..."), OpenUpmixSetup,
-            "Use techniques to create 7.1 from smaller mixes or give height to old channel-based mixes."));
-        hrirMenuItem = MenuCommand(MenuText("LoadV", "Load HRTF/HRIR sets for the Virtualizer"), ToggleHrir,
-            "Override Cavern's own filters used for Headphone Virtualizer with a multichannel WAV.");
-        hrirMenuItem.ToggleType = MenuItemToggleType.CheckBox;
-        rendering.Add(hrirMenuItem);
-        speakerVirtualizerMenuItem = CheckMenuCommand(MenuText("SpVir", "Height virtualization on speakers"),
-            viewModel => viewModel.SpeakerVirtualizer, (viewModel, value) => viewModel.SpeakerVirtualizer = value,
-            Text("SpVirT", "Uses the Headphone Virtualizer's filters to render the heights to main channels."));
-        rendering.Add(speakerVirtualizerMenuItem);
-        filtersMenuItem = MenuCommand(MenuText("FiltH", "Apply output filters"), ToggleFilters,
-            Text("FiltT", "Parses a Cavern QuickEQ convolution export for the target system to be used as an equalizer."));
-        filtersMenuItem.ToggleType = MenuItemToggleType.CheckBox;
-        rendering.Add(filtersMenuItem);
-        rendering.Add(MenuCommand(Text("FFLoc", "Locate FFmpeg"), (_, _) => LocateFFmpeg(null, null),
-            Text("FFDes", "Locate FFmpeg with this menu item.")));
-        rendering.Add(new NativeMenuItemSeparator());
-        muteBedMenuItem = CheckMenuCommand(MenuText("MuBeH", "Mute bed"),
-            viewModel => viewModel.MuteBed, (viewModel, value) => viewModel.MuteBed = value,
-            Text("MuBeT", "Silence all objects that's at the position of a reference channel."));
-        rendering.Add(muteBedMenuItem);
-        muteGroundMenuItem = CheckMenuCommand(MenuText("MuGrH", "Mute ground"),
-            viewModel => viewModel.MuteGround, (viewModel, value) => viewModel.MuteGround = value,
-            Text("MuGrT", "Silence all objects on the ground, including the ones that move."));
-        rendering.Add(muteGroundMenuItem);
-        rendering.Add(new NativeMenuItemSeparator());
-        force24BitMenuItem = CheckMenuCommand(MenuText("For24", "Force 24-bit PCM"),
-            viewModel => viewModel.Force24Bit, (viewModel, value) => viewModel.Force24Bit = value,
-            "Use 24-bit PCM output for supported formats.");
-        rendering.Add(force24BitMenuItem);
-        surroundSwapMenuItem = CheckMenuCommand(MenuText("SuSwa", "Swap side/rear output channels"),
-            viewModel => viewModel.SurroundSwap, (viewModel, value) => viewModel.SurroundSwap = value,
-            "Swap what is connected to the side and rear output pairs.");
-        rendering.Add(surroundSwapMenuItem);
-        wavChannelSkipMenuItem = CheckMenuCommand(MenuText("WavCh", "Skip RIFF WAVE channel mask"),
-            viewModel => viewModel.WavChannelSkip, (viewModel, value) => viewModel.WavChannelSkip = value,
-            "Don't export the channel mapping to PCM files, and allow unsupported channels.");
-        rendering.Add(wavChannelSkipMenuItem);
-        rendering.Add(new NativeMenuItemSeparator());
-        rendering.Add(MenuCommand(MenuText("SMetH", "Show metadata..."), (_, _) => ShowMetadata(null, null),
-            Text("SMetT", "Display what data was parsed from the format header of the currently open audio file.")));
-        reportModeMenuItem = CheckMenuCommand(MenuText("ReMoH", "Report only mode"),
-            viewModel => viewModel.ReportMode, (viewModel, value) => viewModel.ReportMode = value,
-            Text("ReMoT", "Don't export to file, just virtually perform the processing."));
-        rendering.Add(reportModeMenuItem);
-        detailedGradingMenuItem = CheckMenuCommand(MenuText("DeGrH", "Quality analysis and grading"),
-            viewModel => viewModel.DetailedGrading, (viewModel, value) => viewModel.DetailedGrading = value,
-            Text("DeGrT", "In addition to rendering, grade the quality of the processed audio."));
-        rendering.Add(detailedGradingMenuItem);
-        rendering.Add(MenuCommand(MenuText("PReSh", "Show post-render report..."), (_, _) => ShowPostRenderReport(null, null),
-            "If quality analysis and grading was enabled, display its results after rendering."));
-
-        NativeMenu view = new();
-        zoom50MenuItem = ZoomMenuCommand("50%", .5);
-        view.Add(zoom50MenuItem);
-        zoom75MenuItem = ZoomMenuCommand("75%", .75);
-        view.Add(zoom75MenuItem);
-        zoom100MenuItem = ZoomMenuCommand("100%", 1);
-        view.Add(zoom100MenuItem);
-        zoom125MenuItem = ZoomMenuCommand("125%", 1.25);
-        view.Add(zoom125MenuItem);
-
-        NativeMenu language = new();
-        englishLanguageMenuItem = LanguageMenuCommand(MenuText("LanEn", "English"), "en-US");
-        language.Add(englishLanguageMenuItem);
-        hungarianLanguageMenuItem = LanguageMenuCommand(MenuText("LanHu", "Magyar"), "hu-HU");
-        language.Add(hungarianLanguageMenuItem);
-
-        NativeMenu help = new();
-        checkUpdatesMenuItem = CheckMenuCommand(MenuText("ChkUp", "Check for updates"),
-            viewModel => viewModel.CheckUpdates, (viewModel, value) => viewModel.CheckUpdates = value,
-            Text("ChkTt", "Check for new Cavernize releases once a week."));
-        help.Add(checkUpdatesMenuItem);
-        help.Add(new NativeMenuItemSeparator());
-        help.Add(MenuCommand(MenuText("UsrGu", "User guide"), (_, _) => OpenUserGuide(null, null)));
-        help.Add(MenuCommand(MenuText("About", "About"), (_, _) => ShowAbout(null, null)));
-
-        menu.Add(new NativeMenuItem(MenuText("MenuR", "Rendering")) {
-            Menu = rendering
-        });
-        menu.Add(new NativeMenuItem("View") {
-            Menu = view
-        });
-        menu.Add(new NativeMenuItem(MenuText("MenuL", "Language")) {
-            Menu = language
-        });
-        menu.Add(new NativeMenuItem(MenuText("MenuH", "Help")) {
-            Menu = help
-        });
-        menu.NeedsUpdate += (_, _) => UpdateNativeMenuState();
-        NativeMenu.SetMenu(this, menu);
-        UpdateNativeMenuState();
-    }
-
-    NativeMenuItem MenuCommand(string header, EventHandler click) => MenuCommand(header, click, null);
-
-    NativeMenuItem MenuCommand(string header, EventHandler click, string toolTip) {
-        NativeMenuItem item = new(header) {
-            ToolTip = toolTip
-        };
-        item.Click += click;
-        return item;
-    }
-
-    NativeMenuItem CheckMenuCommand(string header, Func<MainViewModel, bool> getter, Action<MainViewModel, bool> setter,
-        string toolTip) {
-        NativeMenuItem item = new(header) {
-            ToggleType = MenuItemToggleType.CheckBox,
-            ToolTip = toolTip
-        };
-        item.Click += (_, _) => {
-            MainViewModel viewModel = ViewModel;
-            bool value = !getter(viewModel);
-            setter(viewModel, value);
-            item.IsChecked = value;
-        };
-        return item;
-    }
-
-    NativeMenuItem ZoomMenuCommand(string header, double scale) {
-        NativeMenuItem item = new(header) {
-            ToggleType = MenuItemToggleType.Radio
-        };
-        item.Click += (_, _) => {
-            ViewModel.ViewScale = scale;
-            ApplyViewScale();
-            UpdateNativeMenuState();
-        };
-        return item;
-    }
-
-    NativeMenuItem LanguageMenuCommand(string header, string code) {
-        NativeMenuItem item = new(header) {
-            ToggleType = MenuItemToggleType.Radio
-        };
-        item.Click += (_, _) => {
-            if (ViewModel.SetLanguage(code)) {
-                Restart();
-            } else {
-                UpdateNativeMenuState();
+        foreach (MenuSection section in GetMenuSections()) {
+            NativeMenu submenu = new();
+            foreach (MenuEntry entry in section.Entries) {
+                submenu.Add(entry.IsSeparator ? new NativeMenuItemSeparator() : CreateNativeMenuItem(entry));
             }
+            menu.Add(new NativeMenuItem(MenuText(section.HeaderKey)) {
+                Menu = submenu
+            });
+        }
+        menu.NeedsUpdate += (_, _) => UpdateMenuState();
+        NativeMenu.SetMenu(this, menu);
+        UpdateMenuState();
+    }
+
+    void BuildWindowsMenu() {
+        WindowsMenuBarHost.IsVisible = true;
+        if (WindowsRenderingMenu.Items.Count != 0) {
+            return;
+        }
+
+        MenuItem[] roots = [
+            WindowsRenderingMenu,
+            WindowsViewMenu,
+            WindowsLanguageMenu,
+            WindowsHelpMenu
+        ];
+        MenuSection[] sections = GetMenuSections();
+        TextBlock[] rootHeaders = [
+            WindowsRenderingMenuText,
+            WindowsViewMenuText,
+            WindowsLanguageMenuText,
+            WindowsHelpMenuText
+        ];
+        for (int i = 0; i < sections.Length; i++) {
+            rootHeaders[i].Text = MenuText(sections[i].HeaderKey);
+            foreach (MenuEntry entry in sections[i].Entries) {
+                roots[i].Items.Add(entry.IsSeparator ? new Separator() : CreateWindowsMenuItem(entry));
+            }
+        }
+        UpdateMenuState();
+    }
+
+    MenuSection[] GetMenuSections() => menuSections ??= [
+        new("MenuR", [
+            MenuEntry.Command("Upmix", "UpmixT", window => window.OpenUpmixSetup(null, EventArgs.Empty)),
+            MenuEntry.ToggleAction("LoadV", "LoadVT", viewModel => viewModel.HasHrir,
+                window => window.ToggleHrir(null, EventArgs.Empty)),
+            MenuEntry.Toggle("SpVir", "SpVirT",
+                viewModel => viewModel.SpeakerVirtualizer, (viewModel, value) => viewModel.SpeakerVirtualizer = value),
+            MenuEntry.ToggleAction("FiltH", "FiltT", viewModel => viewModel.HasRoomCorrection,
+                window => window.ToggleFilters(null, EventArgs.Empty)),
+            MenuEntry.Command("FFLoc", "FFDes", window => window.LocateFFmpeg(null, null)),
+            MenuEntry.Separator(),
+            MenuEntry.Toggle("MuBeH", "MuBeT",
+                viewModel => viewModel.MuteBed, (viewModel, value) => viewModel.MuteBed = value),
+            MenuEntry.Toggle("MuGrH", "MuGrT",
+                viewModel => viewModel.MuteGround, (viewModel, value) => viewModel.MuteGround = value),
+            MenuEntry.Separator(),
+            MenuEntry.Toggle("For24", "For24T",
+                viewModel => viewModel.Force24Bit, (viewModel, value) => viewModel.Force24Bit = value),
+            MenuEntry.Toggle("SuSwa", "SuSwaT",
+                viewModel => viewModel.SurroundSwap, (viewModel, value) => viewModel.SurroundSwap = value,
+                viewModel => !viewModel.SelectedExportFormat.Codec.IsEnvironmental()),
+            MenuEntry.Toggle("WavCh", "WavChT",
+                viewModel => viewModel.WavChannelSkip, (viewModel, value) => viewModel.WavChannelSkip = value),
+            MenuEntry.Separator(),
+            MenuEntry.Command("SMetH", "SMetT", window => window.ShowMetadata(null, null)),
+            MenuEntry.Toggle("ReMoH", "ReMoT",
+                viewModel => viewModel.ReportMode, (viewModel, value) => viewModel.ReportMode = value),
+            MenuEntry.Toggle("DeGrH", "DeGrT",
+                viewModel => viewModel.DetailedGrading, (viewModel, value) => viewModel.DetailedGrading = value),
+            MenuEntry.Command("PReSh", "PReShT", window => window.ShowPostRenderReport(null, null)),
+        ]),
+        new("MenuV", [
+            MenuEntry.Radio("50%", viewModel => Math.Abs(viewModel.ViewScale - .5) < .001, window => window.SetZoom(.5)),
+            MenuEntry.Radio("75%", viewModel => Math.Abs(viewModel.ViewScale - .75) < .001, window => window.SetZoom(.75)),
+            MenuEntry.Radio("100%", viewModel => Math.Abs(viewModel.ViewScale - 1) < .001, window => window.SetZoom(1)),
+            MenuEntry.Radio("125%", viewModel => Math.Abs(viewModel.ViewScale - 1.25) < .001, window => window.SetZoom(1.25)),
+        ]),
+        new("MenuL", [
+            MenuEntry.RadioKey("LanEn", viewModel => viewModel.LanguageCode == "en-US", window => window.SetLanguage("en-US")),
+            MenuEntry.RadioKey("LanHu", viewModel => viewModel.LanguageCode == "hu-HU", window => window.SetLanguage("hu-HU")),
+        ]),
+        new("MenuH", [
+            MenuEntry.Toggle("ChkUp", "ChkTt",
+                viewModel => viewModel.CheckUpdates, (viewModel, value) => viewModel.CheckUpdates = value),
+            MenuEntry.Separator(),
+            MenuEntry.Command("UsrGu", null, window => window.OpenUserGuide(null, null)),
+            MenuEntry.Command("About", null, window => window.ShowAbout(null, null)),
+        ]),
+    ];
+
+    NativeMenuItem CreateNativeMenuItem(MenuEntry entry) {
+        NativeMenuItem item = new(MenuEntryHeader(entry)) {
+            ToolTip = MenuEntryToolTip(entry)
         };
+        if (entry.ToggleType.HasValue) {
+            item.ToggleType = entry.ToggleType.Value;
+        }
+        item.Click += (_, _) => InvokeMenuEntry(entry);
+        entry.NativeItem = item;
         return item;
     }
 
-    void UpdateNativeMenuState() {
-        MainViewModel viewModel = ViewModel;
+    MenuItem CreateWindowsMenuItem(MenuEntry entry) {
+        MenuItem item = new() {
+            Header = MenuEntryHeader(entry)
+        };
+        string toolTip = MenuEntryToolTip(entry);
+        if (!string.IsNullOrWhiteSpace(toolTip)) {
+            ToolTip.SetTip(item, toolTip);
+        }
+        if (entry.ToggleType.HasValue) {
+            item.ToggleType = entry.ToggleType.Value;
+        }
+        item.Click += (_, _) => InvokeMenuEntry(entry);
+        entry.WindowsItem = item;
+        return item;
+    }
 
-        speakerVirtualizerMenuItem.IsChecked = viewModel.SpeakerVirtualizer;
-        hrirMenuItem.IsChecked = viewModel.HasHrir;
-        filtersMenuItem.IsChecked = viewModel.HasRoomCorrection;
-        muteBedMenuItem.IsChecked = viewModel.MuteBed;
-        muteGroundMenuItem.IsChecked = viewModel.MuteGround;
-        force24BitMenuItem.IsChecked = viewModel.Force24Bit;
-        surroundSwapMenuItem.IsChecked = viewModel.SurroundSwap;
-        surroundSwapMenuItem.IsEnabled = !viewModel.SelectedExportFormat.Codec.IsEnvironmental();
-        wavChannelSkipMenuItem.IsChecked = viewModel.WavChannelSkip;
-        reportModeMenuItem.IsChecked = viewModel.ReportMode;
-        detailedGradingMenuItem.IsChecked = viewModel.DetailedGrading;
-        zoom50MenuItem.IsChecked = Math.Abs(viewModel.ViewScale - .5) < .001;
-        zoom75MenuItem.IsChecked = Math.Abs(viewModel.ViewScale - .75) < .001;
-        zoom100MenuItem.IsChecked = Math.Abs(viewModel.ViewScale - 1) < .001;
-        zoom125MenuItem.IsChecked = Math.Abs(viewModel.ViewScale - 1.25) < .001;
-        englishLanguageMenuItem.IsChecked = viewModel.LanguageCode == "en-US";
-        hungarianLanguageMenuItem.IsChecked = viewModel.LanguageCode == "hu-HU";
-        checkUpdatesMenuItem.IsChecked = viewModel.CheckUpdates;
+    void InvokeMenuEntry(MenuEntry entry) {
+        if (entry.SetChecked != null) {
+            MainViewModel viewModel = ViewModel;
+            entry.SetChecked(viewModel, !entry.IsChecked(viewModel));
+        } else {
+            entry.Invoke(this);
+        }
+        UpdateMenuState();
+    }
+
+    void SetZoom(double scale) {
+        ViewModel.ViewScale = scale;
+        ApplyViewScale();
+    }
+
+    void SetLanguage(string code) {
+        if (ViewModel.SetLanguage(code)) {
+            Restart();
+        }
+    }
+
+    string MenuEntryHeader(MenuEntry entry) => entry.HeaderText ?? MenuText(entry.HeaderKey);
+
+    string MenuEntryToolTip(MenuEntry entry) => entry.ToolTipKey == null ? null : Text(entry.ToolTipKey);
+
+    void UpdateMenuState() {
+        MainViewModel viewModel = ViewModel;
+        foreach (MenuEntry entry in GetMenuSections().SelectMany(section => section.Entries).Where(entry => !entry.IsSeparator)) {
+            bool enabled = entry.IsEnabled(viewModel);
+            if (entry.NativeItem != null) {
+                entry.NativeItem.IsEnabled = enabled;
+            }
+            if (entry.WindowsItem != null) {
+                entry.WindowsItem.IsEnabled = enabled;
+            }
+            if (entry.IsChecked == null) {
+                continue;
+            }
+
+            bool isChecked = entry.IsChecked(viewModel);
+            if (entry.NativeItem != null) {
+                entry.NativeItem.IsChecked = isChecked;
+            }
+            if (entry.WindowsItem != null) {
+                entry.WindowsItem.IsChecked = isChecked;
+            }
+        }
+    }
+
+    sealed class MenuSection(string headerKey, MenuEntry[] entries) {
+        public string HeaderKey { get; } = headerKey;
+        public MenuEntry[] Entries { get; } = entries;
+    }
+
+    sealed class MenuEntry {
+        public string HeaderKey { get; init; }
+        public string HeaderText { get; init; }
+        public string ToolTipKey { get; init; }
+        public MenuItemToggleType? ToggleType { get; init; }
+        public Func<MainViewModel, bool> IsChecked { get; init; }
+        public Action<MainViewModel, bool> SetChecked { get; init; }
+        public Func<MainViewModel, bool> IsEnabled { get; init; } = _ => true;
+        public Action<MainWindow> Invoke { get; init; }
+        public bool IsSeparator { get; init; }
+        public NativeMenuItem NativeItem { get; set; }
+        public MenuItem WindowsItem { get; set; }
+
+        public static MenuEntry Command(string headerKey, string toolTipKey, Action<MainWindow> invoke) => new() {
+            HeaderKey = headerKey,
+            ToolTipKey = toolTipKey,
+            Invoke = invoke
+        };
+
+        public static MenuEntry Toggle(string headerKey, string toolTipKey, Func<MainViewModel, bool> isChecked,
+            Action<MainViewModel, bool> setChecked, Func<MainViewModel, bool> isEnabled = null) => new() {
+                HeaderKey = headerKey,
+                ToolTipKey = toolTipKey,
+                ToggleType = MenuItemToggleType.CheckBox,
+                IsChecked = isChecked,
+                SetChecked = setChecked,
+                IsEnabled = isEnabled ?? (_ => true)
+            };
+
+        public static MenuEntry ToggleAction(string headerKey, string toolTipKey, Func<MainViewModel, bool> isChecked,
+            Action<MainWindow> invoke) => new() {
+                HeaderKey = headerKey,
+                ToolTipKey = toolTipKey,
+                ToggleType = MenuItemToggleType.CheckBox,
+                IsChecked = isChecked,
+                Invoke = invoke
+            };
+
+        public static MenuEntry Radio(string headerText, Func<MainViewModel, bool> isChecked, Action<MainWindow> invoke) =>
+            new() {
+                HeaderText = headerText,
+                ToggleType = MenuItemToggleType.Radio,
+                IsChecked = isChecked,
+                Invoke = invoke
+            };
+
+        public static MenuEntry RadioKey(string headerKey, Func<MainViewModel, bool> isChecked, Action<MainWindow> invoke) =>
+            new() {
+                HeaderKey = headerKey,
+                ToggleType = MenuItemToggleType.Radio,
+                IsChecked = isChecked,
+                Invoke = invoke
+            };
+
+        public static MenuEntry Separator() => new() {
+            IsSeparator = true
+        };
     }
 
     async void OpenUpmixSetup(object sender, EventArgs e) {
@@ -230,7 +279,7 @@ public partial class MainWindow : Window {
         await dialog.ShowDialog(this);
         if (dialog.Accepted) {
             dialog.ApplyTo(viewModel);
-            UpdateNativeMenuState();
+            UpdateMenuState();
         }
     }
 
@@ -390,7 +439,7 @@ public partial class MainWindow : Window {
         } else {
             await LoadHrir();
         }
-        UpdateNativeMenuState();
+        UpdateMenuState();
     }
 
     async void LoadHrir(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
@@ -413,12 +462,12 @@ public partial class MainWindow : Window {
         if (!string.IsNullOrWhiteSpace(path)) {
             await viewModel.LoadHrir(path);
         }
-        UpdateNativeMenuState();
+        UpdateMenuState();
     }
 
     void ResetHrir(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
         ViewModel.ResetHrir();
-        UpdateNativeMenuState();
+        UpdateMenuState();
     }
 
     async void ToggleFilters(object sender, EventArgs e) {
@@ -427,7 +476,7 @@ public partial class MainWindow : Window {
         } else {
             await LoadFilters();
         }
-        UpdateNativeMenuState();
+        UpdateMenuState();
     }
 
     async void LoadFilters(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
@@ -450,12 +499,12 @@ public partial class MainWindow : Window {
         if (!string.IsNullOrWhiteSpace(path)) {
             viewModel.LoadRoomCorrection(path);
         }
-        UpdateNativeMenuState();
+        UpdateMenuState();
     }
 
     void ClearFilters(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
         ViewModel.ClearRoomCorrection();
-        UpdateNativeMenuState();
+        UpdateMenuState();
     }
 
     async void DropFiles(object sender, DragEventArgs e) {
@@ -638,7 +687,7 @@ public partial class MainWindow : Window {
         double scale = ViewModel?.ViewScale ?? 1;
 
         Resources["HeaderFontSize"] = Scaled(26, scale);
-        Resources["LabelFontSize"] = Scaled(18, scale);
+        Resources["LabelFontSize"] = Scaled(16, scale);
         Resources["BodyFontSize"] = Scaled(16, scale);
         Resources["ButtonFontSize"] = Scaled(16, scale);
         Resources["PrimaryButtonFontSize"] = Scaled(26, scale);
@@ -653,6 +702,7 @@ public partial class MainWindow : Window {
         Resources["StatusPadding"] = new Thickness(Scaled(20, scale), Scaled(10, scale));
         Resources["ButtonPadding"] = new Thickness(Scaled(14, scale), Scaled(8, scale));
         Resources["ComboPadding"] = new Thickness(Scaled(8, scale), Scaled(2, scale));
+        Resources["WindowsMenuPadding"] = new Thickness(Scaled(10, scale), Scaled(4, scale));
         Resources["ComboArrowMargin"] = new Thickness(Scaled(8, scale), 0, 0, 0);
         Resources["ComboArrowSize"] = Scaled(12, scale);
         Resources["QueueItemPadding"] = new Thickness(Scaled(4, scale), Scaled(6, scale));
@@ -668,6 +718,7 @@ public partial class MainWindow : Window {
         Resources["FormRowSpacing"] = Scaled(10, scale);
         Resources["ContentColumnSpacing"] = Scaled(10, scale);
         Resources["IconButtonSpacing"] = Scaled(9, scale);
+        Resources["MenuHeaderSpacing"] = Scaled(8, scale);
         Resources["TrackDetailRowSpacing"] = Scaled(9, scale);
         Resources["QueueItemSpacing"] = Scaled(4, scale);
 
@@ -687,6 +738,7 @@ public partial class MainWindow : Window {
         Resources["PrimaryButtonHeight"] = Scaled(60, scale);
         Resources["SmallIconSize"] = Scaled(24, scale);
         Resources["RenderIconSize"] = Scaled(34, scale);
+        Resources["MenuIconSize"] = Scaled(28, scale);
         Resources["QueueButtonMinWidth"] = Scaled(155, scale);
         Resources["QueueRunButtonMinWidth"] = Scaled(130, scale);
         Resources["QueueProgressHeight"] = Scaled(8, scale);
@@ -699,8 +751,14 @@ public partial class MainWindow : Window {
     string Text(string key, string fallback) =>
         ViewModel.Text(key, fallback);
 
+    string Text(string key) =>
+        ViewModel.Text(key);
+
     string MenuText(string key, string fallback) =>
         ViewModel.MenuText(key, fallback);
+
+    string MenuText(string key) =>
+        ViewModel.MenuText(key);
 
     void Restart() {
         try {

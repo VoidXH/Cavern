@@ -4,8 +4,8 @@
         x:Class="CavernizeGUI.MainWindow"
         x:DataType="local:MainViewModel"
         Title="Cavernize"
-        Width="935"
-        Height="500"
+        Width="936"
+        Height="580"
         Background="#696969"
         Foreground="#F0F0F0"
         DragDrop.AllowDrop="True"
@@ -100,8 +100,62 @@
     </Style>
   </Window.Styles>
 
-  <Grid RowDefinitions="*,Auto">
-    <ScrollViewer Grid.Row="0"
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Border x:Name="WindowsMenuBarHost"
+            Grid.Row="0"
+            Background="#333333"
+            Padding="{DynamicResource WindowsMenuPadding}"
+            IsVisible="False">
+      <Menu x:Name="WindowsMenuBar"
+            Background="#333333"
+            Foreground="#FFFFFF"
+            FontSize="{DynamicResource BodyFontSize}">
+        <MenuItem x:Name="WindowsRenderingMenu">
+          <MenuItem.Header>
+            <StackPanel Orientation="Horizontal"
+                        Spacing="{DynamicResource MenuHeaderSpacing}">
+            <Image Width="{DynamicResource MenuIconSize}"
+                   Height="{DynamicResource MenuIconSize}"
+                   Source="avares://CavernizeGUI/Assets/Images/Settings.png" />
+              <TextBlock x:Name="WindowsRenderingMenuText"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+          </MenuItem.Header>
+        </MenuItem>
+        <MenuItem x:Name="WindowsViewMenu">
+          <MenuItem.Header>
+            <TextBlock x:Name="WindowsViewMenuText"
+                       VerticalAlignment="Center" />
+          </MenuItem.Header>
+        </MenuItem>
+        <MenuItem x:Name="WindowsLanguageMenu">
+          <MenuItem.Header>
+            <StackPanel Orientation="Horizontal"
+                        Spacing="{DynamicResource MenuHeaderSpacing}">
+            <Image Width="{DynamicResource MenuIconSize}"
+                   Height="{DynamicResource MenuIconSize}"
+                   Source="avares://CavernizeGUI/Assets/Images/Language.png" />
+              <TextBlock x:Name="WindowsLanguageMenuText"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+          </MenuItem.Header>
+        </MenuItem>
+        <MenuItem x:Name="WindowsHelpMenu">
+          <MenuItem.Header>
+            <StackPanel Orientation="Horizontal"
+                        Spacing="{DynamicResource MenuHeaderSpacing}">
+            <Image Width="{DynamicResource MenuIconSize}"
+                   Height="{DynamicResource MenuIconSize}"
+                   Source="avares://CavernizeGUI/Assets/Images/Help.png" />
+              <TextBlock x:Name="WindowsHelpMenuText"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+          </MenuItem.Header>
+        </MenuItem>
+      </Menu>
+    </Border>
+
+    <ScrollViewer Grid.Row="1"
                   x:Name="workspaceScroll"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
@@ -225,7 +279,7 @@
                          Text="{Binding LoadedTitle}"
                          VerticalAlignment="Center"
                          TextTrimming="CharacterEllipsis"
-                         FontSize="{DynamicResource BodyFontSize}" />
+                         FontSize="{DynamicResource LabelFontSize}" />
             </Grid>
 
             <Grid Grid.Row="2"
@@ -363,7 +417,7 @@
     </Border>
     </ScrollViewer>
 
-    <Border Grid.Row="1" Background="#333333" Padding="{DynamicResource StatusPadding}">
+    <Border Grid.Row="2" Background="#333333" Padding="{DynamicResource StatusPadding}">
       <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{DynamicResource ContentColumnSpacing}">
         <ProgressBar Width="{DynamicResource StatusProgressWidth}"
                      Height="{DynamicResource StatusProgressHeight}"
@@ -377,7 +431,7 @@
         <TextBlock Grid.Column="1"
                    Text="{Binding Status}"
                    Foreground="#FFFFFF"
-                   FontSize="{DynamicResource StatusFontSize}"
+                   FontSize="{DynamicResource LabelFontSize}"
                    VerticalAlignment="Center"
                    TextWrapping="Wrap" />
       </Grid>

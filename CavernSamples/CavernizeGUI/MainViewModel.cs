@@ -618,7 +618,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable {
 
     public string Text(string key, string fallback) => language.Text(key, fallback);
 
+    public string Text(string key) => language.Text(key);
+
     public string MenuText(string key, string fallback) => language.MenuText(key, fallback);
+
+    public string MenuText(string key) => language.MenuText(key);
 
     public string RenderTargetSelectorText(string key, string fallback) => language.RenderTargetSelectorText(key, fallback);
 

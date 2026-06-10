@@ -57,6 +57,8 @@ sealed class AvaloniaLanguage {
 
     public string this[string key] => mainWindowStrings[key];
 
+    public string Text(string key) => mainWindowStrings[key];
+
     public string Text(string key, string fallback) =>
         mainWindowStrings.TryGetValue(key, out string value) && !string.IsNullOrWhiteSpace(value) ? value : fallback;
 
@@ -64,6 +66,8 @@ sealed class AvaloniaLanguage {
         renderTargetSelectorStrings.TryGetValue(key, out string value) && !string.IsNullOrWhiteSpace(value) ? value : fallback;
 
     public string MenuText(string key, string fallback) => Text(key, fallback).Replace("_", string.Empty);
+
+    public string MenuText(string key) => Text(key).Replace("_", string.Empty);
 
     public string FileTypeName(string key, string fallback) {
         string value = Text(key, fallback);

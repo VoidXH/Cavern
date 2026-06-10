@@ -3,9 +3,13 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- UI -->
     <system:String x:Key="MenuR">Renderelés</system:String>
+    <system:String x:Key="MenuV">Nézet</system:String>
     <system:String x:Key="Upmix">_Felkeverési beállítások...</system:String>
+    <system:String x:Key="UpmixT">7.1 létrehozása kisebb keverésekből, vagy magasság hozzáadása régi csatornaalapú keverésekhez.</system:String>
     <system:String x:Key="LoadV">HRTF/HRIR szettek betöltése a _Virtualizálóba</system:String>
+    <system:String x:Key="LoadVT">A Fejhallgató Virtualizáló saját szűrőinek felülírása egy többcsatornás WAV fájllal.</system:String>
     <system:String x:Key="SpVir">_Magasság virtualizálása hangszórókon</system:String>
+    <system:String x:Key="SpVirT">A Fejhallgató Virtualizáló szűrőivel rendereli a magassági csatornákat a fő csatornákra.</system:String>
     <system:String x:Key="FiltH">Kimeneti _szűrők alkalmazása</system:String>
     <system:String x:Key="FiltT">Betölt egy konvolúciós EQ szettet, amit a QuickEQ exportált a célrendszerhez,
         majd ezt használja a konvertált fájlba beégetett szobakorrekcióként.</system:String>
@@ -14,8 +18,11 @@
     <system:String x:Key="MuGrH">_Talaj némítása</system:String>
     <system:String x:Key="MuGrT">Minden hangot elnémít, ami nem a magasból jön.</system:String>
     <system:String x:Key="For24">24-bites _PCM erőltetése (lassabb, nagyobb fájlok, nem ad hallható javulást)</system:String>
+    <system:String x:Key="For24T">24-bites PCM kimenet használata a támogatott formátumokhoz.</system:String>
     <system:String x:Key="SuSwa">_Oldalsó/hátsó kimeneti csatornák felcserélése</system:String>
+    <system:String x:Key="SuSwaT">Felcseréli, hogy mi csatlakozik az oldalsó és hátsó kimeneti csatornapárokhoz.</system:String>
     <system:String x:Key="WavCh">RIFF WAVE csatornamaszk kihagyása (korlátozások feloldása)</system:String>
+    <system:String x:Key="WavChT">Nem exportál csatornaleképezést PCM fájlokba, és engedélyezi a nem támogatott csatornákat.</system:String>
     <system:String x:Key="SMetH">Metaadatok mutatása...</system:String>
     <system:String x:Key="SMetT">Megmutatja a dekódolt kodekspecifikus mezőit a kiválasztott sávnak.</system:String>
     <system:String x:Key="ReMoH">_Csak jelentés mód</system:String>
@@ -25,6 +32,7 @@
     <system:String x:Key="DeGrT">Érzékelhető hangminőségi metrikák mérése és a tartalom osztályozása. Ezt az információt a renderelés utáni
         jelentés fogja tartalmazni.</system:String>
     <system:String x:Key="PReSh">_Renderelés utáni jelentés megnyitása...</system:String>
+    <system:String x:Key="PReShT">Ha a minőséganalízis és osztályozás engedélyezve volt, megjeleníti az eredményeit a renderelés után.</system:String>
     <system:String x:Key="PReRe">Renderelés utáni jelentés</system:String>
     <system:String x:Key="MenuH">Súgó</system:String>
     <system:String x:Key="UsrGu">_Felhasználói kézikönyv (angol)</system:String>
