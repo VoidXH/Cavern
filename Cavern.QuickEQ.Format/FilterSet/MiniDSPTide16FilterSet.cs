@@ -9,6 +9,9 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     /// <remarks>MiniDSP Tide16 only works on 48 kHz sampling rate. Using anything else breaks the filter set.</remarks>
     public class MiniDSPTide16FilterSet : MiniDSP2x4FilterSet {
+        /// <inheritdoc/>
+        public override int Bands => 20;
+
         /// <summary>
         /// IIR filter set for MiniDSP Tide16.
         /// </summary>
@@ -28,7 +31,7 @@ namespace Cavern.Format.FilterSet {
             for (int i = 0; i < Channels.Length; i++) {
                 string channelPath = Path.Combine(folder, $"{fileNameBase} {GetLabel(i)}.txt");
                 BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
-                SaveFilters(filters, 0, Bands >> 1, channelPath);
+                SaveFilters(filters, 0, Bands, channelPath);
             }
         }
 
