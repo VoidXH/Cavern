@@ -1,4 +1,9 @@
-# Cavern
+# Cavern (中文汉化版) [![zh-CN](https://img.shields.io/badge/lang-中文-red)](https://github.com/aeuicey/Cavern-zhcn)
+
+> 此仓库是 [Cavern](https://github.com/VoidXH/Cavern) 的中文汉化版本。  
+> CavernizeGUI 和 Filter Studio 均已完整汉化为简体中文（zh-CN）。  
+> 在语言菜单中可选择 中文 / English / Magyar。
+
 The bleeding edge audio framework that gives you Dolby Atmos and top end room
 correction on any sound system. Cavern is also an all-in-one toolkit for game
 audio development and the swiss army knife of filtering and measurement tools
