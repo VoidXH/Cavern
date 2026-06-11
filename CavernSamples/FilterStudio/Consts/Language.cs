@@ -46,7 +46,7 @@ namespace FilterStudio.Consts {
         /// <summary>
         /// Languages supported that are not the default English.
         /// </summary>
-        static readonly string[] supported = ["hu-HU"];
+        static readonly string[] supported = ["hu-HU", "zh-CN"];
 
         /// <summary>
         /// The loaded translation of the <see cref="MainWindow"/> for reuse.

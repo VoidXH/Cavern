@@ -32,6 +32,7 @@
     <system:String x:Key="MenuL">Nyelv</system:String>
     <system:String x:Key="LanEn">English</system:String>
     <system:String x:Key="LanHu">Magyar</system:String>
+    <system:String x:Key="LanZh">中文</system:String>
     <system:String x:Key="SySet">Rendszer</system:String>
     <system:String x:Key="RSInf">Válassz ki egy hangszórókiosztást, és helyezd el úgy a hangszóróid. Kattints a &quot;Bekötés mutatása&quot;
         gombra, hogy megtudd, melyik kimenetet melyik valódi csatornára kell kötnöd.

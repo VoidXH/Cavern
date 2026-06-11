@@ -1,0 +1,112 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <!-- UI -->
+    <system:String x:Key="MenuR">渲染(_R)</system:String>
+    <system:String x:Key="Upmix">上混设置(_U)...</system:String>
+    <system:String x:Key="LoadV">为虚拟器加载HRTF/HRIR数据集(_V)</system:String>
+    <system:String x:Key="SpVir">扬声器高度虚拟化(_H)</system:String>
+    <system:String x:Key="FiltH">应用输出滤波器(_F)</system:String>
+    <system:String x:Key="FiltT">加载一组从QuickEQ导出的卷积EQ，用于目标系统，
+        将其作为转换后内容中的烧录房间校正。</system:String>
+    <system:String x:Key="MuBeH">静音基础层(_B)</system:String>
+    <system:String x:Key="MuBeT">仅渲染位置不固定、会移动的对象。</system:String>
+    <system:String x:Key="MuGrH">静音地面(_G)</system:String>
+    <system:String x:Key="MuGrT">仅来自地面扬声器的声音将被静音。</system:String>
+    <system:String x:Key="For24">强制24位PCM(_B)（更慢、文件更大，无听觉改善）</system:String>
+    <system:String x:Key="SuSwa">交换侧置/后置输出声道(_W)</system:String>
+    <system:String x:Key="WavCh">跳过RIFF WAVE声道掩码（解除限制）</system:String>
+    <system:String x:Key="SMetH">显示元数据(_M)...</system:String>
+    <system:String x:Key="SMetT">显示所选音轨的解码编解码器特定字段。</system:String>
+    <system:String x:Key="ReMoH">仅报告模式(_R)</system:String>
+    <system:String x:Key="ReMoT">仅检查内容是否真正基于对象，启用此选项后，
+        渲染完成后即可查看后处理报告，无需写入磁盘。</system:String>
+    <system:String x:Key="DeGrH">质量分析与评分(_G)</system:String>
+    <system:String x:Key="DeGrT">测量感知音频质量指标并对内容评分。此信息将显示
+        在后处理报告中。</system:String>
+    <system:String x:Key="PReSh">显示后处理报告(_S)...</system:String>
+    <system:String x:Key="PReRe">后处理报告</system:String>
+    <system:String x:Key="MenuH">帮助(_H)</system:String>
+    <system:String x:Key="UsrGu">用户指南(_U)</system:String>
+    <system:String x:Key="About">关于(_A)</system:String>
+    <system:String x:Key="MenuL">语言(_L)</system:String>
+    <system:String x:Key="LanEn">English</system:String>
+    <system:String x:Key="LanHu">Magyar</system:String>
+    <system:String x:Key="LanZh">中文</system:String>
+    <system:String x:Key="SySet">系统</system:String>
+    <system:String x:Key="RSInf">选择布局，并相应地放置扬声器。点击"显示接线"
+        按钮查看哪个输出对应哪个实际声道。
+        为了获得最高音质，请使用QuickEQ校准系统。</system:String>
+    <system:String x:Key="RndTg">渲染目标：</system:String>
+    <system:String x:Key="DisWi">显示接线</system:String>
+    <system:String x:Key="FFLoc">定位FFmpeg</system:String>
+    <system:String x:Key="FFDes">使用此按钮定位FFmpeg。下载后在bin文件夹中选择ffmpeg.exe。
+        Cavernize将使用FFmpeg进行重新编码。此临时方案占用较多空间，
+        建议为2小时电影保留至少10 GB可用空间。</system:String>
+    <system:String x:Key="CoPro">内容</system:String>
+    <system:String x:Key="OpCnt">打开</system:String>
+    <system:String x:Key="OpTrk">音轨：</system:String>
+    <system:String x:Key="OpOut">输出：</system:String>
+    <system:String x:Key="OpRnd">渲染</system:String>
+    <system:String x:Key="ChkUp">自动检查更新</system:String>
+    <system:String x:Key="ChkTt">定期自动检查是否有新更新可用。</system:String>
+    <system:String x:Key="Queue">队列</system:String>
+    <system:String x:Key="QuDes">可以将转换任务排队，依次执行，而无需手动逐个渲染。
+        点击"添加到队列"将配置好的转换加入队列，然后点击"处理队列"
+        开始渲染队列中的内容。</system:String>
+    <system:String x:Key="QuAdd">添加到队列</system:String>
+    <system:String x:Key="QuRem">删除选中项</system:String>
+    <system:String x:Key="QuSta">处理</system:String>
+    <!-- Code behind -->
+    <system:String x:Key="dnErr">您的 .NET 6 安装已损坏，无法加载。请从Microsoft安装最新版本。\n
+        按任意键退出...</system:String>
+    <system:String x:Key="DropF">一次只能将多个文件拖放到队列中。
+        拖出窗口右侧以使其可见。</system:String>
+    <system:String x:Key="IrErr">脉冲响应文件无效。错误：{0}</system:String>
+    <system:String x:Key="ImFmt">所有支持的格式|{0}|
+        电影|*.mkv;*.mka;*.mov;*.mp4;*.qt;*.webm;*.weba|
+        (Enhanced) AC-3|*.ac3;*.eac3;*.ec3|
+        Core Audio Format|*.caf|
+        Dolby Atmos Master Format|*.atmos|
+        RIFF WAVE, ADM BWF|*.wav|
+        Limitless Audio Format|*.laf</system:String>
+    <system:String x:Key="OpRun">已有操作正在运行，请等待完成。</system:String>
+    <system:String x:Key="OpRes">更改将在重启Cavernize后生效。</system:String>
+    <system:String x:Key="LdSrc">请加载至少包含1个可渲染音轨的源文件。</system:String>
+    <system:String x:Key="UnTrk">所选音轨不支持渲染。</system:String>
+    <system:String x:Key="ChCnt">渲染目标的声道数（{0}）超过了所选格式的处理能力（{1}）。
+        请选择其他输出格式或选择声道较少的渲染目标。</system:String>
+    <system:String x:Key="UnExt">文件名扩展名不受支持。</system:String>
+    <system:String x:Key="UnCod">此编解码器不支持导出。</system:String>
+    <system:String x:Key="Start">开始渲染...</system:String>
+    <system:String x:Key="ExpOk">完成！</system:String>
+    <system:String x:Key="Error">错误</system:String>
+    <system:String x:Key="FiltI">脉冲响应包|*.wav</system:String>
+    <system:String x:Key="FiltF">Cavern QuickEQ卷积EQ|*.txt</system:String>
+    <system:String x:Key="FiltC">采样率冲突：耳机虚拟化和输出滤波只有在采样率相同时才能
+        同时工作。必须舍弃其中之一。</system:String>
+    <system:String x:Key="FFRea">就绪！</system:String>
+    <system:String x:Key="FFNRe">未找到FFmpeg，编解码器限制已生效。</system:String>
+    <system:String x:Key="ProgP">渲染中... ({0}，速度: {1}x，剩余: {2})</system:String>
+    <system:String x:Key="FinaP">收尾中... ({0})</system:String>
+    <system:String x:Key="DropI">以下拖放的文件不受支持或已损坏：</system:String>
+    <system:String x:Key="AbouH">关于</system:String>
+    <system:String x:Key="AbouA">由CavernAmp加速。</system:String>
+    <system:String x:Key="ReQOp">无法从正在处理的队列中删除元素。</system:String>
+    <system:String x:Key="ReQSe">未选中队列项目。</system:String>
+    <system:String x:Key="FFOnl">所选输出格式需要FFmpeg。请使用"定位FFmpeg"按钮定位，
+        如需帮助，请点击帮助/用户指南按钮。</system:String>
+    <system:String x:Key="CMetT">编解码器元数据</system:String>
+    <system:String x:Key="CMeET">请先加载文件。</system:String>
+    <system:String x:Key="CMeUT">Cavern API尚不支持显示所选音轨的元数据。</system:String>
+    <system:String x:Key="JocWa">此文件包含部分使用稀疏JOC编码的内容。E-AC-3标准的此部分
+        文档不完整，因此音频中可能出现静音片段。</system:String>
+    <system:String x:Key="RenEr">在 {0} 处的音频无法渲染。处理将继续，但该时间戳之后
+        的音轨将不完整。详细错误：{1}</system:String>
+    <system:String x:Key="SpViE">当前布局不支持扬声器高度虚拟化。请禁用该选项
+        或选择仅包含地面声道的布局。</system:String>
+    <system:String x:Key="QuAlT">批量处理</system:String>
+    <system:String x:Key="QuAll">是否要为添加到队列的所有文件选择一个统一的输出文件夹？
+        如果选择"是"，所有文件将使用默认容器格式处理到所选文件夹中。
+        如果选择"否"，您可以逐个选择输出文件夹、文件名和容器格式。</system:String>
+</ResourceDictionary>

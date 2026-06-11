@@ -46,6 +46,7 @@
                 </MenuItem.Header>
                 <MenuItem Header="{StaticResource LanEn}" Click="LanguageEnglish"/>
                 <MenuItem Header="{StaticResource LanHu}" Click="LanguageHungarian"/>
+                <MenuItem Header="{StaticResource LanZh}" Click="LanguageChinese"/>
             </MenuItem>
             <MenuItem Style="{StaticResource RootMenuItem}">
                 <MenuItem.Header>
