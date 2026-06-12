@@ -46,10 +46,10 @@ namespace Cavern.Utilities {
                     *oddRef++ = *result++;
                 }
 
-                --depth;
                 if (even.Length != 8) {
-                    ProcessFFT(even, cache, depth);
-                    ProcessFFT(odd, cache, depth);
+                    int lowerDepth = depth - 1;
+                    ProcessFFT(even, cache, lowerDepth);
+                    ProcessFFT(odd, cache, lowerDepth);
                 } else {
                     ProcessFFT8(pEven);
                     ProcessFFT8(pOdd);
@@ -59,8 +59,8 @@ namespace Cavern.Utilities {
             fixed (Complex* pSamples = samples)
             fixed (Complex* pEven = even)
             fixed (Complex* pOdd = odd)
-            fixed (float* pCosCache = FFTCache.cos[depth + 1])
-            fixed (float* pSinCache = FFTCache.sin[depth + 1]) {
+            fixed (float* pCosCache = FFTCache.cos[depth])
+            fixed (float* pSinCache = FFTCache.sin[depth]) {
                 int step = Vector<float>.Count >> 1;
                 Vector2* result = (Vector2*)pSamples,
                     mirror = result + (samples.Length >> 1),
@@ -137,10 +137,10 @@ namespace Cavern.Utilities {
                     *oddRef++ = *result++;
                 }
 
-                --depth;
                 if (even.Length != 8) {
-                    ProcessFFT_Mono(even, cache, depth);
-                    ProcessFFT_Mono(odd, cache, depth);
+                    int lowerDepth = depth - 1;
+                    ProcessFFT_Mono(even, cache, lowerDepth);
+                    ProcessFFT_Mono(odd, cache, lowerDepth);
                 } else {
                     ProcessFFT8(pEven);
                     ProcessFFT8(pOdd);
@@ -150,8 +150,8 @@ namespace Cavern.Utilities {
             fixed (Complex* pSamples = samples)
             fixed (Complex* pEven = even)
             fixed (Complex* pOdd = odd)
-            fixed (float* pCosCache = FFTCache.cos[depth + 1])
-            fixed (float* pSinCache = FFTCache.sin[depth + 1]) {
+            fixed (float* pCosCache = FFTCache.cos[depth])
+            fixed (float* pSinCache = FFTCache.sin[depth]) {
                 Complex* result = pSamples,
                     mirror = result + (samples.Length >> 1),
                     end = mirror,
@@ -289,27 +289,26 @@ namespace Cavern.Utilities {
             }
             Complex[] even = cache.Even[depth], odd = cache.Odd[depth];
             for (int sample = 0, pair = 0; pair < samples.Length; sample++, pair += 2) {
-                even[sample].Real = samples[pair];
-                odd[sample].Real = samples[pair + 1];
+                even[sample] = new Complex(samples[pair]);
+                odd[sample] = new Complex(samples[pair + 1]);
             }
 
-            --depth;
-            if (CavernAmp.IsMono()) {
-                ProcessFFT_Mono(even, cache, depth);
-                ProcessFFT_Mono(odd, cache, depth);
-            } else if (even.Length != 8) {
-                ProcessFFT(even, cache, depth);
-                ProcessFFT(odd, cache, depth);
-            } else {
+            if (even.Length == 8) {
                 fixed (Complex* pEven = even)
                 fixed (Complex* pOdd = odd) {
                     ProcessFFT8(pEven);
                     ProcessFFT8(pOdd);
                 }
+            } else if (CavernAmp.IsMono()) {
+                ProcessFFT_Mono(even, cache, depth - 1);
+                ProcessFFT_Mono(odd, cache, depth - 1);
+            } else {
+                ProcessFFT(even, cache, depth - 1);
+                ProcessFFT(odd, cache, depth - 1);
             }
 
-            float[] cosCache = FFTCache.cos[depth + 1],
-                sinCache = FFTCache.sin[depth + 1];
+            float[] cosCache = FFTCache.cos[depth],
+                sinCache = FFTCache.sin[depth];
             int halfLength = samples.Length >> 1;
             for (int i = 0; i < halfLength; i++) {
                 float
