@@ -3,9 +3,13 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- UI -->
     <system:String x:Key="MenuR">Renderelés</system:String>
+    <system:String x:Key="MenuV">Nézet</system:String>
     <system:String x:Key="Upmix">_Felkeverési beállítások...</system:String>
+    <system:String x:Key="UpmixT">7.1 létrehozása kisebb keverésekből, vagy magasság hozzáadása régi csatornaalapú keverésekhez.</system:String>
     <system:String x:Key="LoadV">HRTF/HRIR szettek betöltése a _Virtualizálóba</system:String>
+    <system:String x:Key="LoadVT">A Fejhallgató Virtualizáló saját szűrőinek felülírása egy többcsatornás WAV fájllal.</system:String>
     <system:String x:Key="SpVir">_Magasság virtualizálása hangszórókon</system:String>
+    <system:String x:Key="SpVirT">A Fejhallgató Virtualizáló szűrőivel rendereli a magassági csatornákat a fő csatornákra.</system:String>
     <system:String x:Key="FiltH">Kimeneti _szűrők alkalmazása</system:String>
     <system:String x:Key="FiltT">Betölt egy konvolúciós EQ szettet, amit a QuickEQ exportált a célrendszerhez,
         majd ezt használja a konvertált fájlba beégetett szobakorrekcióként.</system:String>
@@ -14,8 +18,11 @@
     <system:String x:Key="MuGrH">_Talaj némítása</system:String>
     <system:String x:Key="MuGrT">Minden hangot elnémít, ami nem a magasból jön.</system:String>
     <system:String x:Key="For24">24-bites _PCM erőltetése (lassabb, nagyobb fájlok, nem ad hallható javulást)</system:String>
+    <system:String x:Key="For24T">24-bites PCM kimenet használata a támogatott formátumokhoz.</system:String>
     <system:String x:Key="SuSwa">_Oldalsó/hátsó kimeneti csatornák felcserélése</system:String>
+    <system:String x:Key="SuSwaT">Felcseréli, hogy mi csatlakozik az oldalsó és hátsó kimeneti csatornapárokhoz.</system:String>
     <system:String x:Key="WavCh">RIFF WAVE csatornamaszk kihagyása (korlátozások feloldása)</system:String>
+    <system:String x:Key="WavChT">Nem exportál csatornaleképezést PCM fájlokba, és engedélyezi a nem támogatott csatornákat.</system:String>
     <system:String x:Key="SMetH">Metaadatok mutatása...</system:String>
     <system:String x:Key="SMetT">Megmutatja a dekódolt kodekspecifikus mezőit a kiválasztott sávnak.</system:String>
     <system:String x:Key="ReMoH">_Csak jelentés mód</system:String>
@@ -25,6 +32,7 @@
     <system:String x:Key="DeGrT">Érzékelhető hangminőségi metrikák mérése és a tartalom osztályozása. Ezt az információt a renderelés utáni
         jelentés fogja tartalmazni.</system:String>
     <system:String x:Key="PReSh">_Renderelés utáni jelentés megnyitása...</system:String>
+    <system:String x:Key="PReShT">Ha a minőséganalízis és osztályozás engedélyezve volt, megjeleníti az eredményeit a renderelés után.</system:String>
     <system:String x:Key="PReRe">Renderelés utáni jelentés</system:String>
     <system:String x:Key="MenuH">Súgó</system:String>
     <system:String x:Key="UsrGu">_Felhasználói kézikönyv (angol)</system:String>
@@ -32,6 +40,7 @@
     <system:String x:Key="MenuL">Nyelv</system:String>
     <system:String x:Key="LanEn">English</system:String>
     <system:String x:Key="LanHu">Magyar</system:String>
+    <system:String x:Key="LanTe">Teszt</system:String>
     <system:String x:Key="SySet">Rendszer</system:String>
     <system:String x:Key="RSInf">Válassz ki egy hangszórókiosztást, és helyezd el úgy a hangszóróid. Kattints a &quot;Bekötés mutatása&quot;
         gombra, hogy megtudd, melyik kimenetet melyik valódi csatornára kell kötnöd.
@@ -56,6 +65,28 @@
     <system:String x:Key="QuAdd">Sorhoz adás</system:String>
     <system:String x:Key="QuRem">Kijelölt törlése</system:String>
     <system:String x:Key="QuSta">Feldolgozás</system:String>
+    <system:String x:Key="NoSrc">Nincs forrás betöltve</system:String>
+    <system:String x:Key="NoTrk">Nincs hangsáv betöltve</system:String>
+    <system:String x:Key="NoWar">Nincs figyelmeztetés.</system:String>
+    <system:String x:Key="OpSrc">Forrás megnyitása</system:String>
+    <system:String x:Key="OpSrcS">Nyiss meg egy forrásfájlt.</system:String>
+    <system:String x:Key="SavRn">Renderelés mentése</system:String>
+    <system:String x:Key="AudVi">Hang és videó</system:String>
+    <system:String x:Key="SelFo">Kiválasztott formátum</system:String>
+    <system:String x:Key="LoadH">HRIR betöltése</system:String>
+    <system:String x:Key="LoadF">Szobakorrekciós szűrők betöltése</system:String>
+    <system:String x:Key="UpmTi">Felkeverési beállítások</system:String>
+    <system:String x:Key="Upm71">7.1 kitöltése</system:String>
+    <system:String x:Key="UpmNs">Nem térbeli tartalom felkeverése</system:String>
+    <system:String x:Key="UpmEf">Felkeverés hatása:</system:String>
+    <system:String x:Key="UpmSm">Felkeverés simasága:</system:String>
+    <system:String x:Key="Upm71T">Mátrix felkeverővel teljes 7.1 alapot készít régi csatornaalapú tartalmakhoz.</system:String>
+    <system:String x:Key="UpmNsT">Megpróbálja visszaállítani a magassági információt hagyományos tartalmakhoz, legfeljebb 7.1-ig.</system:String>
+    <system:String x:Key="Reset">Visszaállítás</system:String>
+    <system:String x:Key="OK">OK</system:String>
+    <system:String x:Key="Cancel">Mégse</system:String>
+    <system:String x:Key="Yes">Igen</system:String>
+    <system:String x:Key="No">Nem</system:String>
     <!-- Code behind -->
     <system:String x:Key="dnErr">A .NET 6 telepítésed sérült és nem tölthető be. Kérlek, telepítsd a legújabbat a Microsoft-tól.\n
         Nyomj meg egy gombot a kilépéshez...</system:String>
@@ -108,4 +139,6 @@
     <system:String x:Key="QuAll">Szeretnél egy közös kimeneti mappát választani az összes fájlhoz, amit a sorhoz adsz?
         Ha az Igenre nyomsz, mindegyik az alapértelmezett kimeneti konténerben lesz feldolgozva a kiválasztott mappába.
         Ha a Nemre nyomsz, egyesével kiválaszthatod a kimeneti mappákat, fájlneveket, és konténerformátumokat.</system:String>
+    <system:String x:Key="UpdAv">Frissítés érhető el</system:String>
+    <system:String x:Key="UpdQu">Új verzió érhető el. Szeretnéd letölteni?</system:String>
 </ResourceDictionary>

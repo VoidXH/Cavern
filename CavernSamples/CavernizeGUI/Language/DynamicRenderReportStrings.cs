@@ -1,5 +1,3 @@
-﻿using System.Windows;
-
 using Cavernize.Logic.Language;
 
 namespace CavernizeGUI.Language;
@@ -8,7 +6,7 @@ namespace CavernizeGUI.Language;
 /// Reads the <see cref="RenderReportStrings"/> from Cavernize GUI's localized resources.
 /// </summary>
 /// <param name="source">Localized resources for <see cref="RenderReportStrings"/></param>
-public class DynamicRenderReportStrings(ResourceDictionary source) : RenderReportStrings {
+public class DynamicRenderReportStrings(IReadOnlyDictionary<string, string> source) : RenderReportStrings {
     /// <inheritdoc/>
     public override string Default => (string)source["Defau"];
 

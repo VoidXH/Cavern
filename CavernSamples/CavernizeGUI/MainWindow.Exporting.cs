@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Threading;
 
+using Avalonia.Platform.Storage;
 using Cavern;
 using Cavern.Filters;
 using Cavern.Format;
@@ -12,16 +10,47 @@ using Cavern.Virtualizer;
 
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
-using VoidX.WPF;
+using Cavernize.Logic.Rendering;
+
+using GuiLanguage = CavernizeGUI.Consts.Language;
 
 namespace CavernizeGUI;
 
 // Functions that are part of the render export process.
 partial class MainWindow {
+    async void Render(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+        if (StorageProvider == null) {
+            return;
+        }
+
+        string path = null;
+        if (!ReportMode) {
+            IStorageFile file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
+                Title = SaveRenderPickerTitle,
+                SuggestedFileName = SuggestedOutputName,
+                DefaultExtension = SuggestedOutputExtension,
+                SuggestedStartLocation = await GetStartFolder(LastDirectory),
+                FileTypeChoices = [
+                    new FilePickerFileType(SelectedFormatFileType) {
+                        Patterns = [$"*.{SuggestedOutputExtension}"]
+                    },
+                    FilePickerFileTypes.All
+                ]
+            });
+            path = file?.Path.LocalPath;
+            if (string.IsNullOrWhiteSpace(path)) {
+                return;
+            }
+        }
+
+        await RenderTo(path);
+    }
+
     /// <summary>
     /// Keeps track of export time and evaluates performance.
     /// </summary>
-    class Progressor(long length, Listener listener, TaskEngine taskEngine) {
+    class Progressor(long length, Listener listener, GuiLanguage language, Action<double> updateProgress,
+        Action<string> updateStatus) {
         /// <summary>
         /// Samples rendered so far.
         /// </summary>
@@ -46,12 +75,6 @@ partial class MainWindow {
         /// Samples processed each frame.
         /// </summary>
         readonly long updateRate = listener.UpdateRate;
-
-        /// <summary>
-        /// UI updater instance.
-        /// </summary>
-        readonly TaskEngine taskEngine = taskEngine;
-
         /// <summary>
         /// Samples until next UI update.
         /// </summary>
@@ -78,9 +101,9 @@ partial class MainWindow {
                     remDisp = remaining.ToString("d':'hh':'mm':'ss");
                 }
 
-                taskEngine.UpdateStatusLazy(string.Format((string)language["ProgP"],
+                updateStatus?.Invoke(string.Format((string)language["ProgP"],
                     progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
-                taskEngine.UpdateProgressBar(progress);
+                updateProgress?.Invoke(progress);
                 untilUpdate = updateInterval;
             }
         }
@@ -89,8 +112,8 @@ partial class MainWindow {
         /// Report custom progress as finalization.
         /// </summary>
         public void Finalize(double progress) {
-            taskEngine.UpdateStatusLazy(string.Format((string)language["FinaP"], progress.ToString("0.00%")));
-            taskEngine.UpdateProgressBar(progress);
+            updateStatus?.Invoke(string.Format((string)language["FinaP"], progress.ToString("0.00%")));
+            updateProgress?.Invoke(progress);
         }
     }
 
@@ -98,10 +121,11 @@ partial class MainWindow {
     /// Renders a listener to a file, and returns some measurements of the render.
     /// </summary>
     RenderStats WriteRender(CavernizeTrack target, AudioWriter writer, RenderTarget renderTarget) {
-        RenderStats stats = Dispatcher.Invoke(() => grading.IsChecked) ?
+        RenderStats stats = DetailedGrading ?
             new RenderStatsEx(environment.Listener) :
             new RenderStats(environment.Listener);
-        Progressor progressor = new Progressor(target.Length, environment.Listener, taskEngine);
+        Progressor progressor = new Progressor(target.Length, environment.Listener, language, UpdateProgress,
+            UpdateStatus);
         bool customMuting = RenderingSettings.MuteBed || RenderingSettings.MuteGround;
 
         MultichannelConvolver filters = null;
@@ -113,7 +137,7 @@ partial class MainWindow {
         VirtualizerFilter virtualizer = null;
         Normalizer normalizer = null;
         bool virtualizerState = Listener.HeadphoneVirtualizer;
-        if (virtualizerState || Dispatcher.Invoke(() => RenderingSettings.SpeakerVirtualizer)) {
+        if (virtualizerState || RenderingSettings.SpeakerVirtualizer) {
             Listener.HeadphoneVirtualizer = false;
             virtualizer = new VirtualizerFilter();
             virtualizer.SetLayout();
@@ -131,75 +155,79 @@ partial class MainWindow {
 #if RELEASE
         bool wasError = false;
 #endif
-        while (progressor.Rendered < target.Length) {
-            float[] result;
+        try {
+            while (progressor.Rendered < target.Length) {
+                ThrowIfCancellationRequested();
+                float[] result;
 #if RELEASE
-            try {
+                try {
 #endif
-                result = environment.Listener.Render();
+                    result = environment.Listener.Render();
 #if RELEASE
-            } catch (Exception e) {
-                if (!wasError) {
-                    wasError = true;
-                    ThreadPool.QueueUserWorkItem(x => { // Don't hold up background processing
-                        TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
-                        Dispatcher.Invoke(() => Error(string.Format((string)language["RenEr"], time, e.Message)));
-                    });
+                } catch (Exception e) {
+                    if (!wasError) {
+                        wasError = true;
+                        ThreadPool.QueueUserWorkItem(x => { // Don't hold up background processing
+                            TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
+                            WarningRaised(string.Format((string)language["RenEr"], time, e.Message));
+                        });
+                    }
+                    result = new float[Listener.Channels.Length * environment.Listener.UpdateRate];
                 }
-                result = new float[Listener.Channels.Length * environment.Listener.UpdateRate];
-            }
 #endif
 
-            // Alignment of split parts
-            if (target.Length - progressor.Rendered < environment.Listener.UpdateRate) {
-                Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
-                flush = true;
-            }
+                // Alignment of split parts
+                if (target.Length - progressor.Rendered < environment.Listener.UpdateRate) {
+                    Array.Resize(ref result, (int)((target.Length - progressor.Rendered) * Listener.Channels.Length));
+                    flush = true;
+                }
 
-            Array.Copy(result, 0, writeCache, cachePosition, result.Length);
-            cachePosition += result.Length;
-            if (cachePosition == writeCache.Length || flush) {
-                filters?.Process(writeCache);
+                Array.Copy(result, 0, writeCache, cachePosition, result.Length);
+                cachePosition += result.Length;
+                if (cachePosition == writeCache.Length || flush) {
+                    filters?.Process(writeCache);
 
-                if (virtualizer == null) {
-                    if (renderTarget is not DownmixedRenderTarget downmix) {
-                        writer?.WriteBlock(writeCache, 0, cachePosition);
+                    if (virtualizer == null) {
+                        if (renderTarget is not DownmixedRenderTarget downmix) {
+                            writer?.WriteBlock(writeCache, 0, cachePosition);
+                        } else {
+                            downmix.PerformMerge(writeCache);
+                            writer?.WriteChannelLimitedBlock(writeCache, downmix.OutputChannels,
+                                Listener.Channels.Length, 0, cachePosition);
+                        }
                     } else {
-                        downmix.PerformMerge(writeCache);
-                        writer?.WriteChannelLimitedBlock(writeCache, downmix.OutputChannels,
+                        virtualizer.Process(writeCache, environment.Listener.SampleRate);
+                        normalizer.Process(writeCache);
+                        writer?.WriteChannelLimitedBlock(writeCache, renderTarget.OutputChannels,
                             Listener.Channels.Length, 0, cachePosition);
                     }
-                } else {
-                    virtualizer.Process(writeCache, environment.Listener.SampleRate);
-                    normalizer.Process(writeCache);
-                    writer?.WriteChannelLimitedBlock(writeCache, renderTarget.OutputChannels,
-                        Listener.Channels.Length, 0, cachePosition);
+                    cachePosition = 0;
                 }
-                cachePosition = 0;
-            }
 
-            if (progressor.Rendered > secondFrame) {
-                stats.Update(result);
-            }
-
-            if (customMuting) {
-                IReadOnlyList<Source> objects = target.Renderer.Objects;
-                for (int i = 0, c = objects.Count; i < c; i++) {
-                    Vector3 rawPos = objects[i].Position / Listener.EnvironmentSize;
-                    objects[i].Mute =
-                        (RenderingSettings.MuteBed && MathF.Abs(rawPos.X) % 1 < .01f &&
-                            MathF.Abs(rawPos.Y) % 1 < .01f && MathF.Abs(rawPos.Z % 1) < .01f) ||
-                        (RenderingSettings.MuteGround && rawPos.Y == 0);
+                if (progressor.Rendered > secondFrame) {
+                    stats.Update(result);
                 }
-            }
 
-            progressor.Update();
+                if (customMuting) {
+                    IReadOnlyList<Source> objects = target.Renderer.Objects;
+                    for (int i = 0, c = objects.Count; i < c; i++) {
+                        Vector3 rawPos = objects[i].Position / Listener.EnvironmentSize;
+                        objects[i].Mute =
+                            (RenderingSettings.MuteBed && MathF.Abs(rawPos.X) % 1 < .01f &&
+                                MathF.Abs(rawPos.Y) % 1 < .01f && MathF.Abs(rawPos.Z % 1) < .01f) ||
+                            (RenderingSettings.MuteGround && rawPos.Y == 0);
+                    }
+                }
+
+                progressor.Update();
+            }
+        } finally {
+            writer?.Dispose();
+            if (virtualizerState) {
+                Listener.HeadphoneVirtualizer = true;
+            }
         }
 
-        writer?.Dispose();
-        if (virtualizerState) {
-            Listener.HeadphoneVirtualizer = true;
-        }
         return stats;
     }
 
@@ -207,10 +235,12 @@ partial class MainWindow {
     /// Transcodes between object-based tracks, and returns some measurements of the render.
     /// </summary>
     RenderStats WriteTranscode(CavernizeTrack target, EnvironmentWriter writer) {
-        RenderStats stats = new(environment.Listener);
-        Progressor progressor = new Progressor(target.Length, environment.Listener, taskEngine);
+        RenderStats stats = new RenderStats(environment.Listener);
+        Progressor progressor = new Progressor(target.Length, environment.Listener, language, UpdateProgress,
+            UpdateStatus);
 
         while (progressor.Rendered < target.Length) {
+            ThrowIfCancellationRequested();
             writer.WriteNextFrame();
             progressor.Update();
         }
@@ -223,10 +253,12 @@ partial class MainWindow {
     /// Transcodes from object-based tracks to ADM BWF, and returns some measurements of the render.
     /// </summary>
     RenderStats WriteTranscode(CavernizeTrack target, BroadcastWaveFormatWriter writer) {
-        RenderStats stats = new(environment.Listener);
-        Progressor progressor = new Progressor((long)(target.Length / progressSplit), environment.Listener, taskEngine);
+        RenderStats stats = new RenderStats(environment.Listener);
+        Progressor progressor = new Progressor((long)(target.Length / progressSplit), environment.Listener,
+            language, UpdateProgress, UpdateStatus);
 
         while (progressor.Rendered < target.Length) {
+            ThrowIfCancellationRequested();
             writer.WriteNextFrame();
             progressor.Update();
         }

@@ -115,6 +115,11 @@ public sealed class PostRenderReport(Listener listener, RenderReportStrings lang
     }
 
     /// <summary>
+    /// Clear the generated report.
+    /// </summary>
+    public void Reset() => report = null;
+
+    /// <summary>
     /// Print a graded metric.
     /// </summary>
     void ReportGrade(StringBuilder builder, string metric, float decibelValue, int grade) =>

@@ -1,5 +1,3 @@
-﻿using System.Windows;
-
 using Cavernize.Logic.Language;
 
 namespace CavernizeGUI.Language;
@@ -8,7 +6,7 @@ namespace CavernizeGUI.Language;
 /// Reads the <see cref="ExternalConverterStrings"/> from Cavernize GUI's localized resources.
 /// </summary>
 /// <param name="source">Localized resources for <see cref="ExternalConverterStrings"/></param>
-public class DynamicExternalConverterStrings(ResourceDictionary source) : ExternalConverterStrings {
+public class DynamicExternalConverterStrings(IReadOnlyDictionary<string, string> source) : ExternalConverterStrings {
     /// <inheritdoc/>
     public override string LicenceNeeded => (string)source["LicNe"];
 

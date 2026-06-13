@@ -1,14 +1,25 @@
 name: Build
 
 on:
-  - push
-  - workflow_dispatch
+  push:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to release
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - windows
+          - macos
 
 env:
   BUILD_CONFIGURATION: Release
 
 jobs:
   Windows:
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'windows' }}
     runs-on: windows-2022
 
     steps:
@@ -80,3 +91,55 @@ jobs:
         prerelease: true
         name: "Cavern @${{steps.vars.outputs.ShortHash}}[${{steps.date.outputs.CurrentDate}}]"
         files: "build/*.zip"
+
+  macOS:
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos' }}
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get current date
+        id: date
+        run: echo "CurrentDate=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
+      - name: Get commit hash
+        id: vars
+        run: echo "ShortHash=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore NuGet packages
+        working-directory: ${{github.workspace}}
+        run: dotnet restore "CavernSamples/CavernizeGUI/CavernizeGUI.csproj"
+
+      - name: Publish macOS app
+        working-directory: ${{github.workspace}}
+        run: |
+          dotnet publish "CavernSamples/CavernizeGUI/CavernizeGUI.csproj" --configuration ${{env.BUILD_CONFIGURATION}} --runtime osx-arm64 --self-contained true --output "build/macOS/osx-arm64"
+          dotnet publish "CavernSamples/CavernizeGUI/CavernizeGUI.csproj" --configuration ${{env.BUILD_CONFIGURATION}} --runtime osx-x64 --self-contained true --output "build/macOS/osx-x64"
+
+      - name: Compress macOS app
+        working-directory: ${{github.workspace}}
+        run: |
+          mkdir -p "build/release"
+          ditto -c -k --sequesterRsrc --keepParent "build/macOS/osx-arm64/Cavernize.app" "build/release/Cavernize-macOS-arm64.zip"
+          ditto -c -k --sequesterRsrc --keepParent "build/macOS/osx-x64/Cavernize.app" "build/release/Cavernize-macOS-x64.zip"
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "Cavernize-macOS_${{steps.date.outputs.CurrentDate}}@${{steps.vars.outputs.ShortHash}}"
+          path: "build/release/*.zip"
+
+      - name: GitHub pre-release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          tag_name: latest
+          prerelease: true
+          name: "Cavern @${{steps.vars.outputs.ShortHash}}[${{steps.date.outputs.CurrentDate}}]"
+          files: "build/release/*.zip"

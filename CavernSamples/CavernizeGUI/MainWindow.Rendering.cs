@@ -1,5 +1,5 @@
-﻿using System;
-
+using Avalonia.Input;
+using Avalonia.Platform.Storage;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Container;
@@ -7,38 +7,140 @@ using Cavern.Format.Environment;
 using Cavern.Format.Renderers;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
-using Cavern.WPF;
 
+using Cavernize.Avalonia;
+using Cavernize.Logic.External;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
-using CavernizeGUI.Resources;
 
 namespace CavernizeGUI;
 
+// Functions that prepare and run the render process.
 partial class MainWindow {
-    /// <summary>
-    /// Total number of samples for all channels that will be written to the file at once.
-    /// </summary>
-    int blockSize;
+    bool renderTargetSelectorOpen;
+
+    async void OpenFile(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+        string[] paths = await PickFilePaths(new FilePickerOpenOptions {
+            Title = OpenSourcePickerTitle,
+            AllowMultiple = true,
+            SuggestedStartLocation = await GetStartFolder(LastDirectory),
+            FileTypeFilter = [
+                new FilePickerFileType(AudioVideoFileType) {
+                    Patterns = Cavern.Format.AudioReader.filter.Split(';')
+                },
+                FilePickerFileTypes.All
+            ]
+        });
+        if (paths.Length == 1) {
+            await OpenFile(paths[0]);
+        } else if (paths.Length > 1) {
+            await AddFilesToQueue(paths);
+        }
+    }
+
+    async void OnRenderTargetOpened(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+        if (renderTargetSelectorOpen) {
+            return;
+        }
+
+        renderTargetSelectorOpen = true;
+        try {
+            RenderTarget selected = await new RenderTargetSelectorWindow(RenderTargetLabel.TrimEnd(':'),
+                RenderTargetSelectorText("PCRea"), RenderTargetSelectorText("Matri"),
+                RenderTargetSelectorText("MulCH"), RenderTargets, SelectedRenderTarget).ShowDialog<RenderTarget>(this);
+            if (selected != null) {
+                SelectedRenderTarget = selected;
+            }
+        } finally {
+            renderTargetSelectorOpen = false;
+        }
+    }
+
+    async void LocateFFmpeg(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+        string path = await PickSingleFilePath(new FilePickerOpenOptions {
+            Title = Text("FFLoc"),
+            AllowMultiple = false,
+            SuggestedStartLocation = await GetStartFolder(LastDirectory),
+            FileTypeFilter = [FilePickerFileTypes.All]
+        });
+        if (!string.IsNullOrWhiteSpace(path)) {
+            SetFfmpegLocation(path);
+        }
+    }
+
+    async Task<IStorageFolder> GetStartFolder(string path) =>
+        !string.IsNullOrWhiteSpace(path) && Directory.Exists(path) ?
+            await StorageProvider.TryGetFolderFromPathAsync(path) :
+            null;
+
+    async Task<string> PickSingleFilePath(FilePickerOpenOptions options) {
+        if (StorageProvider == null) {
+            return null;
+        }
+
+        IReadOnlyList<IStorageFile> files = await StorageProvider.OpenFilePickerAsync(options);
+        return files.Count == 1 ? files[0].Path.LocalPath : null;
+    }
+
+    async Task<string[]> PickFilePaths(FilePickerOpenOptions options) {
+        if (StorageProvider == null) {
+            return [];
+        }
+
+        IReadOnlyList<IStorageFile> files = await StorageProvider.OpenFilePickerAsync(options);
+        return [.. files.Select(file => file.Path.LocalPath).Where(path => !string.IsNullOrWhiteSpace(path))];
+    }
+
+    async Task<string> PickSingleFolderPath(FolderPickerOpenOptions options) {
+        if (StorageProvider == null) {
+            return null;
+        }
+
+        IReadOnlyList<IStorageFolder> folders = await StorageProvider.OpenFolderPickerAsync(options);
+        return folders.Count == 1 ? folders[0].Path.LocalPath : null;
+    }
+
+    void FileDragEnter(object sender, DragEventArgs e) {
+        if (e.DataTransfer?.TryGetFiles() != null) {
+            e.DragEffects = DragDropEffects.Copy;
+        }
+    }
+
+    void FileDragOver(object sender, DragEventArgs e) => e.Handled = true;
+
+    void RunRendering(Action renderTask) {
+        if (Rendering) {
+            throw new ConcurrencyException((string)language["OpRun"]);
+        }
+
+        rendering = true;
+        OnPropertyChanged(nameof(Rendering));
+        try {
+            ThrowIfCancellationRequested();
+            renderTask();
+        } finally {
+            rendering = false;
+            OnPropertyChanged(nameof(Rendering));
+        }
+    }
 
     /// <summary>
     /// Prepare the renderer for export.
     /// </summary>
     void PreRender() {
-        if (taskEngine.IsOperationRunning) {
+        if (Rendering) {
             throw new ConcurrencyException((string)language["OpRun"]);
         }
-        if (tracks.SelectedItem == null) {
+        if (SelectedTrack == null) {
             throw new TrackException((string)language["LdSrc"]);
         }
-
-        if (!((CavernizeTrack)tracks.SelectedItem).Supported) {
+        if (!SelectedTrack.Supported) {
             throw new TrackException((string)language["UnTrk"]);
         }
 
-        ExportFormat format = (ExportFormat)audio.SelectedItem;
+        ExportFormat format = ExportFormat;
         bool needsFFmpeg = !string.IsNullOrEmpty(format.FFName) && format.Codec != Codec.PCM_Float && format.Codec != Codec.PCM_LE;
         if (needsFFmpeg && !ffmpeg.Found) {
             throw new TrackException((string)language["FFOnl"]);
@@ -56,7 +158,7 @@ partial class MainWindow {
     /// </summary>
     void AttachToListener() {
         try {
-            environment.AttachToListener((CavernizeTrack)tracks.SelectedItem);
+            environment.AttachToListener(SelectedTrack);
         } catch (NonGroundChannelPresentException) {
             throw new NonGroundChannelPresentException((string)language["SpViE"]);
         } catch (SampleRateMismatchException) {
@@ -69,9 +171,9 @@ partial class MainWindow {
     /// </summary>
     /// <returns>A task for rendering or null when an error happened.</returns>
     Action Render(string path) {
-        CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
-        Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
-        BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : Settings.Default.force24Bit ? BitDepth.Int24 : BitDepth.Int16;
+        CavernizeTrack target = SelectedTrack;
+        Codec codec = ExportFormat.Codec;
+        BitDepth bits = codec == Codec.PCM_Float ? BitDepth.Float32 : RenderingSettings.Force24Bit ? BitDepth.Int24 : BitDepth.Int16;
 
         if (codec.IsEnvironmental()) {
             try {
@@ -96,7 +198,7 @@ partial class MainWindow {
                 blockSize, channelCount, target.Length, target.SampleRate, bits) {
                 NewTrackName = $"Cavern {RenderTarget.Name} render"
             };
-        } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
+        } else if (exportFormat.Equals(waveExtension) && !WavChannelSkip) {
             writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount],
                 target.Length, environment.Listener.SampleRate, bits);
         } else {
@@ -129,12 +231,19 @@ partial class MainWindow {
     /// Create an external converter if it's needed for rendering a specific track.
     /// </summary>
     ExternalConverterHandler CreateExternalHandler(CavernizeTrack target, int keepFirstSources) {
-        LicenceWindow licenceWindow = Dispatcher.Invoke(() => new LicenceWindow());
-        ExternalConverterHandler external = new(target, Consts.Language.GetExternalConverterStrings(), licenceWindow,
-            taskEngine.UpdateProgressBar, taskEngine.UpdateStatus, Dispatcher.Invoke);
-        Dispatcher.Invoke(licenceWindow.Close);
+        ILicence licenceWindow = Program.ConsoleMode ?
+            new RejectingLicence() :
+            new LicenceWindow(this, Text("OK"), Text("Cancel"));
+        string externalStatus = null;
+        void UpdateExternalStatus(string text) {
+            externalStatus = text;
+            UpdateStatus(text);
+        }
+
+        ExternalConverterHandler external = new(target, language.ExternalConverterStrings, licenceWindow,
+            UpdateProgress, UpdateExternalStatus, action => action());
         if (external.Failed) {
-            Dispatcher.Invoke(() => Error(status.Text));
+            Error(externalStatus ?? Status);
         } else {
             external.Attach(environment.Listener, new DynamicUpmixingSettings(), keepFirstSources);
         }
@@ -149,18 +258,16 @@ partial class MainWindow {
         if (external.Failed) {
             return;
         }
-
-        taskEngine.Progress = 0;
-        taskEngine.UpdateStatus((string)language["Start"]);
-        RenderTarget renderTargetRef = Dispatcher.Invoke(() => RenderTarget);
+        ThrowIfCancellationRequested();
+        UpdateProgress(0);
+        UpdateStatus((string)language["Start"]);
+        RenderTarget renderTargetRef = RenderTarget;
         RenderStats stats = WriteRender(target, writer, renderTargetRef);
         report.Generate(stats);
 
-        string targetCodec = null;
-        audio.Dispatcher.Invoke(() => targetCodec = ((ExportFormat)audio.SelectedItem).FFName);
-
+        string targetCodec = ExportFormat.FFName;
         if (writer is RIFFWaveWriter && finalName[^4..] != waveExtension) {
-            taskEngine.UpdateStatus("Merging to final container...");
+            UpdateStatus("Merging to final container...");
             string exportedAudio = finalName[..^4] + waveExtension;
             MergeToContainer merger = new(LoadedFile.Path, exportedAudio, targetCodec);
             merger.AddArguments(RenderingSettings.MergeArguments);
@@ -170,7 +277,7 @@ partial class MainWindow {
             }
             merger.MakeSafe(finalName);
             if (!merger.Merge(ffmpeg, finalName)) {
-                taskEngine.UpdateStatus("Failed to create the final file. Are your permissions sufficient in the export folder?");
+                UpdateStatus("Failed to create the final file. Are your permissions sufficient in the export folder?");
                 external.Dispose();
                 return;
             }
@@ -191,9 +298,9 @@ partial class MainWindow {
         if (external.Failed) {
             return;
         }
-
-        taskEngine.Progress = 0;
-        taskEngine.UpdateStatus((string)language["Start"]);
+        ThrowIfCancellationRequested();
+        UpdateProgress(0);
+        UpdateStatus((string)language["Start"]);
 
         RenderStats stats;
         if (writer is BroadcastWaveFormatWriter bwf) {
@@ -210,16 +317,24 @@ partial class MainWindow {
     /// Operations to perform after a conversion was successful.
     /// </summary>
     void FinishTask(CavernizeTrack target) {
-        taskEngine.UpdateStatus((string)language["ExpOk"]);
-        taskEngine.Progress = 1;
-
-        if (Program.ConsoleMode) {
-            Dispatcher.Invoke(Close);
-        }
+        UpdateStatus((string)language["ExpOk"]);
+        UpdateProgress(1);
 
         if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.WorkedAround) {
-            Error((string)language["JocWa"]);
+            WarningRaised((string)language["JocWa"]);
         }
+    }
+
+    sealed class RejectingLicence : ILicence {
+        public string Description { get; private set; }
+
+        public string LicenceText { get; private set; }
+
+        public void SetDescription(string description) => Description = description;
+
+        public void SetLicenceText(string licence) => LicenceText = licence;
+
+        public bool Prompt() => false;
     }
 
     /// <summary>

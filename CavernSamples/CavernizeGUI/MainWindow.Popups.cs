@@ -1,161 +1,281 @@
-﻿using Microsoft.Win32;
-using System;
-using System.IO;
-using System.Windows;
-
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Cavern;
-using Cavern.Channels;
-using Cavern.Format;
 using Cavern.Format.Common;
-using Cavern.Virtualizer;
-using Cavern.WPF;
-using Cavern.WPF.Consts;
+using Cavern.Utilities;
+using System.Diagnostics;
+using System.Text;
+using VoidX.WPF;
 
-using Cavernize.Logic.Models;
-using Cavernize.Logic.Models.RenderTargets;
-using Cavernize.Logic.Rendering;
-using CavernizeGUI.CavernSettings;
-using CavernizeGUI.Windows;
-using CavernizeGUI.Resources;
+using Cavernize.Avalonia;
 
 namespace CavernizeGUI;
 
-public partial class MainWindow {
-    /// <summary>
-    /// Store the post-render report here after renders.
-    /// </summary>
-    PostRenderReport report;
-
-    /// <summary>
-    /// Try to load a HRIR file and return true on success.
-    /// If the file is invalid, an optional error message popup can be displayed.
-    /// </summary>
-    static bool TryLoadHRIR(bool popupOnError) {
-        RIFFWaveReader file;
-        try {
-            file = new RIFFWaveReader(Settings.Default.hrirPath);
-            file.ReadHeader();
-        } catch (Exception e) {
-            if (popupOnError) {
-                Error(string.Format((string)language["IrErr"], e.Message));
-            }
-            return false;
-        }
-        VirtualizerFilter.Override(VirtualChannel.Parse(new MultichannelWaveform(file.ReadMultichannelAfterHeader()), file.SampleRate),
-            file.SampleRate);
-        return true;
-    }
-
-    /// <summary>
-    /// Ask the user where to save the currently set up export. If the user cancels the operation, null is returned.
-    /// </summary>
-    string AskUserForExportPath() {
-        SaveFileDialog dialog = new() {
-            FileName = fileName.Text.Contains('.') ? fileName.Text[..fileName.Text.LastIndexOf('.')] : fileName.Text
-        };
-        if (Directory.Exists(Settings.Default.lastDirectory)) {
-            dialog.InitialDirectory = Settings.Default.lastDirectory;
-        }
-
-        Codec codec = ((ExportFormat)audio.SelectedItem).Codec;
-        dialog.Filter = MergeToContainer.GetPossibleContainers((CavernizeTrack)tracks.SelectedItem, codec, ffmpeg);
-        return dialog.ShowDialog().Value ? dialog.FileName : null;
-    }
-
+partial class MainWindow {
     /// <summary>
     /// Opens the upmixing settings.
     /// </summary>
-    void OpenUpmixSetup(object _, RoutedEventArgs e) {
-        UpmixingSetup setup = new(new DynamicUpmixingSettings(), Background, Resources);
-        if (setup.ShowDialog().Value) {
-            CavernizeGUI.Resources.UpmixingSettings.Default.Save();
+    async void OpenUpmixSetup(object _, EventArgs e) {
+        UpmixingSetupWindow dialog = new UpmixingSetupWindow(UpmixingSettings, Text("UpmTi"), Text("Upm71"),
+            Text("Upm71T"), Text("UpmNs"), Text("UpmNsT"), Text("UpmEf"), Text("UpmSm"),
+            Text("Reset"), Text("OK"), Text("Cancel"));
+        await dialog.ShowDialog(this);
+        if (dialog.Accepted) {
+            SaveSettings();
+            NotifyProperties(nameof(MatrixUpmixing), nameof(CavernizeUpmixing), nameof(UpmixingEffect),
+                nameof(UpmixingSmoothness));
+            UpdateMenuState();
         }
+    }
+
+    async void ToggleHrir(object sender, EventArgs e) {
+        if (HasHrir) {
+            ResetHrir();
+        } else {
+            await LoadHRIR();
+        }
+        UpdateMenuState();
     }
 
     /// <summary>
     /// Load a set of HRTF impulses (HRIRs) for the Virtualizer.
     /// </summary>
-    void LoadHRIR(object _, RoutedEventArgs e) {
-        if (!hrir.IsChecked) {
-            OpenFileDialog dialog = new() {
-                Filter = (string)language["FiltI"]
-            };
-            if (dialog.ShowDialog().Value) {
-                Settings.Default.hrirPath = dialog.FileName;
-                hrir.IsChecked = TryLoadHRIR(true);
-            }
-        } else {
-            VirtualizerFilter.Reset();
-            Settings.Default.hrirPath = string.Empty;
-            hrir.IsChecked = false;
+    async void LoadHRIR(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        await LoadHRIR();
+    }
+
+    async Task LoadHRIR() {
+        string path = await PickSingleFilePath(new Avalonia.Platform.Storage.FilePickerOpenOptions {
+            Title = LoadHrirTitle,
+            AllowMultiple = false,
+            SuggestedStartLocation = await GetStartFolder(LastDirectory),
+            FileTypeFilter = [
+                new Avalonia.Platform.Storage.FilePickerFileType(ImpulseResponseFileType) {
+                    Patterns = ["*.wav"]
+                },
+                Avalonia.Platform.Storage.FilePickerFileTypes.All
+            ]
+        });
+        if (!string.IsNullOrWhiteSpace(path)) {
+            await LoadHrir(path);
         }
+        UpdateMenuState();
+    }
+
+    void ResetHrir(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        ResetHrir();
+        UpdateMenuState();
+    }
+
+    async void ToggleFilters(object sender, EventArgs e) {
+        if (HasRoomCorrection) {
+            ClearRoomCorrection();
+        } else {
+            await LoadFilters();
+        }
+        UpdateMenuState();
     }
 
     /// <summary>
     /// Load a set of room correction filters to EQ the exported content.
     /// </summary>
-    void LoadFilters(object _, RoutedEventArgs __) {
-        if (filters.IsChecked) {
-            filters.IsChecked = false;
-            RenderingSettings.RoomCorrection = null;
-            return;
-        }
-
-        OpenFileDialog dialog = new() {
-            Filter = (string)language["FiltF"]
-        };
-        if (Directory.Exists(Settings.Default.lastOutputFilters)) {
-            dialog.InitialDirectory = Settings.Default.lastOutputFilters;
-        }
-        if (!dialog.ShowDialog().Value) {
-            return;
-        }
-
-        try {
-            this.LoadRoomCorrection(dialog.FileName, Consts.Language.GetConversionStrings());
-            Settings.Default.lastOutputFilters = Path.GetDirectoryName(dialog.FileName);
-            filters.IsChecked = true;
-        } catch (Exception e) {
-            Error(e.Message);
-            filters.IsChecked = false;
-            RenderingSettings.RoomCorrection = null;
-        }
+    async void LoadFilters(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        await LoadFilters();
     }
 
-    /// <summary>
-    /// Show the post-render report in a popup.
-    /// </summary>
-    void ShowMetadata(object _, RoutedEventArgs e) {
-        if (tracks.SelectedItem is not CavernizeTrack track) {
-            Error((string)language["CMeET"]);
-            return;
+    async Task LoadFilters() {
+        string path = await PickSingleFilePath(new Avalonia.Platform.Storage.FilePickerOpenOptions {
+            Title = LoadFiltersTitle,
+            AllowMultiple = false,
+            SuggestedStartLocation = await GetStartFolder(LastFilterDirectory),
+            FileTypeFilter = [
+                new Avalonia.Platform.Storage.FilePickerFileType(RoomCorrectionFileType) {
+                    Patterns = ["*.txt"]
+                },
+                Avalonia.Platform.Storage.FilePickerFileTypes.All
+            ]
+        });
+        if (!string.IsNullOrWhiteSpace(path)) {
+            LoadRoomCorrection(path);
         }
-
-        ReadableMetadata metadata = track.GetMetadata();
-        if (metadata == null) {
-            Error((string)language["CMeUT"]);
-            return;
-        }
-
-        new CodecMetadata(metadata) {
-            Title = (string)language["CMetT"]
-        }.Show();
+        UpdateMenuState();
     }
 
-    /// <summary>
-    /// Show the post-render report in a popup.
-    /// </summary>
-    void ShowPostRenderReport(object _, RoutedEventArgs e) => MessageBox.Show(report.Report, (string)language["PReRe"]);
+    void ClearFilters(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        ClearRoomCorrection();
+        UpdateMenuState();
+    }
 
     /// <summary>
     /// Shows a popup about what channel should be wired to which output.
     /// </summary>
-    void DisplayWiring(object _, RoutedEventArgs e) {
-        ReferenceChannel[] channels = RenderTarget.GetNameMappedChannels();
-        if (RenderTarget is DownmixedRenderTarget downmix) {
-            channels.DisplayWiring(downmix.MatrixWirings);
-        } else {
-            channels.DisplayWiring();
+    void DisplayWiring(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        ShowTextWindow(DisplayWiringText, GetWiringText());
+    }
+
+    void ShowSystemInfo(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        ShowTextWindow(SystemTitle, SystemInfoText);
+    }
+
+    /// <summary>
+    /// Show the selected track's codec metadata in a popup.
+    /// </summary>
+    void ShowMetadata(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        string title = Text("CMetT");
+        if (SelectedTrack == null) {
+            ShowTextWindow(title, Text("CMeET"));
+            return;
+        }
+
+        ReadableMetadata metadata = SelectedTrack.GetMetadata();
+        if (metadata == null) {
+            ShowTextWindow(title, Text("CMeUT"));
+            return;
+        }
+
+        new MetadataWindow(metadata, title).Show(this);
+    }
+
+    /// <summary>
+    /// Show the post-render report in a popup.
+    /// </summary>
+    void ShowPostRenderReport(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        ShowTextWindow(Text("PReRe"), GetPostRenderReportText());
+    }
+
+    void Guide(object _, Avalonia.Interactivity.RoutedEventArgs e) {
+        OpenUrl("https://cavern.sbence.hu/cavern/doc.php?p=Cavernize", Text("UsrGu"));
+    }
+
+    void Ad(object _, PointerPressedEventArgs e) => OpenUrl("https://cavern.sbence.hu", "Cavern");
+
+    void OpenUrl(string url, string title) {
+        try {
+            Process.Start(new ProcessStartInfo(url) {
+                UseShellExecute = true
+            });
+        } catch {
+            ShowTextWindow(title, url);
         }
     }
+
+    void ShowAbout(object sender, Avalonia.Interactivity.RoutedEventArgs e) {
+        StringBuilder result = new StringBuilder(Listener.Info);
+        if (CavernAmp.Available) {
+            result.Append('\n').Append(Text("AbouA"));
+        }
+
+        result.AppendLine().Append("Build: ");
+        FileInfo cavernizeLogic = new FileInfo(Path.Combine(AppContext.BaseDirectory, "Cavernize.Logic.dll"));
+        FileInfo cavernizeGui = new FileInfo(Path.Combine(AppContext.BaseDirectory, "CavernizeGUI.dll"));
+        result.Append(cavernizeLogic.Exists ? cavernizeLogic.CreationTime : "unknown").Append(", ")
+            .Append(cavernizeGui.Exists ? cavernizeGui.CreationTime : "unknown");
+        ShowTextWindow(Text("AbouH"), result.ToString());
+    }
+
+    void ShowTextWindow(string title, string text) {
+        Window dialog = new() {
+            Title = title,
+            Width = 700,
+            Height = 500,
+            MinWidth = 420,
+            MinHeight = 260,
+            Background = new SolidColorBrush(Color.Parse("#696969")),
+            Content = new Border {
+                Background = new SolidColorBrush(Color.Parse("#222222")),
+                CornerRadius = new Avalonia.CornerRadius(12),
+                Padding = new Avalonia.Thickness(14),
+                Margin = new Avalonia.Thickness(10),
+                Child = new ScrollViewer {
+                    Content = new TextBlock {
+                        Text = text,
+                        TextWrapping = TextWrapping.Wrap,
+                        Foreground = new SolidColorBrush(Color.Parse("#F0F0F0")),
+                        FontFamily = new FontFamily("Menlo, Consolas, monospace")
+                    }
+                }
+            }
+        };
+        dialog.Show(this);
+    }
+
+    async Task<bool> Confirm(string title, string message) {
+        bool result = false;
+        Window dialog = new() {
+            Title = title,
+            Width = 480,
+            Height = 210,
+            MinWidth = 420,
+            MinHeight = 190,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Background = new SolidColorBrush(Color.Parse("#696969"))
+        };
+
+        Button yes = new() {
+            Content = Text("Yes"),
+            Width = 90
+        };
+        Button no = new() {
+            Content = Text("No"),
+            Width = 90
+        };
+        yes.Click += (_, _) => {
+            result = true;
+            dialog.Close();
+        };
+        no.Click += (_, _) => dialog.Close();
+
+        dialog.Content = new Border {
+            Background = new SolidColorBrush(Color.Parse("#222222")),
+            CornerRadius = new Avalonia.CornerRadius(12),
+            Padding = new Avalonia.Thickness(14),
+            Margin = new Avalonia.Thickness(10),
+            Child = new Grid {
+                RowDefinitions = new RowDefinitions("*,Auto"),
+                RowSpacing = 12,
+                Children = {
+                    new TextBlock {
+                        Text = message,
+                        TextWrapping = TextWrapping.Wrap,
+                        Foreground = new SolidColorBrush(Color.Parse("#F0F0F0")),
+                        VerticalAlignment = VerticalAlignment.Center
+                    },
+                    new StackPanel {
+                        Orientation = Orientation.Horizontal,
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        Spacing = 8,
+                        Children = {
+                            yes,
+                            no
+                        }
+                    }
+                }
+            }
+        };
+        Grid.SetRow(((Grid)((Border)dialog.Content).Child).Children[1], 1);
+        await dialog.ShowDialog(this);
+        return result;
+    }
+
+    async Task CheckForUpdates() {
+        if (!CheckUpdates || DateTime.Now < LastUpdateCheck + TimeSpan.FromDays(7)) {
+            return;
+        }
+
+        string body = await Task.Run(() => HTTP.GET(updateLocation));
+        if (!int.TryParse(body, out int version)) {
+            return;
+        }
+
+        if (thisRevision < version && await Confirm(Text("UpdAv"), Text("UpdQu"))) {
+            OpenUrl(downloadLink, Text("UpdAv"));
+        }
+        MarkUpdateChecked();
+    }
+
+    const string updateLocation = "https://sbence.hu/ver/cavg.php";
+    const string downloadLink = "https://cavern.sbence.hu/cavern/downloads.php";
+    const int thisRevision = 6;
 }

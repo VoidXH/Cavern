@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net8.0-windows</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>disable</Nullable>
-		<UseWPF>true</UseWPF>
-		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
 		<Description>Sample GUI spatial upconverter with Cavern's renderer.</Description>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
@@ -26,37 +25,41 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
+		<PackageReference Include="Avalonia" Version="12.0.4" />
+		<PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Include="..\VoidX.WPF\FFmpeg\FFmpegGUI.cs" Link="VoidX.WPF\FFmpeg\FFmpegGUI.cs" />
-		<Compile Include="..\VoidX.WPF\UpdateCheck.cs" Link="VoidX.WPF\UpdateCheck.cs" />
+		<AvaloniaResource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
+		<AvaloniaResource Include="Resources\Images\AddToQueue.png" />
+		<AvaloniaResource Include="Resources\Images\Delete.png" />
+		<AvaloniaResource Include="Resources\Images\Folder.png" />
+		<AvaloniaResource Include="Resources\Images\Help.png" />
+		<AvaloniaResource Include="Resources\Images\Language.png" />
+		<AvaloniaResource Include="Resources\Images\Render.png" />
+		<AvaloniaResource Include="Resources\Images\RenderQueue.png" />
+		<AvaloniaResource Include="Resources\Images\Settings.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\MainWindowStrings.xaml" />
+		<EmbeddedResource Include="Resources\MainWindowStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\RenderTargetSelectorStrings.xaml" />
+		<EmbeddedResource Include="Resources\RenderTargetSelectorStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\TrackStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\ConversionStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\ExternalConverterStrings.hu-HU.xaml" />
+		<EmbeddedResource Include="Resources\RenderReportStrings.hu-HU.xaml" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
-		<ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
+		<ProjectReference Include="..\..\Libraries\Cavernize.Avalonia\Cavernize.Avalonia.csproj" />
 		<ProjectReference Include="..\Reusable\Cavernize.Logic\Cavernize.Logic.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Resource Include="..\_Common\CavernLogo.png" Link="Resources\CavernLogo.png" />
-		<Resource Include="Resources\Images\AddToQueue.png" />
-		<Resource Include="Resources\Images\Delete.png" />
-		<Resource Include="Resources\Images\Folder.png" />
-		<Resource Include="Resources\Images\Help.png" />
-		<Resource Include="Resources\Images\Language.png" />
-		<Resource Include="Resources\Images\Render.png" />
-		<Resource Include="Resources\Images\RenderQueue.png" />
-		<Resource Include="Resources\Images\Settings.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Page Include="..\_Common\Styles.xaml" Link="Resources\Styles.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -83,8 +86,28 @@
 		</None>
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
-		<Exec Command="del /s /q bin\*.xml" />
-		<Exec Command="del /s /q bin\*.pdb" />
+	<Target Name="CreateMacOSAppBundle" AfterTargets="Publish"
+		Condition="'$(RuntimeIdentifier)' == 'osx-arm64' Or '$(RuntimeIdentifier)' == 'osx-x64'">
+		<PropertyGroup>
+			<MacOSAppBundleDir>$(PublishDir)Cavernize.app</MacOSAppBundleDir>
+			<MacOSContentsDir>$(MacOSAppBundleDir)/Contents</MacOSContentsDir>
+			<MacOSExecutableDir>$(MacOSContentsDir)/MacOS</MacOSExecutableDir>
+			<MacOSResourcesDir>$(MacOSContentsDir)/Resources</MacOSResourcesDir>
+		</PropertyGroup>
+
+		<RemoveDir Directories="$(MacOSAppBundleDir)" />
+		<MakeDir Directories="$(MacOSExecutableDir);$(MacOSResourcesDir)" />
+
+		<ItemGroup>
+			<MacOSPublishFiles Include="$(PublishDir)**/*" Exclude="$(MacOSAppBundleDir)/**/*" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(MacOSPublishFiles)"
+			DestinationFiles="@(MacOSPublishFiles->'$(MacOSExecutableDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
+		<Copy SourceFiles="Packaging/MacOS/Info.plist" DestinationFiles="$(MacOSContentsDir)/Info.plist" />
+		<Copy SourceFiles="Packaging/MacOS/Cavernize.icns" DestinationFiles="$(MacOSResourcesDir)/Cavernize.icns" />
+		<WriteLinesToFile File="$(MacOSContentsDir)/PkgInfo" Lines="APPL????" Overwrite="true" />
+		<Exec Command="chmod +x &quot;$(MacOSExecutableDir)/$(AssemblyName)&quot;" />
+		<Message Text="Created macOS app bundle: $(MacOSAppBundleDir)" Importance="high" />
 	</Target>
 </Project>

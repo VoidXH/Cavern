@@ -1,113 +1,123 @@
-﻿using System;
-using System.Globalization;
-using System.Windows;
+﻿using System.Globalization;
+using System.Reflection;
+using System.Xml.Linq;
 
 using Cavernize.Logic.Language;
 using CavernizeGUI.Language;
-using CavernizeGUI.Resources;
-using CavernizeGUI.Windows;
 
-namespace CavernizeGUI.Consts {
-    /// <summary>
-    /// Handle fetching of language strings and translations.
-    /// </summary>
-    static class Language {
-        /// <summary>
-        /// Get the <see cref="MainWindow"/>'s translation.
-        /// </summary>
-        public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= GetFor("MainWindowStrings");
+namespace CavernizeGUI.Consts;
 
-        /// <summary>
-        /// Get the <see cref="MainWindow"/>'s translation.
-        /// </summary>
-        public static TrackStrings GetTrackStrings() => trackCache ??= IsDefaultLanguage() ?
-            new TrackStrings() :
-            new DynamicTrackStrings(GetFor("TrackStrings"));
+/// <summary>
+/// Handle fetching of language strings and translations.
+/// </summary>
+sealed class Language {
+    const string DefaultLanguage = "en-US";
 
-        /// <summary>
-        /// Get the conversion messages' translation.
-        /// </summary>
-        public static ConversionStrings GetConversionStrings() => conversionCache ??= IsDefaultLanguage() ?
-            new ConversionStrings() :
-            new DynamicConversionStrings(GetFor("ConversionStrings"));
+    public string Code { get; }
 
-        /// <summary>
-        /// Get the external converters' translation.
-        /// </summary>
-        public static ExternalConverterStrings GetExternalConverterStrings() => externalConverterCache ??= IsDefaultLanguage() ?
+    public TrackStrings TrackStrings { get; }
+
+    public ConversionStrings ConversionStrings { get; }
+
+    public ExternalConverterStrings ExternalConverterStrings { get; }
+
+    public RenderReportStrings RenderReportStrings { get; }
+
+    readonly IReadOnlyDictionary<string, string> mainWindowStrings;
+    readonly IReadOnlyDictionary<string, string> renderTargetSelectorStrings;
+
+    Language(string code, IReadOnlyDictionary<string, string> mainWindowStrings,
+        IReadOnlyDictionary<string, string> renderTargetSelectorStrings,
+        IReadOnlyDictionary<string, string> trackStrings, IReadOnlyDictionary<string, string> conversionStrings,
+        IReadOnlyDictionary<string, string> externalConverterStrings, IReadOnlyDictionary<string, string> renderReportStrings) {
+        Code = code;
+        this.mainWindowStrings = mainWindowStrings;
+        this.renderTargetSelectorStrings = renderTargetSelectorStrings;
+        TrackStrings = trackStrings.Count == 0 ? new TrackStrings() : new DynamicTrackStrings(trackStrings);
+        ConversionStrings = conversionStrings.Count == 0 ? new ConversionStrings() : new DynamicConversionStrings(conversionStrings);
+        ExternalConverterStrings = externalConverterStrings.Count == 0 ?
             new ExternalConverterStrings() :
-            new DynamicExternalConverterStrings(GetFor("ExternalConverterStrings"));
-
-        /// <summary>
-        /// Get the post-render report dialog's translation.
-        /// </summary>
-        public static RenderReportStrings GetRenderReportStrings() => renderReportCache ??= IsDefaultLanguage() ?
+            new DynamicExternalConverterStrings(externalConverterStrings);
+        RenderReportStrings = renderReportStrings.Count == 0 ?
             new RenderReportStrings() :
-            new DynamicRenderReportStrings(GetFor("RenderReportStrings"));
-
-        /// <summary>
-        /// Get the <see cref="RenderTargetSelector"/>'s translation.
-        /// </summary>
-        public static ResourceDictionary GetRenderTargetSelectorStrings() => GetFor("RenderTargetSelectorStrings");
-
-        /// <summary>
-        /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
-        /// </summary>
-        static ResourceDictionary GetFor(string resource) {
-            string culture = Settings.Default.language;
-            if (string.IsNullOrEmpty(culture)) {
-                culture = CultureInfo.CurrentUICulture.Name;
-            } else if (culture == "en-US") { // Forced default
-                culture = string.Empty;
-            }
-
-            if (Array.BinarySearch(supported, culture) >= 0) {
-                resource += '.' + culture;
-            }
-            return new() {
-                Source = new Uri($";component/Resources/{resource}.xaml", UriKind.RelativeOrAbsolute)
-            };
-        }
-
-        /// <summary>
-        /// Checks if the system is set to a language that has no available localization.
-        /// </summary>
-        static bool IsDefaultLanguage() {
-            string culture = Settings.Default.language;
-            if (string.IsNullOrEmpty(culture)) {
-                culture = CultureInfo.CurrentUICulture.Name;
-            }
-            return Array.BinarySearch(supported, culture) < 0;
-        }
-
-        /// <summary>
-        /// Languages supported that are not the default English.
-        /// </summary>
-        static readonly string[] supported = ["hu-HU"];
-
-        /// <summary>
-        /// The loaded translation of the <see cref="MainWindow"/> for reuse.
-        /// </summary>
-        static ResourceDictionary mainWindowCache;
-
-        /// <summary>
-        /// The loaded translation of <see cref="Track"/>s for reuse.
-        /// </summary>
-        static TrackStrings trackCache;
-
-        /// <summary>
-        /// The loaded translation of conversion messages for reuse.
-        /// </summary>
-        static ConversionStrings conversionCache;
-
-        /// <summary>
-        /// The loaded translation of external converter handling for reuse.
-        /// </summary>
-        static ExternalConverterStrings externalConverterCache;
-
-        /// <summary>
-        /// The loaded translation of the post-render report dialog for reuse.
-        /// </summary>
-        static RenderReportStrings renderReportCache;
+            new DynamicRenderReportStrings(renderReportStrings);
     }
+
+    public static Language Create(string languageCode) {
+        string code = ResolveLanguage(languageCode);
+        string resourceCode = code;
+        IReadOnlyDictionary<string, string> mainWindow = LoadDictionary("MainWindowStrings", resourceCode);
+        if (mainWindow.Count == 0) {
+            resourceCode = DefaultLanguage;
+            mainWindow = LoadDictionary("MainWindowStrings", resourceCode);
+        }
+
+        return new Language(code, mainWindow, LoadDictionary("RenderTargetSelectorStrings", resourceCode),
+            LoadDictionary("TrackStrings", resourceCode),
+            LoadDictionary("ConversionStrings", resourceCode), LoadDictionary("ExternalConverterStrings", resourceCode),
+            LoadDictionary("RenderReportStrings", resourceCode));
+    }
+
+    public string this[string key] => mainWindowStrings[key];
+
+    public string Text(string key) => mainWindowStrings[key];
+
+    public string RenderTargetSelectorText(string key) => renderTargetSelectorStrings[key];
+
+    public string MenuText(string key) => Text(key).Replace("_", string.Empty);
+
+    public string FileTypeName(string key) {
+        string value = Text(key);
+        int separator = value.IndexOf('|');
+        return separator < 0 ? value : value[..separator];
+    }
+
+    static string ResolveLanguage(string languageCode) {
+        if (string.IsNullOrWhiteSpace(languageCode)) {
+            languageCode = CultureInfo.CurrentUICulture.Name;
+        } else if (languageCode == DefaultLanguage) {
+            return DefaultLanguage;
+        }
+
+        return languageCode;
+    }
+
+    static IReadOnlyDictionary<string, string> LoadDictionary(string resource, string languageCode) {
+        Assembly assembly = typeof(Language).Assembly;
+        Assembly resourceAssembly = languageCode == DefaultLanguage ? assembly : GetSatelliteAssembly(assembly, languageCode);
+        string file = $"{resource}.xaml";
+        string resourceName = resourceAssembly?.GetManifestResourceNames()
+            .FirstOrDefault(name => name.EndsWith($".{file}", StringComparison.OrdinalIgnoreCase));
+        if (resourceName == null) {
+            return new Dictionary<string, string>();
+        }
+
+        using Stream stream = resourceAssembly.GetManifestResourceStream(resourceName);
+        if (stream == null) {
+            return new Dictionary<string, string>();
+        }
+
+        XName xKey = XName.Get("Key", "http://schemas.microsoft.com/winfx/2006/xaml");
+        Dictionary<string, string> result = new Dictionary<string, string>();
+        foreach (XElement element in XDocument.Load(stream).Descendants().Where(element => element.Name.LocalName == "String")) {
+            string key = (string)element.Attribute(xKey);
+            if (!string.IsNullOrWhiteSpace(key)) {
+                result[key] = NormalizeValue(element.Value);
+            }
+        }
+        return result;
+    }
+
+    static Assembly GetSatelliteAssembly(Assembly assembly, string languageCode) {
+        try {
+            return assembly.GetSatelliteAssembly(new CultureInfo(languageCode));
+        } catch (CultureNotFoundException) {
+            return null;
+        } catch (FileNotFoundException) {
+            return null;
+        }
+    }
+
+    static string NormalizeValue(string value) => string.Join("\n",
+        value.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n').Select(line => line.Trim())).Trim();
 }

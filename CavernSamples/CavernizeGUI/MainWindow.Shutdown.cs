@@ -1,14 +1,19 @@
-﻿using System.Windows;
+using System.Diagnostics;
 
-namespace CavernizeGUI {
-    // Shutdown process and related debug features
-    partial class MainWindow {
-        static void CheckBlocks() {
-#if DEBUG
-            foreach (Window window in Application.Current.Windows) {
-                Error("This window is still open: " + window.GetType().FullName);
-            }
-#endif
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+
+namespace CavernizeGUI;
+
+// Shutdown process and related debug features
+partial class MainWindow {
+    static void CheckBlocks() {
+        if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) {
+            return;
+        }
+
+        foreach (Window window in desktop.Windows.Where(window => window.IsVisible)) {
+            Debug.WriteLine("This window is still open: " + window.GetType().FullName);
         }
     }
 }

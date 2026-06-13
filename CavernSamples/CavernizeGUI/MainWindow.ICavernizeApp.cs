@@ -1,55 +1,47 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Windows;
-
+﻿using Cavern.CavernSettings;
 using Cavern.Format.Common;
+
 using Cavernize.Logic.CavernSettings;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
-using CavernizeGUI.Resources;
 
 namespace CavernizeGUI;
 
 // Implementation of the main Cavernize interface
-partial class MainWindow : ICavernizeApp {
+public partial class MainWindow : ICavernizeApp {
     /// <inheritdoc/>
-    public bool Rendering => taskEngine.IsOperationRunning;
+    public bool Rendering => rendering;
 
     /// <inheritdoc/>
     public AudioFile LoadedFile { get; private set; }
 
     /// <inheritdoc/>
     public ExportFormat ExportFormat {
-        get => (ExportFormat)audio.SelectedItem;
-        set => audio.SelectedItem = value;
+        get => SelectedExportFormat;
+        set => SelectedExportFormat = value;
     }
 
     /// <inheritdoc/>
     public RenderTarget RenderTarget {
-        get => (RenderTarget)renderTarget.SelectedItem;
-        set => renderTarget.SelectedItem = value;
+        get => SelectedRenderTarget;
+        set => SelectedRenderTarget = value;
     }
 
     /// <inheritdoc/>
-    public CavernizeTrack SelectedTrack {
-        get => trackInfo.SelectedTrack;
-        set => trackInfo.SelectedTrack = value;
-    }
-
-    /// <inheritdoc/>
-    public Cavern.CavernSettings.UpmixingSettings UpmixingSettings { get; } = new DynamicUpmixingSettings();
+    public UpmixingSettings UpmixingSettings { get; }
 
     /// <inheritdoc/>
     public RenderingSettings RenderingSettings { get; }
 
     /// <inheritdoc/>
     public bool SurroundSwap {
-        get => Settings.Default.surroundSwap;
+        get => settings.SurroundSwap;
         set {
-            Settings.Default.surroundSwap = value;
-            Dispatcher.Invoke(() => surroundSwap.IsChecked = value);
+            settings.SurroundSwap = value;
+            SaveSettings();
+            OnPropertyChanged();
         }
     }
 
@@ -57,38 +49,24 @@ partial class MainWindow : ICavernizeApp {
     public void OpenContent(string path) {
         Reset();
         ffmpeg.CheckFFmpeg();
-        taskEngine.Progress = 0;
-        OnOutputSelected(null, null);
+        UpdateProgress(0);
 
         try {
-            OpenContent(new AudioFile(path, Consts.Language.GetTrackStrings()));
+            OpenContent(new AudioFile(path, language.TrackStrings));
         } catch (IOException) {
             Reset();
             throw;
         } catch (Exception e) {
             Reset();
-            throw new AggregateException($"{e.Message} {Consts.Language.GetTrackStrings().Later}", e);
+            throw new AggregateException($"{e.Message} {language.TrackStrings.Later}", e);
         }
-        Settings.Default.lastDirectory = Path.GetDirectoryName(path);
+        settings.LastDirectory = Path.GetDirectoryName(path);
     }
 
     /// <inheritdoc/>
     public void OpenContent(AudioFile file) {
-        fileName.Text = Path.GetFileName(file.Path);
         LoadedFile = file;
-        if (file.Tracks.Count != 0) {
-            trackControls.Visibility = Visibility.Visible;
-            tracks.ItemsSource = file.Tracks;
-            CavernizeTrack bestQuality = file.Tracks
-                .Where(x => x.Codec != Codec.Unknown)
-                .OrderBy(x => x.Codec)
-                .FirstOrDefault();
-            if (bestQuality != null) {
-                tracks.SelectedItem = bestQuality;
-            } else {
-                tracks.SelectedIndex = 0;
-            }
-        }
+        ApplyLoadedFile(file.Path);
     }
 
     /// <inheritdoc/>
@@ -100,13 +78,10 @@ partial class MainWindow : ICavernizeApp {
             return null;
         }
 
-        CavernizeTrack target = (CavernizeTrack)tracks.SelectedItem;
-        if (!reportMode.IsChecked) {
+        CavernizeTrack target = SelectedTrack;
+        if (!ReportMode) {
             if (path == null) {
-                path = AskUserForExportPath();
-                if (path == null) {
-                    return null;
-                }
+                return null;
             }
 
             try {
@@ -128,18 +103,8 @@ partial class MainWindow : ICavernizeApp {
 
     /// <inheritdoc/>
     public void RenderContent(string path) {
-        Action renderTask;
-        try {
-            PreRender();
-            renderTask = Render(path);
-        } catch (Exception e) {
-            Error(e.Message);
-            return;
-        }
-
-        if (renderTask != null) {
-            taskEngine.Run(renderTask, Error);
-        }
+        Action renderTask = GetRenderTask(path);
+        renderTask?.Invoke();
     }
 
     /// <summary>
@@ -147,14 +112,17 @@ partial class MainWindow : ICavernizeApp {
     /// </summary>
     public void Reset() {
         environment.Reset();
-        if (LoadedFile != null && queue.Jobs.FirstOrDefault(x => x.IsUsingFile(LoadedFile)) == null) {
+        if (LoadedFile != null && QueueJobs.FirstOrDefault(job => job.SourcePath == LoadedFile.Path) == null) {
             LoadedFile.Dispose();
             LoadedFile = null;
         }
-        fileName.Text = string.Empty;
-        trackControls.Visibility = Visibility.Hidden;
-        tracks.ItemsSource = null;
-        trackInfo.Reset();
-        report = new(environment.Listener, Consts.Language.GetRenderReportStrings());
+        LoadedPath = null;
+        LoadedTitle = Text("NoSrc");
+        Tracks.Clear();
+        SelectedTrack = null;
+        report.Reset();
+        ReportText = report.Report;
+        Progress = 0;
+        IsProgressIndeterminate = false;
     }
 }
