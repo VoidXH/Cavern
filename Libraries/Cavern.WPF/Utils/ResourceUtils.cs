@@ -13,8 +13,15 @@ public static class ResourceUtils {
     /// </summary>
     /// <param name="resource">Name of the resource file</param>
     /// <param name="supported">List of supported cultures</param>
+    public static ResourceDictionary GetTranslationFor(string resource, string[] supported) => GetTranslationFor(resource, supported, null);
+
+    /// <summary>
+    /// Get the translation of a resource file in the user's language, falling back to English if it exists.
+    /// </summary>
+    /// <param name="resource">Name of the resource file</param>
+    /// <param name="supported">List of supported cultures</param>
     /// <param name="cultureOverride">Force a culture instead of taking the system's culture</param>
-    public static ResourceDictionary GetTranslationFor(string resource, string[] supported, string cultureOverride = null) {
+    public static ResourceDictionary GetTranslationFor(string resource, string[] supported, string cultureOverride) {
         ResourceDictionary finalDict = [];
         Uri baseUri = new($";component/Resources/{resource}.xaml", UriKind.RelativeOrAbsolute);
         if (ResourceExists(baseUri)) {
