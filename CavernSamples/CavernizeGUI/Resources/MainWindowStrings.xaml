@@ -32,6 +32,7 @@
     <system:String x:Key="MenuL">Language</system:String>
     <system:String x:Key="LanEn">English</system:String>
     <system:String x:Key="LanHu">Magyar</system:String>
+    <system:String x:Key="LanZh">中文</system:String>
     <system:String x:Key="SySet">System</system:String>
     <system:String x:Key="RSInf">Choose a layout, and place your speakers accordingly. Click the &quot;Display wiring&quot;
         button to see which output will change to which actual channel.

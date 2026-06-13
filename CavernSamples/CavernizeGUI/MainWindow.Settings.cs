@@ -55,6 +55,11 @@ namespace CavernizeGUI {
         void LanguageHungarian(object _, RoutedEventArgs __) => SetLanguage("hu-HU");
 
         /// <summary>
+        /// Set application language to Chinese.
+        /// </summary>
+        void LanguageChinese(object _, RoutedEventArgs __) => SetLanguage("zh-CN");
+
+        /// <summary>
         /// Set application language to an invalid, untranslated one.
         /// </summary>
         void LanguageTest(object _, RoutedEventArgs __) => SetLanguage("te-ST");

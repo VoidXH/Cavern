@@ -1,0 +1,33 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="Defau">渲染完成后，此区域将显示更多音轨信息，
+        例如真实的对象使用统计。</system:String>
+
+    <!-- General stats -->
+    <system:String x:Key="ABeds">实际包含的基础声道</system:String>
+    <system:String x:Key="AObjs">实际包含的动态对象</system:String>
+    <system:String x:Key="FakeT">未使用（虚拟）的渲染目标</system:String>
+
+    <!-- Extended stats -->
+    <system:String x:Key="PeaGa">峰值音频帧电平</system:String>
+    <system:String x:Key="RMSGa">内容RMS电平</system:String>
+    <system:String x:Key="MacDy">宏观动态</system:String>
+    <system:String x:Key="MicDy">微观动态</system:String>
+    <system:String x:Key="NoLFE">LFE声道在源中缺失、未使用或未被渲染。</system:String>
+    <system:String x:Key="PeaLF">峰值LFE电平</system:String>
+    <system:String x:Key="RMSLF">RMS LFE电平</system:String>
+    <system:String x:Key="MacLF">LFE宏观动态</system:String>
+    <system:String x:Key="MicLF">LFE微观动态</system:String>
+    <system:String x:Key="CheSl">胸部冲击等级</system:String>
+    <system:String x:Key="SurUs">环绕声使用率</system:String>
+    <system:String x:Key="HeiUs">高度声道使用率</system:String>
+
+    <!-- Grades -->
+    <system:String x:Key="Grad0">S</system:String>
+    <system:String x:Key="Grad1">A</system:String>
+    <system:String x:Key="Grad2">B</system:String>
+    <system:String x:Key="Grad3">C</system:String>
+    <system:String x:Key="Grad4">D</system:String>
+    <system:String x:Key="Grad5">E</system:String>
+</ResourceDictionary>
