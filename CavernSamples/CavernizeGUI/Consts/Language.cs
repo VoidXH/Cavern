@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows;
-using System.Windows.Resources;
+
+using Cavern.WPF.Utils;
 
 using Cavernize.Logic.Language;
 using CavernizeGUI.Language;
@@ -16,70 +17,42 @@ namespace CavernizeGUI.Consts {
         /// <summary>
         /// Get the <see cref="MainWindow"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= GetFor("MainWindowStrings");
+        public static ResourceDictionary GetMainWindowStrings() =>
+            mainWindowCache ??= ResourceUtils.GetTranslationFor("MainWindowStrings", supported, Settings.Default.language);
 
         /// <summary>
         /// Get the <see cref="MainWindow"/>'s translation.
         /// </summary>
         public static TrackStrings GetTrackStrings() => trackCache ??= IsDefaultLanguage() ?
             new TrackStrings() :
-            new DynamicTrackStrings(GetFor("TrackStrings"));
+            new DynamicTrackStrings(ResourceUtils.GetTranslationFor("TrackStrings", supported, Settings.Default.language));
 
         /// <summary>
         /// Get the conversion messages' translation.
         /// </summary>
         public static ConversionStrings GetConversionStrings() => conversionCache ??= IsDefaultLanguage() ?
             new ConversionStrings() :
-            new DynamicConversionStrings(GetFor("ConversionStrings"));
+            new DynamicConversionStrings(ResourceUtils.GetTranslationFor("ConversionStrings", supported, Settings.Default.language));
 
         /// <summary>
         /// Get the external converters' translation.
         /// </summary>
         public static ExternalConverterStrings GetExternalConverterStrings() => externalConverterCache ??= IsDefaultLanguage() ?
             new ExternalConverterStrings() :
-            new DynamicExternalConverterStrings(GetFor("ExternalConverterStrings"));
+            new DynamicExternalConverterStrings(ResourceUtils.GetTranslationFor("ExternalConverterStrings", supported, Settings.Default.language));
 
         /// <summary>
         /// Get the post-render report dialog's translation.
         /// </summary>
         public static RenderReportStrings GetRenderReportStrings() => renderReportCache ??= IsDefaultLanguage() ?
             new RenderReportStrings() :
-            new DynamicRenderReportStrings(GetFor("RenderReportStrings"));
+            new DynamicRenderReportStrings(ResourceUtils.GetTranslationFor("RenderReportStrings", supported, Settings.Default.language));
 
         /// <summary>
         /// Get the <see cref="RenderTargetSelector"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetRenderTargetSelectorStrings() => GetFor("RenderTargetSelectorStrings");
-
-        /// <summary>
-        /// Get the translation of a resource file in the user's language, falling back to English if it exists.
-        /// </summary>
-        static ResourceDictionary GetFor(string resource) {
-            ResourceDictionary finalDict = [];
-            Uri baseUri = new($";component/Resources/{resource}.xaml", UriKind.RelativeOrAbsolute);
-            if (ResourceExists(baseUri)) {
-                finalDict.MergedDictionaries.Add(new ResourceDictionary {
-                    Source = baseUri
-                });
-            }
-
-            string culture = Settings.Default.language;
-            if (string.IsNullOrEmpty(culture)) {
-                culture = CultureInfo.CurrentUICulture.Name;
-            } else if (culture == "en-US") { // Forced default
-                culture = string.Empty;
-            }
-
-            if (!string.IsNullOrEmpty(culture) && Array.BinarySearch(supported, culture) >= 0) {
-                Uri translatedUri = new($";component/Resources/{resource}.{culture}.xaml", UriKind.RelativeOrAbsolute);
-                ResourceDictionary translatedDict = new() {
-                    Source = translatedUri
-                };
-                finalDict.MergedDictionaries.Add(translatedDict);
-            }
-
-            return finalDict;
-        }
+        public static ResourceDictionary GetRenderTargetSelectorStrings() =>
+            ResourceUtils.GetTranslationFor("RenderTargetSelectorStrings", supported, Settings.Default.language);
 
         /// <summary>
         /// Checks if the system is set to a language that has no available localization.
@@ -90,18 +63,6 @@ namespace CavernizeGUI.Consts {
                 culture = CultureInfo.CurrentUICulture.Name;
             }
             return Array.BinarySearch(supported, culture) < 0;
-        }
-
-        /// <summary>
-        /// Check if a WPF component resource exists without throwing exceptions.
-        /// </summary>
-        static bool ResourceExists(Uri uri) {
-            try {
-                StreamResourceInfo info = Application.GetResourceStream(uri);
-                return info != null;
-            } catch (System.IO.IOException) {
-                return false;
-            }
         }
 
         /// <summary>
