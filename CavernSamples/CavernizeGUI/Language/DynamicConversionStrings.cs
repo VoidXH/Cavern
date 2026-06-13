@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 
+using Cavern.WPF.Utils;
+
 using Cavernize.Logic.Language;
 
 namespace CavernizeGUI.Language;
@@ -10,8 +12,8 @@ namespace CavernizeGUI.Language;
 /// <param name="source">Localized resources for <see cref="ConversionStrings"/></param>
 public class DynamicConversionStrings(ResourceDictionary source) : ConversionStrings {
     /// <inheritdoc/>
-    public override string InvalidRootFile => (string)source["InvRo"];
+    public override string InvalidRootFile => source.TryGet("InvRo", base.InvalidRootFile);
 
     /// <inheritdoc/>
-    public override string ChannelFilterNotFound => (string)source["FiltN"];
+    public override string ChannelFilterNotFound => source.TryGet("FiltN", base.ChannelFilterNotFound);
 }

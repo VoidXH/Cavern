@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 
+using Cavern.WPF.Utils;
+
 using Cavernize.Logic.Language;
 
 namespace CavernizeGUI.Language;
@@ -10,52 +12,52 @@ namespace CavernizeGUI.Language;
 /// <param name="source">Localized resources for <see cref="RenderReportStrings"/></param>
 public class DynamicRenderReportStrings(ResourceDictionary source) : RenderReportStrings {
     /// <inheritdoc/>
-    public override string Default => (string)source["Defau"];
+    public override string Default => source.TryGet("Defau", base.Default);
 
     /// <inheritdoc/>
-    public override string ActualBeds => (string)source["ABeds"];
+    public override string ActualBeds => source.TryGet("ABeds", base.ActualBeds);
 
     /// <inheritdoc/>
-    public override string ActualObjects => (string)source["AObjs"];
+    public override string ActualObjects => source.TryGet("AObjs", base.ActualObjects);
 
     /// <inheritdoc/>
-    public override string FakeTargets => (string)source["FakeT"];
+    public override string FakeTargets => source.TryGet("FakeT", base.FakeTargets);
 
     /// <inheritdoc/>
-    public override string PeakGain => (string)source["PeaGa"];
+    public override string PeakGain => source.TryGet("PeaGa", base.PeakGain);
 
     /// <inheritdoc/>
-    public override string RMSGain => (string)source["RMSGa"];
+    public override string RMSGain => source.TryGet("RMSGa", base.RMSGain);
 
     /// <inheritdoc/>
-    public override string Macrodynamics => (string)source["MacDy"];
+    public override string Macrodynamics => source.TryGet("MacDy", base.Macrodynamics);
 
     /// <inheritdoc/>
-    public override string Microdynamics => (string)source["MicDy"];
+    public override string Microdynamics => source.TryGet("MicDy", base.Microdynamics);
 
     /// <inheritdoc/>
-    public override string NoLFE => (string)source["NoLFE"];
+    public override string NoLFE => source.TryGet("NoLFE", base.NoLFE);
 
     /// <inheritdoc/>
-    public override string LFEPeak => (string)source["PeaLF"];
+    public override string LFEPeak => source.TryGet("PeaLF", base.LFEPeak);
 
     /// <inheritdoc/>
-    public override string LFERMS => (string)source["RMSLF"];
+    public override string LFERMS => source.TryGet("RMSLF", base.LFERMS);
 
     /// <inheritdoc/>
-    public override string LFEMacrodynamics => (string)source["MacLF"];
+    public override string LFEMacrodynamics => source.TryGet("MacLF", base.LFEMacrodynamics);
 
     /// <inheritdoc/>
-    public override string LFEMicrodynamics => (string)source["MicLF"];
+    public override string LFEMicrodynamics => source.TryGet("MicLF", base.LFEMicrodynamics);
 
     /// <inheritdoc/>
-    public override string ChestSlam => (string)source["CheSl"];
+    public override string ChestSlam => source.TryGet("CheSl", base.ChestSlam);
 
     /// <inheritdoc/>
-    public override string SurroundUsage => (string)source["SurUs"];
+    public override string SurroundUsage => source.TryGet("SurUs", base.SurroundUsage);
 
     /// <inheritdoc/>
-    public override string HeightUsage => (string)source["HeiUs"];
+    public override string HeightUsage => source.TryGet("HeiUs", base.HeightUsage);
 
     /// <inheritdoc/>
     protected override string[] GetGrades() => [

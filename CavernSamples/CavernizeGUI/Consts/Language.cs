@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Resources;
 
 using Cavernize.Logic.Language;
 using CavernizeGUI.Language;
@@ -51,9 +52,17 @@ namespace CavernizeGUI.Consts {
         public static ResourceDictionary GetRenderTargetSelectorStrings() => GetFor("RenderTargetSelectorStrings");
 
         /// <summary>
-        /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
+        /// Get the translation of a resource file in the user's language, falling back to English if it exists.
         /// </summary>
         static ResourceDictionary GetFor(string resource) {
+            ResourceDictionary finalDict = [];
+            Uri baseUri = new($";component/Resources/{resource}.xaml", UriKind.RelativeOrAbsolute);
+            if (ResourceExists(baseUri)) {
+                finalDict.MergedDictionaries.Add(new ResourceDictionary {
+                    Source = baseUri
+                });
+            }
+
             string culture = Settings.Default.language;
             if (string.IsNullOrEmpty(culture)) {
                 culture = CultureInfo.CurrentUICulture.Name;
@@ -61,12 +70,15 @@ namespace CavernizeGUI.Consts {
                 culture = string.Empty;
             }
 
-            if (Array.BinarySearch(supported, culture) >= 0) {
-                resource += '.' + culture;
+            if (!string.IsNullOrEmpty(culture) && Array.BinarySearch(supported, culture) >= 0) {
+                Uri translatedUri = new($";component/Resources/{resource}.{culture}.xaml", UriKind.RelativeOrAbsolute);
+                ResourceDictionary translatedDict = new() {
+                    Source = translatedUri
+                };
+                finalDict.MergedDictionaries.Add(translatedDict);
             }
-            return new() {
-                Source = new Uri($";component/Resources/{resource}.xaml", UriKind.RelativeOrAbsolute)
-            };
+
+            return finalDict;
         }
 
         /// <summary>
@@ -78,6 +90,18 @@ namespace CavernizeGUI.Consts {
                 culture = CultureInfo.CurrentUICulture.Name;
             }
             return Array.BinarySearch(supported, culture) < 0;
+        }
+
+        /// <summary>
+        /// Check if a WPF component resource exists without throwing exceptions.
+        /// </summary>
+        static bool ResourceExists(Uri uri) {
+            try {
+                StreamResourceInfo info = Application.GetResourceStream(uri);
+                return info != null;
+            } catch (System.IO.IOException) {
+                return false;
+            }
         }
 
         /// <summary>

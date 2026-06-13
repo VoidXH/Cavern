@@ -2,6 +2,7 @@
 using System.Windows;
 
 using Cavern.Format.Common;
+using Cavern.WPF.Utils;
 
 using Cavernize.Logic.Language;
 
@@ -13,43 +14,43 @@ namespace CavernizeGUI.Language;
 /// <param name="source">Localized resources for <see cref="TrackStrings"/></param>
 public sealed class DynamicTrackStrings(ResourceDictionary source) : TrackStrings {
     /// <inheritdoc/>
-    public override string NotSupported => (string)source["NoSup"] ?? base.NotSupported;
+    public override string NotSupported => source.TryGet("NoSup", base.NotSupported);
 
     /// <inheritdoc/>
-    public override string TypeEAC3JOC => (string)source["E3JOC"] ?? base.TypeEAC3JOC;
+    public override string TypeEAC3JOC => source.TryGet("E3JOC", base.TypeEAC3JOC);
 
     /// <inheritdoc/>
-    public override string ObjectBasedTrack => (string)source["ObTra"] ?? base.ObjectBasedTrack;
+    public override string ObjectBasedTrack => source.TryGet("ObTra", base.ObjectBasedTrack);
 
     /// <inheritdoc/>
-    public override string ChannelBasedTrack => (string)source["ChTra"] ?? base.ChannelBasedTrack;
+    public override string ChannelBasedTrack => source.TryGet("ChTra", base.ChannelBasedTrack);
 
     /// <inheritdoc/>
-    public override string SourceChannels => (string)source["SouCh"] ?? base.SourceChannels;
+    public override string SourceChannels => source.TryGet("SouCh", base.SourceChannels);
 
     /// <inheritdoc/>
-    public override string MatrixedBeds => (string)source["MatBe"] ?? base.MatrixedBeds;
+    public override string MatrixedBeds => source.TryGet("MatBe", base.MatrixedBeds);
 
     /// <inheritdoc/>
-    public override string MatrixedObjects => (string)source["MatOb"] ?? base.MatrixedObjects;
+    public override string MatrixedObjects => source.TryGet("MatOb", base.MatrixedObjects);
 
     /// <inheritdoc/>
-    public override string BedChannels => (string)source["SouBe"] ?? base.BedChannels;
+    public override string BedChannels => source.TryGet("SouBe", base.BedChannels);
 
     /// <inheritdoc/>
-    public override string DynamicObjects => (string)source["SouDy"] ?? base.DynamicObjects;
+    public override string DynamicObjects => source.TryGet("SouDy", base.DynamicObjects);
 
     /// <inheritdoc/>
-    public override string Channels => (string)source["Chans"] ?? base.Channels;
+    public override string Channels => source.TryGet("Chans", base.Channels);
 
     /// <inheritdoc/>
-    public override string WithObjects => (string)source["WiObj"] ?? base.WithObjects;
+    public override string WithObjects => source.TryGet("WiObj", base.WithObjects);
 
     /// <inheritdoc/>
-    public override string InvalidTrack => (string)source["InvTr"] ?? base.InvalidTrack;
+    public override string InvalidTrack => source.TryGet("InvTr", base.InvalidTrack);
 
     /// <inheritdoc/>
-    public override string Later => (string)source["Later"] ?? base.Later;
+    public override string Later => source.TryGet("Later", base.Later);
 
     /// <inheritdoc/>
     protected override IReadOnlyDictionary<Codec, string> GetCodecNames() => (string)source["NoSup"] != null ?
