@@ -56,7 +56,7 @@ public class Program : ICavernizeApp {
     }
 
     /// <inheritdoc/>
-    public void OpenContent(string path) => OpenContent(new AudioFile(path, new()));
+    public void OpenContent(string path) => OpenContent(new AudioFile(path));
 
     /// <inheritdoc/>
     public void OpenContent(AudioFile file) {
