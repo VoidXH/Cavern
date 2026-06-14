@@ -13,13 +13,12 @@ namespace Cavernize.Logic.Models;
 /// Generates a report after a render has finished, scoring the audio in multiple stats.
 /// </summary>
 /// <param name="listener">The listener that played the content, where the objects are still attached</param>
-/// <param name="language">Source of localized strings in the report</param>
-public sealed class PostRenderReport(Listener listener, RenderReportStrings language) {
+public sealed class PostRenderReport(Listener listener) {
     /// <summary>
     /// Resulting post-render report from a <see cref="Generate"> call.
     /// </summary>
     public string Report {
-        get => report ?? language.Default;
+        get => report ?? RenderReportStrings.Active["Defau"];
         private set => report = value;
     }
     string report;
@@ -37,6 +36,12 @@ public sealed class PostRenderReport(Listener listener, RenderReportStrings lang
         }
         return grade;
     }
+
+    /// <summary>
+    /// Print a graded metric.
+    /// </summary>
+    static void ReportGrade(StringBuilder builder, string metric, float decibelValue, int grade) =>
+        builder.Append(metric).Append(valueIs).Append(decibelValue.ToString("0.00 dB (")).Append(RenderReportStrings.Active.Grades[grade]).AppendLine(")");
 
     /// <summary>
     /// Print a raw signal level value in decibels, without grading.
@@ -62,13 +67,14 @@ public sealed class PostRenderReport(Listener listener, RenderReportStrings lang
             unused = 0;
         }
 
+        RenderReportStrings language = RenderReportStrings.Active;
         StringBuilder builder = new();
-        builder.Append(language.ActualBeds).Append(valueIs).Append(channels.Count);
+        builder.Append(language["ABeds"]).Append(valueIs).Append(channels.Count);
         if (channels.Count != 0) {
             builder.Append(" (").Append(string.Join(", ", channels)).Append(')');
         }
-        builder.AppendLine().Append(language.ActualObjects).Append(valueIs).AppendLine(dynamic.ToString())
-            .Append(language.FakeTargets).Append(valueIs).AppendLine(unused.ToString());
+        builder.AppendLine().Append(language["AObjs"]).Append(valueIs).AppendLine(dynamic.ToString())
+            .Append(language["FakeT"]).Append(valueIs).AppendLine(unused.ToString());
 
         if (stats is RenderStatsEx statsEx) {
             float macrodynamics = QMath.GainToDb(statsEx.Macrodynamics),
@@ -87,38 +93,32 @@ public sealed class PostRenderReport(Listener listener, RenderReportStrings lang
                 heightGrade = Grade(heightUsage, 10, 3);
 
             builder.AppendLine();
-            ReportValue(builder, language.PeakGain, statsEx.FrameLevelPeak);
-            ReportValue(builder, language.RMSGain, statsEx.FrameLevelRMS);
-            ReportGrade(builder, language.Macrodynamics, macrodynamics, macrodynamicsGrade);
-            ReportGrade(builder, language.Microdynamics, microdynamics, microdynamicsGrade);
+            ReportValue(builder, language["PeaGa"], statsEx.FrameLevelPeak);
+            ReportValue(builder, language["RMSGa"], statsEx.FrameLevelRMS);
+            ReportGrade(builder, language["MacDy"], macrodynamics, macrodynamicsGrade);
+            ReportGrade(builder, language["MicDy"], microdynamics, microdynamicsGrade);
             builder.AppendLine();
 
             if (statsEx.LFELevelPeak != 0) {
-                ReportGrade(builder, language.LFEPeak, lfePeak, lfePeakGrade);
-                ReportValue(builder, language.LFERMS, statsEx.LFELevelRMS);
-                ReportGrade(builder, language.LFEMacrodynamics, lfeMacrodynamics, lfeMacrodynamicsGrade);
-                ReportGrade(builder, language.LFEMicrodynamics, lfeMicrodynamics, lfeMicrodynamicsGrade);
-                builder.Append(language.ChestSlam).Append(valueIs).Append(language.Grades[Math.Max(lfePeakGrade, lfeMicrodynamicsGrade)])
+                ReportGrade(builder, language["PeaLF"], lfePeak, lfePeakGrade);
+                ReportValue(builder, language["RMSLF"], statsEx.LFELevelRMS);
+                ReportGrade(builder, language["MacLF"], lfeMacrodynamics, lfeMacrodynamicsGrade);
+                ReportGrade(builder, language["MicLF"], lfeMicrodynamics, lfeMicrodynamicsGrade);
+                builder.Append(language["CheSl"]).Append(valueIs).Append(language.Grades[Math.Max(lfePeakGrade, lfeMicrodynamicsGrade)])
                     .AppendLine();
             } else {
-                builder.AppendLine(language.NoLFE);
+                builder.AppendLine(language["NoLFE"]);
             }
             builder.AppendLine();
 
-            ReportGrade(builder, language.SurroundUsage, surroundUsage, surroundGrade);
+            ReportGrade(builder, language["SurUs"], surroundUsage, surroundGrade);
             if (statsEx.RelativeHeightLevel != 0) {
-                ReportGrade(builder, language.HeightUsage, heightUsage, heightGrade);
+                ReportGrade(builder, language["HeiUs"], heightUsage, heightGrade);
             }
         }
 
         Report = builder.ToString();
     }
-
-    /// <summary>
-    /// Print a graded metric.
-    /// </summary>
-    void ReportGrade(StringBuilder builder, string metric, float decibelValue, int grade) =>
-        builder.Append(metric).Append(valueIs).Append(decibelValue.ToString("0.00 dB (")).Append(language.Grades[grade]).AppendLine(")");
 
     /// <summary>
     /// Globally cached metric/value separator, saves a few bytes of memory.
