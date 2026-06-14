@@ -130,8 +130,7 @@ partial class MainWindow {
     /// </summary>
     ExternalConverterHandler CreateExternalHandler(CavernizeTrack target, int keepFirstSources) {
         LicenceWindow licenceWindow = Dispatcher.Invoke(() => new LicenceWindow());
-        ExternalConverterHandler external = new(target, Consts.Language.GetExternalConverterStrings(), licenceWindow,
-            taskEngine.UpdateProgressBar, taskEngine.UpdateStatus, Dispatcher.Invoke);
+        ExternalConverterHandler external = new(target, licenceWindow, taskEngine.UpdateProgressBar, taskEngine.UpdateStatus, Dispatcher.Invoke);
         Dispatcher.Invoke(licenceWindow.Close);
         if (external.Failed) {
             Dispatcher.Invoke(() => Error(status.Text));

@@ -112,7 +112,7 @@ public partial class MainWindow {
         }
 
         try {
-            this.LoadRoomCorrection(dialog.FileName, Consts.Language.GetConversionStrings());
+            this.LoadRoomCorrection(dialog.FileName);
             Settings.Default.lastOutputFilters = Path.GetDirectoryName(dialog.FileName);
             filters.IsChecked = true;
         } catch (Exception e) {

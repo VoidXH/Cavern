@@ -28,20 +28,6 @@ namespace CavernizeGUI.Consts {
             new DynamicTrackStrings(ResourceUtils.GetTranslationFor("TrackStrings", supported, Settings.Default.language));
 
         /// <summary>
-        /// Get the conversion messages' translation.
-        /// </summary>
-        public static ConversionStrings GetConversionStrings() => conversionCache ??= IsDefaultLanguage() ?
-            new ConversionStrings() :
-            new DynamicConversionStrings(ResourceUtils.GetTranslationFor("ConversionStrings", supported, Settings.Default.language));
-
-        /// <summary>
-        /// Get the external converters' translation.
-        /// </summary>
-        public static ExternalConverterStrings GetExternalConverterStrings() => externalConverterCache ??= IsDefaultLanguage() ?
-            new ExternalConverterStrings() :
-            new DynamicExternalConverterStrings(ResourceUtils.GetTranslationFor("ExternalConverterStrings", supported, Settings.Default.language));
-
-        /// <summary>
         /// Get the post-render report dialog's translation.
         /// </summary>
         public static RenderReportStrings GetRenderReportStrings() => renderReportCache ??= IsDefaultLanguage() ?
@@ -79,16 +65,6 @@ namespace CavernizeGUI.Consts {
         /// The loaded translation of <see cref="Track"/>s for reuse.
         /// </summary>
         static TrackStrings trackCache;
-
-        /// <summary>
-        /// The loaded translation of conversion messages for reuse.
-        /// </summary>
-        static ConversionStrings conversionCache;
-
-        /// <summary>
-        /// The loaded translation of external converter handling for reuse.
-        /// </summary>
-        static ExternalConverterStrings externalConverterCache;
 
         /// <summary>
         /// The loaded translation of the post-render report dialog for reuse.

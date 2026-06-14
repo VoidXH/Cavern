@@ -1,5 +1,4 @@
 ﻿using Cavern.Utilities;
-using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 
 namespace Cavernize.Logic.External;
@@ -7,8 +6,7 @@ namespace Cavernize.Logic.External;
 /// <summary>
 /// Convert an unsupported codec to a supported one for rendering.
 /// </summary>
-/// <param name="language">Database of localized strings</param>
-public abstract class ExternalConverter(ExternalConverterStrings language) {
+public abstract class ExternalConverter {
     /// <summary>
     /// Relay text update messages to the UI.
     /// </summary>
@@ -23,11 +21,6 @@ public abstract class ExternalConverter(ExternalConverterStrings language) {
     /// Where to work with external software.
     /// </summary>
     protected readonly string cavernizeData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Cavernize");
-
-    /// <summary>
-    /// Database of localized strings.
-    /// </summary>
-    protected ExternalConverterStrings language = language;
 
     /// <summary>
     /// This function runs on the UI thread so any required user input can be requested.

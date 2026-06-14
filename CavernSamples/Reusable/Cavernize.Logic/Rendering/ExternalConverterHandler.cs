@@ -5,7 +5,6 @@ using Cavern.SpecialSources;
 using Cavern.Utilities;
 
 using Cavernize.Logic.External;
-using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 
 namespace Cavernize.Logic.Rendering;
@@ -38,15 +37,14 @@ public sealed class ExternalConverterHandler : IDisposable {
     /// Instantiates and disposes external converters when needed. Recreates the <see cref="CavernizeTrack"/> if needed.
     /// </summary>
     /// <param name="target">The audio track we want to convert but in an unsupported format</param>
-    /// <param name="language">Localization of external converter statuses</param>
     /// <param name="licenceHandler">Displays a licence agreement prompt or window to the user</param>
     /// <param name="updateProgress">Called with the ratio of progression, with -1 being a possibility for undetermined progress</param>
     /// <param name="updateStatus">Called with a text description of the current operation</param>
     /// <param name="mainThread">A function that runs code on the main thread in order to pause application operation to ask for a licence agreement</param>
-    public ExternalConverterHandler(CavernizeTrack target, ExternalConverterStrings language, ILicence licenceHandler,
+    public ExternalConverterHandler(CavernizeTrack target, ILicence licenceHandler,
         Action<double> updateProgress, Action<string> updateStatus, Action<Action> mainThread) {
         if (target.Codec == Codec.TrueHD) { // Use truehdd if needed
-            handler = new Truehdd(language);
+            handler = new Truehdd();
         }
         if (handler != null) {
             updateProgress?.Invoke(-1);

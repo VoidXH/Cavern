@@ -14,11 +14,12 @@ public static class ICavernizeAppExtensions {
     /// if the <paramref name="path"/> (to a root file, the txt next to the WAVs) is invalid.
     /// In those cases, an exception will be thrown.
     /// </summary>
-    public static void LoadRoomCorrection(this ICavernizeApp app, string path, ConversionStrings language) {
+    public static void LoadRoomCorrection(this ICavernizeApp app, string path) {
+        ConversionStrings language = ConversionStrings.Active;
         int cutoff = path.IndexOf('.');
         if (cutoff == -1) {
             app.RenderingSettings.RoomCorrection = null;
-            throw new IOException(language.InvalidRootFile);
+            throw new IOException(language["ErIRo"]);
         }
 
         string pathStart = path[..cutoff] + ' ';
@@ -36,7 +37,7 @@ public static class ICavernizeAppExtensions {
                 sampleRate = reader.SampleRate;
             } else {
                 app.RenderingSettings.RoomCorrection = null;
-                throw new IOException(string.Format(language.ChannelFilterNotFound, ChannelPrototype.Mapping[(int)channels[i]].Name, Path.GetFileName(path)));
+                throw new IOException(string.Format(language["ErCFo"], ChannelPrototype.Mapping[(int)channels[i]].Name, Path.GetFileName(path)));
             }
         }
         app.RenderingSettings.RoomCorrection = new(new(filter), sampleRate);
