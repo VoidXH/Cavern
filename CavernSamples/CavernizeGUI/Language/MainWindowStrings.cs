@@ -97,5 +97,5 @@ public class MainWindowStrings() : LanguageBase<MainWindowStrings>(new() {
     "their default containers in the selected folder. If you press No, you can choose the output folders, file names, and container formats individually.",
 }) {
     /// <inheritdoc/>
-    protected override LanguageBase<MainWindowStrings>[] GetTranslations() => [new MainWindowStringsHU()];
+    protected override LanguageBase<MainWindowStrings>[] GetTranslations() => [new MainWindowStringsHU(), new MainWindowStringsZH()];
 }
