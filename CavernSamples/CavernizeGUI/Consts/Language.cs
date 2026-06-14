@@ -1,11 +1,7 @@
-﻿using System;
-using System.Globalization;
-using System.Windows;
+﻿using System.Windows;
 
 using Cavern.WPF.Utils;
 
-using Cavernize.Logic.Language;
-using CavernizeGUI.Language;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
@@ -21,28 +17,10 @@ namespace CavernizeGUI.Consts {
             mainWindowCache ??= ResourceUtils.GetTranslationFor("MainWindowStrings", supported, Settings.Default.language);
 
         /// <summary>
-        /// Get the post-render report dialog's translation.
-        /// </summary>
-        public static RenderReportStrings GetRenderReportStrings() => renderReportCache ??= IsDefaultLanguage() ?
-            new RenderReportStrings() :
-            new DynamicRenderReportStrings(ResourceUtils.GetTranslationFor("RenderReportStrings", supported, Settings.Default.language));
-
-        /// <summary>
         /// Get the <see cref="RenderTargetSelector"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetRenderTargetSelectorStrings() =>
             ResourceUtils.GetTranslationFor("RenderTargetSelectorStrings", supported, Settings.Default.language);
-
-        /// <summary>
-        /// Checks if the system is set to a language that has no available localization.
-        /// </summary>
-        static bool IsDefaultLanguage() {
-            string culture = Settings.Default.language;
-            if (string.IsNullOrEmpty(culture)) {
-                culture = CultureInfo.CurrentUICulture.Name;
-            }
-            return Array.BinarySearch(supported, culture) < 0;
-        }
 
         /// <summary>
         /// Languages supported that are not the default English.
@@ -53,10 +31,5 @@ namespace CavernizeGUI.Consts {
         /// The loaded translation of the <see cref="MainWindow"/> for reuse.
         /// </summary>
         static ResourceDictionary mainWindowCache;
-
-        /// <summary>
-        /// The loaded translation of the post-render report dialog for reuse.
-        /// </summary>
-        static RenderReportStrings renderReportCache;
     }
 }

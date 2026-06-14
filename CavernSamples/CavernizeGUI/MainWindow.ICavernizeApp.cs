@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 
 using Cavern.Format.Common;
+
 using Cavernize.Logic.CavernSettings;
 using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
@@ -156,6 +157,6 @@ partial class MainWindow : ICavernizeApp {
         trackControls.Visibility = Visibility.Hidden;
         tracks.ItemsSource = null;
         trackInfo.Reset();
-        report = new(environment.Listener, Consts.Language.GetRenderReportStrings());
+        report = new(environment.Listener);
     }
 }
