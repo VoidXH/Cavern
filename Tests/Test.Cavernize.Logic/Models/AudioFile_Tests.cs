@@ -15,7 +15,7 @@ public class AudioFile_Tests {
     [TestMethod, Timeout(1000)]
     public void Tracks() {
         string input = Path.Combine(Constants.cavernFormatTestData, "Multitrack.mkv");
-        using AudioFile file = new(input, new());
+        using AudioFile file = new(input);
         Track[] tracks = [.. file.AllTracks];
         Assert.AreEqual(4, tracks.Length);
         Assert.AreEqual(Codec.HEVC, tracks[0].Format);

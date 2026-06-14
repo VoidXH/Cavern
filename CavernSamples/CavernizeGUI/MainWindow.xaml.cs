@@ -21,6 +21,7 @@ using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Consts;
+using CavernizeGUI.Language;
 using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
@@ -33,7 +34,7 @@ public partial class MainWindow : Window {
     /// <summary>
     /// Source of language strings.
     /// </summary>
-    public static readonly ResourceDictionary language = Consts.Language.GetMainWindowStrings();
+    public static readonly MainWindowStrings language = MainWindowStrings.Active;
 
     /// <summary>
     /// Render process handler.
@@ -94,8 +95,8 @@ public partial class MainWindow : Window {
         audio.ItemsSource = formats;
         audio.SelectedIndex = Math.Clamp(Settings.Default.outputCodec + 2, 0, formats.Length);
 
-        FFmpeg.ReadyText = (string)language["FFRea"];
-        FFmpeg.NotReadyText = (string)language["FFNRe"];
+        FFmpeg.ReadyText = language["FFRea"];
+        FFmpeg.NotReadyText = language["FFNRe"];
         ffmpeg = new FFmpegGUI(status, Settings.Default.ffmpegLocation);
         if (ffmpeg.Found) {
             locateFFmpeg.Visibility = Visibility.Hidden;
@@ -132,7 +133,7 @@ public partial class MainWindow : Window {
         if (Program.ConsoleMode) {
             Console.Error.WriteLine(message);
         } else {
-            MessageBox.Show(message, (string)language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(message, language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -171,12 +172,12 @@ public partial class MainWindow : Window {
     /// </summary>
     void OpenFile(object _, RoutedEventArgs e) {
         if (Rendering) {
-            Error((string)language["OpRun"]);
+            Error(language["OpRun"]);
             return;
         }
 
         OpenFileDialog dialog = new() {
-            Filter = string.Format((string)language["ImFmt"], AudioReader.filter),
+            Filter = string.Format(language["ImFmt"], AudioReader.filter),
             InitialDirectory = Settings.Default.lastDirectory
         };
         dialog.ShowDialogSafe(() => {
@@ -201,7 +202,7 @@ public partial class MainWindow : Window {
                     Error(ex.Message);
                 }
             } else {
-                Error((string)language["DropF"]);
+                Error(language["DropF"]);
             }
         }
     }
@@ -257,7 +258,7 @@ public partial class MainWindow : Window {
     /// </summary>
     void LocateFFmpeg(object _, RoutedEventArgs e) {
         if (taskEngine.IsOperationRunning) {
-            Error((string)language["OpRun"]);
+            Error(language["OpRun"]);
             return;
         }
 
@@ -303,14 +304,14 @@ public partial class MainWindow : Window {
     void About(object _, RoutedEventArgs e) {
         StringBuilder result = new StringBuilder(Listener.Info);
         if (CavernAmp.Available) {
-            result.Append('\n').Append((string)language["AbouA"]);
+            result.Append('\n').Append(language["AbouA"]);
         }
 
         result.AppendLine().Append("Build: ");
         FileInfo cavernizeLogic = new("Cavernize.Logic.dll");
         FileInfo cavernizeGui = new("CavernizeGUI.dll");
         result.Append(cavernizeLogic.CreationTime).Append(", ").Append(cavernizeGui.CreationTime);
-        MessageBox.Show(result.ToString(), (string)language["AbouH"]);
+        MessageBox.Show(result.ToString(), language["AbouH"]);
     }
 
     /// <summary>

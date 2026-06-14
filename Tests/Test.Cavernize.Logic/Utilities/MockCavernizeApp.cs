@@ -35,7 +35,7 @@ class MockCavernizeApp : ICavernizeApp {
     public bool SurroundSwap { get; set; }
 
     /// <inheritdoc/>
-    public void OpenContent(string path) => LoadedFile = new(path, new());
+    public void OpenContent(string path) => LoadedFile = new(path);
 
     /// <inheritdoc/>
     public void OpenContent(AudioFile file) => LoadedFile = file;

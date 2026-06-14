@@ -37,7 +37,7 @@ public partial class MainWindow {
             file.ReadHeader();
         } catch (Exception e) {
             if (popupOnError) {
-                Error(string.Format((string)language["IrErr"], e.Message));
+                Error(string.Format(language["IrErr"], e.Message));
             }
             return false;
         }
@@ -78,7 +78,7 @@ public partial class MainWindow {
     void LoadHRIR(object _, RoutedEventArgs e) {
         if (!hrir.IsChecked) {
             OpenFileDialog dialog = new() {
-                Filter = (string)language["FiltI"]
+                Filter = language["FiltI"]
             };
             if (dialog.ShowDialog().Value) {
                 Settings.Default.hrirPath = dialog.FileName;
@@ -102,7 +102,7 @@ public partial class MainWindow {
         }
 
         OpenFileDialog dialog = new() {
-            Filter = (string)language["FiltF"]
+            Filter = language["FiltF"]
         };
         if (Directory.Exists(Settings.Default.lastOutputFilters)) {
             dialog.InitialDirectory = Settings.Default.lastOutputFilters;
@@ -127,25 +127,25 @@ public partial class MainWindow {
     /// </summary>
     void ShowMetadata(object _, RoutedEventArgs e) {
         if (tracks.SelectedItem is not CavernizeTrack track) {
-            Error((string)language["CMeET"]);
+            Error(language["CMeET"]);
             return;
         }
 
         ReadableMetadata metadata = track.GetMetadata();
         if (metadata == null) {
-            Error((string)language["CMeUT"]);
+            Error(language["CMeUT"]);
             return;
         }
 
         new CodecMetadata(metadata) {
-            Title = (string)language["CMetT"]
+            Title = language["CMetT"]
         }.Show();
     }
 
     /// <summary>
     /// Show the post-render report in a popup.
     /// </summary>
-    void ShowPostRenderReport(object _, RoutedEventArgs e) => MessageBox.Show(report.Report, (string)language["PReRe"]);
+    void ShowPostRenderReport(object _, RoutedEventArgs e) => MessageBox.Show(report.Report, language["PReRe"]);
 
     /// <summary>
     /// Shows a popup about what channel should be wired to which output.

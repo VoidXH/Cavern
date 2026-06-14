@@ -78,7 +78,7 @@ partial class MainWindow {
                     remDisp = remaining.ToString("d':'hh':'mm':'ss");
                 }
 
-                taskEngine.UpdateStatusLazy(string.Format((string)language["ProgP"],
+                taskEngine.UpdateStatusLazy(string.Format(language["ProgP"],
                     progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
                 taskEngine.UpdateProgressBar(progress);
                 untilUpdate = updateInterval;
@@ -89,7 +89,7 @@ partial class MainWindow {
         /// Report custom progress as finalization.
         /// </summary>
         public void Finalize(double progress) {
-            taskEngine.UpdateStatusLazy(string.Format((string)language["FinaP"], progress.ToString("0.00%")));
+            taskEngine.UpdateStatusLazy(string.Format(language["FinaP"], progress.ToString("0.00%")));
             taskEngine.UpdateProgressBar(progress);
         }
     }
@@ -128,27 +128,21 @@ partial class MainWindow {
         // The size of writeCache makes sure ContainerWriters get correct sized blocks when written with WriteChannelLimitedBlock
         writeCache = new float[blockSize / renderTarget.OutputChannels * Listener.Channels.Length];
 
-#if RELEASE
         bool wasError = false;
-#endif
         while (progressor.Rendered < target.Length) {
             float[] result;
-#if RELEASE
             try {
-#endif
                 result = environment.Listener.Render();
-#if RELEASE
             } catch (Exception e) {
                 if (!wasError) {
                     wasError = true;
                     ThreadPool.QueueUserWorkItem(x => { // Don't hold up background processing
                         TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
-                        Dispatcher.Invoke(() => Error(string.Format((string)language["RenEr"], time, e.Message)));
+                        Dispatcher.Invoke(() => Error(string.Format(language["RenEr"], time, e.Message)));
                     });
                 }
                 result = new float[Listener.Channels.Length * environment.Listener.UpdateRate];
             }
-#endif
 
             // Alignment of split parts
             if (target.Length - progressor.Rendered < environment.Listener.UpdateRate) {

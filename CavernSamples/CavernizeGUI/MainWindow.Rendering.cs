@@ -28,26 +28,26 @@ partial class MainWindow {
     /// </summary>
     void PreRender() {
         if (taskEngine.IsOperationRunning) {
-            throw new ConcurrencyException((string)language["OpRun"]);
+            throw new ConcurrencyException(language["OpRun"]);
         }
         if (tracks.SelectedItem == null) {
-            throw new TrackException((string)language["LdSrc"]);
+            throw new TrackException(language["LdSrc"]);
         }
 
         if (!((CavernizeTrack)tracks.SelectedItem).Supported) {
-            throw new TrackException((string)language["UnTrk"]);
+            throw new TrackException(language["UnTrk"]);
         }
 
         ExportFormat format = (ExportFormat)audio.SelectedItem;
         bool needsFFmpeg = !string.IsNullOrEmpty(format.FFName) && format.Codec != Codec.PCM_Float && format.Codec != Codec.PCM_LE;
         if (needsFFmpeg && !ffmpeg.Found) {
-            throw new TrackException((string)language["FFOnl"]);
+            throw new TrackException(language["FFOnl"]);
         }
 
         try {
             AttachToListener();
         } catch (OverMaxChannelsException e) {
-            throw new TrackException(string.Format((string)language["ChCnt"], e.Channels, e.MaxChannels));
+            throw new TrackException(string.Format(language["ChCnt"], e.Channels, e.MaxChannels));
         }
     }
 
@@ -58,9 +58,9 @@ partial class MainWindow {
         try {
             environment.AttachToListener((CavernizeTrack)tracks.SelectedItem);
         } catch (NonGroundChannelPresentException) {
-            throw new NonGroundChannelPresentException((string)language["SpViE"]);
+            throw new NonGroundChannelPresentException(language["SpViE"]);
         } catch (SampleRateMismatchException) {
-            throw new IncompatibleSettingsException((string)language["FiltC"]);
+            throw new IncompatibleSettingsException(language["FiltC"]);
         }
     }
 
@@ -78,7 +78,7 @@ partial class MainWindow {
                 EnvironmentWriter transcoder = EnvironmentWriter.Create(path, codec, environment.Listener, target.Length, bits, target.Renderer);
                 return () => TranscodeTask(target, transcoder);
             } catch (UnsupportedContainerForWriteException) {
-                Error((string)language["UnCod"]);
+                Error(language["UnCod"]);
                 return null;
             }
         }
@@ -103,7 +103,7 @@ partial class MainWindow {
             writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
         }
         if (writer == null) {
-            Error((string)language["UnExt"]);
+            Error(language["UnExt"]);
             return null;
         }
         writer.WriteHeader();
@@ -150,7 +150,7 @@ partial class MainWindow {
         }
 
         taskEngine.Progress = 0;
-        taskEngine.UpdateStatus((string)language["Start"]);
+        taskEngine.UpdateStatus(language["Start"]);
         RenderTarget renderTargetRef = Dispatcher.Invoke(() => RenderTarget);
         RenderStats stats = WriteRender(target, writer, renderTargetRef);
         report.Generate(stats);
@@ -192,7 +192,7 @@ partial class MainWindow {
         }
 
         taskEngine.Progress = 0;
-        taskEngine.UpdateStatus((string)language["Start"]);
+        taskEngine.UpdateStatus(language["Start"]);
 
         RenderStats stats;
         if (writer is BroadcastWaveFormatWriter bwf) {
@@ -209,7 +209,7 @@ partial class MainWindow {
     /// Operations to perform after a conversion was successful.
     /// </summary>
     void FinishTask(CavernizeTrack target) {
-        taskEngine.UpdateStatus((string)language["ExpOk"]);
+        taskEngine.UpdateStatus(language["ExpOk"]);
         taskEngine.Progress = 1;
 
         if (Program.ConsoleMode) {
@@ -217,7 +217,7 @@ partial class MainWindow {
         }
 
         if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.WorkedAround) {
-            Error((string)language["JocWa"]);
+            Error(language["JocWa"]);
         }
     }
 

@@ -11,7 +11,6 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <d:ResourceDictionary Source="Resources/MainWindowStrings.xaml"/>
                 <ResourceDictionary Source="Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BitmapImage x:Key="Logo" UriSource="Resources\CavernLogo.png"/>

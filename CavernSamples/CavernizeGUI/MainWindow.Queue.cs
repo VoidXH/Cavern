@@ -23,9 +23,9 @@ namespace CavernizeGUI {
         /// </summary>
         void RemoveQueued(object _, RoutedEventArgs e) {
             if (taskEngine.IsOperationRunning) {
-                Error((string)language["ReQOp"]);
+                Error(language["ReQOp"]);
             } else if (queuedJobs.SelectedItem == null) {
-                Error((string)language["ReQSe"]);
+                Error(language["ReQSe"]);
             } else {
                 queue.Jobs.RemoveAt(queuedJobs.SelectedIndex);
             }
@@ -49,14 +49,14 @@ namespace CavernizeGUI {
                 files.FlattenPaths();
                 List<string> invalids = [];
                 if (files.Count > 1 &&
-                    MessageBox.Show((string)language["QuAll"], (string)language["QuAlT"], MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes) {
+                    MessageBox.Show(language["QuAll"], language["QuAlT"], MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes) {
                     ProcessDroppedFilesAtOnce(files, invalids);
                 } else {
                     queue.AddRange(files, invalids);
                 }
                 LoadedFile = oldFile;
                 if (invalids.Count != 0) {
-                    Error($"{(string)language["DropI"]}\n{string.Join('\n', invalids)}");
+                    Error($"{language["DropI"]}\n{string.Join('\n', invalids)}");
                 }
             }
         }

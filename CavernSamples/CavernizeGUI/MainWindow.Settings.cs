@@ -73,7 +73,7 @@ namespace CavernizeGUI {
         /// </summary>
         void Restart() {
             if (Rendering) {
-                Error((string)language["OpRes"]);
+                Error(language["OpRes"]);
                 return;
             }
 
