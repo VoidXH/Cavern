@@ -3,7 +3,6 @@
 using Cavern.WPF.Utils;
 
 using CavernizeGUI.Resources;
-using CavernizeGUI.Windows;
 
 namespace CavernizeGUI.Consts {
     /// <summary>
@@ -15,12 +14,6 @@ namespace CavernizeGUI.Consts {
         /// </summary>
         public static ResourceDictionary GetMainWindowStrings() =>
             mainWindowCache ??= ResourceUtils.GetTranslationFor("MainWindowStrings", supported, Settings.Default.language);
-
-        /// <summary>
-        /// Get the <see cref="RenderTargetSelector"/>'s translation.
-        /// </summary>
-        public static ResourceDictionary GetRenderTargetSelectorStrings() =>
-            ResourceUtils.GetTranslationFor("RenderTargetSelectorStrings", supported, Settings.Default.language);
 
         /// <summary>
         /// Languages supported that are not the default English.

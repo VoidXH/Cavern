@@ -33,12 +33,6 @@
     <Page Update="Resources\MainWindowStrings.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Resources\RenderTargetSelectorStrings.hu-HU.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Resources\RenderTargetSelectorStrings.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Update="Windows\CodecMetadata.xaml">
       <SubType>Designer</SubType>
     </Page>

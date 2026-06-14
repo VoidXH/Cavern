@@ -16,6 +16,11 @@ namespace VoidX.WPF.Language {
         public string this[string key] => language[key];
 
         /// <summary>
+        /// Get what is translated.
+        /// </summary>
+        public IEnumerable<string> Keys => language.Keys;
+
+        /// <summary>
         /// Language of the translation.
         /// </summary>
         protected virtual string CultureCode => "en-US";

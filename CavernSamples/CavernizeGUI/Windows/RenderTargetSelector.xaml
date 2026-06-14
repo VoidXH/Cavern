@@ -8,7 +8,6 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <d:ResourceDictionary Source="../Resources/RenderTargetSelectorStrings.xaml"/>
                 <ResourceDictionary Source="../Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

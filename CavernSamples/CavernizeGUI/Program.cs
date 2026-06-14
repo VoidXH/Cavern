@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 
+using Cavern.WPF.Utils;
 using VoidX.WPF.FFmpeg;
 using VoidX.WPF.Language;
 
 using CavernizeGUI.Resources;
+using CavernizeGUI.Language;
 
 namespace CavernizeGUI {
     static class Program {
@@ -26,7 +28,7 @@ namespace CavernizeGUI {
             App app = new App();
             LanguageSettings.CultureOverride = Settings.Default.language;
             app.Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
-            app.Resources.MergedDictionaries.Add(Consts.Language.GetRenderTargetSelectorStrings());
+            app.Resources.MergedDictionaries.Add(RenderTargetSelectorStrings.Active.ToResourceDictionary());
             try {
                 app.InitializeComponent();
             } catch {

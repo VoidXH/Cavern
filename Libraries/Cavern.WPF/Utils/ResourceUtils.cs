@@ -49,18 +49,6 @@ public static class ResourceUtils {
     }
 
     /// <summary>
-    /// Try to read a value from a <paramref name="dictionary"/> by <paramref name="key"/>, and if it doesn't exist,
-    /// <paramref name="fallback"/> to a default value.
-    /// </summary>
-    public static string TryGet(this ResourceDictionary dictionary, string key, string fallback) {
-        try {
-            return (string)dictionary[key];
-        } catch {
-            return fallback;
-        }
-    }
-
-    /// <summary>
     /// Check if a WPF component resource exists without throwing exceptions.
     /// </summary>
     static bool ResourceExists(Uri uri) {
