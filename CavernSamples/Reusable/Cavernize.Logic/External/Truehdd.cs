@@ -118,7 +118,7 @@ public class Truehdd : ExternalConverter {
             reader = AudioReader.Open(tempTrack + ".caf");
             codec = Codec.PCM_LE;
         }
-        track = new CavernizeTrack(reader, codec, 0, new TrackStrings());
+        track = new CavernizeTrack(reader, codec, 0);
         return track;
     }
 

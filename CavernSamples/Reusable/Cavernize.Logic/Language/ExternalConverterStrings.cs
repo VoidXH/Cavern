@@ -16,6 +16,7 @@ public class ExternalConverterStrings() : LanguageBase<ExternalConverterStrings>
     ["PrgRB"] = "Extracting raw bitstream...",
     ["PrgCo"] = "Converting with {0}...",
     ["ErrNe"] = "Downloading failed because of a network error.",
-},
-    new ExternalConverterStringsHU()
-) { }
+}) {
+    /// <inheritdoc/>
+    protected override LanguageBase<ExternalConverterStrings>[] GetTranslations() => [new ExternalConverterStringsHU()];
+}

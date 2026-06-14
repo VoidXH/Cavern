@@ -36,8 +36,8 @@ public sealed class ExportFormat(Codec codec, string ffName, int maxChannels, st
     /// <summary>
     /// Get all supported export formats in the user's <paramref name="language"/>.
     /// </summary>
-    public static ExportFormat[] GetFormats(TrackStrings language) {
-        IReadOnlyDictionary<Codec, string> strings = language.ExportFormats;
+    public static ExportFormat[] GetFormats() {
+        IReadOnlyDictionary<Codec, string> strings = TrackStrings.Active.ExportFormats;
         return formats ??= [
             new ExportFormat(Codec.AC3, "ac3", 6, strings[Codec.AC3]),
             new ExportFormat(Codec.EnhancedAC3, "eac3", 8, strings[Codec.EnhancedAC3]),

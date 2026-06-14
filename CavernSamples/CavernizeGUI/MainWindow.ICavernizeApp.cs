@@ -5,6 +5,7 @@ using System.Windows;
 
 using Cavern.Format.Common;
 using Cavernize.Logic.CavernSettings;
+using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using CavernizeGUI.CavernSettings;
@@ -61,13 +62,13 @@ partial class MainWindow : ICavernizeApp {
         OnOutputSelected(null, null);
 
         try {
-            OpenContent(new AudioFile(path, Consts.Language.GetTrackStrings()));
+            OpenContent(new AudioFile(path));
         } catch (IOException) {
             Reset();
             throw;
         } catch (Exception e) {
             Reset();
-            throw new AggregateException($"{e.Message} {Consts.Language.GetTrackStrings().Later}", e);
+            throw new AggregateException($"{e.Message} {TrackStrings.Active["Later"]}", e);
         }
         Settings.Default.lastDirectory = Path.GetDirectoryName(path);
     }

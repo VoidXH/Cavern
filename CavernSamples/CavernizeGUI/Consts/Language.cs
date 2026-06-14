@@ -21,13 +21,6 @@ namespace CavernizeGUI.Consts {
             mainWindowCache ??= ResourceUtils.GetTranslationFor("MainWindowStrings", supported, Settings.Default.language);
 
         /// <summary>
-        /// Get the <see cref="MainWindow"/>'s translation.
-        /// </summary>
-        public static TrackStrings GetTrackStrings() => trackCache ??= IsDefaultLanguage() ?
-            new TrackStrings() :
-            new DynamicTrackStrings(ResourceUtils.GetTranslationFor("TrackStrings", supported, Settings.Default.language));
-
-        /// <summary>
         /// Get the post-render report dialog's translation.
         /// </summary>
         public static RenderReportStrings GetRenderReportStrings() => renderReportCache ??= IsDefaultLanguage() ?
@@ -60,11 +53,6 @@ namespace CavernizeGUI.Consts {
         /// The loaded translation of the <see cref="MainWindow"/> for reuse.
         /// </summary>
         static ResourceDictionary mainWindowCache;
-
-        /// <summary>
-        /// The loaded translation of <see cref="Track"/>s for reuse.
-        /// </summary>
-        static TrackStrings trackCache;
 
         /// <summary>
         /// The loaded translation of the post-render report dialog for reuse.

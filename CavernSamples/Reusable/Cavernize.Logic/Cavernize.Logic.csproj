@@ -27,8 +27,6 @@
 		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegConfigurator.cs" Link="VoidX.WPF\FFmpeg\FFmpegConfigurator.cs" />
 		<Compile Include="..\..\VoidX.WPF\FFmpeg\FFmpegStream.cs" Link="VoidX.WPF\FFmpeg\FFmpegStream.cs" />
 		<Compile Include="..\..\VoidX.WPF\HTTP.cs" Link="VoidX.WPF\HTTP.cs" />
-		<Compile Include="..\..\VoidX.WPF\Language\LanguageBase.cs" Link="VoidX.WPF\Language\LanguageBase.cs" />
-		<Compile Include="..\..\VoidX.WPF\Language\LanguageSettings.cs" Link="VoidX.WPF\Language\LanguageSettings.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -90,7 +90,7 @@ public partial class MainWindow : Window {
         languages.Items.Add(testLanguage);
 #endif
 
-        ExportFormat[] formats = ExportFormat.GetFormats(Consts.Language.GetTrackStrings());
+        ExportFormat[] formats = ExportFormat.GetFormats();
         audio.ItemsSource = formats;
         audio.SelectedIndex = Math.Clamp(Settings.Default.outputCodec + 2, 0, formats.Length);
 

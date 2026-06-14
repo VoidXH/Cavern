@@ -2,6 +2,7 @@
 using System.IO;
 
 using VoidX.WPF.FFmpeg;
+using VoidX.WPF.Language;
 
 using CavernizeGUI.Resources;
 
@@ -23,9 +24,9 @@ namespace CavernizeGUI {
                 FFmpeg.ConsoleMode = true;
             }
             App app = new App();
+            LanguageSettings.CultureOverride = Settings.Default.language;
             app.Resources.MergedDictionaries.Add(Consts.Language.GetMainWindowStrings());
             app.Resources.MergedDictionaries.Add(Consts.Language.GetRenderTargetSelectorStrings());
-            Cavern.WPF.Consts.Language.Override = Settings.Default.language;
             try {
                 app.InitializeComponent();
             } catch {

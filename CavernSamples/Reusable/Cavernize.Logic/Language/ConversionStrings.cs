@@ -8,6 +8,7 @@ namespace Cavernize.Logic.Language;
 public class ConversionStrings() : LanguageBase<ConversionStrings>(new() {
     ["ErIRo"] = "The root file was invalid. It must have an extension.",
     ["ErCFo"] = "Convolution EQ file for the {0} channel was not found in this export ({1}).",
-},
-    new ConversionStringsHU()
-) { }
+}) {
+    /// <inheritdoc/>
+    protected override LanguageBase<ConversionStrings>[] GetTranslations() => [new ConversionStringsHU()];
+}

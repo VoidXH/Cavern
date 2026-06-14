@@ -81,33 +81,28 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     readonly AudioReader reader;
 
     /// <summary>
-    /// Localized strings for track description.
-    /// </summary>
-    readonly TrackStrings strings;
-
-    /// <summary>
     /// Reads information from a track's renderer.
     /// </summary>
-    public CavernizeTrack(AudioReader reader, Codec codec, int index, TrackStrings strings) {
+    public CavernizeTrack(AudioReader reader, Codec codec, int index) {
         this.reader = reader;
         Codec = codec;
         Index = index;
-        this.strings = strings;
 
         Renderer = reader.GetRenderer();
         Supported = Renderer is not DummyRenderer;
         EnhancedAC3Renderer eac3 = Renderer as EnhancedAC3Renderer;
 
+        TrackStrings strings = TrackStrings.Active;
         if (!Supported) {
-            FormatHeader = strings.NotSupported;
+            FormatHeader = strings["NoSup"];
         } else if (eac3 != null) {
             if (eac3.HasObjects) {
-                FormatHeader = strings.TypeEAC3JOC;
+                FormatHeader = strings["E3JOC"];
             } else {
                 FormatHeader = eac3.Enhanced ? "Enhanced AC-3" : "AC-3";
             }
         } else {
-            FormatHeader = Renderer.HasObjects ? strings.ObjectBasedTrack : strings.ChannelBasedTrack;
+            FormatHeader = Renderer.HasObjects ? strings["ObTra"] : strings["ChTra"];
         }
         FormatHeader += $" ({TimeSpan.FromSeconds(reader.Length / (double)reader.SampleRate):h\\:mm\\:ss})";
 
@@ -115,20 +110,20 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
         string bedList = string.Join(' ', ChannelPrototype.GetShortNames(beds));
         List<(string, string)> builder = [];
         if (eac3 != null && eac3.HasObjects) {
-            builder.Add((strings.SourceChannels, $"{beds.Length} - {bedList}"));
+            builder.Add((strings["SouCh"], $"{beds.Length} - {bedList}"));
             string[] newBeds = ChannelPrototype.GetShortNames(eac3.GetStaticChannels());
-            builder.Add((strings.MatrixedBeds, $"{newBeds.Length} - {string.Join(' ', newBeds)}"));
-            builder.Add((strings.MatrixedObjects, eac3.DynamicObjects.ToString()));
+            builder.Add((strings["MatBe"], $"{newBeds.Length} - {string.Join(' ', newBeds)}"));
+            builder.Add((strings["MatOb"], eac3.DynamicObjects.ToString()));
         } else {
             if (Renderer != null && beds.Length != Renderer.Objects.Count) { // Generic object-based format: bed and object lines
                 if (beds.Length > 0) {
-                    builder.Add((strings.BedChannels, $"{beds.Length} - {bedList}"));
+                    builder.Add((strings["SouBe"], $"{beds.Length} - {bedList}"));
                 }
-                builder.Add((strings.DynamicObjects, (Renderer.Objects.Count - beds.Length).ToString()));
+                builder.Add((strings["SouDy"], (Renderer.Objects.Count - beds.Length).ToString()));
             } else if (beds.Length > 0) { // Generic channel-based format of known channels
-                builder.Add((strings.Channels, $"{beds.Length} - {bedList}"));
+                builder.Add((strings["Chans"], $"{beds.Length} - {bedList}"));
             } else { // Generic channel-based format of unknown channels
-                builder.Add((strings.Channels, reader.ChannelCount.ToString()));
+                builder.Add((strings["Chans"], reader.ChannelCount.ToString()));
             }
         }
         Details = [.. builder];
@@ -137,13 +132,13 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     /// <summary>
     /// Reads information from a track's renderer.
     /// </summary>
-    public CavernizeTrack(AudioReader reader, Codec codec, int index, TrackStrings strings, string language) :
-        this(reader, codec, index, strings) => Language = language;
+    public CavernizeTrack(AudioReader reader, Codec codec, int index, string language) :
+        this(reader, codec, index) => Language = language;
 
     /// <summary>
-    /// Language-only constructor for derived classes.
+    /// Constructor for derived classes.
     /// </summary>
-    protected CavernizeTrack(TrackStrings strings) => this.strings = strings;
+    protected CavernizeTrack() { }
 
     /// <summary>
     /// Attach this track to a rendering environment and start from the beginning.
@@ -208,10 +203,10 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     /// Very short track information for the dropdown.
     /// </summary>
     public override string ToString() {
-        strings.CodecNames.TryGetValue(Codec, out string codecName);
+        TrackStrings.Active.CodecNames.TryGetValue(Codec, out string codecName);
         codecName ??= formatNames.TryGetValue(Codec, out string value) ? value : Codec.ToString();
         if (Renderer != null && Renderer.HasObjects) {
-            codecName = $"{codecName} {strings.WithObjects}";
+            codecName = $"{codecName} {TrackStrings.Active["WiObj"]}";
         }
         return string.IsNullOrEmpty(Language) ? codecName : $"{codecName} ({Language})";
     }

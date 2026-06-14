@@ -1,7 +1,6 @@
 ﻿using Cavern.Format;
 
 using Cavernize.Logic.CommandLine.BaseClasses;
-using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 
 namespace Cavernize.Logic.CommandLine.HiddenCommands;
@@ -31,7 +30,7 @@ sealed class OverrideBedCommand : HiddenCommand {
         AudioReader overrider = AudioReader.Open(args[offset]);
         overrider.ReadHeader();
 
-        OverrideBedFile file = new OverrideBedFile(app.LoadedFile.Path, overrider, new TrackStrings());
+        OverrideBedFile file = new OverrideBedFile(app.LoadedFile.Path, overrider);
         if (file.Tracks[0].Renderer.Channels != overrider.ChannelCount) {
             throw new CommandException("Channel count of the overriding stream don't match the source stream.");
         }
