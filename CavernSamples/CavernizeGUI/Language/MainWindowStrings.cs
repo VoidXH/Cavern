@@ -34,6 +34,7 @@ public class MainWindowStrings() : LanguageBase<MainWindowStrings>(new() {
     ["MenuL"] = "Language",
     ["LanEn"] = "English",
     ["LanHu"] = "Magyar",
+    ["LanZh"] = "简体中文",
     ["SySet"] = "System",
     ["RSInf"] = "Choose a layout, and place your speakers accordingly. Click the \"Display wiring\" button to see which output will change to which actual " +
     "channel. For maximum audio quality, calibrate your system with QuickEQ.",
