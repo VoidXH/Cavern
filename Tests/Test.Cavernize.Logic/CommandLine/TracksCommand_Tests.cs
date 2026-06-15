@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-
-using Cavernize.Logic.CommandLine;
-using Cavernize.Logic.Language;
-using VoidX.WPF.Language;
+﻿using Cavernize.Logic.CommandLine;
 
 using Test.Cavernize.Logic.Utilities;
 
@@ -18,23 +14,12 @@ public class TracksCommand_Tests {
     /// </summary>
     [TestMethod, Timeout(1000)]
     public void SupportedForAudioFile() {
-        string previousCultureOverride = LanguageSettings.CultureOverride;
-        try {
-            LanguageSettings.CultureOverride = "en-US";
-            ResetTrackStrings();
-            MockCavernizeApp app = new MockCavernizeApp();
-            (string output, string error) = ConsoleUtils.Redirect(() => CommandLineProcessor.Initialize([
-                "-i", Constants.emptyWavTestFile, "-trks"
-            ], app));
+        MockCavernizeApp app = new MockCavernizeApp();
+        (string output, string error) = ConsoleUtils.Redirect(() => CommandLineProcessor.Initialize([
+            "-i", Constants.emptyWavTestFile, "-trks"
+        ], app));
 
-            Assert.AreEqual(output, "[0] PCM (integer)" + Environment.NewLine, "A single PCM track must be found.");
-            Assert.AreEqual(string.Empty, error, "An error has happened: " + error);
-        } finally {
-            LanguageSettings.CultureOverride = previousCultureOverride;
-            ResetTrackStrings();
-        }
+        Assert.AreEqual(output, "[0] PCM (integer)" + Environment.NewLine, "A single PCM track must be found.");
+        Assert.AreEqual(string.Empty, error, "An error has happened: " + error);
     }
-
-    static void ResetTrackStrings() => typeof(LanguageBase<TrackStrings>)
-        .GetField("active", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, null);
 }
