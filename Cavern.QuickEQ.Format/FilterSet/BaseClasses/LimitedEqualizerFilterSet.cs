@@ -8,7 +8,7 @@ using Cavern.Utilities;
 namespace Cavern.Format.FilterSet.BaseClasses {
     /// <summary>
     /// A fixed set of bands to sample from an <see cref="Equalizer"/> for export into a single file. This is the recommended and fastest
-    /// approach of getting a filter set for incoherent fixed EQ bands, such as the <see cref="SonyESSeriesFilterSet"/>.
+    /// approach of getting a filter set for incoherent fixed EQ bands.
     /// </summary>
     public abstract class LimitedEqualizerFilterSet : EqualizerFilterSet {
         /// <summary>

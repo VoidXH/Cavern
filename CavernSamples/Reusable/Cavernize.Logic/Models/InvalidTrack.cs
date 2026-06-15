@@ -11,8 +11,8 @@ public sealed class InvalidTrack : CavernizeTrack {
     /// <summary>
     /// An audio track's replacement when it failed to load.
     /// </summary>
-    public InvalidTrack(string error, Codec codec, string language, TrackStrings strings) : base(strings) {
-        FormatHeader = $"{strings.InvalidTrack}\n{error} {strings.Later}";
+    public InvalidTrack(string error, Codec codec, string language) {
+        FormatHeader = $"{TrackStrings.Active["InvTr"]}\n{error} {TrackStrings.Active["Later"]}";
         Details = [];
         Codec = codec;
         Language = language;

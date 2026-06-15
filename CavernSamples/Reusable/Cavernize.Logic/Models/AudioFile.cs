@@ -4,7 +4,6 @@ using Cavern.Format.Common.Metadata;
 using Cavern.Format.Container;
 
 using Cavernize.Logic.Exceptions;
-using Cavernize.Logic.Language;
 
 namespace Cavernize.Logic.Models;
 
@@ -33,16 +32,10 @@ public class AudioFile : IDisposable {
     protected readonly List<CavernizeTrack> tracks = [];
 
     /// <summary>
-    /// Localization of user-visible strings.
-    /// </summary>
-    protected readonly TrackStrings language;
-
-    /// <summary>
     /// Loads an audio file.
     /// </summary>
-    public AudioFile(string path, TrackStrings language) {
+    public AudioFile(string path) {
         Path = path ?? throw new ArgumentNullException(nameof(path));
-        this.language = language ?? throw new ArgumentNullException(nameof(language));
         Reset();
     }
 
@@ -60,7 +53,7 @@ public class AudioFile : IDisposable {
             case "ac3":
             case "eac3":
             case "ec3":
-                tracks.Add(new CavernizeTrack(new EnhancedAC3Reader(Path), Codec.EnhancedAC3, 0, language));
+                tracks.Add(new CavernizeTrack(new EnhancedAC3Reader(Path), Codec.EnhancedAC3, 0));
                 break;
             case "mkv":
             case "mka":
@@ -123,7 +116,7 @@ public class AudioFile : IDisposable {
     /// <summary>
     /// Add a track from a file that contains the raw bitstream of a single audio track.
     /// </summary>
-    void AddStandaloneTrack(AudioReader reader, Codec codec) => tracks.Add(new CavernizeTrack(reader, codec, 0, language));
+    void AddStandaloneTrack(AudioReader reader, Codec codec) => tracks.Add(new CavernizeTrack(reader, codec, 0));
 
     /// <summary>
     /// Add the tracks of a container to the track list.
@@ -134,9 +127,9 @@ public class AudioFile : IDisposable {
             if (reader.Tracks[i].Extra is TrackExtraAudio) {
                 try {
                     tracks.Add(new CavernizeTrack(new AudioTrackReader(reader.Tracks[i]), reader.Tracks[i].Format,
-                        trackId, language, reader.Tracks[i].Language));
+                        trackId, reader.Tracks[i].Language));
                 } catch (Exception e) {
-                    tracks.Add(new InvalidTrack(e.Message, reader.Tracks[i].Format, reader.Tracks[i].Language, language));
+                    tracks.Add(new InvalidTrack(e.Message, reader.Tracks[i].Format, reader.Tracks[i].Language));
                 }
                 trackId++;
             }

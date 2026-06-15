@@ -72,9 +72,13 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         MiniDSPDDRC88A,
         /// <summary>
-        /// MiniDSP Flex HTx hardware DSP.
+        /// MiniDSP Flex HT(x) hardware DSP.
         /// </summary>
         MiniDSPFlexHTx,
+        /// <summary>
+        /// MiniDSP Tide16 hardware DSP.
+        /// </summary>
+        MiniDSPTide16,
 
         // -------------------------------------------------------------------------
         // AVRs and processors -----------------------------------------------------
@@ -95,10 +99,6 @@ namespace Cavern.Format.FilterSet {
         /// Rotel devices.
         /// </summary>
         Rotel,
-        /// <summary>
-        /// Sony ES-series AVRs.
-        /// </summary>
-        SonyES,
         /// <summary>
         /// StormAudio ISP processors.
         /// </summary>

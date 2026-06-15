@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -14,13 +15,14 @@ using Cavern.Virtualizer;
 
 using Cavernize.Logic.CommandLine;
 using Cavernize.Logic.External;
+using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
+using CavernizeGUI.Language;
 using VoidX.WPF.FFmpeg;
-
-using GuiLanguage = CavernizeGUI.Consts.Language;
+using VoidX.WPF.Language;
 
 namespace CavernizeGUI;
 
@@ -256,7 +258,9 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
 
     public string LastFilterDirectory => settings.LastFilterDirectory;
 
-    public string LanguageCode => language.Code;
+    public string LanguageCode => string.IsNullOrWhiteSpace(settings.LanguageCode) ?
+        CultureInfo.CurrentUICulture.Name :
+        settings.LanguageCode;
 
     public string SystemTitle => Text("SySet");
 
@@ -345,10 +349,11 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
 
     internal FFmpeg FFmpeg => ffmpeg;
 
-    internal GuiLanguage Language => language;
+    internal MainWindowStrings Language => language;
 
     readonly AppSettings settings = AppSettings.Load();
-    readonly GuiLanguage language;
+    readonly MainWindowStrings language;
+    readonly RenderTargetSelectorStrings renderTargetSelectorLanguage;
     readonly ConversionEnvironment environment;
     readonly CallbackFFmpeg ffmpeg;
     CancellationTokenSource cancellation;
@@ -381,7 +386,9 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
     int blockSize;
 
     public MainWindow() {
-        language = GuiLanguage.Create(settings.LanguageCode);
+        LanguageSettings.CultureOverride = settings.LanguageCode;
+        language = MainWindowStrings.Active;
+        renderTargetSelectorLanguage = RenderTargetSelectorStrings.Active;
         FFmpeg.ReadyText = Text("FFRea");
         FFmpeg.NotReadyText = Text("FFNRe");
         ffmpeg = new CallbackFFmpeg(UpdateStatus, settings.FFmpegPath);
@@ -391,7 +398,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
         status = Text("OpSrcS");
         warning = NoWarningsText;
 
-        ExportFormats = ExportFormat.GetFormats(language.TrackStrings);
+        ExportFormats = ExportFormat.GetFormats();
         RenderTargets = RenderTarget.Targets.Where(target => target is not DriverRenderTarget).ToArray();
         selectedExportFormat = ExportFormats.ElementAtOrDefault(settings.OutputCodecIndex + 2) ??
             ExportFormats.First(format => format.Codec == Codec.PCM_LE);
@@ -411,7 +418,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
         UpmixingSettings.Effect = settings.UpmixingEffect ?? .75f;
         UpmixingSettings.Smoothness = settings.UpmixingSmoothness ?? .8f;
         environment = new ConversionEnvironment(this);
-        report = new PostRenderReport(environment.Listener, language.RenderReportStrings);
+        report = new PostRenderReport(environment.Listener);
         reportText = report.Report;
 
         TryLoadSavedHrir();
@@ -581,7 +588,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
         }
 
         try {
-            this.LoadRoomCorrection(path, language.ConversionStrings);
+            this.LoadRoomCorrection(path);
             roomCorrectionPath = path;
             settings.RoomCorrectionPath = path;
             settings.LastFilterDirectory = Path.GetDirectoryName(path);
@@ -627,11 +634,11 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
         OnPropertyChanged(nameof(LastUpdateCheck));
     }
 
-    public string Text(string key) => language.Text(key);
+    public string Text(string key) => language[key];
 
-    public string MenuText(string key) => language.MenuText(key);
+    public string MenuText(string key) => Text(key).Replace("_", string.Empty);
 
-    public string RenderTargetSelectorText(string key) => language.RenderTargetSelectorText(key);
+    public string RenderTargetSelectorText(string key) => renderTargetSelectorLanguage[key];
 
     public string FileTypeName(string key) {
         string value = Text(key);
@@ -959,7 +966,7 @@ public partial class MainWindow : Avalonia.Controls.Window, INotifyPropertyChang
         }
 
         try {
-            this.LoadRoomCorrection(settings.RoomCorrectionPath, language.ConversionStrings);
+            this.LoadRoomCorrection(settings.RoomCorrectionPath);
             roomCorrectionPath = settings.RoomCorrectionPath;
         } catch (Exception ex) {
             settings.RoomCorrectionPath = null;

@@ -10,6 +10,7 @@ using Cavern.Virtualizer;
 
 using Cavernize.Avalonia;
 using Cavernize.Logic.External;
+using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
@@ -112,7 +113,7 @@ partial class MainWindow {
 
     void RunRendering(Action renderTask) {
         if (Rendering) {
-            throw new ConcurrencyException((string)language["OpRun"]);
+            throw new ConcurrencyException(language["OpRun"]);
         }
 
         rendering = true;
@@ -131,25 +132,25 @@ partial class MainWindow {
     /// </summary>
     void PreRender() {
         if (Rendering) {
-            throw new ConcurrencyException((string)language["OpRun"]);
+            throw new ConcurrencyException(language["OpRun"]);
         }
         if (SelectedTrack == null) {
-            throw new TrackException((string)language["LdSrc"]);
+            throw new TrackException(language["LdSrc"]);
         }
         if (!SelectedTrack.Supported) {
-            throw new TrackException((string)language["UnTrk"]);
+            throw new TrackException(language["UnTrk"]);
         }
 
         ExportFormat format = ExportFormat;
         bool needsFFmpeg = !string.IsNullOrEmpty(format.FFName) && format.Codec != Codec.PCM_Float && format.Codec != Codec.PCM_LE;
         if (needsFFmpeg && !ffmpeg.Found) {
-            throw new TrackException((string)language["FFOnl"]);
+            throw new TrackException(language["FFOnl"]);
         }
 
         try {
             AttachToListener();
         } catch (OverMaxChannelsException e) {
-            throw new TrackException(string.Format((string)language["ChCnt"], e.Channels, e.MaxChannels));
+            throw new TrackException(string.Format(language["ChCnt"], e.Channels, e.MaxChannels));
         }
     }
 
@@ -160,9 +161,9 @@ partial class MainWindow {
         try {
             environment.AttachToListener(SelectedTrack);
         } catch (NonGroundChannelPresentException) {
-            throw new NonGroundChannelPresentException((string)language["SpViE"]);
+            throw new NonGroundChannelPresentException(language["SpViE"]);
         } catch (SampleRateMismatchException) {
-            throw new IncompatibleSettingsException((string)language["FiltC"]);
+            throw new IncompatibleSettingsException(language["FiltC"]);
         }
     }
 
@@ -180,7 +181,7 @@ partial class MainWindow {
                 EnvironmentWriter transcoder = EnvironmentWriter.Create(path, codec, environment.Listener, target.Length, bits, target.Renderer);
                 return () => TranscodeTask(target, transcoder);
             } catch (UnsupportedContainerForWriteException) {
-                Error((string)language["UnCod"]);
+                Error(language["UnCod"]);
                 return null;
             }
         }
@@ -205,7 +206,7 @@ partial class MainWindow {
             writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
         }
         if (writer == null) {
-            Error((string)language["UnExt"]);
+            Error(language["UnExt"]);
             return null;
         }
         writer.WriteHeader();
@@ -240,8 +241,7 @@ partial class MainWindow {
             UpdateStatus(text);
         }
 
-        ExternalConverterHandler external = new(target, language.ExternalConverterStrings, licenceWindow,
-            UpdateProgress, UpdateExternalStatus, action => action());
+        ExternalConverterHandler external = new(target, licenceWindow, UpdateProgress, UpdateExternalStatus, action => action());
         if (external.Failed) {
             Error(externalStatus ?? Status);
         } else {
@@ -260,7 +260,7 @@ partial class MainWindow {
         }
         ThrowIfCancellationRequested();
         UpdateProgress(0);
-        UpdateStatus((string)language["Start"]);
+        UpdateStatus(language["Start"]);
         RenderTarget renderTargetRef = RenderTarget;
         RenderStats stats = WriteRender(target, writer, renderTargetRef);
         report.Generate(stats);
@@ -300,7 +300,7 @@ partial class MainWindow {
         }
         ThrowIfCancellationRequested();
         UpdateProgress(0);
-        UpdateStatus((string)language["Start"]);
+        UpdateStatus(language["Start"]);
 
         RenderStats stats;
         if (writer is BroadcastWaveFormatWriter bwf) {
@@ -317,11 +317,11 @@ partial class MainWindow {
     /// Operations to perform after a conversion was successful.
     /// </summary>
     void FinishTask(CavernizeTrack target) {
-        UpdateStatus((string)language["ExpOk"]);
+        UpdateStatus(language["ExpOk"]);
         UpdateProgress(1);
 
         if (target.Renderer is EnhancedAC3Renderer eac3 && eac3.WorkedAround) {
-            WarningRaised((string)language["JocWa"]);
+            WarningRaised(language["JocWa"]);
         }
     }
 

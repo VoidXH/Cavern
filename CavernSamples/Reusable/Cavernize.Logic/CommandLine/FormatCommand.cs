@@ -25,7 +25,7 @@ public sealed class FormatCommand : Command {
             InProgressError(app, "format");
         }
 
-        ExportFormat[] formats = ExportFormat.GetFormats(new Language.TrackStrings());
+        ExportFormat[] formats = ExportFormat.GetFormats();
         for (int i = 0; i < formats.Length; i++) {
             if (args[offset].Equals(formats[i].Codec.ToString(), StringComparison.OrdinalIgnoreCase) ||
                 args[offset].Equals(formats[i].FFName, StringComparison.OrdinalIgnoreCase)) {

@@ -18,7 +18,7 @@ namespace Cavernize.Logic.External;
 /// <summary>
 /// Perform MLP conversions with truehdd by first extracting the MLP track, then using truehdd to create a DAMF, then loading that DAMF to Cavern for render.
 /// </summary>
-public class Truehdd(ExternalConverterStrings language) : ExternalConverter(language) {
+public class Truehdd : ExternalConverter {
     /// <summary>
     /// The DAMF track after truehdd's run.
     /// </summary>
@@ -44,6 +44,11 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
     /// </summary>
     string versionFile;
 
+    /// <summary>
+    /// Translations for user feedback.
+    /// </summary>
+    readonly ExternalConverterStrings language = new();
+
     /// <inheritdoc/>
     public override void PrepareOnUI() {
         versionFile = Path.Combine(cavernizeData, "truehdd.version");
@@ -53,13 +58,13 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
         }
         cacheZip = Path.Combine(cavernizeData, "truehdd.zip");
 
-        UpdateStatusMessage(language.LicenceFetch);
-        string licence = HTTP.GET(licenceUrl) ?? throw new NetworkException(string.Format(language.LicenceFail, "truehdd"));
-        UpdateStatusMessage(language.WaitingUserAccept);
-        LicenceDisplay.SetDescription(string.Format(language.LicenceNeeded, "truehdd", "Meridian Lossless Packing"));
+        UpdateStatusMessage(language["LicFe"]);
+        string licence = HTTP.GET(licenceUrl) ?? throw new NetworkException(string.Format(language["LicFa"], "truehdd"));
+        UpdateStatusMessage(language["LisWa"]);
+        LicenceDisplay.SetDescription(string.Format(language["LicNe"], "truehdd", "Meridian Lossless Packing"));
         LicenceDisplay.SetLicenceText(licence);
         if (!LicenceDisplay.Prompt()) {
-            throw new OperationCanceledException(language.UserCancelled);
+            throw new OperationCanceledException(language["LicCa"]);
         }
     }
 
@@ -77,14 +82,14 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
         string folder = Path.GetDirectoryName(source.Path);
         tempTrack = Path.Combine(folder, tempFile);
         if (needTempTrack) {
-            UpdateStatusMessage(language.ExtractingBitstream);
+            UpdateStatusMessage(language["PrgRB"]);
             using ExtractTrackFromContainer extractor = new(source.Track, File.OpenWrite(tempTrack));
             while (extractor.Process()) {
                 // Extraction in progress
             }
         }
 
-        UpdateStatusMessage(string.Format(language.Converting, "truehdd"));
+        UpdateStatusMessage(string.Format(language["PrgCo"], "truehdd"));
         string toDecode = needTempTrack ? tempTrack : source.Path;
         ProcessStartInfo truehdd = new() {
             FileName = Path.Combine(unpackDir, "truehdd.exe"),
@@ -113,7 +118,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             reader = AudioReader.Open(tempTrack + ".caf");
             codec = Codec.PCM_LE;
         }
-        track = new CavernizeTrack(reader, codec, 0, new TrackStrings());
+        track = new CavernizeTrack(reader, codec, 0);
         return track;
     }
 
@@ -142,7 +147,7 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
             Directory.Delete(unpackDir, true);
         }
 
-        string downloading = string.Format(language.Downloading, "truehdd");
+        string downloading = string.Format(language["PrgDl"], "truehdd");
         UpdateStatusMessage(downloading);
         string zip;
         try {
@@ -151,15 +156,15 @@ public class Truehdd(ExternalConverterStrings language) : ExternalConverter(lang
                 progress => UpdateStatusMessage($"{downloading} {progress:0.00%}"));
             downloader.Wait();
         } catch (Exception e) {
-            throw new NetworkException($"{language.NetworkError}{Environment.NewLine}{e.Message}");
+            throw new NetworkException($"{language["ErrNe"]}{Environment.NewLine}{e.Message}");
         }
 
-        UpdateStatusMessage(string.Format(language.Extracting, "truehdd"));
+        UpdateStatusMessage(string.Format(language["PrgEx"], "truehdd"));
         try {
             ZipFile.ExtractToDirectory(cacheZip, unpackDir);
             File.Delete(cacheZip);
         } catch (Exception e) {
-            throw new NetworkException($"{language.NetworkError}{Environment.NewLine}{e.Message}");
+            throw new NetworkException($"{language["ErrNe"]}{Environment.NewLine}{e.Message}");
         }
 
         File.WriteAllText(versionFile, zip);

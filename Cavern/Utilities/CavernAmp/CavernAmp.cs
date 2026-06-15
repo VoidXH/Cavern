@@ -48,6 +48,11 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// When set, <see cref="IsMono"/> will return the value. When null, <see cref="IsMono"/> will return if the running backend is Mono.
+        /// </summary>
+        public static bool? MonoOverride { get; set; }
+
+        /// <summary>
         /// Is the CavernAmp DLL present and the platform is correct?
         /// </summary>
         static bool available;
@@ -71,7 +76,7 @@ namespace Cavern.Utilities {
         /// The running CLR is Mono, which limits optimization possibilities and for example,
         /// Vectors run much slower, they should not be used.
         /// </summary>
-        public static bool IsMono() => mono ??= Type.GetType("Mono.Runtime") != null;
+        public static bool IsMono() => MonoOverride ?? (mono ??= Type.GetType("Mono.Runtime") != null);
 
         /// <summary>
         /// Gets supported CPU instruction sets.

@@ -32,6 +32,8 @@
 		<None Include="..\docs\NuGet Readme.md" Pack="true" PackagePath="README.md" Link="Resources\NuGet Readme.md" />
 		<None Include="..\docs\NuGet Licence.md" Pack="true" PackagePath="LICENCE.md" Link="Resources\NuGet Licence.md" />
 		<None Include="Resources\CavernLogo.png" Pack="true" PackagePath="CavernLogo.png" />
+		<Compile Include="..\CavernSamples\VoidX.WPF\Language\LanguageBase.cs" Link="VoidX.WPF\Language\LanguageBase.cs" />
+		<Compile Include="..\CavernSamples\VoidX.WPF\Language\LanguageSettings.cs" Link="VoidX.WPF\Language\LanguageSettings.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

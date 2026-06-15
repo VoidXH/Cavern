@@ -30,6 +30,6 @@ sealed class FilterCommand : Command {
             throw new CommandException($"The file \"{args[offset]}\" does not exist.");
         }
 
-        app.LoadRoomCorrection(args[offset], new ConversionStrings());
+        app.LoadRoomCorrection(args[offset]);
     }
 }

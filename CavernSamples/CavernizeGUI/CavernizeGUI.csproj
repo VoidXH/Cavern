@@ -45,17 +45,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Resources\MainWindowStrings.xaml" />
-		<EmbeddedResource Include="Resources\MainWindowStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\RenderTargetSelectorStrings.xaml" />
-		<EmbeddedResource Include="Resources\RenderTargetSelectorStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\TrackStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\ConversionStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\ExternalConverterStrings.hu-HU.xaml" />
-		<EmbeddedResource Include="Resources\RenderReportStrings.hu-HU.xaml" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.Format\Cavern.Format.csproj" />
 		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
 		<ProjectReference Include="..\..\Libraries\Cavernize.Avalonia\Cavernize.Avalonia.csproj" />

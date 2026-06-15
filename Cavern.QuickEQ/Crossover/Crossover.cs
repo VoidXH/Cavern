@@ -2,6 +2,7 @@
 
 using Cavern.Filters;
 using Cavern.Filters.Interfaces;
+using Cavern.QuickEQ.SignalGeneration;
 
 namespace Cavern.QuickEQ.Crossover {
     /// <summary>
@@ -65,8 +66,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// Generate a 2nd order impulse response for a simple filter.
         /// </summary>
         static float[] Simulate(BiquadFilter filter, int length) {
-            float[] impulse = new float[length];
-            impulse[0] = 1;
+            float[] impulse = WaveformGenerator.DiracDelta(length);
             filter.Process(impulse);
             ((BiquadFilter)filter.Clone()).Process(impulse);
             return impulse;

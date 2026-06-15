@@ -1,6 +1,6 @@
-﻿using System;
-using System.Globalization;
-using System.Windows;
+﻿using System.Windows;
+
+using Cavern.WPF.Utils;
 
 using FilterStudio.Windows;
 using FilterStudio.Windows.PipelineSteps;
@@ -13,35 +13,23 @@ namespace FilterStudio.Consts {
         /// <summary>
         /// Get the <see cref="MainWindow"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= GetFor("MainWindowStrings");
+        public static ResourceDictionary GetMainWindowStrings() => mainWindowCache ??= ResourceUtils.GetTranslationFor("MainWindowStrings", supported);
 
         /// <summary>
         /// Get the <see cref="ConvolutionLengthDialog"/>'s translation.
         /// </summary>
         public static ResourceDictionary GetConvolutionLengthDialogStrings() =>
-            convolutionLengthDialogCache ??= GetFor("ConvolutionLengthDialogStrings");
+            convolutionLengthDialogCache ??= ResourceUtils.GetTranslationFor("ConvolutionLengthDialogStrings", supported);
 
         /// <summary>
         /// Get the <see cref="CrossoverDialog"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetCrossoverDialogStrings() => crossoverDialogCache ??= GetFor("CrossoverDialogStrings");
+        public static ResourceDictionary GetCrossoverDialogStrings() => crossoverDialogCache ??= ResourceUtils.GetTranslationFor("CrossoverDialogStrings", supported);
 
         /// <summary>
         /// Get the <see cref="RenameDialog"/>'s translation.
         /// </summary>
-        public static ResourceDictionary GetRenameDialogStrings() => renameDialogCache ??= GetFor("RenameDialogStrings");
-
-        /// <summary>
-        /// Get the translation of a resource file in the user's language, or in English if a translation couldn't be found.
-        /// </summary>
-        static ResourceDictionary GetFor(string resource) {
-            if (Array.BinarySearch(supported, CultureInfo.CurrentUICulture.Name) >= 0) {
-                resource += '.' + CultureInfo.CurrentUICulture.Name;
-            }
-            return new() {
-                Source = new Uri($";component/Resources/{resource}.xaml", UriKind.RelativeOrAbsolute)
-            };
-        }
+        public static ResourceDictionary GetRenameDialogStrings() => renameDialogCache ??= ResourceUtils.GetTranslationFor("RenameDialogStrings", supported);
 
         /// <summary>
         /// Languages supported that are not the default English.

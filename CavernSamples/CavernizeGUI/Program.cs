@@ -1,5 +1,7 @@
 ﻿using Avalonia;
+using CavernizeGUI.Resources;
 using VoidX.WPF.FFmpeg;
+using VoidX.WPF.Language;
 
 namespace CavernizeGUI {
     static class Program {
@@ -24,6 +26,7 @@ namespace CavernizeGUI {
                 FFmpeg.ConsoleMode = true;
             }
 
+            LanguageSettings.CultureOverride = Settings.Default.language;
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
             return ExitCode;
         }

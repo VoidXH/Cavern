@@ -11,8 +11,7 @@ using Cavern.Virtualizer;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
 using Cavernize.Logic.Rendering;
-
-using GuiLanguage = CavernizeGUI.Consts.Language;
+using CavernizeGUI.Language;
 
 namespace CavernizeGUI;
 
@@ -49,7 +48,7 @@ partial class MainWindow {
     /// <summary>
     /// Keeps track of export time and evaluates performance.
     /// </summary>
-    class Progressor(long length, Listener listener, GuiLanguage language, Action<double> updateProgress,
+    class Progressor(long length, Listener listener, MainWindowStrings language, Action<double> updateProgress,
         Action<string> updateStatus) {
         /// <summary>
         /// Samples rendered so far.
@@ -101,7 +100,7 @@ partial class MainWindow {
                     remDisp = remaining.ToString("d':'hh':'mm':'ss");
                 }
 
-                updateStatus?.Invoke(string.Format((string)language["ProgP"],
+                updateStatus?.Invoke(string.Format(language["ProgP"],
                     progress.ToString("0.00%"), speed.ToString("0.00"), remDisp));
                 updateProgress?.Invoke(progress);
                 untilUpdate = updateInterval;
@@ -112,7 +111,7 @@ partial class MainWindow {
         /// Report custom progress as finalization.
         /// </summary>
         public void Finalize(double progress) {
-            updateStatus?.Invoke(string.Format((string)language["FinaP"], progress.ToString("0.00%")));
+            updateStatus?.Invoke(string.Format(language["FinaP"], progress.ToString("0.00%")));
             updateProgress?.Invoke(progress);
         }
     }
@@ -169,7 +168,7 @@ partial class MainWindow {
                         wasError = true;
                         ThreadPool.QueueUserWorkItem(x => { // Don't hold up background processing
                             TimeSpan time = TimeSpan.FromSeconds(progressor.Rendered / environment.Listener.SampleRate);
-                            WarningRaised(string.Format((string)language["RenEr"], time, e.Message));
+                            WarningRaised(string.Format(language["RenEr"], time, e.Message));
                         });
                     }
                     result = new float[Listener.Channels.Length * environment.Listener.UpdateRate];
