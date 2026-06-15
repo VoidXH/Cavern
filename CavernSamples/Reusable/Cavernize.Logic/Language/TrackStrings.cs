@@ -36,7 +36,7 @@ public class TrackStrings() : LanguageBase<TrackStrings>(new() {
     ["C_LAF"] = "Limitless Audio Format",
 }) {
     /// <inheritdoc/>
-    protected override LanguageBase<TrackStrings>[] GetTranslations() => [new TrackStringsHU()];
+    protected override LanguageBase<TrackStrings>[] GetTranslations() => [new TrackStringsHU(), new TrackStringsZH()];
 
     /// <summary>
     /// Translated names of supported codecs.

@@ -98,6 +98,8 @@ partial class MainWindow {
                 window => window.LanguageEnglish(null, EventArgs.Empty)),
             MenuEntry.RadioKey("LanHu", viewModel => viewModel.LanguageCode == "hu-HU",
                 window => window.LanguageHungarian(null, EventArgs.Empty)),
+            MenuEntry.RadioKey("LanZh", viewModel => viewModel.LanguageCode == "zh-CN",
+                window => window.LanguageChinese(null, EventArgs.Empty)),
 #if DEBUG
             MenuEntry.RadioKey("LanTe", viewModel => viewModel.LanguageCode == "te-ST",
                 window => window.LanguageTest(null, EventArgs.Empty)),
@@ -163,6 +165,11 @@ partial class MainWindow {
     /// Set application language to Hungarian.
     /// </summary>
     void LanguageHungarian(object _, EventArgs __) => SetLanguageAndRestart("hu-HU");
+
+    /// <summary>
+    /// Set application language to Chinese.
+    /// </summary>
+    void LanguageChinese(object _, EventArgs __) => SetLanguageAndRestart("zh-CN");
 
     /// <summary>
     /// Set application language to an invalid, untranslated one.
