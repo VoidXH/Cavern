@@ -11,5 +11,5 @@ public class RenderTargetSelectorStrings() : LanguageBase<RenderTargetSelectorSt
     ["MulCH"] = "8+ channel layouts requiring special systems",
 }) {
     /// <inheritdoc/>
-    protected override LanguageBase<RenderTargetSelectorStrings>[] GetTranslations() => [new RenderTargetSelectorStringsHU()];
+    protected override LanguageBase<RenderTargetSelectorStrings>[] GetTranslations() => [new RenderTargetSelectorStringsHU(), new RenderTargetSelectorStringsZH()];
 }

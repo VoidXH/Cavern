@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows;
@@ -53,6 +53,11 @@ namespace CavernizeGUI {
         /// Set application language to Hungarian.
         /// </summary>
         void LanguageHungarian(object _, RoutedEventArgs __) => SetLanguage("hu-HU");
+
+        /// <summary>
+        /// Set application language to Chinese.
+        /// </summary>
+        void LanguageChinese(object _, RoutedEventArgs __) => SetLanguage("zh-CN");
 
         /// <summary>
         /// Set application language to an invalid, untranslated one.

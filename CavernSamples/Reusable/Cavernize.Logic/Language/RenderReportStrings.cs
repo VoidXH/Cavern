@@ -1,4 +1,4 @@
-﻿using VoidX.WPF.Language;
+using VoidX.WPF.Language;
 
 namespace Cavernize.Logic.Language;
 
@@ -30,7 +30,7 @@ public class RenderReportStrings() : LanguageBase<RenderReportStrings>(new() {
     ["Grad5"] = "F",
 }) {
     /// <inheritdoc/>
-    protected override LanguageBase<RenderReportStrings>[] GetTranslations() => [new RenderReportStringsHU()];
+    protected override LanguageBase<RenderReportStrings>[] GetTranslations() => [new RenderReportStringsHU(), new RenderReportStringsZH()];
 
     /// <summary>
     /// 6 grades from best to worst.

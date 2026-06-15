@@ -1,4 +1,4 @@
-﻿using VoidX.WPF.Language;
+using VoidX.WPF.Language;
 
 namespace Cavernize.Logic.Language;
 
@@ -10,5 +10,5 @@ public class ConversionStrings() : LanguageBase<ConversionStrings>(new() {
     ["ErCFo"] = "Convolution EQ file for the {0} channel was not found in this export ({1}).",
 }) {
     /// <inheritdoc/>
-    protected override LanguageBase<ConversionStrings>[] GetTranslations() => [new ConversionStringsHU()];
+    protected override LanguageBase<ConversionStrings>[] GetTranslations() => [new ConversionStringsHU(), new ConversionStringsZH()];
 }

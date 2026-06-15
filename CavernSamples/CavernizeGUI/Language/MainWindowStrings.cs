@@ -34,6 +34,7 @@ public class MainWindowStrings() : LanguageBase<MainWindowStrings>(new() {
     ["MenuL"] = "Language",
     ["LanEn"] = "English",
     ["LanHu"] = "Magyar",
+    ["LanZh"] = "简体中文",
     ["SySet"] = "System",
     ["RSInf"] = "Choose a layout, and place your speakers accordingly. Click the \"Display wiring\" button to see which output will change to which actual " +
     "channel. For maximum audio quality, calibrate your system with QuickEQ.",
@@ -97,5 +98,5 @@ public class MainWindowStrings() : LanguageBase<MainWindowStrings>(new() {
     "their default containers in the selected folder. If you press No, you can choose the output folders, file names, and container formats individually.",
 }) {
     /// <inheritdoc/>
-    protected override LanguageBase<MainWindowStrings>[] GetTranslations() => [new MainWindowStringsHU()];
+    protected override LanguageBase<MainWindowStrings>[] GetTranslations() => [new MainWindowStringsHU(), new MainWindowStringsZH()];
 }
