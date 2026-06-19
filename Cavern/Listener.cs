@@ -274,10 +274,15 @@ namespace Cavern {
                 }
                 return result;
             } else {
-                int sampleCount = frames * Channels.Length * UpdateRate;
-                if (multiframeBuffer.Length != sampleCount) {
-                    multiframeBuffer = new float[sampleCount];
+                try {
+                    int sampleCount = frames * Channels.Length * UpdateRate;
+                    if (multiframeBuffer.Length != sampleCount) {
+                        multiframeBuffer = new float[sampleCount];
+                    }
+                } catch (OverflowException) {
+                    throw new OverflowException($"Total sample count has overflown with {frames} frames * {Channels.Length} channels * {UpdateRate} samples per update.");
                 }
+
                 for (int frame = 0; frame < frames; frame++) {
                     float[] frameBuffer = Frame();
                     Array.Copy(frameBuffer, 0, multiframeBuffer, frame * frameBuffer.Length, frameBuffer.Length);

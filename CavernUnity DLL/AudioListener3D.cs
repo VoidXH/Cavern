@@ -89,8 +89,8 @@ namespace Cavern {
             // Append new samples to the filter output buffer
             int channels = Listener.Channels.Length;
             lock (cavernListener) {
-                Output = cavernListener.Render((unityBuffer.Length - bufferPosition) / unityChannels *
-                    cachedSampleRate / SystemSampleRate / UpdateRate + 1);
+                int remainingSamples = Math.Max(unityBuffer.Length - bufferPosition, 0);
+                Output = cavernListener.Render(remainingSamples / unityChannels * cachedSampleRate / (SystemSampleRate * UpdateRate) + 1);
             }
             float[] renderBuffer = Output;
 
