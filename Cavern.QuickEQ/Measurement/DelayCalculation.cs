@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Filters;
+using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Measurement {
@@ -11,8 +12,9 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by a determined <paramref name="method"/>.
         /// </summary>
-        public static int Get(float[] impulseResponse, DelayDeterminationType method) => method switch {
+        public static float Get(float[] impulseResponse, DelayDeterminationType method) => method switch {
             DelayDeterminationType.None => 0,
+            DelayDeterminationType.Slope => GetSlopeDelay(impulseResponse),
             DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(impulseResponse),
             DelayDeterminationType.HilbertPeak => GetHilbertPeakDelay(impulseResponse),
             _ => throw new NotImplementedException(),
@@ -21,12 +23,18 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of a <paramref name="transferFunction"/> by a determined <paramref name="method"/>.
         /// </summary>
-        public static int Get(Complex[] transferFunction, DelayDeterminationType method) => method switch {
+        public static float Get(Complex[] transferFunction, DelayDeterminationType method) => method switch {
             DelayDeterminationType.None => 0,
+            DelayDeterminationType.Slope => GetSlopeDelay(transferFunction),
             DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(transferFunction),
             DelayDeterminationType.HilbertPeak => GetHilbertPeakDelay(transferFunction),
             _ => throw new NotImplementedException(),
         };
+
+        /// <summary>
+        /// Get the delay of an <paramref name="impulseResponse"/> by the slope of the phase response.
+        /// </summary>
+        public static float GetSlopeDelay(float[] impulseResponse) => GetSlopeDelay(impulseResponse.FFT());
 
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by the highest absolute value sample.
@@ -52,6 +60,15 @@ namespace Cavern.QuickEQ.Measurement {
             using PhaseShifter phaseShifter = new PhaseShifter(impulseResponse.Length, true);
             phaseShifter.Process(impulse);
             return GetImpulsePeakDelay(impulse);
+        }
+
+        /// <summary>
+        /// Get the delay of a <paramref name="transferFunction"/> by the slope of the phase response.
+        /// </summary>
+        public static float GetSlopeDelay(Complex[] transferFunction) {
+            float[] result = Measurements.GetPhase(transferFunction);
+            (double slope, double _) = GraphUtils.GetRegression(result);
+            return (float)(-slope * transferFunction.Length / (2 * Math.PI));
         }
 
         /// <summary>

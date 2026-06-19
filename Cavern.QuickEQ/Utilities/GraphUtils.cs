@@ -131,6 +131,7 @@ namespace Cavern.QuickEQ.Utilities {
 
         /// <summary>
         /// Get a line in the form of slope * x + intercept that fits the curve drawn by this <paramref name="data"/>.
+        /// Slope means the delay in radians per frequency bin.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static (float slope, float intercept) GetRegression(float[] data) => GetRegression(data, 0, data.Length);

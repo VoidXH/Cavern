@@ -31,11 +31,6 @@ namespace Cavern.QuickEQ.Graphing {
         public DelayDeterminationType DelayCompensation = DelayDeterminationType.ImpulsePeak;
 
         /// <summary>
-        /// Detect phase properties until this band and no further, as high resolution artifacts might break linearization.
-        /// </summary>
-        public double DetectionFrequency { get; set; } = 2000;
-
-        /// <summary>
         /// Displays phase responses of multiple channels. Works in degrees.
         /// </summary>
         public PhaseRenderer(int width, int height) : base(width, height) {
@@ -90,7 +85,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         /// <remarks>Downsampling must not happen externally as that might create unwrapping errors.</remarks>
         Equalizer TransferFunctionToPhaseEqualizer(Complex[] source, float endFrequency, int sampleRate) {
-            float[] phase = PhaseDelayCompensation.CorrectDelay(source, sampleRate, DelayCompensation, StartFrequency, DetectionFrequency, endFrequency, Unwrap);
+            float[] phase = PhaseDelayCompensation.GetUndelayedPhase(source, DelayCompensation, Unwrap);
             WaveformUtils.Gain(phase, 180 / MathF.PI);
             Equalizer result = EQGenerator.FromCurve(phase, sampleRate);
             result.DownsampleLogarithmically(Resolution, StartFrequency, EndFrequency);
