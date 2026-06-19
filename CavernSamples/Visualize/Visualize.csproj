@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0-windows</TargetFramework>
+		<Nullable>disable</Nullable>
+		<UseWPF>true</UseWPF>
+		<Product>QuickEQ Result Merger</Product>
+		<Company>VoidX</Company>
+		<Copyright>Copyright © Bence Sgánetz 2016-2026</Copyright>
+		<Description>Visualizes curves from Cavern for debugging.</Description>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<DebugSymbols>false</DebugSymbols>
+		<DebugType>none</DebugType>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Libraries\Cavern.WPF\Cavern.WPF.csproj" />
+	</ItemGroup>
+</Project>

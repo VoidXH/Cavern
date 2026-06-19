@@ -20,19 +20,26 @@ namespace Cavern.Filters {
         public PhaseShifter(int blockSize, bool forward) : base(GenerateFilter(blockSize, forward)) { }
 
         /// <summary>
-        /// Generate the Hilbert transform's impulse response for a given block size.
+        /// Generate the Hilbert transform's impulse response for a given block size: 1/x with even elements being 0.
         /// </summary>
-        static float[] GenerateFilter(int blockSize, bool forward) {
+        public static float[] GenerateFilter(int blockSize, bool forward) {
             float[] result = new float[blockSize];
-            int half = blockSize / 2;
+            int center = blockSize / 2;
             float dir = forward ? 1 : -1;
-            for (int i = half--; i < blockSize; i++) {
-                result[i] = dir / ((i - half) * MathF.PI);
+            float idealMul = dir / MathF.PI;
+            float windowMul = 2 * MathF.PI / blockSize;
+
+            for (int i = 0; i < blockSize; i++) {
+                int t = i - center;
+                if (t % 2 == 0) {
+                    result[i] = 0.0f;
+                } else {
+                    float ideal = idealMul / t;
+                    float window = .5f * (MathF.Cos(windowMul * t) + 1);
+                    result[i] = ideal * window;
+                }
             }
-            half++;
-            for (int i = 0; i < half; i++) {
-                result[i] = dir / ((-half + i) * MathF.PI);
-            }
+
             return result;
         }
 

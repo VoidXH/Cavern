@@ -89,7 +89,7 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
-        /// Add a curve with an ARGB color.
+        /// Add a <paramref name="curve"/> with an ARGB <paramref name="color"/>.
         /// </summary>
         public RenderedCurve AddCurve(Equalizer curve, uint color) => AddCurve(curve, color, true);
 

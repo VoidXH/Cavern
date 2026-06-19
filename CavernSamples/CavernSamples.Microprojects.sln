@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.2.11430.68 d18.0
+VisualStudioVersion = 18.2.11430.68
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cavern", "..\Cavern\Cavern.csproj", "{25898051-C846-4ED1-9A4F-A2D327B5FB0F}"
 EndProject
@@ -44,6 +44,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Circles", "Circles\Circles.csproj", "{F4A0DA76-EE81-404E-B4EC-E7BDD3B85F17}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cavern.MAUI", "..\Libraries\Cavern.MAUI\Cavern.MAUI.csproj", "{7A31ECFF-37C8-4EFD-ACE8-447DE3068E90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Visualize", "Visualize\Visualize.csproj", "{BA425343-D17E-7E40-D271-C3B40A9813A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -120,6 +122,10 @@ Global
 		{7A31ECFF-37C8-4EFD-ACE8-447DE3068E90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A31ECFF-37C8-4EFD-ACE8-447DE3068E90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A31ECFF-37C8-4EFD-ACE8-447DE3068E90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA425343-D17E-7E40-D271-C3B40A9813A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA425343-D17E-7E40-D271-C3B40A9813A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA425343-D17E-7E40-D271-C3B40A9813A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA425343-D17E-7E40-D271-C3B40A9813A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -46,6 +46,8 @@ rd /s /q CavernSamples\Reusable\Cavernize.Logic\bin
 rd /s /q CavernSamples\Reusable\Cavernize.Logic\obj
 rd /s /q CavernSamples\Reusable\CavernPipeServer.Logic\bin
 rd /s /q CavernSamples\Reusable\CavernPipeServer.Logic\obj
+rd /s /q CavernSamples\Visualize\bin
+rd /s /q CavernSamples\Visualize\obj
 rd /s /q CavernSamples\WAVChannelReorderer\bin
 rd /s /q CavernSamples\WAVChannelReorderer\obj
 rd /s /q CavernSamples\WavefrontSimulator\bin

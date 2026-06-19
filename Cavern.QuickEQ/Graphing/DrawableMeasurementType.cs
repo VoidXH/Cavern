@@ -15,5 +15,9 @@
         /// A special case of <see cref="Graph"/>, handling phase response calculation in parsing using the <see cref="PhaseRenderer"/>.
         /// </summary>
         Phase,
+        /// <summary>
+        /// Displays a raw waveform with <see cref="WaveformRenderer"/>.
+        /// </summary>
+        Waveform,
     }
 }
