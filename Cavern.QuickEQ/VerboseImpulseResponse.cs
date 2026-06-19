@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.QuickEQ.Measurement;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
@@ -116,7 +117,7 @@ namespace Cavern.QuickEQ {
                 if (delay != -1) {
                     return delay;
                 }
-                return delay = GetDelay(Response);
+                return delay = DelayCalculation.GetImpulsePeakDelay(Response);
             }
         }
         int delay = -1;
@@ -181,22 +182,6 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public VerboseImpulseResponse(float[] reference, float[] response) :
             this(Measurements.GetFrequencyResponse(reference, response).IFFT()) { }
-
-        /// <summary>
-        /// Get the delay of an impulse response in samples. In this case, delay means the index of the highest absolute value sample.
-        /// </summary>
-        public static int GetDelay(float[] response) {
-            int result = 0;
-            float absPeak = Math.Abs(response[0]), absHere;
-            for (int pos = 1; pos < response.Length; pos++) {
-                absHere = Math.Abs(response[pos]);
-                if (absPeak < absHere) {
-                    absPeak = absHere;
-                    result = pos;
-                }
-            }
-            return result;
-        }
 
         /// <summary>
         /// Get the <paramref name="position"/>th peak in the impulse response.

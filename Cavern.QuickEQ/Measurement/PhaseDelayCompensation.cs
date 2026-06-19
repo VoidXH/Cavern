@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
@@ -18,13 +18,20 @@ namespace Cavern.QuickEQ.Measurement {
         /// <param name="detectionFrequency">Optimally the last frequency to consider for frequency-limited compensation types</param>
         /// <param name="endFrequency">The transfer function's last valid frequency to consider for frequency-limited compensation types</param>
         /// <param name="unwrap">Return unwrapped phase</param>
-        public static float[] CorrectDelay(Complex[] transferFunction, int sampleRate, PhaseDelayCompensationType type,
+        public static float[] CorrectDelay(Complex[] transferFunction, int sampleRate, DelayDeterminationType type,
             double startFrequency, double detectionFrequency, double endFrequency, bool unwrap) {
-            if (type == PhaseDelayCompensationType.ImpulsePeak) {
-                transferFunction = CompensateForImpulsePeak(transferFunction);
+            int delay = 0;
+            if (type == DelayDeterminationType.ImpulsePeak) {
+                delay = DelayCalculation.GetImpulsePeakDelay(transferFunction);
+            } else if (type == DelayDeterminationType.HilbertPeak) {
+                delay = DelayCalculation.GetHilbertPeakDelay(transferFunction);
             }
+            if (delay != 0) {
+                WaveformUtils.Delay(transferFunction, -delay);
+            }
+
             float[] result = Measurements.GetPhase(transferFunction);
-            if (type == PhaseDelayCompensationType.Slope) {
+            if (type == DelayDeterminationType.Slope) {
                 Measurements.UnwrapPhase(result);
                 CompensateForSlope(result, startFrequency, detectionFrequency, endFrequency, sampleRate);
                 if (!unwrap) {
@@ -45,18 +52,6 @@ namespace Cavern.QuickEQ.Measurement {
             for (int i = 0; i < phase.Length; i++) {
                 phase[i] -= (float)(intercept + slope * i);
             }
-        }
-
-        /// <summary>
-        /// Remove the delay's effects from the initial <paramref name="transferFunction"/> by adding a delay that moves the impulse peak to the origin.
-        /// </summary>
-        static Complex[] CompensateForImpulsePeak(Complex[] transferFunction) {
-            Complex[] delayCalculator = transferFunction.FastClone();
-            Measurements.IFFT(delayCalculator);
-            int delay = new VerboseImpulseResponse(delayCalculator).Delay;
-            Complex[] result = transferFunction.FastClone();
-            WaveformUtils.Delay(result, -delay);
-            return result;
         }
     }
 }

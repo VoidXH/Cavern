@@ -25,14 +25,27 @@ namespace Cavern.Utilities {
 
         /// <summary>
         /// Apply a delay of a given number of <paramref name="samples"/> on a <paramref name="waveform"/>.
+        /// A positive value pushes the <paramref name="waveform"/> to the right (actual delay).
+        /// A negative value pushes the <paramref name="waveform"/> to the left (advance).
         /// </summary>
         public static void Delay(float[] waveform, int samples) {
-            int count = waveform.Length - samples;
-            if (count > 0) {
-                Array.Copy(waveform, 0, waveform, samples, count);
-                Array.Clear(waveform, 0, samples);
-            } else {
-                Array.Clear(waveform, 0, waveform.Length);
+            if (samples > 0) { // Delay
+                int count = waveform.Length - samples;
+                if (count > 0) {
+                    Array.Copy(waveform, 0, waveform, samples, count);
+                    Array.Clear(waveform, 0, samples);
+                } else {
+                    Array.Clear(waveform, 0, waveform.Length);
+                }
+            } else if (samples < 0) { // Advance
+                int absSamples = Math.Abs(samples);
+                int count = waveform.Length - absSamples;
+                if (count > 0) {
+                    Array.Copy(waveform, absSamples, waveform, 0, count);
+                    Array.Clear(waveform, count, absSamples);
+                } else {
+                    Array.Clear(waveform, 0, waveform.Length);
+                }
             }
         }
 

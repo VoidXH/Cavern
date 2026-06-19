@@ -28,7 +28,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Method to remove the delay's effect from the displayed phase measurements.
         /// </summary>
-        public PhaseDelayCompensationType DelayCompensation = PhaseDelayCompensationType.ImpulsePeak;
+        public DelayDeterminationType DelayCompensation = DelayDeterminationType.ImpulsePeak;
 
         /// <summary>
         /// Detect phase properties until this band and no further, as high resolution artifacts might break linearization.

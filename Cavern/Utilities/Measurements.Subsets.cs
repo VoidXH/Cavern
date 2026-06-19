@@ -3,7 +3,25 @@
 namespace Cavern.Utilities {
     public static partial class Measurements {
         /// <summary>
-        /// Get the real part of a signal's FFT.
+        /// Get the real part of a complex signal after performing IFFT on it.
+        /// </summary>
+        public static float[] GetRealIFFT(Complex[] samples) {
+            Complex[] workingTF = samples.FastClone();
+            IFFT(workingTF);
+            return GetRealPart(workingTF);
+        }
+
+        /// <summary>
+        /// Get the real part of a complex signal after performing IFFT on it.
+        /// </summary>
+        public static float[] GetRealIFFT(Complex[] samples, FFTCache cache) {
+            Complex[] workingTF = samples.FastClone();
+            IFFT(workingTF, cache);
+            return GetRealPart(workingTF);
+        }
+
+        /// <summary>
+        /// Get the real part of a complex signal (most commonly an IFFT result after Fourier-space operations).
         /// </summary>
         public static float[] GetRealPart(Complex[] samples) {
             float[] output = new float[samples.Length];
@@ -14,7 +32,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Get the real part of a signal's FFT.
+        /// Get the real part of a complex signal (most commonly an IFFT result after Fourier-space operations).
         /// </summary>
         public static unsafe void GetRealPart(this Complex[] samples, float[] output) {
             fixed (Complex* pSamples = samples)
@@ -29,7 +47,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Get half of the real part of a signal's FFT.
+        /// Get half of the real part of a complex signal (most commonly an IFFT result after Fourier-space operations).
         /// </summary>
         public static float[] GetRealPartHalf(Complex[] samples) {
             float[] output = new float[samples.Length / 2];
