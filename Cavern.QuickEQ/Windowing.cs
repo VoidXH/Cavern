@@ -115,8 +115,9 @@ namespace Cavern.QuickEQ {
                 rightSpanDiv = MathF.PI / rightSpan;
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
-                Array.Clear(samples, 0, start);
-                for (int sample = Math.Max(start, 0), actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; sample++) {
+                int posStart = Math.Max(start, 0);
+                Array.Clear(samples, 0, posStart);
+                for (int sample = posStart, actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; sample++) {
                     float mul = leftFunc((sample - start) * leftSpanDiv);
                     samples[sample] *= mul;
                 }

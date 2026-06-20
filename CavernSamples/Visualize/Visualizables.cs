@@ -1,4 +1,6 @@
 ﻿using Cavern.Filters;
+using Cavern.QuickEQ.Utilities;
+using Cavern.Utilities;
 
 namespace Visualize;
 
@@ -15,7 +17,21 @@ public static class Visualizables {
     /// All supported functions for visualization.
     /// </summary>
     public static readonly Visualizable[] Database = [
-        new("Phase shifter (Hilbert transform, forward)", () => PhaseShifter.GenerateFilter(Samples, true)),
-        new("Phase shifter (Hilbert transform, reverse)", () => PhaseShifter.GenerateFilter(Samples, false)),
+        new("Phase shifter (Hilbert transform, forward)", _ => PhaseShifter.GenerateFilter(Samples, true)),
+        new("Phase shifter (Hilbert transform, reverse)", _ => PhaseShifter.GenerateFilter(Samples, false)),
+    ];
+
+    /// <summary>
+    /// Display the loaded audio file.
+    /// </summary>
+    public static readonly Visualizable rawFile = new("Loaded audio file", x => x);
+
+    /// <summary>
+    /// All supported functions for processing of loaded audio files.
+    /// </summary>
+    public static readonly Visualizable[] DatabaseForFiles = [
+        rawFile,
+        new("Phase shifted loaded file (forward)", file => PhaseShifter.PhaseShiftInPlace(file, true)),
+        new("Envelope", Measurements.GetEnvelope),
     ];
 }

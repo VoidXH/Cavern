@@ -43,6 +43,12 @@ namespace Cavern.Filters {
             return result;
         }
 
+        /// <summary>
+        /// Get the phase-shifted <paramref name="signal"/> without the added time delay of <see cref="PhaseShifter"/> which is continuously applied.
+        /// </summary>
+        public static float[] PhaseShiftInPlace(float[] signal, bool forward) =>
+            ConvolveSafe(signal, GenerateFilter(signal.Length, forward))[(signal.Length / 2)..(signal.Length * 3 / 2)];
+
         /// <inheritdoc/>
         public override object Clone() => new PhaseShifter(Length);
     }

@@ -9,6 +9,7 @@
         None,
         /// <summary>
         /// The delay is the slope of a phase curve, detect the rise of that slope.
+        /// When used with windowing, only the +-64 sample area of the <see cref="ImpulseEnvelopePeak"/> will be kept.
         /// </summary>
         Slope,
         /// <summary>
@@ -16,8 +17,8 @@
         /// </summary>
         ImpulsePeak,
         /// <summary>
-        /// Determine the peak sample's index in the phase shifted impulse response as delay.
+        /// Determine the peak sample's index by the envelope of the impulse response.
         /// </summary>
-        HilbertPeak,
+        ImpulseEnvelopePeak,
     }
 }

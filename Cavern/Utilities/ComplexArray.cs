@@ -179,6 +179,18 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Merge the <paramref name="real"/> and <paramref name="imaginary"/> parts from different sources.
+        /// </summary>
+        /// <remarks>The length of both arrays must match.</remarks>
+        public static Complex[] Merge(float[] real, float[] imaginary) {
+            Complex[] result = new Complex[real.Length];
+            for (int i = 0; i < real.Length; i++) {
+                result[i] = new Complex(real[i], imaginary[i]);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Convert a float array to complex a size that's ready for FFT.
         /// </summary>
         public static Complex[] ParseForFFT(this float[] source) {

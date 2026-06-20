@@ -46,6 +46,15 @@ namespace Test.Cavern.QuickEQ {
         }
 
         /// <summary>
+        /// Tests if windows that reach over the ends of the signal don't throw exceptions.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void Stability() {
+            float[] window = new float[10];
+            Windowing.ApplyWindow(window, Window.Rectangular, Window.Rectangular, -10, 5, 20);
+        }
+
+        /// <summary>
         /// Tests if the Tukey window applies to both ends of a signal.
         /// </summary>
         [TestMethod, Timeout(1000)]

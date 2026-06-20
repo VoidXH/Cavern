@@ -26,6 +26,11 @@ namespace Cavern.QuickEQ.Graphing {
         public bool Unwrap { get; set; } = true;
 
         /// <summary>
+        /// Window the impulse to +/- this many samples around the found peak before getting its phase curve. A 0 value disables this feature.
+        /// </summary>
+        public int Windowing { get; set; } = 64;
+
+        /// <summary>
         /// Method to remove the delay's effect from the displayed phase measurements.
         /// </summary>
         public DelayDeterminationType DelayCompensation = DelayDeterminationType.ImpulsePeak;
@@ -85,7 +90,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// </summary>
         /// <remarks>Downsampling must not happen externally as that might create unwrapping errors.</remarks>
         Equalizer TransferFunctionToPhaseEqualizer(Complex[] source, float endFrequency, int sampleRate) {
-            float[] phase = PhaseDelayCompensation.GetUndelayedPhase(source, DelayCompensation, Unwrap);
+            float[] phase = PhaseDelayCompensation.GetUndelayedPhase(source, DelayCompensation, Unwrap, Windowing);
             WaveformUtils.Gain(phase, 180 / MathF.PI);
             Equalizer result = EQGenerator.FromCurve(phase, sampleRate);
             result.DownsampleLogarithmically(Resolution, StartFrequency, EndFrequency);

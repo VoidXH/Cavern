@@ -1,6 +1,5 @@
 ﻿using System;
 
-using Cavern.Filters;
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
 
@@ -16,7 +15,18 @@ namespace Cavern.QuickEQ.Measurement {
             DelayDeterminationType.None => 0,
             DelayDeterminationType.Slope => GetSlopeDelay(impulseResponse),
             DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(impulseResponse),
-            DelayDeterminationType.HilbertPeak => GetHilbertPeakDelay(impulseResponse),
+            DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(impulseResponse),
+            _ => throw new NotImplementedException(),
+        };
+
+        /// <summary>
+        /// Get the delay of an <paramref name="impulseResponse"/> by a determined <paramref name="method"/>. Better performance is achieved with an <see cref="FFTCache"/>.
+        /// </summary>
+        public static float Get(float[] impulseResponse, DelayDeterminationType method, FFTCache cache) => method switch {
+            DelayDeterminationType.None => 0,
+            DelayDeterminationType.Slope => GetSlopeDelay(impulseResponse, cache),
+            DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(impulseResponse),
+            DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(impulseResponse),
             _ => throw new NotImplementedException(),
         };
 
@@ -27,7 +37,18 @@ namespace Cavern.QuickEQ.Measurement {
             DelayDeterminationType.None => 0,
             DelayDeterminationType.Slope => GetSlopeDelay(transferFunction),
             DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(transferFunction),
-            DelayDeterminationType.HilbertPeak => GetHilbertPeakDelay(transferFunction),
+            DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(transferFunction),
+            _ => throw new NotImplementedException(),
+        };
+
+        /// <summary>
+        /// Get the delay of a <paramref name="transferFunction"/> by a determined <paramref name="method"/>. Better performance is achieved with an <see cref="FFTCache"/>.
+        /// </summary>
+        public static float Get(Complex[] transferFunction, DelayDeterminationType method, FFTCache cache) => method switch {
+            DelayDeterminationType.None => 0,
+            DelayDeterminationType.Slope => GetSlopeDelay(transferFunction),
+            DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(transferFunction, cache),
+            DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(transferFunction, cache),
             _ => throw new NotImplementedException(),
         };
 
@@ -35,6 +56,11 @@ namespace Cavern.QuickEQ.Measurement {
         /// Get the delay of an <paramref name="impulseResponse"/> by the slope of the phase response.
         /// </summary>
         public static float GetSlopeDelay(float[] impulseResponse) => GetSlopeDelay(impulseResponse.FFT());
+
+        /// <summary>
+        /// Get the delay of an <paramref name="impulseResponse"/> by the slope of the phase response.
+        /// </summary>
+        public static float GetSlopeDelay(float[] impulseResponse, FFTCache cache) => GetSlopeDelay(impulseResponse.FFT(cache));
 
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by the highest absolute value sample.
@@ -53,13 +79,11 @@ namespace Cavern.QuickEQ.Measurement {
         }
 
         /// <summary>
-        /// Get the delay of an <paramref name="impulseResponse"/> by the highest absolute value sample of the impulse response's Hilbert transform.
+        /// Get the delay of an <paramref name="impulseResponse"/> by the highest absolute value sample of the impulse response's envelope.
         /// </summary>
-        public static int GetHilbertPeakDelay(float[] impulseResponse) {
-            float[] impulse = impulseResponse.FastClone();
-            using PhaseShifter phaseShifter = new PhaseShifter(impulseResponse.Length, true);
-            phaseShifter.Process(impulse);
-            return GetImpulsePeakDelay(impulse);
+        public static int GetImpulseEnvelopePeakDelay(float[] impulseResponse) {
+            float[] envelope = Measurements.GetEnvelope(impulseResponse);
+            return GetImpulsePeakDelay(envelope);
         }
 
         /// <summary>
@@ -74,19 +98,27 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of a <paramref name="transferFunction"/> by the highest absolute value sample of the impulse response.
         /// </summary>
-        public static int GetImpulsePeakDelay(Complex[] transferFunction) {
-            float[] impulse = Measurements.GetRealIFFT(transferFunction);
-            return GetImpulsePeakDelay(impulse);
+        public static int GetImpulsePeakDelay(Complex[] transferFunction) => GetImpulsePeakDelay(transferFunction.GetRealIFFT());
+
+        /// <summary>
+        /// Get the delay of a <paramref name="transferFunction"/> by the highest absolute value sample of the impulse response.
+        /// </summary>
+        public static int GetImpulsePeakDelay(Complex[] transferFunction, FFTCache cache) => GetImpulsePeakDelay(transferFunction.GetRealIFFT(cache));
+
+        /// <summary>
+        /// Get the delay of a <paramref name="transferFunction"/> by the highest absolute value sample of the impulse response's envelope.
+        /// </summary>
+        public static int GetImpulseEnvelopePeakDelay(Complex[] transferFunction) {
+            using FFTCache cache = new FFTCache(transferFunction.Length);
+            return GetImpulseEnvelopePeakDelay(transferFunction, cache);
         }
 
         /// <summary>
-        /// Get the delay of a <paramref name="transferFunction"/> by the highest absolute value sample of the impulse response's Hilbert transform.
+        /// Get the delay of a <paramref name="transferFunction"/> by the highest absolute value sample of the impulse response's envelope.
         /// </summary>
-        public static int GetHilbertPeakDelay(Complex[] transferFunction) {
-            float[] impulse = Measurements.GetRealIFFT(transferFunction);
-            using PhaseShifter phaseShifter = new PhaseShifter(impulse.Length, true);
-            phaseShifter.Process(impulse);
-            return GetImpulsePeakDelay(impulse);
+        public static int GetImpulseEnvelopePeakDelay(Complex[] transferFunction, FFTCache cache) {
+            float[] impulseResponse = transferFunction.GetRealIFFT(cache);
+            return GetImpulseEnvelopePeakDelay(impulseResponse);
         }
     }
 }
