@@ -27,15 +27,15 @@ namespace Cavern.QuickEQ.Measurement {
         /// <param name="cache">Preallocated optimization data for faster processing</param>
         public static float[] GetUndelayedPhase(Complex[] transferFunction, DelayDeterminationType type, bool unwrap, int windowing, FFTCache cache) {
             float delay = DelayCalculation.Get(transferFunction, type, cache); // TODO: version that windows in slope calculation (around hilbert peak)
-            if (delay != 0) {
-                WaveformUtils.Delay(transferFunction, -delay);
-            }
 
-            if (windowing != 0) {
-                transferFunction.IFFT(cache);
-                int center = (int)delay;
-                Windowing.ApplyWindow(transferFunction, Window.Tukey, Window.Tukey, center - windowing, center, center + windowing);
-                transferFunction.FFT(cache);
+            if (delay != 0) {
+                if (windowing != 0) {
+                    transferFunction.IFFT(cache);
+                    int center = (int)delay;
+                    Windowing.ApplyWindow(transferFunction, Window.Tukey, Window.Tukey, center - windowing, center, center + windowing);
+                    transferFunction.FFT(cache);
+                }
+                WaveformUtils.Delay(transferFunction, -delay);
             }
 
             float[] result = Measurements.GetPhase(transferFunction);

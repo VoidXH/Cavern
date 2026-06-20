@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Cavern.QuickEQ.Equalization;
@@ -86,6 +87,25 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
+        /// Set up the graph so the phase curves fill the Y axis to at least on of its edges.
+        /// </summary>
+        public override void Normalize() {
+            double newPeak = 0;
+            for (int i = 0, c = Curves.Count; i < c; i++) {
+                IReadOnlyList<Band> curve = Curves[i].Curve.Bands;
+                for (int f = 0, c2 = curve.Count; f < c2; f++) {
+                    double absPeak = Math.Abs(curve[f].Gain);
+                    if (newPeak < absPeak) {
+                        newPeak = absPeak;
+                    }
+                }
+            }
+            Peak = (float)newPeak;
+            DynamicRange = 2 * Peak;
+            ReRenderFull();
+        }
+
+        /// <summary>
         /// With the rendering settings, parse phase curves for display.
         /// </summary>
         /// <remarks>Downsampling must not happen externally as that might create unwrapping errors.</remarks>
@@ -93,7 +113,7 @@ namespace Cavern.QuickEQ.Graphing {
             float[] phase = PhaseDelayCompensation.GetUndelayedPhase(source, DelayCompensation, Unwrap, Windowing);
             WaveformUtils.Gain(phase, 180 / MathF.PI);
             Equalizer result = EQGenerator.FromCurve(phase, sampleRate);
-            result.DownsampleLogarithmically(Resolution, StartFrequency, EndFrequency);
+            result.DownsampleLogarithmically(Resolution, StartFrequency, endFrequency);
             return result;
         }
     }

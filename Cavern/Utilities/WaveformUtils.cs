@@ -73,15 +73,15 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Apply a delay on the <paramref name="signal"/> even with fraction <paramref name="samples"/>.
+        /// Apply a delay on the <paramref name="transferFunction"/> even with fraction <paramref name="samples"/>.
         /// You could call it subsample delay precision.
         /// </summary>
-        public static void Delay(Complex[] signal, float samples) {
-            float cycle = 2 * (float)Math.PI * samples / signal.Length;
-            for (int i = 1; i < signal.Length / 2; i++) {
+        public static void Delay(Complex[] transferFunction, float samples) {
+            float cycle = 2 * (float)Math.PI * samples / transferFunction.Length;
+            for (int i = 1; i < transferFunction.Length / 2; i++) {
                 float phase = cycle * i;
-                signal[i].Rotate(-phase);
-                signal[^i].Rotate(phase);
+                transferFunction[i].Rotate(-phase);
+                transferFunction[^i].Rotate(phase);
             }
         }
 

@@ -87,10 +87,11 @@ namespace Cavern.QuickEQ.Measurement {
         }
 
         /// <summary>
-        /// Get the delay of a <paramref name="transferFunction"/> by the slope of the phase response.
+        /// Get the delay of a <paramref name="transferFunction"/> by the slope of the phase response in samples.
         /// </summary>
         public static float GetSlopeDelay(Complex[] transferFunction) {
             float[] result = Measurements.GetPhase(transferFunction);
+            Measurements.UnwrapPhase(result);
             (double slope, double _) = GraphUtils.GetRegression(result);
             return (float)(-slope * transferFunction.Length / (2 * Math.PI));
         }

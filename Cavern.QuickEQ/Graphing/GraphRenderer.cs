@@ -70,6 +70,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// List of displayed curves in overdrawing order.
         /// </summary>
+        protected IReadOnlyList<RenderedCurve> Curves => curves;
         readonly List<RenderedCurve> curves = new List<RenderedCurve>();
 
         /// <summary>
@@ -135,7 +136,7 @@ namespace Cavern.QuickEQ.Graphing {
         /// <summary>
         /// Set the <see cref="peak"/> to the max displayed gain.
         /// </summary>
-        public void Normalize() {
+        public virtual void Normalize() {
             double curvePeak = float.NegativeInfinity;
             for (int i = 0, c = curves.Count; i < c; i++) {
                 IReadOnlyList<Band> curve = curves[i].Curve.Bands;

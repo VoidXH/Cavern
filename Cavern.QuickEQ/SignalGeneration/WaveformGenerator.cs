@@ -20,6 +20,17 @@ namespace Cavern.QuickEQ.SignalGeneration {
         }
 
         /// <summary>
+        /// Generates a Dirac-delta in Fourier-space (constant 1).
+        /// </summary>
+        public static Complex[] DiracFourier(int length) {
+            Complex[] result = new Complex[length];
+            for (int i = 0; i < length; i++) {
+                result[i].Real = 1;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Generates precise pink noise through EQing white noise.
         /// </summary>
         /// <param name="length">The length of the generated noise in samples</param>

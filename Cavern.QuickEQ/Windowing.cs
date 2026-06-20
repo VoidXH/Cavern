@@ -107,29 +107,30 @@ namespace Cavern.QuickEQ {
         /// <param name="splitter">The point where the two window functions change</param>
         /// <param name="end">End of the window in samples</param>
         public static void ApplyWindow(Complex[] samples, Window left, Window right, int start, int splitter, int end) {
-            int leftSpan = splitter - start,
-                rightSpan = end - splitter,
-                endMirror = splitter - (end - splitter),
-                posSplitter = Math.Max(splitter, 0);
+            int posStart = Math.Clamp(start, 0, samples.Length);
+            int posEnd = Math.Clamp(end, 0, samples.Length);
+            int posSplitter = Math.Clamp(splitter, 0, samples.Length);
+
+            int leftSpan = posSplitter - posStart,
+                rightSpan = posEnd - posSplitter,
+                endMirror = posSplitter - rightSpan;
             float leftSpanDiv = MathF.PI / leftSpan,
                 rightSpanDiv = MathF.PI / rightSpan;
             if (left != Window.Disabled) {
                 WindowFunction leftFunc = GetWindowFunction(left);
-                int posStart = Math.Max(start, 0);
                 Array.Clear(samples, 0, posStart);
-                for (int sample = posStart, actEnd = Math.Min(posSplitter, samples.Length); sample < actEnd; sample++) {
-                    float mul = leftFunc((sample - start) * leftSpanDiv);
+                for (int sample = posStart; sample < posSplitter; sample++) {
+                    float mul = leftFunc((sample - posStart) * leftSpanDiv);
                     samples[sample] *= mul;
                 }
             }
             if (right != Window.Disabled) {
-                int posEnd = Math.Max(end, 0);
                 WindowFunction rightFunc = GetWindowFunction(right);
-                for (int sample = posSplitter, actEnd = Math.Min(posEnd, samples.Length); sample < actEnd; sample++) {
+                for (int sample = posSplitter; sample < posEnd; sample++) {
                     float mul = rightFunc((sample - endMirror) * rightSpanDiv);
                     samples[sample] *= mul;
                 }
-                Array.Clear(samples, posEnd, samples.Length - end);
+                Array.Clear(samples, posEnd, samples.Length - posEnd);
             }
         }
 

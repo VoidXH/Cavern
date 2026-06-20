@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Visualize"
-        Title="MainWindow" Width="800" Height="450">
+        Title="Cavern Debug Visualizer" Width="800" Height="450">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
@@ -15,7 +15,8 @@
         <Grid Name="imageHolder" Grid.Row="1" MouseWheel="OnScroll" SizeChanged="OnResize">
             <Image Name="image" Stretch="Fill"/>
         </Grid>
-        <CheckBox Name="normalize" Margin="310,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="Normalize" Click="Redraw"/>
+        <CheckBox Name="normalize" Margin="310,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                  Content="Normalize" IsChecked="True" Click="Redraw"/>
         <TextBlock Name="samples" Grid.Row="2" Margin="5" HorizontalAlignment="Left" VerticalAlignment="Center" Text="0 samples"/>
     </Grid>
 </Window>

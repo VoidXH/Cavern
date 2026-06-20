@@ -1,5 +1,6 @@
 ﻿using Cavern.QuickEQ;
 using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Test.Cavern.QuickEQ {
     /// <summary>
@@ -52,6 +53,8 @@ namespace Test.Cavern.QuickEQ {
         public void Stability() {
             float[] window = new float[10];
             Windowing.ApplyWindow(window, Window.Rectangular, Window.Rectangular, -10, 5, 20);
+            Complex[] complexWindow = new Complex[10];
+            Windowing.ApplyWindow(complexWindow, Window.Rectangular, Window.Rectangular, -10, 5, 20);
         }
 
         /// <summary>

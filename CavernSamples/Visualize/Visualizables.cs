@@ -1,5 +1,6 @@
 ﻿using Cavern.Filters;
-using Cavern.QuickEQ.Utilities;
+using Cavern.QuickEQ;
+using Cavern.QuickEQ.Measurement;
 using Cavern.Utilities;
 
 namespace Visualize;
@@ -31,7 +32,28 @@ public static class Visualizables {
     /// </summary>
     public static readonly Visualizable[] DatabaseForFiles = [
         rawFile,
-        new("Phase shifted loaded file (forward)", file => PhaseShifter.PhaseShiftInPlace(file, true)),
-        new("Envelope", Measurements.GetEnvelope),
+        new("Envelope (raw)", Measurements.GetEnvelope),
+        new("Envelope (windowed)", file => GetWindowed(Measurements.GetEnvelope(file), Window.Tukey, 64)),
+        new("Phase (unwrapped)", file => GetUnwrapped(Measurements.GetPhase(file.FFT()))),
+        new("Phase (wrapped)", file => Measurements.GetPhase(file.FFT())),
+        new("Phase-shifted loaded file (forward)", file => PhaseShifter.PhaseShiftInPlace(file, true)),
     ];
+
+    /// <summary>
+    /// Unwrap a <paramref name="phase"/> curve.
+    /// </summary>
+    static float[] GetUnwrapped(float[] phase) {
+        Measurements.UnwrapPhase(phase);
+        return phase;
+    }
+
+    /// <summary>
+    /// Window a <paramref name="curve"/> around its peak with a specific window <paramref name="function"/> and given <paramref name="length"/> to each direction.
+    /// </summary>
+    static float[] GetWindowed(float[] curve, Window function, int length) {
+        float[] result = curve.FastClone();
+        int peak = DelayCalculation.GetImpulsePeakDelay(curve);
+        Windowing.ApplyWindow(result, function, function, peak - length, peak, peak + length);
+        return result;
+    }
 }
