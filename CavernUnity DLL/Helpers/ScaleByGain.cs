@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Cavern.Helpers {
     /// <summary>

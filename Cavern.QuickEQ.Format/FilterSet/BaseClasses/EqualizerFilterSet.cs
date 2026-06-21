@@ -6,6 +6,7 @@ using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>

@@ -1,4 +1,6 @@
-﻿namespace Cavern.SpecialSources {
+﻿using Cavern.Waveforms;
+
+namespace Cavern.SpecialSources {
     /// <summary>
     /// A streamed source that uses a <see cref="StreamMaster"/> to fetch new samples from.
     /// </summary>

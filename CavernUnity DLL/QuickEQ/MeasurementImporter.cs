@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 
+using Cavern.Waveforms;
+
 namespace Cavern.QuickEQ {
     /// <summary>
     /// Status indicator for <see cref="MeasurementImporter"/>.

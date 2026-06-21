@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cavern.Waveforms;
+
 namespace Cavern.SpecialSources {
     /// <summary>
     /// Important properties of concatenated clips don't match.

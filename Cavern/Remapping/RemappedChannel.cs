@@ -1,4 +1,5 @@
 ﻿using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Cavern.Remapping {
     /// <summary>

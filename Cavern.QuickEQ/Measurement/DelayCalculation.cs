@@ -2,6 +2,8 @@
 
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
+using Cavern.Utilities.Threading;
+using Cavern.Waveforms;
 
 namespace Cavern.QuickEQ.Measurement {
     /// <summary>
@@ -11,13 +13,10 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by a determined <paramref name="method"/>.
         /// </summary>
-        public static float Get(float[] impulseResponse, DelayDeterminationType method) => method switch {
-            DelayDeterminationType.None => 0,
-            DelayDeterminationType.Slope => GetSlopeDelay(impulseResponse),
-            DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(impulseResponse),
-            DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(impulseResponse),
-            _ => throw new NotImplementedException(),
-        };
+        public static float Get(float[] impulseResponse, DelayDeterminationType method) {
+            using FFTCache cache = new FFTCache(impulseResponse.Length);
+            return Get(impulseResponse, method, cache);
+        }
 
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by a determined <paramref name="method"/>. Better performance is achieved with an <see cref="FFTCache"/>.
@@ -25,6 +24,7 @@ namespace Cavern.QuickEQ.Measurement {
         public static float Get(float[] impulseResponse, DelayDeterminationType method, FFTCache cache) => method switch {
             DelayDeterminationType.None => 0,
             DelayDeterminationType.Slope => GetSlopeDelay(impulseResponse, cache),
+            DelayDeterminationType.SlopeWindowed => GetSlopeWindowedDelay(impulseResponse),
             DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(impulseResponse),
             DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(impulseResponse),
             _ => throw new NotImplementedException(),
@@ -33,13 +33,10 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of a <paramref name="transferFunction"/> by a determined <paramref name="method"/>.
         /// </summary>
-        public static float Get(Complex[] transferFunction, DelayDeterminationType method) => method switch {
-            DelayDeterminationType.None => 0,
-            DelayDeterminationType.Slope => GetSlopeDelay(transferFunction),
-            DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(transferFunction),
-            DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(transferFunction),
-            _ => throw new NotImplementedException(),
-        };
+        public static float Get(Complex[] transferFunction, DelayDeterminationType method) {
+            using FFTCache cache = new FFTCache(transferFunction.Length);
+            return Get(transferFunction, method, cache);
+        }
 
         /// <summary>
         /// Get the delay of a <paramref name="transferFunction"/> by a determined <paramref name="method"/>. Better performance is achieved with an <see cref="FFTCache"/>.
@@ -47,10 +44,37 @@ namespace Cavern.QuickEQ.Measurement {
         public static float Get(Complex[] transferFunction, DelayDeterminationType method, FFTCache cache) => method switch {
             DelayDeterminationType.None => 0,
             DelayDeterminationType.Slope => GetSlopeDelay(transferFunction),
+            DelayDeterminationType.SlopeWindowed => GetSlopeWindowedDelay(transferFunction, cache),
             DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(transferFunction, cache),
             DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(transferFunction, cache),
             _ => throw new NotImplementedException(),
         };
+
+        /// <summary>
+        /// Get the delay of each channel of a <paramref name="multichannel"/> impulse response by a determined <paramref name="method"/>.
+        /// </summary>
+        public static float[] Get(MultichannelWaveform multichannel, DelayDeterminationType method, FFTCachePool pool, bool multithreaded) {
+            float[] result = new float[multichannel.Channels];
+            Parallelizer.ForUnchecked(0, multichannel.Channels, i => {
+                FFTCache cache = pool.Lease();
+                result[i] = Get(multichannel[i], method, cache);
+                pool.Return(cache);
+            }, multithreaded);
+            return result;
+        }
+
+        /// <summary>
+        /// Get the delay of each channel of a <paramref name="multichannel"/> transfer function by a determined <paramref name="method"/>.
+        /// </summary>
+        public static float[] Get(MultichannelTransferFunction multichannel, DelayDeterminationType method, FFTCachePool pool, bool multithreaded) {
+            float[] result = new float[multichannel.Channels];
+            Parallelizer.ForUnchecked(0, multichannel.Channels, i => {
+                FFTCache cache = pool.Lease();
+                result[i] = Get(multichannel[i], method, cache);
+                pool.Return(cache);
+            }, multithreaded);
+            return result;
+        }
 
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by the slope of the phase response.
@@ -61,6 +85,17 @@ namespace Cavern.QuickEQ.Measurement {
         /// Get the delay of an <paramref name="impulseResponse"/> by the slope of the phase response.
         /// </summary>
         public static float GetSlopeDelay(float[] impulseResponse, FFTCache cache) => GetSlopeDelay(impulseResponse.FFT(cache));
+
+        /// <summary>
+        /// Get the delay of an <paramref name="impulseResponse"/> by the slope of the phase response after the phase is windowed to the envelope peak's +/-64 sample area.
+        /// This is practically the same result as <see cref="DelayDeterminationType.ImpulseEnvelopePeak"/>, but with subsample precision.
+        /// </summary>
+        public static float GetSlopeWindowedDelay(float[] impulseResponse) {
+            int delay = GetImpulseEnvelopePeakDelay(impulseResponse);
+            float[] windowed = impulseResponse.FastClone();
+            Windowing.ApplyWindow(windowed, Window.Tukey, Window.Tukey, delay - 64, delay, delay + 64);
+            return GetSlopeDelay(windowed);
+        }
 
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by the highest absolute value sample.
@@ -94,6 +129,26 @@ namespace Cavern.QuickEQ.Measurement {
             Measurements.UnwrapPhase(result);
             (double slope, double _) = GraphUtils.GetRegression(result);
             return (float)(-slope * transferFunction.Length / (2 * Math.PI));
+        }
+
+        /// <summary>
+        /// Get the delay of  a <paramref name="transferFunction"/> by the slope of the phase response after the phase is windowed to the envelope peak's +/-64 sample area.
+        /// This is practically the same result as <see cref="DelayDeterminationType.ImpulseEnvelopePeak"/>, but with subsample precision.
+        /// </summary>
+        public static float GetSlopeWindowedDelay(Complex[] transferFunction) {
+            using FFTCache cache = new FFTCache(transferFunction.Length);
+            return GetSlopeWindowedDelay(transferFunction, cache);
+        }
+
+        /// <summary>
+        /// Get the delay of  a <paramref name="transferFunction"/> by the slope of the phase response after the phase is windowed to the envelope peak's +/-64 sample area.
+        /// This is practically the same result as <see cref="DelayDeterminationType.ImpulseEnvelopePeak"/>, but with subsample precision.
+        /// </summary>
+        public static float GetSlopeWindowedDelay(Complex[] transferFunction, FFTCache cache) {
+            int delay = GetImpulseEnvelopePeakDelay(transferFunction);
+            float[] windowed = transferFunction.GetRealIFFT(cache);
+            Windowing.ApplyWindow(windowed, Window.Tukey, Window.Tukey, delay - 64, delay, delay + 64);
+            return GetSlopeDelay(windowed);
         }
 
         /// <summary>

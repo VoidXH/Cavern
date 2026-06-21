@@ -2,6 +2,7 @@
 
 using Cavern.Filters;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Cavern.QuickEQ.PolarityCorrections {
     /// <summary>

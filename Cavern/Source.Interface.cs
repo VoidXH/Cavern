@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using Cavern.Filters;
+using Cavern.Waveforms;
 
 namespace Cavern {
     /// <summary>

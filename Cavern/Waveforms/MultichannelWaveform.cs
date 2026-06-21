@@ -1,9 +1,9 @@
-﻿using Cavern.Utilities;
-using Cavern.Waveforms;
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Cavern {
+using Cavern.Utilities;
+
+namespace Cavern.Waveforms {
     /// <summary>
     /// Contains multiple waveforms of the same length.
     /// </summary>

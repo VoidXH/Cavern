@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-using Cavern.Filters;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
+using Cavern.Waveforms;
 
 namespace Cavern {
     public partial class Source {

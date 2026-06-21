@@ -8,6 +8,7 @@ using Cavern.Filters;
 using Cavern.Format.Common;
 using Cavern.Format.FilterSet.Enums;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>

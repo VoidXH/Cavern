@@ -1,6 +1,7 @@
 ﻿using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
 using Cavern.Utilities.Threading;
+using Cavern.Waveforms;
 
 namespace Cavern.Filters {
     /// <summary>

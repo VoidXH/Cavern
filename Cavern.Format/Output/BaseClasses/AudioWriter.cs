@@ -4,6 +4,7 @@ using System.IO;
 using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Container;
+using Cavern.Waveforms;
 
 namespace Cavern.Format {
     /// <summary>
@@ -204,10 +205,8 @@ namespace Cavern.Format {
         /// Close the writer.
         /// </summary>
         public virtual void Dispose() {
-            if (writer != null) {
-                writer.Close();
-                writer = null;
-            }
+            writer?.Close();
+            writer = null;
         }
     }
 }

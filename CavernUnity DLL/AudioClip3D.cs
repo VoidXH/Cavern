@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 
+using Cavern.Waveforms;
+
 namespace Cavern {
     /// <summary>
     /// Wrapper for Cavern's audio content format to match Unity's <see cref="AudioClip"/> signature.

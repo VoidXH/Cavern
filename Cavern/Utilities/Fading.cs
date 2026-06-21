@@ -1,4 +1,6 @@
-﻿namespace Cavern.Utilities {
+﻿using Cavern.Waveforms;
+
+namespace Cavern.Utilities {
     /// <summary>
     /// Different track fading techniques.
     /// </summary>

@@ -61,8 +61,7 @@ namespace Cavern.Filters {
         /// </summary>
         /// <remarks>The size of the <paramref name="cache"/> has to equal 2 ^ ceil(log2(<paramref name="excitation"/>.Length + <paramref name="impulse"/>.Length)).</remarks>
         public static float[] ConvolveSafe(float[] excitation, float[] impulse, FFTCache cache) {
-            int finalLength = excitation.Length + impulse.Length;
-            float[] real = new float[1 << QMath.Log2Ceil(finalLength)];
+            float[] real = new float[1 << QMath.Log2Ceil(excitation.Length + impulse.Length)];
             Array.Copy(excitation, real, excitation.Length);
             Complex[] excitationFFT = real.FFT(cache);
 
@@ -70,11 +69,10 @@ namespace Cavern.Filters {
             Array.Clear(real, impulse.Length, real.Length - impulse.Length);
             Complex[] impulseFFT = real.FFT(cache);
 
-            float[] result = new float[finalLength];
             excitationFFT.Convolve(impulseFFT);
             excitationFFT.InPlaceIFFT();
-            excitationFFT.GetRealPart(result);
-            return result;
+            excitationFFT.GetRealPart(real);
+            return real;
         }
     }
 }

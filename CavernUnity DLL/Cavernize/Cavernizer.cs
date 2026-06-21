@@ -5,6 +5,7 @@ using UnityEngine;
 
 using Cavern.Channels;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Cavern.Cavernize {
     /// <summary>

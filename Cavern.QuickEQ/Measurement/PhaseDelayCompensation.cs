@@ -26,14 +26,13 @@ namespace Cavern.QuickEQ.Measurement {
         /// <param name="windowing">Window the impulse to +/- this many samples around the found peak before getting its phase curve, 0 disables this feature</param>
         /// <param name="cache">Preallocated optimization data for faster processing</param>
         public static float[] GetUndelayedPhase(Complex[] transferFunction, DelayDeterminationType type, bool unwrap, int windowing, FFTCache cache) {
-            float delay = DelayCalculation.Get(transferFunction, type, cache); // TODO: version that windows in slope calculation (around hilbert peak)
-
+            float delay = DelayCalculation.Get(transferFunction, type, cache);
             if (delay != 0) {
                 if (windowing != 0) {
-                    transferFunction.IFFT(cache);
+                    transferFunction.InPlaceIFFT(cache);
                     int center = (int)delay;
                     Windowing.ApplyWindow(transferFunction, Window.Tukey, Window.Tukey, center - windowing, center, center + windowing);
-                    transferFunction.FFT(cache);
+                    transferFunction.InPlaceFFT(cache);
                 }
                 WaveformUtils.Delay(transferFunction, -delay);
             }

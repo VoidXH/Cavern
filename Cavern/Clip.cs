@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+using Cavern.Waveforms;
+
 namespace Cavern {
     /// <summary>
     /// Audio content.

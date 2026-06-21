@@ -34,17 +34,24 @@ public static class Visualizables {
         rawFile,
         new("Envelope (raw)", Measurements.GetEnvelope),
         new("Envelope (windowed)", file => GetWindowed(Measurements.GetEnvelope(file), Window.Tukey, 64)),
-        new("Phase (unwrapped)", file => GetUnwrapped(Measurements.GetPhase(file.FFT()))),
+        new("Phase (unwrapped)", GetUnwrappedPhase),
+        new("Phase (unwrapped, windowed around envelope peak)", file => {
+              float[] windowed = file.FastClone();
+              int peakDelay = DelayCalculation.GetImpulseEnvelopePeakDelay(file);
+              Windowing.ApplyWindow(windowed, Window.Tukey, Window.Tukey, peakDelay - 64, peakDelay, peakDelay + 64);
+              return GetUnwrappedPhase(windowed);
+        }),
         new("Phase (wrapped)", file => Measurements.GetPhase(file.FFT())),
         new("Phase-shifted loaded file (forward)", file => PhaseShifter.PhaseShiftInPlace(file, true)),
     ];
 
     /// <summary>
-    /// Unwrap a <paramref name="phase"/> curve.
+    /// Get the unwrapped phase curve for a <paramref name="signal"/>.
     /// </summary>
-    static float[] GetUnwrapped(float[] phase) {
-        Measurements.UnwrapPhase(phase);
-        return phase;
+    static float[] GetUnwrappedPhase(float[] signal) {
+        float[] result = Measurements.GetPhase(signal.FFT());
+        Measurements.UnwrapPhase(result);
+        return result;
     }
 
     /// <summary>

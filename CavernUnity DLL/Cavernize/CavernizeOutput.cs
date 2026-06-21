@@ -2,6 +2,7 @@
 using UnityEngine;
 
 using Cavern.SpecialSources;
+using Cavern.Waveforms;
 
 namespace Cavern.Cavernize {
     /// <summary>

@@ -2,6 +2,7 @@
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Waveforms;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>

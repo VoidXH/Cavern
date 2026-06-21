@@ -4,6 +4,7 @@ using System.IO;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>

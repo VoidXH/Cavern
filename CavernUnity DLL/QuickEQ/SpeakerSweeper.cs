@@ -8,6 +8,7 @@ using Cavern.QuickEQ.Equalization;
 using Cavern.QuickEQ.SignalGeneration;
 using Cavern.Utilities;
 using Cavern.Utilities.Threading;
+using Cavern.Waveforms;
 
 namespace Cavern.QuickEQ {
     /// <summary>

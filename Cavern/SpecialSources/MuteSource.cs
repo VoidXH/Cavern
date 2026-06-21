@@ -1,4 +1,6 @@
-﻿namespace Cavern.SpecialSources {
+﻿using Cavern.Waveforms;
+
+namespace Cavern.SpecialSources {
     /// <summary>
     /// A source that plays silence.
     /// </summary>

@@ -8,6 +8,7 @@ using Cavern.Filters.Utilities;
 using Cavern.Format.Common;
 using Cavern.QuickEQ.SignalGeneration;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 using ConfigFile = Cavern.Format.ConfigurationFile.ConfigurationFile;
 
