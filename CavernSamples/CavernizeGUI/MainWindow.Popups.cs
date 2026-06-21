@@ -3,11 +3,11 @@ using System;
 using System.IO;
 using System.Windows;
 
-using Cavern;
 using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Virtualizer;
+using Cavern.Waveforms;
 using Cavern.WPF;
 using Cavern.WPF.Consts;
 

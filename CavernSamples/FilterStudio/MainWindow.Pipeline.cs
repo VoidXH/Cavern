@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 
-using Cavern;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format;
@@ -14,6 +13,7 @@ using Cavern.Format.ConfigurationFile;
 using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.Format.FilterSet;
 using Cavern.Format.Utilities;
+using Cavern.Waveforms;
 using Cavern.WPF;
 using VoidX.WPF;
 
