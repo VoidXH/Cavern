@@ -1,8 +1,8 @@
-﻿using Cavern;
-using Cavern.Filters;
+﻿using Cavern.Filters;
 using Cavern.Filters.Utilities;
 using Cavern.Format.FilterSet;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 using Test.Cavern.QuickEQ.Consts;
 

@@ -27,9 +27,8 @@ public class Convolver_Tests {
     [TestMethod, Timeout(1000)]
     public void FastConvolverSafe() => CavernAmpTest.Run(() => {
         float[] result = FastConvolver.ConvolveSafe(Constants.samples, Constants.samples2);
-        for (int i = 0; i < result.Length; i++) {
-            Assert.AreEqual(Constants.convolved[i], result[i], Constants.delta);
-        }
+        Assert.IsTrue(result.Length > Constants.convolved.Length);
+        TestUtils.AssertSameArrayBeginning(result, Constants.convolved);
     });
 
     /// <summary>

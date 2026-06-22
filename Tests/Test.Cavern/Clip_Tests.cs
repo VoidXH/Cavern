@@ -1,4 +1,5 @@
 ﻿using Cavern;
+using Cavern.Waveforms;
 
 using Test.Cavern.Consts;
 

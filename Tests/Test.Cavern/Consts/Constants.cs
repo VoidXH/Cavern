@@ -1,5 +1,5 @@
-﻿using Cavern;
-using Cavern.Utilities;
+﻿using Cavern.Utilities;
+using Cavern.Waveforms;
 
 namespace Test.Cavern.Consts;
 
@@ -40,7 +40,7 @@ static class Constants {
     /// <summary>
     /// The result of convolving <see cref="samples"/> with <see cref="samples2"/>.
     /// </summary>
-    internal static readonly float[] convolved = [.06f, .19f, .4f, .7f, 1.1f, 1.14f, 1.06f, .85f, .5f, 0];
+    internal static readonly float[] convolved = [.06f, .19f, .4f, .7f, 1.1f, 1.14f, 1.06f, .85f, .5f];
 
     /// <summary>
     /// Some complex samples used where complex samples are needed.

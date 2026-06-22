@@ -58,6 +58,7 @@ namespace Cavern.Waveforms {
         /// <summary>
         /// Mix all channels into a single mono output signal.
         /// </summary>
+        /// <remarks>The result is a simple sum, no normalization will be performed.</remarks>
         public float[] GetMonoMix() {
             float[] result = new float[Length];
             for (int i = 0; i < data.Length; i++) {
@@ -125,7 +126,7 @@ namespace Cavern.Waveforms {
             for (int i = 0; i < data.Length; i++) {
                 float[] check = data[i];
                 int trim = 0;
-                while (check[trim] == 0 && trim < check.Length) {
+                while (trim < check.Length && check[trim] == 0) {
                     trim++;
                 }
                 if (min > trim) {

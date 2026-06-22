@@ -7,13 +7,16 @@ namespace Cavern.Waveforms {
     /// <summary>
     /// Contains multiple arrays of the same length.
     /// </summary>
-    public abstract class MultichannelBase<T> : ICloneable {
+    public abstract class MultichannelBase<T> : ICloneable where T : struct {
         /// <summary>
         /// Get a <paramref name="channel"/>'s <see cref="data"/>.
         /// </summary>
         public T[] this[int channel] {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => data[channel];
+            get {
+                data.AssertInBounds(nameof(data), channel);
+                return data[channel];
+            }
         }
 
         /// <summary>
@@ -29,7 +32,7 @@ namespace Cavern.Waveforms {
         /// </summary>
         public int Length {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => data[0].Length;
+            get => data != null && data.Length > 0 ? data[0].Length : 0;
         }
 
         /// <summary>
@@ -41,6 +44,7 @@ namespace Cavern.Waveforms {
         /// Encapsulate multichannel data.
         /// </summary>
         protected MultichannelBase(params T[][] source) {
+            source.AssertElementsNotNull();
             for (int i = 1; i < source.Length; i++) {
                 if (source[0].LongLength != source[i].LongLength) {
                     throw new DifferentSignalLengthsException();
@@ -53,6 +57,9 @@ namespace Cavern.Waveforms {
         /// Construct an empty multichannel data of a given size.
         /// </summary>
         protected MultichannelBase(int channels, int itemsPerChannel) {
+            channels.ThrowIfNegative(nameof(channels));
+            itemsPerChannel.ThrowIfNegative(nameof(itemsPerChannel));
+
             data = new T[channels][];
             for (int channel = 0; channel < channels; channel++) {
                 data[channel] = new T[itemsPerChannel];
@@ -65,6 +72,6 @@ namespace Cavern.Waveforms {
         /// <summary>
         /// Get an array referencing the contained channel entries.
         /// </summary>
-        public T[][] ToArray() => data.FastClone();
+        public T[][] ToArray() => data.DeepCopy2D();
     }
 }

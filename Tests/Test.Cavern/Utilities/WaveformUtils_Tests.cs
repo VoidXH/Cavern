@@ -1,6 +1,7 @@
 using Cavern;
 using Cavern.Channels;
 using Cavern.Utilities;
+using Cavern.Waveforms;
 
 using Test.Cavern.Consts;
 
