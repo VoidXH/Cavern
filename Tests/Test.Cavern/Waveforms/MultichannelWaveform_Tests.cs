@@ -64,7 +64,9 @@ public class MultichannelWaveform_Tests {
             _ = new MultichannelWaveform(0, 10);
             Assert.Fail("Expected ArgumentOutOfRangeException");
         }
-        catch (ArgumentOutOfRangeException) { }
+        catch (ArgumentOutOfRangeException) {
+            // Expected
+        }
     }
 
     /// <summary>
@@ -76,7 +78,9 @@ public class MultichannelWaveform_Tests {
             _ = new MultichannelWaveform(2, 0);
             Assert.Fail("Expected ArgumentOutOfRangeException");
         }
-        catch (ArgumentOutOfRangeException) { }
+        catch (ArgumentOutOfRangeException) {
+            // Expected
+        }
     }
 
     /// <summary>
@@ -88,7 +92,9 @@ public class MultichannelWaveform_Tests {
             _ = new MultichannelWaveform(-1, 10);
             Assert.Fail("Expected ArgumentOutOfRangeException");
         }
-        catch (ArgumentOutOfRangeException) { }
+        catch (ArgumentOutOfRangeException) {
+            // Expected
+        }
     }
 
     /// <summary>
@@ -100,7 +106,9 @@ public class MultichannelWaveform_Tests {
             _ = new MultichannelWaveform(2, -5);
             Assert.Fail("Expected ArgumentOutOfRangeException");
         }
-        catch (ArgumentOutOfRangeException) { }
+        catch (ArgumentOutOfRangeException) {
+            // Expected
+        }
     }
 
     /// <summary>
@@ -112,7 +120,9 @@ public class MultichannelWaveform_Tests {
             _ = new MultichannelWaveform(new float[10], new float[5]);
             Assert.Fail("Expected DifferentSignalLengthsException");
         }
-        catch (DifferentSignalLengthsException) { }
+        catch (DifferentSignalLengthsException) {
+            // Expected
+        }
     }
 
     /// <summary>
@@ -125,13 +135,17 @@ public class MultichannelWaveform_Tests {
             _ = wave[2];
             Assert.Fail("Expected IndexOutOfRangeException");
         }
-        catch (IndexOutOfRangeException) { }
+        catch (IndexOutOfRangeException) {
+            // Expected
+        }
 
         try {
             _ = wave[-1];
             Assert.Fail("Expected IndexOutOfRangeException");
         }
-        catch (IndexOutOfRangeException) { }
+        catch (IndexOutOfRangeException) {
+            // Expected
+        }
     }
 
     /// <summary>
