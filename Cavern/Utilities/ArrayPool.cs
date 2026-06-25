@@ -19,6 +19,11 @@ namespace Cavern.Utilities {
         readonly Stack<T[]> caches = new Stack<T[]>();
 
         /// <summary>
+        /// Thread-safe access provider.
+        /// </summary>
+        readonly object locker = new object();
+
+        /// <summary>
         /// Initialize an array pool for given <paramref name="size"/>d arrays.
         /// </summary>
         public ArrayPool(int size) => Size = size;
@@ -40,7 +45,7 @@ namespace Cavern.Utilities {
         /// Store the <paramref name="cache"/> for later reuse.
         /// </summary>
         public void Return(T[] cache) {
-            lock (this) {
+            lock (locker) {
                 caches.Push(cache);
             }
         }
@@ -49,7 +54,7 @@ namespace Cavern.Utilities {
         /// Store the <paramref name="cache"/> for later reuse.
         /// </summary>
         public void Return(T[][] cache) {
-            lock (this) {
+            lock (locker) {
                 for (int i = 0; i < cache.Length; i++) {
                     caches.Push(cache[i]);
                 }
