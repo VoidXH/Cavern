@@ -11,9 +11,9 @@ namespace Cavern.QuickEQ.Crossover {
     /// </summary>
     public class CrossoverAnalyzer {
         /// <summary>
-        /// An instance of the used crossover type.
+        /// The type of crossover to use.
         /// </summary>
-        public Crossover type;
+        public CrossoverType type;
 
         /// <summary>
         /// The sample rate of recorded or simulated transfer functions of each channel that will be analyzed.
@@ -38,10 +38,10 @@ namespace Cavern.QuickEQ.Crossover {
         /// <summary>
         /// A multichannel crossover analyzer instance.
         /// </summary>
-        /// <param name="type">An instance of the used crossover type</param>
+        /// <param name="type">The type of crossover to use</param>
         /// <param name="sampleRate">The sample rate of recorded or simulated transfer functions of each channel
         /// that will be analyzed</param>
-        public CrossoverAnalyzer(Crossover type, int sampleRate) {
+        public CrossoverAnalyzer(CrossoverType type, int sampleRate) {
             this.type = type;
             this.sampleRate = sampleRate;
         }
@@ -49,7 +49,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <summary>
         /// Gets the optimal frequency to put the crossover point at for a single channel by simulation.
         /// </summary>
-        /// <param name="type">An instance of the used crossover type</param>
+        /// <param name="type">The type of crossover to use</param>
         /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
         /// <param name="highTransfer">Transfer function of the high-frequency path</param>
         /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
@@ -58,8 +58,8 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="precision">Steps between checked crossover frequencies</param>
         /// <remarks>This function doesn't account for the 10 dB gain of LFE channels as it could be used for determining the
         /// crossover point of multiway speakers too.</remarks>
-        public static float FindCrossoverFrequency(Crossover type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
-            float minFreq, float maxFreq, float precision) {
+        public static float FindCrossoverFrequency(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
+           float minFreq, float maxFreq, float precision) {
             using FFTCache cache = new ThreadSafeFFTCache(lowTransfer.Length);
             return FindCrossoverFrequency(type, lowTransfer, highTransfer, sampleRate, minFreq, maxFreq, precision, cache);
         }
@@ -67,7 +67,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <summary>
         /// Gets the optimal frequency to put the crossover point at for a single channel by simulation.
         /// </summary>
-        /// <param name="type">An instance of the used crossover type</param>
+        /// <param name="type">The type of crossover to use</param>
         /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
         /// <param name="highTransfer">Transfer function of the high-frequency path</param>
         /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
@@ -77,8 +77,8 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="cache">Preallocated FFT cache for optimization</param>
         /// <remarks>This function doesn't account for the 10 dB gain of LFE channels as it could be used for determining the
         /// crossover point of multiway speakers too.</remarks>
-        public static float FindCrossoverFrequency(Crossover type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
-            float minFreq, float maxFreq, float precision, FFTCache cache) {
+        public static float FindCrossoverFrequency(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
+           float minFreq, float maxFreq, float precision, FFTCache cache) {
             float bestValue = 0,
                 bestFrequency = 0;
             for (float freq = minFreq; freq <= maxFreq; freq += precision) {
@@ -179,7 +179,7 @@ namespace Cavern.QuickEQ.Crossover {
             for (int i = 0; i < channels.Length; i++) {
                 if (channels[i].LFE) {
                     if (subs == null) {
-                        subs = (Complex[])measurement[i].Clone();
+                        subs = measurement[i].FastClone();
                     } else {
                         subs.Add(measurement[i]);
                     }
@@ -193,23 +193,22 @@ namespace Cavern.QuickEQ.Crossover {
         /// <summary>
         /// Calculate a single crossover point's score for comparing it to others.
         /// </summary>
-        /// <param name="type">An instance of the used crossover type</param>
+        /// <param name="type">The type of crossover to use</param>
         /// <param name="lowTransfer">Transfer function of the low-frequency path</param>
         /// <param name="highTransfer">Transfer function of the high-frequency path</param>
         /// <param name="sampleRate">Sample rate where the transfer functions were recorded</param>
         /// <param name="freq">Crossover point frequency to score</param>
         /// <param name="cache">Preallocated FFT cache for optimization</param>
-        protected static float GetCrossoverValue(Crossover type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate, float freq,
-            FFTCache cache) {
+        protected static float GetCrossoverValue(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate, float freq, FFTCache cache) {
             Complex[] lowCurrent = lowTransfer.FastClone();
             Complex[] highCurrent = highTransfer.FastClone();
             Complex[] work = new Complex[lowCurrent.Length];
 
-            type.GetLowpass(sampleRate, freq, cache.Size).ParseForFFT(work);
+            Crossover.GetLowpass(type, sampleRate, freq, cache.Size).ParseForFFT(work);
             work.InPlaceFFT(cache);
             lowCurrent.Convolve(work);
 
-            type.GetHighpass(sampleRate, freq, cache.Size).ParseForFFT(work);
+            Crossover.GetHighpass(type, sampleRate, freq, cache.Size).ParseForFFT(work);
             work.InPlaceFFT(cache);
             highCurrent.Convolve(work);
 

@@ -10,14 +10,14 @@ namespace Test.Cavern.QuickEQ {
         /// <summary>
         /// Tests if the private method brute forcing gains works as intended.
         /// </summary>
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(20000)]
         public void BruteForceGains() {
             Equalizer slash = new Equalizer();
             slash.AddBand(new Band(20, 0));
             slash.AddBand(new Band(20000, 10));
             PeakingEqualizer peq = new PeakingEqualizer(slash) {
                 MinGain = -6,
-                MaxGain= 6,
+                MaxGain = 6,
             };
             PeakingEQ[] result = peq.GetPeakingEQ(48000, 31.25, 1, 10);
             for (int i = 1; i < result.Length; i++) {

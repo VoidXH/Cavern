@@ -78,8 +78,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="frequency">Highpass cutoff point</param>
         /// <param name="length">Filter length in samples</param>
-        public virtual float[] GetHighpass(int sampleRate, float frequency, int length) =>
-            Simulate(new Highpass(sampleRate, frequency), length);
+        public virtual float[] GetHighpass(int sampleRate, float frequency, int length) => Simulate(new Highpass(sampleRate, frequency), length);
 
         /// <summary>
         /// Get the most quickly processed version of this crossover's highpass.
@@ -87,8 +86,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="frequency">Lowpass cutoff point</param>
         /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
-        public virtual Filter GetHighpassOptimized(int sampleRate, float frequency, int length) =>
-            new FastConvolver(GetHighpass(sampleRate, frequency, length), sampleRate, 0);
+        public virtual Filter GetHighpassOptimized(int sampleRate, float frequency, int length) => new FastConvolver(GetHighpass(sampleRate, frequency, length), sampleRate, 0);
 
         /// <summary>
         /// Get a FIR filter for the lowpass part of the crossover.
@@ -96,8 +94,7 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="frequency">Lowpass cutoff point</param>
         /// <param name="length">Filter length in samples</param>
-        public virtual float[] GetLowpass(int sampleRate, float frequency, int length) =>
-            Simulate(new Lowpass(sampleRate, frequency), length);
+        public virtual float[] GetLowpass(int sampleRate, float frequency, int length) => Simulate(new Lowpass(sampleRate, frequency), length);
 
         /// <summary>
         /// Get the most quickly processed version of this crossover's lowpass.
@@ -105,13 +102,32 @@ namespace Cavern.QuickEQ.Crossover {
         /// <param name="sampleRate">Filter sample rate</param>
         /// <param name="frequency">Lowpass cutoff point</param>
         /// <param name="length">Filter length in samples, if the filter can only be synthesized as a convolution</param>
-        public virtual Filter GetLowpassOptimized(int sampleRate, float frequency, int length) =>
-            new FastConvolver(GetLowpass(sampleRate, frequency, length), sampleRate, 0);
+        public virtual Filter GetLowpassOptimized(int sampleRate, float frequency, int length) => new FastConvolver(GetLowpass(sampleRate, frequency, length), sampleRate, 0);
 
         /// <summary>
         /// Use this value to mix crossover results to an LFE channel.
         /// The LFE's level is over the mains with 10 dB, this results in level matching.
         /// </summary>
         protected internal const float minus10dB = .31622776601f;
+
+        /// <summary>
+        /// Generate an impulse response for the lowpass part of a crossover.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="frequency">Lowpass cutoff point</param>
+        /// <param name="length">Filter length in samples</param>
+        public static float[] GetLowpass(CrossoverType type, int sampleRate, float frequency, int length) =>
+            Create(type, null).GetLowpass(sampleRate, frequency, length);
+
+        /// <summary>
+        /// Generate an impulse response for the highpass part of a crossover.
+        /// </summary>
+        /// <param name="type">The type of crossover to use</param>
+        /// <param name="sampleRate">Filter sample rate</param>
+        /// <param name="frequency">Highpass cutoff point</param>
+        /// <param name="length">Filter length in samples</param>
+        public static float[] GetHighpass(CrossoverType type, int sampleRate, float frequency, int length) =>
+            Create(type, null).GetHighpass(sampleRate, frequency, length);
     }
 }

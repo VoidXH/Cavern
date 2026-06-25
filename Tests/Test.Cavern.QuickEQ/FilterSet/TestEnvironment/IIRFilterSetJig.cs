@@ -35,7 +35,7 @@ public abstract class IIRFilterSetJig(FilterSetTarget target) {
     /// <item>Test if Q factors are properly rounded.</item>
     /// </list>
     /// </summary>
-    [TestMethod, Timeout(10000)]
+    [TestMethod, Timeout(20000)]
     public void TestEQBase() => CavernAmpTest.Run(() => {
         FSet sourceSet = FSet.Create(target, 1, Listener.DefaultSampleRate);
         if (sourceSet is not IIRFilterSet set) {

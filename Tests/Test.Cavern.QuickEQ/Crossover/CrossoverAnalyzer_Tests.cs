@@ -1,5 +1,6 @@
 ﻿using Cavern.QuickEQ.Crossover;
 using Cavern.Utilities;
+
 using Test.Cavern.QuickEQ.Consts;
 
 namespace Test.Cavern.QuickEQ.Crossover {
@@ -18,7 +19,7 @@ namespace Test.Cavern.QuickEQ.Crossover {
             const int sampleRate = 500;
             Complex[] high = crossover.GetHighpass(sampleRate, 80, cache.Size).FFT(cache),
                 low = crossover.GetLowpass(sampleRate, 80, cache.Size).FFT(cache);
-            float freq = CrossoverAnalyzer.FindCrossoverFrequency(crossover, low, high, sampleRate, 40, 120, 10);
+            float freq = CrossoverAnalyzer.FindCrossoverFrequency(CrossoverType.Biquad, low, high, sampleRate, 40, 120, 10);
             Assert.AreEqual(70, freq);
         }
     }
