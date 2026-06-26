@@ -239,7 +239,6 @@ namespace Cavern.Format.JSON {
                 }
                 result.Append('"').Append(elements[i].Key).Append("\": ");
                 AppendValue(result, elements[i].Value);
-                
             }
             return result.Append(" }").ToString();
         }
