@@ -128,7 +128,8 @@ namespace Cavern.QuickEQ.Measurement {
             float[] result = Measurements.GetPhase(transferFunction);
             Measurements.UnwrapPhase(result);
             (double slope, double _) = GraphUtils.GetRegression(result);
-            return (float)(-slope * transferFunction.Length / (2 * Math.PI));
+            double delaySamples = -slope * transferFunction.Length / (2 * Math.PI);
+            return (float)(delaySamples < 0 ? transferFunction.Length + delaySamples : delaySamples);
         }
 
         /// <summary>
