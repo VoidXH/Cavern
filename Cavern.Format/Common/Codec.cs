@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cavern.Format.Common {
+﻿namespace Cavern.Format.Common {
     /// <summary>
     /// Codecs detected (not neccessarily supported) by Cavern.Format.
     /// Video codecs come before audio, and higher quality (newer, immersive, better overall quality) codecs also come first.

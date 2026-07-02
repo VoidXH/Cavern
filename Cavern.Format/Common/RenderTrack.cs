@@ -3,6 +3,7 @@ using System.IO;
 
 using Cavern.Format.Common.Metadata;
 using Cavern.Format.Container;
+using Cavern.Format.Exceptions;
 
 namespace Cavern.Format.Common {
     /// <summary>
@@ -49,7 +50,7 @@ namespace Cavern.Format.Common {
             encoder = format switch {
                 Codec.PCM_LE => new RIFFWaveWriter(output, channelCount, length, sampleRate, bits),
                 Codec.PCM_Float => new RIFFWaveWriter(output, channelCount, length, sampleRate, bits),
-                _ => throw new UnsupportedCodecException(true, format),
+                _ => throw new UnsupportedCodecException(format),
             };
             Extra = new TrackExtraAudio {
                 SampleRate = encoder.SampleRate,

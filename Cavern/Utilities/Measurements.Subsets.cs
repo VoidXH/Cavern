@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using Cavern.Filters;
 
@@ -112,7 +112,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static float[] GetRealIFFT(this Complex[] samples) {
             Complex[] workingTF = samples.FastClone();
-            IFFT(workingTF);
+            workingTF.InPlaceIFFT();
             return GetRealPart(workingTF);
         }
 
@@ -121,7 +121,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static float[] GetRealIFFT(this Complex[] samples, FFTCache cache) {
             Complex[] workingTF = samples.FastClone();
-            IFFT(workingTF, cache);
+            workingTF.InPlaceIFFT(cache);
             return GetRealPart(workingTF);
         }
 

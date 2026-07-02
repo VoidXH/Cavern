@@ -1,4 +1,5 @@
 ﻿using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 
 namespace Cavern.Format.Decoders {
     /// <summary>
@@ -24,13 +25,12 @@ namespace Cavern.Format.Decoders {
         /// <summary>
         /// Mark the unsupported codec on decoding.
         /// </summary>
-        public override void DecodeBlock(float[] target, long from, long to) =>
-            throw new UnsupportedCodecException(true, format);
+        public override void DecodeBlock(float[] target, long from, long to) => throw new UnsupportedCodecException(format);
 
         /// <summary>
         /// Start the following reads from the selected sample.
         /// </summary>
         /// <param name="sample">The selected sample, for a single channel</param>
-        public override void Seek(long sample) => throw new UnsupportedCodecException(true, format);
+        public override void Seek(long sample) => throw new UnsupportedCodecException(format);
     }
 }

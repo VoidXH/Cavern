@@ -200,21 +200,6 @@ namespace Cavern.Format.Common {
     }
 
     /// <summary>
-    /// Tells if a codec is unsupported.
-    /// </summary>
-    public class UnsupportedCodecException : Exception {
-        const string message = "Unsupported {0} codec: {1}.",
-            audio = "audio",
-            video = "video";
-
-        /// <summary>
-        /// Tells if a codec is unsupported.
-        /// </summary>
-        public UnsupportedCodecException(bool needAudio, Codec codec) :
-            base(string.Format(message, needAudio ? audio : video, codec)) { }
-    }
-
-    /// <summary>
     /// Tells if the container can't be determined by file type.
     /// </summary>
     public class UnsupportedContainerForWriteException : Exception {
