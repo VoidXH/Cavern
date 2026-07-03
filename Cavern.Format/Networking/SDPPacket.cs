@@ -83,12 +83,12 @@ namespace Cavern.Format.Networking {
         /// <summary>
         /// Gets or sets the PTP domain number.
         /// </summary>
-        public int PTPDomain { get; set; } = 0;
+        public int PTPDomain { get; set; }
 
         /// <summary>
         /// Gets or sets the media clock offset relative to the reference clock.
         /// </summary>
-        public long MediaClockOffset { get; set; } = 0;
+        public long MediaClockOffset { get; set; }
 
         /// <summary>
         /// Parses an SDP string into an <see cref="SDPPacket"/> instance.
@@ -97,7 +97,7 @@ namespace Cavern.Format.Networking {
         /// <returns>A populated <see cref="SDPPacket"/> instance.</returns>
         public static SDPPacket Parse(string sdp) {
             SDPPacket message = new SDPPacket();
-            string[] lines = sdp.Split(new string[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = sdp.Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string line in lines) {
                 if (line.StartsWith("s=")) {
                     message.SessionName = line[2..];
@@ -113,7 +113,7 @@ namespace Cavern.Format.Networking {
                         }
                     }
                 } else if (line.StartsWith("c=")) {
-                    string[] parts = line[2..].Split(new string[] { " ", "/" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] parts = line[2..].Split(new[] { " ", "/" }, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length >= 3) {
                         message.MulticastAddress = parts[2];
                     }

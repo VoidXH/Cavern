@@ -16,22 +16,22 @@ namespace Cavern.Format.Networking {
         /// <summary>
         /// Gets or sets whether the packet contains padding bytes after the payload.
         /// </summary>
-        public bool Padding { get; set; } = false;
+        public bool Padding { get; set; }
 
         /// <summary>
         /// Gets or sets whether an extension header follows the RTP header.
         /// </summary>
-        public bool Extension { get; set; } = false;
+        public bool Extension { get; set; }
 
         /// <summary>
         /// Gets or sets the number of CSRC identifiers in the header.
         /// </summary>
-        public byte CSRCCount { get; set; } = 0;
+        public byte CSRCCount { get; set; }
 
         /// <summary>
         /// Gets or sets the marker bit, used by payload formats to mark significant events.
         /// </summary>
-        public bool Marker { get; set; } = false;
+        public bool Marker { get; set; }
 
         /// <summary>
         /// Gets or sets the payload type identifier (7 bits).
@@ -68,7 +68,7 @@ namespace Cavern.Format.Networking {
                 throw new InvalidPacketException("Packet too small to be RTP.");
             }
 
-            RTPPacket packet = new RTPPacket() {
+            RTPPacket packet = new RTPPacket {
                 Version = (byte)(data[0] >> 6),
                 Padding = ((data[0] >> 5) & 1) == 1,
                 Extension = ((data[0] >> 4) & 1) == 1,
