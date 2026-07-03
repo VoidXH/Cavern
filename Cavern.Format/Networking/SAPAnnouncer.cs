@@ -56,13 +56,19 @@ namespace Cavern.Format.Networking {
         Task announceTask;
 
         /// <summary>
+        /// Creates a new <see cref="SAPAnnouncer"/> for the given SDP message on the local IP address.
+        /// </summary>
+        /// <param name="sdpPacket">The SDP message to include in SAP announcements.</param>
+        public SAPAnnouncer(SDPPacket sdpPacket) : this(sdpPacket, GetLocalIPAddress()) { }
+
+        /// <summary>
         /// Creates a new <see cref="SAPAnnouncer"/> for the given SDP message.
         /// </summary>
         /// <param name="sdpPacket">The SDP message to include in SAP announcements.</param>
-        /// <param name="localInterface">Optional local network interface IP address.</param>
-        public SAPAnnouncer(SDPPacket sdpPacket, IPAddress localInterface = null) {
+        /// <param name="localInterface">Select a local network by interface IP address.</param>
+        public SAPAnnouncer(SDPPacket sdpPacket, IPAddress localInterface) {
             this.sdpPacket = sdpPacket;
-            this.localInterface = localInterface ?? GetLocalIPAddress();
+            this.localInterface = localInterface;
             udpClient = new UdpClient();
             if (localInterface != null) {
                 udpClient.JoinMulticastGroup(IPAddress.Parse(SapAddress), localInterface);
@@ -74,18 +80,19 @@ namespace Cavern.Format.Networking {
         }
 
         /// <summary>
-        /// Retrieves the first available IPv4 address from the local machine's network interfaces,
-        /// excluding loopback addresses.
+        /// Retrieves the first available IPv4 address from the local machine's network interfaces, excluding loopback addresses.
         /// </summary>
         /// <returns>The first non-loopback IPv4 address found, or <see cref="IPAddress.Loopback"/> if none exists.</returns>
         static IPAddress GetLocalIPAddress() {
             try {
-                foreach (var ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList) {
+                foreach (IPAddress ip in Dns.GetHostEntry(Dns.GetHostName()).AddressList) {
                     if (ip.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(ip)) {
                         return ip;
                     }
                 }
-            } catch { }
+            } catch {
+                // Fall back to loopback on resolution issues
+            }
             return IPAddress.Loopback;
         }
 
@@ -110,7 +117,10 @@ namespace Cavern.Format.Networking {
             cts?.Cancel();
             try {
                 announceTask?.Wait();
-            } catch { }
+            } catch {
+                // If runs to exception, it's over anyway
+            }
+            cts?.Dispose();
             cts = null;
         }
 
@@ -157,7 +167,9 @@ namespace Cavern.Format.Networking {
                     await Task.Delay(interval, token);
                 } catch (TaskCanceledException) {
                     break;
-                } catch { /* Ignore send errors */ }
+                } catch {
+                    // Don't crash the loop on send errors, just try again
+                }
             }
         }
     }
