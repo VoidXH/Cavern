@@ -5,25 +5,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Cavern.Format.Networking.Consts;
+
 namespace Cavern.Format.Networking {
     /// <summary>
     /// Periodically broadcasts SAP (Session Announcement Protocol) messages containing the SDP description of an audio stream to the multicast group.
     /// </summary>
     public class SAPAnnouncer : IDisposable {
         /// <summary>
-        /// The multicast address for SAP announcements (RFC 2974).
-        /// </summary>
-        const string SapAddress = "239.255.255.255";
-
-        /// <summary>
-        /// The UDP port for SAP announcements.
-        /// </summary>
-        const int SapPort = 9875;
-
-        /// <summary>
         /// The pre-built SAP packet used for each announcement.
         /// </summary>
-        readonly SAPPacket sapPacket;
+         public readonly SAPPacket sapPacket;
 
         /// <summary>
         /// The UDP client used to send SAP announcements.
@@ -71,11 +63,11 @@ namespace Cavern.Format.Networking {
             this.localInterface = localInterface;
             udpClient = new UdpClient();
             if (localInterface != null) {
-                udpClient.JoinMulticastGroup(IPAddress.Parse(SapAddress), localInterface);
+                udpClient.JoinMulticastGroup(IPAddress.Parse(SAPConsts.multicastAddress), localInterface);
             } else {
-                udpClient.JoinMulticastGroup(IPAddress.Parse(SapAddress));
+                udpClient.JoinMulticastGroup(IPAddress.Parse(SAPConsts.multicastAddress));
             }
-            endpoint = new IPEndPoint(IPAddress.Parse(SapAddress), SapPort);
+            endpoint = new IPEndPoint(IPAddress.Parse(SAPConsts.multicastAddress), SAPConsts.port);
             sapPacket = BuildSAPPacket();
         }
 
