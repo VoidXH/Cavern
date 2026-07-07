@@ -316,7 +316,7 @@ namespace Cavern.Utilities {
         /// <param name="source">Track to subtract</param>
         /// <param name="destination">Track to subtract from</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Subtract(this float[] source, float[] destination) {
+        public static void SubtractFrom(this float[] source, float[] destination) {
             for (int i = 0; i < source.Length; i++) {
                 destination[i] -= source[i];
             }

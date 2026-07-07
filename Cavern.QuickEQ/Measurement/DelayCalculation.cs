@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 using Cavern.QuickEQ.Utilities;
 using Cavern.Utilities;
@@ -13,17 +14,30 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by a determined <paramref name="method"/>.
         /// </summary>
-        public static float Get(float[] impulseResponse, DelayDeterminationType method) {
-            using FFTCache cache = new FFTCache(impulseResponse.Length);
-            return Get(impulseResponse, method, cache);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Get(float[] impulseResponse, DelayDeterminationType method) => Get(impulseResponse, method, 1, 2);
 
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by a determined <paramref name="method"/>. Better performance is achieved with an <see cref="FFTCache"/>.
         /// </summary>
-        public static float Get(float[] impulseResponse, DelayDeterminationType method, FFTCache cache) => method switch {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Get(float[] impulseResponse, DelayDeterminationType method, FFTCache cache) => Get(impulseResponse, method, cache, 1, 2);
+
+        /// <summary>
+        /// Get the delay of an <paramref name="impulseResponse"/> by a determined <paramref name="method"/> with explicit frequency range parameters.
+        /// </summary>
+        public static float Get(float[] impulseResponse, DelayDeterminationType method, int endFreq, int sampleRate) {
+            using FFTCache cache = new FFTCache(impulseResponse.Length);
+            return Get(impulseResponse, method, cache, endFreq, sampleRate);
+        }
+
+        /// <summary>
+        /// Get the delay of an <paramref name="impulseResponse"/> by a determined <paramref name="method"/> with explicit frequency range parameters.
+        /// Better performance is achieved with an <see cref="FFTCache"/>.
+        /// </summary>
+        public static float Get(float[] impulseResponse, DelayDeterminationType method, FFTCache cache, int endFreq, int sampleRate) => method switch {
             DelayDeterminationType.None => 0,
-            DelayDeterminationType.Slope => GetSlopeDelay(impulseResponse, cache),
+            DelayDeterminationType.Slope => GetSlopeDelay(impulseResponse.FFT(cache), endFreq, sampleRate),
             DelayDeterminationType.SlopeWindowed => GetSlopeWindowedDelay(impulseResponse),
             DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(impulseResponse),
             DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(impulseResponse),
@@ -33,17 +47,30 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of a <paramref name="transferFunction"/> by a determined <paramref name="method"/>.
         /// </summary>
-        public static float Get(Complex[] transferFunction, DelayDeterminationType method) {
-            using FFTCache cache = new FFTCache(transferFunction.Length);
-            return Get(transferFunction, method, cache);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Get(Complex[] transferFunction, DelayDeterminationType method) => Get(transferFunction, method, 1, 2);
 
         /// <summary>
         /// Get the delay of a <paramref name="transferFunction"/> by a determined <paramref name="method"/>. Better performance is achieved with an <see cref="FFTCache"/>.
         /// </summary>
-        public static float Get(Complex[] transferFunction, DelayDeterminationType method, FFTCache cache) => method switch {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Get(Complex[] transferFunction, DelayDeterminationType method, FFTCache cache) => Get(transferFunction, method, cache, 1, 2);
+
+        /// <summary>
+        /// Get the delay of a <paramref name="transferFunction"/> by a determined <paramref name="method"/> with explicit frequency range parameters.
+        /// </summary>
+        public static float Get(Complex[] transferFunction, DelayDeterminationType method, int endFreq, int sampleRate) {
+            using FFTCache cache = new FFTCache(transferFunction.Length);
+            return Get(transferFunction, method, cache, endFreq, sampleRate);
+        }
+
+        /// <summary>
+        /// Get the delay of a <paramref name="transferFunction"/> by a determined <paramref name="method"/> with explicit frequency range parameters.
+        /// Better performance is achieved with an <see cref="FFTCache"/>.
+        /// </summary>
+        public static float Get(Complex[] transferFunction, DelayDeterminationType method, FFTCache cache, int endFreq, int sampleRate) => method switch {
             DelayDeterminationType.None => 0,
-            DelayDeterminationType.Slope => GetSlopeDelay(transferFunction),
+            DelayDeterminationType.Slope => GetSlopeDelay(transferFunction, endFreq, sampleRate),
             DelayDeterminationType.SlopeWindowed => GetSlopeWindowedDelay(transferFunction, cache),
             DelayDeterminationType.ImpulsePeak => GetImpulsePeakDelay(transferFunction, cache),
             DelayDeterminationType.ImpulseEnvelopePeak => GetImpulseEnvelopePeakDelay(transferFunction, cache),
@@ -124,10 +151,16 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of a <paramref name="transferFunction"/> by the slope of the phase response in samples.
         /// </summary>
-        public static float GetSlopeDelay(Complex[] transferFunction) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetSlopeDelay(Complex[] transferFunction) => GetSlopeDelay(transferFunction, 1, 2); // Will result in full band check
+
+        /// <summary>
+        /// Get the delay of a <paramref name="transferFunction"/> by the slope of the phase response in samples.
+        /// </summary>
+        public static float GetSlopeDelay(Complex[] transferFunction, int endFreq, int sampleRate) {
             float[] result = Measurements.GetPhase(transferFunction);
             Measurements.UnwrapPhase(result);
-            (double slope, double _) = GraphUtils.GetRegression(result);
+            (double slope, double _) = GraphUtils.GetRegression(result, 0, (int)(transferFunction.LongLength * endFreq / sampleRate));
             double delaySamples = -slope * transferFunction.Length / (2 * Math.PI);
             return (float)(delaySamples < 0 ? transferFunction.Length + delaySamples : delaySamples);
         }

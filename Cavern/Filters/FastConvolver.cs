@@ -45,9 +45,7 @@ namespace Cavern.Filters {
                 int fftSize = 2 << QMath.Log2Ceil(value.Length); // Zero padding for the falloff to have space
                 cache = CreateCache(fftSize);
                 filter = new Complex[fftSize];
-                for (int sample = 0; sample < value.Length; sample++) {
-                    filter[sample].Real = value[sample];
-                }
+                value.ParseForFFT(filter);
                 filter.InPlaceFFT(cache);
                 present = new Complex[fftSize];
                 Delay = delay;

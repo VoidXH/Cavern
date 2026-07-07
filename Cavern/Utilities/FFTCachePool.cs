@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Cavern.Utilities.Threading;
+using Cavern.Waveforms;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -30,10 +31,76 @@ namespace Cavern.Utilities {
         public FFTCachePool(int size) => Size = size;
 
         /// <summary>
+        /// Fast Fourier transform many 2D <paramref name="signals"/>.
+        /// </summary>
+        public static MultichannelTransferFunction FFT(MultichannelTransferFunction signals, bool multithreaded) {
+            if (signals.Channels == 0) {
+                return new MultichannelTransferFunction(0, 0);
+            }
+
+            using FFTCachePool pool = new FFTCachePool(signals.Length);
+            return pool.FFTAll(signals, multithreaded);
+        }
+
+        /// <summary>
+        /// Fast Fourier transform many 2D <paramref name="signals"/>.
+        /// </summary>
+        public static MultichannelTransferFunction FFT(MultichannelWaveform signals, bool multithreaded) {
+            if (signals.Channels == 0) {
+                return new MultichannelTransferFunction(0, 0);
+            }
+
+            using FFTCachePool pool = new FFTCachePool(signals.Length);
+            return pool.FFTAll(signals, multithreaded);
+        }
+
+        /// <summary>
+        /// Perform an operation (channel signal, index, cache for operation) on all <paramref name="signals"/> without checking for exceptions.
+        /// </summary>
+        public static void ForAllUnchecked(MultichannelWaveform signals, Action<float[], int, FFTCache> operation, bool multithreaded) {
+            using FFTCachePool pool = new FFTCachePool(signals.Length);
+            Parallelizer.ForUnchecked(0, signals.Channels, i => {
+                FFTCache cache = pool.Lease();
+                operation(signals[i], i, cache);
+                pool.Return(cache);
+            }, multithreaded);
+        }
+
+        /// <summary>
+        /// Perform an operation (channel transfer function, index, cache for operation) on all <paramref name="transferFunctions"/> without checking for exceptions.
+        /// </summary>
+        public static void ForAllUnchecked(MultichannelTransferFunction transferFunctions, Action<Complex[], int, FFTCache> operation, bool multithreaded) {
+            using FFTCachePool pool = new FFTCachePool(transferFunctions.Length);
+            Parallelizer.ForUnchecked(0, transferFunctions.Channels, i => {
+                FFTCache cache = pool.Lease();
+                operation(transferFunctions[i], i, cache);
+                pool.Return(cache);
+            }, multithreaded);
+        }
+
+        /// <summary>
+        /// Fast Fourier transform many 2D <paramref name="signals"/>.
+        /// </summary>
+        public MultichannelTransferFunction FFTAll(MultichannelTransferFunction signals, bool multithreaded) {
+            MultichannelTransferFunction result = (MultichannelTransferFunction)signals.Clone();
+            FFTAllInPlace(result, multithreaded);
+            return result;
+        }
+
+        /// <summary>
+        /// Fast Fourier transform many 2D <paramref name="signals"/>.
+        /// </summary>
+        public MultichannelTransferFunction FFTAll(MultichannelWaveform signals, bool multithreaded) {
+            Complex[][] result = new Complex[signals.Channels][];
+            ForAllUnchecked(signals, (signal, i, cache) => result[i] = signal.FFT(cache), multithreaded);
+            return new MultichannelTransferFunction(result);
+        }
+
+        /// <summary>
         /// Perform in-place FFT on all the passed <paramref name="signals"/>.
         /// </summary>
-        public void FFTAllInPlace(Complex[][] signals, bool multithreaded) {
-            Parallelizer.ForUnchecked(0, signals.Length, i => {
+        public void FFTAllInPlace(MultichannelTransferFunction signals, bool multithreaded) {
+            Parallelizer.ForUnchecked(0, signals.Channels, i => {
                 FFTCache cache = Lease();
                 signals[i].InPlaceFFT(cache);
                 Return(cache);
@@ -43,8 +110,8 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Perform in-place IFFT on all the passed <paramref name="transferFunctions"/>.
         /// </summary>
-        public void IFFTAllInPlace(Complex[][] transferFunctions, bool multithreaded) {
-            Parallelizer.ForUnchecked(0, transferFunctions.Length, i => {
+        public void IFFTAllInPlace(MultichannelTransferFunction transferFunctions, bool multithreaded) {
+            Parallelizer.ForUnchecked(0, transferFunctions.Channels, i => {
                 FFTCache cache = Lease();
                 transferFunctions[i].InPlaceIFFT(cache);
                 Return(cache);

@@ -88,7 +88,8 @@ namespace Cavern.QuickEQ.Equalization {
                 }
             }
             eq.Apply(filter, sampleRate);
-            Measurements.MinimumPhaseSpectrum(filter, cache);
+            filter.Threshold(1e-10f);
+            Measurements.ConvertToMinimumPhase(filter, cache);
             filter.InPlaceIFFT(cache);
 
             // Hann windowing for increased precision

@@ -155,6 +155,17 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Change the phase of all elements to 0.
+        /// </summary>
+        public static Complex[] GetZeroPhase(this Complex[] array) {
+            Complex[] result = new Complex[array.Length];
+            for (int i = 0; i < array.Length; i++) {
+                result[i] = new Complex(array[i].Magnitude);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Get the maximum at each position of the transfer functions.
         /// </summary>
         public static unsafe Complex[] Max(this Complex[][] sources) {
@@ -226,6 +237,20 @@ namespace Cavern.Utilities {
         public static void SwapDimensions(this Complex[] array) {
             for (int i = 0; i < array.Length; i++) {
                 (array[i].Real, array[i].Imaginary) = (array[i].Imaginary, array[i].Real);
+            }
+        }
+
+        /// <summary>
+        /// Make sure no value of the <paramref name="array"/> is below the <paramref name="threshold"/>.
+        /// </summary>
+        public static void Threshold(this Complex[] array, float threshold) {
+            for (int i = 0; i < array.Length; i++) {
+                float magnitude = array[i].Magnitude;
+                if (magnitude <= float.Epsilon) {
+                    array[i] = new Complex(threshold);
+                } else if (magnitude < threshold) {
+                    array[i] *= threshold / magnitude;
+                }
             }
         }
     }

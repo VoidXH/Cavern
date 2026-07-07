@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities;
@@ -7,7 +9,7 @@ namespace Cavern.Waveforms {
     /// <summary>
     /// Contains multiple arrays of the same length.
     /// </summary>
-    public abstract class MultichannelBase<T> : ICloneable where T : struct {
+    public abstract class MultichannelBase<T> : ICloneable, IEnumerable<T[]> where T : struct {
         /// <summary>
         /// Get a <paramref name="channel"/>'s <see cref="data"/>.
         /// </summary>
@@ -73,5 +75,11 @@ namespace Cavern.Waveforms {
         /// Get an array referencing the contained channel entries.
         /// </summary>
         public T[][] ToArray() => data.DeepCopy2D();
+
+        /// <inheritdoc/>
+        public IEnumerator<T[]> GetEnumerator() => ((IEnumerable<T[]>)data).GetEnumerator();
+
+        /// <inheritdoc/>
+        IEnumerator IEnumerable.GetEnumerator() => data.GetEnumerator();
     }
 }

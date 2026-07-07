@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,33 +55,39 @@ namespace Cavern.QuickEQ.Graphing {
                 return;
             }
 
-            (Complex[] transferFunction, float speakerEndFrequency, uint color)[] parsed = new (Complex[], float, uint)[entries.Length];
+            PhaseRendererTransferEntry[] parsed = new PhaseRendererTransferEntry[entries.Length];
             int fftSize = entries.Max(x => x.impulseResponse.Length);
-            if (parallel) {
-                using FFTCachePool pool = new FFTCachePool(fftSize);
-                Parallelizer.For(0, entries.Length, i => {
-                    FFTCache cache = pool.Lease();
-                    Complex[] transferFunction = Measurements.FFT(entries[i].impulseResponse, cache);
-                    parsed[i] = (transferFunction, entries[i].endFrequency, entries[i].color);
-                    pool.Return(cache);
-                });
-            } else {
-                using FFTCache cache = new FFTCache(fftSize);
-                for (int i = 0; i < entries.Length; i++) {
-                    Complex[] transferFunction = Measurements.FFT(entries[i].impulseResponse, cache);
-                    parsed[i] = (transferFunction, entries[i].endFrequency, entries[i].color);
-                }
-            }
+            using FFTCachePool pool = new FFTCachePool(fftSize);
+            Parallelizer.For(0, entries.Length, i => {
+                FFTCache cache = pool.Lease();
+                parsed[i] = new PhaseRendererTransferEntry(entries[i], cache);
+                pool.Return(cache);
+            }, parallel);
             AddPhases(sampleRate, parsed);
         }
 
         /// <summary>
         /// Parse phase curves from previously calculated transfer functions.
         /// </summary>
-        public void AddPhases(int sampleRate, params (Complex[] transferFunction, float endFrequency, uint color)[] entries) {
+        public void AddPhases(int sampleRate, params PhaseRendererTransferEntry[] entries) {
             (Equalizer, uint)[] additions = new (Equalizer, uint)[entries.Length];
             for (int i = 0; i < entries.Length; i++) {
                 additions[i] = (TransferFunctionToPhaseEqualizer(entries[i].transferFunction, entries[i].endFrequency, sampleRate), entries[i].color);
+            }
+            AddCurves(additions, false);
+        }
+
+        /// <summary>
+        /// Add regular phase curves for display.
+        /// </summary>
+        /// <param name="sampleRate">Measurement sampling rate</param>
+        /// <param name="entries">Phase curves (in degrees) and their end frequencies and colors</param>
+        public void AddPhases(int sampleRate, params (float[] phase, uint color)[] entries) {
+            (Equalizer, uint)[] additions = new (Equalizer, uint)[entries.Length];
+            for (int i = 0; i < entries.Length; i++) {
+                Equalizer eq = EQGenerator.FromCurve(entries[i].phase, sampleRate);
+                eq.DownsampleLogarithmically(Resolution, StartFrequency, EndFrequency);
+                additions[i] = (eq, entries[i].color);
             }
             AddCurves(additions, false);
         }

@@ -41,27 +41,6 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Fast Fourier transform many 2D signals.
-        /// </summary>
-        public static MultichannelTransferFunction FFT(this MultichannelTransferFunction samples, bool parallel) {
-            Complex[][] result = new Complex[samples.Length][];
-            if (parallel) {
-                using FFTCache cache = new ThreadSafeFFTCache(samples[0].Length);
-                for (int i = 0; i < result.Length; i++) {
-                    result[i] = samples[i].FFT(cache);
-                }
-            } else {
-                using FFTCachePool pool = new FFTCachePool(samples[0].Length);
-                Parallelizer.ForUnchecked(0, result.Length, i => {
-                    FFTCache cache = pool.Lease();
-                    result[i] = samples[i].FFT(cache);
-                    pool.Return(cache);
-                });
-            }
-            return new MultichannelTransferFunction(result);
-        }
-
-        /// <summary>
         /// Fast Fourier transform a 1D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -268,54 +247,6 @@ namespace Cavern.Utilities {
                 return;
             }
             ProcessIFFT(samples, cache);
-        }
-
-        /// <summary>
-        /// Minimizes the phase of a spectrum. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
-        /// </summary>
-        /// <remarks>This function does not handle zeros in the spectrum.
-        /// Make sure there is a threshold before using this function.</remarks>
-        public static void MinimumPhaseSpectrum(Complex[] response) => MinimumPhaseSpectrum(response, null);
-
-        /// <summary>
-        /// Minimizes the phase of a spectrum.
-        /// </summary>
-        /// <remarks>This function does not handle zeros in the spectrum.
-        /// Make sure there is a threshold before using this function.</remarks>
-        public static void MinimumPhaseSpectrum(Complex[] response, FFTCache cache) {
-            bool customCache = false;
-            if (cache == null) {
-                cache = new ThreadSafeFFTCache(response.Length);
-                customCache = true;
-            }
-            int halfLength = response.Length / 2;
-            for (int i = 0; i < response.Length; i++) {
-                response[i] = Complex.Log(response[i].Real);
-            }
-            if (cache != null && cache.Native != IntPtr.Zero) {
-                CavernAmp.InPlaceIFFT(response, cache);
-            } else {
-                response.InPlaceIFFT(cache);
-            }
-            for (int i = 1; i < halfLength; i++) {
-                response[i].Real += response[^i].Real;
-                response[i].Imaginary -= response[^i].Imaginary;
-                response[^i].Clear();
-            }
-            response[halfLength].Imaginary = -response[halfLength].Imaginary;
-            if (cache != null && cache.Native != IntPtr.Zero) {
-                CavernAmp.InPlaceFFT(response, cache);
-            } else {
-                response.InPlaceFFT(cache);
-            }
-            for (int i = 0; i < response.Length; i++) {
-                float exp = MathF.Exp(response[i].Real);
-                response[i].Real = exp * MathF.Cos(response[i].Imaginary);
-                response[i].Imaginary = exp * MathF.Sin(response[i].Imaginary);
-            }
-            if (customCache) {
-                cache.Dispose();
-            }
         }
 
         /// <summary>

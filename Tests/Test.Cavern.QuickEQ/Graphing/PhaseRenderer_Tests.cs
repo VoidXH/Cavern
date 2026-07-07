@@ -16,7 +16,7 @@ public class PhaseRenderer_Tests {
     [TestMethod, Timeout(1000)]
     public void Normalize() {
         PhaseRenderer renderer = new(128, 128);
-        renderer.AddPhases(Listener.DefaultSampleRate, (TestSignals.sine440TF, Listener.DefaultSampleRate / 2, 0xFFFFFFFF));
+        renderer.AddPhases(Listener.DefaultSampleRate, new PhaseRendererTransferEntry(TestSignals.sine440TF, Listener.DefaultSampleRate / 2, 0xFFFFFFFF));
         renderer.Normalize();
         Assert.IsTrue(renderer.Peak > 1, "The Peak should not be small.");
     }

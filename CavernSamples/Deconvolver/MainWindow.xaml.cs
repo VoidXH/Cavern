@@ -1,9 +1,10 @@
-﻿using Cavern.Format;
-using Cavern.Utilities;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Windows;
+
+using Cavern.Format;
+using Cavern.Utilities;
 
 namespace Deconvolver {
     /// <summary>
@@ -23,7 +24,7 @@ namespace Deconvolver {
             if (Settings.Default.Convolve) {
                 convolve.IsChecked = true;
             } else {
-                deconvolve.IsChecked= true;
+                deconvolve.IsChecked = true;
             }
         }
 
@@ -82,9 +83,7 @@ namespace Deconvolver {
                         WaveformUtils.ExtractChannel(impulse, impulseChannel, channel, impulseChannels);
                         Array.Clear(impulseFFT, 0, fftSize);
                     }
-                    for (int sample = 0; sample < impulseChannel.Length; ++sample) {
-                        impulseFFT[sample].Real = impulseChannel[sample];
-                    }
+                    impulseChannel.ParseForFFT(impulseFFT);
                     Measurements.InPlaceFFT(impulseFFT, cache);
                 }
 
@@ -96,9 +95,7 @@ namespace Deconvolver {
                 if (channel != 1) {
                     Array.Clear(responseFFT, 0, fftSize);
                 }
-                for (int sample = 0; sample < responseChannel.Length; ++sample) {
-                    responseFFT[sample].Real = responseChannel[sample];
-                }
+                responseChannel.ParseForFFT(responseFFT);
                 Measurements.InPlaceFFT(responseFFT, cache);
 
                 if (convolve.IsChecked.Value) {
