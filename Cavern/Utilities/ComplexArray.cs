@@ -241,15 +241,15 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Make sure no value of the <paramref name="array"/> is below the <paramref name="threshold"/>.
+        /// Make sure no value of the <paramref name="array"/> is below the <paramref name="minimum"/>.
         /// </summary>
-        public static void Threshold(this Complex[] array, float threshold) {
+        public static void Threshold(this Complex[] array, float minimum) {
             for (int i = 0; i < array.Length; i++) {
                 float magnitude = array[i].Magnitude;
                 if (magnitude <= float.Epsilon) {
-                    array[i] = new Complex(threshold);
-                } else if (magnitude < threshold) {
-                    array[i] *= threshold / magnitude;
+                    array[i] = new Complex(minimum);
+                } else if (magnitude < minimum) {
+                    array[i] *= minimum / magnitude;
                 }
             }
         }

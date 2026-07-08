@@ -93,7 +93,7 @@ public class SAPListener_Tests {
         SAPListener listener = new();
         bool eventFired = false;
 
-        void handler(object sender, SDPPacket sdp) => eventFired = true;
+        void handler(object _, SDPPacket sdp) => eventFired = true;
         listener.StreamDiscovered += handler;
         listener.StreamDiscovered -= handler;
 
@@ -122,7 +122,7 @@ public class SAPListener_Tests {
         SDPPacket receivedSdp = null;
         ManualResetEventSlim eventReceived = new(false);
 
-        void handler(object sender, SDPPacket sdp) {
+        void handler(object _, SDPPacket sdp) {
             receivedSdp = sdp;
             eventReceived.Set();
         }
