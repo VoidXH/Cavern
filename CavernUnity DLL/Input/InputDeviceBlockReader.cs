@@ -2,6 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
+using Cavern.Utilities.Diagnostics;
+
 namespace Cavern.Input {
     /// <summary>
     /// Reads an audio input device and delivers blocks of a given <see cref="blockSize"/> of audio samples in a callback
@@ -123,6 +125,7 @@ namespace Cavern.Input {
                     }
                 }
             }
+            CavernTracing.Log(CavernTraceLevel.Debug, this, "Enabled for \"{0}\" at {1} Hz.", activeDevice, sampleRate);
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Unity lifecycle")]
@@ -140,6 +143,7 @@ namespace Cavern.Input {
             }
             if (!MultiplatformMicrophone.IsRecording(activeDevice)) {
                 buffer = null;
+                CavernTracing.Log(CavernTraceLevel.Debug, this, "Microphone device \"{0}\" was disconnected.", activeDevice);
                 OnMicrophoneDisconnected?.Invoke();
                 return;
             }
@@ -162,9 +166,12 @@ namespace Cavern.Input {
 
         void OnDisable() {
             if (MultiplatformMicrophone.IsRecording(activeDevice)) {
+                CavernTracing.Log(CavernTraceLevel.Debug, this, "Disabled for \"{0}\".", activeDevice);
                 MultiplatformMicrophone.End(activeDevice);
                 Destroy(buffer);
                 buffer = null;
+            } else {
+                CavernTracing.Log(CavernTraceLevel.Warning, this, "Tried to be disabled for \"{0}\", but wasn't recording.", activeDevice);
             }
         }
     }
