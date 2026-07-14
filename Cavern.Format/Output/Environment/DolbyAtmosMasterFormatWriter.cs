@@ -87,7 +87,7 @@ namespace Cavern.Format.Environment {
         /// </summary>
         static StaticSource[] ParseStaticSources(StaticSource[] input) {
             // Handle the RL RR SL SR ending, which not all tools can handle, but they can handle SL SR RL RR
-            if (input[4].Channel == ReferenceChannel.RearLeft && input[5].Channel == ReferenceChannel.RearRight &&
+            if (input.Length >= 8 && input[4].Channel == ReferenceChannel.RearLeft && input[5].Channel == ReferenceChannel.RearRight &&
                 input[6].Channel == ReferenceChannel.SideLeft && input[7].Channel == ReferenceChannel.SideRight) {
                 (input[4], input[6]) = (input[6], input[4]);
                 (input[5], input[7]) = (input[7], input[5]);
