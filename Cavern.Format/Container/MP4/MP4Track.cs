@@ -1,5 +1,6 @@
 ﻿using Cavern.Format.Common;
 using Cavern.Format.Common.Metadata;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 
 using static Cavern.Format.Consts.MP4Consts;

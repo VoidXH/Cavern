@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using Cavern.Channels;
 using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Consts {
@@ -65,7 +66,7 @@ namespace Cavern.Format.Consts {
             }
 
             if (illegalChannels != null) {
-                throw new InvalidChannelException(illegalChannels.ToArray());
+                throw new InvalidExportChannelException(false, illegalChannels.ToArray());
             }
 
             for (int i = 1; i < channels.Length; i++) {

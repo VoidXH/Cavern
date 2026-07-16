@@ -1,5 +1,5 @@
 ﻿using Cavern.Filters;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Utilities;
 using Cavern.Waveforms;
 

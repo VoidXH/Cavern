@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
 

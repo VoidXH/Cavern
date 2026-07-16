@@ -5,7 +5,7 @@ namespace Cavern.Utilities.Threading {
     /// <summary>
     /// Runs a background thread with exception handling-ready polling.
     /// </summary>
-    public class BackgroundProccess : IDisposable {
+    public class BackgroundProcess : IDisposable {
         /// <summary>
         /// Check if the <see cref="thread"/> has finished executing. If it had ran to an exception, that exception is thrown.
         /// </summary>
@@ -44,7 +44,7 @@ namespace Cavern.Utilities.Threading {
         }
 
         /// <summary>
-        /// Resets the object to a default state by clearing the handle and recoded exception. It's only valid to call this, when the previous thread was finished,
+        /// Resets the object to a default state by clearing the handle and recorded exception. It's only valid to call this, when the previous thread was finished,
         /// otherwise an exception will be thrown.
         /// </summary>
         public void Reset() {

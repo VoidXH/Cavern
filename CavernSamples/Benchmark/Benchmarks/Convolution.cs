@@ -1,5 +1,5 @@
-﻿using Cavern;
-using Cavern.Filters;
+﻿using Cavern.Filters;
+using Cavern.Waveforms;
 
 namespace Benchmark.Benchmarks {
     /// <summary>

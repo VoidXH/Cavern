@@ -4,7 +4,7 @@
     /// </summary>
     public static class CavernTracing {
         /// <summary>
-        /// A lo <paramref name="level"/>-<paramref name="message"/> pair's handler.
+        /// A log of a <paramref name="level"/>-<paramref name="message"/> pair's handler.
         /// </summary>
         public delegate void CavernTraceCallback(CavernTraceLevel level, string message);
 

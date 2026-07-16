@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Utilities;
 
 namespace Cavern.Format {

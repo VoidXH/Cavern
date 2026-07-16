@@ -2,6 +2,7 @@
 using Cavern.Format.Common.Metadata;
 using Cavern.Format.Container;
 using Cavern.Format.Decoders;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Renderers;
 using Cavern.Format.Utilities;
 

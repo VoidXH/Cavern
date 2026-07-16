@@ -1,6 +1,7 @@
-﻿using Cavern.Filters;
 using System;
 using System.Runtime.CompilerServices;
+
+using Cavern.Filters;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>

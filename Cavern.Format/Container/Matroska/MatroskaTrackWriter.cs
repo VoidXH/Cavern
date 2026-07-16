@@ -1,6 +1,7 @@
 ﻿using Cavern.Format.Common;
 using Cavern.Format.Common.Metadata;
 using Cavern.Format.Common.Metadata.Enums;
+using Cavern.Format.Exceptions;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Container.Matroska {

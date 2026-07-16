@@ -3,7 +3,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 
 using Cavern.Channels;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 
 namespace Cavern.WPF.Controls;
 

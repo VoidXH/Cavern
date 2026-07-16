@@ -4,6 +4,7 @@ using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Container;
 using Cavern.Format.Environment;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Renderers;
 using Cavern.Utilities;
 using Cavern.Virtualizer;

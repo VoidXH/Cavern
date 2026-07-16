@@ -1,5 +1,6 @@
-﻿using Cavern.Utilities;
 using System;
+
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Graphing.Overlays {
     /// <summary>

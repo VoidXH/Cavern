@@ -36,7 +36,7 @@ namespace Cavern.Filters.Utilities {
 
         /// <summary>
         /// Creates a copy of the complete graph with no overlapping memory with the old <paramref name="rootNodes"/>,
-        /// and also results which old root <see cref="IFilterGraphNode"/> maps to which new one.
+        /// and also returns which old root <see cref="IFilterGraphNode"/> maps to which new one.
         /// </summary>
         public static (IEnumerable<IFilterGraphNode> rootNodes, Dictionary<IFilterGraphNode, IFilterGraphNode> mapping)
             DeepCopyWithMapping(this IEnumerable<IFilterGraphNode> rootNodes) {

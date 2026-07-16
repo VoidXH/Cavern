@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 
 namespace Cavern.Format {
     /// <summary>

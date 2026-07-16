@@ -163,7 +163,7 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Get the gains of frequencies in of a signal's FFT (<paramref name="transferFunction"/>).
+        /// Get the gains of frequencies of a signal's FFT (<paramref name="transferFunction"/>).
         /// The bands are only returned up to half the frequency scale, since for spectra, the FFT is symmetric.
         /// For operations that require all bins, use <see cref="GetMagnitude(Complex[])"/>.
         /// </summary>

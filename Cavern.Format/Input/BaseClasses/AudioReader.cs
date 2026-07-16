@@ -5,6 +5,7 @@ using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Container;
 using Cavern.Format.Container.Matroska;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Renderers;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;

@@ -102,12 +102,12 @@ namespace VoidX.WPF {
         /// <summary>
         /// Run a new task with error message handling if no task is running.
         /// </summary>
-        public bool Run(Action task, Action<string> onError) {
+        public bool Run(Action task, Action<Exception> onException) {
             return Run(() => {
                 try {
                     task();
                 } catch (Exception e) {
-                    onError(e.ToString());
+                    onException(e);
                 }
             });
         }

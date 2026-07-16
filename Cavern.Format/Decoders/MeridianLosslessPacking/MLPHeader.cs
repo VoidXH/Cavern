@@ -1,7 +1,7 @@
 ﻿using System;
 
 using Cavern.Channels;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Consts;
 using Cavern.Format.Utilities;
 

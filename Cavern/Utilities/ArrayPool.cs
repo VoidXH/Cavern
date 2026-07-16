@@ -6,7 +6,7 @@ namespace Cavern.Utilities {
     /// performance by reusing caches that are not used anymore by their thread. This is useful for repeatedly performed FFTs for example.
     /// </summary>
     /// <remarks>Because .NET is managed, you don't have to worry about not returning the arrays, worst case scenario is not gaining performance.
-    /// But you should use this properly tho.</remarks>
+    /// But you should use this properly though.</remarks>
     public class ArrayPool<T> {
         /// <summary>
         /// Size of the used FFTs.

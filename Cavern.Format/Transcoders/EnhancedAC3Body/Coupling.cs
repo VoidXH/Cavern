@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Transcoders {

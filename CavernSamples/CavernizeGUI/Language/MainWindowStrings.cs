@@ -96,6 +96,8 @@ public class MainWindowStrings() : LanguageBase<MainWindowStrings>(new() {
     ["QuAlT"] = "Combined processing",
     ["QuAll"] = "Do you want to select a single output folder for all the files you're adding to the queue? If you press Yes, all of them will be processed to " +
     "their default containers in the selected folder. If you press No, you can choose the output folders, file names, and container formats individually.",
+    ["ExIEC"] = "Some channels ({0}) are not supported by the export format. You can bypass this limitation with the --unsafe command line argument, " +
+    "but that can break spatial accuracy.",
 }) {
     /// <inheritdoc/>
     protected override LanguageBase<MainWindowStrings>[] GetTranslations() => [new MainWindowStringsHU(), new MainWindowStringsZH()];

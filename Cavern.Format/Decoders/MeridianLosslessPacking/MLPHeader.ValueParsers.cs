@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using Cavern.Channels;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 
 namespace Cavern.Format.Decoders.MeridianLosslessPacking {
     // Functions for parsing single MLP header values.

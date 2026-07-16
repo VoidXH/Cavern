@@ -3,7 +3,7 @@
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
@@ -97,7 +97,7 @@ namespace Cavern.Format.ConfigurationFile {
                     return roots[i];
                 }
             }
-            throw new InvalidChannelException(new[] { channel });
+            throw new InvalidExportChannelException(false, new[] { channel });
         }
 
         /// <summary>

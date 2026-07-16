@@ -185,7 +185,7 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Set the position of the channel and do all neccessary processing.
+        /// Set the position of the channel and do all necessary processing.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SetPosition(float x, float y) {

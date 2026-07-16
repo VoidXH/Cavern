@@ -1,5 +1,5 @@
-﻿using Cavern.Format.Common;
-using Cavern.Format.Consts;
+﻿using Cavern.Format.Consts;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.Format.Utilities;

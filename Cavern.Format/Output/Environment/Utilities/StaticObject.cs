@@ -24,5 +24,8 @@ namespace Cavern.Format.Environment.Utilities {
             Channel = channel;
             Source = source;
         }
+
+        /// <inheritdoc/>
+        public override string ToString() => Channel != ReferenceChannel.Unknown ? Channel.ToString() : Source.Position.ToString();
     }
 }

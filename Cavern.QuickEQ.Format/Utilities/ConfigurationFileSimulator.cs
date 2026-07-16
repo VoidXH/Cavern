@@ -5,7 +5,7 @@ using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.QuickEQ.SignalGeneration;
 using Cavern.Utilities;
 using Cavern.Waveforms;

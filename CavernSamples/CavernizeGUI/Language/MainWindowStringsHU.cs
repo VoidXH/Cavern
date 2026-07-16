@@ -102,5 +102,7 @@ public class MainWindowStringsHU : MainWindowStrings {
         Set("QuAll", "Szeretnél egy közös kimeneti mappát választani az összes fájlhoz, amit a sorhoz adsz? Ha az Igenre nyomsz, mindegyik az alapértelmezett " +
             "kimeneti konténerben lesz feldolgozva a kiválasztott mappába. Ha a Nemre nyomsz, egyesével kiválaszthatod a kimeneti mappákat, fájlneveket, " +
             "és konténerformátumokat.");
+        Set("ExIEC", "Néhány csatornát ({0}) nem támogat az exportálási formátum. Megkerülheted ezt a korlátozást az --unsafe parancssori argumentummal, " +
+            "de ez elronthatja a térbeli pontosságot.");
     }
 }

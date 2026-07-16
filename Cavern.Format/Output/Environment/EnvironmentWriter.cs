@@ -2,6 +2,7 @@
 using System.IO;
 
 using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Renderers;
 using Cavern.Utilities;
 

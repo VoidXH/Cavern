@@ -6,7 +6,7 @@ using System.Text;
 
 using Cavern.Channels;
 using Cavern.Filters;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>

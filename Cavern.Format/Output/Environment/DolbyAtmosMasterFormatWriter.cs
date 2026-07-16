@@ -5,8 +5,8 @@ using System.Linq;
 using System.Numerics;
 
 using Cavern.Channels;
-using Cavern.Format.Common;
 using Cavern.Format.Environment.Utilities;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Renderers;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;

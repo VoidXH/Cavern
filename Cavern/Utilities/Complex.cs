@@ -169,12 +169,12 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
-        /// Compare thie number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.
+        /// Compare this number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.
         /// </summary>
         public readonly int CompareTo(float other) => Magnitude.CompareTo(other);
 
         /// <summary>
-        /// Compare thie number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.
+        /// Compare this number to an <paramref name="other"/> if it precedes, follows, or matches it in a sort.
         /// </summary>
         public readonly int CompareTo(Complex other) => Magnitude.CompareTo(other.Magnitude);
 

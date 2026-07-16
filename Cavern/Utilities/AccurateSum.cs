@@ -6,7 +6,7 @@ namespace Cavern.Utilities {
     /// </summary>
     public sealed class AccurateSum {
         /// <summary>
-        /// All values <see cref="Add(float)"/> was called with, added togerher accurately.
+        /// All values <see cref="Add(float)"/> was called with, added together accurately.
         /// </summary>
         public float Sum { get; private set; }
 

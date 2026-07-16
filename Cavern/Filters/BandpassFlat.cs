@@ -73,7 +73,7 @@ namespace Cavern.Filters {
             this(lowFreq, highFreq, sampleRate, q, order, 0) { }
 
         /// <summary>
-        /// Combination of a lowpass and a highpass filter with custom Q-factor, slopa, and additional gain.
+        /// Combination of a lowpass and a highpass filter with custom Q-factor, slope, and additional gain.
         /// </summary>
         /// <param name="lowFreq">Low frequency (highpass) cutoff knee</param>
         /// <param name="highFreq">High frequency (lowpass) cutoff knee</param>

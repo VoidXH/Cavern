@@ -1,5 +1,6 @@
-﻿using Cavern.Format.Common;
 using System.Collections.Generic;
+
+using Cavern.Format.Common;
 
 namespace Cavern.Format.Consts {
     /// <summary>

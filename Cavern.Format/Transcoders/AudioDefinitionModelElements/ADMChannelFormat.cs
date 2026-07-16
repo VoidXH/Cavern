@@ -6,6 +6,7 @@ using System.Xml;
 using System.Xml.Linq;
 
 using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Renderers;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;

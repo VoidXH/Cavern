@@ -2,6 +2,7 @@
 
 using Cavern.Channels;
 using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
@@ -249,7 +250,7 @@ namespace Cavern.Format.Transcoders {
                 }
             }
             if (invalids.Length != 0) {
-                throw new InvalidChannelException(invalids);
+                throw new InvalidExportChannelException(false, invalids);
             }
 
             if (!channelMapping.HasValue) {

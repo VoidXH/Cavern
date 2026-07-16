@@ -12,7 +12,9 @@ using Cavern;
 using Cavern.Channels;
 using Cavern.Format;
 using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Utilities;
+using Cavern.WPF.Dialogs;
 using VoidX.WPF;
 using VoidX.WPF.FFmpeg;
 
@@ -26,7 +28,6 @@ using CavernizeGUI.Resources;
 using CavernizeGUI.Windows;
 
 using Path = System.IO.Path;
-using Cavern.WPF.Dialogs;
 
 namespace CavernizeGUI;
 
@@ -134,6 +135,17 @@ public partial class MainWindow : Window {
             Console.Error.WriteLine(message);
         } else {
             MessageBox.Show(message, language["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>
+    /// Displays an exception.
+    /// </summary>
+    static void Error(Exception exception) {
+        if (exception is InvalidExportChannelException iece && iece.Bypassable) {
+            Error(string.Format(language["ExIEC"], string.Join(", ", iece.Channels)));
+        } else {
+            Error(exception.ToString());
         }
     }
 

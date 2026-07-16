@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 
 using static Cavern.Format.Transcoders.EnhancedAC3;
 

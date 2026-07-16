@@ -6,8 +6,8 @@ using System.Linq;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
-using Cavern.Format.Common;
 using Cavern.Format.ConfigurationFile.Helpers;
+using Cavern.Format.Exceptions;
 using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 

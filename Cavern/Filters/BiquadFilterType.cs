@@ -16,7 +16,7 @@
         /// </summary>
         Highpass,
         /// <summary>
-        /// Elevates of lowers high frequency components of the signal.
+        /// Elevates or lowers high frequency components of the signal.
         /// </summary>
         HighShelf,
         /// <summary>
@@ -24,7 +24,7 @@
         /// </summary>
         Lowpass,
         /// <summary>
-        /// Elevates of lowers low frequency components of the signal.
+        /// Elevates or lowers low frequency components of the signal.
         /// </summary>
         LowShelf,
         /// <summary>

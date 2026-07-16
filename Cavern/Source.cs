@@ -232,7 +232,7 @@ namespace Cavern {
         }
 
         /// <summary>
-        /// Makes sure if <see cref="Precollect"/> is called immediatly after this function, it will return true.
+        /// Makes sure if <see cref="Precollect"/> is called immediately after this function, it will return true.
         /// </summary>
         protected void ForcePrecollect() => listener.sourceDistances[0] = distance;
 

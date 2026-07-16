@@ -1,5 +1,5 @@
 ﻿using Cavern.Format;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 
 namespace CavernPipeServer.Logic;

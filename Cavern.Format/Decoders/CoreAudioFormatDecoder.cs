@@ -1,7 +1,7 @@
 ﻿using System.IO;
 
-using Cavern.Format.Common;
 using Cavern.Format.Consts;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders {

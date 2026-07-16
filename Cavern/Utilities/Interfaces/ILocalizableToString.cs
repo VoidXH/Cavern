@@ -6,7 +6,7 @@ namespace Cavern.Utilities {
     /// </summary>
     public interface ILocalizableToString {
         /// <summary>
-        /// Returns a string that represents the current objects in the passed language.
+        /// Returns a string that represents the current object in the passed language.
         /// </summary>
         string ToString(CultureInfo culture);
     }

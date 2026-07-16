@@ -1,4 +1,4 @@
-﻿using Cavern.Format.Common;
+﻿using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 
 using static Cavern.Format.Transcoders.EnhancedAC3;

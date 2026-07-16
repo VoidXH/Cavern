@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using Cavern.Channels;
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Renderers.CoreAudioFormat {

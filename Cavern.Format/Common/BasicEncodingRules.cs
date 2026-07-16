@@ -1,5 +1,6 @@
 ﻿using System.IO;
 
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Common {

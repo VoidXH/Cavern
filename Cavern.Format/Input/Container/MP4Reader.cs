@@ -3,6 +3,7 @@ using System.IO;
 
 using Cavern.Format.Common;
 using Cavern.Format.Container.MP4;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
 

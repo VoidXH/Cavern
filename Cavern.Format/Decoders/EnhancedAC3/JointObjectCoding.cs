@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Utilities;
 
 namespace Cavern.Format.Decoders.EnhancedAC3 {

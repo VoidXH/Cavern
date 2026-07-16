@@ -3,6 +3,7 @@ using System.IO.Compression;
 
 using Cavern.Format;
 using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Operations;
 using Cavern.Format.Renderers;
 using Cavern.Utilities;

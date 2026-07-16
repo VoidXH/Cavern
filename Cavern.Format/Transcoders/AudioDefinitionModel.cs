@@ -6,7 +6,7 @@ using System.Xml.Linq;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-using Cavern.Format.Common;
+using Cavern.Format.Exceptions;
 using Cavern.Format.Transcoders.AudioDefinitionModelElements;
 using Cavern.Format.Utilities;
 

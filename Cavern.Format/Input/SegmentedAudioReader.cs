@@ -1,7 +1,8 @@
-﻿using Cavern.Format.Renderers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
+using Cavern.Format.Renderers;
 
 namespace Cavern.Format {
     /// <summary>

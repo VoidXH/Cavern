@@ -4,6 +4,7 @@ using System.Linq;
 using Cavern.Channels;
 using Cavern.Format.Common;
 using Cavern.Format.Environment.Utilities;
+using Cavern.Format.Exceptions;
 
 namespace Cavern.Format.Transcoders {
     /// <summary>
@@ -51,7 +52,7 @@ namespace Cavern.Format.Transcoders {
                 if (CavernFormatGlobal.Unsafe) {
                     return -1;
                 } else {
-                    throw new InvalidChannelException(channel);
+                    throw new InvalidExportChannelException(true, channel);
                 }
             }
         }
