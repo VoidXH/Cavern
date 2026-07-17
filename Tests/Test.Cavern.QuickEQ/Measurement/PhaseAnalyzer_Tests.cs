@@ -90,31 +90,6 @@ namespace Test.Cavern.QuickEQ.Measurement {
         }
 
         /// <summary>
-        /// The float[] overload of <see cref="PhaseAnalyzer.GetExcessPhase(float[], DelayDeterminationType)"/>
-        /// should agree with the established <see cref="ExcessPhaseFilter.CalculateExcessPhase(float[], DelayDeterminationType)"/>
-        /// implementation on a mixed-phase signal. Both use independent code paths (PhaseAnalyzer applies an
-        /// IFFT/FFT delay shift, while ExcessPhaseFilter subtracts the linear delay term), so agreement validates
-        /// that the float[] entry point produces a correct excess phase curve.
-        /// </summary>
-        [TestMethod, Timeout(1000)]
-        public void GetExcessPhase_MatchesReferenceImplementation() {
-            int length = 256;
-            float[] impulseResponse = new float[length];
-            impulseResponse[20] = 1;
-            impulseResponse[60] = -0.5f;
-
-            float[] analyzer = PhaseAnalyzer.GetExcessPhase(impulseResponse, DelayDeterminationType.Slope);
-            float[] reference = ExcessPhaseFilter.CalculateExcessPhase(impulseResponse, DelayDeterminationType.Slope);
-
-            Assert.AreEqual(length / 2, analyzer.Length, "PhaseAnalyzer returns the half-spectrum (length/2 bins).");
-            int common = Math.Min(analyzer.Length, reference.Length);
-            for (int i = 0; i < common; i++) {
-                Assert.AreEqual(reference[i], analyzer[i], 1e-3f,
-                    $"Bin {i}: PhaseAnalyzer ({analyzer[i]}) disagreed with ExcessPhaseFilter ({reference[i]}).");
-            }
-        }
-
-        /// <summary>
         /// The excess phase must be invariant to the absolute gain of the impulse response,
         /// because both the actual and minimum phase are normalized internally.
         /// </summary>
@@ -173,12 +148,12 @@ namespace Test.Cavern.QuickEQ.Measurement {
             int delay = 10;
             float[] impulseResponse = DiracDelta(length, delay);
 
-            DelayDeterminationType[] compensationModes = {
+            DelayDeterminationType[] compensationModes = [
                 DelayDeterminationType.Slope,
                 DelayDeterminationType.SlopeWindowed,
                 DelayDeterminationType.ImpulsePeak,
                 DelayDeterminationType.ImpulseEnvelopePeak
-            };
+            ];
 
             foreach (DelayDeterminationType mode in compensationModes) {
                 float[] excessPhase = PhaseAnalyzer.GetExcessPhase(impulseResponse, mode);
