@@ -38,10 +38,9 @@ namespace Cavern.Utilities {
             get => bypass;
             set {
                 bypass = value;
-                if (available) {
+                if (bypass) {
                     available = false;
-                }
-                if (!bypass) {
+                } else {
                     tested = false;
                 }
             }

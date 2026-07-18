@@ -78,9 +78,9 @@ namespace Cavern.QuickEQ.Crossover {
         /// <remarks>This function doesn't account for the 10 dB gain of LFE channels as it could be used for determining the
         /// crossover point of multiway speakers too.</remarks>
         public static float FindCrossoverFrequency(CrossoverType type, Complex[] lowTransfer, Complex[] highTransfer, int sampleRate,
-           float minFreq, float maxFreq, float precision, FFTCache cache) {
-            float bestValue = 0,
-                bestFrequency = 0;
+            float minFreq, float maxFreq, float precision, FFTCache cache) {
+            float bestValue = float.NegativeInfinity;
+            float bestFrequency = minFreq;
             for (float freq = minFreq; freq <= maxFreq; freq += precision) {
                 float value = GetCrossoverValue(type, lowTransfer, highTransfer, sampleRate, freq, cache);
                 if (bestValue < value) {

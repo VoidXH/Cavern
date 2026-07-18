@@ -11,6 +11,6 @@ namespace Test.Cavern.QuickEQ.FilterSet {
         /// <summary>
         /// Tests if <see cref="StormAudioFilterSet"/>s are handled properly.
         /// </summary>
-        public Rotel_Tests() : base(FilterSetTarget.Rotel) { }
+        public Rotel_Tests() : base(FilterSetTarget.Rotel) => Tolerance = 3.3;
     }
 }

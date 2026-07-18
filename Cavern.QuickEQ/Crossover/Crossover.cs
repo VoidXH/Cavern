@@ -43,10 +43,19 @@ namespace Cavern.QuickEQ.Crossover {
         public CrossoverDescription Mixing { get; }
 
         /// <summary>
+        /// Shows how the crossover is realized.
+        /// </summary>
+        public CrossoverType Type { get; } = CrossoverType.Disabled;
+
+        /// <summary>
         /// Create a crossover with frequencies for each channel.
         /// </summary>
         /// <param name="mixing">Which channels to mix to, and which channels to mix from at what crossover frequency</param>
-        protected Crossover(CrossoverDescription mixing) => Mixing = mixing;
+        /// <param name="type">The type of crossover to use</param>
+        protected Crossover(CrossoverDescription mixing, CrossoverType type) {
+            Mixing = mixing;
+            Type = type;
+        }
 
         /// <summary>
         /// Create the appropriate type of <see cref="Crossover"/> object for the selected <paramref name="type"/>.
@@ -58,6 +67,7 @@ namespace Cavern.QuickEQ.Crossover {
                 CrossoverType.Biquad => new BasicCrossover(mixing),
                 CrossoverType.Cavern => new CavernCrossover(mixing),
                 CrossoverType.SyntheticBiquad => new SyntheticBiquadCrossover(mixing),
+                CrossoverType.Disabled => new DisabledCrossover(mixing),
                 _ => throw new NotImplementedException()
             };
         }

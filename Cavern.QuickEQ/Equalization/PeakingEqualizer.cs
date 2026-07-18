@@ -132,19 +132,29 @@ namespace Cavern.QuickEQ.Equalization {
             if (CavernAmp.Available) {
                 IntPtr extAnalyzer =
                     CavernQuickEQAmp.FilterAnalyzer_Create(sampleRate, MaxGain, MinGain, GainPrecision, StartQ, Iterations);
+                int placed = 0;
                 for (int band = 0; band < bands; band++) {
                     CavernAmpPeakingEQ newBand = CavernQuickEQAmp.BruteForceBand(target, target.Length, extAnalyzer, startPos, stopPos);
-                    result[band] = new PeakingEQ(sampleRate, newBand.centerFreq, newBand.q, newBand.gain);
-                    PostprocessFilter?.Invoke(result[band]);
+                    if (newBand.q <= 0 || new PeakingEQ(sampleRate, newBand.centerFreq, newBand.q, newBand.gain).GetPoleRadius() > maxPoleRadius) {
+                        break;
+                    }
+                    result[placed++] = new PeakingEQ(sampleRate, newBand.centerFreq, newBand.q, newBand.gain);
+                    PostprocessFilter?.Invoke(result[placed - 1]);
                 }
                 CavernQuickEQAmp.FilterAnalyzer_Dispose(extAnalyzer);
+                if (placed == 0) {
+                    return result[..0];
+                }
+                return Cleanup(result[..placed]);
             } else {
                 analyzer = new FilterAnalyzer(null, sampleRate);
                 for (int band = 0; band < bands; band++) {
-                    result[band] = BruteForceBand(ref target, startPos, stopPos);
-                    if (result[band] == null) {
+                    PeakingEQ foundBand = BruteForceBand(ref target, startPos, stopPos);
+                    if (foundBand == null || foundBand.Q <= 0 || foundBand.GetPoleRadius() > maxPoleRadius) {
+                        analyzer.Dispose();
                         return result[..band];
                     }
+                    result[band] = foundBand;
                 }
                 analyzer.Dispose();
             }
@@ -328,5 +338,10 @@ namespace Cavern.QuickEQ.Equalization {
         /// (<see cref="MinGain"/>, <see cref="MaxGain"/>, and <see cref="GainPrecision"/>).
         /// </summary>
         double SnapGain(double gain) => Math.Round(-Math.Clamp(gain, MinGain, MaxGain) / GainPrecision) * GainPrecision;
+
+        /// <summary>
+        /// Maximum allowed pole radius for a generated band. Values too close to 1 make the biquad (near-)unstable, the energy accumulates and overflows.
+        /// </summary>
+        const float maxPoleRadius = 0.999999f;
     }
 }

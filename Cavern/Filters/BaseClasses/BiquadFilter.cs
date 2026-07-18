@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Xml;
-using System.Xml.Schema;
 using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
@@ -16,7 +13,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter.
     /// </summary>
-    public abstract class BiquadFilter : Filter, IEqualizerAPOFilter, ILocalizableToString, IResettableFilter, ISampleRateDependentFilter, IXmlSerializable {
+    public abstract partial class BiquadFilter : Filter, IEqualizerAPOFilter, ILocalizableToString, IResettableFilter, ISampleRateDependentFilter, IXmlSerializable {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {
@@ -134,45 +131,17 @@ namespace Cavern.Filters {
             Reset(centerFreq, q, gain);
         }
 
-        /// <summary>
-        /// Construct a <see cref="BiquadFilter"/> with the desired parameters.
-        /// </summary>
-        /// <param name="type">Selected kind of biquad filter</param>
-        /// <param name="sampleRate">Audio sample rate</param>
-        /// <param name="centerFreq">Center frequency (-3 dB point) of the filter</param>
-        /// <param name="q">Q-factor of the filter</param>
-        /// <param name="gain">Gain of the filter in decibels</param>
-        public static BiquadFilter Create(BiquadFilterType type, int sampleRate, double centerFreq, double q, double gain) => type switch {
-            BiquadFilterType.Allpass => new Allpass(sampleRate, centerFreq, q, gain),
-            BiquadFilterType.Bandpass => new Bandpass(sampleRate, centerFreq, q, gain),
-            BiquadFilterType.Highpass => new Highpass(sampleRate, centerFreq, q, gain),
-            BiquadFilterType.HighShelf => new HighShelf(sampleRate, centerFreq, q, gain),
-            BiquadFilterType.Lowpass => new Lowpass(sampleRate, centerFreq, q, gain),
-            BiquadFilterType.LowShelf => new LowShelf(sampleRate, centerFreq, q, gain),
-            BiquadFilterType.Notch => new Notch(sampleRate, centerFreq, q, gain),
-            BiquadFilterType.PeakingEQ => new PeakingEQ(sampleRate, centerFreq, q, gain),
-            _ => throw new ArgumentOutOfRangeException(nameof(type))
-        };
-
-        /// <summary>
-        /// Parse a Filter line of Equalizer APO which was split at spaces to a Cavern <see cref="BiquadFilter"/> filter,
-        /// detecting its type.<br />
-        /// </summary>
-        public static BiquadFilter FromEqualizerAPO(string[] splitLine, int sampleRate) => splitLine[2].ToUpperInvariant() switch {
-            "PK" => PeakingEQ.FromEqualizerAPO(splitLine, sampleRate),
-            "LP" => Lowpass.FromEqualizerAPO(splitLine, sampleRate),
-            "LPQ" => Lowpass.FromEqualizerAPO(splitLine, sampleRate),
-            "HP" => Highpass.FromEqualizerAPO(splitLine, sampleRate),
-            "HPQ" => Highpass.FromEqualizerAPO(splitLine, sampleRate),
-            "BP" => Bandpass.FromEqualizerAPO(splitLine, sampleRate),
-            "LS" => LowShelf.FromEqualizerAPO(splitLine, sampleRate),
-            "LSC" => LowShelf.FromEqualizerAPO(splitLine, sampleRate),
-            "HS" => HighShelf.FromEqualizerAPO(splitLine, sampleRate),
-            "HSC" => HighShelf.FromEqualizerAPO(splitLine, sampleRate),
-            "NO" => Notch.FromEqualizerAPO(splitLine, sampleRate),
-            "AP" => Allpass.FromEqualizerAPO(splitLine, sampleRate),
-            _ => throw new ArgumentOutOfRangeException(splitLine[2])
-        };
+        /// <inheritdoc/>
+        public override void Process(float[] samples, int channel, int channels) {
+            for (int sample = channel; sample < samples.Length; sample += channels) {
+                float thisSample = samples[sample];
+                samples[sample] = b2 * x2 + b1 * x1 + b0 * thisSample - a1 * y1 - a2 * y2;
+                y2 = y1;
+                y1 = samples[sample];
+                x2 = x1;
+                x1 = thisSample;
+            }
+        }
 
         /// <inheritdoc/>
         public void Reset() {
@@ -210,31 +179,29 @@ namespace Cavern.Filters {
             Reset(cos, alpha, divisor);
         }
 
-        /// <inheritdoc/>
-        public override void Process(float[] samples, int channel, int channels) {
-            for (int sample = channel; sample < samples.Length; sample += channels) {
-                float thisSample = samples[sample];
-                samples[sample] = b2 * x2 + b1 * x1 + b0 * thisSample - a1 * y1 - a2 * y2;
-                y2 = y1;
-                y1 = samples[sample];
-                x2 = x1;
-                x1 = thisSample;
-            }
-        }
-
         /// <summary>
         /// Create a copy of this filter with a changed <see cref="SampleRate"/>.
         /// </summary>
         /// <param name="sampleRate">Sample rate of the new filter</param>
         public abstract object Clone(int sampleRate);
 
+        /// <inheritdoc/>
+        public abstract void ExportToEqualizerAPO(List<string> wipConfig);
+
         /// <summary>
         /// Clone the filter with an inverse gain.
         /// </summary>
         public BiquadFilter GetInverse() => Create(FilterType, sampleRate, centerFreq, q, -gain);
 
-        /// <inheritdoc/>
-        public abstract void ExportToEqualizerAPO(List<string> wipConfig);
+        /// <summary>
+        /// Calculate the maximum distance of the filter's poles from the origin.
+        /// </summary>
+        public float GetPoleRadius() {
+            float discriminant = a1 * a1 - 4 * a2;
+            return discriminant >= 0
+                ? MathF.Max(Math.Abs((-a1 + MathF.Sqrt(discriminant)) * .5f), Math.Abs((-a1 - MathF.Sqrt(discriminant)) * .5f))
+                : MathF.Sqrt(a2);
+        }
 
         /// <summary>
         /// Reset the parameters specifically for the derived filter.
@@ -256,52 +223,5 @@ namespace Cavern.Filters {
             b2 = Math.Abs(b1) * .5f;
             b0 = MathF.Pow(10, (float)gain * .025f) * b2;
         }
-
-        /// <inheritdoc/>
-        public XmlSchema GetSchema() => null;
-
-        /// <inheritdoc/>
-        public void ReadXml(XmlReader reader) {
-            while (reader.MoveToNextAttribute()) {
-                switch (reader.Name) {
-                    case nameof(SampleRate):
-                        sampleRate = int.Parse(reader.Value);
-                        break;
-                    case nameof(CenterFreq):
-                        centerFreq = QMath.ParseDouble(reader.Value);
-                        break;
-                    case nameof(Q):
-                        q = QMath.ParseDouble(reader.Value);
-                        break;
-                    case nameof(Gain):
-                        gain = QMath.ParseDouble(reader.Value);
-                        break;
-                }
-            }
-            Reset(centerFreq, q, gain);
-        }
-
-        /// <inheritdoc/>
-        public void WriteXml(XmlWriter writer) {
-            writer.WriteStartElement(FilterType.ToString());
-            writer.WriteAttributeString(nameof(SampleRate), sampleRate.ToString());
-            writer.WriteAttributeString(nameof(CenterFreq), centerFreq.ToString(CultureInfo.InvariantCulture));
-            writer.WriteAttributeString(nameof(Q), q.ToString(CultureInfo.InvariantCulture));
-            writer.WriteAttributeString(nameof(Gain), gain.ToString(CultureInfo.InvariantCulture));
-            writer.WriteEndElement();
-        }
-
-        /// <summary>
-        /// Display the filter's parameters when converting to string.
-        /// </summary>
-        public override string ToString() =>
-            $"{FilterType} at {centerFreq} Hz, Q: {QMath.ToStringLimitDecimals(q, 3)}, gain: {QMath.ToStringLimitDecimals(gain, 2)} dB";
-
-        /// <inheritdoc/>
-        public string ToString(CultureInfo culture) => culture.Name switch {
-            "hu-HU" =>
-            $"{FilterType} {centerFreq} Hz-en, Q: {QMath.ToStringLimitDecimals(q, 3)}, erősítés: {QMath.ToStringLimitDecimals(gain, 2)} dB",
-            _ => ToString()
-        };
     }
 }
