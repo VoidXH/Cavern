@@ -9,6 +9,24 @@ namespace Cavern.Format {
     /// Reads audio files from multiple segments.
     /// </summary>
     public class SegmentedAudioReader : AudioReader {
+        /// <inheritdoc/>
+        public override long Position {
+            get => -1;
+            set {
+                long start = 0;
+                for (int i = 0, c = segments.Count; i < c; i++) {
+                    if (start > value) {
+                        segments[i].Position = 0;
+                    }
+                    if (start + segments[i].Length > value) {
+                        segment = i;
+                        segmentPosition = value - start;
+                        segments[i].Position = segmentPosition;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// A C# format string compliant path, where {0} will be the index.
         /// </summary>
@@ -73,14 +91,7 @@ namespace Cavern.Format {
             }
         }
 
-        /// <summary>
-        /// Read a block of samples.
-        /// </summary>
-        /// <param name="samples">Input array</param>
-        /// <param name="from">Start position in the input array (inclusive)</param>
-        /// <param name="to">End position in the input array (exclusive)</param>
-        /// <remarks>The next to - from samples will be read from the file.
-        /// All samples are counted, not just a single channel.</remarks>
+        /// <inheritdoc/>
         public override void ReadBlock(float[] samples, long from, long to) {
             if (segment == segments.Count) {
                 return;
@@ -99,9 +110,7 @@ namespace Cavern.Format {
             }
         }
 
-        /// <summary>
-        /// Goes back to a state where the first sample can be read.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Reset() {
             segment = 0;
             segmentPosition = 0;
@@ -110,33 +119,10 @@ namespace Cavern.Format {
             }
         }
 
-        /// <summary>
-        /// Start the following reads from the selected sample.
-        /// </summary>
-        /// <param name="sample">The selected sample, for a single channel</param>
-        /// <remarks>Seeking is not thread-safe.</remarks>
-        public override void Seek(long sample) {
-            long start = 0;
-            for (int i = 0, c = segments.Count; i < c; ++i) {
-                if (start > sample) {
-                    segments[i].Seek(0);
-                }
-                if (start + segments[i].Length > sample) {
-                    segment = i;
-                    segmentPosition = sample - start;
-                    segments[i].Seek(segmentPosition);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get an object-based renderer for this audio file.
-        /// </summary>
+        /// <inheritdoc/>
         public override Renderer GetRenderer() => throw new System.NotImplementedException();
 
-        /// <summary>
-        /// Close the files of the segments.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Dispose() {
             for (int i = 0, c = segments.Count; i < c; ++i) {
                 segments[i].Dispose();

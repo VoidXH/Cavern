@@ -113,9 +113,9 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                             float distanceFactor = intersect.Length() / distance;
                             position = distanceFactor * intersect + (1 - distanceFactor) * roomCenter;
                         }
-                        source.screenLocked = false;
                         break;
                     case ObjectAnchor.Screen:
+                        // DO NOT set Cavern's screen locking, it's a different algorithm
                         Vector3 reference =
                             new Vector3((position.X - .5f) * Listener.ScreenSize.X + .5f,
                             position.Y,
@@ -126,7 +126,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         Vector3 depthFactorMultiplier = new Vector3(depth, 1, depth);
                         position = depthFactorMultiplier * (screenFactorMultiplier * position + reference -
                             screenFactorMultiplier * reference) + reference - depthFactorMultiplier * reference;
-                        source.screenLocked = true;
                         break;
                 }
             }

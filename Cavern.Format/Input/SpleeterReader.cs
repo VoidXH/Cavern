@@ -52,11 +52,21 @@ namespace Cavern.Format.Input {
         /// <param name="sample">The selected sample, for a single channel</param>
         /// <remarks>Seeking is not thread-safe.</remarks>
         public void Seek(long sample) {
-            Bass?.Seek(sample);
-            Drums?.Seek(sample);
-            Other.Seek(sample);
-            Piano?.Seek(sample);
-            Vocals?.Seek(sample);
+            if (Bass != null) {
+                Bass.Position = sample;
+            }
+            if (Drums != null) {
+                Drums.Position = sample;
+            }
+            if (Other != null) {
+                Other.Position = sample;
+            }
+            if (Piano != null) {
+                Piano.Position = sample;
+            }
+            if (Vocals != null) {
+                Vocals.Position = sample;
+            }
         }
 
         /// <summary>

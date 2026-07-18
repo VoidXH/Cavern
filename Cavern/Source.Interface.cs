@@ -39,9 +39,8 @@ namespace Cavern {
         public bool LFE;
 
         /// <summary>
-        /// The object position is relative to the screen and scales with screen size.
+        /// The object position is relative to the screen and scales with screen size. X and Y positions at -1 and 1 are the edges of the screen.
         /// </summary>
-        /// <remarks>TODO: implement this</remarks>
         public bool screenLocked;
 
         // ------------------------------------------------------------------

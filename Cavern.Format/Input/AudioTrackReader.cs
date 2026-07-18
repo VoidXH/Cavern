@@ -2,7 +2,6 @@
 using Cavern.Format.Common.Metadata;
 using Cavern.Format.Container;
 using Cavern.Format.Decoders;
-using Cavern.Format.Exceptions;
 using Cavern.Format.Renderers;
 using Cavern.Format.Utilities;
 
@@ -15,6 +14,12 @@ namespace Cavern.Format {
         /// Get the container that contains this track.
         /// </summary>
         public ContainerReader Source => track.Source;
+
+        /// <inheritdoc/>
+        public override long Position {
+            get => decoder.Position;
+            set => Source.Seek(value / (double)SampleRate);
+        }
 
         /// <summary>
         /// The referenced track from a container.
@@ -40,13 +45,9 @@ namespace Cavern.Format {
         /// <summary>
         /// Reads an audio track from a container and disposes the container after the reading was done.
         /// </summary>
-        internal AudioTrackReader(Track track, bool disposeSource) : this(track) {
-            this.disposeSource = disposeSource;
-        }
+        internal AudioTrackReader(Track track, bool disposeSource) : this(track) => this.disposeSource = disposeSource;
 
-        /// <summary>
-        /// Fill the file metadata from the selected track.
-        /// </summary>
+        /// <inheritdoc/>
         public override void ReadHeader() {
             TrackExtraAudio info = track.Extra as TrackExtraAudio;
             ChannelCount = info.ChannelCount;
@@ -75,9 +76,7 @@ namespace Cavern.Format {
             }
         }
 
-        /// <summary>
-        /// If the stream can be rendered in 3D by Cavern, return a renderer.
-        /// </summary>
+        /// <inheritdoc/>
         public override Renderer GetRenderer() {
             if (decoder == null) {
                 ReadHeader();
@@ -97,19 +96,10 @@ namespace Cavern.Format {
             return null;
         }
 
-        /// <summary>
-        /// Read a block of samples.
-        /// </summary>
-        /// <param name="samples">Input array</param>
-        /// <param name="from">Start position in the input array (inclusive)</param>
-        /// <param name="to">End position in the input array (exclusive)</param>
-        /// <remarks>The next to - from samples will be read from the file.
-        /// All samples are counted, not just a single channel.</remarks>
+        /// <inheritdoc/>
         public override void ReadBlock(float[] samples, long from, long to) => decoder.DecodeBlock(samples, from, to - from);
 
-        /// <summary>
-        /// Goes back to a state where the first sample can be read.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Reset() {
             Source.Seek(0);
             ReadHeader();
@@ -120,20 +110,11 @@ namespace Cavern.Format {
         /// </summary>
         public ReadableMetadata GetMetadata() => decoder is IMetadataSupplier meta ? meta.GetMetadata() : null;
 
-        /// <summary>
-        /// Close the reader if it surely can't be used anywhere else.
-        /// </summary>
+        /// <inheritdoc/>
         public override void Dispose() {
             if (disposeSource && reader != null) {
                 reader.Close();
             }
         }
-
-        /// <summary>
-        /// Start the following reads from the selected sample.
-        /// </summary>
-        /// <param name="sample">The selected sample, for a single channel</param>
-        /// <remarks>Seeking is not thread-safe.</remarks>
-        public override void Seek(long sample) => throw new StreamingException();
     }
 }

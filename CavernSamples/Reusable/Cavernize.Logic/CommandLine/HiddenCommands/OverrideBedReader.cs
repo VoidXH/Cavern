@@ -1,4 +1,5 @@
 ﻿using Cavern.Format;
+using Cavern.Format.Decoders;
 using Cavern.Format.Utilities;
 
 namespace Cavernize.Logic.CommandLine.HiddenCommands;
@@ -10,13 +11,7 @@ namespace Cavernize.Logic.CommandLine.HiddenCommands;
 /// <param name="overrider">Stream to override the PCM data with - only applies to the source PCM data,
 /// not the JOC-decoded objects</param>
 sealed class OverrideBedReader(string path, AudioReader overrider) : EnhancedAC3Reader(path) {
-    /// <summary>
-    /// Read the file header.
-    /// </summary>
-    public override void ReadHeader() {
-        decoder = new OverrideBedDecoder(BlockBuffer<byte>.Create(reader, 10 * 1024 * 1024), fileSize, overrider);
-        ChannelCount = decoder.ChannelCount;
-        Length = decoder.Length;
-        SampleRate = decoder.SampleRate;
-    }
+    /// <inheritdoc/>
+    public override EnhancedAC3Decoder CreateDecoder(bool skipSyncWord) =>
+        new OverrideBedDecoder(BlockBuffer<byte>.Create(reader, 10 * 1024 * 1024), fileSize, overrider);
 }

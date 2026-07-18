@@ -11,7 +11,7 @@ namespace Cavern.Format {
     /// <summary>
     /// Enhanced AC-3 file reader.
     /// </summary>
-    public class EnhancedAC3Reader : AudioReader, IMetadataSupplier {
+    public class EnhancedAC3Reader : DecoderBasedAudioReader<EnhancedAC3Decoder, EnhancedAC3Renderer>, IMetadataSupplier {
         /// <summary>
         /// File size to calculate the content length from, assuming AC-3 is constant bitrate.
         /// </summary>
@@ -40,7 +40,7 @@ namespace Cavern.Format {
         /// <param name="reader">Stream to read from</param>
         /// <param name="skippedSyncWord">The sync word from which the format is detected, which already read from the stream -
         /// allows for format detection in streams that don't support <see cref="Stream.Position"/></param>
-        public EnhancedAC3Reader(Stream reader, int skippedSyncWord) : base(reader) {
+        public EnhancedAC3Reader(Stream reader, int skippedSyncWord) : base(reader, skippedSyncWord != 0) {
             fileSize = GetFileSize(reader);
             this.skippedSyncWord = skippedSyncWord;
         }
@@ -56,51 +56,20 @@ namespace Cavern.Format {
         /// </summary>
         static long GetFileSize(Stream reader) => reader.CanSeek ? reader.Length : -1;
 
-        /// <summary>
-        /// Read the file header.
-        /// </summary>
-        public override void ReadHeader() {
+        /// <inheritdoc/>
+        public override EnhancedAC3Decoder CreateDecoder(bool skipSyncWord) {
             byte[] firstFetch = null;
             if (skippedSyncWord != 0) {
                 firstFetch = BitConverter.GetBytes(skippedSyncWord);
             }
             BlockBuffer<byte> buffer = BlockBuffer<byte>.CreateForConstantPacketSize(reader, FormatConsts.blockSize, firstFetch);
-            decoder = new EnhancedAC3Decoder(buffer, fileSize);
-            ChannelCount = decoder.ChannelCount;
-            Length = decoder.Length;
-            SampleRate = decoder.SampleRate;
+            return new EnhancedAC3Decoder(buffer, fileSize);
         }
 
-        /// <summary>
-        /// Read a block of samples.
-        /// </summary>
-        /// <param name="samples">Input array</param>
-        /// <param name="from">Start position in the input array (inclusive)</param>
-        /// <param name="to">End position in the input array (exclusive)</param>
-        /// <remarks>The next to - from samples will be read from the file.
-        /// All samples are counted, not just a single channel.</remarks>
-        public override void ReadBlock(float[] samples, long from, long to) => decoder.DecodeBlock(samples, from, to - from);
+        /// <inheritdoc/>
+        public override EnhancedAC3Renderer CreateRenderer(EnhancedAC3Decoder decoder) => new EnhancedAC3Renderer(decoder);
 
-        /// <summary>
-        /// Get an object-based renderer for this audio file.
-        /// </summary>
-        public override Renderer GetRenderer() {
-            if (decoder == null) {
-                ReadHeader();
-            }
-            return new EnhancedAC3Renderer(decoder);
-        }
-
-        /// <summary>
-        /// Start the following reads from the selected sample.
-        /// </summary>
-        /// <param name="sample">The selected sample, for a single channel</param>
-        /// <remarks>Seeking is not thread-safe.</remarks>
-        public override void Seek(long sample) => decoder.Seek(sample);
-
-        /// <summary>
-        /// Gets the metadata for this codec in a human-readable format.
-        /// </summary>
+        /// <inheritdoc/>
         public ReadableMetadata GetMetadata() => decoder.GetMetadata();
     }
 }

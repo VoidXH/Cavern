@@ -41,6 +41,12 @@ namespace Cavern.Format {
         public BitDepth Bits { get; protected set; }
 
         /// <summary>
+        /// Current position in the stream in samples for a single channel, -1 if getting the position is not supported for this input source.
+        /// </summary>
+        /// <remarks>Seeking is not thread-safe.</remarks>
+        public abstract long Position { get; set; }
+
+        /// <summary>
         /// Path to the opened file or null if the audio is not read from a file.
         /// </summary>
         public string Path => (reader as FileStream)?.Name;
@@ -135,13 +141,6 @@ namespace Cavern.Format {
         /// Read the file header.
         /// </summary>
         public abstract void ReadHeader();
-
-        /// <summary>
-        /// Start the following reads from the selected sample.
-        /// </summary>
-        /// <param name="sample">The selected sample, for a single channel</param>
-        /// <remarks>Seeking is not thread-safe.</remarks>
-        public abstract void Seek(long sample);
 
         /// <summary>
         /// Read a block of samples.
