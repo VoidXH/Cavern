@@ -222,31 +222,47 @@ namespace Cavern.QuickEQ.Equalization {
         /// Apply smoothing on this <see cref="Equalizer"/> with a window of a given octave.
         /// </summary>
         public void Smooth(double octaves) {
-            int smoothFrom = 0, smoothTo = 0;
-            double multipleTo = Math.Pow(2, octaves), multipleFrom = 1 / multipleTo;
-            double[] result = new double[bands.Count];
-            for (int i = 0; i < result.Length; i++) {
-                double minFreq = bands[i].Frequency * multipleFrom,
-                    maxFreq = bands[i].Frequency * multipleTo;
-                while (smoothFrom < result.Length && bands[smoothFrom].Frequency < minFreq) {
-                    ++smoothFrom;
-                }
-                while (smoothTo < result.Length && bands[smoothTo].Frequency < maxFreq) {
-                    ++smoothTo;
+            int count = bands.Count;
+            if (count == 0) {
+                return;
+            }
+
+            double multipleTo = Math.Pow(2, octaves);
+            double multipleFrom = 1 / multipleTo;
+
+            double[] gains = new double[count]; // Non-dB scaled
+            for (int i = 0; i < count; i++) {
+                gains[i] = Math.Pow(10, bands[i].Gain * 0.05);
+            }
+
+            double[] result = new double[count];
+            int smoothFrom = 0;
+            int smoothTo = 0;
+            double currentWindowSum = 0;
+
+            for (int i = 0; i < count; i++) {
+                double minFreq = bands[i].Frequency * multipleFrom;
+                double maxFreq = bands[i].Frequency * multipleTo;
+
+                while (smoothTo < count && bands[smoothTo].Frequency < maxFreq) {
+                    currentWindowSum += gains[smoothTo];
+                    smoothTo++;
                 }
 
-                if (smoothFrom != smoothTo) {
-                    double smoothed = Math.Pow(10, bands[i].Gain * .05);
-                    for (int j = smoothFrom + 1; j < smoothTo; j++) {
-                        smoothed += Math.Pow(10, bands[j].Gain * .05);
-                    }
-                    smoothed = 20 * Math.Log10(smoothed / (smoothTo - smoothFrom));
-                    result[i] = smoothed;
+                while (smoothFrom < count && bands[smoothFrom].Frequency < minFreq) {
+                    currentWindowSum -= gains[smoothFrom];
+                    smoothFrom++;
+                }
+
+                int windowSize = smoothTo - smoothFrom;
+                if (windowSize > 0) {
+                    result[i] = 20 * Math.Log10(currentWindowSum / windowSize);
                 } else {
                     result[i] = bands[i].Gain;
                 }
             }
-            for (int i = 0; i < result.Length; i++) {
+
+            for (int i = 0; i < count; i++) {
                 bands[i] = new Band(bands[i].Frequency, result[i]);
             }
         }
