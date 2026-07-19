@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Cavern.Utilities;
+using Cavern.Utilities.Exceptions;
+
 namespace Cavern.QuickEQ.Equalization {
     // Math operations with Equalizers
     partial class Equalizer {
@@ -13,8 +16,28 @@ namespace Cavern.QuickEQ.Equalization {
         /// For subtraction instead of addition, use <see cref="AlignTo(Equalizer)"/>.</remarks>
         public void AddCurve(Equalizer other) {
             List<Band> otherBands = other.bands;
+            if (bands.Count != other.bands.Count) {
+                throw new ArraySizeMismatchException(bands.Count, otherBands.Count);
+            }
+
             for (int i = 0, c = bands.Count; i < c; i++) {
                 bands[i] += otherBands[i].Gain;
+            }
+            RecalculatePeakGain();
+        }
+
+        /// <summary>
+        /// Add the two <see cref="Equalizer"/>s together in linear space.
+        /// </summary>
+        /// <remarks>Matching frequencies have to be guaranteed before calling this function with <see cref="HasTheSameFrequenciesAs(Equalizer)"/>.</remarks>
+        public void AddCurveLinear(Equalizer other) {
+            List<Band> otherBands = other.bands;
+            if (bands.Count != other.bands.Count) {
+                throw new ArraySizeMismatchException(bands.Count, otherBands.Count);
+            }
+
+            for (int i = 0, c = bands.Count; i < c; i++) {
+                bands[i] = new Band(bands[i].Frequency, QMath.GainToDb(QMath.DbToGain(bands[i].Gain) + QMath.DbToGain(otherBands[i].Gain)));
             }
             RecalculatePeakGain();
         }
