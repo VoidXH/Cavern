@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 using Cavern.QuickEQ.EQCurves;
 using Cavern.QuickEQ.Utilities;
-using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.Equalization {
     partial class Equalizer {
@@ -215,70 +213,6 @@ namespace Cavern.QuickEQ.Equalization {
         public void Scale(double by) {
             for (int i = 0, c = bands.Count; i < c; i++) {
                 bands[i] = new Band(bands[i].Frequency, bands[i].Gain * by);
-            }
-        }
-
-        /// <summary>
-        /// Apply smoothing on this <see cref="Equalizer"/> with a window of a given octave.
-        /// </summary>
-        public void Smooth(double octaves) {
-            int count = bands.Count;
-            if (count == 0) {
-                return;
-            }
-
-            double multipleTo = Math.Pow(2, octaves);
-            double multipleFrom = 1 / multipleTo;
-
-            double[] gains = new double[count]; // Non-dB scaled
-            for (int i = 0; i < count; i++) {
-                gains[i] = Math.Pow(10, bands[i].Gain * 0.05);
-            }
-
-            double[] result = new double[count];
-            int smoothFrom = 0;
-            int smoothTo = 0;
-            double currentWindowSum = 0;
-
-            for (int i = 0; i < count; i++) {
-                double minFreq = bands[i].Frequency * multipleFrom;
-                double maxFreq = bands[i].Frequency * multipleTo;
-
-                while (smoothTo < count && bands[smoothTo].Frequency < maxFreq) {
-                    currentWindowSum += gains[smoothTo];
-                    smoothTo++;
-                }
-
-                while (smoothFrom < count && bands[smoothFrom].Frequency < minFreq) {
-                    currentWindowSum -= gains[smoothFrom];
-                    smoothFrom++;
-                }
-
-                int windowSize = smoothTo - smoothFrom;
-                if (windowSize > 0) {
-                    result[i] = 20 * Math.Log10(currentWindowSum / windowSize);
-                } else {
-                    result[i] = bands[i].Gain;
-                }
-            }
-
-            for (int i = 0; i < count; i++) {
-                bands[i] = new Band(bands[i].Frequency, result[i]);
-            }
-        }
-
-        /// <summary>
-        /// Apply a smoothing on this <see cref="Equalizer"/> that changes by frequency between two limits.
-        /// </summary>
-        public void Smooth(double startOctave, double endOctave) {
-            Equalizer end = (Equalizer)Clone();
-            Smooth(startOctave);
-            end.Smooth(endOctave);
-            List<Band> endBands = end.bands;
-            int count = bands.Count;
-            float positioner = 1f / count;
-            for (int i = 0; i < count; i++) {
-                bands[i] = new Band(bands[i].Frequency, QMath.Lerp(bands[i].Gain, endBands[i].Gain, i * positioner));
             }
         }
 
