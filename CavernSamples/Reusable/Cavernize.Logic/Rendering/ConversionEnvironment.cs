@@ -1,4 +1,5 @@
 ﻿using Cavern;
+using Cavern.Listeners;
 using Cavern.Utilities;
 using Cavern.Virtualizer;
 
@@ -47,9 +48,6 @@ public sealed class ConversionEnvironment {
             Listener.SampleRate = VirtualizerFilter.FilterSampleRate;
         }
 
-        Reset();
-        target.Attach(Listener, app.UpmixingSettings);
-
         // Prevent height limiting, require at least 4 overhead channels for full gain
         float safeGain = target.Renderer.HasObjects ? app.RenderTarget.GetSafeGain() : 1;
         Listener.Volume = app.RenderingSettings.Gain * safeGain;
@@ -62,6 +60,19 @@ public sealed class ConversionEnvironment {
         } else {
             Listener.SampleRate = app.RenderingSettings.RoomCorrection?.SampleRate ?? target.SampleRate;
         }
+
+        if (app.RenderingSettings.RoomCorrectionUsable) {
+            Listener = new ConvolvedListener(false) {
+                SampleRate = Listener.SampleRate,
+                UpdateRate = Listener.UpdateRate,
+                AudioQuality = Listener.AudioQuality,
+                Volume = Listener.Volume,
+                ConvolutionClip = app.RenderingSettings.RoomCorrection
+            };
+        }
+
+        Reset();
+        target.Attach(Listener, app.UpmixingSettings);
     }
 
     /// <summary>

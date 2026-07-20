@@ -15,7 +15,7 @@ namespace Cavern {
     /// <summary>
     /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
     /// </summary>
-    public sealed partial class Listener {
+    public partial class Listener {
         /// <summary>
         /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
         /// The layout set up by the user will be used.
@@ -250,7 +250,7 @@ namespace Cavern {
         /// Ask for update ticks for multiple frames.
         /// </summary>
         /// <remarks>The output size is <paramref name="frames"/> * <see cref="UpdateRate"/> * <see cref="Channels"/>.Length.</remarks>
-        public float[] Render(int frames) {
+        public virtual float[] Render(int frames) {
             if (SampleRate < 44100 || UpdateRate < 16) { // Don't work with wrong settings
                 return null;
             }

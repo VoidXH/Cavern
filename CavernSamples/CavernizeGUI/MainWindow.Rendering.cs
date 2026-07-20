@@ -116,7 +116,7 @@ partial class MainWindow {
     /// </summary>
     void SetBlockSize(RenderTarget target) {
         int updateRate = environment.Listener.UpdateRate;
-        blockSize = RenderingSettings.RoomCorrectionUsable ? RenderingSettings.RoomCorrection.Samples : defaultWriteCacheLength;
+        blockSize = defaultWriteCacheLength;
         if (blockSize < updateRate) {
             blockSize = updateRate;
         } else if (blockSize % updateRate != 0) {

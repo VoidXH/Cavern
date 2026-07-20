@@ -104,11 +104,6 @@ partial class MainWindow {
         Progressor progressor = new Progressor(target.Length, environment.Listener, taskEngine);
         bool customMuting = RenderingSettings.MuteBed || RenderingSettings.MuteGround;
 
-        MultichannelConvolver filters = null;
-        if (RenderingSettings.RoomCorrectionUsable) {
-            filters = new MultichannelConvolver(RenderingSettings.RoomCorrection.Data);
-        }
-
         // Virtualization is done with the buffer instead of each update in the listener to optimize FFT sizes
         VirtualizerFilter virtualizer = null;
         Normalizer normalizer = null;
@@ -153,8 +148,6 @@ partial class MainWindow {
             Array.Copy(result, 0, writeCache, cachePosition, result.Length);
             cachePosition += result.Length;
             if (cachePosition == writeCache.Length || flush) {
-                filters?.Process(writeCache);
-
                 if (virtualizer == null) {
                     if (renderTarget is not DownmixedRenderTarget downmix) {
                         writer?.WriteBlock(writeCache, 0, cachePosition);
