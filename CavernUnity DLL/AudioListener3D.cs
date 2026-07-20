@@ -35,7 +35,7 @@ namespace Cavern {
         VirtualizerFilter virtualizer;
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void Awake() {
+        protected virtual void Awake() {
             if (Current) {
                 UnityEngine.Debug.LogError("There can be only one 3D audio listener per scene.");
                 Destroy(Current);

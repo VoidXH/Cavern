@@ -32,7 +32,7 @@ namespace Cavern.Listeners {
         /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.
         /// The layout set up by the user will be used.
         /// </summary>
-        public ConvolvedListener() : base() { }
+        public ConvolvedListener() { }
 
         /// <summary>
         /// Center of a listening space. Attached <see cref="Source"/>s will be rendered relative to this object's position.

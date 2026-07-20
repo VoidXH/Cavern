@@ -2,6 +2,7 @@
 using UnityEngine;
 
 using Cavern.Remapping;
+using Cavern.Listeners;
 
 namespace Cavern {
     partial class AudioListener3D {
@@ -128,10 +129,11 @@ namespace Cavern {
         public static float[] Output { get; private set; } = new float[0];
 
         /// <summary>
-        /// Actual listener handled by this interface.
+        /// Actual listener handled by this interface. Derived 3D listeners (e.g. <see cref="ConvolvedListener3D"/>)
+        /// replace this with their own <see cref="Listener"/> implementation.
         /// </summary>
         /// <remarks>Normalization and limiting happens in this object's <see cref="normalizer"/>.</remarks>
-        internal static readonly Listener cavernListener = new Listener {
+        internal static Listener cavernListener = new Listener {
             LimiterOnly = true
         };
 
