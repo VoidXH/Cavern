@@ -46,20 +46,20 @@ namespace Cavern {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Update() {
-            cavernListener.Volume = Volume;
-            cavernListener.LFEVolume = LFEVolume;
-            cavernListener.Range = Range;
-            cavernListener.SampleRate = SampleRate;
-            cavernListener.UpdateRate = UpdateRate;
-            cavernListener.DelayTarget = DelayTarget;
-            cavernListener.AudioQuality = AudioQuality;
-            cavernListener.LFESeparation = LFESeparation;
-            cavernListener.DirectLFE = DirectLFE;
+            CavernListener.Volume = Volume;
+            CavernListener.LFEVolume = LFEVolume;
+            CavernListener.Range = Range;
+            CavernListener.SampleRate = SampleRate;
+            CavernListener.UpdateRate = UpdateRate;
+            CavernListener.DelayTarget = DelayTarget;
+            CavernListener.AudioQuality = AudioQuality;
+            CavernListener.LFESeparation = LFESeparation;
+            CavernListener.DirectLFE = DirectLFE;
             normalizer.decayFactor = Normalizer * UpdateRate / SampleRate;
             normalizer.limiterOnly = LimiterOnly;
-            cavernListener.LimiterOnly = LimiterOnly;
-            cavernListener.Position = VectorUtils.VectorMatch(transform.position);
-            cavernListener.Rotation = VectorUtils.VectorMatch(transform.eulerAngles);
+            CavernListener.LimiterOnly = LimiterOnly;
+            CavernListener.Position = VectorUtils.VectorMatch(transform.position);
+            CavernListener.Rotation = VectorUtils.VectorMatch(transform.eulerAngles);
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
@@ -88,9 +88,9 @@ namespace Cavern {
 
             // Append new samples to the filter output buffer
             int channels = Listener.Channels.Length;
-            lock (cavernListener) {
+            lock (CavernListener) {
                 int remainingSamples = Math.Max(unityBuffer.Length - bufferPosition, 0);
-                Output = cavernListener.Render(remainingSamples / unityChannels * cachedSampleRate / (SystemSampleRate * UpdateRate) + 1);
+                Output = CavernListener.Render(remainingSamples / unityChannels * cachedSampleRate / (SystemSampleRate * UpdateRate) + 1);
             }
             float[] renderBuffer = Output;
 

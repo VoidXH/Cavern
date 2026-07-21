@@ -31,9 +31,9 @@ namespace Cavern.QuickEQ {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() {
-            AudioListener3D.cavernListener.DetachSource(cavernSource); // preattached in OnCreate
+            AudioListener3D.CavernListener.DetachSource(cavernSource); // preattached in OnCreate
             cavernSource = new TimedTestTone(Channel, Sweeper.SweepReference, WarmUpMode);
-            AudioListener3D.cavernListener.AttachSource(cavernSource);
+            AudioListener3D.CavernListener.AttachSource(cavernSource);
         }
     }
 }

@@ -119,7 +119,7 @@ namespace Cavern.Debug {
 
             // Add not visualized sources, update visualized sources
             Quaternion inverseListenerRot = Quaternion.Inverse(AudioListener3D.Current.transform.rotation);
-            Listener parent = listenerOverride ?? AudioListener3D.cavernListener;
+            Listener parent = listenerOverride ?? AudioListener3D.CavernListener;
             IEnumerator<Source> source = parent.ActiveSources.GetEnumerator();
 
             while (source.MoveNext()) {

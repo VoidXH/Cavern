@@ -100,14 +100,14 @@ namespace Cavern.Helpers {
 
         void OnEnable() {
             if (attach) {
-                AudioListener3D.cavernListener.AttachSource(target);
+                AudioListener3D.CavernListener.AttachSource(target);
             }
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() {
             if (attach) {
-                AudioListener3D.cavernListener.DetachSource(target);
+                AudioListener3D.CavernListener.DetachSource(target);
             }
         }
 

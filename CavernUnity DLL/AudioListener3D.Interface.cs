@@ -133,7 +133,7 @@ namespace Cavern {
         /// replace this with their own <see cref="Listener"/> implementation.
         /// </summary>
         /// <remarks>Normalization and limiting happens in this object's <see cref="normalizer"/>.</remarks>
-        internal static Listener cavernListener = new Listener {
+        internal static Listener CavernListener { get; set; } = new Listener {
             LimiterOnly = true
         };
 
@@ -168,7 +168,7 @@ namespace Cavern {
         /// safe from another thread.
         /// </summary>
         public static void PerformSafely(Action action) {
-            lock (cavernListener) {
+            lock (CavernListener) {
                 action.Invoke();
             }
         }
@@ -177,8 +177,8 @@ namespace Cavern {
         /// Manually generate one frame.
         /// </summary>
         public void ManualUpdate() {
-            lock (cavernListener) {
-                Output = cavernListener.Render();
+            lock (CavernListener) {
+                Output = CavernListener.Render();
             }
         }
     }

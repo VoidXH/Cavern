@@ -437,10 +437,10 @@ namespace Cavern {
         void OnDrawGizmos() => Gizmos.DrawIcon(transform.position, "AudioSource Gizmo", true);
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void OnEnable() => AudioListener3D.cavernListener.AttachSource(cavernSource);
+        void OnEnable() => AudioListener3D.CavernListener.AttachSource(cavernSource);
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void OnDisable() => AudioListener3D.cavernListener.DetachSource(cavernSource);
+        void OnDisable() => AudioListener3D.CavernListener.DetachSource(cavernSource);
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() => Update();

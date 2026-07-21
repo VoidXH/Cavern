@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
+using Cavern.Channels;
 using Cavern.Filters;
 
 namespace Cavern.Listeners {
@@ -49,8 +50,9 @@ namespace Cavern.Listeners {
             if (convolutionClip == null) {
                 convolver = null;
             } else if (convolutionClip.Channels != Channels.Length) {
-                throw new ArgumentException($"Convolution clip channel count ({convolutionClip.Channels}) must match output channel count ({Channels.Length}).",
-                    nameof(ConvolutionClip));
+                throw new ChannelCountMismatchException();
+            } else if (convolutionClip.SampleRate != SampleRate) {
+                throw new SampleRateMismatchException();
             } else {
                 convolver = new MultichannelConvolver(convolutionClip.Data);
             }

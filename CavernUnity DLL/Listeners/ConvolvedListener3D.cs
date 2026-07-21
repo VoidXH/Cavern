@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Cavern.Listeners {
     /// <summary>
@@ -10,26 +9,24 @@ namespace Cavern.Listeners {
     [AddComponentMenu("Audio/3D Convolved Audio Listener"), RequireComponent(typeof(AudioListener))]
     public class ConvolvedListener3D : AudioListener3D {
         /// <summary>
-        /// The convolution clip containing impulse responses for each output channel.
-        /// Must have the same channel count as <see cref="Listener.Channels"/>.
+        /// The convolution clip containing impulse responses for each output channel. Must have the same channel count as <see cref="Listener.Channels"/>.
         /// </summary>
         [Header("Convolved listener")]
-        [Tooltip("Convolution clip containing an impulse response for each output channel. " +
-            "Its channel count must match the output layout.")]
+        [Tooltip("Convolution clip containing an impulse response for each output channel. Its channel count must match the output layout.")]
         public Clip ConvolutionClip {
-            get => CavernListener.ConvolutionClip;
-            set => CavernListener.ConvolutionClip = value;
+            get => ConvolvedListener.ConvolutionClip;
+            set => ConvolvedListener.ConvolutionClip = value;
         }
 
         /// <summary>
         /// The wrapped <see cref="ConvolvedListener"/> handled by this component.
         /// </summary>
-        ConvolvedListener CavernListener => (ConvolvedListener)cavernListener;
+        ConvolvedListener ConvolvedListener => (ConvolvedListener)CavernListener;
 
-        [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
+        /// <inheritdoc/>
         protected override void Awake() {
             base.Awake();
-            cavernListener = new ConvolvedListener(false) {
+            CavernListener = new ConvolvedListener(false) {
                 LimiterOnly = true
             };
         }
