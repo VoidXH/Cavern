@@ -5,8 +5,7 @@ using Cavern.Utilities;
 
 namespace Cavern.Helpers {
     /// <summary>
-    /// Creates a sphere that matches the position of a <see cref="Source"/>.
-    /// This is useful for visualizing non-Unity-based Cavern features.
+    /// Creates a sphere that matches the position of a <see cref="Source"/>. This is useful for visualizing non-Unity-based Cavern features.
     /// </summary>
     [AddComponentMenu("Audio/Helpers/Follower")]
     public class Follower : MonoBehaviour {
@@ -29,9 +28,15 @@ namespace Cavern.Helpers {
         public bool mute;
 
         /// <summary>
-        /// Sphere color for unmuted objects.
+        /// What <see cref="Material"/> should paint the displayed spheres. It should support transparency for fading silent objects.
         /// </summary>
         [Header("Display")]
+        [Tooltip("What material should paint the displayed spheres. It should support transparency for fading silent objects.")]
+        public Material material;
+
+        /// <summary>
+        /// Sphere color for unmuted objects.
+        /// </summary>
         [Tooltip("Sphere color for unmuted objects.")]
         public Color normalColor = Color.cyan;
 
@@ -65,38 +70,28 @@ namespace Cavern.Helpers {
         /// <summary>
         /// Create a follower for a target source.
         /// </summary>
-        /// <param name="target">Follow this <see cref="Source"/></param>
-        /// <param name="attach">Attach the visualized source to the active listener</param>
-        /// <returns>The follower component on a created sphere</returns>
-        public static Follower CreateFollower(Source target, bool attach) {
+        /// <param name="target">Follow this <see cref="Source"/>.</param>
+        /// <param name="material">What <see cref="Material"/> should paint the displayed spheres. It should support transparency for fading silent objects.</param>
+        /// <param name="attach">Attach the visualized source to the active listener.</param>
+        /// <returns>The follower component on a created sphere.</returns>
+        public static Follower CreateFollower(Source target, Material material, bool attach) {
             GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             Follower follower = obj.AddComponent<Follower>();
             follower.target = target;
             follower.attach = attach;
-            follower.renderer = obj.GetComponent<Renderer>();
-            MakeTransparent(follower.renderer.material);
-
+            follower.material = material;
             follower.trail = obj.AddComponent<TrailRenderer>();
-            follower.trail.material = follower.renderer.material;
+            follower.trail.material = material;
             follower.trail.endWidth = 0;
             return follower;
         }
 
-        /// <summary>
-        /// Applies the Transparent rendering mode on a material which has the Standard Shader.
-        /// </summary>
-        static void MakeTransparent(Material mat) {
-            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            mat.SetInt("_ZWrite", 0);
-            mat.DisableKeyword("_ALPHATEST_ON");
-            mat.DisableKeyword("_ALPHABLEND_ON");
-            mat.EnableKeyword("_ALPHAPREMULTIPLY_ON");
-            mat.renderQueue = 3000;
-        }
-
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
-        void Start() => OnEnable();
+        void Start() {
+            renderer = GetComponent<Renderer>();
+            renderer.material = material;
+            OnEnable();
+        }
 
         void OnEnable() {
             if (attach) {

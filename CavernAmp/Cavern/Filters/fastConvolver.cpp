@@ -32,6 +32,7 @@ void FastConvolver::Initialize(const float *impulse, const int len, const int de
     filter = new Complex[filterLength];
     for (int sample = 0; sample < len; sample++) {
         filter[sample].real = impulse[sample];
+        filter[sample].imaginary = 0;
     }
     ProcessFFT(filter, filterLength, cache, log2(filterLength) - 1);
     present = new Complex[filterLength];
