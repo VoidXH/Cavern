@@ -14,7 +14,6 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
         /// channel's data. In this step, the values are positive integers.
         /// </summary>
         void DecodeSparse(int obj, float[][][] mixMatrix, int center) {
-            HadSparse = true;
             int max = center * 2;
             int offset = quantizationTable[obj] * 50 + 50;
             int[][] sourceVector = jocVector[obj];
@@ -128,6 +127,7 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                 if (sparseCoded[obj]) {
                     // Call DecodeSparse and revert 0 to gainStep when the standard documentation is fixed
                     //DecodeSparse(obj, mixMatrix, centerValue);
+                    HadSparse = true;
                     Dequantize(obj, mixMatrix, centerValue, 0);
                 } else {
                     DecodeCoarse(obj, mixMatrix, centerValue, gainStep);
