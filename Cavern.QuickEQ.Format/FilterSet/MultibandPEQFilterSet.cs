@@ -15,6 +15,9 @@ namespace Cavern.Format.FilterSet {
     /// </summary>
     public class MultibandPEQFilterSet : IIRFilterSet {
         /// <inheritdoc/>
+        public override int Bands => bandCount;
+
+        /// <inheritdoc/>
         public override double MinGain => -12;
 
         /// <inheritdoc/>

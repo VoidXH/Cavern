@@ -58,9 +58,12 @@ namespace Cavern.Waveforms {
         /// <summary>
         /// Construct an empty multichannel data of a given size.
         /// </summary>
+        /// <param name="channels">Number of channels (must be positive)</param>
+        /// <param name="itemsPerChannel">Number of samples per channel (must be positive)</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when channels or itemsPerChannel is zero or negative.</exception>
         protected MultichannelBase(int channels, int itemsPerChannel) {
-            channels.ThrowIfNegative(nameof(channels));
-            itemsPerChannel.ThrowIfNegative(nameof(itemsPerChannel));
+            channels.ThrowIfNonPositive(nameof(channels));
+            itemsPerChannel.ThrowIfNonPositive(nameof(itemsPerChannel));
 
             data = new T[channels][];
             for (int channel = 0; channel < channels; channel++) {

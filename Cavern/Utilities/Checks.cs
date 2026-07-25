@@ -41,6 +41,15 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// If the <paramref name="value"/> is non-positive (zero or negative), throw an <see cref="ArgumentOutOfRangeException"/>.
+        /// </summary>
+        public static void ThrowIfNonPositive(this int value, string name) {
+            if (value <= 0) {
+                throw new ArgumentOutOfRangeException($"{name} is out of the valid range of 1 - {int.MaxValue}");
+            }
+        }
+
+        /// <summary>
         /// Throw an <see cref="ArgumentNullException"/> if the <paramref name="item"/> is null.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
