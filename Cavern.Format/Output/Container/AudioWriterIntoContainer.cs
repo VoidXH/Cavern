@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using Cavern.Format.Common;
 using Cavern.Format.Exceptions;
@@ -64,8 +65,31 @@ namespace Cavern.Format.Container {
                     container = new MatroskaWriter(writer, tracks, length / (double)sampleRate);
                     break;
                 default:
-                    throw new UnsupportedFormatException();
+                    throw new UnsupportedContainerForWriteException(path[index..]);
             }
+        }
+
+        /// <summary>
+        /// Writes the audio data as a new <see cref="track"/> into a <see cref="container"/>, amongst other tracks.
+        /// </summary>
+        /// <param name="stream">Output stream to write to</param>
+        /// <param name="container">File extension to determine the writer type</param>
+        /// <param name="tracks">Tracks to bring from other containers, can be empty</param>
+        /// <param name="newTrack">The codec of the new audio track</param>
+        /// <param name="blockSize">Total number of samples for all channels that will be encoded in each frame</param>
+        /// <param name="channelCount">Number of output channels</param>
+        /// <param name="length">Content length in samples for a single channel</param>
+        /// <param name="sampleRate">Sample rate of the new audio track</param>
+        /// <param name="bits">Bit rate of the new audio track if applicable</param>
+        public AudioWriterIntoContainer(Stream stream, Common.Container container, Track[] tracks, Codec newTrack, int blockSize,
+            int channelCount, long length, int sampleRate, BitDepth bits) : base(stream, channelCount, length, sampleRate, bits) {
+            Array.Resize(ref tracks, tracks.Length + 1);
+            tracks[^1] = track = new RenderTrack(newTrack, blockSize, channelCount, length, sampleRate, bits);
+
+            this.container = container switch {
+                Common.Container.Matroska => new MatroskaWriter(writer, tracks, length / (double)sampleRate),
+                _ => throw new UnsupportedContainerForWriteException(container),
+            };
         }
 
         /// <summary>

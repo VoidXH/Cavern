@@ -62,9 +62,41 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         protected EqualizerFilterSet(int sampleRate) : base(sampleRate) { }
 
-        /// <summary>
-        /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
-        /// </summary>
+        /// <inheritdoc/>
+        public override void Export(Stream stream) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public override void Export(string path) {
+            string folder = Path.GetDirectoryName(path),
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
+            bool csv = path.EndsWith(".csv");
+            for (int i = 0; i < Channels.Length; i++) {
+                EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
+                string chName = string.IsNullOrEmpty(Channels[i].name)
+                    ? Channels[i].reference.GetShortName()
+                    : Channels[i].name;
+                string fileName = Path.Combine(folder, $"{fileNameBase} {chName}");
+                if (csv) {
+                    channelRef.curve.ExportCSV(fileName + ".csv", 0);
+                } else {
+                    channelRef.curve.Export(fileName + ".txt", 0, optionalHeader);
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public override double GetPeak() {
+            double peak = double.MinValue;
+            for (int i = 0; i < Channels.Length; i++) {
+                EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
+                if (peak < channelRef.gain) {
+                    peak = channelRef.gain;
+                }
+            }
+            return peak;
+        }
+
+        /// <inheritdoc/>
         public override MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength) {
             float[][] result = new float[Channels.Length][];
             for (int i = 0; i < result.Length; i++) {
@@ -142,42 +174,7 @@ namespace Cavern.Format.FilterSet {
             }
         }
 
-        /// <summary>
-        /// Save the results to EQ curve files for each channel.
-        /// </summary>
-        public override void Export(string path) {
-            string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileNameWithoutExtension(path);
-            bool csv = path.EndsWith(".csv");
-            for (int i = 0; i < Channels.Length; i++) {
-                EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
-                string chName = string.IsNullOrEmpty(Channels[i].name)
-                    ? Channels[i].reference.GetShortName()
-                    : Channels[i].name;
-                string fileName = Path.Combine(folder, $"{fileNameBase} {chName}");
-                if (csv) {
-                    channelRef.curve.ExportCSV(fileName + ".csv", 0);
-                } else {
-                    channelRef.curve.Export(fileName + ".txt", 0, optionalHeader);
-                }
-            }
-        }
-
         /// <inheritdoc/>
-        public override double GetPeak() {
-            double peak = double.MinValue;
-            for (int i = 0; i < Channels.Length; i++) {
-                EqualizerChannelData channelRef = (EqualizerChannelData)Channels[i];
-                if (peak < channelRef.gain) {
-                    peak = channelRef.gain;
-                }
-            }
-            return peak;
-        }
-
-        /// <summary>
-        /// Add extra information for a channel that can't be part of the filter files to be written in the root file.
-        /// </summary>
         protected override bool RootFileExtension(int channel, StringBuilder result) {
             EqualizerChannelData channelRef = (EqualizerChannelData)Channels[channel];
             bool written = false;

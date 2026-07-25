@@ -44,7 +44,10 @@ namespace Cavern.Format.FilterSet {
         protected FilterSet(int sampleRate) => SampleRate = sampleRate;
 
         /// <inheritdoc/>
-        public abstract void Export(string path);
+        public abstract void Export(Stream stream);
+
+        /// <inheritdoc/>
+        public virtual void Export(string path) => Export(File.OpenWrite(path));
 
         /// <summary>
         /// Get the maximum gain across the entire spectrum at any channel.

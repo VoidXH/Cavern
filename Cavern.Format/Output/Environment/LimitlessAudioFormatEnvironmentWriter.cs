@@ -135,7 +135,7 @@ namespace Cavern.Format.Environment {
                 positionalBlock[track] = new float[objectStreamRate];
             }
 
-            output = new LimitlessAudioFormatWriter(writer, length, Source.SampleRate, bits, channels);
+            output = new LimitlessAudioFormatWriter(writer, Length, Source.SampleRate, bits, channels);
             output.WriteHeader(true, objects);
         }
 

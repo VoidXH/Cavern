@@ -274,7 +274,7 @@ namespace Cavern.Format.Environment {
                 writer = AudioWriter.Open(fs.Name[..^3] + "wav");
             }
 
-            Output = new RIFFWaveWriter(writer, Source.ActiveSources.Count, length, Source.SampleRate, bits) {
+            Output = new RIFFWaveWriter(writer, Source.ActiveSources.Count, Length, Source.SampleRate, bits) {
                 MaxLargeChunks = 3
             };
             Output.WriteHeader();

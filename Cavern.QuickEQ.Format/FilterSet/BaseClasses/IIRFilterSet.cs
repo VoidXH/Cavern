@@ -105,9 +105,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public virtual int GetBands(ReferenceChannel channel) => channel == ReferenceChannel.ScreenLFE ? LFEBands : Bands;
 
-        /// <summary>
-        /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
-        /// </summary>
+        /// <inheritdoc/>
         public override MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength) {
             float[][] result = new float[Channels.Length][];
             for (int i = 0; i < result.Length; i++) {
@@ -120,6 +118,18 @@ namespace Cavern.Format.FilterSet {
                 }
             }
             return new MultichannelWaveform(result);
+        }
+
+        /// <inheritdoc/>
+        public override double GetPeak() {
+            double peak = double.MinValue;
+            for (int i = 0; i < Channels.Length; i++) {
+                IIRChannelData channelRef = (IIRChannelData)Channels[i];
+                if (peak < channelRef.gain) {
+                    peak = channelRef.gain;
+                }
+            }
+            return peak;
         }
 
         /// <summary>
@@ -188,18 +198,6 @@ namespace Cavern.Format.FilterSet {
             }
 
             return result;
-        }
-
-        /// <inheritdoc/>
-        public override double GetPeak() {
-            double peak = double.MinValue;
-            for (int i = 0; i < Channels.Length; i++) {
-                IIRChannelData channelRef = (IIRChannelData)Channels[i];
-                if (peak < channelRef.gain) {
-                    peak = channelRef.gain;
-                }
-            }
-            return peak;
         }
 
         /// <summary>

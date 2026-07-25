@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -61,11 +62,26 @@ namespace Cavern.Format.Transcoders {
         /// Write the root YAML file containing presentation, bed, and object definitions.
         /// </summary>
         /// <param name="writer">The stream to write the root file to</param>
-        /// <param name="sourceCount">Total number of active sources</param>
+        /// <param name="sources">Active sources in the same order the <see cref="Listener"/> iterates them (<see cref="Listener.ActiveSources"/>)</param>
         /// <param name="channelIDs">Array to populate with assigned channel IDs</param>
-        public void Write(StreamWriter writer, int sourceCount, int[] channelIDs) {
+        public void Write(StreamWriter writer, IReadOnlyList<Source> sources, int[] channelIDs) {
             string rootFile = Path.GetFileName(((FileStream)writer.BaseStream).Name);
             int bedChannels = bedIDs.Length;
+
+            Dictionary<Source, int> sourceToBedIndex = new Dictionary<Source, int>();
+            for (int i = 0; i < staticObjects.Length; i++) {
+                sourceToBedIndex[staticObjects[i].Source] = i;
+            }
+
+            int objectCount = 0;
+            for (int i = 0; i < sources.Count; i++) {
+                Source source = sources[i];
+                if (sourceToBedIndex.TryGetValue(source, out int bedIndex)) {
+                    channelIDs[i] = bedIDs[bedIndex];
+                } else {
+                    channelIDs[i] = 10 + objectCount++;
+                }
+            }
 
             writer.WriteLine("version: 0.5.1");
             writer.WriteLine("presentations:");
@@ -87,18 +103,15 @@ namespace Cavern.Format.Transcoders {
                 for (int i = 0; i < bedChannels; i++) {
                     writer.WriteLine("          - channel: " + staticObjects[i].Channel.GetShortNameDCI());
                     writer.WriteLine("            ID: " + bedIDs[i]);
-                    channelIDs[i] = bedIDs[i];
                 }
             }
 
-            int objectCount = sourceCount - bedChannels;
             if (objectCount == 0) {
                 writer.WriteLine("    objects: []");
             } else {
                 writer.WriteLine("    objects:");
                 for (int i = 0; i < objectCount; i++) {
                     writer.WriteLine("      - ID: " + (10 + i));
-                    channelIDs[i + bedChannels] = 10 + i;
                 }
             }
         }

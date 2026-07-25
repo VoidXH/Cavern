@@ -9,9 +9,13 @@ using Cavern.Utilities;
 namespace Cavern.Format.FilterSet {
     // Export handlers of generic PEQ files
     partial class IIRFilterSet {
-        /// <summary>
-        /// Export the filter set to a target file. This is the standard IIR filter set format.
-        /// </summary>
+        /// <inheritdoc/>
+        public override void Export(Stream stream) {
+            using StreamWriter writer = new StreamWriter(stream);
+            writer.Write(Export());
+        }
+
+        /// <inheritdoc/>
         public override void Export(string path) {
             string folder = Path.GetDirectoryName(path),
                 fileNameBase = Path.GetFileNameWithoutExtension(path);

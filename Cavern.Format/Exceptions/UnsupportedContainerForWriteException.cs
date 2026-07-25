@@ -8,6 +8,11 @@ namespace Cavern.Format.Exceptions {
         const string message = "The {0} container is not supported for writing.";
 
         /// <summary>
+        /// Tells if the <paramref name="container"/> can't be determined by file type.
+        /// </summary>
+        public UnsupportedContainerForWriteException(Common.Container container) : base(string.Format(message, container)) { }
+
+        /// <summary>
         /// Tells if the container can't be determined by file type.
         /// </summary>
         public UnsupportedContainerForWriteException(string fileType) : base(string.Format(message, fileType)) { }

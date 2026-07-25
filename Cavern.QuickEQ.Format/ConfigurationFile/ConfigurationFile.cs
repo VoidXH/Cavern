@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Cavern.Channels;
@@ -58,6 +59,9 @@ namespace Cavern.Format.ConfigurationFile {
             }
             return optimized;
         }
+
+        /// <inheritdoc/>
+        public void Export(Stream stream) => throw new NotImplementedException();
 
         /// <summary>
         /// Export this configuration to a target file. The general formula for most formats is:

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 using Cavern.Format.Common;
@@ -17,14 +17,14 @@ namespace Cavern.Format.Environment {
         public Listener Source { get; protected set; }
 
         /// <summary>
+        /// Content length in samples.
+        /// </summary>
+        public long Length { get; protected set; }
+
+        /// <summary>
         /// File writer object.
         /// </summary>
         protected Stream writer;
-
-        /// <summary>
-        /// Content length in samples.
-        /// </summary>
-        protected readonly long length;
 
         /// <summary>
         /// Binary representation of samples.
@@ -41,8 +41,8 @@ namespace Cavern.Format.Environment {
         /// </summary>
         protected EnvironmentWriter(Stream writer, Listener source, long length, BitDepth bits) {
             Source = source;
+            Length = length;
             this.writer = writer;
-            this.length = length;
             this.bits = bits;
         }
 
@@ -78,6 +78,36 @@ namespace Cavern.Format.Environment {
                 Codec.ADM_BWF => new BroadcastWaveFormatWriter(path, environment, length, bits),
                 Codec.ADM_BWF_Atmos => new DolbyAtmosBWFWriter(path, environment, length, bits, renderer, false),
                 Codec.DAMF => new DolbyAtmosMasterFormatWriter(path, environment, length, bits, renderer),
+                _ => throw new UnsupportedContainerForWriteException(codec.ToString()),
+            };
+        }
+
+        /// <summary>
+        /// Create the <see cref="EnvironmentWriter"/> for the specified <paramref name="codec"/>.
+        /// </summary>
+        /// <param name="stream">Write to this stream</param>
+        /// <param name="codec">Used audio format</param>
+        /// <param name="environment">The <see cref="Cavern.Source"/> samples and movements will be taken from this rendering environment</param>
+        /// <param name="length">Total sample count in the created file</param>
+        /// <param name="bits">Output file bit depth</param>
+        public static EnvironmentWriter Create(Stream stream, Codec codec, Listener environment, long length, BitDepth bits) =>
+            Create(stream, codec, environment, length, bits, null);
+
+        /// <summary>
+        /// Create the <see cref="EnvironmentWriter"/> for the specified <paramref name="codec"/>.
+        /// </summary>
+        /// <param name="stream">Write to this stream</param>
+        /// <param name="codec">Used audio format</param>
+        /// <param name="environment">The <see cref="Cavern.Source"/> samples and movements will be taken from this rendering environment</param>
+        /// <param name="length">Total sample count in the created file</param>
+        /// <param name="bits">Output file bit depth</param>
+        /// <param name="renderer">When the source is a decoded audio stream, take its static objects - this can be null</param>
+        public static EnvironmentWriter Create(Stream stream, Codec codec, Listener environment, long length, BitDepth bits, Renderer renderer) {
+            return codec switch {
+                Codec.LimitlessAudio => new LimitlessAudioFormatEnvironmentWriter(stream, environment, length, bits),
+                Codec.ADM_BWF => new BroadcastWaveFormatWriter(stream, environment, length, bits),
+                Codec.ADM_BWF_Atmos => new DolbyAtmosBWFWriter(stream, environment, length, bits, renderer, false),
+                Codec.DAMF => throw new UnsupportedFeatureException("Stream-based DAMF"),
                 _ => throw new UnsupportedContainerForWriteException(codec.ToString()),
             };
         }

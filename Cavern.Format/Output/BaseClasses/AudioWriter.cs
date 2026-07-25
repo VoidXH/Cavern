@@ -82,10 +82,40 @@ namespace Cavern.Format {
             };
 
         /// <summary>
+        /// Create an <see cref="AudioWriter"/> that writes to the target stream.
+        /// </summary>
+        /// <param name="stream">Output stream to write to</param>
+        /// <param name="container">File extension to determine the writer type</param>
+        /// <param name="channelCount">Output channel count</param>
+        /// <param name="length">Output length in samples per channel</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static AudioWriter Create(Stream stream, Common.Container container, int channelCount, long length, int sampleRate, BitDepth bits) =>
+            container switch {
+                Common.Container.Limitless => new LimitlessAudioFormatWriter(stream, length, sampleRate, bits, Listener.Channels),
+                Common.Container.RIFFWave => new RIFFWaveWriter(stream, channelCount, length, sampleRate, bits),
+                Common.Container.CoreAudio => new CoreAudioFormatWriter(stream, channelCount, length, sampleRate, bits),
+                _ => throw new UnsupportedContainerForWriteException(container)
+            };
+
+        /// <summary>
         /// Write all the <paramref name="samples"/> to the target <paramref name="path"/>.
         /// </summary>
         public static void Write(string path, MultichannelWaveform samples, int sampleRate, BitDepth bits) {
             using AudioWriter writer = Create(path, samples.Channels, samples.Length, sampleRate, bits);
+            writer.Write(samples.ToArray());
+        }
+
+        /// <summary>
+        /// Write all the <paramref name="samples"/> to the target <paramref name="stream"/>.
+        /// </summary>
+        /// <param name="stream">Output stream to write to</param>
+        /// <param name="container">File extension to determine the writer type</param>
+        /// <param name="samples">Samples to write</param>
+        /// <param name="sampleRate">Output sample rate</param>
+        /// <param name="bits">Output bit depth</param>
+        public static void Write(Stream stream, Common.Container container, MultichannelWaveform samples, int sampleRate, BitDepth bits) {
+            using AudioWriter writer = Create(stream, container, samples.Channels, samples.Length, sampleRate, bits);
             writer.Write(samples.ToArray());
         }
 

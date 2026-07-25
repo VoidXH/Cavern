@@ -157,11 +157,11 @@ namespace Cavern.Format.Environment {
 
             DolbyAtmosMasterFormatRootFile rootFile = new DolbyAtmosMasterFormatRootFile(staticObjects);
             StreamWriter rootWriter = new StreamWriter(writer);
-            rootFile.Write(rootWriter, sources.Length, channelIDs);
+            rootFile.Write(rootWriter, sources, channelIDs);
             rootWriter.Flush();
             int bedChannels = rootFile.BedChannelCount;
 
-            pcmOut = new CoreAudioFormatWriter(fileStream.Name + ".audio", sources.Length, length, Source.SampleRate, bits);
+            pcmOut = new CoreAudioFormatWriter(fileStream.Name + ".audio", sources.Length, Length, Source.SampleRate, bits);
             pcmOut.WriteHeader();
 
             metadataOut = new StreamWriter(fileStream.Name + ".metadata");

@@ -39,9 +39,23 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public FIRFilterSet(ReferenceChannel[] channels, int sampleRate) : base(sampleRate) => Initialize<FIRChannelData>(channels);
 
-        /// <summary>
-        /// Convert the filter set to convolution impulse responses to be used with e.g. a <see cref="MultichannelConvolver"/>.
-        /// </summary>
+        /// <inheritdoc/>
+        public override void Export(Stream stream) => throw new NotImplementedException();
+
+        /// <inheritdoc/>
+        public override void Export(string path) {
+            string folder = Path.GetDirectoryName(path),
+                fileNameBase = Path.GetFileNameWithoutExtension(path);
+
+            for (int i = 0; i < Channels.Length; i++) {
+                FIRChannelData channelRef = (FIRChannelData)Channels[i];
+                string label = channelRef.name ?? EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
+                    filterPath = Path.Combine(folder, $"{fileNameBase} {label}.wav");
+                RIFFWaveWriter.Write(filterPath, channelRef.filter, 1, SampleRate, BitDepth.Float32);
+            }
+        }
+
+        /// <inheritdoc/>
         public override MultichannelWaveform GetConvolutionFilter(int sampleRate, int convolutionLength) {
             float[][] result = new float[Channels.Length][];
             for (int i = 0; i < result.Length; i++) {
@@ -55,6 +69,9 @@ namespace Cavern.Format.FilterSet {
             }
             return new MultichannelWaveform(result);
         }
+
+        /// <inheritdoc/>
+        public override double GetPeak() => 0;
 
         /// <summary>
         /// Setup a channel's filter with no delay or custom name.
@@ -107,21 +124,5 @@ namespace Cavern.Format.FilterSet {
                 }
             }
         }
-
-        /// <inheritdoc/>
-        public override void Export(string path) {
-            string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileNameWithoutExtension(path);
-
-            for (int i = 0; i < Channels.Length; i++) {
-                FIRChannelData channelRef = (FIRChannelData)Channels[i];
-                string label = channelRef.name ?? EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
-                    filterPath = Path.Combine(folder, $"{fileNameBase} {label}.wav");
-                RIFFWaveWriter.Write(filterPath, channelRef.filter, 1, SampleRate, BitDepth.Float32);
-            }
-        }
-
-        /// <inheritdoc/>
-        public override double GetPeak() => 0;
     }
 }
