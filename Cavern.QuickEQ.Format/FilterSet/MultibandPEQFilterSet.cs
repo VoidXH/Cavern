@@ -188,8 +188,8 @@ namespace Cavern.Format.FilterSet {
 
         /// <summary>
         /// Sample the filters that should be used when setting up a channel from the <paramref name="targetToReach"/>'s band center points.
-        /// This can provide better and faster results than brute force when the smoothing is high enough
-        /// (about the bandwidth of this filter set).
+        /// This can provide better and faster results than brute forcing with <see cref="CalculateFilters(Equalizer, bool)"/> when the smoothing
+        /// is high enough, about the bandwidth of this filter set.
         /// </summary>
         public PeakingEQ[] SampleFilters(Equalizer targetToReach, bool lfe) {
             int bands = lfe ? LFEBands : bandCount;

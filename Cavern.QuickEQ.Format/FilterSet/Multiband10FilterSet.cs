@@ -1,8 +1,8 @@
-﻿using Cavern.Channels;
+using Cavern.Channels;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
-    /// Traditional 31-band graphic equalizer.
+    /// Traditional 10-band graphic equalizer.
     /// </summary>
     public class Multiband10FilterSet : MultibandPEQFilterSet {
         /// <inheritdoc/>
