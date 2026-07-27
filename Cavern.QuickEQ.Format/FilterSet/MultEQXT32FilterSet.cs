@@ -22,7 +22,7 @@ namespace Cavern.Format.FilterSet {
         /// <summary>
         /// Parsed ADY data used for stream exports.
         /// </summary>
-        JsonFile sourceData;
+        readonly JsonFile sourceData;
 
         /// <summary>
         /// Create a MultEQ XT32 configuration file for EQ export.
