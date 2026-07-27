@@ -4,6 +4,7 @@ using System.Numerics;
 using Cavern.Channels;
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers.CoreAudioFormat;
+using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
 
@@ -42,7 +43,7 @@ namespace Cavern.Format.Renderers {
             SetupObjects(Channels);
             objectSamples[0] = Array.Empty<float>();
 
-            DolbyAtmosMasterRootFile root = new DolbyAtmosMasterRootFile(rootSource, Channels);
+            DolbyAtmosMasterFormatRootFile root = new DolbyAtmosMasterFormatRootFile(rootSource, Channels);
             channels = root.Channels;
             Vector3[] positions = ChannelPrototype.ToAlternativePositions(channels);
             for (int i = 0; i < channels.Length; i++) {

@@ -67,7 +67,9 @@ namespace Cavern.Format.Environment {
         /// </summary>
         public DolbyAtmosMasterFormatWriter(Stream writer, Listener source, long length, BitDepth bits,
             params StaticSource[] staticObjects) :
-            base(writer, source, length, bits) => this.staticObjects = staticObjects;
+                    base(writer, source, length, bits) {
+            this.staticObjects = staticObjects;
+        }
 
         /// <summary>
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
@@ -155,10 +157,8 @@ namespace Cavern.Format.Environment {
             lastFrames = new MovementTimeframe[sources.Length];
             scaling = new Vector3(1) / Listener.EnvironmentSize;
 
-            DolbyAtmosMasterFormatRootFile rootFile = new DolbyAtmosMasterFormatRootFile(staticObjects);
-            StreamWriter rootWriter = new StreamWriter(writer);
-            rootFile.Write(rootWriter, sources, channelIDs);
-            rootWriter.Flush();
+            DolbyAtmosMasterFormatRootFile rootFile = new DolbyAtmosMasterFormatRootFile(staticObjects, sources, channelIDs);
+            rootFile.Export(writer);
             int bedChannels = rootFile.BedChannelCount;
 
             pcmOut = new CoreAudioFormatWriter(fileStream.Name + ".audio", sources.Length, Length, Source.SampleRate, bits);
