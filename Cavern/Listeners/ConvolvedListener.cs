@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.Listeners {
     /// <summary>
@@ -54,6 +55,7 @@ namespace Cavern.Listeners {
             } else if (convolutionClip.SampleRate != SampleRate) {
                 throw new SampleRateMismatchException();
             } else {
+                convolutionClip.Data.ThrowIfNull(nameof(convolutionClip.Data));
                 convolver = new MultichannelConvolver(convolutionClip.Data);
             }
         }

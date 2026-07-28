@@ -33,10 +33,14 @@ namespace Cavern.Filters {
                     CavernAmp.FastConvolver_GetFilter(native, impulse);
                     return impulse;
                 }
+
+                filter.ThrowIfNull(nameof(filter));
+                cache.ThrowIfNull(nameof(cache));
                 return Measurements.GetRealPartHalf(filter.IFFT(cache));
             }
 
             set {
+                value.ThrowIfNull(nameof(value));
                 Dispose();
                 if (CavernAmp.Available && CavernAmp.IsMono()) { // CavernAmp only improves performance when the runtime has no SIMD
                     native = CavernAmp.FastConvolver_Create(value, delay);
@@ -110,6 +114,8 @@ namespace Cavern.Filters {
         /// <param name="filter">Transfer function of the desired filter</param>
         /// <param name="delay">Added filter delay to the impulse, in samples</param>
         public FastConvolver(Complex[] filter, int delay) {
+            filter.ThrowIfNullOrEmpty(nameof(filter));
+
             this.filter = filter;
             present = new Complex[filter.Length];
             cache = CreateCache(filter.Length);
@@ -140,6 +146,7 @@ namespace Cavern.Filters {
         /// <remarks>This constructor transforms the <paramref name="impulse"/> to Fourier space. If you have a transfer function available, use
         /// <see cref="FastConvolver(Complex[], int)"/> for optimal performance.</remarks>
         public FastConvolver(float[] impulse, int delay) {
+            impulse.ThrowIfNullOrEmpty(nameof(impulse));
             this.delay = delay;
             Impulse = impulse;
         }
@@ -166,6 +173,11 @@ namespace Cavern.Filters {
         /// Apply convolution on an array of samples. One filter should be applied to only one continuous stream of samples.
         /// </summary>
         public override void Process(float[] samples) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            if (filter == null || cache == null || present == null || future == null) {
+                throw new InvalidOperationException("Convolver not properly initialized.");
+            }
+
             if (native != IntPtr.Zero) {
                 CavernAmp.Filter_Process(native, samples);
                 return;
@@ -183,12 +195,19 @@ namespace Cavern.Filters {
         /// <param name="channel">Channel to filter</param>
         /// <param name="channels">Total channels</param>
         public override void Process(float[] samples, int channel, int channels) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            channel.ThrowIfNegative(nameof(channel));
+            channels.ThrowIfNonPositive(nameof(channels));
+            if (filter == null || cache == null || present == null || future == null) {
+                throw new InvalidOperationException("Convolver not properly initialized.");
+            }
+
             if (native != IntPtr.Zero) {
                 CavernAmp.Filter_Process(native, samples, channel, channels);
                 return;
             }
-            int start = 0,
-                end = samples.Length / channels;
+            int start = 0;
+            int end = samples.Length / channels;
             while (start < end) {
                 ProcessTimeslot(samples, channel, channels, start, Math.Min(end, start += filter.Length >> 1));
             }
@@ -233,6 +252,11 @@ namespace Cavern.Filters {
         /// <param name="from">First sample to process (inclusive)</param>
         /// <param name="to">Last sample to process (exclusive)</param>
         unsafe void ProcessTimeslot(float[] samples, int from, int to) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            if (present == null || filter == null || cache == null || future == null) {
+                throw new InvalidOperationException("Convolver not properly initialized.");
+            }
+
             // Move samples and pad present
             int sourceLength = to - from;
             fixed (float* pSamples = samples)
@@ -264,6 +288,13 @@ namespace Cavern.Filters {
         /// <param name="from">First sample to process (for a single channel, inclusive)</param>
         /// <param name="to">Last sample to process (for a single channel, exclusive)</param>
         unsafe void ProcessTimeslot(float[] samples, int channel, int channels, int from, int to) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            channel.ThrowIfNegative(nameof(channel));
+            channels.ThrowIfNonPositive(nameof(channels));
+            if (present == null || filter == null || cache == null || future == null) {
+                throw new InvalidOperationException("Convolver not properly initialized.");
+            }
+
             // Move samples and pad present
             int sourceLength = to - from;
             fixed (float* pSamples = samples)
@@ -303,6 +334,10 @@ namespace Cavern.Filters {
         /// block samples + filter samples.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         unsafe void ProcessCache(int maxResultLength) {
+            if (present == null || filter == null || cache == null || future == null) {
+                throw new InvalidOperationException("Convolver not properly initialized.");
+            }
+
             // Perform the convolution
             present.InPlaceFFT(cache);
             present.Convolve(filter);

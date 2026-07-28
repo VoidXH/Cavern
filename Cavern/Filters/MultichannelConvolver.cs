@@ -1,4 +1,6 @@
-﻿using Cavern.Filters.Interfaces;
+using System;
+
+using Cavern.Filters.Interfaces;
 using Cavern.Utilities;
 using Cavern.Utilities.Threading;
 using Cavern.Waveforms;
@@ -9,7 +11,7 @@ namespace Cavern.Filters {
     /// </summary>
     public class MultichannelConvolver : Filter, IResettableFilter {
         /// <summary>
-        /// Each channel's actual filter and reuseable extracted sample block cache.
+        /// Each channel's actual filter and reusable extracted sample block cache.
         /// </summary>
         readonly ThreadSafeFastConvolver[] workers;
 
@@ -29,6 +31,9 @@ namespace Cavern.Filters {
         /// <param name="impulses">The convolution filters' impulse responses for each channel that will be present in the signal
         /// that will be used to call <see cref="Filter.Process(float[])"/> with.</param>
         public MultichannelConvolver(MultichannelWaveform impulses) {
+            impulses.ThrowIfNull(nameof(impulses));
+            impulses.Channels.ThrowIfNonPositive(nameof(impulses.Channels));
+
             workers = new ThreadSafeFastConvolver[impulses.Channels];
             for (int i = 0; i < workers.Length; i++) {
                 workers[i] = new ThreadSafeFastConvolver(impulses[i]);
@@ -40,6 +45,9 @@ namespace Cavern.Filters {
         /// Performs the convolution of multiple real signal pairs of any length. The real result is returned.
         /// </summary>
         public static MultichannelWaveform ConvolveSafe(MultichannelWaveform excitations, MultichannelWaveform impulses) {
+            excitations.ThrowIfNull(nameof(excitations));
+            impulses.ThrowIfNull(nameof(impulses));
+
             float[][] results = new float[excitations.Channels][];
             Parallelizer.ForUnchecked(0, results.Length, i => {
                 results[i] = FastConvolver.ConvolveSafe(excitations[i], impulses[i]);
@@ -56,13 +64,24 @@ namespace Cavern.Filters {
 
         /// <inheritdoc/>
         public override void Process(float[] samples) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            workers.ThrowIfNullOrEmpty(nameof(workers));
+
             this.samples = samples;
             threader.ForUnchecked(0, workers.Length);
         }
 
         /// <inheritdoc/>
-        public override void Process(float[] samples, int channel, int channels) =>
+        public override void Process(float[] samples, int channel, int channels) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            workers.AssertInBounds(nameof(workers), channel);
+            channels.ThrowIfNonPositive(nameof(channels));
+
+            if (workers == null || workers.Length == 0) {
+                return;
+            }
             workers[channel].Process(samples, channel, channels);
+        }
 
         /// <inheritdoc/>
         public override object Clone() {

@@ -64,6 +64,7 @@ namespace Cavern.Utilities {
         /// FFT cache constructor.
         /// </summary>
         public FFTCache(int size) {
+            size.ThrowIfNonPositive(nameof(size));
             Size = size;
             if (CavernAmp.Available && CavernAmp.IsMono()) { // CavernAmp only improves performance when the runtime has no SIMD
                 Native = CavernAmp.FFTCache_Create(size);

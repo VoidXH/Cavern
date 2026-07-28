@@ -46,7 +46,7 @@ namespace Cavern.Waveforms {
         /// Encapsulate multichannel data.
         /// </summary>
         protected MultichannelBase(params T[][] source) {
-            source.AssertElementsNotNull();
+            source.AssertElementsNotNull(nameof(source));
             for (int i = 1; i < source.Length; i++) {
                 if (source[0].LongLength != source[i].LongLength) {
                     throw new DifferentSignalLengthsException();

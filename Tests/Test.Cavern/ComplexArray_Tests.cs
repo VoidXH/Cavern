@@ -11,7 +11,7 @@ namespace Test.Cavern {
         /// <summary>
         /// Tests the <see cref="ComplexArray.Convolve(Complex[], Complex[])"/> method.
         /// </summary>
-        /// <remarks>Further convolution tests are under <see cref="Convolver_Tests"/>.</remarks>
+        /// <remarks>Further convolution tests are under <see cref="FastConvolver_Tests"/>.</remarks>
         [TestMethod, Timeout(1000)]
         public void Convolve() {
             const int length = 32;

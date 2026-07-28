@@ -18,6 +18,18 @@ internal static class TestUtils {
     }
 
     /// <summary>
+    /// Check if a <paramref name="result"/>'s <paramref name="channel"/> is equal to an <paramref name="expected"/> signal within <paramref name="epsilon"/> bounds.
+    /// </summary>
+    public static void AssertChannel(float[] expected, float[] result, int channel, int channels, float epsilon) {
+        for (int i = 0, c = Math.Min(expected.Length, result.Length / channels); i < c; i++) {
+            float sample = result[i * channels + channel];
+            if (Math.Abs(expected[i] - sample) > epsilon) {
+                Assert.AreEqual(expected[i], sample);
+            }
+        }
+    }
+
+    /// <summary>
     /// Test if the number of zeros in an array <paramref name="list"/> match an expected <paramref name="count"/>.
     /// </summary>
     public static void AssertNumberOfZeros(IList<float[]> list, int count) {

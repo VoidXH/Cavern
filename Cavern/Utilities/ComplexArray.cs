@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Cavern.Utilities {
@@ -10,6 +10,8 @@ namespace Cavern.Utilities {
         /// Add the <paramref name="other"/> array's each element to the same indexes in the <paramref name="source"/>.
         /// </summary>
         public static unsafe void Add(this Complex[] source, Complex[] other) {
+            source.ThrowIfNullOrEmpty(nameof(source));
+            other.ThrowIfNullOrEmpty(nameof(other));
             if (source.Length != other.Length) {
                 throw new ArgumentException("Arrays must be of the same length to be added together.");
             }
@@ -57,6 +59,8 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Conjugate(this Complex[] source) {
+            source.ThrowIfNullOrEmpty(nameof(source));
+
             fixed (Complex* pSource = source) {
                 Complex* src = pSource,
                     end = src + source.Length;
@@ -71,6 +75,8 @@ namespace Cavern.Utilities {
         /// Take a linear-phase frequency response and convert it into a phase response.
         /// </summary>
         public static void ConvertToPhase(this Complex[] spectrum) {
+            spectrum.ThrowIfNullOrEmpty(nameof(spectrum));
+
             int halfLength = spectrum.Length >> 1;
             for (int i = 0; i < halfLength; i++) {
                 spectrum[i] = Complex.UnitPhase(spectrum[i].Real);
@@ -84,6 +90,8 @@ namespace Cavern.Utilities {
         /// Replace the <paramref name="source"/> with its convolution with an <paramref name="other"/> array.
         /// </summary>
         public static unsafe void Convolve(this Complex[] source, Complex[] other) {
+            source.ThrowIfNullOrEmpty(nameof(source));
+            other.ThrowIfNullOrEmpty(nameof(other));
             if (source.Length != other.Length) {
                 throw new ArgumentException("Arrays must be of the same length to be convolved together.");
             }
@@ -108,6 +116,12 @@ namespace Cavern.Utilities {
         /// Replace the <paramref name="source"/> with its deconvolution with an <paramref name="other"/> array.
         /// </summary>
         public static void Deconvolve(this Complex[] source, Complex[] other) {
+            source.ThrowIfNullOrEmpty(nameof(source));
+            other.ThrowIfNullOrEmpty(nameof(other));
+            if (source.Length != other.Length) {
+                throw new ArgumentException("Arrays must be of the same length for deconvolution.");
+            }
+
             for (int i = 0; i < source.Length; i++) {
                 float multiplier = 1 / (other[i].Real * other[i].Real + other[i].Imaginary * other[i].Imaginary),
                     oldReal = source[i].Real;
@@ -169,10 +183,12 @@ namespace Cavern.Utilities {
         /// Get the maximum at each position of the transfer functions.
         /// </summary>
         public static unsafe Complex[] Max(this Complex[][] sources) {
+            sources.ThrowIfNullOrEmpty(nameof(sources));
             Complex[] result = new Complex[sources[0].Length];
             fixed (Complex* pTarget = result) {
                 Complex* end = pTarget + result.Length;
                 for (int i = 0; i < sources.Length; i++) {
+                    sources[i].ThrowIfNullOrEmpty(nameof(sources));
                     fixed (Complex* pSource = sources[i]) {
                         Complex* source = pSource,
                             target = pTarget;
@@ -205,6 +221,8 @@ namespace Cavern.Utilities {
         /// Convert a float array to complex a size that's ready for FFT.
         /// </summary>
         public static Complex[] ParseForFFT(this float[] source) {
+            source.ThrowIfNullOrEmpty(nameof(source));
+
             Complex[] result = new Complex[QMath.Base2Ceil(source.Length)];
             for (int i = 0; i < source.Length; i++) {
                 result[i].Real = source[i];
@@ -217,6 +235,9 @@ namespace Cavern.Utilities {
         /// </summary>
         /// <remarks>This function clears the imaginary part, allowing the use of reusable arrays.</remarks>
         public static void ParseForFFT(this float[] source, Complex[] target) {
+            source.ThrowIfNullOrEmpty(nameof(source));
+            target.ThrowIfNullOrEmpty(nameof(target));
+
             for (int i = 0; i < source.Length; i++) {
                 target[i] = new Complex(source[i]);
             }

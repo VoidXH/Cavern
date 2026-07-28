@@ -9,14 +9,14 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Checks if no nested array is null in addition to the outer <paramref name="array"/>.
         /// </summary>
-        public static void AssertElementsNotNull<T>(this T[][] array) where T : struct {
+        public static void AssertElementsNotNull<T>(this T[][] array, string name) where T : struct {
             if (array == null) {
-                ThrowArgumentNull(nameof(array));
+                ThrowArgumentNull(name);
             }
 
             for (int i = 0; i < array.Length; i++) {
                 if (array[i] == null) {
-                    ThrowNestedNull(nameof(array), i);
+                    ThrowNestedNull(name, i);
                 }
             }
         }
@@ -53,8 +53,18 @@ namespace Cavern.Utilities {
         /// Throw an <see cref="ArgumentNullException"/> if the <paramref name="item"/> is null.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ThrowIfNull<T>(T item, string name) where T : class {
+        public static void ThrowIfNull<T>(this T item, string name) where T : class {
             if (item == null) {
+                ThrowArgumentNull(name);
+            }
+        }
+
+        /// <summary>
+        /// Throw an <see cref="ArgumentNullException"/> if the <paramref name="array"/> is null or empty.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ThrowIfNullOrEmpty<T>(this T[] array, string name) {
+            if (array == null || array.Length == 0) {
                 ThrowArgumentNull(name);
             }
         }

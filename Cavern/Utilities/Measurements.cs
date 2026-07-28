@@ -2,8 +2,6 @@
 using System.Runtime.CompilerServices;
 
 using Cavern.Utilities.Exceptions;
-using Cavern.Utilities.Threading;
-using Cavern.Waveforms;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -75,6 +73,8 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this Complex[] samples) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+
             if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceFFT(samples);
             } else {
@@ -88,11 +88,14 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this Complex[] samples, FFTCache cache) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            cache.ThrowIfNull(nameof(cache));
+
             if (cache.Size < samples.Length) {
                 throw new SmallFFTCacheException(cache.Size, samples.Length);
             }
 
-            if (cache != null && cache.Native != IntPtr.Zero) {
+            if (cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceFFT(samples, cache);
             } else {
                 ProcessFFT(samples, cache);
@@ -104,6 +107,9 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this Complex[] samples, FFTCachePool pool) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            pool.ThrowIfNull(nameof(pool));
+
             FFTCache cache = pool.Lease();
             samples.InPlaceFFT(cache);
             pool.Return(cache);
@@ -134,6 +140,8 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this float[] samples) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+
             if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceFFT(samples);
             } else {
@@ -147,6 +155,8 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this float[] samples, FFTCache cache) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+
             if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceFFT(samples, cache);
             } else {
@@ -159,6 +169,8 @@ namespace Cavern.Utilities {
         /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static Complex[] IFFT(this Complex[] samples) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+
             samples = samples.FastClone();
             if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceIFFT(samples);
@@ -173,6 +185,9 @@ namespace Cavern.Utilities {
         /// Inverse Fast Fourier Transform of a transformed signal.
         /// </summary>
         public static Complex[] IFFT(this Complex[] samples, FFTCache cache) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            cache.ThrowIfNull(nameof(cache));
+
             samples = samples.FastClone();
             if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceIFFT(samples, cache);
@@ -197,6 +212,8 @@ namespace Cavern.Utilities {
         /// The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         public static void InPlaceIFFT(this Complex[] samples) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+
             if (CavernAmp.Available && CavernAmp.IsMono()) {
                 CavernAmp.InPlaceIFFT(samples);
                 return;
@@ -209,6 +226,9 @@ namespace Cavern.Utilities {
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
         /// </summary>
         public static unsafe void InPlaceIFFT(this Complex[] samples, FFTCache cache) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            cache.ThrowIfNull(nameof(cache));
+
             if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceIFFT(samples, cache);
                 return;
@@ -228,6 +248,9 @@ namespace Cavern.Utilities {
         /// Inverse Fast Fourier Transform of a transformed signal, while keeping the source array allocation.
         /// </summary>
         public static unsafe void InPlaceIFFT(this Complex[] samples, FFTCachePool pool) {
+            samples.ThrowIfNullOrEmpty(nameof(samples));
+            pool.ThrowIfNull(nameof(pool));
+
             FFTCache cache = pool.Lease();
             samples.InPlaceIFFT(cache);
             pool.Return(cache);
