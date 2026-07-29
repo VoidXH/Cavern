@@ -8,6 +8,14 @@
 #include "qmath.h"
 
 FFTCache::FFTCache(const int fftSize) {
+    if (fftSize <= 0) {
+        depth = 0;
+        sin = nullptr;
+        cos = nullptr;
+        even = nullptr;
+        odd = nullptr;
+        return;
+    }
     depth = fftSize / 2;
     double step = -2 * M_PI / fftSize;
     sin = new float[depth];
@@ -34,12 +42,14 @@ int FFTCache::size() const {
 FFTCache::~FFTCache() {
     delete[] sin;
     delete[] cos;
-    for (int idepth = 0, maxDepth = log2(depth * 2); idepth < maxDepth; idepth++) {
-        delete[] even[idepth];
-        delete[] odd[idepth];
+    if (even) {
+        for (int idepth = 0, maxDepth = log2(depth * 2); idepth < maxDepth; idepth++) {
+            delete[] even[idepth];
+            delete[] odd[idepth];
+        }
+        delete[] even;
+        delete[] odd;
     }
-    delete[] even;
-    delete[] odd;
 }
 
 FFTCache* DLL_EXPORT FFTCache_Create(const int fftSize) {
@@ -47,7 +57,10 @@ FFTCache* DLL_EXPORT FFTCache_Create(const int fftSize) {
 }
 
 int DLL_EXPORT FFTCache_Size(const FFTCache *cache) {
-    return cache->size();
+    if (!cache) {
+        return 0x7fffffff;
+    }
+    return cache->size() * 2;
 }
 
 void DLL_EXPORT FFTCache_Dispose(FFTCache *cache) {

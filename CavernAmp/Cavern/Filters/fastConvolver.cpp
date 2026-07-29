@@ -27,6 +27,16 @@ FastConvolver::FastConvolver(const FastConvolver &other) {
 }
 
 void FastConvolver::Initialize(const float *impulse, const int len, const int delay) {
+    if (!impulse || len <= 0) {
+        filterLength = 0;
+        cache = nullptr;
+        filter = nullptr;
+        present = nullptr;
+        future = nullptr;
+        this->delay = 0;
+        return;
+    }
+
     filterLength = 2 << Log2Ceil(len); // Zero padding for the falloff to have space
     cache = new FFTCache(filterLength);
     filter = new Complex[filterLength];
@@ -34,8 +44,11 @@ void FastConvolver::Initialize(const float *impulse, const int len, const int de
         filter[sample].real = impulse[sample];
         filter[sample].imaginary = 0;
     }
+    if (filterLength > len) {
+        memset(filter + len, 0, (filterLength - len) * sizeof(Complex));
+    }
     ProcessFFT(filter, filterLength, cache, log2(filterLength) - 1);
-    present = new Complex[filterLength];
+    present = new Complex[filterLength]();
     future = new float[filterLength + delay]();
     this->delay = delay;
 }
@@ -45,6 +58,10 @@ int FastConvolver::GetLength() const {
 }
 
 void FastConvolver::GetFilter(float *output) const {
+    if (!output || !filter || !cache) {
+        return;
+    }
+
     Complex* ifft = new Complex[filterLength];
     memcpy(ifft, filter, filterLength * sizeof(Complex));
     InPlaceIFFT(ifft, filterLength, cache);
@@ -56,6 +73,10 @@ void FastConvolver::GetFilter(float *output) const {
 }
 
 void FastConvolver::Process(float *samples, int len) {
+    if (!samples || len <= 0 || !filter || !present || !future || !cache) {
+        return;
+    }
+
     int start = 0;
     while (start < len) {
         int nextBlock = start + (filterLength >> 1);
@@ -65,6 +86,10 @@ void FastConvolver::Process(float *samples, int len) {
 }
 
 void FastConvolver::Process(float *samples, int len, int channel, int channels) {
+    if (!samples || len <= 0 || channel < 0 || channels <= 0 || !filter || !present || !future || !cache) {
+        return;
+    }
+
     int start = 0,
         end = len / channels;
     while (start < end) {

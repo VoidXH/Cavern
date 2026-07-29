@@ -3,16 +3,16 @@ setlocal enabledelayedexpansion
 
 echo === Building CavernAmp ===
 
-set OUTPUT_DIR=bin/Release
-set OBJ_DIR=obj/Release
+set OUTPUT_DIR=bin\Release
+set OBJ_DIR=obj\Release
 set CFLAGS=-march=corei7-avx -fexpensive-optimizations -O2 -pedantic -Wextra -Wall -m64 -DBUILD_DLL
 
 if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 if not exist "%OBJ_DIR%" mkdir "%OBJ_DIR%"
 
-echo === Compiling sources ===
-
 set NEEDS_LINK=0
+
+echo === Compiling sources ===
 
 for /R %%F in (*.cpp) do (
     call :CompileFile "%%F" "g++.exe"
@@ -35,11 +35,10 @@ if "!NEEDS_LINK!"=="1" (
     )
     
     g++.exe -shared -o "%OUTPUT_DIR%/CavernAmp.dll" !OBJ_FILES! -Wl,--output-def,"%OUTPUT_DIR%/libCavernAmp.def" -s -static-libstdc++ -static-libgcc -static -m64 -luser32
+    if errorlevel 1 (echo ERROR: linking failed. & exit /b 1)
 ) else (
     echo    No changes detected. Nothing to link.
 )
-
-if errorlevel 1 (echo ERROR: build failed. & exit /b 1)
 
 echo === CavernAmp build complete ===
 exit /b 0
@@ -48,16 +47,32 @@ exit /b 0
 setlocal enabledelayedexpansion
 set "SRC_FILE=%~1"
 set "COMPILER=%~2"
-set "OBJ=%OBJ_DIR%\%~n1.o"
+
+rem Generate unique object filename from relative path
+set "REL_PATH=%SRC_FILE%"
+set "REL_PATH=!REL_PATH:%CD%\=!"
+set "REL_PATH=!REL_PATH:\=_!"
+set "REL_PATH=!REL_PATH:/=_!"
+set "OBJ=%OBJ_DIR%\!REL_PATH!.o"
 
 set REBUILD=0
+
 if not exist "!OBJ!" (
     set REBUILD=1
 ) else (
-    set "PS_SRC=!SRC_FILE:\=\\!"
-    set "PS_OBJ=!OBJ:\=\\!"
-    powershell -Command "$objTime = (Get-Item '!PS_OBJ!').LastWriteTime; if ((Get-Item '!PS_SRC!').LastWriteTime -gt $objTime -or (Get-ChildItem -Recurse -Include *.h,*.hpp,*.hxx | Where-Object {$_.LastWriteTime -gt $objTime})) { exit 1 } else { exit 0 }" >nul 2>&1
-    if errorlevel 1 set REBUILD=1
+    rem Check if source file is newer than object file
+    xcopy "!SRC_FILE!" "!OBJ!" /d /l /y 2>nul | find "1 File(s)" >nul 2>&1
+    if not errorlevel 1 (
+        set REBUILD=1
+    ) else (
+        rem Check if any header file is newer than object file
+        for /R %%H in (*.h *.hpp *.hxx) do (
+            if "!REBUILD!"=="0" (
+                xcopy "%%H" "!OBJ!" /d /l /y 2>nul | find "1 File(s)" >nul 2>&1
+                if not errorlevel 1 set REBUILD=1
+            )
+        )
+    )
 )
 
 set NEW_NEEDS_LINK=%NEEDS_LINK%

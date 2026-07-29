@@ -4,6 +4,16 @@
 #include "qmath.h"
 
 void DLL_EXPORT ProcessFFT(Complex *samples, int sampleCount, FFTCache *cache, int depth) {
+    if (!samples || sampleCount <= 0) {
+        return;
+    }
+    if (!cache || cache->size() * 2 < sampleCount) {
+        FFTCache *tempCache = FFTCache_Create(sampleCount);
+        ProcessFFT(samples, sampleCount, tempCache, log2(sampleCount) - 1);
+        FFTCache_Dispose(tempCache);
+        return;
+    }
+
     if (sampleCount < 8) {
         if (sampleCount == 4) {
             Complex evenValue = samples[0],
@@ -49,6 +59,16 @@ void DLL_EXPORT ProcessFFT(Complex *samples, int sampleCount, FFTCache *cache, i
 }
 
 void DLL_EXPORT ProcessFFT1D(float *samples, int sampleCount, FFTCache *cache) {
+    if (!samples || sampleCount <= 0) {
+        return;
+    }
+    if (!cache || cache->size() * 2 < sampleCount) {
+        FFTCache *tempCache = FFTCache_Create(sampleCount);
+        ProcessFFT1D(samples, sampleCount, tempCache);
+        FFTCache_Dispose(tempCache);
+        return;
+    }
+
     int halfLength = sampleCount / 2, depth = log2(sampleCount) - 1;
     if (sampleCount == 1) {
         return;
@@ -76,24 +96,45 @@ void DLL_EXPORT ProcessFFT1D(float *samples, int sampleCount, FFTCache *cache) {
 }
 
 void DLL_EXPORT InPlaceFFT(Complex *samples, int sampleCount, FFTCache *cache) {
-    if (!cache) {
-        cache = FFTCache_Create(sampleCount);
+    if (!samples || sampleCount <= 0) {
+        return;
+    }
+
+    if (!cache || cache->size() * 2 < sampleCount) {
+        FFTCache *tempCache = FFTCache_Create(sampleCount);
+        ProcessFFT(samples, sampleCount, tempCache, log2(sampleCount) - 1);
+        FFTCache_Dispose(tempCache);
+    } else {
         ProcessFFT(samples, sampleCount, cache, log2(sampleCount) - 1);
-        FFTCache_Dispose(cache);
-    } else
-        ProcessFFT(samples, sampleCount, cache, log2(sampleCount) - 1);
+    }
 }
 
 void DLL_EXPORT InPlaceFFT1D(float *samples, int sampleCount, FFTCache *cache) {
-    if (!cache) {
-        cache = FFTCache_Create(sampleCount);
+    if (!samples || sampleCount <= 0) {
+        return;
+    }
+
+    if (!cache || cache->size() * 2 < sampleCount) {
+        FFTCache *tempCache = FFTCache_Create(sampleCount);
+        ProcessFFT1D(samples, sampleCount, tempCache);
+        FFTCache_Dispose(tempCache);
+    } else {
         ProcessFFT1D(samples, sampleCount, cache);
-        FFTCache_Dispose(cache);
-    } else
-        ProcessFFT1D(samples, sampleCount, cache);
+    }
 }
 
 void DLL_EXPORT ProcessIFFT(Complex *samples, int sampleCount, FFTCache *cache, int depth) {
+    if (!samples || sampleCount <= 0) {
+        return;
+    }
+
+    if (!cache || cache->size() * 2 < sampleCount) {
+        FFTCache *tempCache = FFTCache_Create(sampleCount);
+        ProcessIFFT(samples, sampleCount, tempCache, log2(sampleCount) - 1);
+        FFTCache_Dispose(tempCache);
+        return;
+    }
+
     if (sampleCount == 1) {
         return;
     }
@@ -118,13 +159,18 @@ void DLL_EXPORT ProcessIFFT(Complex *samples, int sampleCount, FFTCache *cache, 
 }
 
 void DLL_EXPORT InPlaceIFFT(Complex *samples, int sampleCount, FFTCache *cache) {
-    if (!cache) {
-        cache = FFTCache_Create(sampleCount);
-        ProcessIFFT(samples, sampleCount, cache, log2(sampleCount) - 1);
-        FFTCache_Dispose(cache);
+    if (!samples || sampleCount <= 0) {
+        return;
+    }
+
+    if (!cache || cache->size() * 2 < sampleCount) {
+        FFTCache *tempCache = FFTCache_Create(sampleCount);
+        ProcessIFFT(samples, sampleCount, tempCache, log2(sampleCount) - 1);
+        FFTCache_Dispose(tempCache);
     } else {
         ProcessIFFT(samples, sampleCount, cache, log2(sampleCount) - 1);
     }
+
     float multiplier = 1.f / sampleCount;
     for (int i = 0; i < sampleCount; i++) {
         samples[i].real *= multiplier;
