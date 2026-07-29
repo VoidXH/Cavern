@@ -72,15 +72,15 @@ namespace Cavern.Utilities {
             }
 
             for (int i = 0, c = QMath.Log2(size); i < c; i++) {
-                Interlocked.Increment(ref refcounts[i]);
-                if (cos[i] != null) {
-                    continue;
-                }
-                int elements = 2 << i;
-                float step = -MathF.PI / elements;
-                if (cos[i] == null) {
-                    float[] thisCos = cos[i] = new float[elements];
-                    float[] thisSin = sin[i] = new float[elements];
+                lock (refcounts) {
+                    refcounts[i]++;
+                    if (cos[i] != null) {
+                        continue;
+                    }
+                    int elements = 2 << i;
+                    float step = -MathF.PI / elements;
+                    float[] thisCos = new float[elements];
+                    float[] thisSin = new float[elements];
                     for (int j = 0; j < elements; j += 2) {
                         float rotation = j * step;
                         float cosValue = MathF.Cos(rotation),
@@ -90,10 +90,14 @@ namespace Cavern.Utilities {
                         thisSin[j] = sinValue;
                         thisSin[j + 1] = sinValue;
                     }
+                    cos[i] = thisCos;
+                    sin[i] = thisSin;
                 }
             }
 
-            EnsureMasks();
+            if (!CavernAmp.IsMono()) {
+                EnsureMasks();
+            }
             CreateCacheArrays(size);
         }
 
@@ -121,13 +125,15 @@ namespace Cavern.Utilities {
             if (Native != IntPtr.Zero) {
                 CavernAmp.FFTCache_Dispose(Native);
             }
+            GC.SuppressFinalize(this);
+            ReleaseCache();
         }
 
         /// <summary>
         /// Create the arrays where the even-odd splits will be placed.
         /// </summary>
         void CreateCacheArrays(int size) {
-            for (int depth = 0, maxDepth = QMath.Log2(size); depth < maxDepth; ++depth) {
+            for (int depth = 0, maxDepth = QMath.Log2(size); depth < maxDepth; depth++) {
                 if (Even[depth] == null) {
                     Even[depth] = new Complex[1 << depth];
                     Odd[depth] = new Complex[1 << depth];
@@ -138,11 +144,22 @@ namespace Cavern.Utilities {
         /// <summary>
         /// Free the memory of large cos/sin caches when they're not required anymore.
         /// </summary>
-        ~FFTCache() {
+        ~FFTCache() => ReleaseCache();
+
+        /// <summary>
+        /// Release the static cos/sin cache arrays and decrement refcounts.
+        /// </summary>
+        void ReleaseCache() {
+            if (Native != IntPtr.Zero) {
+                return;
+            }
+
             for (int i = 0, c = QMath.Log2(Size); i < c; i++) {
-                if (Interlocked.Decrement(ref refcounts[i]) == 0) {
-                    cos[i] = null;
-                    sin[i] = null;
+                lock (refcounts) {
+                    if (--refcounts[i] == 0) {
+                        cos[i] = null;
+                        sin[i] = null;
+                    }
                 }
             }
         }

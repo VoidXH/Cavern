@@ -19,6 +19,15 @@ namespace Cavern.Listeners {
         }
 
         /// <summary>
+        /// Whether to use multithreading for convolution processing.
+        /// </summary>
+        [Tooltip("Whether to use multithreading for convolution processing.")]
+        public bool Multithreaded {
+            get => ConvolvedListener.Multithreaded;
+            set => ConvolvedListener.Multithreaded = value;
+        }
+
+        /// <summary>
         /// The wrapped <see cref="ConvolvedListener"/> handled by this component.
         /// </summary>
         ConvolvedListener ConvolvedListener => (ConvolvedListener)CavernListener;

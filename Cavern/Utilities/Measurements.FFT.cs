@@ -2,12 +2,16 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using Cavern.Utilities.Exceptions;
+
 namespace Cavern.Utilities {
     public static partial class Measurements {
         /// <summary>
         /// FFT processor selector.
         /// </summary>
         static void ProcessFFT(Complex[] samples, FFTCache cache) {
+            SmallFFTCacheException.ThrowIfTooSmall(cache.Size, samples.Length);
+
             if (samples.Length > 8) {
                 if (CavernAmp.IsMono()) {
                     ProcessFFT_Mono(samples, cache, QMath.Log2(samples.Length) - 1);
@@ -23,6 +27,8 @@ namespace Cavern.Utilities {
         /// Outputs IFFT(X) * N.
         /// </summary>
         static void ProcessIFFT(Complex[] samples, FFTCache cache) {
+            SmallFFTCacheException.ThrowIfTooSmall(cache.Size, samples.Length);
+
             samples.Conjugate();
             ProcessFFT(samples, cache);
             samples.Conjugate();

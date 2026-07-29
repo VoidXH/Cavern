@@ -174,14 +174,16 @@ namespace Cavern.Filters {
         /// </summary>
         public override void Process(float[] samples) {
             samples.ThrowIfNullOrEmpty(nameof(samples));
-            if (filter == null || cache == null || present == null || future == null) {
-                throw new InvalidOperationException("Convolver not properly initialized.");
-            }
 
             if (native != IntPtr.Zero) {
                 CavernAmp.Filter_Process(native, samples);
                 return;
             }
+
+            if (filter == null || cache == null || present == null || future == null) {
+                throw new InvalidOperationException("Convolver not properly initialized.");
+            }
+
             int start = 0;
             while (start < samples.Length) {
                 ProcessTimeslot(samples, start, Math.Min(samples.Length, start += filter.Length >> 1));
@@ -198,14 +200,14 @@ namespace Cavern.Filters {
             samples.ThrowIfNullOrEmpty(nameof(samples));
             channel.ThrowIfNegative(nameof(channel));
             channels.ThrowIfNonPositive(nameof(channels));
-            if (filter == null || cache == null || present == null || future == null) {
-                throw new InvalidOperationException("Convolver not properly initialized.");
-            }
-
             if (native != IntPtr.Zero) {
                 CavernAmp.Filter_Process(native, samples, channel, channels);
                 return;
             }
+            if (filter == null || cache == null || present == null || future == null) {
+                throw new InvalidOperationException("Convolver not properly initialized.");
+            }
+
             int start = 0;
             int end = samples.Length / channels;
             while (start < end) {

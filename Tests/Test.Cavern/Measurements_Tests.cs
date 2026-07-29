@@ -1,4 +1,5 @@
 ﻿using Cavern.Utilities;
+using Cavern.Utilities.Exceptions;
 using Cavern.Utilities.Threading;
 
 using Test.Cavern.Consts;
@@ -137,6 +138,56 @@ public class Measurements_Tests {
         Constants.complexSamples.GetRealPart(realPart);
         CollectionAssert.AreEqual(Constants.samples, realPart);
     }
+
+    /// <summary>
+    /// Tests that a SmallFFTCacheException is thrown when FFT size exceeds cache capacity.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void FFT_ExceedsCacheSize_ThrowsException() => CavernAmpTest.RunPlusMono(() => {
+        Complex[] signal = new Complex[16];
+        using FFTCache cache = new FFTCache(8); // Cache too small for 16 samples
+        Assert.ThrowsException<SmallFFTCacheException>(() => signal.InPlaceFFT(cache));
+    });
+
+    /// <summary>
+    /// Tests that a SmallFFTCacheException is thrown when IFFT size exceeds cache capacity.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void IFFT_ExceedsCacheSize_ThrowsException() => CavernAmpTest.RunPlusMono(() => {
+        Complex[] signal = new Complex[16];
+        using FFTCache cache = new FFTCache(8); // Cache too small for 16 samples
+        Assert.ThrowsException<SmallFFTCacheException>(() => signal.InPlaceIFFT(cache));
+    });
+
+    /// <summary>
+    /// Tests that a SmallFFTCacheException is thrown when float FFT size exceeds cache capacity.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void FloatFFT_ExceedsCacheSize_ThrowsException() => CavernAmpTest.RunPlusMono(() => {
+        float[] signal = new float[16];
+        using FFTCache cache = new FFTCache(8); // Cache too small for 16 samples
+        Assert.ThrowsException<SmallFFTCacheException>(() => signal.InPlaceFFT(cache));
+    });
+
+    /// <summary>
+    /// Tests that a SmallFFTCacheException is thrown when FFT1D size exceeds cache capacity.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void FFT1D_ExceedsCacheSize_ThrowsException() => CavernAmpTest.RunPlusMono(() => {
+        float[] signal = new float[16];
+        using FFTCache cache = new FFTCache(8); // Cache too small for 16 samples
+        Assert.ThrowsException<SmallFFTCacheException>(() => signal.FFT1D(cache));
+    });
+
+    /// <summary>
+    /// Tests that a SmallFFTCacheException is thrown when using FFTCachePool with too small cache.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void FFT_Pool_ExceedsCacheSize_ThrowsException() => CavernAmpTest.RunPlusMono(() => {
+        Complex[] signal = new Complex[16];
+        using FFTCachePool pool = new FFTCachePool(8); // Pool with cache size 8 for 16 samples
+        Assert.ThrowsException<SmallFFTCacheException>(() => signal.InPlaceFFT(pool));
+    });
 
     /// <summary>
     /// Check if an <paramref name="fft"/> result is a Dirac-delta.

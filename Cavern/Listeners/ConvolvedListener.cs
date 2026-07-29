@@ -26,6 +26,18 @@ namespace Cavern.Listeners {
         Clip convolutionClip;
 
         /// <summary>
+        /// Whether to use multithreading for convolution processing.
+        /// </summary>
+        public bool Multithreaded {
+            get => convolver?.Multithreaded ?? false;
+            set {
+                if (convolver != null) {
+                    convolver.Multithreaded = value;
+                }
+            }
+        }
+
+        /// <summary>
         /// The multichannel convolver that applies the impulse responses to each output channel.
         /// </summary>
         MultichannelConvolver convolver;

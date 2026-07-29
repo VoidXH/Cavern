@@ -11,5 +11,14 @@ namespace Cavern.Utilities.Exceptions {
         /// Thrown when the <see cref="FFTCache"/> used is too small for the requested FFT operation.
         /// </summary>
         public SmallFFTCacheException(int cacheSize, int signalLength) : base(string.Format(message, cacheSize, signalLength)) { }
+
+        /// <summary>
+        /// Checks if the FFT size exceeds the cache capacity and throws if it does.
+        /// </summary>
+        public static void ThrowIfTooSmall(int cacheSize, int signalLength) {
+            if (signalLength > cacheSize) {
+                throw new SmallFFTCacheException(cacheSize, signalLength);
+            }
+        }
     }
 }

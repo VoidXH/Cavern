@@ -76,6 +76,7 @@ namespace Cavern.Utilities {
             samples.ThrowIfNullOrEmpty(nameof(samples));
 
             if (CavernAmp.Available && CavernAmp.IsMono()) {
+                SmallFFTCacheException.ThrowIfTooSmall(CavernAmp.FFTCache_Size(IntPtr.Zero), samples.Length);
                 CavernAmp.InPlaceFFT(samples);
             } else {
                 using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
@@ -91,11 +92,8 @@ namespace Cavern.Utilities {
             samples.ThrowIfNullOrEmpty(nameof(samples));
             cache.ThrowIfNull(nameof(cache));
 
-            if (cache.Size < samples.Length) {
-                throw new SmallFFTCacheException(cache.Size, samples.Length);
-            }
-
             if (cache.Native != IntPtr.Zero) {
+                SmallFFTCacheException.ThrowIfTooSmall(cache.Size, samples.Length);
                 CavernAmp.InPlaceFFT(samples, cache);
             } else {
                 ProcessFFT(samples, cache);
@@ -143,6 +141,7 @@ namespace Cavern.Utilities {
             samples.ThrowIfNullOrEmpty(nameof(samples));
 
             if (CavernAmp.Available && CavernAmp.IsMono()) {
+                SmallFFTCacheException.ThrowIfTooSmall(CavernAmp.FFTCache_Size(IntPtr.Zero), samples.Length);
                 CavernAmp.InPlaceFFT(samples);
             } else {
                 using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
@@ -156,6 +155,7 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void InPlaceFFT(this float[] samples, FFTCache cache) {
             samples.ThrowIfNullOrEmpty(nameof(samples));
+            SmallFFTCacheException.ThrowIfTooSmall(cache.Size, samples.Length);
 
             if (cache != null && cache.Native != IntPtr.Zero) {
                 CavernAmp.InPlaceFFT(samples, cache);
@@ -173,6 +173,7 @@ namespace Cavern.Utilities {
 
             samples = samples.FastClone();
             if (CavernAmp.Available && CavernAmp.IsMono()) {
+                SmallFFTCacheException.ThrowIfTooSmall(CavernAmp.FFTCache_Size(IntPtr.Zero), samples.Length);
                 CavernAmp.InPlaceIFFT(samples);
             } else {
                 using FFTCache cache = new ThreadSafeFFTCache(samples.Length);
@@ -190,6 +191,7 @@ namespace Cavern.Utilities {
 
             samples = samples.FastClone();
             if (cache != null && cache.Native != IntPtr.Zero) {
+                SmallFFTCacheException.ThrowIfTooSmall(cache.Size, samples.Length);
                 CavernAmp.InPlaceIFFT(samples, cache);
             } else {
                 samples.InPlaceIFFT(cache);
@@ -215,6 +217,7 @@ namespace Cavern.Utilities {
             samples.ThrowIfNullOrEmpty(nameof(samples));
 
             if (CavernAmp.Available && CavernAmp.IsMono()) {
+                SmallFFTCacheException.ThrowIfTooSmall(CavernAmp.FFTCache_Size(IntPtr.Zero), samples.Length);
                 CavernAmp.InPlaceIFFT(samples);
                 return;
             }
@@ -230,6 +233,7 @@ namespace Cavern.Utilities {
             cache.ThrowIfNull(nameof(cache));
 
             if (cache != null && cache.Native != IntPtr.Zero) {
+                SmallFFTCacheException.ThrowIfTooSmall(cache.Size, samples.Length);
                 CavernAmp.InPlaceIFFT(samples, cache);
                 return;
             }
@@ -262,6 +266,7 @@ namespace Cavern.Utilities {
         /// </summary>
         public static void InPlaceIFFTUnscaled(this Complex[] samples, FFTCache cache) {
             if (cache != null && cache.Native != IntPtr.Zero) {
+                SmallFFTCacheException.ThrowIfTooSmall(cache.Size, samples.Length);
                 CavernAmp.InPlaceIFFT(samples, cache);
                 for (int i = 0; i < samples.Length; i++) {
                     samples[i].Real *= samples.Length;

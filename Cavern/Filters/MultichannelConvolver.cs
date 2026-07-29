@@ -11,6 +11,11 @@ namespace Cavern.Filters {
     /// </summary>
     public class MultichannelConvolver : Filter, IResettableFilter {
         /// <summary>
+        /// Whether to use multithreading for convolution processing.
+        /// </summary>
+        public bool Multithreaded { get; set; } = true;
+
+        /// <summary>
         /// Each channel's actual filter and reusable extracted sample block cache.
         /// </summary>
         readonly ThreadSafeFastConvolver[] workers;
@@ -68,7 +73,13 @@ namespace Cavern.Filters {
             workers.ThrowIfNullOrEmpty(nameof(workers));
 
             this.samples = samples;
-            threader.ForUnchecked(0, workers.Length);
+            if (Multithreaded) {
+                threader.ForUnchecked(0, workers.Length);
+            } else {
+                for (int i = 0; i < workers.Length; i++) {
+                    Step(i);
+                }
+            }
         }
 
         /// <inheritdoc/>
