@@ -122,7 +122,7 @@ public class ThreadSafeFastConvolver_Tests {
     /// <summary>
     /// Tests that multiple independent <see cref="ThreadSafeFastConvolver"/> instances can be processed concurrently from multiple threads without interference.
     /// </summary>
-    [TestMethod, Timeout(5000)]
+    [TestMethod, Timeout(1000)]
     public void ThreadSafety() {
         CavernAmp.Bypass = true;
         int length = 256;
@@ -157,23 +157,13 @@ public class ThreadSafeFastConvolver_Tests {
     /// <summary>
     /// Tests that a large Dirac delta impulse (16384 samples) produces transparent convolution.
     /// </summary>
-    [TestMethod, Timeout(5000)]
+    [TestMethod, Timeout(1000)]
     public void LargeDiracDeltaTransparency() => CavernAmpTest.Run(() => {
         const int impulseLength = 16384;
         float[] largeDirac = Generators.DiracDelta(impulseLength);
         float[] signal = Generators.Sine(impulseLength);
         float[] expected = (float[])signal.Clone();
         new ThreadSafeFastConvolver(largeDirac).Process(signal);
-
-        float maxError = 0f;
-        int maxErrorIndex = 0;
-        for (int i = 0; i < signal.Length; i++) {
-            float error = MathF.Abs(signal[i] - expected[i]);
-            if (error > maxError) {
-                maxError = error;
-                maxErrorIndex = i;
-            }
-        }
 
         const float largeFftTolerance = 0.001f; // 1e-3 instead of 1e-6
         for (int i = 0; i < signal.Length; i++) {
@@ -184,7 +174,7 @@ public class ThreadSafeFastConvolver_Tests {
     /// <summary>
     /// Tests multiple consecutive blocks with a large Dirac delta to expose overlap-add boundary artifacts.
     /// </summary>
-    [TestMethod, Timeout(5000)]
+    [TestMethod, Timeout(1000)]
     public void LargeDiracDeltaMultiBlock() => CavernAmpTest.Run(() => {
         const int impulseLength = 16384;
         const int signalLength = 32768;
@@ -192,22 +182,6 @@ public class ThreadSafeFastConvolver_Tests {
         float[] signal = Generators.Sine(signalLength);
         float[] expected = (float[])signal.Clone();
         new ThreadSafeFastConvolver(largeDirac).Process(signal);
-
-        float maxError = 0f;
-        int maxErrorIndex = 0;
-        for (int i = 0; i < signal.Length; i++) {
-            float error = MathF.Abs(signal[i] - expected[i]);
-            if (error > maxError) {
-                maxError = error;
-                maxErrorIndex = i;
-            }
-        }
-
-        float boundaryError = 0f;
-        for (int i = 16000; i < 16700; i++) {
-            boundaryError += MathF.Abs(signal[i] - expected[i]);
-        }
-        boundaryError /= 700;
 
         const float largeFftTolerance = 0.001f;
         for (int i = 0; i < signal.Length; i++) {

@@ -220,7 +220,7 @@ public class FastConvolver_Tests {
     /// Tests that Dispose frees resources and doesn't throw on reuse.
     /// </summary>
     [TestMethod, Timeout(1000)]
-    public void Dispose() => CavernAmpTest.Run(() => {
+    public void DoubleDispose() => CavernAmpTest.Run(() => {
         FastConvolver filter = new([1, .75f, .5f, 2]);
         filter.Dispose();
         filter.Dispose();
