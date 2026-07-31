@@ -10,6 +10,8 @@
 	<ItemGroup>
 		<Compile Include="..\Test.Cavern\Consts\CavernAmpTest.cs" Link="Consts\CavernAmpTest.cs" />
 		<Compile Include="..\Test.Cavern\Consts\Usings.cs" Link="Consts\Usings.cs" />
+		<Compile Include="..\Test.Cavern.QuickEQ\Consts\Constants.cs" Link="Consts\Constants.cs" />
+		<Compile Include="..\Test.Cavern.QuickEQ\Consts\TestUtils.cs" Link="Consts\TestUtils.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -21,7 +23,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern.QuickEQ.Format\Cavern.QuickEQ.Format.csproj" />
-		<ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

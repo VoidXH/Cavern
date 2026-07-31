@@ -6,7 +6,7 @@ using Cavern.Waveforms;
 
 using Test.Cavern.QuickEQ.Consts;
 
-namespace Test.Cavern.QuickEQ.FilterSet.BaseClasses;
+namespace Test.Cavern.QuickEQ.Format.FilterSet.BaseClasses;
 
 /// <summary>
 /// Tests the <see cref="IIRFilterSet"/> class.

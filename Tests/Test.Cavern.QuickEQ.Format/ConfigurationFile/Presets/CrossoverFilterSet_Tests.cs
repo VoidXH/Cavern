@@ -4,12 +4,13 @@ using Cavern.Format.ConfigurationFile.Presets;
 using Cavern.QuickEQ.Crossover;
 
 using Test.Cavern.QuickEQ.Consts;
-using Test.Cavern.QuickEQ.Utilities;
+using Test.Cavern.QuickEQ.Format.Consts;
+using Test.Cavern.QuickEQ.Format.Utilities;
 
 using ConfigFile = Cavern.Format.ConfigurationFile.ConfigurationFile;
 using Xover = Cavern.QuickEQ.Crossover.Crossover;
 
-namespace Test.Cavern.QuickEQ.ConfigurationFile.Presets;
+namespace Test.Cavern.QuickEQ.Format.ConfigurationFile.Presets;
 
 /// <summary>
 /// Tests the <see cref="CrossoverFilterSet"/> class.

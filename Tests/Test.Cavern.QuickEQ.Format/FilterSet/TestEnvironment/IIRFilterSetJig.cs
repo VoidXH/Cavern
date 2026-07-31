@@ -5,11 +5,11 @@ using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 
 using Test.Cavern.Consts;
-using Test.Cavern.QuickEQ.FilterSet.Exceptions;
+using Test.Cavern.QuickEQ.Format.FilterSet.Exceptions;
 
 using FSet = Cavern.Format.FilterSet.FilterSet;
 
-namespace Test.Cavern.QuickEQ.FilterSet.TestEnvironment;
+namespace Test.Cavern.QuickEQ.Format.FilterSet.TestEnvironment;
 
 /// <summary>
 /// Test framework for IIR filter sets. Validates that a known source Equalizer is correctly approximated,

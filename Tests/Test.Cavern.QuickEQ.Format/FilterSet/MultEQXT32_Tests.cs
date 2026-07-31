@@ -4,7 +4,7 @@ using Cavern.Channels;
 using Cavern.Format.FilterSet;
 using Cavern.Format.JSON;
 
-namespace Test.Cavern.QuickEQ.FilterSet;
+namespace Test.Cavern.QuickEQ.Format.FilterSet;
 
 /// <summary>
 /// Tests if <see cref="MultEQXT32FilterSet"/> handles legacy and current ADY files.
