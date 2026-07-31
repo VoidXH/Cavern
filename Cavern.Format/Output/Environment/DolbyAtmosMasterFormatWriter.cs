@@ -195,7 +195,6 @@ namespace Cavern.Format.Environment {
                 metadataOut.WriteLine("    headTrackMode: undefined");
                 metadataOut.Write("    binauralRenderMode: ");
                 metadataOut.WriteLine(i < bedChannels ? "off" : "undefined");
-                lastFrames[i] = new MovementTimeframe(scaledPos, gain, 0, 0);
             }
         }
 
