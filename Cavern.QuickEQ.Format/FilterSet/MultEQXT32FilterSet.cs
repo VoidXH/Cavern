@@ -148,10 +148,7 @@ namespace Cavern.Format.FilterSet {
                 channelData["customTargetCurvePoints"] = CreateCurve(equalizerChannel.curve);
 
                 channelReport["distance"] = distance;
-                channelReport["enSpeakerConnect"] = 1;
-                channelReport["customEnSpeakerConnect"] = 1;
                 channelReport["isReversePolarity"] = equalizerChannel.switchPolarity;
-
                 if (!isSub) {
                     channelData["midrangeCompensation"] = false;
                     channelData["customSpeakerType"] = "S";
