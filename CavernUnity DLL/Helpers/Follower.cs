@@ -53,6 +53,12 @@ namespace Cavern.Helpers {
         public Color muteColor = Color.red;
 
         /// <summary>
+        /// Transparency of the sphere when the source is silent.
+        /// </summary>
+        [Tooltip("Transparency of the sphere when the source is silent.")]
+        public float silentAlpha = .125f;
+
+        /// <summary>
         /// Show the object's trail for this many seconds.
         /// </summary>
         public float trailTime;
@@ -119,7 +125,7 @@ namespace Cavern.Helpers {
                     newColor = screenLockedColor;
                 }
 
-                newColor.a = .125f;
+                newColor.a = silentAlpha;
                 float[] samples = target.Rendered[0];
                 for (int i = 0; i < samples.Length; i++) {
                     if (samples[i] != 0) {
