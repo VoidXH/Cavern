@@ -18,14 +18,14 @@ namespace Cavern.Format.Environment {
     /// </summary>
     public class DolbyAtmosMasterFormatWriter : EnvironmentWriter {
         /// <summary>
-        /// At constructor time, these original <see cref="Source"/>s held static bed channels.
-        /// </summary>
-        readonly StaticSource[] staticObjects;
-
-        /// <summary>
         /// All active <see cref="Source"/>s in the <see cref="Listener"/>.
         /// </summary>
         Source[] sources;
+
+        /// <summary>
+        /// At constructor time, these original <see cref="Source"/>s held static bed channels.
+        /// </summary>
+        StaticSource[] staticSources;
 
         /// <summary>
         /// IDs used in the metadata file for each PCM track.
@@ -66,17 +66,17 @@ namespace Cavern.Format.Environment {
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
         /// </summary>
         public DolbyAtmosMasterFormatWriter(Stream writer, Listener source, long length, BitDepth bits,
-            params StaticSource[] staticObjects) :
+            params StaticSource[] staticSources) :
                     base(writer, source, length, bits) {
-            this.staticObjects = staticObjects;
+            this.staticSources = staticSources;
         }
 
         /// <summary>
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
         /// </summary>
         public DolbyAtmosMasterFormatWriter(string path, Listener source, long length, BitDepth bits,
-            params StaticSource[] staticObjects) :
-            this(AudioWriter.Open(path), source, length, bits, staticObjects) { }
+            params StaticSource[] staticSources) :
+            this(AudioWriter.Open(path), source, length, bits, staticSources) { }
 
         /// <summary>
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
@@ -99,39 +99,38 @@ namespace Cavern.Format.Environment {
 
         /// <inheritdoc/>
         public override void WriteNextFrame() {
+            float[] result = GetInterlacedPCMOutput(); // Render the first frame before outputting the Sources, since filters like Cavernize can make more
             if (pcmOut == null) {
+                StaticSourceCorrection(Source, ref staticSources);
                 CreateFiles();
             }
 
-            float[] result = GetInterlacedPCMOutput();
             long writable = pcmOut.Length - samplesWritten;
             if (writable > 0) {
                 pcmOut.WriteBlock(result, 0, Math.Min(Source.UpdateRate, writable) * pcmOut.ChannelCount);
             }
 
-            if (pcmOut != null) { // Do not update in the first frame, it happens in CreateFiles
-                for (int i = 0; i < sources.Length; i++) {
-                    Vector3 scaledPos = sources[i].Position * scaling;
-                    float gain = QMath.GainToDb(sources[i].Volume);
-                    bool positionChanged = scaledPos != lastFrames[i].position;
-                    bool gainChanged = gain != lastFrames[i].gain;
-                    if (!positionChanged && !gainChanged) {
-                        continue;
-                    }
-
-                    metadataOut.WriteLine("  - ID: " + channelIDs[i]);
-                    if (lastUpdate != samplesWritten) {
-                        metadataOut.WriteLine("    samplePos: " + samplesWritten);
-                        lastUpdate = samplesWritten;
-                    }
-                    if (positionChanged) {
-                        WriteMetadataPosition(scaledPos);
-                    }
-                    if (gainChanged) {
-                        WriteMetadataGain(gain);
-                    }
-                    lastFrames[i] = new MovementTimeframe(scaledPos, gain, 0, 0);
+            for (int i = 0; i < sources.Length; i++) {
+                Vector3 scaledPos = sources[i].Position * scaling;
+                float gain = QMath.GainToDb(sources[i].Volume);
+                bool positionChanged = scaledPos != lastFrames[i].position;
+                bool gainChanged = gain != lastFrames[i].gain;
+                if (!positionChanged && !gainChanged) {
+                    continue;
                 }
+
+                metadataOut.WriteLine("  - ID: " + channelIDs[i]);
+                if (lastUpdate != samplesWritten) {
+                    metadataOut.WriteLine("    samplePos: " + samplesWritten);
+                    lastUpdate = samplesWritten;
+                }
+                if (positionChanged) {
+                    WriteMetadataPosition(scaledPos);
+                }
+                if (gainChanged) {
+                    WriteMetadataGain(gain);
+                }
+                lastFrames[i] = new MovementTimeframe(scaledPos, gain, 0, 0);
             }
 
             samplesWritten += Source.UpdateRate;
@@ -157,7 +156,7 @@ namespace Cavern.Format.Environment {
             lastFrames = new MovementTimeframe[sources.Length];
             scaling = new Vector3(1) / Listener.EnvironmentSize;
 
-            DolbyAtmosMasterFormatRootFile rootFile = new DolbyAtmosMasterFormatRootFile(staticObjects, sources, channelIDs);
+            DolbyAtmosMasterFormatRootFile rootFile = new DolbyAtmosMasterFormatRootFile(staticSources, sources, channelIDs);
             rootFile.Export(writer);
             int bedChannels = rootFile.BedChannelCount;
 

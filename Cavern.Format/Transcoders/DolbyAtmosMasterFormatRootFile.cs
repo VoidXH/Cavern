@@ -105,7 +105,7 @@ namespace Cavern.Format.Transcoders {
             if (!(source.Data.TryGetValue("presentations", out object rawPresentations) &&
                 rawPresentations is List<YAMLObject> presentations &&
                 presentations.Count == 1)) {
-                throw new CorruptionException("Only single-presentation files are supported.");
+                throw new CorruptionException(nameof(rawPresentations));
             }
             YAMLObject presentation = presentations[0];
             if (!(presentation.TryGetValue("bedInstances", out object rawBedInstances) &&
@@ -113,12 +113,12 @@ namespace Cavern.Format.Transcoders {
                 bedInstances.Count == 1 &&
                 bedInstances[0] is YAMLObject bedInstance &&
                 bedInstance.TryGetValue("channels", out object rawChannels))) {
-                throw new CorruptionException("Only single-bed instance files with a single channel assignment are supported.");
+                throw new CorruptionException(nameof(rawBedInstances));
             }
 
             if (rawChannels is List<YAMLObject> channelsSource) {
                 if (channelsSource.Count > channelCount) {
-                    throw new CorruptionException("The bed contains more channels than the audio stream.");
+                    throw new CorruptionException(nameof(channelsSource));
                 }
                 Channels = ParseChannels(channelsSource);
             } else {
@@ -164,7 +164,7 @@ namespace Cavern.Format.Transcoders {
                 if (expectedObjectCount == 0) {
                     return 0;
                 }
-                throw new CorruptionException("Missing object list.");
+                throw new CorruptionException(nameof(presentation));
             }
 
             if (rawObjects is string rawObjectText) {
@@ -172,18 +172,18 @@ namespace Cavern.Format.Transcoders {
                     if (expectedObjectCount == 0) {
                         return 0;
                     }
-                    throw new CorruptionException("Object count does not match the audio stream.");
+                    throw new CorruptionException(nameof(rawObjectText));
                 }
 
-                throw new CorruptionException("Invalid object list.");
+                throw new CorruptionException(nameof(rawObjects));
             }
 
             if (!(rawObjects is List<YAMLObject> objects)) {
-                throw new CorruptionException("Invalid object list.");
+                throw new CorruptionException(nameof(objects));
             }
 
             if (objects.Count != expectedObjectCount) {
-                throw new CorruptionException("Object count does not match the audio stream.");
+                throw new CorruptionException($"{nameof(objects)}.Count");
             }
 
             return objects.Count;
@@ -247,12 +247,12 @@ namespace Cavern.Format.Transcoders {
                     channel.TryGetValue("ID", out object rawId) &&
                     rawId is string idString &&
                     int.TryParse(idString, out int id))) {
-                    throw new CorruptionException("Invalid channel definition in Core Audio Format stream.");
+                    throw new CorruptionException(nameof(channels));
                 }
 
                 result[i] = ChannelPrototype.FromStandardName(name);
                 if (result[i] == ReferenceChannel.Unknown) {
-                    throw new CorruptionException($"Unknown channel name: {name}.");
+                    throw new CorruptionException($"{nameof(result)}[{i}] = {name}");
                 }
                 ObjectMapping[i] = id;
             }

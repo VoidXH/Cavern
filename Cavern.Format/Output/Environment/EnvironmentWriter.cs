@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 
 using Cavern.Format.Common;
+using Cavern.Format.Environment.Utilities;
 using Cavern.Format.Exceptions;
 using Cavern.Format.Renderers;
 using Cavern.Utilities;
@@ -119,6 +121,23 @@ namespace Cavern.Format.Environment {
 
         /// <inheritdoc/>
         public virtual void Dispose() => writer.Dispose();
+
+        /// <summary>
+        /// Perform corrections for cases that might break <paramref name="environment"/>al exports for codecs with initially defined <paramref name="staticSources"/>.
+        /// This shall be called after the first frame is rendered, but before it is written to the output file, becuase a common case is the static sources being removed.
+        /// </summary>
+        protected void StaticSourceCorrection(Listener environment, ref StaticSource[] staticSources) {
+            bool[] existenceMap = new bool[staticSources.Length];
+            foreach (Source source in environment.ActiveSources) {
+                for (int i = 0; i < staticSources.Length; i++) {
+                    if (staticSources[i].Source == source) {
+                        existenceMap[i] = true;
+                        break;
+                    }
+                }
+            }
+            staticSources = staticSources.Where((_, i) => existenceMap[i]).ToArray();
+        }
 
         /// <summary>
         /// Gets each source's samples in an interlaced array.
