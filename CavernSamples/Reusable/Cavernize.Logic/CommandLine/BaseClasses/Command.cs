@@ -40,6 +40,7 @@ public abstract class Command {
                 new KeepTempFilesCommand(),
                 new MLPPresentationCommand(),
                 new OverrideBedCommand(),
+                new PedanticCommand(),
                 new RenderGainCommand(),
                 new UnsafeCommand(),
             ];

@@ -37,7 +37,7 @@ namespace Cavern.Format.Transcoders {
                         }
                         ncplsubnd = 3 + cplendf - cplbegf;
                         ncplbnd = ncplsubnd;
-                        if (ncplsubnd < 1 && !CavernFormatGlobal.Unsafe) {
+                        if (ncplsubnd < 1 && CavernFormatGlobal.Pedantic) {
                             throw new DecoderException(3);
                         }
                         if (cplbndstrce = !eac3 || extractor.ReadBit()) {
