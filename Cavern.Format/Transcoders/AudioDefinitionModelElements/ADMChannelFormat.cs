@@ -215,6 +215,7 @@ namespace Cavern.Format.Transcoders.AudioDefinitionModelElements {
                                 default:
                                     throw new CorruptionException(block.GetAttribute(ADMTags.blockIDAttribute));
                             }
+                            cartesian = true;
                             break;
                         case ADMTags.blockJumpTag:
                             if (child.Value[0] == '1') {
