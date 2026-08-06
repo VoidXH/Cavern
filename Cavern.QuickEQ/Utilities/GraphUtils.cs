@@ -66,7 +66,7 @@ namespace Cavern.QuickEQ.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ConvertFromDecibels(float[] curve) {
             for (int i = 0; i < curve.Length; i++) {
-                curve[i] = (float)Math.Pow(10, curve[i] * .05f);
+                curve[i] = MathF.Pow(10, curve[i] * .05f);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Cavern.QuickEQ.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ConvertToDecibels(float[] curve, float minimum) {
             for (int i = 0; i < curve.Length; i++) {
-                curve[i] = 20 * (float)Math.Log10(curve[i]);
+                curve[i] = 20 * MathF.Log10(curve[i]);
                 if (curve[i] < minimum) { // this is also true if curve[i] == 0
                     curve[i] = minimum;
                 }
