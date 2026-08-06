@@ -107,11 +107,16 @@ namespace Cavern.Format.FilterSet {
             if (detectedChannels.Length == 0) {
                 throw new CorruptionException("No channels found in ADY file");
             }
-            data["title"] = "Cavern QuickEQ";
-            data["dynamicEq"] = false;
-            data["dynamicVolume"] = false;
-            data["lfc"] = false;
-            data["enTargetCurveType"] = 1; // No HF rolloff I think
+
+            if (data.ContainsKey("dynamicEq")) {
+                data["dynamicEq"] = false;
+            }
+            if (data.ContainsKey("dynamicVolume")) {
+                data["dynamicVolume"] = false;
+            }
+            if (data.ContainsKey("lfc")) {
+                data["lfc"] = false;
+            }
 
             double[] gains = GetGains(-12, 12);
             int subwooferIndex = 0;
@@ -132,27 +137,21 @@ namespace Cavern.Format.FilterSet {
                     continue;
                 }
                 EqualizerChannelData equalizerChannel = (EqualizerChannelData)Channels[eqIndex];
-                JsonFile channelReport = GetOrCreateObject(channelData, "channelReport");
-
-                bool isSub = equalizerChannel.reference == ReferenceChannel.ScreenLFE;
 
                 decimal level = (decimal)Math.Round(gains[eqIndex], 1);
                 double distanceMeters = Math.Min(GetDelay(eqIndex), maxDelayMs) * Source.SpeedOfSound / 1000.0;
                 decimal distance = (decimal)Math.Round(distanceMeters, 2);
 
-                channelData["delayAdjustment"] = "0.0";
-                channelData["trimAdjustment"] = "0.0";
                 channelData["customDistance"] = distance;
                 channelData["customLevel"] = level.ToString("0.0", CultureInfo.InvariantCulture);
-                channelData["frequencyRangeRolloff"] = isSub ? 250 : 20000;
                 channelData["customTargetCurvePoints"] = CreateCurve(equalizerChannel.curve);
 
-                channelReport["distance"] = distance;
-                channelReport["isReversePolarity"] = equalizerChannel.switchPolarity;
-                if (!isSub) {
+                if (channelData.ContainsKey("midrangeCompensation")) {
                     channelData["midrangeCompensation"] = false;
-                    channelData["customSpeakerType"] = "S";
-                    channelData["customCrossover"] = "80";
+                }
+
+                if (channelData.ContainsKey("channelReport") && channelData["channelReport"] is JsonFile channelReport) {
+                    channelReport["distance"] = distance;
                 }
             }
         }
@@ -209,20 +208,6 @@ namespace Cavern.Format.FilterSet {
             };
         }
 
-        /// <summary>
-        /// Get a nested JSON object if it exists, or create it when the source file omits it.
-        /// </summary>
-        static JsonFile GetOrCreateObject(JsonFile parent, string key) {
-            foreach (var element in parent.Elements) {
-                if (element.Key == key && element.Value is JsonFile value) {
-                    return value;
-                }
-            }
-
-            JsonFile result = new JsonFile();
-            parent[key] = result;
-            return result;
-        }
 
         /// <summary>
         /// Find the nth occurrence of a channel with the specified reference type.

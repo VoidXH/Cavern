@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -210,6 +210,19 @@ namespace Cavern.Format.JSON {
             while (offset < source.Length && char.IsWhiteSpace(source[offset])) {
                 offset++;
             }
+        }
+
+        /// <summary>
+        /// Check if the current tree node contains an element with the given key.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool ContainsKey(string key) {
+            for (int i = 0, c = elements.Count; i < c; i++) {
+                if (elements[i].Key == key) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <inheritdoc/>

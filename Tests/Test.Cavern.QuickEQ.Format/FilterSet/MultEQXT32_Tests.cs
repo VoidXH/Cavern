@@ -55,20 +55,22 @@ public class MultEQXT32_Tests {
         string outputText = Encoding.UTF8.GetString(stream.ToArray());
 
         JsonFile data = new(outputText);
-        Assert.AreEqual("Cavern QuickEQ", data["title"]);
 
         object[] detectedChannels = (object[])data["detectedChannels"];
         Assert.AreEqual(channels.Length, detectedChannels.Length);
 
         for (int i = 0; i < detectedChannels.Length; i++) {
             JsonFile channelData = (JsonFile)detectedChannels[i];
-            Assert.IsTrue(HasKey(channelData, "channelReport"), $"channelReport missing for detected channel {i}.");
             Assert.IsTrue(HasKey(channelData, "customLevel"), $"customLevel missing for detected channel {i}.");
             Assert.IsTrue(HasKey(channelData, "customDistance"), $"customDistance missing for detected channel {i}.");
+            Assert.IsTrue(HasKey(channelData, "customTargetCurvePoints"), $"customTargetCurvePoints missing for detected channel {i}.");
 
-            JsonFile channelReport = (JsonFile)channelData["channelReport"];
-            Assert.IsTrue(HasKey(channelReport, "distance"), $"distance missing for detected channel {i}.");
-            Assert.IsTrue(HasKey(channelReport, "enSpeakerConnect"), $"enSpeakerConnect missing for detected channel {i}.");
+            if (includeChannelReports) {
+                Assert.IsTrue(HasKey(channelData, "channelReport"), $"channelReport missing for detected channel {i}.");
+                JsonFile channelReport = (JsonFile)channelData["channelReport"];
+                Assert.IsTrue(HasKey(channelReport, "distance"), $"distance missing for detected channel {i}.");
+                Assert.IsTrue(HasKey(channelReport, "enSpeakerConnect"), $"enSpeakerConnect missing for detected channel {i}.");
+            }
         }
     }
 
