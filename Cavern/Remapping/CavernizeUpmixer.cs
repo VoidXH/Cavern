@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 using Cavern.Filters;
@@ -47,11 +48,16 @@ namespace Cavern.Remapping {
         /// <param name="crossoverFrequency">Keep sounds below this frequency on the ground layer</param>
         /// <remarks>Positions of sources are taken on creation and will stay there, regardless of their further movement.</remarks>
         public CavernizeUpmixer(IReadOnlyList<Source> sources, int sampleRate, int crossoverFrequency) :
-            base(2 * sources.Count, sampleRate) {
+            base(sources.Sum(x => x.LFE ? 1 : 2), sampleRate) {
             filters = new Cavernize[sources.Count];
-            for (int i = 0; i < filters.Length; i++) {
+            for (int i = 0, offset = 0; i < filters.Length; i++) {
                 filters[i] = new Cavernize(sampleRate, crossoverFrequency);
-                IntermediateSources[2 * i].Position = sources[i].Position;
+                IntermediateSources[offset].Position = sources[i].Position;
+                if (sources[i].LFE) {
+                    IntermediateSources[offset++].LFE = true;
+                } else {
+                    offset += 2;
+                }
             }
             SetupCollection(sources, sampleRate);
         }
@@ -75,14 +81,19 @@ namespace Cavern.Remapping {
             }
 
             float[][] input = OnSamplesNeeded(samplesPerSource);
-            for (int i = 0; i < input.Length; i++) {
-                int current = 2 * i,
-                    pair = current + 1;
-                filters[i].Process(input[i]);
-                filters[i].GroundLevel.CopyTo(output[current]);
-                filters[i].HeightLevel.CopyTo(output[pair]);
-                IntermediateSources[pair].Position = IntermediateSources[current].Position +
-                    new Vector3(0, filters[i].Height * Listener.EnvironmentSize.Y, 0);
+            for (int i = 0, current = 0; i < input.Length; i++) {
+                if (IntermediateSources[current].LFE) {
+                    Array.Copy(input[i], output[current], input[i].Length);
+                    current++;
+                } else {
+                    int pair = current + 1;
+                    filters[i].Process(input[i]);
+                    filters[i].GroundLevel.CopyTo(output[current]);
+                    filters[i].HeightLevel.CopyTo(output[pair]);
+                    IntermediateSources[pair].Position = IntermediateSources[current].Position +
+                        new Vector3(0, filters[i].Height * Listener.EnvironmentSize.Y, 0);
+                    current += 2;
+                }
             }
             return output;
         }
