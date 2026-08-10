@@ -52,6 +52,10 @@ namespace Cavern.Remapping {
             for (int i = 0; i < filters.Length; i++) {
                 filters[i] = new Cavernize(sampleRate, crossoverFrequency);
                 IntermediateSources[2 * i].Position = sources[i].Position;
+                if (sources[i].LFE) {
+                    IntermediateSources[2 * i].LFE = true;
+                    IntermediateSources[2 * i + 1].LFE = true;
+                }
             }
             SetupCollection(sources, sampleRate);
         }
