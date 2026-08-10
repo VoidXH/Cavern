@@ -61,11 +61,21 @@ rd /s /q Tests\CoverageParser\bin
 rd /s /q Tests\CoverageParser\obj
 rd /s /q Tests\Test.Cavern\bin
 rd /s /q Tests\Test.Cavern\obj
+rd /s /q Tests\Test.Cavern\TestResults
 rd /s /q Tests\Test.Cavern.Format\bin
 rd /s /q Tests\Test.Cavern.Format\obj
+rd /s /q Tests\Test.Cavern.Format\TestResults
 rd /s /q Tests\Test.Cavern.QuickEQ\bin
 rd /s /q Tests\Test.Cavern.QuickEQ\obj
+rd /s /q Tests\Test.Cavern.QuickEQ\TestResults
+rd /s /q Tests\Test.Cavernize.Logic\bin
+rd /s /q Tests\Test.Cavernize.Logic\obj
+rd /s /q Tests\Test.Cavernize.Logic\TestResults
+rd /s /q Tests\Test.CavernizeGUI\bin
+rd /s /q Tests\Test.CavernizeGUI\obj
+rd /s /q Tests\Test.CavernizeGUI\TestResults
 rd /s /q Tests\Test.CavernUnity\bin
 rd /s /q Tests\Test.CavernUnity\obj
+rd /s /q Tests\Test.CavernUnity\TestResults
 rd /s /q Tests\TestResults
 pause
