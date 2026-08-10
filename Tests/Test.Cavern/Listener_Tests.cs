@@ -123,9 +123,9 @@ public class Listener_Tests {
     /// </summary>
     [TestMethod, Timeout(1000)]
     public void MultipleSourcesStayIsolated() => AssertRendersOnlyFrom(
-            (ReferenceChannel.FrontLeft, UnitPulse(37)),
-            (ReferenceChannel.RearRight, UnitPulse(82)),
-            (ReferenceChannel.TopFrontLeft, UnitPulse(11))
+        (ReferenceChannel.FrontLeft, UnitPulse(37)),
+        (ReferenceChannel.RearRight, UnitPulse(82)),
+        (ReferenceChannel.TopFrontLeft, UnitPulse(11))
     );
 
     /// <summary>
