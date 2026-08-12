@@ -1,4 +1,5 @@
-﻿using Cavern.Utilities;
+﻿using Cavern;
+using Cavern.Utilities;
 
 namespace Test.Cavern {
     /// <summary>
@@ -23,6 +24,15 @@ namespace Test.Cavern {
             float [] result = new float[length];
             result[0] = 1;
             return result;
+        }
+
+        /// <summary>
+        /// A single-sample mono signal placed at <paramref name="offset"/> within one update frame, at the default update rate.
+        /// </summary>
+        public static float[] DiracDeltaOffset(int offset) {
+            float[] pulse = new float[240];
+            pulse[offset] = 1;
+            return pulse;
         }
 
         /// <summary>

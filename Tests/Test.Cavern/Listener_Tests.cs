@@ -19,15 +19,6 @@ public class Listener_Tests {
     readonly record struct ChannelInput(ReferenceChannel Channel, float[] Signal, bool IsLFE = false);
 
     /// <summary>
-    /// A single-sample mono signal placed at <paramref name="offset"/> within one update frame.
-    /// </summary>
-    static float[] UnitPulse(int offset) {
-        float[] pulse = new float[240];
-        pulse[offset] = 1;
-        return pulse;
-    }
-
-    /// <summary>
     /// Renders the given <paramref name="inputs"/> through a real <see cref="Listener"/> (each source placed at its channel's
     /// position, resolved from <see cref="ChannelPrototype"/>), then asserts that every target channel carries exactly its input
     /// signal and every other channel (including LFE) stays completely silent. Crossover is disabled and LFE separation is on.
@@ -96,7 +87,7 @@ public class Listener_Tests {
     /// A single source at the front-left channel must sound only from there (LFE stays silent).
     /// </summary>
     [TestMethod, Timeout(1000)]
-    public void SingleSourceRendersOnlyThere() => AssertRendersOnlyFrom((ReferenceChannel.FrontLeft, UnitPulse(37)));
+    public void SingleSourceRendersOnlyThere() => AssertRendersOnlyFrom((ReferenceChannel.FrontLeft, Generators.DiracDeltaOffset(37)));
 
     /// <summary>
     /// A single source at every non-LFE channel must sound only from that exact channel.
@@ -108,7 +99,7 @@ public class Listener_Tests {
             if (channel == ReferenceChannel.ScreenLFE) {
                 continue;
             }
-            AssertRendersOnlyFrom((channel, UnitPulse(37)));
+            AssertRendersOnlyFrom((channel, Generators.DiracDeltaOffset(37)));
         }
     }
 
@@ -116,21 +107,21 @@ public class Listener_Tests {
     /// An LFE-tagged source must sound only from the subwoofer(s), nothing else.
     /// </summary>
     [TestMethod, Timeout(1000)]
-    public void LFESourceRendersOnlyToSubwoofer() => AssertRendersOnlyFrom((ReferenceChannel.ScreenLFE, UnitPulse(37), true));
+    public void LFESourceRendersOnlyToSubwoofer() => AssertRendersOnlyFrom((ReferenceChannel.ScreenLFE, Generators.DiracDeltaOffset(37), true));
 
     /// <summary>
     /// Multiple sources at distinct channels must each sound only from their own channel.
     /// </summary>
     [TestMethod, Timeout(1000)]
     public void MultipleSourcesStayIsolated() => AssertRendersOnlyFrom(
-        (ReferenceChannel.FrontLeft, UnitPulse(37)),
-        (ReferenceChannel.RearRight, UnitPulse(82)),
-        (ReferenceChannel.TopFrontLeft, UnitPulse(11))
+        (ReferenceChannel.FrontLeft, Generators.DiracDeltaOffset(37)),
+        (ReferenceChannel.RearRight, Generators.DiracDeltaOffset(82)),
+        (ReferenceChannel.TopFrontLeft, Generators.DiracDeltaOffset(11))
     );
 
     /// <summary>
     /// A source with an intra-frame time offset must still sound only from its channel, at the right sample.
     /// </summary>
     [TestMethod, Timeout(1000)]
-    public void SourceWithTimeOffsetRendersOnlyThere() => AssertRendersOnlyFrom((ReferenceChannel.FrontRight, UnitPulse(123)));
+    public void SourceWithTimeOffsetRendersOnlyThere() => AssertRendersOnlyFrom((ReferenceChannel.FrontRight, Generators.DiracDeltaOffset(123)));
 }
