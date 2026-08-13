@@ -2,6 +2,7 @@
 using System.Numerics;
 
 using Cavern.Channels;
+using Cavern.Remapping.Exceptions;
 using Cavern.Utilities;
 
 namespace Cavern.Remapping {
@@ -72,6 +73,9 @@ namespace Cavern.Remapping {
                         sourceRouting[i] = j;
                         break;
                     }
+                }
+                if (sourceRouting[i] == -1) {
+                    throw new LegacyInputExpectedException();
                 }
             }
 

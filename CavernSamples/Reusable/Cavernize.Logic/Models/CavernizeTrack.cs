@@ -5,6 +5,7 @@ using Cavern.Format;
 using Cavern.Format.Common;
 using Cavern.Format.Renderers;
 using Cavern.Remapping;
+using Cavern.Remapping.Exceptions;
 using Cavern.Utilities;
 
 using Cavernize.Logic.Language;
@@ -149,25 +150,9 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
         reader.Reset();
         Renderer = reader.GetRenderer();
         listener.SampleRate = SampleRate;
+        Source[] attachables = SetupUpmixer(listener, upmixingSettings);
 
-        Source[] attachables;
-
-        if (upmixingSettings.MatrixUpmixing && !Renderer.HasObjects) {
-            ReferenceChannel[] channels = Renderer.GetChannels();
-            SurroundUpmixer upmixer = new SurroundUpmixer(channels, SampleRate, false, true);
-            RunningChannelSeparator separator = new RunningChannelSeparator(channels.Length) {
-                GetSamples = input => reader.ReadBlock(input, 0, input.Length)
-            };
-            upmixer.OnSamplesNeeded = separator.Update;
-
-            listener.LFESeparation = channels.Contains(ReferenceChannel.ScreenLFE); // Apply crossover if LFE is not present
-            attachables = upmixer.IntermediateSources;
-        } else {
-            listener.LFESeparation = true;
-            attachables = [.. Renderer.Objects];
-        }
-
-        if (upmixingSettings.Cavernize && !Renderer.HasObjects) {
+        if (upmixingSettings.Cavernize && !Renderer.HasObjects && Renderer.Objects.All(x => x.LFE || x.Position.Y == 0)) {
             CavernizeUpmixer cavernizer = new CavernizeUpmixer(attachables, SampleRate) {
                 Effect = upmixingSettings.Effect,
                 Smoothness = upmixingSettings.Smoothness
@@ -181,7 +166,7 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
     /// <summary>
     /// Get the video tracks this audio track is accompanying.
     /// </summary>
-    public Track[] GetVideoTracks() => reader is AudioTrackReader trackReader ? trackReader.Source.Tracks.Where(x => x.Format.IsVideo()).ToArray() : null;
+    public Track[] GetVideoTracks() => reader is AudioTrackReader trackReader ? [.. trackReader.Source.Tracks.Where(x => x.Format.IsVideo())] : null;
 
     /// <summary>
     /// Gets the metadata for this codec in a human-readable format.
@@ -209,6 +194,33 @@ public class CavernizeTrack : IDisposable, IMetadataSupplier {
             codecName = $"{codecName} {TrackStrings.Active["WiObj"]}";
         }
         return string.IsNullOrEmpty(Language) ? codecName : $"{codecName} ({Language})";
+    }
+
+    /// <summary>
+    /// Based on <paramref name="upmixingSettings"/>, return the <see cref="Source"/>s to be attached to the <paramref name="listener"/>.
+    /// </summary>
+    Source[] SetupUpmixer(Listener listener, UpmixingSettings upmixingSettings) {
+        if (upmixingSettings.MatrixUpmixing && !Renderer.HasObjects) {
+            ReferenceChannel[] channels = Renderer.GetChannels();
+            SurroundUpmixer upmixer = null;
+            try {
+                upmixer = new SurroundUpmixer(channels, SampleRate, false, true);
+            } catch (LegacyInputExpectedException) {
+                listener.LFESeparation = true;
+                return [.. Renderer.Objects];
+            }
+
+            RunningChannelSeparator separator = new RunningChannelSeparator(channels.Length) {
+                GetSamples = input => reader.ReadBlock(input, 0, input.Length)
+            };
+            upmixer.OnSamplesNeeded = separator.Update;
+
+            listener.LFESeparation = channels.Contains(ReferenceChannel.ScreenLFE); // Apply crossover if LFE is not present
+            return upmixer.IntermediateSources;
+        } else {
+            listener.LFESeparation = true;
+            return [.. Renderer.Objects];
+        }
     }
 
     /// <summary>
