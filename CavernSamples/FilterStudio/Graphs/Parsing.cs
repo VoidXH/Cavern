@@ -24,18 +24,33 @@ namespace FilterStudio.Graphs {
         /// <param name="rootNodes">Filter graph to convert, from <see cref="ConfigurationFile.InputChannels"/></param>
         public static Graph ParseConfigurationFile(IFilterGraphNode[] rootNodes) {
             Graph result = new();
+            Dictionary<IFilterGraphNode, string> nodeIds = [];
+            int nextNodeId = 0;
             for (int i = 0; i < rootNodes.Length; i++) {
-                string uid = rootNodes[i].GetHashCode().ToString();
-                result.AddNode(new StyledNode(uid, rootNodes[i].ToString()) {
-                    Filter = rootNodes[i]
-                });
+                string uid = GetNodeId(rootNodes[i], nodeIds, ref nextNodeId);
+                if (result.FindNode(uid) == null) {
+                    result.AddNode(new StyledNode(uid, rootNodes[i].ToString()) {
+                        Filter = rootNodes[i]
+                    });
+                }
 
                 IReadOnlyList<IFilterGraphNode> children = rootNodes[i].Children;
                 for (int j = 0, c = children.Count; j < c; j++) {
-                    AddToGraph(uid, children[j], result);
+                    AddToGraph(uid, children[j], result, nodeIds, ref nextNodeId);
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Get an ID that remains the same whenever the same graph is traversed in the same order.
+        /// </summary>
+        static string GetNodeId(IFilterGraphNode source, Dictionary<IFilterGraphNode, string> nodeIds, ref int nextNodeId) {
+            if (!nodeIds.TryGetValue(source, out string uid)) {
+                uid = nextNodeId++.ToString();
+                nodeIds.Add(source, uid);
+            }
+            return uid;
         }
 
         /// <summary>
@@ -44,8 +59,8 @@ namespace FilterStudio.Graphs {
         /// <param name="parent">Unique identifier of the parent node</param>
         /// <param name="source">Next processed node</param>
         /// <param name="target">Graph to display the node on</param>
-        static void AddToGraph(string parent, IFilterGraphNode source, Graph target) {
-            string uid = source.GetHashCode().ToString();
+        static void AddToGraph(string parent, IFilterGraphNode source, Graph target, Dictionary<IFilterGraphNode, string> nodeIds, ref int nextNodeId) {
+            string uid = GetNodeId(source, nodeIds, ref nextNodeId);
             if (target.FindNode(uid) == null) {
                 StyledNode node = new StyledNode(uid, source.ToString()) {
                     Filter = source
@@ -65,7 +80,7 @@ namespace FilterStudio.Graphs {
                 return; // Filters after output channels are part of different splits
             }
             for (int i = 0, c = source.Children.Count; i < c; i++) {
-                AddToGraph(uid, source.Children[i], target);
+                AddToGraph(uid, source.Children[i], target, nodeIds, ref nextNodeId);
             }
         }
     }
