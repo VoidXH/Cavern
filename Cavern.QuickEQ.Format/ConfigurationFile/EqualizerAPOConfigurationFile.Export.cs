@@ -23,6 +23,27 @@ namespace Cavern.Format.ConfigurationFile {
         }
 
         /// <summary>
+        /// Add a Copy assignment, merging it with the preceding Copy filter when the assignments are independent.
+        /// </summary>
+        static void AppendCopy(List<string> configuration, List<(int[] sources, int target)> precedingCopies, int[] sources, int target, string copy) {
+            int last = configuration.Count - 1;
+            if (last != -1 && configuration[last].StartsWith(channelFilter)) {
+                configuration.RemoveAt(last); // Copy filters don't use channel selection
+                last--;
+            }
+
+            bool compatible = precedingCopies.Count != 0 && last != -1 && configuration[last].StartsWith("Copy:")
+                && precedingCopies.All(previous => previous.target != target && !previous.sources.Contains(target) && !sources.Contains(previous.target));
+            if (compatible) {
+                configuration[last] += " " + copy;
+            } else {
+                configuration.Add("Copy: " + copy);
+                precedingCopies.Clear();
+            }
+            precedingCopies.Add((sources, target));
+        }
+
+        /// <summary>
         /// Get the export path of configuration filters by index.
         /// </summary>
         static string ConvolutionFileName(string convolutionRoot, int index) => $"{convolutionRoot}_{index}.wav";
@@ -87,7 +108,8 @@ namespace Cavern.Format.ConfigurationFile {
             ValidateForExport(exportOrder);
             List<string> result = new List<string>();
             List<IConvolution> convolutions = new List<IConvolution>();
-            List<string> finalCopies = new List<string>();
+            List<(int[] sources, int target)> precedingCopies = new List<(int[], int)>();
+            List<(int[] sources, int target)> finalCopies = new List<(int[], int)>();
             int lastChannel = int.MaxValue;
             string convolutionRoot = Path.GetFileNameWithoutExtension(path);
             for (int i = 0; i < exportOrder.Length; i++) {
@@ -109,9 +131,9 @@ namespace Cavern.Format.ConfigurationFile {
                 } else {
                     string copy = $"{GetChannelLabel(channel)}={string.Join('+', parents.Select(GetChannelLabel))}";
                     if (baseFilter is OutputChannel && exportOrder[i].node.Children.Count == 0) {
-                        finalCopies.Add(copy);
+                        finalCopies.Add((parents, channel));
                     } else {
-                        AppendSelector(result, "Copy: " + copy);
+                        AppendCopy(result, precedingCopies, parents, channel, copy);
                     }
                 }
 
@@ -124,8 +146,10 @@ namespace Cavern.Format.ConfigurationFile {
                     continue;
                 }
                 if (baseFilter is IEqualizerAPOFilter filter) {
+                    precedingCopies.Clear();
                     filter.ExportToEqualizerAPO(result);
                 } else if (baseFilter is IConvolution convolution) {
+                    precedingCopies.Clear();
                     result.Add(convolutionFilter + ConvolutionFileName(convolutionRoot, convolutions.Count));
                     convolutions.Add(convolution);
                 } else {
@@ -134,7 +158,11 @@ namespace Cavern.Format.ConfigurationFile {
             }
 
             if (finalCopies.Count != 0) {
-                AppendSelector(result, "Copy: " + string.Join(' ', finalCopies));
+                for (int i = 0; i < finalCopies.Count; i++) {
+                    (int[] sources, int target) = finalCopies[i];
+                    string copy = $"{GetChannelLabel(target)}={string.Join('+', sources.Select(GetChannelLabel))}";
+                    AppendCopy(result, precedingCopies, sources, target, copy);
+                }
             }
 
             int last = result.Count - 1;

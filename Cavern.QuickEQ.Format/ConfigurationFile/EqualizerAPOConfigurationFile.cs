@@ -47,6 +47,26 @@ namespace Cavern.Format.ConfigurationFile {
             List<string> activeChannels = channelLabels.ToList();
             AddConfigFile(path, lastNodes, activeChannels, sampleRate);
 
+            FinishParsing(lastNodes);
+        }
+
+        /// <summary>
+        /// Parse Equalizer APO configuration lines.
+        /// </summary>
+        /// <param name="lines">Lines of a single Equalizer APO configuration file. Include commands are not supported.</param>
+        /// <param name="sampleRate">The sample rate to use for the internally created filters.</param>
+        public EqualizerAPOConfigurationFile(IEnumerable<string> lines, int sampleRate) : base(string.Empty, channelLabels) {
+            Dictionary<string, IFilterGraphNode> lastNodes = InputChannels.ToDictionary(x => x.name, x => x.root);
+            List<string> activeChannels = channelLabels.ToList();
+            AddConfigLines(lines, lastNodes, activeChannels, sampleRate, null);
+
+            FinishParsing(lastNodes);
+        }
+
+        /// <summary>
+        /// Finalize a parsed configuration by adding endpoints and converting lazy filters.
+        /// </summary>
+        void FinishParsing(Dictionary<string, IFilterGraphNode> lastNodes) {
             for (int i = 0; i < channelLabels.Length; i++) { // Output markers
                 lastNodes[channelLabels[i]].AddChild(new FilterGraphNode(new OutputChannel(channelLabels[i])));
             }
@@ -175,8 +195,14 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Read a configuration file and append it to the previously parsed configuration.
         /// </summary>
-        void AddConfigFile(string path, Dictionary<string, IFilterGraphNode> lastNodes, List<string> activeChannels, int sampleRate) {
-            foreach (string line in File.ReadLines(path)) {
+        void AddConfigFile(string path, Dictionary<string, IFilterGraphNode> lastNodes, List<string> activeChannels, int sampleRate) =>
+            AddConfigLines(File.ReadLines(path), lastNodes, activeChannels, sampleRate, path);
+
+        /// <summary>
+        /// Parse configuration <paramref name="lines"/> and append them to the previously parsed configuration.
+        /// </summary>
+        void AddConfigLines(IEnumerable<string> lines, Dictionary<string, IFilterGraphNode> lastNodes, List<string> activeChannels, int sampleRate, string sourcePath) {
+            foreach (string line in lines) {
                 string[] split = line.Split(new[] { ':', ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (split.Length <= 1) {
                     continue;
@@ -185,7 +211,10 @@ namespace Cavern.Format.ConfigurationFile {
                 switch (split[0].ToLowerInvariant()) {
                     // Control
                     case "include":
-                        string included = Path.Combine(Path.GetDirectoryName(path), string.Join(' ', split, 1, split.Length - 1));
+                        if (sourcePath == null) {
+                            throw new NotSupportedException("Include operations require a configuration file path.");
+                        }
+                        string included = Path.Combine(Path.GetDirectoryName(sourcePath), string.Join(' ', split, 1, split.Length - 1));
                         CreateSplit(Path.GetFileNameWithoutExtension(included), lastNodes);
                         AddConfigFile(included, lastNodes, activeChannels, sampleRate);
                         break;
@@ -212,7 +241,10 @@ namespace Cavern.Format.ConfigurationFile {
                         AddFilter(lastNodes, activeChannels, new LazyGraphicEQ(EQGenerator.FromEqualizerAPO(split), sampleRate));
                         break;
                     case "convolution":
-                        string convolution = Path.Combine(Path.GetDirectoryName(path), line[(line.IndexOf(' ') + 1)..]);
+                        if (sourcePath == null) {
+                            throw new NotSupportedException("Convolution operations require a configuration file path.");
+                        }
+                        string convolution = Path.Combine(Path.GetDirectoryName(sourcePath), line[(line.IndexOf(' ') + 1)..]);
                         AddFilter(lastNodes, activeChannels, new FastConvolver(AudioReader.Open(convolution).Read()));
                         break;
                 }
