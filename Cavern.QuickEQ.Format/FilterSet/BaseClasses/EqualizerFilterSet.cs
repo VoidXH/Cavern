@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 
 using Cavern.Channels;
-using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
 using Cavern.Utilities;
 using Cavern.Waveforms;
@@ -38,10 +37,17 @@ namespace Cavern.Format.FilterSet {
             /// </summary>
             public bool switchPolarity;
 
+            /// <inheritdoc/>
+            public override object Clone() {
+                EqualizerChannelData clone = (EqualizerChannelData)base.Clone();
+                clone.curve = (Equalizer)curve?.Clone();
+                return clone;
+            }
+
             /// <summary>
             /// Check if the same correction is applied to the <paramref name="other"/> channel.
             /// </summary>
-            public bool Equals(EqualizerChannelData other) => curve.Equals(other.curve) &&
+            public bool Equals(EqualizerChannelData other) => Equals(curve, other?.curve) &&
                 gain == other.gain && delaySamples == other.delaySamples && switchPolarity == other.switchPolarity;
         }
 

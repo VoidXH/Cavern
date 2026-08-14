@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Filters.Utilities;
+using Cavern.Format.FilterSet;
+using Cavern.Utilities;
 
 namespace Cavern.Format.ConfigurationFile {
     partial class ConfigurationFile {
@@ -19,10 +22,29 @@ namespace Cavern.Format.ConfigurationFile {
         /// <summary>
         /// Create a <see cref="ConfigurationFile"/> of a supported <paramref name="type"/>, using a <see cref="FilterSet.FilterSet"/> as a <paramref name="source"/>.
         /// </summary>
-        public static ConfigurationFile Create(ConfigurationFileType type, string name, int sampleRate, FilterSet.FilterSet source) {
-            ConfigurationFile file = Create(type, name, sampleRate, source.ChannelCount);
+        public static ConfigurationFile Create(ConfigurationFileType type, string name, FilterSet.FilterSet source) {
+            FilterSet.FilterSet sourceUsed = source;
+            ConfigurationFile file;
+            if (type == ConfigurationFileType.EqualizerAPO) {
+                sourceUsed = (FilterSet.FilterSet)source.Clone();
+                FilterSet.FilterSet.ChannelData[] channels = sourceUsed.Channels;
+                file = new EqualizerAPOConfigurationFile(name, channels.Length, true);
+                for (int i = 0; i < channels.Length; i++) {
+                    InputChannel channel = (InputChannel)file.InputChannels[i].root.Filter;
+                    channels[i].name = channel.Name;
+                    channels[i].reference = channel.Channel;
+                }
+            } else {
+                ReferenceChannel[] channels = source.Channels.SelectArray(x => x.reference);
+                file = type switch {
+                    ConfigurationFileType.CavernFilterStudio => new CavernFilterStudioConfigurationFile(name, channels),
+                    ConfigurationFileType.ConvolutionBoxFormat => new ConvolutionBoxFormatConfigurationFile(name, source.SampleRate, channels),
+                    _ => throw new NotImplementedException(),
+                };
+            }
+
             ConfigurationFileBuilder builder = new ConfigurationFileBuilder(file);
-            builder.AddFilterSet(source);
+            builder.AddFilterSet(sourceUsed);
             return file;
         }
 

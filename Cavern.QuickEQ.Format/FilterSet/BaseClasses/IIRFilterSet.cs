@@ -2,6 +2,7 @@
 
 using Cavern.Channels;
 using Cavern.Filters;
+using Cavern.Utilities;
 using Cavern.Waveforms;
 
 namespace Cavern.Format.FilterSet {
@@ -28,10 +29,17 @@ namespace Cavern.Format.FilterSet {
             /// </summary>
             public bool switchPolarity;
 
+            /// <inheritdoc/>
+            public override object Clone() {
+                IIRChannelData clone = (IIRChannelData)base.Clone();
+                clone.filters = filters?.DeepCopy1D();
+                return clone;
+            }
+
             /// <summary>
             /// Check if the same correction is applied to the <paramref name="other"/> channel.
             /// </summary>
-            public bool Equals(IIRChannelData other) => filters.Equals(other.filters) && gain == other.gain &&
+            public bool Equals(IIRChannelData other) => Equals(filters, other?.filters) && gain == other.gain &&
                 delaySamples == other.delaySamples && switchPolarity == other.switchPolarity;
         }
 

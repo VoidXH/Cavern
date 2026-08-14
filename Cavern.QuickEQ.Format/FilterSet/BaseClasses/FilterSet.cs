@@ -14,7 +14,7 @@ namespace Cavern.Format.FilterSet {
     /// <summary>
     /// A filter set containing equalization info for each channel of a system.
     /// </summary>
-    public abstract partial class FilterSet : IExportable {
+    public abstract partial class FilterSet : ICloneable, IExportable {
         /// <summary>
         /// Applied filters for each channel in the configuration file.
         /// </summary>
@@ -42,6 +42,16 @@ namespace Cavern.Format.FilterSet {
         /// A filter set containing equalization info for each channel of a system on a given sample rate.
         /// </summary>
         protected FilterSet(int sampleRate) => SampleRate = sampleRate;
+
+        /// <inheritdoc/>
+        public object Clone() {
+            FilterSet clone = (FilterSet)MemberwiseClone();
+            clone.Channels = new ChannelData[Channels.Length];
+            for (int i = 0; i < Channels.Length; i++) {
+                clone.Channels[i] = (ChannelData)Channels[i].Clone();
+            }
+            return clone;
+        }
 
         /// <inheritdoc/>
         public abstract void Export(Stream stream);

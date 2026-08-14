@@ -81,9 +81,15 @@ namespace Cavern.Format.ConfigurationFile {
             for (int i = 0; i < set.ChannelCount; i++) {
                 EqualizerChannelData filter = (EqualizerChannelData)set.Channels[i];
                 ReferenceChannel channel = filter.reference;
-                AddToChannel(channel, new Gain(filter.gain));
-                AddToChannel(channel, new Delay(set.GetDelay(i), set.SampleRate));
-                AddToChannel(channel, new GraphicEQ(filter.curve, set.SampleRate));
+                if (filter.gain != 0) {
+                    AddToChannel(channel, new Gain(filter.gain));
+                }
+                if (filter.delaySamples != 0) {
+                    AddToChannel(channel, new Delay(set.GetDelay(i), set.SampleRate));
+                }
+                if (filter.curve != null) {
+                    AddToChannel(channel, new GraphicEQ(filter.curve, set.SampleRate));
+                }
             }
         }
 

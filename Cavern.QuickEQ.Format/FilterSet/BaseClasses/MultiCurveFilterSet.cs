@@ -26,6 +26,18 @@ namespace Cavern.Format.FilterSet {
             /// Extra curves and their file name postfixes to be exported additionally to the channel's result.
             /// </summary>
             public (Equalizer curve, string postfix)[] additionalCurves;
+
+            /// <inheritdoc/>
+            public override object Clone() {
+                MultiCurveChannelData clone = (MultiCurveChannelData)base.Clone();
+                if (additionalCurves != null) {
+                    clone.additionalCurves = new (Equalizer, string)[additionalCurves.Length];
+                    for (int i = 0; i < additionalCurves.Length; i++) {
+                        clone.additionalCurves[i] = ((Equalizer)additionalCurves[i].curve?.Clone(), additionalCurves[i].postfix);
+                    }
+                }
+                return clone;
+            }
         }
 
         /// <summary>

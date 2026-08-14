@@ -2,7 +2,6 @@
 using System.IO;
 
 using Cavern.Channels;
-using Cavern.Filters;
 using Cavern.Utilities;
 using Cavern.Waveforms;
 
@@ -23,10 +22,17 @@ namespace Cavern.Format.FilterSet {
             /// </summary>
             public float[] filter;
 
+            /// <inheritdoc/>
+            public override object Clone() {
+                FIRChannelData clone = (FIRChannelData)base.Clone();
+                clone.filter = (float[])filter?.Clone();
+                return clone;
+            }
+
             /// <summary>
             /// Check if the same correction is applied to the <paramref name="other"/> channel.
             /// </summary>
-            public bool Equals(FIRChannelData other) => filter.Equals(other.filter) && delaySamples == other.delaySamples;
+            public bool Equals(FIRChannelData other) => Equals(filter, other?.filter) && delaySamples == other.delaySamples;
         }
 
         /// <summary>

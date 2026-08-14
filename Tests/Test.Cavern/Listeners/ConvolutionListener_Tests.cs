@@ -18,7 +18,7 @@ namespace Test.Cavern {
         [TestMethod, Timeout(1000)]
         public void MultiblockDiracDelta() => CavernAmpTest.Run(() => {
             Listener.ReplaceChannels(ChannelPrototype.ToLayout(ChannelPrototype.ref200));
-            ConvolvedListener listener = new ConvolvedListener();
+            ConvolvedListener listener = new ConvolvedListener(false);
             const int signalLength = 1024;
             float[][] testSignals = [
                 Generators.DiracDelta(signalLength),
