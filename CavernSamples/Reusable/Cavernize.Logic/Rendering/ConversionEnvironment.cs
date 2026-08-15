@@ -1,6 +1,5 @@
 ﻿using Cavern;
 using Cavern.Listeners;
-using Cavern.Utilities;
 using Cavern.Virtualizer;
 
 using Cavernize.Logic.Models;
@@ -38,7 +37,7 @@ public sealed class ConversionEnvironment {
     /// Set up the listening environment for playing back the specified track.
     /// </summary>
     public void AttachToListener(CavernizeTrack target) {
-        app.RenderTarget.Apply(app.SurroundSwap);
+        app.RenderTarget.Apply(app.RenderingSettings.SurroundSwap);
         if (app.RenderTarget is not VirtualizerRenderTarget && app.ExportFormat.MaxChannels < Listener.Channels.Length) {
             throw new OverMaxChannelsException(Listener.Channels.Length, app.ExportFormat.MaxChannels);
         }

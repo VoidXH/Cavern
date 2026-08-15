@@ -84,45 +84,9 @@ partial class MainWindow {
             }
         }
 
-        SetBlockSize(RenderTarget);
-        string exportFormat = path[^4..].ToLowerInvariant();
-        bool mkvTarget = exportFormat.Equals(".mkv");
-        string exportName = mkvTarget || exportFormat.IsNative() ?
-            path[..^4] + waveExtension :
-            path;
-        int channelCount = RenderTarget.OutputChannels;
-        AudioWriter writer;
-        if (mkvTarget && target.Container == Container.Matroska && (codec == Codec.PCM_LE || codec == Codec.PCM_Float)) {
-            writer = new AudioWriterIntoContainer(path, target.GetVideoTracks(), codec,
-                blockSize, channelCount, target.Length, target.SampleRate, bits) {
-                NewTrackName = $"Cavern {RenderTarget.Name} render"
-            };
-        } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
-            writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount], target.Length, environment.Listener.SampleRate, bits);
-        } else {
-            writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
-        }
-        if (writer == null) {
-            Error(language["UnExt"]);
-            return null;
-        }
-        writer.WriteHeader();
+        blockSize = CavernizeOutput.GetBlockSize(RenderTarget, environment);
+        AudioWriter writer = CavernizeOutput.CreateRenderOutput(this, path, environment, target, codec, bits);
         return () => RenderTask(target, writer, path);
-    }
-
-    /// <summary>
-    /// Setup write cache block size depending on active settings.
-    /// </summary>
-    void SetBlockSize(RenderTarget target) {
-        int updateRate = environment.Listener.UpdateRate;
-        blockSize = defaultWriteCacheLength;
-        if (blockSize < updateRate) {
-            blockSize = updateRate;
-        } else if (blockSize % updateRate != 0) {
-            // Cache handling is written to only handle when its size is divisible with the update rate - it's faster this way
-            blockSize += updateRate - blockSize % updateRate;
-        }
-        blockSize *= target.OutputChannels;
     }
 
     /// <summary>
@@ -225,9 +189,4 @@ partial class MainWindow {
     /// RIFF Wave file extension.
     /// </summary>
     const string waveExtension = ".wav";
-
-    /// <summary>
-    /// Default value of <see cref="blockSize"/> per channel.
-    /// </summary>
-    const int defaultWriteCacheLength = 16384;
 }

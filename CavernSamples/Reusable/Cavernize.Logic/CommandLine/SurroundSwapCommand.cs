@@ -22,6 +22,6 @@ sealed class SurroundSwapCommand : BooleanCommand {
             InProgressError(app, "surround swap");
         }
 
-        app.SurroundSwap = value;
+        app.RenderingSettings.SurroundSwap = value;
     }
 }

@@ -38,6 +38,16 @@ public class RenderingSettings {
     public virtual bool Force24Bit { get; set; }
 
     /// <summary>
+    /// Swap the side and rear surround pair outputs.
+    /// </summary>
+    public virtual bool SurroundSwap { get; set; }
+
+    /// <summary>
+    /// Skip RIFF WAVE channel mask so non-standard layouts can be exported. This is not recommended for general use, as it causes compatibility issues with many players.
+    /// </summary>
+    public virtual bool WAVChannelSkip { get; set; }
+
+    /// <summary>
     /// Convolution filter for each corresponding channel index to be applied on rendering.
     /// </summary>
     public Clip RoomCorrection { get; set; }

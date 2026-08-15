@@ -9,6 +9,7 @@ using Cavernize.Logic.CavernSettings;
 using Cavernize.Logic.Language;
 using Cavernize.Logic.Models;
 using Cavernize.Logic.Models.RenderTargets;
+using Cavernize.Logic.Rendering;
 using CavernizeGUI.CavernSettings;
 using CavernizeGUI.Resources;
 
@@ -45,15 +46,6 @@ partial class MainWindow : ICavernizeApp {
 
     /// <inheritdoc/>
     public RenderingSettings RenderingSettings { get; }
-
-    /// <inheritdoc/>
-    public bool SurroundSwap {
-        get => Settings.Default.surroundSwap;
-        set {
-            Settings.Default.surroundSwap = value;
-            Dispatcher.Invoke(() => surroundSwap.IsChecked = value);
-        }
-    }
 
     /// <inheritdoc/>
     public void OpenContent(string path) {
@@ -118,7 +110,7 @@ partial class MainWindow : ICavernizeApp {
                 return null;
             }
         } else {
-            SetBlockSize(RenderTarget);
+            blockSize = CavernizeOutput.GetBlockSize(RenderTarget, environment);
             try {
                 return () => RenderTask(target, null, null);
             } catch (Exception e) {

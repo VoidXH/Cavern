@@ -118,7 +118,7 @@ public partial class MainWindow : Window {
 
         speakerVirtualizer.IsChecked = Settings.Default.speakerVirtualizer;
         force24Bit.IsChecked = Settings.Default.force24Bit;
-        surroundSwap.IsChecked = SurroundSwap;
+        surroundSwap.IsChecked = Settings.Default.surroundSwap;
         wavChannelSkip.IsChecked = Settings.Default.wavChannelSkip;
         checkUpdates.IsChecked = Settings.Default.checkUpdates;
         if (Settings.Default.checkUpdates && !Program.ConsoleMode) {

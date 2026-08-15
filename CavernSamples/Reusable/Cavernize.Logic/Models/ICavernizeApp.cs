@@ -45,11 +45,6 @@ public interface ICavernizeApp {
     RenderingSettings RenderingSettings { get; }
 
     /// <summary>
-    /// Swap the side and rear surround pair outputs.
-    /// </summary>
-    bool SurroundSwap { get; set; }
-
-    /// <summary>
     /// Load a content file into the application for processing.
     /// </summary>
     void OpenContent(string path);

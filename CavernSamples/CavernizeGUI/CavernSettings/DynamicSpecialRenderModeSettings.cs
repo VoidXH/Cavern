@@ -22,4 +22,16 @@ sealed class DynamicSpecialRenderModeSettings : RenderingSettings {
         get => source.force24Bit;
         set => source.force24Bit = value;
     }
+
+    /// <inheritdoc/>
+    public override bool SurroundSwap {
+        get => source.surroundSwap;
+        set => source.surroundSwap = value;
+    }
+
+    /// <inheritdoc/>
+    public override bool WAVChannelSkip {
+        get => source.wavChannelSkip;
+        set => source.wavChannelSkip = value;
+    }
 }
