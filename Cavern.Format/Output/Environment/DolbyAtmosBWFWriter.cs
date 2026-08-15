@@ -68,7 +68,7 @@ namespace Cavern.Format.Environment {
         /// <param name="renderer">Fetch the objects to move to bed tracks from this <see cref="Renderer"/></param>
         /// <remarks>Transforms the <paramref name="source"/> rendering environment for export, adding <see cref="MuteSource"/>s for the unused bed channels.</remarks>
         public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer) :
-            this(path, source, length, bits, StaticSourceHandler.GetStaticSources(renderer)) { }
+            this(path, source, length, bits, StaticSourceHandler.GetStaticSources(source, renderer)) { }
 
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
@@ -81,7 +81,7 @@ namespace Cavern.Format.Environment {
         /// <param name="extendOnCreation">Extend the <paramref name="source"/> with <see cref="MuteSource"/>s, representing the unused static bed channels,
         /// making the <see cref="Listener"/> environment ready for rendering</param>
         public DolbyAtmosBWFWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer, bool extendOnCreation) :
-            this(AudioWriter.Open(path), source, length, bits, extendOnCreation, StaticSourceHandler.GetStaticSources(renderer)) { }
+            this(AudioWriter.Open(path), source, length, bits, extendOnCreation, StaticSourceHandler.GetStaticSources(source, renderer)) { }
 
         /// <summary>
         /// ADM BWF exporter with Dolby Atmos compatibility options.
@@ -94,7 +94,7 @@ namespace Cavern.Format.Environment {
         /// <param name="extendOnCreation">Extend the <paramref name="source"/> with <see cref="MuteSource"/>s, representing the unused static bed channels,
         /// making the <see cref="Listener"/> environment ready for rendering</param>
         public DolbyAtmosBWFWriter(Stream writer, Listener source, long length, BitDepth bits, Renderer renderer, bool extendOnCreation) :
-            this(writer, source, length, bits, extendOnCreation, StaticSourceHandler.GetStaticSources(renderer)) { }
+            this(writer, source, length, bits, extendOnCreation, StaticSourceHandler.GetStaticSources(source, renderer)) { }
 
         /// <summary>
         /// Calling this for the base constructor is a shortcut to adding extra tracks which are wired as the required bed.

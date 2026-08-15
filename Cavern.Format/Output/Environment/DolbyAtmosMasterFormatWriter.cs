@@ -65,24 +65,20 @@ namespace Cavern.Format.Environment {
         /// <summary>
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
         /// </summary>
-        public DolbyAtmosMasterFormatWriter(Stream writer, Listener source, long length, BitDepth bits,
-            params StaticSource[] staticSources) :
-                    base(writer, source, length, bits) {
-            this.staticSources = staticSources;
-        }
+        public DolbyAtmosMasterFormatWriter(Stream writer, Listener source, long length, BitDepth bits, params StaticSource[] staticSources) :
+            base(writer, source, length, bits) => this.staticSources = staticSources;
 
         /// <summary>
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
         /// </summary>
-        public DolbyAtmosMasterFormatWriter(string path, Listener source, long length, BitDepth bits,
-            params StaticSource[] staticSources) :
+        public DolbyAtmosMasterFormatWriter(string path, Listener source, long length, BitDepth bits, params StaticSource[] staticSources) :
             this(AudioWriter.Open(path), source, length, bits, staticSources) { }
 
         /// <summary>
         /// Object-based exporter of a listening environment to Dolby Atmos Master Format.
         /// </summary>
         public DolbyAtmosMasterFormatWriter(string path, Listener source, long length, BitDepth bits, Renderer renderer) :
-            this(path, source, length, bits, ParseStaticSources(StaticSourceHandler.GetStaticSources(renderer))) { }
+            this(path, source, length, bits, ParseStaticSources(StaticSourceHandler.GetStaticSources(source, renderer))) { }
 
         /// <summary>
         /// Match a set of <see cref="StaticSource"/>s to the channel layout which some tools require.

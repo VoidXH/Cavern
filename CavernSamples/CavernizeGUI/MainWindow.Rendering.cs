@@ -98,8 +98,7 @@ partial class MainWindow {
                 NewTrackName = $"Cavern {RenderTarget.Name} render"
             };
         } else if (exportFormat.Equals(waveExtension) && !wavChannelSkip.IsChecked) {
-            writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount],
-                target.Length, environment.Listener.SampleRate, bits);
+            writer = new RIFFWaveWriter(exportName, RenderTarget.Channels[..channelCount], target.Length, environment.Listener.SampleRate, bits);
         } else {
             writer = AudioWriter.Create(exportName, channelCount, target.Length, environment.Listener.SampleRate, bits);
         }

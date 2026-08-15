@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Cavern.Channels;
 using Cavern.Format.Renderers;
 using Cavern.Format.Renderers.BaseClasses;
+using Cavern.Remapping;
 using Cavern.Utilities;
 
 namespace Cavern.Format.Environment.Utilities {
@@ -13,8 +14,9 @@ namespace Cavern.Format.Environment.Utilities {
     internal class StaticSourceHandler {
         /// <summary>
         /// Get which <see cref="Source"/>s stay fixed at a given <see cref="ReferenceChannel"/> position.
+        /// Account for fixed channels being swapped, e.g. by an <see cref="Upmixer"/>.
         /// </summary>
-        public static StaticSource[] GetStaticSources(Renderer source) {
+        public static StaticSource[] GetStaticSources(Listener listener, Renderer source) {
             StaticSource[] result = null;
             if (source != null) {
                 if (source.HasObjects) {
@@ -31,7 +33,9 @@ namespace Cavern.Format.Environment.Utilities {
                     }
                 } else {
                     IReadOnlyList<Source> allObjects = source.Objects;
-                    return source.GetChannels().SelectArray((x, i) => new StaticSource(x, allObjects[i]));
+                    Dictionary<Source, Source> mapping = UpmixerAnalyzer.GetKeptSources(allObjects, listener.ActiveSources);
+                    return source.GetChannels().SelectArray((x, i) =>
+                        new StaticSource(x, mapping.TryGetValue(allObjects[i], out Source upmixed) ? upmixed : allObjects[i]));
                 }
             }
 
