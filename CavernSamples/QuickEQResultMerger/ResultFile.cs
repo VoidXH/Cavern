@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace QuickEQResultMerger {
     /// <summary>
@@ -10,7 +11,7 @@ namespace QuickEQResultMerger {
         /// <summary>
         /// The gain/delay pairs contained in the file.
         /// </summary>
-        public readonly List<Measurement> measurements = new();
+        public readonly List<Measurement> measurements = [];
 
         /// <summary>
         /// The separator used by the system for parsing floats.
@@ -65,7 +66,7 @@ namespace QuickEQResultMerger {
                 }
                 int cut = line.IndexOf(':');
                 if (cut < 0) {
-                    if (lastChannel != null && line[0] == '=' && lastChannel.Length == line.Length) {
+                    if (lastChannel != null && line.All(x => x == '=')) {
                         header = true;
                         continue;
                     } else {

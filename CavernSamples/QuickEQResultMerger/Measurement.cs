@@ -4,30 +4,21 @@ namespace QuickEQResultMerger {
     /// <summary>
     /// Calculated correction values for a single channel.
     /// </summary>
-    class Measurement : IComparable<Measurement> {
+    class Measurement(string channel, float gain, float delay) : IComparable<Measurement> {
         /// <summary>
         /// Shortened name (label) of the channel.
         /// </summary>
-        public string Channel { get; }
+        public string Channel { get; } = channel;
 
         /// <summary>
         /// Required amplification of the channel's signal in decibels.
         /// </summary>
-        public float Gain { get; private set; }
+        public float Gain { get; private set; } = gain;
 
         /// <summary>
         /// Required delay for the channel in milliseconds.
         /// </summary>
-        public float Delay { get; private set; }
-
-        /// <summary>
-        /// Calculated correction values for a single channel.
-        /// </summary>
-        public Measurement(string channel, float gain, float delay) {
-            Channel = channel;
-            Gain = gain;
-            Delay = delay;
-        }
+        public float Delay { get; private set; } = delay;
 
         /// <summary>
         /// Apply another correction on this channel.
