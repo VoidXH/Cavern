@@ -3,7 +3,7 @@ using UnityEngine;
 
 using Cavern.QuickEQ.SignalGeneration;
 
-namespace Cavern.QuickEQ {
+namespace Cavern.QuickEQ.Sweeping {
     /// <summary>
     /// Runs the sweep of a <see cref="SpeakerSweeper"/> with a correct delay for the given channel.
     /// </summary>
@@ -15,6 +15,12 @@ namespace Cavern.QuickEQ {
         [Header("Sweep channel")]
         [Tooltip("Target output channel.")]
         public int Channel;
+
+        /// <summary>
+        /// Don't wait until it's this <see cref="Channel"/>'s turn, play the sweep instantly.
+        /// </summary>
+        [Tooltip("Don't wait until it's this channel's turn, play the sweep instantly.")]
+        public bool Instant;
 
         /// <summary>
         /// Sweeper to use the sweep reference of.
@@ -32,7 +38,7 @@ namespace Cavern.QuickEQ {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void Start() {
             AudioListener3D.CavernListener.DetachSource(cavernSource); // preattached in OnCreate
-            cavernSource = new TimedTestTone(Channel, Sweeper.SweepReference, WarmUpMode);
+            cavernSource = new TimedTestTone(Channel, Sweeper.GetSweepForChannel(Channel), WarmUpMode, Instant);
             AudioListener3D.CavernListener.AttachSource(cavernSource);
         }
     }

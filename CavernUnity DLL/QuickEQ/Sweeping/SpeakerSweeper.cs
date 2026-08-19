@@ -3,14 +3,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using UnityEngine;
 
-using Cavern.Filters;
 using Cavern.QuickEQ.Equalization;
 using Cavern.QuickEQ.SignalGeneration;
 using Cavern.Utilities;
 using Cavern.Utilities.Threading;
 using Cavern.Waveforms;
 
-namespace Cavern.QuickEQ {
+namespace Cavern.QuickEQ.Sweeping {
     /// <summary>
     /// Measures the frequency response of all output channels.
     /// </summary>
@@ -53,6 +52,12 @@ namespace Cavern.QuickEQ {
         [Tooltip("Waits a sweep's time before the actual measurement. " +
             "This helps for measurement with microphones that click when the system turns them on.")]
         public bool WarmUpMode;
+
+        /// <summary>
+        /// Measure all channels together. In this case, there will only be a single result.
+        /// </summary>
+        [Tooltip("Measure all channels together. In this case, there will only be a single result.")]
+        public bool Instant;
 
         /// <summary>
         /// Remove this frequency and upper harmonics from the measurements in case of excessive mains hum or a damaged UMIK-1.
@@ -102,7 +107,7 @@ namespace Cavern.QuickEQ {
         /// <summary>
         /// Measurement signal samples.
         /// </summary>
-        public float[] SweepReference { get; private set; }
+        public float[] SweepReference { get; protected set; }
 
         /// <summary>
         /// Channel under measurement. If <see cref="ResultAvailable"/> is false, but this equals the channel count,
@@ -134,8 +139,9 @@ namespace Cavern.QuickEQ {
                 } else if (!enabled || sweepers == null) {
                     return 0;
                 }
-                int divisor = WarmUpMode ? Listener.Channels.Length + 1 : Listener.Channels.Length;
-                return (float)sweepers[Listener.Channels.Length - 1].timeSamples / SweepReference.Length / divisor;
+                int runs = SweepRuns;
+                int divisor = WarmUpMode ? runs + 1 : runs;
+                return (float)sweepers[runs - 1].timeSamples / SweepReference.Length / divisor;
             }
         }
 
@@ -171,6 +177,11 @@ namespace Cavern.QuickEQ {
             }
         }
         string inputDevice;
+
+        /// <summary>
+        /// Number of sweeps performed.
+        /// </summary>
+        int SweepRuns => Instant ? 1 : Listener.Channels.Length;
 
         /// <summary>
         /// Microphone input.
@@ -209,19 +220,20 @@ namespace Cavern.QuickEQ {
         FFTCache sweepFFTCache;
 
         /// <summary>
-        /// Sweep playback objects.
+        /// Sweep playback objects. One is created for each channel, and depending on <see cref="Instant"/>, they are either played one by one or all at once.
         /// </summary>
         SweepChannel[] sweepers;
 
         /// <summary>
         /// Response evaluator tasks.
         /// </summary>
-        Task<WorkerResult>[] workers;
+        Task<SweeperBackgroundCalculator>[] workers;
 
         /// <summary>
         /// Generate <see cref="SweepReference"/> and the related optimization values.
         /// </summary>
-        public void RegenerateSweep() {
+        /// <remarks>To create the raw <see cref="SweepReference"/>, call the base function.</remarks>
+        public virtual void RegenerateSweep() {
             if (bypass == null) {
                 SweepReference = SweepGenerator.Frame(SweepGenerator.Exponential(StartFreq, EndFreq, SweepLength, SampleRate));
             } else {
@@ -237,6 +249,11 @@ namespace Cavern.QuickEQ {
                 Measurements.OffbandGain(sweepFFTlow, StartFreq, EndFreqLFE, sampleRate, 100);
             }
         }
+
+        /// <summary>
+        /// Get the measurement signal for a specific channel. Override to calibrate (like delay) per channel.
+        /// </summary>
+        public virtual float[] GetSweepForChannel(int channel) => SweepReference;
 
         /// <summary>
         /// Get if any channel was clipping while measuring.
@@ -291,7 +308,7 @@ namespace Cavern.QuickEQ {
         /// </summary>
         public void OverwriteChannel(int channel, float[] response) {
             ExcitementResponses[channel] = response;
-            int lfeGetterChannels = ExcitementResponses.Length == Listener.Channels.Length ? -1 : ExcitementResponses.Length;
+            int lfeGetterChannels = ExcitementResponses.Length == SweepRuns ? -1 : ExcitementResponses.Length;
             Complex[] RawResponse = GetFrequencyResponse(response, Cavern.Channel.IsLFE(channel, lfeGetterChannels));
             FreqResponses[channel] = EQGenerator.FromTransferFunctionOptimized(RawResponse, sampleRate);
             ImpResponses[channel] = GetImpulseResponse(RawResponse);
@@ -317,11 +334,11 @@ namespace Cavern.QuickEQ {
             ResultAvailable = false;
             RegenerateSweep();
             Channel = 0;
-            int channels = Listener.Channels.Length;
+            int channels = SweepRuns;
             FreqResponses = new Equalizer[channels];
             ImpResponses = new VerboseImpulseResponse[channels];
             ExcitementResponses = new float[channels][];
-            workers = new Task<WorkerResult>[channels];
+            workers = new Task<SweeperBackgroundCalculator>[channels];
             oldDirectLFE = AudioListener3D.Current.DirectLFE;
             oldVirtualizer = Listener.HeadphoneVirtualizer;
             AudioListener3D.Current.DirectLFE = true;
@@ -334,14 +351,15 @@ namespace Cavern.QuickEQ {
             if (!measurementStarted) {
                 measurementStarted = true;
                 sweepers = new SweepChannel[Listener.Channels.Length];
-                for (int i = 0; i < Listener.Channels.Length; i++) {
+                for (int i = 0; i < sweepers.Length; i++) {
                     sweepers[i] = gameObject.AddComponent<SweepChannel>();
                     sweepers[i].Channel = i;
+                    sweepers[i].Instant = Instant;
                     sweepers[i].Sweeper = this;
                     sweepers[i].WarmUpMode = WarmUpMode;
                 }
                 if (Microphone.devices.Length != 0) {
-                    int channels = WarmUpMode ? Listener.Channels.Length + 1 : Listener.Channels.Length;
+                    int channels = WarmUpMode ? SweepRuns + 1 : SweepRuns;
                     sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * channels / SampleRate + 1, SampleRate);
                 }
             }
@@ -356,18 +374,18 @@ namespace Cavern.QuickEQ {
                 }
                 ExcitementResponses[Channel] = result;
                 Complex[] fft = Cavern.Channel.IsLFE(Channel) ? sweepFFTlow : sweepFFT;
-                workers[Channel] = new Task<WorkerResult>(() => new WorkerResult(fft, sweepFFTCache, result, sampleRate, FilterMains));
+                workers[Channel] = new Task<SweeperBackgroundCalculator>(() => new SweeperBackgroundCalculator(fft, sweepFFTCache, result, sampleRate, FilterMains));
                 workers[Channel].Start();
-                if (++Channel == Listener.Channels.Length) {
-                    for (int channel = 0; channel < Listener.Channels.Length; channel++) {
+                if (++Channel == SweepRuns) {
+                    for (int channel = 0; channel < SweepRuns; channel++) {
                         workers[channel].Wait();
                     }
-                    for (int channel = 0; channel < Listener.Channels.Length; channel++) {
-                        FreqResponses[channel] = workers[channel].Result.FreqResponse;
-                        ImpResponses[channel] = workers[channel].Result.ImpResponse;
+                    for (int channel = 0; channel < SweepRuns; channel++) {
+                        FreqResponses[channel] = workers[channel].Result.FrequencyResponse;
+                        ImpResponses[channel] = workers[channel].Result.ImpulseResponse;
                         Destroy(sweepers[channel]);
                     }
-                    for (int channel = 0; channel < Listener.Channels.Length; channel++) {
+                    for (int channel = 0; channel < SweepRuns; channel++) {
                         workers[channel].Dispose();
                     }
                     sweepers = null;
@@ -385,7 +403,7 @@ namespace Cavern.QuickEQ {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() {
             if (sweepers != null && sweepers[0]) {
-                for (int channel = 0; channel < Listener.Channels.Length; channel++) {
+                for (int channel = 0; channel < SweepRuns; channel++) {
                     Destroy(sweepers[channel]);
                 }
             }
@@ -399,21 +417,5 @@ namespace Cavern.QuickEQ {
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDestroy() => Dispose();
-
-        struct WorkerResult {
-            public Equalizer FreqResponse;
-            public VerboseImpulseResponse ImpResponse;
-
-            public WorkerResult(Complex[] sweepFFT, FFTCache sweepFFTCache, float[] response, int sampleRate, double filterMains) {
-                if (filterMains != 0) {
-                    Notch.CreateForMainsHum(filterMains, sampleRate, 15).Process(response);
-                }
-                Complex[] rawResponse = Measurements.GetFrequencyResponse(sweepFFT, response.FFT(sweepFFTCache));
-                FreqResponse = EQGenerator.FromTransferFunctionOptimized(rawResponse, sampleRate);
-                ImpResponse = new VerboseImpulseResponse(Measurements.GetImpulseResponse(rawResponse, sweepFFTCache));
-            }
-
-            public readonly bool IsNull() => FreqResponse == null || ImpResponse == null;
-        }
     }
 }

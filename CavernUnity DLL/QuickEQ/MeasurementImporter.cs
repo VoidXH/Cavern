@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
+using Cavern.QuickEQ.Sweeping;
 using Cavern.Waveforms;
 
 namespace Cavern.QuickEQ {

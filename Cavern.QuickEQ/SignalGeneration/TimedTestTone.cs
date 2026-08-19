@@ -31,15 +31,16 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// <summary>
         /// Create the source from any waveform.
         /// </summary>
-        public TimedTestTone(int channel, float[] testTone) : this(channel, testTone, false) { }
+        public TimedTestTone(int channel, float[] testTone) : this(channel, testTone, false, false) { }
 
         /// <summary>
         /// Create the source from any waveform, and add an additional channel of delay for warming up the input.
         /// </summary>
-        public TimedTestTone(int channel, float[] testTone, bool warmUpMode) {
+        public TimedTestTone(int channel, float[] testTone, bool warmUpMode, bool instant) {
             this.channel = channel;
             this.testTone = testTone;
-            delayChannel = warmUpMode ? channel + 1 : channel;
+            int channelInTime = instant ? 0 : channel;
+            delayChannel = warmUpMode ? channelInTime + 1 : channelInTime;
         }
 
         /// <summary>
