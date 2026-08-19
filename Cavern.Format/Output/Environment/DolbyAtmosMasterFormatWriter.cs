@@ -103,14 +103,14 @@ namespace Cavern.Format.Environment {
         public override void WriteNextFrame() {
             float[] result = GetInterlacedPCMOutput(); // Render the first frame before outputting the Sources, since filters like Cavernize can make more
             if (pcmOut == null) {
-                Source[] sources = Source.ActiveSources.ToArray();
-                int[] mapping = new int[sources.Length];
+                Source[] activeSources = Source.ActiveSources.ToArray();
+                int[] mapping = new int[activeSources.Length];
                 for (int i = 0; i < mapping.Length; i++) {
                     mapping[i] = i;
                 }
 
-                for (int i = 0; i < sources.Length; i++) {
-                    int target = staticSources.IndexOf(x => x.Source == sources[i]);
+                for (int i = 0; i < activeSources.Length; i++) {
+                    int target = staticSources.IndexOf(x => x.Source == activeSources[i]);
                     if (target == -1) {
                         continue;
                     }

@@ -331,7 +331,9 @@ namespace Cavern.QuickEQ.Sweeping {
 
         [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used by Unity lifecycle")]
         void OnEnable() {
+            measurementStarted = false;
             ResultAvailable = false;
+
             RegenerateSweep();
             Channel = 0;
             int channels = SweepRuns;
@@ -343,7 +345,6 @@ namespace Cavern.QuickEQ.Sweeping {
             oldVirtualizer = Listener.HeadphoneVirtualizer;
             AudioListener3D.Current.DirectLFE = true;
             Listener.HeadphoneVirtualizer = false;
-            measurementStarted = false;
         }
 
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
@@ -363,9 +364,11 @@ namespace Cavern.QuickEQ.Sweeping {
                     sweepResponse = Microphone.Start(InputDevice, false, SweepReference.Length * channels / SampleRate + 1, SampleRate);
                 }
             }
+
             if (ResultAvailable) {
                 return;
             }
+
             if (!sweepers[Channel].IsPlaying) {
                 float[] result = new float[SweepReference.Length];
                 if (sweepResponse) {
@@ -380,11 +383,16 @@ namespace Cavern.QuickEQ.Sweeping {
                     for (int channel = 0; channel < SweepRuns; channel++) {
                         workers[channel].Wait();
                     }
+
                     for (int channel = 0; channel < SweepRuns; channel++) {
                         FreqResponses[channel] = workers[channel].Result.FrequencyResponse;
                         ImpResponses[channel] = workers[channel].Result.ImpulseResponse;
                         Destroy(sweepers[channel]);
                     }
+                    for (int channel = SweepRuns; channel < sweepers.Length; channel++) {
+                        Destroy(sweepers[channel]);
+                    }
+
                     for (int channel = 0; channel < SweepRuns; channel++) {
                         workers[channel].Dispose();
                     }
@@ -403,7 +411,7 @@ namespace Cavern.QuickEQ.Sweeping {
         [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Used by Unity lifecycle")]
         void OnDisable() {
             if (sweepers != null && sweepers[0]) {
-                for (int channel = 0; channel < SweepRuns; channel++) {
+                for (int channel = 0; channel < sweepers.Length; channel++) {
                     Destroy(sweepers[channel]);
                 }
             }
