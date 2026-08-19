@@ -69,8 +69,9 @@ namespace Cavern.Utilities {
             fixed (float* pFrom = from)
             fixed (float* pTo = to) {
                 float* source = pFrom + channel,
-                    destination = pTo,
-                    end = pTo + Math.Min(from.Length, to.Length);
+                            destination = pTo;
+                int maxSamples = Math.Min(from.Length / channels, to.Length);
+                float* end = destination + maxSamples;
                 while (destination != end) {
                     *destination++ = *source;
                     source += channels;
@@ -91,11 +92,38 @@ namespace Cavern.Utilities {
             fixed (float* pFrom = from)
             fixed (float* pTo = to) {
                 float* source = pFrom + offset + channel,
-                    destination = pTo,
-                    end = pTo + Math.Min(from.Length - offset, to.Length);
+                    destination = pTo;
+                long available = (from.Length - offset) / channels;
+                long maxSamples = Math.Min(available, to.Length);
+                float* end = destination + maxSamples;
                 while (destination != end) {
                     *destination++ = *source;
                     source += channels;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Extract part of a single channel from a multichannel audio stream to a different channel of a different multichannel audio stream.
+        /// </summary>
+        /// <param name="from">Source audio stream</param>
+        /// <param name="fromChannel">Source channel</param>
+        /// <param name="fromChannels">Source channel count</param>
+        /// <param name="to">Destination channel data</param>
+        /// <param name="toChannel">Target channel</param>
+        /// <param name="toChannels">Target channel count</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void ExtractChannel(float[] from, int fromChannel, int fromChannels, float[] to, int toChannel, int toChannels) {
+            fixed (float* pFrom = from)
+            fixed (float* pTo = to) {
+                float* source = pFrom + fromChannel;
+                float* destination = pTo + toChannel;
+                int maxSamples = Math.Min(from.Length / fromChannels, to.Length / toChannels);
+                float* end = destination + maxSamples * toChannels;
+                while (destination != end) {
+                    *destination = *source;
+                    source += fromChannels;
+                    destination += toChannels;
                 }
             }
         }

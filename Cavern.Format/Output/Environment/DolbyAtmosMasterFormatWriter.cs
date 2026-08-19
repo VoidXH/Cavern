@@ -11,6 +11,7 @@ using Cavern.Format.Renderers;
 using Cavern.Format.Transcoders;
 using Cavern.Format.Utilities;
 using Cavern.Utilities;
+using Cavern.Waveforms.Utilities;
 
 namespace Cavern.Format.Environment {
     /// <summary>
@@ -46,6 +47,11 @@ namespace Cavern.Format.Environment {
         /// PCM samples are written to this file.
         /// </summary>
         CoreAudioFormatWriter pcmOut;
+
+        /// <summary>
+        /// Makes sure the static channels prepend the objects.
+        /// </summary>
+        InterlacedWaveformReorderer reorderer;
 
         /// <summary>
         /// YAML metadata is written to this file.
@@ -97,12 +103,30 @@ namespace Cavern.Format.Environment {
         public override void WriteNextFrame() {
             float[] result = GetInterlacedPCMOutput(); // Render the first frame before outputting the Sources, since filters like Cavernize can make more
             if (pcmOut == null) {
+                Source[] sources = Source.ActiveSources.ToArray();
+                int[] mapping = new int[sources.Length];
+                for (int i = 0; i < mapping.Length; i++) {
+                    mapping[i] = i;
+                }
+
+                for (int i = 0; i < sources.Length; i++) {
+                    int target = staticSources.IndexOf(x => x.Source == sources[i]);
+                    if (target == -1) {
+                        continue;
+                    }
+
+                    int currentMappedTo = Array.IndexOf(mapping, target);
+                    (mapping[i], mapping[currentMappedTo]) = (mapping[currentMappedTo], mapping[i]);
+                }
+
+                reorderer = new InterlacedWaveformReorderer(mapping);
                 StaticSourceCorrection(Source, ref staticSources);
                 CreateFiles();
             }
 
             long writable = pcmOut.Length - samplesWritten;
             if (writable > 0) {
+                reorderer.Process(result);
                 pcmOut.WriteBlock(result, 0, Math.Min(Source.UpdateRate, writable) * pcmOut.ChannelCount);
             }
 
