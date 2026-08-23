@@ -1,6 +1,5 @@
-using System.Threading;
-
 using Cavern.Filters;
+using Cavern.QuickEQ.SignalGeneration;
 using Cavern.Utilities;
 
 using Test.Cavern.Consts;
@@ -126,7 +125,7 @@ public class ThreadSafeFastConvolver_Tests {
     public void ThreadSafety() {
         CavernAmp.Bypass = true;
         int length = 256;
-        float[] impulse = Generators.Sine(64);
+        float[] impulse = WaveformGenerator.Sine(1, 64);
         float[] expected = Generators.DiracDelta(length);
         new ThreadSafeFastConvolver(impulse).Process(expected);
 
@@ -161,7 +160,7 @@ public class ThreadSafeFastConvolver_Tests {
     public void LargeDiracDeltaTransparency() => CavernAmpTest.Run(() => {
         const int impulseLength = 16384;
         float[] largeDirac = Generators.DiracDelta(impulseLength);
-        float[] signal = Generators.Sine(impulseLength);
+        float[] signal = WaveformGenerator.Sine(1, impulseLength);
         float[] expected = (float[])signal.Clone();
         new ThreadSafeFastConvolver(largeDirac).Process(signal);
 
@@ -179,7 +178,7 @@ public class ThreadSafeFastConvolver_Tests {
         const int impulseLength = 16384;
         const int signalLength = 32768;
         float[] largeDirac = Generators.DiracDelta(impulseLength);
-        float[] signal = Generators.Sine(signalLength);
+        float[] signal = WaveformGenerator.Sine(1, impulseLength);
         float[] expected = (float[])signal.Clone();
         new ThreadSafeFastConvolver(largeDirac).Process(signal);
 

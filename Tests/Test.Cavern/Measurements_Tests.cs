@@ -1,4 +1,5 @@
-﻿using Cavern.Utilities;
+﻿using Cavern.QuickEQ.SignalGeneration;
+using Cavern.Utilities;
 using Cavern.Utilities.Exceptions;
 using Cavern.Utilities.Threading;
 
@@ -37,12 +38,16 @@ public class Measurements_Tests {
     /// </summary>
     [TestMethod, Timeout(1000)]
     public void FFT_IFFT_Sine() => CavernAmpTest.RunPlusMono(() => {
-        float[] signal = Generators.Sine(32);
+        float[] signal = WaveformGenerator.Cosine(1, 32);
 
         using FFTCache cache = new FFTCache(signal.Length);
         Complex[] fft = signal.FFT(cache);
         for (int i = 0; i < fft.Length; i++) {
-            Assert.IsTrue(i == 1 || i == 31 ? fft[i].Real == (signal.Length >> 1) : Math.Abs(fft[i].Real) < 2 * Constants.delta);
+            if (i == 1 || i == 31) {
+                Assert.AreEqual(signal.Length >> 1, fft[i].Real);
+            } else {
+                Assert.IsTrue(Math.Abs(fft[i].Real) < 2 * Constants.delta);
+            }
             Assert.IsTrue(Math.Abs(fft[i].Imaginary) < 4 * Constants.delta);
         }
 

@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Cavern\Cavern.csproj" />
+		<ProjectReference Include="..\..\Cavern.QuickEQ\Cavern.QuickEQ.csproj" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

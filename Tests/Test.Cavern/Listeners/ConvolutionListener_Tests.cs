@@ -3,6 +3,7 @@
 using Cavern;
 using Cavern.Channels;
 using Cavern.Listeners;
+using Cavern.QuickEQ.SignalGeneration;
 
 using Test.Cavern.Consts;
 
@@ -26,7 +27,7 @@ namespace Test.Cavern {
             ];
             listener.ConvolutionClip = new(new(testSignals), listener.SampleRate);
 
-            float[] signal = Generators.Sine(signalLength);
+            float[] signal = WaveformGenerator.Sine(1, signalLength);
             listener.AttachSource(new() {
                 Position = Vector3.UnitX * 10,
                 VolumeRolloff = Rolloffs.Disabled,

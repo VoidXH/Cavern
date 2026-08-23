@@ -51,13 +51,13 @@ namespace Cavern.Remapping {
             base(sources.Sum(x => x.LFE ? 1 : 2), sampleRate) {
             filters = new Cavernize[sources.Count];
             for (int i = 0, offset = 0; i < filters.Length; i++) {
-                filters[i] = new Cavernize(sampleRate, crossoverFrequency);
                 IntermediateSources[offset].Position = sources[i].Position;
                 if (sources[i].LFE) {
-                    IntermediateSources[offset++].LFE = true;
+                    IntermediateSources[offset].LFE = true;
                 } else {
-                    offset += 2;
+                    filters[i] = new Cavernize(sampleRate, crossoverFrequency);
                 }
+                offset++;
             }
             SetupCollection(sources, sampleRate);
         }
@@ -70,7 +70,11 @@ namespace Cavern.Remapping {
             filters[0].CalculateSmoothingFactor(samplesPerSource, Smoothness);
             bool centerToStay = CenterStays;
             for (int i = 0; i < filters.Length; i++) {
-                Vector3 position = IntermediateSources[2 * i].Position;
+                if (filters[i] == null) {
+                    continue;
+                }
+
+                Vector3 position = IntermediateSources[i].Position;
                 if (centerToStay && position.X == 0 && position.Y == 0 && position.Z > 0) {
                     filters[i].Effect = 0;
                     centerToStay = false;
@@ -81,18 +85,16 @@ namespace Cavern.Remapping {
             }
 
             float[][] input = OnSamplesNeeded(samplesPerSource);
-            for (int i = 0, current = 0; i < input.Length; i++) {
-                if (IntermediateSources[current].LFE) {
-                    Array.Copy(input[i], output[current], input[i].Length);
-                    current++;
+            int pair = input.Length;
+            for (int i = 0; i < input.Length; i++) {
+                if (IntermediateSources[i].LFE) {
+                    Array.Copy(input[i], output[i], input[i].Length);
                 } else {
-                    int pair = current + 1;
                     filters[i].Process(input[i]);
-                    filters[i].GroundLevel.CopyTo(output[current]);
+                    filters[i].GroundLevel.CopyTo(output[i]);
                     filters[i].HeightLevel.CopyTo(output[pair]);
-                    IntermediateSources[pair].Position = IntermediateSources[current].Position +
-                        new Vector3(0, filters[i].Height * Listener.EnvironmentSize.Y, 0);
-                    current += 2;
+                    IntermediateSources[pair].Position = IntermediateSources[i].Position + new Vector3(0, filters[i].Height * Listener.EnvironmentSize.Y, 0);
+                    pair++;
                 }
             }
             return output;

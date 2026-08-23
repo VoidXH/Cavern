@@ -11,6 +11,33 @@ namespace Cavern.QuickEQ.SignalGeneration {
     /// </summary>
     public static class WaveformGenerator {
         /// <summary>
+        /// Generates a cosine wave signal.
+        /// </summary>
+        /// <param name="frequency">The frequency of the cosine wave in periods/<paramref name="length"/></param>
+        /// <param name="length">The length of the generated signal in samples</param>
+        /// <remarks>No windowing is used, and a click will be heard if the last period doesn't end at
+        /// the <paramref name="length"/>.</remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[] Cosine(float frequency, int length) => Cosine(frequency, length, length);
+
+        /// <summary>
+        /// Generates a cosine wave signal.
+        /// </summary>
+        /// <param name="frequency">The frequency of the cosine wave in Hertz</param>
+        /// <param name="length">The length of the generated signal in samples</param>
+        /// <param name="sampleRate">Samples per second</param>
+        /// <remarks>No windowing is used, and a click will be heard if the last period doesn't end at
+        /// the <paramref name="length"/>.</remarks>
+        public static float[] Cosine(float frequency, int length, int sampleRate) {
+            float[] result = new float[length];
+            float mul = 2 * MathF.PI * frequency / sampleRate;
+            for (int i = 0; i < length; i++) {
+                result[i] = MathF.Cos(mul * i);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Create a Dirac-delta signal of given sample count.
         /// </summary>
         public static float[] DiracDelta(int length) {

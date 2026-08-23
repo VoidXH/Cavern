@@ -232,5 +232,18 @@ namespace Cavern {
                 }
             }
         }
+
+        /// <inheritdoc/>
+        public override string ToString() {
+            string clipName;
+            if (Clip == null) {
+                clipName = "null";
+            } else if (Clip.Name == null) {
+                clipName = "unnamed";
+            } else {
+                clipName = Clip.Name;
+            }
+            return $"Source: {clipName} at {Position} with volume {Volume}";
+        }
     }
 }

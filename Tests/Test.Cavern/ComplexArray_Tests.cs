@@ -1,4 +1,5 @@
-﻿using Cavern.Utilities;
+﻿using Cavern.QuickEQ.SignalGeneration;
+using Cavern.Utilities;
 
 using Test.Cavern.Filters;
 
@@ -16,7 +17,7 @@ namespace Test.Cavern {
         public void Convolve() {
             const int length = 32;
             Complex[] lhs = Generators.DiracFourier(length),
-                rhs = Generators.Sine(length).ParseForFFT();
+                rhs = WaveformGenerator.Sine(1, length).ParseForFFT();
             lhs.Convolve(rhs);
             CollectionAssert.AreEqual(lhs, rhs);
 
