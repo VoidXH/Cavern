@@ -151,7 +151,16 @@ namespace Cavern.Format.Decoders.EnhancedAC3 {
                         SteepSingleDataPointTimeslot(ts, interpolationMatrix, prevMatrix);
                     }
                     for (int ts = splitPoint; ts < timeslots; ts++) {
-                        SteepSingleDataPointTimeslot(ts, interpolationMatrix, mixMatrix[ts < timeslotOffsets[obj][1] ? 1 : 0]);
+                        float[][] timeslotInterp = interpolationMatrix[ts];
+                        float[][] source = mixMatrix[ts < timeslotOffsets[obj][1] ? 1 : 0];
+                        for (int ch = 0; ch < ChannelCount; ch++) {
+                            float[] channelInterp = timeslotInterp[ch];
+                            float[] channelSource = source[ch];
+                            // Expand the current JOC parameter-band matrix to QMF subbands.
+                            for (int sb = 0; sb < QuadratureMirrorFilterBank.subbands; sb++) {
+                                channelInterp[sb] = channelSource[pbMapping[sb]];
+                            }
+                        }
                     }
                 } else {
                     for (int ch = 0; ch < ChannelCount; ch++) {
