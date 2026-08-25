@@ -77,7 +77,7 @@ namespace Cavern.Format.FilterSet {
             ReferenceChannel.FrontLeft => "leftFront",
             ReferenceChannel.FrontRight => "rightFront",
             ReferenceChannel.FrontCenter => "center",
-            ReferenceChannel.ScreenLFE => "centerSubwoofer",
+            ReferenceChannel.ScreenLFE => "leftSubwoofer",
             ReferenceChannel.RearLeft => "leftBack",
             ReferenceChannel.RearRight => "rightBack",
             ReferenceChannel.SideLeft => "leftSurround",
