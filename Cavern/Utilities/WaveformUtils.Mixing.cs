@@ -213,11 +213,12 @@ namespace Cavern.Utilities {
         /// <param name="destination">Mono destination stream</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Mix(float[] source, float[] destination) {
+            int length = Math.Min(source.Length, destination.Length);
             int i = 0;
-            for (int c = source.Length - Vector<float>.Count; i <= c; i += Vector<float>.Count) {
+            for (int c = length - Vector<float>.Count; i <= c; i += Vector<float>.Count) {
                 (new Vector<float>(source, i) + new Vector<float>(destination, i)).CopyTo(destination, i);
             }
-            for (; i < source.Length; i++) {
+            for (; i < length; i++) {
                 destination[i] += source[i];
             }
         }

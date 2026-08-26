@@ -40,9 +40,16 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// <summary>
         /// Create a Dirac-delta signal of given sample count.
         /// </summary>
-        public static float[] DiracDelta(int length) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[] DiracDelta(int length) => DiracDelta(length, 0);
+
+        /// <summary>
+        /// Create a Dirac-delta signal of given sample count, with the peak at an <paramref name="offset"/> sample.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float[] DiracDelta(int length, int offset) {
             float[] result = new float[length];
-            result[0] = 1;
+            result[offset] = 1;
             return result;
         }
 
