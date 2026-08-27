@@ -32,6 +32,15 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// If the lengths of the provided arrays don't match, throw an <see cref="ArgumentException"/>.
+        /// </summary>
+        public static void ThrowIfDifferentSize<T>(this T[] lhs, T[] rhs) {
+            if (lhs.Length != rhs.Length) {
+                throw new ArgumentException("Input sizes must match.");
+            }
+        }
+
+        /// <summary>
         /// If the <paramref name="value"/> is negative, throw an <see cref="ArgumentOutOfRangeException"/>.
         /// </summary>
         public static void ThrowIfNegative(this int value, string name) {

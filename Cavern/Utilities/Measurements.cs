@@ -9,6 +9,24 @@ namespace Cavern.Utilities {
     /// </summary>
     public static partial class Measurements {
         /// <summary>
+        /// Calculate the cross-correlation of two signals.
+        /// </summary>
+        public static Complex[] CrossCorrelation(this float[] lhs, float[] rhs) {
+            lhs.ThrowIfNullOrEmpty(nameof(lhs));
+            rhs.ThrowIfNullOrEmpty(nameof(rhs));
+            lhs.ThrowIfDifferentSize(rhs);
+
+            using FFTCache cache = new ThreadSafeFFTCache(lhs.Length);
+            Complex[] lhsFFT = lhs.FFT(cache),
+                rhsFFT = rhs.FFT(cache);
+            for (int i = 0; i < lhs.Length; i++) {
+                lhsFFT[i] *= rhsFFT[i].Invert();
+            }
+            lhsFFT.InPlaceIFFT(cache);
+            return lhsFFT;
+        }
+
+        /// <summary>
         /// Fast Fourier transform a 2D signal. The <see cref="FFTCache"/> will be created temporarily and performance will suffer.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
