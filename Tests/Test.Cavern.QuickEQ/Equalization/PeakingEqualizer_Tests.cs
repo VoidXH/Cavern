@@ -1,5 +1,7 @@
 ﻿using Cavern.Filters;
+using Cavern.Format;
 using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 using Test.Cavern.Consts;
 using Test.Cavern.QuickEQ.Consts;
@@ -20,6 +22,22 @@ public class PeakingEqualizer_Tests {
         Assert.AreEqual(1, result.Length);
         Assert.AreEqual(500, result[0].CenterFreq, 5);
         Assert.AreEqual(6, result[0].Gain, .1f);
+    });
+
+    /// <summary>
+    /// Tests if <see cref="PeakingEqualizer.GetPeakingEQ(int)"/> uses all bands given for a measurement that could use all the bands given.
+    /// </summary>
+    [TestMethod, Timeout(10000)]
+    public void GetPeakingEQ_EnoughBands() => CavernAmpTest.Run(() => {
+        AudioReader reader = AudioReader.Open(Constants.fullRange1);
+        float[] ir = reader.Read();
+        Equalizer eq = EQGenerator.FromTransferFunction(ir.FFT(), reader.SampleRate);
+        eq.DownsampleLogarithmically(1024, 20, 20000);
+        eq.Smooth(1 / 24f);
+
+        const int count = 6;
+        PeakingEQ[] result = new PeakingEqualizer(eq).GetPeakingEQ(Constants.sampleRate, count);
+        Assert.AreEqual(count, result.Length);
     });
 
     /// <summary>

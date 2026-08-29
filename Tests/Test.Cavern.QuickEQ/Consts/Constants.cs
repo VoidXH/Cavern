@@ -22,6 +22,16 @@ static class Constants {
     internal const float delta = .000001f;
 
     /// <summary>
+    /// Path to the test data folder, relative to the launch folder.
+    /// </summary>
+    internal static readonly string testData = Path.Combine("..", "..", "TestData");
+
+    /// <summary>
+    /// A full range speaker measurement in impulse response format.
+    /// </summary>
+    internal static readonly string fullRange1 = Path.Combine(testData, "IRs", "FL IR 1.wav");
+
+    /// <summary>
     /// Equalizer with a 400 Hz wide triangle peak of 6 dB at 500 Hz.
     /// </summary>
     internal static readonly Equalizer peakAt500Hz = new Equalizer([
