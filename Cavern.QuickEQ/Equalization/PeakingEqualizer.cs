@@ -110,8 +110,8 @@ namespace Cavern.QuickEQ.Equalization {
             double bandRange;
             int finalPos;
             if (CavernAmp.Available) { // CavernAmp always works up to the Nyquist frequency
-                target = source.Visualize(MinFrequency, sampleRate * .5f, 1024);
-                double logPos = Math.Log10(sampleRate * .5f);
+                target = source.Visualize(MinFrequency, (float)MaxFrequency, 1024);
+                double logPos = Math.Log10(MaxFrequency);
                 bandRange = target.Length / (logPos - logMinFreq);
                 finalPos = Math.Min((int)((logPos - logMinFreq) * bandRange), target.Length);
             } else {
@@ -125,6 +125,9 @@ namespace Cavern.QuickEQ.Equalization {
             if (startPos < 0) {
                 startPos = 0;
             }
+            if (startPos > finalPos) {
+                return Array.Empty<PeakingEQ>();
+            }
             if (stopPos >= finalPos) {
                 stopPos = finalPos - 1;
             }
@@ -132,6 +135,7 @@ namespace Cavern.QuickEQ.Equalization {
             if (CavernAmp.Available) {
                 IntPtr extAnalyzer =
                     CavernQuickEQAmp.FilterAnalyzer_Create(sampleRate, MaxGain, MinGain, GainPrecision, StartQ, Iterations);
+                CavernQuickEQAmp.FilterAnalyzer_SetMaxFrequency(extAnalyzer, MaxFrequency);
                 int placed = 0;
                 for (int band = 0; band < bands; band++) {
                     CavernAmpPeakingEQ newBand = CavernQuickEQAmp.BruteForceBand(target, target.Length, extAnalyzer, startPos, stopPos);

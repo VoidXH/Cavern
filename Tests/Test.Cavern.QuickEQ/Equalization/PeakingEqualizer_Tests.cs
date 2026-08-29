@@ -23,6 +23,23 @@ public class PeakingEqualizer_Tests {
     });
 
     /// <summary>
+    /// Tests if <see cref="PeakingEqualizer.MaxFrequency"/> is respected across all engines.
+    /// </summary>
+    [TestMethod, Timeout(10000)]
+    public void MaxFrequency() => CavernAmpTest.Run(() => {
+        const double maxFreq = 400;
+        PeakingEQ[] result = new PeakingEqualizer(Constants.peakAt500Hz) {
+            MaxFrequency = maxFreq
+        }.GetPeakingEQ(Constants.sampleRate, 1);
+
+        if (result.Length == 1) {
+            Assert.IsTrue(result[0].CenterFreq < maxFreq);
+        } else {
+            Assert.AreEqual(0, result.Length);
+        }
+    });
+
+    /// <summary>
     /// Tests if <see cref="PeakingEqualizer.ParseEQFile(string)"/> works as intended.
     /// </summary>
     [TestMethod, Timeout(1000)]

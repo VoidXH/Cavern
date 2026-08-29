@@ -23,8 +23,13 @@ namespace Cavern.QuickEQ.Utilities {
         /// Filter analyzer constructor.
         /// </summary>
         [DllImport("CavernAmp.dll", EntryPoint = "FilterAnalyzer_Create")]
-        internal static extern IntPtr FilterAnalyzer_Create(int sampleRate, double maxGain, double minGain,
-            double gainPrecision, double startQ, int iterations);
+        internal static extern IntPtr FilterAnalyzer_Create(int sampleRate, double maxGain, double minGain, double gainPrecision, double startQ, int iterations);
+
+        /// <summary>
+        /// Set maximum frequency (0 = Nyquist).
+        /// </summary>
+        [DllImport("CavernAmp.dll", EntryPoint = "FilterAnalyzer_SetMaxFrequency")]
+        internal static extern void FilterAnalyzer_SetMaxFrequency(IntPtr analyzer, double maxFrequency);
 
         /// <summary>
         /// Reset a filter with a PeakingEQ.

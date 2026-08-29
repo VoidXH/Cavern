@@ -17,6 +17,7 @@ class FilterAnalyzer {
     double minGain;
     double maxGain;
     int iterations;
+    double maxFrequency;
 
     float *impulseReference;
     FFTCache *cache;
@@ -43,6 +44,8 @@ public:
     void SetMaxGain(const double value) { maxGain = value; }
     int GetIterations() { return iterations; }
     void SetIterations(const int value) { iterations = value; }
+    double GetMaxFrequency() { return maxFrequency; }
+    void SetMaxFrequency(const double value) { maxFrequency = value; }
 };
 
 #ifdef __cplusplus
@@ -52,6 +55,8 @@ extern "C" {
 /// Exports
 // Filter analyzer constructor.
 FilterAnalyzer* DLL_EXPORT FilterAnalyzer_Create(const int sampleRate, const double maxGain, const double minGain, const double gainPrecision, const double startQ, const int iterations);
+// Set maximum frequency (0 = Nyquist).
+void DLL_EXPORT FilterAnalyzer_SetMaxFrequency(FilterAnalyzer *analyzer, const double maxFrequency);
 // Reset a filter with a PeakingEQ.
 void DLL_EXPORT FilterAnalyzer_AddPEQ(FilterAnalyzer *analyzer, double centerFreq, double q, double gain);
 // Dispose a filter analyzer.

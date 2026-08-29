@@ -58,7 +58,8 @@ PeakingEQ DLL_EXPORT BruteForceQ(float *target, int targetLength, FilterAnalyzer
 }
 
 PeakingEQ DLL_EXPORT BruteForceBand(float *target, int targetLength, FilterAnalyzer *analyzer, int startPos, int stopPos) {
-    double powRange = log10(analyzer->GetSampleRate() * .5) - LOG10_20;
+    double maxFreq = analyzer->GetMaxFrequency() > 0 ? analyzer->GetMaxFrequency() : analyzer->GetSampleRate() * .5;
+    double powRange = log10(maxFreq) - LOG10_20;
     float max = fabsf(target[startPos]), abs;
     int maxAt = startPos;
     for (int i = startPos + 1; i < stopPos; i++) {

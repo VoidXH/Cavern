@@ -127,18 +127,7 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by the highest absolute value sample.
         /// </summary>
-        public static int GetImpulsePeakDelay(float[] impulseResponse) {
-            int result = 0;
-            float absPeak = Math.Abs(impulseResponse[0]), absHere;
-            for (int pos = 1; pos < impulseResponse.Length; pos++) {
-                absHere = Math.Abs(impulseResponse[pos]);
-                if (absPeak < absHere) {
-                    absPeak = absHere;
-                    result = pos;
-                }
-            }
-            return result;
-        }
+        public static int GetImpulsePeakDelay(float[] impulseResponse) => impulseResponse.GetPeakPosition();
 
         /// <summary>
         /// Get the delay of an <paramref name="impulseResponse"/> by the highest absolute value sample of the impulse response's envelope.

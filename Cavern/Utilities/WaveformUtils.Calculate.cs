@@ -31,6 +31,35 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Get the position of the peak amplitude in a single-channel array.
+        /// </summary>
+        /// <param name="target">Array reference</param>
+        /// <returns>Position of the peak amplitude in the array</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetPeakPosition(this float[] target) => GetPeakPosition(target, 0, target.Length);
+
+        /// <summary>
+        /// Get the position of the peak amplitude in a partial audio signal.
+        /// </summary>
+        /// <param name="target">Array reference</param>
+        /// <param name="from">Range start sample (inclusive)</param>
+        /// <param name="to">Range end sample (exclusive)</param>
+        /// <returns>Position of the peak amplitude in the given range</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetPeakPosition(this float[] target, int from, int to) {
+            int pos = from;
+            float max = Math.Abs(target[from++]), absSample;
+            for (; from < to; from++) {
+                absSample = Math.Abs(target[from]);
+                if (max < absSample) {
+                    max = absSample;
+                    pos = from;
+                }
+            }
+            return pos;
+        }
+
+        /// <summary>
         /// Get the peak amplitude of a given channel in a multichannel array.
         /// </summary>
         /// <param name="target">Array reference</param>
