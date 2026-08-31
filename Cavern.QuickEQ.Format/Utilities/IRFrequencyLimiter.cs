@@ -36,14 +36,14 @@ namespace Cavern.Format.Utilities {
             }
 
             double ratio = sampleRate / (2 * cutoffFrequency);
-            int divisor = (int)Math.Floor(ratio);
+            int finalDivisor = (int)Math.Floor(ratio);
             if (correctNonPowerOfTwo) {
-                divisor = QMath.Base2Floor(divisor);
-            } else if (divisor < 1 || Math.Abs(ratio - divisor) > 1e-9 || (divisor & (divisor - 1)) != 0) {
+                finalDivisor = QMath.Base2Floor(finalDivisor);
+            } else if (finalDivisor < 1 || Math.Abs(ratio - finalDivisor) > 1e-9 || (finalDivisor & (finalDivisor - 1)) != 0) {
                 throw new ArgumentException($"The sample rate must be divided by a power of two to reach the cutoff frequency, but it's {ratio}.");
             }
             this.sampleRate = sampleRate;
-            this.divisor = divisor;
+            divisor = finalDivisor;
         }
 
         /// <summary>
