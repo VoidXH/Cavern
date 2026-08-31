@@ -108,6 +108,10 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         TonewinnerAT,
         /// <summary>
+        /// Trinnov processors.
+        /// </summary>
+        Trinnov,
+        /// <summary>
         /// WiiM devices.
         /// </summary>
         WiiM,

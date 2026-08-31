@@ -37,6 +37,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.Rotel => "Rotel",
             FilterSetTarget.StormAudio => "StormAudio",
             FilterSetTarget.TonewinnerAT => "Tonewinner AT series",
+            FilterSetTarget.Trinnov => "Trinnov",
             FilterSetTarget.WiiM => "WiiM",
             FilterSetTarget.BehringerNX => "Behringer NX series",
             FilterSetTarget.DiracLive => null,
