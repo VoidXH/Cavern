@@ -50,11 +50,11 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         protected double[] GetGains(double min, double max) {
             double[] result = Channels.Select(x => {
-                if (x is IIRFilterSet.IIRChannelData iirData) {
+                if (x is IIRChannelData iirData) {
                     return iirData.gain;
-                } else if (x is EqualizerFilterSet.EqualizerChannelData eqData) {
+                } else if (x is EqualizerChannelData eqData) {
                     return eqData.gain;
-                } else if (x is FIRFilterSet.FIRChannelData) {
+                } else if (x is FIRChannelData) {
                     throw new FIRGainException();
                 } else {
                     throw new NotImplementedException();

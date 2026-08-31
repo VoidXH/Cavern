@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Cavern.Utilities {
@@ -51,6 +52,17 @@ namespace Cavern.Utilities {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Base2Ceil(int val) => 1 << Log2Ceil(val);
+
+        /// <summary>
+        /// Round down the number in base 2, returning the largest power of two less than or equal to the value.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Base2Floor(int val) {
+            if (val <= 1) {
+                return Math.Max(val, 0);
+            }
+            return 1 << BitsAfterMSB(val);
+        }
 
         /// <summary>
         /// Count the number of bits after the most significant bit. 1 less than the MSB's position.

@@ -26,5 +26,22 @@ namespace Test.Cavern {
             Assert.AreEqual(3, QMath.TrailingZeros(8));
             Assert.AreEqual(4, QMath.TrailingZeros(2064));
         }
+
+        /// <summary>
+        /// Tests if <see cref="QMath.Base2Floor(int)"/> works correctly.
+        /// </summary>
+        [TestMethod, Timeout(1000)]
+        public void Base2Floor() {
+            Assert.AreEqual(0, QMath.Base2Floor(0));
+            Assert.AreEqual(1, QMath.Base2Floor(1));
+            Assert.AreEqual(2, QMath.Base2Floor(2));
+            Assert.AreEqual(2, QMath.Base2Floor(3));
+            Assert.AreEqual(4, QMath.Base2Floor(4));
+            Assert.AreEqual(4, QMath.Base2Floor(7));
+            Assert.AreEqual(8, QMath.Base2Floor(8));
+            Assert.AreEqual(2048, QMath.Base2Floor(2064));
+            Assert.AreEqual(32, QMath.Base2Floor(33));
+            Assert.AreEqual(1 << 30, QMath.Base2Floor(int.MaxValue));
+        }
     }
 }

@@ -27,7 +27,7 @@ namespace Cavern.Format.ConfigurationFile {
             ConfigurationFile file;
             if (type == ConfigurationFileType.EqualizerAPO) {
                 sourceUsed = (FilterSet.FilterSet)source.Clone();
-                FilterSet.FilterSet.ChannelData[] channels = sourceUsed.Channels;
+                ChannelData[] channels = sourceUsed.Channels;
                 file = new EqualizerAPOConfigurationFile(name, channels.Length, true);
                 for (int i = 0; i < channels.Length; i++) {
                     InputChannel channel = (InputChannel)file.InputChannels[i].root.Filter;

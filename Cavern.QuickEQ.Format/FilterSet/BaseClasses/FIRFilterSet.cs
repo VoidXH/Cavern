@@ -2,6 +2,7 @@
 using System.IO;
 
 using Cavern.Channels;
+using Cavern.Format.Utilities;
 using Cavern.Utilities;
 using Cavern.Waveforms;
 
@@ -12,28 +13,6 @@ namespace Cavern.Format.FilterSet {
     public class FIRFilterSet : FilterSet {
         /// <inheritdoc/>
         public override string FileExtension => "wav";
-
-        /// <summary>
-        /// All information needed for a channel.
-        /// </summary>
-        public class FIRChannelData : ChannelData, IEquatable<FIRChannelData> {
-            /// <summary>
-            /// Applied convolution filter to this channel.
-            /// </summary>
-            public float[] filter;
-
-            /// <inheritdoc/>
-            public override object Clone() {
-                FIRChannelData clone = (FIRChannelData)base.Clone();
-                clone.filter = (float[])filter?.Clone();
-                return clone;
-            }
-
-            /// <summary>
-            /// Check if the same correction is applied to the <paramref name="other"/> channel.
-            /// </summary>
-            public bool Equals(FIRChannelData other) => Equals(filter, other?.filter) && delaySamples == other.delaySamples;
-        }
 
         /// <summary>
         /// Construct a room correction with a FIR filter for each channel for a room with the target number of channels.
@@ -50,14 +29,18 @@ namespace Cavern.Format.FilterSet {
 
         /// <inheritdoc/>
         public override void Export(string path) {
-            string folder = Path.GetDirectoryName(path),
-                fileNameBase = Path.GetFileNameWithoutExtension(path);
+            string folder = Path.GetDirectoryName(path);
+            string fileNameBase = Path.GetFileNameWithoutExtension(path);
 
             for (int i = 0; i < Channels.Length; i++) {
                 FIRChannelData channelRef = (FIRChannelData)Channels[i];
                 string label = channelRef.name ?? EqualizerAPOUtils.GetChannelLabel(i, Channels.Length),
                     filterPath = Path.Combine(folder, $"{fileNameBase} {label}.wav");
-                RIFFWaveWriter.Write(filterPath, channelRef.filter, 1, SampleRate, BitDepth.Float32);
+                if (channelRef.OverrideIRCutoff.HasValue) {
+                    new IRFrequencyLimiter(SampleRate, channelRef.OverrideIRCutoff.Value, true).Export(filterPath, channelRef.filter);
+                } else {
+                    RIFFWaveWriter.Write(filterPath, channelRef.filter, 1, SampleRate, BitDepth.Float32);
+                }
             }
         }
 
