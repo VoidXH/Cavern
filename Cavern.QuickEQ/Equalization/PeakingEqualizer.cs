@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 
 using Cavern.Filters;
@@ -135,8 +135,7 @@ namespace Cavern.QuickEQ.Equalization {
             if (CavernAmp.Available) {
                 IntPtr extAnalyzer =
                     CavernQuickEQAmp.FilterAnalyzer_Create(sampleRate, MaxGain, MinGain, GainPrecision, StartQ, Iterations);
-                // TODO: enable when it doesn't generate all filters from the third position all the same
-                //CavernQuickEQAmp.FilterAnalyzer_SetMaxFrequency(extAnalyzer, MaxFrequency);
+                CavernQuickEQAmp.FilterAnalyzer_SetMaxFrequency(extAnalyzer, MaxFrequency);
                 int placed = 0;
                 for (int band = 0; band < bands; band++) {
                     CavernAmpPeakingEQ newBand = CavernQuickEQAmp.BruteForceBand(target, target.Length, extAnalyzer, startPos, stopPos);

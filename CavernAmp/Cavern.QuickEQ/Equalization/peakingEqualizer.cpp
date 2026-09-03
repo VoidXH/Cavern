@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstring>
 #include <new>
 
@@ -8,14 +9,16 @@
 #include "../../Cavern/Utilities/waveformUtils.h"
 
 float BruteForceStepInternal(float *target, int targetLength, float *&changedTarget, FilterAnalyzer *analyzer) {
-    changedTarget = ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, 20, analyzer->GetSampleRate() * .5, analyzer->GetSampleRate(), targetLength);
+    double maxFreq = analyzer->GetMaxFrequency() > 0 ? analyzer->GetMaxFrequency() : analyzer->GetSampleRate() * .5;
+    changedTarget = ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, 20, maxFreq, analyzer->GetSampleRate(), targetLength);
     ConvertToDecibels(changedTarget, targetLength);
     Mix(target, changedTarget, targetLength);
     return SumAbs(changedTarget, targetLength);
 }
 
 float DLL_EXPORT BruteForceStep(float *target, int targetLength, float *changedTarget, FilterAnalyzer *analyzer) {
-    ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, 20, analyzer->GetSampleRate() * .5, analyzer->GetSampleRate(), changedTarget, targetLength);
+    double maxFreq = analyzer->GetMaxFrequency() > 0 ? analyzer->GetMaxFrequency() : analyzer->GetSampleRate() * .5;
+    ConvertToGraph(analyzer->GetSpectrum(), analyzer->GetResolution() / 2, 20, maxFreq, analyzer->GetSampleRate(), changedTarget, targetLength);
     ConvertToDecibels(changedTarget, targetLength);
     Mix(target, changedTarget, targetLength);
     return SumAbs(changedTarget, targetLength);
@@ -23,11 +26,12 @@ float DLL_EXPORT BruteForceStep(float *target, int targetLength, float *changedT
 
 PeakingEQ DLL_EXPORT BruteForceQ(float *target, int targetLength, FilterAnalyzer *analyzer, double freq, double gain) {
     double q = analyzer->GetStartQ(), qStep = q * .5;
-    gain = roundf(Clamp(-gain, -analyzer->GetMaxGain(), -analyzer->GetMinGain()) / analyzer->GetGainPrecision()) * analyzer->GetGainPrecision();
+    gain = round(Clamp(-gain, -analyzer->GetMaxGain(), -analyzer->GetMinGain()) / analyzer->GetGainPrecision()) * analyzer->GetGainPrecision();
     float targetSum = SumAbs(target, targetLength);
     float* targetSource = new float[targetLength];
     memcpy(targetSource, target, targetLength * sizeof(float));
     PeakingFilter *newFilter;
+    bool valid = false;
     for (int i = 0; i < analyzer->GetIterations(); i++) {
         double lowerQ = q - qStep, upperQ = q + qStep;
         newFilter = new PeakingFilter(analyzer->GetSampleRate(), freq, lowerQ, gain);
@@ -38,6 +42,7 @@ PeakingEQ DLL_EXPORT BruteForceQ(float *target, int targetLength, FilterAnalyzer
             targetSum = lowerSum;
             memcpy(target, lowerTarget, targetLength * sizeof(float));
             q = lowerQ;
+            valid = true;
         }
         delete[] lowerTarget;
 
@@ -48,12 +53,16 @@ PeakingEQ DLL_EXPORT BruteForceQ(float *target, int targetLength, FilterAnalyzer
             targetSum = upperSum;
             memcpy(target, upperTarget, targetLength * sizeof(float));
             q = upperQ;
+            valid = true;
         }
         delete[] upperTarget;
         qStep *= .5;
     }
     analyzer->ClearFilter();
     delete[] targetSource;
+    if (!valid) {
+        return PeakingEQ { freq, 0, -gain };
+    }
     return PeakingEQ { freq, q, -gain };
 }
 
