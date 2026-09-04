@@ -18,14 +18,25 @@ public partial class GraphRendererControl : UserControl {
     public GraphOverlay Overlay { get; set; } = new LogScaleGrid(2, 1, 0xFF000000, 9);
 
     /// <summary>
-    /// All displayed curves referencing the current <see cref="renderer"/>.
+    /// Cavern's internal graph rendering engine.
+    /// </summary>
+    protected GraphRenderer Renderer { get; private set; } = new(1, 1); // Placeholder for initialization, initial invalidation updates it
+
+    /// <summary>
+    /// All displayed curves referencing the current <see cref="Renderer"/>.
     /// </summary>
     readonly List<RenderedCurve> curves = [];
 
     /// <summary>
-    /// Cavern's internal graph rendering engine.
+    /// Create the renderer of a given size, used on initialization and resize. Overridable to use a derived renderer type.
     /// </summary>
-    GraphRenderer renderer = new GraphRenderer(1, 1); // Placeholder for initialization, initial invalidation updates it
+    /// <param name="width">Width in pixels.</param>
+    /// <param name="height">Height in pixels.</param>
+    protected virtual GraphRenderer CreateRenderer(int width, int height) => new(width, height) {
+        DynamicRange = 50,
+        Peak = 25,
+        Overlay = Overlay
+    };
 
     /// <summary>
     /// Displays one or more <see cref="Equalizer"/> filters.
@@ -37,7 +48,7 @@ public partial class GraphRendererControl : UserControl {
     /// </summary>
     /// <returns>Index of the curve that can be used in <see cref="Invalidate(int)"/>.</returns>
     public int AddCurve(Equalizer curve, uint color) {
-        curves.Add(renderer.AddCurve(curve, color));
+        curves.Add(Renderer.AddCurve(curve, color));
         Invalidate();
         return curves.Count - 1;
     }
@@ -47,7 +58,7 @@ public partial class GraphRendererControl : UserControl {
     /// </summary>
     public void Clear() {
         curves.Clear();
-        renderer.Clear();
+        Renderer.Clear();
         Invalidate();
     }
 
@@ -72,20 +83,16 @@ public partial class GraphRendererControl : UserControl {
     /// <summary>
     /// Update the displayed graph when a curve was added, changed, or removed.
     /// </summary>
-    public void InvalidateImage() => image.Source = renderer.ToBitmapSource();
+    public void InvalidateImage() => image.Source = Renderer.ToBitmapSource();
 
     /// <summary>
     /// Keep the graph's size at the control resolution.
     /// </summary>
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
         base.OnRenderSizeChanged(sizeInfo);
-        renderer = new((int)(sizeInfo.NewSize.Width + .5), (int)(sizeInfo.NewSize.Height + .5)) {
-            DynamicRange = 50,
-            Peak = 25,
-            Overlay = Overlay
-        };
+        Renderer = CreateRenderer((int)(sizeInfo.NewSize.Width + .5), (int)(sizeInfo.NewSize.Height + .5));
         for (int i = 0, c = curves.Count; i < c; i++) {
-            curves[i] = renderer.AddCurve(curves[i].Curve, curves[i].Color);
+            curves[i] = Renderer.AddCurve(curves[i].Curve, curves[i].Color);
         }
         Invalidate();
     }

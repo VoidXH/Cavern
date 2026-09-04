@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 using Cavern.QuickEQ.Equalization;
 
@@ -41,6 +41,13 @@ namespace Cavern.QuickEQ.Graphing {
         public override void Clear() {
             EndFrequency = 1;
             base.Clear();
+        }
+
+        /// <inheritdoc/>
+        public override void Normalize() {
+            base.Normalize();
+            DynamicRange = 2f * Peak;
+            ReRenderFull();
         }
     }
 }

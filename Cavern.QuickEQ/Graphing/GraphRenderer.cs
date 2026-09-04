@@ -90,6 +90,21 @@ namespace Cavern.QuickEQ.Graphing {
         }
 
         /// <summary>
+        /// Set the <see cref="peak"/> to the max displayed gain.
+        /// </summary>
+        public virtual void Normalize() {
+            double curvePeak = double.NegativeInfinity;
+            for (int i = 0, c = curves.Count; i < c; i++) {
+                double localPeak = curves[i].Curve.PeakGain;
+                if (curvePeak < localPeak) {
+                    curvePeak = localPeak;
+                }
+            }
+            Peak = double.IsNegativeInfinity(curvePeak) ? 0 : (float)curvePeak;
+            ReRenderFull();
+        }
+
+        /// <summary>
         /// Add a <paramref name="curve"/> with an ARGB <paramref name="color"/>.
         /// </summary>
         public RenderedCurve AddCurve(Equalizer curve, uint color) => AddCurve(curve, color, true);
@@ -132,23 +147,6 @@ namespace Cavern.QuickEQ.Graphing {
         /// Get what gain corresponds to a given subpixel position on the height axis, relative to the peak gain.
         /// </summary>
         public float GetGainAt(float height) => peak - height / Height * dynamicRange;
-
-        /// <summary>
-        /// Set the <see cref="peak"/> to the max displayed gain.
-        /// </summary>
-        public virtual void Normalize() {
-            double curvePeak = float.NegativeInfinity;
-            for (int i = 0, c = curves.Count; i < c; i++) {
-                IReadOnlyList<Band> curve = curves[i].Curve.Bands;
-                for (int f = 0, c2 = curve.Count; f < c2; f++) {
-                    if (curvePeak < curve[f].Gain) {
-                        curvePeak = curve[f].Gain;
-                    }
-                }
-            }
-            Peak = (float)curvePeak;
-            ReRenderFull();
-        }
 
         /// <inheritdoc/>
         protected override void ReRender() {
