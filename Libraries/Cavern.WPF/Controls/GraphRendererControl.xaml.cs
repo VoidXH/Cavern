@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 using Cavern.QuickEQ.Equalization;
@@ -60,6 +60,14 @@ public partial class GraphRendererControl : UserControl {
         curves.Clear();
         Renderer.Clear();
         Invalidate();
+    }
+
+    /// <summary>
+    /// Set the <see cref="Renderer"/>'s peak and dynamic range to match the maximum displayed gain.
+    /// </summary>
+    public void Normalize() {
+        Renderer.Normalize();
+        InvalidateImage();
     }
 
     /// <summary>

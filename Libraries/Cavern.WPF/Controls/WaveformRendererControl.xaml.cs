@@ -11,7 +11,7 @@ namespace Cavern.WPF.Controls {
         /// </summary>
         public WaveformRendererControl() {
             InitializeComponent();
-            Overlay = new Frame(2, 0xFF000000);
+            Overlay = new Frame(1, 0xFF000000);
         }
 
         /// <summary>
@@ -19,7 +19,9 @@ namespace Cavern.WPF.Controls {
         /// </summary>
         /// <param name="width">Width in pixels.</param>
         /// <param name="height">Height in pixels.</param>
-        protected override GraphRenderer CreateRenderer(int width, int height) => new WaveformRenderer(width, height);
+        protected override GraphRenderer CreateRenderer(int width, int height) => new WaveformRenderer(width, height) {
+            Overlay = Overlay
+        };
 
         /// <summary>
         /// Add a new waveform and redraw.
@@ -28,7 +30,6 @@ namespace Cavern.WPF.Controls {
         /// <param name="color">ARGB color of the waveform.</param>
         public void AddWaveform(float[] waveform, uint color) {
             ((WaveformRenderer)Renderer).AddWaveform(waveform, color);
-            Renderer.Normalize();
             Invalidate();
         }
     }
