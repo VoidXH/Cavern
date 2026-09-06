@@ -8,6 +8,11 @@ namespace Cavern.Utilities {
     /// </summary>
     public static partial class QMath {
         /// <summary>
+        /// Get how far a <paramref name="value"/> is from 0 on a circle of a given <paramref name="size"/> from 0.
+        /// </summary>
+        public static int CircularOffset(int value, int size) => value > size / 2 ? value - size : value;
+
+        /// <summary>
         /// Clamps the value between 0 and 1.
         /// </summary>
         public static float Clamp01(float x) {
