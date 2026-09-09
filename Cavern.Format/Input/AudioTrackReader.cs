@@ -108,7 +108,12 @@ namespace Cavern.Format {
         /// <summary>
         /// Gets the metadata for the underlying codec in a human-readable format.
         /// </summary>
-        public ReadableMetadata GetMetadata() => decoder is IMetadataSupplier meta ? meta.GetMetadata() : null;
+        public ReadableMetadata GetMetadata() {
+            if (decoder == null) {
+                ReadHeader();
+            }
+            return decoder is IMetadataSupplier meta ? meta.GetMetadata() : null;
+        }
 
         /// <inheritdoc/>
         public override void Dispose() {

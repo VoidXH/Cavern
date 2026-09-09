@@ -1,5 +1,6 @@
 ﻿using System.IO;
 
+using Cavern.Format.Common;
 using Cavern.Format.Decoders;
 using Cavern.Format.Renderers;
 
@@ -7,7 +8,7 @@ namespace Cavern.Format {
     /// <summary>
     /// Decodes and renders RIFF WAVE files.
     /// </summary>
-    public class RIFFWaveReader : DecoderBasedAudioReader<RIFFWaveDecoder, RIFFWaveRenderer> {
+    public class RIFFWaveReader : DecoderBasedAudioReader<RIFFWaveDecoder, RIFFWaveRenderer>, IMetadataSupplier {
         /// <summary>
         /// Decodes and renders RIFF WAVE files.
         /// </summary>
@@ -33,5 +34,15 @@ namespace Cavern.Format {
 
         /// <inheritdoc/>
         public override RIFFWaveRenderer CreateRenderer(RIFFWaveDecoder decoder) => new RIFFWaveRenderer(decoder);
+
+        /// <summary>
+        /// Gets the metadata for this codec in a human-readable format.
+        /// </summary>
+        public ReadableMetadata GetMetadata() {
+            if (Decoder == null) {
+                ReadHeader();
+            }
+            return Decoder?.GetMetadata();
+        }
     }
 }

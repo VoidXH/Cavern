@@ -70,6 +70,11 @@ namespace Cavern.Format {
         public override EnhancedAC3Renderer CreateRenderer(EnhancedAC3Decoder decoder) => new EnhancedAC3Renderer(decoder);
 
         /// <inheritdoc/>
-        public ReadableMetadata GetMetadata() => decoder.GetMetadata();
+        public ReadableMetadata GetMetadata() {
+            if (decoder == null) {
+                ReadHeader();
+            }
+            return decoder.GetMetadata();
+        }
     }
 }

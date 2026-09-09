@@ -3,6 +3,7 @@ using System.IO;
 
 using Cavern.Channels;
 using Cavern.Format.Common;
+using Cavern.Format.Common.Metadata;
 using Cavern.Format.Consts;
 using Cavern.Format.Exceptions;
 using Cavern.Format.Transcoders;
@@ -13,7 +14,7 @@ namespace Cavern.Format.Decoders {
     /// <summary>
     /// Converts a RIFF WAVE bitstream to raw samples.
     /// </summary>
-    public class RIFFWaveDecoder : UncompressedDecoder {
+    public class RIFFWaveDecoder : UncompressedDecoder, IMetadataSupplier {
         /// <summary>
         /// Object metadata for Broadcast Wave Files.
         /// </summary>
@@ -136,6 +137,11 @@ namespace Cavern.Format.Decoders {
                 return RIFFWaveConsts.ParseChannelMask(channelMask);
             }
         }
+
+        /// <summary>
+        /// Gets the metadata for this codec in a human-readable format.
+        /// </summary>
+        public ReadableMetadata GetMetadata() => ADMMetadataExporter.GenerateMetadata(ADM);
 
         /// <summary>
         /// Finish header reading, start data reading.
