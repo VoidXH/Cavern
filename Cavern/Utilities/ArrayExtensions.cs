@@ -132,6 +132,28 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Multiply an <paramref name="item"/> a number of <paramref name="count"/> times.
+        /// </summary>
+        public static T[] Multiply<T>(this T item, int count) where T : ICloneable {
+            T[] result = new T[count];
+            for (int i = 0; i < count; i++) {
+                result[i] = (T)item.Clone();
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Multiply an <paramref name="item"/> a number of <paramref name="count"/> times. Copying will be by reference if it's a class.
+        /// </summary>
+        public static T[] MultiplyRef<T>(this T item, int count) {
+            T[] result = new T[count];
+            for (int i = 0; i < count; i++) {
+                result[i] = item;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// From a sorted <paramref name="source"/>, get which element is closest to a given <paramref name="value"/>.
         /// </summary>
         public static float Nearest(this float[] source, float value) {

@@ -5,6 +5,7 @@ using Cavern.Format.Common;
 using Cavern.Format.Consts;
 using Cavern.Format.Container;
 using Cavern.Format.Exceptions;
+using Cavern.Format.Utilities;
 using Cavern.Waveforms;
 
 namespace Cavern.Format {
@@ -207,14 +208,10 @@ namespace Cavern.Format {
         public void WriteOffset(float[][] samples, int period) {
             ChannelCount = samples.Length;
             Length = period * samples[0].Length;
-            float[] empty = new float[samples[0].Length];
-            float[][] holder = new float[samples.Length][];
+            float[][] holder = WaveformTransforms.OffsetByChannel(samples, period);
             WriteHeader();
             for (int curPeriod = 0; curPeriod < period; curPeriod++) {
-                for (int channel = 0; channel < holder.Length; channel++) {
-                    holder[channel] = channel % period == curPeriod ? samples[channel] : empty;
-                }
-                WriteBlock(holder, 0, holder[0].Length);
+                WriteBlock(holder, curPeriod * holder[0].Length, (curPeriod + 1) * holder[0].Length);
             }
             Dispose();
         }
