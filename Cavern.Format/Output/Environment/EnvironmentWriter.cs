@@ -149,7 +149,12 @@ namespace Cavern.Format.Environment {
             int channel = 0,
                 channels = Source.ActiveSources.Count;
             foreach (Source source in Source.ActiveSources) {
-                WaveformUtils.Insert(source.Rendered[0], renderCache, channel++, channels);
+                if (source.Rendered == null) { // Delayed start - silence until the source begins
+                    WaveformUtils.ClearChannel(renderCache, channel, channels, Source.UpdateRate);
+                } else {
+                    WaveformUtils.Insert(source.Rendered[0], renderCache, channel, channels);
+                }
+                channel++;
             }
             return renderCache;
         }
