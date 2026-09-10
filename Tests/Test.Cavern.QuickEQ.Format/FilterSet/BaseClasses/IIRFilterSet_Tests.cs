@@ -47,7 +47,7 @@ public class IIRFilterSet_Tests {
         IIRFilterSet parsed = new IIRFilterSet(exported, Constants.sampleRate);
         Assert.AreEqual(2, parsed.ChannelCount);
 
-        BiquadFilter[] parsedLeft = ((IIRFilterSet.IIRChannelData)parsed.Channels[0]).filters;
+        BiquadFilter[] parsedLeft = ((IIRChannelData)parsed.Channels[0]).filters;
         Assert.AreEqual(left.Length, parsedLeft.Length);
         for (int i = 0; i < left.Length; i++) {
             Assert.AreEqual(left[i].CenterFreq, parsedLeft[i].CenterFreq, Constants.delta);
@@ -55,7 +55,7 @@ public class IIRFilterSet_Tests {
             Assert.AreEqual(left[i].Q, parsedLeft[i].Q, Constants.delta);
         }
 
-        BiquadFilter[] parsedRight = ((IIRFilterSet.IIRChannelData)parsed.Channels[1]).filters;
+        BiquadFilter[] parsedRight = ((IIRChannelData)parsed.Channels[1]).filters;
         Assert.AreEqual(right.Length, parsedRight.Length);
         for (int i = 0; i < right.Length; i++) {
             Assert.AreEqual(right[i].CenterFreq, parsedRight[i].CenterFreq, Constants.delta);

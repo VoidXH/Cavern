@@ -89,7 +89,7 @@ public abstract class IIRFilterSetJig(FilterSetTarget target) {
     /// Check that every band survives the export's rounding precision.
     /// </summary>
     static void CheckExportRoundTrip(PeakingEQ[] source, IIRFilterSet parsed) {
-        BiquadFilter[] parsedBands = ((IIRFilterSet.IIRChannelData)parsed.Channels[0]).filters;
+        BiquadFilter[] parsedBands = ((IIRChannelData)parsed.Channels[0]).filters;
         Assert.AreEqual(source.Length, parsedBands.Length, "The exported and parsed band counts must match.");
 
         const double epsilon = 0.0005;
@@ -106,7 +106,7 @@ public abstract class IIRFilterSetJig(FilterSetTarget target) {
     /// <see cref="Equalizer"/> at each of its bands within the approximation tolerance.
     /// </summary>
     static void CheckResponseAgainstReference(IIRFilterSet parsed, Equalizer reference, int sampleRate, double toleranceDb) {
-        BiquadFilter[] parsedBands = ((IIRFilterSet.IIRChannelData)parsed.Channels[0]).filters;
+        BiquadFilter[] parsedBands = ((IIRChannelData)parsed.Channels[0]).filters;
         if (parsedBands.Length == 0) {
             return;
         }
