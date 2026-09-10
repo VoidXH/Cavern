@@ -210,9 +210,7 @@ namespace Cavern.Format {
             Length = period * samples[0].Length;
             float[][] holder = WaveformTransforms.OffsetByChannel(samples, period);
             WriteHeader();
-            for (int curPeriod = 0; curPeriod < period; curPeriod++) {
-                WriteBlock(holder, curPeriod * holder[0].Length, (curPeriod + 1) * holder[0].Length);
-            }
+            WriteBlock(holder, 0, holder[0].Length);
             Dispose();
         }
 
