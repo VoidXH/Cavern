@@ -20,7 +20,7 @@ namespace Cavern.Utilities {
             Complex[] lhsFFT = lhs.FFT(cache),
                 rhsFFT = rhs.FFT(cache);
             for (int i = 0; i < lhs.Length; i++) {
-                lhsFFT[i] *= rhsFFT[i].Invert();
+                lhsFFT[i] *= rhsFFT[i].Conjugate();
             }
             lhsFFT.InPlaceIFFT(cache);
             return lhsFFT;

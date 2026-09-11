@@ -151,6 +151,11 @@ namespace Cavern.Utilities {
         }
 
         /// <summary>
+        /// Get the conjugate of this number.
+        /// </summary>
+        public readonly Complex Conjugate() => new Complex(Real, -Imaginary);
+
+        /// <summary>
         /// Calculate 1 / z.
         /// </summary>
         public readonly Complex Invert() {
