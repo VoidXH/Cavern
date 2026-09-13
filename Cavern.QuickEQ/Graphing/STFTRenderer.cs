@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 
 using Cavern.Utilities;
@@ -321,6 +321,7 @@ namespace Cavern.QuickEQ.Graphing {
             float dynamicRangeScaler = 1f / dynamicRange;
             Parallelizer.For(0, Height, row => {
                 float[] pixels = stfts[stfts.Length * row / Height];
+                float[] prefix = pixels.PrefixSum();
                 int pixelOffset = row * Width;
                 if (Logarithmic) {
                     double mul = Math.Exp((Math.Log(EndFrequency) - Math.Log(StartFrequency)) / (Width - 1));
@@ -331,7 +332,7 @@ namespace Cavern.QuickEQ.Graphing {
                         pixelIndex *= mul;
                         int nextIndex = (int)pixelIndex;
                         if (currentIndex + 1 < nextIndex) {
-                            currentValue = QMath.Average(pixels, currentIndex, nextIndex);
+                            currentValue = (prefix[nextIndex] - prefix[currentIndex]) / (nextIndex - currentIndex);
                         }
                         currentValue = Math.Max((20 * MathF.Log10(currentValue) + dynamicRange) * dynamicRangeScaler, 0);
                         Pixels[pixelOffset + column] = GetColorForValue(currentValue);

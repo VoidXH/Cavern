@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using Cavern.Channels;
 using Cavern.QuickEQ.Equalization;
@@ -57,8 +58,14 @@ namespace Cavern.QuickEQ.Measurement {
         /// <summary>
         /// Using the settings, calculate the average spectrum for each channel.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Equalizer[] Merge() => Merge(AveragingMode.FrequencyDomain);
+
+        /// <summary>
+        /// Using the settings, calculate the average spectrum for each channel.
+        /// </summary>
         /// <param name="averagingMode">How to average the measurements.</param>
-        public Equalizer[] Merge(AveragingMode averagingMode = AveragingMode.FrequencyDomain) {
+        public Equalizer[] Merge(AveragingMode averagingMode) {
             Equalizer calibration = MicCalibration;
             if (calibration != null) {
                 calibration = (Equalizer)calibration.Clone();

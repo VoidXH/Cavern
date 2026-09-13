@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -109,14 +109,13 @@ namespace Cavern.QuickEQ.Equalization {
             if (windowEdge == 0) {
                 windowEdge = 1;
             }
+            float[] prefix = graph.PrefixSum();
             float[] refGain = targetCurve.GenerateLogCurve(startFreq, endFreq, graph.Length);
             for (int pos = graph.Length - 1; pos >= 0; pos -= windowSize) {
-                float centerFreq = (float)Math.Pow(10, startPow + powRange * pos), average = 0;
+                float centerFreq = (float)Math.Pow(10, startPow + powRange * pos);
                 int start = Math.Max(pos - windowEdge, 0), end = Math.Min(pos + windowEdge, graph.Length);
-                for (int sample = start; sample < end; ++sample) {
-                    average += graph[sample];
-                }
-                float addition = refGain[pos] + targetGain - average / (end - start);
+                float average = (prefix[end] - prefix[start]) / (end - start);
+                float addition = refGain[pos] + targetGain - average;
                 if (addition <= maxGain) {
                     bands.Add(new Band(centerFreq, addition));
                 }

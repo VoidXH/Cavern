@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -58,7 +58,7 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Sum(this double[] array, int from, int to) {
             double sum = 0;
-            for (int i = from; i < to; ++i) {
+            for (int i = from; i < to; i++) {
                 sum += array[i];
             }
             return sum;
@@ -82,7 +82,7 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Sum(this float[] array, int from, int to) {
             float sum = 0;
-            for (int i = from; i < to; ++i) {
+            for (int i = from; i < to; i++) {
                 sum += array[i];
             }
             return sum;
@@ -106,7 +106,7 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Sum(this int[] array, int from, int to) {
             int sum = 0;
-            for (int i = from; i < to; ++i) {
+            for (int i = from; i < to; i++) {
                 sum += array[i];
             }
             return sum;
@@ -118,7 +118,7 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Sum(this IReadOnlyList<double> list) {
             double sum = 0;
-            for (int i = 0, to = list.Count; i < to; ++i) {
+            for (int i = 0, to = list.Count; i < to; i++) {
                 sum += list[i];
             }
             return sum;
@@ -143,10 +143,34 @@ namespace Cavern.Utilities {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float SumAbs(this float[] array, int from, int to) {
             float sum = 0;
-            for (int i = from; i < to; ++i) {
+            for (int i = from; i < to; i++) {
                 sum += Math.Abs(array[i]);
             }
             return sum;
+        }
+
+        /// <summary>
+        /// Calculate the prefix sums (cumulative sums) of an array, where result[i + 1] = result[i] + array[i].
+        /// The returned array has a length of <paramref name="array"/>.Length + 1 with result[0] = 0.
+        /// </summary>
+        public static double[] PrefixSum(this double[] array) {
+            double[] result = new double[array.Length + 1];
+            for (int i = 0; i < array.Length; i++) {
+                result[i + 1] = result[i] + array[i];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Calculate the prefix sums (cumulative sums) of an array, where result[i + 1] = result[i] + array[i].
+        /// The returned array has a length of <paramref name="array"/>.Length + 1 with result[0] = 0.
+        /// </summary>
+        public static float[] PrefixSum(this float[] array) {
+            float[] result = new float[array.Length + 1];
+            for (int i = 0; i < array.Length; i++) {
+                result[i + 1] = result[i] + array[i];
+            }
+            return result;
         }
     }
 }
