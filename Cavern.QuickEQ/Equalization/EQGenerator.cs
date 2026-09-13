@@ -187,7 +187,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="mode">The space in which smoothing is applied.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer FromTransferFunction(Complex[] source, int sampleRate, double smoothing, SmoothingMode mode)
-            => FromTransferFunction(source, sampleRate, 0, sampleRate / 2, smoothing, smoothing, mode);
+            => FromTransferFunction(source, sampleRate, 0, sampleRate / 2.0, smoothing, smoothing, mode);
 
         /// <summary>
         /// Parse an Equalizer from a linear transfer function with a smoothing window that changes by frequency.
@@ -199,7 +199,7 @@ namespace Cavern.QuickEQ.Equalization {
         /// <param name="mode">The space in which smoothing is applied.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Equalizer FromTransferFunction(Complex[] source, int sampleRate, double startSmoothing, double endSmoothing, SmoothingMode mode)
-            => FromTransferFunction(source, sampleRate, 0, sampleRate / 2, startSmoothing, endSmoothing, mode);
+            => FromTransferFunction(source, sampleRate, 0, sampleRate / 2.0, startSmoothing, endSmoothing, mode);
 
         /// <summary>
         /// Parse a range-limited Equalizer from a linear transfer function with a smoothing window that changes by frequency.
