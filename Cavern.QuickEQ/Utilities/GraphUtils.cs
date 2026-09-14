@@ -210,20 +210,24 @@ namespace Cavern.QuickEQ.Utilities {
         /// Smooth any kind of graph with a uniform window size.
         /// </summary>
         public static float[] SmoothUniform(float[] source, int windowSize) {
-            int length = source.Length;
-            if (length == 0) {
-                return Array.Empty<float>();
+            int length = source.Length,
+                lastBlock = length - windowSize;
+            float[] smoothed = new float[length--];
+            float average = 0;
+            for (int sample = 0; sample < windowSize; sample++) {
+                average += source[sample];
             }
-            if (windowSize <= 0) {
-                return source.FastClone();
+            for (int sample = 0; sample < windowSize; sample++) {
+                smoothed[sample] = average / (sample + windowSize);
+                average += source[sample + windowSize];
             }
-
-            float[] prefix = source.PrefixSum();
-            float[] smoothed = new float[length];
-            for (int sample = 0; sample < length; sample++) {
-                int start = Math.Max(0, sample - windowSize);
-                int end = Math.Min(length, sample + windowSize);
-                smoothed[sample] = (prefix[end] - prefix[start]) / (end - start);
+            for (int sample = windowSize; sample < lastBlock; sample++) {
+                average += source[sample + windowSize] - source[sample - windowSize];
+                smoothed[sample] = average / (windowSize * 2);
+            }
+            for (int sample = lastBlock; sample <= length; sample++) {
+                average -= source[sample - windowSize];
+                smoothed[sample] = average / (length - sample + windowSize);
             }
             return smoothed;
         }

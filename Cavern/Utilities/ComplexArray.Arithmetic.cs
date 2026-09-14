@@ -77,47 +77,5 @@ namespace Cavern.Utilities {
             return result;
         }
 
-        /// <summary>
-        /// Calculate the prefix sums (cumulative sums) of the directions (normalized complex values) of a complex array.
-        /// The returned array has a length of <paramref name="array"/>.Length + 1 with result[0] = 0.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Complex[] PrefixSumDirections(this Complex[] array) => PrefixSumDirections(array, array.Length);
-
-        /// <summary>
-        /// Calculate the prefix sums (cumulative sums) of the directions (normalized complex values) of a complex array until the selected border element (exclusive).
-        /// The returned array has a length of <paramref name="until"/> + 1 with result[0] = 0.
-        /// </summary>
-        public static Complex[] PrefixSumDirections(this Complex[] array, int until) {
-            Complex[] result = new Complex[until + 1];
-            for (int i = 0; i < until; i++) {
-                float mag = array[i].Magnitude;
-                if (mag > 0) {
-                    result[i + 1] = result[i] + array[i] * (1 / mag);
-                } else {
-                    result[i + 1] = result[i];
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Calculate the prefix sums (cumulative sums) of the magnitudes of a complex array.
-        /// The returned array has a length of <paramref name="array"/>.Length + 1 with result[0] = 0.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float[] PrefixSumMagnitudes(this Complex[] array) => PrefixSumMagnitudes(array, array.Length);
-
-        /// <summary>
-        /// Calculate the prefix sums (cumulative sums) of the magnitudes of a complex array until the selected border element (exclusive).
-        /// The returned array has a length of <paramref name="until"/> + 1 with result[0] = 0.
-        /// </summary>
-        public static float[] PrefixSumMagnitudes(this Complex[] array, int until) {
-            float[] result = new float[until + 1];
-            for (int i = 0; i < until; i++) {
-                result[i + 1] = result[i] + array[i].Magnitude;
-            }
-            return result;
-        }
     }
 }

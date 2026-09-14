@@ -160,20 +160,25 @@ namespace Cavern.QuickEQ.Equalization {
         /// <summary>
         /// Parse an Equalizer from a linear transfer function, but merge samples in logarithmic gaps (keep the octave range constant).
         /// </summary>
-        public static Equalizer FromTransferFunctionOptimized(Complex[] source, int sampleRate) {
-            int end = source.Length >> 1;
-            float[] magPrefix = source.PrefixSumMagnitudes(end);
+        public static unsafe Equalizer FromTransferFunctionOptimized(Complex[] source, int sampleRate) {
             List<Band> bands = new List<Band>();
             double step = (double)sampleRate / (source.Length - 1);
-            for (int entry = 2; entry < end;) {
-                int merge = (int)Math.Log(entry, 2);
-                if (merge > end - entry) {
-                    merge = end - entry;
-                }
+            fixed (Complex* pSource = source) {
+                for (int entry = 2, end = source.Length >> 1; entry < end;) {
+                    int merge = (int)Math.Log(entry, 2);
+                    if (merge > end - entry) {
+                        merge = end - entry;
+                    }
 
-                float sum = (magPrefix[entry + merge] - magPrefix[entry]) / merge;
-                bands.Add(new Band(step * (entry + (merge - 1) * 0.5), 20 * Math.Log10(sum)));
-                entry += merge;
+                    float sum = 0;
+                    for (Complex* i = pSource + entry, mergeUntil = i + merge; i != mergeUntil; i++) {
+                        sum += (*i).Magnitude;
+                    }
+                    sum /= merge;
+
+                    bands.Add(new Band(step * (entry + (merge - 1) * 0.5), 20 * Math.Log10(sum)));
+                    entry += merge;
+                }
             }
             return new Equalizer(bands, true);
         }

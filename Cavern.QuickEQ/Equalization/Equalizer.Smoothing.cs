@@ -47,25 +47,27 @@ namespace Cavern.QuickEQ.Equalization {
                     throw new InvalidOperationException("Equalizers don't hold complex values.");
             }
 
-            double[] prefix = gains.PrefixSum();
             double[] result = new double[count];
             int smoothFrom = 0;
             int smoothTo = 0;
+            double currentWindowSum = 0;
             for (int i = 0; i < count; i++) {
                 double minFreq = bands[i].Frequency * multipleFrom;
                 double maxFreq = bands[i].Frequency * multipleTo;
 
                 while (smoothTo < count && bands[smoothTo].Frequency < maxFreq) {
+                    currentWindowSum += gains[smoothTo];
                     smoothTo++;
                 }
 
                 while (smoothFrom < count && bands[smoothFrom].Frequency < minFreq) {
+                    currentWindowSum -= gains[smoothFrom];
                     smoothFrom++;
                 }
 
                 int windowSize = smoothTo - smoothFrom;
                 if (windowSize > 0) {
-                    result[i] = (prefix[smoothTo] - prefix[smoothFrom]) / windowSize;
+                    result[i] = currentWindowSum / windowSize;
                 } else {
                     result[i] = gains[i];
                 }

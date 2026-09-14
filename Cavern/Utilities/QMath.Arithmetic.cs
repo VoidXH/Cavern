@@ -148,29 +148,5 @@ namespace Cavern.Utilities {
             }
             return sum;
         }
-
-        /// <summary>
-        /// Calculate the prefix sums (cumulative sums) of an array, where result[i + 1] = result[i] + array[i].
-        /// The returned array has a length of <paramref name="array"/>.Length + 1 with result[0] = 0.
-        /// </summary>
-        public static double[] PrefixSum(this double[] array) {
-            double[] result = new double[array.Length + 1];
-            for (int i = 0; i < array.Length; i++) {
-                result[i + 1] = result[i] + array[i];
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Calculate the prefix sums (cumulative sums) of an array, where result[i + 1] = result[i] + array[i].
-        /// The returned array has a length of <paramref name="array"/>.Length + 1 with result[0] = 0.
-        /// </summary>
-        public static float[] PrefixSum(this float[] array) {
-            float[] result = new float[array.Length + 1];
-            for (int i = 0; i < array.Length; i++) {
-                result[i + 1] = result[i] + array[i];
-            }
-            return result;
-        }
     }
 }

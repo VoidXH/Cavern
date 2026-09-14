@@ -55,11 +55,19 @@ namespace Cavern.QuickEQ.Equalization {
             Complex[] result = new Complex[length];
             double step = (double)sampleRate / (length - 1);
 
-            float[] prefixMag = source.PrefixSumMagnitudes();
-            Complex[] prefixDir = source.PrefixSumDirections();
+            float[] mag = new float[length];
+            float[] invMag = new float[length];
+            for (int i = 0; i < length; i++) {
+                mag[i] = source[i].Magnitude;
+                if (mag[i] > 0) {
+                    invMag[i] = 1 / mag[i];
+                }
+            }
 
             int smoothFrom = 0;
             int smoothTo = 0;
+            float currentMagSum = 0;
+            Complex currentDirSum = default;
             double effectiveStartFreq = startFreq > 0 ? startFreq : step;
 
             for (int i = 0; i < length; i++) {
@@ -78,17 +86,21 @@ namespace Cavern.QuickEQ.Equalization {
                 double maxFreq = Math.Min(freq * multipleTo, endFreq);
 
                 while (smoothTo < length && step * smoothTo < maxFreq) {
+                    currentMagSum += mag[smoothTo];
+                    currentDirSum += source[smoothTo] * invMag[smoothTo];
                     smoothTo++;
                 }
 
                 while (smoothFrom < length && step * smoothFrom < minFreq) {
+                    currentMagSum -= mag[smoothFrom];
+                    currentDirSum -= source[smoothFrom] * invMag[smoothFrom];
                     smoothFrom++;
                 }
 
                 int windowSize = smoothTo - smoothFrom;
                 if (windowSize > 0) {
-                    float magMean = (prefixMag[smoothTo] - prefixMag[smoothFrom]) / windowSize;
-                    Complex dirSum = prefixDir[smoothTo] - prefixDir[smoothFrom];
+                    float magMean = currentMagSum / windowSize;
+                    Complex dirSum = currentDirSum;
                     float dirMag = dirSum.Magnitude;
                     if (dirMag > 0) {
                         result[i] = dirSum * (magMean / dirMag);
