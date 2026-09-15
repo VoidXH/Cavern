@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -259,28 +258,6 @@ namespace Cavern.Channels {
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3[] ToPositions(ReferenceChannel[] source) => ToPositions(Get(source));
-
-        /// <summary>
-        /// Convert a prototype array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
-        /// </summary>
-        public static Channel[] ToLayout(ChannelPrototype[] source) {
-            Channel[] result = new Channel[source.Length];
-            for (int channel = 0; channel < source.Length; ++channel) {
-                result[channel] = new Channel(source[channel].X, source[channel].Y, source[channel].LFE);
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Convert a reference array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>.
-        /// </summary>
-        public static Channel[] ToLayout(ReferenceChannel[] source) => ToLayout(Get(source));
-
-        /// <summary>
-        /// Convert a reference array to a <see cref="Channel"/> array that can be set in <see cref="Listener.Channels"/>,
-        /// using the <see cref="AlternativePositions"/>.
-        /// </summary>
-        public static Channel[] ToLayoutAlternative(ReferenceChannel[] source) => ToLayout(GetAlternative(source));
 
         /// <summary>
         /// Check if two channel prototypes are the same.

@@ -82,20 +82,16 @@ namespace Cavern {
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(Vector3 location, bool LFE) {
             lfe = LFE;
-            if (location.Y != 0) {
-                if (location.X == 0) {
-                    SetPosition(-MathF.Abs(MathF.Atan(location.Z / location.Y)) * VectorExtensions.Rad2Deg, 0);
-                    return;
-                } else if (location.Z == 0) {
-                    SetPosition(-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg, location.X < 0 ? -90 : 90);
-                    return;
-                }
+            var normalized = location.Normalized();
+            Y = MathF.Atan2(normalized.X, normalized.Z) * VectorExtensions.Rad2Deg;
+            while (Y > 180) {
+                Y -= 360;
             }
-            float y = MathF.Atan(location.X / location.Z) * VectorExtensions.Rad2Deg;
-            if (location.Z < 0) {
-                y += 180;
+            while (Y < -180) {
+                Y += 360;
             }
-            SetPosition(location.Y == 0 ? 0 : (-MathF.Abs(MathF.Atan(location.X / location.Y)) * VectorExtensions.Rad2Deg), y);
+            X = -MathF.Atan2(normalized.Y, MathF.Sqrt(normalized.X * normalized.X + normalized.Z * normalized.Z)) * VectorExtensions.Rad2Deg;
+            SetPosition(X, Y);
         }
 
         /// <summary>
@@ -165,23 +161,8 @@ namespace Cavern {
                 sinY = MathF.Sin(yRad),
                 cosY = MathF.Cos(yRad);
             SphericalPos = new Vector3(sinY * cosX, -sinX, cosY * cosX);
-            if (Math.Abs(sinY) > Math.Abs(cosY)) {
-                sinY = Math.Sign(sinY) * VectorExtensions.Sqrt2p2;
-            } else {
-                cosY = Math.Sign(cosY) * VectorExtensions.Sqrt2p2;
-            }
-            sinY /= VectorExtensions.Sqrt2p2;
-            cosY /= VectorExtensions.Sqrt2p2;
-            if (Math.Abs(sinX) >= VectorExtensions.Sqrt2p2) {
-                sinX = Math.Sign(sinX) * VectorExtensions.Sqrt2p2;
-                cosX /= VectorExtensions.Sqrt2p2;
-                sinY *= cosX;
-                cosY *= cosX;
-            }
-            sinX /= VectorExtensions.Sqrt2p2;
-            CubicalPos = new Vector3(sinY, -sinX, cosY);
-            SpatialPos = Listener.IsSpherical ? SphericalPos : CubicalPos;
-            Distance = SpatialPos.Length();
+            CubicalPos = SphericalPos.MapToCube();
+            FinalizeSpace();
         }
 
         /// <summary>
@@ -192,6 +173,14 @@ namespace Cavern {
             X = x;
             Y = y;
             Recalculate();
+        }
+
+        /// <summary>
+        /// Set <see cref="SpatialPos"/> and <see cref="Distance"/> if <see cref="SphericalPos"/> or <see cref="CubicalPos"/> changed.
+        /// </summary>
+        void FinalizeSpace() {
+            SpatialPos = Listener.IsSpherical ? SphericalPos : CubicalPos;
+            Distance = SpatialPos.Length();
         }
     }
 }
