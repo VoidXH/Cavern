@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -54,8 +55,9 @@ namespace Cavern.Format.FilterSet {
                     }
                     BiquadFilter[] filters = ((IIRChannelData)Channels[ch]).filters;
                     BiquadFilter filter = i < filters.Length && filters[i] != null ? filters[i] : noFilter;
+                    double q = filter == noFilter ? 0 : Math.Max(filter.Q, .1);
                     result.Append($"\"{label}\":{{\"Fc\":{Parse(filter.CenterFreq)},\"gaindB\":{Parse(filter.Gain)}," +
-                        $"\"Q\":{Parse(filter.Q)},\"FilterType\":0}}");
+                        $"\"Q\":{Parse(q)},\"FilterType\":0}}");
                 }
                 result.Append($"}},\"name\":\"BAND {i + 1}\",\"valid\":false}}");
             }

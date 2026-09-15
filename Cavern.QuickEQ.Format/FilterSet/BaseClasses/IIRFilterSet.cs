@@ -179,7 +179,7 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         /// <remarks>A snapped Q must stay strictly positive, as a Q of 0 produces a degenerate biquad
         /// (division by zero in the coefficient calculation), which yields NaN responses.</remarks>
-        protected double SnapQ(double q) {
+        public virtual double SnapQ(double q) {
             double snapped = Math.Round(q / QPrecision) * QPrecision;
             return snapped > 0 ? snapped : QPrecision;
         }

@@ -61,7 +61,7 @@ namespace Cavern.Format.FilterSet {
                     }
                     channelData.Add(string.Format("{0}peq/{1} sfff PEQ {2} {3,5} {4}", prefix, j + 1,
                         freq, FormatWithSign(filters[j].Gain, "0.0"),
-                        Math.Min(filters[j].Q, 10).ToString("0.00", CultureInfo.InvariantCulture)));
+                        Math.Max(Math.Min(filters[j].Q, 10), .01).ToString("0.00", CultureInfo.InvariantCulture)));
                 }
                 channelData.AddRange(new[] {
                     prefix + "xover/hp sf OFF 100.0",

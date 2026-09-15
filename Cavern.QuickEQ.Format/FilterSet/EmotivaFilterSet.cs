@@ -41,6 +41,9 @@ namespace Cavern.Format.FilterSet {
         /// </summary>
         public EmotivaFilterSet(ReferenceChannel[] channels, int sampleRate) : base(channels, sampleRate) { }
 
+        /// <inheritdoc/>
+        public override double SnapQ(double q) => Math.Min(Math.Max(Math.Round(q * 5) / 5, .2), 10);
+
         /// <summary>
         /// Export the filter set to a target file.
         /// </summary>
@@ -57,7 +60,7 @@ namespace Cavern.Format.FilterSet {
                 };
                 BiquadFilter[] filters = ((IIRChannelData)Channels[i]).filters;
                 for (int j = 0; j < filters.Length; j++) {
-                    string qFactor = Math.Min(Math.Round(filters[j].Q * 5) / 5, 10).ToString("0.00", CultureInfo.InvariantCulture);
+                    string qFactor = SnapQ(filters[j].Q).ToString("0.00", CultureInfo.InvariantCulture);
                     channelData.Add($"        <filter number=\"{j + 1}\">");
                     channelData.Add($"            <frequency>{filters[j].CenterFreq:0}</frequency>");
                     channelData.Add($"            <level>{filters[j].Gain.ToString("0.0", CultureInfo.InvariantCulture)}</level>");

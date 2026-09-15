@@ -74,7 +74,7 @@ namespace Cavern.Format.FilterSet {
                                     result.AppendLine($"{FrequencyLineStart}{RangeDependentDecimals(filter.CenterFreq)} Hz");
                                     break;
                                 case FilterProperty.QFactor:
-                                    result.AppendLine(QLineStart + QMath.ToStringLimitDecimals(filter.Q, 2));
+                                    result.AppendLine(QLineStart + QMath.ToStringLimitDecimals(Math.Max(filter.Q, .01), 2));
                                     break;
                             }
                         }
