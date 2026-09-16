@@ -113,6 +113,30 @@ namespace Cavern.QuickEQ.SignalGeneration {
         }
 
         /// <summary>
+        /// Generates a multitone sine wave signal.
+        /// </summary>
+        /// <param name="frequencies">The frequencies of the sine waves in Hertz</param>
+        /// <param name="length">The length of the generated signal in samples</param>
+        /// <param name="sampleRate">Samples per second</param>
+        /// <remarks>No windowing is used, and a click will be heard if the last period doesn't end at
+        /// the <paramref name="length"/>.</remarks>
+        public static float[] SineMultitone(float[] frequencies, int length, int sampleRate) {
+            float[] result = new float[length];
+            float[] multipliers = new float[frequencies.Length];
+            for (int f = 0; f < frequencies.Length; f++) {
+                multipliers[f] = 2 * MathF.PI * frequencies[f] / sampleRate;
+            }
+            for (int i = 0; i < length; i++) {
+                float sum = 0;
+                for (int f = 0; f < frequencies.Length; f++) {
+                    sum += MathF.Sin(multipliers[f] * i);
+                }
+                result[i] = sum;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Generates white noise.
         /// </summary>
         /// <param name="length">The length of the generated noise in samples</param>
