@@ -140,9 +140,16 @@ namespace Cavern.QuickEQ.SignalGeneration {
         /// Generates white noise.
         /// </summary>
         /// <param name="length">The length of the generated noise in samples</param>
-        public static float[] WhiteNoise(int length) {
+        public static float[] WhiteNoise(int length) => WhiteNoise(length, -1);
+
+        /// <summary>
+        /// Generates white noise.
+        /// </summary>
+        /// <param name="length">The length of the generated noise in samples</param>
+        /// <param name="seed">Seed for the random number generator, for reproducible noise</param>
+        public static float[] WhiteNoise(int length, int seed) {
             float[] result = new float[length];
-            Random generator = new Random();
+            Random generator = seed == -1 ? new Random() : new Random(seed);
             for (int i = 0; i < length; i++) {
                 result[i] = (float)(generator.NextDouble() * 2 - 1);
             }
