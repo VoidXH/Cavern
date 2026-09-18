@@ -7,6 +7,7 @@ using System.Text;
 using Cavern.Channels;
 using Cavern.Filters;
 using Cavern.Format.Exceptions;
+using Cavern.Format.FilterSet.Consts;
 
 namespace Cavern.Format.FilterSet {
     /// <summary>
@@ -54,7 +55,7 @@ namespace Cavern.Format.FilterSet {
 
             ReferenceChannel[] channels = new ReferenceChannel[sourceGuids.Length];
             for (int i = 0; i < channels.Length; i++) {
-                channels[i] = MultEQMatrix[channels.Length][i];
+                channels[i] = MQXConsts.matrix[channels.Length][i];
             }
 
             return new MultEQXFilterSet(channels, Listener.DefaultSampleRate) {
@@ -121,7 +122,7 @@ namespace Cavern.Format.FilterSet {
             for (int channel = 0; channel < guids.Length;) {
                 IIRChannelData channelRef = (IIRChannelData)Channels[channel];
                 (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair, string location) label =
-                    labeling.FirstOrDefault(x => x.channel == channelRef.reference);
+                    MQXConsts.labeling.FirstOrDefault(x => x.channel == channelRef.reference);
                 if (label.designation == null) {
                     throw new IOException("A channel that's part of the exported configuration is unsupported by MultEQ-X.");
                 }
@@ -257,49 +258,5 @@ namespace Cavern.Format.FilterSet {
         /// Closing of the JSON file.
         /// </summary>
         const string fileEnd = "], \"PositionNames\": {}, \"UsedLocalMicrophones\": {} }";
-
-        /// <summary>
-        /// Channel layout for each channel count in a MultEQ-X configuration file.
-        /// </summary>
-        static readonly ReferenceChannel[][] MultEQMatrix = new ReferenceChannel[][] {
-            Array.Empty<ReferenceChannel>(),
-            new ReferenceChannel[] { ReferenceChannel.FrontCenter },
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight },
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter },
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight },
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight },
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.ScreenLFE },
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.ScreenLFE, ReferenceChannel.ScreenLFE },
-            new ReferenceChannel[] { ReferenceChannel.FrontLeft, ReferenceChannel.FrontRight, ReferenceChannel.FrontCenter,
-                ReferenceChannel.SideLeft, ReferenceChannel.SideRight, ReferenceChannel.RearLeft, ReferenceChannel.RearRight,
-                ReferenceChannel.ScreenLFE }
-        };
-
-        /// <summary>
-        /// Values of MultEQ fields for <see cref="ReferenceChannel"/>s.
-        /// </summary>
-        static readonly (ReferenceChannel channel, string designation, string name, string pairDesignation, string pair,
-            string location)[] labeling = {
-            (ReferenceChannel.FrontLeft, "FL", "Front Left", "F_", "Front", "FL"),
-            (ReferenceChannel.FrontRight, "FR", "Front Right", "F_", "Front", "FR"),
-            (ReferenceChannel.FrontCenter, "C", "Center", "C", "Center", "Center, Front"),
-            (ReferenceChannel.ScreenLFE, "SW1", "Subwoofer 1", "SW1", "Subwoofer 1", "Subwoofer, Position1"),
-            (ReferenceChannel.SideLeft, "SLA", "Surround Left", "S_A", "Surround", "Left, Surround, Position1"),
-            (ReferenceChannel.SideRight, "SRA", "Surround Right", "S_A", "Surround", "Right, Surround, Position1"),
-            (ReferenceChannel.RearLeft, "SBL", "Surround Back Left", "SB_", "Surround Back", "Left, Back"),
-            (ReferenceChannel.RearRight, "SBR", "Surround Back Right", "SB_", "Surround Back", "Right, Back"),
-            (ReferenceChannel.TopFrontLeft, "FHL", "Front Height Left", "FH_", "Front Height", "FL, Height"),
-            (ReferenceChannel.TopFrontCenter, "CH", "Center Height", "CH", "Center Height", "Overhead"),
-            (ReferenceChannel.TopFrontRight, "FHR", "Front Height Right", "FH_", "Front Height", "FR, Height"),
-            (ReferenceChannel.TopSideLeft, "TML", "Top Middle Left", "TM_", "Top Middle", "Left, Surround, Top"),
-            (ReferenceChannel.TopSideRight, "TMR", "Top Middle Right", "TM_", "Top Middle", "Right, Surround, Top"),
-            (ReferenceChannel.TopRearLeft, "RHL", "Rear Height Left", "RH_", "Rear Height", "Left, Rear, Height"),
-            (ReferenceChannel.TopRearRight, "RHR", "Rear Height Right", "RH_", "Rear Height", "Right, Rear, Height"),
-            (ReferenceChannel.GodsVoice, "TS", "Top Surround", "TS", "Top Surround", "Surround, Top"),
-        };
     }
 }
