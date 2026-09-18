@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using Cavern.Utilities;
 
@@ -7,6 +7,19 @@ namespace Cavern.QuickEQ.EQCurves {
     /// A curve with a linear bass rise and linear treble suppression.
     /// </summary>
     public class RoomCurveLikeCurve : TrebleSuppressingCurve {
+        /// <inheritdoc/>
+        public override string ToBase64() => ToBase64String($"{nameof(RoomCurveLikeCurve)}|{trebleSuppression}|{rise}");
+
+        /// <inheritdoc/>
+        public override void FromBase64(string source) {
+            string data = FromBase64String(source);
+            string[] parts = data.Split('|');
+            if (parts.Length != 3 || parts[0] != nameof(RoomCurveLikeCurve)) {
+                throw new FormatException("Invalid RoomCurveLikeCurve data.");
+            }
+            trebleSuppression = float.Parse(parts[1]);
+            rise = float.Parse(parts[2]);
+        }
         /// <summary>
         /// The frequency from where the bass rise starts.
         /// </summary>
@@ -20,7 +33,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <summary>
         /// Bass rise at 20 Hz in decibels.
         /// </summary>
-        readonly float rise;
+        protected float rise;
 
         /// <summary>
         /// The multiplier for getting the gain for a given frequency in the index operator.
@@ -74,7 +87,7 @@ namespace Cavern.QuickEQ.EQCurves {
             if (knee < 0) {
                 return curve;
             } else if (knee > curve.Length) {
-                knee = curve.Length;
+                knee = length;
             }
 
             float positioner = (float)(1.0 / (knee - (log10_20 - powerMin) * powerRange));

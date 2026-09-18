@@ -1,5 +1,7 @@
 ﻿using System;
 
+using Cavern.Utilities;
+
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
     /// EQ curve with uniform gain on all frequencies.
@@ -49,5 +51,15 @@ namespace Cavern.QuickEQ.EQCurves {
             Array.Fill(curve, gain);
             return curve;
         }
+
+        /// <inheritdoc/>
+        public override void FromBase64(string source) {
+            if (FromBase64String(source) != nameof(Flat)) {
+                throw new FormatException("Invalid Flat curve data.");
+            }
+        }
+
+        /// <inheritdoc/>
+        public override string ToBase64() => ToBase64String(nameof(Flat));
     }
 }

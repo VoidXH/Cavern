@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 
 using Cavern.Filters;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
@@ -114,5 +115,15 @@ namespace Cavern.QuickEQ.EQCurves {
                 }
             }
         }
+
+        /// <inheritdoc/>
+        public override void FromBase64(string source) {
+            if (FromBase64String(source) != nameof(XCurve)) {
+                throw new FormatException("Invalid XCurve data.");
+            }
+        }
+
+        /// <inheritdoc/>
+        public override string ToBase64() => ToBase64String(nameof(XCurve));
     }
 }

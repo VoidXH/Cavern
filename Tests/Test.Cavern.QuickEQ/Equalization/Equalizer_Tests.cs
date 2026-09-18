@@ -116,4 +116,46 @@ public class Equalizer_Tests {
             Assert.AreEqual(bands[i].Gain, bandGains[i], Constants.delta);
         }
     }
+
+    /// <summary>
+    /// Tests if <see cref="Equalizer.FromBase64(string)"/> can deserialize a flat equalizer.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void FromBase64Flat() {
+        Equalizer original = new Equalizer();
+        original.AddBand(new Band(1000, 0));
+        string base64 = original.ToBase64();
+        Equalizer deserialized = new Equalizer();
+        deserialized.FromBase64(base64);
+        Assert.AreEqual(1, deserialized.Bands.Count);
+        Assert.AreEqual(0, deserialized.Bands[0].Gain, Constants.delta);
+    }
+
+    /// <summary>
+    /// Tests if <see cref="Equalizer.ToBase64"/> produces a valid base64 string.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void ToBase64ProducesValidString() {
+        Equalizer equalizer = Create(20, 20000, 100, 10);
+        string base64 = equalizer.ToBase64();
+        Assert.IsFalse(string.IsNullOrEmpty(base64));
+        byte[] data = Convert.FromBase64String(base64);
+        Assert.IsTrue(data.Length > 0);
+    }
+
+    /// <summary>
+    /// Tests if <see cref="Equalizer.ToBase64"/> and <see cref="Equalizer.FromBase64(string)"/> round-trip correctly.
+    /// </summary>
+    [TestMethod, Timeout(1000)]
+    public void SerializationRoundTrip() {
+        Equalizer original = Create(20, 20000, 100, 10);
+        string base64 = original.ToBase64();
+        Equalizer deserialized = new Equalizer();
+        deserialized.FromBase64(base64);
+        Assert.AreEqual(original.Bands.Count, deserialized.Bands.Count);
+        for (int i = 0; i < original.Bands.Count; i++) {
+            Assert.AreEqual(original.Bands[i].Frequency, deserialized.Bands[i].Frequency, Constants.delta);
+            Assert.AreEqual(original.Bands[i].Gain, deserialized.Bands[i].Gain, Constants.delta);
+        }
+    }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
@@ -18,6 +18,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <summary>
         /// EQ curve with a bass bump at custom gain for punch emphasis.
         /// </summary>
+        /// <param name="gain">Bass bump gain in decibels</param>
         public Punch(double gain) => Gain = gain / 2;
 
         /// <inheritdoc/>
@@ -60,5 +61,18 @@ namespace Cavern.QuickEQ.EQCurves {
             }
             return curve;
         }
+
+        /// <inheritdoc/>
+        public override void FromBase64(string source) {
+            string data = FromBase64String(source);
+            string[] parts = data.Split('|');
+            if (parts.Length != 2 || parts[0] != nameof(Punch)) {
+                throw new FormatException("Invalid Punch curve data.");
+            }
+            Gain = double.Parse(parts[1]);
+        }
+
+        /// <inheritdoc/>
+        public override string ToBase64() => ToBase64String($"{nameof(Punch)}|{Gain}");
     }
 }

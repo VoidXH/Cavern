@@ -82,7 +82,7 @@ namespace Cavern {
         /// <param name="LFE">True for channels carrying only Low Frequency Effects</param>
         public Channel(Vector3 location, bool LFE) {
             lfe = LFE;
-            var normalized = location.Normalized();
+            Vector3 normalized = location.Normalized();
             Y = MathF.Atan2(normalized.X, normalized.Z) * VectorExtensions.Rad2Deg;
             while (Y > 180) {
                 Y -= 360;

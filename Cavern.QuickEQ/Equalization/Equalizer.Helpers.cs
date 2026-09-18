@@ -1,6 +1,26 @@
-﻿namespace Cavern.QuickEQ.Equalization {
+﻿using System;
+using System.IO;
+
+namespace Cavern.QuickEQ.Equalization {
     // Helper functions for handling Equalizers more easily
     partial class Equalizer {
+        /// <inheritdoc/>
+        public void FromBase64(string source) {
+            byte[] data = Convert.FromBase64String(source);
+            MemoryStream ms = new MemoryStream(data);
+            using BinaryReader reader = new BinaryReader(ms);
+            BinaryDeserialize(reader);
+        }
+
+        /// <inheritdoc/>
+        public string ToBase64() {
+            MemoryStream ms = new MemoryStream();
+            using (BinaryWriter writer = new BinaryWriter(ms)) {
+                BinarySerialize(writer);
+            }
+            return Convert.ToBase64String(ms.ToArray());
+        }
+
         /// <summary>
         /// Get the band index range corresponding to the selected frequency limits (both inclusive).
         /// </summary>

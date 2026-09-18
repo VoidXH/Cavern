@@ -1,4 +1,7 @@
-﻿using Cavern.QuickEQ.Equalization;
+using System;
+
+using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
@@ -19,5 +22,17 @@ namespace Cavern.QuickEQ.EQCurves {
             target.Normalize(500, 10000);
             return target;
         }
+
+        /// <inheritdoc/>
+        public override void FromBase64(string source) => throw new NotSupportedException(
+            "Smoother cannot be deserialized because it depends on frequency response measurements.");
+
+        /// <inheritdoc/>
+        public override string ToBase64() => throw new NotSupportedException(
+            "Smoother cannot be serialized because it depends on frequency response measurements.");
+
+        /// <summary>
+        /// Deserialize a Smoother curve from base64 data.
+        /// </summary>
     }
 }

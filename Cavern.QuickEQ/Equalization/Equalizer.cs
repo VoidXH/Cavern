@@ -9,7 +9,7 @@ namespace Cavern.QuickEQ.Equalization {
     /// <summary>
     /// Equalizer data collector and exporter.
     /// </summary>
-    public sealed partial class Equalizer : ICloneable {
+    public sealed partial class Equalizer : ICloneable, IBase64Serializable {
         /// <summary>
         /// Bands that make up this equalizer.
         /// </summary>

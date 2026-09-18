@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
@@ -11,7 +11,9 @@ namespace Cavern.QuickEQ.EQCurves {
         /// </summary>
         public float trebleSuppression = 3;
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Get the curve's gain in decibels at a given frequency.
+        /// </summary>
         public override double this[double frequency] {
             get {
                 if (frequency < 1000) {
@@ -58,6 +60,19 @@ namespace Cavern.QuickEQ.EQCurves {
             }
             return curve;
         }
+
+        /// <inheritdoc/>
+        public override void FromBase64(string source) {
+            string data = FromBase64String(source);
+            string[] parts = data.Split('|');
+            if (parts.Length != 2 || parts[0] != nameof(TrebleSuppressingCurve)) {
+                throw new FormatException("Invalid TrebleSuppressingCurve data.");
+            }
+            trebleSuppression = float.Parse(parts[1]);
+        }
+
+        /// <inheritdoc/>
+        public override string ToBase64() => ToBase64String($"{nameof(TrebleSuppressingCurve)}|{trebleSuppression}");
 
         /// <summary>
         /// Hardcoded log10(1000) (high knee position on log scale).

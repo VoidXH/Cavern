@@ -1,4 +1,7 @@
-﻿using Cavern.QuickEQ.Equalization;
+using System;
+
+using Cavern.QuickEQ.Equalization;
+using Cavern.Utilities;
 
 namespace Cavern.QuickEQ.EQCurves {
     /// <summary>
@@ -8,7 +11,7 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <summary>
         /// Equalization source.
         /// </summary>
-        readonly Equalizer eq;
+        Equalizer eq;
 
         /// <summary>
         /// Create a custom EQ curve from a source stored as an Equalier.
@@ -55,5 +58,19 @@ namespace Cavern.QuickEQ.EQCurves {
         /// <remarks>For uses where gain is not needed, use <see cref="GenerateLogCurve(double, double, int)"/>, it's faster.</remarks>
         public override float[] GenerateLogCurve(double startFreq, double endFreq, int length, float gain) =>
             GenerateLogCurveOptimized(startFreq, endFreq, length, gain);
+
+        /// <inheritdoc/>
+        public override void FromBase64(string source) {
+            string data = FromBase64String(source);
+            string[] parts = data.Split('|', 2);
+            if (parts.Length != 2 || parts[0] != nameof(Custom)) {
+                throw new FormatException("Invalid Custom curve data.");
+            }
+            eq = new Equalizer();
+            eq.FromBase64(parts[1]);
+        }
+
+        /// <inheritdoc/>
+        public override string ToBase64() => ToBase64String($"{nameof(Custom)}|{eq.ToBase64()}");
     }
 }

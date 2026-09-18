@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using Cavern.QuickEQ.Equalization;
 
@@ -23,5 +23,19 @@ namespace Cavern.QuickEQ.EQCurves {
             average.Limit(20, 200);
             return Math.Clamp((int)(average.PeakGain + .5), 3, 10);
         }
+
+        /// <inheritdoc/>
+        public override void FromBase64(string source) {
+            string data = FromBase64String(source);
+            string[] parts = data.Split('|');
+            if (parts.Length != 3 || parts[0] != nameof(AutoRoomCurve)) {
+                throw new FormatException("Invalid AutoRoomCurve data.");
+            }
+            trebleSuppression = float.Parse(parts[1]);
+            rise = float.Parse(parts[2]);
+        }
+
+        /// <inheritdoc/>
+        public override string ToBase64() => ToBase64String($"{nameof(AutoRoomCurve)}|{trebleSuppression}|{rise}");
     }
 }
