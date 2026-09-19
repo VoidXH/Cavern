@@ -45,7 +45,7 @@ namespace Cavern.Format.FilterSet {
             FilterSetTarget.DiracLiveBassControl => null,
             FilterSetTarget.DiracLiveBassControlCombined => null,
             FilterSetTarget.JLAudioTun => "JL Audio TüN",
-            FilterSetTarget.MultEQX => "MultEQ-X - MQX file",
+            FilterSetTarget.MultEQX => null,
             FilterSetTarget.MultEQXRaw => "MultEQ-X - peaking EQ",
             FilterSetTarget.MultEQXTarget => "MultEQ-X - filter curves",
             FilterSetTarget.MultEQXT32 => "MultEQ XT32",
