@@ -101,7 +101,7 @@ namespace Cavern.Utilities.Threading {
             }
             taskWaiter.Wait();
             if (exception != null) {
-                throw exception;
+                throw new OperationCanceledException("Parallel operation failed.", exception);
             }
         }
 

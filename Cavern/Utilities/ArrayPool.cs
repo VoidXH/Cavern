@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Cavern.Utilities {
     /// <summary>
@@ -32,12 +33,8 @@ namespace Cavern.Utilities {
         /// Get an array to work with.
         /// </summary>
         public T[] Lease() {
-            lock (this) {
-                if (caches.Count == 0) {
-                    return new T[Size];
-                } else {
-                    return caches.Pop();
-                }
+            lock (locker) {
+                return caches.Count == 0 ? (new T[Size]) : caches.Pop();
             }
         }
 
@@ -45,6 +42,10 @@ namespace Cavern.Utilities {
         /// Store the <paramref name="cache"/> for later reuse.
         /// </summary>
         public void Return(T[] cache) {
+            if (cache == null) {
+                throw new ArgumentNullException(nameof(cache));
+            }
+
             lock (locker) {
                 caches.Push(cache);
             }
@@ -54,6 +55,12 @@ namespace Cavern.Utilities {
         /// Store the <paramref name="cache"/> for later reuse.
         /// </summary>
         public void Return(T[][] cache) {
+            for (int i = 0; i < cache.Length; i++) {
+                if (cache[i] == null) {
+                    throw new ArgumentNullException($"{nameof(cache)}[{i}]");
+                }
+            }
+
             lock (locker) {
                 for (int i = 0; i < cache.Length; i++) {
                     caches.Push(cache[i]);
