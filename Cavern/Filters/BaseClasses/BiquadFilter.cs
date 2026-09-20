@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Xml.Serialization;
 
 using Cavern.Filters.Interfaces;
 using Cavern.Filters.Utilities;
@@ -13,7 +12,7 @@ namespace Cavern.Filters {
     /// <summary>
     /// Simple first-order biquad filter.
     /// </summary>
-    public abstract partial class BiquadFilter : Filter, IEqualizerAPOFilter, ILocalizableToString, IResettableFilter, ISampleRateDependentFilter, IXmlSerializable {
+    public abstract partial class BiquadFilter : Filter, IEqualizerAPOFilter, ILocalizableToString, IResettableFilter, ISampleRateDependentFilter {
         /// <inheritdoc/>
         [IgnoreDataMember]
         public int SampleRate {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cavern.Utilities {
+﻿namespace Cavern.Utilities {
     /// <summary>
     /// An object that can be serialized to and deserialized from a base64 string.
     /// </summary>
